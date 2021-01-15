@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546132F7B50
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEEF2F7B4D
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733107AbhAONA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:00:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39938 "EHLO mail.kernel.org"
+        id S1732602AbhAONAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 08:00:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733106AbhAOMdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:33:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2D56238E3;
-        Fri, 15 Jan 2021 12:33:01 +0000 (UTC)
+        id S1733119AbhAOMdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:33:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 211C723136;
+        Fri, 15 Jan 2021 12:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713982;
-        bh=PJzgqFqKZVgFLlgeDp7lTZbFkIcGuHXKZypxC+ix11k=;
+        s=korg; t=1610713984;
+        bh=kXkmpOb9cuil0mUV6rMG9o25V7UONvMlHxshH1L7tiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVKN2VkSayjor7AKv3ESVoT/mLbJL4nk6mEsmh+/Lp+myPz8BKyxr23nCjT819ZcD
-         rAhWmKpvHecDRQ5aZWWGHJ13tdfAsgCFtZQ8G1VCakszYFIvzU+hrWYEOHe6S9hWVT
-         RldEZtYun4aV8v3DlLzh+dKmuVaImGI7edpic1to=
+        b=mThs41ZsNBnil0YaXgBIZ+HxBdkQEd5UdAqdN2JM/p/cDxriXC9OPvtzzfB+UBGXR
+         OAoyl62RQPLdnYe7NcRzQef19EXa7x1y5uLskFWpRJJ31FyINJNE+0fjUUFnP0L/KM
+         0Ju2OwnZM5OH3d1vW45IMeHzJlF8wphcKj75rZUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 4.19 37/43] net/mlx5e: Fix two double free cases
-Date:   Fri, 15 Jan 2021 13:28:07 +0100
-Message-Id: <20210115121958.840039375@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 38/43] regmap: debugfs: Fix a memory leak when calling regmap_attach_dev
+Date:   Fri, 15 Jan 2021 13:28:08 +0100
+Message-Id: <20210115121958.889683670@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
 References: <20210115121957.037407908@linuxfoundation.org>
@@ -40,45 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-commit 7a6eb072a9548492ead086f3e820e9aac71c7138 upstream.
+commit cffa4b2122f5f3e53cf3d529bbc74651f95856d5 upstream.
 
-mlx5e_create_ttc_table_groups() frees ft->g on failure of
-kvzalloc(), but such failure will be caught by its caller
-in mlx5e_create_ttc_table() and ft->g will be freed again
-in mlx5e_destroy_flow_table(). The same issue also occurs
-in mlx5e_create_ttc_table_groups(). Set ft->g to NULL after
-kfree() to avoid double free.
+After initializing the regmap through
+syscon_regmap_lookup_by_compatible, then regmap_attach_dev to the
+device, because the debugfs_name has been allocated, there is no
+need to redistribute it again
 
-Fixes: 7b3722fa9ef6 ("net/mlx5e: Support RSS for GRE tunneled packets")
-Fixes: 33cfaaa8f36f ("net/mlx5e: Split the main flow steering table")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+unreferenced object 0xd8399b80 (size 64):
+  comm "swapper/0", pid 1, jiffies 4294937641 (age 278.590s)
+  hex dump (first 32 bytes):
+	64 75 6d 6d 79 2d 69 6f 6d 75 78 63 2d 67 70 72
+dummy-iomuxc-gpr
+	40 32 30 65 34 30 30 30 00 7f 52 5b d8 7e 42 69
+@20e4000..R[.~Bi
+  backtrace:
+    [<ca384d6f>] kasprintf+0x2c/0x54
+    [<6ad3bbc2>] regmap_debugfs_init+0xdc/0x2fc
+    [<bc4181da>] __regmap_init+0xc38/0xd88
+    [<1f7e0609>] of_syscon_register+0x168/0x294
+    [<735e8766>] device_node_get_regmap+0x6c/0x98
+    [<d96c8982>] imx6ul_init_machine+0x20/0x88
+    [<0456565b>] customize_machine+0x1c/0x30
+    [<d07393d8>] do_one_initcall+0x80/0x3ac
+    [<7e584867>] kernel_init_freeable+0x170/0x1f0
+    [<80074741>] kernel_init+0x8/0x120
+    [<285d6f28>] ret_from_fork+0x14/0x20
+    [<00000000>] 0x0
+
+Fixes: 9b947a13e7f6 ("regmap: use debugfs even when no device")
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Link: https://lore.kernel.org/r/20201229105046.41984-1-xiaolei.wang@windriver.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/regmap/regmap-debugfs.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -893,6 +893,7 @@ static int mlx5e_create_ttc_table_groups
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -579,18 +579,25 @@ void regmap_debugfs_init(struct regmap *
+ 		devname = dev_name(map->dev);
+ 
+ 	if (name) {
+-		map->debugfs_name = kasprintf(GFP_KERNEL, "%s-%s",
++		if (!map->debugfs_name) {
++			map->debugfs_name = kasprintf(GFP_KERNEL, "%s-%s",
+ 					      devname, name);
++			if (!map->debugfs_name)
++				return;
++		}
+ 		name = map->debugfs_name;
+ 	} else {
+ 		name = devname;
  	}
  
-@@ -1033,6 +1034,7 @@ static int mlx5e_create_inner_ttc_table_
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
- 	}
+ 	if (!strcmp(name, "dummy")) {
+-		kfree(map->debugfs_name);
++		if (!map->debugfs_name)
++			kfree(map->debugfs_name);
  
+ 		map->debugfs_name = kasprintf(GFP_KERNEL, "dummy%d",
+ 						dummy_index);
++		if (!map->debugfs_name)
++				return;
+ 		name = map->debugfs_name;
+ 		dummy_index++;
+ 	}
 
 
