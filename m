@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B9A2F7A91
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 152F92F79ED
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387636AbhAOMvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:51:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42884 "EHLO mail.kernel.org"
+        id S1731755AbhAOMiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:38:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387790AbhAOMgA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:36:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDB18223E0;
-        Fri, 15 Jan 2021 12:35:44 +0000 (UTC)
+        id S2387616AbhAOMis (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:38:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 370322333E;
+        Fri, 15 Jan 2021 12:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714145;
-        bh=w/CCngwlvQXfR6R9z2V8zA7OSINpshvyHzofDEeKu5M=;
+        s=korg; t=1610714312;
+        bh=pYvsIQ3m+v4HkQIbMDv6EVsgtV4Q99P4GNDs7iJxQUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYsWm8NKp6FzqKBTJSBxHIXdUtetVYS+pDRws9kQ3v8A7o45JFEYIP8GW7tLb1AmT
-         V49ru03U+n1Gr5IE9Zjbihvaxeq/9HyCrd4IexcDQ68SgFVD1fhCU09+k7HO+EOttN
-         +lc23JKgQ5cwcR/XXNlFnyqypSk0ibpCYZcEL8r0=
+        b=hz8xbvHh6po6NY4ixLxU7d8KxlvItIbg4MGBGQqEq7JRJxBjToehupA+TJayL0pQV
+         YEAAfsbt9/xRsZL7rge8AZBvOgo9WuHhrGFb4G1vSR1cS2cU2aG2zT1VVEoF3IKHtd
+         EjjEceTk5JYSREWzkubrxx0w2/fuWIEcJ+JcYu8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 50/62] lightnvm: select CONFIG_CRC32
-Date:   Fri, 15 Jan 2021 13:28:12 +0100
-Message-Id: <20210115122000.806755044@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 080/103] iommu/vt-d: Fix misuse of ALIGN in qi_flush_piotlb()
+Date:   Fri, 15 Jan 2021 13:28:13 +0100
+Message-Id: <20210115122009.894424636@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-commit 19cd3403cb0d522dd5e10188eef85817de29e26e upstream.
+commit 1efd17e7acb6692bffc6c58718f41f27fdfd62f5 upstream.
 
-Without CRC32 support, this fails to link:
+Use IS_ALIGNED() instead. Otherwise, an unaligned address will be ignored.
 
-arm-linux-gnueabi-ld: drivers/lightnvm/pblk-init.o: in function `pblk_init':
-pblk-init.c:(.text+0x2654): undefined reference to `crc32_le'
-arm-linux-gnueabi-ld: drivers/lightnvm/pblk-init.o: in function `pblk_exit':
-pblk-init.c:(.text+0x2a7c): undefined reference to `crc32_le'
-
-Fixes: a4bd217b4326 ("lightnvm: physical block device (pblk) target")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 33cd6e642d6a ("iommu/vt-d: Flush PASID-based iotlb for iova over first level")
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20201231005323.2178523-1-baolu.lu@linux.intel.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/lightnvm/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel/dmar.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/lightnvm/Kconfig
-+++ b/drivers/lightnvm/Kconfig
-@@ -19,6 +19,7 @@ if NVM
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1461,8 +1461,8 @@ void qi_flush_piotlb(struct intel_iommu
+ 		int mask = ilog2(__roundup_pow_of_two(npages));
+ 		unsigned long align = (1ULL << (VTD_PAGE_SHIFT + mask));
  
- config NVM_PBLK
- 	tristate "Physical Block Device Open-Channel SSD target"
-+	select CRC32
- 	help
- 	  Allows an open-channel SSD to be exposed as a block device to the
- 	  host. The target assumes the device exposes raw flash and must be
+-		if (WARN_ON_ONCE(!ALIGN(addr, align)))
+-			addr &= ~(align - 1);
++		if (WARN_ON_ONCE(!IS_ALIGNED(addr, align)))
++			addr = ALIGN_DOWN(addr, align);
+ 
+ 		desc.qw0 = QI_EIOTLB_PASID(pasid) |
+ 				QI_EIOTLB_DID(did) |
 
 
