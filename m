@@ -2,100 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A162F7A0F
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A25A2F7918
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733236AbhAOMiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:38:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
+        id S1732576AbhAOMbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:31:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388150AbhAOMiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:38:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 722A1221F7;
-        Fri, 15 Jan 2021 12:38:03 +0000 (UTC)
+        id S1727700AbhAOMbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2D60236FB;
+        Fri, 15 Jan 2021 12:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714283;
-        bh=E9yV9H5V0DohqWW+sryS238VRVXE6o6G4E9pDVgrqZo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OY2c+twudyHbIF68Ge3a5wa9UESyPJdmaExYtxn0ks6h9sjbAZdcgOl/IugEvTpK3
-         Hemvxx5cp07yizDnGeqj+wmqfEFpZwxitxO3FemO660ap0z9zlsNxbSi/PlstB/Yss
-         UldJHkH0CQ4i2lSlqXBULSZTcRflXLTF0w30RXx0=
+        s=korg; t=1610713797;
+        bh=ZFIyyunQqDw20/DH0NFeOcsXXInaOgujlJLJwmFfQ9M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DQI4/JwUK8XPDLRKXrwibrVQJqWWNO5rhKYVw3ax/L3oQD4XA8WCzil/L/aOJsH9i
+         Y8d9j2AfUkrjBhtI33s0ze9grkCRh7wJSI18nx2cYAoHIesSyLRcnIMAsobcdKv9zI
+         ouLD8irPVuLajIF/Ccc2QBjudg5F2BbKkgDYvTYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        Ayush Sawal <ayush.sawal@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 035/103] chtls: Fix chtls resources release sequence
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/18] 4.4.252-rc1 review
 Date:   Fri, 15 Jan 2021 13:27:28 +0100
-Message-Id: <20210115122007.758041210@linuxfoundation.org>
+Message-Id: <20210115121955.112329537@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.252-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.252-rc1
+X-KernelTest-Deadline: 2021-01-17T12:19+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+This is the start of the stable review cycle for the 4.4.252 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 15ef6b0e30b354253e2c10b3836bc59767eb162b ]
+Responses should be made by Sun, 17 Jan 2021 12:19:42 +0000.
+Anything received after that time might be too late.
 
-CPL_ABORT_RPL is sent after releasing the resources by calling
-chtls_release_resources(sk); and chtls_conn_done(sk);
-eventually causing kernel panic. Fixing it by calling release
-in appropriate order.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.252-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+thanks,
 
---- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
-+++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
-@@ -2057,9 +2057,9 @@ static void bl_abort_syn_rcv(struct sock
- 	queue = csk->txq_idx;
- 
- 	skb->sk	= NULL;
--	do_abort_syn_rcv(child, lsk);
- 	chtls_send_abort_rpl(child, skb, BLOG_SKB_CB(skb)->cdev,
- 			     CPL_ABORT_NO_RST, queue);
-+	do_abort_syn_rcv(child, lsk);
- }
- 
- static int abort_syn_rcv(struct sock *sk, struct sk_buff *skb)
-@@ -2089,8 +2089,8 @@ static int abort_syn_rcv(struct sock *sk
- 	if (!sock_owned_by_user(psk)) {
- 		int queue = csk->txq_idx;
- 
--		do_abort_syn_rcv(sk, psk);
- 		chtls_send_abort_rpl(sk, skb, cdev, CPL_ABORT_NO_RST, queue);
-+		do_abort_syn_rcv(sk, psk);
- 	} else {
- 		skb->sk = sk;
- 		BLOG_SKB_CB(skb)->backlog_rcv = bl_abort_syn_rcv;
-@@ -2134,12 +2134,12 @@ static void chtls_abort_req_rss(struct s
- 		if (sk->sk_state == TCP_SYN_RECV && !abort_syn_rcv(sk, skb))
- 			return;
- 
--		chtls_release_resources(sk);
--		chtls_conn_done(sk);
- 	}
- 
- 	chtls_send_abort_rpl(sk, skb, BLOG_SKB_CB(skb)->cdev,
- 			     rst_status, queue);
-+	chtls_release_resources(sk);
-+	chtls_conn_done(sk);
- }
- 
- static void chtls_abort_rpl_rss(struct sock *sk, struct sk_buff *skb)
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.252-rc1
+
+Vasily Averin <vvs@virtuozzo.com>
+    net: drop bogus skb with CHECKSUM_PARTIAL and offset beyond end of trimmed packet
+
+Ming Lei <ming.lei@redhat.com>
+    block: fix use-after-free in disk_part_iter_next
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    iommu/intel: Fix memleak in intel_irq_remapping_alloc
+
+Arnd Bergmann <arnd@arndb.de>
+    block: rsxx: select CONFIG_CRC32
+
+Arnd Bergmann <arnd@arndb.de>
+    wil6210: select CONFIG_CRC32
+
+Colin Ian King <colin.king@canonical.com>
+    cpufreq: powernow-k8: pass policy rather than use cpufreq_cpu_get()
+
+Lukas Wunner <lukas@wunner.de>
+    spi: pxa2xx: Fix use-after-free on unbind
+
+Richard Weinberger <richard@nod.at>
+    ubifs: wbuf: Don't leak kernel memory to flash
+
+Nick Desaulniers <ndesaulniers@google.com>
+    vmlinux.lds.h: Add PGO and AutoFDO input sections
+
+Florian Westphal <fw@strlen.de>
+    net: fix pmtu check in nopmtudisc mode
+
+Florian Westphal <fw@strlen.de>
+    net: ip: always refragment ip defragmented packets
+
+Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+    powerpc: Fix incorrect stw{, ux, u, x} instructions in __set_pte_at
+
+David Disseldorp <ddiss@suse.de>
+    scsi: target: Fix XCOPY NAA identifier lookup
+
+Mike Christie <mchristi@redhat.com>
+    xcopy: loop over devices using idr helper
+
+David Disseldorp <ddiss@suse.de>
+    target: use XCOPY segment descriptor CSCD IDs
+
+David Disseldorp <ddiss@suse.de>
+    target: simplify XCOPY wwn->se_dev lookup helper
+
+David Disseldorp <ddiss@suse.de>
+    target: bounds check XCOPY segment descriptor list
+
+David Disseldorp <ddiss@suse.de>
+    target: add XCOPY target/segment desc sense codes
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |   4 +-
+ arch/powerpc/include/asm/pgtable.h       |   4 +-
+ block/genhd.c                            |   9 +-
+ drivers/block/Kconfig                    |   1 +
+ drivers/cpufreq/powernow-k8.c            |   9 +-
+ drivers/iommu/intel_irq_remapping.c      |   2 +
+ drivers/net/wireless/ath/wil6210/Kconfig |   1 +
+ drivers/spi/spi-pxa2xx.c                 |   3 +-
+ drivers/target/target_core_transport.c   |  24 ++++
+ drivers/target/target_core_xcopy.c       | 220 +++++++++++++++++++------------
+ drivers/target/target_core_xcopy.h       |   1 +
+ fs/ubifs/io.c                            |  13 +-
+ include/asm-generic/vmlinux.lds.h        |   5 +-
+ include/target/target_core_base.h        |   4 +
+ net/core/skbuff.c                        |   6 +
+ net/ipv4/ip_output.c                     |   2 +-
+ net/ipv4/ip_tunnel.c                     |  10 +-
+ 17 files changed, 209 insertions(+), 109 deletions(-)
 
 
