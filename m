@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CAF2F79F2
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C482F7A81
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387848AbhAOMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:39:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46540 "EHLO mail.kernel.org"
+        id S2387783AbhAOMf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:35:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387733AbhAOMjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:39:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 402F8224F9;
-        Fri, 15 Jan 2021 12:38:23 +0000 (UTC)
+        id S2387777AbhAOMf4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4621723403;
+        Fri, 15 Jan 2021 12:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714303;
+        s=korg; t=1610714140;
         bh=GazcSFtBD+4KIXKegw41jIiB/HPVPLouzSiRmbzdq6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P65qHYN2ymBvhYsNvhu2zH5hdTMCEbMM4pG+B0z1KxE7ZYelwkj/kPrfTmDqG/Az3
-         ohVVHdyiA0qKLwDQerB+8XPwwF/mIebJe6J+2l/okrZn3uJzFpAP24PI7aDme/7MFj
-         gbwAMUXp5SJsw4oky4uWo9AmVM6OtHTuaWL4KpJo=
+        b=Hh/im58jHEb9FyuWtJ7RUhOnBPIM4ZHN6edog1fDURCtec8BxFd5uAPhz77Ju2eRx
+         2rAfp0iXSoaOigcufnd5ZZKG6K4emXOjel3QajX7WOG/NGqJf0D5cYd6pLH6quo0eV
+         qVzsaD1H6Gvq1OBNMBmrxwst2kTs/J/qAi36/iNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 076/103] wil6210: select CONFIG_CRC32
-Date:   Fri, 15 Jan 2021 13:28:09 +0100
-Message-Id: <20210115122009.703493209@linuxfoundation.org>
+Subject: [PATCH 5.4 48/62] wil6210: select CONFIG_CRC32
+Date:   Fri, 15 Jan 2021 13:28:10 +0100
+Message-Id: <20210115122000.713244875@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
