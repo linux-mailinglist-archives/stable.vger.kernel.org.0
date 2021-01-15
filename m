@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 356E52F7BB4
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 235512F7B7E
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732625AbhAOMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:31:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37412 "EHLO mail.kernel.org"
+        id S1731567AbhAOMcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:32:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732618AbhAOMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEA5A238E3;
-        Fri, 15 Jan 2021 12:30:23 +0000 (UTC)
+        id S1733010AbhAOMco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:32:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 055432336F;
+        Fri, 15 Jan 2021 12:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713824;
-        bh=7DhH4CeaiM1Ol8TRHyRqIFvNkZi+WpYGPYti91uLLGk=;
+        s=korg; t=1610713949;
+        bh=6gvE6nzPjcWnoQZJOaFtUVrfogYLaWHJndWXDwnj+P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIi6/ky/0FhiKEUftAoszCNhsPjB0Bbmnv6ooO5jiHO7bGcQ9FgW6YTBgZYmOrbRz
-         PrGkNdesvZiOYmcUtcDTMoeSXw991/2+zORT9fjXfgJOvOudLFnogY1eyqpWAtYubY
-         qTYFxE57lspVpwJNryU6irxbzakOPu4eCm3vWK8g=
+        b=FUaRu6XbqvOUDTQhyd1bBPWFz+U80gQ+y8AbNd7R/PDSyg1UWglVjrxi9AEa5HiJ5
+         4ipvwK0J/6v9ceQIiO0IjnjzYXNQJeRPo6zLTXeniYKmeMpK7ZUIG4DLDnfZtezFX9
+         7I0x5JN/Fj+FgxXvn0+fgNLU1Tw6OnCjad2QJaPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 20/25] iommu/intel: Fix memleak in intel_irq_remapping_alloc
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 21/43] iio: imu: st_lsm6dsx: flip irq return logic
 Date:   Fri, 15 Jan 2021 13:27:51 +0100
-Message-Id: <20210115121957.682602102@linuxfoundation.org>
+Message-Id: <20210115121958.071514885@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
-References: <20210115121956.679956165@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Sean Nyekjaer <sean@geanix.com>
 
-commit ff2b46d7cff80d27d82f7f3252711f4ca1666129 upstream.
+commit ec76d918f23034f9f662539ca9c64e2ae3ba9fba upstream
 
-When irq_domain_get_irq_data() or irqd_cfg() fails
-at i == 0, data allocated by kzalloc() has not been
-freed before returning, which leads to memleak.
+No need for using reverse logic in the irq return,
+fix this by flip things around.
 
-Fixes: b106ee63abcc ("irq_remapping/vt-d: Enhance Intel IR driver to support hierarchical irqdomains")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210105051837.32118-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iommu/intel_irq_remapping.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -1350,6 +1350,8 @@ static int intel_irq_remapping_alloc(str
- 		irq_data = irq_domain_get_irq_data(domain, virq + i);
- 		irq_cfg = irqd_cfg(irq_data);
- 		if (!irq_data || !irq_cfg) {
-+			if (!i)
-+				kfree(data);
- 			ret = -EINVAL;
- 			goto out_free_data;
- 		}
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -481,7 +481,7 @@ static irqreturn_t st_lsm6dsx_handler_th
+ 	count = st_lsm6dsx_read_fifo(hw);
+ 	mutex_unlock(&hw->fifo_lock);
+ 
+-	return !count ? IRQ_NONE : IRQ_HANDLED;
++	return count ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+ static int st_lsm6dsx_buffer_preenable(struct iio_dev *iio_dev)
 
 
