@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E0CC2F7B86
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:04:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965AC2F7B37
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732274AbhAONCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:02:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38812 "EHLO mail.kernel.org"
+        id S1733238AbhAOMdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:33:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730547AbhAOMc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0C72336F;
-        Fri, 15 Jan 2021 12:31:46 +0000 (UTC)
+        id S1733235AbhAOMdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:33:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8A623356;
+        Fri, 15 Jan 2021 12:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713907;
-        bh=KKI8c2MnX3T8Cm0yAMypUIKdS5rZfUM5pbM2z1a3cWc=;
+        s=korg; t=1610714008;
+        bh=s5rdMnDuSkDqSsdKS3Kfx41GvoHWbEtG2/DA60iC/qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Esm9vDJTxF1aHESU0VTrBw7l18C29vTt/j1A+Ndaujgjyy41hwKsujIXDg+1mRaOd
-         DIKDWT9seaHu0/suQcz4yTBDdfX5C+/eRwzCr7NC5Gaa+EAfKBzlTjgQE3QPBrmLL5
-         Fd8j9zKGw6C6NwOZBUmTjDAaCXrop+kUHKsOLNUI=
+        b=P1a5CvKAfD0i9VDK7F9WDKhrow8PmqVgdQWId6pjqyEQJ+Kv1iLjtV5AmXr6++DL8
+         7+RrKX4VUOU2tyO0wB4qTIu99PTKLEwMm4tZtR+/jSkhRwvlMY4DHokbkFUSjDzGbr
+         5cbB3JtR96TnSPxUinQZig64sHr6WcJA3IbBgWks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 4.14 24/28] net/mlx5e: Fix two double free cases
-Date:   Fri, 15 Jan 2021 13:28:01 +0100
-Message-Id: <20210115121957.959826861@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 32/43] wil6210: select CONFIG_CRC32
+Date:   Fri, 15 Jan 2021 13:28:02 +0100
+Message-Id: <20210115121958.603484102@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
-References: <20210115121956.731354372@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 7a6eb072a9548492ead086f3e820e9aac71c7138 upstream.
+commit e186620d7bf11b274b985b839c38266d7918cc05 upstream.
 
-mlx5e_create_ttc_table_groups() frees ft->g on failure of
-kvzalloc(), but such failure will be caught by its caller
-in mlx5e_create_ttc_table() and ft->g will be freed again
-in mlx5e_destroy_flow_table(). The same issue also occurs
-in mlx5e_create_ttc_table_groups(). Set ft->g to NULL after
-kfree() to avoid double free.
+Without crc32, the driver fails to link:
 
-Fixes: 7b3722fa9ef6 ("net/mlx5e: Support RSS for GRE tunneled packets")
-Fixes: 33cfaaa8f36f ("net/mlx5e: Split the main flow steering table")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+arm-linux-gnueabi-ld: drivers/net/wireless/ath/wil6210/fw.o: in function `wil_fw_verify':
+fw.c:(.text+0x74c): undefined reference to `crc32_le'
+arm-linux-gnueabi-ld: drivers/net/wireless/ath/wil6210/fw.o:fw.c:(.text+0x758): more undefined references to `crc32_le' follow
+
+Fixes: 151a9706503f ("wil6210: firmware download")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/wil6210/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -961,6 +961,7 @@ static int mlx5e_create_inner_ttc_table_
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
- 	}
- 
-@@ -1181,6 +1182,7 @@ static int mlx5e_create_l2_table_groups(
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
- 	}
- 
+--- a/drivers/net/wireless/ath/wil6210/Kconfig
++++ b/drivers/net/wireless/ath/wil6210/Kconfig
+@@ -1,6 +1,7 @@
+ config WIL6210
+ 	tristate "Wilocity 60g WiFi card wil6210 support"
+ 	select WANT_DEV_COREDUMP
++	select CRC32
+ 	depends on CFG80211
+ 	depends on PCI
+ 	default n
 
 
