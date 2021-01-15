@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C0A2F7414
+	by mail.lfdr.de (Postfix) with ESMTP id C0AFE2F7415
 	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 09:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732444AbhAOIMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 03:12:35 -0500
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:46507 "EHLO
+        id S1732436AbhAOIMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 03:12:37 -0500
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:55949 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732436AbhAOIMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 03:12:34 -0500
+        by vger.kernel.org with ESMTP id S1732440AbhAOIMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 03:12:36 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 88B4D19C3AAD;
-        Fri, 15 Jan 2021 03:11:28 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 15 Jan 2021 03:11:28 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id ED2ED19C3D91;
+        Fri, 15 Jan 2021 03:11:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Fri, 15 Jan 2021 03:11:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/ryxEs
-        qarSzdoqOApv+043brGEGm0ZW9Oxhvew588vA=; b=JPMnSWkQm0p18mKfN3eqKc
-        tZELJsUPwC4RcGQ8+MyV+SRDXbdzsq+/owSZMuhWNJz/3FeaFuRdQMbhevn3Jfpt
-        FMss1XIQm9gLRZQMvf6tTGYDchYIUh6km/mIxeiAY1WhaMt+aV8o18Eyiz2yc/kW
-        9Zbd/d5a+ttTX3JkuSfyS14NB6UmOF/n8zh6rIcRxR4/NYNmQ4hOctS9PpfE9dOZ
-        2AeX1chs+Xj7rTXAdQAEBI1bXZJeH643oP3eZUnHvgqIsQzPdJDeCjsVKMS0du9s
-        uxNQ1nQ6qEQh9Nm//4RAywOHpnPaxSQ2tFqbddnViJ+AAbj1RW3FjIP/haT3ZDuw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zIfw25
+        NQm9S4n8oOCzTU5gY8QPSRmpQaYoAloax4eIY=; b=efHdWxWKzwN9DSfyqEehbE
+        P6ukqASdHayx0GtHUYBHVL+NCAUC3l2BxI2oyr6u6LUU/8/jKpgJnFPiq8+td/q2
+        o246TNNLh4F9h8wteTPKWBTcckLyAhlVMkSiTngAm5zA7A4TJY7HiD/7eSOTe0Ai
+        cwKl0OkVqLtpS44jeF4Kysrj3AkNNx0Na26siEF3/iBKl8K/lIDNIbWGR6g3YcZI
+        9Vn2Fi2q+k2DKEkKEq0AGSnptsbZBi+NCFhj5R+nNjazfK55sbu15Bwhf/Ax6UOE
+        A8HLJyKuRb2F9NkMWcFFoEvQq6mescTrzLZMcAQsy76dCqZfACPhYU+5Y03pCFLA
         ==
-X-ME-Sender: <xms:ME4BYGe7u93u8bHjCKMjI0JBMoLivsVy1ADcNR-p9kPehFFTVCA1Ug>
-    <xme:ME4BYANxN3BYEFdmz7Wsxh8W4R0XZTOFS2IvwsmUwYqka13r5yJ3LpUxlJvpA_Bf-
-    DaK4PAiy9xPpA>
+X-ME-Sender: <xms:MU4BYDwELqxlqyzd8_UBjPfrmxp3VgQ7hQLUjBTeKDWXJPViTbFL9w>
+    <xme:MU4BYLTRq94Ah6R2GmzjVGykj467X5j8pPuIJVS8y1if04mX-P2BvjCzUZhRhKbT2
+    p78JJBjHsyJ7Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtddugdduudeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtddugdduudeiucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:ME4BYHgoSFfRdfPdpl7GJsAIid3FMrJQpY5HAoUn4Z4yLIOVCuKOKA>
-    <xmx:ME4BYD93mKHyfXrw9g3eC4Lu40mp7Zps3DyumD6ut40RYI20Vzf_Kw>
-    <xmx:ME4BYCskZZUJy9jAYVVnd_CqI203ivP-vGkIR5MHzIfhZj9xPJgkGw>
-    <xmx:ME4BYHWLKf_frDcnCG1KQmE4quzNC0kOzq3B_zOKNHa0rfOopchdrg>
+X-ME-Proxy: <xmx:MU4BYNVZ4I5fPqmJhjX-I3qgmkfJXZVyuIUvYQqt275ikQ1Lv-kgvQ>
+    <xmx:MU4BYNgJezGo8_6KBcQcbsfK2K1jqr6wVxH1vctDM-tLMWxi_-Kmog>
+    <xmx:MU4BYFAFnzt2-bsocTYcZeB0WL4dFfja9fmJ2SbenezqNdEcMqDCRA>
+    <xmx:MU4BYC54iHsaitK1j8urU8AykSb90qxjt32Jv6WA9K_DUJ6kmZT8TQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 36766108005B;
-        Fri, 15 Jan 2021 03:11:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] s390/qeth: fix deadlock during recovery" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9D71724005C;
+        Fri, 15 Jan 2021 03:11:29 -0500 (EST)
+Subject: FAILED: patch "[PATCH] s390/qeth: fix deadlock during recovery" failed to apply to 4.9-stable tree
 To:     jwi@linux.ibm.com, kuba@kernel.org, wintera@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 15 Jan 2021 09:11:23 +0100
-Message-ID: <1610698283811@kroah.com>
+Message-ID: <1610698283175178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
