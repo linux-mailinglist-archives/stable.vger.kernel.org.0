@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA8482F7A04
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:45:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7AC52F7AF7
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733043AbhAOMnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:43:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45834 "EHLO mail.kernel.org"
+        id S1731808AbhAOM4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:56:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388180AbhAOMib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:38:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 467E12333E;
-        Fri, 15 Jan 2021 12:37:50 +0000 (UTC)
+        id S2387474AbhAOMen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4099F207C4;
+        Fri, 15 Jan 2021 12:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714270;
-        bh=2DumoSoK0ts5kEj+K+baCwD9KOoXvoyr57lf/mVXoL4=;
+        s=korg; t=1610714067;
+        bh=qD8t3yfuxRe1FK7vPwW1t7d8isOLIsh2qYREjRYkVAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLV3SmMF8p1OyiUyS6J2XDCiky16OPOMOzIADCBRXBg+BmMLvVuWHE3IMPUItC2hT
-         C4jD2aM0+KTIsWn7hnbT6lfmktRV5BokTsymRlEUqtwX4CeyEd2qvTBM25jpl3m4xO
-         qYB2PgnBZNaKUJNFGR3FuqHvGS7uG07snyOndoVY=
+        b=WF0h0uxtF45YlHp2Bi5A46tp0uLzE2aChUzZO+WMUF33KdafUqHvgZP0egpkBU9ZA
+         UW1xjiN+XwA71nh7Kx87pnRZX6x2zAhHdmTCfZIsr9a5HcNE9u/1moaHWYyO2hc+oS
+         WT+ygFcvgNCFlk8oYQaTup2v9dhXzSNQhVnACFP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 059/103] spi: spi-geni-qcom: Fail new xfers if xfer/cancel/abort pending
-Date:   Fri, 15 Jan 2021 13:27:52 +0100
-Message-Id: <20210115122008.904751215@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 31/62] iio: imu: st_lsm6dsx: fix edge-trigger interrupts
+Date:   Fri, 15 Jan 2021 13:27:53 +0100
+Message-Id: <20210115121959.912680991@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,148 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 690d8b917bbe64772cb0b652311bcd50908aea6b upstream.
+commit 3f9bce7a22a3f8ac9d885c9d75bc45569f24ac8b upstream
 
-If we got a timeout when trying to send an abort command then it means
-that we just got 3 timeouts in a row:
+If we are using edge IRQs, new samples can arrive while processing
+current interrupt since there are no hw guarantees the irq line
+stays "low" long enough to properly detect the new interrupt.
+In this case the new sample will be missed.
+Polling FIFO status register in st_lsm6dsx_handler_thread routine
+allow us to read new samples even if the interrupt arrives while
+processing previous data and the timeslot where the line is "low"
+is too short to be properly detected.
 
-1. The original timeout that caused handle_fifo_timeout() to be
-   called.
-2. A one second timeout waiting for the cancel command to finish.
-3. A one second timeout waiting for the abort command to finish.
-
-SPI is clocked by the controller, so nothing (aside from a hardware
-fault or a totally broken sequencer) should be causing the actual
-commands to fail in hardware.  However, even though the hardware
-itself is not expected to fail (and it'd be hard to predict how we
-should handle things if it did), it's easy to hit the timeout case by
-simply blocking our interrupt handler from running for a long period
-of time.  Obviously the system is in pretty bad shape if a interrupt
-handler is blocked for > 2 seconds, but there are certainly bugs (even
-bugs in other unrelated drivers) that can make this happen.
-
-Let's make things a bit more robust against this case.  If we fail to
-abort we'll set a flag and then we'll block all future transfers until
-we have no more interrupts pending.
-
-Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20201217142842.v3.2.Ibade998ed587e070388b4bf58801f1107a40eb53@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 89ca88a7cdf2 ("iio: imu: st_lsm6dsx: support active-low interrupts")
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/5e93cda7dc1e665f5685c53ad8e9ea71dbae782d.1605378871.git.lorenzo@kernel.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: manual backport to old irq handler path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/spi/spi-geni-qcom.c |   59 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 57 insertions(+), 2 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c |   26 ++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
---- a/drivers/spi/spi-geni-qcom.c
-+++ b/drivers/spi/spi-geni-qcom.c
-@@ -83,6 +83,7 @@ struct spi_geni_master {
- 	spinlock_t lock;
- 	int irq;
- 	bool cs_flag;
-+	bool abort_failed;
- };
- 
- static int get_spi_clk_cfg(unsigned int speed_hz,
-@@ -141,8 +142,49 @@ static void handle_fifo_timeout(struct s
- 	spin_unlock_irq(&mas->lock);
- 
- 	time_left = wait_for_completion_timeout(&mas->abort_done, HZ);
--	if (!time_left)
-+	if (!time_left) {
- 		dev_err(mas->dev, "Failed to cancel/abort m_cmd\n");
-+
-+		/*
-+		 * No need for a lock since SPI core has a lock and we never
-+		 * access this from an interrupt.
-+		 */
-+		mas->abort_failed = true;
-+	}
-+}
-+
-+static bool spi_geni_is_abort_still_pending(struct spi_geni_master *mas)
-+{
-+	struct geni_se *se = &mas->se;
-+	u32 m_irq, m_irq_en;
-+
-+	if (!mas->abort_failed)
-+		return false;
-+
-+	/*
-+	 * The only known case where a transfer times out and then a cancel
-+	 * times out then an abort times out is if something is blocking our
-+	 * interrupt handler from running.  Avoid starting any new transfers
-+	 * until that sorts itself out.
-+	 */
-+	spin_lock_irq(&mas->lock);
-+	m_irq = readl(se->base + SE_GENI_M_IRQ_STATUS);
-+	m_irq_en = readl(se->base + SE_GENI_M_IRQ_EN);
-+	spin_unlock_irq(&mas->lock);
-+
-+	if (m_irq & m_irq_en) {
-+		dev_err(mas->dev, "Interrupts pending after abort: %#010x\n",
-+			m_irq & m_irq_en);
-+		return true;
-+	}
-+
-+	/*
-+	 * If we're here the problem resolved itself so no need to check more
-+	 * on future transfers.
-+	 */
-+	mas->abort_failed = false;
-+
-+	return false;
- }
- 
- static void spi_geni_set_cs(struct spi_device *slv, bool set_flag)
-@@ -158,9 +200,15 @@ static void spi_geni_set_cs(struct spi_d
- 	if (set_flag == mas->cs_flag)
- 		return;
- 
-+	pm_runtime_get_sync(mas->dev);
-+
-+	if (spi_geni_is_abort_still_pending(mas)) {
-+		dev_err(mas->dev, "Can't set chip select\n");
-+		goto exit;
-+	}
-+
- 	mas->cs_flag = set_flag;
- 
--	pm_runtime_get_sync(mas->dev);
- 	spin_lock_irq(&mas->lock);
- 	reinit_completion(&mas->cs_done);
- 	if (set_flag)
-@@ -173,6 +221,7 @@ static void spi_geni_set_cs(struct spi_d
- 	if (!time_left)
- 		handle_fifo_timeout(spi, NULL);
- 
-+exit:
- 	pm_runtime_put(mas->dev);
- }
- 
-@@ -280,6 +329,9 @@ static int spi_geni_prepare_message(stru
- 	int ret;
- 	struct spi_geni_master *mas = spi_master_get_devdata(spi);
- 
-+	if (spi_geni_is_abort_still_pending(mas))
-+		return -EBUSY;
-+
- 	ret = setup_fifo_params(spi_msg->spi, spi);
- 	if (ret)
- 		dev_err(mas->dev, "Couldn't select mode %d\n", ret);
-@@ -495,6 +547,9 @@ static int spi_geni_transfer_one(struct
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -664,13 +664,29 @@ static irqreturn_t st_lsm6dsx_handler_ir
+ static irqreturn_t st_lsm6dsx_handler_thread(int irq, void *private)
  {
- 	struct spi_geni_master *mas = spi_master_get_devdata(spi);
+ 	struct st_lsm6dsx_hw *hw = private;
+-	int count;
++	int fifo_len = 0, len;
  
-+	if (spi_geni_is_abort_still_pending(mas))
-+		return -EBUSY;
+-	mutex_lock(&hw->fifo_lock);
+-	count = hw->settings->fifo_ops.read_fifo(hw);
+-	mutex_unlock(&hw->fifo_lock);
++	/*
++	 * If we are using edge IRQs, new samples can arrive while
++	 * processing current interrupt since there are no hw
++	 * guarantees the irq line stays "low" long enough to properly
++	 * detect the new interrupt. In this case the new sample will
++	 * be missed.
++	 * Polling FIFO status register allow us to read new
++	 * samples even if the interrupt arrives while processing
++	 * previous data and the timeslot where the line is "low" is
++	 * too short to be properly detected.
++	 */
++	do {
++		mutex_lock(&hw->fifo_lock);
++		len = hw->settings->fifo_ops.read_fifo(hw);
++		mutex_unlock(&hw->fifo_lock);
+ 
+-	return count ? IRQ_HANDLED : IRQ_NONE;
++		if (len > 0)
++			fifo_len += len;
++	} while (len > 0);
 +
- 	/* Terminate and return success for 0 byte length transfer */
- 	if (!xfer->len)
- 		return 0;
++	return fifo_len ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+ static int st_lsm6dsx_buffer_preenable(struct iio_dev *iio_dev)
 
 
