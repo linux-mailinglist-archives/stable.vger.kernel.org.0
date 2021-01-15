@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02852F7A38
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 500A52F7AEA
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733029AbhAOMrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:47:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44576 "EHLO mail.kernel.org"
+        id S2387472AbhAOMeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:34:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388026AbhAOMhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFC9A221FA;
-        Fri, 15 Jan 2021 12:37:23 +0000 (UTC)
+        id S2387465AbhAOMeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F0B523370;
+        Fri, 15 Jan 2021 12:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714244;
-        bh=5JbJHYFAk1BTNHTKPNGGzIAMov3p9Xv2pQrrQ257lVE=;
+        s=korg; t=1610714023;
+        bh=Ezy3JaWQRCyS1ArtIJlFN47/XhhNKgcWf6RBUjyAxGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkfMrtBrPoUnCHm6LRGbQSd/m9mKk3hA8cFBqDv5QRnBegZ7amtPwrFQBo1ZkGz01
-         blBdL8afMJ5NFMRkWpXZQ8+b08IBAo/GF8YmVjLPysNpakRrGRT4vz/D4Hbxitv6KF
-         Fl4iJ+ushZF73fmvWmGBKuy6Tz3SL3dEGR1/SmSY=
+        b=uef/yA8F4ET7uKEaPjXOwfMlcmWT26IdBDePDxQ9aYJ5hLU5x8WoUkIktC59+GVGu
+         cRjGHG3GnLgdrZUzg1eP6gEideFbKk7AaxJ139/FFDJp5hvk3mmk3uLHeslZr44cUv
+         Qk5uDLAVJocU8porISvJ916Dw1YRvnsAvIvjInj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
-        Ayush Sawal <ayush.sawal@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 031/103] chtls: Fix panic when route to peer not configured
-Date:   Fri, 15 Jan 2021 13:27:24 +0100
-Message-Id: <20210115122007.565120904@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "=?UTF-8?q?Jouni=20K . =20Sepp=C3=A4nen?=" <jks@iki.fi>,
+        kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 03/62] net: cdc_ncm: correct overhead in delayed_ndp_size
+Date:   Fri, 15 Jan 2021 13:27:25 +0100
+Message-Id: <20210115121958.566466769@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: "Jouni K. Sepp�nen" <jks@iki.fi>
 
-[ Upstream commit 5a5fac9966bb6d513198634b0b1357be7e8447d2 ]
+[ Upstream commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 ]
 
-If route to peer is not configured, we might get non tls
-devices from dst_neigh_lookup() which is invalid, adding a
-check to avoid it.
+Aligning to tx_ndp_modulus is not sufficient because the next align
+call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
+ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
+on a Huawei 909s-120 LTE module as follows:
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+- the condition marked /* if there is a remaining skb [...] */ is true
+  so the swaps happen
+- skb_out is set from ctx->tx_curr_skb
+- skb_out->len is exactly 0x3f52
+- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
+  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
+- the for loop over n is executed once
+- the cdc_ncm_align_tail call marked /* align beginning of next frame */
+  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
+- the condition marked /* check if we had enough room left [...] */ is
+  false so we break out of the loop
+- the condition marked /* If requested, put NDP at end of frame. */ is
+  true so the NDP is written into skb_out
+- now skb_out->len is 0x4002, so padding_count is minus two interpreted
+  as an unsigned number, which is used as the length argument to memset,
+  leading to a crash with various symptoms but usually including
+
+> Call Trace:
+>  <IRQ>
+>  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
+>  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
+>  usbnet_start_xmit+0x5d/0x720 [usbnet]
+
+The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
+boundary (adding at most ctx->tx_modulus-1 bytes), then adds
+ctx->tx_remainder bytes. Alternatively, the next alignment call can
+occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
+ctx->tx_ndp_modulus-1 bytes are added.
+
+A similar problem has occurred before, and the code is nontrivial to
+reason about, so add a guard before the crashing call. By that time it
+is too late to prevent any memory corruption (we'll have written past
+the end of the buffer already) but we can at least try to get a warning
+written into an on-disk log by avoiding the hard crash caused by padding
+past the buffer with a huge number of zeros.
+
+Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
+Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c |   14 ++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/usb/cdc_ncm.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
-+++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
-@@ -1109,6 +1109,7 @@ static struct sock *chtls_recv_sock(stru
- 				    const struct cpl_pass_accept_req *req,
- 				    struct chtls_dev *cdev)
- {
-+	struct adapter *adap = pci_get_drvdata(cdev->pdev);
- 	struct neighbour *n = NULL;
- 	struct inet_sock *newinet;
- 	const struct iphdr *iph;
-@@ -1118,9 +1119,10 @@ static struct sock *chtls_recv_sock(stru
- 	struct dst_entry *dst;
- 	struct tcp_sock *tp;
- 	struct sock *newsk;
-+	bool found = false;
- 	u16 port_id;
- 	int rxq_idx;
--	int step;
-+	int step, i;
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1126,7 +1126,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
+ 	 * accordingly. Otherwise, we should check here.
+ 	 */
+ 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
+-		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
++		delayed_ndp_size = ctx->max_ndp_size +
++			max_t(u32,
++			      ctx->tx_ndp_modulus,
++			      ctx->tx_modulus + ctx->tx_remainder) - 1;
+ 	else
+ 		delayed_ndp_size = 0;
  
- 	iph = (const struct iphdr *)network_hdr;
- 	newsk = tcp_create_openreq_child(lsk, oreq, cdev->askb);
-@@ -1152,7 +1154,7 @@ static struct sock *chtls_recv_sock(stru
- 		n = dst_neigh_lookup(dst, &ip6h->saddr);
- #endif
- 	}
--	if (!n)
-+	if (!n || !n->dev)
- 		goto free_sk;
- 
- 	ndev = n->dev;
-@@ -1161,6 +1163,13 @@ static struct sock *chtls_recv_sock(stru
- 	if (is_vlan_dev(ndev))
- 		ndev = vlan_dev_real_dev(ndev);
- 
-+	for_each_port(adap, i)
-+		if (cdev->ports[i] == ndev)
-+			found = true;
-+
-+	if (!found)
-+		goto free_dst;
-+
- 	port_id = cxgb4_port_idx(ndev);
- 
- 	csk = chtls_sock_create(cdev);
-@@ -1237,6 +1246,7 @@ static struct sock *chtls_recv_sock(stru
- free_csk:
- 	chtls_sock_release(&csk->kref);
- free_dst:
-+	neigh_release(n);
- 	dst_release(dst);
- free_sk:
- 	inet_csk_prepare_forced_close(newsk);
+@@ -1307,7 +1310,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
+ 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
+ 	    skb_out->len > ctx->min_tx_pkt) {
+ 		padding_count = ctx->tx_curr_size - skb_out->len;
+-		skb_put_zero(skb_out, padding_count);
++		if (!WARN_ON(padding_count > ctx->tx_curr_size))
++			skb_put_zero(skb_out, padding_count);
+ 	} else if (skb_out->len < ctx->tx_curr_size &&
+ 		   (skb_out->len % dev->maxpacket) == 0) {
+ 		skb_put_u8(skb_out, 0);	/* force short packet */
 
 
