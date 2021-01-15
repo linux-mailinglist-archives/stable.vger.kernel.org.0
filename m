@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6872F7A43
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6954A2F7A80
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732960AbhAOMhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:37:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
+        id S2387756AbhAOMfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732879AbhAOMhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E1CC238A1;
-        Fri, 15 Jan 2021 12:37:04 +0000 (UTC)
+        id S2387751AbhAOMfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91CD3235F9;
+        Fri, 15 Jan 2021 12:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714224;
-        bh=72jUBnKdL+MYlKj0cUL7zm+He19hTUwzr+bVFleU6oM=;
+        s=korg; t=1610714112;
+        bh=UPK2wr1C0tq+9x7urNAkWTBAnGfruomE3IzDJbT1LQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6xQ2p5+pR3NfWnDDH+UnO39hyXTlGJe7yPLG8sn8sAiPlF4NMzNoCQmL0dCa4rF0
-         3G8HHsrX48kEMnmG0PxVxwxS+km6JLXCJrswINGYsz4FX68Fa/XFwmAG+FwQFAmWAW
-         KSivOaGT29vF0U1tWGrtKBxxhgLl5u4g2GWhez6s=
+        b=R+8sv91LbbvRJ4101rP5xEyP/CGK7bdeOr4To1G5DOzbkxv5siv7HpChZSBrEbFN3
+         MA0dCc5k0u7OC4QQI2VwLGmdLcOd9J8X8XBCMro0qhmLEzhC3QPkqbuWngfJvKnF9Y
+         Mb4BaZIef59Fy5kV56ZxNLSX8jqXMhKk7TOCsIPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 040/103] s390/qeth: fix deadlock during recovery
+Subject: [PATCH 5.4 11/62] tools: selftests: add test for changing routes with PTMU exceptions
 Date:   Fri, 15 Jan 2021 13:27:33 +0100
-Message-Id: <20210115122007.997109009@linuxfoundation.org>
+Message-Id: <20210115121958.947465732@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,200 +40,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Sean Tranchetti <stranche@codeaurora.org>
 
-[ Upstream commit 0b9902c1fcc59ba75268386c0420a554f8844168 ]
+[ Upstream commit 5316a7c0130acf09bfc8bb0092407006010fcccc ]
 
-When qeth_dev_layer2_store() - holding the discipline_mutex - waits
-inside qeth_l*_remove_device() for a qeth_do_reset() thread to complete,
-we can hit a deadlock if qeth_do_reset() concurrently calls
-qeth_set_online() and thus tries to aquire the discipline_mutex.
+Adds new 2 new tests to the PTMU script: pmtu_ipv4/6_route_change.
 
-Move the discipline_mutex locking outside of qeth_set_online() and
-qeth_set_offline(), and turn the discipline into a parameter so that
-callers understand the dependency.
+These tests explicitly test for a recently discovered problem in the
+IPv6 routing framework where PMTU exceptions were not properly released
+when replacing a route via "ip route change ...".
 
-To fix the deadlock, we can now relax the locking:
-As already established, qeth_l*_remove_device() waits for
-qeth_do_reset() to complete. So qeth_do_reset() itself is under no risk
-of having card->discipline ripped out while it's running, and thus
-doesn't need to take the discipline_mutex.
+After creating PMTU exceptions, the route from the device A to R1 will be
+replaced with a new route, then device A will be deleted. If the PMTU
+exceptions were properly cleaned up by the kernel, this device deletion
+will succeed. Otherwise, the unregistration of the device will stall, and
+messages such as the following will be logged in dmesg:
 
-Fixes: 9dc48ccc68b9 ("qeth: serialize sysfs-triggered device configurations")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+unregister_netdevice: waiting for veth_A-R1 to become free. Usage count = 4
+
+Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/1609892546-11389-2-git-send-email-stranche@quicinc.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/net/qeth_core.h      |    3 ++-
- drivers/s390/net/qeth_core_main.c |   35 ++++++++++++++++++++++-------------
- drivers/s390/net/qeth_l2_main.c   |    7 +++++--
- drivers/s390/net/qeth_l3_main.c   |    7 +++++--
- 4 files changed, 34 insertions(+), 18 deletions(-)
+ tools/testing/selftests/net/pmtu.sh |   71 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 69 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1075,7 +1075,8 @@ struct qeth_card *qeth_get_card_by_busid
- void qeth_set_allowed_threads(struct qeth_card *card, unsigned long threads,
- 			      int clear_start_mask);
- int qeth_threads_running(struct qeth_card *, unsigned long);
--int qeth_set_offline(struct qeth_card *card, bool resetting);
-+int qeth_set_offline(struct qeth_card *card, const struct qeth_discipline *disc,
-+		     bool resetting);
+--- a/tools/testing/selftests/net/pmtu.sh
++++ b/tools/testing/selftests/net/pmtu.sh
+@@ -119,7 +119,15 @@
+ # - list_flush_ipv6_exception
+ #	Using the same topology as in pmtu_ipv6, create exceptions, and check
+ #	they are shown when listing exception caches, gone after flushing them
+-
++#
++# - pmtu_ipv4_route_change
++#	Use the same topology as in pmtu_ipv4, but issue a route replacement
++#	command and delete the corresponding device afterward. This tests for
++#	proper cleanup of the PMTU exceptions by the route replacement path.
++#	Device unregistration should complete successfully
++#
++# - pmtu_ipv6_route_change
++#	Same as above but with IPv6
  
- int qeth_send_ipa_cmd(struct qeth_card *, struct qeth_cmd_buffer *,
- 		  int (*reply_cb)
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5300,12 +5300,12 @@ out:
- 	return rc;
+ # Kselftest framework requirement - SKIP code is 4.
+ ksft_skip=4
+@@ -161,7 +169,9 @@ tests="
+ 	cleanup_ipv4_exception		ipv4: cleanup of cached exceptions	1
+ 	cleanup_ipv6_exception		ipv6: cleanup of cached exceptions	1
+ 	list_flush_ipv4_exception	ipv4: list and flush cached exceptions	1
+-	list_flush_ipv6_exception	ipv6: list and flush cached exceptions	1"
++	list_flush_ipv6_exception	ipv6: list and flush cached exceptions	1
++	pmtu_ipv4_route_change		ipv4: PMTU exception w/route replace	1
++	pmtu_ipv6_route_change		ipv6: PMTU exception w/route replace	1"
+ 
+ NS_A="ns-A"
+ NS_B="ns-B"
+@@ -1316,6 +1326,63 @@ test_list_flush_ipv6_exception() {
+ 	return ${fail}
  }
  
--static int qeth_set_online(struct qeth_card *card)
-+static int qeth_set_online(struct qeth_card *card,
-+			   const struct qeth_discipline *disc)
- {
- 	bool carrier_ok;
- 	int rc;
- 
--	mutex_lock(&card->discipline_mutex);
- 	mutex_lock(&card->conf_mutex);
- 	QETH_CARD_TEXT(card, 2, "setonlin");
- 
-@@ -5322,7 +5322,7 @@ static int qeth_set_online(struct qeth_c
- 		/* no need for locking / error handling at this early stage: */
- 		qeth_set_real_num_tx_queues(card, qeth_tx_actual_queues(card));
- 
--	rc = card->discipline->set_online(card, carrier_ok);
-+	rc = disc->set_online(card, carrier_ok);
- 	if (rc)
- 		goto err_online;
- 
-@@ -5330,7 +5330,6 @@ static int qeth_set_online(struct qeth_c
- 	kobject_uevent(&card->gdev->dev.kobj, KOBJ_CHANGE);
- 
- 	mutex_unlock(&card->conf_mutex);
--	mutex_unlock(&card->discipline_mutex);
- 	return 0;
- 
- err_online:
-@@ -5345,15 +5344,14 @@ err_hardsetup:
- 	qdio_free(CARD_DDEV(card));
- 
- 	mutex_unlock(&card->conf_mutex);
--	mutex_unlock(&card->discipline_mutex);
- 	return rc;
- }
- 
--int qeth_set_offline(struct qeth_card *card, bool resetting)
-+int qeth_set_offline(struct qeth_card *card, const struct qeth_discipline *disc,
-+		     bool resetting)
- {
- 	int rc, rc2, rc3;
- 
--	mutex_lock(&card->discipline_mutex);
- 	mutex_lock(&card->conf_mutex);
- 	QETH_CARD_TEXT(card, 3, "setoffl");
- 
-@@ -5374,7 +5372,7 @@ int qeth_set_offline(struct qeth_card *c
- 
- 	cancel_work_sync(&card->rx_mode_work);
- 
--	card->discipline->set_offline(card);
-+	disc->set_offline(card);
- 
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_drain_output_queues(card);
-@@ -5395,16 +5393,19 @@ int qeth_set_offline(struct qeth_card *c
- 	kobject_uevent(&card->gdev->dev.kobj, KOBJ_CHANGE);
- 
- 	mutex_unlock(&card->conf_mutex);
--	mutex_unlock(&card->discipline_mutex);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(qeth_set_offline);
- 
- static int qeth_do_reset(void *data)
- {
-+	const struct qeth_discipline *disc;
- 	struct qeth_card *card = data;
- 	int rc;
- 
-+	/* Lock-free, other users will block until we are done. */
-+	disc = card->discipline;
++test_pmtu_ipvX_route_change() {
++	family=${1}
 +
- 	QETH_CARD_TEXT(card, 2, "recover1");
- 	if (!qeth_do_run_thread(card, QETH_RECOVER_THREAD))
- 		return 0;
-@@ -5412,8 +5413,8 @@ static int qeth_do_reset(void *data)
- 	dev_warn(&card->gdev->dev,
- 		 "A recovery process has been started for the device\n");
- 
--	qeth_set_offline(card, true);
--	rc = qeth_set_online(card);
-+	qeth_set_offline(card, disc, true);
-+	rc = qeth_set_online(card, disc);
- 	if (!rc) {
- 		dev_info(&card->gdev->dev,
- 			 "Device successfully recovered!\n");
-@@ -6423,7 +6424,10 @@ static int qeth_core_set_online(struct c
- 		}
- 	}
- 
--	rc = qeth_set_online(card);
-+	mutex_lock(&card->discipline_mutex);
-+	rc = qeth_set_online(card, card->discipline);
-+	mutex_unlock(&card->discipline_mutex);
++	setup namespaces routing || return 2
++	trace "${ns_a}"  veth_A-R1    "${ns_r1}" veth_R1-A \
++	      "${ns_r1}" veth_R1-B    "${ns_b}"  veth_B-R1 \
++	      "${ns_a}"  veth_A-R2    "${ns_r2}" veth_R2-A \
++	      "${ns_r2}" veth_R2-B    "${ns_b}"  veth_B-R2
 +
- err:
- 	return rc;
- }
-@@ -6431,8 +6435,13 @@ err:
- static int qeth_core_set_offline(struct ccwgroup_device *gdev)
- {
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
-+	int rc;
- 
--	return qeth_set_offline(card, false);
-+	mutex_lock(&card->discipline_mutex);
-+	rc = qeth_set_offline(card, card->discipline, false);
-+	mutex_unlock(&card->discipline_mutex);
++	if [ ${family} -eq 4 ]; then
++		ping=ping
++		dst1="${prefix4}.${b_r1}.1"
++		dst2="${prefix4}.${b_r2}.1"
++		gw="${prefix4}.${a_r1}.2"
++	else
++		ping=${ping6}
++		dst1="${prefix6}:${b_r1}::1"
++		dst2="${prefix6}:${b_r2}::1"
++		gw="${prefix6}:${a_r1}::2"
++	fi
 +
-+	return rc;
- }
- 
- static void qeth_core_shutdown(struct ccwgroup_device *gdev)
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2207,8 +2207,11 @@ static void qeth_l2_remove_device(struct
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
--	if (gdev->state == CCWGROUP_ONLINE)
--		qeth_set_offline(card, false);
-+	if (gdev->state == CCWGROUP_ONLINE) {
-+		mutex_lock(&card->discipline_mutex);
-+		qeth_set_offline(card, card->discipline, false);
-+		mutex_unlock(&card->discipline_mutex);
-+	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1973,8 +1973,11 @@ static void qeth_l3_remove_device(struct
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
--	if (cgdev->state == CCWGROUP_ONLINE)
--		qeth_set_offline(card, false);
-+	if (cgdev->state == CCWGROUP_ONLINE) {
-+		mutex_lock(&card->discipline_mutex);
-+		qeth_set_offline(card, card->discipline, false);
-+		mutex_unlock(&card->discipline_mutex);
-+	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
++	# Set up initial MTU values
++	mtu "${ns_a}"  veth_A-R1 2000
++	mtu "${ns_r1}" veth_R1-A 2000
++	mtu "${ns_r1}" veth_R1-B 1400
++	mtu "${ns_b}"  veth_B-R1 1400
++
++	mtu "${ns_a}"  veth_A-R2 2000
++	mtu "${ns_r2}" veth_R2-A 2000
++	mtu "${ns_r2}" veth_R2-B 1500
++	mtu "${ns_b}"  veth_B-R2 1500
++
++	# Create route exceptions
++	run_cmd ${ns_a} ${ping} -q -M want -i 0.1 -w 1 -s 1800 ${dst1}
++	run_cmd ${ns_a} ${ping} -q -M want -i 0.1 -w 1 -s 1800 ${dst2}
++
++	# Check that exceptions have been created with the correct PMTU
++	pmtu_1="$(route_get_dst_pmtu_from_exception "${ns_a}" ${dst1})"
++	check_pmtu_value "1400" "${pmtu_1}" "exceeding MTU" || return 1
++	pmtu_2="$(route_get_dst_pmtu_from_exception "${ns_a}" ${dst2})"
++	check_pmtu_value "1500" "${pmtu_2}" "exceeding MTU" || return 1
++
++	# Replace the route from A to R1
++	run_cmd ${ns_a} ip route change default via ${gw}
++
++	# Delete the device in A
++	run_cmd ${ns_a} ip link del "veth_A-R1"
++}
++
++test_pmtu_ipv4_route_change() {
++	test_pmtu_ipvX_route_change 4
++}
++
++test_pmtu_ipv6_route_change() {
++	test_pmtu_ipvX_route_change 6
++}
++
+ usage() {
+ 	echo
+ 	echo "$0 [OPTIONS] [TEST]..."
 
 
