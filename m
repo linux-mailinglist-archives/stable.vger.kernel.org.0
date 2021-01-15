@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC9D2F794E
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E787B2F7A1E
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387524AbhAOMep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:34:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41758 "EHLO mail.kernel.org"
+        id S2388126AbhAOMiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:38:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387517AbhAOMeo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B75E23339;
-        Fri, 15 Jan 2021 12:34:03 +0000 (UTC)
+        id S2388121AbhAOMiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:38:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23DB9207C4;
+        Fri, 15 Jan 2021 12:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714043;
-        bh=k8S64b0wGE0CoK+4B8j03894/8mWYmuq6azR1OqCu9o=;
+        s=korg; t=1610714248;
+        bh=Lr2E47ovMLNH5cjAfP0XE+8hZ6zMuDZnDmwq6ILvmos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzSlQ3l+0hIoetFutkdvGh6PXe+UKaZiM+TdUWOi77CHNxKJPFhKCL06HmShQUJs6
-         UZ4Ek3zxoI2xeKmYIPjbdlHQztAm6LMX+pGSDR+2ooGQrzZE2ziqfm9he8O2/Qa4yT
-         hna2X7CdD6y/3H2cnZEesaI9ko06+tmA2/68+GI0=
+        b=HiCiqJBd0blApHuyxXJbmweG6x0H2Mm4aK6ezWZSlmLzReDTECK/x3146KxtA8PfY
+         lekjGTF9eUAOigeii+0YsJGSDL0I2wwOeA/Bm8NRSUsum8t6zS/5vqfJSI30QB8xYI
+         /Cq+F334BmGrfp1em97r7CrAQMQTjtCapPwIjqbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
-        Ayush Sawal <ayush.sawal@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 21/62] chtls: Fix hardware tid leak
+        stable@vger.kernel.org,
+        syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.10 050/103] HID: wacom: Fix memory leakage caused by kfifo_alloc
 Date:   Fri, 15 Jan 2021 13:27:43 +0100
-Message-Id: <20210115121959.431107821@linuxfoundation.org>
+Message-Id: <20210115122008.478895117@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Ping Cheng <pinglinux@gmail.com>
 
-[ Upstream commit 717df0f4cdc9044c415431a3522b3e9ccca5b4a3 ]
+commit 37309f47e2f5674f3e86cb765312ace42cfcedf5 upstream.
 
-send_abort_rpl() is not calculating cpl_abort_req_rss offset and
-ends up sending wrong TID with abort_rpl WR causng tid leaks.
-Replaced send_abort_rpl() with chtls_send_abort_rpl() as it is
-redundant.
+As reported by syzbot below, kfifo_alloc'd memory would not be freed
+if a non-zero return value is triggered in wacom_probe. This patch
+creates and uses devm_kfifo_alloc to allocate and free itself.
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BUG: memory leak
+unreferenced object 0xffff88810dc44a00 (size 512):
+  comm "kworker/1:2", pid 3674, jiffies 4294943617 (age 14.100s)
+  hex dump (first 32 bytes):
+   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+   [<0000000023e1afac>] kmalloc_array include/linux/slab.h:592 [inline]
+   [<0000000023e1afac>] __kfifo_alloc+0xad/0x100 lib/kfifo.c:43
+   [<00000000c477f737>] wacom_probe+0x1a1/0x3b0 drivers/hid/wacom_sys.c:2727
+   [<00000000b3109aca>] hid_device_probe+0x16b/0x210 drivers/hid/hid-core.c:2281
+   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
+   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+   [<00000000efb7c59e>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+   [<0000000024ab1590>] __device_attach+0x122/0x250 drivers/base/dd.c:912
+   [<000000004c7ac048>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+   [<00000000b93050a3>] device_add+0x5ac/0xc30 drivers/base/core.c:2936
+   [<00000000e5b46ea5>] hid_add_device+0x151/0x390 drivers/hid/hid-core.c:2437
+   [<00000000c6add147>] usbhid_probe+0x412/0x560 drivers/hid/usbhid/hid-core.c:1407
+   [<00000000c33acdb4>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
+   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+
+https://syzkaller.appspot.com/bug?extid=5b49c9695968d7250a26
+
+Reported-by: syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/crypto/chelsio/chtls/chtls_cm.c |   39 ++------------------------------
- 1 file changed, 3 insertions(+), 36 deletions(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_cm.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -1828,39 +1828,6 @@ static void send_defer_abort_rpl(struct
- 	kfree_skb(skb);
+---
+ drivers/hid/wacom_sys.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
+
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1270,6 +1270,37 @@ static int wacom_devm_sysfs_create_group
+ 					       group);
  }
  
--static void send_abort_rpl(struct sock *sk, struct sk_buff *skb,
--			   struct chtls_dev *cdev, int status, int queue)
--{
--	struct cpl_abort_req_rss *req = cplhdr(skb);
--	struct sk_buff *reply_skb;
--	struct chtls_sock *csk;
--
--	csk = rcu_dereference_sk_user_data(sk);
--
--	reply_skb = alloc_skb(sizeof(struct cpl_abort_rpl),
--			      GFP_KERNEL);
--
--	if (!reply_skb) {
--		req->status = (queue << 1);
--		send_defer_abort_rpl(cdev, skb);
--		return;
--	}
--
--	set_abort_rpl_wr(reply_skb, GET_TID(req), status);
--	kfree_skb(skb);
--
--	set_wr_txq(reply_skb, CPL_PRIORITY_DATA, queue);
--	if (csk_conn_inline(csk)) {
--		struct l2t_entry *e = csk->l2t_entry;
--
--		if (e && sk->sk_state != TCP_SYN_RECV) {
--			cxgb4_l2t_send(csk->egress_dev, reply_skb, e);
--			return;
--		}
--	}
--	cxgb4_ofld_send(cdev->lldi->ports[0], reply_skb);
--}
--
- /*
-  * Add an skb to the deferred skb queue for processing from process context.
-  */
-@@ -1924,8 +1891,8 @@ static void bl_abort_syn_rcv(struct sock
++static void wacom_devm_kfifo_release(struct device *dev, void *res)
++{
++	struct kfifo_rec_ptr_2 *devres = res;
++
++	kfifo_free(devres);
++}
++
++static int wacom_devm_kfifo_alloc(struct wacom *wacom)
++{
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct kfifo_rec_ptr_2 *pen_fifo = &wacom_wac->pen_fifo;
++	int error;
++
++	pen_fifo = devres_alloc(wacom_devm_kfifo_release,
++			      sizeof(struct kfifo_rec_ptr_2),
++			      GFP_KERNEL);
++
++	if (!pen_fifo)
++		return -ENOMEM;
++
++	error = kfifo_alloc(pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
++	if (error) {
++		devres_free(pen_fifo);
++		return error;
++	}
++
++	devres_add(&wacom->hdev->dev, pen_fifo);
++
++	return 0;
++}
++
+ enum led_brightness wacom_leds_brightness_get(struct wacom_led *led)
+ {
+ 	struct wacom *wacom = led->wacom;
+@@ -2724,7 +2755,7 @@ static int wacom_probe(struct hid_device
+ 	if (features->check_for_hid_type && features->hid_type != hdev->type)
+ 		return -ENODEV;
  
- 	skb->sk	= NULL;
- 	do_abort_syn_rcv(child, lsk);
--	send_abort_rpl(child, skb, BLOG_SKB_CB(skb)->cdev,
--		       CPL_ABORT_NO_RST, queue);
-+	chtls_send_abort_rpl(child, skb, BLOG_SKB_CB(skb)->cdev,
-+			     CPL_ABORT_NO_RST, queue);
+-	error = kfifo_alloc(&wacom_wac->pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
++	error = wacom_devm_kfifo_alloc(wacom);
+ 	if (error)
+ 		return error;
+ 
+@@ -2786,8 +2817,6 @@ static void wacom_remove(struct hid_devi
+ 
+ 	if (wacom->wacom_wac.features.type != REMOTE)
+ 		wacom_release_resources(wacom);
+-
+-	kfifo_free(&wacom_wac->pen_fifo);
  }
  
- static int abort_syn_rcv(struct sock *sk, struct sk_buff *skb)
-@@ -1956,7 +1923,7 @@ static int abort_syn_rcv(struct sock *sk
- 		int queue = csk->txq_idx;
- 
- 		do_abort_syn_rcv(sk, psk);
--		send_abort_rpl(sk, skb, cdev, CPL_ABORT_NO_RST, queue);
-+		chtls_send_abort_rpl(sk, skb, cdev, CPL_ABORT_NO_RST, queue);
- 	} else {
- 		skb->sk = sk;
- 		BLOG_SKB_CB(skb)->backlog_rcv = bl_abort_syn_rcv;
+ #ifdef CONFIG_PM
 
 
