@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857562F7905
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C5F2F78F2
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732225AbhAOMau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:30:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36468 "EHLO mail.kernel.org"
+        id S1731836AbhAOMaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732134AbhAOMat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0117C2336E;
-        Fri, 15 Jan 2021 12:29:45 +0000 (UTC)
+        id S1731809AbhAOMaD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF9622389B;
+        Fri, 15 Jan 2021 12:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713786;
-        bh=3fVzlPuqtK7F4m77yZ9M97s2IDS8xdwwMqhi/UuDAJc=;
+        s=korg; t=1610713762;
+        bh=rTDdodoFS6VeSOmu9ygZvIE0Lxa6/vIcqvRYcAPLnlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7Di/zKXO7ZnRogoXm/ZjnHTKtlLMRxcMEbTufQNs4dRcuO8jNPzzFji9uzeQ/jdz
-         FH9g5ggACo8iKsZpgil05Zx5zz06UH6NXYKa4AMuUYbz1JDmCLAz3PsAqsZbFL22O4
-         HjR8qp5DfzQtMHJRBIeuVkbSuFcrK0y2/jQFaKd0=
+        b=KcybRCk1lM325IvpseNVnsDKTtb08g8PoqLsLqlxytzBu8qaXL+zulcVdPBAOWeqp
+         LVg71kEca2qp9uw8jvM+del6k/WTIHOxtm0rmxJdCydKgnILqLPvFmaSZf0tj4htVt
+         bNRtdPauq4tWJ0sNoIAnb6UybfhoYdeD9uDlWjzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Bart Van Assche <bart.vanassche@wdc.com>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/18] xcopy: loop over devices using idr helper
-Date:   Fri, 15 Jan 2021 13:27:33 +0100
-Message-Id: <20210115121955.372393760@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 11/18] ubifs: wbuf: Dont leak kernel memory to flash
+Date:   Fri, 15 Jan 2021 13:27:39 +0100
+Message-Id: <20210115121955.664241781@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
 References: <20210115121955.112329537@linuxfoundation.org>
@@ -41,118 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <mchristi@redhat.com>
+From: Richard Weinberger <richard@nod.at>
 
-[ Upstream commit 6906d008b4b06e42cad393ac25bec76fbf31fabd ]
+commit 20f1431160c6b590cdc269a846fc5a448abf5b98 upstream
 
-This converts the xcopy code to use the idr helper. The next patch
-will drop the g_device_list and make g_device_mutex local to the
-target_core_device.c file.
+Write buffers use a kmalloc()'ed buffer, they can leak
+up to seven bytes of kernel memory to flash if writes are not
+aligned.
+So use ubifs_pad() to fill these gaps with padding bytes.
+This was never a problem while scanning because the scanner logic
+manually aligns node lengths and skips over these gaps.
 
-Signed-off-by: Mike Christie <mchristi@redhat.com>
-Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/target_core_xcopy.c | 70 +++++++++++++++++-------------
- 1 file changed, 41 insertions(+), 29 deletions(-)
+ fs/ubifs/io.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
-index 32db9180820e7..b0e8f432c7205 100644
---- a/drivers/target/target_core_xcopy.c
-+++ b/drivers/target/target_core_xcopy.c
-@@ -52,48 +52,60 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
- 	return 0;
- }
- 
--static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
--					struct se_device **found_dev)
-+struct xcopy_dev_search_info {
-+	const unsigned char *dev_wwn;
-+	struct se_device *found_dev;
-+};
-+
-+static int target_xcopy_locate_se_dev_e4_iter(struct se_device *se_dev,
-+					      void *data)
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -331,7 +331,7 @@ void ubifs_pad(const struct ubifs_info *
  {
--	struct se_device *se_dev;
-+	struct xcopy_dev_search_info *info = data;
- 	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
- 	int rc;
+ 	uint32_t crc;
  
--	mutex_lock(&g_device_mutex);
--	list_for_each_entry(se_dev, &g_device_list, g_dev_node) {
-+	if (!se_dev->dev_attrib.emulate_3pc)
-+		return 0;
+-	ubifs_assert(pad >= 0 && !(pad & 7));
++	ubifs_assert(pad >= 0);
  
--		if (!se_dev->dev_attrib.emulate_3pc)
--			continue;
-+	memset(&tmp_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
-+	target_xcopy_gen_naa_ieee(se_dev, &tmp_dev_wwn[0]);
+ 	if (pad >= UBIFS_PAD_NODE_SZ) {
+ 		struct ubifs_ch *ch = buf;
+@@ -721,6 +721,10 @@ int ubifs_wbuf_write_nolock(struct ubifs
+ 		 * write-buffer.
+ 		 */
+ 		memcpy(wbuf->buf + wbuf->used, buf, len);
++		if (aligned_len > len) {
++			ubifs_assert(aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
++		}
  
--		memset(&tmp_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
--		target_xcopy_gen_naa_ieee(se_dev, &tmp_dev_wwn[0]);
-+	rc = memcmp(&tmp_dev_wwn[0], info->dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
-+	if (rc != 0)
-+		return 0;
+ 		if (aligned_len == wbuf->avail) {
+ 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
+@@ -813,13 +817,18 @@ int ubifs_wbuf_write_nolock(struct ubifs
+ 	}
  
--		rc = memcmp(&tmp_dev_wwn[0], dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
--		if (rc != 0)
--			continue;
-+	info->found_dev = se_dev;
-+	pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
- 
--		*found_dev = se_dev;
--		pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
-+	rc = target_depend_item(&se_dev->dev_group.cg_item);
-+	if (rc != 0) {
-+		pr_err("configfs_depend_item attempt failed: %d for se_dev: %p\n",
-+		       rc, se_dev);
-+		return rc;
+ 	spin_lock(&wbuf->lock);
+-	if (aligned_len)
++	if (aligned_len) {
+ 		/*
+ 		 * And now we have what's left and what does not take whole
+ 		 * max. write unit, so write it to the write-buffer and we are
+ 		 * done.
+ 		 */
+ 		memcpy(wbuf->buf, buf + written, len);
++		if (aligned_len > len) {
++			ubifs_assert(aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
++		}
 +	}
  
--		rc = target_depend_item(&se_dev->dev_group.cg_item);
--		if (rc != 0) {
--			pr_err("configfs_depend_item attempt failed:"
--				" %d for se_dev: %p\n", rc, se_dev);
--			mutex_unlock(&g_device_mutex);
--			return rc;
--		}
-+	pr_debug("Called configfs_depend_item for se_dev: %p se_dev->se_dev_group: %p\n",
-+		 se_dev, &se_dev->dev_group);
-+	return 1;
-+}
-+
-+static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
-+					struct se_device **found_dev)
-+{
-+	struct xcopy_dev_search_info info;
-+	int ret;
- 
--		pr_debug("Called configfs_depend_item for se_dev: %p"
--			" se_dev->se_dev_group: %p\n", se_dev,
--			&se_dev->dev_group);
-+	memset(&info, 0, sizeof(info));
-+	info.dev_wwn = dev_wwn;
- 
--		mutex_unlock(&g_device_mutex);
-+	ret = target_for_each_device(target_xcopy_locate_se_dev_e4_iter, &info);
-+	if (ret == 1) {
-+		*found_dev = info.found_dev;
- 		return 0;
-+	} else {
-+		pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
-+		return -EINVAL;
- 	}
--	mutex_unlock(&g_device_mutex);
--
--	pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
--	return -EINVAL;
- }
- 
- static int target_xcopy_parse_tiddesc_e4(struct se_cmd *se_cmd, struct xcopy_op *xop,
--- 
-2.27.0
-
+ 	if (c->leb_size - wbuf->offs >= c->max_write_size)
+ 		wbuf->size = c->max_write_size;
 
 
