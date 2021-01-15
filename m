@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE082F7A20
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 287F62F795B
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733047AbhAOMpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
+        id S2387625AbhAOMfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:35:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731350AbhAOMiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:38:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D920A22473;
-        Fri, 15 Jan 2021 12:37:56 +0000 (UTC)
+        id S2387621AbhAOMfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF363221FA;
+        Fri, 15 Jan 2021 12:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714277;
-        bh=I6ahcIlSY4WZ1+YM5bz9xxfpeSXZAbpokCAoOh9w/8Q=;
+        s=korg; t=1610714072;
+        bh=BBgb+EzVSy9WxI43W5rBRkyiuIU4rJHI/+N66qL+4ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svtesNsONVYdwPA/b3B6y4CJNUysVMs5CoJK99zPyqCqSL4PbvRxVeCqXA+9/f/KV
-         XapZXljLsxee6OPb4PsN1V+r2pA3XntM2i4RMBPkg4Q3nK6FulJGYtYD+AIjesxwQI
-         SQBfVau3n/Qzmp5Orf4h9VwM8VtEmTsCQFP6vjRI=
+        b=kYHRTL068B1VsyEKd5pJgTzf9omaFEMJUygAyxhI0Lzn/ycZTaSD/BXExZNp8AzKi
+         NttdW4gLY+4lg8ZsyGN8dMY4c651TVkvBPEyeD1gImnud0Hpu41AteUUqLu4aWGry7
+         PKyp3sqKIbgcQ/YACqdTppfqCFcEeYSqy/QrBRB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Guskov <rguskov@dh-electronics.com>,
-        Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 062/103] spi: stm32: FIFO threshold level - fix align packet size
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.4 33/62] ARM: OMAP2+: omap_device: fix idling of devices during probe
 Date:   Fri, 15 Jan 2021 13:27:55 +0100
-Message-Id: <20210115122009.046794550@linuxfoundation.org>
+Message-Id: <20210115122000.001600417@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Guskov <rguskov@dh-electronics.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-commit a590370d918fc66c62df6620445791fbe840344a upstream.
+commit ec76c2eea903947202098090bbe07a739b5246e9 upstream.
 
-if cur_bpw <= 8 and xfer_len < 4 then the value of fthlv will be 1 and
-SPI registers content may have been lost.
+On the GTA04A5 od->_driver_status was not set to BUS_NOTIFY_BIND_DRIVER
+during probe of the second mmc used for wifi. Therefore
+omap_device_late_idle idled the device during probing causing oopses when
+accessing the registers.
 
-* If SPI data register is accessed as a 16-bit register and DSIZE <= 8bit,
-  better to select FTHLV = 2, 4, 6 etc
+It was not set because od->_state was set to OMAP_DEVICE_STATE_IDLE
+in the notifier callback. Therefore set od->_driver_status also in that
+case.
 
-* If SPI data register is accessed as a 32-bit register and DSIZE > 8bit,
-  better to select FTHLV = 2, 4, 6 etc, while if DSIZE <= 8bit,
-  better to select FTHLV = 4, 8, 12 etc
+This came apparent after commit 21b2cec61c04 ("mmc: Set
+PROBE_PREFER_ASYNCHRONOUS for drivers that existed in v4.4") causing this
+oops:
 
-Signed-off-by: Roman Guskov <rguskov@dh-electronics.com>
-Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
-Reviewed-by: Marek Vasut <marex@denx.de>
-Link: https://lore.kernel.org/r/20201221123532.27272-1-rguskov@dh-electronics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+omap_hsmmc 480b4000.mmc: omap_device_late_idle: enabled but no driver.  Idling
+8<--- cut here ---
+Unhandled fault: external abort on non-linefetch (0x1028) at 0xfa0b402c
+...
+(omap_hsmmc_set_bus_width) from [<c07996bc>] (omap_hsmmc_set_ios+0x11c/0x258)
+(omap_hsmmc_set_ios) from [<c077b2b0>] (mmc_power_up.part.8+0x3c/0xd0)
+(mmc_power_up.part.8) from [<c077c14c>] (mmc_start_host+0x88/0x9c)
+(mmc_start_host) from [<c077d284>] (mmc_add_host+0x58/0x84)
+(mmc_add_host) from [<c0799190>] (omap_hsmmc_probe+0x5fc/0x8c0)
+(omap_hsmmc_probe) from [<c0666728>] (platform_drv_probe+0x48/0x98)
+(platform_drv_probe) from [<c066457c>] (really_probe+0x1dc/0x3b4)
+
+Fixes: 04abaf07f6d5 ("ARM: OMAP2+: omap_device: Sync omap_device and pm_runtime after probe defer")
+Fixes: 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for drivers that existed in v4.4")
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+[tony@atomide.com: left out extra parens, trimmed description stack trace]
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-stm32.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/omap_device.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -493,9 +493,9 @@ static u32 stm32h7_spi_prepare_fthlv(str
- 
- 	/* align packet size with data registers access */
- 	if (spi->cur_bpw > 8)
--		fthlv -= (fthlv % 2); /* multiple of 2 */
-+		fthlv += (fthlv % 2) ? 1 : 0;
- 	else
--		fthlv -= (fthlv % 4); /* multiple of 4 */
-+		fthlv += (fthlv % 4) ? (4 - (fthlv % 4)) : 0;
- 
- 	if (!fthlv)
- 		fthlv = 1;
+--- a/arch/arm/mach-omap2/omap_device.c
++++ b/arch/arm/mach-omap2/omap_device.c
+@@ -234,10 +234,12 @@ static int _omap_device_notifier_call(st
+ 		break;
+ 	case BUS_NOTIFY_BIND_DRIVER:
+ 		od = to_omap_device(pdev);
+-		if (od && (od->_state == OMAP_DEVICE_STATE_ENABLED) &&
+-		    pm_runtime_status_suspended(dev)) {
++		if (od) {
+ 			od->_driver_status = BUS_NOTIFY_BIND_DRIVER;
+-			pm_runtime_set_active(dev);
++			if (od->_state == OMAP_DEVICE_STATE_ENABLED &&
++			    pm_runtime_status_suspended(dev)) {
++				pm_runtime_set_active(dev);
++			}
+ 		}
+ 		break;
+ 	case BUS_NOTIFY_ADD_DEVICE:
 
 
