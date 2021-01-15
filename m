@@ -2,93 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208212F859A
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 20:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABD302F85C1
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 20:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbhAOTgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 14:36:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
+        id S2387617AbhAOTxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 14:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388678AbhAOTgY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 14:36:24 -0500
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F0BC0613D3
-        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 11:35:43 -0800 (PST)
-Received: by mail-lf1-x132.google.com with SMTP id h205so14800915lfd.5
-        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 11:35:43 -0800 (PST)
+        with ESMTP id S2387589AbhAOTxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 14:53:07 -0500
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B291DC0613C1
+        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 11:52:26 -0800 (PST)
+Received: by mail-qv1-xf49.google.com with SMTP id m8so8682675qvt.14
+        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 11:52:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tgVsYmSCdgmeuL9qYmhROq6jdCnyLmcDJlct14eS4/U=;
-        b=T4ZP2fit5hD7OMKVpQmKducPUz6KHQC5Sm7FPYbm11nfGkvIq2pZ44EDsML2HNDvSd
-         CClAfue4Y4DZ1S+KfNvk//2nKGQhvrtUbr7AkN34pbwZljJLJt0SbKmJTgx9UjIYE73A
-         51oS9BzN9T5zvLV49js4998Gj0+DfoVJkPdcyIlmo+eZDGieIaj4aj9OFMviHWBn3otR
-         CfTsNTqCe2utFSdrZ/mOws/Z8mFRi3xNPeQqAScH6Aef5es6vvNiQiK1HG7F60GfJ15D
-         S4ZFwQ/tnAgwlrYeR2PgE+Vfnzg+z3/kvgOj3wStKS7Ct4ygPBVY5Hucalr3otLPJ2U6
-         mxxw==
+        d=google.com; s=20161025;
+        h=sender:date:in-reply-to:message-id:mime-version:references:subject
+         :from:to:cc;
+        bh=hIBuX1lFcyKuQyrZ5+wCeMHBsoAjyJ/AkMUpbHJsyDA=;
+        b=vPUz2aDCW5pdZVD7KqFIIagVxy491m4FJi/LuKcocOVjg44wS5kI5kgKz+dwBnL9JX
+         uQxW52bGaLwjEJSLkfQYdHoM0/fK993FQ1CrKsVEIbiIld0DLatHwyP7MY6kFzbx6uGl
+         BZLmhYS6LI+DlxuGghqj27f7CSqb9ASt00odH4NLFhL1U6zC/AbLRXdhseUFdPmEXTNV
+         alCiSATBPsV8olT+/MGL4j9aEt9lP7trzOPDIpbESuqVlHPs3jVxVji3krL5TUKREIUX
+         pjmgn5iquINuJMzrnza6CT7/yyDSMzcyiU+75JNykyWO8iZPUWti3aNULASoj0vrU0Bu
+         Vktg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tgVsYmSCdgmeuL9qYmhROq6jdCnyLmcDJlct14eS4/U=;
-        b=t/yOosA1RXmSi7H4rq43PniVZnRbfUrT1x/OVMhJ1hW0ERrsNMnBt9rzNGMVxxYRiH
-         QAe/myP+irHZrAmK/PyFDKeGnecGK2hUGRJqtFjXP1GU1MRLCarmbQt+VpE6jMMjsEJO
-         WiUUqfC1/41fETZ7Y9+aH+BOsLYkVZQzrbinMgjAq6KptAUXkHZTpSPZ4+PKX2KJz7Qe
-         h5AgkBoCJyY1aX0ocxBySaSYfavcBEnaIkGQ3mwvJSU+RDrQLhMpohWJ9e9ZN7H6Jke3
-         6cDxgOrDJdcCydwvddnxZhDsRaQzfM/2pKERholurOeTLiIMfflvqimx43rUOOwG1J4e
-         21+A==
-X-Gm-Message-State: AOAM533Ni5abvLTP5fUreJ+onPp0X6JTv1NHGWHlBldcyapShw+5FQCX
-        FCpC8rd1FT2vM9w+8Fp/fGgEr40rF73XTT8ZnVTeIQ==
-X-Google-Smtp-Source: ABdhPJyhFoOTxylP4e5FGRGV+lMzUT21G2lSnhLCVro7NYTd7z4lQkUiESOjEHgsHZPDk3VnIgjOUDur68g+NZeothk=
-X-Received: by 2002:a19:4107:: with SMTP id o7mr5912867lfa.512.1610739342289;
- Fri, 15 Jan 2021 11:35:42 -0800 (PST)
-MIME-Version: 1.0
-References: <20210115191330.2319352-1-anders.roxell@linaro.org> <20210115192803.GA3828660@ubuntu-m3-large-x86>
-In-Reply-To: <20210115192803.GA3828660@ubuntu-m3-large-x86>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Fri, 15 Jan 2021 20:35:31 +0100
-Message-ID: <CADYN=9Kt597LsfW=Aq6v+kWr+ja+55_+Z3s5mFaJULa+9J4EfA@mail.gmail.com>
-Subject: Re: [PATCH] mips: vdso: fix DWARF2 warning
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=hIBuX1lFcyKuQyrZ5+wCeMHBsoAjyJ/AkMUpbHJsyDA=;
+        b=Nqa9J4D0Mncn50fu+6w2w8M6BgnbmJyFUqTKEABlmjgn4Ltev0tzV2sFokoSx33QPG
+         8QnqTAXmJp0sofSx5c8TB2K5j5WpXLoHm166hWaD9aarA5yoNzKn9wg3Nz9RhpoCSVjs
+         De7bfKTEDkX5jEiFg8P6BHDY0P40k2KDL21u3DjxahKCUtufJ+7oKQWmHNEDBk+vfMW0
+         Zjop4n77SfPl1QAoh9I0xtmSI2tjOrtiigY3bJQ1vuh29mVerQ++UiDd0P6SiggmCn2g
+         f1rcHbySh0d3mrjtC91RLBjZOZj/Fx/YW4K0GClDqcZNOvECJUa0MDuyL8fLzc0f0lJa
+         Biww==
+X-Gm-Message-State: AOAM531ewONtJMl2eR32hvG4WIzz3isPHJq3/VySYFf7EFCEGB7RcQNd
+        wOIXXhBSPkJzt9kbDLF773Py4E5HCE+m
+X-Google-Smtp-Source: ABdhPJxp/LuMeuiKxR5HxdBrN9uDMj+wwFPRaHYDOEyL+aRqs7ah2kIjiukl7fnv05x8XZ9fknjvXwplSime
+Sender: "maskray via sendgmr" <maskray@maskray1.svl.corp.google.com>
+X-Received: from maskray1.svl.corp.google.com ([2620:15c:2ce:0:a6ae:11ff:fe11:4abb])
+ (user=maskray job=sendgmr) by 2002:ad4:54a3:: with SMTP id
+ r3mr13796004qvy.26.1610740345862; Fri, 15 Jan 2021 11:52:25 -0800 (PST)
+Date:   Fri, 15 Jan 2021 11:52:22 -0800
+In-Reply-To: <20210114211840.GA5617@linux-8ccs>
+Message-Id: <20210115195222.3453262-1-maskray@google.com>
+Mime-Version: 1.0
+References: <20210114211840.GA5617@linux-8ccs>
+X-Mailer: git-send-email 2.30.0.296.g2bfb1c46d8-goog
+Subject: [PATCH v3] module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for
+ undefined symbols
+From:   Fangrui Song <maskray@google.com>
+To:     linux-kernel@vger.kernel.org, Jessica Yu <jeyu@kernel.org>
+Cc:     clang-built-linux@googlegroups.com,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Fangrui Song <maskray@google.com>,
+        Marco Elver <elver@google.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        linux-mips@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
         stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 15 Jan 2021 at 20:28, Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> On Fri, Jan 15, 2021 at 08:13:30PM +0100, Anders Roxell wrote:
-> > When building mips tinyconifg the following warning show up
-> >
-> > make --silent --keep-going --jobs=8 O=/home/anders/src/kernel/next/out/builddir ARCH=mips CROSS_COMPILE=mips-linux-gnu- HOSTCC=clang CC=clang
-> > /srv/src/kernel/next/arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per compilation unit
-> > .pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long 4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
-> > ^
-> > /srv/src/kernel/next/arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per compilation unit
-> >  .section .mips_abiflags, "a"
-> >  ^
-> >
-> > Rework so the mips vdso Makefile adds flag '-no-integrated-as' unless
-> > LLVM_IAS is defined.
-> >
-> > Link: https://github.com/ClangBuiltLinux/linux/issues/1256
-> > Cc: stable@vger.kernel.org # v4.19+
-> > Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
->
-> I believe this is the better solution:
->
-> https://lore.kernel.org/r/20210115192622.3828545-1-natechancellor@gmail.com/
+clang-12 -fno-pic (since
+https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6)
+can emit `call __stack_chk_fail@PLT` instead of `call __stack_chk_fail`
+on x86.  The two forms should have identical behaviors on x86-64 but the
+former causes GNU as<2.37 to produce an unreferenced undefined symbol
+_GLOBAL_OFFSET_TABLE_.
 
-Yes, I agree.
+(On x86-32, there is an R_386_PC32 vs R_386_PLT32 difference but the
+linker behavior is identical as far as Linux kernel is concerned.)
 
-Cheers,
-Anders
+Simply ignore _GLOBAL_OFFSET_TABLE_ for now, like what
+scripts/mod/modpost.c:ignore_undef_symbol does. This also fixes the
+problem for gcc/clang -fpie and -fpic, which may emit `call foo@PLT` for
+external function calls on x86.
+
+Note: ld -z defs and dynamic loaders do not error for unreferenced
+undefined symbols so the module loader is reading too much.  If we ever
+need to ignore more symbols, the code should be refactored to ignore
+unreferenced symbols.
+
+Reported-by: Marco Elver <elver@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1250
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Marco Elver <elver@google.com>
+Cc: <stable@vger.kernel.org>
+
+---
+Changes in v2:
+* Fix Marco's email address
+* Add a function ignore_undef_symbol similar to scripts/mod/modpost.c:ignore_undef_symbol
+---
+Changes in v3:
+* Fix the style of a multi-line comment.
+* Use static bool ignore_undef_symbol.
+---
+ kernel/module.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/module.c b/kernel/module.c
+index 4bf30e4b3eaa..805c49d1b86d 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2348,6 +2348,21 @@ static int verify_exported_symbols(struct module *mod)
+ 	return 0;
+ }
+ 
++static bool ignore_undef_symbol(Elf_Half emachine, const char *name)
++{
++	/*
++	 * On x86, PIC code and Clang non-PIC code may have call foo@PLT. GNU as
++	 * before 2.37 produces an unreferenced _GLOBAL_OFFSET_TABLE_ on x86-64.
++	 * i386 has a similar problem but may not deserve a fix.
++	 *
++	 * If we ever have to ignore many symbols, consider refactoring the code to
++	 * only warn if referenced by a relocation.
++	 */
++	if (emachine == EM_386 || emachine == EM_X86_64)
++		return !strcmp(name, "_GLOBAL_OFFSET_TABLE_");
++	return false;
++}
++
+ /* Change all symbols so that st_value encodes the pointer directly. */
+ static int simplify_symbols(struct module *mod, const struct load_info *info)
+ {
+@@ -2395,8 +2410,10 @@ static int simplify_symbols(struct module *mod, const struct load_info *info)
+ 				break;
+ 			}
+ 
+-			/* Ok if weak.  */
+-			if (!ksym && ELF_ST_BIND(sym[i].st_info) == STB_WEAK)
++			/* Ok if weak or ignored.  */
++			if (!ksym &&
++			    (ELF_ST_BIND(sym[i].st_info) == STB_WEAK ||
++			     ignore_undef_symbol(info->hdr->e_machine, name)))
+ 				break;
+ 
+ 			ret = PTR_ERR(ksym) ?: -ENOENT;
+-- 
+2.30.0.296.g2bfb1c46d8-goog
+
