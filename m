@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6019A2F7BE7
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A41862F7BD7
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733075AbhAONHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:07:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36296 "EHLO mail.kernel.org"
+        id S1733171AbhAONG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 08:06:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732503AbhAOMbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E8623B2A;
-        Fri, 15 Jan 2021 12:30:41 +0000 (UTC)
+        id S1732564AbhAOMbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B836C23403;
+        Fri, 15 Jan 2021 12:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713841;
-        bh=9Cnaplh3BLaXU8UJB0HL/CFKkoiea4GTjC8wWuPFi68=;
+        s=korg; t=1610713795;
+        bh=etPUrUNQhuJ0dyxHGJHRstf6/2h+tsqNure8SU6DifI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7PoFovdWbjoDG2ezy5g39sx2MuoWJNKT1P8Yk7ocqFexKR5tit3EQ1HcWLJBzncz
-         rW12zTApMs4Kgg4c181lhJmrB7F+GAxYpm+DhmJBy+ND0Clf61IXyCxJBJzKScqUBx
-         fVDDEO5CrADTQShKrI3uzJNULXxXEogzlE/FCyjk=
+        b=I9Fit96RDFF+Rq8HDO9Rn2O8Y0PwEba5iyhyYw3TlLKSWeWnXmXvtCt8Csva5TlAA
+         8nyu395/OHoTji20u6P2GHsG545DNEXpu9tM6jDybbRsKqr0CZVnDTG5CS+rZvck//
+         bBgYCm0x6/d7kxvY/MznkZmlIzCUsTV0NHSUxeGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        David Disseldorp <ddiss@suse.de>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/25] scsi: target: Fix XCOPY NAA identifier lookup
-Date:   Fri, 15 Jan 2021 13:27:36 +0100
-Message-Id: <20210115121956.948619201@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 09/18] net: fix pmtu check in nopmtudisc mode
+Date:   Fri, 15 Jan 2021 13:27:37 +0100
+Message-Id: <20210115121955.568213908@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
-References: <20210115121956.679956165@linuxfoundation.org>
+In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
+References: <20210115121955.112329537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,214 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 2896c93811e39d63a4d9b63ccf12a8fbc226e5e4 ]
+[ Upstream commit 50c661670f6a3908c273503dfa206dfc7aa54c07 ]
 
-When attempting to match EXTENDED COPY CSCD descriptors with corresponding
-se_devices, target_xcopy_locate_se_dev_e4() currently iterates over LIO's
-global devices list which includes all configured backstores.
+For some reason ip_tunnel insist on setting the DF bit anyway when the
+inner header has the DF bit set, EVEN if the tunnel was configured with
+'nopmtudisc'.
 
-This change ensures that only initiator-accessible backstores are
-considered during CSCD descriptor lookup, according to the session's
-se_node_acl LUN list.
+This means that the script added in the previous commit
+cannot be made to work by adding the 'nopmtudisc' flag to the
+ip tunnel configuration. Doing so breaks connectivity even for the
+without-conntrack/netfilter scenario.
 
-To avoid LUN removal race conditions, device pinning is changed from being
-configfs based to instead using the se_node_acl lun_ref.
+When nopmtudisc is set, the tunnel will skip the mtu check, so no
+icmp error is sent to client. Then, because inner header has DF set,
+the outer header gets added with DF bit set as well.
 
-Reference: CVE-2020-28374
-Fixes: cbf031f425fd ("target: Add support for EXTENDED_COPY copy offload emulation")
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+IP stack then sends an error to itself because the packet exceeds
+the device MTU.
+
+Fixes: 23a3647bc4f93 ("ip_tunnels: Use skb-len to PMTU check.")
+Cc: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/target_core_xcopy.c | 119 +++++++++++++++++------------
- drivers/target/target_core_xcopy.h |   1 +
- 2 files changed, 71 insertions(+), 49 deletions(-)
+ net/ipv4/ip_tunnel.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
-index 065669f9ca8cc..84e3bf1132fd5 100644
---- a/drivers/target/target_core_xcopy.c
-+++ b/drivers/target/target_core_xcopy.c
-@@ -52,60 +52,83 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
- 	return 0;
- }
- 
--struct xcopy_dev_search_info {
--	const unsigned char *dev_wwn;
--	struct se_device *found_dev;
--};
--
-+/**
-+ * target_xcopy_locate_se_dev_e4_iter - compare XCOPY NAA device identifiers
-+ *
-+ * @se_dev: device being considered for match
-+ * @dev_wwn: XCOPY requested NAA dev_wwn
-+ * @return: 1 on match, 0 on no-match
-+ */
- static int target_xcopy_locate_se_dev_e4_iter(struct se_device *se_dev,
--					      void *data)
-+					      const unsigned char *dev_wwn)
- {
--	struct xcopy_dev_search_info *info = data;
- 	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
- 	int rc;
- 
--	if (!se_dev->dev_attrib.emulate_3pc)
-+	if (!se_dev->dev_attrib.emulate_3pc) {
-+		pr_debug("XCOPY: emulate_3pc disabled on se_dev %p\n", se_dev);
- 		return 0;
-+	}
- 
- 	memset(&tmp_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
- 	target_xcopy_gen_naa_ieee(se_dev, &tmp_dev_wwn[0]);
- 
--	rc = memcmp(&tmp_dev_wwn[0], info->dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
--	if (rc != 0)
--		return 0;
--
--	info->found_dev = se_dev;
--	pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
--
--	rc = target_depend_item(&se_dev->dev_group.cg_item);
-+	rc = memcmp(&tmp_dev_wwn[0], dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
- 	if (rc != 0) {
--		pr_err("configfs_depend_item attempt failed: %d for se_dev: %p\n",
--		       rc, se_dev);
--		return rc;
-+		pr_debug("XCOPY: skip non-matching: %*ph\n",
-+			 XCOPY_NAA_IEEE_REGEX_LEN, tmp_dev_wwn);
-+		return 0;
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -708,7 +708,11 @@ void ip_tunnel_xmit(struct sk_buff *skb,
+ 		goto tx_error;
  	}
-+	pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
  
--	pr_debug("Called configfs_depend_item for se_dev: %p se_dev->se_dev_group: %p\n",
--		 se_dev, &se_dev->dev_group);
- 	return 1;
- }
- 
--static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
--					struct se_device **found_dev)
-+static int target_xcopy_locate_se_dev_e4(struct se_session *sess,
-+					const unsigned char *dev_wwn,
-+					struct se_device **_found_dev,
-+					struct percpu_ref **_found_lun_ref)
- {
--	struct xcopy_dev_search_info info;
--	int ret;
--
--	memset(&info, 0, sizeof(info));
--	info.dev_wwn = dev_wwn;
--
--	ret = target_for_each_device(target_xcopy_locate_se_dev_e4_iter, &info);
--	if (ret == 1) {
--		*found_dev = info.found_dev;
--		return 0;
--	} else {
--		pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
--		return -EINVAL;
-+	struct se_dev_entry *deve;
-+	struct se_node_acl *nacl;
-+	struct se_lun *this_lun = NULL;
-+	struct se_device *found_dev = NULL;
+-	if (tnl_update_pmtu(dev, skb, rt, tnl_params->frag_off, inner_iph)) {
++	df = tnl_params->frag_off;
++	if (skb->protocol == htons(ETH_P_IP))
++		df |= (inner_iph->frag_off & htons(IP_DF));
 +
-+	/* cmd with NULL sess indicates no associated $FABRIC_MOD */
-+	if (!sess)
-+		goto err_out;
-+
-+	pr_debug("XCOPY 0xe4: searching for: %*ph\n",
-+		 XCOPY_NAA_IEEE_REGEX_LEN, dev_wwn);
-+
-+	nacl = sess->se_node_acl;
-+	rcu_read_lock();
-+	hlist_for_each_entry_rcu(deve, &nacl->lun_entry_hlist, link) {
-+		struct se_device *this_dev;
-+		int rc;
-+
-+		this_lun = rcu_dereference(deve->se_lun);
-+		this_dev = rcu_dereference_raw(this_lun->lun_se_dev);
-+
-+		rc = target_xcopy_locate_se_dev_e4_iter(this_dev, dev_wwn);
-+		if (rc) {
-+			if (percpu_ref_tryget_live(&this_lun->lun_ref))
-+				found_dev = this_dev;
-+			break;
-+		}
++	if (tnl_update_pmtu(dev, skb, rt, df, inner_iph)) {
+ 		ip_rt_put(rt);
+ 		goto tx_error;
  	}
-+	rcu_read_unlock();
-+	if (found_dev == NULL)
-+		goto err_out;
-+
-+	pr_debug("lun_ref held for se_dev: %p se_dev->se_dev_group: %p\n",
-+		 found_dev, &found_dev->dev_group);
-+	*_found_dev = found_dev;
-+	*_found_lun_ref = &this_lun->lun_ref;
-+	return 0;
-+err_out:
-+	pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
-+	return -EINVAL;
- }
+@@ -736,10 +740,6 @@ void ip_tunnel_xmit(struct sk_buff *skb,
+ 			ttl = ip4_dst_hoplimit(&rt->dst);
+ 	}
  
- static int target_xcopy_parse_tiddesc_e4(struct se_cmd *se_cmd, struct xcopy_op *xop,
-@@ -248,12 +271,16 @@ static int target_xcopy_parse_target_descriptors(struct se_cmd *se_cmd,
- 
- 	switch (xop->op_origin) {
- 	case XCOL_SOURCE_RECV_OP:
--		rc = target_xcopy_locate_se_dev_e4(xop->dst_tid_wwn,
--						&xop->dst_dev);
-+		rc = target_xcopy_locate_se_dev_e4(se_cmd->se_sess,
-+						xop->dst_tid_wwn,
-+						&xop->dst_dev,
-+						&xop->remote_lun_ref);
- 		break;
- 	case XCOL_DEST_RECV_OP:
--		rc = target_xcopy_locate_se_dev_e4(xop->src_tid_wwn,
--						&xop->src_dev);
-+		rc = target_xcopy_locate_se_dev_e4(se_cmd->se_sess,
-+						xop->src_tid_wwn,
-+						&xop->src_dev,
-+						&xop->remote_lun_ref);
- 		break;
- 	default:
- 		pr_err("XCOPY CSCD descriptor IDs not found in CSCD list - "
-@@ -397,18 +424,12 @@ static int xcopy_pt_get_cmd_state(struct se_cmd *se_cmd)
- 
- static void xcopy_pt_undepend_remotedev(struct xcopy_op *xop)
- {
--	struct se_device *remote_dev;
+-	df = tnl_params->frag_off;
+-	if (skb->protocol == htons(ETH_P_IP))
+-		df |= (inner_iph->frag_off&htons(IP_DF));
 -
- 	if (xop->op_origin == XCOL_SOURCE_RECV_OP)
--		remote_dev = xop->dst_dev;
-+		pr_debug("putting dst lun_ref for %p\n", xop->dst_dev);
- 	else
--		remote_dev = xop->src_dev;
--
--	pr_debug("Calling configfs_undepend_item for"
--		  " remote_dev: %p remote_dev->dev_group: %p\n",
--		  remote_dev, &remote_dev->dev_group.cg_item);
-+		pr_debug("putting src lun_ref for %p\n", xop->src_dev);
- 
--	target_undepend_item(&remote_dev->dev_group.cg_item);
-+	percpu_ref_put(xop->remote_lun_ref);
- }
- 
- static void xcopy_pt_release_cmd(struct se_cmd *se_cmd)
-diff --git a/drivers/target/target_core_xcopy.h b/drivers/target/target_core_xcopy.h
-index 700a981c7b415..7db8d0c9223f8 100644
---- a/drivers/target/target_core_xcopy.h
-+++ b/drivers/target/target_core_xcopy.h
-@@ -19,6 +19,7 @@ struct xcopy_op {
- 	struct se_device *dst_dev;
- 	unsigned char dst_tid_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
- 	unsigned char local_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
-+	struct percpu_ref *remote_lun_ref;
- 
- 	sector_t src_lba;
- 	sector_t dst_lba;
--- 
-2.27.0
-
+ 	max_headroom = LL_RESERVED_SPACE(rt->dst.dev) + sizeof(struct iphdr)
+ 			+ rt->dst.header_len + ip_encap_hlen(&tunnel->encap);
+ 	if (max_headroom > dev->needed_headroom)
 
 
