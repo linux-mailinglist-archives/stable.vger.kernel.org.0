@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4AC2F78F5
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B132F78F7
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbhAOMaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:30:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35808 "EHLO mail.kernel.org"
+        id S1731959AbhAOMaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731880AbhAOMaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 104A3238A1;
-        Fri, 15 Jan 2021 12:29:23 +0000 (UTC)
+        id S1731880AbhAOMaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4519C223E0;
+        Fri, 15 Jan 2021 12:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713764;
-        bh=m4Yilyb277tVnl7s3TARe03+q0e9nRuS9ZjeVQCkAas=;
+        s=korg; t=1610713766;
+        bh=2lfO5BMhBRCISYYSfisVBIn98GspxvrD9EFkcEhvGtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuNHwhpvtUgJ2Li8OhyPu+p3X/JT1n2e6pRsN8ntZQOTuDCJ86/YesSGnekFQHtrk
-         HqQmrox35epSuBihzgcWlj892fmUw0XR5BcOAn75su/DsAOsdK/LCrsuyBQiyxzJDC
-         OdJ4oU/9aR1VmcLEZbToBfsA7YIPyDT4AkFfwdsY=
+        b=zk3xv8JoSA85lsreprLcNctPHL6oqbmSgBumugsB7yhw9U2MtJI0Q5Zb4PuwxrzgG
+         f7NzCnFbh1KtDiAjtd+0N49A2pb2Y8UwTQiRdikJPCQb/pPaOWdmsOCAfghdgTNKC8
+         a5JYHQFCIv0DX20VKl1z8P5fbookJM+2hBkjBwcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 12/18] spi: pxa2xx: Fix use-after-free on unbind
-Date:   Fri, 15 Jan 2021 13:27:40 +0100
-Message-Id: <20210115121955.713031705@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 13/18] cpufreq: powernow-k8: pass policy rather than use cpufreq_cpu_get()
+Date:   Fri, 15 Jan 2021 13:27:41 +0100
+Message-Id: <20210115121955.763178014@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
 References: <20210115121955.112329537@linuxfoundation.org>
@@ -40,49 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 5626308bb94d9f930aa5f7c77327df4c6daa7759 upstream
+commit 943bdd0cecad06da8392a33093230e30e501eccc upstream.
 
-pxa2xx_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+Currently there is an unlikely case where cpufreq_cpu_get() returns a
+NULL policy and this will cause a NULL pointer dereference later on.
 
-Fix by switching over to the new devm_spi_alloc_master/slave() helper
-which keeps the private data accessible until the driver has unbound.
+Fix this by passing the policy to transition_frequency_fidvid() from
+the caller and hence eliminating the need for the cpufreq_cpu_get()
+and cpufreq_cpu_put().
 
-Fixes: 32e5b57232c0 ("spi: pxa2xx: Fix controller unregister order")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v2.6.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v2.6.17+: 32e5b57232c0: spi: pxa2xx: Fix controller unregister order
-Cc: <stable@vger.kernel.org> # v2.6.17+
-Link: https://lore.kernel.org/r/5764b04d4a6e43069ebb7808f64c2f774ac6f193.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Thanks to Viresh Kumar for suggesting the fix.
+
+Addresses-Coverity: ("Dereference null return")
+Fixes: b43a7ffbf33b ("cpufreq: Notify all policy->cpus in cpufreq_notify_transition()")
+Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi-pxa2xx.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1479,7 +1479,7 @@ static int pxa2xx_spi_probe(struct platf
- 		return -ENODEV;
- 	}
+---
+ drivers/cpufreq/powernow-k8.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+--- a/drivers/cpufreq/powernow-k8.c
++++ b/drivers/cpufreq/powernow-k8.c
+@@ -887,9 +887,9 @@ static int get_transition_latency(struct
  
--	master = spi_alloc_master(dev, sizeof(struct driver_data));
-+	master = devm_spi_alloc_master(dev, sizeof(*drv_data));
- 	if (!master) {
- 		dev_err(&pdev->dev, "cannot alloc spi_master\n");
- 		pxa_ssp_free(ssp);
-@@ -1619,7 +1619,6 @@ out_error_clock_enabled:
- 	free_irq(ssp->irq, drv_data);
+ /* Take a frequency, and issue the fid/vid transition command */
+ static int transition_frequency_fidvid(struct powernow_k8_data *data,
+-		unsigned int index)
++		unsigned int index,
++		struct cpufreq_policy *policy)
+ {
+-	struct cpufreq_policy *policy;
+ 	u32 fid = 0;
+ 	u32 vid = 0;
+ 	int res;
+@@ -921,9 +921,6 @@ static int transition_frequency_fidvid(s
+ 	freqs.old = find_khz_freq_from_fid(data->currfid);
+ 	freqs.new = find_khz_freq_from_fid(fid);
  
- out_error_master_alloc:
--	spi_master_put(master);
- 	pxa_ssp_free(ssp);
- 	return status;
- }
+-	policy = cpufreq_cpu_get(smp_processor_id());
+-	cpufreq_cpu_put(policy);
+-
+ 	cpufreq_freq_transition_begin(policy, &freqs);
+ 	res = transition_fid_vid(data, fid, vid);
+ 	cpufreq_freq_transition_end(policy, &freqs, res);
+@@ -978,7 +975,7 @@ static long powernowk8_target_fn(void *a
+ 
+ 	powernow_k8_acpi_pst_values(data, newstate);
+ 
+-	ret = transition_frequency_fidvid(data, newstate);
++	ret = transition_frequency_fidvid(data, newstate, pol);
+ 
+ 	if (ret) {
+ 		pr_err("transition frequency failed\n");
 
 
