@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9822F79C6
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7362F79BA
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732241AbhAOMkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:40:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S1733294AbhAOMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:40:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732518AbhAOMkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:40:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA18022473;
-        Fri, 15 Jan 2021 12:39:34 +0000 (UTC)
+        id S1733202AbhAOMkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:40:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F0DE207C4;
+        Fri, 15 Jan 2021 12:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714375;
-        bh=BZ6cIZlB4mtdKRPbOHb00MVj9CI+bHWvyL/IGzvS16c=;
+        s=korg; t=1610714377;
+        bh=yBGJTL1JCJnPTAXyOVlrRpt11JkqBiPs/MMF3Jxxkig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0w2moq+wFVChlUWfZlFtzM1P3qr/J5e8XrVa4F2lyB/H9byPSn3N0IfSwrJzrK95
-         eQiL6eDNm2TThydcet4hQtydlIxdWPUTWvO/bwq0gVtmPo1ofD+tgItkZWbi3EGZ9E
-         K2EFibpQX3E/YNxZIudI6pzkepj/Ogj0rK9X2PSU=
+        b=FuVgStkH5MKL3ZSTwGyP6JQM0eH/7DruI9xn06WkT5N/w5G622fh16XU1MWQiDy69
+         D7Uo0NUkpLajgfkKXGjL63jkhz1O0TqhIjjF+m+AlSQ83OLgu451CqfurL+UbKbWcV
+         2Scqm+fyQAuGRPpNjDhoX22ryMyBLOZRL1HTV6TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 100/103] net: drop bogus skb with CHECKSUM_PARTIAL and offset beyond end of trimmed packet
-Date:   Fri, 15 Jan 2021 13:28:33 +0100
-Message-Id: <20210115122010.839782359@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 101/103] regmap: debugfs: Fix a reversed if statement in regmap_debugfs_init()
+Date:   Fri, 15 Jan 2021 13:28:34 +0100
+Message-Id: <20210115122010.887166659@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -42,50 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 54970a2fbb673f090b7f02d7f57b10b2e0707155 upstream.
+commit f6bcb4c7f366905b66ce8ffca7190118244bb642 upstream.
 
-syzbot reproduces BUG_ON in skb_checksum_help():
-tun creates (bogus) skb with huge partial-checksummed area and
-small ip packet inside. Then ip_rcv trims the skb based on size
-of internal ip packet, after that csum offset points beyond of
-trimmed skb. Then checksum_tg() called via netfilter hook
-triggers BUG_ON:
+This code will leak "map->debugfs_name" because the if statement is
+reversed so it only frees NULL pointers instead of non-NULL.  In
+fact the if statement is not required and should just be removed
+because kfree() accepts NULL pointers.
 
-        offset = skb_checksum_start_offset(skb);
-        BUG_ON(offset >= skb_headlen(skb));
-
-To work around the problem this patch forces pskb_trim_rcsum_slow()
-to return -EINVAL in described scenario. It allows its callers to
-drop such kind of packets.
-
-Link: https://syzkaller.appspot.com/bug?id=b419a5ca95062664fe1a60b764621eb4526e2cd0
-Reported-by: syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/1b2494af-2c56-8ee2-7bc0-923fcad1cdf8@virtuozzo.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cffa4b2122f5 ("regmap: debugfs: Fix a memory leak when calling regmap_attach_dev")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X/RQpfAwRdLg0GqQ@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/skbuff.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/base/regmap/regmap-debugfs.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2011,6 +2011,12 @@ int pskb_trim_rcsum_slow(struct sk_buff
- 		skb->csum = csum_block_sub(skb->csum,
- 					   skb_checksum(skb, len, delta, 0),
- 					   len);
-+	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		int hdlen = (len > skb_headlen(skb)) ? skb_headlen(skb) : len;
-+		int offset = skb_checksum_start_offset(skb) + skb->csum_offset;
-+
-+		if (offset + sizeof(__sum16) > hdlen)
-+			return -EINVAL;
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -594,9 +594,7 @@ void regmap_debugfs_init(struct regmap *
  	}
- 	return __pskb_trim(skb, len);
- }
+ 
+ 	if (!strcmp(name, "dummy")) {
+-		if (!map->debugfs_name)
+-			kfree(map->debugfs_name);
+-
++		kfree(map->debugfs_name);
+ 		map->debugfs_name = kasprintf(GFP_KERNEL, "dummy%d",
+ 						dummy_index);
+ 		if (!map->debugfs_name)
 
 
