@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 725402F7AA9
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BDC42F79E6
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732959AbhAOMfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:35:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42316 "EHLO mail.kernel.org"
+        id S2388286AbhAOMjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:39:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732956AbhAOMfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:35:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F66E23356;
-        Fri, 15 Jan 2021 12:34:38 +0000 (UTC)
+        id S2388284AbhAOMjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:39:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE387221FA;
+        Fri, 15 Jan 2021 12:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714078;
-        bh=xxXoBY5nHnpv7/2YhjLVgSeywH1zqfCy2mWXgAox8TA=;
+        s=korg; t=1610714319;
+        bh=pJzcQLGJgnYbYeTux5BdLA0lnaJaEg5KGBBjaOjmW+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZNHNU7EMC4ccrtqpBbB+qBWZTxNxuCelvZ5/U/9GRBSunsRJwYQPlnIwSFEAliYe
-         hdIDgLpmWxNElhZtiZYLzXGipQBS0NDaw6qkKhTS7JJy37aq3GWkQeRUnz8P5msejy
-         HvzIKErFTFRKPbUVF5gW/ykXrTndz5keJLo1D0eg=
+        b=cV2uflHHIc+5hrLZsbuNVmR5u4LBAr3OkykuAZ2YYHRXfRS/9tLOa+mx/n70ZXNAC
+         XaOw514spGMa0msh/KJtoLweMJ6Us+UV6i3gMDfLpC27nO15plfBU+ZH1UusDwTviL
+         9vENnpdjucpwlNzicP0lH/iPcnIrMRf+U0iPZyOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 36/62] can: tcan4x5x: fix bittiming const, use common bittiming from m_can driver
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 065/103] bcache: set bcache device into read-only mode for BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET
 Date:   Fri, 15 Jan 2021 13:27:58 +0100
-Message-Id: <20210115122000.140930399@linuxfoundation.org>
+Message-Id: <20210115122009.189313820@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Coly Li <colyli@suse.de>
 
-commit aee2b3ccc8a63d1cd7da6a8a153d1f3712d40826 upstream.
+commit 5342fd4255021ef0c4ce7be52eea1c4ebda11c63 upstream.
 
-According to the TCAN4550 datasheet "SLLSF91 - DECEMBER 2018" the tcan4x5x has
-the same bittiming constants as a m_can revision 3.2.x/3.3.0.
+If BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET is set in incompat feature
+set, it means the cache device is created with obsoleted layout with
+obso_bucket_site_hi. Now bcache does not support this feature bit, a new
+BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE incompat feature bit is added
+for a better layout to support large bucket size.
 
-The tcan4x5x chip I'm using identifies itself as m_can revision 3.2.1, so
-remove the tcan4x5x specific bittiming values and rely on the values in the
-m_can driver, which are selected according to core revision.
+For the legacy compatibility purpose, if a cache device created with
+obsoleted BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET feature bit, all bcache
+devices attached to this cache set should be set to read-only. Then the
+dirty data can be written back to backing device before re-create the
+cache device with BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE feature bit
+by the latest bcache-tools.
 
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Cc: Dan Murphy <dmurphy@ti.com>
-Reviewed-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20201215103238.524029-3-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This patch checks BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET feature bit
+when running a cache set and attach a bcache device to the cache set. If
+this bit is set,
+- When run a cache set, print an error kernel message to indicate all
+  following attached bcache device will be read-only.
+- When attach a bcache device, print an error kernel message to indicate
+  the attached bcache device will be read-only, and ask users to update
+  to latest bcache-tools.
+
+Such change is only for cache device whose bucket size >= 32MB, this is
+for the zoned SSD and almost nobody uses such large bucket size at this
+moment. If you don't explicit set a large bucket size for a zoned SSD,
+such change is totally transparent to your bcache device.
+
+Fixes: ffa470327572 ("bcache: add bucket_size_hi into struct cache_sb_disk for large bucket")
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/m_can/tcan4x5x.c |   26 --------------------------
- 1 file changed, 26 deletions(-)
+ drivers/md/bcache/super.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -126,30 +126,6 @@ struct tcan4x5x_priv {
- 	int reg_offset;
- };
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1341,6 +1341,12 @@ int bch_cached_dev_attach(struct cached_
+ 	bcache_device_link(&dc->disk, c, "bdev");
+ 	atomic_inc(&c->attached_dev_nr);
  
--static struct can_bittiming_const tcan4x5x_bittiming_const = {
--	.name = DEVICE_NAME,
--	.tseg1_min = 2,
--	.tseg1_max = 31,
--	.tseg2_min = 2,
--	.tseg2_max = 16,
--	.sjw_max = 16,
--	.brp_min = 1,
--	.brp_max = 32,
--	.brp_inc = 1,
--};
--
--static struct can_bittiming_const tcan4x5x_data_bittiming_const = {
--	.name = DEVICE_NAME,
--	.tseg1_min = 1,
--	.tseg1_max = 32,
--	.tseg2_min = 1,
--	.tseg2_max = 16,
--	.sjw_max = 16,
--	.brp_min = 1,
--	.brp_max = 32,
--	.brp_inc = 1,
--};
--
- static void tcan4x5x_check_wake(struct tcan4x5x_priv *priv)
- {
- 	int wake_state = 0;
-@@ -449,8 +425,6 @@ static int tcan4x5x_can_probe(struct spi
- 	mcan_class->dev = &spi->dev;
- 	mcan_class->ops = &tcan4x5x_ops;
- 	mcan_class->is_peripheral = true;
--	mcan_class->bit_timing = &tcan4x5x_bittiming_const;
--	mcan_class->data_timing = &tcan4x5x_data_bittiming_const;
- 	mcan_class->net->irq = spi->irq;
++	if (bch_has_feature_obso_large_bucket(&(c->cache->sb))) {
++		pr_err("The obsoleted large bucket layout is unsupported, set the bcache device into read-only\n");
++		pr_err("Please update to the latest bcache-tools to create the cache device\n");
++		set_disk_ro(dc->disk.disk, 1);
++	}
++
+ 	/* Allow the writeback thread to proceed */
+ 	up_write(&dc->writeback_lock);
  
- 	spi_set_drvdata(spi, priv);
+@@ -1564,6 +1570,12 @@ static int flash_dev_run(struct cache_se
+ 
+ 	bcache_device_link(d, c, "volume");
+ 
++	if (bch_has_feature_obso_large_bucket(&c->cache->sb)) {
++		pr_err("The obsoleted large bucket layout is unsupported, set the bcache device into read-only\n");
++		pr_err("Please update to the latest bcache-tools to create the cache device\n");
++		set_disk_ro(d->disk, 1);
++	}
++
+ 	return 0;
+ err:
+ 	kobject_put(&d->kobj);
+@@ -2123,6 +2135,9 @@ static int run_cache_set(struct cache_se
+ 	c->cache->sb.last_mount = (u32)ktime_get_real_seconds();
+ 	bcache_write_super(c);
+ 
++	if (bch_has_feature_obso_large_bucket(&c->cache->sb))
++		pr_err("Detect obsoleted large bucket layout, all attached bcache device will be read-only\n");
++
+ 	list_for_each_entry_safe(dc, t, &uncached_devices, list)
+ 		bch_cached_dev_attach(dc, c, NULL);
+ 
 
 
