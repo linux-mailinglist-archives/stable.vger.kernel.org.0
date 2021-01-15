@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276662F7A51
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8472F7A4F
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732891AbhAOMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
+        id S2387890AbhAOMgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:36:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387935AbhAOMhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A00236FB;
-        Fri, 15 Jan 2021 12:36:30 +0000 (UTC)
+        id S2387877AbhAOMgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:36:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BE8823403;
+        Fri, 15 Jan 2021 12:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714191;
-        bh=0UqOFdZ0HNO4sY8SrYBkxnjjEJNIXWNcXygoYzrav6c=;
+        s=korg; t=1610714193;
+        bh=Av6AZ5sqMNdznd5hwV5NiBEAkfFz3EQx3O3+DAJjfvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlCEdfuH7+DUKHiNRb1/CuIHnCiAFzdLwP4D5AAApRMrCyjm6obB9vJC9CaBjU9QN
-         8/Sm4tvXN9t3Sc7R2G9s5cUEyH58hVi7qeK3nEqcouIYrew/PbpasfO1jtNPBh6VfV
-         I3zFlUbFG4J8hdIAKHM9U8+2fd6EABgILOSyA9Lg=
+        b=lCwwUB9CdqKohqvFMAj38meaAdwztrf08VDQNUfumoF5MzkdKbdN51jFeuKJaMPGe
+         0KjIzL3rqsGeh1a+G4TWfV6vR+RjfeivAm+EpdQeZOwfIrM9BxY3Rmtej7WS95XQMW
+         1Vm0xmP5EMzcozxLqEH/CyPKGFdlIjODD+QDMuxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Richard Cochran <richardcochran@gmail.com>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 024/103] ptp: ptp_ines: prevent build when HAS_IOMEM is not set
-Date:   Fri, 15 Jan 2021 13:27:17 +0100
-Message-Id: <20210115122007.222030723@linuxfoundation.org>
+Subject: [PATCH 5.10 025/103] net: ipv6: fib: flush exceptions when purging route
+Date:   Fri, 15 Jan 2021 13:27:18 +0100
+Message-Id: <20210115122007.269657489@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -41,41 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Sean Tranchetti <stranche@codeaurora.org>
 
-[ Upstream commit 1f685e6adbbe3c7b1bd9053be771b898d9efa655 ]
+[ Upstream commit d8f5c29653c3f6995e8979be5623d263e92f6b86 ]
 
-ptp_ines.c uses devm_platform_ioremap_resource(), which is only
-built/available when CONFIG_HAS_IOMEM is enabled.
-CONFIG_HAS_IOMEM is not enabled for arch/s390/, so builds on S390
-have a build error:
+Route removal is handled by two code paths. The main removal path is via
+fib6_del_route() which will handle purging any PMTU exceptions from the
+cache, removing all per-cpu copies of the DST entry used by the route, and
+releasing the fib6_info struct.
 
-s390-linux-ld: drivers/ptp/ptp_ines.o: in function `ines_ptp_ctrl_probe':
-ptp_ines.c:(.text+0x17e6): undefined reference to `devm_platform_ioremap_resource'
+The second removal location is during fib6_add_rt2node() during a route
+replacement operation. This path also calls fib6_purge_rt() to handle
+cleaning up the per-cpu copies of the DST entries and releasing the
+fib6_info associated with the older route, but it does not flush any PMTU
+exceptions that the older route had. Since the older route is removed from
+the tree during the replacement, we lose any way of accessing it again.
 
-Prevent builds of ptp_ines.c when HAS_IOMEM is not set.
+As these lingering DSTs and the fib6_info struct are holding references to
+the underlying netdevice struct as well, unregistering that device from the
+kernel can never complete.
 
-Fixes: bad1eaa6ac31 ("ptp: Add a driver for InES time stamping IP core.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: lore.kernel.org/r/202101031125.ZEFCUiKi-lkp@intel.com
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Link: https://lore.kernel.org/r/20210106042531.1351-1-rdunlap@infradead.org
+Fixes: 2b760fcf5cfb3 ("ipv6: hook up exception table to store dst cache")
+Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/1609892546-11389-1-git-send-email-stranche@quicinc.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ptp/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/ip6_fib.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -78,6 +78,7 @@ config DP83640_PHY
- config PTP_1588_CLOCK_INES
- 	tristate "ZHAW InES PTP time stamping IP core"
- 	depends on NETWORK_PHY_TIMESTAMPING
-+	depends on HAS_IOMEM
- 	depends on PHYLIB
- 	depends on PTP_1588_CLOCK
- 	help
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -1025,6 +1025,8 @@ static void fib6_purge_rt(struct fib6_in
+ {
+ 	struct fib6_table *table = rt->fib6_table;
+ 
++	/* Flush all cached dst in exception table */
++	rt6_flush_exceptions(rt);
+ 	fib6_drop_pcpu_from(rt, table);
+ 
+ 	if (rt->nh && !list_empty(&rt->nh_list))
+@@ -1927,9 +1929,6 @@ static void fib6_del_route(struct fib6_t
+ 	net->ipv6.rt6_stats->fib_rt_entries--;
+ 	net->ipv6.rt6_stats->fib_discarded_routes++;
+ 
+-	/* Flush all cached dst in exception table */
+-	rt6_flush_exceptions(rt);
+-
+ 	/* Reset round-robin state, if necessary */
+ 	if (rcu_access_pointer(fn->rr_ptr) == rt)
+ 		fn->rr_ptr = NULL;
 
 
