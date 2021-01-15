@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7502F7ACE
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:56:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC6D2F7A3B
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387639AbhAOMzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:55:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
+        id S1732034AbhAOMr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:47:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387640AbhAOMfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:35:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00644223E0;
-        Fri, 15 Jan 2021 12:35:04 +0000 (UTC)
+        id S2388006AbhAOMhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:37:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A6D5235F8;
+        Fri, 15 Jan 2021 12:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714105;
-        bh=Qe4Gq1BiktvxjL/ZaekxISO/O3xNb6cvTOm77gyAm74=;
+        s=korg; t=1610714239;
+        bh=3D4ZQwUCjpcedf9bq0LqV2BCy9wTjj+qzk1kRdItDlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7RY86qbKJF9QPaKX8IZBHPaq/gR0b++N2FQxn+nseBdv9RCytlfMjkqGnhBkph46
-         7WZfipB/MUkhRbd+Bn4rwNktFpyvYVpf+JSNNhho/RvR9K0LQbmGUpXoz2iigjxXoM
-         c+f8SHzScgkLwZvqmJzgXSMoUV9rsUwC8wdWFp6o=
+        b=T3USV0UeUKqEEccwjP4vdH8c3bynglciE6yZZ/g0AKco/jVKl8jRh+muSZ5NtZTIG
+         jyGM4ph08LfMBzV0C5EvOO4e78G59eKxxqau1AZgP1RCKwf7HQhqO8FFR2Atvs1q9x
+         vUHa8UKhzsqhWU7PYUMC2mPe2bg0V1CeNxB+vTdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 18/62] net: dsa: lantiq_gswip: Exclude RMII from modes that report 1 GbE
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 047/103] net/mlx5: Check if lag is supported before creating one
 Date:   Fri, 15 Jan 2021 13:27:40 +0100
-Message-Id: <20210115121959.282968059@linuxfoundation.org>
+Message-Id: <20210115122008.334524406@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 3545454c7801e391b0d966f82c98614d45394770 ]
+[ Upstream commit abf8ef953a43e74aac3c54a94975f21bd483199b ]
 
-Exclude RMII from modes that report 1 GbE support. Reduced MII supports
-up to 100 MbE.
+This patch fixes a memleak issue by preventing to create a lag and
+add PFs if lag is not supported.
 
-Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210107195818.3878-1-olek2@wp.pl
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+comm “python3”, pid 349349, jiffies 4296985507 (age 1446.976s)
+hex dump (first 32 bytes):
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  …………….
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  …………….
+ backtrace:
+  [<000000005b216ae7>] mlx5_lag_add+0x1d5/0×3f0 [mlx5_core]
+  [<000000000445aa55>] mlx5e_nic_enable+0x66/0×1b0 [mlx5_core]
+  [<00000000c56734c3>] mlx5e_attach_netdev+0x16e/0×200 [mlx5_core]
+  [<0000000030439d1f>] mlx5e_attach+0x5c/0×90 [mlx5_core]
+  [<0000000018fd8615>] mlx5e_add+0x1a4/0×410 [mlx5_core]
+  [<0000000068bc504b>] mlx5_add_device+0x72/0×120 [mlx5_core]
+  [<000000009fce51f9>] mlx5_register_device+0x77/0xb0 [mlx5_core]
+  [<00000000d0d81ff3>] mlx5_load_one+0xc58/0×1eb0 [mlx5_core]
+  [<0000000045077adc>] init_one+0x3ea/0×920 [mlx5_core]
+  [<0000000043287674>] pci_device_probe+0xcd/0×150
+  [<00000000dafd3279>] really_probe+0x1c9/0×4b0
+  [<00000000f06bdd84>] driver_probe_device+0x5d/0×140
+  [<00000000e3d508b6>] device_driver_attach+0x4f/0×60
+  [<0000000084fba0f0>] bind_store+0xbf/0×120
+  [<00000000bf6622b3>] kernfs_fop_write+0x114/0×1b0
+
+Fixes: 9b412cc35f00 ("net/mlx5e: Add LAG warning if bond slave is not lag master")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -1419,11 +1419,12 @@ static void gswip_phylink_validate(struc
- 	phylink_set(mask, Pause);
- 	phylink_set(mask, Asym_Pause);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
+@@ -556,7 +556,9 @@ void mlx5_lag_add(struct mlx5_core_dev *
+ 	struct mlx5_core_dev *tmp_dev;
+ 	int i, err;
  
--	/* With the exclusion of MII and Reverse MII, we support Gigabit,
--	 * including Half duplex
-+	/* With the exclusion of MII, Reverse MII and Reduced MII, we
-+	 * support Gigabit, including Half duplex
- 	 */
- 	if (state->interface != PHY_INTERFACE_MODE_MII &&
--	    state->interface != PHY_INTERFACE_MODE_REVMII) {
-+	    state->interface != PHY_INTERFACE_MODE_REVMII &&
-+	    state->interface != PHY_INTERFACE_MODE_RMII) {
- 		phylink_set(mask, 1000baseT_Full);
- 		phylink_set(mask, 1000baseT_Half);
- 	}
+-	if (!MLX5_CAP_GEN(dev, vport_group_manager))
++	if (!MLX5_CAP_GEN(dev, vport_group_manager) ||
++	    !MLX5_CAP_GEN(dev, lag_master) ||
++	    MLX5_CAP_GEN(dev, num_lag_ports) != MLX5_MAX_PORTS)
+ 		return;
+ 
+ 	tmp_dev = mlx5_get_next_phys_dev(dev);
+@@ -574,12 +576,9 @@ void mlx5_lag_add(struct mlx5_core_dev *
+ 	if (mlx5_lag_dev_add_pf(ldev, dev, netdev) < 0)
+ 		return;
+ 
+-	for (i = 0; i < MLX5_MAX_PORTS; i++) {
+-		tmp_dev = ldev->pf[i].dev;
+-		if (!tmp_dev || !MLX5_CAP_GEN(tmp_dev, lag_master) ||
+-		    MLX5_CAP_GEN(tmp_dev, num_lag_ports) != MLX5_MAX_PORTS)
++	for (i = 0; i < MLX5_MAX_PORTS; i++)
++		if (!ldev->pf[i].dev)
+ 			break;
+-	}
+ 
+ 	if (i >= MLX5_MAX_PORTS)
+ 		ldev->flags |= MLX5_LAG_FLAG_READY;
 
 
