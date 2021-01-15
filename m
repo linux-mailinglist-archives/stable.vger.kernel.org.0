@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C5F2F78F2
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4AC2F78F5
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:30:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731836AbhAOMaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:30:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
+        id S1731809AbhAOMaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731809AbhAOMaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF9622389B;
-        Fri, 15 Jan 2021 12:29:21 +0000 (UTC)
+        id S1731880AbhAOMaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 104A3238A1;
+        Fri, 15 Jan 2021 12:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713762;
-        bh=rTDdodoFS6VeSOmu9ygZvIE0Lxa6/vIcqvRYcAPLnlY=;
+        s=korg; t=1610713764;
+        bh=m4Yilyb277tVnl7s3TARe03+q0e9nRuS9ZjeVQCkAas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcybRCk1lM325IvpseNVnsDKTtb08g8PoqLsLqlxytzBu8qaXL+zulcVdPBAOWeqp
-         LVg71kEca2qp9uw8jvM+del6k/WTIHOxtm0rmxJdCydKgnILqLPvFmaSZf0tj4htVt
-         bNRtdPauq4tWJ0sNoIAnb6UybfhoYdeD9uDlWjzw=
+        b=OuNHwhpvtUgJ2Li8OhyPu+p3X/JT1n2e6pRsN8ntZQOTuDCJ86/YesSGnekFQHtrk
+         HqQmrox35epSuBihzgcWlj892fmUw0XR5BcOAn75su/DsAOsdK/LCrsuyBQiyxzJDC
+         OdJ4oU/9aR1VmcLEZbToBfsA7YIPyDT4AkFfwdsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mark Brown <broonie@kernel.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 11/18] ubifs: wbuf: Dont leak kernel memory to flash
-Date:   Fri, 15 Jan 2021 13:27:39 +0100
-Message-Id: <20210115121955.664241781@linuxfoundation.org>
+Subject: [PATCH 4.4 12/18] spi: pxa2xx: Fix use-after-free on unbind
+Date:   Fri, 15 Jan 2021 13:27:40 +0100
+Message-Id: <20210115121955.713031705@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
 References: <20210115121955.112329537@linuxfoundation.org>
@@ -40,70 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 20f1431160c6b590cdc269a846fc5a448abf5b98 upstream
+commit 5626308bb94d9f930aa5f7c77327df4c6daa7759 upstream
 
-Write buffers use a kmalloc()'ed buffer, they can leak
-up to seven bytes of kernel memory to flash if writes are not
-aligned.
-So use ubifs_pad() to fill these gaps with padding bytes.
-This was never a problem while scanning because the scanner logic
-manually aligns node lengths and skips over these gaps.
+pxa2xx_spi_remove() accesses the driver's private data after calling
+spi_unregister_controller() even though that function releases the last
+reference on the spi_controller and thereby frees the private data.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fix by switching over to the new devm_spi_alloc_master/slave() helper
+which keeps the private data accessible until the driver has unbound.
+
+Fixes: 32e5b57232c0 ("spi: pxa2xx: Fix controller unregister order")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v2.6.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v2.6.17+: 32e5b57232c0: spi: pxa2xx: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v2.6.17+
+Link: https://lore.kernel.org/r/5764b04d4a6e43069ebb7808f64c2f774ac6f193.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 [sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/io.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/spi/spi-pxa2xx.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -331,7 +331,7 @@ void ubifs_pad(const struct ubifs_info *
- {
- 	uint32_t crc;
- 
--	ubifs_assert(pad >= 0 && !(pad & 7));
-+	ubifs_assert(pad >= 0);
- 
- 	if (pad >= UBIFS_PAD_NODE_SZ) {
- 		struct ubifs_ch *ch = buf;
-@@ -721,6 +721,10 @@ int ubifs_wbuf_write_nolock(struct ubifs
- 		 * write-buffer.
- 		 */
- 		memcpy(wbuf->buf + wbuf->used, buf, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
-+		}
- 
- 		if (aligned_len == wbuf->avail) {
- 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
-@@ -813,13 +817,18 @@ int ubifs_wbuf_write_nolock(struct ubifs
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1479,7 +1479,7 @@ static int pxa2xx_spi_probe(struct platf
+ 		return -ENODEV;
  	}
  
- 	spin_lock(&wbuf->lock);
--	if (aligned_len)
-+	if (aligned_len) {
- 		/*
- 		 * And now we have what's left and what does not take whole
- 		 * max. write unit, so write it to the write-buffer and we are
- 		 * done.
- 		 */
- 		memcpy(wbuf->buf, buf + written, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
-+		}
-+	}
+-	master = spi_alloc_master(dev, sizeof(struct driver_data));
++	master = devm_spi_alloc_master(dev, sizeof(*drv_data));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "cannot alloc spi_master\n");
+ 		pxa_ssp_free(ssp);
+@@ -1619,7 +1619,6 @@ out_error_clock_enabled:
+ 	free_irq(ssp->irq, drv_data);
  
- 	if (c->leb_size - wbuf->offs >= c->max_write_size)
- 		wbuf->size = c->max_write_size;
+ out_error_master_alloc:
+-	spi_master_put(master);
+ 	pxa_ssp_free(ssp);
+ 	return status;
+ }
 
 
