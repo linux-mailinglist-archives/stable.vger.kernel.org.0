@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A39232F7A0E
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8F5C2F7AFC
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731332AbhAOMof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
+        id S1733255AbhAOM4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388158AbhAOMiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:38:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C394A23356;
-        Fri, 15 Jan 2021 12:38:07 +0000 (UTC)
+        id S1732079AbhAOMef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 769672389B;
+        Fri, 15 Jan 2021 12:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714288;
-        bh=VJ6101fdYAlEMS5KFA2EGpLyJIVDmMtWMnzJfEDXdY4=;
+        s=korg; t=1610714034;
+        bh=l/nbjSbORLmGViyj3t9CdQfuvI62Sk4S7BDeyEKBqoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6EPnJRIx9taPcsWxs2qPjFdn/QyiFn84zWqIQ4QxNUTM9KsjDK872os4vB9yLUFg
-         bfYPyVAfLEANA7vrXBmBmAJOj/E7WYHv0wHWIeRuPzH/GtQfpBiqQCjKf8qhG7OpSo
-         RhsGJ2G9WJcibr0ovgxprqiYZynkLDU1V0DVlHHQ=
+        b=ZVPUkXkPQa4qCu6Kac0J3cryyfY+iVVgcOK4jeV6FQbRrP40g0ouKyWyqZtCxbvv7
+         W3jXMLs2H9dj5vis0vWiosc8xdG3qnUwNkyqKTYKVOoNMllm8jYcHE/qCbrRfFBi+0
+         jT555X8ndOOtTnO5X5COutUucXttayQPC1hPSEDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 037/103] nexthop: Fix off-by-one error in error path
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 08/62] net: vlan: avoid leaks on register_vlan_dev() failures
 Date:   Fri, 15 Jan 2021 13:27:30 +0100
-Message-Id: <20210115122007.852948035@linuxfoundation.org>
+Message-Id: <20210115121958.800341440@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 07e61a979ca4dddb3661f59328b3cd109f6b0070 ]
+[ Upstream commit 55b7ab1178cbf41f979ff83236d3321ad35ed2ad ]
 
-A reference was not taken for the current nexthop entry, so do not try
-to put it in the error path.
+VLAN checks for NETREG_UNINITIALIZED to distinguish between
+registration failure and unregistration in progress.
 
-Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+Since commit cb626bf566eb ("net-sysfs: Fix reference count leak")
+registration failure may, however, result in NETREG_UNREGISTERED
+as well as NETREG_UNINITIALIZED.
+
+This fix is similer to cebb69754f37 ("rtnetlink: Fix
+memory(net_device) leak when ->newlink fails")
+
+Fixes: cb626bf566eb ("net-sysfs: Fix reference count leak")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/8021q/vlan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1277,7 +1277,7 @@ static struct nexthop *nexthop_create_gr
- 	return nh;
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -280,7 +280,8 @@ static int register_vlan_device(struct n
+ 	return 0;
  
- out_no_nh:
--	for (; i >= 0; --i)
-+	for (i--; i >= 0; --i)
- 		nexthop_put(nhg->nh_entries[i].nh);
- 
- 	kfree(nhg->spare);
+ out_free_newdev:
+-	if (new_dev->reg_state == NETREG_UNINITIALIZED)
++	if (new_dev->reg_state == NETREG_UNINITIALIZED ||
++	    new_dev->reg_state == NETREG_UNREGISTERED)
+ 		free_netdev(new_dev);
+ 	return err;
+ }
 
 
