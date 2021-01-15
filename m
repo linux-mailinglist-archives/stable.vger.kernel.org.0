@@ -2,86 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447162F75F7
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 10:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EEB42F75FE
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 10:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728794AbhAOJye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 04:54:34 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35373 "EHLO
+        id S1728873AbhAOJ4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 04:56:22 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:43269 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728652AbhAOJyd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 04:54:33 -0500
+        by vger.kernel.org with ESMTP id S1728805AbhAOJ4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 04:56:21 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 248035C009A;
-        Fri, 15 Jan 2021 04:53:48 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 6BACF5C0194;
+        Fri, 15 Jan 2021 04:55:16 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 15 Jan 2021 04:53:48 -0500
+  by compute4.internal (MEProxy); Fri, 15 Jan 2021 04:55:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=9
-        ApFtZeNhaKGGoE4bR9kvaOataMHh2fPzoy6WypX358=; b=RenCvY00FAVPBeiR2
-        mYj29+sZkB+YhuY5IMR3wbBX3hvk0BIgr/iuPpBG69bAnUkGk8tV186SXcPFRnV2
-        qC/MdPW7sMRPSzb1BpnDxENq7B8pOvigcbpr0USPVDey42aNmez1NVVK8ory2aem
-        meJocRqJcuOzse8J21jjuEW+/mSiP2QE0u4p3zW0mLeI7SnEZcfvNf+CVhFqlrx5
-        OEmCpWYKu2NDZmDxlwy0FJGONgeSWJpy0ZRz5WHTYO/jw9YzecufFK0e23kuIsi3
-        LvU9NH8vKwxFCvauGg1VMkIGJCewkjVaz2ziSTzVsSULRUKvlXF7QwVNhuy06aMZ
-        mqSvA==
+        :content-type:in-reply-to; s=fm2; bh=nPLPKGJPqNerSPNfyuV7zXi6UIw
+        d8aJLoN35yKzep7U=; b=Du69bdjGru1PeyJa8oe3OnRoHnAJvMDVFZfDPd/W9jF
+        4GiiDokQwEF8RZZKHONIopgUAh4n5K57ZT5vkOWGkqKFGpNV3siZlJqH00U4PZBF
+        tUJ9GKMeULVkdJ7hZnM346V69/6JaP7Msm1HE6nyDgrPceolxThfOnxjXN78nd7V
+        QsXDPMb7upsvjFm3D32aXhbIlmg90Tjircmde7Q6GZJnc+wFEgGt/NLYfRCq747x
+        gAoD7jpnpn0t8kYODu+ZjP+fRUyb0NsHxPJbdWwu+nFnQNDHyEhs54csHSU25lkr
+        xpNJVcib8JERJ1ydwhCefdztg7Lm6hoQyhKH76+i6Bg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=9ApFtZeNhaKGGoE4bR9kvaOataMHh2fPzoy6WypX3
-        58=; b=MYCmXYD2JABINfsT6qMFcCupv1AyIFcbUSNaDYjHCRmwVXWcox7UAUieQ
-        2p3sAWI5VgwOWxYxkVol2BL2uPe+72VwqjGX3AH2x9pTrPuEMjL0fl1YuTH9qUZu
-        0nWFvEe5Z/GpDLmi/61Sv/8IBHDBifl72r876wjqq+hW82VsdxYT74o8NqfeGirH
-        lLHEemtwgViQOjj/FJuILocARFwyHpwqBVHCOnS7za6lOWeD2nnGYdgJtt+KCoO9
-        SWgQRD7r25gcJQAyyAETs+SV7coCJqSzGM31FcUBthqS4FUxcp4OURUX4eB/Z+D6
-        TrSbfxxXkYsTJQDzR3xdRHOEDTDpg==
-X-ME-Sender: <xms:K2YBYIMacxxpDDZ4PCCT9ryEf9wt5_nTUuk0GuFM4Bt4bse9ySUJ0A>
-    <xme:K2YBYO8XjtmXk49PJpdX7A5SceCRxrTV6_A4YD9JvAmRLtCA4nVmy-iQvOnulQnuj
-    GkBPNSM8-TfpQ>
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nPLPKG
+        JPqNerSPNfyuV7zXi6UIwd8aJLoN35yKzep7U=; b=X8zpqvimWsgz6yfBRaKpv7
+        FSwEIFCIST22Jxu+I+OIkPVtAeDmwIIqGm8zkUDZHGhpDLit8RFK+VeEiv5TYe2S
+        4KFi8Qbt5hLurZWZEUh/iHBCwtitOtkDmtNFSKijSFpidKkRdmNlGdWLfE0Ekqd2
+        YXX5yzYVkjoqelrm9ULs9rdWxs/DJhl2ugITIQhbPegV/mjuExf+tYAeNhzcO4OL
+        LM6+nVrjX8RFhAt8hP6F0WXbQVtJRVEM1cvtFqgR7naWDj9hbsA4/AwXpXJeC8Ae
+        JZpTMJTR+4pLXLJG4b87kzGWjSkwJwRi3HpaFL7+3P+MXQEoNO5yIafxuG9iObTQ
+        ==
+X-ME-Sender: <xms:hGYBYH0d5lEYjp4i0Q-E7BgiDdViATxnSf92ycv3H2073udEqh9tfg>
+    <xme:hGYBYGH4qnrozmSxgS6ijPD3vRHbxXH8J1VrIya98NK5HBch3og0BtRcvMHACns_A
+    Z8AoUrc-T5H5g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtddugddufeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepvedtie
-    elueetgeeggfeufefhvefgtdetgfetgfdtvdegjeehieduvddtkeffheffnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:K2YBYPRCtZSEQ0_ElKDHFXsBG7dVEn-wzthJQqVwSzLor0N-TadG8w>
-    <xmx:K2YBYAsmKMH_S6xfI6bo5Rh8PrCiGUCQ4sezTn2Yd7CzYoazLsp3PA>
-    <xmx:K2YBYAfZrSiQlWZCtqmv6NiORFmY3jKYdA_BIfuQpQFnXsMYWwTGag>
-    <xmx:LGYBYKq5faIePnMnp9YOSSgOkNvRubZnUOYQzoDeakxa8HmE4_ymtA>
+    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevhefgje
+    eitdfffefhvdegleeigeejgeeiffekieffjeeflefhieegtefhudejueenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:hGYBYH4_v-T9pxHQkHzDQLRPPAV3mxGNMMEVEyy5aOj8F1N5SnLXIA>
+    <xmx:hGYBYM2ohEl8LhxqsMlLDsiTKoqklSZmTD0jyxPljKoeqYNYxCNReg>
+    <xmx:hGYBYKHRYxz_bx7Dz_EpoqxMefFN6XEgSIgtLuFAkjPNfxzhISmNeg>
+    <xmx:hGYBYFx2F5Xg3IbfV1Nl8S_VsiaWwVCEwmVmZ0XYKGkEiMbA0gxBfQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AB7E924005A;
-        Fri, 15 Jan 2021 04:53:47 -0500 (EST)
-Date:   Fri, 15 Jan 2021 10:53:46 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0681F240057;
+        Fri, 15 Jan 2021 04:55:15 -0500 (EST)
+Date:   Fri, 15 Jan 2021 10:55:14 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Shannon Nelson <snelson@pensando.io>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] Request backport of ionic driver patch for 5.10 stable
-Message-ID: <YAFmKvI+fSSGzusE@kroah.com>
-References: <3ebd98b2-e680-13c4-2e42-0a6ebafc243b@pensando.io>
+To:     Ping Cheng <pinglinux@gmail.com>
+Cc:     stable kernel <stable@vger.kernel.org>
+Subject: Re: [PATCH] HID: wacom: Fix memory leakage caused by kfifo_alloc
+Message-ID: <YAFmgjODorqwZYwO@kroah.com>
+References: <20201210045230.26343-1-ping.cheng@wacom.com>
+ <CAF8JNhJupLp4hEaut-W2d1eO1EyV1WmdgRh0z0bPqHP1jGQkWQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3ebd98b2-e680-13c4-2e42-0a6ebafc243b@pensando.io>
+In-Reply-To: <CAF8JNhJupLp4hEaut-W2d1eO1EyV1WmdgRh0z0bPqHP1jGQkWQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 12, 2021 at 01:27:03PM -0800, Shannon Nelson wrote:
-> Please apply upstream commit 8f56bc4dc101 ("ionic: start queues before
-> announcing link up") to 5.10.
+On Thu, Jan 14, 2021 at 09:01:27PM -0800, Ping Cheng wrote:
+> This patch has been merged to Linus tree. The upstream commit ID is
+> 37309f47e2f5.
 > 
-> When initially discussed, the implied race condition was still theoretical. 
-> Since then, a case has been found to generate the race issue and cause a
-> failure to bring up the netdev interface by having the device in a bond and
-> the bond driver trying to bring up the device on the netif_carrier_on()
-> notification but before the queues have been started.
-> 
-> This should be applied to 5.10 stable.
+> The issue was introduced by 83417206427b ("HID: wacom: Queue events
+> with missing type/serial data for later processing"). I forgot to cc
+> stable.
 
 Now queued up, thanks.
 
