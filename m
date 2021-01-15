@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE6C2F7AE6
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D3C2F7928
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387451AbhAOMeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41120 "EHLO mail.kernel.org"
+        id S1729700AbhAOMcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:32:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387448AbhAOMeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E8D22473;
-        Fri, 15 Jan 2021 12:33:32 +0000 (UTC)
+        id S1728292AbhAOMcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:32:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E152723339;
+        Fri, 15 Jan 2021 12:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714013;
-        bh=w/CCngwlvQXfR6R9z2V8zA7OSINpshvyHzofDEeKu5M=;
+        s=korg; t=1610713916;
+        bh=85VCItOyBSzkmNzXmzukWng1sNE51ex2TaAMK5W/5Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QkeMuwb1QBMSkbknvItZSzDoCza6XJDf6Djf7K91VOinvL8pj0s83zysTm6Lhbu9
-         33ePCAWfkOmTRzRWbQ5+I1cWnDsmzSHVdIq1AdekFWjs0NXDukZ6WP3/a718isy57R
-         dNTgSXzgsQ/zoeXHQ3K3KmI4ilWEUtNpmTlzOkRs=
+        b=HcCAAB699eLD8Ovje2otzrzObtLMXD/A+e8D/sNNIacBOmY6pvGcOjJQYemFmaXQl
+         Ekrpy5cZ597RZ9ippJpDgfXs7EEqBCFPuCSpC+udW57HeCgDraFXs60ioI6sBC2w3G
+         aVC6PuaCmOfg0U0bgm3xO+Eiv5rZMwb6PHgvs4Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 34/43] lightnvm: select CONFIG_CRC32
-Date:   Fri, 15 Jan 2021 13:28:04 +0100
-Message-Id: <20210115121958.694439807@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 28/28] net: drop bogus skb with CHECKSUM_PARTIAL and offset beyond end of trimmed packet
+Date:   Fri, 15 Jan 2021 13:28:05 +0100
+Message-Id: <20210115121958.158487270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
+References: <20210115121956.731354372@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 19cd3403cb0d522dd5e10188eef85817de29e26e upstream.
+commit 54970a2fbb673f090b7f02d7f57b10b2e0707155 upstream.
 
-Without CRC32 support, this fails to link:
+syzbot reproduces BUG_ON in skb_checksum_help():
+tun creates (bogus) skb with huge partial-checksummed area and
+small ip packet inside. Then ip_rcv trims the skb based on size
+of internal ip packet, after that csum offset points beyond of
+trimmed skb. Then checksum_tg() called via netfilter hook
+triggers BUG_ON:
 
-arm-linux-gnueabi-ld: drivers/lightnvm/pblk-init.o: in function `pblk_init':
-pblk-init.c:(.text+0x2654): undefined reference to `crc32_le'
-arm-linux-gnueabi-ld: drivers/lightnvm/pblk-init.o: in function `pblk_exit':
-pblk-init.c:(.text+0x2a7c): undefined reference to `crc32_le'
+        offset = skb_checksum_start_offset(skb);
+        BUG_ON(offset >= skb_headlen(skb));
 
-Fixes: a4bd217b4326 ("lightnvm: physical block device (pblk) target")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To work around the problem this patch forces pskb_trim_rcsum_slow()
+to return -EINVAL in described scenario. It allows its callers to
+drop such kind of packets.
+
+Link: https://syzkaller.appspot.com/bug?id=b419a5ca95062664fe1a60b764621eb4526e2cd0
+Reported-by: syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/1b2494af-2c56-8ee2-7bc0-923fcad1cdf8@virtuozzo.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/lightnvm/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/skbuff.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/lightnvm/Kconfig
-+++ b/drivers/lightnvm/Kconfig
-@@ -19,6 +19,7 @@ if NVM
- 
- config NVM_PBLK
- 	tristate "Physical Block Device Open-Channel SSD target"
-+	select CRC32
- 	help
- 	  Allows an open-channel SSD to be exposed as a block device to the
- 	  host. The target assumes the device exposes raw flash and must be
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1850,6 +1850,12 @@ int pskb_trim_rcsum_slow(struct sk_buff
+ 		skb->csum = csum_block_sub(skb->csum,
+ 					   skb_checksum(skb, len, delta, 0),
+ 					   len);
++	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		int hdlen = (len > skb_headlen(skb)) ? skb_headlen(skb) : len;
++		int offset = skb_checksum_start_offset(skb) + skb->csum_offset;
++
++		if (offset + sizeof(__sum16) > hdlen)
++			return -EINVAL;
+ 	}
+ 	return __pskb_trim(skb, len);
+ }
 
 
