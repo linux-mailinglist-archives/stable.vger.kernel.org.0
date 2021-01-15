@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 317B82F7BEB
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C38C2F7BA4
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732432AbhAOMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:31:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36470 "EHLO mail.kernel.org"
+        id S1732703AbhAONET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 08:04:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732423AbhAOMbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3FF238E7;
-        Fri, 15 Jan 2021 12:30:30 +0000 (UTC)
+        id S1732700AbhAOMbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A48E238A0;
+        Fri, 15 Jan 2021 12:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713830;
-        bh=fA0KTB++A7mRqnSitYulWdbeN4Ebxk5der3k//c7uXg=;
+        s=korg; t=1610713874;
+        bh=NahTOkR+9aPL6JZsWrG55pB7FafAa/JdFnzdbVfWbM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqmweKeL2liDtik5yJwOt0a/Nx/RIyANMSvkmlezDLeUlXrq+PF7qlZOR06XzdEff
-         3p5b3ySwh0lXEHHZwoAKjiRx5CO4KIceaskDSMvlUBpmmAj+bU+EvcrakVzmbx2n80
-         oe67e+0iptssJahnrOBmK8hELjYKLuw8oKpIi2jg=
+        b=HCjQeDPebpAtqRx07yiGEaljd0Z6teK1PbiR3UgSTc733PVtLgUo/zr71CJ99pFe8
+         TnojyzpsYyYosmKt3wG3S+YNty59a4/8DKJm8bT3M0MET30Cjcb+pjiLPK8VpjQsqA
+         R5ayQ7d5br0BX745rXG02/OqrbskNYI/TGe4q+5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 22/25] wan: ds26522: select CONFIG_BITREVERSE
-Date:   Fri, 15 Jan 2021 13:27:53 +0100
-Message-Id: <20210115121957.783492596@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Guskov <rguskov@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 17/28] spi: stm32: FIFO threshold level - fix align packet size
+Date:   Fri, 15 Jan 2021 13:27:54 +0100
+Message-Id: <20210115121957.614595194@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
-References: <20210115121956.679956165@linuxfoundation.org>
+In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
+References: <20210115121956.731354372@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Roman Guskov <rguskov@dh-electronics.com>
 
-commit 69931e11288520c250152180ecf9b6ac5e6e40ed upstream.
+commit a590370d918fc66c62df6620445791fbe840344a upstream.
 
-Without this, the driver runs into a link failure
+if cur_bpw <= 8 and xfer_len < 4 then the value of fthlv will be 1 and
+SPI registers content may have been lost.
 
-arm-linux-gnueabi-ld: drivers/net/wan/slic_ds26522.o: in function `slic_ds26522_probe':
-slic_ds26522.c:(.text+0x100c): undefined reference to `byte_rev_table'
-arm-linux-gnueabi-ld: slic_ds26522.c:(.text+0x1cdc): undefined reference to `byte_rev_table'
-arm-linux-gnueabi-ld: drivers/net/wan/slic_ds26522.o: in function `slic_write':
-slic_ds26522.c:(.text+0x1e4c): undefined reference to `byte_rev_table'
+* If SPI data register is accessed as a 16-bit register and DSIZE <= 8bit,
+  better to select FTHLV = 2, 4, 6 etc
 
-Fixes: c37d4a0085c5 ("Maxim/driver: Add driver for maxim ds26522")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+* If SPI data register is accessed as a 32-bit register and DSIZE > 8bit,
+  better to select FTHLV = 2, 4, 6 etc, while if DSIZE <= 8bit,
+  better to select FTHLV = 4, 8, 12 etc
+
+Signed-off-by: Roman Guskov <rguskov@dh-electronics.com>
+Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
+Reviewed-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20201221123532.27272-1-rguskov@dh-electronics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wan/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-stm32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wan/Kconfig
-+++ b/drivers/net/wan/Kconfig
-@@ -295,6 +295,7 @@ config SLIC_DS26522
- 	tristate "Slic Maxim ds26522 card support"
- 	depends on SPI
- 	depends on FSL_SOC || ARCH_MXC || ARCH_LAYERSCAPE || COMPILE_TEST
-+	select BITREVERSE
- 	help
- 	  This module initializes and configures the slic maxim card
- 	  in T1 or E1 mode.
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -299,9 +299,9 @@ static u32 stm32_spi_prepare_fthlv(struc
+ 
+ 	/* align packet size with data registers access */
+ 	if (spi->cur_bpw > 8)
+-		fthlv -= (fthlv % 2); /* multiple of 2 */
++		fthlv += (fthlv % 2) ? 1 : 0;
+ 	else
+-		fthlv -= (fthlv % 4); /* multiple of 4 */
++		fthlv += (fthlv % 4) ? (4 - (fthlv % 4)) : 0;
+ 
+ 	return fthlv;
+ }
 
 
