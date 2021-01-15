@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DB32F7AE2
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FB12F7957
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733310AbhAOMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:34:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40956 "EHLO mail.kernel.org"
+        id S1732828AbhAOMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:35:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387411AbhAOMeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0556023136;
-        Fri, 15 Jan 2021 12:33:25 +0000 (UTC)
+        id S2387580AbhAOMfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2697B207C4;
+        Fri, 15 Jan 2021 12:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714006;
-        bh=pFEZn7e8aaz0Dah5R4LTyV/HwgbH9/jP5oTMkHsNmWw=;
+        s=korg; t=1610714085;
+        bh=+VgC4RuFlVvtY7YQhwl43Mq/hN6WhELEU5jkK0wrN88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxppn74lR8PRWvlGlC+lnLiBqRujz4WtVJN42Gsun62wAm+HK4/Gde93aC18izdJM
-         eBa0d++baIRiA8STusPgWYsAHmHoylLVtADVr1VDimzLBhF2qmUh1QBxNE0eMxSR/7
-         fvCbhTgPRfJ7wpM4YqFtkM4IPRe/B/3fLe/C/pFw=
+        b=dXNmPg8mP+LnMzco2sL+ksWdnGK3utxLPWueO4HJbXc/vVtyEDPPCdC0B1ZdFvxnT
+         FRHLJcw91aRa2g3vJPFuf3INe+JTjvRNJOE5EWBaTSrxIYspmUEZE6Lot085NmoGdK
+         VUyx2uDRHy/stRI2DQmsLQeP1BrazUmPwh+mWutw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 31/43] dmaengine: xilinx_dma: fix mixed_enum_type coverity warning
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 39/62] cpufreq: powernow-k8: pass policy rather than use cpufreq_cpu_get()
 Date:   Fri, 15 Jan 2021 13:28:01 +0100
-Message-Id: <20210115121958.556041435@linuxfoundation.org>
+Message-Id: <20210115122000.285260060@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 2d5efea64472469117dc1a9a39530069e95b21e9 upstream.
+commit 943bdd0cecad06da8392a33093230e30e501eccc upstream.
 
-Typecast the fls(width -1) with (enum dmaengine_alignment) in
-xilinx_dma_chan_probe function to fix the coverity warning.
+Currently there is an unlikely case where cpufreq_cpu_get() returns a
+NULL policy and this will cause a NULL pointer dereference later on.
 
-Addresses-Coverity: Event mixed_enum_type.
-Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1608722462-29519-4-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this by passing the policy to transition_frequency_fidvid() from
+the caller and hence eliminating the need for the cpufreq_cpu_get()
+and cpufreq_cpu_put().
+
+Thanks to Viresh Kumar for suggesting the fix.
+
+Addresses-Coverity: ("Dereference null return")
+Fixes: b43a7ffbf33b ("cpufreq: Notify all policy->cpus in cpufreq_notify_transition()")
+Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/xilinx/xilinx_dma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/powernow-k8.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2426,7 +2426,7 @@ static int xilinx_dma_chan_probe(struct
- 		has_dre = false;
+--- a/drivers/cpufreq/powernow-k8.c
++++ b/drivers/cpufreq/powernow-k8.c
+@@ -878,9 +878,9 @@ static int get_transition_latency(struct
  
- 	if (!has_dre)
--		xdev->common.copy_align = fls(width - 1);
-+		xdev->common.copy_align = (enum dmaengine_alignment)fls(width - 1);
+ /* Take a frequency, and issue the fid/vid transition command */
+ static int transition_frequency_fidvid(struct powernow_k8_data *data,
+-		unsigned int index)
++		unsigned int index,
++		struct cpufreq_policy *policy)
+ {
+-	struct cpufreq_policy *policy;
+ 	u32 fid = 0;
+ 	u32 vid = 0;
+ 	int res;
+@@ -912,9 +912,6 @@ static int transition_frequency_fidvid(s
+ 	freqs.old = find_khz_freq_from_fid(data->currfid);
+ 	freqs.new = find_khz_freq_from_fid(fid);
  
- 	if (of_device_is_compatible(node, "xlnx,axi-vdma-mm2s-channel") ||
- 	    of_device_is_compatible(node, "xlnx,axi-dma-mm2s-channel") ||
+-	policy = cpufreq_cpu_get(smp_processor_id());
+-	cpufreq_cpu_put(policy);
+-
+ 	cpufreq_freq_transition_begin(policy, &freqs);
+ 	res = transition_fid_vid(data, fid, vid);
+ 	cpufreq_freq_transition_end(policy, &freqs, res);
+@@ -969,7 +966,7 @@ static long powernowk8_target_fn(void *a
+ 
+ 	powernow_k8_acpi_pst_values(data, newstate);
+ 
+-	ret = transition_frequency_fidvid(data, newstate);
++	ret = transition_frequency_fidvid(data, newstate, pol);
+ 
+ 	if (ret) {
+ 		pr_err("transition frequency failed\n");
 
 
