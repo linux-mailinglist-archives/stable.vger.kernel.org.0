@@ -2,121 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 455FB2F8DE4
-	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 18:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 678F72F8DF8
+	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 18:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728016AbhAPRLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Jan 2021 12:11:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728563AbhAPRLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 Jan 2021 12:11:04 -0500
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AD7BC061381;
-        Sat, 16 Jan 2021 06:51:53 -0800 (PST)
-Received: by mail-io1-xd2b.google.com with SMTP id q2so22337687iow.13;
-        Sat, 16 Jan 2021 06:51:53 -0800 (PST)
+        id S1727512AbhAPRGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Jan 2021 12:06:12 -0500
+Received: from mail-qv1-f67.google.com ([209.85.219.67]:44025 "EHLO
+        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727030AbhAPQhZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 Jan 2021 11:37:25 -0500
+Received: by mail-qv1-f67.google.com with SMTP id et9so5522219qvb.10
+        for <stable@vger.kernel.org>; Sat, 16 Jan 2021 08:37:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AOtIW1TpMWQT7D+7SJG3WQ68jlg029fmkeplzOb6Z1U=;
-        b=TMqHvgUKSFWM3EeQmw5WtzEPnvmJzzEs7K1ZaVClkUWLaE4dMlChMuQ5/REpQlYKDn
-         WkoVJ0LjYTxDYZnlf7n9pUMa3A96+OD3g12vWNkjQ/QaD566PIY5PuHvSt1rk/LPwNEf
-         U2AF7FoRzYrctcPt/0cVhBvx6Dzu/k1yyt88cmEPIhQ0VPi1JyCdB7wHAjdKNkxaK4cL
-         N/O+M4fv1z7Ec+sz7R1BHIxiJgkPJfkD44RHHArkhJJX59L2DHwAcuBRoogcoAsWn3sy
-         KpIhAL3mcj5iojqcghkD1srd+cL++4neKkPA44a3SSk7fNvzFxzWtrTJKG8aC8UDpObF
-         cpsg==
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=qG+NhYE3XNuYjZO5SMAbLWQ4py1ybF7CsrTPmwWhjmw=;
+        b=YXLGRB72Prf2c+nYDY8G6NvrrYA4AB2ctAqwxhcrdcug6QfzT1dGdgVz0I77F2IioC
+         T8pwONc+KjriKExm7iJXIppaM18DZaz/foe+qGBWOIKPGjACLWV+NC/R8Lioka+SoTfc
+         vEdTCcEOJptyDA15g3zAuve/tLhHF7ENFqp1QQKu1LZubfbEYJGAvaWb6TIhYroggxMx
+         U3bFxv7DXjsmOr82kwSewGpHbRjidBTow8AhjelgD4E0CxUmwxM+8beSvsxTzBvic/67
+         fNoSich16wE4sQSwrYA0+YZbornSXnnbhG0gBcHBn8ttoIbA7aHhIE75fIMNl4ZOun+a
+         hMfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AOtIW1TpMWQT7D+7SJG3WQ68jlg029fmkeplzOb6Z1U=;
-        b=ob6n299ujOlJBxXYTnzNuD6SOa9wVTZuj54NdOwUAe9Mnfu3CJuINEBvHvMTurp1+1
-         8siMb6MHbABrwGMaFdVZq/jylxlWxfypr9KqN3NKVUDSC9uWS0E9y69aC2YfYsoUtA7C
-         AgZcZHOa5qrpZq3t53+6uHOmy0u6Wu4Zsp4mup2DB6XC9l5GRxc8Vv9GGMozKuQAFqqS
-         vIr3dM+gWkseLQdZvCojAEf6hhFD6wFaPHb6JpP2g12xfFumaF3pfF6kqD4Z31INE+7P
-         cQe25eWIAiskEz/cQPTvJ/LNpDWdugQEKKq4bL7yqrNiz7GQOS3DBFxHEFlBEG5tODW7
-         WNYw==
-X-Gm-Message-State: AOAM530IRYiuT/ETM2buk+NZxuPuIwPVvH3vdrjGtCOLDBqljTHla5e3
-        IbqCxG6TVE7KYoyWYMm9maEqqw9KX+u2TQgwKYiA6jAqpSI=
-X-Google-Smtp-Source: ABdhPJzaUirliDZgIg617gZaMgZM5ngpgtwnL2XN8HR32Fqw5IG/UKujZXF3T1Mvsfj3IAGWmDyJBwghcoho4J7aBhU=
-X-Received: by 2002:a05:6e02:14ce:: with SMTP id o14mr15305599ilk.9.1610808712749;
- Sat, 16 Jan 2021 06:51:52 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=qG+NhYE3XNuYjZO5SMAbLWQ4py1ybF7CsrTPmwWhjmw=;
+        b=kshkEn4mVDGwtZupTMtJ6sBTjo9qUWVmQ2DDI3JhkpYsjiyXMIu6TcCECyoPjM4ig7
+         z7itIloBnqZEqJg//Pf8pV8FstTrp5AKW8TLam7gJ0MjjwM+O0yX8NQNtgnsB6BpZw9I
+         7rxk8hhwfLnzLOe/XLmU9dGlpzDYDsl5t1ZNAJeC4kDrh1MWHVSicXRBFVog52FIOeGT
+         6yNzqvEs65mMmJWgOnbmw93K4bi8thpI6uQQtVgGGfUlbDLjaRePDbbcLSSqzrEoINlm
+         zxbwJ2SLIQs8IETBXLjqV2KA7TKRZktJ1kp8Dk7liq3nHJC425FkSEcheSGQ+O7LJDOs
+         ZCWA==
+X-Gm-Message-State: AOAM532MtcySEni9OXMXOaSoNlcR2dhaYXm5s+g44aTqb/s5iVLSrRi8
+        9Dx6nM1SnrNP6Ts92y4UNymSBcJuOyfpoFXPH88=
+X-Google-Smtp-Source: ABdhPJw7jrxRyBlndVEB3PZ0+uFXgx5SA25IsRusZRAKFgUSv5AohwM/a7Hi73fD30CfAIgp36FgAaZZVOqMz/NyG5w=
+X-Received: by 2002:a0c:c687:: with SMTP id d7mr17537363qvj.17.1610814941577;
+ Sat, 16 Jan 2021 08:35:41 -0800 (PST)
 MIME-Version: 1.0
-References: <20210105003611.194511-1-icenowy@aosc.io> <CAOQ4uxiFoQhrMbs91ZUNXqbJUXb5XRBgRrcq1rmChLKQGKg5xg@mail.gmail.com>
-In-Reply-To: <CAOQ4uxiFoQhrMbs91ZUNXqbJUXb5XRBgRrcq1rmChLKQGKg5xg@mail.gmail.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Sat, 16 Jan 2021 16:51:41 +0200
-Message-ID: <CAOQ4uxj7CkB=0X3qnEKFipZyy4v7BypRZBvTKM12XFBF=ARKiw@mail.gmail.com>
-Subject: Re: [PATCH v3] ovl: use a dedicated semaphore for dir upperfile caching
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Icenowy Zheng <icenowy@aosc.io>,
-        stable <stable@vger.kernel.org>
+Received: by 2002:a0c:dd10:0:0:0:0:0 with HTTP; Sat, 16 Jan 2021 08:35:41
+ -0800 (PST)
+From:   mr kyleroberts pierreomidyar 
+        <mrkylerobertspierreomidyar@gmail.com>
+Date:   Sat, 16 Jan 2021 08:35:41 -0800
+Message-ID: <CAJf-bSH2rwBtWuKqE8Tky3EvDqvFMJG9FgY8o=4SxnrBeXqfcw@mail.gmail.com>
+Subject: MAY GOD BLESS YOUR FAMILY,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 5, 2021 at 8:47 AM Amir Goldstein <amir73il@gmail.com> wrote:
->
-> On Tue, Jan 5, 2021 at 2:36 AM Icenowy Zheng <icenowy@aosc.io> wrote:
-> >
-> > The function ovl_dir_real_file() currently uses the semaphore of the
-> > inode to synchronize write to the upperfile cache field.
->
-> Although the inode lock is a rw_sem it is referred to as the "inode lock"
-> and you also left semaphore in the commit subject.
-> No need to re-post. This can be fixed on commit.
->
-> >
-> > However, this function will get called by ovl_ioctl_set_flags(), which
-> > utilizes the inode semaphore too. In this case ovl_dir_real_file() will
-> > try to claim a lock that is owned by a function in its call stack, which
-> > won't get released before ovl_dir_real_file() returns.
-> >
-> > Define a dedicated semaphore for the upperfile cache, so that the
-> > deadlock won't happen.
-> >
-> > Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and FS[S|G]ETXATTR ioctls for directories")
-> > Cc: stable@vger.kernel.org # v5.10
-> > Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-> > ---
-> > Changes in v2:
-> > - Fixed missing replacement in error handling path.
-> > Changes in v3:
-> > - Use mutex instead of semaphore.
-> >
-> >  fs/overlayfs/readdir.c | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
-> > index 01620ebae1bd..3980f9982f34 100644
-> > --- a/fs/overlayfs/readdir.c
-> > +++ b/fs/overlayfs/readdir.c
-> > @@ -56,6 +56,7 @@ struct ovl_dir_file {
-> >         struct list_head *cursor;
-> >         struct file *realfile;
-> >         struct file *upperfile;
-> > +       struct mutex upperfile_mutex;
->
-> That's a very specific name.
-> This mutex protects members of struct ovl_dir_file, which could evolve
-> into struct ovl_file one day (because no reason to cache only dir upper file),
-> so I would go with a more generic name, but let's leave it to Miklos to decide.
->
-> He could have a different idea altogether for fixing this bug.
->
-
-Miklos,
-
-Please fast track this or an alternative fix.
-It fixes an easy to reproduce deadlock introduced in 5.10.
-Icenowy Zheng has written a simple xfstest reproducer, but it wasn't
-posted - best to avoid hanging tester's machines until a fix is merged...
-
-Thanks,
-Amir.
+R3JlZXRpbmdzwqBNecKgRGVhcsKgRnJpZW5kLA0KDQpCZWZvcmXCoEnCoGludHJvZHVjZcKgbXlz
+ZWxmLEnCoHdpc2jCoHRvwqBpbmZvcm3CoHlvdcKgdGhhdMKgdGhpc8KgbGV0dGVywqBpc8Kgbm90
+DQphwqBob2F4wqBtYWlswqBhbmTCoEnCoHVyZ2XCoHlvdcKgdG/CoHRyZWF0wqBpdMKgc2VyaW91
+c2x5LlRoaXPCoGxldHRlcsKgd2lsbMKgY29tZQ0KdG8geW91wqBhc8KgYcKgYmlnwqBzdXJwcmlz
+ZSzCoGJ1dMKgScKgYmVsaWV2ZcKgaXTCoGlzwqBvbmx5DQphwqBkYXnCoHRoYXTCoHBlb3BsZcKg
+bWVldMKgYW5kwqBiZWNvbWXCoGdyZWF0wqBmcmllbmRzwqBhbmTCoGJ1c2luZXNzwqBwYXJ0bmVy
+cy4NClBsZWFzZcKgScKgd2FudMKgIHlvdcKgdG/CoHJlYWTCoHRoaXPCoGxldHRlcsKgdmVyecKg
+Y2FyZWZ1bGx5wqBhbmTCoEnCoG11c3QNCmFwb2xvZ2l6ZcKgZm9ywqBiYXJnaW5nwqB0aGlzwqBt
+ZXNzYWdlwqBpbnRvwqAgeW91csKgbWFpbMKgYm94wqB3aXRob3V0wqBhbnkNCmZvcm1hbMKgaW50
+cm9kdWN0aW9uwqBkdWXCoHRvwqB0aGV1cmdlbmN5wqBhbmTCoGNvbmZpZGVudGlhbGl0ecKgb2bC
+oHRoaXMNCmJ1c2luZXNzLsKgScKgbWFrZcKgdGhpc8KgY29udGFjdMKgd2l0aMKgeW91wqBhc8Kg
+ScKgYmVsaWV2ZcKgdGhhdMKgeW91wqBjYW7CoGJlwqBvZg0KZ3JlYXTCoGFzc2lzdGFuY2XCoHRv
+wqBtZS7CoE15wqBuYW1lwqAgaXPCoE1ywqBLeWxlcm9iZXJ0c8KgUGllcnJlb21pZHllcizCoGZy
+b20NCkJ1cmtpbmHCoEZhc28swqBXZXN0wqBBZnJpY2EuwqBJDQp3b3JrwqBpbsKgQmFua8KgT2bC
+oEFmcmljYcKgKEJPQSnCoGFzwqB0ZWxleMKgbWFuYWdlcizCoHBsZWFzZcKgc2VlwqB0aGlzwqBh
+c8KgYQ0KY29uZmlkZW50aWFsDQptZXNzYWdlwqBhbmTCoGRvwqBub3TCoHJldmVhbMKgaXTCoHRv
+wqBhbm90aGVywqBwZXJzb27CoGFuZMKgbGV0wqBtZcKga25vd8Kgd2hldGhlcg0KeW91wqBjYW7C
+oGJlwqBvZg0KYXNzaXN0YW5jZcKgcmVnYXJkaW5nwqBtecKgcHJvcG9zYWzCoGJlbG93wqBiZWNh
+dXNlwqBpdMKgaXPCoHRvcMKgc2VjcmV0LsKgScKgYW0NCmFib3V0wqB0b8KgcmV0aXJlwqBmcm9t
+YWN0aXZlwqAgQmFua2luZ8Kgc2VydmljZcKgdG/CoHN0YXJ0wqBhwqBuZXfCoGxpZmXCoGJ1dMKg
+SQ0KYW3CoHNrZXB0aWNhbMKgdG/CoHJldmVhbMKgdGhpc8KgIHBhcnRpY3VsYXLCoHNlY3JldMKg
+dG/CoGHCoHN0cmFuZ2VyLsKgWW91wqBtdXN0DQphc3N1cmXCoG1lwqB0aGF0wqBldmVyeXRoaW5n
+wqB3aWxswqBiZcKgaGFuZGxlZA0KY29uZmlkZW50aWFsbHnCoGJlY2F1c2XCoHdlwqBhcmXCoG5v
+dMKgZ29pbmfCoHRvwqBzdWZmZXLCoGFnYWluwqBpbsKgbGlmZS7CoEl0DQpoYXPCoGJlZW7CoHRl
+bsKgeWVhcnMNCm5vd8KgdGhhdMKgbW9zdMKgb2bCoHRoZcKgZ3JlZWR5wqBBZnJpY2FuwqBQb2xp
+dGljaWFuc8KgdXNlZMKgb3VywqBiYW5rwqB0bw0KbGF1bmRlcsKgbW9uZXnCoG92ZXJzZWFzwqB0
+aHJvdWdodGhlwqBoZWxwwqBvZsKgdGhlaXLCoFBvbGl0aWNhbMKgYWR2aXNlcnMuDQpNb3N0wqBv
+ZsKgdGhlwqBmdW5kc8Kgd2hpY2jCoHRoZXnCoHRyYW5zZmVycmVkwqBvdXTCoG9mDQp0aGXCoHNo
+b3Jlc8Kgb2bCoEFmcmljYcKgd2VyZcKgZ29sZMKgYW5kwqBvaWzCoG1vbmV5wqB0aGF0wqB3YXPC
+oHN1cHBvc2VkwqB0bw0KaGF2ZWJlZW7CoHVzZWTCoHRvDQpkZXZlbG9wwqB0aGXCoGNvbnRpbmVu
+dCBUaGVpcsKgUG9saXRpY2FswqBhZHZpc2Vyc8KgYWx3YXlzwqBpbmZsYXRlZMKgdGhlDQphbW91
+bnRzwqBiZWZvcmUNCnRyYW5zZmVycmluZ8KgdG/CoCBmb3JlaWduwqBhY2NvdW50cyzCoHNvwqBJ
+wqBhbHNvwqB1c2VkwqB0aGXCoG9wcG9ydHVuaXR5wqB0bw0KZGl2ZXJ0wqBwYXJ0wqBvZsKgdGhl
+wqAgZnVuZHPCoGhlbmNlwqBJwqBhbcKgYXdhcmXCoHRoYXTCoHRoZXJlwqBpc8Kgbm/CoG9mZmlj
+aWFsDQp0cmFjZcKgb2bCoGhvd8KgbXVjaMKgIHdhc8KgdHJhbnNmZXJyZWTCoGFzwqBhbGzCoHRo
+ZcKgYWNjb3VudHPCoHVzZWTCoGZvcsKgc3VjaA0KdHJhbnNmZXJzwqB3ZXJlwqBiZWluZ8KgY2xv
+c2VkwqBhZnRlcg0KdHJhbnNmZXIuwqBJwqBhY3RlZMKgYXPCoHRoZcKgQmFua8KgT2ZmaWNlcsKg
+dG/CoG1vc3TCoG9mwqB0aGXCoHBvbGl0aWNpYW5zwqBhbmQNCndoZW7CoEnCoGRpc2NvdmVyZWTC
+oHRoYXQNCnRoZXnCoHdlcmXCoHVzaW5nwqBtZcKgdG/CoCBzdWNjZWVkwqBpbsKgdGhlaXLCoGdy
+ZWVkecKgYWN0wqBJwqBhbHNvwqBjbGVhbmVkwqBzb21lDQpvZsKgdGhlaXLCoGJhbmtpbmfCoCBy
+ZWNvcmRzwqBmcm9twqB0aGXCoEJhbmvCoGZpbGVzwqBhbmTCoG5vwqBvbmXCoGNhcmVkwqB0b8Kg
+YXNrDQptZcKgYmVjYXVzZcKgdGhlwqBtb25lecKgd2FzwqB0b28NCm11Y2jCoGZvcsKgdGhlbcKg
+dG/CoGNvbnRyb2wuwqBUaGV5wqBsYXVuZGVyZWTCoG92ZXLCoEZpdmUoNSlCaWxsaW9uwqBVUw0K
+RE9MTEFSU8KgZHVyaW5nwqB0aGUNCnByb2Nlc3MuwqBCZWZvcmXCoEnCoHNlbmTCoHRoaXPCoG1l
+c3NhZ2V0b8KgeW91LMKgScKgaGF2ZcKgYWxyZWFkecKgZGl2ZXJ0ZWQNCigkMTAuNTAwwqBUZW7C
+oE1pbGxpb24sDQpGaXZlwqBIdW5kcmVkwqBVU8KgRE9MTEFSUynCoHRvwqBhbsKgZXNjcm93wqBh
+Y2NvdW50wqBiZWxvbmdpbmfCoHRvwqBub8Kgb25lwqBpbg0KdGhlwqBiYW5rLlRoZQ0KYmFua8Kg
+aXPCoGFueGlvdXPCoG5vd8KgdG/CoGtub3fCoHdob8KgdGhlwqBiZW5lZmljaWFyecKgdG/CoHRo
+ZcKgZnVuZHPCoGJlY2F1c2UNCnRoZXnCoGhhdmXCoG1hZGXCoGHCoGxvdMKgb2bCoHByb2ZpdHPC
+oHdpdGjCoHRoZcKgZnVuZHMuwqBJdMKgaXPCoG1vcmXCoHRoYW7CoEVpZ2h0DQp5ZWFyc8Kgbm93
+wqBhbmTCoG1vc3TCoG9mwqB0aGXCoHBvbGl0aWNpYW5zwqBhcmXCoG5vwqBsb25nZXLCoHVzaW5n
+wqBvdXLCoGJhbmvCoHRvDQp0cmFuc2ZlcsKgZnVuZHPCoG92ZXJzZWFzLsKgVGhlwqAoJDEwLjUw
+MMKgVGVuwqBNaWxsaW9uLsKgRml2ZQ0KSHVuZHJlZMKgVVPCoERPTExBUlMpwqBoYXPCoGJlZW7C
+oGxheWluZ8Kgd2FzdGXCoGluwqBvdXLCoGJhbmvCoGFuZMKgScKgZG9u4oCZdHdhbnQNCnRvwqBy
+ZXRpcmXCoGZyb20NCnRoZcKgYmFua8Kgd2l0aG91dMKgdHJhbnNmZXJyaW5nwqB0aGXCoGZ1bmRz
+wqB0b8KgYcKgZm9yZWlnbsKgYWNjb3VudMKgdG/CoGVuYWJsZQ0KbWXCoHNoYXJlwqB0aGUNCnBy
+b2NlZWRzwqB3aXRowqB0aGXCoHJlY2VpdmVywqAoYcKgZm9yZWlnbmVyKS7CoFRoZcKgbW9uZXnC
+oHdpbGzCoGJlwqBzaGFyZWTCoDYwJQ0KZm9ywqBtZcKgYW5kDQo0MCXCoGZvcsKgeW91LlRoZXJl
+wqBpc8Kgbm/CoG9uZcKgY29taW5nwqB0b8KgYXNrwqB5b3XCoGFib3V0wqB0aGXCoGZ1bmRzwqBi
+ZWNhdXNlwqBJwqBzZWN1cmVkDQpldmVyeXRoaW5nLsKgScKgb25secKgd2FudMKgeW91wqB0b8Kg
+YXNzaXN0wqBtZcKgYnnCoHByb3ZpZGluZ8KgYcKgcmVsaWFibGXCoGJhbmsNCmFjY291bnTCoHdo
+ZXJlwqB0aGUNCmZ1bmRzwqBjYW7CoGJlwqB0cmFuc2ZlcnJlZC7CoFlvdcKgYXJlwqBub3TCoHRv
+wqBmYWNlwqBhbnnCoGRpZmZpY3VsdGllc8Kgb3INCmxlZ2FswqBpbXBsaWNhdGlvbnPCoGFzwqBJ
+wqBhbQ0KZ29pbmfCoHRvwqAgaGFuZGxlwqB0aGXCoHRyYW5zZmVywqBwZXJzb25hbGx5LsKgSWbC
+oHlvdcKgYXJlwqBjYXBhYmxlwqBvZsKgcmVjZWl2aW5nwqB0aGUNCmZ1bmRzLMKgZG/CoGxldMKg
+bWXCoGtub3fCoGltbWVkaWF0ZWx5wqB0b8KgZW5hYmxlwqBtZcKgZ2l2ZcKgeW91wqBhwqBkZXRh
+aWxlZA0KaW5mb3JtYXRpb27CoG9uwqB3aGF0wqAgdG/CoGRvLsKgRm9ywqBtZSwgScKgaGF2ZcKg
+bm90wqBzdG9sZW7CoHRoZcKgbW9uZXnCoGZyb20NCmFueW9uZcKgYmVjYXVzZcKgdGhlwqBvdGhl
+csKgcGVvcGxlwqB0aGF0DQp0b29rwqB0aGXCoHdob2xlwqBtb25lecKgZGlkwqBub3RmYWNlwqBh
+bnnCoHByb2JsZW1zLsKgVGhpc8KgaXPCoG15wqBjaGFuY2XCoHRvDQpncmFiwqBtecKgb3duwqBs
+aWZlwqAgb3Bwb3J0dW5pdHnCoGJ1dMKgeW91wqBtdXN0wqBrZWVwwqB0aGXCoGRldGFpbHPCoG9m
+wqB0aGUNCmZ1bmRzwqBzZWNyZXTCoHRvwqBhdm9pZMKgYW55wqBsZWFrYWdlc8KgYXPCoG5vwqBv
+bmXCoGluwqB0aGXCoGJhbmvCoGtub3dzwqBhYm91dA0KbXnCoHBsYW5zLsKgUGxlYXNlwqBnZXTC
+oGJhY2vCoHRvwqBtZcKgaWbCoHlvdcKgYXJlwqBpbnRlcmVzdGVkwqBhbmQNCmNhcGFibGXCoHRv
+wqBoYW5kbGXCoCB0aGlzwqBwcm9qZWN0LMKgScKgYW3CoGxvb2tpbmfCoGZvcndhcmTCoHRvwqBo
+ZWFywqBmcm9twqB5b3UNCmltbWVkaWF0ZWx5wqBmb3LCoCBmdXJ0aGVywqBpbmZvcm1hdGlvbi7C
+oHRoYW5rc8Kgd2l0aMKgbXnCoGJlc3TCoHJlZ2FyZHMuDQpZb3VyJ3PCoHNpbmNlcmVseQ0KTVIs
+wqBLWUxFUk9CRVJUU8KgUElFUlJFT01JRFlFUi4NClRlbGV4wqBNYW5hZ2VyDQpCYW5rwqBPZsKg
+QWZyaWNhwqAoQk9BKQ0KQnVya2luYcKgRmFzby4NCkNvbnRhY3TCoE1lwqB0aHJvdWdowqB0aGlz
+wqBtecKgZW1haWzCoGFkZHJlc3TCoG9ubHnCoGF0DQoobXJreWxlcm9iZXJ0c3BpZXJyZW9taWR5
+YXJAZ21haWwuY29tKQ0KYmVjYXVzZcKgb2ZmwqBzb21lwqBwcm90b2NvbHMNCg==
