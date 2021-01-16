@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E0B2F8A9D
-	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 02:58:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 376D92F8AA8
+	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 03:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726720AbhAPB6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 20:58:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:48866 "EHLO
+        id S1725854AbhAPCDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 21:03:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60223 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726065AbhAPB6I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 20:58:08 -0500
+        by vger.kernel.org with ESMTP id S1725833AbhAPCDf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 21:03:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610762200;
+        s=mimecast20190719; t=1610762528;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=8ENhwfll5+9Hl1A3lFM+BzaXO6q9ZbIdemJmDgoMP+0=;
-        b=GJSbWIJ5KHhLTKEuXSMYJ4V8qAi900W7uE92iUCybAGY+AXDmPilGip/dvVPSUKcafKYzQ
-        1RYsGkQnnqFCx2xQzohtPFbGTI4tjmdsTKELo56CFW4JE3CwlVLFhW9kTVza3TDiCp9RHo
-        SBqW7nlCd3No3Dbog1Zf9NMH4u4hyy8=
+        bh=BeP1fWblkvEx+htxZLV8AvFnMfyZtOqHeAxkAsBio4g=;
+        b=IOH/a7nCbj0PrJSzwgMqoi/olu2OqIlJbSDnkdDyrRVfgzv0ya+jI4aJGeNJMCQIU0tsei
+        i9d5avPVVOT9qLA9OXRorXtZ679mP2vOoYwW67GLG2+it0BXLYGRG7CtP89nsHGaXteMxt
+        0yNMw0BrceH4URzjaYJMhu8gkGwVCoA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-98-GAI4UVv9N6O9TC2pap1NTQ-1; Fri, 15 Jan 2021 20:56:37 -0500
-X-MC-Unique: GAI4UVv9N6O9TC2pap1NTQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-99-ehXjlJRUOCuaaIvlV7bm7g-1; Fri, 15 Jan 2021 21:02:04 -0500
+X-MC-Unique: ehXjlJRUOCuaaIvlV7bm7g-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 913401081B31
-        for <stable@vger.kernel.org>; Sat, 16 Jan 2021 01:56:36 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB9448042A2
+        for <stable@vger.kernel.org>; Sat, 16 Jan 2021 02:02:03 +0000 (UTC)
 Received: from [172.22.14.23] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EF3035D9C6;
-        Sat, 16 Jan 2021 01:56:32 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 402E860D01;
+        Sat, 16 Jan 2021 02:01:59 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -39,15 +39,14 @@ From:   CKI Project <cki-project@redhat.com>
 To:     skt-results-master@redhat.com,
         Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.10.7 (stable-queue)
-Date:   Sat, 16 Jan 2021 01:56:32 -0000
-CC:     Xiaowu Wu <xiawu@redhat.com>, David Arcari <darcari@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>
-Message-ID: <cki.73FDCC0A06.OZDEUN0UQL@redhat.com>
-X-Gitlab-Pipeline-ID: 621357
+Date:   Sat, 16 Jan 2021 02:01:59 -0000
+CC:     Xiaowu Wu <xiawu@redhat.com>, Rachel Sibley <rasibley@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.D0E51948C1.LPRGKWH7K7@redhat.com>
+X-Gitlab-Pipeline-ID: 621358
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/621357
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/621358
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -59,7 +58,7 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
 nux-stable-rc.git
-            Commit: be4f508cc9a2 - net/mlx5: Check if lag is supported before=
+            Commit: efd62f7024eb - net/mlx5: Check if lag is supported before=
  creating one
 
 The results of these automated tests are provided below.
@@ -72,7 +71,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/01/15/621357
+x=3Ddatawarehouse-public/2021/01/15/621358
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -109,6 +108,22 @@ We booted each kernel and ran the following tests:
 
   aarch64:
     Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 ACPI table test
        =E2=9C=85 ACPI enabled test
@@ -147,20 +162,20 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
        =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
 
-    Host 2:
+  ppc64le:
+    Host 1:
 
        =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
 marked
        with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
        This is not the fault of the kernel that was tested.
 
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
@@ -172,8 +187,7 @@ er test
        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
 dule test
 
-  ppc64le:
-    Host 1:
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
@@ -205,30 +219,6 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
 
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
-o test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
-er test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
-dule test
-
     Host 3:
 
        =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
@@ -256,10 +246,18 @@ dule test
   s390x:
     Host 1:
        =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+    Host 2:
+       =E2=9C=85 Boot test
        =E2=9C=85 kdump - sysrq-c
        =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
 
-    Host 2:
+    Host 3:
        =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
@@ -289,22 +287,8 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
        =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
 
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
   x86_64:
     Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
        =E2=9C=85 Boot test
        =E2=9C=85 ACPI table test
        =E2=9C=85 LTP
@@ -333,40 +317,48 @@ marked
        =E2=9C=85 ALSA Control (mixer) Userspace Element test
        =E2=9C=85 storage: SCSI VPD
        =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Firmware test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
-tfilter test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - kexec_boot
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
 
     Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
 
-    Host 3:
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
        =E2=9C=85 Boot test
        =E2=9C=85 selinux-policy: serge-testsuite
        =E2=9C=85 storage: software RAID testing
        =E2=9C=85 stress: stress-ng
        =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
        =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
        =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
        =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C xfstests - nfsv4.2
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
        =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
        =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
 
   Test sources: https://gitlab.com/cki-project/kernel-tests
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
