@@ -2,137 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 678F72F8DF8
-	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 18:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6A32F8EC3
+	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 19:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727512AbhAPRGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Jan 2021 12:06:12 -0500
-Received: from mail-qv1-f67.google.com ([209.85.219.67]:44025 "EHLO
-        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727030AbhAPQhZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 Jan 2021 11:37:25 -0500
-Received: by mail-qv1-f67.google.com with SMTP id et9so5522219qvb.10
-        for <stable@vger.kernel.org>; Sat, 16 Jan 2021 08:37:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=qG+NhYE3XNuYjZO5SMAbLWQ4py1ybF7CsrTPmwWhjmw=;
-        b=YXLGRB72Prf2c+nYDY8G6NvrrYA4AB2ctAqwxhcrdcug6QfzT1dGdgVz0I77F2IioC
-         T8pwONc+KjriKExm7iJXIppaM18DZaz/foe+qGBWOIKPGjACLWV+NC/R8Lioka+SoTfc
-         vEdTCcEOJptyDA15g3zAuve/tLhHF7ENFqp1QQKu1LZubfbEYJGAvaWb6TIhYroggxMx
-         U3bFxv7DXjsmOr82kwSewGpHbRjidBTow8AhjelgD4E0CxUmwxM+8beSvsxTzBvic/67
-         fNoSich16wE4sQSwrYA0+YZbornSXnnbhG0gBcHBn8ttoIbA7aHhIE75fIMNl4ZOun+a
-         hMfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=qG+NhYE3XNuYjZO5SMAbLWQ4py1ybF7CsrTPmwWhjmw=;
-        b=kshkEn4mVDGwtZupTMtJ6sBTjo9qUWVmQ2DDI3JhkpYsjiyXMIu6TcCECyoPjM4ig7
-         z7itIloBnqZEqJg//Pf8pV8FstTrp5AKW8TLam7gJ0MjjwM+O0yX8NQNtgnsB6BpZw9I
-         7rxk8hhwfLnzLOe/XLmU9dGlpzDYDsl5t1ZNAJeC4kDrh1MWHVSicXRBFVog52FIOeGT
-         6yNzqvEs65mMmJWgOnbmw93K4bi8thpI6uQQtVgGGfUlbDLjaRePDbbcLSSqzrEoINlm
-         zxbwJ2SLIQs8IETBXLjqV2KA7TKRZktJ1kp8Dk7liq3nHJC425FkSEcheSGQ+O7LJDOs
-         ZCWA==
-X-Gm-Message-State: AOAM532MtcySEni9OXMXOaSoNlcR2dhaYXm5s+g44aTqb/s5iVLSrRi8
-        9Dx6nM1SnrNP6Ts92y4UNymSBcJuOyfpoFXPH88=
-X-Google-Smtp-Source: ABdhPJw7jrxRyBlndVEB3PZ0+uFXgx5SA25IsRusZRAKFgUSv5AohwM/a7Hi73fD30CfAIgp36FgAaZZVOqMz/NyG5w=
-X-Received: by 2002:a0c:c687:: with SMTP id d7mr17537363qvj.17.1610814941577;
- Sat, 16 Jan 2021 08:35:41 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a0c:dd10:0:0:0:0:0 with HTTP; Sat, 16 Jan 2021 08:35:41
- -0800 (PST)
-From:   mr kyleroberts pierreomidyar 
-        <mrkylerobertspierreomidyar@gmail.com>
-Date:   Sat, 16 Jan 2021 08:35:41 -0800
-Message-ID: <CAJf-bSH2rwBtWuKqE8Tky3EvDqvFMJG9FgY8o=4SxnrBeXqfcw@mail.gmail.com>
-Subject: MAY GOD BLESS YOUR FAMILY,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+        id S1727726AbhAPSxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Jan 2021 13:53:42 -0500
+Received: from gate.crashing.org ([63.228.1.57]:37668 "EHLO gate.crashing.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726918AbhAPSxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Jan 2021 13:53:42 -0500
+Received: from gate.crashing.org (localhost.localdomain [127.0.0.1])
+        by gate.crashing.org (8.14.1/8.14.1) with ESMTP id 10GIie1u011583;
+        Sat, 16 Jan 2021 12:44:40 -0600
+Received: (from segher@localhost)
+        by gate.crashing.org (8.14.1/8.14.1/Submit) id 10GIic6h011582;
+        Sat, 16 Jan 2021 12:44:38 -0600
+X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
+Date:   Sat, 16 Jan 2021 12:44:38 -0600
+From:   Segher Boessenkool <segher@kernel.crashing.org>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH v2] powerpc: Handle .text.{hot,unlikely}.* in linker script
+Message-ID: <20210116184438.GE30983@gate.crashing.org>
+References: <20210104204850.990966-1-natechancellor@gmail.com> <20210104205952.1399409-1-natechancellor@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210104205952.1399409-1-natechancellor@gmail.com>
+User-Agent: Mutt/1.4.2.3i
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-R3JlZXRpbmdzwqBNecKgRGVhcsKgRnJpZW5kLA0KDQpCZWZvcmXCoEnCoGludHJvZHVjZcKgbXlz
-ZWxmLEnCoHdpc2jCoHRvwqBpbmZvcm3CoHlvdcKgdGhhdMKgdGhpc8KgbGV0dGVywqBpc8Kgbm90
-DQphwqBob2F4wqBtYWlswqBhbmTCoEnCoHVyZ2XCoHlvdcKgdG/CoHRyZWF0wqBpdMKgc2VyaW91
-c2x5LlRoaXPCoGxldHRlcsKgd2lsbMKgY29tZQ0KdG8geW91wqBhc8KgYcKgYmlnwqBzdXJwcmlz
-ZSzCoGJ1dMKgScKgYmVsaWV2ZcKgaXTCoGlzwqBvbmx5DQphwqBkYXnCoHRoYXTCoHBlb3BsZcKg
-bWVldMKgYW5kwqBiZWNvbWXCoGdyZWF0wqBmcmllbmRzwqBhbmTCoGJ1c2luZXNzwqBwYXJ0bmVy
-cy4NClBsZWFzZcKgScKgd2FudMKgIHlvdcKgdG/CoHJlYWTCoHRoaXPCoGxldHRlcsKgdmVyecKg
-Y2FyZWZ1bGx5wqBhbmTCoEnCoG11c3QNCmFwb2xvZ2l6ZcKgZm9ywqBiYXJnaW5nwqB0aGlzwqBt
-ZXNzYWdlwqBpbnRvwqAgeW91csKgbWFpbMKgYm94wqB3aXRob3V0wqBhbnkNCmZvcm1hbMKgaW50
-cm9kdWN0aW9uwqBkdWXCoHRvwqB0aGV1cmdlbmN5wqBhbmTCoGNvbmZpZGVudGlhbGl0ecKgb2bC
-oHRoaXMNCmJ1c2luZXNzLsKgScKgbWFrZcKgdGhpc8KgY29udGFjdMKgd2l0aMKgeW91wqBhc8Kg
-ScKgYmVsaWV2ZcKgdGhhdMKgeW91wqBjYW7CoGJlwqBvZg0KZ3JlYXTCoGFzc2lzdGFuY2XCoHRv
-wqBtZS7CoE15wqBuYW1lwqAgaXPCoE1ywqBLeWxlcm9iZXJ0c8KgUGllcnJlb21pZHllcizCoGZy
-b20NCkJ1cmtpbmHCoEZhc28swqBXZXN0wqBBZnJpY2EuwqBJDQp3b3JrwqBpbsKgQmFua8KgT2bC
-oEFmcmljYcKgKEJPQSnCoGFzwqB0ZWxleMKgbWFuYWdlcizCoHBsZWFzZcKgc2VlwqB0aGlzwqBh
-c8KgYQ0KY29uZmlkZW50aWFsDQptZXNzYWdlwqBhbmTCoGRvwqBub3TCoHJldmVhbMKgaXTCoHRv
-wqBhbm90aGVywqBwZXJzb27CoGFuZMKgbGV0wqBtZcKga25vd8Kgd2hldGhlcg0KeW91wqBjYW7C
-oGJlwqBvZg0KYXNzaXN0YW5jZcKgcmVnYXJkaW5nwqBtecKgcHJvcG9zYWzCoGJlbG93wqBiZWNh
-dXNlwqBpdMKgaXPCoHRvcMKgc2VjcmV0LsKgScKgYW0NCmFib3V0wqB0b8KgcmV0aXJlwqBmcm9t
-YWN0aXZlwqAgQmFua2luZ8Kgc2VydmljZcKgdG/CoHN0YXJ0wqBhwqBuZXfCoGxpZmXCoGJ1dMKg
-SQ0KYW3CoHNrZXB0aWNhbMKgdG/CoHJldmVhbMKgdGhpc8KgIHBhcnRpY3VsYXLCoHNlY3JldMKg
-dG/CoGHCoHN0cmFuZ2VyLsKgWW91wqBtdXN0DQphc3N1cmXCoG1lwqB0aGF0wqBldmVyeXRoaW5n
-wqB3aWxswqBiZcKgaGFuZGxlZA0KY29uZmlkZW50aWFsbHnCoGJlY2F1c2XCoHdlwqBhcmXCoG5v
-dMKgZ29pbmfCoHRvwqBzdWZmZXLCoGFnYWluwqBpbsKgbGlmZS7CoEl0DQpoYXPCoGJlZW7CoHRl
-bsKgeWVhcnMNCm5vd8KgdGhhdMKgbW9zdMKgb2bCoHRoZcKgZ3JlZWR5wqBBZnJpY2FuwqBQb2xp
-dGljaWFuc8KgdXNlZMKgb3VywqBiYW5rwqB0bw0KbGF1bmRlcsKgbW9uZXnCoG92ZXJzZWFzwqB0
-aHJvdWdodGhlwqBoZWxwwqBvZsKgdGhlaXLCoFBvbGl0aWNhbMKgYWR2aXNlcnMuDQpNb3N0wqBv
-ZsKgdGhlwqBmdW5kc8Kgd2hpY2jCoHRoZXnCoHRyYW5zZmVycmVkwqBvdXTCoG9mDQp0aGXCoHNo
-b3Jlc8Kgb2bCoEFmcmljYcKgd2VyZcKgZ29sZMKgYW5kwqBvaWzCoG1vbmV5wqB0aGF0wqB3YXPC
-oHN1cHBvc2VkwqB0bw0KaGF2ZWJlZW7CoHVzZWTCoHRvDQpkZXZlbG9wwqB0aGXCoGNvbnRpbmVu
-dCBUaGVpcsKgUG9saXRpY2FswqBhZHZpc2Vyc8KgYWx3YXlzwqBpbmZsYXRlZMKgdGhlDQphbW91
-bnRzwqBiZWZvcmUNCnRyYW5zZmVycmluZ8KgdG/CoCBmb3JlaWduwqBhY2NvdW50cyzCoHNvwqBJ
-wqBhbHNvwqB1c2VkwqB0aGXCoG9wcG9ydHVuaXR5wqB0bw0KZGl2ZXJ0wqBwYXJ0wqBvZsKgdGhl
-wqAgZnVuZHPCoGhlbmNlwqBJwqBhbcKgYXdhcmXCoHRoYXTCoHRoZXJlwqBpc8Kgbm/CoG9mZmlj
-aWFsDQp0cmFjZcKgb2bCoGhvd8KgbXVjaMKgIHdhc8KgdHJhbnNmZXJyZWTCoGFzwqBhbGzCoHRo
-ZcKgYWNjb3VudHPCoHVzZWTCoGZvcsKgc3VjaA0KdHJhbnNmZXJzwqB3ZXJlwqBiZWluZ8KgY2xv
-c2VkwqBhZnRlcg0KdHJhbnNmZXIuwqBJwqBhY3RlZMKgYXPCoHRoZcKgQmFua8KgT2ZmaWNlcsKg
-dG/CoG1vc3TCoG9mwqB0aGXCoHBvbGl0aWNpYW5zwqBhbmQNCndoZW7CoEnCoGRpc2NvdmVyZWTC
-oHRoYXQNCnRoZXnCoHdlcmXCoHVzaW5nwqBtZcKgdG/CoCBzdWNjZWVkwqBpbsKgdGhlaXLCoGdy
-ZWVkecKgYWN0wqBJwqBhbHNvwqBjbGVhbmVkwqBzb21lDQpvZsKgdGhlaXLCoGJhbmtpbmfCoCBy
-ZWNvcmRzwqBmcm9twqB0aGXCoEJhbmvCoGZpbGVzwqBhbmTCoG5vwqBvbmXCoGNhcmVkwqB0b8Kg
-YXNrDQptZcKgYmVjYXVzZcKgdGhlwqBtb25lecKgd2FzwqB0b28NCm11Y2jCoGZvcsKgdGhlbcKg
-dG/CoGNvbnRyb2wuwqBUaGV5wqBsYXVuZGVyZWTCoG92ZXLCoEZpdmUoNSlCaWxsaW9uwqBVUw0K
-RE9MTEFSU8KgZHVyaW5nwqB0aGUNCnByb2Nlc3MuwqBCZWZvcmXCoEnCoHNlbmTCoHRoaXPCoG1l
-c3NhZ2V0b8KgeW91LMKgScKgaGF2ZcKgYWxyZWFkecKgZGl2ZXJ0ZWQNCigkMTAuNTAwwqBUZW7C
-oE1pbGxpb24sDQpGaXZlwqBIdW5kcmVkwqBVU8KgRE9MTEFSUynCoHRvwqBhbsKgZXNjcm93wqBh
-Y2NvdW50wqBiZWxvbmdpbmfCoHRvwqBub8Kgb25lwqBpbg0KdGhlwqBiYW5rLlRoZQ0KYmFua8Kg
-aXPCoGFueGlvdXPCoG5vd8KgdG/CoGtub3fCoHdob8KgdGhlwqBiZW5lZmljaWFyecKgdG/CoHRo
-ZcKgZnVuZHPCoGJlY2F1c2UNCnRoZXnCoGhhdmXCoG1hZGXCoGHCoGxvdMKgb2bCoHByb2ZpdHPC
-oHdpdGjCoHRoZcKgZnVuZHMuwqBJdMKgaXPCoG1vcmXCoHRoYW7CoEVpZ2h0DQp5ZWFyc8Kgbm93
-wqBhbmTCoG1vc3TCoG9mwqB0aGXCoHBvbGl0aWNpYW5zwqBhcmXCoG5vwqBsb25nZXLCoHVzaW5n
-wqBvdXLCoGJhbmvCoHRvDQp0cmFuc2ZlcsKgZnVuZHPCoG92ZXJzZWFzLsKgVGhlwqAoJDEwLjUw
-MMKgVGVuwqBNaWxsaW9uLsKgRml2ZQ0KSHVuZHJlZMKgVVPCoERPTExBUlMpwqBoYXPCoGJlZW7C
-oGxheWluZ8Kgd2FzdGXCoGluwqBvdXLCoGJhbmvCoGFuZMKgScKgZG9u4oCZdHdhbnQNCnRvwqBy
-ZXRpcmXCoGZyb20NCnRoZcKgYmFua8Kgd2l0aG91dMKgdHJhbnNmZXJyaW5nwqB0aGXCoGZ1bmRz
-wqB0b8KgYcKgZm9yZWlnbsKgYWNjb3VudMKgdG/CoGVuYWJsZQ0KbWXCoHNoYXJlwqB0aGUNCnBy
-b2NlZWRzwqB3aXRowqB0aGXCoHJlY2VpdmVywqAoYcKgZm9yZWlnbmVyKS7CoFRoZcKgbW9uZXnC
-oHdpbGzCoGJlwqBzaGFyZWTCoDYwJQ0KZm9ywqBtZcKgYW5kDQo0MCXCoGZvcsKgeW91LlRoZXJl
-wqBpc8Kgbm/CoG9uZcKgY29taW5nwqB0b8KgYXNrwqB5b3XCoGFib3V0wqB0aGXCoGZ1bmRzwqBi
-ZWNhdXNlwqBJwqBzZWN1cmVkDQpldmVyeXRoaW5nLsKgScKgb25secKgd2FudMKgeW91wqB0b8Kg
-YXNzaXN0wqBtZcKgYnnCoHByb3ZpZGluZ8KgYcKgcmVsaWFibGXCoGJhbmsNCmFjY291bnTCoHdo
-ZXJlwqB0aGUNCmZ1bmRzwqBjYW7CoGJlwqB0cmFuc2ZlcnJlZC7CoFlvdcKgYXJlwqBub3TCoHRv
-wqBmYWNlwqBhbnnCoGRpZmZpY3VsdGllc8Kgb3INCmxlZ2FswqBpbXBsaWNhdGlvbnPCoGFzwqBJ
-wqBhbQ0KZ29pbmfCoHRvwqAgaGFuZGxlwqB0aGXCoHRyYW5zZmVywqBwZXJzb25hbGx5LsKgSWbC
-oHlvdcKgYXJlwqBjYXBhYmxlwqBvZsKgcmVjZWl2aW5nwqB0aGUNCmZ1bmRzLMKgZG/CoGxldMKg
-bWXCoGtub3fCoGltbWVkaWF0ZWx5wqB0b8KgZW5hYmxlwqBtZcKgZ2l2ZcKgeW91wqBhwqBkZXRh
-aWxlZA0KaW5mb3JtYXRpb27CoG9uwqB3aGF0wqAgdG/CoGRvLsKgRm9ywqBtZSwgScKgaGF2ZcKg
-bm90wqBzdG9sZW7CoHRoZcKgbW9uZXnCoGZyb20NCmFueW9uZcKgYmVjYXVzZcKgdGhlwqBvdGhl
-csKgcGVvcGxlwqB0aGF0DQp0b29rwqB0aGXCoHdob2xlwqBtb25lecKgZGlkwqBub3RmYWNlwqBh
-bnnCoHByb2JsZW1zLsKgVGhpc8KgaXPCoG15wqBjaGFuY2XCoHRvDQpncmFiwqBtecKgb3duwqBs
-aWZlwqAgb3Bwb3J0dW5pdHnCoGJ1dMKgeW91wqBtdXN0wqBrZWVwwqB0aGXCoGRldGFpbHPCoG9m
-wqB0aGUNCmZ1bmRzwqBzZWNyZXTCoHRvwqBhdm9pZMKgYW55wqBsZWFrYWdlc8KgYXPCoG5vwqBv
-bmXCoGluwqB0aGXCoGJhbmvCoGtub3dzwqBhYm91dA0KbXnCoHBsYW5zLsKgUGxlYXNlwqBnZXTC
-oGJhY2vCoHRvwqBtZcKgaWbCoHlvdcKgYXJlwqBpbnRlcmVzdGVkwqBhbmQNCmNhcGFibGXCoHRv
-wqBoYW5kbGXCoCB0aGlzwqBwcm9qZWN0LMKgScKgYW3CoGxvb2tpbmfCoGZvcndhcmTCoHRvwqBo
-ZWFywqBmcm9twqB5b3UNCmltbWVkaWF0ZWx5wqBmb3LCoCBmdXJ0aGVywqBpbmZvcm1hdGlvbi7C
-oHRoYW5rc8Kgd2l0aMKgbXnCoGJlc3TCoHJlZ2FyZHMuDQpZb3VyJ3PCoHNpbmNlcmVseQ0KTVIs
-wqBLWUxFUk9CRVJUU8KgUElFUlJFT01JRFlFUi4NClRlbGV4wqBNYW5hZ2VyDQpCYW5rwqBPZsKg
-QWZyaWNhwqAoQk9BKQ0KQnVya2luYcKgRmFzby4NCkNvbnRhY3TCoE1lwqB0aHJvdWdowqB0aGlz
-wqBtecKgZW1haWzCoGFkZHJlc3TCoG9ubHnCoGF0DQoobXJreWxlcm9iZXJ0c3BpZXJyZW9taWR5
-YXJAZ21haWwuY29tKQ0KYmVjYXVzZcKgb2ZmwqBzb21lwqBwcm90b2NvbHMNCg==
+Hi!
+
+Very late of course, and the patch is fine, but:
+
+On Mon, Jan 04, 2021 at 01:59:53PM -0700, Nathan Chancellor wrote:
+> Commit eff8728fe698 ("vmlinux.lds.h: Add PGO and AutoFDO input
+> sections") added ".text.unlikely.*" and ".text.hot.*" due to an LLVM
+> change [1].
+> 
+> After another LLVM change [2], these sections are seen in some PowerPC
+> builds, where there is a orphan section warning then build failure:
+> 
+> $ make -skj"$(nproc)" \
+>        ARCH=powerpc CROSS_COMPILE=powerpc64le-linux-gnu- LLVM=1 O=out \
+>        distclean powernv_defconfig zImage.epapr
+> ld.lld: warning: kernel/built-in.a(panic.o):(.text.unlikely.) is being placed in '.text.unlikely.'
+
+Is the section really called ".text.unlikely.", i.e. the name ending in
+a dot?  How very unusual, is there some bug elsewhere?
+
+
+Segher
