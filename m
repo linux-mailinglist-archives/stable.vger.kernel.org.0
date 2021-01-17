@@ -2,331 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0EB2F94D7
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 20:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 885DB2F94E4
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 20:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730122AbhAQTVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 14:21:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33810 "EHLO
+        id S1729922AbhAQT2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 14:28:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730096AbhAQTU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 14:20:26 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DF2C061573
-        for <stable@vger.kernel.org>; Sun, 17 Jan 2021 11:19:38 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id t29so3784599pfg.11
-        for <stable@vger.kernel.org>; Sun, 17 Jan 2021 11:19:38 -0800 (PST)
+        with ESMTP id S1730134AbhAQTZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 14:25:51 -0500
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299D7C061574
+        for <stable@vger.kernel.org>; Sun, 17 Jan 2021 11:25:11 -0800 (PST)
+Received: by mail-io1-xd35.google.com with SMTP id n2so11635971iom.7
+        for <stable@vger.kernel.org>; Sun, 17 Jan 2021 11:25:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=J2Xd9LVH817mwGqo0jmHUxcIprXxl3+dYfYgCSyj1Tg=;
-        b=i0ept49BFqK/AHDMfijTkWv87eyz5PiqlTpMuR5JCA/XUtbaucyiIvYJ1la5EF0LAo
-         4TPdfAkS8UYi5/JG72kIajunB6iln7zXrcNo7FlVnF6e6iTdCYQKXIxg+28vEevT79oK
-         fqr21o8EGl0Zii+Xn2zs/P4y00Z7Igj4dYit8b2jqcYxzgAjzP2Pxw2tH4hwaC6xcg8n
-         pwJecPS1qQtJpX9iCQaAMok+qO3AohEyxo5aqRliGcn6zTJxn4eXEtYxepZevvTqHpLt
-         6Ec3/bj+yqqU4I476Xh/9A0DFyM5beIIVmRdAgevFTJJSO03/eBHQwDFUy8D4mDPc6V1
-         ybng==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=pLg47IHtjgIuqkfQL/LkDun8WZ2s5nhfyGlTRDFDfd4=;
+        b=Q7DBI69PMUAiJB4v+FSihZO7JmtKN8sqcOoc6NzgbRUrZMXoheo8KoFdROHc4ZJYhZ
+         OoQjssiULjONT5bchKT+Umq1iwuJX+96iZoytDTapeazQHsVFNEWQ1pPRGUCTeQMS6n/
+         uB0ys4fRu3IX4Cy5rk37N1/BUs6qCkAscUTAt8o3UNn7lFscIkT6Cb87KWzWVoQ/UbcP
+         ctOCAdbISD4t6Y6Ffh+czSaeVPSOXlfdHLWyH9MgW6q/T7SWlGxMwqZlnUJnNTwOUUMI
+         VzNx0CoUkDk0YUFIto7buaeaUazkYctCQVz9lIcyjJXoNWAMGn2Kxbk7/K1fIsl/aS8A
+         fFnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=J2Xd9LVH817mwGqo0jmHUxcIprXxl3+dYfYgCSyj1Tg=;
-        b=Q1lVkXIiZ+3TxqXRBC4Jb4tR8dQYa3eDzRbRlxCdDJ0ZR3iCqXbMHaTtwen9nVSRL2
-         QT4+QMSR1/vJenpww4o9q8dL2nGUWlzlczG6r6Ylex3WzC5Ykiz//JKx5i4wPBpYVU2D
-         EoN6TYkOQT7sUXM5PU2ZG0NnNMxe/9DSG81NF0tY57qISPFq9xoBJSGYQqMlHuK94rJG
-         bjJT9Om0fp0YPUyajeGFQ9d6MFhgbCa3/UQAbf+RwjU8okkE1JGN70uxPrGjjx2nJMu3
-         Zc+k6cjajEF56BDrHT9SLcndqvnpCEbNCOZWqRFmZ00V5WhuZwJ4fjQnerdf/P0qWqzW
-         vkbQ==
-X-Gm-Message-State: AOAM530DS8Xwm9mFeQVC8MYO4kGzkk5uLjcr2ovnmpw0rACSxPJYn7j+
-        uD8ItwZaeK09x38bjWLCIZHGq9TANZRCQg==
-X-Google-Smtp-Source: ABdhPJwno3LkHZkor9SHc8gySLd8Qe5hOmS212DNb6x62L4UmqpMMtbgDwauzxy5WbJfFNMMlQYqkQ==
-X-Received: by 2002:a63:f44f:: with SMTP id p15mr23149947pgk.141.1610911177839;
-        Sun, 17 Jan 2021 11:19:37 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id fr1sm2911056pjb.7.2021.01.17.11.19.36
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=pLg47IHtjgIuqkfQL/LkDun8WZ2s5nhfyGlTRDFDfd4=;
+        b=h7q4d/YDN3AVCU91XkbNyy637ulxjdLhvjF8r5FFZvUF+N0UB6NOPZ+Xo0RcLi23UD
+         habsFtPv6MKXErkAqEmwrQxx4Wxn05xHhsriq3e9ZagXNwnPyaw/WaS6GtecW+FPiXx9
+         biKWD5D0nS3m3Dvyro5BXndekK5VtyUWnHXx1i+UIVv/aaZq+qS+mC8s4x9gKoDtLYe/
+         fu+AU3Ce0J83CqoMqI/NLBZ8F03rOY5joWP9XtplBTzU86FccBsHoeoF7Ih/WR/UkQ0U
+         jsRZbMXV/Q18r/5DXoMBbJsc7vizNBw4YaGdhb8t5+AtcTIJf94aNhRhU+MlOQDcPsVq
+         vP5w==
+X-Gm-Message-State: AOAM532q/62yzFtRk53iigmhM5KSrKeFb68qTag5r835Lz8FY4OMzXII
+        Ppp1R9XH/c7aHK4+bhJbQ9sKjA==
+X-Google-Smtp-Source: ABdhPJwETzWw2jco3rRhjaH5X82Zr385HMTReqfM5dAHan9sqaLU1AS4gX+ZZfW7RDmf/hWLCCbemQ==
+X-Received: by 2002:a92:ce09:: with SMTP id b9mr18068716ilo.69.1610911510268;
+        Sun, 17 Jan 2021 11:25:10 -0800 (PST)
+Received: from google.com ([2620:15c:183:200:4146:6dab:8acb:d876])
+        by smtp.gmail.com with ESMTPSA id h19sm284636ilo.21.2021.01.17.11.25.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 11:19:36 -0800 (PST)
-Message-ID: <60048dc8.1c69fb81.09f8.710f@mx.google.com>
-Date:   Sun, 17 Jan 2021 11:19:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Sun, 17 Jan 2021 11:25:09 -0800 (PST)
+Date:   Sun, 17 Jan 2021 12:25:05 -0700
+From:   Yu Zhao <yuzhao@google.com>
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Will Deacon <will@kernel.org>,
+        Laurent Dufour <ldufour@linux.vnet.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vinayak Menon <vinmenon@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Xu <peterx@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>, surenb@google.com,
+        Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <YASPEYs0QVI88xfM@google.com>
+References: <X/3VE64nr91WCtuM@hirez.programming.kicks-ass.net>
+ <ec912505-ed4d-a45d-2ed4-7586919da4de@linux.vnet.ibm.com>
+ <C7D5A74C-25BF-458A-AAD9-61E484B9F225@gmail.com>
+ <X/3+6ZnRCNOwhjGT@google.com>
+ <2C7AE23B-ACA3-4D55-A907-AF781C5608F0@gmail.com>
+ <20210112214337.GA10434@willie-the-truck>
+ <YAO/9YVceghRYo4T@google.com>
+ <85DAADF4-2537-40BD-8580-A57C201FF5F3@gmail.com>
+ <YAQAhyOFqEdjTRPJ@google.com>
+ <1A664155-462A-451D-A21E-D749A0ADBD09@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.9.252
-X-Kernelci-Report-Type: test
-Subject: stable/linux-4.9.y baseline: 137 runs, 7 regressions (v4.9.252)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1A664155-462A-451D-A21E-D749A0ADBD09@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y baseline: 137 runs, 7 regressions (v4.9.252)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-panda                | arm   | lab-collabora   | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
-v4.9.252/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.9.y
-  Describe: v4.9.252
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      10161a5e7a07212efa9152f31611570ba95b3b24 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-panda                | arm   | lab-collabora   | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045b0e3a76b4e61bc94d11
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60045b0e3a76b4e=
-61bc94d16
-        new failure (last pass: v4.9.251)
-        2 lines
-
-    2021-01-17 15:43:04.443000+00:00  [   20.420196] usbcore: registered ne=
-w interface driver smsc95xx
-    2021-01-17 15:43:04.479000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/118
-    2021-01-17 15:43:04.488000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045afafcd81f6c91c94ced
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045afafcd81f6c91c94=
-cee
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045b38dcfb8ca5d5c94cf2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045b38dcfb8ca5d5c94=
-cf3
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045bc9f0615319fac94cc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045bc9f0615319fac94=
-cc9
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045ab813a4273612c94cdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045ab813a4273612c94=
-cde
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045ac0b7a6e4a2c2c94ccc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045ac0b7a6e4a2c2c94=
-ccd
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60045b712d343043a3c94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.252/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60045b712d343043a3c94=
-cc4
-        failing since 59 days (last pass: v4.9.243, first fail: v4.9.244) =
-
- =20
+On Sun, Jan 17, 2021 at 02:13:43AM -0800, Nadav Amit wrote:
+> > On Jan 17, 2021, at 1:16 AM, Yu Zhao <yuzhao@google.com> wrote:
+> > 
+> > On Sat, Jan 16, 2021 at 11:32:22PM -0800, Nadav Amit wrote:
+> >>> On Jan 16, 2021, at 8:41 PM, Yu Zhao <yuzhao@google.com> wrote:
+> >>> 
+> >>> On Tue, Jan 12, 2021 at 09:43:38PM +0000, Will Deacon wrote:
+> >>>> On Tue, Jan 12, 2021 at 12:38:34PM -0800, Nadav Amit wrote:
+> >>>>>> On Jan 12, 2021, at 11:56 AM, Yu Zhao <yuzhao@google.com> wrote:
+> >>>>>> On Tue, Jan 12, 2021 at 11:15:43AM -0800, Nadav Amit wrote:
+> >>>>>>> I will send an RFC soon for per-table deferred TLB flushes tracking.
+> >>>>>>> The basic idea is to save a generation in the page-struct that tracks
+> >>>>>>> when deferred PTE change took place, and track whenever a TLB flush
+> >>>>>>> completed. In addition, other users - such as mprotect - would use
+> >>>>>>> the tlb_gather interface.
+> >>>>>>> 
+> >>>>>>> Unfortunately, due to limited space in page-struct this would only
+> >>>>>>> be possible for 64-bit (and my implementation is only for x86-64).
+> >>>>>> 
+> >>>>>> I don't want to discourage you but I don't think this would end up
+> >>>>>> well. PPC doesn't necessarily follow one-page-struct-per-table rule,
+> >>>>>> and I've run into problems with this before while trying to do
+> >>>>>> something similar.
+> >>>>> 
+> >>>>> Discourage, discourage. Better now than later.
+> >>>>> 
+> >>>>> It will be relatively easy to extend the scheme to be per-VMA instead of
+> >>>>> per-table for architectures that prefer it this way. It does require
+> >>>>> TLB-generation tracking though, which Andy only implemented for x86, so I
+> >>>>> will focus on x86-64 right now.
+> >>>> 
+> >>>> Can you remind me of what we're missing on arm64 in this area, please? I'm
+> >>>> happy to help get this up and running once you have something I can build
+> >>>> on.
+> >>> 
+> >>> I noticed arm/arm64 don't support ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.
+> >>> Would it be something worth pursuing? Arm has been using mm_cpumask,
+> >>> so it might not be too difficult I guess?
+> >> 
+> >> [ +Mel Gorman who implemented ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH ]
+> >> 
+> >> IIUC, there are at least two bugs in x86 implementation.
+> >> 
+> >> First, there is a missing memory barrier in tlbbatch_add_mm() between
+> >> inc_mm_tlb_gen() and the read of mm_cpumask().
+> > 
+> > In arch_tlbbatch_add_mm()? inc_mm_tlb_gen() has builtin barrier as its
+> > comment says -- atomic update ops that return values are also full
+> > memory barriers.
+> 
+> Yes, you are correct.
+> 
+> > 
+> >> Second, try_to_unmap_flush() clears flush_required after flushing. Another
+> >> thread can call set_tlb_ubc_flush_pending() after the flush and before
+> >> flush_required is cleared, and the indication that a TLB flush is pending
+> >> can be lost.
+> > 
+> > This isn't a problem either because flush_required is per thread.
+> 
+> Sorry, I meant mm->tlb_flush_batched . It is not per-thread.
+> flush_tlb_batched_pending() clears it after flush and indications that
+> set_tlb_ubc_flush_pending() sets in between can be lost.
+
+Hmm, the PTL argument above flush_tlb_batched_pending() doesn't seem
+to hold when USE_SPLIT_PTE_PTLOCKS is set. Do you have a reproducer?
+KCSAN might be able to help in this case.
