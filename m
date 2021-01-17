@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8BA2F92C1
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4A42F92C2
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728766AbhAQOJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 09:09:16 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:53685 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728709AbhAQOJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:09:16 -0500
+        id S1728812AbhAQONL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 09:13:11 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60349 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728709AbhAQONK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:13:10 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 091A3195DF63;
-        Sun, 17 Jan 2021 09:08:10 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:08:10 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id B447B19515C8;
+        Sun, 17 Jan 2021 09:12:03 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:12:03 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=LDnZGA
-        OkpdB0DxH3YNF3YqssYffWkfpcVORXx/oSBpo=; b=m6ekwEAfsuqvKovw4/S23n
-        qnY7OwKie5OSsOztM2aRy7c+lfcqSQ4cTYQWpRDHGOfrElZfHFHejxNBmf64UrJj
-        A7UJCx0HalC6uDkXeaABWBRwRwM2a3axWaKvmEwhKKnes/lJ4jXHQECT6eQhwNW7
-        vG4MRgC7++HJ6+a9bXnBIPULO24WJmkRz39nm/zC8o3HMQJbwtc17h2BHlZGd+pB
-        S+MaQozlMKqbqsWKNkW00QxFJLsC4tVLJYK0RlRhW6iesGtivklCYN05tHGDXafk
-        Op47ej/q33BP6YwZp7lPmLvx2vRrdLGr1SCfsZQG3gWf90kBC3ZKQH+6/SJ95pEQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zpYh23
+        281Ql4PNtAu3w0GihaTgWaPmNWyqgwYELIoMk=; b=f1QdzIZzTF3gVzvWZoG9/D
+        sLE2LuuBHaNAjYynrPmion0b+gDWub5sLc9kUEC00X1L8+v+9RX8BGnF/jSB5Q9P
+        +MrK4FKNhy61eSwANBaQCuRqUiocX2zBIkUUczJTzWKEp1uXXjKQIprlY1L3xCN0
+        XiA3QcIagdX4+vsE/a4coWvsc8IhK69IcAnhMpmFgXP/WniZ/SnlreNOw3LjXc8S
+        gnG5M/c06brO3SEKOzGtfR8QlMb7fXqIfJ9qRlvDyFRoZqJ3Y3hDPL5rtoaOOI5I
+        24hWDQOzgsGkkU/wTUhjdtPb5qNfF0NuC3247LiicdojsBLXx0Bm9+sW1wntcJ7w
         ==
-X-ME-Sender: <xms:yEQEYBnk8RzmJ7ac3AXkaetYSTBeVJ9Ri7NzpDFLDc5Ar_K38v6YEg>
-    <xme:yEQEYM2w7uJhNKU0A5GXGfyzuOyQpiP_PPWEF-BAH3NowIaEszLwGOUDzWOpLg5FD
-    EqbNVEG2tuX-w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeifecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:s0UEYOlIVR075nWdmxchnZyUK4ssKmce0w1ifJd1UBe4lCMzXuSvNg>
+    <xme:s0UEYF19k6m98hVsF0Wov09_i5bEO7GGKJrdK9jz-ajH8iwdL1SZRPvXNtLzxk24A
+    m-d2CH7yrr8jg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeigecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:yEQEYHrN1cxACizCHdXBB1q913s8vt9uPQQcnv_WlJMddhWuZLJkLA>
-    <xmx:yEQEYBmF_8o1BGyoZplQxBmBWpgvDoh0NJyIuLp3QhjBTetz3AgYjw>
-    <xmx:yEQEYP3lr51GFK9_MjFVEpBMJsTPgEKPr71TnItBX6W6l_cDz0JMSA>
-    <xmx:ykQEYI-6jr38tUYjaCcwaHSPRkM-l_QG3wA_MuyjatQ7RxxxJMamjw>
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejheefge
+    evhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:s0UEYMpGiuV1OZADsf46SoP23ZXv-_MOFAQdq-1lHA9rc2ap1qR6qQ>
+    <xmx:s0UEYCkMlao7oZXhl_-HbNotaT3BL3Z3s61svfOjppk4vU1Q1MEH4Q>
+    <xmx:s0UEYM3HcopEUls5F8PApph-ra4mMCuoyu6yV5LlCBKgwLBqfzkb1g>
+    <xmx:s0UEYKAhUBNi3Aqw3SzA6-WGONJZpBbc4uB0st5DBKbu7Sxo3devUQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B866F108005B;
-        Sun, 17 Jan 2021 09:08:08 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: prevent NULL pointer dereference in" failed to apply to 4.19-stable tree
-To:     l@damenly.su, anand.jain@oracle.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id C543924005A;
+        Sun, 17 Jan 2021 09:12:02 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/backlight: fix CPU mode backlight takeover on LPT" failed to apply to 5.4-stable tree
+To:     jani.nikula@intel.com, lyude@redhat.com,
+        maarten.lankhorst@linux.intel.com, stable@vger.kernel.org,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Jan 2021 15:08:07 +0100
-Message-ID: <161089248710585@kroah.com>
+Date:   Sun, 17 Jan 2021 15:12:01 +0100
+Message-ID: <161089272111136@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,39 +72,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 29b665cc51e8b602bf2a275734349494776e3dbc Mon Sep 17 00:00:00 2001
-From: Su Yue <l@damenly.su>
-Date: Sun, 3 Jan 2021 17:28:03 +0800
-Subject: [PATCH] btrfs: prevent NULL pointer dereference in
- extent_io_tree_panic
+From bb83d5fb550bb7db75b29e6342417fda2bbb691c Mon Sep 17 00:00:00 2001
+From: Jani Nikula <jani.nikula@intel.com>
+Date: Fri, 8 Jan 2021 17:28:41 +0200
+Subject: [PATCH] drm/i915/backlight: fix CPU mode backlight takeover on LPT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Some extent io trees are initialized with NULL private member (e.g.
-btrfs_device::alloc_state and btrfs_fs_info::excluded_extents).
-Dereference of a NULL tree->private as inode pointer will cause panic.
+The pch_get_backlight(), lpt_get_backlight(), and lpt_set_backlight()
+functions operate directly on the hardware registers. If inverting the
+value is needed, using intel_panel_compute_brightness(), it should only
+be done in the interface between hardware registers and
+panel->backlight.level.
 
-Pass tree->fs_info as it's known to be valid in all cases.
+The CPU mode takeover code added in commit 5b1ec9ac7ab5
+("drm/i915/backlight: Fix backlight takeover on LPT, v3.") reads the
+hardware register and converts to panel->backlight.level correctly,
+however the value written back should remain in the hardware register
+"domain".
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208929
-Fixes: 05912a3c04eb ("btrfs: drop extent_io_ops::tree_fs_info callback")
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Su Yue <l@damenly.su>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This hasn't been an issue, because GM45 machines are the only known
+users of i915.invert_brightness and the brightness invert quirk, and
+without one of them no conversion is made. It's likely nobody's ever hit
+the problem.
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 6e3b72e63e42..c9cee458e001 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -676,9 +676,7 @@ alloc_extent_state_atomic(struct extent_state *prealloc)
+Fixes: 5b1ec9ac7ab5 ("drm/i915/backlight: Fix backlight takeover on LPT, v3.")
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.1+
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210108152841.6944-1-jani.nikula@intel.com
+(cherry picked from commit 0d4ced1c5bfe649196877d90442d4fd618e19153)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
+index 9f23bac0d792..d64fce1a17cb 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.c
++++ b/drivers/gpu/drm/i915/display/intel_panel.c
+@@ -1650,16 +1650,13 @@ static int lpt_setup_backlight(struct intel_connector *connector, enum pipe unus
+ 		val = pch_get_backlight(connector);
+ 	else
+ 		val = lpt_get_backlight(connector);
+-	val = intel_panel_compute_brightness(connector, val);
+-	panel->backlight.level = clamp(val, panel->backlight.min,
+-				       panel->backlight.max);
  
- static void extent_io_tree_panic(struct extent_io_tree *tree, int err)
- {
--	struct inode *inode = tree->private_data;
--
--	btrfs_panic(btrfs_sb(inode->i_sb), err,
-+	btrfs_panic(tree->fs_info, err,
- 	"locking error: extent tree was modified by another thread while locked");
+ 	if (cpu_mode) {
+ 		drm_dbg_kms(&dev_priv->drm,
+ 			    "CPU backlight register was enabled, switching to PCH override\n");
+ 
+ 		/* Write converted CPU PWM value to PCH override register */
+-		lpt_set_backlight(connector->base.state, panel->backlight.level);
++		lpt_set_backlight(connector->base.state, val);
+ 		intel_de_write(dev_priv, BLC_PWM_PCH_CTL1,
+ 			       pch_ctl1 | BLM_PCH_OVERRIDE_ENABLE);
+ 
+@@ -1667,6 +1664,10 @@ static int lpt_setup_backlight(struct intel_connector *connector, enum pipe unus
+ 			       cpu_ctl2 & ~BLM_PWM_ENABLE);
+ 	}
+ 
++	val = intel_panel_compute_brightness(connector, val);
++	panel->backlight.level = clamp(val, panel->backlight.min,
++				       panel->backlight.max);
++
+ 	return 0;
  }
  
 
