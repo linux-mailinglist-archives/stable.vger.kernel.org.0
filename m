@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2F22F927D
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 14:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03EA32F927E
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 14:22:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728569AbhAQNVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 08:21:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51426 "EHLO mail.kernel.org"
+        id S1728676AbhAQNVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 08:21:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728538AbhAQNV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 17 Jan 2021 08:21:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E6262222A;
-        Sun, 17 Jan 2021 13:20:48 +0000 (UTC)
+        id S1728538AbhAQNVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 17 Jan 2021 08:21:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4826C2222B;
+        Sun, 17 Jan 2021 13:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610889648;
-        bh=9P16Qc1fDjEpHvys6GdWgaFdY2+VGQav+DW/Ke2p3oU=;
+        s=korg; t=1610889658;
+        bh=0wVLckVQz7PHAAbMi5aAMRuA9NA60N5kWBKRy3Kes5k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AUzpFoxXCU+ZWal3396Lr99WF0MXcZFtQAKnLQU6MPCBave6RF8KXzkqvqkmSAouz
-         AAXB9g/6lS64rR/sJKRuiZMlSGmRGilqkuSLBJe79mUrEMMEg3nPkXNOeueoM766/O
-         cGQdjZYflxN1KwfbTEZH5swaPyR3GUaK15BBxI18=
-Date:   Sun, 17 Jan 2021 14:20:47 +0100
+        b=ZlZHPEpOfrm7YB7+nXPkW9sxbJ6xYEifZguvC1UIVWoGHeRY0F/2TrBzdfblWaa/+
+         Hr1T3KJLSPbsgJLIOeaozh+EcWk45/MAf/ImlpK6rmHGz6wkd15UFygE7Oi2RjkQxy
+         jWb1HLWQjSol/VIsT3Ucl52/fmcrxiTIhZVRdpEw=
+Date:   Sun, 17 Jan 2021 14:20:56 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
 Subject: Re: [PATCH 5.10 000/103] 5.10.8-rc1 review
-Message-ID: <YAQ5r4QRVv4zjnQR@kroah.com>
+Message-ID: <YAQ5uCawzR6J/KLD@kroah.com>
 References: <20210115122006.047132306@linuxfoundation.org>
- <a9195879679a4280b4c666be8d573617@HQMAIL105.nvidia.com>
+ <64c441ee-1010-7db0-fcce-3483b2da1bf8@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a9195879679a4280b4c666be8d573617@HQMAIL105.nvidia.com>
+In-Reply-To: <64c441ee-1010-7db0-fcce-3483b2da1bf8@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 04:19:46PM +0000, Jon Hunter wrote:
-> On Fri, 15 Jan 2021 13:26:53 +0100, Greg Kroah-Hartman wrote:
+On Fri, Jan 15, 2021 at 02:13:25PM -0700, Shuah Khan wrote:
+> On 1/15/21 5:26 AM, Greg Kroah-Hartman wrote:
 > > This is the start of the stable review cycle for the 5.10.8 release.
 > > There are 103 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
@@ -58,22 +58,12 @@ On Fri, Jan 15, 2021 at 04:19:46PM +0000, Jon Hunter wrote:
 > > thanks,
 > > 
 > > greg k-h
+> > 
 > 
-> All tests passing for Tegra ...
+> Compiled and booted on my test system. No dmesg regressions.
 > 
-> Test results for stable-v5.10:
->     12 builds:	12 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     64 tests:	64 pass, 0 fail
-> 
-> Linux version:	5.10.8-rc1-gc6e710bf849b
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Thanks for testing them all and letting me know.
+Thanks for testing and letting me know.
 
 greg k-h
