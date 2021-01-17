@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1A02F92D8
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389622F92D9
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbhAQOW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 09:22:59 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:57283 "EHLO
+        id S1729124AbhAQOXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 09:23:07 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:47377 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729105AbhAQOW6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:22:58 -0500
+        by vger.kernel.org with ESMTP id S1729105AbhAQOXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:23:06 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B6D8919C0AF8;
-        Sun, 17 Jan 2021 09:21:51 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:21:51 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1500219C0CB1;
+        Sun, 17 Jan 2021 09:22:00 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:22:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2/AkaL
-        MK4Q473iagg/KbfCQbvReG16giE58A9pgQT5A=; b=HN0tkkOJQVmDOPc7zyu1GE
-        7fDz9f2+uGPKXVJwTag8OR7WaLKjdDuUep5aspn/EMC7doD+kO9/rgA0OV9iVb8Q
-        XzL7RsR0h24yRT0Uq9gVU1GZodBXKJqGTGbZNpRcUA5eoiNusrEkT1P/do6TsDOC
-        O5r9HrKaDt1f1nijzLl4XwPE0H9Sgu1h0V5nrSzeu6W0hI1EGuu1P7L4X7R6B2rm
-        D7Gysv0I8h/L88GHKF1DxpoBv2K+YLUKdXwBqRWtrvQKuqKqjMUzef/7qu7OdZVA
-        BhuOY5CmThYkf6FbpwZlSxy+n0URYjNTORUhB31gbzY0G2p17b8Az+JsjN/C2YzQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eVlsbh
+        7ZHHnKFfvbntiBcplEO5U6z1Mp6Qqa4i/9/2c=; b=DWhiU6+9LGmQDmCNpDBtzO
+        MqgE41Kz8lTzi4+45m3wQf08QYHHD+zunLRDA81xr1tHdsjsoFIBD5bIalEP5HQs
+        AVC5e8S83KJVedq6G9iQHTfjyqw+u6AxMggnc13rGLGSM5+fEz4Sm8vU9gfdKLxN
+        7dtJlXB+95fMpJH8QB8eczppqZ1yE2bTLifJojeZR4kOFhwXO+ii5FyiWcueKbLW
+        tJp7wJRTAMfYA/k2PA0EXpuZCDRcu+ZBMTmut+FkhICMdAjnuXwY6agM6fqATzWx
+        KQNsAJT3MgWe03LZzxpQmpf/o7M8ILqfWs9mH9WxuZxb/DePU4As2QD8ydzhZMyA
         ==
-X-ME-Sender: <xms:_0cEYO7xK0mL7pAd40tZUZ0sljUYAzmLEHInqHipMYWCGEeNuP4fDg>
-    <xme:_0cEYH7yb1au22x_ga5DOmMBtT0RbhOF1QsPLb8iyDfWikVg4CrCBc1DPQGRLr2is
-    yWb-CmQYGOPEQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeihecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:B0gEYJULZBfCq0JO3UwxrLhHsVXlAAdjI0Txhgpq0lwHbHRUJ6JJcQ>
+    <xme:B0gEYJnoUgNACbUZc45D-vFiAVohJBdX4DGi51615GICZ8-s25sURDfSiStKoeCe1
+    5TF335j-pf9TQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeiiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeihecutefuodetggdote
     eiteevjedvgfdvleejleenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:_0cEYNfLDylPiePz-ZXZSJCVSVB9sGpcpwpGx_-TVz9l4fOqtja47w>
-    <xmx:_0cEYLJg9E2Dq-BtQRiuoTxfgEWc2zfqDvZXLuiZ8v5Z8tbFU0A0sQ>
-    <xmx:_0cEYCLcSHxfnLZMGux_xoPbEkCoAjgDhec2dCfB0kODF0RQqczqxA>
-    <xmx:_0cEYEgQoHeIRmGkUSxcdOV5u6LdViibSBErmCu6jnWHuc7nbm7Z8A>
+X-ME-Proxy: <xmx:B0gEYFbXsvlSLQ3mA_MNrWaeFsb308wx7PaDlKnodgV00AxKOK2gSw>
+    <xmx:B0gEYMVfyFr28Vu5rj5ejwJhGo55qeJJYjFoASj6SD-iUtm-DRZGpA>
+    <xmx:B0gEYDmJOwlNmosda6Wp99sRwf2J4QyzaAFLDA2HPmCTvo6pVyfozQ>
+    <xmx:CEgEYLu-H3XUoCxYbjnmjW1TTzPP0ERxESPgk6fJV2zc8af6p5h3yg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 53E11240057;
-        Sun, 17 Jan 2021 09:21:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] xen/privcmd: allow fetching resource sizes" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AFB10108005C;
+        Sun, 17 Jan 2021 09:21:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] xen/privcmd: allow fetching resource sizes" failed to apply to 5.4-stable tree
 To:     roger.pau@citrix.com, andrew.cooper3@citrix.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Jan 2021 15:21:49 +0100
-Message-ID: <16108933095487@kroah.com>
+Date:   Sun, 17 Jan 2021 15:21:50 +0100
+Message-ID: <1610893310216217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
