@@ -2,97 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C6F2F8EC1
-	for <lists+stable@lfdr.de>; Sat, 16 Jan 2021 19:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8ED2F8FFD
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 02:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726959AbhAPSxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Jan 2021 13:53:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726918AbhAPSxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 Jan 2021 13:53:30 -0500
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E021C061574;
-        Sat, 16 Jan 2021 10:52:50 -0800 (PST)
-Received: by mail-qk1-x72e.google.com with SMTP id w79so15074823qkb.5;
-        Sat, 16 Jan 2021 10:52:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Ua/LuZsrNlCeFTfbXFziWkITBqn89svS3225QAvKj0A=;
-        b=n12xMXlTU2DXR1uyiW4fXaINLmYT6of49oHn1WdmZ3Cl8itKncigwstKfybe20it5r
-         +XBL9vo0t8S0SgTed0h6f/poowmdAb89scyZ9n/CI4cgJJuu1Qk43cg5mRMkl8S30V0S
-         gNip6vOZJ748GPi7RCK8gZgl7jixCIJ9Ej1GzSoDQt9hwanLc4dNegiri7ZFG5hRPURu
-         88aseBMY+iepKoZ+4hbaSedCImZU2hroSSH3pzVXBKGMVxzQxuk42C3HFPIfjPfP6Y33
-         hSFIKE6pun1l6hiZ7emfdEo01uDho+975t46ArnU2jPyTz5NUl1xSJmp8LktXyWfb6v5
-         +/dw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Ua/LuZsrNlCeFTfbXFziWkITBqn89svS3225QAvKj0A=;
-        b=Lj0D9gDNqYbXjAR9MWsRQ0VXrnDpx9R3heJ9IOyRKHqfRA3+flMMhGd2hLLaFjjNQi
-         +bl6Z+R5BJk0F37MgpzaEvwTFHVK+bjzxm/dERYwdBjnQEwDy2lzAjXVuwDQyIrn03Yg
-         p6gra9W/BF10OEij/YwH5SvsW57aQUMsWzzLpHtfbF9QyMIthJMCQrQ84Z+tr7j7nKv+
-         vywHWnND/odKLJRY7JDNwBD+1e5QU7FmVBOO48RTEf2ouNU29kQkymOPTmgaBFcl9Y86
-         ViF7EAI11ZUXoJlbPf8gyuExZm2hpleXesaCN/ALU4eeTUqMCgvzekLGo5YCpcOHWZuM
-         yQ0w==
-X-Gm-Message-State: AOAM531X7PvBa/Y8DeLlfys45ImI7WeQ5jwB6gfBJXRxiEETnLRw2fHN
-        ZoaJ8LZXrtC+h2dwO2cKDjYsIP8mSlE=
-X-Google-Smtp-Source: ABdhPJyWYkwjtMd7leSGPGTxr/2BxKXW6DNoXxh1e/n8q51VXlOSWufCd0l5E3S9cKNsl/xRvnTKDw==
-X-Received: by 2002:a05:620a:b0f:: with SMTP id t15mr18389126qkg.485.1610823169107;
-        Sat, 16 Jan 2021 10:52:49 -0800 (PST)
-Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
-        by smtp.gmail.com with ESMTPSA id w42sm4349496qtw.22.2021.01.16.10.52.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 16 Jan 2021 10:52:48 -0800 (PST)
-Date:   Sat, 16 Jan 2021 11:52:47 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Segher Boessenkool <segher@kernel.crashing.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        clang-built-linux@googlegroups.com,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH v2] powerpc: Handle .text.{hot,unlikely}.* in linker
- script
-Message-ID: <20210116185247.GA2491296@ubuntu-m3-large-x86>
-References: <20210104204850.990966-1-natechancellor@gmail.com>
- <20210104205952.1399409-1-natechancellor@gmail.com>
- <20210116184438.GE30983@gate.crashing.org>
+        id S1727062AbhAQA77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Jan 2021 19:59:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726788AbhAQA74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Jan 2021 19:59:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 297F722BEA;
+        Sun, 17 Jan 2021 00:59:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610845155;
+        bh=tSvaCGk0aGCNFtliffn2jp5B4ukLkm0tvq5XS8ex8ms=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=gobF7UkZ6zQb7p6QOThEsdi2tUKlW+6yOgTW721zh8mn/M0OmYbuIQcKbWHxpBmub
+         31ZxlQgLccAavCrPdPeqvk2z4zMPR1tbi9xtiY3r3QzA7gXmUZyL3856d0odD6w2AU
+         urKIdPrGaikuDtLUHipcnhiXbhkW8zSC49wgVgEePupvomUQ9jFr+SuocseRoh3Gbf
+         MrnJclJJdgFdmhDnD6vO8VRD2i16xzKxsJyg6GXbuZ+JWhNVk3vLMqKnugAauaZ21j
+         EGFXLf094z5XiyxHdafrOaGavgxbCodtvA1yIQdURqCmNxQcz2mjFvjEe43L/voBHR
+         XbspO/7N4mmyg==
+Date:   Sat, 16 Jan 2021 16:59:14 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Wong Vee Khee <vee.khee.wong@intel.com>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Wei Feng <weifeng.voon@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net-next 1/1] stmmac: intel: change all EHL/TGL to auto
+ detect phy addr
+Message-ID: <20210116165914.31b6ca5f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <bf5170d1-62a9-b2dc-cb5a-d568830c947a@siemens.com>
+References: <20201106094341.4241-1-vee.khee.wong@intel.com>
+        <bf5170d1-62a9-b2dc-cb5a-d568830c947a@siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210116184438.GE30983@gate.crashing.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 16, 2021 at 12:44:38PM -0600, Segher Boessenkool wrote:
-> Hi!
-> 
-> Very late of course, and the patch is fine, but:
-> 
-> On Mon, Jan 04, 2021 at 01:59:53PM -0700, Nathan Chancellor wrote:
-> > Commit eff8728fe698 ("vmlinux.lds.h: Add PGO and AutoFDO input
-> > sections") added ".text.unlikely.*" and ".text.hot.*" due to an LLVM
-> > change [1].
+On Sat, 16 Jan 2021 10:12:21 +0100 Jan Kiszka wrote:
+> On 06.11.20 10:43, Wong Vee Khee wrote:
+> > From: Voon Weifeng <weifeng.voon@intel.com>
 > > 
-> > After another LLVM change [2], these sections are seen in some PowerPC
-> > builds, where there is a orphan section warning then build failure:
+> > Set all EHL/TGL phy_addr to -1 so that the driver will automatically
+> > detect it at run-time by probing all the possible 32 addresses.
 > > 
-> > $ make -skj"$(nproc)" \
-> >        ARCH=powerpc CROSS_COMPILE=powerpc64le-linux-gnu- LLVM=1 O=out \
-> >        distclean powernv_defconfig zImage.epapr
-> > ld.lld: warning: kernel/built-in.a(panic.o):(.text.unlikely.) is being placed in '.text.unlikely.'
+> > Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+> > Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
 > 
-> Is the section really called ".text.unlikely.", i.e. the name ending in
-> a dot?  How very unusual, is there some bug elsewhere?
+> This fixes PHY detection on one of our EHL-based boards. Can this also
+> be applied to stable 5.10?
 
-No, this was an intention change done by LLVM:
-https://reviews.llvm.org/D79600
+Sure.
 
-Cheers,
-Nathan
+Greg, we'd like to request a backport of the following commit to 5.10.
+
+commit bff6f1db91e330d7fba56f815cdbc412c75fe163
+Author: Voon Weifeng <weifeng.voon@intel.com>
+Date:   Fri Nov 6 17:43:41 2020 +0800
+
+    stmmac: intel: change all EHL/TGL to auto detect phy addr
+    
+    Set all EHL/TGL phy_addr to -1 so that the driver will automatically
+    detect it at run-time by probing all the possible 32 addresses.
+    
+    Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+    Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
+    Link: https://lore.kernel.org/r/20201106094341.4241-1-vee.khee.wong@intel.com
+    Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+
+It's relatively small, and Jan reports it makes his boards detect the
+PHY. The change went in via -next and into Linus's tree during the 5.11
+merge window.
