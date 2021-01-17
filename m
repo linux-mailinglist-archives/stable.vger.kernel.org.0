@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299332F92BD
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010712F92BE
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:06:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728722AbhAQOFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 09:05:42 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:38877 "EHLO
+        id S1727480AbhAQOFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 09:05:44 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:42253 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727480AbhAQOFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:05:37 -0500
+        by vger.kernel.org with ESMTP id S1728709AbhAQOFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:05:43 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C729519528C9;
-        Sun, 17 Jan 2021 09:04:30 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:04:30 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id D6EAD19C06C2;
+        Sun, 17 Jan 2021 09:04:35 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:04:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xsJy7K
-        nJKIVv1+apatlXYgY3MZePFts04BdcruyrN5I=; b=pTTUxCymRPiq6A+RPaZs3E
-        M2ccPNDzDd88yihQ9T8i6uL66ZvdY9VfKNqbox6gLb6F2ZY3kMLhrmgb32SH34GZ
-        cAf+BU4qaM0JzbxrvOFalXeQrS579plH0K0Z2x1lg4H7pftsVEYMHLboYkAIsEZa
-        UHp6Fq5UjDDGwYTXy2M12/ZJAOZKaQEu3hrNmJREM4JM4lwkRsg0pbP2lqOEVLPi
-        fMAGX0NVWtzoJCE6wm7hIe1Eg53dwIFdiGztLtUU0uh5z3plITjo42kV70eVbSFQ
-        LsAH1pTAUC98/lRs2pzhKFad+H8hwF42qC6akiBo9Ua7e9yhhNhFgPLtcWkaa/TQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3E+t3V
+        EZmsH7k1w3OK6KlVoPB/NffUQQY3EDNfpmEtk=; b=BP/i0k7YhVoqJqe7IiYOVN
+        kQLZ89I01TT6K5D7+jOasMSGW2ooghcCypbF+db3joEzknkCzf6p0uBDS73wkQzL
+        XS2rqlXj6TYV1i4cqu4cD7KmX0Vt0VK8ezRa6QTzNgbTnzXT1xJsDqYzcP5WZP5m
+        6HS1t5gltgdLbCAUKKQkQS8GGn77waOtUFgy1EiWWjoIROHtORwgBvnCTvLyHbSM
+        H59CicJCTWmFFks0wYz5OcEQvpY03uval/bJ0YBZlNisVXW+FAgfWvpKf1FDX7qw
+        GLS12nVVoQg8Qn88GD6sggn0ZTFCcrsM9+U5wxfMervDXQxwiixL/eLsCwoTVEmA
         ==
-X-ME-Sender: <xms:7kMEYC6DmuVD4yPUVGJK48NOp1uG2SAZPqzoFrb01GnVOKH7_XjaCA>
-    <xme:7kMEYJ13544nLs5F7u0_H6PMPr-l6GbVVG0CL4L0C95BdTxFn4ow_IuyxpcTiPH7a
-    scbq3O1TxT4WQ>
+X-ME-Sender: <xms:80MEYNUUlHsHM8OEe27bVF2BWSaVcfJGlESbJsf8jA13K25ztPdQZg>
+    <xme:80MEYNlYFtvJUmdKGVpv3_7VKX0ZZpL_d50hcyE5nQqaIml8Wmsh6aaXjleUzdbj1
+    ELTWMX_EEMUqA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeivdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:7kMEYJB5hyIeqs_-2CKIjFxnkREFE6AaJBwAFPzl8_cQCZmg0Dkxbg>
-    <xmx:7kMEYL0NPvkNXQHnJJwqjJr_R9EZl4vG9FxEg_6z711al-31OJ3eKA>
-    <xmx:7kMEYDtalEvrf_NqdP8XK61tCuKPwQsPKwbfykn7Ybxy8_Z-7eWkpQ>
-    <xmx:7kMEYJySf2zesOY6ZLlGjFFkujGk9hBhQXAyRuYtLTMiM5CobpGQbA>
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
+    dufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:80MEYJYiw2mRIMlT4CpRike3PssIP-YcjVoEqpSxbuJwzLE71POmTg>
+    <xmx:80MEYAXqU5THqDQRBgeHpghuhw3xeI5F808U4pj7y83JKd65GKCDSA>
+    <xmx:80MEYHnm2tqXU0kt3IAlsNEy_seltkXBRoqJ1hYppnBnd3tKvgbmlg>
+    <xmx:80MEYPtQOkaK7ArNSRKaUOLSmlweSvJlNyohhv2nJtpRxrib6xum0Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 873EA24005A;
-        Sun, 17 Jan 2021 09:04:30 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: tree-checker: check if chunk item end overflows" failed to apply to 4.19-stable tree
-To:     l@damenly.su, anand.jain@oracle.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 44938108005C;
+        Sun, 17 Jan 2021 09:04:35 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: shrink delalloc pages instead of full inodes" failed to apply to 5.10-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, rene@exactcode.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Jan 2021 15:04:29 +0100
-Message-ID: <161089226952164@kroah.com>
+Date:   Sun, 17 Jan 2021 15:04:34 +0100
+Message-ID: <1610892274168248@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,175 +70,201 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 347fb0cfc9bab5195c6701e62eda488310d7938f Mon Sep 17 00:00:00 2001
-From: Su Yue <l@damenly.su>
-Date: Sun, 3 Jan 2021 17:28:04 +0800
-Subject: [PATCH] btrfs: tree-checker: check if chunk item end overflows
+From e076ab2a2ca70a0270232067cd49f76cd92efe64 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Thu, 7 Jan 2021 17:08:30 -0500
+Subject: [PATCH] btrfs: shrink delalloc pages instead of full inodes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-While mounting a crafted image provided by user, kernel panics due to
-the invalid chunk item whose end is less than start.
+Commit 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in
+shrink_delalloc") cleaned up how we do delalloc shrinking by utilizing
+some infrastructure we have in place to flush inodes that we use for
+device replace and snapshot.  However this introduced a pretty serious
+performance regression.  To reproduce the user untarred the source
+tarball of Firefox (360MiB xz compressed/1.5GiB uncompressed), and would
+see it take anywhere from 5 to 20 times as long to untar in 5.10
+compared to 5.9. This was observed on fast devices (SSD and better) and
+not on HDD.
 
-  [66.387422] loop: module loaded
-  [66.389773] loop0: detected capacity change from 262144 to 0
-  [66.427708] BTRFS: device fsid a62e00e8-e94e-4200-8217-12444de93c2e devid 1 transid 12 /dev/loop0 scanned by mount (613)
-  [66.431061] BTRFS info (device loop0): disk space caching is enabled
-  [66.431078] BTRFS info (device loop0): has skinny extents
-  [66.437101] BTRFS error: insert state: end < start 29360127 37748736
-  [66.437136] ------------[ cut here ]------------
-  [66.437140] WARNING: CPU: 16 PID: 613 at fs/btrfs/extent_io.c:557 insert_state.cold+0x1a/0x46 [btrfs]
-  [66.437369] CPU: 16 PID: 613 Comm: mount Tainted: G           O      5.11.0-rc1-custom #45
-  [66.437374] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-  [66.437378] RIP: 0010:insert_state.cold+0x1a/0x46 [btrfs]
-  [66.437420] RSP: 0018:ffff93e5414c3908 EFLAGS: 00010286
-  [66.437427] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [66.437431] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [66.437434] RBP: ffff93e5414c3938 R08: 0000000000000001 R09: 0000000000000001
-  [66.437438] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d72aa0
-  [66.437441] R13: ffff8ec78bc71628 R14: 0000000000000000 R15: 0000000002400000
-  [66.437447] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [66.437451] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [66.437455] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [66.437460] PKRU: 55555554
-  [66.437464] Call Trace:
-  [66.437475]  set_extent_bit+0x652/0x740 [btrfs]
-  [66.437539]  set_extent_bits_nowait+0x1d/0x20 [btrfs]
-  [66.437576]  add_extent_mapping+0x1e0/0x2f0 [btrfs]
-  [66.437621]  read_one_chunk+0x33c/0x420 [btrfs]
-  [66.437674]  btrfs_read_chunk_tree+0x6a4/0x870 [btrfs]
-  [66.437708]  ? kvm_sched_clock_read+0x18/0x40
-  [66.437739]  open_ctree+0xb32/0x1734 [btrfs]
-  [66.437781]  ? bdi_register_va+0x1b/0x20
-  [66.437788]  ? super_setup_bdi_name+0x79/0xd0
-  [66.437810]  btrfs_mount_root.cold+0x12/0xeb [btrfs]
-  [66.437854]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.437873]  legacy_get_tree+0x34/0x60
-  [66.437880]  vfs_get_tree+0x2d/0xc0
-  [66.437888]  vfs_kern_mount.part.0+0x78/0xc0
-  [66.437897]  vfs_kern_mount+0x13/0x20
-  [66.437902]  btrfs_mount+0x11f/0x3c0 [btrfs]
-  [66.437940]  ? kfree+0x5ff/0x670
-  [66.437944]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.437962]  legacy_get_tree+0x34/0x60
-  [66.437974]  vfs_get_tree+0x2d/0xc0
-  [66.437983]  path_mount+0x48c/0xd30
-  [66.437998]  __x64_sys_mount+0x108/0x140
-  [66.438011]  do_syscall_64+0x38/0x50
-  [66.438018]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [66.438023] RIP: 0033:0x7f0138827f6e
-  [66.438033] RSP: 002b:00007ffecd79edf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-  [66.438040] RAX: ffffffffffffffda RBX: 00007f013894c264 RCX: 00007f0138827f6e
-  [66.438044] RDX: 00005593a4a41360 RSI: 00005593a4a33690 RDI: 00005593a4a3a6c0
-  [66.438047] RBP: 00005593a4a33440 R08: 0000000000000000 R09: 0000000000000001
-  [66.438050] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-  [66.438054] R13: 00005593a4a3a6c0 R14: 00005593a4a41360 R15: 00005593a4a33440
-  [66.438078] irq event stamp: 18169
-  [66.438082] hardirqs last  enabled at (18175): [<ffffffffb81154bf>] console_unlock+0x4ff/0x5f0
-  [66.438088] hardirqs last disabled at (18180): [<ffffffffb8115427>] console_unlock+0x467/0x5f0
-  [66.438092] softirqs last  enabled at (16910): [<ffffffffb8a00fe2>] asm_call_irq_on_stack+0x12/0x20
-  [66.438097] softirqs last disabled at (16905): [<ffffffffb8a00fe2>] asm_call_irq_on_stack+0x12/0x20
-  [66.438103] ---[ end trace e114b111db64298b ]---
-  [66.438107] BTRFS error: found node 12582912 29360127 on insert of 37748736 29360127
-  [66.438127] BTRFS critical: panic in extent_io_tree_panic:679: locking error: extent tree was modified by another thread while locked (errno=-17 Object already exists)
-  [66.441069] ------------[ cut here ]------------
-  [66.441072] kernel BUG at fs/btrfs/extent_io.c:679!
-  [66.442064] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  [66.443018] CPU: 16 PID: 613 Comm: mount Tainted: G        W  O      5.11.0-rc1-custom #45
-  [66.444538] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-  [66.446223] RIP: 0010:extent_io_tree_panic.isra.0+0x23/0x25 [btrfs]
-  [66.450878] RSP: 0018:ffff93e5414c3948 EFLAGS: 00010246
-  [66.451840] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [66.453141] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [66.454445] RBP: ffff93e5414c3948 R08: 0000000000000001 R09: 0000000000000001
-  [66.455743] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d728c0
-  [66.457055] R13: ffff8ec78bc71628 R14: ffff8ec782d72aa0 R15: 0000000002400000
-  [66.458356] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [66.459841] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [66.460895] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [66.462196] PKRU: 55555554
-  [66.462692] Call Trace:
-  [66.463139]  set_extent_bit.cold+0x30/0x98 [btrfs]
-  [66.464049]  set_extent_bits_nowait+0x1d/0x20 [btrfs]
-  [66.490466]  add_extent_mapping+0x1e0/0x2f0 [btrfs]
-  [66.514097]  read_one_chunk+0x33c/0x420 [btrfs]
-  [66.534976]  btrfs_read_chunk_tree+0x6a4/0x870 [btrfs]
-  [66.555718]  ? kvm_sched_clock_read+0x18/0x40
-  [66.575758]  open_ctree+0xb32/0x1734 [btrfs]
-  [66.595272]  ? bdi_register_va+0x1b/0x20
-  [66.614638]  ? super_setup_bdi_name+0x79/0xd0
-  [66.633809]  btrfs_mount_root.cold+0x12/0xeb [btrfs]
-  [66.652938]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.671925]  legacy_get_tree+0x34/0x60
-  [66.690300]  vfs_get_tree+0x2d/0xc0
-  [66.708221]  vfs_kern_mount.part.0+0x78/0xc0
-  [66.725808]  vfs_kern_mount+0x13/0x20
-  [66.742730]  btrfs_mount+0x11f/0x3c0 [btrfs]
-  [66.759350]  ? kfree+0x5ff/0x670
-  [66.775441]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.791750]  legacy_get_tree+0x34/0x60
-  [66.807494]  vfs_get_tree+0x2d/0xc0
-  [66.823349]  path_mount+0x48c/0xd30
-  [66.838753]  __x64_sys_mount+0x108/0x140
-  [66.854412]  do_syscall_64+0x38/0x50
-  [66.869673]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [66.885093] RIP: 0033:0x7f0138827f6e
-  [66.945613] RSP: 002b:00007ffecd79edf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-  [66.977214] RAX: ffffffffffffffda RBX: 00007f013894c264 RCX: 00007f0138827f6e
-  [66.994266] RDX: 00005593a4a41360 RSI: 00005593a4a33690 RDI: 00005593a4a3a6c0
-  [67.011544] RBP: 00005593a4a33440 R08: 0000000000000000 R09: 0000000000000001
-  [67.028836] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-  [67.045812] R13: 00005593a4a3a6c0 R14: 00005593a4a41360 R15: 00005593a4a33440
-  [67.216138] ---[ end trace e114b111db64298c ]---
-  [67.237089] RIP: 0010:extent_io_tree_panic.isra.0+0x23/0x25 [btrfs]
-  [67.325317] RSP: 0018:ffff93e5414c3948 EFLAGS: 00010246
-  [67.347946] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [67.371343] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [67.394757] RBP: ffff93e5414c3948 R08: 0000000000000001 R09: 0000000000000001
-  [67.418409] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d728c0
-  [67.441906] R13: ffff8ec78bc71628 R14: ffff8ec782d72aa0 R15: 0000000002400000
-  [67.465436] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [67.511660] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [67.535047] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [67.558449] PKRU: 55555554
-  [67.581146] note: mount[613] exited with preempt_count 2
+The root cause is because before we would generally use the normal
+writeback path to reclaim delalloc space, and for this we would provide
+it with the number of pages we wanted to flush.  The referenced commit
+changed this to flush that many inodes, which drastically increased the
+amount of space we were flushing in certain cases, which severely
+affected performance.
 
-The image has a chunk item which has a logical start 37748736 and length
-18446744073701163008 (-8M). The calculated end 29360127 overflows.
-EEXIST was caught by insert_state() because of the duplicate end and
-extent_io_tree_panic() was called.
+We cannot revert this patch unfortunately because of 3d45f221ce62
+("btrfs: fix deadlock when cloning inline extent and low on free
+metadata space") which requires the ability to skip flushing inodes that
+are being cloned in certain scenarios, which means we need to keep using
+our flushing infrastructure or risk re-introducing the deadlock.
 
-Add overflow check of chunk item end to tree checker so it can be
-detected early at mount time.
+Instead to fix this problem we can go back to providing
+btrfs_start_delalloc_roots with a number of pages to flush, and then set
+up a writeback_control and utilize sync_inode() to handle the flushing
+for us.  This gives us the same behavior we had prior to the fix, while
+still allowing us to avoid the deadlock that was fixed by Filipe.  I
+redid the users original test and got the following results on one of
+our test machines (256GiB of ram, 56 cores, 2TiB Intel NVMe drive)
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208929
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Su Yue <l@damenly.su>
+  5.9		0m54.258s
+  5.10		1m26.212s
+  5.10+patch	0m38.800s
+
+5.10+patch is significantly faster than plain 5.9 because of my patch
+series "Change data reservations to use the ticketing infra" which
+contained the patch that introduced the regression, but generally
+improved the overall ENOSPC flushing mechanisms.
+
+Additional testing on consumer-grade SSD (8GiB ram, 8 CPU) confirm
+the results:
+
+  5.10.5            4m00s
+  5.10.5+patch      1m08s
+  5.11-rc2	    5m14s
+  5.11-rc2+patch    1m30s
+
+Reported-by: René Rebe <rene@exactcode.de>
+Fixes: 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in shrink_delalloc")
+CC: stable@vger.kernel.org # 5.10
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Tested-by: David Sterba <dsterba@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ add my test results ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-index 028e733e42f3..582061c7b547 100644
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -760,6 +760,7 @@ int btrfs_check_chunk_valid(struct extent_buffer *leaf,
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 070716650df8..a8e0a6b038d3 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9390,7 +9390,8 @@ static struct btrfs_delalloc_work *btrfs_alloc_delalloc_work(struct inode *inode
+  * some fairly slow code that needs optimization. This walks the list
+  * of all the inodes with pending delalloc and forces them to disk.
+  */
+-static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot,
++static int start_delalloc_inodes(struct btrfs_root *root,
++				 struct writeback_control *wbc, bool snapshot,
+ 				 bool in_reclaim_context)
  {
- 	struct btrfs_fs_info *fs_info = leaf->fs_info;
- 	u64 length;
-+	u64 chunk_end;
- 	u64 stripe_len;
- 	u16 num_stripes;
- 	u16 sub_stripes;
-@@ -814,6 +815,12 @@ int btrfs_check_chunk_valid(struct extent_buffer *leaf,
- 			  "invalid chunk length, have %llu", length);
- 		return -EUCLEAN;
+ 	struct btrfs_inode *binode;
+@@ -9399,6 +9400,7 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
+ 	struct list_head works;
+ 	struct list_head splice;
+ 	int ret = 0;
++	bool full_flush = wbc->nr_to_write == LONG_MAX;
+ 
+ 	INIT_LIST_HEAD(&works);
+ 	INIT_LIST_HEAD(&splice);
+@@ -9427,18 +9429,24 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
+ 		if (snapshot)
+ 			set_bit(BTRFS_INODE_SNAPSHOT_FLUSH,
+ 				&binode->runtime_flags);
+-		work = btrfs_alloc_delalloc_work(inode);
+-		if (!work) {
+-			iput(inode);
+-			ret = -ENOMEM;
+-			goto out;
+-		}
+-		list_add_tail(&work->list, &works);
+-		btrfs_queue_work(root->fs_info->flush_workers,
+-				 &work->work);
+-		if (*nr != U64_MAX) {
+-			(*nr)--;
+-			if (*nr == 0)
++		if (full_flush) {
++			work = btrfs_alloc_delalloc_work(inode);
++			if (!work) {
++				iput(inode);
++				ret = -ENOMEM;
++				goto out;
++			}
++			list_add_tail(&work->list, &works);
++			btrfs_queue_work(root->fs_info->flush_workers,
++					 &work->work);
++		} else {
++			ret = sync_inode(inode, wbc);
++			if (!ret &&
++			    test_bit(BTRFS_INODE_HAS_ASYNC_EXTENT,
++				     &BTRFS_I(inode)->runtime_flags))
++				ret = sync_inode(inode, wbc);
++			btrfs_add_delayed_iput(inode);
++			if (ret || wbc->nr_to_write <= 0)
+ 				goto out;
+ 		}
+ 		cond_resched();
+@@ -9464,18 +9472,29 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
+ 
+ int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
+ {
++	struct writeback_control wbc = {
++		.nr_to_write = LONG_MAX,
++		.sync_mode = WB_SYNC_NONE,
++		.range_start = 0,
++		.range_end = LLONG_MAX,
++	};
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+-	u64 nr = U64_MAX;
+ 
+ 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+ 		return -EROFS;
+ 
+-	return start_delalloc_inodes(root, &nr, true, false);
++	return start_delalloc_inodes(root, &wbc, true, false);
+ }
+ 
+ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
+ 			       bool in_reclaim_context)
+ {
++	struct writeback_control wbc = {
++		.nr_to_write = (nr == U64_MAX) ? LONG_MAX : (unsigned long)nr,
++		.sync_mode = WB_SYNC_NONE,
++		.range_start = 0,
++		.range_end = LLONG_MAX,
++	};
+ 	struct btrfs_root *root;
+ 	struct list_head splice;
+ 	int ret;
+@@ -9489,6 +9508,13 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
+ 	spin_lock(&fs_info->delalloc_root_lock);
+ 	list_splice_init(&fs_info->delalloc_roots, &splice);
+ 	while (!list_empty(&splice) && nr) {
++		/*
++		 * Reset nr_to_write here so we know that we're doing a full
++		 * flush.
++		 */
++		if (nr == U64_MAX)
++			wbc.nr_to_write = LONG_MAX;
++
+ 		root = list_first_entry(&splice, struct btrfs_root,
+ 					delalloc_root);
+ 		root = btrfs_grab_root(root);
+@@ -9497,9 +9523,9 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
+ 			       &fs_info->delalloc_roots);
+ 		spin_unlock(&fs_info->delalloc_root_lock);
+ 
+-		ret = start_delalloc_inodes(root, &nr, false, in_reclaim_context);
++		ret = start_delalloc_inodes(root, &wbc, false, in_reclaim_context);
+ 		btrfs_put_root(root);
+-		if (ret < 0)
++		if (ret < 0 || wbc.nr_to_write <= 0)
+ 			goto out;
+ 		spin_lock(&fs_info->delalloc_root_lock);
  	}
-+	if (unlikely(check_add_overflow(logical, length, &chunk_end))) {
-+		chunk_err(leaf, chunk, logical,
-+"invalid chunk logical start and length, have logical start %llu length %llu",
-+			  logical, length);
-+		return -EUCLEAN;
-+	}
- 	if (unlikely(!is_power_of_2(stripe_len) || stripe_len != BTRFS_STRIPE_LEN)) {
- 		chunk_err(leaf, chunk, logical,
- 			  "invalid chunk stripe length: %llu",
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 67e55c5479b8..e8347461c8dd 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -532,7 +532,9 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ 
+ 	loops = 0;
+ 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
+-		btrfs_start_delalloc_roots(fs_info, items, true);
++		u64 nr_pages = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
++
++		btrfs_start_delalloc_roots(fs_info, nr_pages, true);
+ 
+ 		loops++;
+ 		if (wait_ordered && !trans) {
 
