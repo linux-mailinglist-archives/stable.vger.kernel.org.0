@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 357712F92C6
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:16:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8029B2F92C8
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbhAQOQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 09:16:38 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:59977 "EHLO
+        id S1728906AbhAQORC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 09:17:02 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:35117 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728875AbhAQOQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:16:37 -0500
+        by vger.kernel.org with ESMTP id S1728709AbhAQORB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:17:01 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 479A01981D6C;
-        Sun, 17 Jan 2021 09:15:50 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:15:50 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 11EEC19822E6;
+        Sun, 17 Jan 2021 09:15:55 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:15:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6SI7rc
-        QCKv3kMT6eh8LOY6kDsKyzMhIpKGTG4rcgxtU=; b=lHvRsnhweMyeMwWfyqxXQ7
-        3pzFEzw/qcazeBoqTXYNpkem5jv7yrHaibV2BLMqZsebU1jkB+H+PNIbLLwy51Tm
-        gw9rSoZV29aB/AYJH/ECEycXgD55Ll1j7UUHgvO+vqn7qXAI2CjlvP9+WFUW5rIk
-        7MVyopV9TAKnYAt3+QXmAYBajrstgajysRjWzlEi9wupruXUUTpErPfgxyDlAtjF
-        pVdIOKz2BSk3dMOMCm8M6aiN0GQ/ocq3KaZdQT/7DB06Rhn5qb3RgNU7Z/5sk59j
-        yLC4vr9jSCNZCiQ1Ptgl3bwFcvl/vJREg6Kl1RvOJrk0Y3+oYTqnKq0l8ayKj4cw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XsbmXJ
+        1QGzWr2O2Sa7y5kuBeTzYcf8edXCMMZIFz7pk=; b=nE5SQfl3dsgFJy1odjoCld
+        yFIjdCTI6vwzPAqc9OvOD7KSipxy10TW0hTidm70AeXUx3CRwTFFoRyfN+SAiL3V
+        tuFAHG/CM7uBK6zvS4tjd9NxH3LydV3k7kFQW/chU6jtZIstrfYga7XzhrXnoRCu
+        VfCiY+N5aDit0r7nPkJG62iaHf32z2Wj+aIRfiOZZRacg/HuofW6k5FD2bB/5+mL
+        w9NLTudA6xmUWyX5OTUyqRBaGmLBAo6AbCcgG0DPPkLEbipMuWrUcJRW2JFDtCru
+        w0DMjLaD5yoi3yEaReEdqFIZHC9slY81QiQY9V/W3EoN1Dtjfp1XY9thsFEDax5g
         ==
-X-ME-Sender: <xms:lkYEYN84ASZ3-6-B4TmvTw6DdGJ3nX1CQBeqqgTwnIj0vX-8XzAjCA>
-    <xme:lkYEYButJ18j2T6OkP_N_vwdxYJmdEnhESN8oGXbxJH4_zRAapDGGCJnHIPZmQmgr
-    WTaY0dwwKywkg>
+X-ME-Sender: <xms:mkYEYLmebbQ_WbQ0b1gfKnaza0Qk30gozGE3jh7g1RF94Mkf4EwoKg>
+    <xme:mkYEYO3myFeSnw-hoPIOuHuHrjfpMLxGWuD_i92EQk2K1aIm2Mal_aE9LtkrujlbA
+    wEd0Hqg72nYfQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeigecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:lkYEYLBOrx9LMfHAvLgcemFBd1siD2--IzEg3N_lG9bzLtY9uozL9Q>
-    <xmx:lkYEYBcNem1qJO2DeJXlOGFhSYkGoOy2WO4LlHEMhk7mrHRicsfc4A>
-    <xmx:lkYEYCMBMoSv0rxfs12Bz4mNi7Eoz0MfRsbLdyqnac_3bl4xzla_OQ>
-    <xmx:lkYEYE0EhzORy2bxa4_gwfpUv-zZRKXCQUMotq18GFNL-DjAmwy8Hw>
+X-ME-Proxy: <xmx:mkYEYBqZ3z9_PVQCQ8pm59OG7IrNE8YUlOhKeX073FUuB0Yga_k7lQ>
+    <xmx:mkYEYDn4nArzxeaVTaM_a5oMPPwe2c60FBKCCzdfqoh2441tQ4ecOQ>
+    <xmx:mkYEYJ2qqAqtHkQs0txiKz2LHto0DwoWC2WABS3heqHKqmp1wbBoYg>
+    <xmx:m0YEYK9x-z5yYALSZTrgQjy_p9Pwk4hbUD3-XMtWPNDW6CTPsMRb8Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E6E3B240057;
-        Sun, 17 Jan 2021 09:15:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ext4: fix bug for rename with RENAME_WHITEOUT" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B6E001080057;
+        Sun, 17 Jan 2021 09:15:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ext4: fix bug for rename with RENAME_WHITEOUT" failed to apply to 4.19-stable tree
 To:     yangerkun@huawei.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Jan 2021 15:15:46 +0100
-Message-ID: <1610892946127115@kroah.com>
+Date:   Sun, 17 Jan 2021 15:15:48 +0100
+Message-ID: <1610892948227225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
