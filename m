@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E01E2F92D6
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1A02F92D8
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 15:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729101AbhAQOWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 09:22:08 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33153 "EHLO
+        id S1729165AbhAQOW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 09:22:59 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:57283 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729105AbhAQOWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:22:07 -0500
+        by vger.kernel.org with ESMTP id S1729105AbhAQOW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jan 2021 09:22:58 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 65B001948404;
-        Sun, 17 Jan 2021 09:21:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:21:01 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id B6D8919C0AF8;
+        Sun, 17 Jan 2021 09:21:51 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 17 Jan 2021 09:21:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3RdXje
-        nXG1/NkB7HvgRgBdUAzfzs3OCHjbEbf/Wv/lE=; b=rPGAFDoLQEZ8ZwNBxLz42t
-        VJL07dgjXWvL7alAyBOlk+Obxe8+vY4vlDof9PHTgBxkXyqwh6vqt+c/fT3RRfkX
-        DRjt5NCuQXTYhlhjNv64o+jmklJY1stYXNizpGSdmcmT1xYEeDXVikMS+l55lfBG
-        ahD/9RblGA38d3rCRNPk8VCenQ4pnOLbGRiS9izrVegkNLyQqUCUOAdGNezVyEar
-        oBF5F9Sy4NuoaRewCeIqhSpX/sonNrn3Lr6NvyPlBsA1mykaPBfSuFSPevhat1vc
-        Tqfj4a140Xj35EdXjtzHucFbheV2chHKkEh94AbaaBTlrvxeJyanpH3KVvkbI6CQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2/AkaL
+        MK4Q473iagg/KbfCQbvReG16giE58A9pgQT5A=; b=HN0tkkOJQVmDOPc7zyu1GE
+        7fDz9f2+uGPKXVJwTag8OR7WaLKjdDuUep5aspn/EMC7doD+kO9/rgA0OV9iVb8Q
+        XzL7RsR0h24yRT0Uq9gVU1GZodBXKJqGTGbZNpRcUA5eoiNusrEkT1P/do6TsDOC
+        O5r9HrKaDt1f1nijzLl4XwPE0H9Sgu1h0V5nrSzeu6W0hI1EGuu1P7L4X7R6B2rm
+        D7Gysv0I8h/L88GHKF1DxpoBv2K+YLUKdXwBqRWtrvQKuqKqjMUzef/7qu7OdZVA
+        BhuOY5CmThYkf6FbpwZlSxy+n0URYjNTORUhB31gbzY0G2p17b8Az+JsjN/C2YzQ
         ==
-X-ME-Sender: <xms:zUcEYMTGsP1XevGXeOYo7I3KOxVSI8a3sdkTFnB8AJOQpFMmAPZD7Q>
-    <xme:zUcEYJzVflNbKmjoc1pHtAigUy6vyXyij_UddHTnoXnp3WC58f5VbODDy7BO1I94x
-    kEO2g5Sgww3DA>
+X-ME-Sender: <xms:_0cEYO7xK0mL7pAd40tZUZ0sljUYAzmLEHInqHipMYWCGEeNuP4fDg>
+    <xme:_0cEYH7yb1au22x_ga5DOmMBtT0RbhOF1QsPLb8iyDfWikVg4CrCBc1DPQGRLr2is
+    yWb-CmQYGOPEQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdeigdeihecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:zUcEYJ1zG6zpPOkOHaYGD0MRqIJChB-2QuXgj3G9emcuGqRxJZOSBQ>
-    <xmx:zUcEYAC0LvEA6eDkS6chewYFErDyrXH6UWAMAhLPoNWSO1SiEfBGCg>
-    <xmx:zUcEYFho3tJnboK_7CFviXUd1rhfVF_qKPySq_dEyNitG2wpJLUR7Q>
-    <xmx:zUcEYPefVb2cuGzjHd9HkfEE1wT716p9EL7vhBWsFF3QzbtyqRfniQ>
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeekjefgffetgfevgeeghedugfelheektdehtdeihfeile
+    eiteevjedvgfdvleejleenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:_0cEYNfLDylPiePz-ZXZSJCVSVB9sGpcpwpGx_-TVz9l4fOqtja47w>
+    <xmx:_0cEYLJg9E2Dq-BtQRiuoTxfgEWc2zfqDvZXLuiZ8v5Z8tbFU0A0sQ>
+    <xmx:_0cEYCLcSHxfnLZMGux_xoPbEkCoAjgDhec2dCfB0kODF0RQqczqxA>
+    <xmx:_0cEYEgQoHeIRmGkUSxcdOV5u6LdViibSBErmCu6jnWHuc7nbm7Z8A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 284E2108005F;
-        Sun, 17 Jan 2021 09:21:01 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: ensure finish_wait() is always called in" failed to apply to 5.10-stable tree
-To:     axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id 53E11240057;
+        Sun, 17 Jan 2021 09:21:51 -0500 (EST)
+Subject: FAILED: patch "[PATCH] xen/privcmd: allow fetching resource sizes" failed to apply to 4.19-stable tree
+To:     roger.pau@citrix.com, andrew.cooper3@citrix.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Jan 2021 15:20:59 +0100
-Message-ID: <1610893259196164@kroah.com>
+Date:   Sun, 17 Jan 2021 15:21:49 +0100
+Message-ID: <16108933095487@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,35 +70,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a8d13dbccb137c46fead2ec1a4f1fbc8cfc9ea91 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Fri, 15 Jan 2021 16:04:23 -0700
-Subject: [PATCH] io_uring: ensure finish_wait() is always called in
- __io_uring_task_cancel()
+From ef3a575baf53571dc405ee4028e26f50856898e7 Mon Sep 17 00:00:00 2001
+From: Roger Pau Monne <roger.pau@citrix.com>
+Date: Tue, 12 Jan 2021 12:53:58 +0100
+Subject: [PATCH] xen/privcmd: allow fetching resource sizes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-If we enter with requests pending and performm cancelations, we'll have
-a different inflight count before and after calling prepare_to_wait().
-This causes the loop to restart. If we actually ended up canceling
-everything, or everything completed in-between, then we'll break out
-of the loop without calling finish_wait() on the waitqueue. This can
-trigger a warning on exit_signals(), as we leave the task state in
-TASK_UNINTERRUPTIBLE.
+Allow issuing an IOCTL_PRIVCMD_MMAP_RESOURCE ioctl with num = 0 and
+addr = 0 in order to fetch the size of a specific resource.
 
-Put a finish_wait() after the loop to catch that case.
+Add a shortcut to the default map resource path, since fetching the
+size requires no address to be passed in, and thus no VMA to setup.
 
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This is missing from the initial implementation, and causes issues
+when mapping resources that don't have fixed or known sizes.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 06cc79d39586..985a9e3f976d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -9101,6 +9101,7 @@ void __io_uring_task_cancel(void)
- 		finish_wait(&tctx->wait, &wait);
- 	} while (1);
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Tested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: stable@vger.kernel.org # >= 4.18
+Link: https://lore.kernel.org/r/20210112115358.23346-1-roger.pau@citrix.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index b0c73c58f987..720a7b7abd46 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -717,14 +717,15 @@ static long privcmd_ioctl_restrict(struct file *file, void __user *udata)
+ 	return 0;
+ }
  
-+	finish_wait(&tctx->wait, &wait);
- 	atomic_dec(&tctx->in_idle);
+-static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
++static long privcmd_ioctl_mmap_resource(struct file *file,
++				struct privcmd_mmap_resource __user *udata)
+ {
+ 	struct privcmd_data *data = file->private_data;
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct privcmd_mmap_resource kdata;
+ 	xen_pfn_t *pfns = NULL;
+-	struct xen_mem_acquire_resource xdata;
++	struct xen_mem_acquire_resource xdata = { };
+ 	int rc;
  
- 	io_uring_remove_task_files(tctx);
+ 	if (copy_from_user(&kdata, udata, sizeof(kdata)))
+@@ -734,6 +735,22 @@ static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
+ 	if (data->domid != DOMID_INVALID && data->domid != kdata.dom)
+ 		return -EPERM;
+ 
++	/* Both fields must be set or unset */
++	if (!!kdata.addr != !!kdata.num)
++		return -EINVAL;
++
++	xdata.domid = kdata.dom;
++	xdata.type = kdata.type;
++	xdata.id = kdata.id;
++
++	if (!kdata.addr && !kdata.num) {
++		/* Query the size of the resource. */
++		rc = HYPERVISOR_memory_op(XENMEM_acquire_resource, &xdata);
++		if (rc)
++			return rc;
++		return __put_user(xdata.nr_frames, &udata->num);
++	}
++
+ 	mmap_write_lock(mm);
+ 
+ 	vma = find_vma(mm, kdata.addr);
+@@ -768,10 +785,6 @@ static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
+ 	} else
+ 		vma->vm_private_data = PRIV_VMA_LOCKED;
+ 
+-	memset(&xdata, 0, sizeof(xdata));
+-	xdata.domid = kdata.dom;
+-	xdata.type = kdata.type;
+-	xdata.id = kdata.id;
+ 	xdata.frame = kdata.idx;
+ 	xdata.nr_frames = kdata.num;
+ 	set_xen_guest_handle(xdata.frame_list, pfns);
 
