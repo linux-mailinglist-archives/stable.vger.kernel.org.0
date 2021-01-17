@@ -2,153 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D65B62F9261
-	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 13:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E712F9263
+	for <lists+stable@lfdr.de>; Sun, 17 Jan 2021 13:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbhAQMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jan 2021 07:54:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        id S1728813AbhAQM5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jan 2021 07:57:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726209AbhAQMyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 17 Jan 2021 07:54:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 435CC2076A;
-        Sun, 17 Jan 2021 12:54:09 +0000 (UTC)
+        id S1728612AbhAQM5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 17 Jan 2021 07:57:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E05F2207AE;
+        Sun, 17 Jan 2021 12:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610888049;
-        bh=OXM4XbMJ6QQVz8VYx4+SysOclFuL8aP8ZUCK9YtR55M=;
+        s=korg; t=1610888182;
+        bh=2x5BpMJh4+dmOV0Zw89yQ1sITr6GZtNZq4+9XqolbZc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UoqMHdLR2pouvFP/08J8Xb8te1Iq+jy+o6sqiPO59kzUrIdzIQanw1YGuwERRGi7t
-         Qh5KhTXbzRr5ovnzvKfOhN4es6HgQWDcz0evqpcqsD87IH5Tjb7g0QjWJ/3dRwYBop
-         hDBn/sS+ZTTEE5KKxU6mglJqsA2nWKNikWa8h4cg=
-Date:   Sun, 17 Jan 2021 13:54:07 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 5.4 40/62] spi: spi-geni-qcom: Fix geni_spi_isr() NULL
- dereference in timeout case
-Message-ID: <YAQzb6ywnWL3Go1W@kroah.com>
-References: <20210115121958.391610178@linuxfoundation.org>
- <20210115122000.333323971@linuxfoundation.org>
- <20210116184851.GA2491015@ubuntu-m3-large-x86>
+        b=GjuzFTDrCv6WGAbqpASZjs5UH83rELv6VFhmmEqmQtfgfrQ6AW5KEzScwTI6C6a4N
+         tUb8y5bHLMcE8jGDAu8ywhXBtWhFvV/sR8jTeR4377BKduKMT0PGAzoqsmzAtNomjZ
+         T4bs1VWkHntXMmvMxeRtDJZ5vbJSIAJvnFWtDhPA=
+Date:   Sun, 17 Jan 2021 13:56:20 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Matwey V. Kornilov" <matwey@sai.msu.ru>
+Cc:     stable@vger.kernel.org, matwey.kornilov@gmail.com
+Subject: Re: [PATCH] media: pwc: Use correct device for DMA
+Message-ID: <YAQz9LkI7H/DiQmy@kroah.com>
+References: <20210117110523.26757-1-matwey@sai.msu.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210116184851.GA2491015@ubuntu-m3-large-x86>
+In-Reply-To: <20210117110523.26757-1-matwey@sai.msu.ru>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 16, 2021 at 11:48:51AM -0700, Nathan Chancellor wrote:
-> On Fri, Jan 15, 2021 at 01:28:02PM +0100, Greg Kroah-Hartman wrote:
-> > From: Douglas Anderson <dianders@chromium.org>
-> > 
-> > commit 4aa1464acbe3697710279a4bd65cb4801ed30425 upstream.
-> > 
-> > In commit 7ba9bdcb91f6 ("spi: spi-geni-qcom: Don't keep a local state
-> > variable") we changed handle_fifo_timeout() so that we set
-> > "mas->cur_xfer" to NULL to make absolutely sure that we don't mess
-> > with the buffers from the previous transfer in the timeout case.
-> > 
-> > Unfortunately, this caused the IRQ handler to dereference NULL in some
-> > cases.  One case:
-> > 
-> >   CPU0                           CPU1
-> >   ----                           ----
-> >                                  setup_fifo_xfer()
-> >                                   geni_se_setup_m_cmd()
-> >                                  <hardware starts transfer>
-> >                                  <transfer completes in hardware>
-> >                                  <hardware sets M_RX_FIFO_WATERMARK_EN in m_irq>
-> >                                  ...
-> >                                  handle_fifo_timeout()
-> >                                   spin_lock_irq(mas->lock)
-> >                                   mas->cur_xfer = NULL
-> >                                   geni_se_cancel_m_cmd()
-> >                                   spin_unlock_irq(mas->lock)
-> > 
-> >   geni_spi_isr()
-> >    spin_lock(mas->lock)
-> >    if (m_irq & M_RX_FIFO_WATERMARK_EN)
-> >     geni_spi_handle_rx()
-> >      mas->cur_xfer NULL dereference!
-> > 
-> > tl;dr: Seriously delayed interrupts for RX/TX can lead to timeout
-> > handling setting mas->cur_xfer to NULL.
-> > 
-> > Let's check for the NULL transfer in the TX and RX cases and reset the
-> > watermark or clear out the fifo respectively to put the hardware back
-> > into a sane state.
-> > 
-> > NOTE: things still could get confused if we get timeouts all the way
-> > through handle_fifo_timeout() and then start a new transfer because
-> > interrupts from the old transfer / cancel / abort could still be
-> > pending.  A future patch will help this corner case.
-> > 
-> > Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
-> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-> > Link: https://lore.kernel.org/r/20201217142842.v3.1.I99ee04f0cb823415df59bd4f550d6ff5756e43d6@changeid
-> > Signed-off-by: Mark Brown <broonie@kernel.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > ---
-> >  drivers/spi/spi-geni-qcom.c |   14 ++++++++++++++
-> >  1 file changed, 14 insertions(+)
-> > 
-> > --- a/drivers/spi/spi-geni-qcom.c
-> > +++ b/drivers/spi/spi-geni-qcom.c
-> > @@ -415,6 +415,12 @@ static void geni_spi_handle_tx(struct sp
-> >  	unsigned int bytes_per_fifo_word = geni_byte_per_fifo_word(mas);
-> >  	unsigned int i = 0;
-> >  
-> > +	/* Stop the watermark IRQ if nothing to send */
-> > +	if (!mas->cur_xfer) {
-> > +		writel(0, se->base + SE_GENI_TX_WATERMARK_REG);
-> > +		return false;
-> > +	}
-> > +
-> >  	max_bytes = (mas->tx_fifo_depth - mas->tx_wm) * bytes_per_fifo_word;
-> >  	if (mas->tx_rem_bytes < max_bytes)
-> >  		max_bytes = mas->tx_rem_bytes;
-> > @@ -454,6 +460,14 @@ static void geni_spi_handle_rx(struct sp
-> >  		if (rx_last_byte_valid && rx_last_byte_valid < 4)
-> >  			rx_bytes -= bytes_per_fifo_word - rx_last_byte_valid;
-> >  	}
-> > +
-> > +	/* Clear out the FIFO and bail if nowhere to put it */
-> > +	if (!mas->cur_xfer) {
-> > +		for (i = 0; i < DIV_ROUND_UP(rx_bytes, bytes_per_fifo_word); i++)
-> > +			readl(se->base + SE_GENI_RX_FIFOn);
-> > +		return;
-> > +	}
-> > +
-> >  	if (mas->rx_rem_bytes < rx_bytes)
-> >  		rx_bytes = mas->rx_rem_bytes;
-> >  
-> > 
-> > 
+On Sun, Jan 17, 2021 at 02:05:23PM +0300, Matwey V. Kornilov wrote:
+> This fixes the following newly introduced warning:
 > 
-> This commit breaks the build with clang:
+> [   15.518253] ------------[ cut here ]------------
+> [   15.518941] WARNING: CPU: 0 PID: 246 at kernel/dma/mapping.c:149 dma_map_page_attrs+0x1a8/0x1d0
+> [   15.520634] Modules linked in: pwc videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc efivarfs
+> [   15.522335] CPU: 0 PID: 246 Comm: v4l2-test Not tainted 5.11.0-rc1+ #1
+> [   15.523281] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+> [   15.524438] RIP: 0010:dma_map_page_attrs+0x1a8/0x1d0
+> [   15.525135] Code: 10 5b 5d 41 5c 41 5d c3 4d 89 d0 eb d7 4d 89 c8 89 e9 48 89 da e8 68 29 00 00 eb d1 48 89 f2 48 2b 50 18 48 89 d0 eb 83 0f 0b <0f> 0b 48 c7 c0 ff ff ff ff eb b8 48 89 d9 48 8b 40 40 e8 61 69 d2
+> [   15.527938] RSP: 0018:ffffa2694047bca8 EFLAGS: 00010246
+> [   15.528716] RAX: 0000000000000000 RBX: 0000000000002580 RCX: 0000000000000000
+> [   15.529782] RDX: 0000000000000000 RSI: ffffcdce000ecc00 RDI: ffffa0b4bdb888a0
+> [   15.530849] RBP: 0000000000000002 R08: 0000000000000002 R09: 0000000000000000
+> [   15.531881] R10: 0000000000000004 R11: 000000000002d8c0 R12: 0000000000000000
+> [   15.532911] R13: ffffa0b4bdb88800 R14: ffffa0b483820000 R15: ffffa0b4bdb888a0
+> [   15.533942] FS:  00007fc5fbb5e4c0(0000) GS:ffffa0b4fc000000(0000) knlGS:0000000000000000
+> [   15.535141] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   15.535988] CR2: 00007fc5fb6ea138 CR3: 0000000003812000 CR4: 00000000001506f0
+> [   15.537025] Call Trace:
+> [   15.537425]  start_streaming+0x2e9/0x4b0 [pwc]
+> [   15.538143]  vb2_start_streaming+0x5e/0x110 [videobuf2_common]
+> [   15.538989]  vb2_core_streamon+0x107/0x140 [videobuf2_common]
+> [   15.539831]  __video_do_ioctl+0x18f/0x4a0 [videodev]
+> [   15.540670]  video_usercopy+0x13a/0x5b0 [videodev]
+> [   15.541349]  ? video_put_user+0x230/0x230 [videodev]
+> [   15.542096]  ? selinux_file_ioctl+0x143/0x200
+> [   15.542752]  v4l2_ioctl+0x40/0x50 [videodev]
+> [   15.543360]  __x64_sys_ioctl+0x89/0xc0
+> [   15.543930]  do_syscall_64+0x33/0x40
+> [   15.544448]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> [   15.545236] RIP: 0033:0x7fc5fb671587
+> [   15.545780] Code: b3 66 90 48 8b 05 11 49 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e1 48 2c 00 f7 d8 64 89 01 48
+> [   15.548486] RSP: 002b:00007fff0f71f038 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> [   15.549578] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fc5fb671587
+> [   15.550664] RDX: 00007fff0f71f060 RSI: 0000000040045612 RDI: 0000000000000003
+> [   15.551706] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+> [   15.552738] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff0f71f060
+> [   15.553817] R13: 00007fff0f71f1d0 R14: 0000000000de1270 R15: 0000000000000000
+> [   15.554914] ---[ end trace 7be03122966c2486 ]---
 > 
-> drivers/spi/spi-geni-qcom.c:421:3: error: void function
-> 'geni_spi_handle_tx' should not return a value [-Wreturn-type]
->                 return false;
->                 ^      ~~~~~
-> 1 error generated.
-> 
-> It looks like commit 6d66507d9b55 ("spi: spi-geni-qcom: Don't wait to
-> start 1st transfer if transmitting") would resolve this.
-> 
-> It might be worth picking up commit 172aad81a882 ("kbuild: enforce
-> -Werror=return-type") so that GCC behaves like clang does.
+> Fixes: 1161db6776bd ("media: usb: pwc: Don't use coherent DMA buffers for ISO transfer")
+> Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=210777
+> Cc: stable@vger.kernel.org # v5.10+
+> Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+> ---
+>  drivers/media/usb/pwc/pwc-if.c | 22 +++++++++++++---------
+>  1 file changed, 13 insertions(+), 9 deletions(-)
 
-Argh, I thought I had dropped this before, but no.  Good catch, I've
-dropped it now.
+What is the git commit id of this commit in Linus's tree?
 
-And yes, that might be a good patch to backport (the gcc one), I'll
-queue that up next round, thanks.
+thanks,
 
 greg k-h
