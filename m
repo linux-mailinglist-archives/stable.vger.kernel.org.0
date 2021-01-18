@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618B72FA315
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF59F2FA30E
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392211AbhAROb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:31:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39146 "EHLO mail.kernel.org"
+        id S2392968AbhARObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:31:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390559AbhARLoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:44:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCF4822CF6;
-        Mon, 18 Jan 2021 11:43:06 +0000 (UTC)
+        id S2389763AbhARLnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:43:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECA7222C9E;
+        Mon, 18 Jan 2021 11:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970187;
-        bh=PGVt/uwhb/VpQsf7HIsOOMkO7FiMHcLIxoVXDsofli8=;
+        s=korg; t=1610970163;
+        bh=ZaxmYAtPovvFtipAxAYfImaO2vyGuNvCQP6Vs2/QdZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/r73ZnN7O1rijVNmzS3fEQym32duIcewjfpudVvrugvp6e3DMvUkKrG5Y8R4XDQl
-         f6Ig0mwtNmghs0p8eBeOKhBEIXd89TRKMKJofyOYb7mXHtZAvOF58YC05v+LNz0Cg4
-         XmmBgE09FL87HQ/vm+cCu218mC1/eVuBbyth8AaY=
+        b=ewaf+X+bttecWHAcOEO8QjR5V7kJr8g2rDKmo4zwhA7wHHEG6RdZqFGN+YrtvMe/O
+         qPt0QDhe/nJtpcLCVy2WZJ9qqhtPZQLUFMT0wviGix1Xi4mukLTeX5RAVEwOCSzHhL
+         du76mQEWKsKlD2womm8TSq5l9OVU4+esvKY0E3YU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 033/152] MIPS: relocatable: fix possible boot hangup with KASLR enabled
-Date:   Mon, 18 Jan 2021 12:33:28 +0100
-Message-Id: <20210118113354.367543655@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>,
+        Andrew Cooper <andrew.cooper3@citrix.com>
+Subject: [PATCH 5.10 036/152] xen/privcmd: allow fetching resource sizes
+Date:   Mon, 18 Jan 2021 12:33:31 +0100
+Message-Id: <20210118113354.512931546@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -41,51 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit 69e976831cd53f9ba304fd20305b2025ecc78eab upstream.
+commit ef3a575baf53571dc405ee4028e26f50856898e7 upstream.
 
-LLVM-built Linux triggered a boot hangup with KASLR enabled.
+Allow issuing an IOCTL_PRIVCMD_MMAP_RESOURCE ioctl with num = 0 and
+addr = 0 in order to fetch the size of a specific resource.
 
-arch/mips/kernel/relocate.c:get_random_boot() uses linux_banner,
-which is a string constant, as a random seed, but accesses it
-as an array of unsigned long (in rotate_xor()).
-When the address of linux_banner is not aligned to sizeof(long),
-such access emits unaligned access exception and hangs the kernel.
+Add a shortcut to the default map resource path, since fetching the
+size requires no address to be passed in, and thus no VMA to setup.
 
-Use PTR_ALIGN() to align input address to sizeof(long) and also
-align down the input length to prevent possible access-beyond-end.
+This is missing from the initial implementation, and causes issues
+when mapping resources that don't have fixed or known sizes.
 
-Fixes: 405bc8fd12f5 ("MIPS: Kernel: Implement KASLR using CONFIG_RELOCATABLE")
-Cc: stable@vger.kernel.org # 4.7+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Tested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: stable@vger.kernel.org # >= 4.18
+Link: https://lore.kernel.org/r/20210112115358.23346-1-roger.pau@citrix.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/kernel/relocate.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/xen/privcmd.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/arch/mips/kernel/relocate.c
-+++ b/arch/mips/kernel/relocate.c
-@@ -187,8 +187,14 @@ static int __init relocate_exception_tab
- static inline __init unsigned long rotate_xor(unsigned long hash,
- 					      const void *area, size_t size)
- {
--	size_t i;
--	unsigned long *ptr = (unsigned long *)area;
-+	const typeof(hash) *ptr = PTR_ALIGN(area, sizeof(hash));
-+	size_t diff, i;
-+
-+	diff = (void *)ptr - area;
-+	if (unlikely(size < diff + sizeof(hash)))
-+		return hash;
-+
-+	size = ALIGN_DOWN(size - diff, sizeof(hash));
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -717,14 +717,15 @@ static long privcmd_ioctl_restrict(struc
+ 	return 0;
+ }
  
- 	for (i = 0; i < size / sizeof(hash); i++) {
- 		/* Rotate by odd number of bits and XOR. */
+-static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
++static long privcmd_ioctl_mmap_resource(struct file *file,
++				struct privcmd_mmap_resource __user *udata)
+ {
+ 	struct privcmd_data *data = file->private_data;
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct privcmd_mmap_resource kdata;
+ 	xen_pfn_t *pfns = NULL;
+-	struct xen_mem_acquire_resource xdata;
++	struct xen_mem_acquire_resource xdata = { };
+ 	int rc;
+ 
+ 	if (copy_from_user(&kdata, udata, sizeof(kdata)))
+@@ -734,6 +735,22 @@ static long privcmd_ioctl_mmap_resource(
+ 	if (data->domid != DOMID_INVALID && data->domid != kdata.dom)
+ 		return -EPERM;
+ 
++	/* Both fields must be set or unset */
++	if (!!kdata.addr != !!kdata.num)
++		return -EINVAL;
++
++	xdata.domid = kdata.dom;
++	xdata.type = kdata.type;
++	xdata.id = kdata.id;
++
++	if (!kdata.addr && !kdata.num) {
++		/* Query the size of the resource. */
++		rc = HYPERVISOR_memory_op(XENMEM_acquire_resource, &xdata);
++		if (rc)
++			return rc;
++		return __put_user(xdata.nr_frames, &udata->num);
++	}
++
+ 	mmap_write_lock(mm);
+ 
+ 	vma = find_vma(mm, kdata.addr);
+@@ -768,10 +785,6 @@ static long privcmd_ioctl_mmap_resource(
+ 	} else
+ 		vma->vm_private_data = PRIV_VMA_LOCKED;
+ 
+-	memset(&xdata, 0, sizeof(xdata));
+-	xdata.domid = kdata.dom;
+-	xdata.type = kdata.type;
+-	xdata.id = kdata.id;
+ 	xdata.frame = kdata.idx;
+ 	xdata.nr_frames = kdata.num;
+ 	set_xen_guest_handle(xdata.frame_list, pfns);
 
 
