@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A1F2F9CD3
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C4F2F9CD2
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389275AbhARK0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 05:26:41 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53777 "EHLO
+        id S2389223AbhARK0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 05:26:40 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53071 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388359AbhARJtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:49:06 -0500
+        by vger.kernel.org with ESMTP id S2388301AbhARJss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:48:48 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 2E4B61394;
-        Mon, 18 Jan 2021 04:47:47 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:47:47 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 2560C167D;
+        Mon, 18 Jan 2021 04:47:55 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:47:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7qZM4B
-        2UhOA3ZFjnMYlFfIFGEAktqcfCnOitnAn1eLE=; b=OU4NuIx1DNOfd+oH0o4dE3
-        +yUFnBfLxRQXiaxzu9ua/wE4cGQM+OJu1o+wgGuYx5v3/kqifgwRaPBbvIDzlaqV
-        2oCiWJG7GDLDdDk1BXPmDvWWeYnWSns97K/zGpP4V64TU/SS/wJdste9jRIO4hq8
-        vgfaWodvZfoVD/BGhSXvtMcE6CQsF2Nx9Eg09SYfTJHu1Lm9NZQuJ4Ayq+guHyhH
-        whNtETm+ALcVwWBQEPxC39pgzU0ieIoAFrGR53Ss3ybfv2lBUJLbFLUB/TjjmfaT
-        5emRfWTxqMmWFXcovN/VLYEELTZjdXSZwub2s2RrP42siaq4xvUGCSt4J9y7gfew
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=oCp9uD
+        VlLslyFksAeGfKd1bytJnkVkQGUEmHFM1llDQ=; b=TJ+wooUQinGgAUpbdJhbx9
+        3XVMbqi60HL1T59RfX8tzVG0nr1R/iEJxn6E3yfsHkgkUF+yronEPHqUCnHk8iSi
+        uV0oHHmuntLKY9w1XVLPv4ftC0a+UzCLVTxAzzI/qEBwFKZhXihdpjmzsRxXJ7wA
+        naXHdSf2RjTmZNl3ooE5NI32JsLu/aUPWTRTA4YE3bSJ0yCL95i7xVDGlhfuMkdQ
+        yqagWjRM+AHcG2C/TD2oe/t3KqXjgqkwlsXjydLOHoKYdpvKJnTDYe0v50ynyKCs
+        tuaEiC0+v8YNyzta/RrjglSuWPKJH2ACcUC9WCXSW6rUQBThJdH2AsksaWx4S1vQ
         ==
-X-ME-Sender: <xms:QlkFYLbrkVNHb2_iSKuzTyVUlPJoJiqkfcRs9i25Qx1labvVB8NZhQ>
-    <xme:QlkFYKb8pBbX1kpy295YjSncP6hFrT2PemWPbDx_B9HDjeq0PqdkrmnY_PFjNJdsN
-    h0luzDKAN4QrQ>
+X-ME-Sender: <xms:SlkFYJfy_XhlJBKUNHLZT0CP83LGnfk6eDIjQ_zb_FTlVhhRQNCRpA>
+    <xme:SlkFYHMQPomikMZVrf34fwSgtHzcIJr2F4UmptIeB3x7bhwhiqotvODKXgiAfpTbs
+    xyuzi0kZeqN_g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddtkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:QlkFYN8OpbOZqxOcBHv0kBcyg2-I71HkVoW2GHEH7K7uVoeW0iJgYA>
-    <xmx:QlkFYBobGyXCgcfkS5E_UF-7P9zxQnfCENCef3j3PXvRKInFbwnkhQ>
-    <xmx:QlkFYGqqH-tsznCyjWeihtye62EVhYEwJpHvKmXvJ709u0m7Yy5Ycg>
-    <xmx:QlkFYEHe8XGNFylEMhTG26V0IhPtpPgjZhsLsaaU1rI5VL5QE7iD1nWTCUM>
+X-ME-Proxy: <xmx:SlkFYCirmA1NqKQU6pyfmoCUcKj_l0yyifiXps8715ea3FM5VU7Z-Q>
+    <xmx:SlkFYC88irF_EbqROKuR4glmNZ_0vLIls5RYKDksQhfwjVk-RkavhA>
+    <xmx:SlkFYFuehUOazpDsE7yxJxSlfkKKuAo5f0fRn0CnUTf1nBPb19Y98g>
+    <xmx:SlkFYK6-mnqPqezNd5TYFvzs6_OkbDiwkrzY2Z_rZgQxA54NCQpGbTeI-XY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 593FE108005C;
-        Mon, 18 Jan 2021 04:47:46 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pNFS: We want return-on-close to complete when evicting the" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6E058240057;
+        Mon, 18 Jan 2021 04:47:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pNFS: We want return-on-close to complete when evicting the" failed to apply to 4.14-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 10:47:44 +0100
-Message-ID: <161096326417496@kroah.com>
+Date:   Mon, 18 Jan 2021 10:47:45 +0100
+Message-ID: <1610963265149147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
