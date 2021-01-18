@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DEEE2FA9D2
+	by mail.lfdr.de (Postfix) with ESMTP id AA12A2FA9D3
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436981AbhARTOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S2436972AbhARTOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 14:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390498AbhARLiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390499AbhARLiu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:38:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 992D2221EC;
-        Mon, 18 Jan 2021 11:38:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E30132222A;
+        Mon, 18 Jan 2021 11:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969908;
-        bh=dXuMAfBKCBi2SX5HxRW7MZYwE9tglm8NkGuh2VHqTmo=;
+        s=korg; t=1610969910;
+        bh=kWhOzAdkTXy+9UCZnMpRganGk8nlq9W5/xwqYfTXAKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HN40YwXqM6XYVoq0tCpWlgVKgmMWE+EFKAeD1GQFPsVqG6eIKtLdzbvRoV6WAIkoX
-         HDTeJ3XoXslQhWNyVqrIcHGhzzgwjb9XcP5voCLzhH3caaS1/5oo6LtbyYNJ/1izEj
-         NvCrv6NGsgX32OGNtlckU7QE/JEqhvNDOoSpM4I8=
+        b=mcUbie/vg2ZJucPECDAMRxfcYVUx/e1L7pWOEmkqLbIYU993gyelutdviwTrhnlcO
+         IV6ZbphUsbIh7C/yMq6ucngYQjXoYJno/7I60l9tAlkEQN7Q4h6QGeslVDVfGI0uju
+         yCbsRN3ssaNSNop0pMmZuLCZcm1sdk/BxoyXWYlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/76] habanalabs: register to pci shutdown callback
-Date:   Mon, 18 Jan 2021 12:34:33 +0100
-Message-Id: <20210118113342.564351641@linuxfoundation.org>
+Subject: [PATCH 5.4 34/76] habanalabs: Fix memleak in hl_device_reset
+Date:   Mon, 18 Jan 2021 12:34:34 +0100
+Message-Id: <20210118113342.611938292@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
 References: <20210118113340.984217512@linuxfoundation.org>
@@ -39,34 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit fcaebc7354188b0d708c79df4390fbabd4d9799d ]
+[ Upstream commit b000700d6db50c933ce8b661154e26cf4ad06dba ]
 
-We need to make sure our device is idle when rebooting a virtual
-machine. This is done in the driver level.
+When kzalloc() fails, we should execute hl_mmu_fini()
+to release the MMU module. It's the same when
+hl_ctx_init() fails.
 
-The firmware will later handle FLR but we want to be extra safe and
-stop the devices until the FLR is handled.
-
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/habanalabs_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/habanalabs/device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/habanalabs_drv.c b/drivers/misc/habanalabs/habanalabs_drv.c
-index 8c342fb499ca6..ae50bd55f30af 100644
---- a/drivers/misc/habanalabs/habanalabs_drv.c
-+++ b/drivers/misc/habanalabs/habanalabs_drv.c
-@@ -443,6 +443,7 @@ static struct pci_driver hl_pci_driver = {
- 	.id_table = ids,
- 	.probe = hl_pci_probe,
- 	.remove = hl_pci_remove,
-+	.shutdown = hl_pci_remove,
- 	.driver.pm = &hl_pm_ops,
- };
+diff --git a/drivers/misc/habanalabs/device.c b/drivers/misc/habanalabs/device.c
+index 3eeb1920ddb43..3486bf33474d9 100644
+--- a/drivers/misc/habanalabs/device.c
++++ b/drivers/misc/habanalabs/device.c
+@@ -959,6 +959,7 @@ again:
+ 						GFP_KERNEL);
+ 		if (!hdev->kernel_ctx) {
+ 			rc = -ENOMEM;
++			hl_mmu_fini(hdev);
+ 			goto out_err;
+ 		}
  
+@@ -970,6 +971,7 @@ again:
+ 				"failed to init kernel ctx in hard reset\n");
+ 			kfree(hdev->kernel_ctx);
+ 			hdev->kernel_ctx = NULL;
++			hl_mmu_fini(hdev);
+ 			goto out_err;
+ 		}
+ 	}
 -- 
 2.27.0
 
