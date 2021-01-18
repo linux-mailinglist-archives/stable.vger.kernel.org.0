@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5B82F9E52
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082502F9E53
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390289AbhARLhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
+        id S2390338AbhARLhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:37:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390305AbhARLgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:36:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEA00222BB;
-        Mon, 18 Jan 2021 11:35:55 +0000 (UTC)
+        id S2390313AbhARLgk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:36:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D99C222B3;
+        Mon, 18 Jan 2021 11:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969756;
-        bh=AYi+uLT9CRD9i7SyLnpoe00izJkYoVVPRLQKykqAAHw=;
+        s=korg; t=1610969758;
+        bh=ZRf0tHMkuD9fOooc5JgFR6IuPvDSlLfDzjQtFstq5ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmRc5l8du8hvDC3cdQDi89QP6AjWp28Op/ZoleRqYmGQXM8BERO0L38Eci3oEUraU
-         Ba+8MEL6pjcMyJxiRTw1uxNMNExQ7q3FVcrhpEzkYrnrKKDld0C6roizJITLs7v5o+
-         uu/0+EmLodeKAWfczK+LgjKQ8w+vEXIBvrYJOo6g=
+        b=RYmkIrNy9K+/hEE8WmHQeaH1PkCwoqjswVVuthgPmu3OhxF/mVr9PHA6OLhD/27GE
+         QxTHeVUs1pJ6B+D7YO3rsS5x+aXaUfzDKYv8poqq00S8d6zmIChjazttvZcnutf+DW
+         ZJmLkcKtxHTwUkbKoVE83iW4VnSuM13Nt3nP3MNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/43] ext4: fix bug for rename with RENAME_WHITEOUT
-Date:   Mon, 18 Jan 2021 12:34:35 +0100
-Message-Id: <20210118113335.537096648@linuxfoundation.org>
+Subject: [PATCH 4.19 13/43] ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
+Date:   Mon, 18 Jan 2021 12:34:36 +0100
+Message-Id: <20210118113335.588944282@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -40,102 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 6b4b8e6b4ad8553660421d6360678b3811d5deb9 ]
+[ Upstream commit 9836720911cfec25d3fbdead1c438bf87e0f2841 ]
 
-We got a "deleted inode referenced" warning cross our fsstress test. The
-bug can be reproduced easily with following steps:
+The deb-pkg builds for ARCH=arc fail.
 
-  cd /dev/shm
-  mkdir test/
-  fallocate -l 128M img
-  mkfs.ext4 -b 1024 img
-  mount img test/
-  dd if=/dev/zero of=test/foo bs=1M count=128
-  mkdir test/dir/ && cd test/dir/
-  for ((i=0;i<1000;i++)); do touch file$i; done # consume all block
-  cd ~ && renameat2(AT_FDCWD, /dev/shm/test/dir/file1, AT_FDCWD,
-    /dev/shm/test/dir/dst_file, RENAME_WHITEOUT) # ext4_add_entry in
-    ext4_rename will return ENOSPC!!
-  cd /dev/shm/ && umount test/ && mount img test/ && ls -li test/dir/file1
-  We will get the output:
-  "ls: cannot access 'test/dir/file1': Structure needs cleaning"
-  and the dmesg show:
-  "EXT4-fs error (device loop0): ext4_lookup:1626: inode #2049: comm ls:
-  deleted inode referenced: 139"
+  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
+  $ make -s ARCH=arc defconfig
+  $ make ARCH=arc bindeb-pkg
+  SORTTAB vmlinux
+  SYSMAP  System.map
+  MODPOST Module.symvers
+  make KERNELRELEASE=5.10.0-rc4 ARCH=arc KBUILD_BUILD_VERSION=2 -f ./Makefile intdeb-pkg
+  sh ./scripts/package/builddeb
+  cp: cannot stat 'arch/arc/boot/bootpImage': No such file or directory
+  make[4]: *** [scripts/Makefile.package:87: intdeb-pkg] Error 1
+  make[3]: *** [Makefile:1527: intdeb-pkg] Error 2
+  make[2]: *** [debian/rules:13: binary-arch] Error 2
+  dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
+  make[1]: *** [scripts/Makefile.package:83: bindeb-pkg] Error 2
+  make: *** [Makefile:1527: bindeb-pkg] Error 2
 
-ext4_rename will create a special inode for whiteout and use this 'ino'
-to replace the source file's dir entry 'ino'. Once error happens
-latter(the error above was the ENOSPC return from ext4_add_entry in
-ext4_rename since all space has been consumed), the cleanup do drop the
-nlink for whiteout, but forget to restore 'ino' with source file. This
-will trigger the bug describle as above.
+The reason is obvious; arch/arc/Makefile sets $(boot)/bootpImage as
+the default image, but there is no rule to build it.
 
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@vger.kernel.org
-Fixes: cd808deced43 ("ext4: support RENAME_WHITEOUT")
-Link: https://lore.kernel.org/r/20210105062857.3566-1-yangerkun@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Remove the meaningless KBUILD_IMAGE assignment so it will fallback
+to the default vmlinux. With this change, you can build the deb package.
+
+I removed the 'bootpImage' target as well. At best, it provides
+'make bootpImage' as an alias of 'make vmlinux', but I do not see
+much sense in doing so.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/arc/Makefile | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 3c238006870d3..8f7e0ad5b5ef1 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3437,8 +3437,6 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
- 			return retval;
- 		}
- 	}
--	brelse(ent->bh);
--	ent->bh = NULL;
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index 16e6cc22e25cc..b07fdbdd8c836 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -91,12 +91,6 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
  
- 	return 0;
- }
-@@ -3638,6 +3636,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		}
- 	}
+ boot		:= arch/arc/boot
  
-+	old_file_type = old.de->file_type;
- 	if (IS_DIRSYNC(old.dir) || IS_DIRSYNC(new.dir))
- 		ext4_handle_sync(handle);
+-#default target for make without any arguments.
+-KBUILD_IMAGE	:= $(boot)/bootpImage
+-
+-all:	bootpImage
+-bootpImage: vmlinux
+-
+ boot_targets += uImage uImage.bin uImage.gz
  
-@@ -3665,7 +3664,6 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	force_reread = (new.dir->i_ino == old.dir->i_ino &&
- 			ext4_test_inode_flag(new.dir, EXT4_INODE_INLINE_DATA));
- 
--	old_file_type = old.de->file_type;
- 	if (whiteout) {
- 		/*
- 		 * Do this before adding a new entry, so the old entry is sure
-@@ -3737,15 +3735,19 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	retval = 0;
- 
- end_rename:
--	brelse(old.dir_bh);
--	brelse(old.bh);
--	brelse(new.bh);
- 	if (whiteout) {
--		if (retval)
-+		if (retval) {
-+			ext4_setent(handle, &old,
-+				old.inode->i_ino, old_file_type);
- 			drop_nlink(whiteout);
-+		}
- 		unlock_new_inode(whiteout);
- 		iput(whiteout);
-+
- 	}
-+	brelse(old.dir_bh);
-+	brelse(old.bh);
-+	brelse(new.bh);
- 	if (handle)
- 		ext4_journal_stop(handle);
- 	return retval;
+ $(boot_targets): vmlinux
 -- 
 2.27.0
 
