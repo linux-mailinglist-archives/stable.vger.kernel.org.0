@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE632FA2C0
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:20:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F1312FA293
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390567AbhAROSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:18:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39924 "EHLO mail.kernel.org"
+        id S2392640AbhAROId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:08:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390568AbhARLpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:45:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B27A230FB;
-        Mon, 18 Jan 2021 11:44:33 +0000 (UTC)
+        id S2390567AbhARLpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:45:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFC52223E;
+        Mon, 18 Jan 2021 11:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970274;
-        bh=0uvvG1ERfvBLzRrpVkVpMhhn5ozcI2Z00UpayjdTPV0=;
+        s=korg; t=1610970276;
+        bh=eRIfF8oWWMgqReAa28aJObfsmKWrb+wSR12SGxCYBmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cd5nY8w6gPPgJr6iG+iHQzsfmdlort7/9qIrt1EzVO4k1bYu/LtmeKHe3SGtix7dG
-         Ftzy80BCZHiaYEYPFa7LjVa+tKWepouIdrqZrfXo59Io6OUuw75IksXlIglOr8VUd/
-         jaqFVPHN5pIB1Dn6ifcTC5s7QWmGH6hd/QUsUasY=
+        b=Rz7Jyf0ElazIcvdzzErQcubL9XP1ACcYl+t50xm9do4bEeHJUoPcIY7sF4dfx+Rzt
+         pC17AT9W/bpkSR0sPKQoRPTnmqwlxMgENnbLCkfuce5Gz420blYycGRl/ii1YX+hDu
+         94+MNXDABh8UIqVpY1P0r/aIMH0UZILkWjim4RsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Peter Xu <peterx@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Martin Raiber <martin@urbackup.org>
-Subject: [PATCH 5.10 111/152] mm: dont put pinned pages into the swap cache
-Date:   Mon, 18 Jan 2021 12:34:46 +0100
-Message-Id: <20210118113358.050858954@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 112/152] perf intel-pt: Fix CPU too large error
+Date:   Mon, 18 Jan 2021 12:34:47 +0100
+Message-Id: <20210118113358.098408816@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -42,74 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit feb889fb40fafc6933339cf1cca8f770126819fb ]
+commit 5501e9229a80d95a1ea68609f44c447a75d23ed5 upstream.
 
-So technically there is nothing wrong with adding a pinned page to the
-swap cache, but the pinning obviously means that the page can't actually
-be free'd right now anyway, so it's a bit pointless.
+In some cases, the number of cpus (nr_cpus_online) is confused with the
+maximum cpu number (nr_cpus_avail), which results in the error in the
+example below:
 
-However, the real problem is not with it being a bit pointless: the real
-issue is that after we've added it to the swap cache, we'll try to unmap
-the page.  That will succeed, because the code in mm/rmap.c doesn't know
-or care about pinned pages.
+Example on system with 8 cpus:
 
-Even the unmapping isn't fatal per se, since the page will stay around
-in memory due to the pinning, and we do hold the connection to it using
-the swap cache.  But when we then touch it next and take a page fault,
-the logic in do_swap_page() will map it back into the process as a
-possibly read-only page, and we'll then break the page association on
-the next COW fault.
+ Before:
+   # echo 0 > /sys/devices/system/cpu/cpu2/online
+   # ./perf record --kcore -e intel_pt// taskset --cpu-list 7 uname
+   Linux
+   [ perf record: Woken up 1 times to write data ]
+   [ perf record: Captured and wrote 0.147 MB perf.data ]
+   # ./perf script --itrace=e
+   Requested CPU 7 too large. Consider raising MAX_NR_CPUS
+   0x25908 [0x8]: failed to process type: 68 [Invalid argument]
 
-Honestly, this issue could have been fixed in any of those other places:
-(a) we could refuse to unmap a pinned page (which makes conceptual
-sense), or (b) we could make sure to re-map a pinned page writably in
-do_swap_page(), or (c) we could just make do_wp_page() not COW the
-pinned page (which was what we historically did before that "mm:
-do_wp_page() simplification" commit).
+ After:
+   # ./perf script --itrace=e
+   #
 
-But while all of them are equally valid models for breaking this chain,
-not putting pinned pages into the swap cache in the first place is the
-simplest one by far.
-
-It's also the safest one: the reason why do_wp_page() was changed in the
-first place was that getting the "can I re-use this page" wrong is so
-fraught with errors.  If you do it wrong, you end up with an incorrectly
-shared page.
-
-As a result, using "page_maybe_dma_pinned()" in either do_wp_page() or
-do_swap_page() would be a serious bug since it is only a (very good)
-heuristic.  Re-using the page requires a hard black-and-white rule with
-no room for ambiguity.
-
-In contrast, saying "this page is very likely dma pinned, so let's not
-add it to the swap cache and try to unmap it" is an obviously safe thing
-to do, and if the heuristic might very rarely be a false positive, no
-harm is done.
-
-Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
-Reported-and-tested-by: Martin Raiber <martin@urbackup.org>
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8c7274691f0d ("perf machine: Replace MAX_NR_CPUS with perf_env::nr_cpus_online")
+Fixes: 7df4e36a4785 ("perf session: Replace MAX_NR_CPUS with perf_env::nr_cpus_online")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20210107174159.24897-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/vmscan.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -1240,6 +1240,8 @@ static unsigned int shrink_page_list(str
- 			if (!PageSwapCache(page)) {
- 				if (!(sc->gfp_mask & __GFP_IO))
- 					goto keep_locked;
-+				if (page_maybe_dma_pinned(page))
-+					goto keep_locked;
- 				if (PageTransHuge(page)) {
- 					/* cannot split THP, skip it */
- 					if (!can_split_huge_page(page, NULL))
+---
+ tools/perf/util/machine.c |    4 ++--
+ tools/perf/util/session.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/tools/perf/util/machine.c
++++ b/tools/perf/util/machine.c
+@@ -2973,7 +2973,7 @@ int machines__for_each_thread(struct mac
+ 
+ pid_t machine__get_current_tid(struct machine *machine, int cpu)
+ {
+-	int nr_cpus = min(machine->env->nr_cpus_online, MAX_NR_CPUS);
++	int nr_cpus = min(machine->env->nr_cpus_avail, MAX_NR_CPUS);
+ 
+ 	if (cpu < 0 || cpu >= nr_cpus || !machine->current_tid)
+ 		return -1;
+@@ -2985,7 +2985,7 @@ int machine__set_current_tid(struct mach
+ 			     pid_t tid)
+ {
+ 	struct thread *thread;
+-	int nr_cpus = min(machine->env->nr_cpus_online, MAX_NR_CPUS);
++	int nr_cpus = min(machine->env->nr_cpus_avail, MAX_NR_CPUS);
+ 
+ 	if (cpu < 0)
+ 		return -EINVAL;
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -2397,7 +2397,7 @@ int perf_session__cpu_bitmap(struct perf
+ {
+ 	int i, err = -1;
+ 	struct perf_cpu_map *map;
+-	int nr_cpus = min(session->header.env.nr_cpus_online, MAX_NR_CPUS);
++	int nr_cpus = min(session->header.env.nr_cpus_avail, MAX_NR_CPUS);
+ 
+ 	for (i = 0; i < PERF_TYPE_MAX; ++i) {
+ 		struct evsel *evsel;
 
 
