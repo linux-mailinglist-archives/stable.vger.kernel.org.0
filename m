@@ -2,71 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 143B72F9B15
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 09:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF512F9CCE
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387617AbhARIQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 03:16:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387610AbhARIQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 03:16:41 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694BCC061573;
-        Mon, 18 Jan 2021 00:16:00 -0800 (PST)
-Received: from deskari.lan (91-157-208-71.elisa-laajakaista.fi [91.157.208.71])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 4D9C22BB;
-        Mon, 18 Jan 2021 09:15:58 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1610957758;
-        bh=NY67C730CbIloBFeIkqctx6ZpjM0PzbrQOWMiGMqJes=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hYgPp3QmZOK36l+s0QWZt6pERI3sVRRt/jw40vY2WyWhywpcoHpbWn4DDO9uijoHG
-         YVi/PNz4hAMPrjxbHtIqkuLvJsfZLdYppZucBsEdotwrvYrQwjn0O8TzqcrZcJEaXN
-         D8b9tRYq9cySJ4ngyHwBjtTUZxCTM4FnYjJnoDuM=
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-To:     Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        linux-media@vger.kernel.org
-Cc:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] media: i2c: max9286: fix access to unallocated memory
-Date:   Mon, 18 Jan 2021 10:14:46 +0200
-Message-Id: <20210118081446.46555-1-tomi.valkeinen@ideasonboard.com>
-X-Mailer: git-send-email 2.25.1
+        id S2389680AbhARK0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 05:26:36 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:40843 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388669AbhARJWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:22:47 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 84F5D134E;
+        Mon, 18 Jan 2021 04:13:03 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:13:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=lMfhbFrjpnMks7zyT+E4yoLZ4Hr
+        AxUV2FFuElv9y3Ds=; b=ASWuSES4BLTr6bdtoVZMbbJENKNRK1v0ctYn2f5saUJ
+        aNBFnnPyIDjNoCGYmhO3PTVGUpkuvOC5zatg7lOfHiGmpilCdB1h3LQA+2bZ9Kiw
+        dnR7RQ5nyhXsR+SqdXCl4uckOI6EwVGGJ30MY5me6jhhxrg1mK4xpHrp2Y5cUhCo
+        gxxviewtTIgrOHZfaEKRg3y4rdw3x6F8MrRfutVnpoEZ6AGHqHZr/CFyfhyspQty
+        pnXZXNLzPR+7JyPWw3swFWuUFzKew5weLnuVSjWo6DTsquQoWac2yNUZxGs2MuLY
+        TFlWiolmIsCOMxQAqKiAR7NbSRYb2a2hQ5q0Q07MB6w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lMfhbF
+        rjpnMks7zyT+E4yoLZ4HrAxUV2FFuElv9y3Ds=; b=luXZcOu2Ga6xwZf7c93PyN
+        nSKLP5k30H/rRJEjrQ+7RjPdVgUtx88VQJjArcrVoyMrp0jbMbblLNBmXD3sc9Gd
+        EIEoqgRnCHU/m4w9dGTKX7jmvV2FikWEvoeeumhIhxqx/vmQRRyHpHDJ0YKgVhSG
+        nx5itMVmYLHnNnMxvxx3EA4l2KoVxTL1YBTiazAicG0T+lhaSBq2hNkWAcQ6Iqdb
+        fTXMU/Gu+H1AFrLboXtiGQHZzV66+Oko5LYk09dJqwqxj3xVDSurDXcQeSLp/3BA
+        Smi1AInc8m0c5brX39szq4Bv5bxJtZax8ElLiPOATVkD8UuY5jK3IdFViVXCaOmQ
+        ==
+X-ME-Sender: <xms:HlEFYJPnrrvCQdKid40X8lYfTI4ZrYc4bG7sCD2yaT7X70DAbp6-8w>
+    <xme:HlEFYL_HAEuGz10uCYX3zxDXH-MYJjqqf2IXsWuQUAoe0-IAOVqwIFKhIX2wkARvs
+    lqe4wkAuozlvg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddtudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveehgfejie
+    dtffefhfdvgeelieegjeegieffkeeiffejfeelhfeigeethfdujeeunecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:H1EFYIT-PmCxPOtiKr09NcvBWxgx2iI5R-5iRks3awFwJNVTSqFvQg>
+    <xmx:H1EFYFtiEPK-IWCGT9U-EBx43ipbD-oxjERVdXsm6e9lEXnJIC7Biw>
+    <xmx:H1EFYBdnf5tMMSFEi8-cj5bEW60pA6KcCSfoQm3v1dw6_MuBAFNrqQ>
+    <xmx:H1EFYHqTiBZJBw309wZ-9TfHNkJiWoi-vgxHgkVI1-6u6wga6_J1FQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AA90F24005A;
+        Mon, 18 Jan 2021 04:13:02 -0500 (EST)
+Date:   Mon, 18 Jan 2021 10:13:00 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: Please add feb889fb40fa ("mm: don't put pinned pages into the
+ swap cache")
+Message-ID: <YAVRHEmVqGBBwGUD@kroah.com>
+References: <CAHk-=whCEy=fVcCZ+s6JABgKGrGTTue4pJCV8Z5GDvcjVyipaw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=whCEy=fVcCZ+s6JABgKGrGTTue4pJCV8Z5GDvcjVyipaw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The asd allocated with v4l2_async_notifier_add_fwnode_subdev() must be
-of size max9286_asd, otherwise access to max9286_asd->source will go to
-unallocated memory.
+On Sun, Jan 17, 2021 at 12:28:06PM -0800, Linus Torvalds wrote:
+> It's missing a stable tag only because I initially committed it
+> without confirmation from the reporter that it actually fixed the
+> problem. I did that because I didn't think I'd get a test result back
+> on a Sunday before doing rc4.
+> 
+> But the reporter came back and confirmed it fixed things, and because
+> I hadn't pushed out yet, I amended the commit to have that
+> "Reported-and-tested-by".
+> 
+> ... but I didn't think to add the Cc: stable until after I _had_ pushed it out.
+> 
+> So here's a slightly belated note that commit
+> 
+>   feb889fb40fafc6933339cf1cca8f770126819fb
+>   ("mm: don't put pinned pages into the swap cache")
+> 
+> should go into any v5.9+ stable kernels.
 
-Fixes: 86d37bf31af6 ("media: i2c: max9286: Allocate v4l2_async_subdev dynamically")
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Cc: stable@vger.kernel.org # v5.10+
----
- drivers/media/i2c/max9286.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for letting us know, Sasha queued this up last night.
 
-diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
-index c82c1493e099..b1e2476d3c9e 100644
---- a/drivers/media/i2c/max9286.c
-+++ b/drivers/media/i2c/max9286.c
-@@ -580,7 +580,7 @@ static int max9286_v4l2_notifier_register(struct max9286_priv *priv)
- 
- 		asd = v4l2_async_notifier_add_fwnode_subdev(&priv->notifier,
- 							    source->fwnode,
--							    sizeof(*asd));
-+							    sizeof(struct max9286_asd));
- 		if (IS_ERR(asd)) {
- 			dev_err(dev, "Failed to add subdev for source %u: %ld",
- 				i, PTR_ERR(asd));
--- 
-2.25.1
-
+greg k-h
