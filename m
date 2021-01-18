@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AFB42F9E5D
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0122F9E7B
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:42:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390416AbhARLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33436 "EHLO mail.kernel.org"
+        id S2390598AbhARLkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390269AbhARLht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:37:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 419D822BF3;
-        Mon, 18 Jan 2021 11:36:59 +0000 (UTC)
+        id S2390537AbhARLkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:40:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2493C2223E;
+        Mon, 18 Jan 2021 11:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969819;
-        bh=05DX630A9PR7Oe8hMyY9ck96ad9ymBtgx3IIv8RXasY=;
+        s=korg; t=1610969991;
+        bh=KKV/3+xerDS256hNnw8+B6mkS7/OTuoWitYAw9FvDIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F768+eqL4yKHu6w9kZE2ZcfNE6FuzZ9Qikr0IrG5tJuW8X2zdS9IGH+RnonTXp8AC
-         A9G2StNgHE87p5dcPUAyM/h818x09+4OiwwjOTcyysawqpmH3+FXlS9kHUXgH+batl
-         mn3+YCyc2szcB94jEmjzfifWkG2TsoZuiS729COw=
+        b=c/Ek4YDYnna6sAUG8O4IhXye7PC95sEeQW1Q9SDhsLi3dxfzBUzU/ViN4mhzHAS8I
+         +ZM81GghGlne9bDn9YqKKJWSROa274pd3GS1BautHqlotN9F94760+8t88BZuvV2mf
+         +MnWolvetq393O0vaVFdEO3pUNM7pJiNbm3gl7Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nir Soffer <nsoffer@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 38/43] dm: eliminate potential source of excessive kernel log noise
-Date:   Mon, 18 Jan 2021 12:35:01 +0100
-Message-Id: <20210118113336.790087745@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 68/76] mm, slub: consider rest of partial list if acquire_slab() fails
+Date:   Mon, 18 Jan 2021 12:35:08 +0100
+Message-Id: <20210118113344.220384656@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
-References: <20210118113334.966227881@linuxfoundation.org>
+In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
+References: <20210118113340.984217512@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Jann Horn <jannh@google.com>
 
-commit 0378c625afe80eb3f212adae42cc33c9f6f31abf upstream.
+commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf upstream.
 
-There wasn't ever a real need to log an error in the kernel log for
-ioctls issued with insufficient permissions. Simply return an error
-and if an admin/user is sufficiently motivated they can enable DM's
-dynamic debugging to see an explanation for why the ioctls were
-disallowed.
+acquire_slab() fails if there is contention on the freelist of the page
+(probably because some other CPU is concurrently freeing an object from
+the page).  In that case, it might make sense to look for a different page
+(since there might be more remote frees to the page from other CPUs, and
+we don't want contention on struct page).
 
-Reported-by: Nir Soffer <nsoffer@redhat.com>
-Fixes: e980f62353c6 ("dm: don't allow ioctls to targets that don't map to whole devices")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+However, the current code accidentally stops looking at the partial list
+completely in that case.  Especially on kernels without CONFIG_NUMA set,
+this means that get_partial() fails and new_slab_objects() falls back to
+new_slab(), allocating new pages.  This could lead to an unnecessary
+increase in memory fragmentation.
+
+Link: https://lkml.kernel.org/r/20201228130853.1871516-1-jannh@google.com
+Fixes: 7ced37197196 ("slub: Acquire_slab() avoid loop")
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    2 +-
+ mm/slub.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -515,7 +515,7 @@ static int dm_blk_ioctl(struct block_dev
- 		 * subset of the parent bdev; require extra privileges.
- 		 */
- 		if (!capable(CAP_SYS_RAWIO)) {
--			DMWARN_LIMIT(
-+			DMDEBUG_LIMIT(
- 	"%s: sending ioctl %x to DM device without required privilege.",
- 				current->comm, cmd);
- 			r = -ENOIOCTLCMD;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1887,7 +1887,7 @@ static void *get_partial_node(struct kme
+ 
+ 		t = acquire_slab(s, n, page, object == NULL, &objects);
+ 		if (!t)
+-			break;
++			continue; /* cmpxchg raced */
+ 
+ 		available += objects;
+ 		if (!object) {
 
 
