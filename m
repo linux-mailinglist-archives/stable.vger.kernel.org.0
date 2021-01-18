@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 464E92FA2DE
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3372FA2D1
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392005AbhAROWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:22:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39454 "EHLO mail.kernel.org"
+        id S2392909AbhAROUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:20:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390644AbhARLot (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390634AbhARLot (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:44:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D97222EBD;
-        Mon, 18 Jan 2021 11:44:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9E0A22EBF;
+        Mon, 18 Jan 2021 11:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970259;
-        bh=51Jmu/SJM7Ea2UJoap9WzV6FlX6Y8pOBAlT9SW9jlRw=;
+        s=korg; t=1610970262;
+        bh=1UwYPHIN+XsqkoL8HpXjhfR+u7ZkRRf92QTTfBQRS+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6gZH+HkOfvq+xyjT+kIqhCjUc7SXnqcFGflvEjnk3ayN0iPk3ewVqwHxkYMMawwd
-         odTs13nuFPL4zuqWUXlWKE8xYPQpO+Py9lKbyj+VZzD3Ek52o2Imqb5os0IOh0seNT
-         kvhKEdq7hbgnNgtG6sQV6dYPkumEVgPuYY1s54K8=
+        b=Z2NYUcjSYPe5fcFohc/g4MA6PwdN/Qm7hrjyPtfYqiuV213wrWzforjNezsojcs2B
+         Y9t24/cA7HxyaeNaFPAyqTcwu09weP2sQA9QNg0TUzk95HKWHR/hEBqluFrrQkl7Z1
+         /r+Iav5iot1datSpTKdl/hCf8s1tDqaKjGp+L5s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Yilun <yilun.xu@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/152] spi: altera: fix return value for altera_spi_txrx()
-Date:   Mon, 18 Jan 2021 12:34:08 +0100
-Message-Id: <20210118113356.286436601@linuxfoundation.org>
+Subject: [PATCH 5.10 074/152] habanalabs: Fix memleak in hl_device_reset
+Date:   Mon, 18 Jan 2021 12:34:09 +0100
+Message-Id: <20210118113356.338421524@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,69 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yilun <yilun.xu@intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit ede090f5a438e97d0586f64067bbb956e30a2a31 ]
+[ Upstream commit b000700d6db50c933ce8b661154e26cf4ad06dba ]
 
-This patch fixes the return value for altera_spi_txrx. It should return
-1 for interrupt transfer mode, and return 0 for polling transfer mode.
+When kzalloc() fails, we should execute hl_mmu_fini()
+to release the MMU module. It's the same when
+hl_ctx_init() fails.
 
-The altera_spi_txrx() implements the spi_controller.transfer_one
-callback. According to the spi-summary.rst, the transfer_one should
-return 0 when transfer is finished, return 1 when transfer is still in
-progress.
-
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
-Link: https://lore.kernel.org/r/1609219662-27057-2-git-send-email-yilun.xu@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-altera.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/misc/habanalabs/common/device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-altera.c b/drivers/spi/spi-altera.c
-index 809bfff3690ab..cbc4c28c1541c 100644
---- a/drivers/spi/spi-altera.c
-+++ b/drivers/spi/spi-altera.c
-@@ -189,24 +189,26 @@ static int altera_spi_txrx(struct spi_master *master,
- 
- 		/* send the first byte */
- 		altera_spi_tx_word(hw);
--	} else {
--		while (hw->count < hw->len) {
--			altera_spi_tx_word(hw);
- 
--			for (;;) {
--				altr_spi_readl(hw, ALTERA_SPI_STATUS, &val);
--				if (val & ALTERA_SPI_STATUS_RRDY_MSK)
--					break;
-+		return 1;
-+	}
-+
-+	while (hw->count < hw->len) {
-+		altera_spi_tx_word(hw);
- 
--				cpu_relax();
--			}
-+		for (;;) {
-+			altr_spi_readl(hw, ALTERA_SPI_STATUS, &val);
-+			if (val & ALTERA_SPI_STATUS_RRDY_MSK)
-+				break;
- 
--			altera_spi_rx_word(hw);
-+			cpu_relax();
+diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
+index 783bbdcb1e618..09c328ee65da8 100644
+--- a/drivers/misc/habanalabs/common/device.c
++++ b/drivers/misc/habanalabs/common/device.c
+@@ -1027,6 +1027,7 @@ again:
+ 						GFP_KERNEL);
+ 		if (!hdev->kernel_ctx) {
+ 			rc = -ENOMEM;
++			hl_mmu_fini(hdev);
+ 			goto out_err;
  		}
--		spi_finalize_current_transfer(master);
-+
-+		altera_spi_rx_word(hw);
+ 
+@@ -1038,6 +1039,7 @@ again:
+ 				"failed to init kernel ctx in hard reset\n");
+ 			kfree(hdev->kernel_ctx);
+ 			hdev->kernel_ctx = NULL;
++			hl_mmu_fini(hdev);
+ 			goto out_err;
+ 		}
  	}
-+	spi_finalize_current_transfer(master);
- 
--	return t->len;
-+	return 0;
- }
- 
- static irqreturn_t altera_spi_irq(int irq, void *dev)
 -- 
 2.27.0
 
