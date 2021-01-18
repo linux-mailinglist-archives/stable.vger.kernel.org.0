@@ -2,127 +2,382 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9B22FA54E
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEE82FA4B6
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405897AbhARP4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:56:42 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:38501 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393380AbhARPYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 10:24:07 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7706D19C394C;
-        Mon, 18 Jan 2021 10:22:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 10:22:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4IwOtI
-        L0nzv/SqGZ6zOZHdvXB9hAEVDNav83GZW16w0=; b=krDsrw+9kJ5Nxcynu39xwk
-        hmBZId4SuUbAOAgcJiEq/mRXrT9vZOiSM2Kln2tcnlHh0Hnoqyxf7ICNVj+bJLdM
-        TGNPAT+oNXMhH+f7iftlFJ3hr3mllb40EHIpHqaMGrofbIpTFfGjqP3vOSZHIaQi
-        29SuNEJ87VBZ2kfZUqqN26a/yUAt9nbYlgxZ+8Uz3tRjWxFJ6dz91FJCwp0LTmTZ
-        LZ8SwF2ZlFEsi2cplyKcFd8MiULlAxN7KD/qjLq+n47j664pHuBbzi1/q2QDXpU5
-        LMDnjniTZK6DHQlcRDTXX/wZMN66yPn8/zyRjZCB0vti/y5GpDhN4kOKoN3js1jw
-        ==
-X-ME-Sender: <xms:06cFYJK2M9bRkzf-7sstcvCvMWke1gHj8dwfdB8-1tXNOjDlxOwo-Q>
-    <xme:06cFYFIEmtzqUIKoJXAOC0H5CYzdT4EEjbAFGZUyK3xY232w6o9XmOu3t-SppzXyF
-    UpVdvlo9CjgGQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgdejiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:06cFYBvbbVytcRWOr-sg2HzVVKSyHsnsntCy_hQyCdNjzYAlywS-og>
-    <xmx:06cFYKb4Z7nnGJj7eK3pInOvjnHNioPa4NPg-8DZI93uUYS1aBNnuQ>
-    <xmx:06cFYAbH9cP0ssD9BdK80vHCEB25PiYZeWuxjRECF2ksOVuIhySCew>
-    <xmx:06cFYJAgc73RoCjQ8utrIIR_3qAu0qwllTB8STyEj4DWOi3nNzNxBg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BBDEF24005B;
-        Mon, 18 Jan 2021 10:22:58 -0500 (EST)
-Subject: FAILED: patch "[PATCH] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps" failed to apply to 4.19-stable tree
-To:     viro@zeniv.linux.org.uk, tsbogend@alpha.franken.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 16:22:56 +0100
-Message-ID: <1610983376200240@kroah.com>
+        id S2405750AbhARP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405805AbhARP0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 10:26:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1556C22C7E;
+        Mon, 18 Jan 2021 15:25:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610983531;
+        bh=Ke1ZSHQxVuRGIUDlQW1/npne3yYmBrC6wQcQbF8n9T0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NOi/PxWEPXXK8oSny0Xmxs8xc/3uqSi4IoSaRxlp6fk358xZ0TzjS6M4nfXxbCj2R
+         FeQJEDff7SASo9ulPCMXFgC5BwUZd7h17dGyjuQZ8lUQ18DS+5cNuWqUUaFuux346d
+         jDfErKiStgb6kfSlodxUJbjn4/ri8WQ4FNq1GQzQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/75] 5.4.91-rc2 review
+Date:   Mon, 18 Jan 2021 16:25:29 +0100
+Message-Id: <20210118152457.528300594@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.91-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.91-rc2
+X-KernelTest-Deadline: 2021-01-20T15:25+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the start of the stable review cycle for the 5.4.91 release.
+There are 75 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Responses should be made by Wed, 20 Jan 2021 15:24:42 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.91-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
 
------------------- original commit in Linus's tree ------------------
+-------------
+Pseudo-Shortlog of commits:
 
-From 698222457465ce343443be81c5512edda86e5914 Mon Sep 17 00:00:00 2001
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: Thu, 24 Dec 2020 19:44:38 +0000
-Subject: [PATCH] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.91-rc2
 
-Patches that introduced NT_FILE and NT_SIGINFO notes back in 2012
-had taken care of native (fs/binfmt_elf.c) and compat (fs/compat_binfmt_elf.c)
-coredumps; unfortunately, compat on mips (which does not go through the
-usual compat_binfmt_elf.c) had not been noticed.
+Florian Westphal <fw@strlen.de>
+    netfilter: nft_compat: remove flush counter optimization
 
-As the result, both N32 and O32 coredumps on 64bit mips kernels
-have those sections malformed enough to confuse the living hell out of
-all gdb and readelf versions (up to and including the tip of binutils-gdb.git).
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    netfilter: nf_nat: Fix memleak in nf_nat_init
 
-Longer term solution is to make both O32 and N32 compat use the
-regular compat_binfmt_elf.c, but that's too much for backports.  The minimal
-solution is to do in arch/mips/kernel/binfmt_elf[on]32.c the same thing
-those patches have done in fs/compat_binfmt_elf.c
+Jesper Dangaard Brouer <brouer@redhat.com>
+    netfilter: conntrack: fix reading nf_conntrack_buckets
 
-Cc: stable@kernel.org # v3.7+
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Geert Uytterhoeven <geert+renesas@glider.be>
+    ALSA: firewire-tascam: Fix integer overflow in midi_port_work()
 
-diff --git a/arch/mips/kernel/binfmt_elfn32.c b/arch/mips/kernel/binfmt_elfn32.c
-index 6ee3f7218c67..c4441416e96b 100644
---- a/arch/mips/kernel/binfmt_elfn32.c
-+++ b/arch/mips/kernel/binfmt_elfn32.c
-@@ -103,4 +103,11 @@ jiffies_to_old_timeval32(unsigned long jiffies, struct old_timeval32 *value)
- #undef ns_to_kernel_old_timeval
- #define ns_to_kernel_old_timeval ns_to_old_timeval32
- 
-+/*
-+ * Some data types as stored in coredump.
-+ */
-+#define user_long_t             compat_long_t
-+#define user_siginfo_t          compat_siginfo_t
-+#define copy_siginfo_to_external        copy_siginfo_to_external32
-+
- #include "../../../fs/binfmt_elf.c"
-diff --git a/arch/mips/kernel/binfmt_elfo32.c b/arch/mips/kernel/binfmt_elfo32.c
-index 6dd103d3cebb..7b2a23f48c1a 100644
---- a/arch/mips/kernel/binfmt_elfo32.c
-+++ b/arch/mips/kernel/binfmt_elfo32.c
-@@ -106,4 +106,11 @@ jiffies_to_old_timeval32(unsigned long jiffies, struct old_timeval32 *value)
- #undef ns_to_kernel_old_timeval
- #define ns_to_kernel_old_timeval ns_to_old_timeval32
- 
-+/*
-+ * Some data types as stored in coredump.
-+ */
-+#define user_long_t             compat_long_t
-+#define user_siginfo_t          compat_siginfo_t
-+#define copy_siginfo_to_external        copy_siginfo_to_external32
-+
- #include "../../../fs/binfmt_elf.c"
+Geert Uytterhoeven <geert+renesas@glider.be>
+    ALSA: fireface: Fix integer overflow in transmit_midi_msg()
+
+Mike Snitzer <snitzer@redhat.com>
+    dm: eliminate potential source of excessive kernel log noise
+
+j.nixdorf@avm.de <j.nixdorf@avm.de>
+    net: sunrpc: interpret the return value of kstrtou32 correctly
+
+Lu Baolu <baolu.lu@linux.intel.com>
+    iommu/vt-d: Fix unaligned addresses for intel_flush_svm_range_dev()
+
+Jann Horn <jannh@google.com>
+    mm, slub: consider rest of partial list if acquire_slab() fails
+
+Hans de Goede <hdegoede@redhat.com>
+    drm/i915/dsi: Use unconditional msleep for the panel_on_delay when there is no reset-deassert MIPI-sequence
+
+Parav Pandit <parav@nvidia.com>
+    IB/mlx5: Fix error unwinding when set_has_smi_cap fails
+
+Mark Bloch <mbloch@nvidia.com>
+    RDMA/mlx5: Fix wrong free of blue flame register on error
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Improve stats context resource accounting with RDMA driver loaded.
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
+
+Leon Romanovsky <leonro@nvidia.com>
+    RDMA/restrack: Don't treat as an error allocation ID wrapping
+
+Jan Kara <jack@suse.cz>
+    ext4: fix superblock checksum failure when setting password salt
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: nfs_igrab_and_active must first reference the superblock
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS/pNFS: Fix a leak of the layout 'plh_outstanding' counter
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Stricter ordering of layoutget and layoutreturn
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Mark layout for return if return-on-close was not sent
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: We want return-on-close to complete when evicting the inode
+
+Dave Wysochanski <dwysocha@redhat.com>
+    NFS4: Fix use-after-free in trace_event_raw_event_nfs4_set_lock
+
+Sagi Grimberg <sagi@grimberg.me>
+    nvme-tcp: fix possible data corruption with bio merges
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ASoC: Intel: fix error code cnl_set_dsp_D0()
+
+Jerome Brunet <jbrunet@baylibre.com>
+    ASoC: meson: axg-tdmin: fix axg skew offset
+
+Jerome Brunet <jbrunet@baylibre.com>
+    ASoC: meson: axg-tdm-interface: fix loopback
+
+Al Viro <viro@zeniv.linux.org.uk>
+    dump_common_audit_data(): fix racy accesses to ->d_name
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix 'CPU too large' error
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: picoxcell: fix missing interrupt-parent properties
+
+Craig Tatlor <ctatlor97@gmail.com>
+    drm/msm: Call msm_init_vram before binding the gpu
+
+Shawn Guo <shawn.guo@linaro.org>
+    ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
+
+Peter Robinson <pbrobinson@gmail.com>
+    usb: typec: Fix copy paste error for NVIDIA alt-mode description
+
+Dennis Li <Dennis.Li@amd.com>
+    drm/amdgpu: fix a GPU hang issue when remove device
+
+Israel Rukshin <israelr@nvidia.com>
+    nvmet-rdma: Fix list_del corruption on queue establishment failure
+
+Gopal Tiwari <gtiwari@redhat.com>
+    nvme-pci: mark Samsung PM1725a as IGNORE_DEV_SUBNQN
+
+Po-Hsu Lin <po-hsu.lin@canonical.com>
+    selftests: fix the return value for UDP GRO test
+
+Michael Ellerman <mpe@ellerman.id.au>
+    net: ethernet: fs_enet: Add missing MODULE_LICENSE
+
+Arnd Bergmann <arnd@arndb.de>
+    misdn: dsp: select CONFIG_BITREVERSE
+
+Randy Dunlap <rdunlap@infradead.org>
+    arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+
+Jan Kara <jack@suse.cz>
+    bfq: Fix computation of shallow depth
+
+John Millikin <john@john-millikin.com>
+    lib/raid6: Let $(UNROLL) rules work with macOS userland
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    hwmon: (pwm-fan) Ensure that calculation doesn't discard big period values
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    habanalabs: Fix memleak in hl_device_reset
+
+Oded Gabbay <ogabbay@kernel.org>
+    habanalabs: register to pci shutdown callback
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
+
+Guido Günther <agx@sigxcpu.org>
+    regulator: bd718x7: Add enable times
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix transaction leak and crash after RO remount caused by qgroup rescan
+
+Vasily Averin <vvs@virtuozzo.com>
+    netfilter: ipset: fixes possible oops in mtype_resize
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: move symlink creation to arch/arc/Makefile to avoid race
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: add boot_targets to PHONY
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: add uImage.lzma to the top-level target
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix flush with external metadata device
+
+Paulo Alcantara <pc@cjr.nz>
+    cifs: fix interrupted close commands
+
+Steve French <stfrench@microsoft.com>
+    smb3: remove unused flag passed into close functions
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: don't leak old mountpoint samples
+
+yangerkun <yangerkun@huawei.com>
+    ext4: fix bug for rename with RENAME_WHITEOUT
+
+Jani Nikula <jani.nikula@intel.com>
+    drm/i915/backlight: fix CPU mode backlight takeover on LPT
+
+Su Yue <l@damenly.su>
+    btrfs: tree-checker: check if chunk item end overflows
+
+Leon Schuermann <leon@is.currently.online>
+    r8152: Add Lenovo Powered USB-C Travel Hub
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix the maximum number of arguments
+
+Akilesh Kailash <akailash@google.com>
+    dm snapshot: flush merged data before committing metadata
+
+Mike Snitzer <snitzer@redhat.com>
+    dm raid: fix discard limits for raid1
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/hugetlb: fix potential missing huge page size info
+
+Dexuan Cui <decui@microsoft.com>
+    ACPI: scan: Harden acpi_device_add() against device ID overflows
+
+Tom Rix <trix@redhat.com>
+    RDMA/ocrdma: Fix use after free in ocrdma_dealloc_ucontext_pd()
+
+Alexander Lobakin <alobakin@pm.me>
+    MIPS: relocatable: fix possible boot hangup with KASLR enabled
+
+Paul Cercueil <paul@crapouillou.net>
+    MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
+
+Anders Roxell <anders.roxell@linaro.org>
+    mips: lib: uncached: fix non-standard usage of variable 'sp'
+
+Anders Roxell <anders.roxell@linaro.org>
+    mips: fix Section mismatch in reference
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    tracing/kprobes: Do the notrace functions check without kprobes on ftrace
+
+Wei Liu <wei.liu@kernel.org>
+    x86/hyperv: check cpu mask after interrupt has been disabled
+
+Thomas Hebb <tommyhebb@gmail.com>
+    ASoC: dapm: remove widget from dirty list on free
+
+Su Yue <l@damenly.su>
+    btrfs: prevent NULL pointer dereference in extent_io_tree_panic
+
+Olaf Hering <olaf@aepfle.de>
+    kbuild: enforce -Werror=return-type
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  6 +--
+ arch/arc/Makefile                                  | 20 +++++---
+ arch/arc/boot/Makefile                             | 11 +---
+ arch/arc/include/asm/page.h                        |  1 +
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi             |  4 ++
+ arch/mips/boot/compressed/decompress.c             |  3 +-
+ arch/mips/kernel/relocate.c                        | 10 +++-
+ arch/mips/lib/uncached.c                           |  4 +-
+ arch/mips/mm/c-r4k.c                               |  2 +-
+ arch/mips/mm/sc-mips.c                             |  4 +-
+ arch/x86/hyperv/mmu.c                              | 12 +++--
+ block/bfq-iosched.c                                |  8 +--
+ drivers/acpi/internal.h                            |  2 +-
+ drivers/acpi/scan.c                                | 15 +++++-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         |  4 +-
+ drivers/gpu/drm/i915/display/intel_panel.c         |  9 ++--
+ drivers/gpu/drm/i915/display/vlv_dsi.c             | 16 ++++--
+ drivers/gpu/drm/msm/msm_drv.c                      |  8 +--
+ drivers/hwmon/pwm-fan.c                            | 12 ++++-
+ drivers/infiniband/core/restrack.c                 |  1 +
+ drivers/infiniband/hw/mlx5/main.c                  |  4 +-
+ drivers/infiniband/hw/ocrdma/ocrdma_verbs.c        |  2 +-
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c       |  3 ++
+ drivers/iommu/intel-svm.c                          | 22 +++++++-
+ drivers/isdn/mISDN/Kconfig                         |  1 +
+ drivers/md/dm-bufio.c                              |  6 +++
+ drivers/md/dm-integrity.c                          | 58 ++++++++++++++++++----
+ drivers/md/dm-raid.c                               |  6 +--
+ drivers/md/dm-snap.c                               | 24 +++++++++
+ drivers/md/dm.c                                    |  2 +-
+ drivers/misc/habanalabs/device.c                   |  2 +
+ drivers/misc/habanalabs/habanalabs_drv.c           |  1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c      |  8 ++-
+ .../net/ethernet/freescale/fs_enet/mii-bitbang.c   |  1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-fec.c   |  1 +
+ drivers/net/ethernet/freescale/ucc_geth.h          |  9 +++-
+ drivers/net/usb/cdc_ether.c                        |  7 +++
+ drivers/net/usb/r8152.c                            |  1 +
+ drivers/nvme/host/pci.c                            |  3 +-
+ drivers/nvme/host/tcp.c                            |  2 +-
+ drivers/nvme/target/rdma.c                         | 10 ++++
+ drivers/regulator/bd718x7-regulator.c              | 57 +++++++++++++++++++++
+ drivers/usb/typec/altmodes/Kconfig                 |  2 +-
+ fs/btrfs/extent_io.c                               |  4 +-
+ fs/btrfs/qgroup.c                                  | 13 +++--
+ fs/btrfs/super.c                                   |  8 +++
+ fs/btrfs/tree-checker.c                            |  7 +++
+ fs/cifs/smb2pdu.c                                  | 21 +++-----
+ fs/cifs/smb2proto.h                                |  2 -
+ fs/ext4/file.c                                     |  2 +-
+ fs/ext4/ioctl.c                                    |  3 ++
+ fs/ext4/namei.c                                    | 16 +++---
+ fs/nfs/internal.h                                  | 12 +++--
+ fs/nfs/nfs4proc.c                                  | 28 ++++-------
+ fs/nfs/pnfs.c                                      | 58 ++++++++++++----------
+ fs/nfs/pnfs.h                                      |  8 ++-
+ include/linux/acpi.h                               |  7 +++
+ include/linux/dm-bufio.h                           |  1 +
+ kernel/trace/Kconfig                               |  2 +-
+ kernel/trace/trace_kprobe.c                        |  2 +-
+ lib/raid6/Makefile                                 |  2 +-
+ mm/hugetlb.c                                       |  2 +-
+ mm/slub.c                                          |  2 +-
+ net/netfilter/ipset/ip_set_hash_gen.h              | 22 ++++----
+ net/netfilter/nf_conntrack_standalone.c            |  3 ++
+ net/netfilter/nf_nat_core.c                        |  1 +
+ net/netfilter/nft_compat.c                         | 37 ++++++--------
+ net/sunrpc/addr.c                                  |  2 +-
+ security/lsm_audit.c                               |  7 ++-
+ sound/firewire/fireface/ff-transaction.c           |  2 +-
+ sound/firewire/tascam/tascam-transaction.c         |  2 +-
+ sound/soc/intel/skylake/cnl-sst.c                  |  1 +
+ sound/soc/meson/axg-tdm-interface.c                | 14 +++++-
+ sound/soc/meson/axg-tdmin.c                        | 13 +----
+ sound/soc/soc-dapm.c                               |  1 +
+ tools/perf/util/machine.c                          |  4 +-
+ tools/perf/util/session.c                          |  2 +-
+ tools/testing/selftests/net/udpgro.sh              | 34 +++++++++++++
+ 78 files changed, 513 insertions(+), 216 deletions(-)
+
 
