@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 483E92FAA20
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:27:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA622FAA16
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437337AbhART1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:27:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34160 "EHLO mail.kernel.org"
+        id S2437299AbhART0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 14:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389079AbhARLiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:38:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD45722C7E;
-        Mon, 18 Jan 2021 11:37:03 +0000 (UTC)
+        id S2390383AbhARLhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:37:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C41722B4E;
+        Mon, 18 Jan 2021 11:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969824;
-        bh=QTVrU5Uqlqq2w1dCrXothH4iFsRVc0nQc8i3xhrt/E8=;
+        s=korg; t=1610969826;
+        bh=u/uHDV/cYGZnTfypdQ2dMvlAOFNoUEzaJecQfzK9iAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4N4ZTikW6jW38dumbvPhO++b9GrOpu5aCRP0pHjzw5jYDKxtSDq43OxeOp2IYGWP
-         XcvleFWILmgGNJEooca+5EdEdn55+8tUWLS0Q6xABpyfpB6sUzUInIgyTfgTOv3Nz8
-         bQdaUYnvQIvS1xpj/SX8GGMKWGkIjphThAxZjx4w=
+        b=RsDoIGrCjNVIgtZJtYAKEaGQsrvAz/BAS2osHombXL7C5VVQYI1mQcWjZXLukhWhT
+         75W2lzhFcS7Sbam9OFnB23UgY9kXBC7FcEzhlpQ1yflJ3NZEC+bXwtxpHCc9lS2D0I
+         SSNc/rilwLuMl7PQFOfcsuy4rMLqwGlh+OrZHz2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 40/43] ALSA: fireface: Fix integer overflow in transmit_midi_msg()
-Date:   Mon, 18 Jan 2021 12:35:03 +0100
-Message-Id: <20210118113336.880243771@linuxfoundation.org>
+        stable@vger.kernel.org, Yoel Caspersen <yoel@kviknet.dk>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 41/43] netfilter: conntrack: fix reading nf_conntrack_buckets
+Date:   Mon, 18 Jan 2021 12:35:04 +0100
+Message-Id: <20210118113336.921993504@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -40,41 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-commit e7c22eeaff8565d9a8374f320238c251ca31480b upstream.
+commit f6351c3f1c27c80535d76cac2299aec44c36291e upstream.
 
-As snd_ff.rx_bytes[] is unsigned int, and NSEC_PER_SEC is 1000000000L,
-the second multiplication in
+The old way of changing the conntrack hashsize runtime was through changing
+the module param via file /sys/module/nf_conntrack/parameters/hashsize. This
+was extended to sysctl change in commit 3183ab8997a4 ("netfilter: conntrack:
+allow increasing bucket size via sysctl too").
 
-    ff->rx_bytes[port] * 8 * NSEC_PER_SEC / 31250
+The commit introduced second "user" variable nf_conntrack_htable_size_user
+which shadow actual variable nf_conntrack_htable_size. When hashsize is
+changed via module param this "user" variable isn't updated. This results in
+sysctl net/netfilter/nf_conntrack_buckets shows the wrong value when users
+update via the old way.
 
-always overflows on 32-bit platforms, truncating the result.  Fix this
-by precalculating "NSEC_PER_SEC / 31250", which is an integer constant.
+This patch fix the issue by always updating "user" variable when reading the
+proc file. This will take care of changes to the actual variable without
+sysctl need to be aware.
 
-Note that this assumes ff->rx_bytes[port] <= 16777.
-
-Fixes: 19174295788de77d ("ALSA: fireface: add transaction support")
-Reviewed-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210111130251.361335-2-geert+renesas@glider.be
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3183ab8997a4 ("netfilter: conntrack: allow increasing bucket size via sysctl too")
+Reported-by: Yoel Caspersen <yoel@kviknet.dk>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/fireface/ff-transaction.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_standalone.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/firewire/fireface/ff-transaction.c
-+++ b/sound/firewire/fireface/ff-transaction.c
-@@ -99,7 +99,7 @@ static void transmit_midi_msg(struct snd
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -500,6 +500,9 @@ nf_conntrack_hash_sysctl(struct ctl_tabl
+ {
+ 	int ret;
  
- 	/* Set interval to next transaction. */
- 	ff->next_ktime[port] = ktime_add_ns(ktime_get(),
--					    len * 8 * NSEC_PER_SEC / 31250);
-+					    len * 8 * (NSEC_PER_SEC / 31250));
- 	ff->rx_bytes[port] = len;
- 
- 	/*
++	/* module_param hashsize could have changed value */
++	nf_conntrack_htable_size_user = nf_conntrack_htable_size;
++
+ 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+ 	if (ret < 0 || !write)
+ 		return ret;
 
 
