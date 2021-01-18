@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B81D2FA404
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:04:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624602FA402
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392625AbhARPD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:03:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
+        id S2405289AbhARPDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390793AbhARLmr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:42:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B104F22D37;
-        Mon, 18 Jan 2021 11:42:06 +0000 (UTC)
+        id S2390796AbhARLmu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:42:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 176A622D6D;
+        Mon, 18 Jan 2021 11:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970127;
-        bh=j9Cu8FmBgXApO8MFpbZjqoJFNnXF/9w5EI8fVEKtMzQ=;
+        s=korg; t=1610970129;
+        bh=YUxBdMaxqdLOKPvjDQxdyiSZFAr2Zri+Zp1iNE6TZLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRDfpsWcbK5o2kR3ISPtxYJlvi95BHZLOv/sJ1IpH4c9KNQ8QZxprN5zmr7F/6bij
-         BoOu6y4nOwtGHdfAK0rE1CA9ukmZwo740huFQby1tXoukFOyNLxYKOPuNqoV3ecxo2
-         gSR/bNdmSRTAakEzDIQqjZez5KcUFmPe1US5Q6Oo=
+        b=k16ktBqW6uV0joZtvjHwpoNSRbv8RTrL8JbFypShi4tvCcUsZZILYWoiESKZGWOG8
+         GTmi7f474C6TJQTAsB+c86H8h16RCdNHBPEpIFa3FFTUUqf5nlDx3RKIvXsQ3b6yUk
+         UQ/6F77OMvKcFLWRAkp/ZKFKF1FCtYlJB/iwJkBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Wong Vee Khee <vee.khee.wong@intel.com>,
+        stable@vger.kernel.org, Leon Schuermann <leon@is.currently.online>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 049/152] stmmac: intel: change all EHL/TGL to auto detect phy addr
-Date:   Mon, 18 Jan 2021 12:33:44 +0100
-Message-Id: <20210118113355.139874911@linuxfoundation.org>
+Subject: [PATCH 5.10 050/152] r8152: Add Lenovo Powered USB-C Travel Hub
+Date:   Mon, 18 Jan 2021 12:33:45 +0100
+Message-Id: <20210118113355.188153876@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,72 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: Leon Schuermann <leon@is.currently.online>
 
-commit bff6f1db91e330d7fba56f815cdbc412c75fe163 upstream.
+commit cb82a54904a99df9e8f9e9d282046055dae5a730 upstream.
 
-Set all EHL/TGL phy_addr to -1 so that the driver will automatically
-detect it at run-time by probing all the possible 32 addresses.
+This USB-C Hub (17ef:721e) based on the Realtek RTL8153B chip used to
+use the cdc_ether driver. However, using this driver, with the system
+suspended the device constantly sends pause-frames as soon as the
+receive buffer fills up. This causes issues with other devices, where
+some Ethernet switches stop forwarding packets altogether.
 
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
-Link: https://lore.kernel.org/r/20201106094341.4241-1-vee.khee.wong@intel.com
+Using the Realtek driver (r8152) fixes this issue. Pause frames are no
+longer sent while the host system is suspended.
+
+Signed-off-by: Leon Schuermann <leon@is.currently.online>
+Tested-by: Leon Schuermann <leon@is.currently.online>
+Link: https://lore.kernel.org/r/20210111190312.12589-2-leon@is.currently.online
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/usb/cdc_ether.c |    7 +++++++
+ drivers/net/usb/r8152.c     |    1 +
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -236,6 +236,7 @@ static int intel_mgbe_common_data(struct
- 	int ret;
- 	int i;
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -793,6 +793,13 @@ static const struct usb_device_id	produc
+ 	.driver_info = 0,
+ },
  
-+	plat->phy_addr = -1;
- 	plat->clk_csr = 5;
- 	plat->has_gmac = 0;
- 	plat->has_gmac4 = 1;
-@@ -345,7 +346,6 @@ static int ehl_sgmii_data(struct pci_dev
- 			  struct plat_stmmacenet_data *plat)
++/* Lenovo Powered USB-C Travel Hub (4X90S92381, based on Realtek RTL8153) */
++{
++	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x721e, USB_CLASS_COMM,
++			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
++	.driver_info = 0,
++},
++
+ /* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
  {
- 	plat->bus_id = 1;
--	plat->phy_addr = 0;
- 	plat->phy_interface = PHY_INTERFACE_MODE_SGMII;
- 
- 	plat->serdes_powerup = intel_serdes_powerup;
-@@ -362,7 +362,6 @@ static int ehl_rgmii_data(struct pci_dev
- 			  struct plat_stmmacenet_data *plat)
- {
- 	plat->bus_id = 1;
--	plat->phy_addr = 0;
- 	plat->phy_interface = PHY_INTERFACE_MODE_RGMII;
- 
- 	return ehl_common_data(pdev, plat);
-@@ -376,7 +375,6 @@ static int ehl_pse0_common_data(struct p
- 				struct plat_stmmacenet_data *plat)
- {
- 	plat->bus_id = 2;
--	plat->phy_addr = 1;
- 	return ehl_common_data(pdev, plat);
- }
- 
-@@ -408,7 +406,6 @@ static int ehl_pse1_common_data(struct p
- 				struct plat_stmmacenet_data *plat)
- {
- 	plat->bus_id = 3;
--	plat->phy_addr = 1;
- 	return ehl_common_data(pdev, plat);
- }
- 
-@@ -450,7 +447,6 @@ static int tgl_sgmii_data(struct pci_dev
- 			  struct plat_stmmacenet_data *plat)
- {
- 	plat->bus_id = 1;
--	plat->phy_addr = 0;
- 	plat->phy_interface = PHY_INTERFACE_MODE_SGMII;
- 	plat->serdes_powerup = intel_serdes_powerup;
- 	plat->serdes_powerdown = intel_serdes_powerdown;
+ 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -6893,6 +6893,7 @@ static const struct usb_device_id rtl815
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
++	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x721e)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
 
 
