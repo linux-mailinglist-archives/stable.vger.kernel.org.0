@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4E82F9E61
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 774962F9E5B
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390455AbhARLiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34046 "EHLO mail.kernel.org"
+        id S2388912AbhARLht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:37:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390380AbhARLiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:38:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9926F22227;
-        Mon, 18 Jan 2021 11:36:30 +0000 (UTC)
+        id S2390403AbhARLhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:37:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E439022ADC;
+        Mon, 18 Jan 2021 11:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969791;
-        bh=/djjC3kDdBNhUec3GnLY8X9oe6C7uFIRz0TdZsvwRRE=;
+        s=korg; t=1610969793;
+        bh=7qZctB+wVDZvRl3IuGRuLTWmXyJBRmOZJZw2yJV1oYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cDK7kmM4u77A/Qju8+Uc4/qvmbeXJpx1gilNtn7hZN8WcGa0Bg/Jr7UL26XBZKNZz
-         wXhc1e9/HvoZM4x8tcvfatcjG/jvjIJAiBdkoRx5c6nFUobRYPZmySX03ec3TA61b/
-         2ccC4hZneGpcE3Dxn0A1wYGAkhXK+R+BxNWyY1MA=
+        b=EjGgkZV4vn/AuM+hX6jy5AIM8IvZwGzDhjii7zKx3429WJLFgp0PioIOiJR1VRo1u
+         hC4spbNUq4O0/9P/g2DHNAMi6es4m0tZbDVK4moqlzIMV5gRk16o+mwfKHNdbX7rP3
+         AAdsLrz+Cy4JXLXutKuqoYgy9G2KEKHx51d8jArc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 27/43] ASoC: meson: axg-tdm-interface: fix loopback
-Date:   Mon, 18 Jan 2021 12:34:50 +0100
-Message-Id: <20210118113336.258258504@linuxfoundation.org>
+Subject: [PATCH 4.19 28/43] ASoC: Intel: fix error code cnl_set_dsp_D0()
+Date:   Mon, 18 Jan 2021 12:34:51 +0100
+Message-Id: <20210118113336.305611097@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -41,62 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 671ee4db952449acde126965bf76817a3159040d upstream.
+commit f373a811fd9a69fc8bafb9bcb41d2cfa36c62665 upstream.
 
-When the axg-tdm-interface was introduced, the backend DAI was marked as an
-endpoint when DPCM was walking the DAPM graph to find a its BE.
+Return -ETIMEDOUT if the dsp boot times out instead of returning
+success.
 
-It is no longer the case since this
-commit 8dd26dff00c0 ("ASoC: dapm: Fix handling of custom_stop_condition on DAPM graph walks")
-Because of this, when DPCM finds a BE it does everything it needs on the
-DAIs but it won't power up the widgets between the FE and the BE if there
-is no actual endpoint after the BE.
-
-On meson-axg HWs, the loopback is a special DAI of the tdm-interface BE.
-It is only linked to the dummy codec since there no actual HW after it.
->From the DAPM perspective, the DAI has no endpoint. Because of this, the TDM
-decoder, which is a widget between the FE and BE is not powered up.
-
->From the user perspective, everything seems fine but no data is produced.
-
-Connecting the Loopback DAI to a dummy DAPM endpoint solves the problem.
-
-Fixes: 8dd26dff00c0 ("ASoC: dapm: Fix handling of custom_stop_condition on DAPM graph walks")
-Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20201217150812.3247405-1-jbrunet@baylibre.com
+Fixes: cb6a55284629 ("ASoC: Intel: cnl: Add sst library functions for cnl platform")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/X9NEvCzuN+IObnTN@mwanda
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/meson/axg-tdm-interface.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ sound/soc/intel/skylake/cnl-sst.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/soc/meson/axg-tdm-interface.c
-+++ b/sound/soc/meson/axg-tdm-interface.c
-@@ -459,8 +459,20 @@ static int axg_tdm_iface_set_bias_level(
- 	return ret;
- }
- 
-+static const struct snd_soc_dapm_widget axg_tdm_iface_dapm_widgets[] = {
-+	SND_SOC_DAPM_SIGGEN("Playback Signal"),
-+};
-+
-+static const struct snd_soc_dapm_route axg_tdm_iface_dapm_routes[] = {
-+	{ "Loopback", NULL, "Playback Signal" },
-+};
-+
- static const struct snd_soc_component_driver axg_tdm_iface_component_drv = {
--	.set_bias_level	= axg_tdm_iface_set_bias_level,
-+	.dapm_widgets		= axg_tdm_iface_dapm_widgets,
-+	.num_dapm_widgets	= ARRAY_SIZE(axg_tdm_iface_dapm_widgets),
-+	.dapm_routes		= axg_tdm_iface_dapm_routes,
-+	.num_dapm_routes	= ARRAY_SIZE(axg_tdm_iface_dapm_routes),
-+	.set_bias_level		= axg_tdm_iface_set_bias_level,
- };
- 
- static const struct of_device_id axg_tdm_iface_of_match[] = {
+--- a/sound/soc/intel/skylake/cnl-sst.c
++++ b/sound/soc/intel/skylake/cnl-sst.c
+@@ -212,6 +212,7 @@ static int cnl_set_dsp_D0(struct sst_dsp
+ 				"dsp boot timeout, status=%#x error=%#x\n",
+ 				sst_dsp_shim_read(ctx, CNL_ADSP_FW_STATUS),
+ 				sst_dsp_shim_read(ctx, CNL_ADSP_ERROR_CODE));
++			ret = -ETIMEDOUT;
+ 			goto err;
+ 		}
+ 	} else {
 
 
