@@ -2,156 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5692FA07D
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4255D2FA23D
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 14:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391925AbhARMxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:53:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391922AbhARMxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 07:53:39 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC410C061574
-        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 04:52:58 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id d13so16314775wrc.13
-        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 04:52:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=D1pyQppAA+wvHZoSq97i6wx6SxOqkfmcx7zBXfJmsUE=;
-        b=ccLPRV7H6TPy5FaDHa6HRufGAmVTtUcPP0aNjYLtg7BXTDqPoAL1KqRBVJ8YssQe/q
-         SkJeenWJs9M0OHU4D60tMaVsxRqbR/TpwkR+twarnfpbxmrItmT+5oZs954YiaGq4t7K
-         mo2P5xg0rwUDd3yTU/qU14hKBc4MKtJOwKmPQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=D1pyQppAA+wvHZoSq97i6wx6SxOqkfmcx7zBXfJmsUE=;
-        b=JxIBbyRz59p7efbmZyDKkVqcwYQ0smC0u3hmubyN6ewoJDyuy/f73BlmTCytV1Qqr0
-         xOLvqE0uWgquPAxmPOF1CLmA7d+yY7DctwcpKwEFyUjeDH6PD30dUzeA00sXQ+OmzonF
-         MOz8BOXy7+M6M6IDLEMTnz3ZNr25fvSvh1T7UadERKhVz+7Kd7NJUbTRmjlh+fX76Tlp
-         6T4fgNDGrHccfYUt+tvXGeJo1I3EV3D/KYW6Yt19cDl/DG6betchAS7ZqRJNbcA57z4b
-         JDPLCiWniF+7Xdq5QzvjHCoHzqg++D3JnhYgHT+1bQPEU7zU+eEg4kXo5dtv6FelpaPJ
-         IvhA==
-X-Gm-Message-State: AOAM531spRJ7H3QoF6mK7Y6LRjsZnBAnkhL/f0RUrrpmBc/wEbAREaWD
-        RHBXyxRxP/eGFgw3CEiHr5AkxA==
-X-Google-Smtp-Source: ABdhPJzxIHaZac3kc6pq7MGlzbkyFJIIStSfDrlGhD0mywUk57483NkSG1rJNT2xYmJt1OLnql1nDQ==
-X-Received: by 2002:adf:f4d0:: with SMTP id h16mr26228451wrp.30.1610974377438;
-        Mon, 18 Jan 2021 04:52:57 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id i18sm30793367wrp.74.2021.01.18.04.52.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Jan 2021 04:52:56 -0800 (PST)
-Date:   Mon, 18 Jan 2021 13:52:54 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, od@zcrc.me,
-        dri-devel@lists.freedesktop.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 2/3] drm/ingenic: Register devm action to cleanup encoders
-Message-ID: <YAWEpjU6BmeK8deo@phenom.ffwll.local>
-Mail-Followup-To: Paul Cercueil <paul@crapouillou.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, od@zcrc.me, dri-devel@lists.freedesktop.org,
-        Sam Ravnborg <sam@ravnborg.org>
-References: <20210117112646.98353-1-paul@crapouillou.net>
- <20210117112646.98353-3-paul@crapouillou.net>
- <YAVYUzR9+ic5lEjE@pendragon.ideasonboard.com>
- <1BO4NQ.1RZAXLMVC01T@crapouillou.net>
+        id S2392503AbhARNzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 08:55:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39764 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2392423AbhARNzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 08:55:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A8B72225C;
+        Mon, 18 Jan 2021 13:54:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610978079;
+        bh=Zgp6oPRleT8q3XNHbBe3iby58DT4TI2i6w1BoM9t8YA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JcG5CdDGxDvYL6EoaLGrtKiN8/LI7sg0B4FWTabbtbnZLhEnPUZW924pNJ7T2MX2v
+         v5tiit9TPc+jEV8gEAMkuqQapXcEcAiLBqyiQ26XeIH3LwXARAr4AC40RYf3LJSC5o
+         OT4PJO/5xxnhMZ5vUWvKgCRPORDhSfp/aW5NcRwZvRPe23O0kZF5nUmVTblSclJtxR
+         P7HH+aHQ4eWXzIyHqsZ17THrydTvoyxrBkOgOI4DGmHNMpVD5HAnw9oPaBQZoIGyVE
+         8gkKxXdfdwYT9l53eqap06QwnXVEw7ZOtEoJRuVTA/19KaX41lDa1ubCUXgztwYSdP
+         Q5FhAvkZCh5Ug==
+From:   Will Deacon <will@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Florian Weimer <fweimer@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [STABLE BACKPORT 4.4.y, 4.9.y and 4.14.y] compiler.h: Raise minimum version of GCC to 5.1 for arm64
+Date:   Mon, 18 Jan 2021 13:54:25 +0000
+Message-Id: <20210118135426.17372-1-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1BO4NQ.1RZAXLMVC01T@crapouillou.net>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 11:37:49AM +0000, Paul Cercueil wrote:
-> Hi Laurent,
-> 
-> Le lun. 18 janv. 2021 à 11:43, Laurent Pinchart
-> <laurent.pinchart@ideasonboard.com> a écrit :
-> > Hi Paul,
-> > 
-> > Thank you for the patch.
-> > 
-> > On Sun, Jan 17, 2021 at 11:26:45AM +0000, Paul Cercueil wrote:
-> > >  Since the encoders have been devm-allocated, they will be freed way
-> > >  before drm_mode_config_cleanup() is called. To avoid use-after-free
-> > >  conditions, we then must ensure that drm_encoder_cleanup() is called
-> > >  before the encoders are freed.
-> > 
-> > How about allocating the encoder with drmm_encoder_alloc() instead ?
-> 
-> That would work, but it is not yet in drm-misc-fixes :(
+commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
 
-Well I think then we should only fix this in drm-misc-next. Adding more
-broken usage of devm_ isn't really a good idea.
+GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
+beyond the stack pointer, resulting in memory corruption if an interrupt
+is taken after the stack pointer has been adjusted but before the
+reference has been executed. This leads to subtle, infrequent data
+corruption such as the EXT4 problems reported by Russell King at the
+link below.
 
-If you want this in -fixes, then I think hand-roll it. But devm_ for drm
-objects really is the wrong fix.
--Daniel
+Life is too short for buggy compilers, so raise the minimum GCC version
+required by arm64 to 5.1.
 
-> 
-> -Paul
-> 
-> > >  Fixes: c369cb27c267 ("drm/ingenic: Support multiple panels/bridges")
-> > >  Cc: <stable@vger.kernel.org> # 5.8+
-> > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> > >  ---
-> > >   drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 10 ++++++++++
-> > >   1 file changed, 10 insertions(+)
-> > > 
-> > >  diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> > > b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> > >  index 368bfef8b340..d23a3292a0e0 100644
-> > >  --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> > >  +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> > >  @@ -803,6 +803,11 @@ static void __maybe_unused
-> > > ingenic_drm_release_rmem(void *d)
-> > >   	of_reserved_mem_device_release(d);
-> > >   }
-> > > 
-> > >  +static void ingenic_drm_encoder_cleanup(void *encoder)
-> > >  +{
-> > >  +	drm_encoder_cleanup(encoder);
-> > >  +}
-> > >  +
-> > >   static int ingenic_drm_bind(struct device *dev, bool
-> > > has_components)
-> > >   {
-> > >   	struct platform_device *pdev = to_platform_device(dev);
-> > >  @@ -1011,6 +1016,11 @@ static int ingenic_drm_bind(struct device
-> > > *dev, bool has_components)
-> > >   			return ret;
-> > >   		}
-> > > 
-> > >  +		ret = devm_add_action_or_reset(dev, ingenic_drm_encoder_cleanup,
-> > >  +					       encoder);
-> > >  +		if (ret)
-> > >  +			return ret;
-> > >  +
-> > >   		ret = drm_bridge_attach(encoder, bridge, NULL, 0);
-> > >   		if (ret) {
-> > >   			dev_err(dev, "Unable to attach bridge\n");
-> > 
-> > --
-> > Regards,
-> > 
-> > Laurent Pinchart
-> 
-> 
+Reported-by: Russell King <linux@armlinux.org.uk>
+Suggested-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org> # 4.4.y, 4.9.y and 4.14.y only
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
+Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[will: backport to 4.4.y/4.9.y/4.14.y]
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ include/linux/compiler-gcc.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index af8b4a879934..3cc8adede67b 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -145,6 +145,12 @@
+ 
+ #if GCC_VERSION < 30200
+ # error Sorry, your compiler is too old - please upgrade it.
++#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100
++/*
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
++ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ */
++# error Sorry, your version of GCC is too old - please use 5.1 or newer.
+ #endif
+ 
+ #if GCC_VERSION < 30300
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.30.0.284.gd98b1dd5eaa7-goog
+
