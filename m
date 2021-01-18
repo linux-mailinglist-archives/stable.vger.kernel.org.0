@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CBB2F9F4D
+	by mail.lfdr.de (Postfix) with ESMTP id 4D08C2F9F4C
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403817AbhARMR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:17:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
+        id S2391025AbhARMRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 07:17:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390888AbhARLqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390889AbhARLqQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:46:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73D7B22CA2;
-        Mon, 18 Jan 2021 11:45:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C104E2222A;
+        Mon, 18 Jan 2021 11:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970356;
-        bh=MjrKb1h4tMErpsH8+EzAbPNEt6Oz+fy/TlWsRz575As=;
+        s=korg; t=1610970359;
+        bh=rAiLV1FajodwqXxVeFW9K7IoNTI2jgXHKei92OBxcPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7XfRbZO4e++ffDkPTSku29CRjhZll45lTnVy7WDEVdle3SPcwJOVlwl3JpbYGHIl
-         ggaOFAdQrJxNz+gr39Za/Qq68HchyY22lBLXRYiaCMLpq/hy1sKonsxXBJ3E8hFGdh
-         IBLPe2smQck3E2d5YSRixcCBTbnjjEaztDygwXpg=
+        b=dYPSoFnP/wQxjrVzEuZ9mQZwl9WJsozn+RYI3cc/4zYXWtxh1DcETCIiPvVFVnEv2
+         g2bJHm2YL+CTlpwqjuLVjRg96dnIRLFWjvtnAv8SeISeJEujng2o8Noq4bEhaKcmpP
+         Eiz3lk/gFp8q5D1U0LKLJ5IdPHkG3MhFvxK7BHdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Nixdorf <j.nixdorf@avm.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 146/152] net: sunrpc: interpret the return value of kstrtou32 correctly
-Date:   Mon, 18 Jan 2021 12:35:21 +0100
-Message-Id: <20210118113359.719747748@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Yi <yiche@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 147/152] selftests: netfilter: Pass family parameter "-f" to conntrack tool
+Date:   Mon, 18 Jan 2021 12:35:22 +0100
+Message-Id: <20210118113359.768044253@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -39,47 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: j.nixdorf@avm.de <j.nixdorf@avm.de>
+From: Chen Yi <yiche@redhat.com>
 
-commit 86b53fbf08f48d353a86a06aef537e78e82ba721 upstream.
+commit fab336b42441e0b2eb1d81becedb45fbdf99606e upstream.
 
-A return value of 0 means success. This is documented in lib/kstrtox.c.
+Fix nft_conntrack_helper.sh false fail report:
 
-This was found by trying to mount an NFS share from a link-local IPv6
-address with the interface specified by its index:
+1) Conntrack tool need "-f ipv6" parameter to show out ipv6 traffic items.
 
-  mount("[fe80::1%1]:/srv/nfs", "/mnt", "nfs", 0, "nolock,addr=fe80::1%1")
+2) Sleep 1 second after background nc send packet, to make sure check
+is after this statement executed.
 
-Before this commit this failed with EINVAL and also caused the following
-message in dmesg:
+False report:
+FAIL: ns1-lkjUemYw did not show attached helper ip set via ruleset
+PASS: ns1-lkjUemYw connection on port 2121 has ftp helper attached
+...
 
-  [...] NFS: bad IP address specified: addr=fe80::1%1
+After fix:
+PASS: ns1-2hUniwU2 connection on port 2121 has ftp helper attached
+PASS: ns2-2hUniwU2 connection on port 2121 has ftp helper attached
+...
 
-The syscall using the same address based on the interface name instead
-of its index succeeds.
-
-Credits for this patch go to my colleague Christian Speich, who traced
-the origin of this bug to this line of code.
-
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
-Fixes: 00cfaa943ec3 ("replace strict_strto calls")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 619ae8e0697a6 ("selftests: netfilter: add test case for conntrack helper assignment")
+Signed-off-by: Chen Yi <yiche@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/addr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/nft_conntrack_helper.sh |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/net/sunrpc/addr.c
-+++ b/net/sunrpc/addr.c
-@@ -185,7 +185,7 @@ static int rpc_parse_scope_id(struct net
- 			scope_id = dev->ifindex;
- 			dev_put(dev);
- 		} else {
--			if (kstrtou32(p, 10, &scope_id) == 0) {
-+			if (kstrtou32(p, 10, &scope_id) != 0) {
- 				kfree(p);
- 				return 0;
- 			}
+--- a/tools/testing/selftests/netfilter/nft_conntrack_helper.sh
++++ b/tools/testing/selftests/netfilter/nft_conntrack_helper.sh
+@@ -94,7 +94,13 @@ check_for_helper()
+ 	local message=$2
+ 	local port=$3
+ 
+-	ip netns exec ${netns} conntrack -L -p tcp --dport $port 2> /dev/null |grep -q 'helper=ftp'
++	if echo $message |grep -q 'ipv6';then
++		local family="ipv6"
++	else
++		local family="ipv4"
++	fi
++
++	ip netns exec ${netns} conntrack -L -f $family -p tcp --dport $port 2> /dev/null |grep -q 'helper=ftp'
+ 	if [ $? -ne 0 ] ; then
+ 		echo "FAIL: ${netns} did not show attached helper $message" 1>&2
+ 		ret=1
+@@ -111,8 +117,8 @@ test_helper()
+ 
+ 	sleep 3 | ip netns exec ${ns2} nc -w 2 -l -p $port > /dev/null &
+ 
+-	sleep 1
+ 	sleep 1 | ip netns exec ${ns1} nc -w 2 10.0.1.2 $port > /dev/null &
++	sleep 1
+ 
+ 	check_for_helper "$ns1" "ip $msg" $port
+ 	check_for_helper "$ns2" "ip $msg" $port
+@@ -128,8 +134,8 @@ test_helper()
+ 
+ 	sleep 3 | ip netns exec ${ns2} nc -w 2 -6 -l -p $port > /dev/null &
+ 
+-	sleep 1
+ 	sleep 1 | ip netns exec ${ns1} nc -w 2 -6 dead:1::2 $port > /dev/null &
++	sleep 1
+ 
+ 	check_for_helper "$ns1" "ipv6 $msg" $port
+ 	check_for_helper "$ns2" "ipv6 $msg" $port
 
 
