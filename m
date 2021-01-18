@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 701C22FA31E
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6344A2FA306
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726676AbhAROb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:31:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
+        id S1730245AbhARO3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:29:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390715AbhARLoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:44:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A85E822D5B;
-        Mon, 18 Jan 2021 11:43:39 +0000 (UTC)
+        id S2390139AbhARLos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:44:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6050622D6D;
+        Mon, 18 Jan 2021 11:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970220;
-        bh=EjGNnS50natGBkIa2TTFogr5F7Cron9uqr8pY0Zl1LQ=;
+        s=korg; t=1610970224;
+        bh=HV2frnwtu6B74HzSNuvEVkClN8N/xniPy+m3wZZ1cuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHUFD1XRZ3FxfYrkdMlnPvGtWfv9FcpCgxu8aa0bTGcKPGZLVMh6514GGIDu8KUPF
-         gvEebyAEmwqOyyHndMpG87H6xiphVxfOksj0jPrKGMNI0k7hOjTVzsifnSaxlcqO8W
-         GA9uF5sWEH/6mba/30NUOU8EoJjops7rZkHpF7sY=
+        b=kCUEMhm6RlvodN1Ql94QjtLrYsQgt0iubAaRr7TT0S90bZjL2DWk6cI/9WrkWfq6g
+         gTe/jYI1tFhS0MsCWkW5fZBm7w3E5rPL3jOmvavNjLsZe+JhJ1qtCY7j5+3AkiooIy
+         7ppEx/ct5lhxLHZQcvqobax1RRAaF0wZLBe6XCkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/152] nvmet-rdma: Fix list_del corruption on queue establishment failure
-Date:   Mon, 18 Jan 2021 12:34:22 +0100
-Message-Id: <20210118113356.931095223@linuxfoundation.org>
+        stable@vger.kernel.org, Dennis Li <Dennis.Li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 089/152] drm/amdgpu: fix a GPU hang issue when remove device
+Date:   Mon, 18 Jan 2021 12:34:24 +0100
+Message-Id: <20210118113357.021053981@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,50 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@nvidia.com>
+From: Dennis Li <Dennis.Li@amd.com>
 
-[ Upstream commit 9ceb7863537748c67fa43ac4f2f565819bbd36e4 ]
+[ Upstream commit 88e21af1b3f887d217f2fb14fc7e7d3cd87ebf57 ]
 
-When a queue is in NVMET_RDMA_Q_CONNECTING state, it may has some
-requests at rsp_wait_list. In case a disconnect occurs at this
-state, no one will empty this list and will return the requests to
-free_rsps list. Normally nvmet_rdma_queue_established() free those
-requests after moving the queue to NVMET_RDMA_Q_LIVE state, but in
-this case __nvmet_rdma_queue_disconnect() is called before. The
-crash happens at nvmet_rdma_free_rsps() when calling
-list_del(&rsp->free_list), because the request exists only at
-the wait list. To fix the issue, simply clear rsp_wait_list when
-destroying the queue.
+When GFXOFF is enabled and GPU is idle, driver will fail to access some
+registers. Therefore change to disable power gating before all access
+registers with MMIO.
 
-Signed-off-by: Israel Rukshin <israelr@nvidia.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Dmesg log is as following:
+amdgpu 0000:03:00.0: amdgpu: amdgpu: finishing device.
+amdgpu: cp queue pipe 4 queue 0 preemption failed
+amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
+amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
+amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
+amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
+
+Signed-off-by: Dennis Li <Dennis.Li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/rdma.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/rdma.c b/drivers/nvme/target/rdma.c
-index 5c1e7cb7fe0de..bdfc22eb2a10f 100644
---- a/drivers/nvme/target/rdma.c
-+++ b/drivers/nvme/target/rdma.c
-@@ -1641,6 +1641,16 @@ static void __nvmet_rdma_queue_disconnect(struct nvmet_rdma_queue *queue)
- 	spin_lock_irqsave(&queue->state_lock, flags);
- 	switch (queue->state) {
- 	case NVMET_RDMA_Q_CONNECTING:
-+		while (!list_empty(&queue->rsp_wait_list)) {
-+			struct nvmet_rdma_rsp *rsp;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 523fbef67591c..2ddbcfe0a72ff 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2524,11 +2524,11 @@ static int amdgpu_device_ip_fini(struct amdgpu_device *adev)
+ 	if (adev->gmc.xgmi.num_physical_nodes > 1)
+ 		amdgpu_xgmi_remove_device(adev);
+ 
+-	amdgpu_amdkfd_device_fini(adev);
+-
+ 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
+ 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+ 
++	amdgpu_amdkfd_device_fini(adev);
 +
-+			rsp = list_first_entry(&queue->rsp_wait_list,
-+					       struct nvmet_rdma_rsp,
-+					       wait_list);
-+			list_del(&rsp->wait_list);
-+			nvmet_rdma_put_rsp(rsp);
-+		}
-+		fallthrough;
- 	case NVMET_RDMA_Q_LIVE:
- 		queue->state = NVMET_RDMA_Q_DISCONNECTING;
- 		disconnect = true;
+ 	/* need to disable SMC first */
+ 	for (i = 0; i < adev->num_ip_blocks; i++) {
+ 		if (!adev->ip_blocks[i].status.hw)
 -- 
 2.27.0
 
