@@ -2,248 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBCC2FA49F
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 363952FA50B
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:46:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405727AbhARP0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:26:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
+        id S2405962AbhARPcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:32:50 -0500
+Received: from ns.mm-sol.com ([37.157.136.199]:51156 "EHLO extserv.mm-sol.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405780AbhARP0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 10:26:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C4C822C9C;
-        Mon, 18 Jan 2021 15:25:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610983521;
-        bh=50nBWiT4l7vj47uY/7HVbr0M8BWp1KRvBIz012vm+e4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Sbd+PDVV56Y34Sv4kpqqAxM1dlxfbEtHxxbfaXCaHqOqx4PzaAmVcjSauD8hFG27R
-         6wCCIuVB7E8HgogsQYssPUf8m30T1FRX7+Nx1ZQDYr7w+9VpkMMRq72hFPauBQcQr0
-         Tn1zL0WPmy4xYQziVqCjDRGKFuuXcmV/znxd39SI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/42] 4.19.169-rc2 review
-Date:   Mon, 18 Jan 2021 16:25:18 +0100
-Message-Id: <20210118152502.441191888@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
+        id S2405872AbhARPck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 10:32:40 -0500
+X-Greylist: delayed 577 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Jan 2021 10:32:21 EST
+Received: from [192.168.0.3] (hst-221-43.medicom.bg [84.238.221.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: svarbanov@mm-sol.com)
+        by extserv.mm-sol.com (Postfix) with ESMTPSA id 38932D0D4;
+        Mon, 18 Jan 2021 17:21:52 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mm-sol.com; s=201706;
+        t=1610983312; bh=i1NrteZMyUtusFI3Xa7Z0Tm0f2R0KAmp9SC0wkfqI+k=;
+        h=Subject:To:Cc:From:Date:From;
+        b=e0gXbSZYkyGUQv2NjAFBHk/sC8+vcq0dubLoTlMl1/MY/c4uq7IT08BAiiFwRCmHA
+         FCuo3+zJGq3LLhzKGDMpoZKph60fkKEKhq2PebGVQ09p6CKjFq+bUDdAbXPqUpEamR
+         IKOa+K/7/CJjkyXL0UlkCjz6YTh++8N3syKNVt1ED7ax85sg2y8wnDdGCnNjAw8ZXP
+         KzDZkjonjclgAjt2v3n4T8AH9K/69yOV5C1+1rgtvGunQv4bVuTX0n1xRGXaYTLn7c
+         AczEMs1EfG8UC6Xv9mtWEg2K/j0EIe+CzQn0vpHSGcBmYTmZKyCKiROJoYLYLAZqiw
+         zkJu3JLyJ9ysA==
+Subject: Re: [RESEND PATCH] PCI: qcom: use PHY_REFCLK_USE_PAD only for ipq8064
+To:     Ansuel Smith <ansuelsmth@gmail.com>, lorenzo.pieralisi@arm.com
+Cc:     Ilia Mirkin <imirkin@alum.mit.edu>, stable@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sham Muthayyan <smuthayy@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20201019165555.8269-1-ansuelsmth@gmail.com>
+From:   Stanimir Varbanov <svarbanov@mm-sol.com>
+Message-ID: <b01f8aba-69cf-0809-0909-0d7adc9af4c0@mm-sol.com>
+Date:   Mon, 18 Jan 2021 17:21:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.169-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.169-rc2
-X-KernelTest-Deadline: 2021-01-20T15:25+00:00
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201019165555.8269-1-ansuelsmth@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.169 release.
-There are 42 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
 
-Responses should be made by Wed, 20 Jan 2021 15:24:51 +0000.
-Anything received after that time might be too late.
+Thanks for the patch!
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.169-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+On 10/19/20 7:55 PM, Ansuel Smith wrote:
+> The use of PHY_REFCLK_USE_PAD introduced a regression for apq8064
+> devices. It was tested that while apq doesn't require the padding, ipq
+> SoC must use it or the kernel hangs on boot.
+> 
+> Fixes: de3c4bf6489 ("PCI: qcom: Add support for tx term offset for rev 2.1.0")
+> Reported-by: Ilia Mirkin <imirkin@alum.mit.edu>
+> Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+> Cc: stable@vger.kernel.org # v4.19+
 
-thanks,
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
 
-greg k-h
+> ---
+>  drivers/pci/controller/dwc/pcie-qcom.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> index 3aac77a295ba..dad6e9ce66ba 100644
+> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> @@ -387,7 +387,9 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+>  
+>  	/* enable external reference clock */
+>  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
+> -	val &= ~PHY_REFCLK_USE_PAD;
+> +	/* USE_PAD is required only for ipq806x */
+> +	if (!of_device_is_compatible(node, "qcom,pcie-apq8064"))
+> +		val &= ~PHY_REFCLK_USE_PAD;
+>  	val |= PHY_REFCLK_SSP_EN;
+>  	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
+>  
+> 
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.169-rc2
-
-Olaf Hering <olaf@aepfle.de>
-    kbuild: enforce -Werror=return-type
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    netfilter: nf_nat: Fix memleak in nf_nat_init
-
-Jesper Dangaard Brouer <brouer@redhat.com>
-    netfilter: conntrack: fix reading nf_conntrack_buckets
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    ALSA: fireface: Fix integer overflow in transmit_midi_msg()
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    ALSA: firewire-tascam: Fix integer overflow in midi_port_work()
-
-Mike Snitzer <snitzer@redhat.com>
-    dm: eliminate potential source of excessive kernel log noise
-
-j.nixdorf@avm.de <j.nixdorf@avm.de>
-    net: sunrpc: interpret the return value of kstrtou32 correctly
-
-Jann Horn <jannh@google.com>
-    mm, slub: consider rest of partial list if acquire_slab() fails
-
-Mark Bloch <mbloch@nvidia.com>
-    RDMA/mlx5: Fix wrong free of blue flame register on error
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
-
-Jan Kara <jack@suse.cz>
-    ext4: fix superblock checksum failure when setting password salt
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS: nfs_igrab_and_active must first reference the superblock
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS/pNFS: Fix a leak of the layout 'plh_outstanding' counter
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    pNFS: Mark layout for return if return-on-close was not sent
-
-Dave Wysochanski <dwysocha@redhat.com>
-    NFS4: Fix use-after-free in trace_event_raw_event_nfs4_set_lock
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    ASoC: Intel: fix error code cnl_set_dsp_D0()
-
-Jerome Brunet <jbrunet@baylibre.com>
-    ASoC: meson: axg-tdm-interface: fix loopback
-
-Al Viro <viro@zeniv.linux.org.uk>
-    dump_common_audit_data(): fix racy accesses to ->d_name
-
-Roberto Sassu <roberto.sassu@huawei.com>
-    ima: Remove __init annotation from ima_pcrread()
-
-Arnd Bergmann <arnd@arndb.de>
-    ARM: picoxcell: fix missing interrupt-parent properties
-
-Craig Tatlor <ctatlor97@gmail.com>
-    drm/msm: Call msm_init_vram before binding the gpu
-
-Shawn Guo <shawn.guo@linaro.org>
-    ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
-
-Michael Ellerman <mpe@ellerman.id.au>
-    net: ethernet: fs_enet: Add missing MODULE_LICENSE
-
-Arnd Bergmann <arnd@arndb.de>
-    misdn: dsp: select CONFIG_BITREVERSE
-
-Randy Dunlap <rdunlap@infradead.org>
-    arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
-
-Jan Kara <jack@suse.cz>
-    bfq: Fix computation of shallow depth
-
-Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-    ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix transaction leak and crash after RO remount caused by qgroup rescan
-
-Masahiro Yamada <masahiroy@kernel.org>
-    ARC: build: add boot_targets to PHONY
-
-Masahiro Yamada <masahiroy@kernel.org>
-    ARC: build: add uImage.lzma to the top-level target
-
-Masahiro Yamada <masahiroy@kernel.org>
-    ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
-
-yangerkun <yangerkun@huawei.com>
-    ext4: fix bug for rename with RENAME_WHITEOUT
-
-Leon Schuermann <leon@is.currently.online>
-    r8152: Add Lenovo Powered USB-C Travel Hub
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix the maximum number of arguments
-
-Akilesh Kailash <akailash@google.com>
-    dm snapshot: flush merged data before committing metadata
-
-Miaohe Lin <linmiaohe@huawei.com>
-    mm/hugetlb: fix potential missing huge page size info
-
-Dexuan Cui <decui@microsoft.com>
-    ACPI: scan: Harden acpi_device_add() against device ID overflows
-
-Alexander Lobakin <alobakin@pm.me>
-    MIPS: relocatable: fix possible boot hangup with KASLR enabled
-
-Paul Cercueil <paul@crapouillou.net>
-    MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing/kprobes: Do the notrace functions check without kprobes on ftrace
-
-Wei Liu <wei.liu@kernel.org>
-    x86/hyperv: check cpu mask after interrupt has been disabled
-
-Thomas Hebb <tommyhebb@gmail.com>
-    ASoC: dapm: remove widget from dirty list on free
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  6 +++---
- arch/arc/Makefile                                  |  9 ++------
- arch/arc/include/asm/page.h                        |  1 +
- arch/arm/boot/dts/picoxcell-pc3x2.dtsi             |  4 ++++
- arch/mips/boot/compressed/decompress.c             |  3 ++-
- arch/mips/kernel/relocate.c                        | 10 +++++++--
- arch/x86/hyperv/mmu.c                              | 12 ++++++++---
- block/bfq-iosched.c                                |  8 ++++----
- drivers/acpi/internal.h                            |  2 +-
- drivers/acpi/scan.c                                | 15 +++++++++++++-
- drivers/gpu/drm/msm/msm_drv.c                      |  8 ++++----
- drivers/infiniband/hw/mlx5/main.c                  |  2 +-
- drivers/infiniband/hw/usnic/usnic_ib_verbs.c       |  3 +++
- drivers/isdn/mISDN/Kconfig                         |  1 +
- drivers/md/dm-integrity.c                          |  2 +-
- drivers/md/dm-snap.c                               | 24 ++++++++++++++++++++++
- drivers/md/dm.c                                    |  2 +-
- .../net/ethernet/freescale/fs_enet/mii-bitbang.c   |  1 +
- drivers/net/ethernet/freescale/fs_enet/mii-fec.c   |  1 +
- drivers/net/ethernet/freescale/ucc_geth.h          |  9 +++++++-
- drivers/net/usb/cdc_ether.c                        |  7 +++++++
- drivers/net/usb/r8152.c                            |  1 +
- fs/btrfs/qgroup.c                                  | 13 +++++++++---
- fs/btrfs/super.c                                   |  8 ++++++++
- fs/ext4/ioctl.c                                    |  3 +++
- fs/ext4/namei.c                                    | 16 ++++++++-------
- fs/nfs/internal.h                                  | 12 ++++++-----
- fs/nfs/nfs4proc.c                                  |  2 +-
- fs/nfs/pnfs.c                                      |  7 +++++++
- include/linux/acpi.h                               |  7 +++++++
- kernel/trace/Kconfig                               |  2 +-
- kernel/trace/trace_kprobe.c                        |  2 +-
- mm/hugetlb.c                                       |  2 +-
- mm/slub.c                                          |  2 +-
- net/netfilter/nf_conntrack_standalone.c            |  3 +++
- net/netfilter/nf_nat_core.c                        |  1 +
- net/sunrpc/addr.c                                  |  2 +-
- security/integrity/ima/ima_crypto.c                |  2 +-
- security/lsm_audit.c                               |  7 +++++--
- sound/firewire/fireface/ff-transaction.c           |  2 +-
- sound/firewire/tascam/tascam-transaction.c         |  2 +-
- sound/soc/intel/skylake/cnl-sst.c                  |  1 +
- sound/soc/meson/axg-tdm-interface.c                | 14 ++++++++++++-
- sound/soc/soc-dapm.c                               |  1 +
- 44 files changed, 185 insertions(+), 57 deletions(-)
-
-
+-- 
+regards,
+Stan
