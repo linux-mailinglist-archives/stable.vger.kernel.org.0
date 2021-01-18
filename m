@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3D82F9F87
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 974392F9F86
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391439AbhARM06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:26:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
+        id S2391404AbhARM0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 07:26:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390847AbhARLpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390846AbhARLpv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:45:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5235422D6F;
-        Mon, 18 Jan 2021 11:45:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF88C22D70;
+        Mon, 18 Jan 2021 11:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970316;
-        bh=8CMz/bME5YdXX6mQsDZ4Gcjcpskr5q6ee6RmYiymFR8=;
+        s=korg; t=1610970319;
+        bh=Zgk/19i1yMlq4oz+1uWUniWM+GHBsARsGPeYHZlzWAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oDDVjRQ+1rWA89VsCsdSzFeu0nXjJwL4bwHgp1x4l9rAZVY4oPCND1IzbvSElrJG
-         CRw+FpiYgnTx5SYJcLAD19b3+KulX+Rh0RbX0XO2YuiMNs77/iAIh0i8XoMzdkbcU7
-         ZknN7XNRzgSwrXtW/HbywFKlYlnzlWCVlG+SePHE=
+        b=UArGULIYhKd3EtDFlPVWoFQghGR2diheLiXWDZlv7ejIn509A1JregSx35C96NNqy
+         1Knyzmlu82KTMORR/dLupAjr4fGkz/IMg+HDH/ZRUqxv/l7ztCe8t4VGjUSvrhSu+6
+         XJx2ZWktZqZWRjgZ5lpPJuJERYap0HnKDCxJcMVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 128/152] NFS/pNFS: Fix a leak of the layout plh_outstanding counter
-Date:   Mon, 18 Jan 2021 12:35:03 +0100
-Message-Id: <20210118113358.859203240@linuxfoundation.org>
+Subject: [PATCH 5.10 129/152] NFS: nfs_delegation_find_inode_server must first reference the superblock
+Date:   Mon, 18 Jan 2021 12:35:04 +0100
+Message-Id: <20210118113358.906826201@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -41,28 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit cb2856c5971723910a86b7d1d0cf623d6919cbc4 upstream.
+commit 113aac6d567bda783af36d08f73bfda47d8e9a40 upstream.
 
-If we exit _lgopen_prepare_attached() without setting a layout, we will
-currently leak the plh_outstanding counter.
+Before referencing the inode, we must ensure that the superblock can be
+referenced. Otherwise, we can end up with iput() calling superblock
+operations that are no longer valid or accessible.
 
-Fixes: 411ae722d10a ("pNFS: Wait for stale layoutget calls to complete in pnfs_update_layout()")
+Fixes: e39d8a186ed0 ("NFSv4: Fix an Oops during delegation callbacks")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/delegation.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -2245,6 +2245,7 @@ static void _lgopen_prepare_attached(str
- 					     &rng, GFP_KERNEL);
- 	if (!lgp) {
- 		pnfs_clear_first_layoutget(lo);
-+		nfs_layoutget_end(lo);
- 		pnfs_put_layout_hdr(lo);
- 		return;
- 	}
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -1011,22 +1011,24 @@ nfs_delegation_find_inode_server(struct
+ 				 const struct nfs_fh *fhandle)
+ {
+ 	struct nfs_delegation *delegation;
+-	struct inode *freeme, *res = NULL;
++	struct super_block *freeme = NULL;
++	struct inode *res = NULL;
+ 
+ 	list_for_each_entry_rcu(delegation, &server->delegations, super_list) {
+ 		spin_lock(&delegation->lock);
+ 		if (delegation->inode != NULL &&
+ 		    !test_bit(NFS_DELEGATION_REVOKED, &delegation->flags) &&
+ 		    nfs_compare_fh(fhandle, &NFS_I(delegation->inode)->fh) == 0) {
+-			freeme = igrab(delegation->inode);
+-			if (freeme && nfs_sb_active(freeme->i_sb))
+-				res = freeme;
++			if (nfs_sb_active(server->super)) {
++				freeme = server->super;
++				res = igrab(delegation->inode);
++			}
+ 			spin_unlock(&delegation->lock);
+ 			if (res != NULL)
+ 				return res;
+ 			if (freeme) {
+ 				rcu_read_unlock();
+-				iput(freeme);
++				nfs_sb_deactive(freeme);
+ 				rcu_read_lock();
+ 			}
+ 			return ERR_PTR(-EAGAIN);
 
 
