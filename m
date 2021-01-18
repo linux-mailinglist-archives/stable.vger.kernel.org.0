@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190882F9E58
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C35AF2F9E69
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387722AbhARLhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33414 "EHLO mail.kernel.org"
+        id S2390515AbhARLjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:39:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390149AbhARLh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:37:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C3E22571;
-        Mon, 18 Jan 2021 11:36:16 +0000 (UTC)
+        id S2390274AbhARLiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:38:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 567E4223DB;
+        Mon, 18 Jan 2021 11:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969777;
-        bh=0thjbtQYsA7aykU+mLkTYnE/zohDwhWqFMB8iiAU/co=;
+        s=korg; t=1610969905;
+        bh=hFIOfH+hro2qgV4reHOMhXX2n/F4QodE6AHLGwF4bdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsv8psmXoYavfJfxTHlxJSLMQRWWrcgUcrWGEUuePsyZuvwAzcHXtpZ3ilJ9W/v3h
-         knHjbNefB2SymhhsO/OfHJs05iADewdlqSVY6TYaJ6CUI2qRG+lvbtuvaNLaLHKZTL
-         owMV/U1zNJitiSH/U9dH+aZjqwSJezVQlgIYTWY8=
+        b=gV4611CXOG7NRX2Y7HAcY7UTKv5qMSyRpYm8mYHikfvp/SxigpGxQZnEBzMbXdvSY
+         2TDe3lwPzJ/vURY31CDyg614+JHxcMLazDIENBtn204RoKW2EA0In/vpw3XrVz19XA
+         UcxMEl/zRcPE8eDfBEQlqmdW+NqFMW+vNMQCc478=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akilesh Kailash <akailash@google.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 09/43] dm snapshot: flush merged data before committing metadata
+        stable@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 32/76] ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
 Date:   Mon, 18 Jan 2021 12:34:32 +0100
-Message-Id: <20210118113335.395586843@linuxfoundation.org>
+Message-Id: <20210118113342.522108353@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
-References: <20210118113334.966227881@linuxfoundation.org>
+In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
+References: <20210118113340.984217512@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akilesh Kailash <akailash@google.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-commit fcc42338375a1e67b8568dbb558f8b784d0f3b01 upstream.
+[ Upstream commit 887078de2a23689e29d6fa1b75d7cbc544c280be ]
 
-If the origin device has a volatile write-back cache and the following
-events occur:
+Table 8-53 in the QUICC Engine Reference manual shows definitions of
+fields up to a size of 192 bytes, not just 128. But in table 8-111,
+one does find the text
 
-1: After finishing merge operation of one set of exceptions,
-   merge_callback() is invoked.
-2: Update the metadata in COW device tracking the merge completion.
-   This update to COW device is flushed cleanly.
-3: System crashes and the origin device's cache where the recent
-   merge was completed has not been flushed.
+  Base Address of the Global Transmitter Parameter RAM Page. [...]
+  The user needs to allocate 128 bytes for this page. The address must
+  be aligned to the page size.
 
-During the next cycle when we read the metadata from the COW device,
-we will skip reading those metadata whose merge was completed in
-step (1). This will lead to data loss/corruption.
+I've checked both rev. 7 (11/2015) and rev. 9 (05/2018) of the manual;
+they both have this inconsistency (and the table numbers are the
+same).
 
-To address this, flush the origin device post merge IO before
-updating the metadata.
+Adding a bit of debug printing, on my board the struct
+ucc_geth_tx_global_pram is allocated at offset 0x880, while
+the (opaque) ucc_geth_thread_data_tx gets allocated immediately
+afterwards, at 0x900. So whatever the engine writes into the thread
+data overlaps with the tail of the global tx pram (and devmem says
+that something does get written during a simple ping).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Akilesh Kailash <akailash@google.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I haven't observed any failure that could be attributed to this, but
+it seems to be the kind of thing that would be extremely hard to
+debug. So extend the struct definition so that we do allocate 192
+bytes.
 
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-snap.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/net/ethernet/freescale/ucc_geth.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -137,6 +137,11 @@ struct dm_snapshot {
- 	 * for them to be committed.
- 	 */
- 	struct bio_list bios_queued_during_merge;
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.h b/drivers/net/ethernet/freescale/ucc_geth.h
+index a86a42131fc71..b00fbef612cfe 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.h
++++ b/drivers/net/ethernet/freescale/ucc_geth.h
+@@ -576,7 +576,14 @@ struct ucc_geth_tx_global_pram {
+ 	u32 vtagtable[0x8];	/* 8 4-byte VLAN tags */
+ 	u32 tqptr;		/* a base pointer to the Tx Queues Memory
+ 				   Region */
+-	u8 res2[0x80 - 0x74];
++	u8 res2[0x78 - 0x74];
++	u64 snums_en;
++	u32 l2l3baseptr;	/* top byte consists of a few other bit fields */
 +
-+	/*
-+	 * Flush data after merge.
-+	 */
-+	struct bio flush_bio;
- };
++	u16 mtu[8];
++	u8 res3[0xa8 - 0x94];
++	u32 wrrtablebase;	/* top byte is reserved */
++	u8 res4[0xc0 - 0xac];
+ } __packed;
  
- /*
-@@ -1061,6 +1066,17 @@ shut:
- 
- static void error_bios(struct bio *bio);
- 
-+static int flush_data(struct dm_snapshot *s)
-+{
-+	struct bio *flush_bio = &s->flush_bio;
-+
-+	bio_reset(flush_bio);
-+	bio_set_dev(flush_bio, s->origin->bdev);
-+	flush_bio->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
-+
-+	return submit_bio_wait(flush_bio);
-+}
-+
- static void merge_callback(int read_err, unsigned long write_err, void *context)
- {
- 	struct dm_snapshot *s = context;
-@@ -1074,6 +1090,11 @@ static void merge_callback(int read_err,
- 		goto shut;
- 	}
- 
-+	if (flush_data(s) < 0) {
-+		DMERR("Flush after merge failed: shutting down merge");
-+		goto shut;
-+	}
-+
- 	if (s->store->type->commit_merge(s->store,
- 					 s->num_merging_chunks) < 0) {
- 		DMERR("Write error in exception store: shutting down merge");
-@@ -1198,6 +1219,7 @@ static int snapshot_ctr(struct dm_target
- 	s->first_merging_chunk = 0;
- 	s->num_merging_chunks = 0;
- 	bio_list_init(&s->bios_queued_during_merge);
-+	bio_init(&s->flush_bio, NULL, 0);
- 
- 	/* Allocate hash table for COW data */
- 	if (init_hash_tables(s)) {
-@@ -1391,6 +1413,8 @@ static void snapshot_dtr(struct dm_targe
- 
- 	mutex_destroy(&s->lock);
- 
-+	bio_uninit(&s->flush_bio);
-+
- 	dm_put_device(ti, s->cow);
- 
- 	dm_put_device(ti, s->origin);
+ /* structure representing Extended Filtering Global Parameters in PRAM */
+-- 
+2.27.0
+
 
 
