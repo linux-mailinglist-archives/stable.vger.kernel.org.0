@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2060F2F9F85
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C006B2F9F96
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391040AbhARM0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:26:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39146 "EHLO mail.kernel.org"
+        id S2391529AbhARM1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 07:27:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390740AbhARLps (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390742AbhARLps (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:45:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17A722D49;
-        Mon, 18 Jan 2021 11:45:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39AC222D5B;
+        Mon, 18 Jan 2021 11:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970307;
-        bh=1ERfOFqGT1dpnN5Kw49ETGYF8Fv7bFF4ub2QM9ntee8=;
+        s=korg; t=1610970309;
+        bh=/MUsu1DWYlQO9bYa2zWmidsizrbsz7Epreia6rBVOqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj8ppGb3rHCvdU2cOdbntE/7oQfwgyeAGQ2T8/aCNpofdun7KVeRkPbc+lXAN103E
-         +lkd09RNuHI/yJQxSx0iHVCQv2NOLrTbkXDifRF3Cap76VddD3dgeLQT0ekmrWr2+U
-         mk5Zuqdw1RpOMBv8WCO31IJPcans9dKZ7eYUyic8=
+        b=jG90e7iwETQT03m24EmpLq32VEeZSe8Semow59/7mQcTxIv7ADv5ErsA+THWJoArN
+         LYcpTxij9XdTrvMnThkgxg2FKFEmEIAqzQcyG8V1b0qw95osOa97aa1QqiHB2Tl28S
+         4pSGtn/P/ivW8zQ1OMu2cUSGU7MAWBrMjDI8PHxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 124/152] pNFS: Stricter ordering of layoutget and layoutreturn
-Date:   Mon, 18 Jan 2021 12:34:59 +0100
-Message-Id: <20210118113358.668200331@linuxfoundation.org>
+Subject: [PATCH 5.10 125/152] NFS: Adjust fs_context error logging
+Date:   Mon, 18 Jan 2021 12:35:00 +0100
+Message-Id: <20210118113358.717569317@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -39,79 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Scott Mayhew <smayhew@redhat.com>
 
-commit 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 upstream.
+commit c98e9daa59a611ff4e163689815f40380c912415 upstream.
 
-If a layout return is in progress, we should wait for it to complete,
-in case the layout segment we are picking up gets returned too.
+Several existing dprink()/dfprintk() calls were converted to use the new
+mount API logging macros by commit ce8866f0913f ("NFS: Attach
+supplementary error information to fs_context").  If the fs_context was
+not created using fsopen() then it will not have had a log buffer
+allocated for it, and the new mount API logging macros will wind up
+calling printk().
 
-Fixes: 30cb3ee299cb ("pNFS: Handle NFS4ERR_OLD_STATEID on layoutreturn by bumping the state seqid")
+This can result in syslog messages being logged where previously there
+were none... most notably "NFS4: Couldn't follow remote path", which can
+happen if the client is auto-negotiating a protocol version with an NFS
+server that doesn't support the higher v4.x versions.
+
+Convert the nfs_errorf(), nfs_invalf(), and nfs_warnf() macros to check
+for the existence of the fs_context's log buffer and call dprintk() if
+it doesn't exist.  Add nfs_ferrorf(), nfs_finvalf(), and nfs_warnf(),
+which do the same thing but take an NFS debug flag as an argument and
+call dfprintk().  Finally, modify the "NFS4: Couldn't follow remote
+path" message to use nfs_ferrorf().
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207385
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Fixes: ce8866f0913f ("NFS: Attach supplementary error information to fs_context.")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |   43 +++++++++++++++++++++----------------------
- 1 file changed, 21 insertions(+), 22 deletions(-)
+ fs/nfs/internal.h  |   26 +++++++++++++++++++++++---
+ fs/nfs/nfs4super.c |    4 ++--
+ 2 files changed, 25 insertions(+), 5 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -2019,6 +2019,27 @@ lookup_again:
- 		goto lookup_again;
- 	}
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -142,9 +142,29 @@ struct nfs_fs_context {
+ 	} clone_data;
+ };
  
-+	/*
-+	 * Because we free lsegs when sending LAYOUTRETURN, we need to wait
-+	 * for LAYOUTRETURN.
-+	 */
-+	if (test_bit(NFS_LAYOUT_RETURN, &lo->plh_flags)) {
-+		spin_unlock(&ino->i_lock);
-+		dprintk("%s wait for layoutreturn\n", __func__);
-+		lseg = ERR_PTR(pnfs_prepare_to_retry_layoutget(lo));
-+		if (!IS_ERR(lseg)) {
-+			pnfs_put_layout_hdr(lo);
-+			dprintk("%s retrying\n", __func__);
-+			trace_pnfs_update_layout(ino, pos, count, iomode, lo,
-+						 lseg,
-+						 PNFS_UPDATE_LAYOUT_RETRY);
-+			goto lookup_again;
-+		}
-+		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
-+					 PNFS_UPDATE_LAYOUT_RETURN);
-+		goto out_put_layout_hdr;
-+	}
+-#define nfs_errorf(fc, fmt, ...) errorf(fc, fmt, ## __VA_ARGS__)
+-#define nfs_invalf(fc, fmt, ...) invalf(fc, fmt, ## __VA_ARGS__)
+-#define nfs_warnf(fc, fmt, ...) warnf(fc, fmt, ## __VA_ARGS__)
++#define nfs_errorf(fc, fmt, ...) ((fc)->log.log ?		\
++	errorf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dprintk(fmt "\n", ## __VA_ARGS__); }))
 +
- 	lseg = pnfs_find_lseg(lo, &arg, strict_iomode);
- 	if (lseg) {
- 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
-@@ -2071,28 +2092,6 @@ lookup_again:
- 		nfs4_stateid_copy(&stateid, &lo->plh_stateid);
- 	}
++#define nfs_ferrorf(fc, fac, fmt, ...) ((fc)->log.log ?		\
++	errorf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dfprintk(fac, fmt "\n", ## __VA_ARGS__); }))
++
++#define nfs_invalf(fc, fmt, ...) ((fc)->log.log ?		\
++	invalf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dprintk(fmt "\n", ## __VA_ARGS__);  -EINVAL; }))
++
++#define nfs_finvalf(fc, fac, fmt, ...) ((fc)->log.log ?		\
++	invalf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dfprintk(fac, fmt "\n", ## __VA_ARGS__);  -EINVAL; }))
++
++#define nfs_warnf(fc, fmt, ...) ((fc)->log.log ?		\
++	warnf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dprintk(fmt "\n", ## __VA_ARGS__); }))
++
++#define nfs_fwarnf(fc, fac, fmt, ...) ((fc)->log.log ?		\
++	warnf(fc, fmt, ## __VA_ARGS__) :			\
++	({ dfprintk(fac, fmt "\n", ## __VA_ARGS__); }))
  
--	/*
--	 * Because we free lsegs before sending LAYOUTRETURN, we need to wait
--	 * for LAYOUTRETURN even if first is true.
--	 */
--	if (test_bit(NFS_LAYOUT_RETURN, &lo->plh_flags)) {
--		spin_unlock(&ino->i_lock);
--		dprintk("%s wait for layoutreturn\n", __func__);
--		lseg = ERR_PTR(pnfs_prepare_to_retry_layoutget(lo));
--		if (!IS_ERR(lseg)) {
--			if (first)
--				pnfs_clear_first_layoutget(lo);
--			pnfs_put_layout_hdr(lo);
--			dprintk("%s retrying\n", __func__);
--			trace_pnfs_update_layout(ino, pos, count, iomode, lo,
--					lseg, PNFS_UPDATE_LAYOUT_RETRY);
--			goto lookup_again;
--		}
--		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
--				PNFS_UPDATE_LAYOUT_RETURN);
--		goto out_put_layout_hdr;
--	}
--
- 	if (pnfs_layoutgets_blocked(lo)) {
- 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
- 				PNFS_UPDATE_LAYOUT_BLOCKED);
+ static inline struct nfs_fs_context *nfs_fc2context(const struct fs_context *fc)
+ {
+--- a/fs/nfs/nfs4super.c
++++ b/fs/nfs/nfs4super.c
+@@ -227,7 +227,7 @@ int nfs4_try_get_tree(struct fs_context
+ 			   fc, ctx->nfs_server.hostname,
+ 			   ctx->nfs_server.export_path);
+ 	if (err) {
+-		nfs_errorf(fc, "NFS4: Couldn't follow remote path");
++		nfs_ferrorf(fc, MOUNT, "NFS4: Couldn't follow remote path");
+ 		dfprintk(MOUNT, "<-- nfs4_try_get_tree() = %d [error]\n", err);
+ 	} else {
+ 		dfprintk(MOUNT, "<-- nfs4_try_get_tree() = 0\n");
+@@ -250,7 +250,7 @@ int nfs4_get_referral_tree(struct fs_con
+ 			    fc, ctx->nfs_server.hostname,
+ 			    ctx->nfs_server.export_path);
+ 	if (err) {
+-		nfs_errorf(fc, "NFS4: Couldn't follow remote path");
++		nfs_ferrorf(fc, MOUNT, "NFS4: Couldn't follow remote path");
+ 		dfprintk(MOUNT, "<-- nfs4_get_referral_tree() = %d [error]\n", err);
+ 	} else {
+ 		dfprintk(MOUNT, "<-- nfs4_get_referral_tree() = 0\n");
 
 
