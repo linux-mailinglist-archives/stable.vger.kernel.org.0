@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3072FA401
+	by mail.lfdr.de (Postfix) with ESMTP id 7DAA82FA400
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405282AbhARPDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:03:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37702 "EHLO mail.kernel.org"
+        id S2405240AbhARPDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:03:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390799AbhARLmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390800AbhARLmy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:42:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 135FF22D70;
-        Mon, 18 Jan 2021 11:42:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 737C522D73;
+        Mon, 18 Jan 2021 11:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970141;
-        bh=MhgRcf7sqHECTaVMRMeimJpL+lflvD4YZfgi2ggkGZA=;
+        s=korg; t=1610970143;
+        bh=e1mZ12wrJyqgpsotztybEXA0mWJLgZqTKXAijW+v55c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5pVld6lFoowFFJ/lzSPFNnd2kSjtYIa4kwx7YcSXvqZi/JqoZYyrLwawnVRGU/DD
-         cBKeXDF575Hd3Qbbdq7wn2emuB1nSeklUbGJp5lHGXXuiJwIxp2ONQPOvrTAZFrf8Q
-         bcHkuXAmKPaB2ffkyHsoAnCrjNNeIIL90Cv7K1OI=
+        b=uaMLV+Z31QWyaGVkqGWvJfhu4dLakR57UFb+ojM8NjYSv/YStnokiqedOrZUNrbiS
+         1qJG6JxDGEpPGTAWamy2wo8EtlEuDIkiXnZ+7vcHspJnoGQnZwGi8dCgYLZApmZQwx
+         +ZCQkh4XqTkjkJZygtDv83AUAE02X1/H8zu1ycDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/152] io_uring: drop mm and files after task_work_run
-Date:   Mon, 18 Jan 2021 12:33:49 +0100
-Message-Id: <20210118113355.385620010@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 055/152] ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
+Date:   Mon, 18 Jan 2021 12:33:50 +0100
+Message-Id: <20210118113355.433860805@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -39,46 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit d434ab6db524ab1efd0afad4ffa1ee65ca6ac097 ]
+[ Upstream commit 9836720911cfec25d3fbdead1c438bf87e0f2841 ]
 
-__io_req_task_submit() run by task_work can set mm and files, but
-io_sq_thread() in some cases, and because __io_sq_thread_acquire_mm()
-and __io_sq_thread_acquire_files() do a simple current->mm/files check
-it may end up submitting IO with mm/files of another task.
+The deb-pkg builds for ARCH=arc fail.
 
-We also need to drop it after in the end to drop potentially grabbed
-references to them.
+  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
+  $ make -s ARCH=arc defconfig
+  $ make ARCH=arc bindeb-pkg
+  SORTTAB vmlinux
+  SYSMAP  System.map
+  MODPOST Module.symvers
+  make KERNELRELEASE=5.10.0-rc4 ARCH=arc KBUILD_BUILD_VERSION=2 -f ./Makefile intdeb-pkg
+  sh ./scripts/package/builddeb
+  cp: cannot stat 'arch/arc/boot/bootpImage': No such file or directory
+  make[4]: *** [scripts/Makefile.package:87: intdeb-pkg] Error 1
+  make[3]: *** [Makefile:1527: intdeb-pkg] Error 2
+  make[2]: *** [debian/rules:13: binary-arch] Error 2
+  dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
+  make[1]: *** [scripts/Makefile.package:83: bindeb-pkg] Error 2
+  make: *** [Makefile:1527: bindeb-pkg] Error 2
 
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The reason is obvious; arch/arc/Makefile sets $(boot)/bootpImage as
+the default image, but there is no rule to build it.
+
+Remove the meaningless KBUILD_IMAGE assignment so it will fallback
+to the default vmlinux. With this change, you can build the deb package.
+
+I removed the 'bootpImage' target as well. At best, it provides
+'make bootpImage' as an alias of 'make vmlinux', but I do not see
+much sense in doing so.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arc/Makefile | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6c356b9e87b39..cab640c10bc0f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6841,6 +6841,7 @@ static int io_sq_thread(void *data)
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index 0c6bf0d1df7ad..acf99420e161d 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -102,12 +102,6 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
  
- 		if (ret & SQT_SPIN) {
- 			io_run_task_work();
-+			io_sq_thread_drop_mm();
- 			cond_resched();
- 		} else if (ret == SQT_IDLE) {
- 			if (kthread_should_park())
-@@ -6855,6 +6856,7 @@ static int io_sq_thread(void *data)
- 	}
+ boot		:= arch/arc/boot
  
- 	io_run_task_work();
-+	io_sq_thread_drop_mm();
+-#default target for make without any arguments.
+-KBUILD_IMAGE	:= $(boot)/bootpImage
+-
+-all:	bootpImage
+-bootpImage: vmlinux
+-
+ boot_targets += uImage uImage.bin uImage.gz
  
- 	if (cur_css)
- 		io_sq_thread_unassociate_blkcg();
+ $(boot_targets): vmlinux
 -- 
 2.27.0
 
