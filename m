@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1612FA31B
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 930DC2FA30B
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389321AbhAROcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:32:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37938 "EHLO mail.kernel.org"
+        id S2390452AbhARObT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:31:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390806AbhARLm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:42:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A068221EC;
-        Mon, 18 Jan 2021 11:42:31 +0000 (UTC)
+        id S2390809AbhARLnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:43:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86A422245C;
+        Mon, 18 Jan 2021 11:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970151;
-        bh=woSES6KfNv28HGzlVcIEfla3NdPm1zWNe2Ynmnbv140=;
+        s=korg; t=1610970154;
+        bh=o//x4t3L4c7A2s0gm9YfzsSy/uW230ICsDlCevPIAu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rmZwz5o7/jifHLFoFHdRQ2VCzECGT6k0PjLN3hPXk6a2fCMN3UGpLA/sLFIr3PQ0
-         86nw9kkeENnjClNHEBwBzawhJm5csynfJmu8Dwcl3a/6BQKQy90ObP6DnBDcijqWwp
-         ZWnfmyyCy3qxiA4Ow53uAI0mfkHIV0hKJZwl4RXU=
+        b=C1ZpefW8xCZtD897Q+CuGpsPGxuOoRT4x8BhP9CaAxs7Pddgr/xHyjMibr9+BpL9H
+         yV+AoOgAxS+edzaAjpC/iI2G9F4vLPMDQxFzAav+zfCtKrer6AyYUjJd1WWY2bI35J
+         DbTcqB2oI5ZEIKdAny4NF4GBSxx08qXkXBm6taok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/152] ARC: build: move symlink creation to arch/arc/Makefile to avoid race
-Date:   Mon, 18 Jan 2021 12:33:53 +0100
-Message-Id: <20210118113355.575352360@linuxfoundation.org>
+Subject: [PATCH 5.10 059/152] ARM: omap2: pmic-cpcap: fix maximum voltage to be consistent with defaults on xt875
+Date:   Mon, 18 Jan 2021 12:33:54 +0100
+Message-Id: <20210118113355.622838192@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,138 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Carl Philipp Klemm <philipp@uvos.xyz>
 
-[ Upstream commit c5e6ae563c802c4d828d42e134af64004db2e58c ]
+[ Upstream commit c0bc969c176b10598b31d5d1a5edf9a5261f0a9f ]
 
-If you run 'make uImage uImage.gz' with the parallel option, uImage.gz
-will be created by two threads simultaneously.
+xt875 comes up with a iva voltage of 1375000 and android runs at this too. fix
+maximum voltage to be consistent with this.
 
-This is because arch/arc/Makefile does not specify the dependency
-between uImage and uImage.gz. Hence, GNU Make assumes they can be
-built in parallel. One thread descends into arch/arc/boot/ to create
-uImage, and another to create uImage.gz.
-
-Please notice the same log is displayed twice in the following steps:
-
-  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
-  $ make -s ARCH=arc defconfig
-  $ make -j$(nproc) ARCH=arc uImage uImage.gz
-  [ snip ]
-    LD      vmlinux
-    SORTTAB vmlinux
-    SYSMAP  System.map
-    OBJCOPY arch/arc/boot/vmlinux.bin
-    OBJCOPY arch/arc/boot/vmlinux.bin
-    GZIP    arch/arc/boot/vmlinux.bin.gz
-    GZIP    arch/arc/boot/vmlinux.bin.gz
-    UIMAGE  arch/arc/boot/uImage.gz
-    UIMAGE  arch/arc/boot/uImage.gz
-  Image Name:   Linux-5.10.0-rc4-00003-g62f23044
-  Created:      Sun Nov 22 02:52:26 2020
-  Image Type:   ARC Linux Kernel Image (gzip compressed)
-  Data Size:    2109376 Bytes = 2059.94 KiB = 2.01 MiB
-  Load Address: 80000000
-  Entry Point:  80004000
-    Image arch/arc/boot/uImage is ready
-  Image Name:   Linux-5.10.0-rc4-00003-g62f23044
-  Created:      Sun Nov 22 02:52:26 2020
-  Image Type:   ARC Linux Kernel Image (gzip compressed)
-  Data Size:    2815455 Bytes = 2749.47 KiB = 2.69 MiB
-  Load Address: 80000000
-  Entry Point:  80004000
-
-This is a race between the two threads trying to write to the same file
-arch/arc/boot/uImage.gz. This is a potential problem that can generate
-a broken file.
-
-I fixed a similar problem for ARM by commit 3939f3345050 ("ARM: 8418/1:
-add boot image dependencies to not generate invalid images").
-
-I highly recommend to avoid such build rules that cause a race condition.
-
-Move the uImage rule to arch/arc/Makefile.
-
-Another strangeness is that arch/arc/boot/Makefile compares the
-timestamps between $(obj)/uImage and $(obj)/uImage.*:
-
-  $(obj)/uImage: $(obj)/uImage.$(suffix-y)
-          @ln -sf $(notdir $<) $@
-          @echo '  Image $@ is ready'
-
-This does not work as expected since $(obj)/uImage is a symlink.
-The symlink should be created in a phony target rule.
-
-I used $(kecho) instead of echo to suppress the message
-'Image arch/arc/boot/uImage is ready' when the -s option is given.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/Makefile      | 13 ++++++++++++-
- arch/arc/boot/Makefile | 11 +----------
- 2 files changed, 13 insertions(+), 11 deletions(-)
+ arch/arm/mach-omap2/pmic-cpcap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-index cf9da9aea12ac..578bdbbb0fa7f 100644
---- a/arch/arc/Makefile
-+++ b/arch/arc/Makefile
-@@ -102,11 +102,22 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
- 
- boot		:= arch/arc/boot
- 
--boot_targets := uImage uImage.bin uImage.gz uImage.lzma
-+boot_targets := uImage.bin uImage.gz uImage.lzma
- 
- PHONY += $(boot_targets)
- $(boot_targets): vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
-+uimage-default-y			:= uImage.bin
-+uimage-default-$(CONFIG_KERNEL_GZIP)	:= uImage.gz
-+uimage-default-$(CONFIG_KERNEL_LZMA)	:= uImage.lzma
-+
-+PHONY += uImage
-+uImage: $(uimage-default-y)
-+	@ln -sf $< $(boot)/uImage
-+	@$(kecho) '  Image $(boot)/uImage is ready'
-+
-+CLEAN_FILES += $(boot)/uImage
-+
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
-diff --git a/arch/arc/boot/Makefile b/arch/arc/boot/Makefile
-index 538b92f4dd253..3b1f8a69a89ef 100644
---- a/arch/arc/boot/Makefile
-+++ b/arch/arc/boot/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--targets := vmlinux.bin vmlinux.bin.gz uImage
-+targets := vmlinux.bin vmlinux.bin.gz
- 
- # uImage build relies on mkimage being availble on your host for ARC target
- # You will need to build u-boot for ARC, rename mkimage to arc-elf32-mkimage
-@@ -13,11 +13,6 @@ LINUX_START_TEXT = $$(readelf -h vmlinux | \
- UIMAGE_LOADADDR    = $(CONFIG_LINUX_LINK_BASE)
- UIMAGE_ENTRYADDR   = $(LINUX_START_TEXT)
- 
--suffix-y := bin
--suffix-$(CONFIG_KERNEL_GZIP)	:= gz
--suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
--
--targets += uImage
- targets += uImage.bin
- targets += uImage.gz
- targets += uImage.lzma
-@@ -42,7 +37,3 @@ $(obj)/uImage.gz: $(obj)/vmlinux.bin.gz FORCE
- 
- $(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma FORCE
- 	$(call if_changed,uimage,lzma)
--
--$(obj)/uImage: $(obj)/uImage.$(suffix-y)
--	@ln -sf $(notdir $<) $@
--	@echo '  Image $@ is ready'
+diff --git a/arch/arm/mach-omap2/pmic-cpcap.c b/arch/arm/mach-omap2/pmic-cpcap.c
+index eab281a5fc9f7..09076ad0576d9 100644
+--- a/arch/arm/mach-omap2/pmic-cpcap.c
++++ b/arch/arm/mach-omap2/pmic-cpcap.c
+@@ -71,7 +71,7 @@ static struct omap_voltdm_pmic omap_cpcap_iva = {
+ 	.vp_vstepmin = OMAP4_VP_VSTEPMIN_VSTEPMIN,
+ 	.vp_vstepmax = OMAP4_VP_VSTEPMAX_VSTEPMAX,
+ 	.vddmin = 900000,
+-	.vddmax = 1350000,
++	.vddmax = 1375000,
+ 	.vp_timeout_us = OMAP4_VP_VLIMITTO_TIMEOUT_US,
+ 	.i2c_slave_addr = 0x44,
+ 	.volt_reg_addr = 0x0,
 -- 
 2.27.0
 
