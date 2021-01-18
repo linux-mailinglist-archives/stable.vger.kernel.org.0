@@ -2,89 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6344A2FA306
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C642FA37A
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbhARO3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:29:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39774 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390139AbhARLos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:44:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6050622D6D;
-        Mon, 18 Jan 2021 11:43:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970224;
-        bh=HV2frnwtu6B74HzSNuvEVkClN8N/xniPy+m3wZZ1cuQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCUEMhm6RlvodN1Ql94QjtLrYsQgt0iubAaRr7TT0S90bZjL2DWk6cI/9WrkWfq6g
-         gTe/jYI1tFhS0MsCWkW5fZBm7w3E5rPL3jOmvavNjLsZe+JhJ1qtCY7j5+3AkiooIy
-         7ppEx/ct5lhxLHZQcvqobax1RRAaF0wZLBe6XCkc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dennis Li <Dennis.Li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/152] drm/amdgpu: fix a GPU hang issue when remove device
-Date:   Mon, 18 Jan 2021 12:34:24 +0100
-Message-Id: <20210118113357.021053981@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
-References: <20210118113352.764293297@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2404954AbhAROqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:46:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56364 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393066AbhAROlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 09:41:19 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD33CC0613CF
+        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 06:40:38 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id h16so17848694edt.7
+        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 06:40:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NsWzXboGpAJXv9vpOlbeGOk+81oA2YvwloCKYrLMFOA=;
+        b=Sa+U/OWQL6mMt+GIu8fw+fY3FrA92oQkIoCvTUAxBuDml0tIvY+55vicO5xc/llY4z
+         FLGIC2cx1PavtQE/eMv+O2Y8OzG7nCrchtQFCxIoszPklxhGOXyVgk6UTRkEQ6HYVzoU
+         6RJ4cy94/cDhlMawXGpKsksQgBOYBpOoc9qvb/lPxdiCc04d4wjskYsO3P5YG7hX6BjE
+         /Z9XgrjkYVsIalX2Pl42T0UEjvMbElAphUH9WJrv59ozXxHZSuF0AmZ3fpozimgdtRBG
+         EIWFaC44fjtWunq3DZJvCWlkTCMwGNLruBCOWkymat70cqloPEg7ZEWo0empYpTohV5S
+         uUtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NsWzXboGpAJXv9vpOlbeGOk+81oA2YvwloCKYrLMFOA=;
+        b=C/RGkVgUZEvWSjGZBDg3KBe1nATN572fcHpCcjw+PKfMLiNcWuI/0LcnsDjMRA79Pw
+         gGbDw57I4InZEoyQc0UUuCmXcO5iSp5sNdoha4bg5cBQtxbWe7KdjcyMHCJ6/dc0Al0s
+         C+mmn2QB16TBti8lNrO1/uXtqoNTagTRNwzPKzY2m7hQbQGUa3+mCzodr1odoXePgo3i
+         xkb9Ku51oLWQrF8Doc45NMupiOvMvEBcqjP/xlqCdyuN9Fv2jqzK7t5uCmTPqO0jEcqU
+         sjIDWiCjHpn1TLA4zRwJwNquRgcgZG1u9nQcmw5vATzBhL78OS/qTxW2jBoyZBBFROFH
+         mRdg==
+X-Gm-Message-State: AOAM533kZOHB7n/LazYu1lr563yxbJ9WZz8cHF/c+ilz2crGRT/qJtdE
+        zbBx66pMjz8iyL6KmkgNByDIvQ/8q0HsaSEVifFYkw==
+X-Google-Smtp-Source: ABdhPJwLNPR8KiRG/OWK0LNSj/48WXKaO0d52vcSqoLDePBstbl1RKIENlGJbPQ8fZgnnILWh2zdon/teynoT3D7aIA=
+X-Received: by 2002:a05:6402:26c9:: with SMTP id x9mr6443592edd.365.1610980837381;
+ Mon, 18 Jan 2021 06:40:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20210118113334.966227881@linuxfoundation.org>
+In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 18 Jan 2021 20:10:26 +0530
+Message-ID: <CA+G9fYsVb-4L65-YjNxVhGWeQySQAQVyQGudDtbmzfZq4g4vFA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/43] 4.19.169-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Li <Dennis.Li@amd.com>
+On Mon, 18 Jan 2021 at 17:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.169 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 20 Jan 2021 11:33:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.169-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[ Upstream commit 88e21af1b3f887d217f2fb14fc7e7d3cd87ebf57 ]
 
-When GFXOFF is enabled and GPU is idle, driver will fail to access some
-registers. Therefore change to disable power gating before all access
-registers with MMIO.
+MIPS: cavium_octeon_defconfig and nlm_xlp_defconfig builds breaks
+due to this patch.
 
-Dmesg log is as following:
-amdgpu 0000:03:00.0: amdgpu: amdgpu: finishing device.
-amdgpu: cp queue pipe 4 queue 0 preemption failed
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
+> Al Viro <viro@zeniv.linux.org.uk>
+>     MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
 
-Signed-off-by: Dennis Li <Dennis.Li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 523fbef67591c..2ddbcfe0a72ff 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2524,11 +2524,11 @@ static int amdgpu_device_ip_fini(struct amdgpu_device *adev)
- 	if (adev->gmc.xgmi.num_physical_nodes > 1)
- 		amdgpu_xgmi_remove_device(adev);
- 
--	amdgpu_amdkfd_device_fini(adev);
--
- 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
- 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
- 
-+	amdgpu_amdkfd_device_fini(adev);
-+
- 	/* need to disable SMC first */
- 	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		if (!adev->ip_blocks[i].status.hw)
 -- 
-2.27.0
-
-
-
+Linaro LKFT
+https://lkft.linaro.org
