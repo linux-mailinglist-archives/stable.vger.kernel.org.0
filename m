@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5CB2FA41E
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:08:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43AA52FA421
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:08:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405548AbhARPG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38206 "EHLO mail.kernel.org"
+        id S2405568AbhARPHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:07:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727847AbhARLmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:42:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CE8822D2C;
-        Mon, 18 Jan 2021 11:41:59 +0000 (UTC)
+        id S2390790AbhARLmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:42:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57DBB22D49;
+        Mon, 18 Jan 2021 11:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970120;
-        bh=zeq8z47kOVgOkA3FkV6tmJId5VpkQjTL1pIuLGIf2s8=;
+        s=korg; t=1610970124;
+        bh=Oze4GNEGTuLxG2M9xVeuMlnwIDqG6KIAx9EJvie1tpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwcI9z9nRI+hutMzY/S2Iw3TEYeKikaWY9OtL2xDTy3b6u+PYpFDyn3hHHGo6/hS1
-         CJXST9lP68BaqfCt1cDusxe/DjgGZjqDgYN99/oHLTwx56MXBtQ+YbwKz+wBVNVFy+
-         izuDI0Bd6y3DbvfXmTwOVDTA9ppyNB0MN6fPIK+I=
+        b=HxmYqh62hiGsxk9r1i//9/DbcSIvF3nLqe3l7za3PegKz/TZNhdUClrB26jGWE8L1
+         rAciBM8pqGc5DvgTPauX/BpcTcDiatVXl+Vg2NmQ8gz3+sQbSWqod41ExRy3Pc9QCA
+         LNNvbGVf80NfDl7jCoeRlMEVtDZkqAo1CHZ3JybM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.10 046/152] dm crypt: do not wait for backlogged crypto request completion in softirq
-Date:   Mon, 18 Jan 2021 12:33:41 +0100
-Message-Id: <20210118113354.993433198@linuxfoundation.org>
+Subject: [PATCH 5.10 048/152] dm crypt: defer decryption to a tasklet if interrupts disabled
+Date:   Mon, 18 Jan 2021 12:33:43 +0100
+Message-Id: <20210118113355.091418487@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -42,231 +41,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ignat Korchagin <ignat@cloudflare.com>
 
-commit 8abec36d1274bbd5ae8f36f3658b9abb3db56c31 upstream.
+commit c87a95dc28b1431c7e77e2c0c983cf37698089d2 upstream.
 
-Commit 39d42fa96ba1 ("dm crypt: add flags to optionally bypass kcryptd
-workqueues") made it possible for some code paths in dm-crypt to be
-executed in softirq context, when the underlying driver processes IO
-requests in interrupt/softirq context.
+On some specific hardware on early boot we occasionally get:
 
-When Crypto API backlogs a crypto request, dm-crypt uses
-wait_for_completion to avoid sending further requests to an already
-overloaded crypto driver. However, if the code is executing in softirq
-context, we might get the following stacktrace:
+[ 1193.920255][    T0] BUG: sleeping function called from invalid context at mm/mempool.c:381
+[ 1193.936616][    T0] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 0, name: swapper/69
+[ 1193.953233][    T0] no locks held by swapper/69/0.
+[ 1193.965871][    T0] irq event stamp: 575062
+[ 1193.977724][    T0] hardirqs last  enabled at (575061): [<ffffffffab73f662>] tick_nohz_idle_exit+0xe2/0x3e0
+[ 1194.002762][    T0] hardirqs last disabled at (575062): [<ffffffffab74e8af>] flush_smp_call_function_from_idle+0x4f/0x80
+[ 1194.029035][    T0] softirqs last  enabled at (575050): [<ffffffffad600fd2>] asm_call_irq_on_stack+0x12/0x20
+[ 1194.054227][    T0] softirqs last disabled at (575043): [<ffffffffad600fd2>] asm_call_irq_on_stack+0x12/0x20
+[ 1194.079389][    T0] CPU: 69 PID: 0 Comm: swapper/69 Not tainted 5.10.6-cloudflare-kasan-2021.1.4-dev #1
+[ 1194.104103][    T0] Hardware name: NULL R162-Z12-CD/MZ12-HD4-CD, BIOS R10 06/04/2020
+[ 1194.119591][    T0] Call Trace:
+[ 1194.130233][    T0]  dump_stack+0x9a/0xcc
+[ 1194.141617][    T0]  ___might_sleep.cold+0x180/0x1b0
+[ 1194.153825][    T0]  mempool_alloc+0x16b/0x300
+[ 1194.165313][    T0]  ? remove_element+0x160/0x160
+[ 1194.176961][    T0]  ? blk_mq_end_request+0x4b/0x490
+[ 1194.188778][    T0]  crypt_convert+0x27f6/0x45f0 [dm_crypt]
+[ 1194.201024][    T0]  ? rcu_read_lock_sched_held+0x3f/0x70
+[ 1194.212906][    T0]  ? module_assert_mutex_or_preempt+0x3e/0x70
+[ 1194.225318][    T0]  ? __module_address.part.0+0x1b/0x3a0
+[ 1194.237212][    T0]  ? is_kernel_percpu_address+0x5b/0x190
+[ 1194.249238][    T0]  ? crypt_iv_tcw_ctr+0x4a0/0x4a0 [dm_crypt]
+[ 1194.261593][    T0]  ? is_module_address+0x25/0x40
+[ 1194.272905][    T0]  ? static_obj+0x8a/0xc0
+[ 1194.283582][    T0]  ? lockdep_init_map_waits+0x26a/0x700
+[ 1194.295570][    T0]  ? __raw_spin_lock_init+0x39/0x110
+[ 1194.307330][    T0]  kcryptd_crypt_read_convert+0x31c/0x560 [dm_crypt]
+[ 1194.320496][    T0]  ? kcryptd_queue_crypt+0x1be/0x380 [dm_crypt]
+[ 1194.333203][    T0]  blk_update_request+0x6d7/0x1500
+[ 1194.344841][    T0]  ? blk_mq_trigger_softirq+0x190/0x190
+[ 1194.356831][    T0]  blk_mq_end_request+0x4b/0x490
+[ 1194.367994][    T0]  ? blk_mq_trigger_softirq+0x190/0x190
+[ 1194.379693][    T0]  flush_smp_call_function_queue+0x24b/0x560
+[ 1194.391847][    T0]  flush_smp_call_function_from_idle+0x59/0x80
+[ 1194.403969][    T0]  do_idle+0x287/0x450
+[ 1194.413891][    T0]  ? arch_cpu_idle_exit+0x40/0x40
+[ 1194.424716][    T0]  ? lockdep_hardirqs_on_prepare+0x286/0x3f0
+[ 1194.436399][    T0]  ? _raw_spin_unlock_irqrestore+0x39/0x40
+[ 1194.447759][    T0]  cpu_startup_entry+0x19/0x20
+[ 1194.458038][    T0]  secondary_startup_64_no_verify+0xb0/0xbb
 
-[  210.235213][    C0] BUG: scheduling while atomic: fio/2602/0x00000102
-[  210.236701][    C0] Modules linked in:
-[  210.237566][    C0] CPU: 0 PID: 2602 Comm: fio Tainted: G        W         5.10.0+ #50
-[  210.239292][    C0] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-[  210.241233][    C0] Call Trace:
-[  210.241946][    C0]  <IRQ>
-[  210.242561][    C0]  dump_stack+0x7d/0xa3
-[  210.243466][    C0]  __schedule_bug.cold+0xb3/0xc2
-[  210.244539][    C0]  __schedule+0x156f/0x20d0
-[  210.245518][    C0]  ? io_schedule_timeout+0x140/0x140
-[  210.246660][    C0]  schedule+0xd0/0x270
-[  210.247541][    C0]  schedule_timeout+0x1fb/0x280
-[  210.248586][    C0]  ? usleep_range+0x150/0x150
-[  210.249624][    C0]  ? unpoison_range+0x3a/0x60
-[  210.250632][    C0]  ? ____kasan_kmalloc.constprop.0+0x82/0xa0
-[  210.251949][    C0]  ? unpoison_range+0x3a/0x60
-[  210.252958][    C0]  ? __prepare_to_swait+0xa7/0x190
-[  210.254067][    C0]  do_wait_for_common+0x2ab/0x370
-[  210.255158][    C0]  ? usleep_range+0x150/0x150
-[  210.256192][    C0]  ? bit_wait_io_timeout+0x160/0x160
-[  210.257358][    C0]  ? blk_update_request+0x757/0x1150
-[  210.258582][    C0]  ? _raw_spin_lock_irq+0x82/0xd0
-[  210.259674][    C0]  ? _raw_read_unlock_irqrestore+0x30/0x30
-[  210.260917][    C0]  wait_for_completion+0x4c/0x90
-[  210.261971][    C0]  crypt_convert+0x19a6/0x4c00
-[  210.263033][    C0]  ? _raw_spin_lock_irqsave+0x87/0xe0
-[  210.264193][    C0]  ? kasan_set_track+0x1c/0x30
-[  210.265191][    C0]  ? crypt_iv_tcw_ctr+0x4a0/0x4a0
-[  210.266283][    C0]  ? kmem_cache_free+0x104/0x470
-[  210.267363][    C0]  ? crypt_endio+0x91/0x180
-[  210.268327][    C0]  kcryptd_crypt_read_convert+0x30e/0x420
-[  210.269565][    C0]  blk_update_request+0x757/0x1150
-[  210.270563][    C0]  blk_mq_end_request+0x4b/0x480
-[  210.271680][    C0]  blk_done_softirq+0x21d/0x340
-[  210.272775][    C0]  ? _raw_spin_lock+0x81/0xd0
-[  210.273847][    C0]  ? blk_mq_stop_hw_queue+0x30/0x30
-[  210.275031][    C0]  ? _raw_read_lock_irq+0x40/0x40
-[  210.276182][    C0]  __do_softirq+0x190/0x611
-[  210.277203][    C0]  ? handle_edge_irq+0x221/0xb60
-[  210.278340][    C0]  asm_call_irq_on_stack+0x12/0x20
-[  210.279514][    C0]  </IRQ>
-[  210.280164][    C0]  do_softirq_own_stack+0x37/0x40
-[  210.281281][    C0]  irq_exit_rcu+0x110/0x1b0
-[  210.282286][    C0]  common_interrupt+0x74/0x120
-[  210.283376][    C0]  asm_common_interrupt+0x1e/0x40
-[  210.284496][    C0] RIP: 0010:_aesni_enc1+0x65/0xb0
+IO completion can be queued to a different CPU by the block subsystem as a "call
+single function/data". The CPU may run these routines from the idle task, but it
+does so with interrupts disabled.
 
-Fix this by making crypt_convert function reentrant from the point of
-a single bio and make dm-crypt defer further bio processing to a
-workqueue, if Crypto API backlogs a request in interrupt context.
+It is not a good idea to do decryption with irqs disabled even in an idle task
+context, so just defer it to a tasklet (as is done with requests from hard irqs).
 
 Fixes: 39d42fa96ba1 ("dm crypt: add flags to optionally bypass kcryptd workqueues")
 Cc: stable@vger.kernel.org # v5.9+
 Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
-Acked-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-crypt.c |  103 +++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 98 insertions(+), 5 deletions(-)
+ drivers/md/dm-crypt.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- a/drivers/md/dm-crypt.c
 +++ b/drivers/md/dm-crypt.c
-@@ -1539,13 +1539,19 @@ static void crypt_free_req(struct crypt_
-  * Encrypt / decrypt data from one bio to another one (can be the same one)
-  */
- static blk_status_t crypt_convert(struct crypt_config *cc,
--			 struct convert_context *ctx, bool atomic)
-+			 struct convert_context *ctx, bool atomic, bool reset_pending)
- {
- 	unsigned int tag_offset = 0;
- 	unsigned int sector_step = cc->sector_size >> SECTOR_SHIFT;
- 	int r;
+@@ -2221,8 +2221,12 @@ static void kcryptd_queue_crypt(struct d
  
--	atomic_set(&ctx->cc_pending, 1);
-+	/*
-+	 * if reset_pending is set we are dealing with the bio for the first time,
-+	 * else we're continuing to work on the previous bio, so don't mess with
-+	 * the cc_pending counter
-+	 */
-+	if (reset_pending)
-+		atomic_set(&ctx->cc_pending, 1);
- 
- 	while (ctx->iter_in.bi_size && ctx->iter_out.bi_size) {
- 
-@@ -1568,7 +1574,25 @@ static blk_status_t crypt_convert(struct
- 		 * but the driver request queue is full, let's wait.
- 		 */
- 		case -EBUSY:
--			wait_for_completion(&ctx->restart);
-+			if (in_interrupt()) {
-+				if (try_wait_for_completion(&ctx->restart)) {
-+					/*
-+					 * we don't have to block to wait for completion,
-+					 * so proceed
-+					 */
-+				} else {
-+					/*
-+					 * we can't wait for completion without blocking
-+					 * exit and continue processing in a workqueue
-+					 */
-+					ctx->r.req = NULL;
-+					ctx->cc_sector += sector_step;
-+					tag_offset++;
-+					return BLK_STS_DEV_RESOURCE;
-+				}
-+			} else {
-+				wait_for_completion(&ctx->restart);
-+			}
- 			reinit_completion(&ctx->restart);
- 			fallthrough;
- 		/*
-@@ -1960,6 +1984,37 @@ static bool kcryptd_crypt_write_inline(s
- 	}
- }
- 
-+static void kcryptd_crypt_write_continue(struct work_struct *work)
-+{
-+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
-+	struct crypt_config *cc = io->cc;
-+	struct convert_context *ctx = &io->ctx;
-+	int crypt_finished;
-+	sector_t sector = io->sector;
-+	blk_status_t r;
-+
-+	wait_for_completion(&ctx->restart);
-+	reinit_completion(&ctx->restart);
-+
-+	r = crypt_convert(cc, &io->ctx, true, false);
-+	if (r)
-+		io->error = r;
-+	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
-+	if (!crypt_finished && kcryptd_crypt_write_inline(cc, ctx)) {
-+		/* Wait for completion signaled by kcryptd_async_done() */
-+		wait_for_completion(&ctx->restart);
-+		crypt_finished = 1;
-+	}
-+
-+	/* Encryption was already finished, submit io now */
-+	if (crypt_finished) {
-+		kcryptd_crypt_write_io_submit(io, 0);
-+		io->sector = sector;
-+	}
-+
-+	crypt_dec_pending(io);
-+}
-+
- static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
- {
- 	struct crypt_config *cc = io->cc;
-@@ -1988,7 +2043,17 @@ static void kcryptd_crypt_write_convert(
- 
- 	crypt_inc_pending(io);
- 	r = crypt_convert(cc, ctx,
--			  test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags));
-+			  test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags), true);
-+	/*
-+	 * Crypto API backlogged the request, because its queue was full
-+	 * and we're in softirq context, so continue from a workqueue
-+	 * (TODO: is it actually possible to be in softirq in the write path?)
-+	 */
-+	if (r == BLK_STS_DEV_RESOURCE) {
-+		INIT_WORK(&io->work, kcryptd_crypt_write_continue);
-+		queue_work(cc->crypt_queue, &io->work);
-+		return;
-+	}
- 	if (r)
- 		io->error = r;
- 	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
-@@ -2013,6 +2078,25 @@ static void kcryptd_crypt_read_done(stru
- 	crypt_dec_pending(io);
- }
- 
-+static void kcryptd_crypt_read_continue(struct work_struct *work)
-+{
-+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
-+	struct crypt_config *cc = io->cc;
-+	blk_status_t r;
-+
-+	wait_for_completion(&io->ctx.restart);
-+	reinit_completion(&io->ctx.restart);
-+
-+	r = crypt_convert(cc, &io->ctx, true, false);
-+	if (r)
-+		io->error = r;
-+
-+	if (atomic_dec_and_test(&io->ctx.cc_pending))
-+		kcryptd_crypt_read_done(io);
-+
-+	crypt_dec_pending(io);
-+}
-+
- static void kcryptd_crypt_read_convert(struct dm_crypt_io *io)
- {
- 	struct crypt_config *cc = io->cc;
-@@ -2024,7 +2108,16 @@ static void kcryptd_crypt_read_convert(s
- 			   io->sector);
- 
- 	r = crypt_convert(cc, &io->ctx,
--			  test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags));
-+			  test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags), true);
-+	/*
-+	 * Crypto API backlogged the request, because its queue was full
-+	 * and we're in softirq context, so continue from a workqueue
-+	 */
-+	if (r == BLK_STS_DEV_RESOURCE) {
-+		INIT_WORK(&io->work, kcryptd_crypt_read_continue);
-+		queue_work(cc->crypt_queue, &io->work);
-+		return;
-+	}
- 	if (r)
- 		io->error = r;
- 
+ 	if ((bio_data_dir(io->base_bio) == READ && test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags)) ||
+ 	    (bio_data_dir(io->base_bio) == WRITE && test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags))) {
+-		if (in_irq()) {
+-			/* Crypto API's "skcipher_walk_first() refuses to work in hard IRQ context */
++		/*
++		 * in_irq(): Crypto API's skcipher_walk_first() refuses to work in hard IRQ context.
++		 * irqs_disabled(): the kernel may run some IO completion from the idle thread, but
++		 * it is being executed with irqs disabled.
++		 */
++		if (in_irq() || irqs_disabled()) {
+ 			tasklet_init(&io->tasklet, kcryptd_crypt_tasklet, (unsigned long)&io->work);
+ 			tasklet_schedule(&io->tasklet);
+ 			return;
 
 
