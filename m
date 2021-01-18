@@ -2,133 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C562FACD4
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 22:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C6D2FACBF
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 22:36:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394831AbhARVit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 16:38:49 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:42999 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388721AbhARKAW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 05:00:22 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 7EA3715AD;
-        Mon, 18 Jan 2021 04:58:29 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:58:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=QyPEiJ
-        6hgZ+rPAbXHfYs1Li3+hU8DjGD4w/J1hQwDi8=; b=GQu8TJazXBUKTNrwTu0H2s
-        Nb19qgMb34fnY0wFNxo3mPN5nnMiSa40NtdqBewx583gVN/yrJjJhf/QVKHKChBU
-        pszJ3Ap/EXHAEpsnWhZwjaRB1zxRDTHi6IJUlo553jL1ufVuGsHVz4FOUmCk5l3T
-        kAEFdhr3MgadhUejLvFVMQsGnqeUkB54jueG75CD0cZUT8UTU2oATgKXLuQQUjHo
-        bfJyqf4rwpUZvbzo6oPZpwuArEHJyRvUdb/fhD6owjTA6SrFZu0AzeDKJzhLNb2+
-        Po4jlyTnvYolWIJ/6xaC8RkdcI80qKYrP9GsFotX1Bs5UFETDNolVUI4HxjF7x7g
-        ==
-X-ME-Sender: <xms:xVsFYKYevfyI6dNrLLsao4Ltz-jrmjfr-bl61nbVTosIk0cZa1kCmA>
-    <xme:xVsFYNZMDQNEUVWQPFpeo_lQAKv5Hwhjv-mY4icnx-VNNXCzNb_Q8t56IlaPgSO8w
-    JLd3TJ51qhMKw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddutdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeejkedvgeffjeetffejuedtkeeutdelteffjeetieeitd
-    dvfefhjeeufffgheevkeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhlughsrdhs
-    sgenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:xVsFYE9TWqC9TMBQ9DX_R2QQZlxmic1JEeJiRpZ8n-ZTe-bJ0jkSQQ>
-    <xmx:xVsFYMreBQGRSd5edt1GE5trVZ2DRZUehFQSFtjoDxVr0DB0_0h5kQ>
-    <xmx:xVsFYFocJYCqZHHK7IUGDZpjjERDPlGPeDpZdsDuETEH66Attha_QA>
-    <xmx:xVsFYM2aMU3ozizfEC5BLoutuDVNabTK4SuceTSY3MGlRwZdd8Dt6amO22E>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C4AC71080063;
-        Mon, 18 Jan 2021 04:58:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc: Fix alignment bug within the init sections" failed to apply to 4.9-stable tree
-To:     arielmarcovitch@gmail.com, ariel.marcovitch@gmail.com,
-        christophe.leroy@csgroup.eu, mpe@ellerman.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 10:58:21 +0100
-Message-ID: <1610963901180174@kroah.com>
+        id S2388343AbhARVe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 16:34:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389544AbhARVex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 16:34:53 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37A8C061574
+        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 13:34:12 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id p5so19111663oif.7
+        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 13:34:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:cc:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=Bq7gPaS2AStvsOx0OXYtzM0DsYj/+f7UAzyh9pcSTVE=;
+        b=pqGmNSijcfLE2WxEMLqsiK2dxIzB929b9oUtbpT9DFCJpbCSivYDscVsSVQurXRLuO
+         S+p0UlB0yCNCM9xMmCkRgSfS6lRwzIa4qoWk2OkatxSQBWPctzpDbsaSI6tsYOauPplJ
+         0P9FIlVWqGFLDiZMpeB+o3W0eT9+3mB5nVS1ze/5BaLqTFMx6ibciBgLTZYwwCsWEj8g
+         hIBs+9faXPlanWZrQXSLt9BkD/lUnyQ87oqZol1Yc/6GCxqMryYe7PJRqtFayhkf5nFN
+         X0YD643xHSZPcEjWcKKUuxqoXfJFVFmsga1Wt0RzJqaQM19iHtNMJXcpPTO7ePY9Nl6Q
+         WHIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:cc:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=Bq7gPaS2AStvsOx0OXYtzM0DsYj/+f7UAzyh9pcSTVE=;
+        b=Pbr1gtUf64R8EXUlKRzbYh356bs3ATRvATFoTrbFk28RMSYCjjShRQLBFSDT+7UC5m
+         +NIEtlKahiV7ytiItD0mUdpILMPnUZn/gdLOzZVIudT1ZgED1Zn6p+pTIP9Te+7rWFm8
+         4XuJxsszVhCdwoD67DXQ8gVKsPnFZ+nWEdDe6Mu9LgNhjokJvzudr3oKwG4+UKMcGbYp
+         OzCUGuvbmZfZOQu7Q2VFTtFi/WCk10AMaPsFCNN8R8hoQjoRhtfIU134PB2F8ioN1E8z
+         7hP87BmA1wnoyLipsxyJCUT10KTnCqMGqs0ynSnJzocH1rHi/s8NZMV2wjRUyp7Oyq1P
+         +UPg==
+X-Gm-Message-State: AOAM531EeUXoUvdAlPcPQkXIJGwc8KINK6yq6AUASVMn7chGHZdpYGsD
+        3Wf3CqnFnBh4prbO5DJFkXOM822vF9rf27+9
+X-Google-Smtp-Source: ABdhPJwmc1f3bhbinJtG4bwB3+3PZjCY84Lvx00bTWVP+/APFc0jN2ouq6HrPIav84nWocBdSe7Plg==
+X-Received: by 2002:aca:210c:: with SMTP id 12mr784021oiz.45.1611005652279;
+        Mon, 18 Jan 2021 13:34:12 -0800 (PST)
+Received: from nuclearis2-1.gtech (c-98-195-139-126.hsd1.tx.comcast.net. [98.195.139.126])
+        by smtp.gmail.com with ESMTPSA id 2sm2860909otg.6.2021.01.18.13.34.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Jan 2021 13:34:11 -0800 (PST)
+To:     stable@vger.kernel.org
+From:   "Alex G." <mr.nuke.me@gmail.com>
+Subject: [PATCH] drm/panel: otm8009a: allow using non-continuous dsi clock
+Cc:     Marek Vasut <marex@denx.de>
+Message-ID: <e1d4b851-061c-4959-7333-28b6e57f91df@gmail.com>
+Date:   Mon, 18 Jan 2021 15:34:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Please consider applying the following commit to v5.10:
 
-thanks,
+880ee3b7615e ("drm/panel: otm8009a: allow using non-continuous dsi clock")
 
-greg k-h
+A related patch introduced in v5.10 has accidentally broken the display 
+on stm32mp DK2 boards. This commit resolves the issue.
 
------------------- original commit in Linus's tree ------------------
-
-From 2225a8dda263edc35a0e8b858fe2945cf6240fde Mon Sep 17 00:00:00 2001
-From: Ariel Marcovitch <arielmarcovitch@gmail.com>
-Date: Sat, 2 Jan 2021 22:11:56 +0200
-Subject: [PATCH] powerpc: Fix alignment bug within the init sections
-
-This is a bug that causes early crashes in builds with an .exit.text
-section smaller than a page and an .init.text section that ends in the
-beginning of a physical page (this is kinda random, which might
-explain why this wasn't really encountered before).
-
-The init sections are ordered like this:
-  .init.text
-  .exit.text
-  .init.data
-
-Currently, these sections aren't page aligned.
-
-Because the init code might become read-only at runtime and because
-the .init.text section can potentially reside on the same physical
-page as .init.data, the beginning of .init.data might be mapped
-read-only along with .init.text.
-
-Then when the kernel tries to modify a variable in .init.data (like
-kthreadd_done, used in kernel_init()) the kernel panics.
-
-To avoid this, make _einittext page aligned and also align .exit.text
-to make sure .init.data is always seperated from the text segments.
-
-Fixes: 060ef9d89d18 ("powerpc32: PAGE_EXEC required for inittext")
-Signed-off-by: Ariel Marcovitch <ariel.marcovitch@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210102201156.10805-1-ariel.marcovitch@gmail.com
-
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 8e0b1298bf19..4ab426b8b0e0 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -187,6 +187,12 @@ SECTIONS
- 	.init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
- 		_sinittext = .;
- 		INIT_TEXT
-+
-+		/*
-+		 *.init.text might be RO so we must ensure this section ends on
-+		 * a page boundary.
-+		 */
-+		. = ALIGN(PAGE_SIZE);
- 		_einittext = .;
- #ifdef CONFIG_PPC64
- 		*(.tramp.ftrace.init);
-@@ -200,6 +206,8 @@ SECTIONS
- 		EXIT_TEXT
- 	}
- 
-+	. = ALIGN(PAGE_SIZE);
-+
- 	INIT_DATA_SECTION(16)
- 
- 	. = ALIGN(8);
-
+Fixes: c6d94e37bdbb ("drm/bridge/synopsys: dsi: add support for 
+non-continuous HS clock")
