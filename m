@@ -2,72 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D30CA2F9CD6
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD3D2F9CD7
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389475AbhARK0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 05:26:43 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:56358 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389362AbhARJyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:54:23 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23626351-1500050 
-        for multiple; Mon, 18 Jan 2021 09:53:33 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Prevent use of engine->wa_ctx after error
-Date:   Mon, 18 Jan 2021 09:53:32 +0000
-Message-Id: <20210118095332.458813-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <87lfcqobpl.fsf@intel.com>
-References: <87lfcqobpl.fsf@intel.com>
+        id S2389502AbhARK0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 05:26:47 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52249 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388700AbhARKAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 05:00:10 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id F1CA0151F;
+        Mon, 18 Jan 2021 04:58:22 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:58:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RCgPPg
+        LLjaoe0OnfqXZ6YktEoOYoolBws53uwatjgJ0=; b=ZWJqqQoNTtbNjqyc+tr4ir
+        VoxE0DwK4lQt66DCEBjuIiims2Wxye0K1ACLoNHB+VctTRSSIoLmmLe2xb54L/Zw
+        7yjCcSAPkJXcgS6eB/JLdYQ3TJo4pP70Fq4vrmlsob+ZGobRLs2G8i4RRqys2m7z
+        XJTCQ1Xbv+rku7zXAswUG3I0uM0xO4SvwRMbe0yrWwuyLQcqCbpe9rDrswiWTQlR
+        4za4jz1rWq19oD1IleF1WjCYGyM735aRe7PM6+5DlJoW8hHdtKrbt4Vsyx+XiYLP
+        z/tQvwwt8qd215yPWwz/yRAmaqYz0TAtSH65TPhqAHOnmfZY4yHkCGEA9pCTKq+w
+        ==
+X-ME-Sender: <xms:vlsFYAX-_fQUWQQtokBzULphuyWopfBp_VKzPH6yBO3NtyehvRddMQ>
+    <xme:vlsFYEnC70wMN5YOtp95Zg_WhY8-udLRLnvk5vfcRauo28eZSji7sRxXLBRQlbr1D
+    -hO3Ob7RsHtlg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddutdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeejkedvgeffjeetffejuedtkeeutdelteffjeetieeitd
+    dvfefhjeeufffgheevkeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhlughsrdhs
+    sgenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurf
+    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:vlsFYEanT4t31J_QtpOtT1NpL2yds4l7IuaVrv3ki6hPc_ug1yUsRA>
+    <xmx:vlsFYPWIng4vBZY-Dsxiakx09gIYZrI6x2_UNsYiy_KZvERC8PfkhA>
+    <xmx:vlsFYKkyrJxGQmBxo294sXVZYwWJUbW-MWPz7SZDvmvZcJiMdnpAFA>
+    <xmx:vlsFYPyL4St-oh5pBQsaweJwLk3_yE9ajyMZyEycdfQG1_omQH6B_WbIfI8>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4A547108005C;
+        Mon, 18 Jan 2021 04:58:22 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc: Fix alignment bug within the init sections" failed to apply to 4.19-stable tree
+To:     arielmarcovitch@gmail.com, ariel.marcovitch@gmail.com,
+        christophe.leroy@csgroup.eu, mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Jan 2021 10:58:19 +0100
+Message-ID: <1610963899239101@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On error we unpin and free the wa_ctx.vma, but do not clear any of the
-derived flags. During lrc_init, we look at the flags and attempt to
-dereference the wa_ctx.vma if they are set. To protect the error path
-where we try to limp along without the wa_ctx, make sure we clear those
-flags!
 
-Reported-by: Matt Roper <matthew.d.roper@intel.com>
-Fixes: 604a8f6f1e33 ("drm/i915/lrc: Only enable per-context and per-bb buffers if set")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v4.15+
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210108204026.20682-1-chris@chris-wilson.co.uk
-(cherry-picked from 5b4dc95cf7f573e927fbbd406ebe54225d41b9b2)
----
- drivers/gpu/drm/i915/gt/intel_lrc.c | 3 +++
- 1 file changed, 3 insertions(+)
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 7614a3d24fca..26c7d0a50585 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -3988,6 +3988,9 @@ static int lrc_setup_wa_ctx(struct intel_engine_cs *engine)
- static void lrc_destroy_wa_ctx(struct intel_engine_cs *engine)
- {
- 	i915_vma_unpin_and_release(&engine->wa_ctx.vma, 0);
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2225a8dda263edc35a0e8b858fe2945cf6240fde Mon Sep 17 00:00:00 2001
+From: Ariel Marcovitch <arielmarcovitch@gmail.com>
+Date: Sat, 2 Jan 2021 22:11:56 +0200
+Subject: [PATCH] powerpc: Fix alignment bug within the init sections
+
+This is a bug that causes early crashes in builds with an .exit.text
+section smaller than a page and an .init.text section that ends in the
+beginning of a physical page (this is kinda random, which might
+explain why this wasn't really encountered before).
+
+The init sections are ordered like this:
+  .init.text
+  .exit.text
+  .init.data
+
+Currently, these sections aren't page aligned.
+
+Because the init code might become read-only at runtime and because
+the .init.text section can potentially reside on the same physical
+page as .init.data, the beginning of .init.data might be mapped
+read-only along with .init.text.
+
+Then when the kernel tries to modify a variable in .init.data (like
+kthreadd_done, used in kernel_init()) the kernel panics.
+
+To avoid this, make _einittext page aligned and also align .exit.text
+to make sure .init.data is always seperated from the text segments.
+
+Fixes: 060ef9d89d18 ("powerpc32: PAGE_EXEC required for inittext")
+Signed-off-by: Ariel Marcovitch <ariel.marcovitch@gmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210102201156.10805-1-ariel.marcovitch@gmail.com
+
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 8e0b1298bf19..4ab426b8b0e0 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -187,6 +187,12 @@ SECTIONS
+ 	.init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
+ 		_sinittext = .;
+ 		INIT_TEXT
 +
-+	/* Called on error unwind, clear all flags to prevent further use */
-+	memset(&engine->wa_ctx, 0, sizeof(engine->wa_ctx));
- }
++		/*
++		 *.init.text might be RO so we must ensure this section ends on
++		 * a page boundary.
++		 */
++		. = ALIGN(PAGE_SIZE);
+ 		_einittext = .;
+ #ifdef CONFIG_PPC64
+ 		*(.tramp.ftrace.init);
+@@ -200,6 +206,8 @@ SECTIONS
+ 		EXIT_TEXT
+ 	}
  
- typedef u32 *(*wa_bb_func_t)(struct intel_engine_cs *engine, u32 *batch);
--- 
-2.30.0
++	. = ALIGN(PAGE_SIZE);
++
+ 	INIT_DATA_SECTION(16)
+ 
+ 	. = ALIGN(8);
 
