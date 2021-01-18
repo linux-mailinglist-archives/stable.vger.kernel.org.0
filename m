@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F182FA30D
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574132FA39C
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392945AbhARObY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:31:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
+        id S2404890AbhAROb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:31:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389186AbhARLnD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:43:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE782223E;
-        Mon, 18 Jan 2021 11:42:40 +0000 (UTC)
+        id S2390367AbhARLnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:43:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 486FD22227;
+        Mon, 18 Jan 2021 11:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970161;
-        bh=kAeYGyxjJHr6PJUf3V2kvHwuqdbVpOB+4IXFVhgsRB0=;
+        s=korg; t=1610970165;
+        bh=SW8pekvyeoZLTf4z4Px0rpMAaFdnyZ0SHKFlEoYSM0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WswtUZRSqzIPTs2f/KFcSITxqx4cBnFRxa+IsFLKlrDA/BeHEUNwDKus1yeByitF0
-         gqyzZ/dr5Dx0q2isQdXl8CTRTcj4akSqYvopQg/7ZaCcIEcaQ/2KDcz718T865lma/
-         oe/NTQDxUT9Brxj9EtY1AfKtiBAaM/WDUAf2JqPc=
+        b=nnnNn+RMdQ4Wq/TKK4+BTDuekM7i+XWLUtfE240xsbI7YyXLuH51ggiPcOMU5CAId
+         63+jjpop3zXgRoKsnU8VD7pDTnlmn14Hok/WFQVHOERNeysHhsLnqn/IKUXoUYaBHs
+         RGHhvAJ7KSDxGtzVwh5FIwIuwi5w1RXuKhlgMnm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/152] ath11k: qmi: try to allocate a big block of DMA memory first
-Date:   Mon, 18 Jan 2021 12:33:57 +0100
-Message-Id: <20210118113355.766127270@linuxfoundation.org>
+Subject: [PATCH 5.10 063/152] btrfs: fix async discard stall
+Date:   Mon, 18 Jan 2021 12:33:58 +0100
+Message-Id: <20210118113355.813131517@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,117 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit f6f92968e1e5a7a9d211faaebefc26ebe408dad7 ]
+[ Upstream commit ea9ed87c73e87e044b2c58d658eb4ba5216bc488 ]
 
-Not all firmware versions support allocating DMA memory in smaller blocks so
-first try to allocate big block of DMA memory for QMI. If the allocation fails,
-let firmware request multiple blocks of DMA memory with smaller size.
+Might happen that bg->discard_eligible_time was changed without
+rescheduling, so btrfs_discard_workfn() wakes up earlier than that new
+time, peek_discard_list() returns NULL, and all work halts and goes to
+sleep without further rescheduling even there are block groups to
+discard.
 
-This also fixes an unnecessary error message seen during ath11k probe on
-QCA6390:
+It happens pretty often, but not so visible from the userspace because
+after some time it usually will be kicked off anyway by someone else
+calling btrfs_discard_reschedule_work().
 
-ath11k_pci 0000:06:00.0: Respond mem req failed, result: 1, err: 0
-ath11k_pci 0000:06:00.0: qmi failed to respond fw mem req:-22
+Fix it by continue rescheduling if block group discard lists are not
+empty.
 
-Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
-
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1608127593-15192-1-git-send-email-kvalo@codeaurora.org
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.c | 24 ++++++++++++++++++++++--
- drivers/net/wireless/ath/ath11k/qmi.h |  1 +
- 2 files changed, 23 insertions(+), 2 deletions(-)
+ fs/btrfs/discard.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
-index 99a88ca83deaa..2ae7c6bf091e9 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.c
-+++ b/drivers/net/wireless/ath/ath11k/qmi.c
-@@ -1654,6 +1654,7 @@ static int ath11k_qmi_respond_fw_mem_request(struct ath11k_base *ab)
- 	struct qmi_wlanfw_respond_mem_resp_msg_v01 resp;
- 	struct qmi_txn txn = {};
- 	int ret = 0, i;
-+	bool delayed;
+diff --git a/fs/btrfs/discard.c b/fs/btrfs/discard.c
+index 741c7e19c32f2..d1a5380e8827d 100644
+--- a/fs/btrfs/discard.c
++++ b/fs/btrfs/discard.c
+@@ -199,16 +199,15 @@ static struct btrfs_block_group *find_next_block_group(
+ static struct btrfs_block_group *peek_discard_list(
+ 					struct btrfs_discard_ctl *discard_ctl,
+ 					enum btrfs_discard_state *discard_state,
+-					int *discard_index)
++					int *discard_index, u64 now)
+ {
+ 	struct btrfs_block_group *block_group;
+-	const u64 now = ktime_get_ns();
  
- 	req = kzalloc(sizeof(*req), GFP_KERNEL);
- 	if (!req)
-@@ -1666,11 +1667,13 @@ static int ath11k_qmi_respond_fw_mem_request(struct ath11k_base *ab)
- 	 * failure to FW and FW will then request mulitple blocks of small
- 	 * chunk size memory.
- 	 */
--	if (!ab->bus_params.fixed_mem_region && ab->qmi.mem_seg_count <= 2) {
-+	if (!ab->bus_params.fixed_mem_region && ab->qmi.target_mem_delayed) {
-+		delayed = true;
- 		ath11k_dbg(ab, ATH11K_DBG_QMI, "qmi delays mem_request %d\n",
- 			   ab->qmi.mem_seg_count);
- 		memset(req, 0, sizeof(*req));
- 	} else {
-+		delayed = false;
- 		req->mem_seg_len = ab->qmi.mem_seg_count;
+ 	spin_lock(&discard_ctl->lock);
+ again:
+ 	block_group = find_next_block_group(discard_ctl, now);
  
- 		for (i = 0; i < req->mem_seg_len ; i++) {
-@@ -1702,6 +1705,12 @@ static int ath11k_qmi_respond_fw_mem_request(struct ath11k_base *ab)
- 	}
- 
- 	if (resp.resp.result != QMI_RESULT_SUCCESS_V01) {
-+		/* the error response is expected when
-+		 * target_mem_delayed is true.
-+		 */
-+		if (delayed && resp.resp.error == 0)
-+			goto out;
-+
- 		ath11k_warn(ab, "Respond mem req failed, result: %d, err: %d\n",
- 			    resp.resp.result, resp.resp.error);
- 		ret = -EINVAL;
-@@ -1736,6 +1745,8 @@ static int ath11k_qmi_alloc_target_mem_chunk(struct ath11k_base *ab)
- 	int i;
- 	struct target_mem_chunk *chunk;
- 
-+	ab->qmi.target_mem_delayed = false;
-+
- 	for (i = 0; i < ab->qmi.mem_seg_count; i++) {
- 		chunk = &ab->qmi.target_mem[i];
- 		chunk->vaddr = dma_alloc_coherent(ab->dev,
-@@ -1743,6 +1754,15 @@ static int ath11k_qmi_alloc_target_mem_chunk(struct ath11k_base *ab)
- 						  &chunk->paddr,
- 						  GFP_KERNEL);
- 		if (!chunk->vaddr) {
-+			if (ab->qmi.mem_seg_count <= 2) {
-+				ath11k_dbg(ab, ATH11K_DBG_QMI,
-+					   "qmi dma allocation failed (%d B type %u), will try later with small size\n",
-+					    chunk->size,
-+					    chunk->type);
-+				ath11k_qmi_free_target_mem_chunk(ab);
-+				ab->qmi.target_mem_delayed = true;
-+				return 0;
-+			}
- 			ath11k_err(ab, "failed to alloc memory, size: 0x%x, type: %u\n",
- 				   chunk->size,
- 				   chunk->type);
-@@ -2467,7 +2487,7 @@ static void ath11k_qmi_msg_mem_request_cb(struct qmi_handle *qmi_hdl,
- 				    ret);
- 			return;
+-	if (block_group && now > block_group->discard_eligible_time) {
++	if (block_group && now >= block_group->discard_eligible_time) {
+ 		if (block_group->discard_index == BTRFS_DISCARD_INDEX_UNUSED &&
+ 		    block_group->used != 0) {
+ 			if (btrfs_is_block_group_data_only(block_group))
+@@ -222,12 +221,11 @@ again:
+ 			block_group->discard_state = BTRFS_DISCARD_EXTENTS;
  		}
--	} else if (msg->mem_seg_len > 2) {
-+	} else {
- 		ret = ath11k_qmi_alloc_target_mem_chunk(ab);
- 		if (ret) {
- 			ath11k_warn(ab, "qmi failed to alloc target memory: %d\n",
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.h b/drivers/net/wireless/ath/ath11k/qmi.h
-index b0a818f0401b9..59f1452b3544c 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.h
-+++ b/drivers/net/wireless/ath/ath11k/qmi.h
-@@ -121,6 +121,7 @@ struct ath11k_qmi {
- 	struct target_mem_chunk target_mem[ATH11K_QMI_WLANFW_MAX_NUM_MEM_SEG_V01];
- 	u32 mem_seg_count;
- 	u32 target_mem_mode;
-+	bool target_mem_delayed;
- 	u8 cal_done;
- 	struct target_info target;
- 	struct m3_mem_region m3_mem;
+ 		discard_ctl->block_group = block_group;
++	}
++	if (block_group) {
+ 		*discard_state = block_group->discard_state;
+ 		*discard_index = block_group->discard_index;
+-	} else {
+-		block_group = NULL;
+ 	}
+-
+ 	spin_unlock(&discard_ctl->lock);
+ 
+ 	return block_group;
+@@ -429,13 +427,18 @@ static void btrfs_discard_workfn(struct work_struct *work)
+ 	int discard_index = 0;
+ 	u64 trimmed = 0;
+ 	u64 minlen = 0;
++	u64 now = ktime_get_ns();
+ 
+ 	discard_ctl = container_of(work, struct btrfs_discard_ctl, work.work);
+ 
+ 	block_group = peek_discard_list(discard_ctl, &discard_state,
+-					&discard_index);
++					&discard_index, now);
+ 	if (!block_group || !btrfs_run_discard_work(discard_ctl))
+ 		return;
++	if (now < block_group->discard_eligible_time) {
++		btrfs_discard_schedule_work(discard_ctl, false);
++		return;
++	}
+ 
+ 	/* Perform discarding */
+ 	minlen = discard_minlen[discard_index];
 -- 
 2.27.0
 
