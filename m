@@ -2,133 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C072F9CD8
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31AD82F9CD9
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388794AbhARK0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 05:26:49 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55631 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389614AbhARKHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 05:07:12 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 2265192E;
-        Mon, 18 Jan 2021 04:58:28 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:58:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZIAmiz
-        ibWgWRy8QKp4iGZnabxJ2OQeP3/I9LA3911Ow=; b=meZxqoPKpCXgeot2D5xTYr
-        1yvT3+PgztbwjaRJ0cFpnnqg3ZwUK5fifqh5gCNwbf4KRjr57L3guKnoAdwswwM1
-        WfYJBN9zHOBwOBRPCAc+jKjq77PycYt1GCO+EQbpolnLtsFbSd5i7Itt7r4r0lH8
-        zYI/7cQglUfZ6N9Aa7GbD+60mrPe++VYk55QbdUBPkRMzwSb9U85WqItI+gyJejf
-        sQqFFxRQsEt29vDCLhqGzBQcGjLNxXamJwa4bx6hDa+rgloyHIslIoitwFdcsqTi
-        Rg55EPD5Ys3pjHEBfYHPvTMr1+mkDxCzlK109OzPOCP115FUYk1Obr5miZgjJ79g
-        ==
-X-ME-Sender: <xms:w1sFYHXDEXbe8DalEDAdnRuxXnROYTSU-MljKAKzalbr9NYroDU7Fw>
-    <xme:w1sFYPly_ShHf9KWIAr-nG-QhU6aWr-jFJkMpaVH_gy0ubvMoUvtsvHeF0oMg1hmG
-    _E3aA39mxSlFA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddutdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeejkedvgeffjeetffejuedtkeeutdelteffjeetieeitd
-    dvfefhjeeufffgheevkeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhlughsrdhs
-    sgenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:w1sFYDYCIgwcsu7clnRV4G-OB4HpdhT-BgnQmYWhChVnkb8aq4q_gA>
-    <xmx:w1sFYCXhItv8oeMau_N5S1uqbDETplfA25M3fQSH8fMPu5ZcVjPjyw>
-    <xmx:w1sFYBnfgISI9RqkmwLxdLKKkARzRbq47ALJgZjslLTanupRiAt8Zg>
-    <xmx:w1sFYGxWlaGgWhOvizIoPfVRkvJ8iwokPVUSeqIyXhJEoHTp9s65ikYPd_U>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6C8D524005B;
-        Mon, 18 Jan 2021 04:58:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc: Fix alignment bug within the init sections" failed to apply to 4.14-stable tree
-To:     arielmarcovitch@gmail.com, ariel.marcovitch@gmail.com,
-        christophe.leroy@csgroup.eu, mpe@ellerman.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 10:58:20 +0100
-Message-ID: <16109639007739@kroah.com>
+        id S2389443AbhARK0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 05:26:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43076 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389994AbhARKWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 05:22:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95ACF221EC;
+        Mon, 18 Jan 2021 10:14:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610964900;
+        bh=pZtusNSwr8zLipjPyphuZCumKLM1QFJMlQeqzkZy1jo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IiAscpFgeBXShOTNWRHYmKtpr+P25XRcMQUaNsEmFP8CghbRLyLCw9SjKRij8VvXq
+         KUnE07fZSGlUttsZfrCC2wYenvq4XOshi0H/7a4CuF08FBIVNtI8PbJ5z8J6NK1xtD
+         gRcL/eqrz8gl5N7fZ9rh3Nint6G63vxmYSq4/ASvNgypDrekhSm75zVnMD/aFK6F83
+         5kiZsD2Ah28QldFoRd+H5aGfTneBvnvNCKypIQsoNzf+gn3ILWN7ed7Y4T5/Y1svTJ
+         0Qyc7CHmbJuLz8xEF2SbGQvd3eJoEOwZNuLrI9MSBmqE6EGp2AXv9P6qcz0RwivSMX
+         6ZlrX31v0JHyQ==
+Date:   Mon, 18 Jan 2021 11:14:55 +0100
+From:   Jessica Yu <jeyu@kernel.org>
+To:     Fangrui Song <maskray@google.com>
+Cc:     linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Marco Elver <elver@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for
+ undefined symbols
+Message-ID: <20210118101453.GA13910@linux-8ccs>
+References: <20210114211840.GA5617@linux-8ccs>
+ <20210115195222.3453262-1-maskray@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20210115195222.3453262-1-maskray@google.com>
+X-OS:   Linux linux-8ccs 5.8.0-rc6-lp150.12.61-default+ x86_64
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
++++ Fangrui Song [15/01/21 11:52 -0800]:
+>clang-12 -fno-pic (since
+>https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6)
+>can emit `call __stack_chk_fail@PLT` instead of `call __stack_chk_fail`
+>on x86.  The two forms should have identical behaviors on x86-64 but the
+>former causes GNU as<2.37 to produce an unreferenced undefined symbol
+>_GLOBAL_OFFSET_TABLE_.
+>
+>(On x86-32, there is an R_386_PC32 vs R_386_PLT32 difference but the
+>linker behavior is identical as far as Linux kernel is concerned.)
+>
+>Simply ignore _GLOBAL_OFFSET_TABLE_ for now, like what
+>scripts/mod/modpost.c:ignore_undef_symbol does. This also fixes the
+>problem for gcc/clang -fpie and -fpic, which may emit `call foo@PLT` for
+>external function calls on x86.
+>
+>Note: ld -z defs and dynamic loaders do not error for unreferenced
+>undefined symbols so the module loader is reading too much.  If we ever
+>need to ignore more symbols, the code should be refactored to ignore
+>unreferenced symbols.
+>
+>Reported-by: Marco Elver <elver@google.com>
+>Link: https://github.com/ClangBuiltLinux/linux/issues/1250
+>Signed-off-by: Fangrui Song <maskray@google.com>
+>Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+>Tested-by: Marco Elver <elver@google.com>
+>Cc: <stable@vger.kernel.org>
+>
+>---
+>Changes in v2:
+>* Fix Marco's email address
+>* Add a function ignore_undef_symbol similar to scripts/mod/modpost.c:ignore_undef_symbol
+>---
+>Changes in v3:
+>* Fix the style of a multi-line comment.
+>* Use static bool ignore_undef_symbol.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Patch has been queued up on modules-next:
 
-thanks,
+https://git.kernel.org/pub/scm/linux/kernel/git/jeyu/linux.git/commit/?h=modules-next&id=ebfac7b778fac8b0e8e92ec91d0b055f046b4604
 
-greg k-h
+Thanks!
 
------------------- original commit in Linus's tree ------------------
-
-From 2225a8dda263edc35a0e8b858fe2945cf6240fde Mon Sep 17 00:00:00 2001
-From: Ariel Marcovitch <arielmarcovitch@gmail.com>
-Date: Sat, 2 Jan 2021 22:11:56 +0200
-Subject: [PATCH] powerpc: Fix alignment bug within the init sections
-
-This is a bug that causes early crashes in builds with an .exit.text
-section smaller than a page and an .init.text section that ends in the
-beginning of a physical page (this is kinda random, which might
-explain why this wasn't really encountered before).
-
-The init sections are ordered like this:
-  .init.text
-  .exit.text
-  .init.data
-
-Currently, these sections aren't page aligned.
-
-Because the init code might become read-only at runtime and because
-the .init.text section can potentially reside on the same physical
-page as .init.data, the beginning of .init.data might be mapped
-read-only along with .init.text.
-
-Then when the kernel tries to modify a variable in .init.data (like
-kthreadd_done, used in kernel_init()) the kernel panics.
-
-To avoid this, make _einittext page aligned and also align .exit.text
-to make sure .init.data is always seperated from the text segments.
-
-Fixes: 060ef9d89d18 ("powerpc32: PAGE_EXEC required for inittext")
-Signed-off-by: Ariel Marcovitch <ariel.marcovitch@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210102201156.10805-1-ariel.marcovitch@gmail.com
-
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 8e0b1298bf19..4ab426b8b0e0 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -187,6 +187,12 @@ SECTIONS
- 	.init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
- 		_sinittext = .;
- 		INIT_TEXT
-+
-+		/*
-+		 *.init.text might be RO so we must ensure this section ends on
-+		 * a page boundary.
-+		 */
-+		. = ALIGN(PAGE_SIZE);
- 		_einittext = .;
- #ifdef CONFIG_PPC64
- 		*(.tramp.ftrace.init);
-@@ -200,6 +206,8 @@ SECTIONS
- 		EXIT_TEXT
- 	}
- 
-+	. = ALIGN(PAGE_SIZE);
-+
- 	INIT_DATA_SECTION(16)
- 
- 	. = ALIGN(8);
-
+Jessica
