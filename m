@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 751E92F9E54
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5B82F9E52
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390352AbhARLhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S2390289AbhARLhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:37:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390304AbhARLgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:36:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A102223E;
-        Mon, 18 Jan 2021 11:35:53 +0000 (UTC)
+        id S2390305AbhARLgm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:36:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEA00222BB;
+        Mon, 18 Jan 2021 11:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969754;
-        bh=f+8QdHcYlFIf2WvqZGdN0RjkeiHzGs8IrdLsTrWr7Bo=;
+        s=korg; t=1610969756;
+        bh=AYi+uLT9CRD9i7SyLnpoe00izJkYoVVPRLQKykqAAHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oibPXu+yRnrR7DBf61j2ZPBWnmFvgWSgn+mJJCvJAMjk6oE2CbYuYvtPqhcXx5XkA
-         MC3DcwRRqYWitzBkYxd2+Q0qKAr7/NGt2AbAuBqpQjBQtqtoI/jCa7V76JWLnxAxvU
-         qIazCy5XxGS016Sk0aWtJ9NFf4ZeE0LoNdiw4dcI=
+        b=pmRc5l8du8hvDC3cdQDi89QP6AjWp28Op/ZoleRqYmGQXM8BERO0L38Eci3oEUraU
+         Ba+8MEL6pjcMyJxiRTw1uxNMNExQ7q3FVcrhpEzkYrnrKKDld0C6roizJITLs7v5o+
+         uu/0+EmLodeKAWfczK+LgjKQ8w+vEXIBvrYJOo6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Schuermann <leon@is.currently.online>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 11/43] r8152: Add Lenovo Powered USB-C Travel Hub
-Date:   Mon, 18 Jan 2021 12:34:34 +0100
-Message-Id: <20210118113335.491713827@linuxfoundation.org>
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/43] ext4: fix bug for rename with RENAME_WHITEOUT
+Date:   Mon, 18 Jan 2021 12:34:35 +0100
+Message-Id: <20210118113335.537096648@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -39,55 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Schuermann <leon@is.currently.online>
+From: yangerkun <yangerkun@huawei.com>
 
-commit cb82a54904a99df9e8f9e9d282046055dae5a730 upstream.
+[ Upstream commit 6b4b8e6b4ad8553660421d6360678b3811d5deb9 ]
 
-This USB-C Hub (17ef:721e) based on the Realtek RTL8153B chip used to
-use the cdc_ether driver. However, using this driver, with the system
-suspended the device constantly sends pause-frames as soon as the
-receive buffer fills up. This causes issues with other devices, where
-some Ethernet switches stop forwarding packets altogether.
+We got a "deleted inode referenced" warning cross our fsstress test. The
+bug can be reproduced easily with following steps:
 
-Using the Realtek driver (r8152) fixes this issue. Pause frames are no
-longer sent while the host system is suspended.
+  cd /dev/shm
+  mkdir test/
+  fallocate -l 128M img
+  mkfs.ext4 -b 1024 img
+  mount img test/
+  dd if=/dev/zero of=test/foo bs=1M count=128
+  mkdir test/dir/ && cd test/dir/
+  for ((i=0;i<1000;i++)); do touch file$i; done # consume all block
+  cd ~ && renameat2(AT_FDCWD, /dev/shm/test/dir/file1, AT_FDCWD,
+    /dev/shm/test/dir/dst_file, RENAME_WHITEOUT) # ext4_add_entry in
+    ext4_rename will return ENOSPC!!
+  cd /dev/shm/ && umount test/ && mount img test/ && ls -li test/dir/file1
+  We will get the output:
+  "ls: cannot access 'test/dir/file1': Structure needs cleaning"
+  and the dmesg show:
+  "EXT4-fs error (device loop0): ext4_lookup:1626: inode #2049: comm ls:
+  deleted inode referenced: 139"
 
-Signed-off-by: Leon Schuermann <leon@is.currently.online>
-Tested-by: Leon Schuermann <leon@is.currently.online>
-Link: https://lore.kernel.org/r/20210111190312.12589-2-leon@is.currently.online
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ext4_rename will create a special inode for whiteout and use this 'ino'
+to replace the source file's dir entry 'ino'. Once error happens
+latter(the error above was the ENOSPC return from ext4_add_entry in
+ext4_rename since all space has been consumed), the cleanup do drop the
+nlink for whiteout, but forget to restore 'ino' with source file. This
+will trigger the bug describle as above.
 
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
+Fixes: cd808deced43 ("ext4: support RENAME_WHITEOUT")
+Link: https://lore.kernel.org/r/20210105062857.3566-1-yangerkun@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c |    7 +++++++
- drivers/net/usb/r8152.c     |    1 +
- 2 files changed, 8 insertions(+)
+ fs/ext4/namei.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -800,6 +800,13 @@ static const struct usb_device_id	produc
- 	.driver_info = 0,
- },
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 3c238006870d3..8f7e0ad5b5ef1 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3437,8 +3437,6 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
+ 			return retval;
+ 		}
+ 	}
+-	brelse(ent->bh);
+-	ent->bh = NULL;
  
-+/* Lenovo Powered USB-C Travel Hub (4X90S92381, based on Realtek RTL8153) */
-+{
-+	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x721e, USB_CLASS_COMM,
-+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-+	.driver_info = 0,
-+},
+ 	return 0;
+ }
+@@ -3638,6 +3636,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		}
+ 	}
+ 
++	old_file_type = old.de->file_type;
+ 	if (IS_DIRSYNC(old.dir) || IS_DIRSYNC(new.dir))
+ 		ext4_handle_sync(handle);
+ 
+@@ -3665,7 +3664,6 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	force_reread = (new.dir->i_ino == old.dir->i_ino &&
+ 			ext4_test_inode_flag(new.dir, EXT4_INODE_INLINE_DATA));
+ 
+-	old_file_type = old.de->file_type;
+ 	if (whiteout) {
+ 		/*
+ 		 * Do this before adding a new entry, so the old entry is sure
+@@ -3737,15 +3735,19 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	retval = 0;
+ 
+ end_rename:
+-	brelse(old.dir_bh);
+-	brelse(old.bh);
+-	brelse(new.bh);
+ 	if (whiteout) {
+-		if (retval)
++		if (retval) {
++			ext4_setent(handle, &old,
++				old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
++		}
+ 		unlock_new_inode(whiteout);
+ 		iput(whiteout);
 +
- /* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5352,6 +5352,7 @@ static const struct usb_device_id rtl815
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
-+	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x721e)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
+ 	}
++	brelse(old.dir_bh);
++	brelse(old.bh);
++	brelse(new.bh);
+ 	if (handle)
+ 		ext4_journal_stop(handle);
+ 	return retval;
+-- 
+2.27.0
+
 
 
