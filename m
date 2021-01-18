@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 922DA2FAADE
+	by mail.lfdr.de (Postfix) with ESMTP id 1CCBF2FAADD
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 21:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437696AbhART6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:58:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33334 "EHLO mail.kernel.org"
+        id S2437606AbhART6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 14:58:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390385AbhARLhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:37:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E74C8223DB;
-        Mon, 18 Jan 2021 11:36:02 +0000 (UTC)
+        id S2390238AbhARLhW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:37:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BABC2245C;
+        Mon, 18 Jan 2021 11:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969763;
-        bh=7maAhltJ5Z5JyNXUAOleDHb3F61gQUILqKDye9c6jOc=;
+        s=korg; t=1610969768;
+        bh=2FOaJrrdaM9SWXaj6tRs2Z2YMjkvmRHjdJNXdPcUAG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJePsrIlVdAyb45tEf6Lp8ls6W06JZC8jccYEyh2zLETnaZ+3uuKorr0IxQcYpf5Q
-         GZ78WUQxfFiuw232sqtqfo60xiOO39Ht3prHcp4/rrgHbUAys3ONEQWbxjFTkxJUY1
-         I3PHYbZkp74qzHwms63NJB16vO51pwp4pua0dyCY=
+        b=vZfrZXCzREtZmz7/n9nXTrtZ9krFxJnmrhhFjox/8WI54Ap1ecT49hx5ChJueFn30
+         emrhtag2cY2m9tmPDQyOADB+6fS+q/DQqQk46lBVcENMOHnZpanNoksMu/rvab2tdJ
+         rOp9uW+DdT57nBi4nj/nUL8wpABEwVRfB5i1Xg8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 03/43] tracing/kprobes: Do the notrace functions check without kprobes on ftrace
-Date:   Mon, 18 Jan 2021 12:34:26 +0100
-Message-Id: <20210118113335.133250737@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@kernel.org
+Subject: [PATCH 4.19 05/43] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
+Date:   Mon, 18 Jan 2021 12:34:28 +0100
+Message-Id: <20210118113335.225366135@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -41,58 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 7bb83f6fc4ee84e95d0ac0d14452c2619fb3fe70 upstream.
+commit 698222457465ce343443be81c5512edda86e5914 upstream.
 
-Enable the notrace function check on the architecture which doesn't
-support kprobes on ftrace but support dynamic ftrace. This notrace
-function check is not only for the kprobes on ftrace but also
-sw-breakpoint based kprobes.
-Thus there is no reason to limit this check for the arch which
-supports kprobes on ftrace.
+Patches that introduced NT_FILE and NT_SIGINFO notes back in 2012
+had taken care of native (fs/binfmt_elf.c) and compat (fs/compat_binfmt_elf.c)
+coredumps; unfortunately, compat on mips (which does not go through the
+usual compat_binfmt_elf.c) had not been noticed.
 
-This also changes the dependency of Kconfig. Because kprobe event
-uses the function tracer's address list for identifying notrace
-function, if the CONFIG_DYNAMIC_FTRACE=n, it can not check whether
-the target function is notrace or not.
+As the result, both N32 and O32 coredumps on 64bit mips kernels
+have those sections malformed enough to confuse the living hell out of
+all gdb and readelf versions (up to and including the tip of binutils-gdb.git).
 
-Link: https://lkml.kernel.org/r/20210105065730.2634785-1-naveen.n.rao@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/r/161007957862.114704.4512260007555399463.stgit@devnote2
+Longer term solution is to make both O32 and N32 compat use the
+regular compat_binfmt_elf.c, but that's too much for backports.  The minimal
+solution is to do in arch/mips/kernel/binfmt_elf[on]32.c the same thing
+those patches have done in fs/compat_binfmt_elf.c
 
-Cc: stable@vger.kernel.org
-Fixes: 45408c4f92506 ("tracing: kprobes: Prohibit probing on notrace function")
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: stable@kernel.org # v3.7+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/Kconfig        |    2 +-
- kernel/trace/trace_kprobe.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/kernel/binfmt_elfn32.c |    7 +++++++
+ arch/mips/kernel/binfmt_elfo32.c |    7 +++++++
+ 2 files changed, 14 insertions(+)
 
---- a/kernel/trace/Kconfig
-+++ b/kernel/trace/Kconfig
-@@ -476,7 +476,7 @@ config KPROBE_EVENTS
- config KPROBE_EVENTS_ON_NOTRACE
- 	bool "Do NOT protect notrace function from kprobe events"
- 	depends on KPROBE_EVENTS
--	depends on KPROBES_ON_FTRACE
-+	depends on DYNAMIC_FTRACE
- 	default n
- 	help
- 	  This is only for the developers who want to debug ftrace itself
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -517,7 +517,7 @@ disable_trace_kprobe(struct trace_kprobe
- 	return ret;
- }
+--- a/arch/mips/kernel/binfmt_elfn32.c
++++ b/arch/mips/kernel/binfmt_elfn32.c
+@@ -103,4 +103,11 @@ jiffies_to_compat_timeval(unsigned long
+ #undef ns_to_timeval
+ #define ns_to_timeval ns_to_compat_timeval
  
--#if defined(CONFIG_KPROBES_ON_FTRACE) && \
-+#if defined(CONFIG_DYNAMIC_FTRACE) && \
- 	!defined(CONFIG_KPROBE_EVENTS_ON_NOTRACE)
- static bool __within_notrace_func(unsigned long addr)
- {
++/*
++ * Some data types as stored in coredump.
++ */
++#define user_long_t             compat_long_t
++#define user_siginfo_t          compat_siginfo_t
++#define copy_siginfo_to_external        copy_siginfo_to_external32
++
+ #include "../../../fs/binfmt_elf.c"
+--- a/arch/mips/kernel/binfmt_elfo32.c
++++ b/arch/mips/kernel/binfmt_elfo32.c
+@@ -106,4 +106,11 @@ jiffies_to_compat_timeval(unsigned long
+ #undef ns_to_timeval
+ #define ns_to_timeval ns_to_compat_timeval
+ 
++/*
++ * Some data types as stored in coredump.
++ */
++#define user_long_t             compat_long_t
++#define user_siginfo_t          compat_siginfo_t
++#define copy_siginfo_to_external        copy_siginfo_to_external32
++
+ #include "../../../fs/binfmt_elf.c"
 
 
