@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 082502F9E53
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 464602F9E6A
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390338AbhARLhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60910 "EHLO mail.kernel.org"
+        id S2390526AbhARLjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:39:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390313AbhARLgk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:36:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D99C222B3;
-        Mon, 18 Jan 2021 11:35:58 +0000 (UTC)
+        id S2390512AbhARLjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:39:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD98224B0;
+        Mon, 18 Jan 2021 11:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969758;
-        bh=ZRf0tHMkuD9fOooc5JgFR6IuPvDSlLfDzjQtFstq5ZI=;
+        s=korg; t=1610969922;
+        bh=2en8818mCPobvH+Dx1pkm6mBNp03J0/We1+gCiq/EE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYmkIrNy9K+/hEE8WmHQeaH1PkCwoqjswVVuthgPmu3OhxF/mVr9PHA6OLhD/27GE
-         QxTHeVUs1pJ6B+D7YO3rsS5x+aXaUfzDKYv8poqq00S8d6zmIChjazttvZcnutf+DW
-         ZJmLkcKtxHTwUkbKoVE83iW4VnSuM13Nt3nP3MNw=
+        b=yOT+iy+oQjA5wdVasQLx1GcMmvS6YBuuB3ROprZNWjYtDtaUdY+2M922FLJcxC7yj
+         sZ9lxzcXuelq1gveiDMK+2CeBR/8UlCFmtiAxqYxV0+tYYjFzLRoyPxWTVeADem+7d
+         IZjseHJ874gnVxDBaVfxiMfsXMMggkZwE5kqhKbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/43] ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
-Date:   Mon, 18 Jan 2021 12:34:36 +0100
-Message-Id: <20210118113335.588944282@linuxfoundation.org>
+Subject: [PATCH 5.4 39/76] misdn: dsp: select CONFIG_BITREVERSE
+Date:   Mon, 18 Jan 2021 12:34:39 +0100
+Message-Id: <20210118113342.858342945@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
-References: <20210118113334.966227881@linuxfoundation.org>
+In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
+References: <20210118113340.984217512@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9836720911cfec25d3fbdead1c438bf87e0f2841 ]
+[ Upstream commit 51049bd903a81307f751babe15a1df8d197884e8 ]
 
-The deb-pkg builds for ARCH=arc fail.
+Without this, we run into a link error
 
-  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
-  $ make -s ARCH=arc defconfig
-  $ make ARCH=arc bindeb-pkg
-  SORTTAB vmlinux
-  SYSMAP  System.map
-  MODPOST Module.symvers
-  make KERNELRELEASE=5.10.0-rc4 ARCH=arc KBUILD_BUILD_VERSION=2 -f ./Makefile intdeb-pkg
-  sh ./scripts/package/builddeb
-  cp: cannot stat 'arch/arc/boot/bootpImage': No such file or directory
-  make[4]: *** [scripts/Makefile.package:87: intdeb-pkg] Error 1
-  make[3]: *** [Makefile:1527: intdeb-pkg] Error 2
-  make[2]: *** [debian/rules:13: binary-arch] Error 2
-  dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
-  make[1]: *** [scripts/Makefile.package:83: bindeb-pkg] Error 2
-  make: *** [Makefile:1527: bindeb-pkg] Error 2
+arm-linux-gnueabi-ld: drivers/isdn/mISDN/dsp_audio.o: in function `dsp_audio_generate_law_tables':
+(.text+0x30c): undefined reference to `byte_rev_table'
+arm-linux-gnueabi-ld: drivers/isdn/mISDN/dsp_audio.o:(.text+0x5e4): more undefined references to `byte_rev_table' follow
 
-The reason is obvious; arch/arc/Makefile sets $(boot)/bootpImage as
-the default image, but there is no rule to build it.
-
-Remove the meaningless KBUILD_IMAGE assignment so it will fallback
-to the default vmlinux. With this change, you can build the deb package.
-
-I removed the 'bootpImage' target as well. At best, it provides
-'make bootpImage' as an alias of 'make vmlinux', but I do not see
-much sense in doing so.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/Makefile | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/isdn/mISDN/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-index 16e6cc22e25cc..b07fdbdd8c836 100644
---- a/arch/arc/Makefile
-+++ b/arch/arc/Makefile
-@@ -91,12 +91,6 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
+diff --git a/drivers/isdn/mISDN/Kconfig b/drivers/isdn/mISDN/Kconfig
+index 26cf0ac9c4ad0..c9a53c2224728 100644
+--- a/drivers/isdn/mISDN/Kconfig
++++ b/drivers/isdn/mISDN/Kconfig
+@@ -13,6 +13,7 @@ if MISDN != n
+ config MISDN_DSP
+ 	tristate "Digital Audio Processing of transparent data"
+ 	depends on MISDN
++	select BITREVERSE
+ 	help
+ 	  Enable support for digital audio processing capability.
  
- boot		:= arch/arc/boot
- 
--#default target for make without any arguments.
--KBUILD_IMAGE	:= $(boot)/bootpImage
--
--all:	bootpImage
--bootpImage: vmlinux
--
- boot_targets += uImage uImage.bin uImage.gz
- 
- $(boot_targets): vmlinux
 -- 
 2.27.0
 
