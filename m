@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B73E22F9E67
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:39:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53EB82F9E68
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390332AbhARLjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:39:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34100 "EHLO mail.kernel.org"
+        id S2390510AbhARLjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:39:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390482AbhARLiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390474AbhARLiq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:38:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B84F1229CA;
-        Mon, 18 Jan 2021 11:37:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DC562223E;
+        Mon, 18 Jan 2021 11:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969873;
-        bh=GREwIDlG9kGUPNZgkwNQoGeXmfNk0NZVF52e+GEJPDc=;
+        s=korg; t=1610969875;
+        bh=ImAx8VLNvSv8MYH4ZZXbLsF/zHT3Dgn5tGRGNHrsbAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRmF2mtUIlvJjSTm4WOR0CTzz2xCt1J+UZVmBe5RWybYFaK6XZNGIn7yADXyDpEvT
-         OwS1/S2e0uUYwIwAzn8ilk1AULjYoV8W54tusBUSjRFiMQ6YULsS4InroTo4GokZvM
-         6fW3ZX7454aJOMRPD9c7ql+I79YNn3lzcFFKhSTI=
+        b=L1QNEgcArIqTF/LdXLuq+l1kPHIQwKhrzrGswv/7PEu9IfA02eSf+EJ6OvphaMtZs
+         s8rOyIK29/T5SZUvcI1QUIc4FdI26pwNc2aFie15DE2tlLTO/6A5HZXrJmtfMwvIvu
+         tIpJcIhPvGZO+KWB2CaPaqfeoojt8+gqk6BTq4lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Su Yue <l@damenly.su>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Lyude Paul <lyude@redhat.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/76] btrfs: tree-checker: check if chunk item end overflows
-Date:   Mon, 18 Jan 2021 12:34:18 +0100
-Message-Id: <20210118113341.865264524@linuxfoundation.org>
+Subject: [PATCH 5.4 19/76] drm/i915/backlight: fix CPU mode backlight takeover on LPT
+Date:   Mon, 18 Jan 2021 12:34:19 +0100
+Message-Id: <20210118113341.913992596@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
 References: <20210118113340.984217512@linuxfoundation.org>
@@ -40,180 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Su Yue <l@damenly.su>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 347fb0cfc9bab5195c6701e62eda488310d7938f ]
+[ Upstream commit bb83d5fb550bb7db75b29e6342417fda2bbb691c ]
 
-While mounting a crafted image provided by user, kernel panics due to
-the invalid chunk item whose end is less than start.
+The pch_get_backlight(), lpt_get_backlight(), and lpt_set_backlight()
+functions operate directly on the hardware registers. If inverting the
+value is needed, using intel_panel_compute_brightness(), it should only
+be done in the interface between hardware registers and
+panel->backlight.level.
 
-  [66.387422] loop: module loaded
-  [66.389773] loop0: detected capacity change from 262144 to 0
-  [66.427708] BTRFS: device fsid a62e00e8-e94e-4200-8217-12444de93c2e devid 1 transid 12 /dev/loop0 scanned by mount (613)
-  [66.431061] BTRFS info (device loop0): disk space caching is enabled
-  [66.431078] BTRFS info (device loop0): has skinny extents
-  [66.437101] BTRFS error: insert state: end < start 29360127 37748736
-  [66.437136] ------------[ cut here ]------------
-  [66.437140] WARNING: CPU: 16 PID: 613 at fs/btrfs/extent_io.c:557 insert_state.cold+0x1a/0x46 [btrfs]
-  [66.437369] CPU: 16 PID: 613 Comm: mount Tainted: G           O      5.11.0-rc1-custom #45
-  [66.437374] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-  [66.437378] RIP: 0010:insert_state.cold+0x1a/0x46 [btrfs]
-  [66.437420] RSP: 0018:ffff93e5414c3908 EFLAGS: 00010286
-  [66.437427] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [66.437431] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [66.437434] RBP: ffff93e5414c3938 R08: 0000000000000001 R09: 0000000000000001
-  [66.437438] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d72aa0
-  [66.437441] R13: ffff8ec78bc71628 R14: 0000000000000000 R15: 0000000002400000
-  [66.437447] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [66.437451] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [66.437455] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [66.437460] PKRU: 55555554
-  [66.437464] Call Trace:
-  [66.437475]  set_extent_bit+0x652/0x740 [btrfs]
-  [66.437539]  set_extent_bits_nowait+0x1d/0x20 [btrfs]
-  [66.437576]  add_extent_mapping+0x1e0/0x2f0 [btrfs]
-  [66.437621]  read_one_chunk+0x33c/0x420 [btrfs]
-  [66.437674]  btrfs_read_chunk_tree+0x6a4/0x870 [btrfs]
-  [66.437708]  ? kvm_sched_clock_read+0x18/0x40
-  [66.437739]  open_ctree+0xb32/0x1734 [btrfs]
-  [66.437781]  ? bdi_register_va+0x1b/0x20
-  [66.437788]  ? super_setup_bdi_name+0x79/0xd0
-  [66.437810]  btrfs_mount_root.cold+0x12/0xeb [btrfs]
-  [66.437854]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.437873]  legacy_get_tree+0x34/0x60
-  [66.437880]  vfs_get_tree+0x2d/0xc0
-  [66.437888]  vfs_kern_mount.part.0+0x78/0xc0
-  [66.437897]  vfs_kern_mount+0x13/0x20
-  [66.437902]  btrfs_mount+0x11f/0x3c0 [btrfs]
-  [66.437940]  ? kfree+0x5ff/0x670
-  [66.437944]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.437962]  legacy_get_tree+0x34/0x60
-  [66.437974]  vfs_get_tree+0x2d/0xc0
-  [66.437983]  path_mount+0x48c/0xd30
-  [66.437998]  __x64_sys_mount+0x108/0x140
-  [66.438011]  do_syscall_64+0x38/0x50
-  [66.438018]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [66.438023] RIP: 0033:0x7f0138827f6e
-  [66.438033] RSP: 002b:00007ffecd79edf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-  [66.438040] RAX: ffffffffffffffda RBX: 00007f013894c264 RCX: 00007f0138827f6e
-  [66.438044] RDX: 00005593a4a41360 RSI: 00005593a4a33690 RDI: 00005593a4a3a6c0
-  [66.438047] RBP: 00005593a4a33440 R08: 0000000000000000 R09: 0000000000000001
-  [66.438050] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-  [66.438054] R13: 00005593a4a3a6c0 R14: 00005593a4a41360 R15: 00005593a4a33440
-  [66.438078] irq event stamp: 18169
-  [66.438082] hardirqs last  enabled at (18175): [<ffffffffb81154bf>] console_unlock+0x4ff/0x5f0
-  [66.438088] hardirqs last disabled at (18180): [<ffffffffb8115427>] console_unlock+0x467/0x5f0
-  [66.438092] softirqs last  enabled at (16910): [<ffffffffb8a00fe2>] asm_call_irq_on_stack+0x12/0x20
-  [66.438097] softirqs last disabled at (16905): [<ffffffffb8a00fe2>] asm_call_irq_on_stack+0x12/0x20
-  [66.438103] ---[ end trace e114b111db64298b ]---
-  [66.438107] BTRFS error: found node 12582912 29360127 on insert of 37748736 29360127
-  [66.438127] BTRFS critical: panic in extent_io_tree_panic:679: locking error: extent tree was modified by another thread while locked (errno=-17 Object already exists)
-  [66.441069] ------------[ cut here ]------------
-  [66.441072] kernel BUG at fs/btrfs/extent_io.c:679!
-  [66.442064] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  [66.443018] CPU: 16 PID: 613 Comm: mount Tainted: G        W  O      5.11.0-rc1-custom #45
-  [66.444538] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-  [66.446223] RIP: 0010:extent_io_tree_panic.isra.0+0x23/0x25 [btrfs]
-  [66.450878] RSP: 0018:ffff93e5414c3948 EFLAGS: 00010246
-  [66.451840] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [66.453141] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [66.454445] RBP: ffff93e5414c3948 R08: 0000000000000001 R09: 0000000000000001
-  [66.455743] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d728c0
-  [66.457055] R13: ffff8ec78bc71628 R14: ffff8ec782d72aa0 R15: 0000000002400000
-  [66.458356] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [66.459841] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [66.460895] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [66.462196] PKRU: 55555554
-  [66.462692] Call Trace:
-  [66.463139]  set_extent_bit.cold+0x30/0x98 [btrfs]
-  [66.464049]  set_extent_bits_nowait+0x1d/0x20 [btrfs]
-  [66.490466]  add_extent_mapping+0x1e0/0x2f0 [btrfs]
-  [66.514097]  read_one_chunk+0x33c/0x420 [btrfs]
-  [66.534976]  btrfs_read_chunk_tree+0x6a4/0x870 [btrfs]
-  [66.555718]  ? kvm_sched_clock_read+0x18/0x40
-  [66.575758]  open_ctree+0xb32/0x1734 [btrfs]
-  [66.595272]  ? bdi_register_va+0x1b/0x20
-  [66.614638]  ? super_setup_bdi_name+0x79/0xd0
-  [66.633809]  btrfs_mount_root.cold+0x12/0xeb [btrfs]
-  [66.652938]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.671925]  legacy_get_tree+0x34/0x60
-  [66.690300]  vfs_get_tree+0x2d/0xc0
-  [66.708221]  vfs_kern_mount.part.0+0x78/0xc0
-  [66.725808]  vfs_kern_mount+0x13/0x20
-  [66.742730]  btrfs_mount+0x11f/0x3c0 [btrfs]
-  [66.759350]  ? kfree+0x5ff/0x670
-  [66.775441]  ? __kmalloc_track_caller+0x217/0x3b0
-  [66.791750]  legacy_get_tree+0x34/0x60
-  [66.807494]  vfs_get_tree+0x2d/0xc0
-  [66.823349]  path_mount+0x48c/0xd30
-  [66.838753]  __x64_sys_mount+0x108/0x140
-  [66.854412]  do_syscall_64+0x38/0x50
-  [66.869673]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [66.885093] RIP: 0033:0x7f0138827f6e
-  [66.945613] RSP: 002b:00007ffecd79edf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-  [66.977214] RAX: ffffffffffffffda RBX: 00007f013894c264 RCX: 00007f0138827f6e
-  [66.994266] RDX: 00005593a4a41360 RSI: 00005593a4a33690 RDI: 00005593a4a3a6c0
-  [67.011544] RBP: 00005593a4a33440 R08: 0000000000000000 R09: 0000000000000001
-  [67.028836] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-  [67.045812] R13: 00005593a4a3a6c0 R14: 00005593a4a41360 R15: 00005593a4a33440
-  [67.216138] ---[ end trace e114b111db64298c ]---
-  [67.237089] RIP: 0010:extent_io_tree_panic.isra.0+0x23/0x25 [btrfs]
-  [67.325317] RSP: 0018:ffff93e5414c3948 EFLAGS: 00010246
-  [67.347946] RAX: 0000000000000000 RBX: 0000000001bfffff RCX: 0000000000000000
-  [67.371343] RDX: 0000000000000000 RSI: ffffffffb90d4660 RDI: 00000000ffffffff
-  [67.394757] RBP: ffff93e5414c3948 R08: 0000000000000001 R09: 0000000000000001
-  [67.418409] R10: ffff93e5414c3658 R11: 0000000000000000 R12: ffff8ec782d728c0
-  [67.441906] R13: ffff8ec78bc71628 R14: ffff8ec782d72aa0 R15: 0000000002400000
-  [67.465436] FS:  00007f01386a8580(0000) GS:ffff8ec809000000(0000) knlGS:0000000000000000
-  [67.511660] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [67.535047] CR2: 00007f01382fa000 CR3: 0000000109a34000 CR4: 0000000000750ee0
-  [67.558449] PKRU: 55555554
-  [67.581146] note: mount[613] exited with preempt_count 2
+The CPU mode takeover code added in commit 5b1ec9ac7ab5
+("drm/i915/backlight: Fix backlight takeover on LPT, v3.") reads the
+hardware register and converts to panel->backlight.level correctly,
+however the value written back should remain in the hardware register
+"domain".
 
-The image has a chunk item which has a logical start 37748736 and length
-18446744073701163008 (-8M). The calculated end 29360127 overflows.
-EEXIST was caught by insert_state() because of the duplicate end and
-extent_io_tree_panic() was called.
+This hasn't been an issue, because GM45 machines are the only known
+users of i915.invert_brightness and the brightness invert quirk, and
+without one of them no conversion is made. It's likely nobody's ever hit
+the problem.
 
-Add overflow check of chunk item end to tree checker so it can be
-detected early at mount time.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208929
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Su Yue <l@damenly.su>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 5b1ec9ac7ab5 ("drm/i915/backlight: Fix backlight takeover on LPT, v3.")
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.1+
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210108152841.6944-1-jani.nikula@intel.com
+(cherry picked from commit 0d4ced1c5bfe649196877d90442d4fd618e19153)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-checker.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/i915/display/intel_panel.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-index 9feb8a1793efb..7d06842a3d747 100644
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -571,6 +571,7 @@ int btrfs_check_chunk_valid(struct extent_buffer *leaf,
- {
- 	struct btrfs_fs_info *fs_info = leaf->fs_info;
- 	u64 length;
-+	u64 chunk_end;
- 	u64 stripe_len;
- 	u16 num_stripes;
- 	u16 sub_stripes;
-@@ -625,6 +626,12 @@ int btrfs_check_chunk_valid(struct extent_buffer *leaf,
- 			  "invalid chunk length, have %llu", length);
- 		return -EUCLEAN;
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
+index bc14e9c0285a0..23edc1b8e43fa 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.c
++++ b/drivers/gpu/drm/i915/display/intel_panel.c
+@@ -1603,20 +1603,21 @@ static int lpt_setup_backlight(struct intel_connector *connector, enum pipe unus
+ 		val = pch_get_backlight(connector);
+ 	else
+ 		val = lpt_get_backlight(connector);
+-	val = intel_panel_compute_brightness(connector, val);
+-	panel->backlight.level = clamp(val, panel->backlight.min,
+-				       panel->backlight.max);
+ 
+ 	if (cpu_mode) {
+ 		DRM_DEBUG_KMS("CPU backlight register was enabled, switching to PCH override\n");
+ 
+ 		/* Write converted CPU PWM value to PCH override register */
+-		lpt_set_backlight(connector->base.state, panel->backlight.level);
++		lpt_set_backlight(connector->base.state, val);
+ 		I915_WRITE(BLC_PWM_PCH_CTL1, pch_ctl1 | BLM_PCH_OVERRIDE_ENABLE);
+ 
+ 		I915_WRITE(BLC_PWM_CPU_CTL2, cpu_ctl2 & ~BLM_PWM_ENABLE);
  	}
-+	if (unlikely(check_add_overflow(logical, length, &chunk_end))) {
-+		chunk_err(leaf, chunk, logical,
-+"invalid chunk logical start and length, have logical start %llu length %llu",
-+			  logical, length);
-+		return -EUCLEAN;
-+	}
- 	if (!is_power_of_2(stripe_len) || stripe_len != BTRFS_STRIPE_LEN) {
- 		chunk_err(leaf, chunk, logical,
- 			  "invalid chunk stripe length: %llu",
+ 
++	val = intel_panel_compute_brightness(connector, val);
++	panel->backlight.level = clamp(val, panel->backlight.min,
++				       panel->backlight.max);
++
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 
