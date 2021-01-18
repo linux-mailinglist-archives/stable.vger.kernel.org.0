@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 669442F9F8C
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E34F02F9F8B
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403889AbhARM1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:27:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
+        id S2403873AbhARM1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 07:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390840AbhARLpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390844AbhARLpv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:45:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDAD022DA7;
-        Mon, 18 Jan 2021 11:45:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2684A22DA9;
+        Mon, 18 Jan 2021 11:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970326;
-        bh=HADbE/FakHhDROn6NwYgWzHwVLKZoc+x1p5oAFGp8Xg=;
+        s=korg; t=1610970328;
+        bh=DHy+vtDNpDe/o9OzUkF/FmYfaGheFFvlEzruOI1z2rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoHJFuhpyNh3GsANg98h7wxd4uruwZKLdseEXoqP6b7s3VGrHC5MJkvUxy6BvnLDL
-         m/wh0FUwD6GKStbeaw5L0Gt/mZlSMQdjQzf4ojquQ9tclnhqpQnN9jtsOBtEQX4+5a
-         /EBZMHple+ErmL56rdTq/r5iS0m4SznmhYxuso7Q=
+        b=0xlpDT14FCowYSouexyH3Z8xmm9DSHcCoUslZkB9m/3XkIyt8KQDV0F5QwbkHm210
+         OyY95cB1RxN/dasL0LzOisGfwGkolTny4EZp5vJU36juCIcDRnaOC2ZGnGxcY4tGdO
+         OjH1FhegIPuwVAmP8ZD1feei8pyVz/zi8ICD5rmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 131/152] scsi: ufs: Fix possible power drain during system suspend
-Date:   Mon, 18 Jan 2021 12:35:06 +0100
-Message-Id: <20210118113359.004000857@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 132/152] ext4: fix superblock checksum failure when setting password salt
+Date:   Mon, 18 Jan 2021 12:35:07 +0100
+Message-Id: <20210118113359.052340641@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -41,52 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 1d53864c3617f5235f891ca0fbe9347c4cd35d46 upstream.
+commit dfd56c2c0c0dbb11be939b804ddc8d5395ab3432 upstream.
 
-Currently if device needs to do flush or BKOP operations, the device VCC
-power is kept during runtime-suspend period.
+When setting password salt in the superblock, we forget to recompute the
+superblock checksum so it will not match until the next superblock
+modification which recomputes the checksum. Fix it.
 
-However, if system suspend is happening while device is runtime-suspended,
-such power may not be disabled successfully.
-
-The reasons may be,
-
-1. If current PM level is the same as SPM level, device will keep
-   runtime-suspended by ufshcd_system_suspend().
-
-2. Flush recheck work may not be scheduled successfully during system
-   suspend period. If it can wake up the system, this is also not the
-   intention of the recheck work.
-
-To fix this issue, simply runtime-resume the device if the flush is allowed
-during runtime suspend period. Flush capability will be disabled while
-leaving runtime suspend, and also not be allowed in system suspend period.
-
-Link: https://lore.kernel.org/r/20201222072905.32221-2-stanley.chu@mediatek.com
-Fixes: 51dd905bd2f6 ("scsi: ufs: Fix WriteBooster flush during runtime suspend")
-Reviewed-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+CC: Michael Halcrow <mhalcrow@google.com>
+Reported-by: Andreas Dilger <adilger@dilger.ca>
+Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20201216101844.22917-8-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/ufs/ufshcd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/ioctl.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8818,7 +8818,8 @@ int ufshcd_system_suspend(struct ufs_hba
- 	if ((ufs_get_pm_lvl_to_dev_pwr_mode(hba->spm_lvl) ==
- 	     hba->curr_dev_pwr_mode) &&
- 	    (ufs_get_pm_lvl_to_link_pwr_state(hba->spm_lvl) ==
--	     hba->uic_link_state))
-+	     hba->uic_link_state) &&
-+	     !hba->dev_info.b_rpm_dev_flush_capable)
- 		goto out;
- 
- 	if (pm_runtime_suspended(hba->dev)) {
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1157,7 +1157,10 @@ resizefs_out:
+ 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
+ 			if (err)
+ 				goto pwsalt_err_journal;
++			lock_buffer(sbi->s_sbh);
+ 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
++			ext4_superblock_csum_set(sb);
++			unlock_buffer(sbi->s_sbh);
+ 			err = ext4_handle_dirty_metadata(handle, NULL,
+ 							 sbi->s_sbh);
+ 		pwsalt_err_journal:
 
 
