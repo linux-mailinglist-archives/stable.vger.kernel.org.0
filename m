@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF502F9E90
+	by mail.lfdr.de (Postfix) with ESMTP id 999BE2F9E91
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390824AbhARLn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:43:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38328 "EHLO mail.kernel.org"
+        id S2390828AbhARLnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:43:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390817AbhARLnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:43:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 950CC22CA2;
-        Mon, 18 Jan 2021 11:42:59 +0000 (UTC)
+        id S2390820AbhARLnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:43:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A48229CA;
+        Mon, 18 Jan 2021 11:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970180;
-        bh=UGPotwOSlOAFBfdp+QF5pYzteNoSZIVrouejYfN2oA4=;
+        s=korg; t=1610970182;
+        bh=pmkYNRIjRXRI4sPS1CgRUyOj5sGYkiqZOgAC2Bs6kwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQ4xrvnDOg/cI083X+6buqcGtQmCE7ZPOoOrGJbT3QSKiWWxgF8+5XeT9ZduxdzNg
-         UybgaxAWiiGIpBTpI1K9AqByMDD+kStTDrCb/FAa8h5cXQKz8LNU3PNMcrYQEtdnvR
-         10x7gf8UEJBj176jxkBbR6rXvn7+Qn+iNkTFkM9s=
+        b=QzbQ9evRRHlQDAaCjrTYoOLPRir0frvijIRTRKIo33UoiYvg/Bkmu+lPgHHZFl6PJ
+         9pwkOkpRMeIsbeCGQW4FXplnBfA+IlhUEnbAU4HoM+nojDS1fjmjz69RGDpoVP2r3t
+         vfz3gkFPf7Jwx3DnUL/LL9Mlq4TmmzUXczg3v1ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5b0d0de84d6c65b8dd2b@syzkaller.appspotmail.com,
-        Kyle Huey <me@kylehuey.com>, Jens Axboe <axboe@kernel.dk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 040/152] mm/process_vm_access.c: include compat.h
-Date:   Mon, 18 Jan 2021 12:33:35 +0100
-Message-Id: <20210118113354.705127325@linuxfoundation.org>
+        stable@vger.kernel.org, Zdenek Kabelac <zkabelac@redhat.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        =?UTF-8?q?Stephan=20B=C3=A4rwolf?= <stephan@matrixstorm.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.10 041/152] dm raid: fix discard limits for raid1
+Date:   Mon, 18 Jan 2021 12:33:36 +0100
+Message-Id: <20210118113354.753644638@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -44,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit eb351d75ce1e75b4f793d609efac08426ca50acd upstream.
+commit cc07d72bf350b77faeffee1c37bc52197171473f upstream.
 
-Fix the build error:
+Block core warned that discard_granularity was 0 for dm-raid with
+personality of raid1.  Reason is that raid_io_hints() was incorrectly
+special-casing raid1 rather than raid0.
 
-  mm/process_vm_access.c:277:5: error: implicit declaration of function 'in_compat_syscall'; did you mean 'in_ia32_syscall'? [-Werror=implicit-function-declaration]
+Fix raid_io_hints() by removing discard limits settings for
+raid1. Check for raid0 instead.
 
-Fixes: 38dc5079da7081e "Fix compat regression in process_vm_rw()"
-Reported-by: syzbot+5b0d0de84d6c65b8dd2b@syzkaller.appspotmail.com
-Cc: Kyle Huey <me@kylehuey.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 61697a6abd24a ("dm: eliminate 'split_discard_bios' flag from DM target interface")
+Cc: stable@vger.kernel.org
+Reported-by: Zdenek Kabelac <zkabelac@redhat.com>
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Reported-by: Stephan Bärwolf <stephan@matrixstorm.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/process_vm_access.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-raid.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/process_vm_access.c
-+++ b/mm/process_vm_access.c
-@@ -9,6 +9,7 @@
- #include <linux/mm.h>
- #include <linux/uio.h>
- #include <linux/sched.h>
-+#include <linux/compat.h>
- #include <linux/sched/mm.h>
- #include <linux/highmem.h>
- #include <linux/ptrace.h>
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -3730,10 +3730,10 @@ static void raid_io_hints(struct dm_targ
+ 	blk_limits_io_opt(limits, chunk_size_bytes * mddev_data_stripes(rs));
+ 
+ 	/*
+-	 * RAID1 and RAID10 personalities require bio splitting,
+-	 * RAID0/4/5/6 don't and process large discard bios properly.
++	 * RAID0 and RAID10 personalities require bio splitting,
++	 * RAID1/4/5/6 don't and process large discard bios properly.
+ 	 */
+-	if (rs_is_raid1(rs) || rs_is_raid10(rs)) {
++	if (rs_is_raid0(rs) || rs_is_raid10(rs)) {
+ 		limits->discard_granularity = chunk_size_bytes;
+ 		limits->max_discard_sectors = rs->md.chunk_sectors;
+ 	}
 
 
