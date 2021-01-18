@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C99B12F9E60
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 497192F9E78
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390446AbhARLiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34044 "EHLO mail.kernel.org"
+        id S2390588AbhARLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:39:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390425AbhARLiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:38:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 499C4229F0;
-        Mon, 18 Jan 2021 11:36:28 +0000 (UTC)
+        id S2390582AbhARLjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:39:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05FDF229F0;
+        Mon, 18 Jan 2021 11:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969788;
-        bh=LRsymFWRyAlciZDqiRWK/ntSKv42t36TUPbsZRWPdvQ=;
+        s=korg; t=1610969950;
+        bh=uiFtAoy1X5FbQVW0lmtDN1898APkv7jDRkAxircn1FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9uB1PEjIltD9R6Ambssdgj2bLkagmI9UEjosfso8m7c7rv8DgnKFO4uVCnGH+aWm
-         gfd5l4WnAiU7p9BACHILsOc2+a9sJg+ylj+XO386/dis/6rDO78/65zwTjKUBG+ngi
-         bXZnDztstB5PAAShOvjqApAUH5NqVitCD7gPPTCc=
+        b=eA/QThyGByu3e6KIrcMzWDJX1PMB0MPQsmoqQXPFyeJvetSQqxwmNepNR7bhUmaKh
+         biWQyp4D+qsRnWOmajtxTIerKdsdQgZkA174mQtTWtn6sKVF15rxIB5ozFgl7C7ws1
+         tEihnj9XqVavnYqiB+OV3UTSa7ghR3fMwROWCv3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         stable@kernel.org
-Subject: [PATCH 4.19 26/43] dump_common_audit_data(): fix racy accesses to ->d_name
-Date:   Mon, 18 Jan 2021 12:34:49 +0100
-Message-Id: <20210118113336.208080694@linuxfoundation.org>
+Subject: [PATCH 5.4 50/76] dump_common_audit_data(): fix racy accesses to ->d_name
+Date:   Mon, 18 Jan 2021 12:34:50 +0100
+Message-Id: <20210118113343.381925098@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
-References: <20210118113334.966227881@linuxfoundation.org>
+In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
+References: <20210118113340.984217512@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,7 +57,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/security/lsm_audit.c
 +++ b/security/lsm_audit.c
-@@ -277,7 +277,9 @@ static void dump_common_audit_data(struc
+@@ -274,7 +274,9 @@ static void dump_common_audit_data(struc
  		struct inode *inode;
  
  		audit_log_format(ab, " name=");
@@ -67,7 +67,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		inode = d_backing_inode(a->u.dentry);
  		if (inode) {
-@@ -295,8 +297,9 @@ static void dump_common_audit_data(struc
+@@ -292,8 +294,9 @@ static void dump_common_audit_data(struc
  		dentry = d_find_alias(inode);
  		if (dentry) {
  			audit_log_format(ab, " name=");
