@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492A42F9E7F
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:42:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 190882F9E58
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390618AbhARLkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:40:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36096 "EHLO mail.kernel.org"
+        id S2387722AbhARLhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:37:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390607AbhARLkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:40:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB293229C6;
-        Mon, 18 Jan 2021 11:39:38 +0000 (UTC)
+        id S2390149AbhARLh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:37:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C3E22571;
+        Mon, 18 Jan 2021 11:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969979;
-        bh=hAoEpwiqPbCT37bbbZ28O2XW8nnm1SUk0LhseHv/JkQ=;
+        s=korg; t=1610969777;
+        bh=0thjbtQYsA7aykU+mLkTYnE/zohDwhWqFMB8iiAU/co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZgqeY3VivkEUQowW72Zd/TdX2UwctCoZ2fwyR1Cbco/bPbt3WzuvJoghfXZg5y/w
-         pxrUPUuGoq9edVN336ZTETfJ9cMQ1+Q6SyCVrqYdtidQ5MQ8w4m52DtlTU6xhGmDb3
-         hpVu3DHo/8/SWCnPXQXMbuWz937dgeKtfnqWfJG4=
+        b=wsv8psmXoYavfJfxTHlxJSLMQRWWrcgUcrWGEUuePsyZuvwAzcHXtpZ3ilJ9W/v3h
+         knHjbNefB2SymhhsO/OfHJs05iADewdlqSVY6TYaJ6CUI2qRG+lvbtuvaNLaLHKZTL
+         owMV/U1zNJitiSH/U9dH+aZjqwSJezVQlgIYTWY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/76] regulator: bd718x7: Add enable times
-Date:   Mon, 18 Jan 2021 12:34:31 +0100
-Message-Id: <20210118113342.474605221@linuxfoundation.org>
+        stable@vger.kernel.org, Akilesh Kailash <akailash@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 09/43] dm snapshot: flush merged data before committing metadata
+Date:   Mon, 18 Jan 2021 12:34:32 +0100
+Message-Id: <20210118113335.395586843@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
-References: <20210118113340.984217512@linuxfoundation.org>
+In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
+References: <20210118113334.966227881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,287 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Günther <agx@sigxcpu.org>
+From: Akilesh Kailash <akailash@google.com>
 
-[ Upstream commit 3b66e4a8e58a85af3212c7117d7a29c9ef6679a2 ]
+commit fcc42338375a1e67b8568dbb558f8b784d0f3b01 upstream.
 
-Use the typical startup times from the data sheet so boards get a
-reasonable default. Not setting any enable time can lead to board hangs
-when e.g. clocks are enabled too soon afterwards.
+If the origin device has a volatile write-back cache and the following
+events occur:
 
-This fixes gpu power domain resume on the Librem 5.
+1: After finishing merge operation of one set of exceptions,
+   merge_callback() is invoked.
+2: Update the metadata in COW device tracking the merge completion.
+   This update to COW device is flushed cleanly.
+3: System crashes and the origin device's cache where the recent
+   merge was completed has not been flushed.
 
-[Moved #defines into driver, seems to be general agreement and avoids any
-cross tree issues -- broonie]
+During the next cycle when we read the metadata from the COW device,
+we will skip reading those metadata whose merge was completed in
+step (1). This will lead to data loss/corruption.
 
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/41fb2ed19f584f138336344e2297ae7301f72b75.1608316658.git.agx@sigxcpu.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To address this, flush the origin device post merge IO before
+updating the metadata.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Akilesh Kailash <akailash@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/regulator/bd718x7-regulator.c | 57 +++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ drivers/md/dm-snap.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/regulator/bd718x7-regulator.c b/drivers/regulator/bd718x7-regulator.c
-index bdab46a5c4617..6c431456d2983 100644
---- a/drivers/regulator/bd718x7-regulator.c
-+++ b/drivers/regulator/bd718x7-regulator.c
-@@ -15,6 +15,36 @@
- #include <linux/regulator/of_regulator.h>
- #include <linux/slab.h>
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -137,6 +137,11 @@ struct dm_snapshot {
+ 	 * for them to be committed.
+ 	 */
+ 	struct bio_list bios_queued_during_merge;
++
++	/*
++	 * Flush data after merge.
++	 */
++	struct bio flush_bio;
+ };
  
-+/* Typical regulator startup times as per data sheet in uS */
-+#define BD71847_BUCK1_STARTUP_TIME 144
-+#define BD71847_BUCK2_STARTUP_TIME 162
-+#define BD71847_BUCK3_STARTUP_TIME 162
-+#define BD71847_BUCK4_STARTUP_TIME 240
-+#define BD71847_BUCK5_STARTUP_TIME 270
-+#define BD71847_BUCK6_STARTUP_TIME 200
-+#define BD71847_LDO1_STARTUP_TIME  440
-+#define BD71847_LDO2_STARTUP_TIME  370
-+#define BD71847_LDO3_STARTUP_TIME  310
-+#define BD71847_LDO4_STARTUP_TIME  400
-+#define BD71847_LDO5_STARTUP_TIME  530
-+#define BD71847_LDO6_STARTUP_TIME  400
-+
-+#define BD71837_BUCK1_STARTUP_TIME 160
-+#define BD71837_BUCK2_STARTUP_TIME 180
-+#define BD71837_BUCK3_STARTUP_TIME 180
-+#define BD71837_BUCK4_STARTUP_TIME 180
-+#define BD71837_BUCK5_STARTUP_TIME 160
-+#define BD71837_BUCK6_STARTUP_TIME 240
-+#define BD71837_BUCK7_STARTUP_TIME 220
-+#define BD71837_BUCK8_STARTUP_TIME 200
-+#define BD71837_LDO1_STARTUP_TIME  440
-+#define BD71837_LDO2_STARTUP_TIME  370
-+#define BD71837_LDO3_STARTUP_TIME  310
-+#define BD71837_LDO4_STARTUP_TIME  400
-+#define BD71837_LDO5_STARTUP_TIME  310
-+#define BD71837_LDO6_STARTUP_TIME  400
-+#define BD71837_LDO7_STARTUP_TIME  530
-+
  /*
-  * BUCK1/2/3/4
-  * BUCK1RAMPRATE[1:0] BUCK1 DVS ramp rate setting
-@@ -495,6 +525,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck1_set_hw_dvs_levels,
- 		},
-@@ -519,6 +550,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck2_set_hw_dvs_levels,
- 		},
-@@ -547,6 +579,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd71847_buck3_volt_range_sel,
- 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -574,6 +607,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_range_mask = BD71847_BUCK4_RANGE_MASK,
- 			.linear_range_selectors = bd71847_buck4_volt_range_sel,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -596,6 +630,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -620,6 +655,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -646,6 +682,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO1_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -668,6 +705,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
- 			.enable_reg = BD718XX_REG_LDO2_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -691,6 +729,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO3_MASK,
- 			.enable_reg = BD718XX_REG_LDO3_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -714,6 +753,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO4_MASK,
- 			.enable_reg = BD718XX_REG_LDO4_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -740,6 +780,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd71847_ldo5_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO5_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -765,6 +806,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO6_MASK,
- 			.enable_reg = BD718XX_REG_LDO6_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -791,6 +833,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck1_set_hw_dvs_levels,
- 		},
-@@ -815,6 +858,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck2_set_hw_dvs_levels,
- 		},
-@@ -839,6 +883,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD71837_REG_BUCK3_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck3_set_hw_dvs_levels,
- 		},
-@@ -863,6 +908,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD71837_REG_BUCK4_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck4_set_hw_dvs_levels,
- 		},
-@@ -891,6 +937,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.linear_range_selectors = bd71837_buck5_volt_range_sel,
- 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -915,6 +962,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_BUCK6_MASK,
- 			.enable_reg = BD718XX_REG_2ND_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -937,6 +985,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK7_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -961,6 +1010,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK8_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -987,6 +1037,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO1_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1009,6 +1060,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
- 			.enable_reg = BD718XX_REG_LDO2_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1032,6 +1084,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO3_MASK,
- 			.enable_reg = BD718XX_REG_LDO3_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1055,6 +1108,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO4_MASK,
- 			.enable_reg = BD718XX_REG_LDO4_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1080,6 +1134,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_LDO5_MASK,
- 			.enable_reg = BD718XX_REG_LDO5_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1107,6 +1162,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO6_MASK,
- 			.enable_reg = BD718XX_REG_LDO6_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1132,6 +1188,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_LDO7_MASK,
- 			.enable_reg = BD71837_REG_LDO7_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO7_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
--- 
-2.27.0
-
+@@ -1061,6 +1066,17 @@ shut:
+ 
+ static void error_bios(struct bio *bio);
+ 
++static int flush_data(struct dm_snapshot *s)
++{
++	struct bio *flush_bio = &s->flush_bio;
++
++	bio_reset(flush_bio);
++	bio_set_dev(flush_bio, s->origin->bdev);
++	flush_bio->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
++
++	return submit_bio_wait(flush_bio);
++}
++
+ static void merge_callback(int read_err, unsigned long write_err, void *context)
+ {
+ 	struct dm_snapshot *s = context;
+@@ -1074,6 +1090,11 @@ static void merge_callback(int read_err,
+ 		goto shut;
+ 	}
+ 
++	if (flush_data(s) < 0) {
++		DMERR("Flush after merge failed: shutting down merge");
++		goto shut;
++	}
++
+ 	if (s->store->type->commit_merge(s->store,
+ 					 s->num_merging_chunks) < 0) {
+ 		DMERR("Write error in exception store: shutting down merge");
+@@ -1198,6 +1219,7 @@ static int snapshot_ctr(struct dm_target
+ 	s->first_merging_chunk = 0;
+ 	s->num_merging_chunks = 0;
+ 	bio_list_init(&s->bios_queued_during_merge);
++	bio_init(&s->flush_bio, NULL, 0);
+ 
+ 	/* Allocate hash table for COW data */
+ 	if (init_hash_tables(s)) {
+@@ -1391,6 +1413,8 @@ static void snapshot_dtr(struct dm_targe
+ 
+ 	mutex_destroy(&s->lock);
+ 
++	bio_uninit(&s->flush_bio);
++
+ 	dm_put_device(ti, s->cow);
+ 
+ 	dm_put_device(ti, s->origin);
 
 
