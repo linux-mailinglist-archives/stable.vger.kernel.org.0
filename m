@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 930DC2FA30B
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A0F2FA39A
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390452AbhARObT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:31:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
+        id S2390679AbhARObO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:31:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390809AbhARLnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390812AbhARLnA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:43:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86A422245C;
-        Mon, 18 Jan 2021 11:42:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D60E7224B0;
+        Mon, 18 Jan 2021 11:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970154;
-        bh=o//x4t3L4c7A2s0gm9YfzsSy/uW230ICsDlCevPIAu0=;
+        s=korg; t=1610970156;
+        bh=NjnX7vpBdEObQj3DwhFQMHbnPeyqEPEVzfFPPN/J79E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1ZpefW8xCZtD897Q+CuGpsPGxuOoRT4x8BhP9CaAxs7Pddgr/xHyjMibr9+BpL9H
-         yV+AoOgAxS+edzaAjpC/iI2G9F4vLPMDQxFzAav+zfCtKrer6AyYUjJd1WWY2bI35J
-         DbTcqB2oI5ZEIKdAny4NF4GBSxx08qXkXBm6taok=
+        b=QnHa3Z3O3TPSYbh62KlInwWo3x8+cQlBk0I+qkKCKiPwN9jgnee+hGQOMKWUjyI3C
+         KPBlLa4XTzK7+nlulS7Vnp+7y41Z+7osX+HUQOzB1wQUIvMIHBQXIA8+o99WoaSv7g
+         mS6n5TCbGKIwlpdaTu/EUJjzHag/tQnPu6bbwJwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/152] ARM: omap2: pmic-cpcap: fix maximum voltage to be consistent with defaults on xt875
-Date:   Mon, 18 Jan 2021 12:33:54 +0100
-Message-Id: <20210118113355.622838192@linuxfoundation.org>
+Subject: [PATCH 5.10 060/152] ath11k: fix crash caused by NULL rx_channel
+Date:   Mon, 18 Jan 2021 12:33:55 +0100
+Message-Id: <20210118113355.672301537@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,33 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Philipp Klemm <philipp@uvos.xyz>
+From: Carl Huang <cjhuang@codeaurora.org>
 
-[ Upstream commit c0bc969c176b10598b31d5d1a5edf9a5261f0a9f ]
+[ Upstream commit 3597010630d0aa96f5778901e691c6068bb86318 ]
 
-xt875 comes up with a iva voltage of 1375000 and android runs at this too. fix
-maximum voltage to be consistent with this.
+During connect and disconnect stress test, crashed happened
+because ar->rx_channel is NULL. Fix it by checking whether
+ar->rx_channel is NULL.
 
-Signed-off-by: Carl Philipp Klemm <philipp@uvos.xyz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Crash stack is as below:
+RIP: 0010:ath11k_dp_rx_h_ppdu+0x110/0x230 [ath11k]
+[ 5028.808963]  ath11k_dp_rx_wbm_err+0x14a/0x360 [ath11k]
+[ 5028.808970]  ath11k_dp_rx_process_wbm_err+0x41c/0x520 [ath11k]
+[ 5028.808978]  ath11k_dp_service_srng+0x25e/0x2d0 [ath11k]
+[ 5028.808982]  ath11k_pci_ext_grp_napi_poll+0x23/0x80 [ath11k_pci]
+[ 5028.808986]  net_rx_action+0x27e/0x400
+[ 5028.808990]  __do_softirq+0xfd/0x2bb
+[ 5028.808993]  irq_exit+0xa6/0xb0
+[ 5028.808995]  do_IRQ+0x56/0xe0
+[ 5028.808997]  common_interrupt+0xf/0xf
+
+Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
+
+Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201211055613.9310-1-cjhuang@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/pmic-cpcap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/pmic-cpcap.c b/arch/arm/mach-omap2/pmic-cpcap.c
-index eab281a5fc9f7..09076ad0576d9 100644
---- a/arch/arm/mach-omap2/pmic-cpcap.c
-+++ b/arch/arm/mach-omap2/pmic-cpcap.c
-@@ -71,7 +71,7 @@ static struct omap_voltdm_pmic omap_cpcap_iva = {
- 	.vp_vstepmin = OMAP4_VP_VSTEPMIN_VSTEPMIN,
- 	.vp_vstepmax = OMAP4_VP_VSTEPMAX_VSTEPMAX,
- 	.vddmin = 900000,
--	.vddmax = 1350000,
-+	.vddmax = 1375000,
- 	.vp_timeout_us = OMAP4_VP_VLIMITTO_TIMEOUT_US,
- 	.i2c_slave_addr = 0x44,
- 	.volt_reg_addr = 0x0,
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index 01625327eef7c..3638501a09593 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -2272,6 +2272,7 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
+ {
+ 	u8 channel_num;
+ 	u32 center_freq;
++	struct ieee80211_channel *channel;
+ 
+ 	rx_status->freq = 0;
+ 	rx_status->rate_idx = 0;
+@@ -2292,9 +2293,12 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
+ 		rx_status->band = NL80211_BAND_5GHZ;
+ 	} else {
+ 		spin_lock_bh(&ar->data_lock);
+-		rx_status->band = ar->rx_channel->band;
+-		channel_num =
+-			ieee80211_frequency_to_channel(ar->rx_channel->center_freq);
++		channel = ar->rx_channel;
++		if (channel) {
++			rx_status->band = channel->band;
++			channel_num =
++				ieee80211_frequency_to_channel(channel->center_freq);
++		}
+ 		spin_unlock_bh(&ar->data_lock);
+ 		ath11k_dbg_dump(ar->ab, ATH11K_DBG_DATA, NULL, "rx_desc: ",
+ 				rx_desc, sizeof(struct hal_rx_desc));
 -- 
 2.27.0
 
