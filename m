@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0122F9E7B
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:42:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3D52F9EB5
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:51:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390598AbhARLkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:40:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
+        id S2390901AbhARLuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:50:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390537AbhARLkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:40:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2493C2223E;
-        Mon, 18 Jan 2021 11:39:51 +0000 (UTC)
+        id S2390788AbhARLqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:46:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC13522472;
+        Mon, 18 Jan 2021 11:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969991;
-        bh=KKV/3+xerDS256hNnw8+B6mkS7/OTuoWitYAw9FvDIM=;
+        s=korg; t=1610970392;
+        bh=HD219p2bjaksFPf8izzghIpIbKQvW3YpDH4Gm8+FzAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/Ek4YDYnna6sAUG8O4IhXye7PC95sEeQW1Q9SDhsLi3dxfzBUzU/ViN4mhzHAS8I
-         +ZM81GghGlne9bDn9YqKKJWSROa274pd3GS1BautHqlotN9F94760+8t88BZuvV2mf
-         +MnWolvetq393O0vaVFdEO3pUNM7pJiNbm3gl7Z0=
+        b=BBvpxxaYh7LLdLnKacjZm4C5MUihN3s306G0ox7LiCM0Kcj09isC/LUKt9Aoes7jX
+         YW5GgdgVOBz0QXhGTngfZlziceZbTXyrMCQwjoffwcie0SgYTHV5O1Y8YUJcd2EYeE
+         QojGC37NaWdBq5rkd+0yFGU3DqopJNMeZmelyhI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 68/76] mm, slub: consider rest of partial list if acquire_slab() fails
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 133/152] RDMA/restrack: Dont treat as an error allocation ID wrapping
 Date:   Mon, 18 Jan 2021 12:35:08 +0100
-Message-Id: <20210118113344.220384656@linuxfoundation.org>
+Message-Id: <20210118113359.099475996@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
-References: <20210118113340.984217512@linuxfoundation.org>
+In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
+References: <20210118113352.764293297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf upstream.
+commit 3c638cdb8ecc0442552156e0fed8708dd2c7f35b upstream.
 
-acquire_slab() fails if there is contention on the freelist of the page
-(probably because some other CPU is concurrently freeing an object from
-the page).  In that case, it might make sense to look for a different page
-(since there might be more remote frees to the page from other CPUs, and
-we don't want contention on struct page).
+xa_alloc_cyclic() call returns positive number if ID allocation
+succeeded but wrapped. It is not an error, so normalize the "ret"
+variable to zero as marker of not-an-error.
 
-However, the current code accidentally stops looking at the partial list
-completely in that case.  Especially on kernels without CONFIG_NUMA set,
-this means that get_partial() fails and new_slab_objects() falls back to
-new_slab(), allocating new pages.  This could lead to an unnecessary
-increase in memory fragmentation.
+   drivers/infiniband/core/restrack.c:261 rdma_restrack_add()
+   warn: 'ret' can be either negative or positive
 
-Link: https://lkml.kernel.org/r/20201228130853.1871516-1-jannh@google.com
-Fixes: 7ced37197196 ("slub: Acquire_slab() avoid loop")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: fd47c2f99f04 ("RDMA/restrack: Convert internal DB from hash to XArray")
+Link: https://lore.kernel.org/r/20201216100753.1127638-1-leon@kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/restrack.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1887,7 +1887,7 @@ static void *get_partial_node(struct kme
+--- a/drivers/infiniband/core/restrack.c
++++ b/drivers/infiniband/core/restrack.c
+@@ -244,6 +244,7 @@ void rdma_restrack_add(struct rdma_restr
+ 	} else {
+ 		ret = xa_alloc_cyclic(&rt->xa, &res->id, res, xa_limit_32b,
+ 				      &rt->next_id, GFP_KERNEL);
++		ret = (ret < 0) ? ret : 0;
+ 	}
  
- 		t = acquire_slab(s, n, page, object == NULL, &objects);
- 		if (!t)
--			break;
-+			continue; /* cmpxchg raced */
- 
- 		available += objects;
- 		if (!object) {
+ 	if (!ret)
 
 
