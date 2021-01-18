@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 260342FA91A
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 19:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E80D32FA95A
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 19:55:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393706AbhARSmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 13:42:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36726 "EHLO mail.kernel.org"
+        id S2407760AbhARSyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 13:54:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390651AbhARLk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:40:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF161222BB;
-        Mon, 18 Jan 2021 11:40:18 +0000 (UTC)
+        id S2390629AbhARLkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:40:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38154223DB;
+        Mon, 18 Jan 2021 11:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970019;
-        bh=DT61ktrx0hlfK+C1W36fZkooVs01lN9QmXYVtqtlHKc=;
+        s=korg; t=1610970021;
+        bh=H1kzvoM1DFEhx9dLrpSvcsRIJ+XtcIwPFQyjRTswKro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+9Kk0zpNfmS+kB7d5yfa9stlNbdTrfe112SyVMQY2KdppwNhO85Li/8nkqPpngbE
-         MKHMi5WwVn+P3DwBYRHv5WybVtn+/Sq7IPos4JeYDwtwuK1qHgdekzuD8THsXme5hv
-         tlzXNMZYdYnsJ51pLYPRJzqeFrJzs8XA1ohTGr/w=
+        b=zV+eJ2QpIGV5E1Gj5PuSl++2GTXxlhdAa24aQUUFUk6IRJlpjChUMNtBMOVxP4CRO
+         s3U0KOa2iOZ/2DzZiuQ8ZNRBBCyCPPdK65RDTn4VS2Ja4TynAB9iYf9TsImTCiprct
+         PoNoGXCezrV16WluThX933ZTEyyTyg/ULdYmHxnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
-        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 61/76] ext4: fix superblock checksum failure when setting password salt
-Date:   Mon, 18 Jan 2021 12:35:01 +0100
-Message-Id: <20210118113343.885380923@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 62/76] RDMA/restrack: Dont treat as an error allocation ID wrapping
+Date:   Mon, 18 Jan 2021 12:35:02 +0100
+Message-Id: <20210118113343.931422759@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
 References: <20210118113340.984217512@linuxfoundation.org>
@@ -40,38 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit dfd56c2c0c0dbb11be939b804ddc8d5395ab3432 upstream.
+commit 3c638cdb8ecc0442552156e0fed8708dd2c7f35b upstream.
 
-When setting password salt in the superblock, we forget to recompute the
-superblock checksum so it will not match until the next superblock
-modification which recomputes the checksum. Fix it.
+xa_alloc_cyclic() call returns positive number if ID allocation
+succeeded but wrapped. It is not an error, so normalize the "ret"
+variable to zero as marker of not-an-error.
 
-CC: Michael Halcrow <mhalcrow@google.com>
-Reported-by: Andreas Dilger <adilger@dilger.ca>
-Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201216101844.22917-8-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+   drivers/infiniband/core/restrack.c:261 rdma_restrack_add()
+   warn: 'ret' can be either negative or positive
+
+Fixes: fd47c2f99f04 ("RDMA/restrack: Convert internal DB from hash to XArray")
+Link: https://lore.kernel.org/r/20201216100753.1127638-1-leon@kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ioctl.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/core/restrack.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -1160,7 +1160,10 @@ resizefs_out:
- 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
- 			if (err)
- 				goto pwsalt_err_journal;
-+			lock_buffer(sbi->s_sbh);
- 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
-+			ext4_superblock_csum_set(sb);
-+			unlock_buffer(sbi->s_sbh);
- 			err = ext4_handle_dirty_metadata(handle, NULL,
- 							 sbi->s_sbh);
- 		pwsalt_err_journal:
+--- a/drivers/infiniband/core/restrack.c
++++ b/drivers/infiniband/core/restrack.c
+@@ -234,6 +234,7 @@ static void rdma_restrack_add(struct rdm
+ 	} else {
+ 		ret = xa_alloc_cyclic(&rt->xa, &res->id, res, xa_limit_32b,
+ 				      &rt->next_id, GFP_KERNEL);
++		ret = (ret < 0) ? ret : 0;
+ 	}
+ 
+ 	if (!ret)
 
 
