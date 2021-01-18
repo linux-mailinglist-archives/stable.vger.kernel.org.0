@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 774962F9E5B
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8692F9E5A
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388912AbhARLht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:37:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
+        id S2390407AbhARLhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:37:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390403AbhARLhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390402AbhARLhp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:37:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E439022ADC;
-        Mon, 18 Jan 2021 11:36:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E4122B40;
+        Mon, 18 Jan 2021 11:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969793;
-        bh=7qZctB+wVDZvRl3IuGRuLTWmXyJBRmOZJZw2yJV1oYc=;
+        s=korg; t=1610969798;
+        bh=9B7rvRIs0JR6WZeRet5IG/Mx2kwHcgbhxHbzGYhH1p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjGgkZV4vn/AuM+hX6jy5AIM8IvZwGzDhjii7zKx3429WJLFgp0PioIOiJR1VRo1u
-         hC4spbNUq4O0/9P/g2DHNAMi6es4m0tZbDVK4moqlzIMV5gRk16o+mwfKHNdbX7rP3
-         AAdsLrz+Cy4JXLXutKuqoYgy9G2KEKHx51d8jArc=
+        b=C50L6bYiq4P26tjaiHms/uAlAA/gxzzePSYGICWsKUWMub1t2YhD1mwSSRnlQi1qa
+         tAeKHANzVTqFpT9DY6DQCb9eIr+cjyjp5ON/c264FN2uY+dYWNZowLY3dii4tfrZ8d
+         uVnqUlW4My+i8MiHvfgAy2R95uA0caZYMDYN/pZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 28/43] ASoC: Intel: fix error code cnl_set_dsp_D0()
-Date:   Mon, 18 Jan 2021 12:34:51 +0100
-Message-Id: <20210118113336.305611097@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 30/43] pNFS: Mark layout for return if return-on-close was not sent
+Date:   Mon, 18 Jan 2021 12:34:53 +0100
+Message-Id: <20210118113336.403447836@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -40,33 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit f373a811fd9a69fc8bafb9bcb41d2cfa36c62665 upstream.
+commit 67bbceedc9bb8ad48993a8bd6486054756d711f4 upstream.
 
-Return -ETIMEDOUT if the dsp boot times out instead of returning
-success.
+If the layout return-on-close failed because the layoutreturn was never
+sent, then we should mark the layout for return again.
 
-Fixes: cb6a55284629 ("ASoC: Intel: cnl: Add sst library functions for cnl platform")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/X9NEvCzuN+IObnTN@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9c47b18cf722 ("pNFS: Ensure we do clear the return-on-close layout stateid on fatal errors")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/cnl-sst.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/pnfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/sound/soc/intel/skylake/cnl-sst.c
-+++ b/sound/soc/intel/skylake/cnl-sst.c
-@@ -212,6 +212,7 @@ static int cnl_set_dsp_D0(struct sst_dsp
- 				"dsp boot timeout, status=%#x error=%#x\n",
- 				sst_dsp_shim_read(ctx, CNL_ADSP_FW_STATUS),
- 				sst_dsp_shim_read(ctx, CNL_ADSP_ERROR_CODE));
-+			ret = -ETIMEDOUT;
- 			goto err;
- 		}
- 	} else {
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1460,12 +1460,18 @@ void pnfs_roc_release(struct nfs4_layout
+ 		int ret)
+ {
+ 	struct pnfs_layout_hdr *lo = args->layout;
++	struct inode *inode = args->inode;
+ 	const nfs4_stateid *arg_stateid = NULL;
+ 	const nfs4_stateid *res_stateid = NULL;
+ 	struct nfs4_xdr_opaque_data *ld_private = args->ld_private;
+ 
+ 	switch (ret) {
+ 	case -NFS4ERR_NOMATCHING_LAYOUT:
++		spin_lock(&inode->i_lock);
++		if (pnfs_layout_is_valid(lo) &&
++		    nfs4_stateid_match_other(&args->stateid, &lo->plh_stateid))
++			pnfs_set_plh_return_info(lo, args->range.iomode, 0);
++		spin_unlock(&inode->i_lock);
+ 		break;
+ 	case 0:
+ 		if (res->lrs_present)
 
 
