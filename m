@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B88F72F9E6D
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3931A2F9E63
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 12:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390555AbhARLjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:39:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34192 "EHLO mail.kernel.org"
+        id S2390464AbhARLi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 06:38:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390544AbhARLjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:39:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4069224B0;
-        Mon, 18 Jan 2021 11:39:19 +0000 (UTC)
+        id S2390431AbhARLiL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:38:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4AB722B48;
+        Mon, 18 Jan 2021 11:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969960;
-        bh=C9XGMfk0gs9HdsnikqlZFH5JaVQu/+ts9KzGxUw2k3A=;
+        s=korg; t=1610969800;
+        bh=iHSkN9xp5sledIAznCv/z8d5eSdg8jx0XvfifiAQIxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkQ64ujHtDkJK61wvMDdGXL3TIkzAYhBx5E1U7iO6TsgecxNuSsuQzY8yZhDIzP5f
-         xV1RbUR/dGbe6tGcHrmzNz4WpjfhyXNj85ah/BdXHzhul98XjXNpuaf+ooT8LPt5Mm
-         wvvmEGA0l3lheOlbvxYhJ6NKvVEryYToCZByG0+E=
+        b=GPg9nKdP5m5g0MiFFaJj/OFhX2J7o1Gk0ScmTMBYnMtB8dMYllhNwVl21sonfTlWr
+         9UcsWZtcQFydXtWnRNxiXN8r8rYaR4Gl+DGXRPl3lV0iLCSW2GHPz/1k0bNO01LG9K
+         QGZEmK0lsbo9XTTEodohrcGn4ahR/oaiHXB9SDQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 53/76] ASoC: Intel: fix error code cnl_set_dsp_D0()
-Date:   Mon, 18 Jan 2021 12:34:53 +0100
-Message-Id: <20210118113343.517517124@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 31/43] NFS/pNFS: Fix a leak of the layout plh_outstanding counter
+Date:   Mon, 18 Jan 2021 12:34:54 +0100
+Message-Id: <20210118113336.453327439@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
-References: <20210118113340.984217512@linuxfoundation.org>
+In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
+References: <20210118113334.966227881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit f373a811fd9a69fc8bafb9bcb41d2cfa36c62665 upstream.
+commit cb2856c5971723910a86b7d1d0cf623d6919cbc4 upstream.
 
-Return -ETIMEDOUT if the dsp boot times out instead of returning
-success.
+If we exit _lgopen_prepare_attached() without setting a layout, we will
+currently leak the plh_outstanding counter.
 
-Fixes: cb6a55284629 ("ASoC: Intel: cnl: Add sst library functions for cnl platform")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/X9NEvCzuN+IObnTN@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 411ae722d10a ("pNFS: Wait for stale layoutget calls to complete in pnfs_update_layout()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/cnl-sst.c |    1 +
+ fs/nfs/pnfs.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/soc/intel/skylake/cnl-sst.c
-+++ b/sound/soc/intel/skylake/cnl-sst.c
-@@ -224,6 +224,7 @@ static int cnl_set_dsp_D0(struct sst_dsp
- 				"dsp boot timeout, status=%#x error=%#x\n",
- 				sst_dsp_shim_read(ctx, CNL_ADSP_FW_STATUS),
- 				sst_dsp_shim_read(ctx, CNL_ADSP_ERROR_CODE));
-+			ret = -ETIMEDOUT;
- 			goto err;
- 		}
- 	} else {
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2147,6 +2147,7 @@ static void _lgopen_prepare_attached(str
+ 					     &rng, GFP_KERNEL);
+ 	if (!lgp) {
+ 		pnfs_clear_first_layoutget(lo);
++		nfs_layoutget_end(lo);
+ 		pnfs_put_layout_hdr(lo);
+ 		return;
+ 	}
 
 
