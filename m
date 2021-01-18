@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 074822F9F50
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8CBB2F9F4D
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 13:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403874AbhARMRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 07:17:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39454 "EHLO mail.kernel.org"
+        id S2403817AbhARMR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 07:17:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390886AbhARLqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:46:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22DB7221EC;
-        Mon, 18 Jan 2021 11:45:53 +0000 (UTC)
+        id S2390888AbhARLqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:46:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73D7B22CA2;
+        Mon, 18 Jan 2021 11:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970354;
-        bh=k3NImbGcxuD1P3RphZNR0w3EdxtGzdhRsagmIKdD2LA=;
+        s=korg; t=1610970356;
+        bh=MjrKb1h4tMErpsH8+EzAbPNEt6Oz+fy/TlWsRz575As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTcSLy0VG1tQIsKgwmHP/VrEmKAs6nXI2L2RkolbgEU+54qyZFapFBnGl0VOyawiO
-         EhyoYFQeRvBW9LM2CU9JvtyDznVFwyL8YkHgEEqqaFxyiQKf1XDDh5BDtdiYDQnX+t
-         PAO5kVKZTbthRKkcQLQQhlAymNaFrzCbUPN9RPg8=
+        b=L7XfRbZO4e++ffDkPTSku29CRjhZll45lTnVy7WDEVdle3SPcwJOVlwl3JpbYGHIl
+         ggaOFAdQrJxNz+gr39Za/Qq68HchyY22lBLXRYiaCMLpq/hy1sKonsxXBJ3E8hFGdh
+         IBLPe2smQck3E2d5YSRixcCBTbnjjEaztDygwXpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Will Deacon <will@kernel.org>,
-        Guo Kaijie <Kaijie.Guo@intel.com>
-Subject: [PATCH 5.10 145/152] iommu/vt-d: Fix unaligned addresses for intel_flush_svm_range_dev()
-Date:   Mon, 18 Jan 2021 12:35:20 +0100
-Message-Id: <20210118113359.672337726@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Nixdorf <j.nixdorf@avm.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.10 146/152] net: sunrpc: interpret the return value of kstrtou32 correctly
+Date:   Mon, 18 Jan 2021 12:35:21 +0100
+Message-Id: <20210118113359.719747748@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,72 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: j.nixdorf@avm.de <j.nixdorf@avm.de>
 
-commit 2d6ffc63f12417b979955a5b22ad9a76d2af5de9 upstream.
+commit 86b53fbf08f48d353a86a06aef537e78e82ba721 upstream.
 
-The VT-d hardware will ignore those Addr bits which have been masked by
-the AM field in the PASID-based-IOTLB invalidation descriptor. As the
-result, if the starting address in the descriptor is not aligned with
-the address mask, some IOTLB caches might not invalidate. Hence people
-will see below errors.
+A return value of 0 means success. This is documented in lib/kstrtox.c.
 
-[ 1093.704661] dmar_fault: 29 callbacks suppressed
-[ 1093.704664] DMAR: DRHD: handling fault status reg 3
-[ 1093.712738] DMAR: [DMA Read] Request device [7a:02.0] PASID 2
-               fault addr 7f81c968d000 [fault reason 113]
-               SM: Present bit in first-level paging entry is clear
+This was found by trying to mount an NFS share from a link-local IPv6
+address with the interface specified by its index:
 
-Fix this by using aligned address for PASID-based-IOTLB invalidation.
+  mount("[fe80::1%1]:/srv/nfs", "/mnt", "nfs", 0, "nolock,addr=fe80::1%1")
 
-Fixes: 1c4f88b7f1f9 ("iommu/vt-d: Shared virtual address in scalable mode")
-Reported-and-tested-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20201231005323.2178523-2-baolu.lu@linux.intel.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Before this commit this failed with EINVAL and also caused the following
+message in dmesg:
+
+  [...] NFS: bad IP address specified: addr=fe80::1%1
+
+The syscall using the same address based on the interface name instead
+of its index succeeds.
+
+Credits for this patch go to my colleague Christian Speich, who traced
+the origin of this bug to this line of code.
+
+Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+Fixes: 00cfaa943ec3 ("replace strict_strto calls")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel/svm.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ net/sunrpc/addr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -118,8 +118,10 @@ void intel_svm_check(struct intel_iommu
- 	iommu->flags |= VTD_FLAG_SVM_CAPABLE;
- }
- 
--static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_dev *sdev,
--				unsigned long address, unsigned long pages, int ih)
-+static void __flush_svm_range_dev(struct intel_svm *svm,
-+				  struct intel_svm_dev *sdev,
-+				  unsigned long address,
-+				  unsigned long pages, int ih)
- {
- 	struct qi_desc desc;
- 
-@@ -170,6 +172,22 @@ static void intel_flush_svm_range_dev (s
- 	}
- }
- 
-+static void intel_flush_svm_range_dev(struct intel_svm *svm,
-+				      struct intel_svm_dev *sdev,
-+				      unsigned long address,
-+				      unsigned long pages, int ih)
-+{
-+	unsigned long shift = ilog2(__roundup_pow_of_two(pages));
-+	unsigned long align = (1ULL << (VTD_PAGE_SHIFT + shift));
-+	unsigned long start = ALIGN_DOWN(address, align);
-+	unsigned long end = ALIGN(address + (pages << VTD_PAGE_SHIFT), align);
-+
-+	while (start < end) {
-+		__flush_svm_range_dev(svm, sdev, start, align >> VTD_PAGE_SHIFT, ih);
-+		start += align;
-+	}
-+}
-+
- static void intel_flush_svm_range(struct intel_svm *svm, unsigned long address,
- 				unsigned long pages, int ih)
- {
+--- a/net/sunrpc/addr.c
++++ b/net/sunrpc/addr.c
+@@ -185,7 +185,7 @@ static int rpc_parse_scope_id(struct net
+ 			scope_id = dev->ifindex;
+ 			dev_put(dev);
+ 		} else {
+-			if (kstrtou32(p, 10, &scope_id) == 0) {
++			if (kstrtou32(p, 10, &scope_id) != 0) {
+ 				kfree(p);
+ 				return 0;
+ 			}
 
 
