@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA12A2FA9D3
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F272FA9D1
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436972AbhARTOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:14:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
+        id S2404834AbhARTOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 14:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390499AbhARLiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390501AbhARLiu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:38:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E30132222A;
-        Mon, 18 Jan 2021 11:38:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42DB7222BB;
+        Mon, 18 Jan 2021 11:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969910;
-        bh=kWhOzAdkTXy+9UCZnMpRganGk8nlq9W5/xwqYfTXAKk=;
+        s=korg; t=1610969912;
+        bh=huvx6FbaDlrGtA7rGasohIzVoKsnlmlhFZJKqOwooeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcUbie/vg2ZJucPECDAMRxfcYVUx/e1L7pWOEmkqLbIYU993gyelutdviwTrhnlcO
-         IV6ZbphUsbIh7C/yMq6ucngYQjXoYJno/7I60l9tAlkEQN7Q4h6QGeslVDVfGI0uju
-         yCbsRN3ssaNSNop0pMmZuLCZcm1sdk/BxoyXWYlA=
+        b=X8iEPhroXsIoz9ags5pPpgoKdTb8XxMQPSnPbYFdLRXyx66wK/Q4xiMtOd2rFx9bw
+         Pz6o1dC1KI0cUBRzDiyvB0JFfmzsdEB5UwsWcdsUJaGp8C2kG1DOMOATAas0vlYRqH
+         W/PUmt8G26BYTaNAUQ6ooVBgzwJdcJgh/JdeMqyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/76] habanalabs: Fix memleak in hl_device_reset
-Date:   Mon, 18 Jan 2021 12:34:34 +0100
-Message-Id: <20210118113342.611938292@linuxfoundation.org>
+Subject: [PATCH 5.4 35/76] hwmon: (pwm-fan) Ensure that calculation doesnt discard big period values
+Date:   Mon, 18 Jan 2021 12:34:35 +0100
+Message-Id: <20210118113342.658735699@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
 References: <20210118113340.984217512@linuxfoundation.org>
@@ -40,42 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b000700d6db50c933ce8b661154e26cf4ad06dba ]
+[ Upstream commit 1eda52334e6d13eb1a85f713ce06dd39342b5020 ]
 
-When kzalloc() fails, we should execute hl_mmu_fini()
-to release the MMU module. It's the same when
-hl_ctx_init() fails.
+With MAX_PWM being defined to 255 the code
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+	unsigned long period;
+	...
+	period = ctx->pwm->args.period;
+	state.duty_cycle = DIV_ROUND_UP(pwm * (period - 1), MAX_PWM);
+
+calculates a too small value for duty_cycle if the configured period is
+big (either by discarding the 64 bit value ctx->pwm->args.period or by
+overflowing the multiplication). As this results in a too slow fan and
+so maybe an overheating machine better be safe than sorry and error out
+in .probe.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20201215092031.152243-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/device.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/pwm-fan.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/device.c b/drivers/misc/habanalabs/device.c
-index 3eeb1920ddb43..3486bf33474d9 100644
---- a/drivers/misc/habanalabs/device.c
-+++ b/drivers/misc/habanalabs/device.c
-@@ -959,6 +959,7 @@ again:
- 						GFP_KERNEL);
- 		if (!hdev->kernel_ctx) {
- 			rc = -ENOMEM;
-+			hl_mmu_fini(hdev);
- 			goto out_err;
- 		}
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index c88ce77fe6763..df6f042fb605e 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -330,8 +330,18 @@ static int pwm_fan_probe(struct platform_device *pdev)
  
-@@ -970,6 +971,7 @@ again:
- 				"failed to init kernel ctx in hard reset\n");
- 			kfree(hdev->kernel_ctx);
- 			hdev->kernel_ctx = NULL;
-+			hl_mmu_fini(hdev);
- 			goto out_err;
- 		}
- 	}
+ 	ctx->pwm_value = MAX_PWM;
+ 
+-	/* Set duty cycle to maximum allowed and enable PWM output */
+ 	pwm_init_state(ctx->pwm, &state);
++	/*
++	 * __set_pwm assumes that MAX_PWM * (period - 1) fits into an unsigned
++	 * long. Check this here to prevent the fan running at a too low
++	 * frequency.
++	 */
++	if (state.period > ULONG_MAX / MAX_PWM + 1) {
++		dev_err(dev, "Configured period too big\n");
++		return -EINVAL;
++	}
++
++	/* Set duty cycle to maximum allowed and enable PWM output */
+ 	state.duty_cycle = ctx->pwm->args.period - 1;
+ 	state.enabled = true;
+ 
 -- 
 2.27.0
 
