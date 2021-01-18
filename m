@@ -2,94 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 313092FA746
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 18:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 609EA2FA8C3
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 19:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393439AbhARRSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 12:18:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:43393 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393329AbhARROj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 12:14:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610989986;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+ZQuQssCdyTqykXxuhtozSB36nIfhI3yRHQhSeUcS84=;
-        b=K6WXDgurZghRXQ7MrESFGjXrReE3Ly7AX8B4qeG+grgzRwQvGTg5jfPY2vyyULbxHmiHwG
-        lW5DMiF1c7zwW6hzYarhkF52K76vJ+c9nHXhw3I9Ezj6AUBQKVBUgDjW4ooMGG//WvPhIJ
-        3TajJ4YiASuODdceRduVBOa9Hb66t6c=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-134-xIu38gLZPfq0fwcQz6NEvw-1; Mon, 18 Jan 2021 12:13:05 -0500
-X-MC-Unique: xIu38gLZPfq0fwcQz6NEvw-1
-Received: by mail-ed1-f71.google.com with SMTP id y6so6225278edc.17
-        for <stable@vger.kernel.org>; Mon, 18 Jan 2021 09:13:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version:content-transfer-encoding;
-        bh=+ZQuQssCdyTqykXxuhtozSB36nIfhI3yRHQhSeUcS84=;
-        b=niA5z/OWlBgGcOXF1R+yUQsGNoWgRSaWM2PVntDIlPwxN5s1kru3rTh2HD1s2tggVU
-         m9A3Tn2MeIIAW6wdbwtPv7LIHfWQaBXzdnBQO5gNBrnrAHXJimR7VgZQjIcnM7CULuad
-         Hgg7RcwyoRiim6N+WAFJLCrFPZmkJZ/g+zyiOaPyIdZBi3fRSMkVJ0POCoAPATlKQhLC
-         eTUjC1+hgSHVHcGeBJKxCzwo0pd/rJFwFM5f87kDdaZgary1kIhTot+O3wKdh8VI26i+
-         pNfefImgmm3rpHNmcbjfzycXkRWLUuBuaeMdUBrbn6myVeSATnUj7a+WC2/7FDjJttd7
-         wahg==
-X-Gm-Message-State: AOAM5332aX+ig3qJsEw2CLFGqGJtmcWp2vnl/uk2BipunUOd6GFHryxB
-        ieYc5lPOsU212KJ/nNLXx8zpU8CCQd07rbQKii5dyE64fEmXPZz60pqYjbskZkDltxPqsJu7sL3
-        uuCNpAl2sdLf/oISz
-X-Received: by 2002:a50:fb96:: with SMTP id e22mr373248edq.118.1610989983827;
-        Mon, 18 Jan 2021 09:13:03 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyw+tzOHSRfMLYBvN8RcGuoU8mSHIyg/cLq/STtApXB2+U3/ywmrncMYnUa7zAfdo91piVF/A==
-X-Received: by 2002:a50:fb96:: with SMTP id e22mr373234edq.118.1610989983647;
-        Mon, 18 Jan 2021 09:13:03 -0800 (PST)
-Received: from alrua-x1.borgediget.toke.dk ([45.145.92.2])
-        by smtp.gmail.com with ESMTPSA id x6sm8092178ejw.69.2021.01.18.09.13.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Jan 2021 09:13:03 -0800 (PST)
-Received: by alrua-x1.borgediget.toke.dk (Postfix, from userid 1000)
-        id 9E8E718032D; Mon, 18 Jan 2021 18:13:02 +0100 (CET)
-From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
-To:     David Howells <dhowells@redhat.com>
-Cc:     dhowells@redhat.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: public_key: check that pkey_algo is non-NULL
- before passing it to strcmp()
-In-Reply-To: <2656681.1610542679@warthog.procyon.org.uk>
-References: <875z419ihk.fsf@toke.dk> <20210112161044.3101-1-toke@redhat.com>
- <2648795.1610536273@warthog.procyon.org.uk>
- <2656681.1610542679@warthog.procyon.org.uk>
-X-Clacks-Overhead: GNU Terry Pratchett
-Date:   Mon, 18 Jan 2021 18:13:02 +0100
-Message-ID: <87sg6yqich.fsf@toke.dk>
+        id S2407601AbhARS1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 13:27:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390749AbhARLlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:41:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED5C1221EC;
+        Mon, 18 Jan 2021 11:41:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610970084;
+        bh=kQ5K9LRgSFa9wdQdxrV3BELlcPxyqcsi5X+6Ur6UzeY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GKwJFAlj+tn9A3EAHQppMDyWgVM2oJfgFHML9ryRIFSwYVQlluMdYPKt9pVzthfzc
+         uFDt6yEw82rGB7hkTZt1wWny3VVu/i1pRHJMd8tJVZdax+Ra8+8weArJAOxgOXfbNn
+         w7beAwCY6gw36HglIxV/P1VLeGV3CTF545XDZlH8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 003/152] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for HP machines
+Date:   Mon, 18 Jan 2021 12:32:58 +0100
+Message-Id: <20210118113352.926334865@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
+References: <20210118113352.764293297@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-David Howells <dhowells@redhat.com> writes:
+From: Jeremy Szu <jeremy.szu@canonical.com>
 
-> Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com> wrote:
->
->> Reviewed-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
->>=20
->> and also, if you like:
->>=20
->> Tested-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
->
-> Thanks!
+commit 91bc156817a3c2007332b64b4f85c32aafbbbea6 upstream.
 
-Any chance of that patch getting into -stable anytime soon? Would be
-nice to have working WiFi without having to compile my own kernels ;)
+ * The HP ZBook Fury 15/17 G7 Mobile Workstation are using ALC285 codec
+   which is using 0x04 to control mute LED and 0x01 to control micmute LED.
 
--Toke
+ * The right channel speaker is no sound and it needs to expose GPIO1 for
+   initialing AMP.
+
+Add quirks to support them.
+
+Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210106130549.100532-1-jeremy.szu@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ sound/pci/hda/patch_realtek.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7970,6 +7970,10 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x8780, "HP ZBook Fury 17 G7 Mobile Workstation",
++		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
++	SND_PCI_QUIRK(0x103c, 0x8783, "HP ZBook Fury 15 G7 Mobile Workstation",
++		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x87c8, "HP", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
+
 
