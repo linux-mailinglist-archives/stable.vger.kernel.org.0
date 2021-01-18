@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEE52FA2C4
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:20:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6782FA2D0
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392860AbhAROTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:19:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39118 "EHLO mail.kernel.org"
+        id S1730106AbhAROUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:20:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390645AbhARLot (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390641AbhARLot (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Jan 2021 06:44:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D9BA22DA9;
-        Mon, 18 Jan 2021 11:44:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C76A322E00;
+        Mon, 18 Jan 2021 11:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970245;
-        bh=6xw/orLRngAYtsAKZSKyza04nqp+Y+eZI6PyCUEThFc=;
+        s=korg; t=1610970248;
+        bh=BNa5SEtTM0EjOCso8uzFS9MPKothiHVejn6idl1PSbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/axQomDOB/PN1BjV8MzZd6Irg4lbrurH5izX/NVoVgotnc6EU2OdJiOPSA2tFJQD
-         QVxUP2d/5ApmET8k55eC/LvTbjD/500uquff8dl0vBNLE/TA/xM5ppLOAmgtYFdcX+
-         VDOVmkN2V4l/gDB/2uhxdnzmPKnLEfOKSOIYz7Zg=
+        b=u2Rj5Xrcle9fiT7mWkB3SmrpDpuRvYcQy6YLfeWrKhyphSFYnNwH7YCUMmBnvv7G5
+         OICQ6txNyuWUDMZiFu7vdBwUXjsncAZUPbNIwSEefU6Cc5sSSP4EUSQYgO3nZKNBpv
+         WlzD/tXN4FMgHIqsj8+0Xyfo9GFA9dJ/82DM6DnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        David Laight <David.Laight@aculab.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/152] poll: fix performance regression due to out-of-line __put_user()
-Date:   Mon, 18 Jan 2021 12:34:32 +0100
-Message-Id: <20210118113357.395875851@linuxfoundation.org>
+Subject: [PATCH 5.10 098/152] rcu-tasks: Move RCU-tasks initialization to before early_initcall()
+Date:   Mon, 18 Jan 2021 12:34:33 +0100
+Message-Id: <20210118113357.442923897@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -43,84 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Uladzislau Rezki (Sony) <urezki@gmail.com>
 
-[ Upstream commit ef0ba05538299f1391cbe097de36895bb36ecfe6 ]
+[ Upstream commit 1b04fa9900263b4e217ca2509fd778b32c2b4eb2 ]
 
-The kernel test robot reported a -5.8% performance regression on the
-"poll2" test of will-it-scale, and bisected it to commit d55564cfc222
-("x86: Make __put_user() generate an out-of-line call").
+PowerPC testing encountered boot failures due to RCU Tasks not being
+fully initialized until core_initcall() time.  This commit therefore
+initializes RCU Tasks (along with Rude RCU and RCU Tasks Trace) just
+before early_initcall() time, thus allowing waiting on RCU Tasks grace
+periods from early_initcall() handlers.
 
-I didn't expect an out-of-line __put_user() to matter, because no normal
-core code should use that non-checking legacy version of user access any
-more.  But I had overlooked the very odd poll() usage, which does a
-__put_user() to update the 'revents' values of the poll array.
-
-Now, Al Viro correctly points out that instead of updating just the
-'revents' field, it would be much simpler to just copy the _whole_
-pollfd entry, and then we could just use "copy_to_user()" on the whole
-array of entries, the same way we use "copy_from_user()" a few lines
-earlier to get the original values.
-
-But that is not what we've traditionally done, and I worry that threaded
-applications might be concurrently modifying the other fields of the
-pollfd array.  So while Al's suggestion is simpler - and perhaps worth
-trying in the future - this instead keeps the "just update revents"
-model.
-
-To fix the performance regression, use the modern "unsafe_put_user()"
-instead of __put_user(), with the proper "user_write_access_begin()"
-guarding in place. This improves code generation enormously.
-
-Link: https://lore.kernel.org/lkml/20210107134723.GA28532@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Oliver Sang <oliver.sang@intel.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: David Laight <David.Laight@aculab.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/rcu/87eekfh80a.fsf@dja-thinkpad.axtens.net/
+Fixes: 36dadef23fcc ("kprobes: Init kprobes in early_initcall")
+Tested-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/select.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ include/linux/rcupdate.h |  6 ++++++
+ init/main.c              |  1 +
+ kernel/rcu/tasks.h       | 25 +++++++++++++++++++++----
+ 3 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/fs/select.c b/fs/select.c
-index ebfebdfe5c69a..37aaa8317f3ae 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1011,14 +1011,17 @@ static int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
- 	fdcount = do_poll(head, &table, end_time);
- 	poll_freewait(&table);
+diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
+index 6cdd0152c253a..5c119d6cecf14 100644
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -86,6 +86,12 @@ void rcu_sched_clock_irq(int user);
+ void rcu_report_dead(unsigned int cpu);
+ void rcutree_migrate_callbacks(int cpu);
  
-+	if (!user_write_access_begin(ufds, nfds * sizeof(*ufds)))
-+		goto out_fds;
++#ifdef CONFIG_TASKS_RCU_GENERIC
++void rcu_init_tasks_generic(void);
++#else
++static inline void rcu_init_tasks_generic(void) { }
++#endif
 +
- 	for (walk = head; walk; walk = walk->next) {
- 		struct pollfd *fds = walk->entries;
- 		int j;
+ #ifdef CONFIG_RCU_STALL_COMMON
+ void rcu_sysrq_start(void);
+ void rcu_sysrq_end(void);
+diff --git a/init/main.c b/init/main.c
+index 32b2a8affafd1..9d964511fe0c2 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1512,6 +1512,7 @@ static noinline void __init kernel_init_freeable(void)
  
--		for (j = 0; j < walk->len; j++, ufds++)
--			if (__put_user(fds[j].revents, &ufds->revents))
--				goto out_fds;
-+		for (j = walk->len; j; fds++, ufds++, j--)
-+			unsafe_put_user(fds->revents, &ufds->revents, Efault);
-   	}
-+	user_write_access_end();
+ 	init_mm_internals();
  
- 	err = fdcount;
- out_fds:
-@@ -1030,6 +1033,11 @@ out_fds:
++	rcu_init_tasks_generic();
+ 	do_pre_smp_initcalls();
+ 	lockup_detector_init();
+ 
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index d5d9f2d03e8a0..73bbe792fe1e8 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -241,7 +241,7 @@ static int __noreturn rcu_tasks_kthread(void *arg)
  	}
- 
- 	return err;
-+
-+Efault:
-+	user_write_access_end();
-+	err = -EFAULT;
-+	goto out_fds;
  }
  
- static long do_restart_poll(struct restart_block *restart_block)
+-/* Spawn RCU-tasks grace-period kthread, e.g., at core_initcall() time. */
++/* Spawn RCU-tasks grace-period kthread. */
+ static void __init rcu_spawn_tasks_kthread_generic(struct rcu_tasks *rtp)
+ {
+ 	struct task_struct *t;
+@@ -569,7 +569,6 @@ static int __init rcu_spawn_tasks_kthread(void)
+ 	rcu_spawn_tasks_kthread_generic(&rcu_tasks);
+ 	return 0;
+ }
+-core_initcall(rcu_spawn_tasks_kthread);
+ 
+ #ifndef CONFIG_TINY_RCU
+ static void show_rcu_tasks_classic_gp_kthread(void)
+@@ -697,7 +696,6 @@ static int __init rcu_spawn_tasks_rude_kthread(void)
+ 	rcu_spawn_tasks_kthread_generic(&rcu_tasks_rude);
+ 	return 0;
+ }
+-core_initcall(rcu_spawn_tasks_rude_kthread);
+ 
+ #ifndef CONFIG_TINY_RCU
+ static void show_rcu_tasks_rude_gp_kthread(void)
+@@ -975,6 +973,11 @@ static void rcu_tasks_trace_pregp_step(void)
+ static void rcu_tasks_trace_pertask(struct task_struct *t,
+ 				    struct list_head *hop)
+ {
++	// During early boot when there is only the one boot CPU, there
++	// is no idle task for the other CPUs. Just return.
++	if (unlikely(t == NULL))
++		return;
++
+ 	WRITE_ONCE(t->trc_reader_special.b.need_qs, false);
+ 	WRITE_ONCE(t->trc_reader_checked, false);
+ 	t->trc_ipi_to_cpu = -1;
+@@ -1200,7 +1203,6 @@ static int __init rcu_spawn_tasks_trace_kthread(void)
+ 	rcu_spawn_tasks_kthread_generic(&rcu_tasks_trace);
+ 	return 0;
+ }
+-core_initcall(rcu_spawn_tasks_trace_kthread);
+ 
+ #ifndef CONFIG_TINY_RCU
+ static void show_rcu_tasks_trace_gp_kthread(void)
+@@ -1229,6 +1231,21 @@ void show_rcu_tasks_gp_kthreads(void)
+ }
+ #endif /* #ifndef CONFIG_TINY_RCU */
+ 
++void __init rcu_init_tasks_generic(void)
++{
++#ifdef CONFIG_TASKS_RCU
++	rcu_spawn_tasks_kthread();
++#endif
++
++#ifdef CONFIG_TASKS_RUDE_RCU
++	rcu_spawn_tasks_rude_kthread();
++#endif
++
++#ifdef CONFIG_TASKS_TRACE_RCU
++	rcu_spawn_tasks_trace_kthread();
++#endif
++}
++
+ #else /* #ifdef CONFIG_TASKS_RCU_GENERIC */
+ static inline void rcu_tasks_bootup_oddness(void) {}
+ void show_rcu_tasks_gp_kthreads(void) {}
 -- 
 2.27.0
 
