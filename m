@@ -2,119 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2BC2F9CD5
+	by mail.lfdr.de (Postfix) with ESMTP id D30CA2F9CD6
 	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389325AbhARK0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389475AbhARK0n (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 18 Jan 2021 05:26:43 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47701 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388836AbhARJug (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:50:36 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 3624E16D9;
-        Mon, 18 Jan 2021 04:49:45 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:49:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=v5WKFj
-        XXzoiZB+SymCZjg8Y9oZ/2QnmVQU902w3zFLs=; b=nGwGFZb2QuyfzChjAfnp3K
-        NhxKzb2qhB/ompiW6bXa8N39MOXLyDEMAfzg0ZAa6beAt/dc/vefHdH5BfaHcdaD
-        PN22NSACVJyltvy0DT3lGE8FKpHA30r0JWE23SuEzgV/Q8JLvb3fESe4zmgyqaO0
-        vS7GAIUW1Vqf2XRhatuYQI+bS5/RWHENlYMr6mZusE2NIAkWYnVpawbc+EnkkWvL
-        2flfQD3BLxjaj6HQa263Z7rs8jGyPMzq2Zz7UnT+FPJgYyKAnsjPiARlOawZd+P4
-        94aZd0tGQJqmCVrAgKjOcfucDug34vR9O0ifCUp15BUm93gURtDr2Iz3FrfTtd7Q
-        ==
-X-ME-Sender: <xms:uFkFYCV8G144RzC79L-gtQQ8jloFdtWndBQEvX4uFbWl0tSCEzgiXw>
-    <xme:uFkFYOk1T5NpJrudcBvmuPfnxBVxBFGV0jlm0DjEFNb8s4boj24nj9v-uVq3Qn1Iu
-    08hql46Z8X9KA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddtkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:uFkFYGaiVZv0lVVoZG2wAbhecnnkN47x58yaMsChxDtgLlrO4-LHvA>
-    <xmx:uFkFYJU1SYK_r1kOhtGt-2GJNsQRyH611i0CwTActPTIlq6d6P0VpQ>
-    <xmx:uFkFYMly7xaaUvoshzJIdB8nlVzg8D6ZrYQJ_0DzHHBSPP22s_HuLw>
-    <xmx:uFkFYOTcIiEuIof5GsuRKRf7GdqRo60mN0yVIg8eG_JntBOyXwFlyxW_S_k>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 81ECC1080057;
-        Mon, 18 Jan 2021 04:49:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] NFS: nfs_delegation_find_inode_server must first reference" failed to apply to 5.4-stable tree
-To:     trond.myklebust@hammerspace.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 10:49:35 +0100
-Message-ID: <161096337558107@kroah.com>
+Received: from mail.fireflyinternet.com ([77.68.26.236]:56358 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2389362AbhARJyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:54:23 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23626351-1500050 
+        for multiple; Mon, 18 Jan 2021 09:53:33 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Prevent use of engine->wa_ctx after error
+Date:   Mon, 18 Jan 2021 09:53:32 +0000
+Message-Id: <20210118095332.458813-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <87lfcqobpl.fsf@intel.com>
+References: <87lfcqobpl.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On error we unpin and free the wa_ctx.vma, but do not clear any of the
+derived flags. During lrc_init, we look at the flags and attempt to
+dereference the wa_ctx.vma if they are set. To protect the error path
+where we try to limp along without the wa_ctx, make sure we clear those
+flags!
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Reported-by: Matt Roper <matthew.d.roper@intel.com>
+Fixes: 604a8f6f1e33 ("drm/i915/lrc: Only enable per-context and per-bb buffers if set")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v4.15+
+Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210108204026.20682-1-chris@chris-wilson.co.uk
+(cherry-picked from 5b4dc95cf7f573e927fbbd406ebe54225d41b9b2)
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 113aac6d567bda783af36d08f73bfda47d8e9a40 Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Sun, 10 Jan 2021 15:46:06 -0500
-Subject: [PATCH] NFS: nfs_delegation_find_inode_server must first reference
- the superblock
-
-Before referencing the inode, we must ensure that the superblock can be
-referenced. Otherwise, we can end up with iput() calling superblock
-operations that are no longer valid or accessible.
-
-Fixes: e39d8a186ed0 ("NFSv4: Fix an Oops during delegation callbacks")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 816e1427f17e..04bf8066980c 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -1011,22 +1011,24 @@ nfs_delegation_find_inode_server(struct nfs_server *server,
- 				 const struct nfs_fh *fhandle)
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 7614a3d24fca..26c7d0a50585 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -3988,6 +3988,9 @@ static int lrc_setup_wa_ctx(struct intel_engine_cs *engine)
+ static void lrc_destroy_wa_ctx(struct intel_engine_cs *engine)
  {
- 	struct nfs_delegation *delegation;
--	struct inode *freeme, *res = NULL;
-+	struct super_block *freeme = NULL;
-+	struct inode *res = NULL;
+ 	i915_vma_unpin_and_release(&engine->wa_ctx.vma, 0);
++
++	/* Called on error unwind, clear all flags to prevent further use */
++	memset(&engine->wa_ctx, 0, sizeof(engine->wa_ctx));
+ }
  
- 	list_for_each_entry_rcu(delegation, &server->delegations, super_list) {
- 		spin_lock(&delegation->lock);
- 		if (delegation->inode != NULL &&
- 		    !test_bit(NFS_DELEGATION_REVOKED, &delegation->flags) &&
- 		    nfs_compare_fh(fhandle, &NFS_I(delegation->inode)->fh) == 0) {
--			freeme = igrab(delegation->inode);
--			if (freeme && nfs_sb_active(freeme->i_sb))
--				res = freeme;
-+			if (nfs_sb_active(server->super)) {
-+				freeme = server->super;
-+				res = igrab(delegation->inode);
-+			}
- 			spin_unlock(&delegation->lock);
- 			if (res != NULL)
- 				return res;
- 			if (freeme) {
- 				rcu_read_unlock();
--				iput(freeme);
-+				nfs_sb_deactive(freeme);
- 				rcu_read_lock();
- 			}
- 			return ERR_PTR(-EAGAIN);
+ typedef u32 *(*wa_bb_func_t)(struct intel_engine_cs *engine, u32 *batch);
+-- 
+2.30.0
 
