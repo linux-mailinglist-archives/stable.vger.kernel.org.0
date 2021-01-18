@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CCBF2FAADD
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 21:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 944E52FAAE9
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 21:06:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437606AbhART6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:58:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S2390390AbhARUGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 15:06:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390238AbhARLhW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:37:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BABC2245C;
-        Mon, 18 Jan 2021 11:36:07 +0000 (UTC)
+        id S2390173AbhARLgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:36:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C4F42222A;
+        Mon, 18 Jan 2021 11:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969768;
-        bh=2FOaJrrdaM9SWXaj6tRs2Z2YMjkvmRHjdJNXdPcUAG0=;
+        s=korg; t=1610969751;
+        bh=r/ynbjV+cyXjqDJgNprvgGkYYyxfkFGkN12TYu8+ji4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZfrZXCzREtZmz7/n9nXTrtZ9krFxJnmrhhFjox/8WI54Ap1ecT49hx5ChJueFn30
-         emrhtag2cY2m9tmPDQyOADB+6fS+q/DQqQk46lBVcENMOHnZpanNoksMu/rvab2tdJ
-         rOp9uW+DdT57nBi4nj/nUL8wpABEwVRfB5i1Xg8c=
+        b=Bnl9IfWQmfIKssKFG0jIwBPiI03PE3w2ZyFgcnVRj1Oj3npz36pzme+GK7x9UFMzN
+         DucO/j6uxDrs2hQKoKpb+vUfrZzae8Sq9UIcPnJKuY2zJ6aVpnAy6QzZWocvrtRxUZ
+         FeqrmRL/N0zB6kLWrxKXBlzccrO4SNwNi20W3fLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        stable@kernel.org
-Subject: [PATCH 4.19 05/43] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
-Date:   Mon, 18 Jan 2021 12:34:28 +0100
-Message-Id: <20210118113335.225366135@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 10/43] dm integrity: fix the maximum number of arguments
+Date:   Mon, 18 Jan 2021 12:34:33 +0100
+Message-Id: <20210118113335.447925133@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -40,61 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 698222457465ce343443be81c5512edda86e5914 upstream.
+commit 17ffc193cdc6dc7a613d00d8ad47fc1f801b9bf0 upstream.
 
-Patches that introduced NT_FILE and NT_SIGINFO notes back in 2012
-had taken care of native (fs/binfmt_elf.c) and compat (fs/compat_binfmt_elf.c)
-coredumps; unfortunately, compat on mips (which does not go through the
-usual compat_binfmt_elf.c) had not been noticed.
+Advance the maximum number of arguments from 9 to 15 to account for
+all potential feature flags that may be supplied.
 
-As the result, both N32 and O32 coredumps on 64bit mips kernels
-have those sections malformed enough to confuse the living hell out of
-all gdb and readelf versions (up to and including the tip of binutils-gdb.git).
+Linux 4.19 added "meta_device"
+(356d9d52e1221ba0c9f10b8b38652f78a5298329) and "recalculate"
+(a3fcf7253139609bf9ff901fbf955fba047e75dd) flags.
 
-Longer term solution is to make both O32 and N32 compat use the
-regular compat_binfmt_elf.c, but that's too much for backports.  The minimal
-solution is to do in arch/mips/kernel/binfmt_elf[on]32.c the same thing
-those patches have done in fs/compat_binfmt_elf.c
+Commit 468dfca38b1a6fbdccd195d875599cb7c8875cd9 added
+"sectors_per_bit" and "bitmap_flush_interval".
 
-Cc: stable@kernel.org # v3.7+
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Commit 84597a44a9d86ac949900441cea7da0af0f2f473 added
+"allow_discards".
+
+And the commit d537858ac8aaf4311b51240893add2fc62003b97 added
+"fix_padding".
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/kernel/binfmt_elfn32.c |    7 +++++++
- arch/mips/kernel/binfmt_elfo32.c |    7 +++++++
- 2 files changed, 14 insertions(+)
+ drivers/md/dm-integrity.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/binfmt_elfn32.c
-+++ b/arch/mips/kernel/binfmt_elfn32.c
-@@ -103,4 +103,11 @@ jiffies_to_compat_timeval(unsigned long
- #undef ns_to_timeval
- #define ns_to_timeval ns_to_compat_timeval
- 
-+/*
-+ * Some data types as stored in coredump.
-+ */
-+#define user_long_t             compat_long_t
-+#define user_siginfo_t          compat_siginfo_t
-+#define copy_siginfo_to_external        copy_siginfo_to_external32
-+
- #include "../../../fs/binfmt_elf.c"
---- a/arch/mips/kernel/binfmt_elfo32.c
-+++ b/arch/mips/kernel/binfmt_elfo32.c
-@@ -106,4 +106,11 @@ jiffies_to_compat_timeval(unsigned long
- #undef ns_to_timeval
- #define ns_to_timeval ns_to_compat_timeval
- 
-+/*
-+ * Some data types as stored in coredump.
-+ */
-+#define user_long_t             compat_long_t
-+#define user_siginfo_t          compat_siginfo_t
-+#define copy_siginfo_to_external        copy_siginfo_to_external32
-+
- #include "../../../fs/binfmt_elf.c"
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -3078,7 +3078,7 @@ static int dm_integrity_ctr(struct dm_ta
+ 	unsigned extra_args;
+ 	struct dm_arg_set as;
+ 	static const struct dm_arg _args[] = {
+-		{0, 9, "Invalid number of feature args"},
++		{0, 15, "Invalid number of feature args"},
+ 	};
+ 	unsigned journal_sectors, interleave_sectors, buffer_sectors, journal_watermark, sync_msec;
+ 	bool recalculate;
 
 
