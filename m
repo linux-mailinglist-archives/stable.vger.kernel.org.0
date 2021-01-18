@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9702FA8C5
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 19:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0772FA8AC
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 19:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407604AbhARS1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 13:27:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
+        id S2393086AbhARPGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390744AbhARLlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:41:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D343322573;
-        Mon, 18 Jan 2021 11:41:18 +0000 (UTC)
+        id S2390745AbhARLll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:41:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38F4522227;
+        Mon, 18 Jan 2021 11:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970079;
-        bh=thbQxZcpRcG6YQUeXHtrSfFQmzDOIk0PXEA3boSIkEU=;
+        s=korg; t=1610970081;
+        bh=JuV+s/KeIzEShE7bSGVcyzHh1q02bTBuQmIL20AxEC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tobtOu8VcOYlFadKZhvXRA52FWAbaYr3ChXfw/HdWluMa9Sln2B/Kr9wZ4KrdqVqC
-         mFTTawKQgd9g25/+lgCTdqzHSUG2KOv8v9dCrNgHUYCUujM36HSKMZgl8ssL4giKB2
-         PKOlTy3+sQr+HTb1dX3ajOS/eHtXcediipZRG/s0=
+        b=pmeb3l+c5uyX61AS73tZxEDjp6kPrFjf6gch24FqQnt8WdeU06F6owG+uO+ykQPVx
+         zMfTZy5ziLh1HjobYEBlh6R1aOXarYqhYq7eZd2fv8vTrDSQ7DICIau9hVpwViRkR9
+         WyftytENtcmFPiw8g1ST2/dHAJS9Gy8dICUSMhhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Hu <nickhu@andestech.com>,
-        Nylon Chen <nylon7@andestech.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.10 028/152] riscv: Fix KASAN memory mapping.
-Date:   Mon, 18 Jan 2021 12:33:23 +0100
-Message-Id: <20210118113354.130434971@linuxfoundation.org>
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 029/152] mips: fix Section mismatch in reference
+Date:   Mon, 18 Jan 2021 12:33:24 +0100
+Message-Id: <20210118113354.177932943@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,36 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hu <nickhu@andestech.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit c25a053e15778f6b4d6553708673736e27a6c2cf upstream.
+commit ad4fddef5f2345aa9214e979febe2f47639c10d9 upstream.
 
-Use virtual address instead of physical address when translating
-the address to shadow memory by kasan_mem_to_shadow().
+When building mips tinyconfig with clang the following error show up:
 
-Signed-off-by: Nick Hu <nickhu@andestech.com>
-Signed-off-by: Nylon Chen <nylon7@andestech.com>
-Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+WARNING: modpost: vmlinux.o(.text+0x1940c): Section mismatch in reference from the function r4k_cache_init() to the function .init.text:loongson3_sc_init()
+The function r4k_cache_init() references
+the function __init loongson3_sc_init().
+This is often because r4k_cache_init lacks a __init
+annotation or the annotation of loongson3_sc_init is wrong.
+
+Remove marked __init from function loongson3_sc_init(),
+mips_sc_probe_cm3(), and mips_sc_probe().
+
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/mm/kasan_init.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/mm/c-r4k.c   |    2 +-
+ arch/mips/mm/sc-mips.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/mm/kasan_init.c
-+++ b/arch/riscv/mm/kasan_init.c
-@@ -93,8 +93,8 @@ void __init kasan_init(void)
- 								VMALLOC_END));
+--- a/arch/mips/mm/c-r4k.c
++++ b/arch/mips/mm/c-r4k.c
+@@ -1609,7 +1609,7 @@ static void __init loongson2_sc_init(voi
+ 	c->options |= MIPS_CPU_INCLUSIVE_CACHES;
+ }
  
- 	for_each_mem_range(i, &_start, &_end) {
--		void *start = (void *)_start;
--		void *end = (void *)_end;
-+		void *start = (void *)__va(_start);
-+		void *end = (void *)__va(_end);
+-static void __init loongson3_sc_init(void)
++static void loongson3_sc_init(void)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+ 	unsigned int config2, lsize;
+--- a/arch/mips/mm/sc-mips.c
++++ b/arch/mips/mm/sc-mips.c
+@@ -146,7 +146,7 @@ static inline int mips_sc_is_activated(s
+ 	return 1;
+ }
  
- 		if (start >= end)
- 			break;
+-static int __init mips_sc_probe_cm3(void)
++static int mips_sc_probe_cm3(void)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+ 	unsigned long cfg = read_gcr_l2_config();
+@@ -180,7 +180,7 @@ static int __init mips_sc_probe_cm3(void
+ 	return 0;
+ }
+ 
+-static inline int __init mips_sc_probe(void)
++static inline int mips_sc_probe(void)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+ 	unsigned int config1, config2;
 
 
