@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6DF2F9CD4
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2BC2F9CD5
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 11:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389306AbhARK0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 05:26:42 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:40517 "EHLO
+        id S2389325AbhARK0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 05:26:43 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47701 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388605AbhARJu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:50:29 -0500
+        by vger.kernel.org with ESMTP id S2388836AbhARJug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 04:50:36 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id BDFFE1647;
-        Mon, 18 Jan 2021 04:49:36 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:49:36 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 3624E16D9;
+        Mon, 18 Jan 2021 04:49:45 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 18 Jan 2021 04:49:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WMhHQa
-        BtdE0koHtp1O7dNhl8xpE9ZJzgduWes2ch98w=; b=Q2z3mCwd99ieerFAEWiS6/
-        Wz+OLNxVQBniF4a+FVxxzwh/36bPJNjSuaboj4WJzTP8UK+jt+gDgCvzNrqDVmqn
-        IBjFH27xsu/kc51/wlyycrVvVfL+qCDs19+ZoN17702FFhlULs3ORcT2EOAro2FO
-        9puFTDRslf8yz7McftOfwOi21VpTCJBmpwMaDz3BILuvKp2wzqPseoavwPZfIht1
-        R3T/+2HWUi8Rr//TKax5caae9n785yvXplDLRnwoS9W2c6bhOJSfmAArkVFxHtOO
-        7sc6OQ1pVe0XSvdOi2gSGAKkxf/Z8Ai4zADx7/96r0LL2eZJ1fa2s1ScUoz7+6gQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=v5WKFj
+        XXzoiZB+SymCZjg8Y9oZ/2QnmVQU902w3zFLs=; b=nGwGFZb2QuyfzChjAfnp3K
+        NhxKzb2qhB/ompiW6bXa8N39MOXLyDEMAfzg0ZAa6beAt/dc/vefHdH5BfaHcdaD
+        PN22NSACVJyltvy0DT3lGE8FKpHA30r0JWE23SuEzgV/Q8JLvb3fESe4zmgyqaO0
+        vS7GAIUW1Vqf2XRhatuYQI+bS5/RWHENlYMr6mZusE2NIAkWYnVpawbc+EnkkWvL
+        2flfQD3BLxjaj6HQa263Z7rs8jGyPMzq2Zz7UnT+FPJgYyKAnsjPiARlOawZd+P4
+        94aZd0tGQJqmCVrAgKjOcfucDug34vR9O0ifCUp15BUm93gURtDr2Iz3FrfTtd7Q
         ==
-X-ME-Sender: <xms:sFkFYAy1Bq5DqDe8RtqrwsELktfpw0vixVwzCmoMJjQ3zab_HUSjJQ>
-    <xme:sFkFYET6ibZ7PwBNGIaAqKHh646engOJ3sDF5VnenQljc1v9KsGiRGxchA59XEAzA
-    zsSIzJ5qzm8CA>
+X-ME-Sender: <xms:uFkFYCV8G144RzC79L-gtQQ8jloFdtWndBQEvX4uFbWl0tSCEzgiXw>
+    <xme:uFkFYOk1T5NpJrudcBvmuPfnxBVxBFGV0jlm0DjEFNb8s4boj24nj9v-uVq3Qn1Iu
+    08hql46Z8X9KA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrtdekgddtkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:sFkFYCX_qFVO2AQ3UgP11qS1CUk7VuV-WheszKr-rgJI6AjL3lnjJA>
-    <xmx:sFkFYOhML98JE6HJkZ2fVkVtgW739_etegAlYarOP1zkOFQMGzEYxQ>
-    <xmx:sFkFYCDzX9iTZuF4QdFMgJggtD2eT_2qc1DiA7BeMtFwg13o3muE0w>
-    <xmx:sFkFYJ-x0REbAIf4Vj0vjEPiKjGryikeZokBUeX7hvfQdurUMp_vLBCee4I>
+X-ME-Proxy: <xmx:uFkFYGaiVZv0lVVoZG2wAbhecnnkN47x58yaMsChxDtgLlrO4-LHvA>
+    <xmx:uFkFYJU1SYK_r1kOhtGt-2GJNsQRyH611i0CwTActPTIlq6d6P0VpQ>
+    <xmx:uFkFYMly7xaaUvoshzJIdB8nlVzg8D6ZrYQJ_0DzHHBSPP22s_HuLw>
+    <xmx:uFkFYOTcIiEuIof5GsuRKRf7GdqRo60mN0yVIg8eG_JntBOyXwFlyxW_S_k>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EC2B424005A;
-        Mon, 18 Jan 2021 04:49:35 -0500 (EST)
-Subject: FAILED: patch "[PATCH] NFS: nfs_delegation_find_inode_server must first reference" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 81ECC1080057;
+        Mon, 18 Jan 2021 04:49:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] NFS: nfs_delegation_find_inode_server must first reference" failed to apply to 5.4-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jan 2021 10:49:34 +0100
-Message-ID: <1610963374833@kroah.com>
+Date:   Mon, 18 Jan 2021 10:49:35 +0100
+Message-ID: <161096337558107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
