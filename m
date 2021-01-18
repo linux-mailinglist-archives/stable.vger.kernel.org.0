@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA622FAA16
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FD12FA9EC
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 20:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437299AbhART0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 14:26:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
+        id S2437026AbhARTRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 14:17:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390383AbhARLhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:37:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C41722B4E;
-        Mon, 18 Jan 2021 11:37:05 +0000 (UTC)
+        id S2390447AbhARLiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:38:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6782B22C9C;
+        Mon, 18 Jan 2021 11:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610969826;
-        bh=u/uHDV/cYGZnTfypdQ2dMvlAOFNoUEzaJecQfzK9iAw=;
+        s=korg; t=1610969828;
+        bh=qQJGmy+ozBZJtmb7VQ2AXcvoNE5LRknwbnJaBsdqEu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsDoIGrCjNVIgtZJtYAKEaGQsrvAz/BAS2osHombXL7C5VVQYI1mQcWjZXLukhWhT
-         75W2lzhFcS7Sbam9OFnB23UgY9kXBC7FcEzhlpQ1yflJ3NZEC+bXwtxpHCc9lS2D0I
-         SSNc/rilwLuMl7PQFOfcsuy4rMLqwGlh+OrZHz2E=
+        b=uYuNyOLIMJjL5mPv7CTdjh3ePce9Yp9wJaLHmBIwi+k1dMBjkhLQmkTi3HEVahRTE
+         clT+oAMA1SajhnHrYkFp/wOwW0Wl5CWue3f/JyPDETx0rMqOn01UIKnuWurE7JJaLr
+         8Resc+K7yHHryJK9MlJ6Ji7l1aZagz4BMutvHqnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoel Caspersen <yoel@kviknet.dk>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
         Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 41/43] netfilter: conntrack: fix reading nf_conntrack_buckets
-Date:   Mon, 18 Jan 2021 12:35:04 +0100
-Message-Id: <20210118113336.921993504@linuxfoundation.org>
+Subject: [PATCH 4.19 42/43] netfilter: nf_nat: Fix memleak in nf_nat_init
+Date:   Mon, 18 Jan 2021 12:35:05 +0100
+Message-Id: <20210118113336.971419279@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113334.966227881@linuxfoundation.org>
 References: <20210118113334.966227881@linuxfoundation.org>
@@ -41,47 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit f6351c3f1c27c80535d76cac2299aec44c36291e upstream.
+commit 869f4fdaf4ca7bb6e0d05caf6fa1108dddc346a7 upstream.
 
-The old way of changing the conntrack hashsize runtime was through changing
-the module param via file /sys/module/nf_conntrack/parameters/hashsize. This
-was extended to sysctl change in commit 3183ab8997a4 ("netfilter: conntrack:
-allow increasing bucket size via sysctl too").
+When register_pernet_subsys() fails, nf_nat_bysource
+should be freed just like when nf_ct_extend_register()
+fails.
 
-The commit introduced second "user" variable nf_conntrack_htable_size_user
-which shadow actual variable nf_conntrack_htable_size. When hashsize is
-changed via module param this "user" variable isn't updated. This results in
-sysctl net/netfilter/nf_conntrack_buckets shows the wrong value when users
-update via the old way.
-
-This patch fix the issue by always updating "user" variable when reading the
-proc file. This will take care of changes to the actual variable without
-sysctl need to be aware.
-
-Fixes: 3183ab8997a4 ("netfilter: conntrack: allow increasing bucket size via sysctl too")
-Reported-by: Yoel Caspersen <yoel@kviknet.dk>
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Fixes: 1cd472bf036ca ("netfilter: nf_nat: add nat hook register functions to nf_nat")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Acked-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_conntrack_standalone.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/netfilter/nf_nat_core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -500,6 +500,9 @@ nf_conntrack_hash_sysctl(struct ctl_tabl
- {
- 	int ret;
- 
-+	/* module_param hashsize could have changed value */
-+	nf_conntrack_htable_size_user = nf_conntrack_htable_size;
-+
- 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
- 	if (ret < 0 || !write)
+--- a/net/netfilter/nf_nat_core.c
++++ b/net/netfilter/nf_nat_core.c
+@@ -1068,6 +1068,7 @@ static int __init nf_nat_init(void)
+ 	ret = register_pernet_subsys(&nat_net_ops);
+ 	if (ret < 0) {
+ 		nf_ct_extend_unregister(&nat_extend);
++		kvfree(nf_nat_bysource);
  		return ret;
+ 	}
+ 
 
 
