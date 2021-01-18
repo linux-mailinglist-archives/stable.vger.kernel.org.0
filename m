@@ -2,92 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637E12FA40B
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064772FA459
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:17:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390188AbhARLmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 06:42:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36828 "EHLO mail.kernel.org"
+        id S2405534AbhARPQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:16:45 -0500
+Received: from foss.arm.com ([217.140.110.172]:37732 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390678AbhARLlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:41:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEDDF224B0;
-        Mon, 18 Jan 2021 11:40:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970026;
-        bh=f96gWCLr5D/LAGhmXh0ZQJcg1Ss+6GC7drgFM0GWmWA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6yFonH6srdgWtDVgu2tyHVQmzJzhg0WgAWgAI5o+GP8auVXeW3IRZaLwMqT3DUlU
-         k3i+cY5k8ZMwoV4UZ1Uv+eeeDrUZYNCkWC6kvLLKrADNdVn3BR9yw4ZsxhLf/itaYW
-         zhyLWrVoCBdDp+H59PhWRlCeZkf8DDpr4Z1p9Yno=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yongping Zhang <yongping.zhang@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 64/76] bnxt_en: Improve stats context resource accounting with RDMA driver loaded.
-Date:   Mon, 18 Jan 2021 12:35:04 +0100
-Message-Id: <20210118113344.026749359@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210118113340.984217512@linuxfoundation.org>
-References: <20210118113340.984217512@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2405397AbhARPQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 10:16:07 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2463A1FB;
+        Mon, 18 Jan 2021 07:15:19 -0800 (PST)
+Received: from e121166-lin.cambridge.arm.com (e121166-lin.cambridge.arm.com [10.1.196.255])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 924753F68F;
+        Mon, 18 Jan 2021 07:15:17 -0800 (PST)
+Date:   Mon, 18 Jan 2021 15:15:11 +0000
+From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+To:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc:     Ilia Mirkin <imirkin@alum.mit.edu>, stable@vger.kernel.org,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sham Muthayyan <smuthayy@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RESEND PATCH] PCI: qcom: use PHY_REFCLK_USE_PAD only for ipq8064
+Message-ID: <20210118151511.GA15060@e121166-lin.cambridge.arm.com>
+References: <20201019165555.8269-1-ansuelsmth@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201019165555.8269-1-ansuelsmth@gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+On Mon, Oct 19, 2020 at 06:55:55PM +0200, Ansuel Smith wrote:
+> The use of PHY_REFCLK_USE_PAD introduced a regression for apq8064
+> devices. It was tested that while apq doesn't require the padding, ipq
+> SoC must use it or the kernel hangs on boot.
+> 
+> Fixes: de3c4bf6489 ("PCI: qcom: Add support for tx term offset for rev 2.1.0")
+> Reported-by: Ilia Mirkin <imirkin@alum.mit.edu>
+> Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+> Cc: stable@vger.kernel.org # v4.19+
+> ---
+>  drivers/pci/controller/dwc/pcie-qcom.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 
-commit 869c4d5eb1e6fbda66aa790c48bdb946d71494a0 upstream.
+Need qcom maintainer's ack, thanks.
 
-The function bnxt_get_ulp_stat_ctxs() does not count the stats contexts
-used by the RDMA driver correctly when the RDMA driver is freeing the
-MSIX vectors.  It assumes that if the RDMA driver is registered, the
-additional stats contexts will be needed.  This is not true when the
-RDMA driver is about to unregister and frees the MSIX vectors.
+Lorenzo
 
-This slight error leads to over accouting of the stats contexts needed
-after the RDMA driver has unloaded.  This will cause some firmware
-warning and error messages in dmesg during subsequent config. changes
-or ifdown/ifup.
-
-Fix it by properly accouting for extra stats contexts only if the
-RDMA driver is registered and MSIX vectors have been successfully
-requested.
-
-Fixes: c027c6b4e91f ("bnxt_en: get rid of num_stat_ctxs variable")
-Reviewed-by: Yongping Zhang <yongping.zhang@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-@@ -216,8 +216,12 @@ int bnxt_get_ulp_msix_base(struct bnxt *
- 
- int bnxt_get_ulp_stat_ctxs(struct bnxt *bp)
- {
--	if (bnxt_ulp_registered(bp->edev, BNXT_ROCE_ULP))
--		return BNXT_MIN_ROCE_STAT_CTXS;
-+	if (bnxt_ulp_registered(bp->edev, BNXT_ROCE_ULP)) {
-+		struct bnxt_en_dev *edev = bp->edev;
-+
-+		if (edev->ulp_tbl[BNXT_ROCE_ULP].msix_requested)
-+			return BNXT_MIN_ROCE_STAT_CTXS;
-+	}
- 
- 	return 0;
- }
-
-
+> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> index 3aac77a295ba..dad6e9ce66ba 100644
+> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> @@ -387,7 +387,9 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+>  
+>  	/* enable external reference clock */
+>  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
+> -	val &= ~PHY_REFCLK_USE_PAD;
+> +	/* USE_PAD is required only for ipq806x */
+> +	if (!of_device_is_compatible(node, "qcom,pcie-apq8064"))
+> +		val &= ~PHY_REFCLK_USE_PAD;
+>  	val |= PHY_REFCLK_SSP_EN;
+>  	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
+>  
+> -- 
+> 2.27.0
+> 
