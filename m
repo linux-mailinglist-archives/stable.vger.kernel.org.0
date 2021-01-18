@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A0F2FA39A
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B87C2FA30C
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 15:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390679AbhARObO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 09:31:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
+        id S2390699AbhARObW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 09:31:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390812AbhARLnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 06:43:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D60E7224B0;
-        Mon, 18 Jan 2021 11:42:35 +0000 (UTC)
+        id S2390811AbhARLnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 06:43:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A94222DD6;
+        Mon, 18 Jan 2021 11:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610970156;
-        bh=NjnX7vpBdEObQj3DwhFQMHbnPeyqEPEVzfFPPN/J79E=;
+        s=korg; t=1610970158;
+        bh=uCDcJsBv4o82z/WlJoDSAGSIU1lu/yKqSLnJL4vFYTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QnHa3Z3O3TPSYbh62KlInwWo3x8+cQlBk0I+qkKCKiPwN9jgnee+hGQOMKWUjyI3C
-         KPBlLa4XTzK7+nlulS7Vnp+7y41Z+7osX+HUQOzB1wQUIvMIHBQXIA8+o99WoaSv7g
-         mS6n5TCbGKIwlpdaTu/EUJjzHag/tQnPu6bbwJwQ=
+        b=rhQ7M+W1mcE9ms4icf8lWTWPpd7l495j9sDUnfr5XZibo0U5jJRL5syhQnvxgeYHD
+         SGl+NbXji4G0/4l6TJ9pjkZwvNHVInhCnrIkRftRrIzJNGwjle6cEpUt1fDm8NRG3g
+         gUy/97FbB+JZSPFakUBMy+BAsISNdMDB8MrwDd4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/152] ath11k: fix crash caused by NULL rx_channel
-Date:   Mon, 18 Jan 2021 12:33:55 +0100
-Message-Id: <20210118113355.672301537@linuxfoundation.org>
+Subject: [PATCH 5.10 061/152] netfilter: ipset: fixes possible oops in mtype_resize
+Date:   Mon, 18 Jan 2021 12:33:56 +0100
+Message-Id: <20210118113355.718238542@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
 References: <20210118113352.764293297@linuxfoundation.org>
@@ -40,64 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 3597010630d0aa96f5778901e691c6068bb86318 ]
+[ Upstream commit 2b33d6ffa9e38f344418976b06057e2fc2aa9e2a ]
 
-During connect and disconnect stress test, crashed happened
-because ar->rx_channel is NULL. Fix it by checking whether
-ar->rx_channel is NULL.
+currently mtype_resize() can cause oops
 
-Crash stack is as below:
-RIP: 0010:ath11k_dp_rx_h_ppdu+0x110/0x230 [ath11k]
-[ 5028.808963]  ath11k_dp_rx_wbm_err+0x14a/0x360 [ath11k]
-[ 5028.808970]  ath11k_dp_rx_process_wbm_err+0x41c/0x520 [ath11k]
-[ 5028.808978]  ath11k_dp_service_srng+0x25e/0x2d0 [ath11k]
-[ 5028.808982]  ath11k_pci_ext_grp_napi_poll+0x23/0x80 [ath11k_pci]
-[ 5028.808986]  net_rx_action+0x27e/0x400
-[ 5028.808990]  __do_softirq+0xfd/0x2bb
-[ 5028.808993]  irq_exit+0xa6/0xb0
-[ 5028.808995]  do_IRQ+0x56/0xe0
-[ 5028.808997]  common_interrupt+0xf/0xf
+        t = ip_set_alloc(htable_size(htable_bits));
+        if (!t) {
+                ret = -ENOMEM;
+                goto out;
+        }
+        t->hregion = ip_set_alloc(ahash_sizeof_regions(htable_bits));
 
-Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
+Increased htable_bits can force htable_size() to return 0.
+In own turn ip_set_alloc(0) returns not 0 but ZERO_SIZE_PTR,
+so follwoing access to t->hregion should trigger an OOPS.
 
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201211055613.9310-1-cjhuang@codeaurora.org
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/netfilter/ipset/ip_set_hash_gen.h | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 01625327eef7c..3638501a09593 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -2272,6 +2272,7 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- {
- 	u8 channel_num;
- 	u32 center_freq;
-+	struct ieee80211_channel *channel;
+diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
+index 7d01086b38f0f..7cd1d31fb2b88 100644
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -630,7 +630,7 @@ mtype_resize(struct ip_set *set, bool retried)
+ 	struct htype *h = set->data;
+ 	struct htable *t, *orig;
+ 	u8 htable_bits;
+-	size_t dsize = set->dsize;
++	size_t hsize, dsize = set->dsize;
+ #ifdef IP_SET_HASH_WITH_NETS
+ 	u8 flags;
+ 	struct mtype_elem *tmp;
+@@ -654,14 +654,12 @@ mtype_resize(struct ip_set *set, bool retried)
+ retry:
+ 	ret = 0;
+ 	htable_bits++;
+-	if (!htable_bits) {
+-		/* In case we have plenty of memory :-) */
+-		pr_warn("Cannot increase the hashsize of set %s further\n",
+-			set->name);
+-		ret = -IPSET_ERR_HASH_FULL;
+-		goto out;
+-	}
+-	t = ip_set_alloc(htable_size(htable_bits));
++	if (!htable_bits)
++		goto hbwarn;
++	hsize = htable_size(htable_bits);
++	if (!hsize)
++		goto hbwarn;
++	t = ip_set_alloc(hsize);
+ 	if (!t) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -803,6 +801,12 @@ cleanup:
+ 	if (ret == -EAGAIN)
+ 		goto retry;
+ 	goto out;
++
++hbwarn:
++	/* In case we have plenty of memory :-) */
++	pr_warn("Cannot increase the hashsize of set %s further\n", set->name);
++	ret = -IPSET_ERR_HASH_FULL;
++	goto out;
+ }
  
- 	rx_status->freq = 0;
- 	rx_status->rate_idx = 0;
-@@ -2292,9 +2293,12 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- 		rx_status->band = NL80211_BAND_5GHZ;
- 	} else {
- 		spin_lock_bh(&ar->data_lock);
--		rx_status->band = ar->rx_channel->band;
--		channel_num =
--			ieee80211_frequency_to_channel(ar->rx_channel->center_freq);
-+		channel = ar->rx_channel;
-+		if (channel) {
-+			rx_status->band = channel->band;
-+			channel_num =
-+				ieee80211_frequency_to_channel(channel->center_freq);
-+		}
- 		spin_unlock_bh(&ar->data_lock);
- 		ath11k_dbg_dump(ar->ab, ATH11K_DBG_DATA, NULL, "rx_desc: ",
- 				rx_desc, sizeof(struct hal_rx_desc));
+ /* Get the current number of elements and ext_size in the set  */
 -- 
 2.27.0
 
