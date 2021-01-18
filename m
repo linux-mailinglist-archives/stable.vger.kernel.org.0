@@ -2,54 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0502C2FA4F8
-	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6662FA50F
+	for <lists+stable@lfdr.de>; Mon, 18 Jan 2021 16:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393428AbhARPjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 10:39:45 -0500
-Received: from foss.arm.com ([217.140.110.172]:38178 "EHLO foss.arm.com"
+        id S2404094AbhARPqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 10:46:45 -0500
+Received: from mga07.intel.com ([134.134.136.100]:21117 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393360AbhARPjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Jan 2021 10:39:40 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DFA59D6E;
-        Mon, 18 Jan 2021 07:38:54 -0800 (PST)
-Received: from e123427-lin.arm.com (unknown [10.57.56.252])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2192A3F68F;
-        Mon, 18 Jan 2021 07:38:51 -0800 (PST)
-From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To:     Ansuel Smith <ansuelsmth@gmail.com>
-Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        linux-arm-msm@vger.kernel.org,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh@kernel.org>, linux-pci@vger.kernel.org,
-        Sham Muthayyan <smuthayy@codeaurora.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>,
-        Andy Gross <agross@kernel.org>
-Subject: Re: [RESEND PATCH] PCI: qcom: use PHY_REFCLK_USE_PAD only for ipq8064
-Date:   Mon, 18 Jan 2021 15:38:42 +0000
-Message-Id: <161098429512.19724.6931812959409748673.b4-ty@arm.com>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20201019165555.8269-1-ansuelsmth@gmail.com>
-References: <20201019165555.8269-1-ansuelsmth@gmail.com>
+        id S2393495AbhARPpu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Jan 2021 10:45:50 -0500
+IronPort-SDR: 9FfJV2Q27GwIkt79vYR1KlvhUkUiAmTGJ9oWOhxWRMx5v9hmf1wMUyRE169jdHOTtbOw7PfURJ
+ RWKpGIluc3Ew==
+X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="242888244"
+X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
+   d="scan'208";a="242888244"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 07:43:59 -0800
+IronPort-SDR: c/IqiMtQV1geVrg/G3k/4TNOmQnBH0DL2leEIL7kZV/NdStuIuMPTbamPKeGe6Uh6vS+R24Tcm
+ 2eZbx3QHFNOA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
+   d="scan'208";a="353540554"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga006.jf.intel.com with SMTP; 18 Jan 2021 07:43:56 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 18 Jan 2021 17:43:55 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     Jani Nikula <jani.nikula@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: [PATCH -fixes] drm/i915: Only enable DFP 4:4:4->4:2:0 conversion when outputting YCbCr 4:4:4
+Date:   Mon, 18 Jan 2021 17:43:55 +0200
+Message-Id: <20210118154355.24453-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <87lfcqobpl.fsf@intel.com>
+References: <87lfcqobpl.fsf@intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 19 Oct 2020 18:55:55 +0200, Ansuel Smith wrote:
-> The use of PHY_REFCLK_USE_PAD introduced a regression for apq8064
-> devices. It was tested that while apq doesn't require the padding, ipq
-> SoC must use it or the kernel hangs on boot.
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Applied to pci/dwc, thanks!
+Let's not enable the 4:4:4->4:2:0 conversion bit in the DFP unless we're
+actually outputting YCbCr 4:4:4. It would appear some protocol
+converters blindy consult this bit even when the source is outputting
+RGB, resulting in a visual mess.
 
-[1/1] PCI: qcom: use PHY_REFCLK_USE_PAD only for ipq8064
-      https://git.kernel.org/lpieralisi/pci/c/cef11c377a
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2914
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210111164111.13302-1-ville.syrjala@linux.intel.com
+Fixes: 181567aa9f0d ("drm/i915: Do YCbCr 444->420 conversion via DP protocol converters")
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 3170a21f7059c4660c469f59bf529f372a57da5f)
+---
+Unfortunately the crtc_state plumbing to
+intel_dp_configure_protocol_converter() was part of the 
+HDMI 2.1 PCON stuff, so couldn't just cherry-pick it alone.
 
-Thanks,
-Lorenzo
+ drivers/gpu/drm/i915/display/intel_ddi.c | 2 +-
+ drivers/gpu/drm/i915/display/intel_dp.c  | 9 +++++----
+ drivers/gpu/drm/i915/display/intel_dp.h  | 3 ++-
+ 3 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 92940a0c5ef8..d5ace48b1ace 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -3725,7 +3725,7 @@ static void hsw_ddi_pre_enable_dp(struct intel_atomic_state *state,
+ 	intel_ddi_init_dp_buf_reg(encoder, crtc_state);
+ 	if (!is_mst)
+ 		intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
+-	intel_dp_configure_protocol_converter(intel_dp);
++	intel_dp_configure_protocol_converter(intel_dp, crtc_state);
+ 	intel_dp_sink_set_decompression_state(intel_dp, crtc_state,
+ 					      true);
+ 	intel_dp_sink_set_fec_ready(intel_dp, crtc_state);
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 37f1a10fd021..09123e8625c4 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4014,7 +4014,8 @@ static void intel_dp_enable_port(struct intel_dp *intel_dp,
+ 	intel_de_posting_read(dev_priv, intel_dp->output_reg);
+ }
+ 
+-void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
++void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
++					   const struct intel_crtc_state *crtc_state)
+ {
+ 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+ 	u8 tmp;
+@@ -4033,8 +4034,8 @@ void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
+ 		drm_dbg_kms(&i915->drm, "Failed to set protocol converter HDMI mode to %s\n",
+ 			    enableddisabled(intel_dp->has_hdmi_sink));
+ 
+-	tmp = intel_dp->dfp.ycbcr_444_to_420 ?
+-		DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
++	tmp = crtc_state->output_format == INTEL_OUTPUT_FORMAT_YCBCR444 &&
++		intel_dp->dfp.ycbcr_444_to_420 ? DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
+ 
+ 	if (drm_dp_dpcd_writeb(&intel_dp->aux,
+ 			       DP_PROTOCOL_CONVERTER_CONTROL_1, tmp) != 1)
+@@ -4088,7 +4089,7 @@ static void intel_enable_dp(struct intel_atomic_state *state,
+ 	}
+ 
+ 	intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
+-	intel_dp_configure_protocol_converter(intel_dp);
++	intel_dp_configure_protocol_converter(intel_dp, pipe_config);
+ 	intel_dp_start_link_train(intel_dp, pipe_config);
+ 	intel_dp_stop_link_train(intel_dp, pipe_config);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
+index b871a09b6901..05f7ddf7a795 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.h
++++ b/drivers/gpu/drm/i915/display/intel_dp.h
+@@ -51,7 +51,8 @@ int intel_dp_get_link_train_fallback_values(struct intel_dp *intel_dp,
+ int intel_dp_retrain_link(struct intel_encoder *encoder,
+ 			  struct drm_modeset_acquire_ctx *ctx);
+ void intel_dp_set_power(struct intel_dp *intel_dp, u8 mode);
+-void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp);
++void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
++					   const struct intel_crtc_state *crtc_state);
+ void intel_dp_sink_set_decompression_state(struct intel_dp *intel_dp,
+ 					   const struct intel_crtc_state *crtc_state,
+ 					   bool enable);
+-- 
+2.26.2
+
