@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 774432FBD0C
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 17:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 591A42FBD19
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 18:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388933AbhASQ5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 11:57:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56246 "EHLO
+        id S2390379AbhASRAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 12:00:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730005AbhASQ5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 11:57:21 -0500
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615FAC0613C1
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 08:56:36 -0800 (PST)
-Received: by mail-pg1-x532.google.com with SMTP id 30so13309122pgr.6
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 08:56:36 -0800 (PST)
+        with ESMTP id S2389995AbhASQ74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 11:59:56 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8623C061573
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 08:59:15 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id y12so276451pji.1
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 08:59:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=xyvyl31jY0CCjnh9LDzFr6zA1SV9DSLj5Z6zWz0TwHQ=;
-        b=SQbKMohjTNhfPQuJVS7cXTrKH8dgqz40dMR8We3Z1odvBu8Hjs0pcZ2I42LLfKX46H
-         lgM2Jm4u0G7CwESxV68Bdawlz6se4PArl/cvC+B/7gqzism2MCao2rXuV62OiNPRopWz
-         2AHneZJKGTFQeajeFIQbGf0/tvnVG4MPfM4tjEcEbL2zPaket8NnV+KXx3/d7e1XYMCQ
-         7sYT6zPebXKnpqG3yh1HK4OX7AiONyIwt1br43UG1dLWod4yUXtDB5z8IISzBOBFpDXK
-         ZJJgsuomk7Om98yPSE324nHlTYGySVjNVguM+MmCW1sbJfq2FJ6jC+Ge+NVDXrz6wTco
-         xpKw==
+        bh=+2E5hv0l6i5mIFj2dm7Ov4IM5pdbWxYRhpL9Fovr6Xc=;
+        b=cI/mRHnJkOsSYfpO0zhMhzYCqsFI/FkdzH9lqSOa6Ult2ThiHIWsUftIYIQol1ZirJ
+         o1zdjPbTMNn9KGA6nnXT3n5AR55KD6ZRDOL9zjiSAWn0wIT3+HZo6NCe9y2ThuFcQYRI
+         APUgD924tY4GRgwd71CO/nULjKz7esMUt4USQqoa5cU1xXU73JCga56A259h79nPdrw6
+         UIaL1qdEHNDMltiNjFUcMHEglBX9WRAuLkw2F+RyRkGPxuYmyo/u26EKIhZAzj6b5jmO
+         JFAvrYD0KYXTqXYhJH51d7v+zOIQn76z5rH52ZTwrRqJTWmxap+BMQ4bwv3cmTFknhnh
+         vfeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=xyvyl31jY0CCjnh9LDzFr6zA1SV9DSLj5Z6zWz0TwHQ=;
-        b=CRy608+m+sh8q7uJ/EFLyK4Lb8oSM6vrDl1tVP3AXZMKrPiajePuIY8UzbzkneGR1+
-         VmOBXXZv5/jKt+FjGDHeFZ1LMx85yTwJ/xy3BxrzZ4WD92EeZnInmhxB+4dB/Us8FMdu
-         sJl7MQ5qFVyan+NGVMpJmgvMygRarNhIzoiokuVbd445skzpwZ1LV60XWNpYFhKXa7y7
-         BFjl2E+SDIZw6AA2o0I2P/6ckdI7A/sYBp697l5+jRzzIPlM9q+prlQf9UQP6jSoqO/Z
-         Ogv9voviBsXhactvL4oJBZkWJQlyR5JzYfSkktQPsewZc5U3gchmxdTtjH74JXz8qPpr
-         zc3g==
-X-Gm-Message-State: AOAM530BoPFpfPxpX8h9lMmehl93jBmgar9+QKFyZnWiv0o60u0Rw/ED
-        oh8EZzc5XZJweaY8nFjNOvEhL9UoSxuoZQ==
-X-Google-Smtp-Source: ABdhPJyWuK/fzt5tWfUO3lGnYMO33oaETi4jOIyst4+f9WvxPfDloO9ipJ3SgQHpCVPyaamkG/ApJQ==
-X-Received: by 2002:a62:9295:0:b029:1b7:b74f:75b1 with SMTP id o143-20020a6292950000b02901b7b74f75b1mr4730000pfd.67.1611075394669;
-        Tue, 19 Jan 2021 08:56:34 -0800 (PST)
+        bh=+2E5hv0l6i5mIFj2dm7Ov4IM5pdbWxYRhpL9Fovr6Xc=;
+        b=Re38bhMox58N8MSXzzJ8HsLgtHJPG11s+mVEimVVeOHHmImGG6FMGv08dERiU0Wcz+
+         a6eVdCxe/Gle60dtuGU3yEFA7MJZDXGOgaQLfmBjIQTG485g1FyaEUt/S8+UkAB32wGD
+         VpqMc2l2ebAuXxMW3dEHvlmo+UPeu8nX1Pbv88ApEGEBCjckNnR/88E0bGgkR+ejbyAv
+         NwhWYsefm1BL0iDRlvNRgbhUS1p7V3AuIKjBHfagGSySd1J8uJCNCei8P+1/uhHGFvX6
+         /LmRt1KsL9AGAWzTXt6YqE1OtEAkfmVEiI92bzZOUGo+A4MOr5YuXTNAbyf4Q1/du1+f
+         9KBg==
+X-Gm-Message-State: AOAM532eLbvDFLGAo4De5F0vGPIdv6KOrEi8MYQbc07eXmVo+Ozjzr6j
+        1K4lJoXgCbI5lGhUYdcqQ0mc4odubEbgGw==
+X-Google-Smtp-Source: ABdhPJx8VUNT3FDtVS35htJJQmC07BoegVOFesprvdaKRkmoZETgNJiA9xTnQgUBNC4NZxq7YhSvaw==
+X-Received: by 2002:a17:902:aa45:b029:de:2fb:995 with SMTP id c5-20020a170902aa45b02900de02fb0995mr5559624plr.81.1611075554212;
+        Tue, 19 Jan 2021 08:59:14 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f24sm4029598pjj.5.2021.01.19.08.56.33
+        by smtp.gmail.com with ESMTPSA id x1sm20757376pgj.37.2021.01.19.08.59.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 08:56:33 -0800 (PST)
-Message-ID: <60070f41.1c69fb81.34012.92f2@mx.google.com>
-Date:   Tue, 19 Jan 2021 08:56:33 -0800 (PST)
+        Tue, 19 Jan 2021 08:59:13 -0800 (PST)
+Message-ID: <60070fe1.1c69fb81.7b6af.2309@mx.google.com>
+Date:   Tue, 19 Jan 2021 08:59:13 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Branch: linux-4.9.y
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.4.252-19-ga5d48e0086e76
-Subject: stable-rc/linux-4.4.y build: 190 builds: 11 failed, 179 passed,
- 12 errors, 24 warnings (v4.4.252-19-ga5d48e0086e76)
+X-Kernelci-Kernel: v4.9.252-23-gd1138eea2aad
+Subject: stable-rc/linux-4.9.y build: 197 builds: 11 failed, 186 passed,
+ 12 errors, 16 warnings (v4.9.252-23-gd1138eea2aad)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 190 builds: 11 failed, 179 passed, 12 errors, =
-24 warnings (v4.4.252-19-ga5d48e0086e76)
+stable-rc/linux-4.9.y build: 197 builds: 11 failed, 186 passed, 12 errors, =
+16 warnings (v4.9.252-23-gd1138eea2aad)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.252-19-ga5d48e0086e76/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.252-23-gd1138eea2aad/
 
 Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.252-19-ga5d48e0086e76
-Git Commit: a5d48e0086e76a1b4af9ff68d8b95c4a9956deb4
+Branch: linux-4.9.y
+Git Describe: v4.9.252-23-gd1138eea2aad
+Git Commit: d1138eea2aad08fd262fd6b161c1f2081f2d61f9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -97,26 +97,23 @@ mips:
 Errors and Warnings Detected:
 
 arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
 
 arm64:
 
 arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
+    at91_dt_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
 
 i386:
 
 mips:
     bigsur_defconfig (gcc-8): 1 error, 1 warning
-    cavium_octeon_defconfig (gcc-8): 2 errors, 2 warnings
+    cavium_octeon_defconfig (gcc-8): 1 error, 1 warning
     fuloong2e_defconfig (gcc-8): 1 error, 1 warning
-    ip22_defconfig (gcc-8): 1 warning
     ip27_defconfig (gcc-8): 1 error, 1 warning
-    ip28_defconfig (gcc-8): 1 error, 1 warning
+    ip28_defconfig (gcc-8): 2 errors, 2 warnings
     ip32_defconfig (gcc-8): 1 error, 1 warning
     lemote2f_defconfig (gcc-8): 1 error, 1 warning
     loongson3_defconfig (gcc-8): 1 error, 1 warning
@@ -128,26 +125,19 @@ x86_64:
 
 Errors summary:
 
-    12   arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing =
+    12   arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing =
 argument 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible poin=
 ter type [-Werror=3Dincompatible-pointer-types]
 
 Warnings summary:
 
     12   cc1: all warnings being treated as errors
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    1    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
-ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
-t a cast [-Wint-conversion]
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
-onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    4    drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable =
+=E2=80=98mtd=E2=80=99 [-Wunused-variable]
+
+Section mismatches summary:
+
+    2    WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -155,6 +145,11 @@ onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
 =3D=3D=3D=3D=3D
 
 Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -168,26 +163,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
@@ -196,13 +178,18 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -216,13 +203,32 @@ ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable =E2=80=
+=98mtd=E2=80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -266,16 +272,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -287,10 +288,16 @@ Warnings:
 bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -299,19 +306,15 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings,=
- 0 section mismatches
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
-ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
-ype [-Werror=3Dincompatible-pointer-types]
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
 Warnings:
-    cc1: all warnings being treated as errors
     cc1: all warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -326,12 +329,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate =E2=
-=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -375,12 +374,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -453,7 +448,7 @@ fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -527,13 +522,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
- of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
-ast [-Wint-conversion]
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -541,7 +531,7 @@ ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
 mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -550,15 +540,19 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
+ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sectio=
+n mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
+ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
+ype [-Werror=3Dincompatible-pointer-types]
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
 Warnings:
+    cc1: all warnings being treated as errors
     cc1: all warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -567,7 +561,7 @@ ip32_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
 mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -620,7 +614,7 @@ lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -629,11 +623,21 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
 loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -647,22 +651,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -740,7 +735,7 @@ mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
  section mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -764,6 +759,11 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -774,13 +774,26 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable =E2=80=
+=98mtd=E2=80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable =E2=80=
+=98mtd=E2=80=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -799,12 +812,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98const=
-=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -832,7 +841,7 @@ nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
@@ -906,6 +915,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
 pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
@@ -946,6 +960,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
 qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -968,11 +987,6 @@ on mismatches
 -----
 rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1011,8 +1025,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/mtd/nand/atmel_nand.c:2337:19: warning: unused variable =E2=80=
+=98mtd=E2=80=99 [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1020,22 +1038,12 @@ sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
 section mismatches
 
 Errors:
-    arch/mips/kernel/../../../fs/binfmt_elf.c:1553:23: error: passing argum=
+    arch/mips/kernel/../../../fs/binfmt_elf.c:1556:23: error: passing argum=
 ent 1 of =E2=80=98copy_siginfo_to_user=E2=80=99 from incompatible pointer t=
 ype [-Werror=3Dincompatible-pointer-types]
 
 Warnings:
     cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1114,12 +1122,17 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
@@ -1129,28 +1142,13 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
 
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1226,6 +1224,16 @@ tion mismatches
 -----
 xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
