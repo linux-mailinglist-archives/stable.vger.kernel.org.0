@@ -2,137 +2,387 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FFDC2FC49B
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 00:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4A22FC4B6
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 00:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728420AbhASXQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 18:16:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
+        id S1730044AbhASXWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 18:22:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730354AbhASXQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 18:16:39 -0500
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAABEC061757
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:15:58 -0800 (PST)
-Received: by mail-qt1-x835.google.com with SMTP id v3so12774102qtw.4
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:15:58 -0800 (PST)
+        with ESMTP id S1729753AbhASXWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 18:22:42 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09241C061573
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:22:02 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id f63so5480375pfa.13
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:22:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=op9FrWddONIxn+M8Vu02lYB/ZI0KbLq2QEuyw8GYI6U=;
-        b=gSLoZAf+wj0Cbx2kVAUO7Dsd7pakalqeRQQkkuunp88VqihH7F2ZHeWrw0As42brAc
-         mascdqYp1O05Na+QPckX6BwIB6wqQyFjHYqq/8j8V/kqFAINiWDSJcRQLchfOu0ou8VE
-         SoXku3WcTYYdkrD0IkVedX6o1vaY1bo4nVFb8thY+haOcepesljR17g9ysr/snKAzrDk
-         NzxvGC49rA59N0maw2bvdnbK/SoWPr689qh23QFhrbWslvOHYJn6qiGmli0MBItzGm2z
-         Ha07mxP0ZsUcc4m3o/mdZ2M2IzwlSYw2azq5sJKZKeS/R8O8W4gMDEjWpKC1I3v74H3V
-         1zdw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MP81S00TTSHSYxYsK9tMJG4WhejQKvtfEzlyB3SaDpE=;
+        b=gc5sTSwWT318ERKfQ52TJOeXmGJLcSzzj7dtaDhIQZwt8lQS9K+CbVoGi5ImbfLtDB
+         uiu69265X3sRJfxZfmIogR615+/iUOV3xz9klHR5JFm4c+d+j4hp0XELRorTsm2CYNov
+         DGFsMzWgE9JHxh7HSpiX44S5F+RYCMF4ze/P/DZTYEz6lGHbVGaa5eXH9xb6pJXqLeTN
+         D3aMM0KSIRp7IuT5UMtSpgWUTHoJcSjLVnR32wnE3Z65xS08tTdb6g9S4xsiT5Cwc8jP
+         Rba9+3odiRhyEgSB9qU1tGKDIboA1s/hQ3+IMz4jWAhaDVHOaF2Bqny//gZtaSf2wtli
+         ZV9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=op9FrWddONIxn+M8Vu02lYB/ZI0KbLq2QEuyw8GYI6U=;
-        b=kAcbrmwyNNpNjRq90TVW7KrIalOLHusjVWMAgonVJmrp4feA+ZJ9QIuAsIY3Qp8WPf
-         PPIjxibNdDXnO/ZgLY4H0mA5f6dEpd3xrS+WvVYRxR+h7CHN0Gxcv5rJ8ZAdu1jYQmaV
-         FBUqXbXcWXMXRH+DPyeWKiVLbrO+hTAALaDcJdgSgXSMqtvTvvZ8kv7nX5CaOwfQbZve
-         dQZO0t6OsU7FU1wgAUfmDkOHsagZXEnNpoJ7jj9B0xhsYmmHNrwdTRfhnwEoie8JRZb9
-         /7+7VObHDAT3SO1lshxOYhFcG5O5knLMf+M72/bt2QK4X7K77LWR0vXPgrTUc1OljH0D
-         uuYg==
-X-Gm-Message-State: AOAM5300e440FOLA4z84KAtCuUBTkBg9Ynyp1HlUzD+/ORgz9pWN4Jl9
-        ejY2VbZUip4a2IFcVqTh/30=
-X-Google-Smtp-Source: ABdhPJwVXkoBnaF2j0YgiNzq1aipHcEFIpv7P7shzdyZMMOBZ52EL6ReDaQj1uoeprYvDBSWL5wzeg==
-X-Received: by 2002:ac8:71d6:: with SMTP id i22mr6608227qtp.206.1611098158009;
-        Tue, 19 Jan 2021 15:15:58 -0800 (PST)
-Received: from localhost.localdomain ([177.194.79.136])
-        by smtp.gmail.com with ESMTPSA id e38sm94564qtb.30.2021.01.19.15.15.53
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MP81S00TTSHSYxYsK9tMJG4WhejQKvtfEzlyB3SaDpE=;
+        b=QCheu0aGuTQ1rnApf4MGlqej+xmNp1GmpmELL5ltptfB1ha64gF5RzW9dSa2PQPNtN
+         bMQH0v8yjzW4lhPLgnYmi1vufNyTrE4Xj9ok6Hu+AnCubgnOIypr5vOdYEt8iPotvJac
+         MqHrRSVI4crrWsjutoTQjhfMIHZPXvTYH/VVk7GHWa6lG5FdLvMjHS0rhabxrKLe4HJS
+         MhqcHaSblc+RzvxIeYNeKASQ4qCH44mnT8LMxIOP0NOYrTYxl8pLcFL27DEzw8ap5UkB
+         XH2BnHhp+WCVy+e+9X9cvzGwHyPZsOPiIJMr1wynUWNwacTeewsDnIiGnsCH+rGyHnXU
+         Mxvw==
+X-Gm-Message-State: AOAM530HjApyN7eWVlHhAV9CMqmxUWNVjDqNyhsa4goi3JhXgWWuNL3S
+        J1tV7jfSZkRWz4Ja7V7EWz9yYIUHSMfgwQ==
+X-Google-Smtp-Source: ABdhPJwf3uBFTSdQFjeopJ4e23clRCH3uMpol9HvoboGpKkT8mJEfopwgjqs0X5D2gWOWd3QKOnckQ==
+X-Received: by 2002:a63:585a:: with SMTP id i26mr6482568pgm.330.1611098521227;
+        Tue, 19 Jan 2021 15:22:01 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 126sm177194pfu.31.2021.01.19.15.22.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 15:15:57 -0800 (PST)
-From:   Fabio Estevam <festevam@gmail.com>
-To:     robdclark@gmail.com
-Cc:     sean@poorly.run, airlied@linux.ie, mkrishn@codeaurora.org,
-        dri-devel@lists.freedesktop.org, bjorn.andersson@linaro.org,
-        jcrouse@codeaurora.org, kernel@pengutronix.de, daniel@ffwll.ch,
-        jonathan@marek.ca, kalyan_t@codeaurora.org,
-        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] drm/msm: Call suspend/resume conditionally
-Date:   Tue, 19 Jan 2021 20:13:41 -0300
-Message-Id: <20210119231341.2498036-2-festevam@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210119231341.2498036-1-festevam@gmail.com>
-References: <20210119231341.2498036-1-festevam@gmail.com>
+        Tue, 19 Jan 2021 15:22:00 -0800 (PST)
+Message-ID: <60076998.1c69fb81.f0d22.0c20@mx.google.com>
+Date:   Tue, 19 Jan 2021 15:22:00 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.216-33-gafaeeec3a32b
+Subject: stable-rc/queue/4.14 baseline: 137 runs,
+ 8 regressions (v4.14.216-33-gafaeeec3a32b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When putting iMX5 into suspend, the following flow is
-observed:
+stable-rc/queue/4.14 baseline: 137 runs, 8 regressions (v4.14.216-33-gafaee=
+ec3a32b)
 
-[   70.023427] [<c07755f0>] (msm_atomic_commit_tail) from [<c06e7218>]
-(commit_tail+0x9c/0x18c)
-[   70.031890] [<c06e7218>] (commit_tail) from [<c0e2920c>]
-(drm_atomic_helper_commit+0x1a0/0x1d4)
-[   70.040627] [<c0e2920c>] (drm_atomic_helper_commit) from
-[<c06e74d4>] (drm_atomic_helper_disable_all+0x1c4/0x1d4)
-[   70.050913] [<c06e74d4>] (drm_atomic_helper_disable_all) from
-[<c0e2943c>] (drm_atomic_helper_suspend+0xb8/0x170)
-[   70.061198] [<c0e2943c>] (drm_atomic_helper_suspend) from
-[<c06e84bc>] (drm_mode_config_helper_suspend+0x24/0x58)
+Regressions Summary
+-------------------
 
-In the i.MX5 case, priv->kms is not populated (as i.MX5 does not use any
-of the Qualcomm display controllers), causing a NULL pointer
-dereference in msm_atomic_commit_tail():
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+meson-gxm-q200        | arm64 | lab-baylibre    | gcc-8    | defconfig     =
+      | 1          =
 
-[   24.268964] 8<--- cut here ---
-[   24.274602] Unable to handle kernel NULL pointer dereference at
-virtual address 00000000
-[   24.283434] pgd = (ptrval)
-[   24.286387] [00000000] *pgd=ca212831
-[   24.290788] Internal error: Oops: 17 [#1] SMP ARM
-[   24.295609] Modules linked in:
-[   24.298777] CPU: 0 PID: 197 Comm: init Not tainted 5.11.0-rc2-next-20210111 #333
-[   24.306276] Hardware name: Freescale i.MX53 (Device Tree Support)
-[   24.312442] PC is at msm_atomic_commit_tail+0x54/0xb9c
-[   24.317743] LR is at commit_tail+0xa4/0x1b0
+panda                 | arm   | lab-collabora   | gcc-8    | omap2plus_defc=
+onfig | 1          =
 
-Fix the problem by calling drm_mode_config_helper_suspend/resume()
-conditionally.
+qemu_arm-versatilepb  | arm   | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
 
-Cc: <stable@vger.kernel.org>
-Fixes: ca8199f13498 ("drm/msm/dpu: ensure device suspend happens during PM sleep")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
----
-Changes since v1:
-- Newly introduced in this series.
+qemu_arm-versatilepb  | arm   | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
 
- drivers/gpu/drm/msm/msm_drv.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+qemu_arm-versatilepb  | arm   | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index c082b72b9e3b..0d1a94e06912 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -1072,14 +1072,17 @@ static int __maybe_unused msm_pm_prepare(struct device *dev)
- {
- 	struct drm_device *ddev = dev_get_drvdata(dev);
- 
--	return drm_mode_config_helper_suspend(ddev);
-+	if (of_device_get_match_data(dev))
-+		return drm_mode_config_helper_suspend(ddev);
-+	return 0;
- }
- 
- static void __maybe_unused msm_pm_complete(struct device *dev)
- {
- 	struct drm_device *ddev = dev_get_drvdata(dev);
- 
--	drm_mode_config_helper_resume(ddev);
-+	if (of_device_get_match_data(dev))
-+		drm_mode_config_helper_resume(ddev);
- }
- 
- static const struct dev_pm_ops msm_pm_ops = {
--- 
-2.25.1
+qemu_arm-versatilepb  | arm   | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
 
+qemu_arm-versatilepb  | arm   | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
+
+qemu_arm64-virt-gicv3 | arm64 | lab-collabora   | gcc-8    | defconfig     =
+      | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.216-33-gafaeeec3a32b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.216-33-gafaeeec3a32b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      afaeeec3a32b42db7091ccaccce5f69738ccaa63 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+meson-gxm-q200        | arm64 | lab-baylibre    | gcc-8    | defconfig     =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60073fbf610c5c75d6bb5d0b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60073fbf610c5c75d6bb5=
+d0c
+        failing since 42 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
+ fail: v4.14.210-20-g5ea7913395d3) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+panda                 | arm   | lab-collabora   | gcc-8    | omap2plus_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600735e4fdc782a3d7bb5d24
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/600735e4fdc782a=
+3d7bb5d29
+        new failure (last pass: v4.14.216-19-g6b67a3fc25644)
+        2 lines
+
+    2021-01-19 19:41:21.026000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-01-19 19:41:21.050000+00:00  [   20.467864] smsc95xx 3-1.1:1.0 eth=
+0: register 'smsc95xx' at usb-4a064c00.ehci-1.1, smsc95xx USB 2.0 Ethernet,=
+ 4e:ca:4a:a3:36:9b
+    2021-01-19 19:41:21.057000+00:00  [   20.482055] usbcore: registered ne=
+w interface driver smsc95xx   =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb  | arm   | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6007341ed7644f077fbb5d4e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6007341ed7644f077fbb5=
+d4f
+        failing since 66 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb  | arm   | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600734280741d4d264bb5d14
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/600734280741d4d264bb5=
+d15
+        failing since 66 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb  | arm   | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600734259ea390cf18bb5d0d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/600734259ea390cf18bb5=
+d0e
+        failing since 66 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb  | arm   | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600733fdcd2578a01cbb5d2b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/600733fdcd2578a01cbb5=
+d2c
+        failing since 66 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb  | arm   | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6007601f4d20be95e2bb5d1f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6007601f4d20be95e2bb5=
+d20
+        failing since 66 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform              | arch  | lab             | compiler | defconfig     =
+      | regressions
+----------------------+-------+-----------------+----------+---------------=
+------+------------
+qemu_arm64-virt-gicv3 | arm64 | lab-collabora   | gcc-8    | defconfig     =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600736db7db3fddd05bb5d2a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm64/defconfig/gcc-8/lab-collabora/baseline-qemu_arm64-v=
+irt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.216=
+-33-gafaeeec3a32b/arm64/defconfig/gcc-8/lab-collabora/baseline-qemu_arm64-v=
+irt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/600736db7db3fddd05bb5=
+d2b
+        new failure (last pass: v4.14.216-19-g6b67a3fc25644) =
+
+ =20
