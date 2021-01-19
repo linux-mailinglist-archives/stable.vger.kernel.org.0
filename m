@@ -2,85 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 946372FBAB1
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 16:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFF62FBAF0
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 16:20:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731579AbhASPDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 10:03:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55548 "EHLO
+        id S1726749AbhASPTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 10:19:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404644AbhASOnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 09:43:12 -0500
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CBBC061573;
-        Tue, 19 Jan 2021 06:42:32 -0800 (PST)
-Received: by mail-ot1-x32d.google.com with SMTP id i30so7045207ota.6;
-        Tue, 19 Jan 2021 06:42:31 -0800 (PST)
+        with ESMTP id S2388986AbhASPTW (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 19 Jan 2021 10:19:22 -0500
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 444E3C061573
+        for <Stable@vger.kernel.org>; Tue, 19 Jan 2021 07:18:42 -0800 (PST)
+Received: by mail-ot1-x333.google.com with SMTP id 34so9260966otd.5
+        for <Stable@vger.kernel.org>; Tue, 19 Jan 2021 07:18:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=6s6p4pDHkkLqoUcwAE/Gs0qu3ka7GAPQ3KWyhGIeZZA=;
-        b=ORiPEJwfGdAqg5W+1MJwj5Z7teQ0DlUazpnkU9LRyjuB0jOHYix6ZmKYPI1wJXV9vM
-         E6mHi0Z5eygblmCXupQ7K5+xlwfTLxJWJaLC0fmCW8TmiP2xyveg3nv2CbuAVxW65JIm
-         VJesu1LPZppPs0rVw/ggBQtBT5k4h0jQLQsT3PM09ZLKXN5nfaVDDvSpSYlsry0J5Ifi
-         IKZjAxGRCKQOkfcVPecOxPKSMGNIN7iSu9pY8yexZ8iVX6+OyqLY1pMxAu/EzudZOmOs
-         JpWLqPYIhd2D7Jx2ONbizRCvT0EdSIdPL9pQi8SJYklnqjqOR1P7nSSSV8jyUaMkjX9m
-         9g1g==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=w8Q5+DS75IfIjZcvpM8HQLEdnbEzlsKYTzMTcTF3Fd4=;
+        b=nDr5KR1inpsRreO5+x9FjCU5fvQfY9w4nuDA90BWQ40zsOp0m3JogNBZjtAKVI3kl+
+         5OIRkBqjiyoPKTG1ejGN7aBiFq2HAzC6H6zou8QxK0NJxb+F4vqZZIdi1Vac3k/Jd8il
+         JWlS2mJzGyIzYL5mhIyk8wDmt4GX/hB4JO32GPygMFwM1pUwTrKvSpM1CKm7kpSTu6Iv
+         di8q8KHO8Ltlq/VdbUuHkmjHtUTD08/ekDX50k81OdjSKsCWy7u1vi5BWnX5mjY3gil3
+         BAuktjtlXaa+TPoMaqIVCWLIMBTFJy6VeM/sKA99VvmLzi7Vo3720emH+L867+9er/8P
+         ziUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=6s6p4pDHkkLqoUcwAE/Gs0qu3ka7GAPQ3KWyhGIeZZA=;
-        b=mK/H9tycUFu3erI6eRn8w9X7eINzhW32elx9X084QVXousOX1Ri5Zug2av77jEHPI1
-         2NZ/Ex00Tl5vi29eL4UCAh0UMvdx/5U8kZOje8bYHky07xX6mG3qYNyk+Ttn9LhY6SeF
-         BN8Wc30pS5vYcDfzowTw1xTYzYTrzNmBpTLz2erJBWASjMu705se35euknfZoFTu70+r
-         vLa9DX2pkGyZq0st4QNorhxendxUQIuco0lUH3PUtIIe2tqUjHC0v2esDJmNXI/2iQGG
-         6AF7dXGUpNNIKoSJaSHzGgGcCLuIg5sy3pFz2fnATB2Yu2FhAQYxK4KZB/rJTElKi0/Q
-         P23A==
-X-Gm-Message-State: AOAM5314eG0QZQjIpVqe9szeIf1LjaWP5GB+dBCUYhBOq8yciIpa0hJx
-        GlNVOIP8wnA1E8xZee/qLqPcYfEh5sA=
-X-Google-Smtp-Source: ABdhPJwzh9wZAK+64qEZty7TUQnxAvPQ00ypeEoI7j4gzY6Bo0Tp3/tCoFFTbvxUiPaMRYJEsIrHag==
-X-Received: by 2002:a9d:3e85:: with SMTP id b5mr3787985otc.8.1611067351486;
-        Tue, 19 Jan 2021 06:42:31 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l8sm2153724ota.9.2021.01.19.06.42.30
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 19 Jan 2021 06:42:30 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 19 Jan 2021 06:42:29 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/152] 5.10.9-rc1 review
-Message-ID: <20210119144229.GC54031@roeck-us.net>
-References: <20210118113352.764293297@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=w8Q5+DS75IfIjZcvpM8HQLEdnbEzlsKYTzMTcTF3Fd4=;
+        b=Dv8QkC1bOXKHykQfZFLkKW577kf7sCWqmgA5vYO/omSpX3gef8QT6rugb0WZFty5Eh
+         Q0qmAU3zQzbx3DDIazIZ7951Sgxw7HJR4QYm/2KZ/A5YfNWlbl31fe2GBHTYxLjasvE0
+         5oilSzYMqAfHbtJ2J7tRnFveqCDKnCsrwTuSo6To+WEFB2W030W7bMoRV29ZCXg9e/ys
+         1O8O2ZpAnHnKxJy0xt72N/fey32wTh6AMGjSs3/ZrOddJhv5l+DpQp7t7Ufis+FIsPOk
+         YDyoOxTV4KyaQyQcZle/vQmZMg6Z2KiSF6lhtgztlT4pYCOqORVKoYT+U/jvAcOiiYzc
+         En6w==
+X-Gm-Message-State: AOAM530d/9yMWx3BaBjBPbEpvc89mM+kHtQ6nBCV8I2p0FWIl/cVbB6m
+        yXdGd3NoThz7BITug91YSA2AUCuiK5m7fZssaMY=
+X-Google-Smtp-Source: ABdhPJx3aSnh72mBsFzTsz93LoFTMWPtL06vbOCzXaieo3v22hH+ItEWqA7gKAw140DTByXhKl8qJcZxfukCqRE3dCE=
+X-Received: by 2002:a9d:1d41:: with SMTP id m59mr3767938otm.100.1611069521127;
+ Tue, 19 Jan 2021 07:18:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210118113352.764293297@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Received: by 2002:a05:6838:22c5:0:0:0:0 with HTTP; Tue, 19 Jan 2021 07:18:40
+ -0800 (PST)
+Reply-To: hannikasprzak@gmail.com
+From:   Hanni Kasprzak <bobchen1759@gmail.com>
+Date:   Tue, 19 Jan 2021 07:18:40 -0800
+Message-ID: <CALnsZwQpchV0gEhuYUsw3kp_fpM6QRtbTpHOxXNiV5obSxTAxA@mail.gmail.com>
+Subject: CONFIRM
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 12:32:55PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.9 release.
-> There are 152 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 20 Jan 2021 11:33:23 +0000.
-> Anything received after that time might be too late.
-> 
+-- 
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 427 pass: 427 fail: 0
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Norrebrogade 44
+800 Aarhus c
+Denmark.
 
-Guenter
+Dear Sir,
+
+Good day, First let me apologize if this email does not suit your
+business or personal ethics. I am Hanni Kasprzak .I have been
+diagnosed with Esophageal cancer and I am currently undergoing
+treatment in Denmark.
+
+It has defiled all forms of medical treatment and now I have a few
+months to live and I want you to help me distribute my funds to
+charities. If you are Interested please mail me back for more detailed
+information.
+
+Your immediate response to my direct email: hannikasprzak@gmail.com
+will be appreciated
+
+Best Regards,
+
+Hanni Kasprzak.
