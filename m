@@ -2,136 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA88F2FB496
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 09:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792DD2FB90C
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 15:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727426AbhASIv4 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 19 Jan 2021 03:51:56 -0500
-Received: from mga18.intel.com ([134.134.136.126]:30878 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726284AbhASIvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 03:51:53 -0500
-IronPort-SDR: U2Tsyx2Y/MPQPOmsrE5SVdoHszHYMsVBwQoiDi9F23JrJIpsZeM1pqep6jZnj2R9gaTA0eF5fD
- fl7OfQZwjJrA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9868"; a="166563926"
-X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
-   d="scan'208";a="166563926"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 00:50:53 -0800
-IronPort-SDR: +lTT9kCOZbxKrOtXOXDlnRihjkB3nDty7cE3zBBTSn2HkfSArUlIFUuR3OMkq402bW3KyPCsRM
- nOLawBKkAVPw==
-X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
-   d="scan'208";a="383851506"
-Received: from obaracos-mobl2.amr.corp.intel.com (HELO localhost) ([10.252.44.192])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 00:50:50 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH -fixes] drm/i915: Only enable DFP 4:4:4->4:2:0 conversion when outputting YCbCr 4:4:4
-In-Reply-To: <20210118154355.24453-1-ville.syrjala@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <87lfcqobpl.fsf@intel.com> <20210118154355.24453-1-ville.syrjala@linux.intel.com>
-Date:   Tue, 19 Jan 2021 10:50:47 +0200
-Message-ID: <87a6t5nwd4.fsf@intel.com>
+        id S2395367AbhASORx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 09:17:53 -0500
+Received: from mail2.protonmail.ch ([185.70.40.22]:40692 "EHLO
+        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390021AbhASKTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 05:19:18 -0500
+Date:   Tue, 19 Jan 2021 10:18:27 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=emersion.fr;
+        s=protonmail3; t=1611051513;
+        bh=q+dny+d9bvN1Z30lIJh9zYFbNAX8RL+E2yHDrPen8dc=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=EEJJJiPIPVks4KgMcNX6viXtSMfYjtON2y4W70FpTyTi14JE/rViukoIbCoh/NwXN
+         hS2y3D1bjc6lPimCVxpsJGSayd2xTHqIPYkw+u2PNQdJZGb4Ts6i0V0kinGewOOUKB
+         oBAMay6gJFo6aUuzcfDMK+QfOwnHlqdJ+tcouH/UU4s7dbOdAFtGrHpPbrCtmEiLVr
+         Uh2CHjzBIq/6E7dwbs5d92IPTrVY1/ye8B23nwyLheIdxzxKsSNI/011eJlJ3J6yIg
+         gEdyJ1b35Ic670vTqrTU2L79iCZcVqEYXS/RsIj7UFODx29LjbOHcEuOjkhOp7NBYg
+         OdkXmaVJ2dDfA==
+To:     Lyude Paul <lyude@redhat.com>
+From:   Simon Ser <contact@emersion.fr>
+Cc:     nouveau@lists.freedesktop.org, James Jones <jajones@nvidia.com>,
+        Martin Peres <martin.peres@free.fr>,
+        Jeremy Cline <jcline@redhat.com>, stable@vger.kernel.org,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?utf-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Nirmoy Das <nirmoy.aiemd@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Reply-To: Simon Ser <contact@emersion.fr>
+Subject: Re: [PATCH 1/3] drivers/nouveau/kms/nv50-: Reject format modifiers for cursor planes
+Message-ID: <HfzDFy00Jir8FH_WqWz7EmLYojZvbfaoSAhmjdxfTSVxhBBpUYgpdApQFXXM2Uv3yzq0ySUYLCq2izrT5d9_gxna2IN9U8zHme2dvo7LlKs=@emersion.fr>
+In-Reply-To: <20210119015415.2511028-1-lyude@redhat.com>
+References: <20210119015415.2511028-1-lyude@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 18 Jan 2021, Ville Syrjala <ville.syrjala@linux.intel.com> wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
->
-> Let's not enable the 4:4:4->4:2:0 conversion bit in the DFP unless we're
-> actually outputting YCbCr 4:4:4. It would appear some protocol
-> converters blindy consult this bit even when the source is outputting
-> RGB, resulting in a visual mess.
->
-> Cc: stable@vger.kernel.org
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2914
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210111164111.13302-1-ville.syrjala@linux.intel.com
-> Fixes: 181567aa9f0d ("drm/i915: Do YCbCr 444->420 conversion via DP protocol converters")
-> Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-> (cherry picked from commit 3170a21f7059c4660c469f59bf529f372a57da5f)
-> ---
-> Unfortunately the crtc_state plumbing to
-> intel_dp_configure_protocol_converter() was part of the 
-> HDMI 2.1 PCON stuff, so couldn't just cherry-pick it alone.
+On Tuesday, January 19th, 2021 at 2:54 AM, Lyude Paul <lyude@redhat.com> wr=
+ote:
 
-Thanks, pushed to fixes.
-
-BR,
-Jani.
-
+> Nvidia hardware doesn't actually support using tiling formats with the
+> cursor plane, only linear is allowed. In the future, we should write a
+> testcase for this.
 >
->  drivers/gpu/drm/i915/display/intel_ddi.c | 2 +-
->  drivers/gpu/drm/i915/display/intel_dp.c  | 9 +++++----
->  drivers/gpu/drm/i915/display/intel_dp.h  | 3 ++-
->  3 files changed, 8 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-> index 92940a0c5ef8..d5ace48b1ace 100644
-> --- a/drivers/gpu/drm/i915/display/intel_ddi.c
-> +++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-> @@ -3725,7 +3725,7 @@ static void hsw_ddi_pre_enable_dp(struct intel_atomic_state *state,
->  	intel_ddi_init_dp_buf_reg(encoder, crtc_state);
->  	if (!is_mst)
->  		intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
-> -	intel_dp_configure_protocol_converter(intel_dp);
-> +	intel_dp_configure_protocol_converter(intel_dp, crtc_state);
->  	intel_dp_sink_set_decompression_state(intel_dp, crtc_state,
->  					      true);
->  	intel_dp_sink_set_fec_ready(intel_dp, crtc_state);
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> index 37f1a10fd021..09123e8625c4 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> @@ -4014,7 +4014,8 @@ static void intel_dp_enable_port(struct intel_dp *intel_dp,
->  	intel_de_posting_read(dev_priv, intel_dp->output_reg);
->  }
->  
-> -void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
-> +void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
-> +					   const struct intel_crtc_state *crtc_state)
->  {
->  	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
->  	u8 tmp;
-> @@ -4033,8 +4034,8 @@ void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
->  		drm_dbg_kms(&i915->drm, "Failed to set protocol converter HDMI mode to %s\n",
->  			    enableddisabled(intel_dp->has_hdmi_sink));
->  
-> -	tmp = intel_dp->dfp.ycbcr_444_to_420 ?
-> -		DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
-> +	tmp = crtc_state->output_format == INTEL_OUTPUT_FORMAT_YCBCR444 &&
-> +		intel_dp->dfp.ycbcr_444_to_420 ? DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
->  
->  	if (drm_dp_dpcd_writeb(&intel_dp->aux,
->  			       DP_PROTOCOL_CONVERTER_CONTROL_1, tmp) != 1)
-> @@ -4088,7 +4089,7 @@ static void intel_enable_dp(struct intel_atomic_state *state,
->  	}
->  
->  	intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
-> -	intel_dp_configure_protocol_converter(intel_dp);
-> +	intel_dp_configure_protocol_converter(intel_dp, pipe_config);
->  	intel_dp_start_link_train(intel_dp, pipe_config);
->  	intel_dp_stop_link_train(intel_dp, pipe_config);
->  
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
-> index b871a09b6901..05f7ddf7a795 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp.h
-> +++ b/drivers/gpu/drm/i915/display/intel_dp.h
-> @@ -51,7 +51,8 @@ int intel_dp_get_link_train_fallback_values(struct intel_dp *intel_dp,
->  int intel_dp_retrain_link(struct intel_encoder *encoder,
->  			  struct drm_modeset_acquire_ctx *ctx);
->  void intel_dp_set_power(struct intel_dp *intel_dp, u8 mode);
-> -void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp);
-> +void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
-> +					   const struct intel_crtc_state *crtc_state);
->  void intel_dp_sink_set_decompression_state(struct intel_dp *intel_dp,
->  					   const struct intel_crtc_state *crtc_state,
->  					   bool enable);
+> Fixes: c586f30bf74c ("drm/nouveau/kms: Add format mod prop to base/ovly/n=
+vdisp")
+> Cc: James Jones <jajones@nvidia.com>
+> Cc: Martin Peres <martin.peres@free.fr>
+> Cc: Jeremy Cline <jcline@redhat.com>
+> Cc: Simon Ser <contact@emersion.fr>
+> Cc: <stable@vger.kernel.org> # v5.8+
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+Together with [1], this patch allows me to run unpatched modifier-aware
+user-space successfully, without a cursor visual glitch. drm_info
+correctly reports the new modifier list, and wlroots logs confirm that
+a flavor of NVIDIA_BLOCK_LINEAR_2D is used for the primary buffers and
+LINEAR is used for cursor buffers.
+
+Code looks good to me as well.
+
+Reviewed-by: Simon Ser <contact@emersion.fr>
+
+[1]: https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/3724
