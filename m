@@ -2,138 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6F62FC486
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 00:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D212FC4A0
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 00:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727200AbhASXNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 18:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53110 "EHLO
+        id S1727460AbhASXRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 18:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729879AbhASXNS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 18:13:18 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F14BC0613C1
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:12:38 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id c127so1200773wmf.5
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:12:38 -0800 (PST)
+        with ESMTP id S1730327AbhASXQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 18:16:36 -0500
+Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8CCC061575
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:15:54 -0800 (PST)
+Received: by mail-qt1-x82d.google.com with SMTP id e17so5942004qto.3
+        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 15:15:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kJdfqz839OeseYYkmWz4yh6z5zvAjLz0yxVJ3bu4P2g=;
-        b=smpsCbyHn0NnsknFBhgrLWNcTjBC2cOujZNIGIWjZUwrWZr3wtfLtSfdNEpdyXlrFc
-         bTnGqluXpZ5/C8tyKdBVD8q8yX29bHUL0CJAiinunPPHQIT/VDNVd1npwF1v0r5N6rcn
-         fdS2dswwTfgbBiZbKXJc4TKbqE+RxWFUXpITUA8fARK/B1Nms2Ct0O88BnZtQ6Z6rz0J
-         G/xWFWFvwy4ovmUHlmdAy0LkdYk5hcBUEW+NCq4RtP2I72tbXzc10XJsoV9zzh9Db5QH
-         OAQsUCrcgydDrGNAGLr35SVdRUcfL+AuY3/SxCyx5KaWst19r6ci+s73/8AtGMcZjU0e
-         5O3w==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zFDeRRXpIwJ9CiC4D5FKzuA49LZcu+/pdjtRByjt0xo=;
+        b=EUpoc6ZmND4/VQFJlNvyzA1vM7qWFDa/JLRRBwFMkWpVdv1v4LoWIcmIzkguUXq4O2
+         tyCX3jHlX+jcXwNSTt507WhTtYKJ6hNRmnimOffTJaoQsly+XNAPPohBnwSDAR3Pw7mf
+         GAAYeakFrr5Nw6EaAksJJ4qmBCLvBjNorGfCYAM92sqSqZ9UJaK0jUAIpXQuV9lZ1Y7m
+         M5X2YQqK9t+4MWgNCi1LesjtdXpibBLzox8J/xrVALmGUWZbwi9quSbOpMF1GCtFbGDI
+         Gja0M1RRHfTMFryrqq8gUdkILJHBnrAxTMolFg3Z0vV/ZPFMmjSYIBRNlMKaoDqyzbux
+         6eZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kJdfqz839OeseYYkmWz4yh6z5zvAjLz0yxVJ3bu4P2g=;
-        b=mhQRWn4y66Sr6nPh6OWc3WWu9au6tjd6X+nJyVYeT+xmID1myjxtrxYWdfTtyovkaB
-         I51JVwZlnQ3RVkqHaW4VF5F7rTQt7J2k8q38qR/IW53v59KbS7+qbOT11C5PiVcMFWFR
-         NDTE7qHBdJdj+M3fgTV3w6u2L0T61Wx5QWUYF2VsvCpDKAbqhG988ME2qUQWoB/UHzHW
-         +aXVtLCVDA4u1hj67/7Kf9qz+oFhUWbYiXRmms2n38M2O/Ws6Xb1VQISnUqV0SOqRoXl
-         oXbiGZkwJbz1nBzdr+bTFsKe9Iyeptop3K3Wln4pIEjAWlBbzgUVVuKgkeHt4lwlT8tn
-         IFYg==
-X-Gm-Message-State: AOAM532ALfT+cLrp8++rNQJaCZpzlsDDRq64+zToqvDKGqLsoS9dEOr9
-        zH/QllvAJfwHx7sZhwiZfSPyhlLE6omiuw9XJgS1xw==
-X-Google-Smtp-Source: ABdhPJxTe6K+eqd0wxGdLv0AWWP9UYN9ZNOZKj8crhBvfDwZyzy2FzLxMxXw8Y7IY7riTOkOJecfM8Rcy1ApAJBqhCE=
-X-Received: by 2002:a05:600c:2110:: with SMTP id u16mr1621013wml.65.1611097956708;
- Tue, 19 Jan 2021 15:12:36 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zFDeRRXpIwJ9CiC4D5FKzuA49LZcu+/pdjtRByjt0xo=;
+        b=YvLLwdji+mpxbiDHBT8iGvaYUVsnpJKkHseeEUbm07G6nEVTrbYxi6DOeFsE52AZcV
+         /f+x7ll6Sg22QPSNXCCIpSTQpWKPnIoBECYXlU7movOmG3qVu06hPweq/xZUmns70ugW
+         ibpipCE2gzxhV/p0SCwUtzo/8o8Q6IvytepW7xJn37zve7lJR7aVOKsyXcLgKOo7lVj/
+         oPrOaJbSdeQKRTHCgMAgSLFs1R5xrob+TFUMzBtgTGvhFU1IC2W5RceHSjQucKwWqF4g
+         5qxqv6TefEEO+0Mvwfw2bOwrFjVDjdA1ikief04qpVqiLMfZARlTAd8639w3bzzEYLQZ
+         Rb8A==
+X-Gm-Message-State: AOAM532Fs4dKbDVCRSaX031xxLlMtDjXpG8VV/2DPsBXV0SCP1WZRaMW
+        Br7NikS0wx53jditLkkthe0=
+X-Google-Smtp-Source: ABdhPJxRxBvysOQ/vcLW6AKkF0q0Axqn6H/FqkJq5ehZ2p0mvcqwsD3v6dCpUYb+zlxOYcf6ECom8g==
+X-Received: by 2002:ac8:5c41:: with SMTP id j1mr6663954qtj.306.1611098153671;
+        Tue, 19 Jan 2021 15:15:53 -0800 (PST)
+Received: from localhost.localdomain ([177.194.79.136])
+        by smtp.gmail.com with ESMTPSA id e38sm94564qtb.30.2021.01.19.15.15.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jan 2021 15:15:52 -0800 (PST)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     robdclark@gmail.com
+Cc:     sean@poorly.run, airlied@linux.ie, mkrishn@codeaurora.org,
+        dri-devel@lists.freedesktop.org, bjorn.andersson@linaro.org,
+        jcrouse@codeaurora.org, kernel@pengutronix.de, daniel@ffwll.ch,
+        jonathan@marek.ca, kalyan_t@codeaurora.org,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] drm/msm: Call shutdown conditionally
+Date:   Tue, 19 Jan 2021 20:13:40 -0300
+Message-Id: <20210119231341.2498036-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20210119175336.4016923-1-marcorr@google.com> <20210119180024.GA28024@lst.de>
-In-Reply-To: <20210119180024.GA28024@lst.de>
-From:   Marc Orr <marcorr@google.com>
-Date:   Tue, 19 Jan 2021 15:12:25 -0800
-Message-ID: <CAA03e5GeGRLcLzp8d6pOC7UnQq9mZYzgW9rQgV3XHMb5gfsLWQ@mail.gmail.com>
-Subject: Re: [PATCH] nvme: fix handling mapping failure
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     kbusch@kernel.org, axboe@fb.com, sagi@grimberg.me,
-        Jianxiong Gao <jxgao@google.com>,
-        linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 19, 2021 at 10:00 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> On Tue, Jan 19, 2021 at 09:53:36AM -0800, Marc Orr wrote:
-> > This patch ensures that when `nvme_map_data()` fails to map the
-> > addresses in a scatter/gather list:
-> >
-> > * The addresses are not incorrectly unmapped. The underlying
-> > scatter/gather code unmaps the addresses after detecting a failure.
-> > Thus, unmapping them again in the driver is a bug.
-> > * The DMA pool allocations are not deallocated when they were never
-> > allocated.
-> >
-> > The bug that motivated this patch was the following sequence, which
-> > occurred within the NVMe driver, with the kernel flag `swiotlb=force`.
-> >
-> > * NVMe driver calls dma_direct_map_sg()
-> > * dma_direct_map_sg() fails part way through the scatter gather/list
-> > * dma_direct_map_sg() calls dma_direct_unmap_sg() to unmap any entries
-> >   succeeded.
-> > * NVMe driver calls dma_direct_unmap_sg(), redundantly, leading to a
-> >   double unmap, which is a bug.
-> >
-> > Before this patch, I observed intermittent application- and VM-level
-> > failures when running a benchmark, fio, in an AMD SEV guest. This patch
-> > resolves the failures.
->
-> I think the right way to fix this is to just do a proper unwind insted
-> of calling a catchall function.  Can you try this patch?
+Issuing a 'reboot' command in i.MX5 leads to the following flow:
 
-Done. It works great, thanks! Shall I send out a v2 with what you've proposed?
+[   24.557742] [<c0769b78>] (msm_atomic_commit_tail) from [<c06db0b4>]
+(commit_tail+0xa4/0x1b0)
+[   24.566349] [<c06db0b4>] (commit_tail) from [<c06dbed0>]
+(drm_atomic_helper_commit+0x154/0x188)
+[   24.575193] [<c06dbed0>] (drm_atomic_helper_commit) from
+[<c06db604>] (drm_atomic_helper_disable_all+0x154/0x1c0)
+[   24.585599] [<c06db604>] (drm_atomic_helper_disable_all) from
+[<c06db704>] (drm_atomic_helper_shutdown+0x94/0x12c)
+[   24.596094] [<c06db704>] (drm_atomic_helper_shutdown) from
 
-> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-> index 25456d02eddb8c..47d7075053b6b2 100644
-> --- a/drivers/nvme/host/pci.c
-> +++ b/drivers/nvme/host/pci.c
-> @@ -842,7 +842,7 @@ static blk_status_t nvme_map_data(struct nvme_dev *dev, struct request *req,
->         sg_init_table(iod->sg, blk_rq_nr_phys_segments(req));
->         iod->nents = blk_rq_map_sg(req->q, req, iod->sg);
->         if (!iod->nents)
-> -               goto out;
-> +               goto out_free_sg;
->
->         if (is_pci_p2pdma_page(sg_page(iod->sg)))
->                 nr_mapped = pci_p2pdma_map_sg_attrs(dev->dev, iod->sg,
-> @@ -851,16 +851,25 @@ static blk_status_t nvme_map_data(struct nvme_dev *dev, struct request *req,
->                 nr_mapped = dma_map_sg_attrs(dev->dev, iod->sg, iod->nents,
->                                              rq_dma_dir(req), DMA_ATTR_NO_WARN);
->         if (!nr_mapped)
-> -               goto out;
-> +               goto out_free_sg;
->
->         iod->use_sgl = nvme_pci_use_sgls(dev, req);
->         if (iod->use_sgl)
->                 ret = nvme_pci_setup_sgls(dev, req, &cmnd->rw, nr_mapped);
->         else
->                 ret = nvme_pci_setup_prps(dev, req, &cmnd->rw);
-> -out:
->         if (ret != BLK_STS_OK)
-> -               nvme_unmap_data(dev, req);
-> +               goto out_dma_unmap;
-> +       return BLK_STS_OK;
-> +
-> +out_dma_unmap:
-> +       if (is_pci_p2pdma_page(sg_page(iod->sg)))
-> +               pci_p2pdma_unmap_sg(dev->dev, iod->sg, iod->nents,
-> +                                   rq_dma_dir(req));
-> +       else
-> +               dma_unmap_sg(dev->dev, iod->sg, iod->nents, rq_dma_dir(req));
+In the i.MX5 case, priv->kms is not populated (as i.MX5 does not use any
+of the Qualcomm display controllers), causing a NULL pointer
+dereference in msm_atomic_commit_tail():
 
-Do you think it's worth hoisting this sg unmap snippet into a helper
-that can be called from both here, as well as nvme_unmap_data()?
+[   24.268964] 8<--- cut here ---
+[   24.274602] Unable to handle kernel NULL pointer dereference at
+virtual address 00000000
+[   24.283434] pgd = (ptrval)
+[   24.286387] [00000000] *pgd=ca212831
+[   24.290788] Internal error: Oops: 17 [#1] SMP ARM
+[   24.295609] Modules linked in:
+[   24.298777] CPU: 0 PID: 197 Comm: init Not tainted 5.11.0-rc2-next-20210111 #333
+[   24.306276] Hardware name: Freescale i.MX53 (Device Tree Support)
+[   24.312442] PC is at msm_atomic_commit_tail+0x54/0xb9c
+[   24.317743] LR is at commit_tail+0xa4/0x1b0
 
-> +out_free_sg:
-> +       mempool_free(iod->sg, dev->iod_mempool);
->         return ret;
->  }
->
+Fix the problem by calling drm_atomic_helper_shutdown() conditionally.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 9d5cbf5fe46e ("drm/msm: add shutdown support for display platform_driver")
+Suggested-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+---
+Changes since v1:
+- Explain in the commit log that the problem happens after a 'reboot' command.
+
+ drivers/gpu/drm/msm/msm_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 108c405e03dd..c082b72b9e3b 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1311,7 +1311,8 @@ static void msm_pdev_shutdown(struct platform_device *pdev)
+ {
+ 	struct drm_device *drm = platform_get_drvdata(pdev);
+ 
+-	drm_atomic_helper_shutdown(drm);
++	if (get_mdp_ver(pdev))
++		drm_atomic_helper_shutdown(drm);
+ }
+ 
+ static const struct of_device_id dt_match[] = {
+-- 
+2.25.1
+
