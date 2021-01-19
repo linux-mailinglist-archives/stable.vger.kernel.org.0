@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582472FADEF
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 01:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADE552FADFA
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 01:16:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391129AbhASAMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 19:12:06 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46479 "EHLO
+        id S1732677AbhASAOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 19:14:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46413 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2391095AbhASAMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 19:12:05 -0500
+        by vger.kernel.org with ESMTP id S1732664AbhASAOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 19:14:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611015039;
+        s=mimecast20190719; t=1611015205;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
         bh=k8uZwZ9l9/9GHM34N72Urrm3zDwDS5163gHM9WUjrbg=;
-        b=N1PXWVKhMMIDMIXDYOaS3HL03n/rXd/p4AKvs/5dQxHBGNYCbJNwuaEIcX+PpnOvQVR3NS
-        rrqFE6Q7ppa7LrJeTRuwx52SiwVCeQ9P1Q7qctdfGUcXOygbPPV/G96v+5iokaGD3hIcLh
-        ZOz4BYVcDU7nYcohlBwai8i6tPwrgiM=
+        b=Rsrzfo9EAxgJKl8r6yCT60Z0ycl/YvqG7PSzNQ90Fa6ZBaG1Te6/hx56WW81qskvJ6hHu3
+        TBtF0nIAwOSz6Gtx3mU8g3bnt9Frqe7ycLb8H2zJdxEQAR+3ORnghBMwfe7CLnD75KweVw
+        asIIU4hLIbx4bBrcKehfYudRXY/qWu4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-233-32ViLy7wPfmqPoRVTwRs-A-1; Mon, 18 Jan 2021 19:10:37 -0500
-X-MC-Unique: 32ViLy7wPfmqPoRVTwRs-A-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+ us-mta-323-Fj6D9-fAOwi5YHvuGOer8Q-1; Mon, 18 Jan 2021 19:13:23 -0500
+X-MC-Unique: Fj6D9-fAOwi5YHvuGOer8Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACA7118C89C4;
-        Tue, 19 Jan 2021 00:10:35 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2AB6F18C89C4;
+        Tue, 19 Jan 2021 00:13:22 +0000 (UTC)
 Received: from warthog.procyon.org.uk (ovpn-115-23.rdu2.redhat.com [10.10.115.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A20370464;
-        Tue, 19 Jan 2021 00:10:33 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7A5A960C9C;
+        Tue, 19 Jan 2021 00:13:20 +0000 (UTC)
 Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
         Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
         Kingdom.
@@ -44,13 +44,13 @@ Cc:     Tobias Markus <tobias@markus-regensburg.de>,
         linux-crypto@vger.kernel.org,
         linux-security-module@vger.kernel.org, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: 
+Subject: [PATCH] X.509: Fix crash caused by NULL pointer
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date:   Tue, 19 Jan 2021 00:10:33 +0000
-Message-ID: <163546.1611015033@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Date:   Tue, 19 Jan 2021 00:13:19 +0000
+Message-ID: <164034.1611015199@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
