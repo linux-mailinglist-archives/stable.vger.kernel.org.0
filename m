@@ -2,91 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766C92FADD6
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 00:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 582472FADEF
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 01:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732227AbhARXoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 18:44:03 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:36962 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726219AbhARXny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 18:43:54 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id BEE641C0B87; Tue, 19 Jan 2021 00:42:55 +0100 (CET)
-Date:   Tue, 19 Jan 2021 00:42:55 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Ignat Korchagin <ignat@cloudflare.com>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: Re: [PATCH 5.10 045/152] dm crypt: use GFP_ATOMIC when allocating
- crypto requests from softirq
-Message-ID: <20210118234255.GA22058@duo.ucw.cz>
-References: <20210118113352.764293297@linuxfoundation.org>
- <20210118113354.944646657@linuxfoundation.org>
- <20210118224431.GA26685@amd>
- <CALrw=nEgtxS_SDOP5+T0u6XZ74Hcr451L_d5QdUwDHi7ZaLQ6w@mail.gmail.com>
+        id S2391129AbhASAMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 19:12:06 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46479 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2391095AbhASAMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 19:12:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611015039;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=k8uZwZ9l9/9GHM34N72Urrm3zDwDS5163gHM9WUjrbg=;
+        b=N1PXWVKhMMIDMIXDYOaS3HL03n/rXd/p4AKvs/5dQxHBGNYCbJNwuaEIcX+PpnOvQVR3NS
+        rrqFE6Q7ppa7LrJeTRuwx52SiwVCeQ9P1Q7qctdfGUcXOygbPPV/G96v+5iokaGD3hIcLh
+        ZOz4BYVcDU7nYcohlBwai8i6tPwrgiM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-233-32ViLy7wPfmqPoRVTwRs-A-1; Mon, 18 Jan 2021 19:10:37 -0500
+X-MC-Unique: 32ViLy7wPfmqPoRVTwRs-A-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACA7118C89C4;
+        Tue, 19 Jan 2021 00:10:35 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-115-23.rdu2.redhat.com [10.10.115.23])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A20370464;
+        Tue, 19 Jan 2021 00:10:33 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+To:     torvalds@linux-foundation.org
+Cc:     Tobias Markus <tobias@markus-regensburg.de>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        dhowells@redhat.com, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-In-Reply-To: <CALrw=nEgtxS_SDOP5+T0u6XZ74Hcr451L_d5QdUwDHi7ZaLQ6w@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date:   Tue, 19 Jan 2021 00:10:33 +0000
+Message-ID: <163546.1611015033@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-Hi!
+On the following call path, `sig->pkey_algo` is not assigned
+in asymmetric_key_verify_signature(), which causes runtime
+crash in public_key_verify_signature().
 
-> > > -static void crypt_alloc_req_aead(struct crypt_config *cc,
-> > > +static int crypt_alloc_req_aead(struct crypt_config *cc,
-> > >                                struct convert_context *ctx)
-> > >  {
-> > > -     if (!ctx->r.req_aead)
-> > > -             ctx->r.req_aead =3D mempool_alloc(&cc->req_pool, GFP_NO=
-IO);
-> > > +     if (!ctx->r.req) {
-> > > +             ctx->r.req =3D mempool_alloc(&cc->req_pool, in_interrup=
-t() ? GFP_ATOMIC : GFP_NOIO);
-> > > +             if (!ctx->r.req)
-> > > +                     return -ENOMEM;
-> > > +     }
-> >
-> > But this one can't be good. We are now allocating different field in
-> > the structure!
->=20
-> Good catch! Sorry for the copy-paste. It is actually not a big deal,
-> because this is not a structure, but a union:
-> as long as the mempool was initialized with the correct size, it
-> should be no different.
+  keyctl_pkey_verify
+    asymmetric_key_verify_signature
+      verify_signature
+        public_key_verify_signature
 
-Ah. I actually thought about unions and went back to definition to see
-if it is one, but was somehow blind for the moment.
+This patch simply check this situation and fixes the crash
+caused by NULL pointer.
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate verific=
+ation")
+Reported-by: Tobias Markus <tobias@markus-regensburg.de>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-and-tested-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
+Tested-by: Jo=C3=A3o Fonseca <jpedrofonseca@ua.pt>
+Cc: stable@vger.kernel.org # v5.10+
+---
 
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
+ crypto/asymmetric_keys/public_key.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/p=
+ublic_key.c
+index 8892908ad58c..788a4ba1e2e7 100644
+--- a/crypto/asymmetric_keys/public_key.c
++++ b/crypto/asymmetric_keys/public_key.c
+@@ -356,7 +356,8 @@ int public_key_verify_signature(const struct public_key=
+ *pkey,
+ 	if (ret)
+ 		goto error_free_key;
+=20
+-	if (strcmp(sig->pkey_algo, "sm2") =3D=3D 0 && sig->data_size) {
++	if (sig->pkey_algo && strcmp(sig->pkey_algo, "sm2") =3D=3D 0 &&
++	    sig->data_size) {
+ 		ret =3D cert_sig_digest_update(sig, tfm);
+ 		if (ret)
+ 			goto error_free_key;
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYAYc/wAKCRAw5/Bqldv6
-8kTHAKCvsMv3ntskMEOymJKiRe2ow7FWUQCfXxKfy10YpSK4kjXcsOW7wW7NcL8=
-=masm
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
