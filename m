@@ -2,149 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70BDB2FAE87
-	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 02:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5278D2FAEBA
+	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 03:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393346AbhASB4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jan 2021 20:56:15 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44222 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404708AbhASB4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 20:56:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611021285;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=owShhWubuLDYnuCn88Yhig5n0v7/el9dv8Ir9ddy4ek=;
-        b=jEIhjLwDcCvS3JNxpfXa4QOqF4pDAUG8Z/KItF3guDFU7fDDtZ0pTmBvKxj+AhscP9usXL
-        kaOiCBi+P3BJqSl/Q7OBnc11JtqgShiQ4o2G0rDZa7b1J1TGRGBjbxostkLoTQ6S4JwQUP
-        E6RgPfFYY61SK4mVFaJ5wxgf0PeqRMc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-J0pb_dC1MUSdHbeCJf8zdw-1; Mon, 18 Jan 2021 20:54:43 -0500
-X-MC-Unique: J0pb_dC1MUSdHbeCJf8zdw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3BC7010054FF;
-        Tue, 19 Jan 2021 01:54:42 +0000 (UTC)
-Received: from Whitewolf.lyude.net (ovpn-113-206.rdu2.redhat.com [10.10.113.206])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CC71A5D9CD;
-        Tue, 19 Jan 2021 01:54:38 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     nouveau@lists.freedesktop.org
-Cc:     Martin Peres <martin.peres@free.fr>,
-        Jeremy Cline <jcline@redhat.com>,
-        Simon Ser <contact@emersion.fr>, stable@vger.kernel.org,
-        Ben Skeggs <bskeggs@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
-        GEFORCE/QUADRO GPUS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 3/3] drm/nouveau/kms/nve4-nv138: Fix > 64x64 cursors
-Date:   Mon, 18 Jan 2021 20:54:14 -0500
-Message-Id: <20210119015415.2511028-3-lyude@redhat.com>
-In-Reply-To: <20210119015415.2511028-1-lyude@redhat.com>
-References: <20210119015415.2511028-1-lyude@redhat.com>
+        id S2394141AbhASCYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jan 2021 21:24:38 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:18788 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393946AbhASCYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jan 2021 21:24:38 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B600642bd0001>; Mon, 18 Jan 2021 18:23:57 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 19 Jan
+ 2021 02:23:57 +0000
+Received: from jckuo-lt.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server id 15.0.1473.3 via Frontend
+ Transport; Tue, 19 Jan 2021 02:23:54 +0000
+From:   JC Kuo <jckuo@nvidia.com>
+To:     <gregkh@linuxfoundation.org>, <thierry.reding@gmail.com>,
+        <jonathanh@nvidia.com>, <robh+dt@kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <stable@vger.kernel.org>,
+        JC Kuo <jckuo@nvidia.com>
+Subject: [PATCH] arm64: tegra: Enable Jetson-Xavier J512 USB host
+Date:   Tue, 19 Jan 2021 10:23:49 +0800
+Message-ID: <20210119022349.136453-1-jckuo@nvidia.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-NVConfidentiality: public
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1611023037; bh=I8KRuadsSP9ujBg3UCBPF0M40+TaUrMhBkFLROVrMRg=;
+        h=From:To:CC:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+         X-NVConfidentiality:Content-Transfer-Encoding:Content-Type;
+        b=FhRzl9GjjnVHtGUWO+0ZqgYMw4uhh836WGq3OigXe4h1hyBraea41i2HPWp2jZsoV
+         Ma1gUgv3+tEvM8nOT0zwxosRuN32z28uggyckYwOagmubzXBINvkZmlPMtIRi48Ico
+         s+FQwfiHvB+7O5hH8TD2n/Ytd0sMd5K6uxbNIgJA67AKroADKAbplU+XafaeUN5xtO
+         vt907F9tDPypdAgkfOiKnXnrewmKnGvEJyUAjqTw33VnlNmvj9QMZf28ORWjoE/tHn
+         aRTr2Y6lGF/TxFf6XC9/qltt03wwmvnPMQpWgq7dvInc+Lyt8OQ1lFySXgWqHD/KEP
+         SnMGk9PfNITXA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While we do handle the additional cursor sizes introduced in NVE4, it looks
-like we accidentally broke this when converting over to use Nvidia's
-display headers. Since we now use NVVAL in dispnv50/head907d.c in order to
-format the value for the cursor layout and NVD9 only had one byte reserved
-vs. the 2 bytes reserved in later generations, we end up accidentally
-stripping the second bit in the cursor layout format parameter - causing us
-to set the wrong cursor size.
+This commit enables USB host mode at J512 type-C port of Jetson-Xavier.
 
-This fixes that by adding our own curs_set hook for 917d which uses the
-NV917D headers.
-
-Cc: Martin Peres <martin.peres@free.fr>
-Cc: Jeremy Cline <jcline@redhat.com>
-Cc: Simon Ser <contact@emersion.fr>
-Cc: <stable@vger.kernel.org> # v5.9+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: ed0b86a90bf9 ("drm/nouveau/kms/nv50-: use NVIDIA's headers for core head_curs_set()")
+Signed-off-by: JC Kuo <jckuo@nvidia.com>
 ---
- drivers/gpu/drm/nouveau/dispnv50/head917d.c   | 28 ++++++++++++++++++-
- .../drm/nouveau/include/nvhw/class/cl917d.h   |  4 +++
- 2 files changed, 31 insertions(+), 1 deletion(-)
+ .../arm64/boot/dts/nvidia/tegra194-p2888.dtsi |  8 +++++++
+ .../boot/dts/nvidia/tegra194-p2972-0000.dts   | 24 +++++++++++++++++--
+ 2 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/head917d.c b/drivers/gpu/drm/nouveau/dispnv50/head917d.c
-index a5d827403660..ea9f8667305e 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/head917d.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/head917d.c
-@@ -22,6 +22,7 @@
- #include "head.h"
- #include "core.h"
- 
-+#include "nvif/push.h"
- #include <nvif/push507c.h>
- 
- #include <nvhw/class/cl917d.h>
-@@ -73,6 +74,31 @@ head917d_base(struct nv50_head *head, struct nv50_head_atom *asyh)
- 	return 0;
- }
- 
-+static int
-+head917d_curs_set(struct nv50_head *head, struct nv50_head_atom *asyh)
-+{
-+	struct nvif_push *push = nv50_disp(head->base.base.dev)->core->chan.push;
-+	const int i = head->base.index;
-+	int ret;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/bo=
+ot/dts/nvidia/tegra194-p2888.dtsi
+index d71b7a1140fe..7e7b0eb90c80 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
+@@ -93,6 +93,10 @@ padctl@3520000 {
+ 			vclamp-usb-supply =3D <&vdd_1v8ao>;
+=20
+ 			ports {
++				usb2-0 {
++					vbus-supply =3D <&vdd_5v0_sys>;
++				};
 +
-+	ret = PUSH_WAIT(push, 5);
-+	if (ret)
-+		return ret;
+ 				usb2-1 {
+ 					vbus-supply =3D <&vdd_5v0_sys>;
+ 				};
+@@ -105,6 +109,10 @@ usb3-0 {
+ 					vbus-supply =3D <&vdd_5v0_sys>;
+ 				};
+=20
++				usb3-2 {
++					vbus-supply =3D <&vdd_5v0_sys>;
++				};
 +
-+	PUSH_MTHD(push, NV917D, HEAD_SET_CONTROL_CURSOR(i),
-+		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, ENABLE, ENABLE) |
-+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, FORMAT, asyh->curs.format) |
-+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, SIZE, asyh->curs.layout) |
-+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_X, 0) |
-+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_Y, 0) |
-+		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, COMPOSITION, ALPHA_BLEND),
+ 				usb3-3 {
+ 					vbus-supply =3D <&vdd_5v0_sys>;
+ 				};
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts b/arch/arm6=
+4/boot/dts/nvidia/tegra194-p2972-0000.dts
+index 54d057beec59..8697927b1fe7 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts
+@@ -57,6 +57,10 @@ padctl@3520000 {
+ 			pads {
+ 				usb2 {
+ 					lanes {
++						usb2-0 {
++							status =3D "okay";
++						};
 +
-+				HEAD_SET_OFFSET_CURSOR(i), asyh->curs.offset >> 8);
+ 						usb2-1 {
+ 							status =3D "okay";
+ 						};
+@@ -73,6 +77,10 @@ usb3-0 {
+ 							status =3D "okay";
+ 						};
+=20
++						usb3-2 {
++							status =3D "okay";
++						};
 +
-+	PUSH_MTHD(push, NV917D, HEAD_SET_CONTEXT_DMA_CURSOR(i), asyh->curs.handle);
-+	return 0;
-+}
+ 						usb3-3 {
+ 							status =3D "okay";
+ 						};
+@@ -81,6 +89,11 @@ usb3-3 {
+ 			};
+=20
+ 			ports {
++				usb2-0 {
++					mode =3D "host";
++					status =3D "okay";
++				};
 +
- int
- head917d_curs_layout(struct nv50_head *head, struct nv50_wndw_atom *asyw,
- 		     struct nv50_head_atom *asyh)
-@@ -101,7 +127,7 @@ head917d = {
- 	.core_clr = head907d_core_clr,
- 	.curs_layout = head917d_curs_layout,
- 	.curs_format = head507d_curs_format,
--	.curs_set = head907d_curs_set,
-+	.curs_set = head917d_curs_set,
- 	.curs_clr = head907d_curs_clr,
- 	.base = head917d_base,
- 	.ovly = head907d_ovly,
-diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
-index 2a2612d6e1e0..fb223723a38a 100644
---- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
-+++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
-@@ -66,6 +66,10 @@
- #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_ALPHA_BLEND                  (0x00000000)
- #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_PREMULT_ALPHA_BLEND          (0x00000001)
- #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_XOR                          (0x00000002)
-+#define NV917D_HEAD_SET_OFFSET_CURSOR(a)                                        (0x00000484 + (a)*0x00000300)
-+#define NV917D_HEAD_SET_OFFSET_CURSOR_ORIGIN                                    31:0
-+#define NV917D_HEAD_SET_CONTEXT_DMA_CURSOR(a)                                   (0x0000048C + (a)*0x00000300)
-+#define NV917D_HEAD_SET_CONTEXT_DMA_CURSOR_HANDLE                               31:0
- #define NV917D_HEAD_SET_DITHER_CONTROL(a)                                       (0x000004A0 + (a)*0x00000300)
- #define NV917D_HEAD_SET_DITHER_CONTROL_ENABLE                                   0:0
- #define NV917D_HEAD_SET_DITHER_CONTROL_ENABLE_DISABLE                           (0x00000000)
--- 
-2.29.2
+ 				usb2-1 {
+ 					mode =3D "host";
+ 					status =3D "okay";
+@@ -96,6 +109,11 @@ usb3-0 {
+ 					status =3D "okay";
+ 				};
+=20
++				usb3-2 {
++					nvidia,usb2-companion =3D <0>;
++					status =3D "okay";
++				};
++
+ 				usb3-3 {
+ 					nvidia,usb2-companion =3D <3>;
+ 					maximum-speed =3D "super-speed";
+@@ -107,11 +125,13 @@ usb3-3 {
+ 		usb@3610000 {
+ 			status =3D "okay";
+=20
+-			phys =3D	<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-1}>,
++			phys =3D	<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-0}>,
++				<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-1}>,
+ 				<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-3}>,
+ 				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-0}>,
++				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-2}>,
+ 				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-3}>;
+-			phy-names =3D "usb2-1", "usb2-3", "usb3-0", "usb3-3";
++			phy-names =3D "usb2-0", "usb2-1", "usb2-3", "usb3-0", "usb3-2", "usb3-3=
+";
+ 		};
+=20
+ 		pwm@c340000 {
+--=20
+2.25.1
 
