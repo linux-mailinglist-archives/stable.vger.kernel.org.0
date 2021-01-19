@@ -2,118 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FEEA2FBAAE
+	by mail.lfdr.de (Postfix) with ESMTP id AD82E2FBAAF
 	for <lists+stable@lfdr.de>; Tue, 19 Jan 2021 16:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727646AbhASPCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 10:02:36 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33306 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2391650AbhASOY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 09:24:27 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10JE4u3W074421;
-        Tue, 19 Jan 2021 09:23:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=acKRW+tf9H/mRn52iGKx2xvbEITiHOcevd/OtuDxIVA=;
- b=TpcF0C4DT0xvS7joh9qt/LCNupPXcdlz7pE5hPAYKvC//+nT2odaVL6jh9MW527LZmoY
- 6cTa4UsoH45o/JsnVUvROyJiajOKVTYm07C28tYZ7EbA1G97+55lxc58gDX2AI3Er5FI
- vOApszdPLRl9OzKbs9othfl/XsBQo4iz7dDejvZxNYy5XQhxF3dSff01SvyZhX8KtIKK
- 5y0cMTjs+zkgxkHcYYakO1n15iWGytnE87zC4VrQyJIieLNQH6BavzPqVBzkxupkiJfx
- 1mLGPmKLO+SYrb0Sk6AT4W4WiBntwbi75h2kjXNwS8raoT8g5PLSUwXC2TELqo03nKVB IQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3660j3hdnb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jan 2021 09:23:41 -0500
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10JE5Nps076949;
-        Tue, 19 Jan 2021 09:23:41 -0500
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3660j3hdmh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jan 2021 09:23:41 -0500
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10JENddC002935;
-        Tue, 19 Jan 2021 14:23:39 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 363qdh9mtb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jan 2021 14:23:39 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10JENaQb18612722
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jan 2021 14:23:36 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 39C1B52051;
-        Tue, 19 Jan 2021 14:23:36 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.160.34])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id B24565204F;
-        Tue, 19 Jan 2021 14:23:35 +0000 (GMT)
-Subject: Re: [PATCH v1 1/4] s390/kvm: VSIE: stop leaking host addresses
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, david@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
- <20201218141811.310267-2-imbrenda@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <4265bc48-40f9-54be-8a87-bcd50c7c628a@linux.ibm.com>
-Date:   Tue, 19 Jan 2021 15:23:35 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S1731034AbhASPCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 10:02:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55180 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404110AbhASOlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 09:41:31 -0500
+Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97C1C061574;
+        Tue, 19 Jan 2021 06:40:50 -0800 (PST)
+Received: by mail-oi1-x22b.google.com with SMTP id 9so21382211oiq.3;
+        Tue, 19 Jan 2021 06:40:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=4NBmLcnVw29sspbm6VI7W8jiNX3UvL9FBZltWW4FgUg=;
+        b=Abhu/P8W3bZRLN2HisDNh7H5Xf7J+b4BUAUxrEaqyPIJsYdYigMEtM1tbueJKEZDzm
+         C6CfGtQlFtUytAmA2zwkMe34r5w90QiMrjJcJnhR5Qg/eu+40r5AIlKqpy1LNnW/5bE7
+         XZpH24NQ9NRLPJnYlCFMvxCL8kbPgzwiW6rxapNumHriWNutu1BQDYyf/hCIRAhMxvhp
+         tOxdNZ2f11en3a02PQioZAJg96vGQy+BA21DF2SKAT5C0JQNufOxfXyt0Vajr0VUXr4N
+         eXfQKPRKChLYeKSLV7T4BxQCbZ4RfMO8VEviO4mT5GE7h8r97eRnkysfIxT6tNIENhRj
+         isDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=4NBmLcnVw29sspbm6VI7W8jiNX3UvL9FBZltWW4FgUg=;
+        b=K3baHCsTv+CEbeYRZdDUiy8W7Tpq0pGNak+GDaMmf9mvXYg2RSXSe4nI6vKpWmfmTK
+         aPGZAdcDDNCsqnk+TmNfOOJCDHmNA9AhmV8g6UHdgMDTLq207lvmQQJM1Fitbo7GY5oj
+         HkG9SpyrvPAlNd14R/7mdmai0qUeDAej9nWeCD4cplOfQQ/S+loHMSWIOdiqjaTuQuLO
+         LFXcrX3OZwJjft3KHZvo4duCRNPfusoha886bSqF5C3sbyY98gw4+goAlOIwW4zEDFmN
+         hHXMm5xmHyiK5huKRGemSdj/IEE4VKt9y/BA17CEdN8/jZ9sMZNdDgvW4ohXjOKuNeG/
+         Jtrw==
+X-Gm-Message-State: AOAM533WjI1LTxa/Z4pUfYJbqRHoScxkpO4RfowYC57AkRtVgRz+4RzV
+        FA4hg0oJCsdXD/ADdJ1JuQo=
+X-Google-Smtp-Source: ABdhPJwt1iLpUDIR380X1gMoPaCPdv0Ed17TVAzShkV6sfwunEwJ3Yc7YBZISYqOVhS4/IM5+HQn7Q==
+X-Received: by 2002:a54:4899:: with SMTP id r25mr3158oic.28.1611067250195;
+        Tue, 19 Jan 2021 06:40:50 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y17sm793266oie.7.2021.01.19.06.40.48
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 19 Jan 2021 06:40:49 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 19 Jan 2021 06:40:47 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/42] 4.19.169-rc2 review
+Message-ID: <20210119144047.GA54031@roeck-us.net>
+References: <20210118152502.441191888@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20201218141811.310267-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2021-01-19_04:2021-01-18,2021-01-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- clxscore=1011 mlxscore=0 spamscore=0 adultscore=0 priorityscore=1501
- bulkscore=0 malwarescore=0 impostorscore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101190081
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210118152502.441191888@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/18/20 3:18 PM, Claudio Imbrenda wrote:
-> The addresses in the SIE control block of the host should not be
-> forwarded to the guest. They are only meaningful to the host, and
-> moreover it would be a clear security issue.
+On Mon, Jan 18, 2021 at 04:25:18PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.169 release.
+> There are 42 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Subsequent patches will actually put the right values in the guest SIE
-> control block.
-> 
-> Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-Looks reasonable.
-Give me some time to have a deeper look it's a lot of architecture to read.
-
-> ---
->  arch/s390/kvm/vsie.c | 5 -----
->  1 file changed, 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 4f3cbf6003a9..ada49583e530 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  		memcpy((void *)((u64)scb_o + 0xc0),
->  		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
->  		break;
-> -	case ICPT_PARTEXEC:
-> -		/* MVPG only */
-> -		memcpy((void *)((u64)scb_o + 0xc0),
-> -		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
-> -		break;
->  	}
->  
->  	if (scb_s->ihcpu != 0xffffU)
+> Responses should be made by Wed, 20 Jan 2021 15:24:51 +0000.
+> Anything received after that time might be too late.
 > 
 
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 418 pass: 418 fail: 0
+
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
