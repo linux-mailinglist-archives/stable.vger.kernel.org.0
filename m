@@ -2,314 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AC62FD9A6
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 20:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8A8C2FD9D3
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 20:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387631AbhATT3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 14:29:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32870 "EHLO
+        id S1727711AbhATSop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 13:44:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392562AbhATT3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 14:29:01 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6CAC061575
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 11:28:21 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id p15so2800562pjv.3
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 11:28:21 -0800 (PST)
+        with ESMTP id S1732890AbhATRi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 12:38:56 -0500
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73DDC061757
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 09:38:15 -0800 (PST)
+Received: by mail-ot1-x333.google.com with SMTP id n42so24108565ota.12
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 09:38:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oRUUZ7rPOWczcyLesaEEhUQuIHg20DvCeCjZP1rXEOw=;
-        b=rM0y0wIjPShouksDGEWCZ4fD9kQ8jIgJJ8SvV7MFGVdWT4J+YQYIARq8UG+e8LkpRc
-         XDi5dqs5QDIGfXzCPJD/SzfQ0Zy+TKZugFqjqPelWXIDymlawSTqP0TclOXdgz90txO9
-         9Uh/+IjtLpVOKScpgwwZES36RbUsGVGPy/eT1eHR8HKE4sLH05kuwxrATX5L0aOXKOV0
-         dP5iDEvyLqJZOJYfQj6OgWO0DoKAfe4zI1vn1rpPPdR+RoBuAeqqItgbjqATPF6gqFgF
-         D28NI7o+EUCHOP5qeI6gzS5r0NM2Ak0AKaxTF/4h/nybgHoWN2IfrvC21AE2ncAvNGul
-         AYSg==
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MNhh3DZneZFVWfjxYIARFu1yzUnEDm7HphLodqo3DQk=;
+        b=b3rRh/jJExyI8+DPE2UALXm6/mFfCwwF0E489at7YF/FdDDs0G59cic92B9HOqPYkn
+         i6Ke9a/H8crN4utU/49/HEC+QiHzShWj0IbERe//iYPc/9zNyUUpHrEorXkfeSdsJ1j+
+         ioxRKAxIg8/yTdUpMKiCa5gZBnHCO8HcDx4+M=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oRUUZ7rPOWczcyLesaEEhUQuIHg20DvCeCjZP1rXEOw=;
-        b=dVCoAv1U62us3h3kVydPp/HoscU8AsxyQUeShz1JgB45raFGB+rULbbjnBBO7zwQIb
-         Ydik4dTNS2vVOvjVpo4abmsZBGrDjnvmGOvSDzeTMNRJHuFv0p40ZrjDKxqv94J+xfUY
-         nrUPED/JvPWPStp6SCN2AbszmXr3NfaG1gvSG+A9vGWV2lXv1sduQklNwYPrCmKwpuJU
-         j4LVTMM2QTtmq5UtnyVCCBB+Ewmd663wTLjzPiSZMZdxvd4cpI85GmCwzibo1flwcXZT
-         vPwvrUZqYGiueNVicicnfmg5Ldl6O6v02heNeomk/lr7/o6zVi0CO3srIfMT1OdpJAiJ
-         TkKQ==
-X-Gm-Message-State: AOAM533V8j4Eaq13cPTkQHNs9Z4idirwzKCHINiZdbmJTL89CKIg2Ogc
-        edHF+86UzZIIpKOqZbZnZcB7ucyWSHpp42+v
-X-Google-Smtp-Source: ABdhPJwOaMbNSWIwP3mRgxCiS50zzMz1btrqmkJkf0Xsa7NDJlKsNz6S5tfOqtkG99f8ypR1GSFlQQ==
-X-Received: by 2002:a17:90b:e8b:: with SMTP id fv11mr7149639pjb.5.1611170900780;
-        Wed, 20 Jan 2021 11:28:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w11sm3076850pge.28.2021.01.20.11.28.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Jan 2021 11:28:20 -0800 (PST)
-Message-ID: <60088454.1c69fb81.81e9d.757b@mx.google.com>
-Date:   Wed, 20 Jan 2021 11:28:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MNhh3DZneZFVWfjxYIARFu1yzUnEDm7HphLodqo3DQk=;
+        b=YWdG0/vdIRuM4fWPoKrWakW5xsZsG1OjFqVTBSWbX2hIWxouxLqjiUrfeRsQEtmDAb
+         4HwhtktTFQdBq8oDWcNoqA5fFPwu+VjPQ7SbDTGo3YQcU6U9b+WrIm6ZP1Vu+Q7mh8Yw
+         woupMjAmWuuDcn+RPdqzwDAvVFEIaHTcqmYtA7qdySsGPGD0ncxbQlepNiXRnEfVttzX
+         YWWR7labl3F4/Tfvm+oFzDBddR6EKEjNQY1qx5VDfIb3IxQ11F7avJQgNMNqiA567GlH
+         yHbO5ryCU175f9FHngS6YB5D8JeiVltp4GyMoIAYbW4+KZgpWZKzes8aNFExVLXf06jn
+         zCMw==
+X-Gm-Message-State: AOAM530NU5oCrSMVRG+XAgZYPjX6O3qYOvD2OhYHH12MxHGAV+nVz1uR
+        /MtKeVQLpbfeqghUEDvpcef2S6p17Ghy5TNKOdcwUd6G7bE=
+X-Google-Smtp-Source: ABdhPJxv43HxmTetCKsV75E7UstyzxmA3kKBQo3KsMDk26idvuSiiEtoQRKDJaZO3thYnbrqW0w9yXakr98YoMiThxM=
+X-Received: by 2002:a05:6830:1bef:: with SMTP id k15mr7621513otb.303.1611164294761;
+ Wed, 20 Jan 2021 09:38:14 -0800 (PST)
 MIME-Version: 1.0
+References: <20210120123535.40226-1-paul@crapouillou.net> <20210120123535.40226-2-paul@crapouillou.net>
+ <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com> <4YQ8NQ.HNQ7IMBKVEBV2@crapouillou.net>
+In-Reply-To: <4YQ8NQ.HNQ7IMBKVEBV2@crapouillou.net>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Wed, 20 Jan 2021 18:38:03 +0100
+Message-ID: <CAKMK7uFHYPvJm46f-LXBO=nERGBBO3i_=YXZyAUi0ZXJFLmXVw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] drm: bridge/panel: Cleanup connector on bridge detach
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        od@zcrc.me, dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.169-3-g8235156d4c82
-Subject: stable-rc/queue/4.19 baseline: 164 runs,
- 6 regressions (v4.19.169-3-g8235156d4c82)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 164 runs, 6 regressions (v4.19.169-3-g823515=
-6d4c82)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.169-3-g8235156d4c82/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.169-3-g8235156d4c82
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8235156d4c8219f2ee2b1e8bd50b06f68ccfc8be =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084b1318a9c364cdbb5d2a
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60084b1318a9c36=
-4cdbb5d2f
-        failing since 2 days (last pass: v4.19.167-43-g7a15ea567512, first =
-fail: v4.19.167-55-gb4942424ad93)
-        2 lines
-
-    2021-01-20 15:23:58.303000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-01-20 15:23:58.320000+00:00  <8>[   23.010040] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084a5640daf58927bb5d28
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60084a5640daf58927bb5=
-d29
-        failing since 67 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084a7e301afdfb4ebb5d47
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60084a7e301afdfb4ebb5=
-d48
-        failing since 67 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084a5a40daf58927bb5d30
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60084a5a40daf58927bb5=
-d31
-        failing since 67 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084a2cbaa0f30a41bb5d20
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60084a2cbaa0f30a41bb5=
-d21
-        failing since 67 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60084a1566e35c85c7bb5d32
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--3-g8235156d4c82/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60084a1566e35c85c7bb5=
-d33
-        failing since 67 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
+On Wed, Jan 20, 2021 at 6:12 PM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+>
+>
+> Le mer. 20 janv. 2021 =C3=A0 17:03, Daniel Vetter <daniel@ffwll.ch> a
+> =C3=A9crit :
+> > On Wed, Jan 20, 2021 at 1:35 PM Paul Cercueil <paul@crapouillou.net>
+> > wrote:
+> >>
+> >>  If we don't call drm_connector_cleanup() manually in
+> >>  panel_bridge_detach(), the connector will be cleaned up with the
+> >> other
+> >>  DRM objects in the call to drm_mode_config_cleanup(). However,
+> >> since our
+> >>  drm_connector is devm-allocated, by the time
+> >> drm_mode_config_cleanup()
+> >>  will be called, our connector will be long gone. Therefore, the
+> >>  connector must be cleaned up when the bridge is detached to avoid
+> >>  use-after-free conditions.
+> >
+> > For -fixes this sounds ok, but for -next I think switching to drmm_
+> > would be much better.
+>
+> The API would need to change to have access to the drm_device struct,
+> though. That would be quite a big patch, there are a few dozens source
+> files that use this API already.
+
+Hm right pure drmm_ doesn't work for panel or bridge since it's
+usually a separate driver. But devm_ also doesn't work. I think what
+we need here is two-stage: first kmalloc the panel (or bridge, it's
+really the same) in the panel/bridge driver load. Then when we bind it
+to the drm_device we can tie it into the managed resources with
+drmm_add_action_or_reset. Passing the drm_device to the point where we
+allocate the panel/bridge doesn't work for these.
+
+I think minimally we need a FIXME here and ack from Laurent on how
+this should be solved at least, since panel bridge is used rather
+widely.
+-Daniel
+
+>
+> Cheers,
+> -Paul
+>
+> >
+> >>  v2: Cleanup connector only if it was created
+> >>
+> >>  Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper
+> >> from the lvds-encoder bridge.")
+> >>  Cc: <stable@vger.kernel.org> # 4.12+
+> >>  Cc: Andrzej Hajda <a.hajda@samsung.com>
+> >>  Cc: Neil Armstrong <narmstrong@baylibre.com>
+> >>  Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+> >>  Cc: Jonas Karlman <jonas@kwiboo.se>
+> >>  Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+> >>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> >>  ---
+> >>   drivers/gpu/drm/bridge/panel.c | 6 ++++++
+> >>   1 file changed, 6 insertions(+)
+> >>
+> >>  diff --git a/drivers/gpu/drm/bridge/panel.c
+> >> b/drivers/gpu/drm/bridge/panel.c
+> >>  index 0ddc37551194..df86b0ee0549 100644
+> >>  --- a/drivers/gpu/drm/bridge/panel.c
+> >>  +++ b/drivers/gpu/drm/bridge/panel.c
+> >>  @@ -87,6 +87,12 @@ static int panel_bridge_attach(struct drm_bridge
+> >> *bridge,
+> >>
+> >>   static void panel_bridge_detach(struct drm_bridge *bridge)
+> >>   {
+> >>  +       struct panel_bridge *panel_bridge =3D
+> >> drm_bridge_to_panel_bridge(bridge);
+> >>  +       struct drm_connector *connector =3D &panel_bridge->connector;
+> >>  +
+> >>  +       /* Cleanup the connector if we know it was initialized */
+> >>  +       if (!!panel_bridge->connector.dev)
+> >>  +               drm_connector_cleanup(connector);
+> >>   }
+> >>
+> >>   static void panel_bridge_pre_enable(struct drm_bridge *bridge)
+> >>  --
+> >>  2.29.2
+> >>
+> >
+> >
+> > --
+> > Daniel Vetter
+> > Software Engineer, Intel Corporation
+> > http://blog.ffwll.ch
+>
+>
+
+
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
