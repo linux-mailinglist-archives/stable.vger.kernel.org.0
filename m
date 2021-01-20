@@ -2,165 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5BB2FD654
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FFF2FD6A0
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732648AbhATRBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 12:01:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730067AbhATPw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 10:52:28 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BA1C061575
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 07:51:48 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id c22so15418020pgg.13
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 07:51:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yJPRaK/RGwVmWTfSqiXp5fomQ9qgpmAIR7CX8wcarJg=;
-        b=HAZCUaKqgiccrVnbk+KHXij6RiTX8zPvwb0Hr8Ms5D0hhfDUWdQT8vO5AxbFKrA5yI
-         Gso8djLqp8MVjzt4sL0iYMi3G46sHTjWL5XVzQjgp6sX6iBiLg8E8Wbm2u4NlKMg/8aV
-         +tPmMnJgWjIgrDV0Ch59uNR6fC57+AlJYFZe4m6o1a+xmnWmUQptzBqaJcAALcxQh9xT
-         q/55mmJ8ExAG4pwEFH4p5JSSRuRy0RFn0iy4G6w3PboSzMoHKNgO7gmIvYhXIYjWGrik
-         /CUD0DpyXdINp5x01k+tah9BoPgRkpD124UE/jLJYQBdk6y1cB+rGvk6nz0t3Raw2zC4
-         D9+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yJPRaK/RGwVmWTfSqiXp5fomQ9qgpmAIR7CX8wcarJg=;
-        b=aw8VexlYJ7n0XUo+oVnKWS78O/qXc2oAQ7GNw7rGn32xOivxMh8bvOF61BN3Rd44+Z
-         iJmsaOWz0cIZUIaK5q/XRpjXVEh46gdtIPudE1BeZhnPtT5QWXZl5AmczL26UqfYHTtV
-         Ok/jwQAc0HLygNvsTjUISu48l650nW6Htk7Fn9dYMd07lgG9rb1bzhTkGQusVmWZqj2i
-         Sc6dNTlwhk1JWoevXunxi2sOZrnfgYvJ18fGtYqDmTRd8crxUITSWeofelrOj77a8FI2
-         fmhse1ghSAhaIvGgCb+DKOeFopqyKE5ICZDRyogD2zZHWBsMzkXM3dhG+6g6vCNB7xgy
-         AS0Q==
-X-Gm-Message-State: AOAM530p3dGWnuqpAZewSlD8K1K+M9GROOOYBPfqrJH8jpDKcBXj08u4
-        +PgTSo6/f8G+rrMKfSgVTivi1o51QMNCgg==
-X-Google-Smtp-Source: ABdhPJwRTjOXAY8t+hOy95FGv6pEfkIazkO588rPxkFq1EfueayrA3WLLY8LSm+TmfNX10QJ/bqdCA==
-X-Received: by 2002:a63:cb06:: with SMTP id p6mr9817020pgg.146.1611157907674;
-        Wed, 20 Jan 2021 07:51:47 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z13sm2826837pjz.42.2021.01.20.07.51.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Jan 2021 07:51:46 -0800 (PST)
-Message-ID: <60085192.1c69fb81.1bf80.62e8@mx.google.com>
-Date:   Wed, 20 Jan 2021 07:51:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S2404045AbhATROC convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 20 Jan 2021 12:14:02 -0500
+Received: from aposti.net ([89.234.176.197]:43934 "EHLO aposti.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403932AbhATRNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 12:13:53 -0500
+Date:   Wed, 20 Jan 2021 16:25:16 +0000
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v2 1/3] drm: bridge/panel: Cleanup connector on bridge
+ detach
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        od@zcrc.me, dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Message-Id: <4YQ8NQ.HNQ7IMBKVEBV2@crapouillou.net>
+In-Reply-To: <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com>
+References: <20210120123535.40226-1-paul@crapouillou.net>
+        <20210120123535.40226-2-paul@crapouillou.net>
+        <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.9
-Subject: stable-rc/linux-5.10.y baseline: 188 runs, 2 regressions (v5.10.9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 188 runs, 2 regressions (v5.10.9)
-
-Regressions Summary
--------------------
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig | 2          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.9/plan/baseline/
+Le mer. 20 janv. 2021 à 17:03, Daniel Vetter <daniel@ffwll.ch> a 
+écrit :
+> On Wed, Jan 20, 2021 at 1:35 PM Paul Cercueil <paul@crapouillou.net> 
+> wrote:
+>> 
+>>  If we don't call drm_connector_cleanup() manually in
+>>  panel_bridge_detach(), the connector will be cleaned up with the 
+>> other
+>>  DRM objects in the call to drm_mode_config_cleanup(). However, 
+>> since our
+>>  drm_connector is devm-allocated, by the time 
+>> drm_mode_config_cleanup()
+>>  will be called, our connector will be long gone. Therefore, the
+>>  connector must be cleaned up when the bridge is detached to avoid
+>>  use-after-free conditions.
+> 
+> For -fixes this sounds ok, but for -next I think switching to drmm_
+> would be much better.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e2d133180bbc28a48316e67a003796885580b087 =
+The API would need to change to have access to the drm_device struct, 
+though. That would be quite a big patch, there are a few dozens source 
+files that use this API already.
+
+Cheers,
+-Paul
+
+> 
+>>  v2: Cleanup connector only if it was created
+>> 
+>>  Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper 
+>> from the lvds-encoder bridge.")
+>>  Cc: <stable@vger.kernel.org> # 4.12+
+>>  Cc: Andrzej Hajda <a.hajda@samsung.com>
+>>  Cc: Neil Armstrong <narmstrong@baylibre.com>
+>>  Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+>>  Cc: Jonas Karlman <jonas@kwiboo.se>
+>>  Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  ---
+>>   drivers/gpu/drm/bridge/panel.c | 6 ++++++
+>>   1 file changed, 6 insertions(+)
+>> 
+>>  diff --git a/drivers/gpu/drm/bridge/panel.c 
+>> b/drivers/gpu/drm/bridge/panel.c
+>>  index 0ddc37551194..df86b0ee0549 100644
+>>  --- a/drivers/gpu/drm/bridge/panel.c
+>>  +++ b/drivers/gpu/drm/bridge/panel.c
+>>  @@ -87,6 +87,12 @@ static int panel_bridge_attach(struct drm_bridge 
+>> *bridge,
+>> 
+>>   static void panel_bridge_detach(struct drm_bridge *bridge)
+>>   {
+>>  +       struct panel_bridge *panel_bridge = 
+>> drm_bridge_to_panel_bridge(bridge);
+>>  +       struct drm_connector *connector = &panel_bridge->connector;
+>>  +
+>>  +       /* Cleanup the connector if we know it was initialized */
+>>  +       if (!!panel_bridge->connector.dev)
+>>  +               drm_connector_cleanup(connector);
+>>   }
+>> 
+>>   static void panel_bridge_pre_enable(struct drm_bridge *bridge)
+>>  --
+>>  2.29.2
+>> 
+> 
+> 
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60081f79223bb9a931bb5d2a
-
-  Results:     3 PASS, 2 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-var-dt6customboar=
-d.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-var-dt6customboar=
-d.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/60081f79223bb9a=
-931bb5d2e
-        new failure (last pass: v5.10.8)
-        4 lines
-
-    2021-01-20 12:17:51.790000+00:00  kern  :alert : Unable to handle kerne=
-l NULL pointer dereference at virtual address 0000004c
-    2021-01-20 12:17:51.791000+00:00  kern  :alert : pgd =3D (ptrval)<8>[  =
- 39.456497] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=
-=3Dlines MEASUREMENT=3D4>
-    2021-01-20 12:17:51.792000+00:00  =
-
-    2021-01-20 12:17:51.792000+00:00  kern  :alert : [0000004c] *pgd=3D491c=
-1831   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60081f79223bb9a=
-931bb5d2f
-        new failure (last pass: v5.10.8)
-        60 lines
-
-    2021-01-20 12:17:51.849000+00:00  kern  :emerg : Process udevd (pid: 12=
-7, stack limit =3D 0x(ptrval))
-    2021-01-20 12:17:51.850000+00:00  kern  :emerg : Stack: (0xc3af9c00 to =
-0xc3afa000)
-    2021-01-20 12:17:51.850000+00:00  kern  :emerg : 9c00: c0eae864 c09b5ef=
-4 c3b8c1b0 c3b8c1b4 c3b8c000 c09bba9c c3af8000 ef8435c0
-    2021-01-20 12:17:51.850000+00:00  kern  :emerg : 9c20: c09bce94 8020001=
-b c19c76c8 0000000c c19c76e4 c2001d80 c35e9c80 ef863d20
-    2021-01-20 12:17:51.851000+00:00  kern  :emerg : 9c40: c09c9224 c14492d=
-c c19c76c8 d0f6a241 c19c76e4 c25aec80 c269ed00 c3b8c000
-    2021-01-20 12:17:51.851000+00:00  kern  :emerg : 9c60: c3b8c014 c14492d=
-c c19c76c8 0000000c c19c76e4 c09c91f4 c1447004 00000000
-    2021-01-20 12:17:51.892000+00:00  kern  :emerg : 9c80: c3b8c00c c3b8c00=
-0 fffffdfb c22d8c10 c3a19240 c099f16c c3b8c000 bf026000
-    2021-01-20 12:17:51.893000+00:00  kern  :emerg : 9ca0: fffffdfb bf02213=
-8 c3a63300 c3931b08 00000120 c224f640 c3a19240 c09f8a98
-    2021-01-20 12:17:51.893000+00:00  kern  :emerg : 9cc0: c25ae280 c25ae28=
-0 00000040 c25ae280 c3a19240 00000000 c19c76dc bf049084
-    2021-01-20 12:17:51.893000+00:00  kern  :emerg : 9ce0: bf04a014 0000001=
-6 00000028 c09f8b78 c2232c10 00000000 bf04a014 00000000 =
-
-    ... (35 line(s) more)  =
-
- =20
