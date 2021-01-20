@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF1F2FC7F9
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCC12FC7FD
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732064AbhATC3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S1728286AbhATCam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730092AbhATB2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0041923341;
-        Wed, 20 Jan 2021 01:26:56 +0000 (UTC)
+        id S1730437AbhATB27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD6AB233FD;
+        Wed, 20 Jan 2021 01:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106018;
-        bh=e7w7eZhbT5BPMTB0jHTG4KuBkCW1+q0za1EKpTYM1Wo=;
+        s=k20201202; t=1611106039;
+        bh=EbDvrSM9XOkP9uHJHSEhVoZGXE8b80g6BNmz3C88Zlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b40lTZu9JI6V3b0rilL+ihQBu0CEQk/TH1tQgDtPNnaUJ//HapnfWxWK1hr7gvygy
-         1TQgJr/Ec7+lDF5sKh5uQ1lJsJK+EuoOk26pNz/dfyadwNSf454V4Y+xe8m3lkLqPl
-         k8U+alV516vdk8ln5udGtlSNOkozjYU+Lbbt6o8zNhP+IwfWsUyNDz8Jb4gk8e3apk
-         WbKZNJTQBkKmQzz9nmwVl0rMlg0Tf9edzfZ1MZ8BVouAzUDpI0lnje8xLAfLV9dbGe
-         VQvKPPENA6NJTKB1kLWKB8s4qAfzMddpNkd7Jlfb2uB6FQw8GT2Dr+uIowXuJAWT59
-         yXpw5QMnsW25g==
+        b=gTeh9CmiIyRx4flY6hJG0s0BzDE3fld2Rp32HJ43TN4TZT3HXQbSVMnNIMmPzTO2w
+         P78IMVvHwpBH/tnJ4aqMR/YZ3pQrFuQIHzdYtPIjUPFF4Hp+ZJKt2sRw0017OxRLdJ
+         2vrtaDkyFU3J4y1/cjh02h3VoZVj6ydf/U4djrZSA3sO6E8vEQ6UuXOJpGjJ9ITmpq
+         TMu+6oNVJA023isgdQ32FMilpzj9HVFp8osehlqpAKlvR2tS5SEXdSq+4ZDTEfLyd6
+         C8Sp+dNZR9RE4YUnfMZLYgrnzISThg43rSc1jyEif8fPge7E46vxJmVsYqiNMGJzBP
+         ZQtT3FaCQQ3DA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 42/45] libperf tests: If a test fails return non-zero
-Date:   Tue, 19 Jan 2021 20:25:59 -0500
-Message-Id: <20210120012602.769683-42-sashal@kernel.org>
+Cc:     Peter Geis <pgwipeout@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Ion Agorria <ion@agorria.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/26] clk: tegra30: Add hda clock default rates to clock driver
+Date:   Tue, 19 Jan 2021 20:26:48 -0500
+Message-Id: <20210120012704.770095-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
-References: <20210120012602.769683-1-sashal@kernel.org>
+In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
+References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,74 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Peter Geis <pgwipeout@gmail.com>
 
-[ Upstream commit bba2ea17ef553aea0df80cb64399fe2f70f225dd ]
+[ Upstream commit f4eccc7fea203cfb35205891eced1ab51836f362 ]
 
-If a test fails return -1 rather than 0. This is consistent with the
-return value in test-cpumap.c
+Current implementation defaults the hda clocks to clk_m. This causes hda
+to run too slow to operate correctly. Fix this by defaulting to pll_p and
+setting the frequency to the correct rate.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20210114180250.3853825-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This matches upstream t124 and downstream t30.
+
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Tested-by: Ion Agorria <ion@agorria.com>
+Acked-by: Sameer Pujar <spujar@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Peter Geis <pgwipeout@gmail.com>
+Link: https://lore.kernel.org/r/20210108135913.2421585-2-pgwipeout@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/perf/tests/test-cpumap.c    | 2 +-
- tools/lib/perf/tests/test-evlist.c    | 2 +-
- tools/lib/perf/tests/test-evsel.c     | 2 +-
- tools/lib/perf/tests/test-threadmap.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/clk/tegra/clk-tegra30.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/lib/perf/tests/test-cpumap.c b/tools/lib/perf/tests/test-cpumap.c
-index c8d45091e7c26..c70e9e03af3e9 100644
---- a/tools/lib/perf/tests/test-cpumap.c
-+++ b/tools/lib/perf/tests/test-cpumap.c
-@@ -27,5 +27,5 @@ int main(int argc, char **argv)
- 	perf_cpu_map__put(cpus);
- 
- 	__T_END;
--	return 0;
-+	return tests_failed == 0 ? 0 : -1;
- }
-diff --git a/tools/lib/perf/tests/test-evlist.c b/tools/lib/perf/tests/test-evlist.c
-index 6d8ebe0c25042..d913241d41356 100644
---- a/tools/lib/perf/tests/test-evlist.c
-+++ b/tools/lib/perf/tests/test-evlist.c
-@@ -409,5 +409,5 @@ int main(int argc, char **argv)
- 	test_mmap_cpus();
- 
- 	__T_END;
--	return 0;
-+	return tests_failed == 0 ? 0 : -1;
- }
-diff --git a/tools/lib/perf/tests/test-evsel.c b/tools/lib/perf/tests/test-evsel.c
-index 135722ac965bf..0ad82d7a2a51b 100644
---- a/tools/lib/perf/tests/test-evsel.c
-+++ b/tools/lib/perf/tests/test-evsel.c
-@@ -131,5 +131,5 @@ int main(int argc, char **argv)
- 	test_stat_thread_enable();
- 
- 	__T_END;
--	return 0;
-+	return tests_failed == 0 ? 0 : -1;
- }
-diff --git a/tools/lib/perf/tests/test-threadmap.c b/tools/lib/perf/tests/test-threadmap.c
-index 7dc4d6fbeddee..384471441b484 100644
---- a/tools/lib/perf/tests/test-threadmap.c
-+++ b/tools/lib/perf/tests/test-threadmap.c
-@@ -27,5 +27,5 @@ int main(int argc, char **argv)
- 	perf_thread_map__put(threads);
- 
- 	__T_END;
--	return 0;
-+	return tests_failed == 0 ? 0 : -1;
- }
+diff --git a/drivers/clk/tegra/clk-tegra30.c b/drivers/clk/tegra/clk-tegra30.c
+index 7b4c6a488527d..501929d9f70ed 100644
+--- a/drivers/clk/tegra/clk-tegra30.c
++++ b/drivers/clk/tegra/clk-tegra30.c
+@@ -1263,6 +1263,8 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA30_CLK_I2S3_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
+ 	{ TEGRA30_CLK_I2S4_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
+ 	{ TEGRA30_CLK_VIMCLK_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_HDA, TEGRA30_CLK_PLL_P, 102000000, 0 },
++	{ TEGRA30_CLK_HDA2CODEC_2X, TEGRA30_CLK_PLL_P, 48000000, 0 },
+ 	/* must be the last entry */
+ 	{ TEGRA30_CLK_CLK_MAX, TEGRA30_CLK_CLK_MAX, 0, 0 },
+ };
 -- 
 2.27.0
 
