@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1172FC8D3
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BD52FC8D2
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732156AbhATCa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:30:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
+        id S1729991AbhATCab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:30:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730618AbhATB26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730629AbhATB26 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89E6B2333C;
-        Wed, 20 Jan 2021 01:26:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A992245C;
+        Wed, 20 Jan 2021 01:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105998;
-        bh=WnYGfdtWhQjlRaYO46+WG7tduw02H5398tfUFmXkLN0=;
+        s=k20201202; t=1611106005;
+        bh=kMn8CfxQziRnH48xb4v4RCCNXXh+0G5URM2cOoDmtm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYLrXryRCd/xhD6F3y4nCpAFlUew85b71urrEkgSKaw1hVjlPMUM5uWcJcZyd4j+2
-         njTf7TQthUSvpQCkb0XaODc+HjmMpF2SudE+3BV8z7ZGWD9VDwAZmFSMOWSxqv4eA+
-         eLoztbajIg9EMe0n/b4RINXrN6cLisTHMuL5DY2vqO8veWCVs3oAJJi2A1tMXJ5opw
-         3F3TCAx79gxTQh/Qz5B1pTE0e9fce0Ai9jAf1sdOfBnYuD0k6P2IBAqQSwHlNtl5OS
-         P5YSmfqtu2nevDUFRwIiH+Dn8aOi43ePKLVxwK5xscgmbgvVYH15WqRTp4zXeHp1c1
-         Y6sWOEFewjzsg==
+        b=ELfPLZ8zOUh7ySsHr9hICofuPW8t7z1Q4MEMxm+xuyBhH0lW0uR6AQx7vGHxRFaYo
+         wkIdAYpoxYT2ERAZaDMK5kTJexJmcwYpJwLywzRqOD+IpYKVTGyZ/lEOmfjLzbUhRY
+         IX5h+Y5OxfoF2cLoPKD+a9wdCVGE/PSj3Vnb++ZRX6dYF4IX/Giep9OsnelnK+VISe
+         52FE/CQSMl5Zga5rNTuGbC1cV4QjdaOXcdEu9SuTrY+IJ7IfPDRcOlotITvxybOZQJ
+         hb/oEnYNAdFjXEh4VAQWLCk4J3HrdYSBkfYJeH2WjqfEqSrzXwgS7HqotT2RmCSmi5
+         pITLoiBDWeclA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Seb Laveze <sebastien.laveze@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 27/45] net: stmmac: use __napi_schedule() for PREEMPT_RT
-Date:   Tue, 19 Jan 2021 20:25:44 -0500
-Message-Id: <20210120012602.769683-27-sashal@kernel.org>
+Cc:     Victor Zhao <Victor.Zhao@amd.com>,
+        "Emily . Deng" <Emily.Deng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 32/45] drm/amdgpu/psp: fix psp gfx ctrl cmds
+Date:   Tue, 19 Jan 2021 20:25:49 -0500
+Message-Id: <20210120012602.769683-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -44,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seb Laveze <sebastien.laveze@nxp.com>
+From: Victor Zhao <Victor.Zhao@amd.com>
 
-[ Upstream commit 1f02efd1bb35bee95feed6aab46d1217f29d555b ]
+[ Upstream commit f14a5c34d143f6627f0be70c0de1d962f3a6ff1c ]
 
-Use of __napi_schedule_irqoff() is not safe with PREEMPT_RT in which
-hard interrupts are not disabled while running the threaded interrupt.
+psp GFX_CTRL_CMD_ID_CONSUME_CMD different for windows and linux,
+according to psp, linux cmds are not correct.
 
-Using __napi_schedule() works for both PREEMPT_RT and mainline Linux,
-just at the cost of an additional check if interrupts are disabled for
-mainline (since they are already disabled).
+v2: only correct GFX_CTRL_CMD_ID_CONSUME_CMD.
 
-Similar to the fix done for enetc commit 215602a8d212 ("enetc: use
-napi_schedule to be compatible with PREEMPT_RT")
-
-Signed-off-by: Seb Laveze <sebastien.laveze@nxp.com>
-Link: https://lore.kernel.org/r/20210112140121.1487619-1-sebastien.laveze@oss.nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
+Reviewed-by: Emily.Deng <Emily.Deng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index c33db79cdd0ad..cb39f6dbf72b8 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2158,7 +2158,7 @@ static int stmmac_napi_check(struct stmmac_priv *priv, u32 chan)
- 			spin_lock_irqsave(&ch->lock, flags);
- 			stmmac_disable_dma_irq(priv, priv->ioaddr, chan, 1, 0);
- 			spin_unlock_irqrestore(&ch->lock, flags);
--			__napi_schedule_irqoff(&ch->rx_napi);
-+			__napi_schedule(&ch->rx_napi);
- 		}
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
+index 4137dc710aafd..7ad0434be293b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
++++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
+@@ -47,7 +47,7 @@ enum psp_gfx_crtl_cmd_id
+     GFX_CTRL_CMD_ID_DISABLE_INT     = 0x00060000,   /* disable PSP-to-Gfx interrupt */
+     GFX_CTRL_CMD_ID_MODE1_RST       = 0x00070000,   /* trigger the Mode 1 reset */
+     GFX_CTRL_CMD_ID_GBR_IH_SET      = 0x00080000,   /* set Gbr IH_RB_CNTL registers */
+-    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x000A0000,   /* send interrupt to psp for updating write pointer of vf */
++    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x00090000,   /* send interrupt to psp for updating write pointer of vf */
+     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING = 0x000C0000, /* destroy GPCOM ring */
  
-@@ -2167,7 +2167,7 @@ static int stmmac_napi_check(struct stmmac_priv *priv, u32 chan)
- 			spin_lock_irqsave(&ch->lock, flags);
- 			stmmac_disable_dma_irq(priv, priv->ioaddr, chan, 0, 1);
- 			spin_unlock_irqrestore(&ch->lock, flags);
--			__napi_schedule_irqoff(&ch->tx_napi);
-+			__napi_schedule(&ch->tx_napi);
- 		}
- 	}
- 
+     GFX_CTRL_CMD_ID_MAX             = 0x000F0000,   /* max command ID */
 -- 
 2.27.0
 
