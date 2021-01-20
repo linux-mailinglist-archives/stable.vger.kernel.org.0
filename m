@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D5EB2FC80C
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B94B2FC80E
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733045AbhATCbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S1733312AbhATCbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730760AbhATB30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA44023443;
-        Wed, 20 Jan 2021 01:27:58 +0000 (UTC)
+        id S1730791AbhATB32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F267D23600;
+        Wed, 20 Jan 2021 01:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106079;
-        bh=MJksqXmuYaGUzjr4jC6xeLEyWJivFShEUeqd9qu+zGo=;
+        s=k20201202; t=1611106081;
+        bh=43J9ib7DYwnIzys8Sy8GNZzppLD1sxHAZ4RSltgwTko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G05x/AzQZd3gohIhyEdgZxi7a3iH4Bj3qc7pTG+fPzVyQa8R7e9d+x6j/ulERw+3Q
-         aXqQ+inM2AFN9O/U0vN85JM/ugp6LZ+ZBA7TccAR4ypm8wg/T5qJEgnmy17XkJZRci
-         C2D2QNAF1kscvZOEdU4atCePnW6vE0FXT9E/v5XX6dh6TFiKkQayb/R9vG75ivS0za
-         C+iCNoXyDLGc+fA/5btz18AhoKi8dfHto0a24Z7DW2bDSiv67n7ieQPUWOZLZvI6LZ
-         Cn0Th6PZ0LC4D7opio3yY1P4BqRWGTQLYYtUk3vyBPQ3rpB8bYVLJBfMnMOUWBXQn0
-         g1JZpw2dqeTHQ==
+        b=UaqIgtVLnjdci8w+gqMKbx8yj9/CCB9HcNTfyhxZ7ILusnbdwZiAIJZlPEU11LqaN
+         V8Gc1go93fPjB3Gc+N/W+PNqQ32a7iLLOwbtcMT+xYM9Q05jcXvU5dc9Btj/sqOLNn
+         8Bok61EIGYAmh2VZmHIPPew4ASq3+KTLnuMitWZIOwIwhm+6lmOXS3DdRT2TNCI2ge
+         HUR2bk9ITI2B+c+9riwyJTPB2PZkJorQHa8SvyYN+MPVfyQseLHe3fjYqwVp8y3FzA
+         pddoa594dn2mDnTSIoMi+kLUlvmRmx2I3sYU1pwi8XIPNNNKigOAXIcu2lV6rhb61+
+         VF42glXDt1Tvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 13/15] drm/nouveau/i2c/gm200: increase width of aux semaphore owner fields
-Date:   Tue, 19 Jan 2021 20:27:38 -0500
-Message-Id: <20210120012740.770354-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 15/15] drm/nouveau/kms/nv50-: fix case where notifier buffer is at offset 0
+Date:   Tue, 19 Jan 2021 20:27:40 -0500
+Message-Id: <20210120012740.770354-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
 References: <20210120012740.770354-1-sashal@kernel.org>
@@ -43,51 +43,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit ba6e9ab0fcf3d76e3952deb12b5f993991621d9c ]
+[ Upstream commit caeb6ab899c3d36a74cda6e299c6e1c9c4e2a22e ]
 
-Noticed while debugging GA102.
+VRAM offset 0 is a valid address, triggered on GA102.
 
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv50/disp.c     | 4 ++--
+ drivers/gpu/drm/nouveau/dispnv50/disp.h     | 2 +-
+ drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index edb6148cbca04..d0e80ad526845 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -33,7 +33,7 @@ static void
- gm200_i2c_aux_fini(struct gm200_i2c_aux *aux)
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index 1bb0a9f6fa730..fbe156302ee86 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -131,7 +131,7 @@ nv50_dmac_destroy(struct nv50_dmac *dmac)
+ 
+ int
+ nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
+-		 const s32 *oclass, u8 head, void *data, u32 size, u64 syncbuf,
++		 const s32 *oclass, u8 head, void *data, u32 size, s64 syncbuf,
+ 		 struct nv50_dmac *dmac)
  {
- 	struct nvkm_device *device = aux->base.pad->i2c->subdev.device;
--	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00310000, 0x00000000);
-+	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00710000, 0x00000000);
- }
+ 	struct nouveau_cli *cli = (void *)device->object.client;
+@@ -166,7 +166,7 @@ nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
+ 	if (ret)
+ 		return ret;
  
- static int
-@@ -54,10 +54,10 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
- 			AUX_ERR(&aux->base, "begin idle timeout %08x", ctrl);
- 			return -EBUSY;
- 		}
--	} while (ctrl & 0x03010000);
-+	} while (ctrl & 0x07010000);
+-	if (!syncbuf)
++	if (syncbuf < 0)
+ 		return 0;
  
- 	/* set some magic, and wait up to 1ms for it to appear */
--	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00300000, ureq);
-+	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00700000, ureq);
- 	timeout = 1000;
- 	do {
- 		ctrl = nvkm_rd32(device, 0x00d954 + (aux->ch * 0x50));
-@@ -67,7 +67,7 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
- 			gm200_i2c_aux_fini(aux);
- 			return -EBUSY;
- 		}
--	} while ((ctrl & 0x03000000) != urep);
-+	} while ((ctrl & 0x07000000) != urep);
+ 	ret = nvif_object_init(&dmac->base.user, 0xf0000000, NV_DMA_IN_MEMORY,
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.h b/drivers/gpu/drm/nouveau/dispnv50/disp.h
+index 66c125a6b0b3c..55205d23360c8 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.h
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.h
+@@ -68,7 +68,7 @@ struct nv50_dmac {
  
- 	return 0;
- }
+ int nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
+ 		     const s32 *oclass, u8 head, void *data, u32 size,
+-		     u64 syncbuf, struct nv50_dmac *dmac);
++		     s64 syncbuf, struct nv50_dmac *dmac);
+ void nv50_dmac_destroy(struct nv50_dmac *);
+ 
+ u32 *evo_wait(struct nv50_dmac *, int nr);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
+index f7dbd965e4e72..b49a212af4d8d 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
+@@ -68,7 +68,7 @@ wimmc37b_init_(const struct nv50_wimm_func *func, struct nouveau_drm *drm,
+ 	int ret;
+ 
+ 	ret = nv50_dmac_create(&drm->client.device, &disp->disp->object,
+-			       &oclass, 0, &args, sizeof(args), 0,
++			       &oclass, 0, &args, sizeof(args), -1,
+ 			       &wndw->wimm);
+ 	if (ret) {
+ 		NV_ERROR(drm, "wimm%04x allocation failed: %d\n", oclass, ret);
 -- 
 2.27.0
 
