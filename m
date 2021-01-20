@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D472FC7CE
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4B22FC7CD
 	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729617AbhATB1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 20:27:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S1727621AbhATB1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 20:27:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729339AbhATB12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729344AbhATB12 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:27:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0FC323121;
-        Wed, 20 Jan 2021 01:26:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B05B23137;
+        Wed, 20 Jan 2021 01:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105971;
-        bh=74ee0G2fGOSu4kMozZgJOcryEsvgpnye5mybvhlRqt0=;
+        s=k20201202; t=1611105974;
+        bh=kIiqZT07QAhNej8L6TLFgKeIFuu/Q7XuyWxPXs0BqQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9zf/MckfHV5sBWpG1m5EigHjlV9ycJO7faeSOnTwkvENfufQ0rq7euPaEVm+5/2z
-         g4padWtyMH9UY00iKfxEsGoNbuv3uFbdruukXP+iPbYe0qSFT3+1qyCJwwn8I1Tqx5
-         5KEKaZn0hnZTQmz1T8ACJZ0pFZNi52Uuped3oxJn7MxMdtaT4QjuJP+vs6iRPTUHGG
-         BZ7lSze8j1qDxiepf2HHzTFw8QVC+JsdjN21wiHp08ksVfxbdWG4qZrIIcfBCluYWM
-         dcHLBgXDNpH8Hj4RTfDN016YwRFJkMINe5ZAGoOqHXOav2gzV2djtbTkz3Vwv/0BuC
-         X8gfcccAsVhOw==
+        b=nv6/qtRk0fah0BuFN6r+/aKIVcmYxaFxmQLDLkn06tZCyxv4a0C+qeIVDTvgJXETu
+         4l9q3xFsCEVJASwdjU+yYUoQ9uqYDDv6qmUKIc4aTftRop57lp1naKGVdDblkpljyG
+         f+rkr9lNxc4oV0C5ZJx/ZEN4BEdjx4k2rFyPvLkeKbn67T+2fBukIJbe/9TRXRmOUz
+         gmAVeksAr1ASQmtNFJ22wodfsXEKQMjsZdmRdtR+BmRO1m5RMvrgxPxr+7rRAZ34R/
+         jhnUMF+FlrDKPlXu57jdgm3lrX7cuAfAJ0kk6CqGEc646apPNboK5GxK/QI14efndF
+         eRAghLmTBfyjw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Iliopoulos <ailiop@suse.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/45] dm integrity: select CRYPTO_SKCIPHER
-Date:   Tue, 19 Jan 2021 20:25:24 -0500
-Message-Id: <20210120012602.769683-7-sashal@kernel.org>
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 09/45] scsi: ufs: Relax the condition of UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
+Date:   Tue, 19 Jan 2021 20:25:26 -0500
+Message-Id: <20210120012602.769683-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,35 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiop@suse.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit f7b347acb5f6c29d9229bb64893d8b6a2c7949fb ]
+[ Upstream commit 21acf4601cc63cf564c6fc1a74d81b191313c929 ]
 
-The integrity target relies on skcipher for encryption/decryption, but
-certain kernel configurations may not enable CRYPTO_SKCIPHER, leading to
-compilation errors due to unresolved symbols. Explicitly select
-CRYPTO_SKCIPHER for DM_INTEGRITY, since it is unconditionally dependent
-on it.
+UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL is intended to skip enabling
+fWriteBoosterBufferFlushEn while WriteBooster is initializing.  Therefore
+it is better to apply the checking during WriteBooster initialization only.
 
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/r/20201222072905.32221-3-stanley.chu@mediatek.com
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufshcd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/Kconfig b/drivers/md/Kconfig
-index 30ba3573626c2..5c0e7063f5f5c 100644
---- a/drivers/md/Kconfig
-+++ b/drivers/md/Kconfig
-@@ -585,6 +585,7 @@ config DM_INTEGRITY
- 	select BLK_DEV_INTEGRITY
- 	select DM_BUFIO
- 	select CRYPTO
-+	select CRYPTO_SKCIPHER
- 	select ASYNC_XOR
- 	help
- 	  This device-mapper target emulates a block device that has
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 7558b4abebfc5..cc0aebf54b079 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -283,7 +283,8 @@ static inline void ufshcd_wb_config(struct ufs_hba *hba)
+ 	if (ret)
+ 		dev_err(hba->dev, "%s: En WB flush during H8: failed: %d\n",
+ 			__func__, ret);
+-	ufshcd_wb_toggle_flush(hba, true);
++	if (!(hba->quirks & UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL))
++		ufshcd_wb_toggle_flush(hba, true);
+ }
+ 
+ static void ufshcd_scsi_unblock_requests(struct ufs_hba *hba)
+@@ -5353,9 +5354,6 @@ static int ufshcd_wb_toggle_flush_during_h8(struct ufs_hba *hba, bool set)
+ 
+ static inline void ufshcd_wb_toggle_flush(struct ufs_hba *hba, bool enable)
+ {
+-	if (hba->quirks & UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL)
+-		return;
+-
+ 	if (enable)
+ 		ufshcd_wb_buf_flush_enable(hba);
+ 	else
 -- 
 2.27.0
 
