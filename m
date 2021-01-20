@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4927D2FC791
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0502FC77F
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbhATCMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:12:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S1727894AbhATCIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:08:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730883AbhATB3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 947342332B;
-        Wed, 20 Jan 2021 01:28:25 +0000 (UTC)
+        id S1729059AbhATB3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34F5E23719;
+        Wed, 20 Jan 2021 01:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106106;
-        bh=InmBjXPqY172wkeRAp73VtZAVF0Qr1IWDs4BFc+7Kvo=;
+        s=k20201202; t=1611106107;
+        bh=Xz+i1Z3mOF9fKx3oJXp8w7X6GXSJakG1pmdkXz0IVGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGGej/kb6QK4Ow1JkmKThTezeZe82dHS+/hMtEKjhCS28RQPOToP7pXTeeVrVus9+
-         6FKb+z8UPbg0xVGUpgumK18jlO/i9TXKJR47174TOePpkR93aZx3dcOj3nvMtyUF2b
-         G2E3KkWYZTOMT5liRkB5RbGHK0iuYPJkkUcsJpNxB1mJSDYHckyWp8UDipALWnCxT0
-         Y1ElAWF+sSTzwIpwYdKkDoR0ASdp+twMe1WarnJzmuTP+U3EDTtB4hvrNUabFQYJqJ
-         seh2SkSD9CVYsHSg3K+k+8Y6QnypURGhVEKWuVqL5kYUR2L3SxoeMHkrACApikM0So
-         vxT78ImM+8tlw==
+        b=K7K7N/QMhsX6KD+grBPwQ5dPEtEx/dADE1iSMiSMGBMInIomMuR9d5GqTzenZ0El/
+         3YtLzA1Wwf9F3ev76E0EfJoPXn51c/XFwrEEKkRQOyK/pab06V4zQr/t46TekxlUFz
+         8f+lFDg7xPvHydvv/1JFo3jSzlbPvlWR9JtrsMTi4AS1s57ATsdO13tDarTYyl/uFY
+         jkUER2wLVhA4nnq8EbtHv7W7KvkXDMr4x9qSo3SGjEsgzgPD4OQ4L4srP97/7x1eVb
+         DtalIvaAnHIP1sV8WCIiSnM5+V4nAuwTcSLZFtVeEPBtRuc8AkH1uVkPhIBu9uG89w
+         fIuCsj/u4DHug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 2/4] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
-Date:   Tue, 19 Jan 2021 20:28:21 -0500
-Message-Id: <20210120012823.770731-2-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 3/4] drm/nouveau/bios: fix issue shadowing expansion ROMs
+Date:   Tue, 19 Jan 2021 20:28:22 -0500
+Message-Id: <20210120012823.770731-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012823.770731-1-sashal@kernel.org>
 References: <20210120012823.770731-1-sashal@kernel.org>
@@ -45,63 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
+[ Upstream commit 402a89660e9dc880710b12773076a336c9dab3d7 ]
 
-Users can initiate resets to specific SCSI device/target/host through
-IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
-_reset_handler() callbacks is initialized with a request whose tag is -1.
-In this case it is not right for eh_device_reset_handler() callback to
-count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
-device associated with the SCSI cmd.
+This issue has generally been covered up by the presence of additional
+expansion ROMs after the ones we're interested in, with header fetches
+of subsequent images loading enough of the ROM to hide the issue.
 
-Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Noticed on GA102, which lacks a type 0x70 image compared to TU102,.
+
+[  906.364197] nouveau 0000:09:00.0: bios: 00000000: type 00, 65024 bytes
+[  906.381205] nouveau 0000:09:00.0: bios: 0000fe00: type 03, 91648 bytes
+[  906.405213] nouveau 0000:09:00.0: bios: 00026400: type e0, 22016 bytes
+[  906.410984] nouveau 0000:09:00.0: bios: 0002ba00: type e0, 366080 bytes
+
+vs
+
+[   22.961901] nouveau 0000:09:00.0: bios: 00000000: type 00, 60416 bytes
+[   22.984174] nouveau 0000:09:00.0: bios: 0000ec00: type 03, 71168 bytes
+[   23.010446] nouveau 0000:09:00.0: bios: 00020200: type e0, 48128 bytes
+[   23.028220] nouveau 0000:09:00.0: bios: 0002be00: type e0, 140800 bytes
+[   23.080196] nouveau 0000:09:00.0: bios: 0004e400: type 70, 7168 bytes
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index e37f6db0dd156..5e1d922e9a6ff 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3818,19 +3818,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- {
- 	struct Scsi_Host *host;
- 	struct ufs_hba *hba;
--	unsigned int tag;
- 	u32 pos;
- 	int err;
--	u8 resp = 0xF;
--	struct ufshcd_lrb *lrbp;
-+	u8 resp = 0xF, lun;
- 	unsigned long flags;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+index 7deb81b6dbac6..4b571cc6bc70f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+@@ -75,7 +75,7 @@ shadow_image(struct nvkm_bios *bios, int idx, u32 offset, struct shadow *mthd)
+ 	nvkm_debug(subdev, "%08x: type %02x, %d bytes\n",
+ 		   image.base, image.type, image.size);
  
- 	host = cmd->device->host;
- 	hba = shost_priv(host);
--	tag = cmd->request->tag;
- 
--	lrbp = &hba->lrb[tag];
--	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
-+	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
-+	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
- 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
- 		if (!err)
- 			err = resp;
-@@ -3839,7 +3836,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
--		if (hba->lrb[pos].lun == lrbp->lun) {
-+		if (hba->lrb[pos].lun == lun) {
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
+-	if (!shadow_fetch(bios, mthd, image.size)) {
++	if (!shadow_fetch(bios, mthd, image.base + image.size)) {
+ 		nvkm_debug(subdev, "%08x: fetch failed\n", image.base);
+ 		return 0;
+ 	}
 -- 
 2.27.0
 
