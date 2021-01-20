@@ -2,117 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DADA12FD4E4
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 17:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C44F12FD4F9
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 17:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391179AbhATQE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 11:04:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45192 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391098AbhATQEO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 11:04:14 -0500
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A57BCC061575
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 08:03:33 -0800 (PST)
-Received: by mail-ot1-x334.google.com with SMTP id a109so23859390otc.1
-        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 08:03:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fJCBiwBO/xEgO9jr3aVUv1rBDTi8ytSoHuAN7ss9+FQ=;
-        b=SaNPNcS6Z2xbfYNvLJu3j5/JXjEfVIiaD4P4PHnskHPlvUSY3LWnLXUVn3VF1lKqN5
-         G/G8yyGUi02V6B9yUNwvIXxbxLSqAD7RAM34brWGTXH/z+dw244szhVmhINlaIqRw9U+
-         z6npoCi0zz7cTE+fNxUJSK1uClMI4ipS1yPIg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fJCBiwBO/xEgO9jr3aVUv1rBDTi8ytSoHuAN7ss9+FQ=;
-        b=YAF+1VN3eHmt3pvlm6JM69DCgvCARFH0viA/vHnVLVligkMLCM3zJcgokHqwm1WGBq
-         5XPckKi+XbafRTr+2P+333ExM09yQttniTcRnjzRsNKf/fSenQ72BwAZTKs12J+jaqMJ
-         et51rfM+IgyREwSz+5UNiUyKpDWlKIi0fcZTgGDJvjGj5B2Y0JtYhb7gnp+Zcr+C8P5W
-         92CxPlcfMPM1hNVzmqWCaeg4tMdFjnFA6Z9c5iIkUVDcW+fOM/zNjlngzVd/EI0KJzvX
-         mdZE9/+yPsR65vJUtcs8jirm5ulLNzQ+zuEO67iCCfWjOlUuhqoB6B/MJxg8lq0BJvhK
-         h8oQ==
-X-Gm-Message-State: AOAM5302sBz7PM4/OX+TVKMXIF4LwbXhKG+Gic8Ak1BVi0RVrBGNMpHu
-        ZhGVy+fIlAbowoHZ1FmU6HGvc+2Mxp47DmqkEmY9pA==
-X-Google-Smtp-Source: ABdhPJyWdj1BXwHHDK/NwUPAiGcQF/1RUz7Tu4QQIHGq8FtBjL5jH4ywkwS00QWZajtNaqewC5R8crwbLX0gY5WWKhI=
-X-Received: by 2002:a9d:23ca:: with SMTP id t68mr7575766otb.281.1611158613038;
- Wed, 20 Jan 2021 08:03:33 -0800 (PST)
+        id S1729840AbhATQIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 11:08:11 -0500
+Received: from mx2.suse.de ([195.135.220.15]:42856 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391401AbhATQHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 11:07:00 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EBD0DAF32;
+        Wed, 20 Jan 2021 16:06:18 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id B4D381E0831; Wed, 20 Jan 2021 17:06:18 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     Matthew Wilcox <willy@infradead.org>, <linux-ext4@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 3/3] ext4: Fix stale data exposure when read races with hole punch
+Date:   Wed, 20 Jan 2021 17:06:11 +0100
+Message-Id: <20210120160611.26853-4-jack@suse.cz>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210120160611.26853-1-jack@suse.cz>
+References: <20210120160611.26853-1-jack@suse.cz>
 MIME-Version: 1.0
-References: <20210120123535.40226-1-paul@crapouillou.net> <20210120123535.40226-2-paul@crapouillou.net>
-In-Reply-To: <20210120123535.40226-2-paul@crapouillou.net>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Wed, 20 Jan 2021 17:03:22 +0100
-Message-ID: <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] drm: bridge/panel: Cleanup connector on bridge detach
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        od@zcrc.me, dri-devel <dri-devel@lists.freedesktop.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 1:35 PM Paul Cercueil <paul@crapouillou.net> wrote:
->
-> If we don't call drm_connector_cleanup() manually in
-> panel_bridge_detach(), the connector will be cleaned up with the other
-> DRM objects in the call to drm_mode_config_cleanup(). However, since our
-> drm_connector is devm-allocated, by the time drm_mode_config_cleanup()
-> will be called, our connector will be long gone. Therefore, the
-> connector must be cleaned up when the bridge is detached to avoid
-> use-after-free conditions.
+Hole puching currently evicts pages from page cache and then goes on to
+remove blocks from the inode. This happens under both i_mmap_sem and
+i_rwsem held exclusively which provides appropriate serialization with
+racing page faults. However there is currently nothing that prevents
+ordinary read(2) from racing with the hole punch and instantiating page
+cache page after hole punching has evicted page cache but before it has
+removed blocks from the inode. This page cache page will be mapping soon
+to be freed block and that can lead to returning stale data to userspace
+or even filesystem corruption.
 
-For -fixes this sounds ok, but for -next I think switching to drmm_
-would be much better.
--Daniel
+Fix the problem by protecting reads as well as readahead requests with
+i_mmap_sem.
 
-> v2: Cleanup connector only if it was created
->
-> Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper from the lvds-encoder bridge.")
-> Cc: <stable@vger.kernel.org> # 4.12+
-> Cc: Andrzej Hajda <a.hajda@samsung.com>
-> Cc: Neil Armstrong <narmstrong@baylibre.com>
-> Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-> Cc: Jonas Karlman <jonas@kwiboo.se>
-> Cc: Jernej Skrabec <jernej.skrabec@siol.net>
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  drivers/gpu/drm/bridge/panel.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/gpu/drm/bridge/panel.c b/drivers/gpu/drm/bridge/panel.c
-> index 0ddc37551194..df86b0ee0549 100644
-> --- a/drivers/gpu/drm/bridge/panel.c
-> +++ b/drivers/gpu/drm/bridge/panel.c
-> @@ -87,6 +87,12 @@ static int panel_bridge_attach(struct drm_bridge *bridge,
->
->  static void panel_bridge_detach(struct drm_bridge *bridge)
->  {
-> +       struct panel_bridge *panel_bridge = drm_bridge_to_panel_bridge(bridge);
-> +       struct drm_connector *connector = &panel_bridge->connector;
-> +
-> +       /* Cleanup the connector if we know it was initialized */
-> +       if (!!panel_bridge->connector.dev)
-> +               drm_connector_cleanup(connector);
->  }
->
->  static void panel_bridge_pre_enable(struct drm_bridge *bridge)
-> --
-> 2.29.2
->
+CC: stable@vger.kernel.org
+Reported-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/ext4/file.c  | 16 ++++++++++++++++
+ fs/ext4/inode.c | 21 +++++++++++++++++++++
+ 2 files changed, 37 insertions(+)
 
-
+diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+index 349b27f0dda0..d66f7c08b123 100644
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -30,6 +30,7 @@
+ #include <linux/uio.h>
+ #include <linux/mman.h>
+ #include <linux/backing-dev.h>
++#include <linux/fadvise.h>
+ #include "ext4.h"
+ #include "ext4_jbd2.h"
+ #include "xattr.h"
+@@ -131,6 +132,20 @@ static ssize_t ext4_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	return generic_file_read_iter(iocb, to);
+ }
+ 
++static int ext4_fadvise(struct file *filp, loff_t start, loff_t end, int advice)
++{
++	struct inode *inode = file_inode(filp);
++	int ret;
++
++	/* Readahead needs protection from hole punching and similar ops */
++	if (advice == POSIX_FADV_WILLNEED)
++		down_read(&EXT4_I(inode)->i_mmap_sem);
++	ret = generic_fadvise(filp, start, end, advice);
++	if (advice == POSIX_FADV_WILLNEED)
++		up_read(&EXT4_I(inode)->i_mmap_sem);
++	return ret;
++}
++
+ /*
+  * Called when an inode is released. Note that this is different
+  * from ext4_file_open: open gets called at every open, but release
+@@ -911,6 +926,7 @@ const struct file_operations ext4_file_operations = {
+ 	.splice_read	= generic_file_splice_read,
+ 	.splice_write	= iter_file_splice_write,
+ 	.fallocate	= ext4_fallocate,
++	.fadvise	= ext4_fadvise,
+ };
+ 
+ const struct inode_operations ext4_file_inode_operations = {
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index c173c8405856..a01569f2fa49 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3646,9 +3646,28 @@ static int ext4_iomap_swap_activate(struct swap_info_struct *sis,
+ 				       &ext4_iomap_report_ops);
+ }
+ 
++static int ext4_fill_pages(struct kiocb *iocb, size_t len, bool partial_page,
++			   struct page **pagep, unsigned int nr_pages)
++{
++	struct ext4_inode_info *ei = EXT4_I(iocb->ki_filp->f_mapping->host);
++	int ret;
++
++	/*
++	 * Protect adding of pages into page cache against hole punching and
++	 * other cache manipulation functions so that we don't expose
++	 * potentially stale user data.
++	 */
++	down_read(&ei->i_mmap_sem);
++	ret = generic_file_buffered_read_get_pages(iocb, len, partial_page,
++						   pagep, nr_pages);
++	up_read(&ei->i_mmap_sem);
++	return ret;
++}
++
+ static const struct address_space_operations ext4_aops = {
+ 	.readpage		= ext4_readpage,
+ 	.readahead		= ext4_readahead,
++	.fill_pages		= ext4_fill_pages,
+ 	.writepage		= ext4_writepage,
+ 	.writepages		= ext4_writepages,
+ 	.write_begin		= ext4_write_begin,
+@@ -3667,6 +3686,7 @@ static const struct address_space_operations ext4_aops = {
+ static const struct address_space_operations ext4_journalled_aops = {
+ 	.readpage		= ext4_readpage,
+ 	.readahead		= ext4_readahead,
++	.fill_pages		= ext4_fill_pages,
+ 	.writepage		= ext4_writepage,
+ 	.writepages		= ext4_writepages,
+ 	.write_begin		= ext4_write_begin,
+@@ -3684,6 +3704,7 @@ static const struct address_space_operations ext4_journalled_aops = {
+ static const struct address_space_operations ext4_da_aops = {
+ 	.readpage		= ext4_readpage,
+ 	.readahead		= ext4_readahead,
++	.fill_pages		= ext4_fill_pages,
+ 	.writepage		= ext4_writepage,
+ 	.writepages		= ext4_writepages,
+ 	.write_begin		= ext4_da_write_begin,
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.26.2
+
