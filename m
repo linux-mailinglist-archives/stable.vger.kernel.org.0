@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3BD52FC8D2
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 514772FC8DA
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729991AbhATCab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:30:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
+        id S1732089AbhATC36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730629AbhATB26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A992245C;
-        Wed, 20 Jan 2021 01:26:43 +0000 (UTC)
+        id S1730110AbhATB2w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC2F823384;
+        Wed, 20 Jan 2021 01:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106005;
-        bh=kMn8CfxQziRnH48xb4v4RCCNXXh+0G5URM2cOoDmtm8=;
+        s=k20201202; t=1611106032;
+        bh=4aYKqfny2+FurLm5ERUJNtuNpGS1lclFpA7L3y2j0xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELfPLZ8zOUh7ySsHr9hICofuPW8t7z1Q4MEMxm+xuyBhH0lW0uR6AQx7vGHxRFaYo
-         wkIdAYpoxYT2ERAZaDMK5kTJexJmcwYpJwLywzRqOD+IpYKVTGyZ/lEOmfjLzbUhRY
-         IX5h+Y5OxfoF2cLoPKD+a9wdCVGE/PSj3Vnb++ZRX6dYF4IX/Giep9OsnelnK+VISe
-         52FE/CQSMl5Zga5rNTuGbC1cV4QjdaOXcdEu9SuTrY+IJ7IfPDRcOlotITvxybOZQJ
-         hb/oEnYNAdFjXEh4VAQWLCk4J3HrdYSBkfYJeH2WjqfEqSrzXwgS7HqotT2RmCSmi5
-         pITLoiBDWeclA==
+        b=n9/ykJtjXsfZpXJOXd+16k4ICUKNgBFbBfUT0k5AteR+vq4pGkPIGQwBdw7ydRIc/
+         qI9FR/ushGnRRokBa5PvLwfOyvMtmaJtS08fMlyUb6XWAymDhtOppa3FEVQwqEWK/G
+         1+7EF/+0f7BJQcQfudeYbk0HGsyDnvhg0FIHv+ftkoUJNenXWnoy9kgQQk3R/CklgG
+         TWOxRIdsox9TO8ikyrh8qG8R7JfyDMk6I/LFFn/zY3YEH5/dErr24jFOKVs9DAddvH
+         3a9wtmYvo31SKN8P/sb+xTPOUyby5H1Pn/voI1p7tkvjJ2aa+Qj53JjMLT1cQ+P+2a
+         PETw2CNi/5MOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Zhao <Victor.Zhao@amd.com>,
-        "Emily . Deng" <Emily.Deng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 32/45] drm/amdgpu/psp: fix psp gfx ctrl cmds
-Date:   Tue, 19 Jan 2021 20:25:49 -0500
-Message-Id: <20210120012602.769683-32-sashal@kernel.org>
+Cc:     "Ewan D. Milne" <emilne@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/26] scsi: sd: Suppress spurious errors when WRITE SAME is being disabled
+Date:   Tue, 19 Jan 2021 20:26:43 -0500
+Message-Id: <20210120012704.770095-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
-References: <20210120012602.769683-1-sashal@kernel.org>
+In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
+References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,36 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Zhao <Victor.Zhao@amd.com>
+From: "Ewan D. Milne" <emilne@redhat.com>
 
-[ Upstream commit f14a5c34d143f6627f0be70c0de1d962f3a6ff1c ]
+[ Upstream commit e5cc9002caafacbaa8dab878d17a313192c3b03b ]
 
-psp GFX_CTRL_CMD_ID_CONSUME_CMD different for windows and linux,
-according to psp, linux cmds are not correct.
+The block layer code will split a large zeroout request into multiple bios
+and if WRITE SAME is disabled because the storage device reports that it
+does not support it (or support the length used), we can get an error
+message from the block layer despite the setting of RQF_QUIET on the first
+request.  This is because more than one request may have already been
+submitted.
 
-v2: only correct GFX_CTRL_CMD_ID_CONSUME_CMD.
+Fix this by setting RQF_QUIET when BLK_STS_TARGET is returned to fail the
+request early, we don't need to log a message because we did not actually
+submit the command to the device, and the block layer code will handle the
+error by submitting individual write bios.
 
-Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
-Reviewed-by: Emily.Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20201207221021.28243-1-emilne@redhat.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/sd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-index 4137dc710aafd..7ad0434be293b 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-@@ -47,7 +47,7 @@ enum psp_gfx_crtl_cmd_id
-     GFX_CTRL_CMD_ID_DISABLE_INT     = 0x00060000,   /* disable PSP-to-Gfx interrupt */
-     GFX_CTRL_CMD_ID_MODE1_RST       = 0x00070000,   /* trigger the Mode 1 reset */
-     GFX_CTRL_CMD_ID_GBR_IH_SET      = 0x00080000,   /* set Gbr IH_RB_CNTL registers */
--    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x000A0000,   /* send interrupt to psp for updating write pointer of vf */
-+    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x00090000,   /* send interrupt to psp for updating write pointer of vf */
-     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING = 0x000C0000, /* destroy GPCOM ring */
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 6a2f8bacfacea..f55249766d224 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -934,8 +934,10 @@ static blk_status_t sd_setup_write_zeroes_cmnd(struct scsi_cmnd *cmd)
+ 		}
+ 	}
  
-     GFX_CTRL_CMD_ID_MAX             = 0x000F0000,   /* max command ID */
+-	if (sdp->no_write_same)
++	if (sdp->no_write_same) {
++		rq->rq_flags |= RQF_QUIET;
+ 		return BLK_STS_TARGET;
++	}
+ 
+ 	if (sdkp->ws16 || lba > 0xffffffff || nr_blocks > 0xffff)
+ 		return sd_setup_write_same16_cmnd(cmd, false);
 -- 
 2.27.0
 
