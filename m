@@ -2,312 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAF772FC558
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 01:08:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4D82FC59C
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 01:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728588AbhATAH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 19:07:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36640 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729161AbhATAHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 19:07:22 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66300C0613ED
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 16:06:40 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id m5so982861pjv.5
-        for <stable@vger.kernel.org>; Tue, 19 Jan 2021 16:06:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=TMy1JTRhRBeLBBsZOetYgXXUz6dTI6HfmNY8GS7pxs0=;
-        b=1dS26s+4EtWyg0RDu+PoqAodtmZsK56AfPvbAR+XAmVZxKlzM0nMhZUtTBuF4wxKZ5
-         WTFkV9JtnMvcQiVAPPXwOzZcp2uvoblKrs7LYVW8nWIYDzg7Fm8c1IHbAIGxQavp3+4h
-         1dd9X+J97DsDievkh/uk4OIXHctk23GjbokMRBSlPQkwv4SuJF+DzX046gSGsvAdd6Zc
-         9u+1BeSID8+SXpxzwBVhmiY2YO4s/SFMzjS9WRcElR3cqEFobCo+b++tK/L3vSDS7erP
-         yP9bA796lWZH3cJ+0qEUdVMszdmp5GL7fIVzFLBMH2SKBc5y5cBsnqrYuIaUpFrxOVac
-         qE4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=TMy1JTRhRBeLBBsZOetYgXXUz6dTI6HfmNY8GS7pxs0=;
-        b=aY9gBeT0ql0RFmPVuGOB+boyAaRcNRkd/S85cSPpmagJgzljQ6TEu17Rtcq4qBNAlb
-         YmLHw0k35tGxJnBVQ4uTwvFBmKh0frT5Ctc8PICPq0cJrnWXw9dApVIDZRphvfBZCOof
-         gnjVr2T43hqjl+WzTegR0CA+g7e5t3Zkl7jOs0Abe/YPndF/9K9YIu/9eH3vGK6kfjrf
-         xHtCBYAAaXp6ZNhk6hAdhmHzN+Ar6TXdl0Clw3rk8vxpe39o2W85Uxi6+PPEsGNcSfPS
-         Bd06AU/Nqle7jX5F+BojfzBtYZwKkwLZqJtb2ancQsiyP6fuGJ5kKpgpONyHbTs6Pza+
-         ZDJA==
-X-Gm-Message-State: AOAM531YLFQph8YPb3TeSwkgB/Uk0JokBdDv6VNpP0VW/bQAQvtV0cs8
-        x6D75e3q/TJkAgzgVj/kPysn+ebGEEXEww==
-X-Google-Smtp-Source: ABdhPJxbZoJouVzY7TtZyYWwj39Iq2kLp/aHLtUwDcvbmhn428BiBpi7nqaa0cL7sJLGred1/9xcPw==
-X-Received: by 2002:a17:902:7243:b029:de:cd0b:9577 with SMTP id c3-20020a1709027243b02900decd0b9577mr3503626pll.83.1611101199589;
-        Tue, 19 Jan 2021 16:06:39 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w200sm230362pfc.14.2021.01.19.16.06.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 16:06:38 -0800 (PST)
-Message-ID: <6007740e.1c69fb81.57e90.1071@mx.google.com>
-Date:   Tue, 19 Jan 2021 16:06:38 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1730795AbhATAT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 19:19:56 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:8150 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730751AbhATATz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jan 2021 19:19:55 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B600777010000>; Tue, 19 Jan 2021 16:19:13 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 20 Jan
+ 2021 00:19:13 +0000
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (104.47.55.175)
+ by HQMAIL111.nvidia.com (172.20.187.18) with Microsoft SMTP Server (TLS) id
+ 15.0.1473.3 via Frontend Transport; Wed, 20 Jan 2021 00:19:13 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aUj+A8CH0MQbKkpzHrcQCabXdi1R/Q0dSO/BxRcgZLnyd8NnyP9a1Xf/OFIeugWs0PVskGoKD3oQuczB14uqOfjarGV7G8fNuoEIZKoKh2KsqgKN/8mZgNCNVcq05yksKC46/tmMUBtdq1J+O9aj0dtTxSOtzn8Q1RBzmIblZMFvVt6YROIREjbcsbk9sdcU1mJ3yv7939sbLEyVNYXl0V8Ylvb3NtD2mP1+Yhj/mF2wCwhUyVNzFwdMqTFCHWY8200A/QGSNSL4LVhH5Dwj9d/iB9FOYIiwLDTb/31IEUYLofkZHfI2wLfMVE/EXAnRE0XFf3hX7TF4oWDz3nF6RA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dlRkVZYo8Ynw6NsomlhJbr2S8e5uoygNaUWKiuIvSes=;
+ b=oEu8mWyi1ebpQu/aKRnMMqaO0N5IQEAooxQr70A9+3H7iAhPGupKzg5m6j0/a0kxrAJ+8V0XvKJbTEGAEmhJHmroRJbWNMRgQzUZDndlaHtbnP2JSczs9+2vKw0PkPiVf7fPcbJQ8lFOsWf6fgaT3+WQ1UgrpvL3VUzA3PaH5p5H9QCda/6wHr8AmKR6NRV6XgVvuEHkEwwq0WnLnC4wP8KcZ1ZMi3bKX+QHerW2bTt7KsTMHiRD+Xfp2pR0LC3ZsxdGNJrre4RFuv1k9FWa6YXQwDmtFWTw3vWNGmhSjNAFL+vGqQJ21/8Arz3aUDhFaJ7O/TPwGsp9b9grnPBfhQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
+ by DM6PR12MB3514.namprd12.prod.outlook.com (2603:10b6:5:183::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.12; Wed, 20 Jan
+ 2021 00:19:12 +0000
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::546d:512c:72fa:4727]) by DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::546d:512c:72fa:4727%7]) with mapi id 15.20.3784.011; Wed, 20 Jan 2021
+ 00:19:12 +0000
+Date:   Tue, 19 Jan 2021 20:19:10 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Bryan Tan <bryantan@vmware.com>
+CC:     <linux-rdma@vger.kernel.org>, <pv-drivers@vmware.com>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH v1 for-rc] RDMA/vmw_pvrdma: Fix network_hdr_type reported
+ in WC
+Message-ID: <20210120001910.GA952659@nvidia.com>
+References: <1611026189-17943-1-git-send-email-bryantan@vmware.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <1611026189-17943-1-git-send-email-bryantan@vmware.com>
+X-ClientProxiedBy: MN2PR11CA0025.namprd11.prod.outlook.com
+ (2603:10b6:208:23b::30) To DM6PR12MB3834.namprd12.prod.outlook.com
+ (2603:10b6:5:14a::12)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.169-1-g50636e30e0ad0
-Subject: stable-rc/queue/4.19 baseline: 167 runs,
- 6 regressions (v4.19.169-1-g50636e30e0ad0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.115.133) by MN2PR11CA0025.namprd11.prod.outlook.com (2603:10b6:208:23b::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.9 via Frontend Transport; Wed, 20 Jan 2021 00:19:11 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1l21DK-003zqF-C3; Tue, 19 Jan 2021 20:19:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1611101953; bh=dlRkVZYo8Ynw6NsomlhJbr2S8e5uoygNaUWKiuIvSes=;
+        h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:Date:
+         From:To:CC:Subject:Message-ID:References:Content-Type:
+         Content-Disposition:In-Reply-To:X-ClientProxiedBy:MIME-Version:
+         X-MS-Exchange-MessageSentRepresentingType;
+        b=sIw9PFsuhsNymnAjsIqpKAqvdjI8m6dUapD2nPHkE7vaTo98XvwmsTciWGxoOGoJo
+         ohZdieLslgUnQZGANhYSZSYA8fGijBIAhCRL/RHt2DKI1Hs1yO2s53pBPH+T0h9Ge8
+         ITSAxtkPCJmoOV+GawvO8toWi/SDcd9hYN1N3AbW6f9ZKXS4ty2bT1JIP/qti8k7SS
+         ISkcgCvSRAn+76VjqlzK7X0Vbz03/4vWiWWJaIP4oVYZJBKLvXj+dnwtq2V2L29IcS
+         vZrUdbMEP62FWek7ip/TVy5w+StaHI8hnzVYplMBP2BB62ADZ99YTfXmvnN8D9PAO9
+         DV48JE6AvnfMw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 167 runs, 6 regressions (v4.19.169-1-g50636e=
-30e0ad0)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.169-1-g50636e30e0ad0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.169-1-g50636e30e0ad0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      50636e30e0ad07c39f5c6b62c21554b9977e22d9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60073e423ab221b742bb5d83
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60073e423ab221b=
-742bb5d88
-        failing since 2 days (last pass: v4.19.167-43-g7a15ea567512, first =
-fail: v4.19.167-55-gb4942424ad93)
-        2 lines
-
-    2021-01-19 20:17:01.623000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60073dbd6d201f380fbb5d0f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60073dbd6d201f380fbb5=
-d10
-        failing since 66 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60073dd16d201f380fbb5d2a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60073dd16d201f380fbb5=
-d2b
-        failing since 66 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60073deb046cfd4abdbb5d55
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60073deb046cfd4abdbb5=
-d56
-        failing since 66 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60073d74e348d3d80cbb5d1d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60073d74e348d3d80cbb5=
-d1e
-        failing since 66 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/600760a82c973f63f3bb5d0b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.169=
--1-g50636e30e0ad0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/600760a82c973f63f3bb5=
-d0c
-        failing since 66 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
+On Mon, Jan 18, 2021 at 07:16:29PM -0800, Bryan Tan wrote:
+> The PVRDMA device defines network_hdr_type according to an old
+> definition of the rdma_network_type enum that has since changed,
+> resulting in the wrong rdma_network_type being reported. Fix this by
+> explicitly defining the enum used by the PVRDMA device and adding a
+> function to convert the pvrdma_network_type to rdma_network_type enum.
+> 
+> Cc: stable@vger.kernel.org # 5.10+
+> Fixes: 1c15b4f2a42f ("RDMA/core: Modify enum ib_gid_type and enum rdma_network_type")
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Signed-off-by: Bryan Tan <bryantan@vmware.com>
+> ---
+> 
+> Changelog:
+>  - v0->v1: Moved new enum to uapi header and added Cc as per Jason.
+> ---
+>  drivers/infiniband/hw/vmw_pvrdma/pvrdma.h    | 14 ++++++++++++++
+>  drivers/infiniband/hw/vmw_pvrdma/pvrdma_cq.c |  2 +-
+>  include/uapi/rdma/vmw_pvrdma-abi.h           |  7 +++++++
+>  3 files changed, 22 insertions(+), 1 deletion(-)
+
+Applied to for-next, thanks
+
+Jason
