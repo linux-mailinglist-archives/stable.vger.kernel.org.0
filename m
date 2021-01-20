@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3B22FC7E9
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB7B2FC7EE
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731965AbhATC3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S1730114AbhATC3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730075AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730101AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 070222250E;
-        Wed, 20 Jan 2021 01:26:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D70723340;
+        Wed, 20 Jan 2021 01:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106013;
-        bh=46LKZqi4rI03Ulvwlf0N0EAJL+Igftaxc2HOIZHrbhc=;
+        s=k20201202; t=1611106022;
+        bh=p1zvHNvX4mBTOFr0HwcT/Szj2x4F0eoll/67TJiUa4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKEjT3jz/l5tGicmISgUmFUWSDiO4T9l+ck8oLvILUVVikEcHEv2gvHLGHcxu/vOs
-         BFQs5GGSqED11o1H9pIt+K22eBXykEQ/CBFE9WSwKNFipi+YpJ2dmOjSM8sUpfTUS9
-         lbHfR2sKY/mfGY53pX2LCDYDOusrXSOifMv1F+dmRZba7vYlnD8xUNIHr6rEIwQI20
-         FO9Lp8sfuc6ge2zoTCUV6HXoqTb8IRjjRge392pRGtb69elCi/AVWaWlIXLGpwNhTn
-         r6yWEnrCfpgF1+6a3Y2D3D6M6/N3GWxdvzFYLK0YSWI6dB54f+agn/d3Wikx3KMWHu
-         WINLxlfdd6l7g==
+        b=VbAisGcOMP21BrtTr/9HhpyUwjRa+RjvBj+tPuZn/eB+rDVeSLEeK8xveTg6P8TmZ
+         e+ei4RsHiTCYj48OdYDyqzX2hRNAEnobQpLvmZlu6PjvE7VeEeBkyi+ac6PrvWZvWr
+         ynChJOUEWYIdkQcc3Tkk32abfWal2WqnLYzdsH1+Zfl0iIi7ZK4tKSCe+iUr9Q3/SC
+         wt+dMRhp3vTwcYxMcXjQAzeccbmFc6ayhI2P5BAR1iwO7eCoaW4wzr9A2ljOsXsfRu
+         Ji8n1agqX/nb3Idw9vWz93iLYSQcOfvjHUvOk+R+IpXwuGK2WVC5t34tRg/LqNfwtA
+         kNVgi6rqGXneQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 39/45] drm/nouveau/mmu: fix vram heap sizing
-Date:   Tue, 19 Jan 2021 20:25:56 -0500
-Message-Id: <20210120012602.769683-39-sashal@kernel.org>
+Cc:     Atish Patra <atish.patra@wdc.com>,
+        Anup Patel <anup@brainfault.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 45/45] RISC-V: Fix maximum allowed phsyical memory for RV32
+Date:   Tue, 19 Jan 2021 20:26:02 -0500
+Message-Id: <20210120012602.769683-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -41,33 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-[ Upstream commit add42781ad76c5ae65127bf13852a4c6b2f08849 ]
+[ Upstream commit e557793799c5a8406afb08aa170509619f7eac36 ]
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Linux kernel can only map 1GB of address space for RV32 as the page offset
+is set to 0xC0000000. The current description in the Kconfig is confusing
+as it indicates that RV32 can support 2GB of physical memory. That is
+simply not true for current kernel. In future, a 2GB split support can be
+added to allow 2GB physical address space.
+
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/riscv/Kconfig | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-index de91e9a261725..6d5212ae2fd57 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-@@ -316,9 +316,9 @@ nvkm_mmu_vram(struct nvkm_mmu *mmu)
- {
- 	struct nvkm_device *device = mmu->subdev.device;
- 	struct nvkm_mm *mm = &device->fb->ram->vram;
--	const u32 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
--	const u32 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
--	const u32 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
-+	const u64 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
-+	const u64 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
-+	const u64 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
- 	u8 type = NVKM_MEM_KIND * !!mmu->func->kind;
- 	u8 heap = NVKM_MEM_VRAM;
- 	int heapM, heapN, heapU;
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 44377fd7860e4..234a21d26f674 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -134,7 +134,7 @@ config PA_BITS
+ 
+ config PAGE_OFFSET
+ 	hex
+-	default 0xC0000000 if 32BIT && MAXPHYSMEM_2GB
++	default 0xC0000000 if 32BIT && MAXPHYSMEM_1GB
+ 	default 0x80000000 if 64BIT && !MMU
+ 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
+ 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
+@@ -247,10 +247,12 @@ config MODULE_SECTIONS
+ 
+ choice
+ 	prompt "Maximum Physical Memory"
+-	default MAXPHYSMEM_2GB if 32BIT
++	default MAXPHYSMEM_1GB if 32BIT
+ 	default MAXPHYSMEM_2GB if 64BIT && CMODEL_MEDLOW
+ 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
+ 
++	config MAXPHYSMEM_1GB
++		bool "1GiB"
+ 	config MAXPHYSMEM_2GB
+ 		bool "2GiB"
+ 	config MAXPHYSMEM_128GB
 -- 
 2.27.0
 
