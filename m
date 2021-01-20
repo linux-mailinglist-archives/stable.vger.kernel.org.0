@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29412FC808
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 369DB2FC809
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732751AbhATCb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
+        id S1732794AbhATCbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730742AbhATB3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730751AbhATB3Y (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:29:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 978D723432;
-        Wed, 20 Jan 2021 01:27:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB902343B;
+        Wed, 20 Jan 2021 01:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106065;
-        bh=SWD2aNiJ6IklhdOfik610qO3PUhrM7KUlGSJl2Cc1jk=;
+        s=k20201202; t=1611106068;
+        bh=fh3hSnC/5iIHOmyQW3B6HvCww7SFVWDNsbfQNMfehvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIsBZN4em6CD8MpE/N8VGtANZb9vxoTuYXbytCcDLVjyNSU3ks8B+gESJw/FI0CRR
-         QE37RYLqtdmyms9OjVrnfhQyr2QhDsEP8gdAthrHu4dD7n/bZybZ7OZP/1G184Fw7v
-         jlR2rzlcJzIgx5qIpN7ohE1NOk7nINJz2gb7bekFZVKyei4VvEkQdinZbqledyPU7A
-         FN/Dyys8UsRTLMLNYpLviPu0MHGcWZNFuntviF9dZiVFOzrdioL3NTYnRnMgovt1EP
-         uAJ0AOy6pn36E17DGJpFJis/jfb1tJ7eCfGSc/xGkOQWGIIUUv+IlbnI5Uiyy+z5sT
-         dfe2dRMxPWrEQ==
+        b=PoFq0WUnCvgT8v6y08vYB6rc7rLqMDMQ8d6AsGwOdUC6LI0eoJrPsJpBKY6omTc0W
+         2tgWLFvPfwhvRdg777AWrp7EDO/HfR/Y6sezke94W4g6lURerGAIMd4CVaGouAR1Md
+         nI7YheT6dUJjNVNjpcr5HG1NmSLq29dBT59hHD5cFjBrm+IEZyxSD5xlWX/rZO833G
+         G5BnxfbWa48LYv3cRvVx0G9wvG/UvYc/cbWw0rblR5LsQdzpS6Vq9MjrcOMOdb+4bF
+         aUkM8XiDu9A8uPX0aXbEVfZjISIBQMc8EQRf+/B4PI8U6liovi5WsRbO1+Jp5+cDhV
+         wNND5DsacRcKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 03/15] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
-Date:   Tue, 19 Jan 2021 20:27:28 -0500
-Message-Id: <20210120012740.770354-3-sashal@kernel.org>
+Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 05/15] riscv: Fix kernel time_init()
+Date:   Tue, 19 Jan 2021 20:27:30 -0500
+Message-Id: <20210120012740.770354-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
 References: <20210120012740.770354-1-sashal@kernel.org>
@@ -45,63 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
+[ Upstream commit 11f4c2e940e2f317c9d8fb5a79702f2a4a02ff98 ]
 
-Users can initiate resets to specific SCSI device/target/host through
-IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
-_reset_handler() callbacks is initialized with a request whose tag is -1.
-In this case it is not right for eh_device_reset_handler() callback to
-count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
-device associated with the SCSI cmd.
+If of_clk_init() is not called in time_init(), clock providers defined
+in the system device tree are not initialized, resulting in failures for
+other devices to initialize due to missing clocks.
+Similarly to other architectures and to the default kernel time_init()
+implementation, call of_clk_init() before executing timer_probe() in
+time_init().
 
-Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/riscv/kernel/time.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 40f478c4d118f..b18430efb00fb 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5772,19 +5772,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- {
- 	struct Scsi_Host *host;
- 	struct ufs_hba *hba;
--	unsigned int tag;
- 	u32 pos;
- 	int err;
--	u8 resp = 0xF;
--	struct ufshcd_lrb *lrbp;
-+	u8 resp = 0xF, lun;
- 	unsigned long flags;
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 1911c8f6b8a69..15f4ab40e2221 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -12,6 +12,7 @@
+  *   GNU General Public License for more details.
+  */
  
- 	host = cmd->device->host;
- 	hba = shost_priv(host);
--	tag = cmd->request->tag;
++#include <linux/of_clk.h>
+ #include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+@@ -29,5 +30,7 @@ void __init time_init(void)
+ 	riscv_timebase = prop;
  
--	lrbp = &hba->lrb[tag];
--	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
-+	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
-+	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
- 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
- 		if (!err)
- 			err = resp;
-@@ -5793,7 +5790,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
--		if (hba->lrb[pos].lun == lrbp->lun) {
-+		if (hba->lrb[pos].lun == lun) {
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
+ 	lpj_fine = riscv_timebase / HZ;
++
++	of_clk_init(NULL);
+ 	timer_probe();
+ }
 -- 
 2.27.0
 
