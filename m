@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5020B2FC8DC
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:30:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCA22FC8B2
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730995AbhATCaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:30:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47444 "EHLO mail.kernel.org"
+        id S1728861AbhATCas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:30:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbhATB26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BBF3233FE;
-        Wed, 20 Jan 2021 01:27:15 +0000 (UTC)
+        id S1730664AbhATB3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF47E23383;
+        Wed, 20 Jan 2021 01:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106036;
-        bh=FskA9qzo0lg/bwn8gw+ku1sTXg6bRVqfVAQZfhpjkn8=;
+        s=k20201202; t=1611106043;
+        bh=agTNM9rvcnuopW4ImTad5Lj786zO/UCc6mvDQtFFCos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+5UNtJEQ/tU1PS/gCvCAP6cv5rhiTIZv/f/LckzSDPcC1swd9NTYwmeO5/Q8RoHF
-         60SolnbCnSHTGfMmREJRWgunARt6VtPJDQen7P32lbC4+zFysOJUGgV0c0WNXz+/Ss
-         VVxfXNK9zoAtGUIIYkC6Kie1bw/B+JAFjPIrP6m/ov/trqoi/i7hTipr2TSniXbv4j
-         ZyKh6ikRYIWp8OTCXZKSIXmOp4uuw3x/QrwbYzBrI7tp5vqT8R6sVYFn2BWFsT6u51
-         ObuN4qTZDBDpVZl3L62XPMZxbPiyF6g9xpnQACT+LQd+qyqpOw88gzbR/tFWI90SVg
-         51EzOqOSC1pTg==
+        b=HYCG18LejFjXMJKeOWWtFsvPXaA5AAEU+X1YH5/oylOX9RyDHRdYMz5Hwfg9wyJvU
+         BYD6402G62aUoigqEsUhap/tXYGtwTcq3nRWmMfNWLQMtV0aT9U08MjIw9Vpa+yp57
+         B1jwx7yxw7VJ6UCJ6GRXQFR3Isr2PvAFpKt3P0tXwNVBIygljLk2t3aV92MotgNJyE
+         SpYaGMrDrcPbnVbqFV//0ORoZWDJTTqT+aOtA3fmCR/wL7pkFP+CHPU+rDoB+j3JFb
+         Rz7Ltpoi09ShV/THV9+r4JH9xZcuY3tX3psu3ygLy5ZJYkheXDj/GQPmzU4iZ73zdO
+         /wJDeZ6TkkQmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/26] HID: logitech-dj: add the G602 receiver
-Date:   Tue, 19 Jan 2021 20:26:46 -0500
-Message-Id: <20210120012704.770095-9-sashal@kernel.org>
+Cc:     David Woodhouse <dwmw@amazon.co.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 14/26] xen: Fix event channel callback via INTX/GSI
+Date:   Tue, 19 Jan 2021 20:26:51 -0500
+Message-Id: <20210120012704.770095-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
 References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,35 +45,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Laíns <lains@archlinux.org>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit e400071a805d6229223a98899e9da8c6233704a1 ]
+[ Upstream commit 3499ba8198cad47b731792e5e56b9ec2a78a83a2 ]
 
-Tested. The device gets correctly exported to userspace and I can see
-mouse and keyboard events.
+For a while, event channel notification via the PCI platform device
+has been broken, because we attempt to communicate with xenstore before
+we even have notifications working, with the xs_reset_watches() call
+in xs_init().
 
-Signed-off-by: Filipe Laíns <lains@archlinux.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+We tend to get away with this on Xen versions below 4.0 because we avoid
+calling xs_reset_watches() anyway, because xenstore might not cope with
+reading a non-existent key. And newer Xen *does* have the vector
+callback support, so we rarely fall back to INTX/GSI delivery.
+
+To fix it, clean up a bit of the mess of xs_init() and xenbus_probe()
+startup. Call xs_init() directly from xenbus_init() only in the !XS_HVM
+case, deferring it to be called from xenbus_probe() in the XS_HVM case
+instead.
+
+Then fix up the invocation of xenbus_probe() to happen either from its
+device_initcall if the callback is available early enough, or when the
+callback is finally set up. This means that the hack of calling
+xenbus_probe() from a workqueue after the first interrupt, or directly
+from the PCI platform device setup, is no longer needed.
+
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210113132606.422794-2-dwmw2@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-dj.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/xen/enlighten.c          |  2 +-
+ drivers/xen/events/events_base.c  | 10 ----
+ drivers/xen/platform-pci.c        |  1 -
+ drivers/xen/xenbus/xenbus.h       |  1 +
+ drivers/xen/xenbus/xenbus_comms.c |  8 ---
+ drivers/xen/xenbus/xenbus_probe.c | 81 +++++++++++++++++++++++++------
+ include/xen/xenbus.h              |  2 +-
+ 7 files changed, 70 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 54d811fdcdb44..e5550a5bf49d0 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1862,6 +1862,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		0xc531),
- 	 .driver_data = recvr_type_gaming_hidpp},
-+	{ /* Logitech G602 receiver (0xc537) */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		0xc537),
-+	 .driver_data = recvr_type_gaming_hidpp},
- 	{ /* Logitech lightspeed receiver (0xc539) */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1),
+diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
+index dd6804a64f1a0..f45bff158fc20 100644
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -371,7 +371,7 @@ static int __init xen_guest_init(void)
+ 	}
+ 	gnttab_init();
+ 	if (!xen_initial_domain())
+-		xenbus_probe(NULL);
++		xenbus_probe();
+ 
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 26df84c45db4e..7b94a6c316643 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1988,16 +1988,6 @@ static struct irq_chip xen_percpu_chip __read_mostly = {
+ 	.irq_ack		= ack_dynirq,
+ };
+ 
+-int xen_set_callback_via(uint64_t via)
+-{
+-	struct xen_hvm_param a;
+-	a.domid = DOMID_SELF;
+-	a.index = HVM_PARAM_CALLBACK_IRQ;
+-	a.value = via;
+-	return HYPERVISOR_hvm_op(HVMOP_set_param, &a);
+-}
+-EXPORT_SYMBOL_GPL(xen_set_callback_via);
+-
+ #ifdef CONFIG_XEN_PVHVM
+ /* Vector callbacks are better than PCI interrupts to receive event
+  * channel notifications because we can receive vector callbacks on any
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index 5e30602fdbad8..c45646450135f 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -149,7 +149,6 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+-	xenbus_probe(NULL);
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
+diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
+index 88516a8a9f932..a9bb5f91082d3 100644
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -115,6 +115,7 @@ int xenbus_probe_node(struct xen_bus_type *bus,
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
++void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
+index eb5151fc8efab..e5fda0256feb3 100644
+--- a/drivers/xen/xenbus/xenbus_comms.c
++++ b/drivers/xen/xenbus/xenbus_comms.c
+@@ -57,16 +57,8 @@ DEFINE_MUTEX(xs_response_mutex);
+ static int xenbus_irq;
+ static struct task_struct *xenbus_task;
+ 
+-static DECLARE_WORK(probe_work, xenbus_probe);
+-
+-
+ static irqreturn_t wake_waiting(int irq, void *unused)
+ {
+-	if (unlikely(xenstored_ready == 0)) {
+-		xenstored_ready = 1;
+-		schedule_work(&probe_work);
+-	}
+-
+ 	wake_up(&xb_waitq);
+ 	return IRQ_HANDLED;
+ }
+diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
+index e6d0903459e11..14ccf13ab8fa1 100644
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -683,29 +683,76 @@ void unregister_xenstore_notifier(struct notifier_block *nb)
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
+ 
+-void xenbus_probe(struct work_struct *unused)
++void xenbus_probe(void)
+ {
+ 	xenstored_ready = 1;
+ 
++	/*
++	 * In the HVM case, xenbus_init() deferred its call to
++	 * xs_init() in case callbacks were not operational yet.
++	 * So do it now.
++	 */
++	if (xen_store_domain_type == XS_HVM)
++		xs_init();
++
+ 	/* Notify others that xenstore is up */
+ 	blocking_notifier_call_chain(&xenstore_chain, 0, NULL);
+ }
+-EXPORT_SYMBOL_GPL(xenbus_probe);
+ 
+-static int __init xenbus_probe_initcall(void)
++/*
++ * Returns true when XenStore init must be deferred in order to
++ * allow the PCI platform device to be initialised, before we
++ * can actually have event channel interrupts working.
++ */
++static bool xs_hvm_defer_init_for_callback(void)
+ {
+-	if (!xen_domain())
+-		return -ENODEV;
++#ifdef CONFIG_XEN_PVHVM
++	return xen_store_domain_type == XS_HVM &&
++		!xen_have_vector_callback;
++#else
++	return false;
++#endif
++}
+ 
+-	if (xen_initial_domain() || xen_hvm_domain())
+-		return 0;
++static int __init xenbus_probe_initcall(void)
++{
++	/*
++	 * Probe XenBus here in the XS_PV case, and also XS_HVM unless we
++	 * need to wait for the platform PCI device to come up.
++	 */
++	if (xen_store_domain_type == XS_PV ||
++	    (xen_store_domain_type == XS_HVM &&
++	     !xs_hvm_defer_init_for_callback()))
++		xenbus_probe();
+ 
+-	xenbus_probe(NULL);
+ 	return 0;
+ }
+-
+ device_initcall(xenbus_probe_initcall);
+ 
++int xen_set_callback_via(uint64_t via)
++{
++	struct xen_hvm_param a;
++	int ret;
++
++	a.domid = DOMID_SELF;
++	a.index = HVM_PARAM_CALLBACK_IRQ;
++	a.value = via;
++
++	ret = HYPERVISOR_hvm_op(HVMOP_set_param, &a);
++	if (ret)
++		return ret;
++
++	/*
++	 * If xenbus_probe_initcall() deferred the xenbus_probe()
++	 * due to the callback not functioning yet, we can do it now.
++	 */
++	if (!xenstored_ready && xs_hvm_defer_init_for_callback())
++		xenbus_probe();
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xen_set_callback_via);
++
+ /* Set up event channel for xenstored which is run as a local process
+  * (this is normally used only in dom0)
+  */
+@@ -818,11 +865,17 @@ static int __init xenbus_init(void)
+ 		break;
+ 	}
+ 
+-	/* Initialize the interface to xenstore. */
+-	err = xs_init();
+-	if (err) {
+-		pr_warn("Error initializing xenstore comms: %i\n", err);
+-		goto out_error;
++	/*
++	 * HVM domains may not have a functional callback yet. In that
++	 * case let xs_init() be called from xenbus_probe(), which will
++	 * get invoked at an appropriate time.
++	 */
++	if (xen_store_domain_type != XS_HVM) {
++		err = xs_init();
++		if (err) {
++			pr_warn("Error initializing xenstore comms: %i\n", err);
++			goto out_error;
++		}
+ 	}
+ 
+ 	if ((xen_store_domain_type != XS_LOCAL) &&
+diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+index eba01ab5a55e0..fe9a9fa2ebc45 100644
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -187,7 +187,7 @@ void xs_suspend_cancel(void);
+ 
+ struct work_struct;
+ 
+-void xenbus_probe(struct work_struct *);
++void xenbus_probe(void);
+ 
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
 -- 
 2.27.0
 
