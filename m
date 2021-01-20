@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4878D2FC79F
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9588E2FC7BC
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:26:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729906AbhATCRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:17:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48236 "EHLO mail.kernel.org"
+        id S1730997AbhATCUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:20:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730845AbhATB3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730846AbhATB3o (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:29:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03C9A23602;
-        Wed, 20 Jan 2021 01:28:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 644822360D;
+        Wed, 20 Jan 2021 01:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106091;
-        bh=N8kZanpn/GiXqno4kNSqiehgnZB79d0jgWhD+24tOA0=;
+        s=k20201202; t=1611106093;
+        bh=Xz+i1Z3mOF9fKx3oJXp8w7X6GXSJakG1pmdkXz0IVGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBWMYvYuAXdnRlWgiv6v1v9mt/5fCzERnAe6HKwOXisZKUSyQvYdk1MIq80j3HxzP
-         ZDGvUqGfFQBRFEtMGNTmxS5fIO0mg1j3UlB04ibfJKJlst+Jbsk9KKK8OQTGIfrbw0
-         mIV7pUW44PyI3fUsPmCy0h2aMeEgUX7p+iureCpmr6NeAkSn+p+rb/3UrduIuzKCE4
-         WmkB4Cz1CQdicADE6noKleoXuUq6dI5IP2AxOyHzYu9t/O7c8/UcR8vCf+E1tl8092
-         la7EFq8DdLP/2wR56eOtt5Q6n70N6aaJE0JdYSy7iihL5M6iSJ62z+wBePzvodZ6T1
-         Z6lw93UGTTE3A==
+        b=tePUgCAqxEjIIWebMjyA6NY0dAGqIlABpzWQEmvK/gBji7PmqNyM1TMBm788tNHI8
+         zXTmlYLYeeo+WC1W4Ozy+WiguYeQ04DTGXxnyWGwzoyIDw1H6uZ8z+rgvPNFoJQS1q
+         /M8bJ3HihbBbv1Ovhc06oqmd/3iCbXGkedd8RhC3kPidNgde0WeKJw54/ylUdzvEZ8
+         4a5MPj+sPczKWTr2s7/jbFffCP561OPzp/83KuxbXXRXxgL61eBuXUy0ZbdH8clS+r
+         SK7H5oFSXFKdQqJ3AUGFCaC7qsffELFlc4le8y/W9MQ4fDp6EAApyyllkSOW9If3JF
+         der1a26cDoxgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Wu <david.wu@rock-chips.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 6/9] net: stmmac: Fixed mtu channged by cache aligned
-Date:   Tue, 19 Jan 2021 20:27:59 -0500
-Message-Id: <20210120012802.770525-6-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 7/9] drm/nouveau/bios: fix issue shadowing expansion ROMs
+Date:   Tue, 19 Jan 2021 20:28:00 -0500
+Message-Id: <20210120012802.770525-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012802.770525-1-sashal@kernel.org>
 References: <20210120012802.770525-1-sashal@kernel.org>
@@ -44,45 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wu <david.wu@rock-chips.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
+[ Upstream commit 402a89660e9dc880710b12773076a336c9dab3d7 ]
 
-Since the original mtu is not used when the mtu is updated,
-the mtu is aligned with cache, this will get an incorrect.
-For example, if you want to configure the mtu to be 1500,
-but mtu 1536 is configured in fact.
+This issue has generally been covered up by the presence of additional
+expansion ROMs after the ones we're interested in, with header fetches
+of subsequent images loading enough of the ROM to hide the issue.
 
-Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
-Signed-off-by: David Wu <david.wu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Noticed on GA102, which lacks a type 0x70 image compared to TU102,.
+
+[  906.364197] nouveau 0000:09:00.0: bios: 00000000: type 00, 65024 bytes
+[  906.381205] nouveau 0000:09:00.0: bios: 0000fe00: type 03, 91648 bytes
+[  906.405213] nouveau 0000:09:00.0: bios: 00026400: type e0, 22016 bytes
+[  906.410984] nouveau 0000:09:00.0: bios: 0002ba00: type e0, 366080 bytes
+
+vs
+
+[   22.961901] nouveau 0000:09:00.0: bios: 00000000: type 00, 60416 bytes
+[   22.984174] nouveau 0000:09:00.0: bios: 0000ec00: type 03, 71168 bytes
+[   23.010446] nouveau 0000:09:00.0: bios: 00020200: type e0, 48128 bytes
+[   23.028220] nouveau 0000:09:00.0: bios: 0002be00: type e0, 140800 bytes
+[   23.080196] nouveau 0000:09:00.0: bios: 0004e400: type 70, 7168 bytes
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index d5ebaf62d12fe..a7b30f0605362 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3613,6 +3613,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int txfifosz = priv->plat->tx_fifo_size;
-+	const int mtu = new_mtu;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+index 7deb81b6dbac6..4b571cc6bc70f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+@@ -75,7 +75,7 @@ shadow_image(struct nvkm_bios *bios, int idx, u32 offset, struct shadow *mthd)
+ 	nvkm_debug(subdev, "%08x: type %02x, %d bytes\n",
+ 		   image.base, image.type, image.size);
  
- 	if (txfifosz == 0)
- 		txfifosz = priv->dma_cap.tx_fifo_size;
-@@ -3630,7 +3631,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
- 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
- 		return -EINVAL;
- 
--	dev->mtu = new_mtu;
-+	dev->mtu = mtu;
- 
- 	netdev_update_features(dev);
- 
+-	if (!shadow_fetch(bios, mthd, image.size)) {
++	if (!shadow_fetch(bios, mthd, image.base + image.size)) {
+ 		nvkm_debug(subdev, "%08x: fetch failed\n", image.base);
+ 		return 0;
+ 	}
 -- 
 2.27.0
 
