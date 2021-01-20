@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB7B2FC7EE
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51C922FC7D3
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730114AbhATC3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
+        id S1730197AbhATB2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 20:28:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730101AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D70723340;
-        Wed, 20 Jan 2021 01:27:01 +0000 (UTC)
+        id S1728240AbhATB2t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0B5923380;
+        Wed, 20 Jan 2021 01:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106022;
-        bh=p1zvHNvX4mBTOFr0HwcT/Szj2x4F0eoll/67TJiUa4s=;
+        s=k20201202; t=1611106030;
+        bh=W5NAZVDP8beKlp9/Yh4Wz4PsHIzzl1P5C8CT2bQsD3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbAisGcOMP21BrtTr/9HhpyUwjRa+RjvBj+tPuZn/eB+rDVeSLEeK8xveTg6P8TmZ
-         e+ei4RsHiTCYj48OdYDyqzX2hRNAEnobQpLvmZlu6PjvE7VeEeBkyi+ac6PrvWZvWr
-         ynChJOUEWYIdkQcc3Tkk32abfWal2WqnLYzdsH1+Zfl0iIi7ZK4tKSCe+iUr9Q3/SC
-         wt+dMRhp3vTwcYxMcXjQAzeccbmFc6ayhI2P5BAR1iwO7eCoaW4wzr9A2ljOsXsfRu
-         Ji8n1agqX/nb3Idw9vWz93iLYSQcOfvjHUvOk+R+IpXwuGK2WVC5t34tRg/LqNfwtA
-         kNVgi6rqGXneQ==
+        b=eQww9l3FRiXtrExW7CAPpEbxl5Cr0N2Ptmu2i7GAKbgB48soCr9TJiljAUqm96zsx
+         XzcShyFnVdvqXJVAtMz4X4ovWUVHnyJBviQd0m7qcy6VJeFy3meTZ5gXpmXwwBCU/L
+         7+lh+07Z74r6nDqA08wEaODndSrIR+rRkDJFCPzkjbiI63oviZD1WznJhDgEQvaSwE
+         zkClvkWLPW44/yLO+u2kLGrQn7dRUPSzYdVzVnB+NfpUMDoU65vgA+gXh8Jga5/BRc
+         WtcMhAK99pUUYjCiA6gHkFSsWEWwvFfScuP6cgS41TQAgMITvCGXLmQ+n6brrf6pzI
+         hVirFemfgyHuw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Atish Patra <atish.patra@wdc.com>,
-        Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 45/45] RISC-V: Fix maximum allowed phsyical memory for RV32
-Date:   Tue, 19 Jan 2021 20:26:02 -0500
-Message-Id: <20210120012602.769683-45-sashal@kernel.org>
+Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 04/26] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
+Date:   Tue, 19 Jan 2021 20:26:41 -0500
+Message-Id: <20210120012704.770095-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
-References: <20210120012602.769683-1-sashal@kernel.org>
+In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
+References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,51 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit e557793799c5a8406afb08aa170509619f7eac36 ]
+[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
 
-Linux kernel can only map 1GB of address space for RV32 as the page offset
-is set to 0xC0000000. The current description in the Kconfig is confusing
-as it indicates that RV32 can support 2GB of physical memory. That is
-simply not true for current kernel. In future, a 2GB split support can be
-added to allow 2GB physical address space.
+Users can initiate resets to specific SCSI device/target/host through
+IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
+_reset_handler() callbacks is initialized with a request whose tag is -1.
+In this case it is not right for eh_device_reset_handler() callback to
+count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
+device associated with the SCSI cmd.
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 44377fd7860e4..234a21d26f674 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -134,7 +134,7 @@ config PA_BITS
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b888117f4ecd3..476ef8044ae59 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5980,19 +5980,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+ {
+ 	struct Scsi_Host *host;
+ 	struct ufs_hba *hba;
+-	unsigned int tag;
+ 	u32 pos;
+ 	int err;
+-	u8 resp = 0xF;
+-	struct ufshcd_lrb *lrbp;
++	u8 resp = 0xF, lun;
+ 	unsigned long flags;
  
- config PAGE_OFFSET
- 	hex
--	default 0xC0000000 if 32BIT && MAXPHYSMEM_2GB
-+	default 0xC0000000 if 32BIT && MAXPHYSMEM_1GB
- 	default 0x80000000 if 64BIT && !MMU
- 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
- 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
-@@ -247,10 +247,12 @@ config MODULE_SECTIONS
+ 	host = cmd->device->host;
+ 	hba = shost_priv(host);
+-	tag = cmd->request->tag;
  
- choice
- 	prompt "Maximum Physical Memory"
--	default MAXPHYSMEM_2GB if 32BIT
-+	default MAXPHYSMEM_1GB if 32BIT
- 	default MAXPHYSMEM_2GB if 64BIT && CMODEL_MEDLOW
- 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
+-	lrbp = &hba->lrb[tag];
+-	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
++	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
++	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
+ 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
+ 		if (!err)
+ 			err = resp;
+@@ -6001,7 +5998,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
  
-+	config MAXPHYSMEM_1GB
-+		bool "1GiB"
- 	config MAXPHYSMEM_2GB
- 		bool "2GiB"
- 	config MAXPHYSMEM_128GB
+ 	/* clear the commands that were pending for corresponding LUN */
+ 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
+-		if (hba->lrb[pos].lun == lrbp->lun) {
++		if (hba->lrb[pos].lun == lun) {
+ 			err = ufshcd_clear_cmd(hba, pos);
+ 			if (err)
+ 				break;
 -- 
 2.27.0
 
