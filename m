@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D1B2FC8B4
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9579A2FC8B6
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730062AbhATCbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47420 "EHLO mail.kernel.org"
+        id S1731669AbhATCbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730677AbhATB3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC64923405;
-        Wed, 20 Jan 2021 01:27:25 +0000 (UTC)
+        id S1730573AbhATB3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C5723426;
+        Wed, 20 Jan 2021 01:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106046;
-        bh=jmecdH5m1sZMM1i2nSpyh9TsmuTOVzBLpDjaKJ7LffY=;
+        s=k20201202; t=1611106050;
+        bh=vQtWiPkKsULz+3Pgk2ydlIu7asw7caLs9bmvdVS17LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3PnYBbcdaMCK4tZ0i+cSJmggBqQ9710r3B0en+UXK+nN09gRNNXHyCc/b9EzdMB3
-         x9fCIhBEJWwtDFf5AKVc0qyfQANaq5KWE914bBnRen4WD2AHxZWYe3Vgz+PfhXXY5S
-         vhCbk1hp8OSxhBgrlPsv2u1OWy4hajtDslSNbJWkrwqao3UVwjnKvlHG+qGJKRkiI9
-         w0fT9jkJXOiyIx1rVldU9gpEA15ZTu4xsjWkNN37zrjtr/N+Llg8ZKOaBiTIWAPdfd
-         +d7TrySXjOAPA+4fLrUlM8fjGtFvGfRAVmOqouEZ/EzGQOI5VQ9irTz7GP+keIM1VA
-         U0HeEi2Q5YWHw==
+        b=JHKheC7VKD9soLAbVFfGyYjz6BwWC4cbD7jzZVSkN6nyVrD9oyUsxzJ32eIg/z08R
+         E4A3Pg4ECsZgK923DQ6t8CpaHF+h7PyEgdVNbBCr3kz4cmub9bs0vStVCYwxA5dMTf
+         8hKfyqe7JKHnZuZmjx3+6EOJZjm2Gq/ijyqWGt+o2O8ABFMfGHgI7x+AOIvKywh/kY
+         E0cgq78e0it/ndMXFStCohuF3MiDKJzHKO0bQqm1CRTdpoX1Mj/C1xMopoQBS+X/jC
+         4u1I9ziOhR+wjlY1EzvrUc0llknarLBwx42mBVtnNh3B6ErFxMVq/i8p+aLGkc9516
+         qdJ9ATICjDgGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Wu <david.wu@rock-chips.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 16/26] net: stmmac: Fixed mtu channged by cache aligned
-Date:   Tue, 19 Jan 2021 20:26:53 -0500
-Message-Id: <20210120012704.770095-16-sashal@kernel.org>
+Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 19/26] riscv: defconfig: enable gpio support for HiFive Unleashed
+Date:   Tue, 19 Jan 2021 20:26:56 -0500
+Message-Id: <20210120012704.770095-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
 References: <20210120012704.770095-1-sashal@kernel.org>
@@ -44,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wu <david.wu@rock-chips.com>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
+[ Upstream commit 0983834a83931606a647c275e5d4165ce4e7b49f ]
 
-Since the original mtu is not used when the mtu is updated,
-the mtu is aligned with cache, this will get an incorrect.
-For example, if you want to configure the mtu to be 1500,
-but mtu 1536 is configured in fact.
+Ethernet phy VSC8541-01 on HiFive Unleashed has its reset line
+connected to a gpio, so enable GPIO driver's required to reset
+the phy.
 
-Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
-Signed-off-by: David Wu <david.wu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/riscv/configs/defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 18c5a9bb6759c..ce5d3e9e5dff4 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3739,6 +3739,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int txfifosz = priv->plat->tx_fifo_size;
-+	const int mtu = new_mtu;
- 
- 	if (txfifosz == 0)
- 		txfifosz = priv->dma_cap.tx_fifo_size;
-@@ -3756,7 +3757,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
- 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
- 		return -EINVAL;
- 
--	dev->mtu = new_mtu;
-+	dev->mtu = mtu;
- 
- 	netdev_update_features(dev);
- 
+diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
+index 420a0dbef3866..3c656fe97e583 100644
+--- a/arch/riscv/configs/defconfig
++++ b/arch/riscv/configs/defconfig
+@@ -62,6 +62,8 @@ CONFIG_HW_RANDOM=y
+ CONFIG_HW_RANDOM_VIRTIO=y
+ CONFIG_SPI=y
+ CONFIG_SPI_SIFIVE=y
++CONFIG_GPIOLIB=y
++CONFIG_GPIO_SIFIVE=y
+ # CONFIG_PTP_1588_CLOCK is not set
+ CONFIG_DRM=y
+ CONFIG_DRM_RADEON=y
 -- 
 2.27.0
 
