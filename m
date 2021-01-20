@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A302FC98C
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:55:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD512FC990
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:55:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbhATC2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:28:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S1731289AbhATC2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:28:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728723AbhATB2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729919AbhATB2I (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:28:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C19C323139;
-        Wed, 20 Jan 2021 01:26:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4607C2313C;
+        Wed, 20 Jan 2021 01:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105978;
-        bh=AZGLt3KmKZrVdXCGw2heQIM/ihKzET7N54NragBTGrQ=;
+        s=k20201202; t=1611105981;
+        bh=rF/943KhXezfdgbCMm4/HFxCfE2Bb3ZbRhYMEJrffP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvRyVqV+RHZR0oFtnPexeGLb5Ijbz7YsSlsS8yh0DQHoKDLEN+W6dOQ/UoYpdQ9qR
-         N1i5vkagv+eO5IqSoTG98xX2Jqs2kgZKKpNDhRLKOEoiBuN11G3fgA/MGD8DFyrbue
-         LBOQcN7wUtDd3TKe20OKR/RJep7e3qTRstE1u5I0abpocGLA1VPGickIRj+icWlbMt
-         GvZl/QJLGw4URE6AQchrlHnQL++E0NOLkxRwdt6LBSfxpz302m5UyXQxC3zcvcqRuF
-         AwisvN3cDOwlwIFddXQQTB5DxsyYpFHffA3LEWuqHzje3sS1CGHGqHelnEajKXwNXU
-         YXIHJsA/7VduA==
+        b=tePpvyy25iYttGPl+WJ989/ZrUmDukBEXZEcqiXAoKDQuR+p7fF5hyIQqm9iCHEuG
+         v7+XifcDyogYrXmY7TiH+XA2CzUmlOi/5IzolebVIjNXt+XQENvDK7rnDcDoA5byVl
+         Vdi60cARudHC2bk/fFV5z1FhIcahZH280j3BVnVj4T/+vJ39Ow+jUNuibJDlx2PKkl
+         /HNEurwluJqOcL57ATpHgyP1IAiF2fZaQhGzkUmi4NigMOxM4fwvh02svCbg+n7s+q
+         2ByNr/pWMb7Fs3+Hg8FEkdcHhn3o2Ag9EbB/WCG+7pBZJNlNQtiOgrhaNG2fbfr9Zd
+         kzlYDOooQG74g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/45] scsi: scsi_debug: Fix memleak in scsi_debug_init()
-Date:   Tue, 19 Jan 2021 20:25:29 -0500
-Message-Id: <20210120012602.769683-12-sashal@kernel.org>
+Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 14/45] riscv: Fix kernel time_init()
+Date:   Tue, 19 Jan 2021 20:25:31 -0500
+Message-Id: <20210120012602.769683-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,46 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 3b01d7ea4dae907d34fa0eeb3f17bacd714c6d0c ]
+[ Upstream commit 11f4c2e940e2f317c9d8fb5a79702f2a4a02ff98 ]
 
-When sdeb_zbc_model does not match BLK_ZONED_NONE, BLK_ZONED_HA or
-BLK_ZONED_HM, we should free sdebug_q_arr to prevent memleak. Also there is
-no need to execute sdebug_erase_store() on failure of sdeb_zbc_model_str().
+If of_clk_init() is not called in time_init(), clock providers defined
+in the system device tree are not initialized, resulting in failures for
+other devices to initialize due to missing clocks.
+Similarly to other architectures and to the default kernel time_init()
+implementation, call of_clk_init() before executing timer_probe() in
+time_init().
 
-Link: https://lore.kernel.org/r/20201226061503.20050-1-dinghao.liu@zju.edu.cn
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/time.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 24c0f7ec03511..4a08c450b756f 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -6740,7 +6740,7 @@ static int __init scsi_debug_init(void)
- 		k = sdeb_zbc_model_str(sdeb_zbc_model_s);
- 		if (k < 0) {
- 			ret = k;
--			goto free_vm;
-+			goto free_q_arr;
- 		}
- 		sdeb_zbc_model = k;
- 		switch (sdeb_zbc_model) {
-@@ -6753,7 +6753,8 @@ static int __init scsi_debug_init(void)
- 			break;
- 		default:
- 			pr_err("Invalid ZBC model\n");
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto free_q_arr;
- 		}
- 	}
- 	if (sdeb_zbc_model != BLK_ZONED_NONE) {
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 4d3a1048ad8b1..8a5cf99c07762 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -4,6 +4,7 @@
+  * Copyright (C) 2017 SiFive
+  */
+ 
++#include <linux/of_clk.h>
+ #include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+@@ -24,6 +25,8 @@ void __init time_init(void)
+ 	riscv_timebase = prop;
+ 
+ 	lpj_fine = riscv_timebase / HZ;
++
++	of_clk_init(NULL);
+ 	timer_probe();
+ }
+ 
 -- 
 2.27.0
 
