@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC652FC801
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 970E12FC803
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729072AbhATCaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:30:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S1729685AbhATCbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730641AbhATB3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57FEA2312D;
-        Wed, 20 Jan 2021 01:27:24 +0000 (UTC)
+        id S1730680AbhATB3B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA3C23132;
+        Wed, 20 Jan 2021 01:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106045;
-        bh=RXasSzsPwlyqWugfoG3XkngjRibGw7leLfBysKrf8B4=;
+        s=k20201202; t=1611106047;
+        bh=owIngL+z287/Db33e2oPnaB1cVU/Og2SEo74Yox/CZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAg10lR56ClIYbZShGRFOUX0Bec9zxo05MTV2e9nwWrtZwb84D41mFbFmBSGUbiSa
-         J63fH3rjSWQ1aMVtN9ckEV6QE29PdU7HtdHhOZs6rr/K2iJuc7YWc0TnDG/3nGzTGA
-         gaK4JUUNqoHHOvd3fwFCAPWn/I5wDj02F8PJNc+wcANdloWvqFNioGuCNn/sqPrwqT
-         raOxghCYy6RF7o32bpQD39X7JA46EPVqDVAdM8TbncjugDyRC2RonTLCQKEKNkzlN9
-         r0pDic+Ff/znW9xiINU5xOmRD7f3YH5cZtwM5mpJ643VLJiI7tLsRFr/Q+CBwDLmCn
-         jcwwrRNOYJ4Dg==
+        b=qATTsf3CUlGFqOD3WhwiI6KEkT5LJ8+TePLhxnfA0cdwyCym3Wys2dhHo5uzjfxgr
+         E4BQLnL8R1Wa4IddPeAJT1CBqRwgTscbgNq05sVNwcAVe8xMrU4aapkMr1KLRfnvfO
+         zd7UEjQ84pmgictEkdUBbvWO2V6OoDP28JW+mVKymvANXgIa9KLyq1/MunMF6NJBb3
+         muqvapx4OAtu2YHPcooHegWi/o/objNJNR7Ta5wdAyImJkM9lLBQw2nZoozqF+nkVA
+         eiDVY21m7+IPqALwEHEEH5wzgZDI3i92c+r2I+k2mNpT6T7C0blehve9lPk9RS6Msq
+         nVtIKYCFxzhlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Woodhouse <dwmw@amazon.co.uk>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.4 15/26] x86/xen: Add xen_no_vector_callback option to test PCI INTX delivery
-Date:   Tue, 19 Jan 2021 20:26:52 -0500
-Message-Id: <20210120012704.770095-15-sashal@kernel.org>
+Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 17/26] dts: phy: fix missing mdio device and probe failure of vsc8541-01 device
+Date:   Tue, 19 Jan 2021 20:26:54 -0500
+Message-Id: <20210120012704.770095-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
 References: <20210120012704.770095-1-sashal@kernel.org>
@@ -44,78 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-[ Upstream commit b36b0fe96af13460278bf9b173beced1bd15f85d ]
+[ Upstream commit be969b7cfbcfa8a835a528f1dc467f0975c6d883 ]
 
-It's useful to be able to test non-vector event channel delivery, to make
-sure Linux will work properly on older Xen which doesn't have it.
+HiFive unleashed A00 board has VSC8541-01 ethernet phy, this device is
+identified as a Revision B device as described in device identification
+registers. In order to use this phy in the unmanaged mode, it requires
+a specific reset sequence of logical 0-1-0-1 transition on the NRESET pin
+as documented here [1].
 
-It's also useful for those working on Xen and Xen-compatible hypervisors,
-because there are guest kernels still in active use which use PCI INTX
-even when vector delivery is available.
+Currently, the bootloader (fsbl or u-boot-spl) takes care of the phy reset.
+If due to some reason the phy device hasn't received the reset by the prior
+stages before the linux macb driver comes into the picture, the MACB mii
+bus gets probed but the mdio scan fails and is not even able to read the
+phy ID registers. It gives an error message:
 
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210106153958.584169-4-dwmw2@infradead.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+"libphy: MACB_mii_bus: probed
+mdio_bus 10090000.ethernet-ffffffff: MDIO device at address 0 is missing."
+
+Thus adding the device OUI (Organizationally Unique Identifier) to the phy
+device node helps to probe the phy device.
+
+[1]: VSC8541-01 datasheet:
+https://www.mouser.com/ds/2/523/Microsemi_VSC8541-01_Datasheet_10496_V40-1148034.pdf
+
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |  4 ++++
- arch/x86/xen/enlighten_hvm.c                    | 11 ++++++++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 74ba077e99e56..a19ae163c0589 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5452,6 +5452,10 @@
- 			This option is obsoleted by the "nopv" option, which
- 			has equivalent effect for XEN platform.
- 
-+	xen_no_vector_callback
-+			[KNL,X86,XEN] Disable the vector callback for Xen
-+			event channel interrupts.
-+
- 	xen_scrub_pages=	[XEN]
- 			Boolean option to control scrubbing pages before giving them back
- 			to Xen, for use by other domains. Can be also changed at runtime
-diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-index e138f7de52d20..6024fafed1642 100644
---- a/arch/x86/xen/enlighten_hvm.c
-+++ b/arch/x86/xen/enlighten_hvm.c
-@@ -175,6 +175,8 @@ static int xen_cpu_dead_hvm(unsigned int cpu)
-        return 0;
- }
- 
-+static bool no_vector_callback __initdata;
-+
- static void __init xen_hvm_guest_init(void)
- {
- 	if (xen_pv_domain())
-@@ -194,7 +196,7 @@ static void __init xen_hvm_guest_init(void)
- 
- 	xen_panic_handler_init();
- 
--	if (xen_feature(XENFEAT_hvm_callback_vector))
-+	if (!no_vector_callback && xen_feature(XENFEAT_hvm_callback_vector))
- 		xen_have_vector_callback = 1;
- 
- 	xen_hvm_smp_init();
-@@ -220,6 +222,13 @@ static __init int xen_parse_nopv(char *arg)
- }
- early_param("xen_nopv", xen_parse_nopv);
- 
-+static __init int xen_parse_no_vector_callback(char *arg)
-+{
-+	no_vector_callback = true;
-+	return 0;
-+}
-+early_param("xen_no_vector_callback", xen_parse_no_vector_callback);
-+
- bool __init xen_hvm_need_lapic(void)
- {
- 	if (xen_pv_domain())
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+index 88cfcb96bf233..cc04e66752aac 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+@@ -83,6 +83,7 @@ &eth0 {
+ 	phy-mode = "gmii";
+ 	phy-handle = <&phy0>;
+ 	phy0: ethernet-phy@0 {
++		compatible = "ethernet-phy-id0007.0771";
+ 		reg = <0>;
+ 	};
+ };
 -- 
 2.27.0
 
