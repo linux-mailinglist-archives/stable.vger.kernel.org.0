@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 369DB2FC809
+	by mail.lfdr.de (Postfix) with ESMTP id A8D3E2FC80A
 	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732794AbhATCbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47444 "EHLO mail.kernel.org"
+        id S1732863AbhATCbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730751AbhATB3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730750AbhATB3Y (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:29:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB902343B;
-        Wed, 20 Jan 2021 01:27:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFA5A23121;
+        Wed, 20 Jan 2021 01:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106068;
-        bh=fh3hSnC/5iIHOmyQW3B6HvCww7SFVWDNsbfQNMfehvw=;
+        s=k20201202; t=1611106069;
+        bh=KGpDxYJ+g6L/VPqmi7zokT5Xz6lfTzBbY1R8MRG1KoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoFq0WUnCvgT8v6y08vYB6rc7rLqMDMQ8d6AsGwOdUC6LI0eoJrPsJpBKY6omTc0W
-         2tgWLFvPfwhvRdg777AWrp7EDO/HfR/Y6sezke94W4g6lURerGAIMd4CVaGouAR1Md
-         nI7YheT6dUJjNVNjpcr5HG1NmSLq29dBT59hHD5cFjBrm+IEZyxSD5xlWX/rZO833G
-         G5BnxfbWa48LYv3cRvVx0G9wvG/UvYc/cbWw0rblR5LsQdzpS6Vq9MjrcOMOdb+4bF
-         aUkM8XiDu9A8uPX0aXbEVfZjISIBQMc8EQRf+/B4PI8U6liovi5WsRbO1+Jp5+cDhV
-         wNND5DsacRcKQ==
+        b=WIXouIELlaXcStWiqLhSl0ROTDjQxtT29SPbzRMf3GV34aMig0PUKU9J1GnJs3C27
+         isPOCBzsZX241W3WapS4Mttz2SQxrN94xLAh2dU8bwRvKFpeKKjldyG83AYgUj14+b
+         IvHOYXeDW4TwmzVuq745dGb3sAOikm3OBS6CdnrEh3W8xtO03GnqDPxqab06giBUXQ
+         T1UL+FYRY2VIj4IrkmpO+u/pc0cx0ec7R+/+hE3yoda1II34h7N6/O/2bEknjCAV7v
+         31eK3wj0r8ctyzFsi9WaJVWX2Lu/vr0qYaGyjyok9ATEK71aIQZaxDhwxykkMrWTWT
+         EIsKHzXaXiFNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 05/15] riscv: Fix kernel time_init()
-Date:   Tue, 19 Jan 2021 20:27:30 -0500
-Message-Id: <20210120012740.770354-5-sashal@kernel.org>
+Cc:     Seth Miller <miller.seth@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/15] HID: Ignore battery for Elan touchscreen on ASUS UX550
+Date:   Tue, 19 Jan 2021 20:27:31 -0500
+Message-Id: <20210120012740.770354-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
 References: <20210120012740.770354-1-sashal@kernel.org>
@@ -44,46 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Seth Miller <miller.seth@gmail.com>
 
-[ Upstream commit 11f4c2e940e2f317c9d8fb5a79702f2a4a02ff98 ]
+[ Upstream commit 7c38e769d5c508939ce5dc26df72602f3c902342 ]
 
-If of_clk_init() is not called in time_init(), clock providers defined
-in the system device tree are not initialized, resulting in failures for
-other devices to initialize due to missing clocks.
-Similarly to other architectures and to the default kernel time_init()
-implementation, call of_clk_init() before executing timer_probe() in
-time_init().
+Battery status is being reported for the Elan touchscreen on ASUS
+UX550 laptops despite not having a batter. It always shows either 0 or
+1%.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Seth Miller <miller.seth@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/time.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
-index 1911c8f6b8a69..15f4ab40e2221 100644
---- a/arch/riscv/kernel/time.c
-+++ b/arch/riscv/kernel/time.c
-@@ -12,6 +12,7 @@
-  *   GNU General Public License for more details.
-  */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6d118da1615d4..ab2be7a115d8f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -386,6 +386,7 @@
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+ #define USB_DEVICE_ID_HP_X2		0x074d
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
++#define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
  
-+#include <linux/of_clk.h>
- #include <linux/clocksource.h>
- #include <linux/delay.h>
- #include <asm/sbi.h>
-@@ -29,5 +30,7 @@ void __init time_init(void)
- 	riscv_timebase = prop;
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 13deb9a676855..4dd151b2924e2 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -334,6 +334,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
- 	lpj_fine = riscv_timebase / HZ;
-+
-+	of_clk_init(NULL);
- 	timer_probe();
- }
 -- 
 2.27.0
 
