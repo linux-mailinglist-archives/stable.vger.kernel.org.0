@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 242D82FC97E
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:54:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A302FC98C
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:55:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729880AbhATC23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:28:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46630 "EHLO mail.kernel.org"
+        id S1728104AbhATC2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:28:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729490AbhATB1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:27:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D534F23110;
-        Wed, 20 Jan 2021 01:26:14 +0000 (UTC)
+        id S1728723AbhATB2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C19C323139;
+        Wed, 20 Jan 2021 01:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105976;
-        bh=HL1b2C8yQOXcrkbm6rJdKvoCYwKhA7Bn9EFf9ewElnQ=;
+        s=k20201202; t=1611105978;
+        bh=AZGLt3KmKZrVdXCGw2heQIM/ihKzET7N54NragBTGrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDNLr2mfI7yyHJRC+BtPr2VnkgvDUnETBcoeHbxVm/DJVUeVdOPyQ4dikZLRnAIWw
-         +eb1r90ZupUZZR2kxY+EEvHYO8CvytCx+pBLrbrn6aYhYwvnYk4GF+B9iPP4lyQguE
-         8adJTWg13/3M6RNYtUyR65zXh8q37CMD10PjLrD6S9ctiU3Kcd1K8+ou1dKgQSfAjF
-         YOV0Rr4OaWkf6pk6d1RaxCL/sIAAhJQN377L2dGy5lS4u5kCjwOj5kc+0LMhWOg2Bz
-         XWETqW1nYP0MG+ufMaaSCDT3PBDyn+a+urSvoVXCma/eJxUlu8QL0/6AynzwO/mrXq
-         ZLVfD3Mq6M8CQ==
+        b=MvRyVqV+RHZR0oFtnPexeGLb5Ijbz7YsSlsS8yh0DQHoKDLEN+W6dOQ/UoYpdQ9qR
+         N1i5vkagv+eO5IqSoTG98xX2Jqs2kgZKKpNDhRLKOEoiBuN11G3fgA/MGD8DFyrbue
+         LBOQcN7wUtDd3TKe20OKR/RJep7e3qTRstE1u5I0abpocGLA1VPGickIRj+icWlbMt
+         GvZl/QJLGw4URE6AQchrlHnQL++E0NOLkxRwdt6LBSfxpz302m5UyXQxC3zcvcqRuF
+         AwisvN3cDOwlwIFddXQQTB5DxsyYpFHffA3LEWuqHzje3sS1CGHGqHelnEajKXwNXU
+         YXIHJsA/7VduA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Douglas Gilbert <dgilbert@interlog.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 10/45] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
-Date:   Tue, 19 Jan 2021 20:25:27 -0500
-Message-Id: <20210120012602.769683-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 12/45] scsi: scsi_debug: Fix memleak in scsi_debug_init()
+Date:   Tue, 19 Jan 2021 20:25:29 -0500
+Message-Id: <20210120012602.769683-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -45,63 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
+[ Upstream commit 3b01d7ea4dae907d34fa0eeb3f17bacd714c6d0c ]
 
-Users can initiate resets to specific SCSI device/target/host through
-IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
-_reset_handler() callbacks is initialized with a request whose tag is -1.
-In this case it is not right for eh_device_reset_handler() callback to
-count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
-device associated with the SCSI cmd.
+When sdeb_zbc_model does not match BLK_ZONED_NONE, BLK_ZONED_HA or
+BLK_ZONED_HM, we should free sdebug_q_arr to prevent memleak. Also there is
+no need to execute sdebug_erase_store() on failure of sdeb_zbc_model_str().
 
-Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
+Link: https://lore.kernel.org/r/20201226061503.20050-1-dinghao.liu@zju.edu.cn
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/scsi/scsi_debug.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index cc0aebf54b079..a90127488ed20 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6567,19 +6567,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- {
- 	struct Scsi_Host *host;
- 	struct ufs_hba *hba;
--	unsigned int tag;
- 	u32 pos;
- 	int err;
--	u8 resp = 0xF;
--	struct ufshcd_lrb *lrbp;
-+	u8 resp = 0xF, lun;
- 	unsigned long flags;
- 
- 	host = cmd->device->host;
- 	hba = shost_priv(host);
--	tag = cmd->request->tag;
- 
--	lrbp = &hba->lrb[tag];
--	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
-+	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
-+	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
- 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
- 		if (!err)
- 			err = resp;
-@@ -6588,7 +6585,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
--		if (hba->lrb[pos].lun == lrbp->lun) {
-+		if (hba->lrb[pos].lun == lun) {
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 24c0f7ec03511..4a08c450b756f 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -6740,7 +6740,7 @@ static int __init scsi_debug_init(void)
+ 		k = sdeb_zbc_model_str(sdeb_zbc_model_s);
+ 		if (k < 0) {
+ 			ret = k;
+-			goto free_vm;
++			goto free_q_arr;
+ 		}
+ 		sdeb_zbc_model = k;
+ 		switch (sdeb_zbc_model) {
+@@ -6753,7 +6753,8 @@ static int __init scsi_debug_init(void)
+ 			break;
+ 		default:
+ 			pr_err("Invalid ZBC model\n");
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto free_q_arr;
+ 		}
+ 	}
+ 	if (sdeb_zbc_model != BLK_ZONED_NONE) {
 -- 
 2.27.0
 
