@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD532FC7E1
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 131A52FC7E4
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731596AbhATC27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:28:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
+        id S1731872AbhATC31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729984AbhATB2N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E27523331;
-        Wed, 20 Jan 2021 01:26:29 +0000 (UTC)
+        id S1730033AbhATB2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A062A221E3;
+        Wed, 20 Jan 2021 01:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105990;
-        bh=7IpY0UwZe9ppe5KB7Y5C665xMW42lX2p9h6Dq1MNHvE=;
+        s=k20201202; t=1611106002;
+        bh=n/YQAIYwiELBpI4MLk7xVoyV9zbAg1IonRd9oORZrvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1C9l5/jeqE88BsrnN6KvIkR5lZymu02lfbWOdJfI8M4yyMcI1Yup1GL9K7hwJ2uk
-         lr/5hJprPbaNumciq9/NTp/FXFm25P6ccYlS3OsqmmGAh6LarDGHn0B9tMALrnGOrY
-         vqn5jfIg3mGWyBi9JfVfMkonX+qcHFBu/Vl5h5gvHlYlu6bZ2AI3Jgf9cIa2T3EnI3
-         IHGHiKXrhh7q616suzGic7yA+RMQspuqEhwgIgYipB1g1Z3GqhYz4mGYgusJCa0C9B
-         2ndXGAEPJ063KnCQ7fazoGRawV91B3HuOFJAXTJ86RCscmGUS4BBVukcwQe5wuDEhl
-         BEDWF5iyJyFUg==
+        b=Qc0IfQqs3HT++mnVGnJ6PCqhc771tQzJJ2+3VsMzQ+TogomwxaXP2RpMCO/Ghhow+
+         FVWYthi3oyqzQSP4aBxW99PEiqiVASMPX4w1UBYGIpA/38g9EGf/kIE/4Bjvb9RyDp
+         UeGoLhs/UPOJAQSUPbQLa7rqcN+C+nkm9ilClLvhAQJFDVx4qpzjbVc/BrPLD0BISJ
+         BLDqW7ekkmU1EYDWTqOt9qh2CYiXG18HrKVaPI8mvEv/fcNJ4W8shzXVUazGeZD5M9
+         R9hwJbZq1lojk1LXknAUw2htgdA3ANsBmM7caDejgx3VJlpDTLMAdXscvvYinFMrki
+         pcH5geZfm9MBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leon Schuermann <leon@is.currently.online>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/45] r8152: Add Lenovo Powered USB-C Travel Hub
-Date:   Tue, 19 Jan 2021 20:25:38 -0500
-Message-Id: <20210120012602.769683-21-sashal@kernel.org>
+Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 30/45] dts: phy: add GPIO number and active state used for phy reset
+Date:   Tue, 19 Jan 2021 20:25:47 -0500
+Message-Id: <20210120012602.769683-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,59 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Schuermann <leon@is.currently.online>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-[ Upstream commit cb82a54904a99df9e8f9e9d282046055dae5a730 ]
+[ Upstream commit a0fa9d727043da2238432471e85de0bdb8a8df65 ]
 
-This USB-C Hub (17ef:721e) based on the Realtek RTL8153B chip used to
-use the cdc_ether driver. However, using this driver, with the system
-suspended the device constantly sends pause-frames as soon as the
-receive buffer fills up. This causes issues with other devices, where
-some Ethernet switches stop forwarding packets altogether.
+The GEMGXL_RST line on HiFive Unleashed is pulled low and is
+using GPIO number 12. Add these reset-gpio details to dt-node
+using which the linux phylib can reset the phy.
 
-Using the Realtek driver (r8152) fixes this issue. Pause frames are no
-longer sent while the host system is suspended.
-
-Signed-off-by: Leon Schuermann <leon@is.currently.online>
-Tested-by: Leon Schuermann <leon@is.currently.online>
-Link: https://lore.kernel.org/r/20210111190312.12589-2-leon@is.currently.online
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c | 7 +++++++
- drivers/net/usb/r8152.c     | 1 +
- 2 files changed, 8 insertions(+)
+ arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
-index 8c1d61c2cbacb..6aaa0675c28a3 100644
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -793,6 +793,13 @@ static const struct usb_device_id	products[] = {
- 	.driver_info = 0,
- },
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+index 60846e88ae4b1..24d75a146e02d 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+@@ -90,6 +90,7 @@ &eth0 {
+ 	phy0: ethernet-phy@0 {
+ 		compatible = "ethernet-phy-id0007.0771";
+ 		reg = <0>;
++		reset-gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
+ 	};
+ };
  
-+/* Lenovo Powered USB-C Travel Hub (4X90S92381, based on Realtek RTL8153) */
-+{
-+	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x721e, USB_CLASS_COMM,
-+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-+	.driver_info = 0,
-+},
-+
- /* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index b1770489aca51..88f177aca342e 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -6893,6 +6893,7 @@ static const struct usb_device_id rtl8152_table[] = {
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
-+	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x721e)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
 -- 
 2.27.0
 
