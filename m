@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C922FC7D3
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4301D2FC77D
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730197AbhATB2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 20:28:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S1727140AbhATB3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 20:29:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728240AbhATB2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0B5923380;
-        Wed, 20 Jan 2021 01:27:08 +0000 (UTC)
+        id S1730769AbhATB30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB04123433;
+        Wed, 20 Jan 2021 01:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106030;
-        bh=W5NAZVDP8beKlp9/Yh4Wz4PsHIzzl1P5C8CT2bQsD3c=;
+        s=k20201202; t=1611106075;
+        bh=0oC4UvFQ7gr34BsUtHy/rcWoiAez/qEhFP6ph1HMd3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQww9l3FRiXtrExW7CAPpEbxl5Cr0N2Ptmu2i7GAKbgB48soCr9TJiljAUqm96zsx
-         XzcShyFnVdvqXJVAtMz4X4ovWUVHnyJBviQd0m7qcy6VJeFy3meTZ5gXpmXwwBCU/L
-         7+lh+07Z74r6nDqA08wEaODndSrIR+rRkDJFCPzkjbiI63oviZD1WznJhDgEQvaSwE
-         zkClvkWLPW44/yLO+u2kLGrQn7dRUPSzYdVzVnB+NfpUMDoU65vgA+gXh8Jga5/BRc
-         WtcMhAK99pUUYjCiA6gHkFSsWEWwvFfScuP6cgS41TQAgMITvCGXLmQ+n6brrf6pzI
-         hVirFemfgyHuw==
+        b=pHXFPN4Rcr0c8iwY69HudjE/QLNwsQW1h+CWYxjYEMYQiKJDyGTO/p/m0kiyFViDJ
+         r5evtFDroWwjFU8vEcUVaVd1UC841fgWi9ICWyt2cZg/AIQ6vHjBO9FdLJ/vvFZO1T
+         tE1Ad0wGrft1Iy7nowt7dbMhvTuS0sr7cgT1XOFYKK9T+W6tEsHz8KOa6XjP0n83NH
+         oDH7zzQ7iaAl0lZO5gzdGhe57jpapEfj/aEQBBZl4cIPYXyE6CXTuYn6MRln8ePw3U
+         iTvyN91tkdO33JqFwnswa4pRB0IYhEJYmJtuNXV6V75GpEdfOSMo99lbwYWDsJHQe0
+         PeOxV2uK5uf7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 04/26] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
-Date:   Tue, 19 Jan 2021 20:26:41 -0500
-Message-Id: <20210120012704.770095-4-sashal@kernel.org>
+Cc:     David Wu <david.wu@rock-chips.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 10/15] net: stmmac: Fixed mtu channged by cache aligned
+Date:   Tue, 19 Jan 2021 20:27:35 -0500
+Message-Id: <20210120012740.770354-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
-References: <20210120012704.770095-1-sashal@kernel.org>
+In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
+References: <20210120012740.770354-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,63 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: David Wu <david.wu@rock-chips.com>
 
-[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
+[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
 
-Users can initiate resets to specific SCSI device/target/host through
-IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
-_reset_handler() callbacks is initialized with a request whose tag is -1.
-In this case it is not right for eh_device_reset_handler() callback to
-count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
-device associated with the SCSI cmd.
+Since the original mtu is not used when the mtu is updated,
+the mtu is aligned with cache, this will get an incorrect.
+For example, if you want to configure the mtu to be 1500,
+but mtu 1536 is configured in fact.
 
-Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
+Signed-off-by: David Wu <david.wu@rock-chips.com>
+Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index b888117f4ecd3..476ef8044ae59 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5980,19 +5980,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4ac507b4d1019..76d4b8e6ac3e8 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3596,6 +3596,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
  {
- 	struct Scsi_Host *host;
- 	struct ufs_hba *hba;
--	unsigned int tag;
- 	u32 pos;
- 	int err;
--	u8 resp = 0xF;
--	struct ufshcd_lrb *lrbp;
-+	u8 resp = 0xF, lun;
- 	unsigned long flags;
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int txfifosz = priv->plat->tx_fifo_size;
++	const int mtu = new_mtu;
  
- 	host = cmd->device->host;
- 	hba = shost_priv(host);
--	tag = cmd->request->tag;
+ 	if (txfifosz == 0)
+ 		txfifosz = priv->dma_cap.tx_fifo_size;
+@@ -3613,7 +3614,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+ 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
+ 		return -EINVAL;
  
--	lrbp = &hba->lrb[tag];
--	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
-+	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
-+	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
- 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
- 		if (!err)
- 			err = resp;
-@@ -6001,7 +5998,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+-	dev->mtu = new_mtu;
++	dev->mtu = mtu;
  
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
--		if (hba->lrb[pos].lun == lrbp->lun) {
-+		if (hba->lrb[pos].lun == lun) {
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
+ 	netdev_update_features(dev);
+ 
 -- 
 2.27.0
 
