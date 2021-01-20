@@ -2,113 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FFF2FD6A0
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D512FD669
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:05:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404045AbhATROC convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 20 Jan 2021 12:14:02 -0500
-Received: from aposti.net ([89.234.176.197]:43934 "EHLO aposti.net"
+        id S2391108AbhATRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 12:05:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403932AbhATRNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Jan 2021 12:13:53 -0500
-Date:   Wed, 20 Jan 2021 16:25:16 +0000
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v2 1/3] drm: bridge/panel: Cleanup connector on bridge
- detach
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        od@zcrc.me, dri-devel <dri-devel@lists.freedesktop.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>
-Message-Id: <4YQ8NQ.HNQ7IMBKVEBV2@crapouillou.net>
-In-Reply-To: <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com>
-References: <20210120123535.40226-1-paul@crapouillou.net>
-        <20210120123535.40226-2-paul@crapouillou.net>
-        <CAKMK7uGGDe8bZpeTnyCkF7g_2gC1nixOzWe4FWYXPRWi-q5y7A@mail.gmail.com>
+        id S2391721AbhATRFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 12:05:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DBA72137B;
+        Wed, 20 Jan 2021 17:04:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611162260;
+        bh=caeQFJb0TACo4Z1f02CFkwI8apxVCibwEWvBI0FGyGo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qQ34fOy1MEe1UULlEne1AghHIc2h2k1rm2puWnqYJDVOG/HJgEj7wdvNPP6HtKP16
+         0W1Meby87U9oxd45rsd4o8tf/VQroGzb2HNVzxRWpj0iHTY1J+7oLlWVMPUZTHK7UU
+         Q8493TR+gsuswXMl8dXq/9/bPnNiMDPPuatFR7bY=
+Date:   Wed, 20 Jan 2021 18:04:17 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     David Woodhouse <dwmw2@infradead.org>
+Cc:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, iommu <iommu@lists.linux-foundation.org>,
+        "Mendoza-jonas, Samuel" <samjonas@amazon.com>,
+        "Sironi, Filippo" <sironi@amazon.de>
+Subject: Re: [PATCH] iommu/vt-d: gracefully handle DMAR units with no
+ supported address widths
+Message-ID: <YAhikV3sOsyRVDyh@kroah.com>
+References: <549928db2de6532117f36c9c810373c14cf76f51.camel@infradead.org>
+ <5414a3e3cdbd24ba707153584d13f06ed5dbba76.camel@infradead.org>
+ <YAgc2MX2c2N/rGDM@kroah.com>
+ <61f3f0a09f015707eb727109cf3a4d97d41e3675.camel@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <61f3f0a09f015707eb727109cf3a4d97d41e3675.camel@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-Le mer. 20 janv. 2021 � 17:03, Daniel Vetter <daniel@ffwll.ch> a 
-�crit :
-> On Wed, Jan 20, 2021 at 1:35 PM Paul Cercueil <paul@crapouillou.net> 
-> wrote:
->> 
->>  If we don't call drm_connector_cleanup() manually in
->>  panel_bridge_detach(), the connector will be cleaned up with the 
->> other
->>  DRM objects in the call to drm_mode_config_cleanup(). However, 
->> since our
->>  drm_connector is devm-allocated, by the time 
->> drm_mode_config_cleanup()
->>  will be called, our connector will be long gone. Therefore, the
->>  connector must be cleaned up when the bridge is detached to avoid
->>  use-after-free conditions.
+On Wed, Jan 20, 2021 at 03:55:05PM +0000, David Woodhouse wrote:
+> On Wed, 2021-01-20 at 13:06 +0100, Greg KH wrote:
+> > On Wed, Jan 20, 2021 at 09:42:43AM +0000, David Woodhouse wrote:
+> > > On Thu, 2020-09-24 at 15:08 +0100, David Woodhouse wrote:
+> > > > From: David Woodhouse <dwmw@amazon.co.uk>
+> > > > 
+> > > > Instead of bailing out completely, such a unit can still be used for
+> > > > interrupt remapping.
+> > > > 
+> > > > Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+> > > 
+> > > Could we have this for stable too please, along with the trivial
+> > > subsequent fixup. They are:
+> > > 
+> > > c40aaaac1018 ("iommu/vt-d: Gracefully handle DMAR units with no supported address widths")
+> > > 9def3b1a07c4 ("iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built")
+> > > 
+> > > They apply fairly straightforwardly when backported; let me know if you
+> > > want us to send patches.
+> > 
+> > What stable kernel(s) do you want this in?  The above patches are
+> > already in 5.10.
 > 
-> For -fixes this sounds ok, but for -next I think switching to drmm_
-> would be much better.
-
-The API would need to change to have access to the drm_device struct, 
-though. That would be quite a big patch, there are a few dozens source 
-files that use this API already.
-
-Cheers,
--Paul
-
+> It's a fairly simple bug fix, to still use a given IOMMU for interrupt
+> remapping even if it can't be used for DMA mapping.
 > 
->>  v2: Cleanup connector only if it was created
->> 
->>  Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper 
->> from the lvds-encoder bridge.")
->>  Cc: <stable@vger.kernel.org> # 4.12+
->>  Cc: Andrzej Hajda <a.hajda@samsung.com>
->>  Cc: Neil Armstrong <narmstrong@baylibre.com>
->>  Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
->>  Cc: Jonas Karlman <jonas@kwiboo.se>
->>  Cc: Jernej Skrabec <jernej.skrabec@siol.net>
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->>   drivers/gpu/drm/bridge/panel.c | 6 ++++++
->>   1 file changed, 6 insertions(+)
->> 
->>  diff --git a/drivers/gpu/drm/bridge/panel.c 
->> b/drivers/gpu/drm/bridge/panel.c
->>  index 0ddc37551194..df86b0ee0549 100644
->>  --- a/drivers/gpu/drm/bridge/panel.c
->>  +++ b/drivers/gpu/drm/bridge/panel.c
->>  @@ -87,6 +87,12 @@ static int panel_bridge_attach(struct drm_bridge 
->> *bridge,
->> 
->>   static void panel_bridge_detach(struct drm_bridge *bridge)
->>   {
->>  +       struct panel_bridge *panel_bridge = 
->> drm_bridge_to_panel_bridge(bridge);
->>  +       struct drm_connector *connector = &panel_bridge->connector;
->>  +
->>  +       /* Cleanup the connector if we know it was initialized */
->>  +       if (!!panel_bridge->connector.dev)
->>  +               drm_connector_cleanup(connector);
->>   }
->> 
->>   static void panel_bridge_pre_enable(struct drm_bridge *bridge)
->>  --
->>  2.29.2
->> 
+> Those features are somewhat orthogonal, and it was wrong for the kernel
+> to bail out on the IOMMU hardware completely.
 > 
-> 
-> --
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
+> The interrupt remapping support is what's required for Intel boxes (or
+> VMs) to run with more than 255 CPUs. It should be fairly simple to fix
+> the same bug at least as far back as 4.14.
 
+I tried applying these to 5.4, 4.19, and 4.14, and they all fail to
+build:
 
+drivers/iommu/dmar.c: In function ‘free_iommu’:
+drivers/iommu/dmar.c:1140:35: error: ‘struct intel_iommu’ has no member named ‘drhd’
+ 1140 |  if (intel_iommu_enabled && !iommu->drhd->ignored) {
+      |                                   ^~
+
+So if you could provide a working set of patches backported, I will be
+glad to queue them up.
+
+thanks,
+
+greg k-h
