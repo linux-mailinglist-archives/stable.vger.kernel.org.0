@@ -2,91 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D512FD669
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D12B2FD6F0
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 18:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391108AbhATRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 12:05:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391721AbhATRFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Jan 2021 12:05:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DBA72137B;
-        Wed, 20 Jan 2021 17:04:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611162260;
-        bh=caeQFJb0TACo4Z1f02CFkwI8apxVCibwEWvBI0FGyGo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qQ34fOy1MEe1UULlEne1AghHIc2h2k1rm2puWnqYJDVOG/HJgEj7wdvNPP6HtKP16
-         0W1Meby87U9oxd45rsd4o8tf/VQroGzb2HNVzxRWpj0iHTY1J+7oLlWVMPUZTHK7UU
-         Q8493TR+gsuswXMl8dXq/9/bPnNiMDPPuatFR7bY=
-Date:   Wed, 20 Jan 2021 18:04:17 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Woodhouse <dwmw2@infradead.org>
-Cc:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        stable@vger.kernel.org, iommu <iommu@lists.linux-foundation.org>,
-        "Mendoza-jonas, Samuel" <samjonas@amazon.com>,
-        "Sironi, Filippo" <sironi@amazon.de>
-Subject: Re: [PATCH] iommu/vt-d: gracefully handle DMAR units with no
- supported address widths
-Message-ID: <YAhikV3sOsyRVDyh@kroah.com>
-References: <549928db2de6532117f36c9c810373c14cf76f51.camel@infradead.org>
- <5414a3e3cdbd24ba707153584d13f06ed5dbba76.camel@infradead.org>
- <YAgc2MX2c2N/rGDM@kroah.com>
- <61f3f0a09f015707eb727109cf3a4d97d41e3675.camel@infradead.org>
+        id S2389473AbhATOIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 09:08:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34176 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727861AbhATNC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 08:02:27 -0500
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A12C0613C1
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 05:01:40 -0800 (PST)
+Received: by mail-oi1-x22e.google.com with SMTP id r189so15263510oih.4
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 05:01:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=evwLpKMs/Q04HfoyBMd6+/dktMNHRP3J0svCExuNnHQ=;
+        b=gjoMlQDXxoLKyVqfmWYc+fQsUBlfTlV9o5PJnH+Fw3wT6GK9N8OlzvgssUU0vb0fZH
+         lnyuUY13b3P8wylC1s1XZ51WGymbIFWbcPL/0lXA0Z7SliOOw3K8jFrpKcp+79daAMjG
+         3G0usdR1gu6MsBvz81d0Wq6+o038KK/qKvaQI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=evwLpKMs/Q04HfoyBMd6+/dktMNHRP3J0svCExuNnHQ=;
+        b=Y2jF+tY7k7k/I5wmIogKP+qtaMr/6D8Xrkm15VVL/Qb7T8l4S5zFp6WFApNGdRVsq7
+         3hQ+fvvO07Ry2DUQE81N3vJwHXb3pxYZaKWpk+bdgxYRguYsY4U4B47gs3R7RFpacLqH
+         8SJs0R8DF7lcoXKI8WugIk/CJn7OSnhjdJD/LXUISbm4z37CEmYrrg6DyTl+Oo4rp+QM
+         QWFwbQJVursI7zFxfyKQIK779FPUBPn+HGPFf6vtjbVuvsgktF7eff/A/COVMMJ3wZys
+         KCZ0EvOkYIHLTdEqnrPqiX0UmQ+ALCFz2bu4WxtOSXuzspCGqLBtvd0Htz3yokZgaogj
+         U/og==
+X-Gm-Message-State: AOAM532mqIXKMN3dFfGt5F5SnNM/j7K759/XhiHvyxXR9Zpvrraba45d
+        7fzeR/fCd+GcpxRA24wb6L6EuyIwMRtdN9HDu1IHqg==
+X-Google-Smtp-Source: ABdhPJysT1Qy1MoMTRm8ql1bbsTkrvfGzeuP7tdOfKNPpJBmNa21UPEZGnfc3jKm9tHnbkwY1t4S/wSfEQIfR+Gs4/k=
+X-Received: by 2002:aca:1906:: with SMTP id l6mr2714101oii.101.1611147697279;
+ Wed, 20 Jan 2021 05:01:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <61f3f0a09f015707eb727109cf3a4d97d41e3675.camel@infradead.org>
+References: <20210120123535.40226-1-paul@crapouillou.net> <20210120123535.40226-3-paul@crapouillou.net>
+In-Reply-To: <20210120123535.40226-3-paul@crapouillou.net>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Wed, 20 Jan 2021 14:01:26 +0100
+Message-ID: <CAKMK7uFaP7xcw90=KqiGJd7Mt-gD-spvcxvOZr2Txhyv5vcBvw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] drm/ingenic: Register devm action to cleanup encoders
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        od@zcrc.me, dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 03:55:05PM +0000, David Woodhouse wrote:
-> On Wed, 2021-01-20 at 13:06 +0100, Greg KH wrote:
-> > On Wed, Jan 20, 2021 at 09:42:43AM +0000, David Woodhouse wrote:
-> > > On Thu, 2020-09-24 at 15:08 +0100, David Woodhouse wrote:
-> > > > From: David Woodhouse <dwmw@amazon.co.uk>
-> > > > 
-> > > > Instead of bailing out completely, such a unit can still be used for
-> > > > interrupt remapping.
-> > > > 
-> > > > Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-> > > 
-> > > Could we have this for stable too please, along with the trivial
-> > > subsequent fixup. They are:
-> > > 
-> > > c40aaaac1018 ("iommu/vt-d: Gracefully handle DMAR units with no supported address widths")
-> > > 9def3b1a07c4 ("iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built")
-> > > 
-> > > They apply fairly straightforwardly when backported; let me know if you
-> > > want us to send patches.
-> > 
-> > What stable kernel(s) do you want this in?  The above patches are
-> > already in 5.10.
-> 
-> It's a fairly simple bug fix, to still use a given IOMMU for interrupt
-> remapping even if it can't be used for DMA mapping.
-> 
-> Those features are somewhat orthogonal, and it was wrong for the kernel
-> to bail out on the IOMMU hardware completely.
-> 
-> The interrupt remapping support is what's required for Intel boxes (or
-> VMs) to run with more than 255 CPUs. It should be fairly simple to fix
-> the same bug at least as far back as 4.14.
+On Wed, Jan 20, 2021 at 1:36 PM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+> Since the encoders have been devm-allocated, they will be freed way
+> before drm_mode_config_cleanup() is called. To avoid use-after-free
+> conditions, we then must ensure that drm_encoder_cleanup() is called
+> before the encoders are freed.
+>
+> v2: Use the new __drmm_simple_encoder_alloc() function
+>
+> Fixes: c369cb27c267 ("drm/ingenic: Support multiple panels/bridges")
+> Cc: <stable@vger.kernel.org> # 5.8+
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>
+> Notes:
+>     Use the V1 of this patch to fix v5.11 and older kernels. This V2 only
+>     applies on the current drm-misc-next branch.
+>
+>  drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 16 +++++++---------
+>  1 file changed, 7 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> index 7bb31fbee29d..158433b4c084 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> @@ -1014,20 +1014,18 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+>                         bridge = devm_drm_panel_bridge_add_typed(dev, panel,
+>                                                                  DRM_MODE_CONNECTOR_DPI);
+>
+> -               encoder = devm_kzalloc(dev, sizeof(*encoder), GFP_KERNEL);
+> -               if (!encoder)
+> -                       return -ENOMEM;
+> +               encoder = __drmm_simple_encoder_alloc(drm, sizeof(*encoder), 0,
 
-I tried applying these to 5.4, 4.19, and 4.14, and they all fail to
-build:
+Please don't use the __ prefixed functions, those are the internal
+ones. The official one comes with type checking and all that included.
+Otherwise lgtm.
+-Daniel
 
-drivers/iommu/dmar.c: In function ‘free_iommu’:
-drivers/iommu/dmar.c:1140:35: error: ‘struct intel_iommu’ has no member named ‘drhd’
- 1140 |  if (intel_iommu_enabled && !iommu->drhd->ignored) {
-      |                                   ^~
+> +                                                     DRM_MODE_ENCODER_DPI);
+> +               if (IS_ERR(encoder)) {
+> +                       ret = PTR_ERR(encoder);
+> +                       dev_err(dev, "Failed to init encoder: %d\n", ret);
+> +                       return ret;
+> +               }
+>
+>                 encoder->possible_crtcs = 1;
+>
+>                 drm_encoder_helper_add(encoder, &ingenic_drm_encoder_helper_funcs);
+>
+> -               ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_DPI);
+> -               if (ret) {
+> -                       dev_err(dev, "Failed to init encoder: %d\n", ret);
+> -                       return ret;
+> -               }
+> -
+>                 ret = drm_bridge_attach(encoder, bridge, NULL, 0);
+>                 if (ret) {
+>                         dev_err(dev, "Unable to attach bridge\n");
+> --
+> 2.29.2
+>
 
-So if you could provide a working set of patches backported, I will be
-glad to queue them up.
 
-thanks,
-
-greg k-h
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
