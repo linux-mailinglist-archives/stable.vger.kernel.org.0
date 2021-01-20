@@ -2,29 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BA62FD111
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 14:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0219A2FD115
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 14:19:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727422AbhATNDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 08:03:23 -0500
-Received: from aposti.net ([89.234.176.197]:42286 "EHLO aposti.net"
+        id S2389272AbhATNEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 08:04:07 -0500
+Received: from aposti.net ([89.234.176.197]:42680 "EHLO aposti.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389446AbhATMha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Jan 2021 07:37:30 -0500
+        id S1727302AbhATMkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 07:40:22 -0500
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>
 Cc:     Sam Ravnborg <sam@ravnborg.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         od@zcrc.me, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>
-Subject: [PATCH v2 1/3] drm: bridge/panel: Cleanup connector on bridge detach
-Date:   Wed, 20 Jan 2021 12:35:33 +0000
-Message-Id: <20210120123535.40226-2-paul@crapouillou.net>
+        stable@vger.kernel.org
+Subject: [PATCH v2 3/3] drm/ingenic: Fix non-OSD mode
+Date:   Wed, 20 Jan 2021 12:35:35 +0000
+Message-Id: <20210120123535.40226-4-paul@crapouillou.net>
 In-Reply-To: <20210120123535.40226-1-paul@crapouillou.net>
 References: <20210120123535.40226-1-paul@crapouillou.net>
 MIME-Version: 1.0
@@ -33,45 +29,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we don't call drm_connector_cleanup() manually in
-panel_bridge_detach(), the connector will be cleaned up with the other
-DRM objects in the call to drm_mode_config_cleanup(). However, since our
-drm_connector is devm-allocated, by the time drm_mode_config_cleanup()
-will be called, our connector will be long gone. Therefore, the
-connector must be cleaned up when the bridge is detached to avoid
-use-after-free conditions.
+Even though the JZ4740 did not have the OSD mode, it had (according to
+the documentation) two DMA channels, but there is absolutely no
+information about how to select the second DMA channel.
 
-v2: Cleanup connector only if it was created
+Make the ingenic-drm driver work in non-OSD mode by using the
+foreground0 plane (which is bound to the DMA0 channel) as the primary
+plane, instead of the foreground1 plane, which is the primary plane
+when in OSD mode.
 
-Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper from the lvds-encoder bridge.")
-Cc: <stable@vger.kernel.org> # 4.12+
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
+Cc: <stable@vger.kernel.org> # v5.8+
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
- drivers/gpu/drm/bridge/panel.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/panel.c b/drivers/gpu/drm/bridge/panel.c
-index 0ddc37551194..df86b0ee0549 100644
---- a/drivers/gpu/drm/bridge/panel.c
-+++ b/drivers/gpu/drm/bridge/panel.c
-@@ -87,6 +87,12 @@ static int panel_bridge_attach(struct drm_bridge *bridge,
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index 158433b4c084..963dcbfeaba2 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -554,7 +554,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 		height = state->src_h >> 16;
+ 		cpp = state->fb->format->cpp[0];
  
- static void panel_bridge_detach(struct drm_bridge *bridge)
- {
-+	struct panel_bridge *panel_bridge = drm_bridge_to_panel_bridge(bridge);
-+	struct drm_connector *connector = &panel_bridge->connector;
+-		if (priv->soc_info->has_osd && plane->type == DRM_PLANE_TYPE_OVERLAY)
++		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
+ 		else
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
+@@ -826,6 +826,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 	const struct jz_soc_info *soc_info;
+ 	struct ingenic_drm *priv;
+ 	struct clk *parent_clk;
++	struct drm_plane *primary;
+ 	struct drm_bridge *bridge;
+ 	struct drm_panel *panel;
+ 	struct drm_encoder *encoder;
+@@ -940,9 +941,11 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 	if (soc_info->has_osd)
+ 		priv->ipu_plane = drm_plane_from_index(drm, 0);
+ 
+-	drm_plane_helper_add(&priv->f1, &ingenic_drm_plane_helper_funcs);
++	primary = priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
+ 
+-	ret = drm_universal_plane_init(drm, &priv->f1, 1,
++	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
 +
-+	/* Cleanup the connector if we know it was initialized */
-+	if (!!panel_bridge->connector.dev)
-+		drm_connector_cleanup(connector);
- }
++	ret = drm_universal_plane_init(drm, primary, 1,
+ 				       &ingenic_drm_primary_plane_funcs,
+ 				       priv->soc_info->formats_f1,
+ 				       priv->soc_info->num_formats_f1,
+@@ -954,7 +957,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
  
- static void panel_bridge_pre_enable(struct drm_bridge *bridge)
+ 	drm_crtc_helper_add(&priv->crtc, &ingenic_drm_crtc_helper_funcs);
+ 
+-	ret = drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
++	ret = drm_crtc_init_with_planes(drm, &priv->crtc, primary,
+ 					NULL, &ingenic_drm_crtc_funcs, NULL);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to init CRTC: %i\n", ret);
 -- 
 2.29.2
 
