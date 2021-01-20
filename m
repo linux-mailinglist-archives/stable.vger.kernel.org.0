@@ -2,82 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D407A2FCC74
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 09:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC332FCCB3
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 09:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730392AbhATILW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 03:11:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53466 "EHLO mail.kernel.org"
+        id S1730429AbhATI1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 03:27:05 -0500
+Received: from mga12.intel.com ([192.55.52.136]:12130 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbhATIJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Jan 2021 03:09:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AC3423158;
-        Wed, 20 Jan 2021 08:09:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611130150;
-        bh=/HfBzBSANlICHrP1a1WpTnfk5fzRQn9cCG7zDTD+eW4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=krNfbDUiux3nXeyPVn7hWFleQ1PHX6PyV3LMaa26LG7zKROGj+0yQ6CPOHERxpHhw
-         jMM+RDQIJ8naiklv/9gbGTNyHbR1yaWxAUQDJn//YK4fpjbVQW7WLdJiSnydH9GphX
-         KZJ6uoBHI1suLLjQ8kKqXRdEutvPhR1QUDBLEsJ+zK/Xx3PG1OLPrs2X5OiL14Of18
-         6OwW6kSsnKNVg47ftLC0sKTIB5FwT31gkn/o5jze7bbXwkySSaVNwfnZ4mHu11pnWV
-         EhE9K2aeWF1P+zuTJ+RxjooNuSReyFh2a8vg7JnD8fldNGOMWKUSKj2W6+AUDI8KEr
-         7wL8gvV+U67yQ==
-Received: by mail-ot1-f49.google.com with SMTP id i30so9682145ota.6;
-        Wed, 20 Jan 2021 00:09:10 -0800 (PST)
-X-Gm-Message-State: AOAM532hrcxL89tJwghTl5+hqhlUJpHvg339jmseA/Aw83JifjnrYhul
-        VlVpJAbA9LBdJ76CtGFeqRl6wTdyWwEwEVktRg0=
-X-Google-Smtp-Source: ABdhPJy263plUMjcPMTIVN3pL3Jkd6CPPS2dJO1OqpkFOp14dJ54PQ5qw8rErGyq4JKShXK4lfkGA6JHY5Swjy6e/k0=
-X-Received: by 2002:a05:6830:139a:: with SMTP id d26mr6249681otq.305.1611130149279;
- Wed, 20 Jan 2021 00:09:09 -0800 (PST)
+        id S1730805AbhATI0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 03:26:13 -0500
+IronPort-SDR: SLFwOHoScg1j4oVbidYrRpArj26c/t0BkTpdyrCOxKFJ6fwhAVykJt863L5A/PelMCPwDOU5ZS
+ tAIo9e7J9tEg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9869"; a="158246163"
+X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
+   d="scan'208";a="158246163"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2021 00:24:18 -0800
+IronPort-SDR: UItnTtRdZ8jDigUOqGGa0BjFO+2MiyffHK4yaVRsVUychU3a9caNmvbdoE5ir8yZ0J2m+x363/
+ uv0AXI5QT+Ig==
+X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
+   d="scan'208";a="384634946"
+Received: from dgravino-mobl1.ger.corp.intel.com (HELO [10.249.41.166]) ([10.249.41.166])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2021 00:24:17 -0800
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Close race between
+ enable_breadcrumbs and cancel_breadcrumbs
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20210119162057.31097-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <c77fba54-7d23-0203-b6cd-a44a0fb89532@linux.intel.com>
+Date:   Wed, 20 Jan 2021 08:24:15 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-References: <20210118135426.17372-1-will@kernel.org> <CAKwvOdmShphZV96PjaHbUW17mKhhRi_X0AZotryKmiGVKyiQyw@mail.gmail.com>
- <20210119232952.GA2650682@ubuntu-m3-large-x86>
-In-Reply-To: <20210119232952.GA2650682@ubuntu-m3-large-x86>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Wed, 20 Jan 2021 09:08:52 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a2+VC4oNU_DjLrBnB8YhWtU5vee5aGfNgtOrNw=-smWWw@mail.gmail.com>
-Message-ID: <CAK8P3a2+VC4oNU_DjLrBnB8YhWtU5vee5aGfNgtOrNw=-smWWw@mail.gmail.com>
-Subject: Re: [STABLE BACKPORT 4.4.y, 4.9.y and 4.14.y] compiler.h: Raise
- minimum version of GCC to 5.1 for arm64
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Florian Weimer <fweimer@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Caroline Tice <cmtice@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Stephen Hines <srhines@google.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210119162057.31097-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 20, 2021 at 12:29 AM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
-> On Tue, Jan 19, 2021 at 02:15:43PM -0800, Nick Desaulniers wrote:
-> >
-> > Merging this from stable into "Android Common Kernel" trees that were
-> > built with AOSP GCC 4.9, I expect this to break some builds.  Arnd,
-> > IIRC did you mention that AOSP GCC had picked up a fix?  If so, did
-> > you verify that via disassembly, or gerrit patch file?
 
-The only information I had was the fact that the gcc bug tracker
-mentioned it being picked up into the Android gcc and gcc-linaro.
-I verified that it was present in gcc-linaro, but did not also check
-the Android sources.
+On 19/01/2021 16:20, Chris Wilson wrote:
+> If we enable_breadcrumbs for a request while that request is being
+> removed from HW; we may see that the request is active as we take the
+> ce->signal_lock and proceed to attach the request to ce->signals.
+> However, during unsubmission after marking the request as inactive, we
+> see that the request has not yet been added to ce->signals and so skip
+> the removal. Pull the check during cancel_breadcrumbs under the same
+> spinlock as enabling so that we the two tests are consistent in
+> enable/cancel.
+> 
+> Otherwise, we may insert a request onto ce->signal that we expect should
+> not be there:
+> 
+>    intel_context_remove_breadcrumbs:488 GEM_BUG_ON(!__i915_request_is_complete(rq))
+> 
+> While updating, we can note that we are always called with
+> irqs-disabled, due to the engine->active.lock being held at the single
+> caller, and so remove the irqsave/restore.
+> 
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2931
+> Fixes: c18636f76344 ("drm/i915: Remove requirement for holding i915_request.lock for breadcrumbs")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: Andi Shyti <andi.shyti@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.10+
+> ---
+>   drivers/gpu/drm/i915/gt/intel_breadcrumbs.c | 9 +++++----
+>   1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> index d098fc0c14ec..34a645d6babd 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> @@ -453,16 +453,17 @@ void i915_request_cancel_breadcrumb(struct i915_request *rq)
+>   {
+>   	struct intel_breadcrumbs *b = READ_ONCE(rq->engine)->breadcrumbs;
+>   	struct intel_context *ce = rq->context;
+> -	unsigned long flags;
+>   	bool release;
+>   
+> -	if (!test_and_clear_bit(I915_FENCE_FLAG_SIGNAL, &rq->fence.flags))
+> +	spin_lock(&ce->signal_lock);
+> +	if (!test_and_clear_bit(I915_FENCE_FLAG_SIGNAL, &rq->fence.flags)) {
+> +		spin_unlock(&ce->signal_lock);
+>   		return;
+> +	}
+>   
+> -	spin_lock_irqsave(&ce->signal_lock, flags);
+>   	list_del_rcu(&rq->signal_link);
+>   	release = remove_signaling_context(b, ce);
+> -	spin_unlock_irqrestore(&ce->signal_lock, flags);
+> +	spin_unlock(&ce->signal_lock);
+>   	if (release)
+>   		intel_context_put(ce);
+>   
+> 
 
-> If so, it looks like that patch was picked up in this commit.
->
-> https://android.googlesource.com/toolchain/gcc/+/5ae0308a147ec3f6502fd321860524e634a647a6
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-Right.
+Regards,
 
-          Arnd
+Tvrtko
