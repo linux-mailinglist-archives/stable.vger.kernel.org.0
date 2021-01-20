@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735F22FC922
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22DD22FC8FF
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731769AbhATC3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
+        id S1731988AbhATC3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730013AbhATB2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C1AD22241;
-        Wed, 20 Jan 2021 01:26:40 +0000 (UTC)
+        id S1730085AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB27421D79;
+        Wed, 20 Jan 2021 01:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106001;
-        bh=3G3E7KWC6d4c7VoJN3B4ZwtGBHWj7WRyCTjKW4mNPCs=;
+        s=k20201202; t=1611106011;
+        bh=tkRm8I8OG2GTvTEPQ7/nYssvYEKXkyiQeKqAZLNClwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hu5v67N1ncDAIBT7W+wknGyzXsQY3x6CUKXJ4EgI4cvMv08rmkqUPjOpub7oXMS6z
-         LefJZT0JVLbVposI1Jcw8K76BRwwWdxdxWSw2y8L7HTtDg217/dOJffYTmWhPvdKOY
-         r9+24L8XN4gmI1FMU/o/nTW/bMsEFv1AAaQd2L6wOZBl+FMyKSE7fTeWBrIIRYfUJR
-         uCAIcKmijQAJO8gIBOTYdtCA1JJh8QMfpsM6SdFX5OTSRPDsal90Gxax03j7XqTORS
-         SeZYBWmrA+uQyWdxJGEj06R/3sq4ZU89hQAVOObdQvKXPMOnMeR1eL2WkTN2DSALB/
-         Ra1yb6LHOyqPQ==
+        b=p/vDl/e+dj9CT8G6VnO+cxst7YTFPuekdcidSb0JDW4c7KqQBp6wm07UjDDmNWlUJ
+         ESlOy7CBJwI2+aUiXFiXWXxOojUQpvI7dwWzqT/BlYZ2knK96VCrz+vqjz7YNno3yI
+         M8udPYlbjNC4SNXeYP5NFLTCqVGYZU8cEz/ZjGcuzgJI0beBD51PBNWA8NsL8+zt/x
+         THjB0tfur3VVEo7W46bvKIKQTrBbggRYgPRdC4+V+ne1X1aYDgoOchmPyKt6V5UqYE
+         yAjjTxdUY3hYz0hZTpmBDOnzatuWVg/AizQgJN2X0wNW1yNd0ymVQjSJed3tGAjDyG
+         2csso3Ra8Kfmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 29/45] dts: phy: fix missing mdio device and probe failure of vsc8541-01 device
-Date:   Tue, 19 Jan 2021 20:25:46 -0500
-Message-Id: <20210120012602.769683-29-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 37/45] drm/nouveau/privring: ack interrupts the same way as RM
+Date:   Tue, 19 Jan 2021 20:25:54 -0500
+Message-Id: <20210120012602.769683-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,50 +41,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit be969b7cfbcfa8a835a528f1dc467f0975c6d883 ]
+[ Upstream commit e05e06cd34f5311f677294a08b609acfbc315236 ]
 
-HiFive unleashed A00 board has VSC8541-01 ethernet phy, this device is
-identified as a Revision B device as described in device identification
-registers. In order to use this phy in the unmanaged mode, it requires
-a specific reset sequence of logical 0-1-0-1 transition on the NRESET pin
-as documented here [1].
+Whatever it is that we were doing before doesn't work on Ampere.
 
-Currently, the bootloader (fsbl or u-boot-spl) takes care of the phy reset.
-If due to some reason the phy device hasn't received the reset by the prior
-stages before the linux macb driver comes into the picture, the MACB mii
-bus gets probed but the mdio scan fails and is not even able to read the
-phy ID registers. It gives an error message:
-
-"libphy: MACB_mii_bus: probed
-mdio_bus 10090000.ethernet-ffffffff: MDIO device at address 0 is missing."
-
-Thus adding the device OUI (Organizationally Unique Identifier) to the phy
-device node helps to probe the phy device.
-
-[1]: VSC8541-01 datasheet:
-https://www.mouser.com/ds/2/523/Microsemi_VSC8541-01_Datasheet_10496_V40-1148034.pdf
-
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c | 10 +++++++---
+ drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c | 10 +++++++---
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index 4a2729f5ca3f0..60846e88ae4b1 100644
---- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-+++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -88,6 +88,7 @@ &eth0 {
- 	phy-mode = "gmii";
- 	phy-handle = <&phy0>;
- 	phy0: ethernet-phy@0 {
-+		compatible = "ethernet-phy-id0007.0771";
- 		reg = <0>;
- 	};
- };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
+index 2340040942c93..1115376bc85f5 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
+@@ -22,6 +22,7 @@
+  * Authors: Ben Skeggs
+  */
+ #include "priv.h"
++#include <subdev/timer.h>
+ 
+ static void
+ gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
+@@ -31,7 +32,6 @@ gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0400));
+ 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0400));
+ 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x122128 + (i * 0x0400), 0x00000200, 0x00000000);
+ }
+ 
+ static void
+@@ -42,7 +42,6 @@ gf100_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0400));
+ 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0400));
+ 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x124128 + (i * 0x0400), 0x00000200, 0x00000000);
+ }
+ 
+ static void
+@@ -53,7 +52,6 @@ gf100_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0400));
+ 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0400));
+ 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x128128 + (i * 0x0400), 0x00000200, 0x00000000);
+ }
+ 
+ void
+@@ -90,6 +88,12 @@ gf100_ibus_intr(struct nvkm_subdev *ibus)
+ 			intr1 &= ~stat;
+ 		}
+ 	}
++
++	nvkm_mask(device, 0x121c4c, 0x0000003f, 0x00000002);
++	nvkm_msec(device, 2000,
++		if (!(nvkm_rd32(device, 0x121c4c) & 0x0000003f))
++			break;
++	);
+ }
+ 
+ static int
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
+index f3915f85838ed..22e487b493ad1 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
+@@ -22,6 +22,7 @@
+  * Authors: Ben Skeggs
+  */
+ #include "priv.h"
++#include <subdev/timer.h>
+ 
+ static void
+ gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
+@@ -31,7 +32,6 @@ gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0800));
+ 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0800));
+ 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x122128 + (i * 0x0800), 0x00000200, 0x00000000);
+ }
+ 
+ static void
+@@ -42,7 +42,6 @@ gk104_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0800));
+ 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0800));
+ 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x124128 + (i * 0x0800), 0x00000200, 0x00000000);
+ }
+ 
+ static void
+@@ -53,7 +52,6 @@ gk104_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
+ 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0800));
+ 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0800));
+ 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
+-	nvkm_mask(device, 0x128128 + (i * 0x0800), 0x00000200, 0x00000000);
+ }
+ 
+ void
+@@ -90,6 +88,12 @@ gk104_ibus_intr(struct nvkm_subdev *ibus)
+ 			intr1 &= ~stat;
+ 		}
+ 	}
++
++	nvkm_mask(device, 0x12004c, 0x0000003f, 0x00000002);
++	nvkm_msec(device, 2000,
++		if (!(nvkm_rd32(device, 0x12004c) & 0x0000003f))
++			break;
++	);
+ }
+ 
+ static int
 -- 
 2.27.0
 
