@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1192FC806
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29412FC808
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732604AbhATCbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
+        id S1732751AbhATCb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728242AbhATB3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C1423437;
-        Wed, 20 Jan 2021 01:27:41 +0000 (UTC)
+        id S1730742AbhATB3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 978D723432;
+        Wed, 20 Jan 2021 01:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106062;
-        bh=4a17WWqCWMg+33SgzqVc9aR8rOqnpBy9FNYj0IklNsA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uPSOA72gW7aM+LbjHGTMCLR5WwP5h8DBd2K8ac5+W2QXDyulqvQMhkl9RkgFWkxDS
-         Ou3by9fb2bfuMXKDB9AOZJVOIx5X7PuUVszXStSPU0iafr0cBckDAYMa81UYdH9Nhj
-         5uZ5j4/GqlLTxlrvj/BGlME2eslv5acEx3/Coel3KMCju331xTEAwYeXYJDsK3ALsH
-         zIYloqcmYZljxv9+TRpzvJ2PnfdytTvi/v838Jp3RfxRi7hN/miIvfy5FZUJPaeMPK
-         p6nD5MHYv+a3ksdv3diGqyj3cHIOqPVl+Gs1qfn3PnkQZz93DccvLjW349f7OlJKol
-         ySrxH+Q1l1ICA==
+        s=k20201202; t=1611106065;
+        bh=SWD2aNiJ6IklhdOfik610qO3PUhrM7KUlGSJl2Cc1jk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DIsBZN4em6CD8MpE/N8VGtANZb9vxoTuYXbytCcDLVjyNSU3ks8B+gESJw/FI0CRR
+         QE37RYLqtdmyms9OjVrnfhQyr2QhDsEP8gdAthrHu4dD7n/bZybZ7OZP/1G184Fw7v
+         jlR2rzlcJzIgx5qIpN7ohE1NOk7nINJz2gb7bekFZVKyei4VvEkQdinZbqledyPU7A
+         FN/Dyys8UsRTLMLNYpLviPu0MHGcWZNFuntviF9dZiVFOzrdioL3NTYnRnMgovt1EP
+         uAJ0AOy6pn36E17DGJpFJis/jfb1tJ7eCfGSc/xGkOQWGIIUUv+IlbnI5Uiyy+z5sT
+         dfe2dRMxPWrEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 01/15] ASoC: Intel: haswell: Add missing pm_ops
-Date:   Tue, 19 Jan 2021 20:27:26 -0500
-Message-Id: <20210120012740.770354-1-sashal@kernel.org>
+Cc:     Can Guo <cang@codeaurora.org>, Avri Altman <avri.altman@wdc.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 03/15] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
+Date:   Tue, 19 Jan 2021 20:27:28 -0500
+Message-Id: <20210120012740.770354-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
+References: <20210120012740.770354-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,34 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit bb224c3e3e41d940612d4cc9573289cdbd5cb8f5 ]
+[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
 
-haswell machine board is missing pm_ops what prevents it from undergoing
-suspend-resume procedure successfully. Assign default snd_soc_pm_ops so
-this is no longer the case.
+Users can initiate resets to specific SCSI device/target/host through
+IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
+_reset_handler() callbacks is initialized with a request whose tag is -1.
+In this case it is not right for eh_device_reset_handler() callback to
+count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
+device associated with the SCSI cmd.
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20201217105401.27865-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/haswell.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufshcd.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
-index a4022983a7ce0..67eb4a446c3cb 100644
---- a/sound/soc/intel/boards/haswell.c
-+++ b/sound/soc/intel/boards/haswell.c
-@@ -198,6 +198,7 @@ static struct platform_driver haswell_audio = {
- 	.probe = haswell_audio_probe,
- 	.driver = {
- 		.name = "haswell-audio",
-+		.pm = &snd_soc_pm_ops,
- 	},
- };
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 40f478c4d118f..b18430efb00fb 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5772,19 +5772,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+ {
+ 	struct Scsi_Host *host;
+ 	struct ufs_hba *hba;
+-	unsigned int tag;
+ 	u32 pos;
+ 	int err;
+-	u8 resp = 0xF;
+-	struct ufshcd_lrb *lrbp;
++	u8 resp = 0xF, lun;
+ 	unsigned long flags;
  
+ 	host = cmd->device->host;
+ 	hba = shost_priv(host);
+-	tag = cmd->request->tag;
+ 
+-	lrbp = &hba->lrb[tag];
+-	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
++	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
++	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
+ 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
+ 		if (!err)
+ 			err = resp;
+@@ -5793,7 +5790,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+ 
+ 	/* clear the commands that were pending for corresponding LUN */
+ 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
+-		if (hba->lrb[pos].lun == lrbp->lun) {
++		if (hba->lrb[pos].lun == lun) {
+ 			err = ufshcd_clear_cmd(hba, pos);
+ 			if (err)
+ 				break;
 -- 
 2.27.0
 
