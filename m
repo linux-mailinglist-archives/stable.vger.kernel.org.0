@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0668C2FC7EF
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3B22FC7E9
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732008AbhATC3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
+        id S1731965AbhATC3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730098AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730075AbhATB2h (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EE572312B;
-        Wed, 20 Jan 2021 01:26:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 070222250E;
+        Wed, 20 Jan 2021 01:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106010;
-        bh=Xz+i1Z3mOF9fKx3oJXp8w7X6GXSJakG1pmdkXz0IVGg=;
+        s=k20201202; t=1611106013;
+        bh=46LKZqi4rI03Ulvwlf0N0EAJL+Igftaxc2HOIZHrbhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfUW5MlqvlD7h7N7tmN09XZfV7ktvdI8JQP3ljbzOgtO1FszBqCI5zi3I2N1wt5XK
-         eyM4F1CJypmWuYknmtLzjEZm22sv2vsb7uEmrerKEwK9Lnw7SXOXKFGkRJdwAJNWn7
-         9QOMshPPiALwXceuS8V5yfisFS8QxlT6lXzzWT6F00HCTJQrIcitOz31HZRUnAikYc
-         d4z8OgoZAJ3NPsjApBiGQXbR9+la3NDowpzCvV9UPiTqr6khkyqti3CRCzQOnRtAA2
-         bhCL4Vy75JRH1kGOZ62l5Z14/EHUxbZ4mhbAOLGvbRjJ6C1/sthPC8tcT/IFq65U3V
-         7Blij4NKv/AXQ==
+        b=tKEjT3jz/l5tGicmISgUmFUWSDiO4T9l+ck8oLvILUVVikEcHEv2gvHLGHcxu/vOs
+         BFQs5GGSqED11o1H9pIt+K22eBXykEQ/CBFE9WSwKNFipi+YpJ2dmOjSM8sUpfTUS9
+         lbHfR2sKY/mfGY53pX2LCDYDOusrXSOifMv1F+dmRZba7vYlnD8xUNIHr6rEIwQI20
+         FO9Lp8sfuc6ge2zoTCUV6HXoqTb8IRjjRge392pRGtb69elCi/AVWaWlIXLGpwNhTn
+         r6yWEnrCfpgF1+6a3Y2D3D6M6/N3GWxdvzFYLK0YSWI6dB54f+agn/d3Wikx3KMWHu
+         WINLxlfdd6l7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 36/45] drm/nouveau/bios: fix issue shadowing expansion ROMs
-Date:   Tue, 19 Jan 2021 20:25:53 -0500
-Message-Id: <20210120012602.769683-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 39/45] drm/nouveau/mmu: fix vram heap sizing
+Date:   Tue, 19 Jan 2021 20:25:56 -0500
+Message-Id: <20210120012602.769683-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,46 +43,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 402a89660e9dc880710b12773076a336c9dab3d7 ]
-
-This issue has generally been covered up by the presence of additional
-expansion ROMs after the ones we're interested in, with header fetches
-of subsequent images loading enough of the ROM to hide the issue.
-
-Noticed on GA102, which lacks a type 0x70 image compared to TU102,.
-
-[  906.364197] nouveau 0000:09:00.0: bios: 00000000: type 00, 65024 bytes
-[  906.381205] nouveau 0000:09:00.0: bios: 0000fe00: type 03, 91648 bytes
-[  906.405213] nouveau 0000:09:00.0: bios: 00026400: type e0, 22016 bytes
-[  906.410984] nouveau 0000:09:00.0: bios: 0002ba00: type e0, 366080 bytes
-
-vs
-
-[   22.961901] nouveau 0000:09:00.0: bios: 00000000: type 00, 60416 bytes
-[   22.984174] nouveau 0000:09:00.0: bios: 0000ec00: type 03, 71168 bytes
-[   23.010446] nouveau 0000:09:00.0: bios: 00020200: type e0, 48128 bytes
-[   23.028220] nouveau 0000:09:00.0: bios: 0002be00: type e0, 140800 bytes
-[   23.080196] nouveau 0000:09:00.0: bios: 0004e400: type 70, 7168 bytes
+[ Upstream commit add42781ad76c5ae65127bf13852a4c6b2f08849 ]
 
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
-index 7deb81b6dbac6..4b571cc6bc70f 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
-@@ -75,7 +75,7 @@ shadow_image(struct nvkm_bios *bios, int idx, u32 offset, struct shadow *mthd)
- 	nvkm_debug(subdev, "%08x: type %02x, %d bytes\n",
- 		   image.base, image.type, image.size);
- 
--	if (!shadow_fetch(bios, mthd, image.size)) {
-+	if (!shadow_fetch(bios, mthd, image.base + image.size)) {
- 		nvkm_debug(subdev, "%08x: fetch failed\n", image.base);
- 		return 0;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
+index de91e9a261725..6d5212ae2fd57 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
+@@ -316,9 +316,9 @@ nvkm_mmu_vram(struct nvkm_mmu *mmu)
+ {
+ 	struct nvkm_device *device = mmu->subdev.device;
+ 	struct nvkm_mm *mm = &device->fb->ram->vram;
+-	const u32 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
+-	const u32 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
+-	const u32 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
++	const u64 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
++	const u64 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
++	const u64 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
+ 	u8 type = NVKM_MEM_KIND * !!mmu->func->kind;
+ 	u8 heap = NVKM_MEM_VRAM;
+ 	int heapM, heapN, heapU;
 -- 
 2.27.0
 
