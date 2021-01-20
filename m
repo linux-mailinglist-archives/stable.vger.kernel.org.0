@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 945FF2FC805
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1192FC806
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730346AbhATCbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S1732604AbhATCbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730384AbhATB3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B1BF23407;
-        Wed, 20 Jan 2021 01:27:28 +0000 (UTC)
+        id S1728242AbhATB3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C1423437;
+        Wed, 20 Jan 2021 01:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106049;
-        bh=1rfwSpVJ+UEYl/EIDIKbdLpUVSO+QYuuMjMAelssO6g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWPthReLQzMzIsihOhaLz5wqAHkmhGRtfz175sBHeNZFMNA4OoLm02Mi3UjsYea52
-         UEN049sSnfokfsnnzzJBlGj1Eb0T6pgzrcYrhvKsY5tiEXi5cEidizOlt2olikwRK5
-         pYTf7GNnXxJyaPBB262mZYxaY3S06FNHqjNZUyMXu6frTEW7xMrKfRW7TBzuDy9M12
-         +hg69LhksLCY26Exw07tbfkpmMJp6NztRtvBIlhDpBbyqZMtzlubarQTmAb5RB6hsZ
-         lCgxyl0V/YgbqTseLMowARFe/Q0mPkhJK/vrbYp1AnToNqBI3e43U35pp9cmf3QoqX
-         rmsbPFuehBktA==
+        s=k20201202; t=1611106062;
+        bh=4a17WWqCWMg+33SgzqVc9aR8rOqnpBy9FNYj0IklNsA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uPSOA72gW7aM+LbjHGTMCLR5WwP5h8DBd2K8ac5+W2QXDyulqvQMhkl9RkgFWkxDS
+         Ou3by9fb2bfuMXKDB9AOZJVOIx5X7PuUVszXStSPU0iafr0cBckDAYMa81UYdH9Nhj
+         5uZ5j4/GqlLTxlrvj/BGlME2eslv5acEx3/Coel3KMCju331xTEAwYeXYJDsK3ALsH
+         zIYloqcmYZljxv9+TRpzvJ2PnfdytTvi/v838Jp3RfxRi7hN/miIvfy5FZUJPaeMPK
+         p6nD5MHYv+a3ksdv3diGqyj3cHIOqPVl+Gs1qfn3PnkQZz93DccvLjW349f7OlJKol
+         ySrxH+Q1l1ICA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 18/26] dts: phy: add GPIO number and active state used for phy reset
-Date:   Tue, 19 Jan 2021 20:26:55 -0500
-Message-Id: <20210120012704.770095-18-sashal@kernel.org>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 01/15] ASoC: Intel: haswell: Add missing pm_ops
+Date:   Tue, 19 Jan 2021 20:27:26 -0500
+Message-Id: <20210120012740.770354-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
-References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,31 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit a0fa9d727043da2238432471e85de0bdb8a8df65 ]
+[ Upstream commit bb224c3e3e41d940612d4cc9573289cdbd5cb8f5 ]
 
-The GEMGXL_RST line on HiFive Unleashed is pulled low and is
-using GPIO number 12. Add these reset-gpio details to dt-node
-using which the linux phylib can reset the phy.
+haswell machine board is missing pm_ops what prevents it from undergoing
+suspend-resume procedure successfully. Assign default snd_soc_pm_ops so
+this is no longer the case.
 
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20201217105401.27865-1-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts | 1 +
+ sound/soc/intel/boards/haswell.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index cc04e66752aac..1ad3dc2fb6343 100644
---- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-+++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -85,6 +85,7 @@ &eth0 {
- 	phy0: ethernet-phy@0 {
- 		compatible = "ethernet-phy-id0007.0771";
- 		reg = <0>;
-+		reset-gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
- 	};
+diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
+index a4022983a7ce0..67eb4a446c3cb 100644
+--- a/sound/soc/intel/boards/haswell.c
++++ b/sound/soc/intel/boards/haswell.c
+@@ -198,6 +198,7 @@ static struct platform_driver haswell_audio = {
+ 	.probe = haswell_audio_probe,
+ 	.driver = {
+ 		.name = "haswell-audio",
++		.pm = &snd_soc_pm_ops,
+ 	},
  };
  
 -- 
