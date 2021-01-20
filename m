@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A872FC7D7
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D9B2FC7BD
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730804AbhATB3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 20:29:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46620 "EHLO mail.kernel.org"
+        id S1731031AbhATCUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:20:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727744AbhATB30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAED623442;
-        Wed, 20 Jan 2021 01:27:59 +0000 (UTC)
+        id S1730857AbhATB3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC8623715;
+        Wed, 20 Jan 2021 01:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106080;
-        bh=5WUoD5zwsd4RXHHGhCQkpJlGUZLtx2s2ZRLAwnOOOLU=;
+        s=k20201202; t=1611106085;
+        bh=jcd+HH/G7EYQLV0kHgGg4IVObzS7LgAWPr49vD7pUh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL1ZtN1BXQzcYsGYRZ2SYL1PMzNVamJJbo7XrjBfG4GsOX0ylONVfqZ7PrmvFW9rY
-         NYLUVYa/ZjOkmj46M7MMgvEuPPJBz8TpztK2NqBpFidtergI/o453S8cG0PE2fptOZ
-         uaKsQO+T9UEXgpXBS+1zoqv+8XC7dyrrn3dFV7dM6DcqVt3u43cuUcP3brcv+1fz4E
-         mIDKaIZFuGIilpj5OEXZmsDa4R95QRxsRKUBFGcm7pFy/MllLhPCgDKQkzfg3LnAGj
-         8TgwPsVDT2rVDqVxBuNrO2c1D6vnmEKfjoTM7QwM5/6fSR9h+/Z5IKMtGgn2DtDST6
-         2x/UMSohLevAg==
+        b=aDB1viuI5Sqi4sYsm6U8lwGjqIcA0Qw2OtvVgd1d2wFT7IXghQMOHtctWAlKkePWP
+         L7Kgo8jQ4gNSUnheYp2B2ns34Po9qz2fGXTM5sIFGAyi1So2JUbnnRbqRAjTJQPm75
+         WTbAk0ghfAX5SCRsu2j09ZvDd1YeAeFq7kh3ANP2Zs39BxtqldsxELA1+PAx6BYPAx
+         pfMg2rAtyru3jAAhqWWhQv9Et3J+N4EvlTnWzm9UEVU5YqTHPuV9Krx5EojVgOO27+
+         xL9b4ZXOjot3F50c7hb6DVVNIEwcXoi41jDr0B3PMn345tDSP2elKw12wfVz3vBv/D
+         ff69MpfzZII8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 14/15] drm/nouveau/mmu: fix vram heap sizing
-Date:   Tue, 19 Jan 2021 20:27:39 -0500
-Message-Id: <20210120012740.770354-14-sashal@kernel.org>
+Cc:     Anthony Iliopoulos <ailiop@suse.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/9] dm integrity: select CRYPTO_SKCIPHER
+Date:   Tue, 19 Jan 2021 20:27:55 -0500
+Message-Id: <20210120012802.770525-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
-References: <20210120012740.770354-1-sashal@kernel.org>
+In-Reply-To: <20210120012802.770525-1-sashal@kernel.org>
+References: <20210120012802.770525-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,33 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Anthony Iliopoulos <ailiop@suse.com>
 
-[ Upstream commit add42781ad76c5ae65127bf13852a4c6b2f08849 ]
+[ Upstream commit f7b347acb5f6c29d9229bb64893d8b6a2c7949fb ]
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+The integrity target relies on skcipher for encryption/decryption, but
+certain kernel configurations may not enable CRYPTO_SKCIPHER, leading to
+compilation errors due to unresolved symbols. Explicitly select
+CRYPTO_SKCIPHER for DM_INTEGRITY, since it is unconditionally dependent
+on it.
+
+Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-index ee11ccaf0563c..cb51e248cb41b 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
-@@ -316,9 +316,9 @@ nvkm_mmu_vram(struct nvkm_mmu *mmu)
- {
- 	struct nvkm_device *device = mmu->subdev.device;
- 	struct nvkm_mm *mm = &device->fb->ram->vram;
--	const u32 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
--	const u32 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
--	const u32 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
-+	const u64 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
-+	const u64 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
-+	const u64 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
- 	u8 type = NVKM_MEM_KIND * !!mmu->func->kind;
- 	u8 heap = NVKM_MEM_VRAM;
- 	int heapM, heapN, heapU;
+diff --git a/drivers/md/Kconfig b/drivers/md/Kconfig
+index 4a249ee86364c..231b6a18ca272 100644
+--- a/drivers/md/Kconfig
++++ b/drivers/md/Kconfig
+@@ -508,6 +508,7 @@ config DM_INTEGRITY
+ 	select BLK_DEV_INTEGRITY
+ 	select DM_BUFIO
+ 	select CRYPTO
++	select CRYPTO_SKCIPHER
+ 	select ASYNC_XOR
+ 	---help---
+ 	  This device-mapper target emulates a block device that has
 -- 
 2.27.0
 
