@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BB32FC98B
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2262FC931
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:40:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbhATC2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:28:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46628 "EHLO mail.kernel.org"
+        id S1730808AbhATC3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729913AbhATB14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:27:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35F6A2333D;
-        Wed, 20 Jan 2021 01:26:36 +0000 (UTC)
+        id S1730049AbhATB2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E26C4206F9;
+        Wed, 20 Jan 2021 01:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105997;
-        bh=Y0y4RiRCOTkbxzR1OuKcUy8g7sjPnEEbdSQgPF7jO/Y=;
+        s=k20201202; t=1611105999;
+        bh=Q2T+Gg657rvxrNNOM9O3dL87n9iUIoz0iudYxSTxRKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gq1GVMovyw2turFiy7eHW+Z1ggwKF0QCdhSxCuSTnqmGRwTdZwaZsJ0NhIrPUK5/v
-         gw0fofy1nb5m6goba6GjM+D6R8ZsmxMGHQR/Dng97cPWdI2myWHFEeLiARyDGqEMcx
-         UEvzMMEFiHCI+0SNkcFuHR/m92QpmpgNOC35h0IH6nKFbfdlPVQQCg5+pgBldfcvgn
-         O0fSXmnTxg4hYYZcnZSskCaYrHMd78x/gk1QfdYcSJSW4WbIzBKOzdxEoqeXO5lpRc
-         N88XbWbY980TBw+fztV14w56S0M9nuoDvN8GDyiyeURM3zaYskBbz2+pDJcoJE5nof
-         K7HSV+scKIpLA==
+        b=CpZfwWdRWtppd3/gJkxkoJ1h66kJaIIpHEnQaBQpPSrfV6Lmp+ILjluamFCIVgCd6
+         9ncX9+c3nH02vRcKJCW0HL9eWumA32lrc1bFQ8EncbbYvGPtmgWutDW4NqI7W8jFYq
+         ypz/iB8vOphXJ36wDedbIWbTlO7e1iAWlN48e1WrQxK/VObBv9Cac18l1R9FJ40QE4
+         X5sQalphfI+hi0YwV8E2gwKtpnmuk5uGiTAdfbQRW4T0TxyYyyTfr8VyWi0hqv+d+J
+         c8PBaxISB9T3BVe8HX5I6LUeFxHebUUl6tSflgRuFFyBw0J9MdZemBUbTMComWLnEW
+         jZfj19EQgcFrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Woodhouse <dwmw@amazon.co.uk>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.10 26/45] x86/xen: Fix xen_hvm_smp_init() when vector callback not available
-Date:   Tue, 19 Jan 2021 20:25:43 -0500
-Message-Id: <20210120012602.769683-26-sashal@kernel.org>
+Cc:     David Wu <david.wu@rock-chips.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 28/45] net: stmmac: Fixed mtu channged by cache aligned
+Date:   Tue, 19 Jan 2021 20:25:45 -0500
+Message-Id: <20210120012602.769683-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,117 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: David Wu <david.wu@rock-chips.com>
 
-[ Upstream commit 3d7746bea92530e8695258a3cf3ddec7a135edd6 ]
+[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
 
-Only the IPI-related functions in the smp_ops should be conditional
-on the vector callback being available. The rest should still happen:
+Since the original mtu is not used when the mtu is updated,
+the mtu is aligned with cache, this will get an incorrect.
+For example, if you want to configure the mtu to be 1500,
+but mtu 1536 is configured in fact.
 
- • xen_hvm_smp_prepare_boot_cpu()
-
-   This function does two things, both of which should still happen if
-   there is no vector callback support.
-
-   The call to xen_vcpu_setup() for vCPU0 should still happen as it just
-   sets up the vcpu_info for CPU0. That does happen for the secondary
-   vCPUs too, from xen_cpu_up_prepare_hvm().
-
-   The second thing it does is call xen_init_spinlocks(), which perhaps
-   counter-intuitively should *also* still be happening in the case
-   without vector callbacks, so that it can clear its local xen_pvspin
-   flag and disable the virt_spin_lock_key accordingly.
-
-   Checking xen_have_vector_callback in xen_init_spinlocks() itself
-   would affect PV guests, so set the global nopvspin flag in
-   xen_hvm_smp_init() instead, when vector callbacks aren't available.
-
- • xen_hvm_smp_prepare_cpus()
-
-   This does some IPI-related setup by calling xen_smp_intr_init() and
-   xen_init_lock_cpu(), which can be made conditional. And it sets the
-   xen_vcpu_id to XEN_VCPU_ID_INVALID for all possible CPUS, which does
-   need to happen.
-
- • xen_smp_cpus_done()
-
-   This offlines any vCPUs which doesn't fit in the global shared_info
-   page, if separate vcpu_info placement isn't available. That part also
-   needs to happen regardless of vector callback support.
-
- • xen_hvm_cpu_die()
-
-   This doesn't actually do anything other than commin_cpu_die() right
-   right now in the !vector_callback case; all three teardown functions
-   it calls should be no-ops. But to guard against future regressions
-   it's useful to call it anyway, and for it to explicitly check for
-   xen_have_vector_callback before calling those additional functions.
-
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210106153958.584169-6-dwmw2@infradead.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
+Signed-off-by: David Wu <david.wu@rock-chips.com>
+Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp_hvm.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
-index f5e7db4f82abb..056430a1080bb 100644
---- a/arch/x86/xen/smp_hvm.c
-+++ b/arch/x86/xen/smp_hvm.c
-@@ -33,9 +33,11 @@ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
- 	int cpu;
- 
- 	native_smp_prepare_cpus(max_cpus);
--	WARN_ON(xen_smp_intr_init(0));
- 
--	xen_init_lock_cpu(0);
-+	if (xen_have_vector_callback) {
-+		WARN_ON(xen_smp_intr_init(0));
-+		xen_init_lock_cpu(0);
-+	}
- 
- 	for_each_possible_cpu(cpu) {
- 		if (cpu == 0)
-@@ -50,9 +52,11 @@ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
- static void xen_hvm_cpu_die(unsigned int cpu)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index cb39f6dbf72b8..b3d6d8e3f4de9 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3996,6 +3996,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
  {
- 	if (common_cpu_die(cpu) == 0) {
--		xen_smp_intr_free(cpu);
--		xen_uninit_lock_cpu(cpu);
--		xen_teardown_timer(cpu);
-+		if (xen_have_vector_callback) {
-+			xen_smp_intr_free(cpu);
-+			xen_uninit_lock_cpu(cpu);
-+			xen_teardown_timer(cpu);
-+		}
- 	}
- }
- #else
-@@ -64,14 +68,17 @@ static void xen_hvm_cpu_die(unsigned int cpu)
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int txfifosz = priv->plat->tx_fifo_size;
++	const int mtu = new_mtu;
  
- void __init xen_hvm_smp_init(void)
- {
--	if (!xen_have_vector_callback)
-+	smp_ops.smp_prepare_boot_cpu = xen_hvm_smp_prepare_boot_cpu;
-+	smp_ops.smp_prepare_cpus = xen_hvm_smp_prepare_cpus;
-+	smp_ops.smp_cpus_done = xen_smp_cpus_done;
-+	smp_ops.cpu_die = xen_hvm_cpu_die;
-+
-+	if (!xen_have_vector_callback) {
-+		nopvspin = true;
- 		return;
-+	}
+ 	if (txfifosz == 0)
+ 		txfifosz = priv->dma_cap.tx_fifo_size;
+@@ -4013,7 +4014,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+ 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
+ 		return -EINVAL;
  
--	smp_ops.smp_prepare_cpus = xen_hvm_smp_prepare_cpus;
- 	smp_ops.smp_send_reschedule = xen_smp_send_reschedule;
--	smp_ops.cpu_die = xen_hvm_cpu_die;
- 	smp_ops.send_call_func_ipi = xen_smp_send_call_function_ipi;
- 	smp_ops.send_call_func_single_ipi = xen_smp_send_call_function_single_ipi;
--	smp_ops.smp_prepare_boot_cpu = xen_hvm_smp_prepare_boot_cpu;
--	smp_ops.smp_cpus_done = xen_smp_cpus_done;
- }
+-	dev->mtu = new_mtu;
++	dev->mtu = mtu;
+ 
+ 	netdev_update_features(dev);
+ 
 -- 
 2.27.0
 
