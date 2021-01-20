@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4301D2FC77D
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:10:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A872FC7D7
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727140AbhATB3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 20:29:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47302 "EHLO mail.kernel.org"
+        id S1730804AbhATB3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 20:29:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730769AbhATB30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727744AbhATB30 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:29:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB04123433;
-        Wed, 20 Jan 2021 01:27:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAED623442;
+        Wed, 20 Jan 2021 01:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106075;
-        bh=0oC4UvFQ7gr34BsUtHy/rcWoiAez/qEhFP6ph1HMd3o=;
+        s=k20201202; t=1611106080;
+        bh=5WUoD5zwsd4RXHHGhCQkpJlGUZLtx2s2ZRLAwnOOOLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHXFPN4Rcr0c8iwY69HudjE/QLNwsQW1h+CWYxjYEMYQiKJDyGTO/p/m0kiyFViDJ
-         r5evtFDroWwjFU8vEcUVaVd1UC841fgWi9ICWyt2cZg/AIQ6vHjBO9FdLJ/vvFZO1T
-         tE1Ad0wGrft1Iy7nowt7dbMhvTuS0sr7cgT1XOFYKK9T+W6tEsHz8KOa6XjP0n83NH
-         oDH7zzQ7iaAl0lZO5gzdGhe57jpapEfj/aEQBBZl4cIPYXyE6CXTuYn6MRln8ePw3U
-         iTvyN91tkdO33JqFwnswa4pRB0IYhEJYmJtuNXV6V75GpEdfOSMo99lbwYWDsJHQe0
-         PeOxV2uK5uf7w==
+        b=CL1ZtN1BXQzcYsGYRZ2SYL1PMzNVamJJbo7XrjBfG4GsOX0ylONVfqZ7PrmvFW9rY
+         NYLUVYa/ZjOkmj46M7MMgvEuPPJBz8TpztK2NqBpFidtergI/o453S8cG0PE2fptOZ
+         uaKsQO+T9UEXgpXBS+1zoqv+8XC7dyrrn3dFV7dM6DcqVt3u43cuUcP3brcv+1fz4E
+         mIDKaIZFuGIilpj5OEXZmsDa4R95QRxsRKUBFGcm7pFy/MllLhPCgDKQkzfg3LnAGj
+         8TgwPsVDT2rVDqVxBuNrO2c1D6vnmEKfjoTM7QwM5/6fSR9h+/Z5IKMtGgn2DtDST6
+         2x/UMSohLevAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Wu <david.wu@rock-chips.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 10/15] net: stmmac: Fixed mtu channged by cache aligned
-Date:   Tue, 19 Jan 2021 20:27:35 -0500
-Message-Id: <20210120012740.770354-10-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 14/15] drm/nouveau/mmu: fix vram heap sizing
+Date:   Tue, 19 Jan 2021 20:27:39 -0500
+Message-Id: <20210120012740.770354-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
 References: <20210120012740.770354-1-sashal@kernel.org>
@@ -44,45 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wu <david.wu@rock-chips.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
+[ Upstream commit add42781ad76c5ae65127bf13852a4c6b2f08849 ]
 
-Since the original mtu is not used when the mtu is updated,
-the mtu is aligned with cache, this will get an incorrect.
-For example, if you want to configure the mtu to be 1500,
-but mtu 1536 is configured in fact.
-
-Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
-Signed-off-by: David Wu <david.wu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4ac507b4d1019..76d4b8e6ac3e8 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3596,6 +3596,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
+index ee11ccaf0563c..cb51e248cb41b 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/base.c
+@@ -316,9 +316,9 @@ nvkm_mmu_vram(struct nvkm_mmu *mmu)
  {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int txfifosz = priv->plat->tx_fifo_size;
-+	const int mtu = new_mtu;
- 
- 	if (txfifosz == 0)
- 		txfifosz = priv->dma_cap.tx_fifo_size;
-@@ -3613,7 +3614,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
- 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
- 		return -EINVAL;
- 
--	dev->mtu = new_mtu;
-+	dev->mtu = mtu;
- 
- 	netdev_update_features(dev);
- 
+ 	struct nvkm_device *device = mmu->subdev.device;
+ 	struct nvkm_mm *mm = &device->fb->ram->vram;
+-	const u32 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
+-	const u32 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
+-	const u32 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
++	const u64 sizeN = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NORMAL);
++	const u64 sizeU = nvkm_mm_heap_size(mm, NVKM_RAM_MM_NOMAP);
++	const u64 sizeM = nvkm_mm_heap_size(mm, NVKM_RAM_MM_MIXED);
+ 	u8 type = NVKM_MEM_KIND * !!mmu->func->kind;
+ 	u8 heap = NVKM_MEM_VRAM;
+ 	int heapM, heapN, heapU;
 -- 
 2.27.0
 
