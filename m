@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9579A2FC8B6
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD472FC8B7
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:27:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731669AbhATCbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:31:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S1732212AbhATCbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:31:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730573AbhATB3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:29:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C5723426;
-        Wed, 20 Jan 2021 01:27:29 +0000 (UTC)
+        id S1727571AbhATB3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2009623119;
+        Wed, 20 Jan 2021 01:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106050;
-        bh=vQtWiPkKsULz+3Pgk2ydlIu7asw7caLs9bmvdVS17LI=;
+        s=k20201202; t=1611106053;
+        bh=x8SzVggovaHzS2vLj57odYH8uRPPp+IM+ZSmWzDora4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHKheC7VKD9soLAbVFfGyYjz6BwWC4cbD7jzZVSkN6nyVrD9oyUsxzJ32eIg/z08R
-         E4A3Pg4ECsZgK923DQ6t8CpaHF+h7PyEgdVNbBCr3kz4cmub9bs0vStVCYwxA5dMTf
-         8hKfyqe7JKHnZuZmjx3+6EOJZjm2Gq/ijyqWGt+o2O8ABFMfGHgI7x+AOIvKywh/kY
-         E0cgq78e0it/ndMXFStCohuF3MiDKJzHKO0bQqm1CRTdpoX1Mj/C1xMopoQBS+X/jC
-         4u1I9ziOhR+wjlY1EzvrUc0llknarLBwx42mBVtnNh3B6ErFxMVq/i8p+aLGkc9516
-         qdJ9ATICjDgGQ==
+        b=ajjuuym+kh/7DYhiATHs17+f+B0TcR1ycxgPSSH/AzpuUCYXKlbMNzZrSpkcpLkqy
+         SBTFUobzTEkQ3k2wrl4gr5NU+870J71HoImpLmB/Zu4/v1CrAI0pirkGzP7t+4ZdFs
+         AzwH0a8q/d3MQnNdkW/n4tZtR2jN5b3YStr2M4e+EWfAD8IVS4m3UwIDXj6/GEy+vS
+         G0X/7sD/0h2YizYM3l3Tx7xheyswyl53bvkrCKYSLIz73JeDvuaGSPEhMeSzn2pGnO
+         vE+BXZ5xk8UnB4yBhFRb1tRiAkrqI7N8BWsxJTvIlCKphARuA7FBwcRtXgD9JMV62e
+         72U3EZyKg0+Sg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 19/26] riscv: defconfig: enable gpio support for HiFive Unleashed
-Date:   Tue, 19 Jan 2021 20:26:56 -0500
-Message-Id: <20210120012704.770095-19-sashal@kernel.org>
+Cc:     Wayne Lin <Wayne.Lin@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 21/26] drm/amd/display: Fix to be able to stop crc calculation
+Date:   Tue, 19 Jan 2021 20:26:58 -0500
+Message-Id: <20210120012704.770095-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
 References: <20210120012704.770095-1-sashal@kernel.org>
@@ -43,34 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 0983834a83931606a647c275e5d4165ce4e7b49f ]
+[ Upstream commit 02ce73b01e09e388614b22b7ebc71debf4a588f0 ]
 
-Ethernet phy VSC8541-01 on HiFive Unleashed has its reset line
-connected to a gpio, so enable GPIO driver's required to reset
-the phy.
+[Why]
+Find out when we try to disable CRC calculation,
+crc generation is still enabled. Main reason is
+that dc_stream_configure_crc() will never get
+called when the source is AMDGPU_DM_PIPE_CRC_SOURCE_NONE.
 
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+[How]
+Add checking condition that when source is
+AMDGPU_DM_PIPE_CRC_SOURCE_NONE, we should also call
+dc_stream_configure_crc() to disable crc calculation.
+Also, clean up crc window when disable crc calculation.
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/configs/defconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
-index 420a0dbef3866..3c656fe97e583 100644
---- a/arch/riscv/configs/defconfig
-+++ b/arch/riscv/configs/defconfig
-@@ -62,6 +62,8 @@ CONFIG_HW_RANDOM=y
- CONFIG_HW_RANDOM_VIRTIO=y
- CONFIG_SPI=y
- CONFIG_SPI_SIFIVE=y
-+CONFIG_GPIOLIB=y
-+CONFIG_GPIO_SIFIVE=y
- # CONFIG_PTP_1588_CLOCK is not set
- CONFIG_DRM=y
- CONFIG_DRM_RADEON=y
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+index a549c7c717ddc..f0b001b3af578 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+@@ -113,7 +113,7 @@ int amdgpu_dm_crtc_configure_crc_source(struct drm_crtc *crtc,
+ 	mutex_lock(&adev->dm.dc_lock);
+ 
+ 	/* Enable CRTC CRC generation if necessary. */
+-	if (dm_is_crc_source_crtc(source)) {
++	if (dm_is_crc_source_crtc(source) || source == AMDGPU_DM_PIPE_CRC_SOURCE_NONE) {
+ 		if (!dc_stream_configure_crc(stream_state->ctx->dc,
+ 					     stream_state, enable, enable)) {
+ 			ret = -EINVAL;
 -- 
 2.27.0
 
