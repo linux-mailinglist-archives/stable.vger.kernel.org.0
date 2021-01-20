@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4942FC7E6
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9088C2FC7E3
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 03:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731925AbhATC33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S1731807AbhATC3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:29:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730036AbhATB2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730025AbhATB2c (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 19 Jan 2021 20:28:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC818221E5;
-        Wed, 20 Jan 2021 01:26:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7E222472;
+        Wed, 20 Jan 2021 01:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106003;
-        bh=hMs1Enxi29RFmdXP40/oB+4f2xHXZetfroIgBXwOUt8=;
+        s=k20201202; t=1611106006;
+        bh=9SutWEmC6H5K10bDfM/3ZW3pS0nEj9/MpovzFvWZN8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPUN3LQ7Ss1/VXbohDCt8yrRLDCH4/+/j+vxCtSelaDzdkkA04/y6FLC6DISzDDYm
-         iY+q0cMk/BI+mlhKiRrUHSZDd88TylmVzjpfWysQ0aD5nqLKV3DxofP4MSMV4Szy4F
-         hWK3Uz3UPKgmyel80jYSp3H0YRq0Saa+HrAobYy5jHy6luC53Y5WsOZc5NVBo40lkc
-         Bi/ZvgGg+Z8Vu7s96zQyzwq7cNN7nIZIPT1VVGSzkpHncIFS7rWHYkOHQxVMXGJxX1
-         HDGt1syXnUEwnsT/KPm5T37TrPvRjgbOR28aGdfx42+oPjW5def/TGsrgkLBbZMZVt
-         hy33v4L68imZQ==
+        b=sjpBpIKd5jnquEarxu/SLI84s01APmGU/UQYUj9s7aJ660wbuD8tJEjCVQ8ErnjND
+         Tguz6uMb2H9lSizaOX4GF+oUA4u/zrffP76HwQWrfnuPgHe1r4W6JE3kFi+9rw/bJp
+         3Zvw5pv5MhqtI7hDmsD1ERn9z57UdOQMT91ZK9BWH/7JVN2Dniy1ULMCmxEpHitOKX
+         03kaqBLmqvy5Pbg3onOhdfnwA73mxv4TpQ4te2rI4DtXWHHPjsJuRX0H330Nbbi1mg
+         U1HSDo+5SyYU2zOsfYfMPcp7+Fn47VJUbWf/pRVSylizU4ti/XD3Q+LK2XWMrGUz/Z
+         82mpYSH6UYEjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 31/45] riscv: defconfig: enable gpio support for HiFive Unleashed
-Date:   Tue, 19 Jan 2021 20:25:48 -0500
-Message-Id: <20210120012602.769683-31-sashal@kernel.org>
+Cc:     "Li, Roman" <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 33/45] drm/amd/display: disable dcn10 pipe split by default
+Date:   Tue, 19 Jan 2021 20:25:50 -0500
+Message-Id: <20210120012602.769683-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -43,34 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+From: "Li, Roman" <Roman.Li@amd.com>
 
-[ Upstream commit 0983834a83931606a647c275e5d4165ce4e7b49f ]
+[ Upstream commit 9d03bb102028b4a3f4a64d6069b219e2e1c1f306 ]
 
-Ethernet phy VSC8541-01 on HiFive Unleashed has its reset line
-connected to a gpio, so enable GPIO driver's required to reset
-the phy.
+[Why]
+The initial purpose of dcn10 pipe split is to support some high
+bandwidth mode which requires dispclk greater than max dispclk. By
+initial bring up power measurement data, it showed power consumption is
+less with pipe split for dcn block. This could be reason for enable pipe
+split by default. By battery life measurement of some Chromebooks,
+result shows battery life is longer with pipe split disabled.
 
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+[How]
+Disable pipe split by default. Pipe split could be still enabled when
+required dispclk is greater than max dispclk.
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/configs/defconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
-index d222d353d86d4..8c3d1e4517031 100644
---- a/arch/riscv/configs/defconfig
-+++ b/arch/riscv/configs/defconfig
-@@ -64,6 +64,8 @@ CONFIG_HW_RANDOM=y
- CONFIG_HW_RANDOM_VIRTIO=y
- CONFIG_SPI=y
- CONFIG_SPI_SIFIVE=y
-+CONFIG_GPIOLIB=y
-+CONFIG_GPIO_SIFIVE=y
- # CONFIG_PTP_1588_CLOCK is not set
- CONFIG_POWER_RESET=y
- CONFIG_DRM=y
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
+index a78712caf1244..0524d6f1adba6 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
+@@ -608,8 +608,8 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 		.disable_pplib_clock_request = false,
+ 		.disable_pplib_wm_range = false,
+ 		.pplib_wm_report_mode = WM_REPORT_DEFAULT,
+-		.pipe_split_policy = MPC_SPLIT_DYNAMIC,
+-		.force_single_disp_pipe_split = true,
++		.pipe_split_policy = MPC_SPLIT_AVOID,
++		.force_single_disp_pipe_split = false,
+ 		.disable_dcc = DCC_ENABLE,
+ 		.voltage_align_fclk = true,
+ 		.disable_stereo_support = true,
 -- 
 2.27.0
 
