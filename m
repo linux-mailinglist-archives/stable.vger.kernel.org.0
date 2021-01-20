@@ -2,104 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7931F2FCECA
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 12:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F8682FD071
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 13:59:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731673AbhATLGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 06:06:08 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43751 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732790AbhATLEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 06:04:21 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id C9B285C00DC;
-        Wed, 20 Jan 2021 06:03:12 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 20 Jan 2021 06:03:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=n
-        j9c/dzz3CvjK9bcY8q4YjBxdvICEX+2nraw/Vl7viY=; b=M2GAtQ9RIhX8GN2p4
-        PIfFEM5zET2tdrkxXAnVYJPJuU6zeIjlkiRxwCmW7bkUONZdnsZE7KKzUYy8WxXW
-        TSpf5I3HXrk+13VdMwgUdXKBJDp0KtezheIH+lmvTPbnMlqSdXzkOl8Y5x8QFkgR
-        baov9nzv4MikEUjSGYVCmuj4eXDbjcNJoX4xOlLydIKh4opI6E3lAPoleNa4Xm3Q
-        LAL9YGPP1a9xj5poeZAsyqCsoCeOqwLXrKUXtpKlUNSaSDFkDGwX+0Qo5eaKPFo/
-        9rgjXV1HVba72zu2pSdlyDYMI9HvlElpif4LLhBDO5vTF8MV9E+9S/aRFcDMtZzD
-        AdOHw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=nj9c/dzz3CvjK9bcY8q4YjBxdvICEX+2nraw/Vl7v
-        iY=; b=X6stgKB9I9rjjf7Anj/aMbA1HBUeBKjbCiShZncv2u/WuuBuKsmvwGZys
-        Uzujs1Q8RWxlAJx6P9wxlMFzRGo51i4GD0opsuMTwt088PU0ijj1sW5UoHR3HzWK
-        ckZGOAJs3rRmdtLfYZMSqmW9Mt6ROLVwZ3553NFzNK8IR1LpxFoOseg6OSvMNZtA
-        p7OLu+bls0MNxc79uIOMLHXjdUAUfcWoxF24a6AiCXaS1D0K7Pu6CwsOZWTByRKZ
-        4t6O9LAYi1LjuktHLuLOuHat2fEXnW3DCYe+QobRdNpQEatD9GrXlvRy2UfzJL4b
-        KrHQ/gdYR2ItHls0JUHX+cHzhqnUQ==
-X-ME-Sender: <xms:8A0IYHEqYpsiFcMh-kQ25-gN9gLUaIUWOE9c3-ErMxPVVwnVnTG-5A>
-    <xme:8A0IYEW0D8EBo7Am1rUD65vByD6UOvtNkrjnHTqGcLUEDi78D5PS6cXf-rbLaJY1V
-    cc-CmGCS3DQvA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgddvhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpedvfffgue
-    eiuefhheevheetgfehvdefgeekfeevueejfeeftdetudetiefhheffvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhm
-X-ME-Proxy: <xmx:8A0IYJIXokwug8hlc4tvn17bqdcp56ttfw3I9xeyjrlUwF45JSd4cw>
-    <xmx:8A0IYFGhrN1j9r8cpQ4SQcxeU9YlnLvqawJgVogyJwY9D7WQfXJjxg>
-    <xmx:8A0IYNU5X6zDQ2YvdZb6gi95a7klx_PcvuPx19p3ajn61oQrVViWmQ>
-    <xmx:8A0IYAQd9jOflaE1lNmbleu7AJbejwa2_ADfX0Pa3Ah5EtGUFdZQEQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 53CBA240068;
-        Wed, 20 Jan 2021 06:03:12 -0500 (EST)
-Date:   Wed, 20 Jan 2021 12:03:10 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Roger Pau Monne <roger.pau@citrix.com>
-Cc:     stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH for <= 5.4] xen/privcmd: allow fetching resource sizes
-Message-ID: <YAgN7hlFe73mrBWE@kroah.com>
-References: <20210118140426.80458-1-roger.pau@citrix.com>
+        id S1730445AbhATMjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 07:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38440 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731423AbhATLKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jan 2021 06:10:49 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F376C061575
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 03:10:09 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id be12so12337620plb.4
+        for <stable@vger.kernel.org>; Wed, 20 Jan 2021 03:10:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=AJ4zGR+q32z6C6W5rHlbc9BA/3bqnp+zY/9xGmAqok0=;
+        b=iRZLlpKQyonoNfayRScdTZfMj3BzqW5L1orIORGSSDRSbZkAT5WMvgUnbeSL8qtGEC
+         iSc0aPJ9IYuYAHxquCQdwhDAoVlBYf6T2Qy+FWQIQQH6BQ58IsevW3Dhriq09FPIKsnE
+         0XNiAZkP2OkL5Xgt3qIztPGgXxeu1aA2S7XPzF+Bwxxc3J6Z9hSzbvx7vYtQScXztoAF
+         /o//KUCd4bfv6dC8VQkNWK2VBSyXX6IbEXrF91bivyz1uAvNwLXFEuswuzeacUpQvOIc
+         FNlVadDrtJiEaDfZ2odmXaihCJnD94yKQHM/NFufWoEIITdBFYek0w9aTpGCpH+dXmDE
+         sTlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=AJ4zGR+q32z6C6W5rHlbc9BA/3bqnp+zY/9xGmAqok0=;
+        b=R43YatgCU18T/P+HElqGGSAW4iblMxw+tslDGT7k3KKwSG27506iG9CUs5rs7qWp3s
+         Len9fXaL3tjakxkvAlAwRvSdJarTW3RoiLApiQFmQAOWLNR5GYMb98EnoP+S2twgdbp3
+         D+djWe+8111hlg1ixGj4GhpgaZ8MU4WDpajT0ut5TVVYyn17RgkiJr6wck3NXLWoSSEU
+         UirLXMS8pqbPLJDQxWibUZkvcZXqVTmxs3C+ostPyx2/3g4bWXgRXk0tMpu1iR93RsaD
+         WQmpVL251bdTLfk2WqdDTY0DhJU018WAMGHEsv1koU0QFnVUNHkkgg2svw8uQqWWWNWw
+         WECw==
+X-Gm-Message-State: AOAM530IBmJeFhF76GSD3fFloDVN8FwwKVPlLmEJVgvfew7nHWjJzhPP
+        PoQK1LWNkVc+g/C3BwffiObJgeEhCgKuiRixwOE=
+X-Google-Smtp-Source: ABdhPJwbvZLcS3/VRl2Grgfd5+S8dcliIA47rmQxgplrv/rpEQ9j839kheQPCbhmC3bJ3zs1rCfmzloa65MVMExFakc=
+X-Received: by 2002:a17:902:728b:b029:de:c843:1d4c with SMTP id
+ d11-20020a170902728bb02900dec8431d4cmr6676721pll.84.1611141008847; Wed, 20
+ Jan 2021 03:10:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210118140426.80458-1-roger.pau@citrix.com>
+Sender: t.a.b.12april1967@gmail.com
+Received: by 2002:a17:90a:3d08:0:0:0:0 with HTTP; Wed, 20 Jan 2021 03:10:08
+ -0800 (PST)
+From:   Alexandra Kelly <alexandrakelly779@gmail.com>
+Date:   Wed, 20 Jan 2021 12:10:08 +0100
+X-Google-Sender-Auth: 91cMXOCfeb5Z8gP5U3w4xwlY9m8
+Message-ID: <CAFYH1MkHRT8_9+k91w8WWToA+KD0j-tkVdxdA_dbmD4osPJuaw@mail.gmail.com>
+Subject: Urgent Response
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 03:04:26PM +0100, Roger Pau Monne wrote:
-> commit ef3a575baf53571dc405ee4028e26f50856898e7 upstream
-> 
-> Allow issuing an IOCTL_PRIVCMD_MMAP_RESOURCE ioctl with num = 0 and
-> addr = 0 in order to fetch the size of a specific resource.
-> 
-> Add a shortcut to the default map resource path, since fetching the
-> size requires no address to be passed in, and thus no VMA to setup.
-> 
-> This is missing from the initial implementation, and causes issues
-> when mapping resources that don't have fixed or known sizes.
-> 
-> Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-> Reviewed-by: Juergen Gross <jgross@suse.com>
-> Tested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-> Cc: stable@vger.kernel.org # >= 4.18
-> Link: https://lore.kernel.org/r/20210112115358.23346-1-roger.pau@citrix.com
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
-> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-> Cc: xen-devel@lists.xenproject.org
-> ---
->  drivers/xen/privcmd.c | 25 +++++++++++++++++++------
->  1 file changed, 19 insertions(+), 6 deletions(-)
+Dear friend,
 
-Now queued up, thanks.
+I am contacting you independently of my investigation in
+my bank and no one is informed of this communication. I need your
+urgent assistance in transferring the sum of $5.3million dollars to
+your private account,that belongs to one of our foreign customers who
+died a longtime with his supposed NEXT OF KIN since July 22, 2003. The
+money has been here in our Bank lying dormant for years now without
+anybody coming for the claim of it.
 
-greg k-h
+I want to release the money to you as the relative to our deceased
+customer , the Banking laws here does not allow such money to stay
+more than 18years, because the money will be recalled to the Bank
+treasury account as unclaimed fund. I am ready to share with you 40%
+for you and 60% will be kept for me, by indicating your interest i
+will send you the full details on how the business will be executed, i
+will be waiting for your urgent response.
