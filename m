@@ -2,123 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0542FD5CC
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 17:36:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 231B32FD617
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 17:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730699AbhATQgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jan 2021 11:36:14 -0500
-Received: from mga06.intel.com ([134.134.136.31]:8540 "EHLO mga06.intel.com"
+        id S2391323AbhATQm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jan 2021 11:42:57 -0500
+Received: from mga12.intel.com ([192.55.52.136]:60176 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391387AbhATQfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Jan 2021 11:35:12 -0500
-IronPort-SDR: NTfWwIvawqACqSzBYKe2EHFlQ2bIYQWwrbYtNgP7JKxDkqLtS6/71ItDncH1M6WmtvYSIzxSUF
- cFdFteEOv2hQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9870"; a="240673440"
+        id S2391700AbhATQmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Jan 2021 11:42:07 -0500
+IronPort-SDR: cYWbECLY6an8+o9OLepbjEl/V6nHX0INR4GbFJO99TehdSS/pA4tWKVseiiZxov1TdxCWC6/Ds
+ GAdf2KAMey9g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9870"; a="158316274"
 X-IronPort-AV: E=Sophos;i="5.79,361,1602572400"; 
-   d="scan'208";a="240673440"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2021 08:33:23 -0800
-IronPort-SDR: NaTwmjflADhRHtNI8n0obvI0Q7vHMzOHK+6I23GOLIWvsfLcOL1dFqajClmMBmHE+qn0RzpzKd
- YIBVWTkaq5xw==
+   d="scan'208";a="158316274"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2021 08:41:19 -0800
+IronPort-SDR: xIusPTD4ddCpvVbKIfN2IuQwDXNhZ4A+eQn8J09Terc4hJI2jqYDOAk9LMbX5yREEBOK43JfhL
+ kwtHA+9NT2Rg==
+X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.79,361,1602572400"; 
-   d="scan'208";a="426954211"
-Received: from yperets-mobl1.ger.corp.intel.com (HELO [10.209.89.231]) ([10.209.89.231])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2021 08:33:21 -0800
-Subject: Re: [PATCH v2] ASoC: Intel: Skylake: Check the kcontrol against NULL
-To:     =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>
-Cc:     Marcin Wojtas <mw@semihalf.com>,
+   d="scan'208";a="356108538"
+Received: from irsmsx604.ger.corp.intel.com ([163.33.146.137])
+  by fmsmga008.fm.intel.com with ESMTP; 20 Jan 2021 08:41:17 -0800
+Received: from irsmsx601.ger.corp.intel.com (163.33.146.7) by
+ IRSMSX604.ger.corp.intel.com (163.33.146.137) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 20 Jan 2021 16:41:16 +0000
+Received: from irsmsx601.ger.corp.intel.com ([163.33.146.7]) by
+ irsmsx601.ger.corp.intel.com ([163.33.146.7]) with mapi id 15.01.1713.004;
+ Wed, 20 Jan 2021 16:41:16 +0000
+From:   "Rojewski, Cezary" <cezary.rojewski@intel.com>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?utf-8?B?xYF1a2FzeiBNYWpjemFr?= <lma@semihalf.com>
+CC:     Marcin Wojtas <mw@semihalf.com>,
         Liam Girdwood <liam.r.girdwood@linux.intel.com>,
         Mateusz Gorski <mateusz.gorski@linux.intel.com>,
         Radoslaw Biernacki <rad@semihalf.com>,
-        Alex Levin <levinale@google.com>,
-        Guenter Roeck <groeck@google.com>, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Rojewski, Cezary" <cezary.rojewski@intel.com>,
-        =?UTF-8?Q?Amadeusz_S=c5=82awi=c5=84ski?= 
+        "Alex Levin" <levinale@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        =?utf-8?B?QW1hZGV1c3ogU8WCYXdpxYRza2k=?= 
         <amadeuszx.slawinski@linux.intel.com>
+Subject: RE: [PATCH v2] ASoC: Intel: Skylake: Check the kcontrol against NULL
+Thread-Topic: [PATCH v2] ASoC: Intel: Skylake: Check the kcontrol against NULL
+Thread-Index: AQHW1HWlBDRR5udg2US7JjUHUSX5h6okBMqAgAzZ2oCAAAxcgIAAAbqw
+Date:   Wed, 20 Jan 2021 16:41:16 +0000
+Message-ID: <371e612ac59c458cad1bafb82ca09c9f@intel.com>
 References: <20201210121438.7718-1-lma@semihalf.com>
  <20201217130439.141943-1-lma@semihalf.com>
  <CAFJ_xbprw7UKREWgRAq3dDAA9oC_3cWoozn5pCY8w9By4dASag@mail.gmail.com>
  <CAFJ_xbrvr7jcCB57MPwzXf=oC5OYT5KUBkcqHYyOYH=a5njfSA@mail.gmail.com>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <8c22c415-1807-b673-20e3-bc8d7f4c05b7@linux.intel.com>
-Date:   Wed, 20 Jan 2021 10:33:19 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <CAFJ_xbrvr7jcCB57MPwzXf=oC5OYT5KUBkcqHYyOYH=a5njfSA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <8c22c415-1807-b673-20e3-bc8d7f4c05b7@linux.intel.com>
+In-Reply-To: <8c22c415-1807-b673-20e3-bc8d7f4c05b7@linux.intel.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.5.1.3
+x-originating-ip: [163.33.253.164]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 1/20/21 9:49 AM, Łukasz Majczak wrote:
-> Hi Pierre,
-> 
-> Is there anything more to do to get the ACK for this patch?
-
-Adding Cezary and Amadeusz for feedback, I can't pretend having any sort 
-of knowledge on the Skylake driver internals and topology usage.
-
-> Best regards,
-> Lukasz
-> 
-> wt., 12 sty 2021 o 12:34 Łukasz Majczak <lma@semihalf.com> napisał(a):
->>
->> Hi,
->>
->> This is just a kind reminder. Is there anything more required to
->> upstream this patch?
->>
->> Best regards,
->> Lukasz
->>
->>
->> czw., 17 gru 2020 o 14:06 Lukasz Majczak <lma@semihalf.com> napisał(a):
->>>
->>> There is no check for the kcontrol against NULL and in some cases
->>> it causes kernel to crash.
->>>
->>> Fixes: 2d744ecf2b984 ("ASoC: Intel: Skylake: Automatic DMIC format configuration according to information from NHLT")
->>> Cc: <stable@vger.kernel.org> # 5.4+
->>> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
->>> Reviewed-by: Mateusz Gorski <mateusz.gorski@linux.intel.com>
->>> ---
->>>   sound/soc/intel/skylake/skl-topology.c | 14 ++++++++++----
->>>   1 file changed, 10 insertions(+), 4 deletions(-)
->>>   v1 -> v2: fixed coding style
->>>
->>> diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
->>> index ae466cd592922..8f0bfda7096a9 100644
->>> --- a/sound/soc/intel/skylake/skl-topology.c
->>> +++ b/sound/soc/intel/skylake/skl-topology.c
->>> @@ -3618,12 +3618,18 @@ static void skl_tplg_complete(struct snd_soc_component *component)
->>>          int i;
->>>
->>>          list_for_each_entry(dobj, &component->dobj_list, list) {
->>> -               struct snd_kcontrol *kcontrol = dobj->control.kcontrol;
->>> -               struct soc_enum *se =
->>> -                       (struct soc_enum *)kcontrol->private_value;
->>> -               char **texts = dobj->control.dtexts;
->>> +               struct snd_kcontrol *kcontrol;
->>> +               struct soc_enum *se;
->>> +               char **texts;
->>>                  char chan_text[4];
->>>
->>> +               kcontrol = dobj->control.kcontrol;
->>> +               if (!kcontrol)
->>> +                       continue;
->>> +
->>> +               se = (struct soc_enum *)kcontrol->private_value;
->>> +               texts = dobj->control.dtexts;
->>> +
->>>                  if (dobj->type != SND_SOC_DOBJ_ENUM ||
->>>                      dobj->control.kcontrol->put !=
->>>                      skl_tplg_multi_config_set_dmic)
->>> --
->>> 2.25.1
->>>
+T24gMjAyMS0wMS0yMCA1OjMzIFBNLCBQaWVycmUtTG91aXMgQm9zc2FydCB3cm90ZToNCj4gT24g
+MS8yMC8yMSA5OjQ5IEFNLCDFgXVrYXN6IE1hamN6YWsgd3JvdGU6DQo+PiBIaSBQaWVycmUsDQo+
+Pg0KPj4gSXMgdGhlcmUgYW55dGhpbmcgbW9yZSB0byBkbyB0byBnZXQgdGhlIEFDSyBmb3IgdGhp
+cyBwYXRjaD8NCj4gDQo+IEFkZGluZyBDZXphcnkgYW5kIEFtYWRldXN6IGZvciBmZWVkYmFjaywg
+SSBjYW4ndCBwcmV0ZW5kIGhhdmluZyBhbnkgc29ydCANCj4gb2Yga25vd2xlZGdlIG9uIHRoZSBT
+a3lsYWtlIGRyaXZlciBpbnRlcm5hbHMgYW5kIHRvcG9sb2d5IHVzYWdlLg0KPiANCg0KVGhhbmtz
+IGZvciB0aGUgQ0MsIFBpZXJyZS4NCg0KLi4uDQoNCj4+Pj4NCj4+Pj4gZGlmZiAtLWdpdCBhL3Nv
+dW5kL3NvYy9pbnRlbC9za3lsYWtlL3NrbC10b3BvbG9neS5jIA0KPj4+PiBiL3NvdW5kL3NvYy9p
+bnRlbC9za3lsYWtlL3NrbC10b3BvbG9neS5jDQo+Pj4+IGluZGV4IGFlNDY2Y2Q1OTI5MjIuLjhm
+MGJmZGE3MDk2YTkgMTAwNjQ0DQo+Pj4+IC0tLSBhL3NvdW5kL3NvYy9pbnRlbC9za3lsYWtlL3Nr
+bC10b3BvbG9neS5jDQo+Pj4+ICsrKyBiL3NvdW5kL3NvYy9pbnRlbC9za3lsYWtlL3NrbC10b3Bv
+bG9neS5jDQo+Pj4+IEBAIC0zNjE4LDEyICszNjE4LDE4IEBAIHN0YXRpYyB2b2lkIHNrbF90cGxn
+X2NvbXBsZXRlKHN0cnVjdCANCj4+Pj4gc25kX3NvY19jb21wb25lbnQgKmNvbXBvbmVudCkNCj4+
+Pj4gICAgICAgICAgaW50IGk7DQo+Pj4+DQo+Pj4+ICAgICAgICAgIGxpc3RfZm9yX2VhY2hfZW50
+cnkoZG9iaiwgJmNvbXBvbmVudC0+ZG9ial9saXN0LCBsaXN0KSB7DQo+Pj4+IC0gICAgICAgICAg
+ICAgICBzdHJ1Y3Qgc25kX2tjb250cm9sICprY29udHJvbCA9IGRvYmotPmNvbnRyb2wua2NvbnRy
+b2w7DQo+Pj4+IC0gICAgICAgICAgICAgICBzdHJ1Y3Qgc29jX2VudW0gKnNlID0NCj4+Pj4gLSAg
+ICAgICAgICAgICAgICAgICAgICAgKHN0cnVjdCBzb2NfZW51bSAqKWtjb250cm9sLT5wcml2YXRl
+X3ZhbHVlOw0KPj4+PiAtICAgICAgICAgICAgICAgY2hhciAqKnRleHRzID0gZG9iai0+Y29udHJv
+bC5kdGV4dHM7DQo+Pj4+ICsgICAgICAgICAgICAgICBzdHJ1Y3Qgc25kX2tjb250cm9sICprY29u
+dHJvbDsNCj4+Pj4gKyAgICAgICAgICAgICAgIHN0cnVjdCBzb2NfZW51bSAqc2U7DQo+Pj4+ICsg
+ICAgICAgICAgICAgICBjaGFyICoqdGV4dHM7DQo+Pj4+ICAgICAgICAgICAgICAgICAgY2hhciBj
+aGFuX3RleHRbNF07DQo+Pj4+DQo+Pj4+ICsgICAgICAgICAgICAgICBrY29udHJvbCA9IGRvYmot
+PmNvbnRyb2wua2NvbnRyb2w7DQo+Pj4+ICsgICAgICAgICAgICAgICBpZiAoIWtjb250cm9sKQ0K
+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgICBjb250aW51ZTsNCj4+Pj4gKw0KPj4+PiArICAg
+ICAgICAgICAgICAgc2UgPSAoc3RydWN0IHNvY19lbnVtICopa2NvbnRyb2wtPnByaXZhdGVfdmFs
+dWU7DQo+Pj4+ICsgICAgICAgICAgICAgICB0ZXh0cyA9IGRvYmotPmNvbnRyb2wuZHRleHRzOw0K
+Pj4+PiArDQo+Pj4+ICAgICAgICAgICAgICAgICAgaWYgKGRvYmotPnR5cGUgIT0gU05EX1NPQ19E
+T0JKX0VOVU0gfHwNCj4+Pj4gICAgICAgICAgICAgICAgICAgICAgZG9iai0+Y29udHJvbC5rY29u
+dHJvbC0+cHV0ICE9DQo+Pj4+ICAgICAgICAgICAgICAgICAgICAgIHNrbF90cGxnX211bHRpX2Nv
+bmZpZ19zZXRfZG1pYykNCg0KSnVzdCBjaGVja2VkIHRoZSBoaXN0b3J5IGJlaGluZCB0aGlzLiBB
+bmQgbXVzdCBzYXksIEkgbGlrZWQgUmljYXJkbydzDQp2ZXJzaW9uIGJldHRlci4gRXhjZXB0IGZv
+ciB0aGUgIj0ge307IiBiaXQgd2hpY2ggTWFyayBhbHJlYWR5IHBvaW50ZWQNCm91dCAtIGl0IHNo
+b3VsZCBiZSBhIHNlcGFyYXRlIGZpeCAtIGl0J3Mgc2ltcGx5IG1vcmUgb3B0aW9uYWwNCg0KZS5n
+LjogJ2tjb250cm9sJyBnZXRzIGFzc2lnbmVkIHlldCAnaWYnIGFib3ZlIGlzIG5vdCB1cGRhdGVk
+IGFjY29yZGluZ2x5Og0Kcy9kb2JqLT5jb250cm9sLmtjb250cm9sLT5wdXQva2NvbnRyb2wtPnB1
+dA0KDQpDemFyZWsNCg0K
