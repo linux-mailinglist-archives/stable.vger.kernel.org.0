@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF962FC94B
-	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8BB32FC98B
+	for <lists+stable@lfdr.de>; Wed, 20 Jan 2021 04:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731689AbhATC3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jan 2021 21:29:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47420 "EHLO mail.kernel.org"
+        id S1731083AbhATC2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jan 2021 21:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730003AbhATB2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D81AE2333B;
-        Wed, 20 Jan 2021 01:26:34 +0000 (UTC)
+        id S1729913AbhATB14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:27:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35F6A2333D;
+        Wed, 20 Jan 2021 01:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105995;
-        bh=sJhGEme1dz39LpSWoym7b5fWuUSGevs/wVnlhT0c6HE=;
+        s=k20201202; t=1611105997;
+        bh=Y0y4RiRCOTkbxzR1OuKcUy8g7sjPnEEbdSQgPF7jO/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGQbE9eT+fbHSkrZwwq5IO2W3H/FeRVKvijaKLY7j7Ov67RFYWl6M3IkugULiaZxw
-         pXmhwJ5whdwp5a4LLxs5UFv09iJeQw/2iD97WGK/I/aAu2Z9B2S+56SMWoEpdsQnTe
-         lUNxwRKXzTSDGA79JFt+oF1Xt6APzTpONsZuy1N/aSWn8NaxgYI+MJ24OMv8HzAzT3
-         zrDO/YIpCb3IO9WQb64IEHtOhUp3zp9hclyxDELXZrw0W7ElHRYAA8zL6Jcbgwqs9q
-         J1CZV9occKup+9982ekd7/pBeLOdHNzT0Z0bu1nu5LMfXt5LTloWNm+vXVtLl/itVi
-         Q7wUkNS151mTQ==
+        b=Gq1GVMovyw2turFiy7eHW+Z1ggwKF0QCdhSxCuSTnqmGRwTdZwaZsJ0NhIrPUK5/v
+         gw0fofy1nb5m6goba6GjM+D6R8ZsmxMGHQR/Dng97cPWdI2myWHFEeLiARyDGqEMcx
+         UEvzMMEFiHCI+0SNkcFuHR/m92QpmpgNOC35h0IH6nKFbfdlPVQQCg5+pgBldfcvgn
+         O0fSXmnTxg4hYYZcnZSskCaYrHMd78x/gk1QfdYcSJSW4WbIzBKOzdxEoqeXO5lpRc
+         N88XbWbY980TBw+fztV14w56S0M9nuoDvN8GDyiyeURM3zaYskBbz2+pDJcoJE5nof
+         K7HSV+scKIpLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     David Woodhouse <dwmw@amazon.co.uk>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.10 25/45] x86/xen: Add xen_no_vector_callback option to test PCI INTX delivery
-Date:   Tue, 19 Jan 2021 20:25:42 -0500
-Message-Id: <20210120012602.769683-25-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.10 26/45] x86/xen: Fix xen_hvm_smp_init() when vector callback not available
+Date:   Tue, 19 Jan 2021 20:25:43 -0500
+Message-Id: <20210120012602.769683-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,76 +46,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit b36b0fe96af13460278bf9b173beced1bd15f85d ]
+[ Upstream commit 3d7746bea92530e8695258a3cf3ddec7a135edd6 ]
 
-It's useful to be able to test non-vector event channel delivery, to make
-sure Linux will work properly on older Xen which doesn't have it.
+Only the IPI-related functions in the smp_ops should be conditional
+on the vector callback being available. The rest should still happen:
 
-It's also useful for those working on Xen and Xen-compatible hypervisors,
-because there are guest kernels still in active use which use PCI INTX
-even when vector delivery is available.
+ • xen_hvm_smp_prepare_boot_cpu()
+
+   This function does two things, both of which should still happen if
+   there is no vector callback support.
+
+   The call to xen_vcpu_setup() for vCPU0 should still happen as it just
+   sets up the vcpu_info for CPU0. That does happen for the secondary
+   vCPUs too, from xen_cpu_up_prepare_hvm().
+
+   The second thing it does is call xen_init_spinlocks(), which perhaps
+   counter-intuitively should *also* still be happening in the case
+   without vector callbacks, so that it can clear its local xen_pvspin
+   flag and disable the virt_spin_lock_key accordingly.
+
+   Checking xen_have_vector_callback in xen_init_spinlocks() itself
+   would affect PV guests, so set the global nopvspin flag in
+   xen_hvm_smp_init() instead, when vector callbacks aren't available.
+
+ • xen_hvm_smp_prepare_cpus()
+
+   This does some IPI-related setup by calling xen_smp_intr_init() and
+   xen_init_lock_cpu(), which can be made conditional. And it sets the
+   xen_vcpu_id to XEN_VCPU_ID_INVALID for all possible CPUS, which does
+   need to happen.
+
+ • xen_smp_cpus_done()
+
+   This offlines any vCPUs which doesn't fit in the global shared_info
+   page, if separate vcpu_info placement isn't available. That part also
+   needs to happen regardless of vector callback support.
+
+ • xen_hvm_cpu_die()
+
+   This doesn't actually do anything other than commin_cpu_die() right
+   right now in the !vector_callback case; all three teardown functions
+   it calls should be no-ops. But to guard against future regressions
+   it's useful to call it anyway, and for it to explicitly check for
+   xen_have_vector_callback before calling those additional functions.
 
 Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
 Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210106153958.584169-4-dwmw2@infradead.org
+Link: https://lore.kernel.org/r/20210106153958.584169-6-dwmw2@infradead.org
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |  4 ++++
- arch/x86/xen/enlighten_hvm.c                    | 11 ++++++++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ arch/x86/xen/smp_hvm.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index f6a1513dfb76c..26bfe7ae711b8 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5965,6 +5965,10 @@
- 			This option is obsoleted by the "nopv" option, which
- 			has equivalent effect for XEN platform.
+diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
+index f5e7db4f82abb..056430a1080bb 100644
+--- a/arch/x86/xen/smp_hvm.c
++++ b/arch/x86/xen/smp_hvm.c
+@@ -33,9 +33,11 @@ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
+ 	int cpu;
  
-+	xen_no_vector_callback
-+			[KNL,X86,XEN] Disable the vector callback for Xen
-+			event channel interrupts.
-+
- 	xen_scrub_pages=	[XEN]
- 			Boolean option to control scrubbing pages before giving them back
- 			to Xen, for use by other domains. Can be also changed at runtime
-diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-index 9e87ab010c82b..ec50b7423a4c8 100644
---- a/arch/x86/xen/enlighten_hvm.c
-+++ b/arch/x86/xen/enlighten_hvm.c
-@@ -188,6 +188,8 @@ static int xen_cpu_dead_hvm(unsigned int cpu)
-        return 0;
- }
+ 	native_smp_prepare_cpus(max_cpus);
+-	WARN_ON(xen_smp_intr_init(0));
  
-+static bool no_vector_callback __initdata;
-+
- static void __init xen_hvm_guest_init(void)
+-	xen_init_lock_cpu(0);
++	if (xen_have_vector_callback) {
++		WARN_ON(xen_smp_intr_init(0));
++		xen_init_lock_cpu(0);
++	}
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		if (cpu == 0)
+@@ -50,9 +52,11 @@ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
+ static void xen_hvm_cpu_die(unsigned int cpu)
  {
- 	if (xen_pv_domain())
-@@ -207,7 +209,7 @@ static void __init xen_hvm_guest_init(void)
- 
- 	xen_panic_handler_init();
- 
--	if (xen_feature(XENFEAT_hvm_callback_vector))
-+	if (!no_vector_callback && xen_feature(XENFEAT_hvm_callback_vector))
- 		xen_have_vector_callback = 1;
- 
- 	xen_hvm_smp_init();
-@@ -233,6 +235,13 @@ static __init int xen_parse_nopv(char *arg)
+ 	if (common_cpu_die(cpu) == 0) {
+-		xen_smp_intr_free(cpu);
+-		xen_uninit_lock_cpu(cpu);
+-		xen_teardown_timer(cpu);
++		if (xen_have_vector_callback) {
++			xen_smp_intr_free(cpu);
++			xen_uninit_lock_cpu(cpu);
++			xen_teardown_timer(cpu);
++		}
+ 	}
  }
- early_param("xen_nopv", xen_parse_nopv);
+ #else
+@@ -64,14 +68,17 @@ static void xen_hvm_cpu_die(unsigned int cpu)
  
-+static __init int xen_parse_no_vector_callback(char *arg)
-+{
-+	no_vector_callback = true;
-+	return 0;
-+}
-+early_param("xen_no_vector_callback", xen_parse_no_vector_callback);
-+
- bool __init xen_hvm_need_lapic(void)
+ void __init xen_hvm_smp_init(void)
  {
- 	if (xen_pv_domain())
+-	if (!xen_have_vector_callback)
++	smp_ops.smp_prepare_boot_cpu = xen_hvm_smp_prepare_boot_cpu;
++	smp_ops.smp_prepare_cpus = xen_hvm_smp_prepare_cpus;
++	smp_ops.smp_cpus_done = xen_smp_cpus_done;
++	smp_ops.cpu_die = xen_hvm_cpu_die;
++
++	if (!xen_have_vector_callback) {
++		nopvspin = true;
+ 		return;
++	}
+ 
+-	smp_ops.smp_prepare_cpus = xen_hvm_smp_prepare_cpus;
+ 	smp_ops.smp_send_reschedule = xen_smp_send_reschedule;
+-	smp_ops.cpu_die = xen_hvm_cpu_die;
+ 	smp_ops.send_call_func_ipi = xen_smp_send_call_function_ipi;
+ 	smp_ops.send_call_func_single_ipi = xen_smp_send_call_function_single_ipi;
+-	smp_ops.smp_prepare_boot_cpu = xen_hvm_smp_prepare_boot_cpu;
+-	smp_ops.smp_cpus_done = xen_smp_cpus_done;
+ }
 -- 
 2.27.0
 
