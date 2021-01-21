@@ -2,135 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D8F2FF50E
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6492FF48B
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726232AbhAUTsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 14:48:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
+        id S1727317AbhAUTbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 14:31:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726199AbhAUSro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 13:47:44 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18AA6C06174A;
-        Thu, 21 Jan 2021 10:46:58 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id m6so2048398pfm.6;
-        Thu, 21 Jan 2021 10:46:58 -0800 (PST)
+        with ESMTP id S1726344AbhAUTFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 14:05:06 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE0E0C0613D6;
+        Thu, 21 Jan 2021 10:53:53 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id b5so2767896wrr.10;
+        Thu, 21 Jan 2021 10:53:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DV+WyTHcLGBdAEm6DifZ+9dUcvJgKflailcNHBr+Tfo=;
-        b=kNJLrFZfILTqRRlm8iNz1uUmVGITt0RJNRtt4wpNPQU+/qKdfBFAT1Ghhd605PrMle
-         ltvpWzhjEP/aYf6duGWtPgcjYwtid1Fno6OV8Qt2J81O+v3ceEEZrREORw9oxazA1Y0F
-         etX0qn7e6NYP8cDu2ZW90lwZrJR5ov5a5wIhOfGf3swcoto5nZRObbXTgqsZFbZI30WU
-         De158HrarRogQbEqq2MxArc4IkA1H3iDNFVEXgQQ1MvV6lFsELhaFsC1AvDcXcrP1n85
-         JD/HUb5fMUs3OU/PDM1520GKdAKfKwx0UXHPuDjkDtKoUzPKHLxu/vbdJRPiFpu2LFz8
-         O7NA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=GSNo4GQaMF01CN3jcOZYky+NX759MUu9sdXp7CoIzS0=;
+        b=nAQr/sRJATdK0DqAwkGDw0KKvUrP1/VyLrtLabyHoZZQAjVySysTjzEjvXARgPpYQS
+         ivx/E8XQ+kStGQummVVzsk8djxm1W5e5QVWTn0mTvSRLxnU20fmx8EGKMRtn7VBQiatZ
+         p0nHYtI+edbkBt+ad0HJIw4xjgaSo5IO6tMSopKQkoIi/5nAj5SbnVG8x1HQqLIO7r9M
+         XyM98dnWNXdkccXdZ1VPDdi3ks+6GawTeU+YDT1YW6MPfXgMXA5ZubrOBB4mnKQAmTOz
+         B/4NGdLPWqiW2W9WN2d4z2vItET0EZ8rQmJlnaZzpRN7Ykkg6Yai5BDrTFrFf730Lj9M
+         tucQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DV+WyTHcLGBdAEm6DifZ+9dUcvJgKflailcNHBr+Tfo=;
-        b=A2yre98ACQdgl7pe5T8znGFoh0WoE6EmrHMAIEZWVuheXMkrAbkJ2hS9LRg8271RzC
-         mq97XApJlw/hduRxdDTRP9Ix7yjZ0A9b1LPrRGKnVABdavLrwiz8QfeZCF9A52aamsMT
-         fgv01CF1nrFOxIDdKWyOOatPY9O2OjICo+Q0HQ0Mhb1MrRMByxlyMzxpVm89MoM8Vd3R
-         Dcr8YpWaFOARPTJZRQynBIqWyq/g7SNXyZWnHHY7Duo8y5vzUJDkdiUFTNf2sMEIyOzC
-         v3CGnSEC8DKVmfoseUayYtTaBwhQPFoc76NOcCJ9Ro5AIopklZAQgsek5fELWgx0ABhx
-         irIQ==
-X-Gm-Message-State: AOAM531iv72e//ZaWLkA6i8q0DY+oPJu/Q//SFpY/oJEVY3bd9GbI4p6
-        FBCGWAzJA8RH5b2ZdNUleNuLCxKyjtt8KIf6
-X-Google-Smtp-Source: ABdhPJwYeGf1DLU8V+guJbuIG1u7QKLsPh3RlSayzCkHm/8bTJxhOSGoz6wMOqMfeUjw2UhnlheCGQ==
-X-Received: by 2002:a63:464a:: with SMTP id v10mr624584pgk.393.1611254817525;
-        Thu, 21 Jan 2021 10:46:57 -0800 (PST)
-Received: from horus.lan (71-34-80-131.ptld.qwest.net. [71.34.80.131])
-        by smtp.gmail.com with ESMTPSA id fh7sm6556714pjb.43.2021.01.21.10.46.56
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=GSNo4GQaMF01CN3jcOZYky+NX759MUu9sdXp7CoIzS0=;
+        b=efT1Ka00wc0UgxK14fVrOCygS83lM8vp9wp4uj2pRz38fZN86SHAwTmNc6hoTRNUE3
+         wpq9GlpXUg4p7TumsjqbPjx5EobXtjfJ/7k7BqvSY1NoqPciz6Q8WtwaUhLOlnBp3lyu
+         Rn2PhGephgYZytx1sbY2X9MHbUHqb1eszEw+cx5B51HLjVJdnJFl0GkSRmNBZiVX33lV
+         YXeGPh7xM87lD4ncImzK/GbItFmf8KB+/lOiQRLbSC7z/6Ga+Ut7X6PPmxErglOWKyQf
+         6BsJozdXBWpbJlXmuHqylR2ltJQ7LGz8guGzNo5J/h5/5t2WLTpjpWwzVQjBvrpfhF9n
+         eqsw==
+X-Gm-Message-State: AOAM532V3CtOqtqygvqNS26Ikxa908WrbaP8qhUCfufYzftctN/Ebk64
+        YvXShec688mMN7ST3QnPktRulfucW+I=
+X-Google-Smtp-Source: ABdhPJz5DlIzazgq+BpxAwHtAA/1THEgWazEtaOcDMZtKX1BTXdxh2SoRvXrjAQxa2kh0FKvRjOjbQ==
+X-Received: by 2002:adf:f5c5:: with SMTP id k5mr893553wrp.286.1611255232632;
+        Thu, 21 Jan 2021 10:53:52 -0800 (PST)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id h16sm8830498wmb.41.2021.01.21.10.53.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 10:46:56 -0800 (PST)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org,
-        Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH] HID: wacom: Correct NULL dereference on AES pen proximity
-Date:   Thu, 21 Jan 2021 10:46:49 -0800
-Message-Id: <20210121184649.157189-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.30.0
+        Thu, 21 Jan 2021 10:53:51 -0800 (PST)
+Date:   Thu, 21 Jan 2021 19:53:49 +0100
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     JC Kuo <jckuo@nvidia.com>
+Cc:     gregkh@linuxfoundation.org, jonathanh@nvidia.com,
+        robh+dt@kernel.org, linux-kernel@vger.kernel.org,
+        linux-tegra@vger.kernel.org, devicetree@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: tegra: Enable Jetson-Xavier J512 USB host
+Message-ID: <YAnNvTtlx8jHyRG3@ulmo>
+References: <20210119022349.136453-1-jckuo@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="RWasVtTkUFJY1dK5"
+Content-Disposition: inline
+In-Reply-To: <20210119022349.136453-1-jckuo@nvidia.com>
+User-Agent: Mutt/2.0.4 (26f41dd1) (2020-12-30)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The recent commit to fix a memory leak introduced an inadvertant NULL
-pointer dereference. The `wacom_wac->pen_fifo` variable was never
-intialized, resuling in a crash whenever functions tried to use it.
-Since the FIFO is only used by AES pens (to buffer events from pen
-proximity until the hardware reports the pen serial number) this would
-have been easily overlooked without testing an AES device.
 
-This patch converts `wacom_wac->pen_fifo` over to a pointer (since the
-call to `devres_alloc` allocates memory for us) and ensures that we assign
-it to point to the allocated and initalized `pen_fifo` before the function
-returns.
+--RWasVtTkUFJY1dK5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Link: https://github.com/linuxwacom/input-wacom/issues/230
-Fixes: 37309f47e2f5 ("HID: wacom: Fix memory leakage caused by kfifo_alloc")
-CC: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/wacom_sys.c | 7 ++++---
- drivers/hid/wacom_wac.h | 2 +-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+On Tue, Jan 19, 2021 at 10:23:49AM +0800, JC Kuo wrote:
+> This commit enables USB host mode at J512 type-C port of Jetson-Xavier.
+>=20
+> Signed-off-by: JC Kuo <jckuo@nvidia.com>
+> ---
+>  .../arm64/boot/dts/nvidia/tegra194-p2888.dtsi |  8 +++++++
+>  .../boot/dts/nvidia/tegra194-p2972-0000.dts   | 24 +++++++++++++++++--
+>  2 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index e8acd235db2a..aa9e48876ced 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -147,9 +147,9 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
- 	}
- 
- 	if (flush)
--		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
-+		wacom_wac_queue_flush(hdev, wacom_wac->pen_fifo);
- 	else if (insert)
--		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
-+		wacom_wac_queue_insert(hdev, wacom_wac->pen_fifo,
- 				       raw_data, report_size);
- 
- 	return insert && !flush;
-@@ -1280,7 +1280,7 @@ static void wacom_devm_kfifo_release(struct device *dev, void *res)
- static int wacom_devm_kfifo_alloc(struct wacom *wacom)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
--	struct kfifo_rec_ptr_2 *pen_fifo = &wacom_wac->pen_fifo;
-+	struct kfifo_rec_ptr_2 *pen_fifo;
- 	int error;
- 
- 	pen_fifo = devres_alloc(wacom_devm_kfifo_release,
-@@ -1297,6 +1297,7 @@ static int wacom_devm_kfifo_alloc(struct wacom *wacom)
- 	}
- 
- 	devres_add(&wacom->hdev->dev, pen_fifo);
-+	wacom_wac->pen_fifo = pen_fifo;
- 
- 	return 0;
- }
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index da612b6e9c77..195910dd2154 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -342,7 +342,7 @@ struct wacom_wac {
- 	struct input_dev *pen_input;
- 	struct input_dev *touch_input;
- 	struct input_dev *pad_input;
--	struct kfifo_rec_ptr_2 pen_fifo;
-+	struct kfifo_rec_ptr_2 *pen_fifo;
- 	int pid;
- 	int num_contacts_left;
- 	u8 bt_features;
--- 
-2.30.0
+Applied, thanks.
 
+Thierry
+
+--RWasVtTkUFJY1dK5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmAJzbUACgkQ3SOs138+
+s6FGwA//XuVbtQA6LY/Mptb4ENgPKL5kotvFnpTGdmQRuBhTV/Ga+zORCUVCSiRt
+P9x5LUnMSHpgyZn+TKaNiZIrcxdV8m//TnjrwL+bDIlEZDBxHVOmapanhTjkNEhY
+MNZ0NGXZsmzFRXeb2q6FC51lQEQeBT9yC33fe/5/KTCnMr+15NcmCy9nd+aWmImH
+PHx7OJwoen7dXfcTKR/Q6Kxc0yKjcujyXKH64gXlSRjWJUnInF114Gc6GnGIMSOu
+CBnW2i63lw21RAiR3s7Ys91pnjhXudoP/GogEeK05Zf/LufuW3vZ7hhLrk/sqG/g
+LFbhE1UKGc44wuoMq2OFT/HwHsg9PcvNOaJ3sil1/9Pzjak4xeLHsF5W3NFWyiCj
+LeqICBXqCqABTKckIjWy0U+LCcieHxVACb3gltOzASiJ5EA7ivzu4nebtPGuy4O3
+PF2vC8xHO6beTQwYYAjK9J6cydttiOqrJeY0d5mhla6U0hR+YeSONeLJ+hNNfI8u
+Y9gwJ53QRLW6t79av1NcBe5I+O9fguko3fqlnVwhvW0saqpIneYBy8J7a61KvqvH
+PcLk4M2rfIMsWUTraaRw2q5gpM/ApPz46Nbdv+U17wJZQL5QbbIQeI7pYXeXulAG
+4vz3q57PdpLkEMt0dfmflHZx0k2LxPRBkb3hcx4vrfPUPwYZf5E=
+=Pioz
+-----END PGP SIGNATURE-----
+
+--RWasVtTkUFJY1dK5--
