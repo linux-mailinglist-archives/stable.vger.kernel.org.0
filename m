@@ -2,79 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5147B2FF3C4
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0378E2FF3E2
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726037AbhAUTFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 14:05:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726354AbhAUTFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 14:05:06 -0500
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6971C061797;
-        Thu, 21 Jan 2021 11:04:13 -0800 (PST)
-Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        id S1726923AbhAUTKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 14:10:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38610 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726821AbhAUTKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Jan 2021 14:10:37 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 2EC9922F99;
-        Thu, 21 Jan 2021 20:01:24 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1611255684;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pIGZ7IHl3sy0Lk94N7kf+/WsHttuKwteT2zoVx5q/SA=;
-        b=b6VHXC9qRDl74L3WjiKc5vZEaRIQr7+UfqoSAmgSwLjjWaWKFCtl78eShg0Ey5Cgwl5nJP
-        tV+7UnIeycZlfWm8lM9SsgWYZvgrqB9OJ2jqilDTBHzc/5VLi9y6hGr1KV8Tc9agAAzXWw
-        WrjbMSJcPsG5ksdBVpjp+t2KGPU25Gw=
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BDCF221E7;
+        Thu, 21 Jan 2021 19:09:52 +0000 (UTC)
+Date:   Thu, 21 Jan 2021 14:09:51 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Denis Efremov <efremov@linux.com>
+Cc:     Gaurav Kohli <gkohli@codeaurora.org>, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v1] trace: Fix race in trace_open and buffer resize call
+Message-ID: <20210121140951.2a554a5e@gandalf.local.home>
+In-Reply-To: <f06efd7b-c7b5-85c9-1a0e-6bb865111ede@linux.com>
+References: <1601976833-24377-1-git-send-email-gkohli@codeaurora.org>
+        <f06efd7b-c7b5-85c9-1a0e-6bb865111ede@linux.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date:   Thu, 21 Jan 2021 20:01:24 +0100
-From:   Michael Walle <michael@walle.cc>
-To:     Saravana Kannan <saravanak@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel-team@android.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] driver core: Fix device link device name collision
-In-Reply-To: <20210110175408.1465657-1-saravanak@google.com>
-References: <20210110175408.1465657-1-saravanak@google.com>
-User-Agent: Roundcube Webmail/1.4.10
-Message-ID: <10c82099cb39f176dde96c16d9cc6100@walle.cc>
-X-Sender: michael@walle.cc
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, 21 Jan 2021 17:30:40 +0300
+Denis Efremov <efremov@linux.com> wrote:
 
-Am 2021-01-10 18:54, schrieb Saravana Kannan:
-> The device link device's name was of the form:
-> <supplier-dev-name>--<consumer-dev-name>
+> Hi,
 > 
-> This can cause name collision as reported here [1] as device names are
-> not globally unique. Since device names have to be unique within the
-> bus/class, add the bus/class name as a prefix to the device names used 
-> to
-> construct the device link device name.
+> This patch (CVE-2020-27825) was tagged with
+> Fixes: b23d7a5f4a07a ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
 > 
-> So the devuce link device's name will be of the form:
-> <supplier-bus-name>:<supplier-dev-name>--<consumer-bus-name>:<consumer-dev-name>
+> I'm not an expert here but it seems like b23d7a5f4a07a only refactored
+> ring_buffer_reset_cpu() by introducing reset_disabled_cpu_buffer() without
+> significant changes. Hence, mutex_lock(&buffer->mutex)/mutex_unlock(&buffer->mutex)
+> can be backported further than b23d7a5f4a07a~ and to all LTS kernels. Is
+> b23d7a5f4a07a the actual cause of the bug?
 > 
-> [1] - 
-> https://lore.kernel.org/lkml/20201229033440.32142-1-michael@walle.cc/
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 287905e68dd2 ("driver core: Expose device link details in 
-> sysfs")
-> Reported-by: Michael Walle <michael@walle.cc>
-> Tested-by: Michael Walle <michael@walle.cc>
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> ---
 
-Greg, any news here?
+Ug, that looks to be a mistake. Looking back at the thread about this:
 
--michael
+  https://lore.kernel.org/linux-arm-msm/20200915141304.41fa7c30@gandalf.local.home/
+
+That should have been:
+
+Depends-on: b23d7a5f4a07 ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
+
+-- Steve
