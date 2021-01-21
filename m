@@ -2,165 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BC62FE78A
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 11:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBF02FE840
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 12:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729223AbhAUK1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 05:27:23 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:14001 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728582AbhAUK1J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 05:27:09 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B600956d40000>; Thu, 21 Jan 2021 02:26:28 -0800
-Received: from [10.26.72.207] (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 21 Jan
- 2021 10:26:25 +0000
-Subject: Re: [PATCH] arm64: tegra: Enable Jetson-Xavier J512 USB host
-To:     JC Kuo <jckuo@nvidia.com>, <gregkh@linuxfoundation.org>,
-        <thierry.reding@gmail.com>, <robh+dt@kernel.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20210119022349.136453-1-jckuo@nvidia.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <4790de5a-f299-219b-1d50-6fe98942c2e1@nvidia.com>
-Date:   Thu, 21 Jan 2021 10:26:23 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729802AbhAUK7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 05:59:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729851AbhAUK5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Jan 2021 05:57:23 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A1D423787;
+        Thu, 21 Jan 2021 10:56:42 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=hot-poop.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1l2Xdn-009ATF-Tw; Thu, 21 Jan 2021 10:56:40 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+Cc:     James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Eric Auger <eric.auger@redhat.com>, kernel-team@android.com,
+        stable@vger.kernel.org
+Subject: [PATCH] KVM: arm64: Filter out v8.1+ events on v8.0 HW
+Date:   Thu, 21 Jan 2021 10:56:36 +0000
+Message-Id: <20210121105636.1478491-1-maz@kernel.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-In-Reply-To: <20210119022349.136453-1-jckuo@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1611224788; bh=sct4guh8tyVx7wvx6PCrh8j4kV3LgnQtah4P1FR8Wxo=;
-        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
-         MIME-Version:In-Reply-To:Content-Type:Content-Language:
-         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
-        b=nltaLyNWSpKaTMH9c/msvna7xDzoq2b3KsD2bo5FEO3SzddIuvp3u/L0mAJc9Sbi4
-         axH5JGLSi3Dp55nekMmDW2JIiEvvIkGRs5y++pa/5ySgv+qq7E1Nlu6jhJTyBzULMv
-         c5pBGPGb7q4vVrpfKlELi8kiXBYGFjgRvfrlkKBcInAIRdv0h36EUg3NZfICk+RwBm
-         9WQ/CPLV1lZAqE7iTvzGD7a1VGffM693MJDFjXB3tAaQEBtXmJLZBR5YFlMjbKXe0N
-         SKXOiMlYuWTQvk3aWSIyrfpucqiQEWG9GtUH79b40jFWCI+2KBqVfCzR9MdkBTfY1u
-         4xlA3+Oe3CbKQ==
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, eric.auger@redhat.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When running on v8.0 HW, make sure we don't try to advertise
+events in the 0x4000-0x403f range.
 
-On 19/01/2021 02:23, JC Kuo wrote:
-> This commit enables USB host mode at J512 type-C port of Jetson-Xavier.
-> 
-> Signed-off-by: JC Kuo <jckuo@nvidia.com>
-> ---
->  .../arm64/boot/dts/nvidia/tegra194-p2888.dtsi |  8 +++++++
->  .../boot/dts/nvidia/tegra194-p2972-0000.dts   | 24 +++++++++++++++++--
->  2 files changed, 30 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-> index d71b7a1140fe..7e7b0eb90c80 100644
-> --- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-> +++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-> @@ -93,6 +93,10 @@ padctl@3520000 {
->  			vclamp-usb-supply = <&vdd_1v8ao>;
->  
->  			ports {
-> +				usb2-0 {
-> +					vbus-supply = <&vdd_5v0_sys>;
-> +				};
-> +
->  				usb2-1 {
->  					vbus-supply = <&vdd_5v0_sys>;
->  				};
-> @@ -105,6 +109,10 @@ usb3-0 {
->  					vbus-supply = <&vdd_5v0_sys>;
->  				};
->  
-> +				usb3-2 {
-> +					vbus-supply = <&vdd_5v0_sys>;
-> +				};
-> +
->  				usb3-3 {
->  					vbus-supply = <&vdd_5v0_sys>;
->  				};
-> diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts b/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts
-> index 54d057beec59..8697927b1fe7 100644
-> --- a/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts
-> +++ b/arch/arm64/boot/dts/nvidia/tegra194-p2972-0000.dts
-> @@ -57,6 +57,10 @@ padctl@3520000 {
->  			pads {
->  				usb2 {
->  					lanes {
-> +						usb2-0 {
-> +							status = "okay";
-> +						};
-> +
->  						usb2-1 {
->  							status = "okay";
->  						};
-> @@ -73,6 +77,10 @@ usb3-0 {
->  							status = "okay";
->  						};
->  
-> +						usb3-2 {
-> +							status = "okay";
-> +						};
-> +
->  						usb3-3 {
->  							status = "okay";
->  						};
-> @@ -81,6 +89,11 @@ usb3-3 {
->  			};
->  
->  			ports {
-> +				usb2-0 {
-> +					mode = "host";
-> +					status = "okay";
-> +				};
-> +
->  				usb2-1 {
->  					mode = "host";
->  					status = "okay";
-> @@ -96,6 +109,11 @@ usb3-0 {
->  					status = "okay";
->  				};
->  
-> +				usb3-2 {
-> +					nvidia,usb2-companion = <0>;
-> +					status = "okay";
-> +				};
-> +
->  				usb3-3 {
->  					nvidia,usb2-companion = <3>;
->  					maximum-speed = "super-speed";
-> @@ -107,11 +125,13 @@ usb3-3 {
->  		usb@3610000 {
->  			status = "okay";
->  
-> -			phys =	<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-1}>,
-> +			phys =	<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-0}>,
-> +				<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-1}>,
->  				<&{/bus@0/padctl@3520000/pads/usb2/lanes/usb2-3}>,
->  				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-0}>,
-> +				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-2}>,
->  				<&{/bus@0/padctl@3520000/pads/usb3/lanes/usb3-3}>;
-> -			phy-names = "usb2-1", "usb2-3", "usb3-0", "usb3-3";
-> +			phy-names = "usb2-0", "usb2-1", "usb2-3", "usb3-0", "usb3-2", "usb3-3";
->  		};
->  
->  		pwm@c340000 {
-> 
+Cc: stable@vger.kernel.org
+Fixes: 88865beca9062 ("KVM: arm64: Mask out filtered events in PCMEID{0,1}_EL1")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+ arch/arm64/kvm/pmu-emul.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-Thanks. Works for me.
-
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Cheers
-Jon
-
+diff --git a/arch/arm64/kvm/pmu-emul.c b/arch/arm64/kvm/pmu-emul.c
+index 4ad66a532e38..247422ac78a9 100644
+--- a/arch/arm64/kvm/pmu-emul.c
++++ b/arch/arm64/kvm/pmu-emul.c
+@@ -788,7 +788,7 @@ u64 kvm_pmu_get_pmceid(struct kvm_vcpu *vcpu, bool pmceid1)
+ {
+ 	unsigned long *bmap = vcpu->kvm->arch.pmu_filter;
+ 	u64 val, mask = 0;
+-	int base, i;
++	int base, i, nr_events;
+ 
+ 	if (!pmceid1) {
+ 		val = read_sysreg(pmceid0_el0);
+@@ -801,13 +801,17 @@ u64 kvm_pmu_get_pmceid(struct kvm_vcpu *vcpu, bool pmceid1)
+ 	if (!bmap)
+ 		return val;
+ 
++	nr_events = kvm_pmu_event_mask(vcpu->kvm) + 1;
++
+ 	for (i = 0; i < 32; i += 8) {
+ 		u64 byte;
+ 
+ 		byte = bitmap_get_value8(bmap, base + i);
+ 		mask |= byte << i;
+-		byte = bitmap_get_value8(bmap, 0x4000 + base + i);
+-		mask |= byte << (32 + i);
++		if (nr_events >= (0x4000 + base + 32)) {
++			byte = bitmap_get_value8(bmap, 0x4000 + base + i);
++			mask |= byte << (32 + i);
++		}
+ 	}
+ 
+ 	return val & mask;
 -- 
-nvpublic
+2.29.2
+
