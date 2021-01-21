@@ -2,127 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE8E2FF3F1
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 943C22FF3FA
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 20:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbhAUTLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 14:11:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57130 "EHLO
+        id S1726390AbhAUTMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 14:12:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726057AbhAUTLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 14:11:42 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6644C06174A
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 11:11:01 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id 15so1970279pgx.7
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 11:11:01 -0800 (PST)
+        with ESMTP id S1725845AbhAUTMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 14:12:37 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A11EC06174A
+        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 11:11:57 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id n11so3772188lji.5
+        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 11:11:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jNHEhfeQDCn2ydw0vvpDDQ9k0H06ufsPQo6jJ6hHF6c=;
-        b=lALZvdEvhsQ4Ze5+Vx7i6d0g2e4aYjGgY+mPOTz1VV7GsF2B6wPPTRhtWf8s3VNsPU
-         K4k81h+5S3vSuiF4Beg902jGBjq52tV89ItV9LtV8QtgR0PfmXTmJrY/Du6CucpTBhek
-         ixPaoCX7eisNyDELGl8R2WxlVJ1AXXkVEoPYbXo4oSDkPRyau3hgMLHefnif3K6qVuXm
-         EF1SpvRHteHSPYnUpbZhpBp6AwoScoWNTmOMO/t6Aoi03P4Tuie1VWeBmcfZq3kQz07w
-         MIO/vyb2RM+HCLKuv1157vJ4OS3U7Vysc0r1zE9BSCWzm84DN14Qu/hERuuhbJqFw8rQ
-         qThw==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=wZAkicxWk2zk1yvflCN0xA4qAFwkjVzM25+GzazVjw4=;
+        b=Ku60Vuw8Dio5tlHyMx/hpxSOgFrJhT85DDM/NcUzaDdvwuQVfd35yQLBoL5rMs2NcC
+         AgdqvrbS9Q/uzkc6t8N8JBg/UIUQG/S9tmnm1RYz1lIbHZ5tF52b+i5f6vLFAi1YINCf
+         Hmk4fYW4ebqwIiWQC0rhDy6mtaOr1sv27btP7Xu5eLRxQ7eu7vxAz79n67CLT2nk+VaA
+         MV90mg4Vq7SHmpUJU6Uoj+SNA/Ky27NfWbr3Glb7ARQXTGH5hIvqil4ustXtS9mC8yA9
+         oHaqM2qpWfMy2IJ+zVqwfGaqK6g0P4WwtMd61+v0Al4vsd06S9dTxG3Gu7DH3p3GV5uM
+         mzww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jNHEhfeQDCn2ydw0vvpDDQ9k0H06ufsPQo6jJ6hHF6c=;
-        b=L0GDPneBehbIvVL9JaUzmynYgX+9EURr4hEdLwmSLO+ZJ5byAW66KSDYj/RwqIfTD0
-         UIIUGsTaYpRlXudj8ea/gKzr/se4MOsF5eaq2BG6hhjwVUN73QiYTZs3ewQtOJ8LlyB+
-         x3cSIR0um/BukRBYZ25fwownUb/Oht0VtcFPbsmqj8TdV1uX6z6sP1Mh8xYYkot2PU6i
-         U8h1/T47yrVbjNL64PXaTp1atAAnsGnAsSZovsl6Uh0oglshnH9BWLG/9khoClulHCBl
-         4UY8X41dZjlhReKxXeMSIR8V8SWSmz+JHr2NjFhcwKmTu64t//0TIALeASm9uQW52+7t
-         ePQw==
-X-Gm-Message-State: AOAM531j4v48N0A35+8zcbl1sz8/kNj21r+avIecoJ43yOqjUgmuuvJw
-        KstljQlCqjPiZhyiieByP4BAvxom5b0kjfyz
-X-Google-Smtp-Source: ABdhPJyTNGF7vWPdof6k9ic90S3NFrhAmKlBwtkR+nmu2J8HTorPP/gWTCYPJ0TN33B7mekWNBLM6Q==
-X-Received: by 2002:aa7:804f:0:b029:1a9:5aa1:6235 with SMTP id y15-20020aa7804f0000b02901a95aa16235mr819790pfm.1.1611256261117;
-        Thu, 21 Jan 2021 11:11:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z16sm6238263pgj.51.2021.01.21.11.11.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 11:11:00 -0800 (PST)
-Message-ID: <6009d1c4.1c69fb81.2d48c.ea54@mx.google.com>
-Date:   Thu, 21 Jan 2021 11:11:00 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=wZAkicxWk2zk1yvflCN0xA4qAFwkjVzM25+GzazVjw4=;
+        b=B9wPFymiqPueg41TnW4j7/Y2W1LrsLBtxhLXLt8RrdMsL7BaDGsIDbH6VwwA5EjKPw
+         Buy3hS/YW9Aklsa/t4q5cKSdLkElXkLYiuyvPv84PmKRdoHXscE9KAkQZiJ7kcLb3V6k
+         XuhyMLJDbEP//fFUMOPu6e/ErWre7FsC8PghuMXiwVdsgcJcvSJYNyL84g1CeR3KmeJr
+         xRmmXsRMzymA/q1MPNSXHcxprNnw4k9zQ7fr38ffCsYAqVVDcpJrMC3kV7QwpKiPx6v1
+         zAbrYrbhP+68uATFPQCnTa+BmvX6188QIR5qBTnt2tXDSCPUeaytoJH2c26zEQIcfWwX
+         lueg==
+X-Gm-Message-State: AOAM531xHBont/Q1WzKHzq+r/OUONRHKtmb8qzmTxAk7Nii34Ir7SxA+
+        KPxK32gA0uMNRi6BWF/kDKKrQCl9DpC9ttUtSKU=
+X-Google-Smtp-Source: ABdhPJyNK47KtKZJUlwdItrtF4RtN7X1uftptGzlg2OJLHh0rZILHSEP3U+oGQwb4U0/4daqm8mrWZoVnRigO5TTRr4=
+X-Received: by 2002:a2e:89d9:: with SMTP id c25mr414744ljk.410.1611256315815;
+ Thu, 21 Jan 2021 11:11:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.9-10-g566369ccd746
-Subject: stable-rc/queue/5.10 baseline: 183 runs,
- 1 regressions (v5.10.9-10-g566369ccd746)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Reply-To: mrsaishaalgaddafi1976@gmail.com
+Sender: boabfburklnarfaso@gmail.com
+Received: by 2002:a05:6520:4ca3:b029:ba:5f50:8ec4 with HTTP; Thu, 21 Jan 2021
+ 11:11:54 -0800 (PST)
+From:   Aisha Al-Qaddafi <aishaalqaddafi2@gmail.com>
+Date:   Thu, 21 Jan 2021 19:11:54 +0000
+X-Google-Sender-Auth: Dbsi4CSPn1wuhZ5bfzD2lyb1kOU
+Message-ID: <CAGuOSpGyYbr2Z7ZU85_=zt2SM+NcbbKg+05aVmkC0uGjXM69gA@mail.gmail.com>
+Subject: Inquiry for Investment.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 183 runs, 1 regressions (v5.10.9-10-g566369c=
-cd746)
+Assalamu Alaikum Wa Rahmatullahi Wa Barakatuh.
 
-Regressions Summary
--------------------
+Inquiry for Investment.
 
-platform                   | arch  | lab         | compiler | defconfig | r=
-egressions
----------------------------+-------+-------------+----------+-----------+--=
-----------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie | gcc-8    | defconfig | 1=
-          =
+Dear Friend,
 
+Greetings to you from the city of Ouagadougou,Burkina Faso.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.9-10-g566369ccd746/plan/baseline/
+I came across your e-mail contact prior to a private search while in
+need of your assistance. I am pleased to use this medium to open a
+mutual communication with you and to ask for your permission and
+acceptance to partner with you to invest in your country.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.9-10-g566369ccd746
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      566369ccd746b22461ce3133cb30eb1ac235e214 =
+My name is Aisha Gaddafi, a single Mother and a Widow with three
+Children. I am the only biological Daughter of late Libyan President
+(Late Colonel Muammar Gaddafi).
 
+I have an investment fund worth Twenty Seven Million Five Hundred
+Thousand United States Dollar ($27,500,000.00 ) which I want to
+entrust to you for investment project assistance in your country, May
+be from there, we can build a business relationship in the near
+future.
 
+I am willing to negotiate an investment/business profit sharing ratio
+with you based on the future investment earning profits.
 
-Test Regressions
----------------- =
+If you are willing to handle this project on my behalf I shall
+appreciate your urgent response to provide you more details to proceed
+further. Kindly get back to me at my discreet Email (
+mrsaishaalgaddafi1976@gmail.com ) for further discussion.
 
-
-
-platform                   | arch  | lab         | compiler | defconfig | r=
-egressions
----------------------------+-------+-------------+----------+-----------+--=
-----------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie | gcc-8    | defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6009b1103e3b5a0529bb5d3b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.9-1=
-0-g566369ccd746/arm64/defconfig/gcc-8/lab-broonie/baseline-qemu_arm64-virt-=
-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.9-1=
-0-g566369ccd746/arm64/defconfig/gcc-8/lab-broonie/baseline-qemu_arm64-virt-=
-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6009b1103e3b5a0529bb5=
-d3c
-        new failure (last pass: v5.10.9-2-gc763deac7ffa) =
-
- =20
+Best Regards
+Mrs Aisha Gaddafi
+mrsaishaalgaddafi1976@gmail.com
