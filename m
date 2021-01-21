@@ -2,84 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021472FF128
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 17:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A4F2FF126
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 17:56:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728953AbhAUQ41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 11:56:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42694 "EHLO
+        id S1730068AbhAUPyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 10:54:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732032AbhAUPyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 10:54:13 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB693C061788
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 07:52:59 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id 3so3044359ljc.4
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 07:52:59 -0800 (PST)
+        with ESMTP id S1726514AbhAUPxY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 10:53:24 -0500
+Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BBEC06174A
+        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 07:52:40 -0800 (PST)
+Received: by mail-vs1-xe2d.google.com with SMTP id o19so1293934vsn.3
+        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 07:52:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id;
-        bh=JgJ9soxybA1o27bKejN8yKs9EOx9gsIQCO6dTbQVL9c=;
-        b=ZwI8PpIUolJOdFomVXItWc6Ei9K6Xlnxm5Je1UlruTVxwV8/5MKEhFHUNJy2RelrSR
-         mVjJkRTv9PGcoVSw6cCjitPuJ21NHvqakZ0U+qGjOXrwURslvqFzFx7U7jkDGKFPjVFw
-         +1mjDQcArQjUoPInkCnHSvriac5lShzk07L5IiODdLW8xZpJgXX1yLjBNQdIa8AXzn0m
-         tUZJtbm4H+JIYl0yfXq41+dIyrP4VI8eBWfS015dtAjorV62ukH9PAQqf9eNP44WW3RL
-         s7hGPD/RH1YCrs9xGMJYCQLA4bRyRvYR/PfC/EXFKB98kwa+Jt3HuLU0y9d512V7Vx5Q
-         qA2g==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=dDHPPf8vH9/PDGtul/fnW0pNzZHpSnXoHplUb3ndeB8=;
+        b=sdZS++TXT1jjKr9IhEbXt3NP4gxaZ/ZtodqMD0qioq+Pu3u/almzhezeDwxbQm1rVJ
+         fM0Xk8HYWQhRoJXNjGV1i/YgRpqtUWUAxJpZ+bHhB2y2ejnb+AgXea35lOkf0ie/R8AU
+         0W6BxQPqkuAiE8rT+4S6mP0xnhcO4MNiszRgt+kc/JCZNJlDtrDioVLRiVma1aPnzRmj
+         49wyZFE56R9bgwvi6VjiNBB/etA/JxG+EQkiLG0T5Fz1CWWYCVEexVJRlva6jl8Y7SG6
+         2K8EXkPUthCeIq4LirKXQXK7vwwoV0I5TU5BN5WI7dDVpV9Hu5bSGX2dyw41ql1hKYv9
+         qpow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=JgJ9soxybA1o27bKejN8yKs9EOx9gsIQCO6dTbQVL9c=;
-        b=pw7VVZPfYSs627VKVTwM2ZeraAY7hbfn+61vf8XII33Idcr53r8pY0TSHZzTAUud+h
-         YZtIEfQJIAqnXsSWRqhPRhnCzUDQClUgbNYffIIUkTZXrCQnrOZYOQqvdCYZBwEoaLGo
-         JLytV7jFRR7+ESFn0/aHcwce+cR8PpqWP7gdRyT7nehJTjrqXmuI8bxV/PeNiZavq6O/
-         /UdTQnXkEQAF/3tvKJ2Se2qLzg4ulwYJVIt7p/R1YMuaa4eK3UX7Vu5X+xq3RGYE7u3K
-         SvO36SXjbbe+Mywz6F1k49QQjVRaJiIA/58SV+DKcvbqON8GYEJXqSluYTTpkbYP5P5a
-         t24w==
-X-Gm-Message-State: AOAM530vENXYaAjU2V3Cd9JJFXgjOXWfvGwcIOFMVJsfV2c4LsqoMtUF
-        Kt+Cqvw9+mV0ZoHRZk4jjw/pZg==
-X-Google-Smtp-Source: ABdhPJzBas/8VImlBe+3srXin6AiXd1AubNON2XkPDcrMPRT0OoveVfac9pRS6bgKYVKOKxw6/sV2w==
-X-Received: by 2002:a2e:5018:: with SMTP id e24mr7505282ljb.425.1611244378214;
-        Thu, 21 Jan 2021 07:52:58 -0800 (PST)
-Received: from zr.local ([185.200.81.30])
-        by smtp.gmail.com with ESMTPSA id l7sm616628lja.15.2021.01.21.07.52.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 07:52:57 -0800 (PST)
-From:   Zyta Szpak <zr@semihalf.com>
-To:     shawnguo@kernel.org, leoyang.li@nxp.com, robh+dt@kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] arm64: dts: freescale: fix dcfg address range
-Date:   Thu, 21 Jan 2021 16:52:37 +0100
-Message-Id: <20210121155237.15517-1-zr@semihalf.com>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=dDHPPf8vH9/PDGtul/fnW0pNzZHpSnXoHplUb3ndeB8=;
+        b=OkwlWurrJubusnhv2AKRGedGHVVRYPHeny627l/E1L4UaCzuNgwzRR+JFbgcnZWUSR
+         zmJpVsNyW+L/BNAZQEhOPXGwcqhp+HMzwLnCBWvGBQ9HNvD9WbPtXQNH4Wv1Zs+3G6BF
+         AQWaDvGXZG06ssefVCaQ3yCWw9pgkhjN8ApiCdkf+HSZaY8UR3axUl8LX5626PtJYjjg
+         U/4YGL4tPv36CsVvR7rjc/RLGmhEr/p6rC14UytB2DeIzCFh8gTRWw2ngNqTZg/mJd/y
+         Sqa04nIFiBrEQEcZBiL6fxLImrekhlhAZQSxGmlVwelKZRnTwT+9VAemXbVf23pW2VEe
+         y5fQ==
+X-Gm-Message-State: AOAM53165ifsiV/1wI5bmcv7R43u1XQS3QZAa5lPffE8yuYqtiNcTINd
+        0XHhZA7tg1g3lx+V7MhfgPuI975cFVzRxvJZWto=
+X-Google-Smtp-Source: ABdhPJzXGwEnxwm7ZLZwNbrGNzn23i6jsfeiCdyKD2kjc1ltI/VIlwue7Dch/FOFdoLg7qHX1sHqclKc++dXkB7pQtg=
+X-Received: by 2002:a67:2c02:: with SMTP id s2mr292361vss.43.1611244359272;
+ Thu, 21 Jan 2021 07:52:39 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ab0:306:0:0:0:0:0 with HTTP; Thu, 21 Jan 2021 07:52:38 -0800 (PST)
+Reply-To: mr.mahmud.shakiri@gmail.com
+From:   "Mr. MAHMUD SHAKIRI" <faki.kobebe@gmail.com>
+Date:   Thu, 21 Jan 2021 16:52:38 +0100
+Message-ID: <CAHUp8+=EdAj49aeWZ6RiDXAa+iC2LOffcUgCE8kDeWSDRqsC6w@mail.gmail.com>
+Subject: URGENT RESPONSE NEEDED FROM YOU.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dcfg was overlapping with clockgen address space which resulted
-in failure in memory allocation for dcfg. According regs description
-dcfg size should not be bigger than 4KB.
-
-Signed-off-by: Zyta Szpak <zr@semihalf.com>
----
- arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-index 025e1f587662..565934cbfa28 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-@@ -385,7 +385,7 @@
- 
- 		dcfg: dcfg@1ee0000 {
- 			compatible = "fsl,ls1046a-dcfg", "syscon";
--			reg = <0x0 0x1ee0000 0x0 0x10000>;
-+			reg = <0x0 0x1ee0000 0x0 0x1000>;
- 			big-endian;
- 		};
- 
 -- 
-2.17.1
+Greetings
 
+My name is Mahmud Shakiri, I have a project of $18.5 Million Us
+Dollars which I will like you to support me so that the fund will be
+transfer to your bank account.
+
+Please if you are capable reply back to me so that i will give you
+more details about this project.
+
+Kindly reply me back with the following information
+
+Your Full Name/Age............
+Your occupation...........
+Your coutry origin...........
+Your telephone number........
+
+so that i will give You more details about this project.
+
+Thank you I am waiting to hear from you
+
+Mr. Mahmud Shakiri
