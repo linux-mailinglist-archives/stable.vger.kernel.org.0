@@ -2,93 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF9A2FE9A2
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 13:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3F72FEAC6
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 13:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbhAUMJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 07:09:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730917AbhAUMFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 07:05:20 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87CDCC0613C1;
-        Thu, 21 Jan 2021 04:05:04 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id 7so1493875wrz.0;
-        Thu, 21 Jan 2021 04:05:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AS44Rkt96UHiyPOxzRje4xpFE3MFKfgU7cCzpEQimRo=;
-        b=raFEO/3+zFUgcz+a7PrzLQ26+O7kzxZ+qd/ZrCdwHWhbkmTphQ2KfbdWeR9dIHEriB
-         3xWVWBrrwTAuH7h68iKZZPhKhgZdJW2iptd9lzagGYmat8JjuJIw1uQTeDstuYRWTzkN
-         GVCe+H+xMKhtvyliT2N5ZD58bJkMUWDj5j+58d/zikP+mRW9DIcpO5GZHbuFsk1P/PpR
-         cJs9Uj7jUtMbc630H+wReLaos9Dy5C/rGEw31u2nEFGHFzgc+NEzq3oT5p83OMd53soX
-         hanve0e2KF3tiVwrMgqC5HHrtiAZ9aGzLJXzuH+vquLom5+PulQbZ5+vDcr9fTeDO8kz
-         8PSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AS44Rkt96UHiyPOxzRje4xpFE3MFKfgU7cCzpEQimRo=;
-        b=aTPKVGLmFTglm/qPqEpX/zOzMwIf3KUZkqpRsuivzz18faoMvapcIzzd2DyHLiBRQo
-         G5K3HnHLDMpjewdFzKwokCdrRRUmiYtw4eQ8TtYaAD7ZzV1jfuoe9Qf4YTde5SIctPcv
-         nHW22OLnrg5Tjs5EdU9QqNo4bDeB86Rg4apsuTmQPD2XiAA3jpJXd3rc2lVYuqK3i9L3
-         4UHhm0iTA4RNrtO04ULNeYMJMJixKt3mPRDFMn7oaVYhwEDre5ECx6OMUhc2Jeh7lbc9
-         yQAcwdGdEmYvk8hJrYMsRrckctmh/7eUNRYccYNjckDVaTYWKab4tZ4GnVD+c8v7Azz/
-         /ycg==
-X-Gm-Message-State: AOAM533fDOvdRH2ov8rfKScSrzronSfs4uWkLkPbmrD6A9D+ZncLhdXA
-        bdeet+f1HUnjveUw4qPVuzk5PYPccio=
-X-Google-Smtp-Source: ABdhPJzPKZBcLlAOxD1ng03CkL8NwemUOm0JT64RSng7IKG3Ldgt1QpAA8nX7h1EjcElVYegQkRNRg==
-X-Received: by 2002:adf:a319:: with SMTP id c25mr14205135wrb.262.1611230703372;
-        Thu, 21 Jan 2021 04:05:03 -0800 (PST)
-Received: from localhost.localdomain ([148.252.129.228])
-        by smtp.gmail.com with ESMTPSA id s19sm9505401wrf.72.2021.01.21.04.05.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 04:05:02 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2] io_uring: fix short read retries for non-reg files
-Date:   Thu, 21 Jan 2021 12:01:08 +0000
-Message-Id: <99c647189104206e8391419d8267a82753883bbb.1611230356.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        id S1729690AbhAUMzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 07:55:51 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26298 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729576AbhAUKfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 05:35:42 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10LAV31q089813;
+        Thu, 21 Jan 2021 05:34:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TZ7aDjxUa13IAdCxCu1hlw5UfGIcj/AfDRbgbyilYM8=;
+ b=PPR2MO5r6H5ImQpoFITPMlC83ox/raYI16KO5XUspLypGm9qlOCWbhWOAez1+nVLwpTZ
+ KLVmWeD9wXG+BkWIPgAcnWHy1j5UZ3XOBmahUE9UiLKOZfZQq/vXv6gtww35veTBLZrY
+ m8InR1zWGWoI+M3fnMzNQ82HaYIdJWzXZnPUBPdhmm2FcCCdg5jB4ftFtoQxLfs9BGi6
+ AzTEuR4HIQIwPWcVKBfjOVoJX300zmmFPi00+eVOhzlNCTFDj2v3DPzZ8TbXsuefDbVQ
+ RMzZH07bswy0amIe4tm1RvxPSlPtEkMs2dRvU+j6190G/agTrTJspLs9yiBJwkfxY5pV xA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3677uhr976-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jan 2021 05:34:47 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10LAVn1F092961;
+        Thu, 21 Jan 2021 05:34:47 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3677uhr953-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jan 2021 05:34:46 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10LAXgwY027447;
+        Thu, 21 Jan 2021 10:34:45 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3668pj8tdg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jan 2021 10:34:44 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10LAYfpK30802236
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Jan 2021 10:34:41 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BFC2B11C064;
+        Thu, 21 Jan 2021 10:34:41 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E471811C054;
+        Thu, 21 Jan 2021 10:34:40 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.12.187])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 21 Jan 2021 10:34:40 +0000 (GMT)
+Date:   Thu, 21 Jan 2021 11:34:38 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com
+Subject: Re: [PATCH 1/1] s390/vfio-ap: No need to disable IRQ after queue
+ reset
+Message-ID: <20210121113438.2e40c5f9.pasic@linux.ibm.com>
+In-Reply-To: <20210121092044.628b77c7.cohuck@redhat.com>
+References: <20210121072008.76523-1-pasic@linux.ibm.com>
+        <20210121092044.628b77c7.cohuck@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2021-01-21_04:2021-01-21,2021-01-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 impostorscore=0
+ suspectscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0 spamscore=0
+ mlxscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2101210052
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sockets and other non-regular files may actually expect short reads to
-happen, don't retry reads for them. Because non-reg files don't set
-FMODE_BUF_RASYNC and so it won't do second/retry do_read, we can filter
-out those cases after first do_read() attempt with ret>0.
+On Thu, 21 Jan 2021 09:20:44 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Cc: stable@vger.kernel.org # 5.9+
-Suggested-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+> On Thu, 21 Jan 2021 08:20:08 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+[..]
+> > --- a/drivers/s390/crypto/vfio_ap_private.h
+> > +++ b/drivers/s390/crypto/vfio_ap_private.h
+> > @@ -88,11 +88,6 @@ struct ap_matrix_mdev {
+> >  	struct mdev_device *mdev;
+> >  };
+> >  
+> > -extern int vfio_ap_mdev_register(void);
+> > -extern void vfio_ap_mdev_unregister(void);
+> > -int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+> > -			     unsigned int retry);
+> > -
+> >  struct vfio_ap_queue {
+> >  	struct ap_matrix_mdev *matrix_mdev;
+> >  	unsigned long saved_pfn;
+> > @@ -100,5 +95,10 @@ struct vfio_ap_queue {
+> >  #define VFIO_AP_ISC_INVALID 0xff
+> >  	unsigned char saved_isc;
+> >  };
+> > -struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
+> > +
+> > +int vfio_ap_mdev_register(void);
+> > +void vfio_ap_mdev_unregister(void);  
+> 
+> Nit: was moving these two necessary?
+> 
 
-v2: essentially same, but a bit cleaner check placement and
-    extended commit message
+No not strictly necessary. I decided that having the data types
+first and the function prototypes in one place after the former
+is nicer.
 
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > +int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
+> > +			     unsigned int retry);
+> > +
+> >  #endif /* _VFIO_AP_PRIVATE_H_ */
+> > 
+> > base-commit: 9791581c049c10929e97098374dd1716a81fefcc  
+> 
+> Anyway, if I didn't entangle myself in the various branches, this seems
+> sane.
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5f6f1e48954e..18920f9785d2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3552,7 +3552,7 @@ static int io_read(struct io_kiocb *req, bool force_nonblock,
- 
- 	/* read it all, or we did blocking attempt. no retry. */
- 	if (!iov_iter_count(iter) || !force_nonblock ||
--	    (req->file->f_flags & O_NONBLOCK))
-+	    (req->file->f_flags & O_NONBLOCK) || !(req->flags & REQ_F_ISREG))
- 		goto done;
- 
- 	io_size -= ret;
--- 
-2.24.0
+Thank you very much!
 
+Regards,
+Halil
