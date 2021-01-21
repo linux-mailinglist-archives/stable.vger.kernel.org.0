@@ -2,65 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3510A2FE740
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 11:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 340AE2FE771
+	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 11:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728727AbhAUKNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 05:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53360 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729046AbhAUKNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 05:13:06 -0500
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432C3C061575
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 02:12:12 -0800 (PST)
-Received: by mail-lj1-x233.google.com with SMTP id 3so1842750ljc.4
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 02:12:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=MIqRoxpFirBTIX9NyDVMlxHduT/wTSz6bxp4ifB6OC8=;
-        b=gYwxiEdwwG2T8KdvHxMXVXEGN1Z/IOiaqebJdO8VfVCb/4nhs9sAuAf6/DW12hxo1R
-         uIifPbuqCgN0oLEy7c/2acoK24SlqQp2JpCFNExN0A/Sxq7b6qMq75+JD2looIx1/dZH
-         uOg9XAfG4ZDC9hyerQzGTRyW1pyHO3VoJV9xU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=MIqRoxpFirBTIX9NyDVMlxHduT/wTSz6bxp4ifB6OC8=;
-        b=WK1KCWSGZDncMF8N3N6O52LZoaheNbCypI4lUpXHZ5fv8kTeuFpIAgYpLz75BYmTZB
-         NkkylJxx5NjaQc8JB3frb8LqjTcgzW/5HdSDJDsZ0QzyuEloXTBjoN8V5vgKohCfVSu9
-         Y1gbWntkaVIsN4YgXQc6Ty/MrG3ni7CAx0R1V1UgRNiuyoLjDd5BDVieoB/rPXKAZvaS
-         w9hTt5cGe5zyaExGcVFogUghuwdbMdBnmKQwYGSwU5jNMboUieZV6eFbviEvgmRuNb7v
-         ErHhYMFxGflztCKuoqckgWgX8gjWZHg2jmV6fRkZewYloSoqcYa1zmk8dS5F9fHllHhV
-         4bhQ==
-X-Gm-Message-State: AOAM5304ELemb2+SgTEOQCWnATHlzlu37KAhonwy5UTj04NdD6baW5Iv
-        EXqgfTw4dH5M8IOPhmH8SjIKLlbSHe6+EDIZzoOfw0Q8MCf4pj48g5A=
-X-Google-Smtp-Source: ABdhPJzcKL1tnzjZkJfwKEq83e9wck7j4Ecx8PG85+yb/XK4dYDnKzJPJ25SivjIb3f1zK0w6SRs5H05rOMJZVnviw8=
-X-Received: by 2002:a2e:6c10:: with SMTP id h16mr6218874ljc.404.1611223930645;
- Thu, 21 Jan 2021 02:12:10 -0800 (PST)
+        id S1729084AbhAUKV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 05:21:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56650 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728986AbhAUKVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Jan 2021 05:21:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72231221F8;
+        Thu, 21 Jan 2021 10:20:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611224429;
+        bh=+0DXGOkstAp9Y1z5fipCz6pXmZyivbXiSrKXT4jjD1A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wCQKxsJGQpdCdn3qGqHIxdLea4bYcCQUMPmhtJ5q+6B3z1KUH/ZtZyS4GeBulL/ci
+         FRlt/y1QIkZOSonc/C8aBr4GVepLzoHF85N6rRJXRmdf/6GE+L/I8I8UZiJTlbSIFb
+         RnxCRqEoXpPQ371VUHO7wX5g1Qs0v5uet4xbedac=
+Date:   Thu, 21 Jan 2021 11:20:26 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lorenz Bauer <lmb@cloudflare.com>
+Cc:     stable@vger.kernel.org, kernel-team <kernel-team@cloudflare.com>
+Subject: Re: Please backport "bpf: Fix selftest compilation on clang 11" to
+ 5.10
+Message-ID: <YAlVatnr4o/3h3dI@kroah.com>
+References: <CACAyw9-1HzyJikX7xfN9ixC=asjVzRO25+Wz3bGpausBqmvTJg@mail.gmail.com>
 MIME-Version: 1.0
-From:   Lorenz Bauer <lmb@cloudflare.com>
-Date:   Thu, 21 Jan 2021 10:11:59 +0000
-Message-ID: <CACAyw9-1HzyJikX7xfN9ixC=asjVzRO25+Wz3bGpausBqmvTJg@mail.gmail.com>
-Subject: Please backport "bpf: Fix selftest compilation on clang 11" to 5.10
-To:     stable@vger.kernel.org
-Cc:     kernel-team <kernel-team@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACAyw9-1HzyJikX7xfN9ixC=asjVzRO25+Wz3bGpausBqmvTJg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, Jan 21, 2021 at 10:11:59AM +0000, Lorenz Bauer wrote:
+> Hi,
+> 
+> Can you please apply commit fb3558127cb6 ("bpf: Fix selftest
+> compilation on clang 11") to the 5.10 tree? Without it, compiling
+> selftests/bpf with clang-11 fails.
 
-Can you please apply commit fb3558127cb6 ("bpf: Fix selftest
-compilation on clang 11") to the 5.10 tree? Without it, compiling
-selftests/bpf with clang-11 fails.
+Now queued up, thanks.
 
-Thanks!
-Lorenz
-
--- 
-Lorenz Bauer  |  Systems Engineer
-6th Floor, County Hall/The Riverside Building, SE1 7PB, UK
-
-www.cloudflare.com
+greg k-h
