@@ -2,116 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933692FF80C
-	for <lists+stable@lfdr.de>; Thu, 21 Jan 2021 23:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2CD92FF8E0
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 00:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725794AbhAUWh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 17:37:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46264 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726213AbhAUWhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Jan 2021 17:37:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1163E21973;
-        Thu, 21 Jan 2021 22:36:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611268604;
-        bh=xp35DwQ7FCeL3oCOWCT+bQc5IxE0PrGzVdBjUlH5/m8=;
-        h=Date:From:To:Subject:From;
-        b=lDSqAmQr/5Sk9CqCNmGeNL3wgiisMxRD2oQIBr21OWCHw9o6q+jXa19veDYGjfxlt
-         6VBwOuN0ehYxIe2Fh8ybwi96EqJRl4aC7Wrm6EiDkqVMdvrlyX4CGplmO2ry6nNzOg
-         EjnNYO7UyOi2EuGsXoF5kHe+b99RxP9KB3NFhTp4=
-Date:   Thu, 21 Jan 2021 14:36:43 -0800
-From:   akpm@linux-foundation.org
-To:     dja@axtens.net, hch@lst.de, linmiaohe@huawei.com,
-        mm-commits@vger.kernel.org, rick.p.edgecombe@intel.com,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  + mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
- added to -mm tree
-Message-ID: <20210121223643.kgpB7aWFm%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725765AbhAUX2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jan 2021 18:28:55 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:51739 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726672AbhAUX2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 18:28:52 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23666207-1500050 
+        for multiple; Thu, 21 Jan 2021 23:28:07 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Always flush the active worker before returning from the wait
+Date:   Thu, 21 Jan 2021 23:28:07 +0000
+Message-Id: <20210121232807.16618-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The first thing the active retirement worker does is decrement the
+i915_active count.
 
-The patch titled
-     Subject: mm/vmalloc: reparate put pages and flush VM flags
-has been added to the -mm tree.  Its filename is
-     mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
+The first thing we do during i915_active_wait is try to increment the
+i915_active count, but only if already active [non-zero].
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
+The wait may see that the retirement is already started and so marked the
+i915_active as idle, and skip waiting for the retirement handler.
+However, the caller of i915_active_wait may immediately free the
+i915_active upon returning (e.g. i915_vma_destroy) so we must not return
+before the concurrent access from the worker are completed. We must
+always flush the worker.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Subject: mm/vmalloc: reparate put pages and flush VM flags
-
-When VM_MAP_PUT_PAGES was added, it was defined with the same value as
-VM_FLUSH_RESET_PERMS.  This doesn't seem like it will cause any big
-functional problems other than some excess flushing for VM_MAP_PUT_PAGES
-allocations.
-
-Redefine VM_MAP_PUT_PAGES to have its own value.  Also, move the comment
-and remove whitespace for VM_KASAN such that the flags lower down are less
-likely to be missed in the future.
-
-Link: https://lkml.kernel.org/r/20210121014118.31922-1-rick.p.edgecombe@intel.com
-Fixes: b944afc9d64d ("mm: add a VM_MAP_PUT_PAGES flag for vmap")
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2473
+Fixes: 274cbf20fd10 ("drm/i915: Push the i915_active.retire into a worker")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
 ---
+ drivers/gpu/drm/i915/i915_active.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
- include/linux/vmalloc.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
---- a/include/linux/vmalloc.h~mm-vmalloc-separate-put-pages-and-flush-vm-flags
-+++ a/include/linux/vmalloc.h
-@@ -23,9 +23,6 @@ struct notifier_block;		/* in notifier.h
- #define VM_DMA_COHERENT		0x00000010	/* dma_alloc_coherent */
- #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
- #define VM_NO_GUARD		0x00000040      /* don't add guard page */
--#define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
--#define VM_MAP_PUT_PAGES	0x00000100	/* put pages and free array in vfree */
--
- /*
-  * VM_KASAN is used slighly differently depending on CONFIG_KASAN_VMALLOC.
-  *
-@@ -36,12 +33,13 @@ struct notifier_block;		/* in notifier.h
-  * Otherwise, VM_KASAN is set for kasan_module_alloc() allocations and used to
-  * determine which allocations need the module shadow freed.
-  */
--
-+#define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
- /*
-  * Memory with VM_FLUSH_RESET_PERMS cannot be freed in an interrupt or with
-  * vfree_atomic().
-  */
- #define VM_FLUSH_RESET_PERMS	0x00000100      /* Reset direct map and flush TLB on unmap */
-+#define VM_MAP_PUT_PAGES	0x00000200	/* put pages and free array in vfree */
+diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
+index ab4382841c6b..3bc616cc1ad2 100644
+--- a/drivers/gpu/drm/i915/i915_active.c
++++ b/drivers/gpu/drm/i915/i915_active.c
+@@ -628,24 +628,26 @@ static int flush_lazy_signals(struct i915_active *ref)
  
- /* bits [20..32] reserved for arch specific ioremap internals */
+ int __i915_active_wait(struct i915_active *ref, int state)
+ {
+-	int err;
+-
+ 	might_sleep();
  
-_
-
-Patches currently in -mm which might be from rick.p.edgecombe@intel.com are
-
-mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
+-	if (!i915_active_acquire_if_busy(ref))
+-		return 0;
+-
+ 	/* Any fence added after the wait begins will not be auto-signaled */
+-	err = flush_lazy_signals(ref);
+-	i915_active_release(ref);
+-	if (err)
+-		return err;
++	if (i915_active_acquire_if_busy(ref)) {
++		int err;
+ 
+-	if (!i915_active_is_idle(ref) &&
+-	    ___wait_var_event(ref, i915_active_is_idle(ref),
+-			      state, 0, 0, schedule()))
+-		return -EINTR;
++		err = flush_lazy_signals(ref);
++		i915_active_release(ref);
++		if (err)
++			return err;
+ 
++		if (___wait_var_event(ref, i915_active_is_idle(ref),
++				      state, 0, 0, schedule()))
++			return -EINTR;
++	}
++
++	/*
++	 * After the wait is complete, the caller may free the active.
++	 * We have to flush any concurrent retirement before returning.
++	 */
+ 	flush_work(&ref->work);
+ 	return 0;
+ }
+-- 
+2.20.1
 
