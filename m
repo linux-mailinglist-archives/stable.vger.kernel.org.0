@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB96300511
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D746300528
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbhAVOO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:14:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34614 "EHLO mail.kernel.org"
+        id S1728115AbhAVORz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:17:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728284AbhAVOOF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:14:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB3B23AC2;
-        Fri, 22 Jan 2021 14:11:09 +0000 (UTC)
+        id S1728112AbhAVOPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:15:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4667523A7A;
+        Fri, 22 Jan 2021 14:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324669;
-        bh=Au9xa8xvz2mVntZXPNrBEMmN2TqLpr0/JMNfuFkoCOw=;
+        s=korg; t=1611324714;
+        bh=/hfVk+/9NG141MWjpQIIHq6Ylqb4wuV3STjtiEH0Q5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yindkd1pLiXMlOCs0Mze9hHDAUi0DUjsh8IUwN8/8711QF5MN1ooDJMVgKO4/im/5
-         Wn+Cuo0U6dA8Qd8uQxFzVT/nxTkbThqhxUzZjtRC3W5Qq3dllkszG/ULCRf9sS85ws
-         94Lw9CUzr2lk43wXEpARAwemj6Lwum0U7uFJokMM=
+        b=XqV0FqdN5zEODyOK9wzJr+ZtElFV3OV+4kruGR9vR3PrT1MOe2Xy70sb1YZ9idA9m
+         HYZYG5qjC1ehwpGkgd+P67ME/y3IXnBXyJjWNuHpV2/iHMIe+nNeLEYseAPobueyFO
+         aJtN+GxzbvzGXs8Yb1Na/FjFyIXxUs2XE/SC9Tn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.9 19/35] RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
-Date:   Fri, 22 Jan 2021 15:10:21 +0100
-Message-Id: <20210122135733.097978253@linuxfoundation.org>
+        stable@vger.kernel.org, Yoel Caspersen <yoel@kviknet.dk>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 22/35] netfilter: conntrack: fix reading nf_conntrack_buckets
+Date:   Fri, 22 Jan 2021 15:10:24 +0100
+Message-Id: <20210122135733.212990149@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -40,42 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-commit a306aba9c8d869b1fdfc8ad9237f1ed718ea55e6 upstream.
+commit f6351c3f1c27c80535d76cac2299aec44c36291e upstream.
 
-If usnic_ib_qp_grp_create() fails at the first call, dev_list
-will not be freed on error, which leads to memleak.
+The old way of changing the conntrack hashsize runtime was through changing
+the module param via file /sys/module/nf_conntrack/parameters/hashsize. This
+was extended to sysctl change in commit 3183ab8997a4 ("netfilter: conntrack:
+allow increasing bucket size via sysctl too").
 
-Fixes: e3cf00d0a87f ("IB/usnic: Add Cisco VIC low-level hardware driver")
-Link: https://lore.kernel.org/r/20201226074248.2893-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The commit introduced second "user" variable nf_conntrack_htable_size_user
+which shadow actual variable nf_conntrack_htable_size. When hashsize is
+changed via module param this "user" variable isn't updated. This results in
+sysctl net/netfilter/nf_conntrack_buckets shows the wrong value when users
+update via the old way.
+
+This patch fix the issue by always updating "user" variable when reading the
+proc file. This will take care of changes to the actual variable without
+sysctl need to be aware.
+
+Fixes: 3183ab8997a4 ("netfilter: conntrack: allow increasing bucket size via sysctl too")
+Reported-by: Yoel Caspersen <yoel@kviknet.dk>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/usnic/usnic_ib_verbs.c |    3 +++
+ net/netfilter/nf_conntrack_standalone.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
-+++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
-@@ -180,6 +180,7 @@ find_free_vf_and_create_qp_grp(struct us
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -458,6 +458,9 @@ nf_conntrack_hash_sysctl(struct ctl_tabl
+ {
+ 	int ret;
  
- 		}
- 		usnic_uiom_free_dev_list(dev_list);
-+		dev_list = NULL;
- 	}
- 
- 	if (!found) {
-@@ -207,6 +208,8 @@ find_free_vf_and_create_qp_grp(struct us
- 	spin_unlock(&vf->lock);
- 	if (IS_ERR_OR_NULL(qp_grp)) {
- 		usnic_err("Failed to allocate qp_grp\n");
-+		if (usnic_ib_share_vf)
-+			usnic_uiom_free_dev_list(dev_list);
- 		return ERR_PTR(qp_grp ? PTR_ERR(qp_grp) : -ENOMEM);
- 	}
- 
++	/* module_param hashsize could have changed value */
++	nf_conntrack_htable_size_user = nf_conntrack_htable_size;
++
+ 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+ 	if (ret < 0 || !write)
+ 		return ret;
 
 
