@@ -2,168 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4D7300BA6
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:45:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1687D300BB5
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729989AbhAVSnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:14 -0500
+        id S1730121AbhAVSnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:50 -0500
 Received: from mail.kernel.org ([198.145.29.99]:40004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728529AbhAVOWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 591AB23B32;
-        Fri, 22 Jan 2021 14:15:32 +0000 (UTC)
+        id S1728564AbhAVOWy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E325A23B6E;
+        Fri, 22 Jan 2021 14:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324932;
-        bh=RNCqSgvI8xYm1XbENm9mg9ix/P8SGjVd3IE4Rr9YMps=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Tyvismn05HlYr/fQ/9sKXP0njhWnUJUpmQhy0K5Mn97u8s1rNYvyhEswtCO1xOY07
-         42XEbp35nDjztGOEyIqI9vgRtlbA0mDWDDA56SQStodl0LWoNl1fdjtZ6KBGTr9Zi4
-         yS4TG3YAC/o7WDhyeMTrVYJXgWU8a27dXbGQOkzg=
+        s=korg; t=1611325008;
+        bh=x/cYqnMswUjsuRcjxsP2jWQkelAxbep1OB4wn2XSIJk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=i42qypTm49YlezgItR813xe8O7+u366OgoT/dLIqU+Cxo7CKXSIkV6o/dYSKJSC01
+         iEzHUGy4Z+Xjj5O524d80qeQWgDsiyotB1gkR3E6UuRR3Q7Mvn7t1xWjO0vFfzZed7
+         aDahn/L4knE0ObMrPLjEMDqS+vkkJ5h+gOkzq+nA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/22] 4.19.170-rc1 review
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@kernel.org>, Will Deacon <will@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Florian Weimer <fweimer@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.4 02/33] compiler.h: Raise minimum version of GCC to 5.1 for arm64
 Date:   Fri, 22 Jan 2021 15:12:18 +0100
-Message-Id: <20210122135731.921636245@linuxfoundation.org>
+Message-Id: <20210122135733.674268196@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.170-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.170-rc1
-X-KernelTest-Deadline: 2021-01-24T13:57+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.170 release.
-There are 22 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Will Deacon <will@kernel.org>
 
-Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
-Anything received after that time might be too late.
+commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.170-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
+beyond the stack pointer, resulting in memory corruption if an interrupt
+is taken after the stack pointer has been adjusted but before the
+reference has been executed. This leads to subtle, infrequent data
+corruption such as the EXT4 problems reported by Russell King at the
+link below.
 
-thanks,
+Life is too short for buggy compilers, so raise the minimum GCC version
+required by arm64 to 5.1.
 
-greg k-h
+Reported-by: Russell King <linux@armlinux.org.uk>
+Suggested-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
+Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[will: backport to 4.19.y/5.4.y]
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/compiler-gcc.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.170-rc1
-
-Michael Hennerich <michael.hennerich@analog.com>
-    spi: cadence: cache reference clock rate during probe
-
-Aya Levin <ayal@nvidia.com>
-    net: ipv6: Validate GSO SKB before finish IPv6 processing
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    net: skbuff: disambiguate argument and member for skb_list_walk_safe helper
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    net: introduce skb_list_walk_safe for skb segment walking
-
-Hoang Le <hoang.h.le@dektech.com.au>
-    tipc: fix NULL deref in tipc_link_xmit()
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Fix handling of an unsupported token type in rxrpc_read()
-
-Eric Dumazet <edumazet@google.com>
-    net: avoid 32 x truesize under-estimation for tiny skbs
-
-Jakub Kicinski <kuba@kernel.org>
-    net: sit: unregister_netdevice on newlink's error path
-
-David Wu <david.wu@rock-chips.com>
-    net: stmmac: Fixed mtu channged by cache aligned
-
-Baptiste Lepers <baptiste.lepers@gmail.com>
-    rxrpc: Call state should be read with READ_ONCE() under some circumstances
-
-Petr Machata <petrm@nvidia.com>
-    net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
-
-Petr Machata <me@pmachata.org>
-    net: dcb: Validate netlink message in DCB handler
-
-Willem de Bruijn <willemb@google.com>
-    esp: avoid unneeded kmap_atomic call
-
-Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-    rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
-
-Stefan Chulski <stefanc@marvell.com>
-    net: mvpp2: Remove Pause and Asym_Pause support
-
-Manish Chopra <manishc@marvell.com>
-    netxen_nic: fix MSI/MSI-x interrupts
-
-Baptiste Lepers <baptiste.lepers@gmail.com>
-    udp: Prevent reuseport_select_sock from reading uninitialized socks
-
-J. Bruce Fields <bfields@redhat.com>
-    nfsd4: readdirplus shouldn't return parent of export
-
-Arnd Bergmann <arnd@arndb.de>
-    crypto: x86/crc32c - fix building with clang ias
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix flush with external metadata device
-
-Will Deacon <will@kernel.org>
-    compiler.h: Raise minimum version of GCC to 5.1 for arm64
-
-Hamish Martin <hamish.martin@alliedtelesis.co.nz>
-    usb: ohci: Make distrust_firmware param default to false
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/x86/crypto/crc32c-pcl-intel-asm_64.S          |  2 +-
- drivers/md/dm-bufio.c                              |  6 +++
- drivers/md/dm-integrity.c                          | 50 +++++++++++++++++++---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |  2 -
- .../net/ethernet/qlogic/netxen/netxen_nic_main.c   |  7 +--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  3 +-
- drivers/net/usb/rndis_host.c                       |  2 +-
- drivers/spi/spi-cadence.c                          |  6 ++-
- drivers/usb/host/ohci-hcd.c                        |  2 +-
- fs/nfsd/nfs3xdr.c                                  |  7 ++-
- include/linux/compiler-gcc.h                       |  6 +++
- include/linux/dm-bufio.h                           |  1 +
- include/linux/skbuff.h                             |  5 +++
- net/core/skbuff.c                                  |  9 +++-
- net/core/sock_reuseport.c                          |  2 +-
- net/dcb/dcbnl.c                                    |  2 +
- net/ipv4/esp4.c                                    |  7 +--
- net/ipv6/esp6.c                                    |  7 +--
- net/ipv6/ip6_output.c                              | 40 ++++++++++++++++-
- net/ipv6/sit.c                                     |  5 ++-
- net/rxrpc/input.c                                  |  2 +-
- net/rxrpc/key.c                                    |  6 ++-
- net/tipc/link.c                                    |  9 +++-
- 24 files changed, 148 insertions(+), 44 deletions(-)
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -12,6 +12,12 @@
+ 
+ #if GCC_VERSION < 40600
+ # error Sorry, your compiler is too old - please upgrade it.
++#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100
++/*
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
++ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ */
++# error Sorry, your version of GCC is too old - please use 5.1 or newer.
+ #endif
+ 
+ /*
 
 
