@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77903300538
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B28430055B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728043AbhAVOWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:22:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38774 "EHLO mail.kernel.org"
+        id S1728630AbhAVO0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:26:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728501AbhAVOVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:21:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4762A23B45;
-        Fri, 22 Jan 2021 14:15:46 +0000 (UTC)
+        id S1728709AbhAVOZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:25:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7DCA23BCF;
+        Fri, 22 Jan 2021 14:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324946;
-        bh=31LOSbmR6QwdwU9SQDi+l8K3VkBNb6s9Kg5DwS7glx8=;
+        s=korg; t=1611325198;
+        bh=p9akUb3zrmqwiTwgOqN0+IfWqHlfDh9dl07JoX7DtI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7iz665GJmJBvV6h2ML844NHaz6RenHEy6SP8YzUtHe34TsUM5R9lck4LvNuFxGIA
-         XufdbqbRQiBuHf9EZ93PeiLJ/Je9M7twAg2KlslnUU9oXqohv/fxO1E0zSBErL1Ebk
-         BDuywglbOfsPvlyBXUdfeI3Y/pRXBWKCNNzT3Ols=
+        b=J5kwVRoMEpcKOLpybsE/ASTRKxgzP+NgMeTRXuE+T5u/9zDD9DK4Nwm83RnpR3PIy
+         Epb4wB/zNvWjplUHcxs4nA+kYyfiqJz6G3szGKpDhYUhgvHQD7pzZDYY48rFz1/YwE
+         tKKTALzYQ+ZeWg1UWbAeZ/wBE0SJ7hwo2tuTxLJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+2393580080a2da190f04@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 15/22] net: sit: unregister_netdevice on newlinks error path
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 17/43] mlxsw: core: Add validation of transceiver temperature thresholds
 Date:   Fri, 22 Jan 2021 15:12:33 +0100
-Message-Id: <20210122135732.514609761@linuxfoundation.org>
+Message-Id: <20210122135736.348381785@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+References: <20210122135735.652681690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit 47e4bb147a96f1c9b4e7691e7e994e53838bfff8 ]
+[ Upstream commit 57726ebe2733891c9f59105eff028735f73d05fb ]
 
-We need to unregister the netdevice if config failed.
-.ndo_uninit takes care of most of the heavy lifting.
+Validate thresholds to avoid a single failure due to some transceiver
+unreliability. Ignore the last readouts in case warning temperature is
+above alarm temperature, since it can cause unexpected thermal
+shutdown. Stay with the previous values and refresh threshold within
+the next iteration.
 
-This was uncovered by recent commit c269a24ce057 ("net: make
-free_netdev() more lenient with unregistering devices").
-Previously the partially-initialized device would be left
-in the system.
+This is a rare scenario, but it was observed at a customer site.
 
-Reported-and-tested-by: syzbot+2393580080a2da190f04@syzkaller.appspotmail.com
-Fixes: e2f1f072db8d ("sit: allow to configure 6rd tunnels via netlink")
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20210114012947.2515313-1-kuba@kernel.org
+Fixes: 6a79507cfe94 ("mlxsw: core: Extend thermal module with per QSFP module thermal zones")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1596,8 +1596,11 @@ static int ipip6_newlink(struct net *src
- 	}
+--- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
+@@ -176,6 +176,12 @@ mlxsw_thermal_module_trips_update(struct
+ 	if (err)
+ 		return err;
  
- #ifdef CONFIG_IPV6_SIT_6RD
--	if (ipip6_netlink_6rd_parms(data, &ip6rd))
-+	if (ipip6_netlink_6rd_parms(data, &ip6rd)) {
- 		err = ipip6_tunnel_update_6rd(nt, &ip6rd);
-+		if (err < 0)
-+			unregister_netdevice_queue(dev, NULL);
++	if (crit_temp > emerg_temp) {
++		dev_warn(dev, "%s : Critical threshold %d is above emergency threshold %d\n",
++			 tz->tzdev->type, crit_temp, emerg_temp);
++		return 0;
 +	}
- #endif
++
+ 	/* According to the system thermal requirements, the thermal zones are
+ 	 * defined with four trip points. The critical and emergency
+ 	 * temperature thresholds, provided by QSFP module are set as "active"
+@@ -190,11 +196,8 @@ mlxsw_thermal_module_trips_update(struct
+ 		tz->trips[MLXSW_THERMAL_TEMP_TRIP_NORM].temp = crit_temp;
+ 	tz->trips[MLXSW_THERMAL_TEMP_TRIP_HIGH].temp = crit_temp;
+ 	tz->trips[MLXSW_THERMAL_TEMP_TRIP_HOT].temp = emerg_temp;
+-	if (emerg_temp > crit_temp)
+-		tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp +
++	tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp +
+ 					MLXSW_THERMAL_MODULE_TEMP_SHIFT;
+-	else
+-		tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp;
  
- 	return err;
+ 	return 0;
+ }
 
 
