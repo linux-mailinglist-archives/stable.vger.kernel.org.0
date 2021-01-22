@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E21300518
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9A5300517
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:16:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728433AbhAVOPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:15:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
+        id S1728432AbhAVOPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:15:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728183AbhAVOOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728146AbhAVOOD (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:14:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EEEE23AC1;
-        Fri, 22 Jan 2021 14:10:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6507623A5E;
+        Fri, 22 Jan 2021 14:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324659;
-        bh=RfXmZ9Gx+ULMjintZ0Lsyrle7fyHNHloyqVyW5RFdtc=;
+        s=korg; t=1611324661;
+        bh=LRsymFWRyAlciZDqiRWK/ntSKv42t36TUPbsZRWPdvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnMW5hpMG4xCsTFByukOoT+9u57eqoHdcUnJN7pVx5vGgHyAqNiDwXa7vnQOsSgEi
-         9w9aSRsvizhIKzrSCyrdXH2z9j7H3NdW0kN2jqrSeuN+5xBindrlzbhlVgKHSCEO/W
-         duPgP0WwQ/d9jQHhNRFKcPcS+QZBndAIJmWMbOhA=
+        b=H5q6xB9vzdBdLBzsYciZa8NRNurS/RpyBno6BrKppxgAi6lPOkMWEu6J/I59aG6q/
+         WvLD+7Us//0RYhHtQLCEzhG82GwxwtwAnyt+qZt+D+mXNtQO55MNae0aD/tPuY4DQ/
+         wOyIana7lj2+SMDcWgNdE1cx74CHTPOOJhb3p+R8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 15/35] Input: uinput - avoid FF flush when destroying device
-Date:   Fri, 22 Jan 2021 15:10:17 +0100
-Message-Id: <20210122135732.941351562@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@kernel.org
+Subject: [PATCH 4.9 16/35] dump_common_audit_data(): fix racy accesses to ->d_name
+Date:   Fri, 22 Jan 2021 15:10:18 +0100
+Message-Id: <20210122135732.976635022@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -41,145 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit e8b95728f724797f958912fd9b765a695595d3a6 upstream.
+commit d36a1dd9f77ae1e72da48f4123ed35627848507d upstream.
 
-Normally, when input device supporting force feedback effects is being
-destroyed, we try to "flush" currently playing effects, so that the
-physical device does not continue vibrating (or executing other effects).
-Unfortunately this does not work well for uinput as flushing of the effects
-deadlocks with the destroy action:
+We are not guaranteed the locking environment that would prevent
+dentry getting renamed right under us.  And it's possible for
+old long name to be freed after rename, leading to UAF here.
 
-- if device is being destroyed because the file descriptor is being closed,
-  then there is noone to even service FF requests;
-
-- if device is being destroyed because userspace sent UI_DEV_DESTROY,
-  while theoretically it could be possible to service FF requests,
-  userspace is unlikely to do so (they'd need to make sure FF handling
-  happens on a separate thread) even if kernel solves the issue with FF
-  ioctls deadlocking with UI_DEV_DESTROY ioctl on udev->mutex.
-
-To avoid lockups like the one below, let's install a custom input device
-flush handler, and avoid trying to flush force feedback effects when we
-destroying the device, and instead rely on uinput to shut off the device
-properly.
-
-NMI watchdog: Watchdog detected hard LOCKUP on cpu 3
-...
- <<EOE>>  [<ffffffff817a0307>] _raw_spin_lock_irqsave+0x37/0x40
- [<ffffffff810e633d>] complete+0x1d/0x50
- [<ffffffffa00ba08c>] uinput_request_done+0x3c/0x40 [uinput]
- [<ffffffffa00ba587>] uinput_request_submit.part.7+0x47/0xb0 [uinput]
- [<ffffffffa00bb62b>] uinput_dev_erase_effect+0x5b/0x76 [uinput]
- [<ffffffff815d91ad>] erase_effect+0xad/0xf0
- [<ffffffff815d929d>] flush_effects+0x4d/0x90
- [<ffffffff815d4cc0>] input_flush_device+0x40/0x60
- [<ffffffff815daf1c>] evdev_cleanup+0xac/0xc0
- [<ffffffff815daf5b>] evdev_disconnect+0x2b/0x60
- [<ffffffff815d74ac>] __input_unregister_device+0xac/0x150
- [<ffffffff815d75f7>] input_unregister_device+0x47/0x70
- [<ffffffffa00bac45>] uinput_destroy_device+0xb5/0xc0 [uinput]
- [<ffffffffa00bb2de>] uinput_ioctl_handler.isra.9+0x65e/0x740 [uinput]
- [<ffffffff811231ab>] ? do_futex+0x12b/0xad0
- [<ffffffffa00bb3f8>] uinput_ioctl+0x18/0x20 [uinput]
- [<ffffffff81241248>] do_vfs_ioctl+0x298/0x480
- [<ffffffff81337553>] ? security_file_ioctl+0x43/0x60
- [<ffffffff812414a9>] SyS_ioctl+0x79/0x90
- [<ffffffff817a04ee>] entry_SYSCALL_64_fastpath+0x12/0x71
-
-Reported-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Reported-by: Clément VUCHENER <clement.vuchener@gmail.com>
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=193741
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable@kernel.org # v2.6.2+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/ff-core.c     |   13 ++++++++++---
- drivers/input/misc/uinput.c |   18 ++++++++++++++++++
- include/linux/input.h       |    1 +
- 3 files changed, 29 insertions(+), 3 deletions(-)
+ security/lsm_audit.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -237,9 +237,15 @@ int input_ff_erase(struct input_dev *dev
- EXPORT_SYMBOL_GPL(input_ff_erase);
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
+@@ -277,7 +277,9 @@ static void dump_common_audit_data(struc
+ 		struct inode *inode;
  
- /*
-- * flush_effects - erase all effects owned by a file handle
-+ * input_ff_flush - erase all effects owned by a file handle
-+ * @dev: input device to erase effect from
-+ * @file: purported owner of the effects
-+ *
-+ * This function erases all force-feedback effects associated with
-+ * the given owner from specified device. Note that @file may be %NULL,
-+ * in which case all effects will be erased.
-  */
--static int flush_effects(struct input_dev *dev, struct file *file)
-+int input_ff_flush(struct input_dev *dev, struct file *file)
- {
- 	struct ff_device *ff = dev->ff;
- 	int i;
-@@ -255,6 +261,7 @@ static int flush_effects(struct input_de
+ 		audit_log_format(ab, " name=");
++		spin_lock(&a->u.dentry->d_lock);
+ 		audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
++		spin_unlock(&a->u.dentry->d_lock);
  
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(input_ff_flush);
- 
- /**
-  * input_ff_event() - generic handler for force-feedback events
-@@ -343,7 +350,7 @@ int input_ff_create(struct input_dev *de
- 	mutex_init(&ff->mutex);
- 
- 	dev->ff = ff;
--	dev->flush = flush_effects;
-+	dev->flush = input_ff_flush;
- 	dev->event = input_ff_event;
- 	__set_bit(EV_FF, dev->evbit);
- 
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -231,6 +231,18 @@ static int uinput_dev_erase_effect(struc
- 	return uinput_request_submit(udev, &request);
- }
- 
-+static int uinput_dev_flush(struct input_dev *dev, struct file *file)
-+{
-+	/*
-+	 * If we are called with file == NULL that means we are tearing
-+	 * down the device, and therefore we can not handle FF erase
-+	 * requests: either we are handling UI_DEV_DESTROY (and holding
-+	 * the udev->mutex), or the file descriptor is closed and there is
-+	 * nobody on the other side anymore.
-+	 */
-+	return file ? input_ff_flush(dev, file) : 0;
-+}
-+
- static void uinput_destroy_device(struct uinput_device *udev)
- {
- 	const char *name, *phys;
-@@ -298,6 +310,12 @@ static int uinput_create_device(struct u
- 		dev->ff->playback = uinput_dev_playback;
- 		dev->ff->set_gain = uinput_dev_set_gain;
- 		dev->ff->set_autocenter = uinput_dev_set_autocenter;
-+		/*
-+		 * The standard input_ff_flush() implementation does
-+		 * not quite work for uinput as we can't reasonably
-+		 * handle FF requests during device teardown.
-+		 */
-+		dev->flush = uinput_dev_flush;
- 	}
- 
- 	error = input_register_device(udev->dev);
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -529,6 +529,7 @@ int input_ff_event(struct input_dev *dev
- 
- int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, struct file *file);
- int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
-+int input_ff_flush(struct input_dev *dev, struct file *file);
- 
- int input_ff_create_memless(struct input_dev *dev, void *data,
- 		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
+ 		inode = d_backing_inode(a->u.dentry);
+ 		if (inode) {
+@@ -295,8 +297,9 @@ static void dump_common_audit_data(struc
+ 		dentry = d_find_alias(inode);
+ 		if (dentry) {
+ 			audit_log_format(ab, " name=");
+-			audit_log_untrustedstring(ab,
+-					 dentry->d_name.name);
++			spin_lock(&dentry->d_lock);
++			audit_log_untrustedstring(ab, dentry->d_name.name);
++			spin_unlock(&dentry->d_lock);
+ 			dput(dentry);
+ 		}
+ 		audit_log_format(ab, " dev=");
 
 
