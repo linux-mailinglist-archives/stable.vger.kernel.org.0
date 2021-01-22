@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A14300509
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40504300519
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbhAVOM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:12:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
+        id S1728055AbhAVOPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:15:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728062AbhAVOLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:11:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48AAB23A7D;
-        Fri, 22 Jan 2021 14:09:33 +0000 (UTC)
+        id S1728254AbhAVOOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:14:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1117223AC4;
+        Fri, 22 Jan 2021 14:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324573;
-        bh=SlH2NzCoujiSem3sba2v272mEhlltaaiVc1Vd3kqLS0=;
+        s=korg; t=1611324672;
+        bh=zaTqVZ8W/xKSP71GjhGxhsY7iZ9tOSob2d8PT2TreXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFi0oEN5xQL905XI2SYGytcVNE8/rR18S75cYVroNb67bkiwRStS/7ui8ckTys6nK
-         osrItJbiSIrYgplWvBt8orTR6KMn39dJlETB4ZZfOrNAF7xepeSNAKP1kwGmPLRkS3
-         JFPvYUN9CMURFec5GXdhpEJ004RzSWbswnp/H02k=
+        b=UTUMdNebyUnZplX3WqYQfY64SkduPgPwo11rQ0ag1+MEDZDWQ7PRO3wlKDp0CajiX
+         MDDlqi5pqPWqvD/Fikqto2o40ZJUQv4FsWo3WBhYzJrs6KUZa2xHMpxB0xEIkHDJq/
+         /xl9klpXKFc2v66ZCYArztSSIv1AxXlMXuO7spwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 25/31] rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
-Date:   Fri, 22 Jan 2021 15:08:39 +0100
-Message-Id: <20210122135732.874271091@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.9 02/35] MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
+Date:   Fri, 22 Jan 2021 15:10:04 +0100
+Message-Id: <20210122135732.456737657@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.873346566@linuxfoundation.org>
-References: <20210122135731.873346566@linuxfoundation.org>
+In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
+References: <20210122135732.357969201@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit e56b3d94d939f52d46209b9e1b6700c5bfff3123 ]
+commit 4d4f9c1a17a3480f8fe523673f7232b254d724b7 upstream.
 
-MSFT ActiveSync implementation requires that the size of the response for
-incoming query is to be provided in the request input length. Failure to
-set the input size proper results in failed request transfer, where the
-ActiveSync counterpart reports the NDIS_STATUS_INVALID_LENGTH (0xC0010014L)
-error.
+The compressed payload is not necesarily 4-byte aligned, at least when
+compiling with Clang. In that case, the 4-byte value appended to the
+compressed payload that corresponds to the uncompressed kernel image
+size must be read using get_unaligned_le32().
 
-Set the input size for OID_GEN_PHYSICAL_MEDIUM query to the expected size
-of the response in order for the ActiveSync to properly respond to the
-request.
+This fixes Clang-built kernels not booting on MIPS (tested on a Ingenic
+JZ4770 board).
 
-Fixes: 039ee17d1baa ("rndis_host: Add RNDIS physical medium checking into generic_rndis_bind()")
-Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-Link: https://lore.kernel.org/r/20210108095839.3335-1-andrey.zhizhikin@leica-geosystems.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b8f54f2cde78 ("MIPS: ZBOOT: copy appended dtb to the end of the kernel")
+Cc: <stable@vger.kernel.org> # v4.7
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/usb/rndis_host.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -398,7 +398,7 @@ generic_rndis_bind(struct usbnet *dev, s
- 	reply_len = sizeof *phym;
- 	retval = rndis_query(dev, intf, u.buf,
- 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
--			     0, (void **) &phym, &reply_len);
-+			     reply_len, (void **)&phym, &reply_len);
- 	if (retval != 0 || !phym) {
- 		/* OID is optional so don't fail here. */
- 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
+---
+ arch/mips/boot/compressed/decompress.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/mips/boot/compressed/decompress.c
++++ b/arch/mips/boot/compressed/decompress.c
+@@ -17,6 +17,7 @@
+ #include <linux/libfdt.h>
+ 
+ #include <asm/addrspace.h>
++#include <asm/unaligned.h>
+ 
+ /*
+  * These two variables specify the free mem region
+@@ -124,7 +125,7 @@ void decompress_kernel(unsigned long boo
+ 		dtb_size = fdt_totalsize((void *)&__appended_dtb);
+ 
+ 		/* last four bytes is always image size in little endian */
+-		image_size = le32_to_cpup((void *)&__image_end - 4);
++		image_size = get_unaligned_le32((void *)&__image_end - 4);
+ 
+ 		/* copy dtb to where the booted kernel will expect it */
+ 		memcpy((void *)VMLINUX_LOAD_ADDRESS_ULL + image_size,
 
 
