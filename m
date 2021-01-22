@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88813300634
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00865300635
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728722AbhAVOyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:54:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
+        id S1728737AbhAVOyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:54:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728637AbhAVOXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 752DB23A69;
-        Fri, 22 Jan 2021 14:18:40 +0000 (UTC)
+        id S1728638AbhAVOXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A0123B01;
+        Fri, 22 Jan 2021 14:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325121;
-        bh=QlWNqe83q5yf7zHje8VlVcXxc+H+hS9UUvG/UYN90mA=;
+        s=korg; t=1611325123;
+        bh=19OZUo+5WqaAeqWUCa5yZCv1TB9qkBNMllD/YndVSYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAVrYlyZ/vC60Xo5+VoT37eM4CunKyumIM9/2j7sUqidOMKXA1/QsiZK+Q0CaUMBw
-         yjUM0MgDgN/9ivEzoOm2KfBgJvmBNgF+O07s5Pp2Yr3sVQwoWX6fOSHLYEKO5FuiZP
-         En0RkCFEyHb6kHTvZILAkfHEaWizImBBMZcimPy0=
+        b=gMnKqCWPj0xydl7CpHcueCpPn3+k+bFe+w8bx5dku7PcwmBkkAy7MKGOOkNRqXXv0
+         mJlArmqsABmJtvvJroR9tdWZDyVlquOXUuFljiNx00deWhq8BNF1QySuFlu4JXTYpu
+         Y4dLMODPB27u0yLcMAG5yyh0prwta+WxiZUaCF9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
-        Stanislav Fomichev <sdf@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.10 08/43] bpf: Dont leak memory in bpf getsockopt when optlen == 0
-Date:   Fri, 22 Jan 2021 15:12:24 +0100
-Message-Id: <20210122135735.992134571@linuxfoundation.org>
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Gilad Reti <gilad.reti@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        KP Singh <kpsingh@kernel.org>
+Subject: [PATCH 5.10 09/43] bpf: Support PTR_TO_MEM{,_OR_NULL} register spilling
+Date:   Fri, 22 Jan 2021 15:12:25 +0100
+Message-Id: <20210122135736.032085194@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
 References: <20210122135735.652681690@linuxfoundation.org>
@@ -40,43 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Gilad Reti <gilad.reti@gmail.com>
 
-commit 4be34f3d0731b38a1b24566b37fbb39500aaf3a2 upstream.
+commit 744ea4e3885eccb6d332a06fae9eb7420a622c0f upstream.
 
-optlen == 0 indicates that the kernel should ignore BPF buffer
-and use the original one from the user. We, however, forget
-to free the temporary buffer that we've allocated for BPF.
+Add support for pointer to mem register spilling, to allow the verifier
+to track pointers to valid memory addresses. Such pointers are returned
+for example by a successful call of the bpf_ringbuf_reserve helper.
 
-Fixes: d8fe449a9c51 ("bpf: Don't return EINVAL from {get,set}sockopt when optlen > PAGE_SIZE")
-Reported-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20210112162829.775079-1-sdf@google.com
+The patch was partially contributed by CyberArk Software, Inc.
+
+Fixes: 457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it")
+Suggested-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Gilad Reti <gilad.reti@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: KP Singh <kpsingh@kernel.org>
+Link: https://lore.kernel.org/bpf/20210113053810.13518-1-gilad.reti@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/cgroup.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -1391,12 +1391,13 @@ int __cgroup_bpf_run_filter_setsockopt(s
- 		if (ctx.optlen != 0) {
- 			*optlen = ctx.optlen;
- 			*kernel_optval = ctx.optval;
-+			/* export and don't free sockopt buf */
-+			return 0;
- 		}
- 	}
- 
- out:
--	if (ret)
--		sockopt_free_buf(&ctx);
-+	sockopt_free_buf(&ctx);
- 	return ret;
- }
- 
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2214,6 +2214,8 @@ static bool is_spillable_regtype(enum bp
+ 	case PTR_TO_RDWR_BUF:
+ 	case PTR_TO_RDWR_BUF_OR_NULL:
+ 	case PTR_TO_PERCPU_BTF_ID:
++	case PTR_TO_MEM:
++	case PTR_TO_MEM_OR_NULL:
+ 		return true;
+ 	default:
+ 		return false;
 
 
