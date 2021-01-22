@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C12300B6D
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F81F300B6E
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729504AbhAVSWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:22:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
+        id S1729542AbhAVSWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:22:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728583AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728584AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2037223A7A;
-        Fri, 22 Jan 2021 14:17:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA36323B00;
+        Fri, 22 Jan 2021 14:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325046;
-        bh=vN3jV6eWtMx4XExwl7nIVv/YMc1xOgfY/VweDoxuuxI=;
+        s=korg; t=1611325049;
+        bh=1sPWefoRRq2dMC3jN2dTikkosy66j/s6vBBM+qYnQlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mldD8uyl9+Fc5IQw92/h5i0oc5B0zO9VneCexhGBgywxsi5ROx2WcBwHZrgdsnUf7
-         +VbGXJGJv8otcNdIELOTb8zQm0j9dWsYt+ffDsBWvq+aRJPBJKVaqrR0Do/P4M3H6H
-         +x43rc2jRLPJf4EwFz1pJibYdQXfYHuMhob2tUqo=
+        b=cF547jTunS+gOggp0Y+1GTKr1VrHZKRfQHiqq0Totk9m0FNdnhggktVLgt4ddqkzL
+         GMtKVxzFM8D3BNYqzASI+sUyhRihM/ulMRIQJFc4GywV2IN7rmrQ9pB3k4Y1pwdCNw
+         QqiaGgOuQ/1JmR4lMoX5ul68X4q1UWt5+sn4NBQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Subject: [PATCH 5.4 29/33] net, sctp, filter: remap copy_from_user failure error
-Date:   Fri, 22 Jan 2021 15:12:45 +0100
-Message-Id: <20210122135734.750091426@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 30/33] tipc: fix NULL deref in tipc_link_xmit()
+Date:   Fri, 22 Jan 2021 15:12:46 +0100
+Message-Id: <20210122135734.787814821@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -41,63 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ no upstream commit ]
+[ Upstream commit b77413446408fdd256599daf00d5be72b5f3e7c6 ]
 
-Fix a potential kernel address leakage for the prerequisite where there is
-a BPF program attached to the cgroup/setsockopt hook. The latter can only
-be attached under root, however, if the attached program returns 1 to then
-run the related kernel handler, an unprivileged program could probe for
-kernel addresses that way. The reason this is possible is that we're under
-set_fs(KERNEL_DS) when running the kernel setsockopt handler. Aside from
-old cBPF there is also SCTP's struct sctp_getaddrs_old which contains
-pointers in the uapi struct that further need copy_from_user() inside the
-handler. In the normal case this would just return -EFAULT, but under a
-temporary KERNEL_DS setting the memory would be copied and we'd end up at
-a different error code, that is, -EINVAL, for both cases given subsequent
-validations fail, which then allows the app to distinguish and make use of
-this fact for probing the address space. In case of later kernel versions
-this issue won't work anymore thanks to Christoph Hellwig's work that got
-rid of the various temporary set_fs() address space overrides altogether.
-One potential option for 5.4 as the only affected stable kernel with the
-least complexity would be to remap those affected -EFAULT copy_from_user()
-error codes with -EINVAL such that they cannot be probed anymore. Risk of
-breakage should be rather low for this particular error case.
+The buffer list can have zero skb as following path:
+tipc_named_node_up()->tipc_node_xmit()->tipc_link_xmit(), so
+we need to check the list before casting an &sk_buff.
 
-Fixes: 0d01da6afc54 ("bpf: implement getsockopt and setsockopt hooks")
-Reported-by: Ryota Shiga (Flatt Security)
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fault report:
+ [] tipc: Bulk publication failure
+ [] general protection fault, probably for non-canonical [#1] PREEMPT [...]
+ [] KASAN: null-ptr-deref in range [0x00000000000000c8-0x00000000000000cf]
+ [] CPU: 0 PID: 0 Comm: swapper/0 Kdump: loaded Not tainted 5.10.0-rc4+ #2
+ [] Hardware name: Bochs ..., BIOS Bochs 01/01/2011
+ [] RIP: 0010:tipc_link_xmit+0xc1/0x2180
+ [] Code: 24 b8 00 00 00 00 4d 39 ec 4c 0f 44 e8 e8 d7 0a 10 f9 48 [...]
+ [] RSP: 0018:ffffc90000006ea0 EFLAGS: 00010202
+ [] RAX: dffffc0000000000 RBX: ffff8880224da000 RCX: 1ffff11003d3cc0d
+ [] RDX: 0000000000000019 RSI: ffffffff886007b9 RDI: 00000000000000c8
+ [] RBP: ffffc90000007018 R08: 0000000000000001 R09: fffff52000000ded
+ [] R10: 0000000000000003 R11: fffff52000000dec R12: ffffc90000007148
+ [] R13: 0000000000000000 R14: 0000000000000000 R15: ffffc90000007018
+ [] FS:  0000000000000000(0000) GS:ffff888037400000(0000) knlGS:000[...]
+ [] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [] CR2: 00007fffd2db5000 CR3: 000000002b08f000 CR4: 00000000000006f0
+
+Fixes: af9b028e270fd ("tipc: make media xmit call outside node spinlock context")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Link: https://lore.kernel.org/r/20210108071337.3598-1-hoang.h.le@dektech.com.au
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    2 +-
- net/sctp/socket.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/tipc/link.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -1475,7 +1475,7 @@ struct bpf_prog *__get_filter(struct soc
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -939,9 +939,7 @@ void tipc_link_reset(struct tipc_link *l
+ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 		   struct sk_buff_head *xmitq)
+ {
+-	struct tipc_msg *hdr = buf_msg(skb_peek(list));
+ 	unsigned int maxwin = l->window;
+-	int imp = msg_importance(hdr);
+ 	unsigned int mtu = l->mtu;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 seqno = l->snd_nxt;
+@@ -950,8 +948,14 @@ int tipc_link_xmit(struct tipc_link *l,
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+ 	struct sk_buff *skb, *_skb, **tskb;
+ 	int pkt_cnt = skb_queue_len(list);
++	struct tipc_msg *hdr;
+ 	int rc = 0;
++	int imp;
  
- 	if (copy_from_user(prog->insns, fprog->filter, fsize)) {
- 		__bpf_prog_free(prog);
--		return ERR_PTR(-EFAULT);
-+		return ERR_PTR(-EINVAL);
++	if (pkt_cnt <= 0)
++		return 0;
++
++	hdr = buf_msg(skb_peek(list));
+ 	if (unlikely(msg_size(hdr) > mtu)) {
+ 		pr_warn("Too large msg, purging xmit list %d %d %d %d %d!\n",
+ 			skb_queue_len(list), msg_user(hdr),
+@@ -960,6 +964,7 @@ int tipc_link_xmit(struct tipc_link *l,
+ 		return -EMSGSIZE;
  	}
  
- 	prog->len = fprog->len;
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1319,7 +1319,7 @@ static int __sctp_setsockopt_connectx(st
- 
- 	kaddrs = memdup_user(addrs, addrs_size);
- 	if (IS_ERR(kaddrs))
--		return PTR_ERR(kaddrs);
-+		return PTR_ERR(kaddrs) == -EFAULT ? -EINVAL : PTR_ERR(kaddrs);
- 
- 	/* Allow security module to validate connectx addresses. */
- 	err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_CONNECTX,
++	imp = msg_importance(hdr);
+ 	/* Allow oversubscription of one data msg per source at congestion */
+ 	if (unlikely(l->backlog[imp].len >= l->backlog[imp].limit)) {
+ 		if (imp == TIPC_SYSTEM_IMPORTANCE) {
 
 
