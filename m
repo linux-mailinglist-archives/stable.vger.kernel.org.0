@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E96B2300B8D
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:42:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7858300B82
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:40:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729743AbhAVSkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
+        id S1729487AbhAVSjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:39:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728262AbhAVOTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:19:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0894623B18;
-        Fri, 22 Jan 2021 14:14:26 +0000 (UTC)
+        id S1728471AbhAVORx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:17:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C41A239EF;
+        Fri, 22 Jan 2021 14:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324867;
-        bh=keHg5tN7iJe3Ea6FChdM7QEqZTYyNv3lusYguIH25vQ=;
+        s=korg; t=1611324820;
+        bh=i4Nmwe5miPe3Gw6FrnUEcFoxmdlKxZr3pmtpSqvRZP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0N/dB3i4U2PTMX1HbEbgJZu5tBS5mAkqejzVBzAoynoOCss1ADFCAyKvfcYpQL9J
-         2Hg1rJGpRnL0SbiqrdE7oQXo+EjGhHTVG/qaBzaA8XKPVl1g0ce0JbR7HUM3y8dxQ+
-         cvH3pvXRO/Par8vVACmfASK+DDsaRsGXZyirciOI=
+        b=nCIzP7kMqIX53YQ7nTyIUnB52mnTpTuD7MhwxtKoeJSTiikenb+RnxO8LWcsxOqee
+         StWnp9PMEKM5ON4Wfi/qyUo8IhxF0LbVg0d8DXPw7ryFAl7SETYXcOdqNrIur+7j9c
+         QCSf3PivAXWbOG+/4ZLbjZbN162RqrFCLOEZiKTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Schuermann <leon@is.currently.online>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 08/50] r8152: Add Lenovo Powered USB-C Travel Hub
-Date:   Fri, 22 Jan 2021 15:11:49 +0100
-Message-Id: <20210122135735.520295279@linuxfoundation.org>
+        stable@vger.kernel.org, Jamie Iles <jamie@jamieiles.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 19/50] ARM: picoxcell: fix missing interrupt-parent properties
+Date:   Fri, 22 Jan 2021 15:12:00 +0100
+Message-Id: <20210122135735.968241940@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -39,55 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Schuermann <leon@is.currently.online>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit cb82a54904a99df9e8f9e9d282046055dae5a730 upstream.
+[ Upstream commit bac717171971176b78c72d15a8b6961764ab197f ]
 
-This USB-C Hub (17ef:721e) based on the Realtek RTL8153B chip used to
-use the cdc_ether driver. However, using this driver, with the system
-suspended the device constantly sends pause-frames as soon as the
-receive buffer fills up. This causes issues with other devices, where
-some Ethernet switches stop forwarding packets altogether.
+dtc points out that the interrupts for some devices are not parsable:
 
-Using the Realtek driver (r8152) fixes this issue. Pause frames are no
-longer sent while the host system is suspended.
+picoxcell-pc3x2.dtsi:45.19-49.5: Warning (interrupts_property): /paxi/gem@30000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:51.21-55.5: Warning (interrupts_property): /paxi/dmac@40000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:57.21-61.5: Warning (interrupts_property): /paxi/dmac@50000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:233.21-237.5: Warning (interrupts_property): /rwid-axi/axi2pico@c0000000: Missing interrupt-parent
 
-Signed-off-by: Leon Schuermann <leon@is.currently.online>
-Tested-by: Leon Schuermann <leon@is.currently.online>
-Link: https://lore.kernel.org/r/20210111190312.12589-2-leon@is.currently.online
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There are two VIC instances, so it's not clear which one needs to be
+used. I found the BSP sources that reference VIC0, so use that:
 
+https://github.com/r1mikey/meta-picoxcell/blob/master/recipes-kernel/linux/linux-picochip-3.0/0001-picoxcell-support-for-Picochip-picoXcell-SoC.patch
+
+Acked-by: Jamie Iles <jamie@jamieiles.com>
+Link: https://lore.kernel.org/r/20201230152010.3914962-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c |    7 +++++++
- drivers/net/usb/r8152.c     |    1 +
- 2 files changed, 8 insertions(+)
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -800,6 +800,13 @@ static const struct usb_device_id	produc
- 	.driver_info = 0,
- },
+diff --git a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+index 533919e96eaee..f22a6b4363177 100644
+--- a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
++++ b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+@@ -54,18 +54,21 @@
+ 		emac: gem@30000 {
+ 			compatible = "cadence,gem";
+ 			reg = <0x30000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <31>;
+ 		};
  
-+/* Lenovo Powered USB-C Travel Hub (4X90S92381, based on Realtek RTL8153) */
-+{
-+	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x721e, USB_CLASS_COMM,
-+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-+	.driver_info = 0,
-+},
-+
- /* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5337,6 +5337,7 @@ static const struct usb_device_id rtl815
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
-+	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x721e)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
+ 		dmac1: dmac@40000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x40000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <25>;
+ 		};
+ 
+ 		dmac2: dmac@50000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x50000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <26>;
+ 		};
+ 
+@@ -243,6 +246,7 @@
+ 		axi2pico@c0000000 {
+ 			compatible = "picochip,axi2pico-pc3x2";
+ 			reg = <0xc0000000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <13 14 15 16 17 18 19 20 21>;
+ 		};
+ 	};
+-- 
+2.27.0
+
 
 
