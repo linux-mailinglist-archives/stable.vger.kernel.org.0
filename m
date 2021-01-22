@@ -2,92 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC0C300B19
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A288300AB3
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729450AbhAVSV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:21:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728587AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4262E23B7B;
-        Fri, 22 Jan 2021 14:17:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325056;
-        bh=7wNmMAsfkNPJ8QYKHFYsi9gLUAod791kA9lr/bq0tiY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYcE8pJgLyt5Xa/Ysmk0tsv1eWXyf2cnoVoPX7Gn2zI8Y+1oNQ7qM598fUYVJpJxS
-         3JpcIRRHQ9D+s4+H09AVPB4OPRLouxIgn0tpucEktU6USx9XQIaALmZCxq92EAgI9f
-         qMwlpZ4ziuXCAUAvQdchOy8BcgAqiSozlA28SriE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 33/33] spi: cadence: cache reference clock rate during probe
-Date:   Fri, 22 Jan 2021 15:12:49 +0100
-Message-Id: <20210122135734.900345130@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729907AbhAVSA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:00:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33792 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729510AbhAVR0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 12:26:44 -0500
+Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE83C061786
+        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 09:25:59 -0800 (PST)
+Received: by mail-vs1-xe2e.google.com with SMTP id o19so3425942vsn.3
+        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 09:25:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qmG3ReoOA+nFPdXtaVvEXKSYJ1hlcICvB+O+sBZ8Rxs=;
+        b=BPbc972+YUig5NQtxOSZg1EHCRcGGhpBv63PGBCsP3/QeXaDnBsC/61eMD37MX0uMN
+         ZhmDjYDXz45huhioduettk9AW1GqVp0JBbK15z7BRc2ri7dbK9F+6g4UBens8NOAJm/V
+         w48k13PY+LsADehsNNoI1EOXdrCmtQAA4E0HE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qmG3ReoOA+nFPdXtaVvEXKSYJ1hlcICvB+O+sBZ8Rxs=;
+        b=qgcMkcSI3rLFYOK1XsGG08hqKEx2IMqh4L1B06Ioq9xP5yRotG9Q+4DDxRLMfjZSR4
+         UZ4nGhXS5Wsoa53nM/8IhcmbreTHU/sCb2Yc6GT3zEj6F/dliqgH+hcjnSCBgAaPkimc
+         zC9YoVIdFj18lewnrlclbHY8+NaLVaE3e0DFk4cWu/f0v3vyr2K3ZRYLtGZT2aM7a9cn
+         jX1IKQ1+7fKyMBcvN148ApKeZsFrcWNViKqikwbay+LzY0K2az3z52CCuzHakQHzFXqE
+         ongHj8hyWzS081Mexms0Df95hdjkD0pWurNaT2KkO64GEe05jBZfu8iRUd0hYFpZAR28
+         FIdA==
+X-Gm-Message-State: AOAM532mP/ZJXchugoTDeZZLGYDO6OeJWmbm2KSVT6n2SLBrvbFXYgJL
+        djYoXY9ma3s0HjiHDwVXLS3Jzd4HFTAxeA==
+X-Google-Smtp-Source: ABdhPJzpco/ZcrCWfAmQQwUtZGCeFbo8lZMyY4/uNK2k0hPVnjTXMR7y+FsPjVwkyjMaQg8h4RiXMg==
+X-Received: by 2002:a67:cb1a:: with SMTP id b26mr295399vsl.22.1611336358191;
+        Fri, 22 Jan 2021 09:25:58 -0800 (PST)
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com. [209.85.217.51])
+        by smtp.gmail.com with ESMTPSA id g139sm1388518vke.18.2021.01.22.09.25.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Jan 2021 09:25:56 -0800 (PST)
+Received: by mail-vs1-f51.google.com with SMTP id p20so3409795vsq.7
+        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 09:25:56 -0800 (PST)
+X-Received: by 2002:a67:ed09:: with SMTP id l9mr789858vsp.4.1611336356103;
+ Fri, 22 Jan 2021 09:25:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <1611313556-4004-1-git-send-email-sumit.garg@linaro.org>
+In-Reply-To: <1611313556-4004-1-git-send-email-sumit.garg@linaro.org>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Fri, 22 Jan 2021 09:25:44 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=V8HwhdhpCoiZx4XbTMWug0CAxhsnPR+5V9rB0W7QXFTQ@mail.gmail.com>
+Message-ID: <CAD=FV=V8HwhdhpCoiZx4XbTMWug0CAxhsnPR+5V9rB0W7QXFTQ@mail.gmail.com>
+Subject: Re: [PATCH v3] kdb: Make memory allocations more robust
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     kgdb-bugreport@lists.sourceforge.net,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+Hi,
 
-commit 4d163ad79b155c71bf30366dc38f8d2502f78844 upstream.
+On Fri, Jan 22, 2021 at 3:06 AM Sumit Garg <sumit.garg@linaro.org> wrote:
+>
+> Currently kdb uses in_interrupt() to determine whether its library
+> code has been called from the kgdb trap handler or from a saner calling
+> context such as driver init.  This approach is broken because
+> in_interrupt() alone isn't able to determine kgdb trap handler entry from
+> normal task context. This can happen during normal use of basic features
+> such as breakpoints and can also be trivially reproduced using:
+> echo g > /proc/sysrq-trigger
 
-The issue is that using SPI from a callback under the CCF lock will
-deadlock, since this code uses clk_get_rate().
+I guess an alternative to your patch is to fully eliminate GFP_KDB.
+It always strikes me as a sub-optimal design to choose between
+GFP_ATOMIC and GFP_KERNEL like this.  Presumably others must agree
+because otherwise I'd expect that the overall kernel would have
+something like "GFP_AUTOMATIC"?
 
-Fixes: c474b38665463 ("spi: Add driver for Cadence SPI controller")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Link: https://lore.kernel.org/r/20210114154217.51996-1-alexandru.ardelean@analog.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It doesn't feel like it'd be that hard to do something more explicit.
+From a quick glance:
 
----
- drivers/spi/spi-cadence.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+* I think kdb_defcmd() and kdb_defcmd2() are always called in response
+to a user typing something on the kdb command line.  Those should
+always be GFP_ATOMIC, right?
 
---- a/drivers/spi/spi-cadence.c
-+++ b/drivers/spi/spi-cadence.c
-@@ -115,6 +115,7 @@ struct cdns_spi {
- 	void __iomem *regs;
- 	struct clk *ref_clk;
- 	struct clk *pclk;
-+	unsigned int clk_rate;
- 	u32 speed_hz;
- 	const u8 *txbuf;
- 	u8 *rxbuf;
-@@ -250,7 +251,7 @@ static void cdns_spi_config_clock_freq(s
- 	u32 ctrl_reg, baud_rate_val;
- 	unsigned long frequency;
- 
--	frequency = clk_get_rate(xspi->ref_clk);
-+	frequency = xspi->clk_rate;
- 
- 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
- 
-@@ -558,8 +559,9 @@ static int cdns_spi_probe(struct platfor
- 	master->auto_runtime_pm = true;
- 	master->mode_bits = SPI_CPOL | SPI_CPHA;
- 
-+	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
- 	/* Set to default valid value */
--	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
-+	master->max_speed_hz = xspi->clk_rate / 4;
- 	xspi->speed_hz = master->max_speed_hz;
- 
- 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+* The one call that's not in kdb_defcmd() / kdb_defcmd2() is in
+kdb_register_flags().  That can be called either during init time or
+from kdb_defcmd2().  It doesn't seem like it'd be hard to rename
+kdb_register_flags() to _kdb_register_flags() and add a "gfp_t flags"
+to the end.  Then the exported kdb_register_flags() would pass
+GFP_KERNEL and the call from kdb_defcmd2() would pass GFP_ATOMIC:
 
 
+> We can improve this by adding check for in_dbg_master() instead which
+
+s/adding check/adding a check/
+
+
+> explicitly determines if we are running in debugger context.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+> ---
+>
+> Changes in v3:
+> - Refined commit description and Cc: stable@vger.kernel.org.
+>
+> Changes in v2:
+> - Get rid of redundant in_atomic() check.
+>
+>  kernel/debug/kdb/kdb_private.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+I would leave it up to Daniel to say whether he agrees that a full
+removal of "GFP_KDB" would be a better solution.  However, your patch
+clearly improves the state of things, so:
+
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
