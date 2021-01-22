@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7858300B82
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6D4300B89
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:41:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729487AbhAVSjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:39:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
+        id S1729650AbhAVSkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:40:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728471AbhAVORx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:17:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C41A239EF;
-        Fri, 22 Jan 2021 14:13:39 +0000 (UTC)
+        id S1728497AbhAVOTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:19:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EF3E23A81;
+        Fri, 22 Jan 2021 14:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324820;
-        bh=i4Nmwe5miPe3Gw6FrnUEcFoxmdlKxZr3pmtpSqvRZP8=;
+        s=korg; t=1611324843;
+        bh=dqGUvUBkEm7zi2253iOe4HOAdThnyzo+tphPO9YCnLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCIzP7kMqIX53YQ7nTyIUnB52mnTpTuD7MhwxtKoeJSTiikenb+RnxO8LWcsxOqee
-         StWnp9PMEKM5ON4Wfi/qyUo8IhxF0LbVg0d8DXPw7ryFAl7SETYXcOdqNrIur+7j9c
-         QCSf3PivAXWbOG+/4ZLbjZbN162RqrFCLOEZiKTA=
+        b=dRjKir+mS8UZnGQlNC8ddTx04Zu/SPO415bENlxPdILQEyX7kwy6ejTpvaO9PDmUa
+         V6Nkfa3LFotfiK6RjJBNRJ4m6D/cKiiBYv+9XIE6XsMPC0yvJupTqCMxC/Cfmfv5+4
+         5qzL5Js6rlJjxDNLEkkCedgeKk+Mw3ErzLZVVkfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie Iles <jamie@jamieiles.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/50] ARM: picoxcell: fix missing interrupt-parent properties
-Date:   Fri, 22 Jan 2021 15:12:00 +0100
-Message-Id: <20210122135735.968241940@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 27/50] mm, slub: consider rest of partial list if acquire_slab() fails
+Date:   Fri, 22 Jan 2021 15:12:08 +0100
+Message-Id: <20210122135736.291270624@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -39,66 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit bac717171971176b78c72d15a8b6961764ab197f ]
+commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf upstream.
 
-dtc points out that the interrupts for some devices are not parsable:
+acquire_slab() fails if there is contention on the freelist of the page
+(probably because some other CPU is concurrently freeing an object from
+the page).  In that case, it might make sense to look for a different page
+(since there might be more remote frees to the page from other CPUs, and
+we don't want contention on struct page).
 
-picoxcell-pc3x2.dtsi:45.19-49.5: Warning (interrupts_property): /paxi/gem@30000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:51.21-55.5: Warning (interrupts_property): /paxi/dmac@40000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:57.21-61.5: Warning (interrupts_property): /paxi/dmac@50000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:233.21-237.5: Warning (interrupts_property): /rwid-axi/axi2pico@c0000000: Missing interrupt-parent
+However, the current code accidentally stops looking at the partial list
+completely in that case.  Especially on kernels without CONFIG_NUMA set,
+this means that get_partial() fails and new_slab_objects() falls back to
+new_slab(), allocating new pages.  This could lead to an unnecessary
+increase in memory fragmentation.
 
-There are two VIC instances, so it's not clear which one needs to be
-used. I found the BSP sources that reference VIC0, so use that:
+Link: https://lkml.kernel.org/r/20201228130853.1871516-1-jannh@google.com
+Fixes: 7ced37197196 ("slub: Acquire_slab() avoid loop")
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-https://github.com/r1mikey/meta-picoxcell/blob/master/recipes-kernel/linux/linux-picochip-3.0/0001-picoxcell-support-for-Picochip-picoXcell-SoC.patch
-
-Acked-by: Jamie Iles <jamie@jamieiles.com>
-Link: https://lore.kernel.org/r/20201230152010.3914962-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/picoxcell-pc3x2.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-index 533919e96eaee..f22a6b4363177 100644
---- a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-+++ b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-@@ -54,18 +54,21 @@
- 		emac: gem@30000 {
- 			compatible = "cadence,gem";
- 			reg = <0x30000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <31>;
- 		};
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1846,7 +1846,7 @@ static void *get_partial_node(struct kme
  
- 		dmac1: dmac@40000 {
- 			compatible = "snps,dw-dmac";
- 			reg = <0x40000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <25>;
- 		};
+ 		t = acquire_slab(s, n, page, object == NULL, &objects);
+ 		if (!t)
+-			break;
++			continue; /* cmpxchg raced */
  
- 		dmac2: dmac@50000 {
- 			compatible = "snps,dw-dmac";
- 			reg = <0x50000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <26>;
- 		};
- 
-@@ -243,6 +246,7 @@
- 		axi2pico@c0000000 {
- 			compatible = "picochip,axi2pico-pc3x2";
- 			reg = <0xc0000000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <13 14 15 16 17 18 19 20 21>;
- 		};
- 	};
--- 
-2.27.0
-
+ 		available += objects;
+ 		if (!object) {
 
 
