@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAA6300D28
+	by mail.lfdr.de (Postfix) with ESMTP id A669B300D29
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730880AbhAVT6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35828 "EHLO mail.kernel.org"
+        id S1730883AbhAVT64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:58:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728357AbhAVOPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:15:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E19F239D1;
-        Fri, 22 Jan 2021 14:11:45 +0000 (UTC)
+        id S1728088AbhAVOPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:15:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E57023A56;
+        Fri, 22 Jan 2021 14:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324706;
-        bh=GazXufC7ijkTJNFb1soe2seAjHGMrKv2p/UKCUFBQN8=;
+        s=korg; t=1611324712;
+        bh=XIP+1FvC3uLb1PAkKAZzm+OiRsmgPBMplCnOMwCwfw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIB3eV4HSRzCrSaQivX8pK9XTz3M4knCsMpNSmT0yeNIt6VwibvQppPb2j64l7hl5
-         mbwTMfPM1GrRETVSgEG4hU7SChb3mRwkq9yBq4tlUmzYT4fdc4XwvaWePdrScGKRDg
-         vUeSzEQw8H7q3ifmbKFArDevDAdVyvAiIs9hrTvw=
+        b=tlFfUsy8yG7EZAGqC8GMOMkmhLj0v3pLC2itT977Rq2Bnc/D5ASVvdOTfg3r9Gk6B
+         2EGfANNo3/WYnPqKhqvlHC346hU7p4Q4huTrgHsbnRLGjOMWr6Npp1s0Q0qzreA+ZN
+         L78RF2OU4I6LY5kNBYU2Vzx/hYa1Hk7OCsnbdqXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 33/35] rxrpc: Fix handling of an unsupported token type in rxrpc_read()
-Date:   Fri, 22 Jan 2021 15:10:35 +0100
-Message-Id: <20210122135733.652002408@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 35/35] spi: cadence: cache reference clock rate during probe
+Date:   Fri, 22 Jan 2021 15:10:37 +0100
+Message-Id: <20210122135733.745952182@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -40,60 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-[ Upstream commit d52e419ac8b50c8bef41b398ed13528e75d7ad48 ]
+commit 4d163ad79b155c71bf30366dc38f8d2502f78844 upstream.
 
-Clang static analysis reports the following:
+The issue is that using SPI from a callback under the CCF lock will
+deadlock, since this code uses clk_get_rate().
 
-net/rxrpc/key.c:657:11: warning: Assigned value is garbage or undefined
-                toksize = toksizes[tok++];
-                        ^ ~~~~~~~~~~~~~~~
-
-rxrpc_read() contains two consecutive loops.  The first loop calculates the
-token sizes and stores the results in toksizes[] and the second one uses
-the array.  When there is an error in identifying the token in the first
-loop, the token is skipped, no change is made to the toksizes[] array.
-When the same error happens in the second loop, the token is not skipped.
-This will cause the toksizes[] array to be out of step and will overrun
-past the calculated sizes.
-
-Fix this by making both loops log a message and return an error in this
-case.  This should only happen if a new token type is incompletely
-implemented, so it should normally be impossible to trigger this.
-
-Fixes: 9a059cd5ca7d ("rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()")
-Reported-by: Tom Rix <trix@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/161046503122.2445787.16714129930607546635.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c474b38665463 ("spi: Add driver for Cadence SPI controller")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Link: https://lore.kernel.org/r/20210114154217.51996-1-alexandru.ardelean@analog.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/rxrpc/key.c |    6 ++++--
+ drivers/spi/spi-cadence.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -1106,7 +1106,7 @@ static long rxrpc_read(const struct key
- 		default: /* we have a ticket we can't encode */
- 			pr_err("Unsupported key token type (%u)\n",
- 			       token->security_index);
--			continue;
-+			return -ENOPKG;
- 		}
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -118,6 +118,7 @@ struct cdns_spi {
+ 	void __iomem *regs;
+ 	struct clk *ref_clk;
+ 	struct clk *pclk;
++	unsigned int clk_rate;
+ 	u32 speed_hz;
+ 	const u8 *txbuf;
+ 	u8 *rxbuf;
+@@ -253,7 +254,7 @@ static void cdns_spi_config_clock_freq(s
+ 	u32 ctrl_reg, baud_rate_val;
+ 	unsigned long frequency;
  
- 		_debug("token[%u]: toksize=%u", ntoks, toksize);
-@@ -1226,7 +1226,9 @@ static long rxrpc_read(const struct key
- 			break;
+-	frequency = clk_get_rate(xspi->ref_clk);
++	frequency = xspi->clk_rate;
  
- 		default:
--			break;
-+			pr_err("Unsupported key token type (%u)\n",
-+			       token->security_index);
-+			return -ENOPKG;
- 		}
+ 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
  
- 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
+@@ -558,8 +559,9 @@ static int cdns_spi_probe(struct platfor
+ 	master->auto_runtime_pm = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA;
+ 
++	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
+ 	/* Set to default valid value */
+-	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
++	master->max_speed_hz = xspi->clk_rate / 4;
+ 	xspi->speed_hz = master->max_speed_hz;
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
 
 
