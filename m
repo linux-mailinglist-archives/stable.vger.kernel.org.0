@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F79530052F
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:21:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE1B30054B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728496AbhAVOVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:21:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
+        id S1728673AbhAVOZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:25:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728487AbhAVOSu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:18:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE0023A7E;
-        Fri, 22 Jan 2021 14:13:55 +0000 (UTC)
+        id S1728645AbhAVOYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:24:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C7CB23B99;
+        Fri, 22 Jan 2021 14:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324836;
-        bh=psplj7E6pbRF0VvFZdW6Qy+OBViV4uIQvI+KMFyV4bI=;
+        s=korg; t=1611325104;
+        bh=RFMlqyLw1tlq0GlayLVyZgIN40+Brn9eAw78yxoKv/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys1DtBfvFVMYiy2fvhwdZP3muswNE07MgqHGptDJICwXu9sGPDUj/xTzw5D+r2DMD
-         29QANjD/eb2iTfIbewrc76NnPxHb1viEDIDbkZ9LLW5ejtTWO2A6cAPUZ1LUjxxKSV
-         DmUr+QgpACKMFhN9Ppz6WZWLvA26VdxXfisWgx7M=
+        b=qQScNU9XAI/9R8xaGY+OwtTxY9Jl/9+HMNY6wsmqb93QX/5efpCFEthD0DhGuO9Ve
+         DO28FzpnvntNHExvxHBc+cTn0yDg0Q59ItzWuCBbtX/4rXSqSfnvR4pJIZ99+0Hue/
+         8RoGQrcyHp7+ksCcmH1ACYRuWimcoJZTrdMCw3lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 24/50] NFS: nfs_igrab_and_active must first reference the superblock
-Date:   Fri, 22 Jan 2021 15:12:05 +0100
-Message-Id: <20210122135736.173341247@linuxfoundation.org>
+        stable@vger.kernel.org, Andrei Matei <andreimatei1@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Florian Lehner <dev@der-flo.net>, Yonghong Song <yhs@fb.com>,
+        Lorenz Bauer <lmb@cloudflare.com>
+Subject: [PATCH 5.10 02/43] bpf: Fix selftest compilation on clang 11
+Date:   Fri, 22 Jan 2021 15:12:18 +0100
+Message-Id: <20210122135735.742795244@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
-References: <20210122135735.176469491@linuxfoundation.org>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+References: <20210122135735.652681690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Andrei Matei <andreimatei1@gmail.com>
 
-commit 896567ee7f17a8a736cda8a28cc987228410a2ac upstream.
+commit fb3558127cb62ba2dea9e3d0efa1bb1d7e5eee2a upstream.
 
-Before referencing the inode, we must ensure that the superblock can be
-referenced. Otherwise, we can end up with iput() calling superblock
-operations that are no longer valid or accessible.
+Before this patch, profiler.inc.h wouldn't compile with clang-11 (before
+the __builtin_preserve_enum_value LLVM builtin was introduced in
+https://reviews.llvm.org/D83242).
 
-Fixes: ea7c38fef0b7 ("NFSv4: Ensure we reference the inode for return-on-close in delegreturn")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Another test that uses this builtin (test_core_enumval) is conditionally
+skipped if the compiler is too old. In that spirit, this patch inhibits
+part of populate_cgroup_info(), which needs this CO-RE builtin. The
+selftests build again on clang-11.
+
+The affected test (the profiler test) doesn't pass on clang-11 because
+it's missing https://reviews.llvm.org/D85570, but at least the test suite
+as a whole compiles. The test's expected failure is already called out in
+the README.
+
+Signed-off-by: Andrei Matei <andreimatei1@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Florian Lehner <dev@der-flo.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20201125035255.17970-1-andreimatei1@gmail.com
+Cc: Lorenz Bauer <lmb@cloudflare.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/internal.h |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ tools/testing/selftests/bpf/progs/profiler.inc.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -575,12 +575,14 @@ extern int nfs4_test_session_trunk(struc
+--- a/tools/testing/selftests/bpf/progs/profiler.inc.h
++++ b/tools/testing/selftests/bpf/progs/profiler.inc.h
+@@ -256,6 +256,7 @@ static INLINE void* populate_cgroup_info
+ 		BPF_CORE_READ(task, nsproxy, cgroup_ns, root_cset, dfl_cgrp, kn);
+ 	struct kernfs_node* proc_kernfs = BPF_CORE_READ(task, cgroups, dfl_cgrp, kn);
  
- static inline struct inode *nfs_igrab_and_active(struct inode *inode)
- {
--	inode = igrab(inode);
--	if (inode != NULL && !nfs_sb_active(inode->i_sb)) {
--		iput(inode);
--		inode = NULL;
-+	struct super_block *sb = inode->i_sb;
-+
-+	if (sb && nfs_sb_active(sb)) {
-+		if (igrab(inode))
-+			return inode;
-+		nfs_sb_deactive(sb);
++#if __has_builtin(__builtin_preserve_enum_value)
+ 	if (ENABLE_CGROUP_V1_RESOLVER && CONFIG_CGROUP_PIDS) {
+ 		int cgrp_id = bpf_core_enum_value(enum cgroup_subsys_id___local,
+ 						  pids_cgrp_id___local);
+@@ -275,6 +276,7 @@ static INLINE void* populate_cgroup_info
+ 			}
+ 		}
  	}
--	return inode;
-+	return NULL;
- }
++#endif
  
- static inline void nfs_iput_and_deactive(struct inode *inode)
+ 	cgroup_data->cgroup_root_inode = get_inode_from_kernfs(root_kernfs);
+ 	cgroup_data->cgroup_proc_inode = get_inode_from_kernfs(proc_kernfs);
 
 
