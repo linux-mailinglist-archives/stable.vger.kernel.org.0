@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7EC300D17
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22DB7300D19
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbhAVT6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34950 "EHLO mail.kernel.org"
+        id S1730760AbhAVT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728411AbhAVONy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:13:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F166623ABA;
-        Fri, 22 Jan 2021 14:10:55 +0000 (UTC)
+        id S1728203AbhAVOOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:14:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4452523A5F;
+        Fri, 22 Jan 2021 14:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324656;
-        bh=i4Nmwe5miPe3Gw6FrnUEcFoxmdlKxZr3pmtpSqvRZP8=;
+        s=korg; t=1611324664;
+        bh=9q3kSDHOt1IVp/diBP4F39WtWudxppLFmPDFRhZz48Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBzvpUg933cNNfA0BYFvpHWsFUo9qhpQNerxQB4REiuh8P7AP00qzA4XnHwmcnGLh
-         cZLad0wl8ppvkbsO+GXArT6QP4xKKvtDh5A6Hm+PNjMFqAsCw1CLbCYFaFVp0KqByA
-         TdEHyZJHslc8wBAoOb/zOaRXH9DdG0hzG2qXzjOs=
+        b=TD2roMyYaT/78A5/ABwPEBd9qE4bSG4b4s9APMuUF6BgB2rEb6GkjQmvvo93Q9+ZW
+         gMadDTcxLdpFWQ3l0jocGmn1OIKhGQyAmEmhziBsCB4yJ/BUFoMlUtBNPeYfNascYV
+         YAV/n7Vt970wu5tk7+UYUhLc3+bc1MTwPBvUfC9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie Iles <jamie@jamieiles.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/35] ARM: picoxcell: fix missing interrupt-parent properties
-Date:   Fri, 22 Jan 2021 15:10:16 +0100
-Message-Id: <20210122135732.901519809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 17/35] NFS: nfs_igrab_and_active must first reference the superblock
+Date:   Fri, 22 Jan 2021 15:10:19 +0100
+Message-Id: <20210122135733.017925650@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -39,66 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit bac717171971176b78c72d15a8b6961764ab197f ]
+commit 896567ee7f17a8a736cda8a28cc987228410a2ac upstream.
 
-dtc points out that the interrupts for some devices are not parsable:
+Before referencing the inode, we must ensure that the superblock can be
+referenced. Otherwise, we can end up with iput() calling superblock
+operations that are no longer valid or accessible.
 
-picoxcell-pc3x2.dtsi:45.19-49.5: Warning (interrupts_property): /paxi/gem@30000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:51.21-55.5: Warning (interrupts_property): /paxi/dmac@40000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:57.21-61.5: Warning (interrupts_property): /paxi/dmac@50000: Missing interrupt-parent
-picoxcell-pc3x2.dtsi:233.21-237.5: Warning (interrupts_property): /rwid-axi/axi2pico@c0000000: Missing interrupt-parent
+Fixes: ea7c38fef0b7 ("NFSv4: Ensure we reference the inode for return-on-close in delegreturn")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-There are two VIC instances, so it's not clear which one needs to be
-used. I found the BSP sources that reference VIC0, so use that:
-
-https://github.com/r1mikey/meta-picoxcell/blob/master/recipes-kernel/linux/linux-picochip-3.0/0001-picoxcell-support-for-Picochip-picoXcell-SoC.patch
-
-Acked-by: Jamie Iles <jamie@jamieiles.com>
-Link: https://lore.kernel.org/r/20201230152010.3914962-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/picoxcell-pc3x2.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/internal.h |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-index 533919e96eaee..f22a6b4363177 100644
---- a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-+++ b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
-@@ -54,18 +54,21 @@
- 		emac: gem@30000 {
- 			compatible = "cadence,gem";
- 			reg = <0x30000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <31>;
- 		};
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -572,12 +572,14 @@ extern int nfs4_test_session_trunk(struc
  
- 		dmac1: dmac@40000 {
- 			compatible = "snps,dw-dmac";
- 			reg = <0x40000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <25>;
- 		};
+ static inline struct inode *nfs_igrab_and_active(struct inode *inode)
+ {
+-	inode = igrab(inode);
+-	if (inode != NULL && !nfs_sb_active(inode->i_sb)) {
+-		iput(inode);
+-		inode = NULL;
++	struct super_block *sb = inode->i_sb;
++
++	if (sb && nfs_sb_active(sb)) {
++		if (igrab(inode))
++			return inode;
++		nfs_sb_deactive(sb);
+ 	}
+-	return inode;
++	return NULL;
+ }
  
- 		dmac2: dmac@50000 {
- 			compatible = "snps,dw-dmac";
- 			reg = <0x50000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <26>;
- 		};
- 
-@@ -243,6 +246,7 @@
- 		axi2pico@c0000000 {
- 			compatible = "picochip,axi2pico-pc3x2";
- 			reg = <0xc0000000 0x10000>;
-+			interrupt-parent = <&vic0>;
- 			interrupts = <13 14 15 16 17 18 19 20 21>;
- 		};
- 	};
--- 
-2.27.0
-
+ static inline void nfs_iput_and_deactive(struct inode *inode)
 
 
