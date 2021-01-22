@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C16300FC3
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4712F300FC5
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729410AbhAVT6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S1730819AbhAVT6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:58:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbhAVONC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:13:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE1D423AA1;
-        Fri, 22 Jan 2021 14:10:42 +0000 (UTC)
+        id S1728359AbhAVOOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:14:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F023C23AFA;
+        Fri, 22 Jan 2021 14:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324643;
-        bh=iazpQqPdvUDs+5y6oaxLwzLJvNuU+4OrYyemM8u2Lpw=;
+        s=korg; t=1611324690;
+        bh=g/q85gxojvycMJTot6idqg9w5y5eolE+WzXgRWDptTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WolP3msfdXxfzz3tkfWU2LzZrSdEwNaODjemP2x891OMY+pktUOquE70pPKiJXbCu
-         Jc1otf4Pqti4RldooBXCugXalUx78FqtOwwvbO72M67tXXxdhAV8JXIR6d3coU6Bcd
-         Wsjj7XsiywPC/d6cwCR55nopOi87RNw5UR661J54=
+        b=wzi6PGB4OEadXQV02HFBN1Q6OWvu2U6qkTqvQ47finDCyDMMwJMXjMXKbMVTq/D1t
+         9VKjXMUxlgz9cTeu0iTg2Rjr28caAgcXmBioXmWsZ6Uy/UF9mhTFsOMHtsn6+M9kHh
+         pnlzWdMyhuLNhgdN0qd1ZmLEebmpzgZQZAJxzP/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 01/35] ASoC: dapm: remove widget from dirty list on free
-Date:   Fri, 22 Jan 2021 15:10:03 +0100
-Message-Id: <20210122135732.420157332@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/35] ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
+Date:   Fri, 22 Jan 2021 15:10:11 +0100
+Message-Id: <20210122135732.713602640@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,45 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-commit 5c6679b5cb120f07652418524ab186ac47680b49 upstream.
+[ Upstream commit 887078de2a23689e29d6fa1b75d7cbc544c280be ]
 
-A widget's "dirty" list_head, much like its "list" list_head, eventually
-chains back to a list_head on the snd_soc_card itself. This means that
-the list can stick around even after the widget (or all widgets) have
-been freed. Currently, however, widgets that are in the dirty list when
-freed remain there, corrupting the entire list and leading to memory
-errors and undefined behavior when the list is next accessed or
-modified.
+Table 8-53 in the QUICC Engine Reference manual shows definitions of
+fields up to a size of 192 bytes, not just 128. But in table 8-111,
+one does find the text
 
-I encountered this issue when a component failed to probe relatively
-late in snd_soc_bind_card(), causing it to bail out and call
-soc_cleanup_card_resources(), which eventually called
-snd_soc_dapm_free() with widgets that were still dirty from when they'd
-been added.
+  Base Address of the Global Transmitter Parameter RAM Page. [...]
+  The user needs to allocate 128 bytes for this page. The address must
+  be aligned to the page size.
 
-Fixes: db432b414e20 ("ASoC: Do DAPM power checks only for widgets changed since last run")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/f8b5f031d50122bf1a9bfc9cae046badf4a7a31a.1607822410.git.tommyhebb@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I've checked both rev. 7 (11/2015) and rev. 9 (05/2018) of the manual;
+they both have this inconsistency (and the table numbers are the
+same).
 
+Adding a bit of debug printing, on my board the struct
+ucc_geth_tx_global_pram is allocated at offset 0x880, while
+the (opaque) ucc_geth_thread_data_tx gets allocated immediately
+afterwards, at 0x900. So whatever the engine writes into the thread
+data overlaps with the tail of the global tx pram (and devmem says
+that something does get written during a simple ping).
+
+I haven't observed any failure that could be attributed to this, but
+it seems to be the kind of thing that would be extremely hard to
+debug. So extend the struct definition so that we do allocate 192
+bytes.
+
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/freescale/ucc_geth.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2349,6 +2349,7 @@ void snd_soc_dapm_free_widget(struct snd
- 	enum snd_soc_dapm_direction dir;
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.h b/drivers/net/ethernet/freescale/ucc_geth.h
+index 5da19b440a6a8..bf25e49d4fe34 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.h
++++ b/drivers/net/ethernet/freescale/ucc_geth.h
+@@ -580,7 +580,14 @@ struct ucc_geth_tx_global_pram {
+ 	u32 vtagtable[0x8];	/* 8 4-byte VLAN tags */
+ 	u32 tqptr;		/* a base pointer to the Tx Queues Memory
+ 				   Region */
+-	u8 res2[0x80 - 0x74];
++	u8 res2[0x78 - 0x74];
++	u64 snums_en;
++	u32 l2l3baseptr;	/* top byte consists of a few other bit fields */
++
++	u16 mtu[8];
++	u8 res3[0xa8 - 0x94];
++	u32 wrrtablebase;	/* top byte is reserved */
++	u8 res4[0xc0 - 0xac];
+ } __packed;
  
- 	list_del(&w->list);
-+	list_del(&w->dirty);
- 	/*
- 	 * remove source and sink paths associated to this widget.
- 	 * While removing the path, remove reference to it from both
+ /* structure representing Extended Filtering Global Parameters in PRAM */
+-- 
+2.27.0
+
 
 
