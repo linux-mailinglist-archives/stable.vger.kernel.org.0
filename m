@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BA7300357
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 13:41:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B02D3003F0
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 14:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726739AbhAVMkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 07:40:11 -0500
-Received: from m12-12.163.com ([220.181.12.12]:60735 "EHLO m12-12.163.com"
+        id S1727335AbhAVNRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 08:17:01 -0500
+Received: from m12-12.163.com ([220.181.12.12]:35970 "EHLO m12-12.163.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726160AbhAVMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 07:39:57 -0500
+        id S1727301AbhAVNQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 08:16:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
         s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=qQdgD
-        kScP3b2//FDvOoUaLkcOuaz06wcJpQgufq/+lM=; b=KKKvrnFw1HhtSi1W0VtZA
-        bY5GJY9fvL+paQpmpV1VasXCpB+zMih56VfR9qNxejhJB9lVgYN0x84oeeFqy6SZ
-        66RcO3cTit6VXaW2JiCfM9YArxPpKNk4sEpZ4+zmIAsf+lgKoNVQswf+ciJH7wEC
-        rIg8o5R5SiecX4kB6qCi0E=
+        kScP3b2//FDvOoUaLkcOuaz06wcJpQgufq/+lM=; b=VsVbO7LQD+fieTP4f9guR
+        GkndqIqTwknDcZ0SCG0tIG1Pp9AXbKWdzgxWmqClfKAFijpRdjcxgUauZhcokBqF
+        IoAZA24AIf2xNZxGEJ0um6XD0VxNEZw48BKT52egIOfVYvOY7WCc6nxsZ/5jPR9G
+        DF041CLps5sntqsEAC2qc8=
 Received: from localhost.localdomain (unknown [119.137.55.101])
-        by smtp8 (Coremail) with SMTP id DMCowABnbLDXwgpgruQYNQ--.49498S2;
-        Fri, 22 Jan 2021 20:19:36 +0800 (CST)
+        by smtp8 (Coremail) with SMTP id DMCowABHTLATxApgW3gZNQ--.48424S2;
+        Fri, 22 Jan 2021 20:24:53 +0800 (CST)
 From:   =?UTF-8?q?=C2=A0Tan=20Zhongjun?= <hbut_tan@163.com>
 To:     tanzhongjun@yulong.com
 Cc:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
@@ -30,19 +30,19 @@ Cc:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
         Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>
 Subject: [PATCH] X.509: Fix crash caused by NULL pointer
-Date:   Fri, 22 Jan 2021 20:19:15 +0800
-Message-Id: <20210122121917.1414-1-hbut_tan@163.com>
+Date:   Fri, 22 Jan 2021 20:24:36 +0800
+Message-Id: <20210122122436.1466-1-hbut_tan@163.com>
 X-Mailer: git-send-email 2.30.0.windows.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: DMCowABnbLDXwgpgruQYNQ--.49498S2
+X-CM-TRANSID: DMCowABHTLATxApgW3gZNQ--.48424S2
 X-Coremail-Antispam: 1Uf129KBjvJXoW7Zry7AF1fGw1fJw4UWr43trb_yoW8ArWfpa
         97ur10gFy8Gr1Ik3WUJw1I9a45GFWj9F4agw4fAw1xG3ZxXw4rC3yIvFs8WFn3GryrXryF
-        yrZFqw1xZw1DAaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jh9N3UUUUU=
+        yrZFqw1xZw1DAaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jhiSdUUUUU=
 X-Originating-IP: [119.137.55.101]
-X-CM-SenderInfo: xkex3sxwdqqiywtou0bp/xtbBXhgixlaD5iyqbwAAs4
+X-CM-SenderInfo: xkex3sxwdqqiywtou0bp/1tbiWBUixluHvSIQQQAAs7
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
