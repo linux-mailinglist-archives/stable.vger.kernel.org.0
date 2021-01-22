@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E7E30054E
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE254300539
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728688AbhAVOZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:25:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1728555AbhAVOWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:22:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728650AbhAVOY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:24:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A30BC23B03;
-        Fri, 22 Jan 2021 14:18:48 +0000 (UTC)
+        id S1728545AbhAVOWa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1AA123AC4;
+        Fri, 22 Jan 2021 14:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325129;
-        bh=EObke+J1RsHKcbk4dvp1s8i82tHpd7T+q7jt78/dGoU=;
+        s=korg; t=1611324949;
+        bh=uArgpiAfCjeXqj2bldbMln1PPWrVV37LaS7jzvA4RLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3geysE8Ib4kwFBefYwrmo4ShpwLwZtU9L4gxNu7CiwKKa3XIA4uJKWKTAA97OYCG
-         hFgKeMe9lRrCwZS9ouXV0hBtTM8zz5ZnOog0KPTnItcy1rG0ArjfspE3MPZg3s3tBd
-         o75eQsjehCXoy/KIctCoSMY60fJNuDbTuVk89PxE=
+        b=YBWAu+0MFcLsgvSgnM07eBgZR4xfBi46LO5Q8vP9CNv0BRL5PCTQA5+kvoCJkBzq1
+         wEECO+FxE97+aEfKzJUAcbE95gqOucbo6tKXqg+EXaPHC0WEh7qBKZ1p8EvAMqoSl+
+         cCViIsE4/+4NYfuMEI+Oiju8DlZTFnuD2g1DMrww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Greg Thelen <gthelen@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 18/43] mlxsw: core: Increase critical threshold for ASIC thermal zone
+Subject: [PATCH 4.19 16/22] net: avoid 32 x truesize under-estimation for tiny skbs
 Date:   Fri, 22 Jan 2021 15:12:34 +0100
-Message-Id: <20210122135736.392242069@linuxfoundation.org>
+Message-Id: <20210122135732.555755452@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
+References: <20210122135731.921636245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b06ca3d5a43ca2dd806f7688a17e8e7e0619a80a ]
+[ Upstream commit 3226b158e67cfaa677fd180152bfb28989cb2fac ]
 
-Increase critical threshold for ASIC thermal zone from 110C to 140C
-according to the system hardware requirements. All the supported ASICs
-(Spectrum-1, Spectrum-2, Spectrum-3) could be still operational with ASIC
-temperature below 140C. With the old critical threshold value system
-can perform unjustified shutdown.
+Both virtio net and napi_get_frags() allocate skbs
+with a very small skb->head
 
-All the systems equipped with the above ASICs implement thermal
-protection mechanism at firmware level and firmware could decide to
-perform system thermal shutdown in case the temperature is below 140C.
-So with the new threshold system will not meltdown, while thermal
-operating range will be aligned with hardware abilities.
+While using page fragments instead of a kmalloc backed skb->head might give
+a small performance improvement in some cases, there is a huge risk of
+under estimating memory usage.
 
-Fixes: 41e760841d26 ("mlxsw: core: Replace thermal temperature trips with defines")
-Fixes: a50c1e35650b ("mlxsw: core: Implement thermal zone")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+For both GOOD_COPY_LEN and GRO_MAX_HEAD, we can fit at least 32 allocations
+per page (order-3 page in x86), or even 64 on PowerPC
+
+We have been tracking OOM issues on GKE hosts hitting tcp_mem limits
+but consuming far more memory for TCP buffers than instructed in tcp_mem[2]
+
+Even if we force napi_alloc_skb() to only use order-0 pages, the issue
+would still be there on arches with PAGE_SIZE >= 32768
+
+This patch makes sure that small skb head are kmalloc backed, so that
+other objects in the slab page can be reused instead of being held as long
+as skbs are sitting in socket queues.
+
+Note that we might in the future use the sk_buff napi cache,
+instead of going through a more expensive __alloc_skb()
+
+Another idea would be to use separate page sizes depending
+on the allocated length (to never have more than 4 frags per page)
+
+I would like to thank Greg Thelen for his precious help on this matter,
+analysing crash dumps is always a time consuming task.
+
+Fixes: fd11a83dd363 ("net: Pull out core bits of __netdev_alloc_skb and add __napi_alloc_skb")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Greg Thelen <gthelen@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20210113161819.1155526-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -19,7 +19,7 @@
- #define MLXSW_THERMAL_ASIC_TEMP_NORM	75000	/* 75C */
- #define MLXSW_THERMAL_ASIC_TEMP_HIGH	85000	/* 85C */
- #define MLXSW_THERMAL_ASIC_TEMP_HOT	105000	/* 105C */
--#define MLXSW_THERMAL_ASIC_TEMP_CRIT	110000	/* 110C */
-+#define MLXSW_THERMAL_ASIC_TEMP_CRIT	140000	/* 140C */
- #define MLXSW_THERMAL_HYSTERESIS_TEMP	5000	/* 5C */
- #define MLXSW_THERMAL_MODULE_TEMP_SHIFT	(MLXSW_THERMAL_HYSTERESIS_TEMP * 2)
- #define MLXSW_THERMAL_ZONE_MAX_NAME	16
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -459,13 +459,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
+ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 				 gfp_t gfp_mask)
+ {
+-	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
++	struct napi_alloc_cache *nc;
+ 	struct sk_buff *skb;
+ 	void *data;
+ 
+ 	len += NET_SKB_PAD + NET_IP_ALIGN;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
+@@ -473,6 +477,7 @@ struct sk_buff *__napi_alloc_skb(struct
+ 		goto skb_success;
+ 	}
+ 
++	nc = this_cpu_ptr(&napi_alloc_cache);
+ 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 	len = SKB_DATA_ALIGN(len);
+ 
 
 
