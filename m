@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DB7300D19
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 068E9300D1B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730760AbhAVT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730763AbhAVT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 22 Jan 2021 14:58:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728203AbhAVOOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727923AbhAVOOD (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:14:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4452523A5F;
-        Fri, 22 Jan 2021 14:11:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA5723AC0;
+        Fri, 22 Jan 2021 14:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324664;
-        bh=9q3kSDHOt1IVp/diBP4F39WtWudxppLFmPDFRhZz48Y=;
+        s=korg; t=1611324667;
+        bh=JgT2rUZRDAwot5wINmvAgpRBDucaRvu6wRSr/gjU3u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TD2roMyYaT/78A5/ABwPEBd9qE4bSG4b4s9APMuUF6BgB2rEb6GkjQmvvo93Q9+ZW
-         gMadDTcxLdpFWQ3l0jocGmn1OIKhGQyAmEmhziBsCB4yJ/BUFoMlUtBNPeYfNascYV
-         YAV/n7Vt970wu5tk7+UYUhLc3+bc1MTwPBvUfC9Y=
+        b=Y1aj9oA1hMbwC/MfR5sqVuLGt3kVoEIktJXtSNbhvOtyVMjA2sjqAA2BIAcXhg8Dk
+         YcGOBKzDT7e0bZJwoFsYF6HP+YW/1efXRwzz8w0HmvilRYq001jnOLMJgHF5uzA55j
+         XprJISSmGGs0/3MzlRIKgQtOf08fvzMX10h4o7SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 17/35] NFS: nfs_igrab_and_active must first reference the superblock
-Date:   Fri, 22 Jan 2021 15:10:19 +0100
-Message-Id: <20210122135733.017925650@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 18/35] ext4: fix superblock checksum failure when setting password salt
+Date:   Fri, 22 Jan 2021 15:10:20 +0100
+Message-Id: <20210122135733.057654705@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -39,43 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 896567ee7f17a8a736cda8a28cc987228410a2ac upstream.
+commit dfd56c2c0c0dbb11be939b804ddc8d5395ab3432 upstream.
 
-Before referencing the inode, we must ensure that the superblock can be
-referenced. Otherwise, we can end up with iput() calling superblock
-operations that are no longer valid or accessible.
+When setting password salt in the superblock, we forget to recompute the
+superblock checksum so it will not match until the next superblock
+modification which recomputes the checksum. Fix it.
 
-Fixes: ea7c38fef0b7 ("NFSv4: Ensure we reference the inode for return-on-close in delegreturn")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+CC: Michael Halcrow <mhalcrow@google.com>
+Reported-by: Andreas Dilger <adilger@dilger.ca>
+Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20201216101844.22917-8-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/internal.h |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/ext4/ioctl.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -572,12 +572,14 @@ extern int nfs4_test_session_trunk(struc
- 
- static inline struct inode *nfs_igrab_and_active(struct inode *inode)
- {
--	inode = igrab(inode);
--	if (inode != NULL && !nfs_sb_active(inode->i_sb)) {
--		iput(inode);
--		inode = NULL;
-+	struct super_block *sb = inode->i_sb;
-+
-+	if (sb && nfs_sb_active(sb)) {
-+		if (igrab(inode))
-+			return inode;
-+		nfs_sb_deactive(sb);
- 	}
--	return inode;
-+	return NULL;
- }
- 
- static inline void nfs_iput_and_deactive(struct inode *inode)
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -799,7 +799,10 @@ resizefs_out:
+ 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
+ 			if (err)
+ 				goto pwsalt_err_journal;
++			lock_buffer(sbi->s_sbh);
+ 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
++			ext4_superblock_csum_set(sb);
++			unlock_buffer(sbi->s_sbh);
+ 			err = ext4_handle_dirty_metadata(handle, NULL,
+ 							 sbi->s_sbh);
+ 		pwsalt_err_journal:
 
 
