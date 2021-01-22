@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D3B300C44
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 096BB300C3E
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:22:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729919AbhAVSm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:42:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
+        id S1729585AbhAVSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:42:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbhAVOWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728525AbhAVOWB (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FB123AFC;
-        Fri, 22 Jan 2021 14:16:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 838B023B52;
+        Fri, 22 Jan 2021 14:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324962;
-        bh=alyDjuWVtFfP4kKunJUuzsyY+rphhSBDLfy6kkNURfs=;
+        s=korg; t=1611324968;
+        bh=nnGMVQlWgPgHufE3sp+L4vPltDrGHjcCpMgLKlHs15E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNS3eZTdKgSS5ehA7Rhon7LdhomsSxEG+Ch/37LJ919hcabSz9Sk4kyHaQsieXpKU
-         dkWPjjNUKngyVaNn8BG2qYDdjNZh7YBLa4TEx18yaUCBiYFh7IMlp84nwi+coWlC8+
-         J3kKYON3GghmTqzj5uADPeo+keDQSRJRG5GhLCyE=
+        b=aqnLXO+/Vz8I0Khu8AaUD3ELkQJy3KvJ/Njsyl3il6lfS2w9E8ALDeLdKcPGMe42u
+         kiPYsNFkDNw/jKu77Dw6+fHZkL6OCRhHFd+B356JqXlbohmHUicpaUP72f/NJ59lXa
+         g/VVajHFj7OOi0BNUAwX29Ya2i8Pb0KDvuq3p/pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 21/22] net: ipv6: Validate GSO SKB before finish IPv6 processing
-Date:   Fri, 22 Jan 2021 15:12:39 +0100
-Message-Id: <20210122135732.753335365@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 22/22] spi: cadence: cache reference clock rate during probe
+Date:   Fri, 22 Jan 2021 15:12:40 +0100
+Message-Id: <20210122135732.786726542@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
 References: <20210122135731.921636245@linuxfoundation.org>
@@ -40,96 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-[ Upstream commit b210de4f8c97d57de051e805686248ec4c6cfc52 ]
+commit 4d163ad79b155c71bf30366dc38f8d2502f78844 upstream.
 
-There are cases where GSO segment's length exceeds the egress MTU:
- - Forwarding of a TCP GRO skb, when DF flag is not set.
- - Forwarding of an skb that arrived on a virtualisation interface
-   (virtio-net/vhost/tap) with TSO/GSO size set by other network
-   stack.
- - Local GSO skb transmitted on an NETIF_F_TSO tunnel stacked over an
-   interface with a smaller MTU.
- - Arriving GRO skb (or GSO skb in a virtualised environment) that is
-   bridged to a NETIF_F_TSO tunnel stacked over an interface with an
-   insufficient MTU.
+The issue is that using SPI from a callback under the CCF lock will
+deadlock, since this code uses clk_get_rate().
 
-If so:
- - Consume the SKB and its segments.
- - Issue an ICMP packet with 'Packet Too Big' message containing the
-   MTU, allowing the source host to reduce its Path MTU appropriately.
-
-Note: These cases are handled in the same manner in IPv4 output finish.
-This patch aligns the behavior of IPv6 and the one of IPv4.
-
-Fixes: 9e50849054a4 ("netfilter: ipv6: move POSTROUTING invocation before fragmentation")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/1610027418-30438-1-git-send-email-ayal@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c474b38665463 ("spi: Add driver for Cadence SPI controller")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Link: https://lore.kernel.org/r/20210114154217.51996-1-alexandru.ardelean@analog.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/ip6_output.c |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -128,8 +128,42 @@ static int ip6_finish_output2(struct net
- 	return -EINVAL;
- }
+---
+ drivers/spi/spi-cadence.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -119,6 +119,7 @@ struct cdns_spi {
+ 	void __iomem *regs;
+ 	struct clk *ref_clk;
+ 	struct clk *pclk;
++	unsigned int clk_rate;
+ 	u32 speed_hz;
+ 	const u8 *txbuf;
+ 	u8 *rxbuf;
+@@ -258,7 +259,7 @@ static void cdns_spi_config_clock_freq(s
+ 	u32 ctrl_reg, baud_rate_val;
+ 	unsigned long frequency;
  
-+static int
-+ip6_finish_output_gso_slowpath_drop(struct net *net, struct sock *sk,
-+				    struct sk_buff *skb, unsigned int mtu)
-+{
-+	struct sk_buff *segs, *nskb;
-+	netdev_features_t features;
-+	int ret = 0;
-+
-+	/* Please see corresponding comment in ip_finish_output_gso
-+	 * describing the cases where GSO segment length exceeds the
-+	 * egress MTU.
-+	 */
-+	features = netif_skb_features(skb);
-+	segs = skb_gso_segment(skb, features & ~NETIF_F_GSO_MASK);
-+	if (IS_ERR_OR_NULL(segs)) {
-+		kfree_skb(skb);
-+		return -ENOMEM;
-+	}
-+
-+	consume_skb(skb);
-+
-+	skb_list_walk_safe(segs, segs, nskb) {
-+		int err;
-+
-+		skb_mark_not_on_list(segs);
-+		err = ip6_fragment(net, sk, segs, ip6_finish_output2);
-+		if (err && ret == 0)
-+			ret = err;
-+	}
-+
-+	return ret;
-+}
-+
- static int ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	unsigned int mtu;
- 	int ret;
+-	frequency = clk_get_rate(xspi->ref_clk);
++	frequency = xspi->clk_rate;
  
- 	ret = BPF_CGROUP_RUN_PROG_INET_EGRESS(sk, skb);
-@@ -146,7 +180,11 @@ static int ip6_finish_output(struct net
- 	}
- #endif
+ 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
  
--	if ((skb->len > ip6_skb_dst_mtu(skb) && !skb_is_gso(skb)) ||
-+	mtu = ip6_skb_dst_mtu(skb);
-+	if (skb_is_gso(skb) && !skb_gso_validate_network_len(skb, mtu))
-+		return ip6_finish_output_gso_slowpath_drop(net, sk, skb, mtu);
-+
-+	if ((skb->len > mtu && !skb_is_gso(skb)) ||
- 	    dst_allfrag(skb_dst(skb)) ||
- 	    (IP6CB(skb)->frag_max_size && skb->len > IP6CB(skb)->frag_max_size))
- 		return ip6_fragment(net, sk, skb, ip6_finish_output2);
+@@ -628,8 +629,9 @@ static int cdns_spi_probe(struct platfor
+ 	master->auto_runtime_pm = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA;
+ 
++	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
+ 	/* Set to default valid value */
+-	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
++	master->max_speed_hz = xspi->clk_rate / 4;
+ 	xspi->speed_hz = master->max_speed_hz;
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
 
 
