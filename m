@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BB4300CA8
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:37:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 197B6300CAB
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:37:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbhAVSkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:40:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
+        id S1729524AbhAVSjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:39:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728479AbhAVOSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728481AbhAVOSj (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:18:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1872823A5B;
-        Fri, 22 Jan 2021 14:13:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 902B223A80;
+        Fri, 22 Jan 2021 14:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324838;
-        bh=IheK3hT4MOx8G1BA8GA4DqJaawOsop6OWEsqOEBQWVk=;
+        s=korg; t=1611324841;
+        bh=RDkRbcXx8V1I6np2hRV+dag2NKdprJnYdmNhGMMx09o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNRJlC5U9a7WdAgOKQgNucbLcEd+4X5hfcxtHZ4OHygi7c3KPYBLK+SPKh6VM7Mss
-         bIAGrMKyEkldgqVmvU8bnnbScJHcUCCgC117ENH1OZBMPXlqqCzi7FOgPp8Ba6fxKI
-         HDvCoqWmMDKHfez4oLy0PwCSVf2cA9K5D18AxbtQ=
+        b=vrWYfEq4AyhnvyHcNqSeO7OOBLUqB0ytjeqF1xVoX0Xu+59UC1kDJzt44ipDhY+7i
+         CW9TXs2hqVmPQ101uPsi9b7flQjtX4Rst/liMzRNWt5duKag7dWN3oXxO4FHK1gGa9
+         BcYOtHG2Q602MbRz1bOomurthbfjpSQQC5BCgs3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
-        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 25/50] ext4: fix superblock checksum failure when setting password salt
-Date:   Fri, 22 Jan 2021 15:12:06 +0100
-Message-Id: <20210122135736.214060503@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.14 26/50] RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
+Date:   Fri, 22 Jan 2021 15:12:07 +0100
+Message-Id: <20210122135736.255731028@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -40,38 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit dfd56c2c0c0dbb11be939b804ddc8d5395ab3432 upstream.
+commit a306aba9c8d869b1fdfc8ad9237f1ed718ea55e6 upstream.
 
-When setting password salt in the superblock, we forget to recompute the
-superblock checksum so it will not match until the next superblock
-modification which recomputes the checksum. Fix it.
+If usnic_ib_qp_grp_create() fails at the first call, dev_list
+will not be freed on error, which leads to memleak.
 
-CC: Michael Halcrow <mhalcrow@google.com>
-Reported-by: Andreas Dilger <adilger@dilger.ca>
-Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201216101844.22917-8-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: e3cf00d0a87f ("IB/usnic: Add Cisco VIC low-level hardware driver")
+Link: https://lore.kernel.org/r/20201226074248.2893-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ioctl.c |    3 +++
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -1032,7 +1032,10 @@ resizefs_out:
- 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
- 			if (err)
- 				goto pwsalt_err_journal;
-+			lock_buffer(sbi->s_sbh);
- 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
-+			ext4_superblock_csum_set(sb);
-+			unlock_buffer(sbi->s_sbh);
- 			err = ext4_handle_dirty_metadata(handle, NULL,
- 							 sbi->s_sbh);
- 		pwsalt_err_journal:
+--- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
++++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+@@ -188,6 +188,7 @@ find_free_vf_and_create_qp_grp(struct us
+ 
+ 		}
+ 		usnic_uiom_free_dev_list(dev_list);
++		dev_list = NULL;
+ 	}
+ 
+ 	/* Try to find resources on an unused vf */
+@@ -212,6 +213,8 @@ find_free_vf_and_create_qp_grp(struct us
+ qp_grp_check:
+ 	if (IS_ERR_OR_NULL(qp_grp)) {
+ 		usnic_err("Failed to allocate qp_grp\n");
++		if (usnic_ib_share_vf)
++			usnic_uiom_free_dev_list(dev_list);
+ 		return ERR_PTR(qp_grp ? PTR_ERR(qp_grp) : -ENOMEM);
+ 	}
+ 	return qp_grp;
 
 
