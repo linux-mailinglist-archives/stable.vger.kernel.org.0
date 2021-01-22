@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 128C2300B1B
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2BE300B1C
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729488AbhAVSWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:22:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
+        id S1729168AbhAVSWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:22:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728585AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728586AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2C023B79;
-        Fri, 22 Jan 2021 14:17:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CE1323B06;
+        Fri, 22 Jan 2021 14:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325051;
-        bh=ZXBaXyIbiejXVj+zYqIgsppsmpPjA3UTJN3xCaPZB/Q=;
+        s=korg; t=1611325053;
+        bh=slNKWI3YtTg4B5ukyQdfvTULlGzwnRNCQa9aW5EQ7M4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qoEAsxAFe5WQkv12VlVnwbNItLYfW7iBOpEtDtABHE1oE7xIvedJw09P34vE/t2R
-         tY7qzFWT/FfWhkKmAWRxRXsiyFdAE5rwr12Lll6eKYdVNlM8D+nug+OewnF4/Rwqbz
-         5AWI/qVVtuNptvTPsBB7vlXfzIA3J4qaQ4jOfqGE=
+        b=vINfAtRHB8VDBdGU5rB1BnNSDE2cYS/7vX4yPLkyi+Je78eLX7/M7bLrPr8iMTxeA
+         YwRiW5/aGzsMwhw48Gaa9KEghgN5noSwb8mz3ndESX2LGW4Ug/ZXdhQnxHg1Wsdtpo
+         XXgFr7QdlelPbztI6JHM/l3bknDLoxuk/ZilxBpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Gottschall <s.gottschall@dd-wrt.com>,
-        Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 31/33] mac80211: do not drop tx nulldata packets on encrypted links
-Date:   Fri, 22 Jan 2021 15:12:47 +0100
-Message-Id: <20210122135734.824968810@linuxfoundation.org>
+Subject: [PATCH 5.4 32/33] mac80211: check if atf has been disabled in __ieee80211_schedule_txq
+Date:   Fri, 22 Jan 2021 15:12:48 +0100
+Message-Id: <20210122135734.865268210@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -41,19 +40,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 2463ec86cd0338a2c2edbfb0b9d50c52ff76ff43 upstream.
+commit c13cf5c159660451c8fbdc37efb998b198e1d305 upstream.
 
-ieee80211_tx_h_select_key drops any non-mgmt packets without a key when
-encryption is used. This is wrong for nulldata packets that can't be
-encrypted and are sent out for probing clients and indicating 4-address
-mode.
+Check if atf has been disabled in __ieee80211_schedule_txq() in order to
+avoid a given sta is always put to the beginning of the active_txqs list
+and never moved to the end since deficit is not decremented in
+ieee80211_sta_register_airtime()
 
-Reported-by: Sebastian Gottschall <s.gottschall@dd-wrt.com>
-Fixes: a0761a301746 ("mac80211: drop data frames without key on encrypted links")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20201218191525.1168-1-nbd@nbd.name
+Fixes: b4809e9484da1 ("mac80211: Add airtime accounting and scheduling to TXQs")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Link: https://lore.kernel.org/r/93889406c50f1416214c079ca0b8c9faecc5143e.1608975195.git.lorenzo@kernel.org
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
@@ -63,14 +62,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/mac80211/tx.c
 +++ b/net/mac80211/tx.c
-@@ -657,7 +657,7 @@ ieee80211_tx_h_select_key(struct ieee802
- 		if (!skip_hw && tx->key &&
- 		    tx->key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE)
- 			info->control.hw_key = &tx->key->conf;
--	} else if (!ieee80211_is_mgmt(hdr->frame_control) && tx->sta &&
-+	} else if (ieee80211_is_data_present(hdr->frame_control) && tx->sta &&
- 		   test_sta_flag(tx->sta, WLAN_STA_USES_ENCRYPTION)) {
- 		return TX_DROP;
- 	}
+@@ -3773,7 +3773,7 @@ void __ieee80211_schedule_txq(struct iee
+ 		 * get immediately moved to the back of the list on the next
+ 		 * call to ieee80211_next_txq().
+ 		 */
+-		if (txqi->txq.sta &&
++		if (txqi->txq.sta && local->airtime_flags &&
+ 		    wiphy_ext_feature_isset(local->hw.wiphy,
+ 					    NL80211_EXT_FEATURE_AIRTIME_FAIRNESS))
+ 			list_add(&txqi->schedule_order,
 
 
