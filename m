@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D81C300D2D
+	by mail.lfdr.de (Postfix) with ESMTP id 013B4300D2C
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbhAVT7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:59:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
+        id S1730904AbhAVT67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:58:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728377AbhAVOQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728441AbhAVOQc (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:16:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EFA923B02;
-        Fri, 22 Jan 2021 14:12:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C79CD23B03;
+        Fri, 22 Jan 2021 14:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324727;
-        bh=ldwoMgTZQm8WXVNZ8e5I0+jYp/z/sOwVzf0fCgPzcLQ=;
+        s=korg; t=1611324730;
+        bh=SlH2NzCoujiSem3sba2v272mEhlltaaiVc1Vd3kqLS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZSeTNVHS6//oDnS5mE8e92QHGhRmQo7XGThcmt+3ylQ7F8ygovMqDZUbDFjnHlM2
-         Ez4rZRrj+s4u8D8adtvgM0bGJOeZiGnVpfp47Lf8ePGKkdp0H3cjYlXz/mDop5vqX7
-         OuxNFPKJgmImYoFTT8a040z1kC3zryYPjh5b7BKc=
+        b=0R1Cfa3vlroVNNleN3r0vLKyPhL9mDYTn9WU5oyH6mmiIQf0AljaY7gxvqOHTIZAr
+         bvmwWFdwfosNr3b/Mck+/vo8RHXzAMKa5sLS+1mV5s6vAbynm0hxW4F8KqBWGaMgGA
+         2paN1KumHcv/s56GetegK9TI9Ze1BW48P9xMzwm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
+        stable@vger.kernel.org,
+        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 27/35] netxen_nic: fix MSI/MSI-x interrupts
-Date:   Fri, 22 Jan 2021 15:10:29 +0100
-Message-Id: <20210122135733.395949586@linuxfoundation.org>
+Subject: [PATCH 4.9 28/35] rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+Date:   Fri, 22 Jan 2021 15:10:30 +0100
+Message-Id: <20210122135733.436641742@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -40,59 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
 
-[ Upstream commit a2bc221b972db91e4be1970e776e98f16aa87904 ]
+[ Upstream commit e56b3d94d939f52d46209b9e1b6700c5bfff3123 ]
 
-For all PCI functions on the netxen_nic adapter, interrupt
-mode (INTx or MSI) configuration is dependent on what has
-been configured by the PCI function zero in the shared
-interrupt register, as these adapters do not support mixed
-mode interrupts among the functions of a given adapter.
+MSFT ActiveSync implementation requires that the size of the response for
+incoming query is to be provided in the request input length. Failure to
+set the input size proper results in failed request transfer, where the
+ActiveSync counterpart reports the NDIS_STATUS_INVALID_LENGTH (0xC0010014L)
+error.
 
-Logic for setting MSI/MSI-x interrupt mode in the shared interrupt
-register based on PCI function id zero check is not appropriate for
-all family of netxen adapters, as for some of the netxen family
-adapters PCI function zero is not really meant to be probed/loaded
-in the host but rather just act as a management function on the device,
-which caused all the other PCI functions on the adapter to always use
-legacy interrupt (INTx) mode instead of choosing MSI/MSI-x interrupt mode.
+Set the input size for OID_GEN_PHYSICAL_MEDIUM query to the expected size
+of the response in order for the ActiveSync to properly respond to the
+request.
 
-This patch replaces that check with port number so that for all
-type of adapters driver attempts for MSI/MSI-x interrupt modes.
-
-Fixes: b37eb210c076 ("netxen_nic: Avoid mixed mode interrupts")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Link: https://lore.kernel.org/r/20210107101520.6735-1-manishc@marvell.com
+Fixes: 039ee17d1baa ("rndis_host: Add RNDIS physical medium checking into generic_rndis_bind()")
+Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+Link: https://lore.kernel.org/r/20210108095839.3335-1-andrey.zhizhikin@leica-geosystems.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/usb/rndis_host.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
-+++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
-@@ -586,11 +586,6 @@ static const struct net_device_ops netxe
- #endif
- };
- 
--static inline bool netxen_function_zero(struct pci_dev *pdev)
--{
--	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
--}
--
- static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
- 					     u32 mode)
- {
-@@ -686,7 +681,7 @@ static int netxen_setup_intr(struct netx
- 	netxen_initialize_interrupt_registers(adapter);
- 	netxen_set_msix_bit(pdev, 0);
- 
--	if (netxen_function_zero(pdev)) {
-+	if (adapter->portnum == 0) {
- 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
- 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
- 		else
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -398,7 +398,7 @@ generic_rndis_bind(struct usbnet *dev, s
+ 	reply_len = sizeof *phym;
+ 	retval = rndis_query(dev, intf, u.buf,
+ 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
+-			     0, (void **) &phym, &reply_len);
++			     reply_len, (void **)&phym, &reply_len);
+ 	if (retval != 0 || !phym) {
+ 		/* OID is optional so don't fail here. */
+ 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
 
 
