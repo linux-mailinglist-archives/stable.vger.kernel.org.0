@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D36300C48
+	by mail.lfdr.de (Postfix) with ESMTP id 89507300C49
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:22:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbhAVSn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        id S1730058AbhAVSn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728536AbhAVOWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AACC23B44;
-        Fri, 22 Jan 2021 14:15:43 +0000 (UTC)
+        id S1728546AbhAVOW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DCBE23AC9;
+        Fri, 22 Jan 2021 14:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324943;
-        bh=emZyV+w6Pyo04tbdFelWtIQdvAqMn8EpXL0VU455U44=;
+        s=korg; t=1611324954;
+        bh=Odm7QNh1cEsijfJMXXqfjDl7J5XZ804yCUHZt2m2sLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHoqlc7V2gkPhJ1PRrrhrccpcj0fM9FyuFCXjPNIAf3YvlRLFc6KwblYFaraIAC6v
-         ODszIaY+uvfp0gthDcC8Sco0sXRLtoaeGJHlawd8hOjdCDh/F2+5G1uCSt+QLRd/7V
-         g8hACGvQ1OtlCrnRLD0Wmob6miq1nUs6j4aT17Zw=
+        b=d5pivDTQACPJD5cELmYXPl6y4+9pGEfkyMEVzSMQVwHjIRKTf3ICG+Yy6oAVUB1sm
+         cF+eZ4iGl3rQLmoHnUnAcsENNe35Mx5hwPmgXJlFXwIhqm2qK1/tuRb1Z1t2pP53bj
+         QLGYYVV4pv++gNp6O16tvE/KItCoRnw9WJvhmUfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wu <david.wu@rock-chips.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 14/22] net: stmmac: Fixed mtu channged by cache aligned
-Date:   Fri, 22 Jan 2021 15:12:32 +0100
-Message-Id: <20210122135732.476825547@linuxfoundation.org>
+Subject: [PATCH 4.19 18/22] tipc: fix NULL deref in tipc_link_xmit()
+Date:   Fri, 22 Jan 2021 15:12:36 +0100
+Message-Id: <20210122135732.635268530@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
 References: <20210122135731.921636245@linuxfoundation.org>
@@ -39,42 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Wu <david.wu@rock-chips.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
+[ Upstream commit b77413446408fdd256599daf00d5be72b5f3e7c6 ]
 
-Since the original mtu is not used when the mtu is updated,
-the mtu is aligned with cache, this will get an incorrect.
-For example, if you want to configure the mtu to be 1500,
-but mtu 1536 is configured in fact.
+The buffer list can have zero skb as following path:
+tipc_named_node_up()->tipc_node_xmit()->tipc_link_xmit(), so
+we need to check the list before casting an &sk_buff.
 
-Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
-Signed-off-by: David Wu <david.wu@rock-chips.com>
-Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
+Fault report:
+ [] tipc: Bulk publication failure
+ [] general protection fault, probably for non-canonical [#1] PREEMPT [...]
+ [] KASAN: null-ptr-deref in range [0x00000000000000c8-0x00000000000000cf]
+ [] CPU: 0 PID: 0 Comm: swapper/0 Kdump: loaded Not tainted 5.10.0-rc4+ #2
+ [] Hardware name: Bochs ..., BIOS Bochs 01/01/2011
+ [] RIP: 0010:tipc_link_xmit+0xc1/0x2180
+ [] Code: 24 b8 00 00 00 00 4d 39 ec 4c 0f 44 e8 e8 d7 0a 10 f9 48 [...]
+ [] RSP: 0018:ffffc90000006ea0 EFLAGS: 00010202
+ [] RAX: dffffc0000000000 RBX: ffff8880224da000 RCX: 1ffff11003d3cc0d
+ [] RDX: 0000000000000019 RSI: ffffffff886007b9 RDI: 00000000000000c8
+ [] RBP: ffffc90000007018 R08: 0000000000000001 R09: fffff52000000ded
+ [] R10: 0000000000000003 R11: fffff52000000dec R12: ffffc90000007148
+ [] R13: 0000000000000000 R14: 0000000000000000 R15: ffffc90000007018
+ [] FS:  0000000000000000(0000) GS:ffff888037400000(0000) knlGS:000[...]
+ [] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [] CR2: 00007fffd2db5000 CR3: 000000002b08f000 CR4: 00000000000006f0
+
+Fixes: af9b028e270fd ("tipc: make media xmit call outside node spinlock context")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Link: https://lore.kernel.org/r/20210108071337.3598-1-hoang.h.le@dektech.com.au
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tipc/link.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3596,6 +3596,7 @@ static int stmmac_change_mtu(struct net_
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -914,9 +914,7 @@ void tipc_link_reset(struct tipc_link *l
+ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 		   struct sk_buff_head *xmitq)
  {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int txfifosz = priv->plat->tx_fifo_size;
-+	const int mtu = new_mtu;
+-	struct tipc_msg *hdr = buf_msg(skb_peek(list));
+ 	unsigned int maxwin = l->window;
+-	int imp = msg_importance(hdr);
+ 	unsigned int mtu = l->mtu;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 seqno = l->snd_nxt;
+@@ -925,13 +923,20 @@ int tipc_link_xmit(struct tipc_link *l,
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+ 	struct sk_buff *skb, *_skb, **tskb;
+ 	int pkt_cnt = skb_queue_len(list);
++	struct tipc_msg *hdr;
+ 	int rc = 0;
++	int imp;
  
- 	if (txfifosz == 0)
- 		txfifosz = priv->dma_cap.tx_fifo_size;
-@@ -3613,7 +3614,7 @@ static int stmmac_change_mtu(struct net_
- 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
- 		return -EINVAL;
++	if (pkt_cnt <= 0)
++		return 0;
++
++	hdr = buf_msg(skb_peek(list));
+ 	if (unlikely(msg_size(hdr) > mtu)) {
+ 		__skb_queue_purge(list);
+ 		return -EMSGSIZE;
+ 	}
  
--	dev->mtu = new_mtu;
-+	dev->mtu = mtu;
- 
- 	netdev_update_features(dev);
- 
++	imp = msg_importance(hdr);
+ 	/* Allow oversubscription of one data msg per source at congestion */
+ 	if (unlikely(l->backlog[imp].len >= l->backlog[imp].limit)) {
+ 		if (imp == TIPC_SYSTEM_IMPORTANCE) {
 
 
