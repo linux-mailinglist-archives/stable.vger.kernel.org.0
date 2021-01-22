@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9580B300FCD
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:19:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5BAF300FD0
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728882AbhAVT6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S1730408AbhAVT4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:56:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728100AbhAVOMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:12:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FF7823A9C;
-        Fri, 22 Jan 2021 14:09:55 +0000 (UTC)
+        id S1728255AbhAVOKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:10:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8C2523A68;
+        Fri, 22 Jan 2021 14:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324595;
-        bh=bg1MGApZXy1snbKFE985TK9dD1gMRCuiC9DNpBwFJYE=;
+        s=korg; t=1611324555;
+        bh=SB8J9olcChwxi0/uJFauBUyLvKbKCQcEBb/seqsizw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0iA9lQ/B61ueMY2R9I5webCrQmrtNNRX8SCM1XDCKc/ph/edskeikyLk7w1vDmbA
-         rEaHZKdr44Orq5puA5VKU3yZs5d0BYnK4FM3xncf54faJq00LzFZxlWppr8XuX6vb8
-         q0IvTNheSFL0xRpEuFXKIYpAtB3sa+g1F5yDZWjU=
+        b=Ct3VXwxELCHnUQQmzRhj/s1wpaNmUGc2pY6rcwoskuFoxyTZRIsyRqxhnun+FJLh6
+         LjNdYk6oRRsdKYVCG1+Or6M0q5WHYDIm/ByiceEN4rGpmWRZqO9dUphUV530Oi8gem
+         k+hPZkbg28OgaLY63/eOtYO/Qh7VogXSzJOHqKuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/31] net: ethernet: fs_enet: Add missing MODULE_LICENSE
-Date:   Fri, 22 Jan 2021 15:08:23 +0100
-Message-Id: <20210122135732.251832508@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Nixdorf <j.nixdorf@avm.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.4 18/31] net: sunrpc: interpret the return value of kstrtou32 correctly
+Date:   Fri, 22 Jan 2021 15:08:32 +0100
+Message-Id: <20210122135732.605503847@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.873346566@linuxfoundation.org>
 References: <20210122135731.873346566@linuxfoundation.org>
@@ -41,48 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: j.nixdorf@avm.de <j.nixdorf@avm.de>
 
-[ Upstream commit 445c6198fe7be03b7d38e66fe8d4b3187bc251d4 ]
+commit 86b53fbf08f48d353a86a06aef537e78e82ba721 upstream.
 
-Since commit 1d6cd3929360 ("modpost: turn missing MODULE_LICENSE()
-into error") the ppc32_allmodconfig build fails with:
+A return value of 0 means success. This is documented in lib/kstrtox.c.
 
-  ERROR: modpost: missing MODULE_LICENSE() in drivers/net/ethernet/freescale/fs_enet/mii-fec.o
-  ERROR: modpost: missing MODULE_LICENSE() in drivers/net/ethernet/freescale/fs_enet/mii-bitbang.o
+This was found by trying to mount an NFS share from a link-local IPv6
+address with the interface specified by its index:
 
-Add the missing MODULE_LICENSEs to fix the build. Both files include a
-copyright header indicating they are GPL v2.
+  mount("[fe80::1%1]:/srv/nfs", "/mnt", "nfs", 0, "nolock,addr=fe80::1%1")
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Before this commit this failed with EINVAL and also caused the following
+message in dmesg:
+
+  [...] NFS: bad IP address specified: addr=fe80::1%1
+
+The syscall using the same address based on the interface name instead
+of its index succeeds.
+
+Credits for this patch go to my colleague Christian Speich, who traced
+the origin of this bug to this line of code.
+
+Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+Fixes: 00cfaa943ec3 ("replace strict_strto calls")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c | 1 +
- drivers/net/ethernet/freescale/fs_enet/mii-fec.c     | 1 +
- 2 files changed, 2 insertions(+)
+ net/sunrpc/addr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c b/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
-index 68a428de0bc0e..cfae74d8e6590 100644
---- a/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
-+++ b/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
-@@ -231,3 +231,4 @@ static struct platform_driver fs_enet_bb_mdio_driver = {
- };
- 
- module_platform_driver(fs_enet_bb_mdio_driver);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/net/ethernet/freescale/fs_enet/mii-fec.c b/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
-index 2be383e6d2585..3b6232a6a56d6 100644
---- a/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
-+++ b/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
-@@ -232,3 +232,4 @@ static struct platform_driver fs_enet_fec_mdio_driver = {
- };
- 
- module_platform_driver(fs_enet_fec_mdio_driver);
-+MODULE_LICENSE("GPL");
--- 
-2.27.0
-
+--- a/net/sunrpc/addr.c
++++ b/net/sunrpc/addr.c
+@@ -184,7 +184,7 @@ static int rpc_parse_scope_id(struct net
+ 			scope_id = dev->ifindex;
+ 			dev_put(dev);
+ 		} else {
+-			if (kstrtou32(p, 10, &scope_id) == 0) {
++			if (kstrtou32(p, 10, &scope_id) != 0) {
+ 				kfree(p);
+ 				return 0;
+ 			}
 
 
