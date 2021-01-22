@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4C2300BAA
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30151300BB3
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbhAVSnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38358 "EHLO mail.kernel.org"
+        id S1730106AbhAVSnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728541AbhAVOWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B59EA23AFA;
-        Fri, 22 Jan 2021 14:16:20 +0000 (UTC)
+        id S1728551AbhAVOWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B8523B6B;
+        Fri, 22 Jan 2021 14:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324981;
-        bh=mftDS0J7aHH7/Et1vD2QTUl/RtnPlcnWMuhPHi8vAbI=;
+        s=korg; t=1611324997;
+        bh=Lk0HPTXq23BUToGyK2Nm9CHUIww566vzLVOcu/1DTI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWsk3kulg/Pw7OJ11elIWoYjI9msE7zO29rKT2SjElDge5yT6cbtMZveUKOahV2Rz
-         FqOwVvdPnq+ZQVHpHW72CyFNHDC1Pu+Usfy8cbrC7mYl1uWxrtmg7G+yfHJq6PDscr
-         GXefFDXx7b/fmUZZ3RryW8gIucAFL/J7lnrgAZkk=
+        b=IkXYzXWxdJrSqCeSbJJxnIbqQAf4uQBkiBdYiP56/mPNqq1zsro5epAzA/W5wR2Yx
+         9HmnhiMPv/LIZn+Egz5EZENuVH/18X3L2Iw9nn75mLZt97uuNgq0wsOZiT827bQmIm
+         vGpEChB5qRl8oK7+bIzvWlqhjE/abcOddOjmMeWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 09/22] rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+        Mircea Cirjaliu <mcirjaliu@bitdefender.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Mauricio Vasquez <mauriciovasquezbernal@gmail.com>
+Subject: [PATCH 5.4 11/33] bpf: Fix helper bpf_map_peek_elem_proto pointing to wrong callback
 Date:   Fri, 22 Jan 2021 15:12:27 +0100
-Message-Id: <20210122135732.290297064@linuxfoundation.org>
+Message-Id: <20210122135734.037596619@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+From: Mircea Cirjaliu <mcirjaliu@bitdefender.com>
 
-[ Upstream commit e56b3d94d939f52d46209b9e1b6700c5bfff3123 ]
+commit 301a33d51880619d0c5a581b5a48d3a5248fa84b upstream.
 
-MSFT ActiveSync implementation requires that the size of the response for
-incoming query is to be provided in the request input length. Failure to
-set the input size proper results in failed request transfer, where the
-ActiveSync counterpart reports the NDIS_STATUS_INVALID_LENGTH (0xC0010014L)
-error.
+I assume this was obtained by copy/paste. Point it to bpf_map_peek_elem()
+instead of bpf_map_pop_elem(). In practice it may have been less likely
+hit when under JIT given shielded via 84430d4232c3 ("bpf, verifier: avoid
+retpoline for map push/pop/peek operation").
 
-Set the input size for OID_GEN_PHYSICAL_MEDIUM query to the expected size
-of the response in order for the ActiveSync to properly respond to the
-request.
-
-Fixes: 039ee17d1baa ("rndis_host: Add RNDIS physical medium checking into generic_rndis_bind()")
-Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-Link: https://lore.kernel.org/r/20210108095839.3335-1-andrey.zhizhikin@leica-geosystems.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f1a2e44a3aec ("bpf: add queue and stack maps")
+Signed-off-by: Mircea Cirjaliu <mcirjaliu@bitdefender.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Mauricio Vasquez <mauriciovasquezbernal@gmail.com>
+Link: https://lore.kernel.org/bpf/AM7PR02MB6082663DFDCCE8DA7A6DD6B1BBA30@AM7PR02MB6082.eurprd02.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/rndis_host.c |    2 +-
+ kernel/bpf/helpers.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -399,7 +399,7 @@ generic_rndis_bind(struct usbnet *dev, s
- 	reply_len = sizeof *phym;
- 	retval = rndis_query(dev, intf, u.buf,
- 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
--			     0, (void **) &phym, &reply_len);
-+			     reply_len, (void **)&phym, &reply_len);
- 	if (retval != 0 || !phym) {
- 		/* OID is optional so don't fail here. */
- 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -105,7 +105,7 @@ BPF_CALL_2(bpf_map_peek_elem, struct bpf
+ }
+ 
+ const struct bpf_func_proto bpf_map_peek_elem_proto = {
+-	.func		= bpf_map_pop_elem,
++	.func		= bpf_map_peek_elem,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
+ 	.arg1_type	= ARG_CONST_MAP_PTR,
 
 
