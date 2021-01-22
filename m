@@ -2,105 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4061E300927
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 18:02:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEAFD3009BA
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 18:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729119AbhAVRBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 12:01:20 -0500
-Received: from mga11.intel.com ([192.55.52.93]:45418 "EHLO mga11.intel.com"
+        id S1728890AbhAVR1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 12:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728817AbhAVQ6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 11:58:12 -0500
-IronPort-SDR: xFcg7I5Lnk6C/1Rlnnuz1KAx+EWQ8jeH1VnykyNufbxsuLUZ1AIVD/JrVE0/Igu/xcZ6Argh5n
- ryXZrMrXlm7w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9872"; a="175960320"
-X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
-   d="scan'208";a="175960320"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 08:56:46 -0800
-IronPort-SDR: sRmuKp3rIKODHzEX8vuqdQTdV8oAtBUBRNNU/YUewyBvaewAGoM5ykgj/1+AHNlSMEpRdOi2WD
- Xn72d0oA2pJw==
-X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
-   d="scan'208";a="352002201"
-Received: from dgullage-mobl1.amr.corp.intel.com (HELO [10.212.184.2]) ([10.212.184.2])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 08:56:45 -0800
-Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
- sgx_release()
-To:     Sean Christopherson <seanjc@google.com>, jarkko@kernel.org
-Cc:     linux-sgx@vger.kernel.org, kai.huang@intel.com,
-        haitao.huang@intel.com, stable@vger.kernel.org,
-        Haitao Huang <haitao.huang@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>
-References: <20210115014638.15037-1-jarkko@kernel.org>
- <YAhp4Jrj6hIcvgRC@google.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
-Date:   Fri, 22 Jan 2021 08:56:44 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729321AbhAVP60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 10:58:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC5023159;
+        Fri, 22 Jan 2021 15:57:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611331065;
+        bh=1qO0cNefBYrgVr/0laIcEJZl9cMuv0LH57vSYUe8ZYM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XeddcwMjhL6Z5+JLTTWqTboiJENcrDbRDkle9pPjNO9uXeH4rJtgJ1+0yoObwwmro
+         e87/oL7uTmJdv+klwc75x57LJNxjOV2fKe7tBgCmyyKa94oHhzEU7K9wc6/VD5jhA1
+         eeDeri9KvNPCPkymQdAiI/2OCbjxcI1o3npGUcOY=
+Date:   Fri, 22 Jan 2021 16:57:43 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: Re: [PATCH 4.14 00/50] 4.14.217-rc1 review
+Message-ID: <YAr197qGU9XmtBTK@kroah.com>
+References: <20210122135735.176469491@linuxfoundation.org>
+ <CA+G9fYso4QNbRWdrQiiOiMb5RUr8VtM3AkKEGLasgN+KsPSvDw@mail.gmail.com>
+ <YArqULK9c1Cnt5gM@kroah.com>
+ <CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com>
+ <20210122153604.GA24972@willie-the-truck>
 MIME-Version: 1.0
-In-Reply-To: <YAhp4Jrj6hIcvgRC@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210122153604.GA24972@willie-the-truck>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/20/21 9:35 AM, Sean Christopherson wrote:
-> Why haven't you included the splat that Haitao provided?  That would go a long
-> way to helping answer Boris' question about exactly what is broken...
+On Fri, Jan 22, 2021 at 03:36:04PM +0000, Will Deacon wrote:
+> On Fri, Jan 22, 2021 at 08:43:18PM +0530, Naresh Kamboju wrote:
+> > On Fri, 22 Jan 2021 at 20:38, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Fri, Jan 22, 2021 at 08:32:46PM +0530, Naresh Kamboju wrote:
+> > > > On Fri, 22 Jan 2021 at 19:45, Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > > > This is the start of the stable review cycle for the 4.14.217 release.
+> > > > > There are 50 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > >
+> > > > > Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > >
+> > > > > The whole patch series can be found in one patch at:
+> > > > >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.217-rc1.gz
+> > > > > or in the git tree and branch at:
+> > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> > > > > and the diffstat can be found below.
+> > > > >
+> > > > > thanks,
+> > > > >
+> > > > > greg k-h
+> > > >
+> > > > arm64 clang-10 builds breaks due to this patch on
+> > > >    - stable-rc 4.14
+> > > >    - stable-rc 4.9
+> > > >    - stable-rc 4.4
+> > > >
+> > > > > Will Deacon <will@kernel.org>
+> > > > >     compiler.h: Raise minimum version of GCC to 5.1 for arm64
+> > > >
+> > > > arm64 (defconfig) with clang-10 - FAILED
+> > >
+> > > How is a clang build breaking on a "check what version of gcc is being
+> > > used" change?
+> > >
+> > > What is the error message?
+> > 
+> > make --silent --keep-going --jobs=8
+> > O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=arm64
+> > CROSS_COMPILE=aarch64-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
+> > clang'
+> > In file included from <built-in>:1:
+> > include/linux/kconfig.h:74:
+> > include/linux/compiler_types.h:58:
+> > include/linux/compiler-gcc.h:160:3: error: Sorry, your version of GCC
+> > is too old - please use 5.1 or newer.
+> > # error Sorry, your version of GCC is too old - please use 5.1 or newer.
+> >   ^
+> > 1 error generated.
+> > 
+> > build error link:
+> > https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/980489003#L514
+> 
+> Urgh, looks like we need backports of 815f0ddb346c
+> ("include/linux/compiler*.h: make compiler-*.h mutually exclusive") then.
+> 
+> Greg -- please drop my changes from 4.14, 4.9 and 4.4 for now and I'll
+> look at this next week.
 
-The bad news is that the original splat seems to be lost.
+Now dropped, thanks.
 
-The good news is that this is hard to reproduce and *might* not occur on
-what got merged in mainline.
-
-We're going to circle back around and make sure we have a clean
-reproduction before we try to fix this again.
+greg k-h
