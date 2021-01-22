@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F65300638
+	by mail.lfdr.de (Postfix) with ESMTP id E0F2E300639
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbhAVOyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:54:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
+        id S1728718AbhAVOyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:54:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbhAVOYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:24:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EF1423BAB;
-        Fri, 22 Jan 2021 14:18:56 +0000 (UTC)
+        id S1728659AbhAVOYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3598D23BAC;
+        Fri, 22 Jan 2021 14:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325137;
-        bh=O78ukoxeG0IaNGNpHDKfzfTczag+olgjsCE1ncOn/90=;
+        s=korg; t=1611325139;
+        bh=OjkBCCbD6kjF52zIbkw0BilrXN/lZLYyKMMYNf7ASLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cokGubv8uOGurMkLwz0SDL2SDV6RY7Guq07iT/KGOQqSKiC2hJtn163vYiF/i+1Iu
-         lO67TzZYQLRTKOrHFimSX6/YByYDp+FMbm1FGON5NOr1ThsPdlRQP6HylBgTbkyvRw
-         OkvCOSD9nX4NkYpRrEPSBGa6AskfG5BPlpDcj/28=
+        b=FZq9VwYgPkrgyBhWlc7IwmtKbAykFTLcxBqfn4rsjugTBZjtXjsMp8fjZvggtkJaX
+         AP9CKNUPPFMw6r7QVsRDDVdsHvgfhVrpA1POB76P5fMOX1EClmz+6MkVaAa6dpLrux
+         eYcQdt+41d8fSqpzr3GQKxdSRZk2gu6osEuhjLjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Greg Thelen <gthelen@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 29/43] net: stmmac: fix taprio configuration when base_time is in the past
-Date:   Fri, 22 Jan 2021 15:12:45 +0100
-Message-Id: <20210122135736.834753723@linuxfoundation.org>
+Subject: [PATCH 5.10 30/43] net: avoid 32 x truesize under-estimation for tiny skbs
+Date:   Fri, 22 Jan 2021 15:12:46 +0100
+Message-Id: <20210122135736.876006243@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
 References: <20210122135735.652681690@linuxfoundation.org>
@@ -39,68 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yannick Vignon <yannick.vignon@nxp.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fe28c53ed71d463e187748b6b10e1130dd72ceeb ]
+[ Upstream commit 3226b158e67cfaa677fd180152bfb28989cb2fac ]
 
-The Synopsys TSN MAC supports Qbv base times in the past, but only up to a
-certain limit. As a result, a taprio qdisc configuration with a small
-base time (for example when treating the base time as a simple phase
-offset) is not applied by the hardware and silently ignored.
+Both virtio net and napi_get_frags() allocate skbs
+with a very small skb->head
 
-This was observed on an NXP i.MX8MPlus device, but likely affects all
-TSN-variants of the MAC.
+While using page fragments instead of a kmalloc backed skb->head might give
+a small performance improvement in some cases, there is a huge risk of
+under estimating memory usage.
 
-Fix the issue by making sure the base time is in the future, pushing it by
-an integer amount of cycle times if needed. (a similar check is already
-done in several other taprio implementations, see for example
-drivers/net/ethernet/intel/igc/igc_tsn.c#L116 or
-drivers/net/dsa/sja1105/sja1105_ptp.h#L39).
+For both GOOD_COPY_LEN and GRO_MAX_HEAD, we can fit at least 32 allocations
+per page (order-3 page in x86), or even 64 on PowerPC
 
-Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
-Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
-Link: https://lore.kernel.org/r/20210113131557.24651-2-yannick.vignon@oss.nxp.com
+We have been tracking OOM issues on GKE hosts hitting tcp_mem limits
+but consuming far more memory for TCP buffers than instructed in tcp_mem[2]
+
+Even if we force napi_alloc_skb() to only use order-0 pages, the issue
+would still be there on arches with PAGE_SIZE >= 32768
+
+This patch makes sure that small skb head are kmalloc backed, so that
+other objects in the slab page can be reused instead of being held as long
+as skbs are sitting in socket queues.
+
+Note that we might in the future use the sk_buff napi cache,
+instead of going through a more expensive __alloc_skb()
+
+Another idea would be to use separate page sizes depending
+on the allocated length (to never have more than 4 frags per page)
+
+I would like to thank Greg Thelen for his precious help on this matter,
+analysing crash dumps is always a time consuming task.
+
+Fixes: fd11a83dd363 ("net: Pull out core bits of __netdev_alloc_skb and add __napi_alloc_skb")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Greg Thelen <gthelen@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20210113161819.1155526-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c |   20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ net/core/skbuff.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -605,7 +605,8 @@ static int tc_setup_taprio(struct stmmac
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -496,13 +496,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
+ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 				 gfp_t gfp_mask)
  {
- 	u32 size, wid = priv->dma_cap.estwid, dep = priv->dma_cap.estdep;
- 	struct plat_stmmacenet_data *plat = priv->plat;
--	struct timespec64 time;
-+	struct timespec64 time, current_time;
-+	ktime_t current_time_ns;
- 	bool fpe = false;
- 	int i, ret = 0;
- 	u64 ctr;
-@@ -700,7 +701,22 @@ static int tc_setup_taprio(struct stmmac
+-	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
++	struct napi_alloc_cache *nc;
+ 	struct sk_buff *skb;
+ 	void *data;
+ 
+ 	len += NET_SKB_PAD + NET_IP_ALIGN;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
+@@ -510,6 +514,7 @@ struct sk_buff *__napi_alloc_skb(struct
+ 		goto skb_success;
  	}
  
- 	/* Adjust for real system time */
--	time = ktime_to_timespec64(qopt->base_time);
-+	priv->ptp_clock_ops.gettime64(&priv->ptp_clock_ops, &current_time);
-+	current_time_ns = timespec64_to_ktime(current_time);
-+	if (ktime_after(qopt->base_time, current_time_ns)) {
-+		time = ktime_to_timespec64(qopt->base_time);
-+	} else {
-+		ktime_t base_time;
-+		s64 n;
-+
-+		n = div64_s64(ktime_sub_ns(current_time_ns, qopt->base_time),
-+			      qopt->cycle_time);
-+		base_time = ktime_add_ns(qopt->base_time,
-+					 (n + 1) * qopt->cycle_time);
-+
-+		time = ktime_to_timespec64(base_time);
-+	}
-+
- 	priv->plat->est->btr[0] = (u32)time.tv_nsec;
- 	priv->plat->est->btr[1] = (u32)time.tv_sec;
++	nc = this_cpu_ptr(&napi_alloc_cache);
+ 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 	len = SKB_DATA_ALIGN(len);
  
 
 
