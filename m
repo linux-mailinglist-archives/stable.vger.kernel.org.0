@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79807300D08
+	by mail.lfdr.de (Postfix) with ESMTP id E59CB300D09
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729228AbhAVT5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:57:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S1730558AbhAVT5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:57:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728276AbhAVOKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:10:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C80FA23A77;
-        Fri, 22 Jan 2021 14:09:27 +0000 (UTC)
+        id S1728007AbhAVOLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:11:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED1D23A7C;
+        Fri, 22 Jan 2021 14:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324568;
-        bh=regSAMGbapBOv76T2bj2BS7L43T3k2GIlD+KtGtm4ro=;
+        s=korg; t=1611324571;
+        bh=ldwoMgTZQm8WXVNZ8e5I0+jYp/z/sOwVzf0fCgPzcLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00sh4NiQ2fqSeC//FFh2CoH2NwbyqiKbNtYzdf/TLg9kw8xnt5Ag2mPP0SHie6aMV
-         1AbuhmMScbxlboGL3tHjRviuHOtCGczo1kADmPF8XlTvUXkDjpVYfq+pwZsPDk3nR3
-         sl6Xzqd9UL/o1tF8CSuEbUsBJ6oq4gF8jC/hCzyE=
+        b=t+AECx4FoRpPOQuMNbmDApsHLadxAE1Om0kdCyhO+HNKqbGNSeemhk7CMatEAkRZ2
+         DL9vepSirIzre4+3Yr3XBUEWKkekqph42HeLDKhVYFKCmJLkyOLenBPtnPo/EKRIls
+         mqxJN6sc3vkkuRkpimS/L6HtE2aHUsTaplwNyRHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?Jouni=20K . =20Sepp=C3=A4nen?=" <jks@iki.fi>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 23/31] net: cdc_ncm: correct overhead in delayed_ndp_size
-Date:   Fri, 22 Jan 2021 15:08:37 +0100
-Message-Id: <20210122135732.797504665@linuxfoundation.org>
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 24/31] netxen_nic: fix MSI/MSI-x interrupts
+Date:   Fri, 22 Jan 2021 15:08:38 +0100
+Message-Id: <20210122135732.837593775@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.873346566@linuxfoundation.org>
 References: <20210122135731.873346566@linuxfoundation.org>
@@ -42,88 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni K. Seppänen <jks@iki.fi>
+From: Manish Chopra <manishc@marvell.com>
 
-commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 upstream.
+[ Upstream commit a2bc221b972db91e4be1970e776e98f16aa87904 ]
 
-Aligning to tx_ndp_modulus is not sufficient because the next align
-call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
-ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
-on a Huawei 909s-120 LTE module as follows:
+For all PCI functions on the netxen_nic adapter, interrupt
+mode (INTx or MSI) configuration is dependent on what has
+been configured by the PCI function zero in the shared
+interrupt register, as these adapters do not support mixed
+mode interrupts among the functions of a given adapter.
 
-- the condition marked /* if there is a remaining skb [...] */ is true
-  so the swaps happen
-- skb_out is set from ctx->tx_curr_skb
-- skb_out->len is exactly 0x3f52
-- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
-  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
-- the for loop over n is executed once
-- the cdc_ncm_align_tail call marked /* align beginning of next frame */
-  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
-- the condition marked /* check if we had enough room left [...] */ is
-  false so we break out of the loop
-- the condition marked /* If requested, put NDP at end of frame. */ is
-  true so the NDP is written into skb_out
-- now skb_out->len is 0x4002, so padding_count is minus two interpreted
-  as an unsigned number, which is used as the length argument to memset,
-  leading to a crash with various symptoms but usually including
+Logic for setting MSI/MSI-x interrupt mode in the shared interrupt
+register based on PCI function id zero check is not appropriate for
+all family of netxen adapters, as for some of the netxen family
+adapters PCI function zero is not really meant to be probed/loaded
+in the host but rather just act as a management function on the device,
+which caused all the other PCI functions on the adapter to always use
+legacy interrupt (INTx) mode instead of choosing MSI/MSI-x interrupt mode.
 
-> Call Trace:
->  <IRQ>
->  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
->  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
->  usbnet_start_xmit+0x5d/0x720 [usbnet]
+This patch replaces that check with port number so that for all
+type of adapters driver attempts for MSI/MSI-x interrupt modes.
 
-The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
-boundary (adding at most ctx->tx_modulus-1 bytes), then adds
-ctx->tx_remainder bytes. Alternatively, the next alignment call can
-occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
-ctx->tx_ndp_modulus-1 bytes are added.
-
-A similar problem has occurred before, and the code is nontrivial to
-reason about, so add a guard before the crashing call. By that time it
-is too late to prevent any memory corruption (we'll have written past
-the end of the buffer already) but we can at least try to get a warning
-written into an on-disk log by avoiding the hard crash caused by padding
-past the buffer with a huge number of zeros.
-
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
-Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[jks@iki.fi: backport to 4.4.y, 4.9.y]
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
+Fixes: b37eb210c076 ("netxen_nic: Avoid mixed mode interrupts")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Link: https://lore.kernel.org/r/20210107101520.6735-1-manishc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/usb/cdc_ncm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1079,7 +1079,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	 * accordingly. Otherwise, we should check here.
- 	 */
- 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
--		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
-+		delayed_ndp_size = ctx->max_ndp_size +
-+			max_t(u32,
-+			      ctx->tx_ndp_modulus,
-+			      ctx->tx_modulus + ctx->tx_remainder) - 1;
- 	else
- 		delayed_ndp_size = 0;
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+@@ -586,11 +586,6 @@ static const struct net_device_ops netxe
+ #endif
+ };
  
-@@ -1232,7 +1235,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
- 	    skb_out->len > ctx->min_tx_pkt) {
- 		padding_count = ctx->tx_max - skb_out->len;
--		memset(skb_put(skb_out, padding_count), 0, padding_count);
-+		if (!WARN_ON(padding_count > ctx->tx_max))
-+			memset(skb_put(skb_out, padding_count), 0, padding_count);
- 	} else if (skb_out->len < ctx->tx_max &&
- 		   (skb_out->len % dev->maxpacket) == 0) {
- 		*skb_put(skb_out, 1) = 0;	/* force short packet */
+-static inline bool netxen_function_zero(struct pci_dev *pdev)
+-{
+-	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
+-}
+-
+ static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
+ 					     u32 mode)
+ {
+@@ -686,7 +681,7 @@ static int netxen_setup_intr(struct netx
+ 	netxen_initialize_interrupt_registers(adapter);
+ 	netxen_set_msix_bit(pdev, 0);
+ 
+-	if (netxen_function_zero(pdev)) {
++	if (adapter->portnum == 0) {
+ 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
+ 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
+ 		else
 
 
