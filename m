@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DFB300BA9
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C70AB300BB0
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbhAVSnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
+        id S1730062AbhAVSna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728535AbhAVOWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB8223B42;
-        Fri, 22 Jan 2021 14:15:40 +0000 (UTC)
+        id S1728513AbhAVOW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9652D23B46;
+        Fri, 22 Jan 2021 14:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324941;
-        bh=XpBnyEUptyfE2ExswyYaLSI3gqyrWtLEBZ9yTV9nTWQ=;
+        s=korg; t=1611324952;
+        bh=JUbV4WDWYeuFOG5RUQMedKAYuLqR5xDajD+MGa6Gdsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJZecCBn9LTUTL54TWArqjk5+HDiKjRxpqCerVNXsjQmLnemppZQix5IjojWSqkW/
-         W/O4mNhnoPE//6LyIN4RqG+OuF6XWtpbSi1S5+qjgDj+J1M/72cVKho5VSckCnYIqZ
-         ZfzUKt7uXuVcAL8NaSuYm0NUj00kdLtwcsWn+mL8=
+        b=JhGa86fbwfdgl0gFi8vVwo+UAQYyOxJ+pW1jX1+Lnf6mY1XYULGx6IA4F+oZCDz6A
+         aKAVpWc/nZhfqR166nyNmCdg+xJ/OgmbA59P+SuzVeDpzIuw6tZ6DblyY6eWkpEvUw
+         rAihj31ApwhL4rJtj7Qdnz3GhOTHjOWdwP5nngKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         David Howells <dhowells@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 13/22] rxrpc: Call state should be read with READ_ONCE() under some circumstances
-Date:   Fri, 22 Jan 2021 15:12:31 +0100
-Message-Id: <20210122135732.441893605@linuxfoundation.org>
+Subject: [PATCH 4.19 17/22] rxrpc: Fix handling of an unsupported token type in rxrpc_read()
+Date:   Fri, 22 Jan 2021 15:12:35 +0100
+Message-Id: <20210122135732.597400387@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
 References: <20210122135731.921636245@linuxfoundation.org>
@@ -41,39 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit a95d25dd7b94a5ba18246da09b4218f132fed60e ]
+[ Upstream commit d52e419ac8b50c8bef41b398ed13528e75d7ad48 ]
 
-The call state may be changed at any time by the data-ready routine in
-response to received packets, so if the call state is to be read and acted
-upon several times in a function, READ_ONCE() must be used unless the call
-state lock is held.
+Clang static analysis reports the following:
 
-As it happens, we used READ_ONCE() to read the state a few lines above the
-unmarked read in rxrpc_input_data(), so use that value rather than
-re-reading it.
+net/rxrpc/key.c:657:11: warning: Assigned value is garbage or undefined
+                toksize = toksizes[tok++];
+                        ^ ~~~~~~~~~~~~~~~
 
-Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
+rxrpc_read() contains two consecutive loops.  The first loop calculates the
+token sizes and stores the results in toksizes[] and the second one uses
+the array.  When there is an error in identifying the token in the first
+loop, the token is skipped, no change is made to the toksizes[] array.
+When the same error happens in the second loop, the token is not skipped.
+This will cause the toksizes[] array to be out of step and will overrun
+past the calculated sizes.
+
+Fix this by making both loops log a message and return an error in this
+case.  This should only happen if a new token type is incompletely
+implemented, so it should normally be impossible to trigger this.
+
+Fixes: 9a059cd5ca7d ("rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()")
+Reported-by: Tom Rix <trix@redhat.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/161046715522.2450566.488819910256264150.stgit@warthog.procyon.org.uk
+Reviewed-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/161046503122.2445787.16714129930607546635.stgit@warthog.procyon.org.uk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/input.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/key.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -446,7 +446,7 @@ static void rxrpc_input_data(struct rxrp
- 	if (state >= RXRPC_CALL_COMPLETE)
- 		return;
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1112,7 +1112,7 @@ static long rxrpc_read(const struct key
+ 		default: /* we have a ticket we can't encode */
+ 			pr_err("Unsupported key token type (%u)\n",
+ 			       token->security_index);
+-			continue;
++			return -ENOPKG;
+ 		}
  
--	if (call->state == RXRPC_CALL_SERVER_RECV_REQUEST) {
-+	if (state == RXRPC_CALL_SERVER_RECV_REQUEST) {
- 		unsigned long timo = READ_ONCE(call->next_req_timo);
- 		unsigned long now, expect_req_by;
+ 		_debug("token[%u]: toksize=%u", ntoks, toksize);
+@@ -1227,7 +1227,9 @@ static long rxrpc_read(const struct key
+ 			break;
  
+ 		default:
+-			break;
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
++			return -ENOPKG;
+ 		}
+ 
+ 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
 
 
