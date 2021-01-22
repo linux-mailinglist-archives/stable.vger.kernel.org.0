@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47ED6300CA7
+	by mail.lfdr.de (Postfix) with ESMTP id B5BB4300CA8
 	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729286AbhAVSkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:40:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38774 "EHLO mail.kernel.org"
+        id S1729505AbhAVSkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:40:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728482AbhAVOSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:18:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9BB23A3A;
-        Fri, 22 Jan 2021 14:13:53 +0000 (UTC)
+        id S1728479AbhAVOSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:18:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1872823A5B;
+        Fri, 22 Jan 2021 14:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324833;
-        bh=cMK67UXJo16frcp2Q6y9ABDX5fnaHVkv7J9gR8WUZws=;
+        s=korg; t=1611324838;
+        bh=IheK3hT4MOx8G1BA8GA4DqJaawOsop6OWEsqOEBQWVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjbtoLsDvX6tlpVeSfwAvseX/+6ux5aZNMKj7ikPZhmucBWTCQSHMAMdN7+ooUeDC
-         ddJVOgdb8FFxgIWRCaTic/R3LxYEMx7IDdGZsvCQjhEGnniTLuW0PGB5Fdz29krumf
-         dCJlIcAFB7r2xqZuQ9Cha8BN2ngRxTWKO7wApt8U=
+        b=HNRJlC5U9a7WdAgOKQgNucbLcEd+4X5hfcxtHZ4OHygi7c3KPYBLK+SPKh6VM7Mss
+         bIAGrMKyEkldgqVmvU8bnnbScJHcUCCgC117ENH1OZBMPXlqqCzi7FOgPp8Ba6fxKI
+         HDvCoqWmMDKHfez4oLy0PwCSVf2cA9K5D18AxbtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 23/50] pNFS: Mark layout for return if return-on-close was not sent
-Date:   Fri, 22 Jan 2021 15:12:04 +0100
-Message-Id: <20210122135736.132114268@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Halcrow <mhalcrow@google.com>,
+        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 25/50] ext4: fix superblock checksum failure when setting password salt
+Date:   Fri, 22 Jan 2021 15:12:06 +0100
+Message-Id: <20210122135736.214060503@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -39,41 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 67bbceedc9bb8ad48993a8bd6486054756d711f4 upstream.
+commit dfd56c2c0c0dbb11be939b804ddc8d5395ab3432 upstream.
 
-If the layout return-on-close failed because the layoutreturn was never
-sent, then we should mark the layout for return again.
+When setting password salt in the superblock, we forget to recompute the
+superblock checksum so it will not match until the next superblock
+modification which recomputes the checksum. Fix it.
 
-Fixes: 9c47b18cf722 ("pNFS: Ensure we do clear the return-on-close layout stateid on fatal errors")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+CC: Michael Halcrow <mhalcrow@google.com>
+Reported-by: Andreas Dilger <adilger@dilger.ca>
+Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20201216101844.22917-8-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pnfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/ioctl.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1328,12 +1328,18 @@ void pnfs_roc_release(struct nfs4_layout
- 		int ret)
- {
- 	struct pnfs_layout_hdr *lo = args->layout;
-+	struct inode *inode = args->inode;
- 	const nfs4_stateid *arg_stateid = NULL;
- 	const nfs4_stateid *res_stateid = NULL;
- 	struct nfs4_xdr_opaque_data *ld_private = args->ld_private;
- 
- 	switch (ret) {
- 	case -NFS4ERR_NOMATCHING_LAYOUT:
-+		spin_lock(&inode->i_lock);
-+		if (pnfs_layout_is_valid(lo) &&
-+		    nfs4_stateid_match_other(&args->stateid, &lo->plh_stateid))
-+			pnfs_set_plh_return_info(lo, args->range.iomode, 0);
-+		spin_unlock(&inode->i_lock);
- 		break;
- 	case 0:
- 		if (res->lrs_present)
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1032,7 +1032,10 @@ resizefs_out:
+ 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
+ 			if (err)
+ 				goto pwsalt_err_journal;
++			lock_buffer(sbi->s_sbh);
+ 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
++			ext4_superblock_csum_set(sb);
++			unlock_buffer(sbi->s_sbh);
+ 			err = ext4_handle_dirty_metadata(handle, NULL,
+ 							 sbi->s_sbh);
+ 		pwsalt_err_journal:
 
 
