@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FB2300B83
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0068E300B9B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:45:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbhAVSjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:39:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37508 "EHLO mail.kernel.org"
+        id S1729136AbhAVSmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:42:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728480AbhAVOSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:18:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 235E223A9A;
-        Fri, 22 Jan 2021 14:14:05 +0000 (UTC)
+        id S1728119AbhAVOVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:21:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC13223B2F;
+        Fri, 22 Jan 2021 14:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324846;
-        bh=SB8J9olcChwxi0/uJFauBUyLvKbKCQcEBb/seqsizw0=;
+        s=korg; t=1611324927;
+        bh=QTVrU5Uqlqq2w1dCrXothH4iFsRVc0nQc8i3xhrt/E8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bujSrw3aMiFr94zxVvoUhp+gM1eC6rPcifR9kHnapom70AY6zI4BOqhZE/NXRgVOo
-         Ilbb8HSlkpNvespoXqfR5IyWWjrUydT27CWbfWl3ETkcXyvn0bevaI12Gj+7n6O8he
-         3UJJMfs4EA3IEwTyr6F4XlwQwAuCvea6cKGQScS8=
+        b=VHd7BrIVjx4GC3s5fT5imgTbLgUBqFMbMqrdFgXX/zIWBcHuVDpeUiv3JHxYrlUlm
+         APDh40e6V/fTL/9CwStpIxcm+zve0HGSd52lGlgZzoXMZaE43JB2LN/MZBNrf8g+Z8
+         To0SV2kMYEQeuuSoOf2Y95KRWVKmUv83Z1YKaGwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Nixdorf <j.nixdorf@avm.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 28/50] net: sunrpc: interpret the return value of kstrtou32 correctly
-Date:   Fri, 22 Jan 2021 15:12:09 +0100
-Message-Id: <20210122135736.325356204@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 31/50] ALSA: fireface: Fix integer overflow in transmit_midi_msg()
+Date:   Fri, 22 Jan 2021 15:12:12 +0100
+Message-Id: <20210122135736.455116723@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -39,47 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: j.nixdorf@avm.de <j.nixdorf@avm.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 86b53fbf08f48d353a86a06aef537e78e82ba721 upstream.
+commit e7c22eeaff8565d9a8374f320238c251ca31480b upstream.
 
-A return value of 0 means success. This is documented in lib/kstrtox.c.
+As snd_ff.rx_bytes[] is unsigned int, and NSEC_PER_SEC is 1000000000L,
+the second multiplication in
 
-This was found by trying to mount an NFS share from a link-local IPv6
-address with the interface specified by its index:
+    ff->rx_bytes[port] * 8 * NSEC_PER_SEC / 31250
 
-  mount("[fe80::1%1]:/srv/nfs", "/mnt", "nfs", 0, "nolock,addr=fe80::1%1")
+always overflows on 32-bit platforms, truncating the result.  Fix this
+by precalculating "NSEC_PER_SEC / 31250", which is an integer constant.
 
-Before this commit this failed with EINVAL and also caused the following
-message in dmesg:
+Note that this assumes ff->rx_bytes[port] <= 16777.
 
-  [...] NFS: bad IP address specified: addr=fe80::1%1
-
-The syscall using the same address based on the interface name instead
-of its index succeeds.
-
-Credits for this patch go to my colleague Christian Speich, who traced
-the origin of this bug to this line of code.
-
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
-Fixes: 00cfaa943ec3 ("replace strict_strto calls")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 19174295788de77d ("ALSA: fireface: add transaction support")
+Reviewed-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20210111130251.361335-2-geert+renesas@glider.be
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/addr.c |    2 +-
+ sound/firewire/fireface/ff-transaction.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sunrpc/addr.c
-+++ b/net/sunrpc/addr.c
-@@ -184,7 +184,7 @@ static int rpc_parse_scope_id(struct net
- 			scope_id = dev->ifindex;
- 			dev_put(dev);
- 		} else {
--			if (kstrtou32(p, 10, &scope_id) == 0) {
-+			if (kstrtou32(p, 10, &scope_id) != 0) {
- 				kfree(p);
- 				return 0;
- 			}
+--- a/sound/firewire/fireface/ff-transaction.c
++++ b/sound/firewire/fireface/ff-transaction.c
+@@ -99,7 +99,7 @@ static void transmit_midi_msg(struct snd
+ 
+ 	/* Set interval to next transaction. */
+ 	ff->next_ktime[port] = ktime_add_ns(ktime_get(),
+-					    len * 8 * NSEC_PER_SEC / 31250);
++					    len * 8 * (NSEC_PER_SEC / 31250));
+ 	ff->rx_bytes[port] = len;
+ 
+ 	/*
 
 
