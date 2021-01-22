@@ -2,163 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E342FFBF8
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 06:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE8C2FFC0F
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 06:20:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726168AbhAVFDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 00:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43122 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725468AbhAVFDJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 00:03:09 -0500
-X-Greylist: delayed 426 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jan 2021 21:02:28 PST
-Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [IPv6:2a0b:5c81:1c1::37])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B540C06174A
-        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 21:02:28 -0800 (PST)
-Received: from localhost.localdomain (85-76-102-71-nat.elisa-mobile.fi [85.76.102.71])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725935AbhAVFUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 00:20:25 -0500
+Received: from relay5.mymailcheap.com ([159.100.248.207]:53795 "EHLO
+        relay5.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726000AbhAVFUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 00:20:15 -0500
+Received: from relay2.mymailcheap.com (relay2.mymailcheap.com [217.182.66.162])
+        by relay5.mymailcheap.com (Postfix) with ESMTPS id 206B3260EB;
+        Fri, 22 Jan 2021 05:19:21 +0000 (UTC)
+Received: from filter2.mymailcheap.com (filter2.mymailcheap.com [91.134.140.82])
+        by relay2.mymailcheap.com (Postfix) with ESMTPS id B88173EDEC;
+        Fri, 22 Jan 2021 06:17:41 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by filter2.mymailcheap.com (Postfix) with ESMTP id 9734F2A510;
+        Fri, 22 Jan 2021 06:17:41 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
+        s=default; t=1611292661;
+        bh=rRKgtiGTcCFkbIJgrA1D99gu1b5jfXEZujQLTKBD3PE=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=EYUXsbM0bPtjn7+8s94shScNCkCP69cMbZ+yQ/D47a7QQ+/B2WeKOx3oNpd60gUv3
+         OaCRGodkn77XcaUK9lCZAU17ifTr+2Tde55Kk1YZhGrsWa3sOwZLJRzHtUV6tyWCt/
+         ZbZe871J7xGT2wlHnkxP0PbMMGXs8rhRGMSUQ+bw=
+X-Virus-Scanned: Debian amavisd-new at filter2.mymailcheap.com
+Received: from filter2.mymailcheap.com ([127.0.0.1])
+        by localhost (filter2.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id SwL9I7S9yZWJ; Fri, 22 Jan 2021 06:17:40 +0100 (CET)
+Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: jks)
-        by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 1C1C21B00122;
-        Fri, 22 Jan 2021 06:55:18 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
-        t=1611291318;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nNVxmo79M/DbkplsImyEU/4ta1S8HjST/vF+5w3BUro=;
-        b=bApYgMfGnowH12xNOk3khZI+4f8HKWD+cElB8LQbri4ybddPRpMNhDYUMIACoPumWXutT7
-        h+8R5Pl+GXsIMAFXU1aXqog1QbDpp6H8ZRI5VgPZhEUPa90ylXCb1EEvewG6Fd83JmlTWW
-        UCAk6CtzblJdDWjQ0tBE86toK1eODBMjvC5tPxwU/bsaPJyZRsTS36k2sz/SjA69ISPRdD
-        ZtPw3OH+xJr6WL/epx0HNL49tuiOXS9SYWwh0RQRPuIJ68yNf6Jvu/lDepYo6GhZA7goKC
-        RigrsimOTGD+F+0+PEsJqfJIYZDs15fQCYms6iqDWh27ACIQVnUc1isFQxsEGg==
-From:   =?UTF-8?q?Jouni=20Sepp=C3=A4nen?= <jks@iki.fi>
-To:     stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jouni=20K=2E=20Sepp=C3=A4nen?= <jks@iki.fi>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [BACKPORT 4.4.y, 4.9.y] net: cdc_ncm: correct overhead in delayed_ndp_size
-Date:   Fri, 22 Jan 2021 06:54:57 +0200
-Message-Id: <20210122045457.50289-1-jks@iki.fi>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <161070228139179@kroah.com>
-References: <161070228139179@kroah.com>
+        by filter2.mymailcheap.com (Postfix) with ESMTPS;
+        Fri, 22 Jan 2021 06:17:40 +0100 (CET)
+Received: from [148.251.23.173] (ml.mymailcheap.com [148.251.23.173])
+        by mail20.mymailcheap.com (Postfix) with ESMTP id 7C228400CF;
+        Fri, 22 Jan 2021 05:17:39 +0000 (UTC)
+Authentication-Results: mail20.mymailcheap.com;
+        dkim=pass (1024-bit key; unprotected) header.d=aosc.io header.i=@aosc.io header.b="p/bz1Dk7";
+        dkim-atps=neutral
+AI-Spam-Status: Not processed
+Received: from [192.168.1.216] (unknown [59.41.162.145])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail20.mymailcheap.com (Postfix) with ESMTPSA id 235814100C;
+        Fri, 22 Jan 2021 05:17:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=aosc.io; s=default;
+        t=1611292652; bh=rRKgtiGTcCFkbIJgrA1D99gu1b5jfXEZujQLTKBD3PE=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=p/bz1Dk7J7IGtNouIiXf6SqfZ+e/rsjnqGGosyeVcHOhtzOAO8PGIX9AUw++DbP0t
+         Cvwa9jL5Sl1/ywTn+A6xrBKsHrkyxFkZ10K4jOrHcAsiYkyrWiYoPea+tdcb10pN3w
+         XwdEhgNMGgwPz9oDiX7ZkyhIsbs15rF3jFA59aFk=
+Message-ID: <5ce1a5ceba591d6df3e04b8aa71af9d25fac63ea.camel@aosc.io>
+Subject: Re: [PATCH v3] ovl: use a dedicated semaphore for dir upperfile
+ caching
+From:   Icenowy Zheng <icenowy@aosc.io>
+To:     Miklos Szeredi <miklos@szeredi.hu>
+Cc:     Amir Goldstein <amir73il@gmail.com>,
+        Xiao Yang <yangx.jy@cn.fujitsu.com>,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Date:   Fri, 22 Jan 2021 13:17:07 +0800
+In-Reply-To: <CAJfpegsVnpV38j4ShOG0m9xh8Fy=P2kmZ_hwyfiaAzmM3tVaOg@mail.gmail.com>
+References: <20210105003611.194511-1-icenowy@aosc.io>
+         <CAOQ4uxiFoQhrMbs91ZUNXqbJUXb5XRBgRrcq1rmChLKQGKg5xg@mail.gmail.com>
+         <20210120102045.GD1236412@miu.piliscsaba.redhat.com>
+         <83bb613212ee81648e5bf7c0f9cd3219e0046f80.camel@aosc.io>
+         <CAJfpegsVnpV38j4ShOG0m9xh8Fy=P2kmZ_hwyfiaAzmM3tVaOg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-ARC-Seal: i=1; s=lahtoruutu; d=iki.fi; t=1611291318; a=rsa-sha256;
-        cv=none;
-        b=krgUNPzMExn5424gANkg5G8+Y6oXGkquEF1Ln01WZWwJvrgKLitm/On+6ZysptB5yGBCvg
-        5UkNnZ79pvtJzOUukxVLU4JtVAV2BE/ouZnfVbhOfEVpEBjW+iCminYhLSD6GE7WVKwCrd
-        Oo2T4oB29IC/bIBsbKB0ojPXSILGEiyRrJdkU6eHLpndhOXdCZjA0JSmNl11SIe7ukH4Y5
-        x8OiZ2o76lqgY3psJ3nZniD9UcSSTGTOrFxLvG7ixBanXN+vuyTfolWUamR3L2ba0MTWbm
-        iGz3U4W12WMotmOfkfxml+C8vLC+i8lR1+BLN6hWvVyy2/YVm8Gv5rRPtXxBbA==
-ARC-Authentication-Results: i=1;
-        ORIGINATING;
-        auth=pass smtp.auth=jks smtp.mailfrom=jks@iki.fi
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
-        s=lahtoruutu; t=1611291318;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nNVxmo79M/DbkplsImyEU/4ta1S8HjST/vF+5w3BUro=;
-        b=JhCyLRRQCCjxZu0djvCoOE2fLwaknrnZmvqgJptBqmMVgApBWQeoPF0E1cO+pY7Ly5Ym1n
-        bAGn0yGhyO4jkcWYMtkQDQARWd37ulLQl4Vbp0gnRrRzGPn51F27nWoWdTTh7JF7lh1r1w
-        KYeNiyshmPbJzfOtj6WHOjiiLpZAqDQ/sogpOnZ8pDTjb4KvuYa84d0sNu2FMTZcgPfg1h
-        9QIvhsTw6WQ168zba/il3nY00eJB/SaSyY7l7u1bj2LJYSbPfTVQJzoraUE+b5W0M2dk01
-        mLh3vY0GEhOmwdxO0JEKYFU7sTURvXxI+Q9xOAcZw3pmREva6y/EwMBYj7XVhQ==
+X-Spamd-Result: default: False [-0.10 / 10.00];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         ARC_NA(0.00)[];
+         R_DKIM_ALLOW(0.00)[aosc.io:s=default];
+         HFILTER_HELO_BAREIP(3.00)[148.251.23.173,1];
+         FROM_HAS_DN(0.00)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         MIME_GOOD(-0.10)[text/plain];
+         DMARC_NA(0.00)[aosc.io];
+         R_SPF_SOFTFAIL(0.00)[~all];
+         RCPT_COUNT_FIVE(0.00)[6];
+         RECEIVED_SPAMHAUS_PBL(0.00)[59.41.162.145:received];
+         ML_SERVERS(-3.10)[148.251.23.173];
+         TO_DN_ALL(0.00)[];
+         DKIM_TRACE(0.00)[aosc.io:+];
+         RCVD_NO_TLS_LAST(0.10)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         ASN(0.00)[asn:24940, ipnet:148.251.0.0/16, country:DE];
+         FREEMAIL_CC(0.00)[gmail.com,cn.fujitsu.com,vger.kernel.org];
+         MID_RHS_MATCH_FROM(0.00)[];
+         RCVD_COUNT_TWO(0.00)[2]
+X-Rspamd-Queue-Id: 7C228400CF
+X-Rspamd-Server: mail20.mymailcheap.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni K. Seppänen <jks@iki.fi>
+在 2021-01-21星期四的 09:07 +0100，Miklos Szeredi写道：
+> On Thu, Jan 21, 2021 at 4:43 AM Icenowy Zheng <icenowy@aosc.io>
+> wrote:
+> > 
+> > 在 2021-01-20星期三的 11:20 +0100，Miklos Szeredi写道：
+> > > On Tue, Jan 05, 2021 at 08:47:41AM +0200, Amir Goldstein wrote:
+> > > > On Tue, Jan 5, 2021 at 2:36 AM Icenowy Zheng <icenowy@aosc.io>
+> > > > wrote:
+> > > > > 
+> > > > > The function ovl_dir_real_file() currently uses the semaphore
+> > > > > of
+> > > > > the
+> > > > > inode to synchronize write to the upperfile cache field.
+> > > > 
+> > > > Although the inode lock is a rw_sem it is referred to as the
+> > > > "inode
+> > > > lock"
+> > > > and you also left semaphore in the commit subject.
+> > > > No need to re-post. This can be fixed on commit.
+> > > > 
+> > > > > 
+> > > > > However, this function will get called by
+> > > > > ovl_ioctl_set_flags(),
+> > > > > which
+> > > > > utilizes the inode semaphore too. In this case
+> > > > > ovl_dir_real_file() will
+> > > > > try to claim a lock that is owned by a function in its call
+> > > > > stack, which
+> > > > > won't get released before ovl_dir_real_file() returns.
+> > > > > 
+> > > > > Define a dedicated semaphore for the upperfile cache, so that
+> > > > > the
+> > > > > deadlock won't happen.
+> > > > > 
+> > > > > Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and
+> > > > > FS[S|G]ETXATTR ioctls for directories")
+> > > > > Cc: stable@vger.kernel.org # v5.10
+> > > > > Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+> > > > > ---
+> > > > > Changes in v2:
+> > > > > - Fixed missing replacement in error handling path.
+> > > > > Changes in v3:
+> > > > > - Use mutex instead of semaphore.
+> > > > > 
+> > > > >  fs/overlayfs/readdir.c | 10 +++++-----
+> > > > >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > > > > 
+> > > > > diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
+> > > > > index 01620ebae1bd..3980f9982f34 100644
+> > > > > --- a/fs/overlayfs/readdir.c
+> > > > > +++ b/fs/overlayfs/readdir.c
+> > > > > @@ -56,6 +56,7 @@ struct ovl_dir_file {
+> > > > >         struct list_head *cursor;
+> > > > >         struct file *realfile;
+> > > > >         struct file *upperfile;
+> > > > > +       struct mutex upperfile_mutex;
+> > > > 
+> > > > That's a very specific name.
+> > > > This mutex protects members of struct ovl_dir_file, which could
+> > > > evolve
+> > > > into struct ovl_file one day (because no reason to cache only
+> > > > dir
+> > > > upper file),
+> > > > so I would go with a more generic name, but let's leave it to
+> > > > Miklos to decide.
+> > > > 
+> > > > He could have a different idea altogether for fixing this bug.
+> > > 
+> > > How about this (untested) patch?
+> > > 
+> > > It's a cleanup as well as a fix, but maybe we should separate the
+> > > cleanup from
+> > > the fix...
+> > 
+> > If you are going to post this, feel free to add
+> > 
+> > Tested-by: Icenowy Zheng <icenowy@aosc.io>
+> 
+> Okay, thanks.
+> 
+> > (And if you remove the IS_ERR(realfile) part, the tested-by tag
+> > still
+> > applies.)
+> 
+> Dropping the IS_ERR(realfile) here would mean having to add the same
+> check before relevant fput() calls, which would make it more complex
+> not less.
+> 
+> Or did you mean something else?
 
-commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 upstream.
+I mean "seperate the cleanup from the fix".
 
-Aligning to tx_ndp_modulus is not sufficient because the next align
-call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
-ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
-on a Huawei 909s-120 LTE module as follows:
+This is only for when you do the seperation.
 
-- the condition marked /* if there is a remaining skb [...] */ is true
-  so the swaps happen
-- skb_out is set from ctx->tx_curr_skb
-- skb_out->len is exactly 0x3f52
-- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
-  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
-- the for loop over n is executed once
-- the cdc_ncm_align_tail call marked /* align beginning of next frame */
-  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
-- the condition marked /* check if we had enough room left [...] */ is
-  false so we break out of the loop
-- the condition marked /* If requested, put NDP at end of frame. */ is
-  true so the NDP is written into skb_out
-- now skb_out->len is 0x4002, so padding_count is minus two interpreted
-  as an unsigned number, which is used as the length argument to memset,
-  leading to a crash with various symptoms but usually including
+> 
+> Thanks,
+> Miklos
 
-> Call Trace:
->  <IRQ>
->  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
->  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
->  usbnet_start_xmit+0x5d/0x720 [usbnet]
-
-The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
-boundary (adding at most ctx->tx_modulus-1 bytes), then adds
-ctx->tx_remainder bytes. Alternatively, the next alignment call can
-occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
-ctx->tx_ndp_modulus-1 bytes are added.
-
-A similar problem has occurred before, and the code is nontrivial to
-reason about, so add a guard before the crashing call. By that time it
-is too late to prevent any memory corruption (we'll have written past
-the end of the buffer already) but we can at least try to get a warning
-written into an on-disk log by avoiding the hard crash caused by padding
-past the buffer with a huge number of zeros.
-
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
-Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[jks@iki.fi: backport to 4.4.y, 4.9.y]
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
----
-Backport to 4.4.y and 4.9.y: there is no skb_put_zero or ctx->tx_curr_size
-so use memset(skb_put(...)) and ctx->tx_max, respectively.
-
- drivers/net/usb/cdc_ncm.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-index e9f82b67c7ed..8de7797ea7e7 100644
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1079,7 +1079,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
- 	 * accordingly. Otherwise, we should check here.
- 	 */
- 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
--		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
-+		delayed_ndp_size = ctx->max_ndp_size +
-+			max_t(u32,
-+			      ctx->tx_ndp_modulus,
-+			      ctx->tx_modulus + ctx->tx_remainder) - 1;
- 	else
- 		delayed_ndp_size = 0;
-
-@@ -1232,7 +1235,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
- 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
- 	    skb_out->len > ctx->min_tx_pkt) {
- 		padding_count = ctx->tx_max - skb_out->len;
--		memset(skb_put(skb_out, padding_count), 0, padding_count);
-+		if (!WARN_ON(padding_count > ctx->tx_max))
-+			memset(skb_put(skb_out, padding_count), 0, padding_count);
- 	} else if (skb_out->len < ctx->tx_max &&
- 		   (skb_out->len % dev->maxpacket) == 0) {
- 		*skb_put(skb_out, 1) = 0;	/* force short packet */
---
-2.20.1
