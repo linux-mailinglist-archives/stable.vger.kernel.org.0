@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AF2300FCA
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:18:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9F3300FBF
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbhAVT66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35774 "EHLO mail.kernel.org"
+        id S1728424AbhAVT7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:59:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728437AbhAVOQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:16:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE8E23B04;
-        Fri, 22 Jan 2021 14:12:12 +0000 (UTC)
+        id S1728388AbhAVOQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:16:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D88D123A63;
+        Fri, 22 Jan 2021 14:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324733;
-        bh=ZwsZkSYfM5KR4IgNJmfL82GKzTKSzQC5mSAEDNtlr6M=;
+        s=korg; t=1611324795;
+        bh=RXTWyssdws4QSfJ+JmgOYZPTOqGjh2f/lY6IjIbNXnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fI/UGQ4or4hgRqkNP9ZLJnRYc+l6ompBPGSxwc9TQL900Swiax1Q5M1Ick3JPbUMB
-         sdkZvrs42wXqvl+025NXXXIzxppSKk6o9D6P3gUmI62JjYIJYQdIMaxfHtXIa6VkaU
-         oX/WkAEBPafDaD+1sXiSW6TmWBmpG2oM36KVGJVA=
+        b=p1+eOAX0YVQHGtL3NxZ9KIObtX8BoD7ziKjEKxuocgYq5FPzTJcgHKo/jjXBIk2E8
+         2aIu7LcO56D46nEGc7NyVkyKFt9Iqj1EfdErw1kucB6jxtnW1EYfhlEy8hAkonKghI
+         7VCb+aL+z0R92qLANgCdElRTxxL8vHuf6YrRQMlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 29/35] net: dcb: Validate netlink message in DCB handler
-Date:   Fri, 22 Jan 2021 15:10:31 +0100
-Message-Id: <20210122135733.481500136@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/50] ARC: build: add uImage.lzma to the top-level target
+Date:   Fri, 22 Jan 2021 15:11:52 +0100
+Message-Id: <20210122135735.647125197@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
-References: <20210122135732.357969201@linuxfoundation.org>
+In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
+References: <20210122135735.176469491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <me@pmachata.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
+[ Upstream commit f2712ec76a5433e5ec9def2bd52a95df1f96d050 ]
 
-DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
-messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
-the CAP_NET_ADMIN capability.
+arch/arc/boot/Makefile supports uImage.lzma, but you cannot do
+'make uImage.lzma' because the corresponding target is missing
+in arch/arc/Makefile. Add it.
 
-However, the operation to be performed is not decided from the DCB message
-type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
-reading DCB objects, the corresponding SET and DEL commands are used for
-manipulation.
+I also changed the assignment operator '+=' to ':=' since this is the
+only place where we expect this variable to be set.
 
-The assumption is that set-like commands will be sent via an RTM_SETDCB
-message, and get-like ones via RTM_GETDCB. However, this assumption is not
-enforced.
-
-It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
-capability by sending the corresponding command in an RTM_GETDCB message.
-That is a bug. Fix it by validating the type of the request message against
-the type used for the response.
-
-Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
-Signed-off-by: Petr Machata <me@pmachata.org>
-Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dcb/dcbnl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1726,6 +1726,8 @@ static int dcb_doit(struct sk_buff *skb,
- 	fn = &reply_funcs[dcb->cmd];
- 	if (!fn->cb)
- 		return -EOPNOTSUPP;
-+	if (fn->type != nlh->nlmsg_type)
-+		return -EPERM;
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index 98d31b701a97c..1146ca5fc349b 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -99,7 +99,7 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
  
- 	if (!tb[DCB_ATTR_IFNAME])
- 		return -EINVAL;
+ boot		:= arch/arc/boot
+ 
+-boot_targets += uImage uImage.bin uImage.gz
++boot_targets := uImage uImage.bin uImage.gz uImage.lzma
+ 
+ $(boot_targets): vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+-- 
+2.27.0
+
 
 
