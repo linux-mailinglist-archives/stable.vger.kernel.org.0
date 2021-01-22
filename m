@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE37D300561
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49B7300544
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728493AbhAVO1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:27:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40034 "EHLO mail.kernel.org"
+        id S1728515AbhAVOX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:23:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728696AbhAVOZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:25:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA1E323BB5;
-        Fri, 22 Jan 2021 14:19:44 +0000 (UTC)
+        id S1728627AbhAVOXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2914623B84;
+        Fri, 22 Jan 2021 14:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325185;
+        s=korg; t=1611325073;
         bh=+Kd3aqHT+ZRR+qTRRaanrxlV7+HyLHkYUaBKHsKdhvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VckIcu2ZmXwqMk0WTyD7lw0X6CkTN3cXGYdaZ/97euGvRyxgyVm+XHV+vg5+2L4E7
-         0PobYK6WOPCdw9fIIFHyqvn0rHrTo6n1tTYOZDdJv1op8X3c1KbrEuFMAfWTa41Xtu
-         D0xIoGODJTgi1UnEOBTTTEpqqKznpCoUMK+4Av2A=
+        b=I4YZpgkqZLXR3ig9wrT68DHf4aE+UuD6qyiMcz7aGOrvv2qV43CAhSMch9JHOD5uZ
+         WfOvis0+Aonn4v0gNsdhSIypR19+KcDiFwE1G9qqqmc2TOvLHk2HN0yOFKLW7iBft/
+         qvDDBmE1osfvS6Go55S1DYQ3xYYoastL2yF210ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 22/43] net: dcb: Validate netlink message in DCB handler
+Subject: [PATCH 5.4 22/33] net: dcb: Validate netlink message in DCB handler
 Date:   Fri, 22 Jan 2021 15:12:38 +0100
-Message-Id: <20210122135736.558566313@linuxfoundation.org>
+Message-Id: <20210122135734.479458720@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
