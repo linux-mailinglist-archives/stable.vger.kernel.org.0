@@ -2,100 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38ABF30080A
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 17:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3FF30080C
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 17:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727784AbhAVQAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 11:00:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60208 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729361AbhAVP7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 10:59:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89AAA22248;
-        Fri, 22 Jan 2021 15:59:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611331148;
-        bh=x4JXn/NGT9kOmD86mZTB5+L63oSboexwirGKxvWY8Do=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Fdh85FY7JV18I/qn12cwtKYZWjDWlaqkgQkRpwOON4FTphz1UxTyppjll+TcCbP0K
-         qrPqbvg0hzTOWqUTnpppgxguwrGL+/L/dlSA9G76B+7CZhYep9D/rplrj6FgXmPe83
-         5J6mTONaF9HvpsPbErdZoOEbw9cCcw0EQaiIieO0=
-Date:   Fri, 22 Jan 2021 16:59:05 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-mips@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH 4.14 00/50] 4.14.217-rc1 review
-Message-ID: <YAr2Sae/oDOH/E5X@kroah.com>
-References: <20210122135735.176469491@linuxfoundation.org>
- <CA+G9fYus+rnoxpZqhn35fMz4ZPQvYjkKFKSCsOhFtrHzbu1pZw@mail.gmail.com>
+        id S1729322AbhAVQAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 11:00:42 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:54191 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729347AbhAVQAi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 11:00:38 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id CE9391623;
+        Fri, 22 Jan 2021 10:59:29 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 22 Jan 2021 10:59:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=wMUBtA
+        xqiwQx8vynpLx0xPdz/NkpGFWka7pOb7Ram4Y=; b=qzOrKhY2RYps6wdSO6i962
+        kymPOpaZDeXqcOMjtlV0weMtnEJ/CqForvS8Lxr94/VIPSCMbLtZsCW/I3Yy87uv
+        yByDv5cj92cgmScNHgf/4MnBxN/9kNitjVpyuzrRm2wIzMTr1Fmujjf5M0u8wqJL
+        Q3v/IPoriH/5yhRd07FdkTDa0HRTReZrI1lcTPHbFr17hk25eS//nTp2YurBrDDg
+        VCUQY9b5nor4a3hihtPbJ/BI/Ad8BOK7hZlKl3wTagDAQX7ZqKsEgrWHSUK/J2tK
+        eq4X4fbeJR4hmZFroQaGgjI8HS/O8Ei6i+0xEc71CfIKlb6HMH4ttw83WeG+U03w
+        ==
+X-ME-Sender: <xms:YfYKYF6obTy7VInJ4PGcdfxuy-KNyVVvtirm7aW0CWjbuM9Ewjo4Og>
+    <xme:YfYKYC5Ak0KLdPr2GCWSAdd3n7Jn73frIGYbtjvTKrsFPkpCJ_gUgzfV8QN1ueu-A
+    AwKtZEldHcQEw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudeigdekjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:YfYKYMf_I6p8VQRNZ5EvHwbOUvjJTyZQ2ararc7uDB4QlDKaOwpN9g>
+    <xmx:YfYKYOIdeGubQxODn7N1R04VhBKQYZzAuM7QjSrVvgitbOzSLvaPag>
+    <xmx:YfYKYJKJmXFOuI3jTF3htewQyXm8PtKchHlpjOViVD-gkvAbL2p5yA>
+    <xmx:YfYKYLyukANX7a8F5R6LN5RDEwY29ZrFVWUjCRWfz7zgFLDn9JBikPjq0Wo>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E3AD3108005B;
+        Fri, 22 Jan 2021 10:59:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps" failed to apply to 4.9-stable tree
+To:     viro@zeniv.linux.org.uk, tsbogend@alpha.franken.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 22 Jan 2021 16:59:18 +0100
+Message-ID: <161133115870131@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYus+rnoxpZqhn35fMz4ZPQvYjkKFKSCsOhFtrHzbu1pZw@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 08:50:43PM +0530, Naresh Kamboju wrote:
-> On Fri, 22 Jan 2021 at 19:45, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 4.14.217 release.
-> > There are 50 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.217-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> MIPS: cavium_octeon_defconfig and nlm_xlp_defconfig builds breaks
-> due to this patch on 4.14, 4.9 and 4.4
-> 
-> > Al Viro <viro@zeniv.linux.org.uk>
-> >     MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
-> 
-> Build error:
-> arch/mips/kernel/binfmt_elfo32.c:116:
-> /arch/mips/kernel/../../../fs/binfmt_elf.c: In function 'fill_siginfo_note':
-> /arch/mips/kernel/../../../fs/binfmt_elf.c:1575:23: error: passing
-> argument 1 of 'copy_siginfo_to_user' from incompatible pointer type
-> [-Werror=incompatible-pointer-types]
->   copy_siginfo_to_user((user_siginfo_t __user *) csigdata, siginfo);
->                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> MIPS build failed
->     * gcc-10-cavium_octeon_defconfig - FAILED
->     * gcc-10-nlm_xlp_defconfig - FAILED
->     * gcc-8-cavium_octeon_defconfig - FAILED
->     * gcc-8-nlm_xlp_defconfig - FAILED
->     * gcc-9-cavium_octeon_defconfig - FAILED
->     * gcc-9-nlm_xlp_defconfig - FAILED
-> 
-> Build log link,
-> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/980489009#L162
 
-Ugh, I had already dropped that from other kernels before, forgot to do
-so here, sorry about, will go do that now and push out -rc2 for all 3 of
-these branches.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 698222457465ce343443be81c5512edda86e5914 Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Thu, 24 Dec 2020 19:44:38 +0000
+Subject: [PATCH] MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
+
+Patches that introduced NT_FILE and NT_SIGINFO notes back in 2012
+had taken care of native (fs/binfmt_elf.c) and compat (fs/compat_binfmt_elf.c)
+coredumps; unfortunately, compat on mips (which does not go through the
+usual compat_binfmt_elf.c) had not been noticed.
+
+As the result, both N32 and O32 coredumps on 64bit mips kernels
+have those sections malformed enough to confuse the living hell out of
+all gdb and readelf versions (up to and including the tip of binutils-gdb.git).
+
+Longer term solution is to make both O32 and N32 compat use the
+regular compat_binfmt_elf.c, but that's too much for backports.  The minimal
+solution is to do in arch/mips/kernel/binfmt_elf[on]32.c the same thing
+those patches have done in fs/compat_binfmt_elf.c
+
+Cc: stable@kernel.org # v3.7+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+
+diff --git a/arch/mips/kernel/binfmt_elfn32.c b/arch/mips/kernel/binfmt_elfn32.c
+index 6ee3f7218c67..c4441416e96b 100644
+--- a/arch/mips/kernel/binfmt_elfn32.c
++++ b/arch/mips/kernel/binfmt_elfn32.c
+@@ -103,4 +103,11 @@ jiffies_to_old_timeval32(unsigned long jiffies, struct old_timeval32 *value)
+ #undef ns_to_kernel_old_timeval
+ #define ns_to_kernel_old_timeval ns_to_old_timeval32
+ 
++/*
++ * Some data types as stored in coredump.
++ */
++#define user_long_t             compat_long_t
++#define user_siginfo_t          compat_siginfo_t
++#define copy_siginfo_to_external        copy_siginfo_to_external32
++
+ #include "../../../fs/binfmt_elf.c"
+diff --git a/arch/mips/kernel/binfmt_elfo32.c b/arch/mips/kernel/binfmt_elfo32.c
+index 6dd103d3cebb..7b2a23f48c1a 100644
+--- a/arch/mips/kernel/binfmt_elfo32.c
++++ b/arch/mips/kernel/binfmt_elfo32.c
+@@ -106,4 +106,11 @@ jiffies_to_old_timeval32(unsigned long jiffies, struct old_timeval32 *value)
+ #undef ns_to_kernel_old_timeval
+ #define ns_to_kernel_old_timeval ns_to_old_timeval32
+ 
++/*
++ * Some data types as stored in coredump.
++ */
++#define user_long_t             compat_long_t
++#define user_siginfo_t          compat_siginfo_t
++#define copy_siginfo_to_external        copy_siginfo_to_external32
++
+ #include "../../../fs/binfmt_elf.c"
+
