@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 013B4300D2C
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72271300D26
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730904AbhAVT67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:58:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37508 "EHLO mail.kernel.org"
+        id S1730873AbhAVT6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:58:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728441AbhAVOQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:16:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C79CD23B03;
-        Fri, 22 Jan 2021 14:12:09 +0000 (UTC)
+        id S1728405AbhAVOO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:14:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD32B23AFE;
+        Fri, 22 Jan 2021 14:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324730;
-        bh=SlH2NzCoujiSem3sba2v272mEhlltaaiVc1Vd3kqLS0=;
+        s=korg; t=1611324698;
+        bh=NIJ1rk7rRO4PiKreb+c+RUVZLEeWc5tBPxhxT6W9GIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0R1Cfa3vlroVNNleN3r0vLKyPhL9mDYTn9WU5oyH6mmiIQf0AljaY7gxvqOHTIZAr
-         bvmwWFdwfosNr3b/Mck+/vo8RHXzAMKa5sLS+1mV5s6vAbynm0hxW4F8KqBWGaMgGA
-         2paN1KumHcv/s56GetegK9TI9Ze1BW48P9xMzwm4=
+        b=lZ3Fr7YOUWa45/It8LIuwzny9JKSd5NiuEw1GeLUPN0SXeNrE1yv3GKwdAGkOdzNU
+         Y8vbIoIfG3qEg5rqWUqha2vdeZMwSzcMpXyG0cRmC60mDqfsQn8q7EIxdXLZyA+Xi6
+         q70+pPXuTy/rJehK9s/Jg2ZZlHWNFgJHU+Ux1TQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 28/35] rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
-Date:   Fri, 22 Jan 2021 15:10:30 +0100
-Message-Id: <20210122135733.436641742@linuxfoundation.org>
+Subject: [PATCH 4.9 30/35] net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
+Date:   Fri, 22 Jan 2021 15:10:32 +0100
+Message-Id: <20210122135733.517950842@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135732.357969201@linuxfoundation.org>
 References: <20210122135732.357969201@linuxfoundation.org>
@@ -40,39 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit e56b3d94d939f52d46209b9e1b6700c5bfff3123 ]
+[ Upstream commit df85bc140a4d6cbaa78d8e9c35154e1a2f0622c7 ]
 
-MSFT ActiveSync implementation requires that the size of the response for
-incoming query is to be provided in the request input length. Failure to
-set the input size proper results in failed request transfer, where the
-ActiveSync counterpart reports the NDIS_STATUS_INVALID_LENGTH (0xC0010014L)
-error.
+In commit 826f328e2b7e ("net: dcb: Validate netlink message in DCB
+handler"), Linux started rejecting RTM_GETDCB netlink messages if they
+contained a set-like DCB_CMD_ command.
 
-Set the input size for OID_GEN_PHYSICAL_MEDIUM query to the expected size
-of the response in order for the ActiveSync to properly respond to the
-request.
+The reason was that privileges were only verified for RTM_SETDCB messages,
+but the value that determined the action to be taken is the command, not
+the message type. And validation of message type against the DCB command
+was the obvious missing piece.
 
-Fixes: 039ee17d1baa ("rndis_host: Add RNDIS physical medium checking into generic_rndis_bind()")
-Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-Link: https://lore.kernel.org/r/20210108095839.3335-1-andrey.zhizhikin@leica-geosystems.com
+Unfortunately it turns out that mlnx_qos, a somewhat widely deployed tool
+for configuration of DCB, accesses the DCB set-like APIs through
+RTM_GETDCB.
+
+Therefore do not bounce the discrepancy between message type and command.
+Instead, in addition to validating privileges based on the actual message
+type, validate them also based on the expected message type. This closes
+the loophole of allowing DCB configuration on non-admin accounts, while
+maintaining backward compatibility.
+
+Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
+Fixes: 826f328e2b7e ("net: dcb: Validate netlink message in DCB handler")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/a3edcfda0825f2aa2591801c5232f2bbf2d8a554.1610384801.git.me@pmachata.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/rndis_host.c |    2 +-
+ net/dcb/dcbnl.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -398,7 +398,7 @@ generic_rndis_bind(struct usbnet *dev, s
- 	reply_len = sizeof *phym;
- 	retval = rndis_query(dev, intf, u.buf,
- 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
--			     0, (void **) &phym, &reply_len);
-+			     reply_len, (void **)&phym, &reply_len);
- 	if (retval != 0 || !phym) {
- 		/* OID is optional so don't fail here. */
- 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1726,7 +1726,7 @@ static int dcb_doit(struct sk_buff *skb,
+ 	fn = &reply_funcs[dcb->cmd];
+ 	if (!fn->cb)
+ 		return -EOPNOTSUPP;
+-	if (fn->type != nlh->nlmsg_type)
++	if (fn->type == RTM_SETDCB && !netlink_capable(skb, CAP_NET_ADMIN))
+ 		return -EPERM;
+ 
+ 	if (!tb[DCB_ATTR_IFNAME])
 
 
