@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26459300562
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A37E300545
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728684AbhAVO14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:27:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1728254AbhAVOYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:24:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728695AbhAVOZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:25:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E75C23B16;
-        Fri, 22 Jan 2021 14:19:41 +0000 (UTC)
+        id S1728623AbhAVOXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D2DF23B83;
+        Fri, 22 Jan 2021 14:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325182;
-        bh=aB2RksjgBJHFztiKH7AoN4rPQOthsOqpXEZRfNFUlpg=;
+        s=korg; t=1611325071;
+        bh=W8/1ggZ/RTjMxiMDdKObgvwI7zkkrqnLBJDBnr2wTUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uuZ+MiVSZ/YCWbLzKbgcTaV9Jh5+2Zm1eBRkzx837Ag46Kk+8CSwI7SUOpJwtBVaS
-         McXoHycX7lpm3h/Lt7BGTjmJg6f20tQTwCTNjLsZ4qujJEP6q8qV2J2LVL1GMk2aDh
-         cgZaHrmPAMPYwIO5+HA4wdW6H/EnMLjgmvngF1ps=
+        b=F8foH6NN5XbXJhu3Tf73jEjeV06LgBx3mCdGJC9nBAuWwmNcNaHgjXH6VoYNM87/n
+         QWJ7N3UO5AosYFf+ogD2kZDYSbj5aXUyWj2ZkC6qLkJfdV1hF4fIfBmwKbq+TGYOGd
+         CG3yqHJcCkuvSt6HH+7IMXxLKgW749j44V5CfVdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 21/43] esp: avoid unneeded kmap_atomic call
+Subject: [PATCH 5.4 21/33] esp: avoid unneeded kmap_atomic call
 Date:   Fri, 22 Jan 2021 15:12:37 +0100
-Message-Id: <20210122135736.521514342@linuxfoundation.org>
+Message-Id: <20210122135734.441605268@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/ipv4/esp4.c
 +++ b/net/ipv4/esp4.c
-@@ -443,7 +443,6 @@ static int esp_output_encap(struct xfrm_
+@@ -272,7 +272,6 @@ static int esp_output_udp_encap(struct x
  int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
  {
  	u8 *tail;
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int nfrags;
  	int esph_offset;
  	struct page *page;
-@@ -485,14 +484,10 @@ int esp_output_head(struct xfrm_state *x
+@@ -314,14 +313,10 @@ int esp_output_head(struct xfrm_state *x
  			page = pfrag->page;
  			get_page(page);
  
@@ -98,15 +98,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			__skb_fill_page_desc(skb, nfrags, page, pfrag->offset,
 --- a/net/ipv6/esp6.c
 +++ b/net/ipv6/esp6.c
-@@ -478,7 +478,6 @@ static int esp6_output_encap(struct xfrm
+@@ -226,7 +226,6 @@ static void esp_output_fill_trailer(u8 *
  int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
  {
  	u8 *tail;
 -	u8 *vaddr;
  	int nfrags;
- 	int esph_offset;
  	struct page *page;
-@@ -519,14 +518,10 @@ int esp6_output_head(struct xfrm_state *
+ 	struct sk_buff *trailer;
+@@ -259,14 +258,10 @@ int esp6_output_head(struct xfrm_state *
  			page = pfrag->page;
  			get_page(page);
  
