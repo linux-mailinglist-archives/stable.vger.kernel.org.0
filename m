@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 783DB300B9C
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:45:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1DFB300BA9
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbhAVSmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:42:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
+        id S1730017AbhAVSnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727742AbhAVOVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:21:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D171323B40;
-        Fri, 22 Jan 2021 14:15:37 +0000 (UTC)
+        id S1728535AbhAVOWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB8223B42;
+        Fri, 22 Jan 2021 14:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324938;
-        bh=//bqa8Bs54FOVZ3fRmrsBWz7y02SEyS3ElFgoz15l4M=;
+        s=korg; t=1611324941;
+        bh=XpBnyEUptyfE2ExswyYaLSI3gqyrWtLEBZ9yTV9nTWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmmXZweBzGiwB43qc3XrTvqX6wFB4MKbwUhOOE91vq3zraY7eD8RsEY2CN8vBEW1U
-         FK2AyACWeEutNTllBGus/kwlqPrxivVG1CVYr0S+vHID9n6C5NxUoeDd+MMbebayb8
-         CHKpRDEuEH2+dgUjMIvSE3hTDB6lnf7SnEl6fOxs=
+        b=LJZecCBn9LTUTL54TWArqjk5+HDiKjRxpqCerVNXsjQmLnemppZQix5IjojWSqkW/
+         W/O4mNhnoPE//6LyIN4RqG+OuF6XWtpbSi1S5+qjgDj+J1M/72cVKho5VSckCnYIqZ
+         ZfzUKt7uXuVcAL8NaSuYm0NUj00kdLtwcsWn+mL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        stable@vger.kernel.org,
+        Baptiste Lepers <baptiste.lepers@gmail.com>,
+        David Howells <dhowells@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 12/22] net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
-Date:   Fri, 22 Jan 2021 15:12:30 +0100
-Message-Id: <20210122135732.405110922@linuxfoundation.org>
+Subject: [PATCH 4.19 13/22] rxrpc: Call state should be read with READ_ONCE() under some circumstances
+Date:   Fri, 22 Jan 2021 15:12:31 +0100
+Message-Id: <20210122135732.441893605@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
 References: <20210122135731.921636245@linuxfoundation.org>
@@ -39,49 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Baptiste Lepers <baptiste.lepers@gmail.com>
 
-[ Upstream commit df85bc140a4d6cbaa78d8e9c35154e1a2f0622c7 ]
+[ Upstream commit a95d25dd7b94a5ba18246da09b4218f132fed60e ]
 
-In commit 826f328e2b7e ("net: dcb: Validate netlink message in DCB
-handler"), Linux started rejecting RTM_GETDCB netlink messages if they
-contained a set-like DCB_CMD_ command.
+The call state may be changed at any time by the data-ready routine in
+response to received packets, so if the call state is to be read and acted
+upon several times in a function, READ_ONCE() must be used unless the call
+state lock is held.
 
-The reason was that privileges were only verified for RTM_SETDCB messages,
-but the value that determined the action to be taken is the command, not
-the message type. And validation of message type against the DCB command
-was the obvious missing piece.
+As it happens, we used READ_ONCE() to read the state a few lines above the
+unmarked read in rxrpc_input_data(), so use that value rather than
+re-reading it.
 
-Unfortunately it turns out that mlnx_qos, a somewhat widely deployed tool
-for configuration of DCB, accesses the DCB set-like APIs through
-RTM_GETDCB.
-
-Therefore do not bounce the discrepancy between message type and command.
-Instead, in addition to validating privileges based on the actual message
-type, validate them also based on the expected message type. This closes
-the loophole of allowing DCB configuration on non-admin accounts, while
-maintaining backward compatibility.
-
-Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
-Fixes: 826f328e2b7e ("net: dcb: Validate netlink message in DCB handler")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/a3edcfda0825f2aa2591801c5232f2bbf2d8a554.1610384801.git.me@pmachata.org
+Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
+Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/r/161046715522.2450566.488819910256264150.stgit@warthog.procyon.org.uk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |    2 +-
+ net/rxrpc/input.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1756,7 +1756,7 @@ static int dcb_doit(struct sk_buff *skb,
- 	fn = &reply_funcs[dcb->cmd];
- 	if (!fn->cb)
- 		return -EOPNOTSUPP;
--	if (fn->type != nlh->nlmsg_type)
-+	if (fn->type == RTM_SETDCB && !netlink_capable(skb, CAP_NET_ADMIN))
- 		return -EPERM;
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -446,7 +446,7 @@ static void rxrpc_input_data(struct rxrp
+ 	if (state >= RXRPC_CALL_COMPLETE)
+ 		return;
  
- 	if (!tb[DCB_ATTR_IFNAME])
+-	if (call->state == RXRPC_CALL_SERVER_RECV_REQUEST) {
++	if (state == RXRPC_CALL_SERVER_RECV_REQUEST) {
+ 		unsigned long timo = READ_ONCE(call->next_req_timo);
+ 		unsigned long now, expect_req_by;
+ 
 
 
