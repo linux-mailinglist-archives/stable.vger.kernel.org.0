@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 111DB300547
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B3330053D
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728649AbhAVOYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:24:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
+        id S1728596AbhAVOXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:23:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728322AbhAVOXk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02A2523B04;
-        Fri, 22 Jan 2021 14:18:05 +0000 (UTC)
+        id S1728563AbhAVOWy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66F5823B6C;
+        Fri, 22 Jan 2021 14:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325086;
-        bh=lZZi3zTbVDlWhX8pOGBIxdy2FlKVgpO/y8yhoXFbqbM=;
+        s=korg; t=1611325005;
+        bh=WEE2pYAzXqt5jonheFeplys8motuV2yMEuaOr1evwKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6DwR/6eOJUlMeUQFBEjx10W6G4eufuaw3Y8Py8k7xnStn03yoaJpi4H7z6vFl9O3
-         67qmx5sQ8Srn36O+PVBN5/ef8Vy8nsfzphfv4u4CiOpT94crf6moDsiyUgeFWCtDPi
-         tV26dApps61ACSc6U0EmTdN6texm57thlRnpvotM=
+        b=2Fd8ezHhc1oPF3R+/bJyezkY4an+PpymRzKThkw6PaASeTqrQVF4EK1WKKiU1MnIN
+         76JNYdvFs4cEGCyL9hqrV9P/fxd+fd3p2VOsZoBTrKj1TCJWX5SAI8fdYpNl2LdxFw
+         b02608mhUWX85uw7hIX6MYK3PQDdYGBfg0mmvymU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mircea Cirjaliu <mcirjaliu@bitdefender.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Mauricio Vasquez <mauriciovasquezbernal@gmail.com>
-Subject: [PATCH 5.10 10/43] bpf: Fix helper bpf_map_peek_elem_proto pointing to wrong callback
-Date:   Fri, 22 Jan 2021 15:12:26 +0100
-Message-Id: <20210122135736.063338583@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 14/33] net: introduce skb_list_walk_safe for skb segment walking
+Date:   Fri, 22 Jan 2021 15:12:30 +0100
+Message-Id: <20210122135734.153685343@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mircea Cirjaliu <mcirjaliu@bitdefender.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 301a33d51880619d0c5a581b5a48d3a5248fa84b upstream.
+commit dcfea72e79b0aa7a057c8f6024169d86a1bbc84b upstream.
 
-I assume this was obtained by copy/paste. Point it to bpf_map_peek_elem()
-instead of bpf_map_pop_elem(). In practice it may have been less likely
-hit when under JIT given shielded via 84430d4232c3 ("bpf, verifier: avoid
-retpoline for map push/pop/peek operation").
+As part of the continual effort to remove direct usage of skb->next and
+skb->prev, this patch adds a helper for iterating through the
+singly-linked variant of skb lists, which are used for lists of GSO
+packet. The name "skb_list_..." has been chosen to match the existing
+function, "kfree_skb_list, which also operates on these singly-linked
+lists, and the "..._walk_safe" part is the same idiom as elsewhere in
+the kernel.
 
-Fixes: f1a2e44a3aec ("bpf: add queue and stack maps")
-Signed-off-by: Mircea Cirjaliu <mcirjaliu@bitdefender.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Mauricio Vasquez <mauriciovasquezbernal@gmail.com>
-Link: https://lore.kernel.org/bpf/AM7PR02MB6082663DFDCCE8DA7A6DD6B1BBA30@AM7PR02MB6082.eurprd02.prod.outlook.com
+This patch removes the helper from wireguard and puts it into
+linux/skbuff.h, while making it a bit more robust for general usage. In
+particular, parenthesis are added around the macro argument usage, and it
+now accounts for trying to iterate through an already-null skb pointer,
+which will simply run the iteration zero times. This latter enhancement
+means it can be used to replace both do { ... } while and while (...)
+open-coded idioms.
+
+This should take care of these three possible usages, which match all
+current methods of iterations.
+
+skb_list_walk_safe(segs, skb, next) { ... }
+skb_list_walk_safe(skb, skb, next) { ... }
+skb_list_walk_safe(segs, skb, segs) { ... }
+
+Gcc appears to generate efficient code for each of these.
+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[ Just the skbuff.h changes for backporting - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/bpf/helpers.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/skbuff.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -108,7 +108,7 @@ BPF_CALL_2(bpf_map_peek_elem, struct bpf
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1480,6 +1480,11 @@ static inline void skb_mark_not_on_list(
+ 	skb->next = NULL;
  }
  
- const struct bpf_func_proto bpf_map_peek_elem_proto = {
--	.func		= bpf_map_pop_elem,
-+	.func		= bpf_map_peek_elem,
- 	.gpl_only	= false,
- 	.ret_type	= RET_INTEGER,
- 	.arg1_type	= ARG_CONST_MAP_PTR,
++/* Iterate through singly-linked GSO fragments of an skb. */
++#define skb_list_walk_safe(first, skb, next)                                   \
++	for ((skb) = (first), (next) = (skb) ? (skb)->next : NULL; (skb);      \
++	     (skb) = (next), (next) = (skb) ? (skb)->next : NULL)
++
+ static inline void skb_list_del_init(struct sk_buff *skb)
+ {
+ 	__list_del_entry(&skb->list);
 
 
