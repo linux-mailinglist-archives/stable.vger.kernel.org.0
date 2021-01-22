@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C09300BB6
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F70C300BAD
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730125AbhAVSnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
+        id S1730032AbhAVSn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728562AbhAVOWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7AC223A60;
-        Fri, 22 Jan 2021 14:16:39 +0000 (UTC)
+        id S1728542AbhAVOWO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 722E423AFD;
+        Fri, 22 Jan 2021 14:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325000;
-        bh=c7307HwfZwAlMqt+hiYWQXTs3XtiaUMUi6OPK9QaNpM=;
+        s=korg; t=1611324984;
+        bh=kSj0z1vRWF0l9Uu7le/YR7JKVoXoZ9Zrquw0DVdFlgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCSZ5fqPZlb3LphmZWzQd2aXYBn6fDzr/fzMwKxV2cWVhFnp6wd7npd+2lAcji0rW
-         dNXJEDXUWHNe7TKaKLWa36Ds1XxIFBe2XJ8G4EWxBLzaBihzeyxGwFxHoo3L3f18wk
-         UGqwIrJIq09Bal1DJox3vgkB83PpQez9hIZjP3ms=
+        b=MGljuhXD9pXfTabSVA6yoK6cnffmdCNbT+j85Dn+nthT3PxfPj81xt1PjuQxPyOav
+         lD/G2ajXOL4dV8yMMljV4A24BngW2zJDuAO/ypZ5m1oGmcYZLxaI/zs1EHXQEOoE9P
+         zU5UseaC/PhuahZRTgd5necUB95qTfL2q4APPazU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 12/33] udp: Prevent reuseport_select_sock from reading uninitialized socks
+Subject: [PATCH 4.19 10/22] esp: avoid unneeded kmap_atomic call
 Date:   Fri, 22 Jan 2021 15:12:28 +0100
-Message-Id: <20210122135734.077786558@linuxfoundation.org>
+Message-Id: <20210122135732.329433665@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
+In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
+References: <20210122135731.921636245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit fd2ddef043592e7de80af53f47fa46fd3573086e ]
+[ Upstream commit 9bd6b629c39e3fa9e14243a6d8820492be1a5b2e ]
 
-reuse->socks[] is modified concurrently by reuseport_add_sock. To
-prevent reading values that have not been fully initialized, only read
-the array up until the last known safe index instead of incorrectly
-re-reading the last index of the array.
+esp(6)_output_head uses skb_page_frag_refill to allocate a buffer for
+the esp trailer.
 
-Fixes: acdcecc61285f ("udp: correct reuseport selection with connected sockets")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20210107051110.12247-1-baptiste.lepers@gmail.com
+It accesses the page with kmap_atomic to handle highmem. But
+skb_page_frag_refill can return compound pages, of which
+kmap_atomic only maps the first underlying page.
+
+skb_page_frag_refill does not return highmem, because flag
+__GFP_HIGHMEM is not set. ESP uses it in the same manner as TCP.
+That also does not call kmap_atomic, but directly uses page_address,
+in skb_copy_to_page_nocache. Do the same for ESP.
+
+This issue has become easier to trigger with recent kmap local
+debugging feature CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP.
+
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sock_reuseport.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/esp4.c |    7 +------
+ net/ipv6/esp6.c |    7 +------
+ 2 files changed, 2 insertions(+), 12 deletions(-)
 
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -302,7 +302,7 @@ select_by_hash:
- 			i = j = reciprocal_scale(hash, socks);
- 			while (reuse->socks[i]->sk_state == TCP_ESTABLISHED) {
- 				i++;
--				if (i >= reuse->num_socks)
-+				if (i >= socks)
- 					i = 0;
- 				if (i == j)
- 					goto out;
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -270,7 +270,6 @@ static int esp_output_udp_encap(struct x
+ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
+ {
+ 	u8 *tail;
+-	u8 *vaddr;
+ 	int nfrags;
+ 	int esph_offset;
+ 	struct page *page;
+@@ -312,14 +311,10 @@ int esp_output_head(struct xfrm_state *x
+ 			page = pfrag->page;
+ 			get_page(page);
+ 
+-			vaddr = kmap_atomic(page);
+-
+-			tail = vaddr + pfrag->offset;
++			tail = page_address(page) + pfrag->offset;
+ 
+ 			esp_output_fill_trailer(tail, esp->tfclen, esp->plen, esp->proto);
+ 
+-			kunmap_atomic(vaddr);
+-
+ 			nfrags = skb_shinfo(skb)->nr_frags;
+ 
+ 			__skb_fill_page_desc(skb, nfrags, page, pfrag->offset,
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -237,7 +237,6 @@ static void esp_output_fill_trailer(u8 *
+ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
+ {
+ 	u8 *tail;
+-	u8 *vaddr;
+ 	int nfrags;
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+@@ -270,14 +269,10 @@ int esp6_output_head(struct xfrm_state *
+ 			page = pfrag->page;
+ 			get_page(page);
+ 
+-			vaddr = kmap_atomic(page);
+-
+-			tail = vaddr + pfrag->offset;
++			tail = page_address(page) + pfrag->offset;
+ 
+ 			esp_output_fill_trailer(tail, esp->tfclen, esp->plen, esp->proto);
+ 
+-			kunmap_atomic(vaddr);
+-
+ 			nfrags = skb_shinfo(skb)->nr_frags;
+ 
+ 			__skb_fill_page_desc(skb, nfrags, page, pfrag->offset,
 
 
