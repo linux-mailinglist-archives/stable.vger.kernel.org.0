@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1263300BA1
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF95300B6B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729687AbhAVSmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
+        id S1728914AbhAVSVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:21:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728526AbhAVOWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83FA123B4B;
-        Fri, 22 Jan 2021 14:15:59 +0000 (UTC)
+        id S1728577AbhAVOXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CF3423AFB;
+        Fri, 22 Jan 2021 14:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324960;
-        bh=IiIscfHhCqdcjwH5xQw1Itg+sTThc7rQI0Q+rNAvJ0g=;
+        s=korg; t=1611325038;
+        bh=ruxU2as5IkGK2lYOHxRsD0L3W0vZl97aVKmldcNiG5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kb9b8yFzseQ2kVMpzpVVw0slqGMhFzoOLK1GQaCMs9WSRdnP3z8/XONjAQpn9Uz9N
-         ZiTiNqLKWX6/HnpYxrU8yl1Xc4MazQKUPWQeMQIOb64oh7SuoZpTjNlFzERlgmrHic
-         VHDch3W9Huw/YscOOG+DGpLQAgPmgTXdvuaKy1nA=
+        b=nCsyjBHMyKc+4TEI1Uei9Efa6LXe612vSHPAPE8dJTCELIv34v1WRHTwiU9i95Xh+
+         OmEh0QD5kbfymcr/eXKZvQxdRMFbIXeey65DSGCDLRJWcFzvvc9ghWICI7v5sIouXP
+         CSXl8oWi89Zrc0q1BeU9ufrtHaefnX+9wkLjNqGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 20/22] net: skbuff: disambiguate argument and member for skb_list_walk_safe helper
-Date:   Fri, 22 Jan 2021 15:12:38 +0100
-Message-Id: <20210122135732.711507800@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+2393580080a2da190f04@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 26/33] net: sit: unregister_netdevice on newlinks error path
+Date:   Fri, 22 Jan 2021 15:12:42 +0100
+Message-Id: <20210122135734.636947613@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 5eee7bd7e245914e4e050c413dfe864e31805207 upstream.
+[ Upstream commit 47e4bb147a96f1c9b4e7691e7e994e53838bfff8 ]
 
-This worked before, because we made all callers name their next pointer
-"next". But in trying to be more "drop-in" ready, the silliness here is
-revealed. This commit fixes the problem by making the macro argument and
-the member use different names.
+We need to unregister the netdevice if config failed.
+.ndo_uninit takes care of most of the heavy lifting.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was uncovered by recent commit c269a24ce057 ("net: make
+free_netdev() more lenient with unregistering devices").
+Previously the partially-initialized device would be left
+in the system.
+
+Reported-and-tested-by: syzbot+2393580080a2da190f04@syzkaller.appspotmail.com
+Fixes: e2f1f072db8d ("sit: allow to configure 6rd tunnels via netlink")
+Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Link: https://lore.kernel.org/r/20210114012947.2515313-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/sit.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1364,9 +1364,9 @@ static inline void skb_mark_not_on_list(
- }
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1597,8 +1597,11 @@ static int ipip6_newlink(struct net *src
+ 	}
  
- /* Iterate through singly-linked GSO fragments of an skb. */
--#define skb_list_walk_safe(first, skb, next)                                   \
--	for ((skb) = (first), (next) = (skb) ? (skb)->next : NULL; (skb);      \
--	     (skb) = (next), (next) = (skb) ? (skb)->next : NULL)
-+#define skb_list_walk_safe(first, skb, next_skb)                               \
-+	for ((skb) = (first), (next_skb) = (skb) ? (skb)->next : NULL; (skb);  \
-+	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
+ #ifdef CONFIG_IPV6_SIT_6RD
+-	if (ipip6_netlink_6rd_parms(data, &ip6rd))
++	if (ipip6_netlink_6rd_parms(data, &ip6rd)) {
+ 		err = ipip6_tunnel_update_6rd(nt, &ip6rd);
++		if (err < 0)
++			unregister_netdevice_queue(dev, NULL);
++	}
+ #endif
  
- static inline void skb_list_del_init(struct sk_buff *skb)
- {
+ 	return err;
 
 
