@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CDF300654
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA68300643
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728815AbhAVO5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:57:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        id S1728795AbhAVOzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:55:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728594AbhAVOXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA77023B7D;
-        Fri, 22 Jan 2021 14:17:44 +0000 (UTC)
+        id S1728102AbhAVOXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F92423B86;
+        Fri, 22 Jan 2021 14:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325065;
-        bh=8yte+74tAdLf+T6sJiZH32aVHILKOE4mwLsC4+Db5Wc=;
+        s=korg; t=1611325078;
+        bh=Ezrq2UMDPmiA5cdvtmkULodDY1ScrX4C2r0E2sELQZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMhCTREjAd4kHWoMdETSAgkDP1PXRw/WLV++T5Yq+IMnd6Ush7OpfnCoJ+rU4ybzG
-         4zl9C/UhfQzwcDSfLkDURPi5z09M7gLOaw3lYul4tKn3gYETdfGb0NDoM8HJuqVT14
-         rgrz/dJGzZhBVjTCieuboahD0zFWT0ECYmELvcEY=
+        b=TdPWxgkAe0Ft9/Xvl3mK+24wqymC+qAHzbpewht/CUumsf1GFVL6Ahy2Qt383agU7
+         l2zK2abJwJruKpjNQ0lT9XJhqKScYhmMx1jUmnSuOzDfO0jqEiHbBUvK/RoxdWbNd9
+         cipl5Dpn1Nw++/UgpnlCc4HFsJKZEzzyTYbB53q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Chulski <stefanc@marvell.com>,
-        Marcin Wojtas <mw@semihalf.com>,
+        stable@vger.kernel.org,
+        Baptiste Lepers <baptiste.lepers@gmail.com>,
+        David Howells <dhowells@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 19/33] net: mvpp2: Remove Pause and Asym_Pause support
-Date:   Fri, 22 Jan 2021 15:12:35 +0100
-Message-Id: <20210122135734.366752292@linuxfoundation.org>
+Subject: [PATCH 5.4 24/33] rxrpc: Call state should be read with READ_ONCE() under some circumstances
+Date:   Fri, 22 Jan 2021 15:12:40 +0100
+Message-Id: <20210122135734.553550962@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -40,34 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Baptiste Lepers <baptiste.lepers@gmail.com>
 
-[ Upstream commit 6f83802a1a06e74eafbdbc9b52c05516d3083d02 ]
+[ Upstream commit a95d25dd7b94a5ba18246da09b4218f132fed60e ]
 
-Packet Processor hardware not connected to MAC flow control unit and
-cannot support TX flow control.
-This patch disable flow control support.
+The call state may be changed at any time by the data-ready routine in
+response to received packets, so if the call state is to be read and acted
+upon several times in a function, READ_ONCE() must be used unless the call
+state lock is held.
 
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Acked-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/1610306582-16641-1-git-send-email-stefanc@marvell.com
+As it happens, we used READ_ONCE() to read the state a few lines above the
+unmarked read in rxrpc_input_data(), so use that value rather than
+re-reading it.
+
+Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
+Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/r/161046715522.2450566.488819910256264150.stgit@warthog.procyon.org.uk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/rxrpc/input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4790,8 +4790,6 @@ static void mvpp2_phylink_validate(struc
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -431,7 +431,7 @@ static void rxrpc_input_data(struct rxrp
+ 		return;
+ 	}
  
- 	phylink_set(mask, Autoneg);
- 	phylink_set_port_modes(mask);
--	phylink_set(mask, Pause);
--	phylink_set(mask, Asym_Pause);
+-	if (call->state == RXRPC_CALL_SERVER_RECV_REQUEST) {
++	if (state == RXRPC_CALL_SERVER_RECV_REQUEST) {
+ 		unsigned long timo = READ_ONCE(call->next_req_timo);
+ 		unsigned long now, expect_req_by;
  
- 	switch (state->interface) {
- 	case PHY_INTERFACE_MODE_10GKR:
 
 
