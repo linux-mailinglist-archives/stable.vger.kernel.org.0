@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A251300B54
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E96B2300B8D
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728519AbhAVOV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:21:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
+        id S1729743AbhAVSkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:40:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728080AbhAVOTp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728262AbhAVOTp (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:19:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6798223AAC;
-        Fri, 22 Jan 2021 14:14:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0894623B18;
+        Fri, 22 Jan 2021 14:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324864;
-        bh=PPIOShveQasA/lsuGz69f1uESWi/DAfX0a6fHsSbRZw=;
+        s=korg; t=1611324867;
+        bh=keHg5tN7iJe3Ea6FChdM7QEqZTYyNv3lusYguIH25vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySUgcdcavH9DwSjl/ufEfdDeBBdmNxH/LeTYCk1LazeYOfOhq39LU0ydQufvkdF76
-         fz9jjjyw9sucZU1bfj83pI9Cfy+vo6M+2mr3C6uqaZLP9FSLISNZvH4Lptqof9mKST
-         KTiXcp8yjjZ1KyDVo+dm7B0sUIThy67qSMOM5GGY=
+        b=j0N/dB3i4U2PTMX1HbEbgJZu5tBS5mAkqejzVBzAoynoOCss1ADFCAyKvfcYpQL9J
+         2Hg1rJGpRnL0SbiqrdE7oQXo+EjGhHTVG/qaBzaA8XKPVl1g0ce0JbR7HUM3y8dxQ+
+         cvH3pvXRO/Par8vVACmfASK+DDsaRsGXZyirciOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akilesh Kailash <akailash@google.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 07/50] dm snapshot: flush merged data before committing metadata
-Date:   Fri, 22 Jan 2021 15:11:48 +0100
-Message-Id: <20210122135735.479437406@linuxfoundation.org>
+        stable@vger.kernel.org, Leon Schuermann <leon@is.currently.online>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 08/50] r8152: Add Lenovo Powered USB-C Travel Hub
+Date:   Fri, 22 Jan 2021 15:11:49 +0100
+Message-Id: <20210122135735.520295279@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -39,96 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akilesh Kailash <akailash@google.com>
+From: Leon Schuermann <leon@is.currently.online>
 
-commit fcc42338375a1e67b8568dbb558f8b784d0f3b01 upstream.
+commit cb82a54904a99df9e8f9e9d282046055dae5a730 upstream.
 
-If the origin device has a volatile write-back cache and the following
-events occur:
+This USB-C Hub (17ef:721e) based on the Realtek RTL8153B chip used to
+use the cdc_ether driver. However, using this driver, with the system
+suspended the device constantly sends pause-frames as soon as the
+receive buffer fills up. This causes issues with other devices, where
+some Ethernet switches stop forwarding packets altogether.
 
-1: After finishing merge operation of one set of exceptions,
-   merge_callback() is invoked.
-2: Update the metadata in COW device tracking the merge completion.
-   This update to COW device is flushed cleanly.
-3: System crashes and the origin device's cache where the recent
-   merge was completed has not been flushed.
+Using the Realtek driver (r8152) fixes this issue. Pause frames are no
+longer sent while the host system is suspended.
 
-During the next cycle when we read the metadata from the COW device,
-we will skip reading those metadata whose merge was completed in
-step (1). This will lead to data loss/corruption.
-
-To address this, flush the origin device post merge IO before
-updating the metadata.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Akilesh Kailash <akailash@google.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Leon Schuermann <leon@is.currently.online>
+Tested-by: Leon Schuermann <leon@is.currently.online>
+Link: https://lore.kernel.org/r/20210111190312.12589-2-leon@is.currently.online
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-snap.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/net/usb/cdc_ether.c |    7 +++++++
+ drivers/net/usb/r8152.c     |    1 +
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -137,6 +137,11 @@ struct dm_snapshot {
- 	 * for them to be committed.
- 	 */
- 	struct bio_list bios_queued_during_merge;
-+
-+	/*
-+	 * Flush data after merge.
-+	 */
-+	struct bio flush_bio;
- };
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -800,6 +800,13 @@ static const struct usb_device_id	produc
+ 	.driver_info = 0,
+ },
  
- /*
-@@ -1060,6 +1065,17 @@ shut:
- 
- static void error_bios(struct bio *bio);
- 
-+static int flush_data(struct dm_snapshot *s)
++/* Lenovo Powered USB-C Travel Hub (4X90S92381, based on Realtek RTL8153) */
 +{
-+	struct bio *flush_bio = &s->flush_bio;
++	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x721e, USB_CLASS_COMM,
++			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
++	.driver_info = 0,
++},
 +
-+	bio_reset(flush_bio);
-+	bio_set_dev(flush_bio, s->origin->bdev);
-+	flush_bio->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
-+
-+	return submit_bio_wait(flush_bio);
-+}
-+
- static void merge_callback(int read_err, unsigned long write_err, void *context)
+ /* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
  {
- 	struct dm_snapshot *s = context;
-@@ -1073,6 +1089,11 @@ static void merge_callback(int read_err,
- 		goto shut;
- 	}
- 
-+	if (flush_data(s) < 0) {
-+		DMERR("Flush after merge failed: shutting down merge");
-+		goto shut;
-+	}
-+
- 	if (s->store->type->commit_merge(s->store,
- 					 s->num_merging_chunks) < 0) {
- 		DMERR("Write error in exception store: shutting down merge");
-@@ -1197,6 +1218,7 @@ static int snapshot_ctr(struct dm_target
- 	s->first_merging_chunk = 0;
- 	s->num_merging_chunks = 0;
- 	bio_list_init(&s->bios_queued_during_merge);
-+	bio_init(&s->flush_bio, NULL, 0);
- 
- 	/* Allocate hash table for COW data */
- 	if (init_hash_tables(s)) {
-@@ -1391,6 +1413,8 @@ static void snapshot_dtr(struct dm_targe
- 
- 	mutex_destroy(&s->lock);
- 
-+	bio_uninit(&s->flush_bio);
-+
- 	dm_put_device(ti, s->cow);
- 
- 	dm_put_device(ti, s->origin);
+ 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -5337,6 +5337,7 @@ static const struct usb_device_id rtl815
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
++	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x721e)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
 
 
