@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59AE300B18
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CA8300B16
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729429AbhAVSVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:21:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
+        id S1729270AbhAVSVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:21:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728590AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2224F23B7E;
-        Fri, 22 Jan 2021 14:17:38 +0000 (UTC)
+        id S1728575AbhAVOXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8975C239EE;
+        Fri, 22 Jan 2021 14:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325059;
-        bh=BreF1d2jKNiFg+Fwk9ONHe4R+VqIPJQd+QFwBQeAnSI=;
+        s=korg; t=1611325036;
+        bh=LUdd2E/cGjfP4Rbh63w81R58a6kR9vtbz624oz/ZfNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxWxTsUJa9UxePD6GwJc3JtnJJu4K8ktPxZa6mGzb1BMmJ9q34nD4YvPOBgPNK4Au
-         MY+3LOxEEnLIJSZZXkvVIiB+SK5u9ZIii8PoaNesXcVY44y4g3wWwiR3aqcsvwJ0CX
-         2evxCx7EHUCs0VBmxInQ9pp+YVCxSh87/PrRnONo=
+        b=anK0qsIqFN3HWRsvX8ez8YKFhPBmWRg6gl/eBXBtKz4P7C0i+cAI5qZOm2Zxbd1Hz
+         Ya+JsRmjPQyPzAHKuW2lJDIfkrsN5L1+mtZNmU8tw+WYv/Or40oXjICpB1aWyNjY5x
+         VliWaOHwyzF4ZL6pY209jNtX6aAn5qHJV09zHlC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, David Wu <david.wu@rock-chips.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 17/33] mlxsw: core: Add validation of transceiver temperature thresholds
-Date:   Fri, 22 Jan 2021 15:12:33 +0100
-Message-Id: <20210122135734.282982816@linuxfoundation.org>
+Subject: [PATCH 5.4 25/33] net: stmmac: Fixed mtu channged by cache aligned
+Date:   Fri, 22 Jan 2021 15:12:41 +0100
+Message-Id: <20210122135734.597944250@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -40,55 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: David Wu <david.wu@rock-chips.com>
 
-[ Upstream commit 57726ebe2733891c9f59105eff028735f73d05fb ]
+[ Upstream commit 5b55299eed78538cc4746e50ee97103a1643249c ]
 
-Validate thresholds to avoid a single failure due to some transceiver
-unreliability. Ignore the last readouts in case warning temperature is
-above alarm temperature, since it can cause unexpected thermal
-shutdown. Stay with the previous values and refresh threshold within
-the next iteration.
+Since the original mtu is not used when the mtu is updated,
+the mtu is aligned with cache, this will get an incorrect.
+For example, if you want to configure the mtu to be 1500,
+but mtu 1536 is configured in fact.
 
-This is a rare scenario, but it was observed at a customer site.
-
-Fixes: 6a79507cfe94 ("mlxsw: core: Extend thermal module with per QSFP module thermal zones")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Fixed: eaf4fac478077 ("net: stmmac: Do not accept invalid MTU values")
+Signed-off-by: David Wu <david.wu@rock-chips.com>
+Link: https://lore.kernel.org/r/20210113034109.27865-1-david.wu@rock-chips.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -177,6 +177,12 @@ mlxsw_thermal_module_trips_update(struct
- 	if (err)
- 		return err;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3739,6 +3739,7 @@ static int stmmac_change_mtu(struct net_
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int txfifosz = priv->plat->tx_fifo_size;
++	const int mtu = new_mtu;
  
-+	if (crit_temp > emerg_temp) {
-+		dev_warn(dev, "%s : Critical threshold %d is above emergency threshold %d\n",
-+			 tz->tzdev->type, crit_temp, emerg_temp);
-+		return 0;
-+	}
-+
- 	/* According to the system thermal requirements, the thermal zones are
- 	 * defined with four trip points. The critical and emergency
- 	 * temperature thresholds, provided by QSFP module are set as "active"
-@@ -191,11 +197,8 @@ mlxsw_thermal_module_trips_update(struct
- 		tz->trips[MLXSW_THERMAL_TEMP_TRIP_NORM].temp = crit_temp;
- 	tz->trips[MLXSW_THERMAL_TEMP_TRIP_HIGH].temp = crit_temp;
- 	tz->trips[MLXSW_THERMAL_TEMP_TRIP_HOT].temp = emerg_temp;
--	if (emerg_temp > crit_temp)
--		tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp +
-+	tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp +
- 					MLXSW_THERMAL_MODULE_TEMP_SHIFT;
--	else
--		tz->trips[MLXSW_THERMAL_TEMP_TRIP_CRIT].temp = emerg_temp;
+ 	if (txfifosz == 0)
+ 		txfifosz = priv->dma_cap.tx_fifo_size;
+@@ -3756,7 +3757,7 @@ static int stmmac_change_mtu(struct net_
+ 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
+ 		return -EINVAL;
  
- 	return 0;
- }
+-	dev->mtu = new_mtu;
++	dev->mtu = mtu;
+ 
+ 	netdev_update_features(dev);
+ 
 
 
