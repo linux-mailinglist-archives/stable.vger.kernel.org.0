@@ -2,71 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69BE300D38
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1428300F00
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 22:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbhAVT75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:59:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728465AbhAVORh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:17:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D95B23A53;
-        Fri, 22 Jan 2021 14:13:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324831;
-        bh=75UUVu8A3X5wPaztfrcbVR40m5wOKk18KPjs9M73CDc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHB2ovxP7+jGqQpi7EVFies5hIIh946GiWblv353Lpp5duQhRnH+Hu06siGqx8E58
-         d1m1LdW3rsoa5FljK3EZokqXlPx7S1CAqAOqXKarBpp/SWekk/JYTsZpFNomHY0GpA
-         r9hQkU3uSFWgDfVm6tAFGWSlJ1+uBKVn8DgWimKc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 22/50] NFS4: Fix use-after-free in trace_event_raw_event_nfs4_set_lock
-Date:   Fri, 22 Jan 2021 15:12:03 +0100
-Message-Id: <20210122135736.093950838@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
-References: <20210122135735.176469491@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729034AbhAVVe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 16:34:27 -0500
+Received: from lilium.sigma-star.at ([109.75.188.150]:32920 "EHLO
+        lilium.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729342AbhAVVcC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 16:32:02 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by lilium.sigma-star.at (Postfix) with ESMTP id 2D753181CBE03;
+        Fri, 22 Jan 2021 22:22:35 +0100 (CET)
+Received: from lilium.sigma-star.at ([127.0.0.1])
+        by localhost (lilium.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id sQ4Lpq5mXoJP; Fri, 22 Jan 2021 22:22:34 +0100 (CET)
+Received: from lilium.sigma-star.at ([127.0.0.1])
+        by localhost (lilium.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id vxMwvqs7u1ha; Fri, 22 Jan 2021 22:22:34 +0100 (CET)
+From:   Richard Weinberger <richard@nod.at>
+To:     linux-mtd@lists.infradead.org
+Cc:     david@sigma-star.at, richard@nod.at, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] ubifs: Correctly set inode size in ubifs_link()
+Date:   Fri, 22 Jan 2021 22:22:26 +0100
+Message-Id: <20210122212229.17072-2-richard@nod.at>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210122212229.17072-1-richard@nod.at>
+References: <20210122212229.17072-1-richard@nod.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+We need to use fscrypt filename handling wrappers
+when calculating the size of a directory entry, otherwise
+UBIFS will report the wrong value (size of plain instead of cihper text)
+for st_size of a directory if fscrypt is enabled.
 
-commit 3d1a90ab0ed93362ec8ac85cf291243c87260c21 upstream.
-
-It is only safe to call the tracepoint before rpc_put_task() because
-'data' is freed inside nfs4_lock_release (rpc_release).
-
-Fixes: 48c9579a1afe ("Adding stateid information to tracepoints")
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Fixes: f4f61d2cc6d8 ("ubifs: Implement encrypted filenames")
+Signed-off-by: Richard Weinberger <richard@nod.at>
 ---
- fs/nfs/nfs4proc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/dir.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -6395,9 +6395,9 @@ static int _nfs4_do_setlk(struct nfs4_st
- 					data->arg.new_lock_owner, ret);
- 	} else
- 		data->cancelled = true;
-+	trace_nfs4_set_lock(fl, state, &data->res.stateid, cmd, ret);
- 	rpc_put_task(task);
- 	dprintk("%s: done, ret = %d!\n", __func__, ret);
--	trace_nfs4_set_lock(fl, state, &data->res.stateid, cmd, ret);
- 	return ret;
- }
- 
-
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index 9a6b8660425a..04912dedca48 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -693,7 +693,7 @@ static int ubifs_link(struct dentry *old_dentry, stru=
+ct inode *dir,
+ 	struct inode *inode =3D d_inode(old_dentry);
+ 	struct ubifs_inode *ui =3D ubifs_inode(inode);
+ 	struct ubifs_inode *dir_ui =3D ubifs_inode(dir);
+-	int err, sz_change =3D CALC_DENT_SIZE(dentry->d_name.len);
++	int err, sz_change;
+ 	struct ubifs_budget_req req =3D { .new_dent =3D 1, .dirtied_ino =3D 2,
+ 				.dirtied_ino_d =3D ALIGN(ui->data_len, 8) };
+ 	struct fscrypt_name nm;
+@@ -731,6 +731,8 @@ static int ubifs_link(struct dentry *old_dentry, stru=
+ct inode *dir,
+ 	if (inode->i_nlink =3D=3D 0)
+ 		ubifs_delete_orphan(c, inode->i_ino);
+=20
++	sz_change =3D CALC_DENT_SIZE(fname_len(&nm));
++
+ 	inc_nlink(inode);
+ 	ihold(inode);
+ 	inode->i_ctime =3D current_time(inode);
+--=20
+2.26.2
 
