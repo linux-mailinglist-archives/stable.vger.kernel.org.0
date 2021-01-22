@@ -2,120 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82EB3300924
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 18:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4061E300927
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 18:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729389AbhAVQ7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 11:59:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729114AbhAVQ6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 11:58:12 -0500
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B396AC06174A;
-        Fri, 22 Jan 2021 08:55:49 -0800 (PST)
-Received: by mail-qv1-xf31.google.com with SMTP id d11so2938504qvo.11;
-        Fri, 22 Jan 2021 08:55:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=4C4c7hWhmjfrfZNOtXE6L3e5KVZSdKUbx3wD06pMIgQ=;
-        b=Jb7M4YIKFihi4G+3Y9ZhsspJ6QHYBWTyX0+6wrxV7vOONHdmaJyT1mPpFAvRSBZFmj
-         noJZUMkwM+u+dCQd/Qh44FwEC4gs9uAt/+VCzrxIl5jXLV+KjNo1pey1r5G2yp4Ykb6E
-         02ZOpfGMKOb3Zv1kUk339mW98SR8Z//60IkGxnXG0XiwGImmq2iHd0YELB2EGeD8LU6f
-         mf8srYF5IWiye7ON42/KQfk47oJV8biteGYfIPTBW0aS3ULdUSWFBRsjjzqVTZLkL/tE
-         025P2OvqlwUtCkLkmo3E/i8fZ/Ebj75qxNiXU+z5hwbMKI+FaAkRXrSw7kFTUGa4uamZ
-         qK3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4C4c7hWhmjfrfZNOtXE6L3e5KVZSdKUbx3wD06pMIgQ=;
-        b=N0SIL3eAktTPBKfOp5kr/ApdeooQ6hw4p0jyecT4CvfcEI9SBhn1iO9IXmlFqBsx13
-         vpcyOhJtbmi5XDswZTHsFHouxbGYzh254b9Li3DnDmLfxysUW1MaXNVgN+ehwRNDV65a
-         bQ6VP3R3bvH4/njVFrA60eC9xn9nDZegFGYGdaferaxiadrO20B9LYC2BRE09V8vaSV+
-         T4jQSP0ivoR1EN1Zcw3l/wXnTnfSiXKpgQfufRS81CtWPrxhD4Hl4onk5RAMs3UDFU6e
-         FFble/nfiuv8Gs3SoueDCOephUmBUMn+yqq8EVdZhbTpbyFdtebN2tdNAjYe85IFR5Cl
-         ajqA==
-X-Gm-Message-State: AOAM530HaOA3COCtXVZf32eHi/NrLMgz1xtrVjfjgbUIKsIdKwMWY4lm
-        akubSxls13Nc+VNBo4fSi0g=
-X-Google-Smtp-Source: ABdhPJxmTaxhoOPRjIi8owDSK/q0lqiswGfZN7LVcG4byFdcdM5bo7aWX0Dmda2HaRCuAZ2m6jN30A==
-X-Received: by 2002:a0c:fc4e:: with SMTP id w14mr5125303qvp.23.1611334548897;
-        Fri, 22 Jan 2021 08:55:48 -0800 (PST)
-Received: from horizon.localdomain ([2001:1284:f016:4ecb:865e:1ab1:c1d6:3650])
-        by smtp.gmail.com with ESMTPSA id e7sm5999382qto.46.2021.01.22.08.55.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jan 2021 08:55:48 -0800 (PST)
-Received: by horizon.localdomain (Postfix, from userid 1000)
-        id F1416C009A; Fri, 22 Jan 2021 13:55:45 -0300 (-03)
-Date:   Fri, 22 Jan 2021 13:55:45 -0300
-From:   Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Eric Dumazet <edumazet@google.com>
-Subject: Re: [PATCH 5.4 29/33] net, sctp, filter: remap copy_from_user
- failure error
-Message-ID: <20210122165545.GJ3863@horizon.localdomain>
-References: <20210122135733.565501039@linuxfoundation.org>
- <20210122135734.750091426@linuxfoundation.org>
+        id S1729119AbhAVRBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 12:01:20 -0500
+Received: from mga11.intel.com ([192.55.52.93]:45418 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728817AbhAVQ6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 11:58:12 -0500
+IronPort-SDR: xFcg7I5Lnk6C/1Rlnnuz1KAx+EWQ8jeH1VnykyNufbxsuLUZ1AIVD/JrVE0/Igu/xcZ6Argh5n
+ ryXZrMrXlm7w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9872"; a="175960320"
+X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
+   d="scan'208";a="175960320"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 08:56:46 -0800
+IronPort-SDR: sRmuKp3rIKODHzEX8vuqdQTdV8oAtBUBRNNU/YUewyBvaewAGoM5ykgj/1+AHNlSMEpRdOi2WD
+ Xn72d0oA2pJw==
+X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
+   d="scan'208";a="352002201"
+Received: from dgullage-mobl1.amr.corp.intel.com (HELO [10.212.184.2]) ([10.212.184.2])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 08:56:45 -0800
+Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
+ sgx_release()
+To:     Sean Christopherson <seanjc@google.com>, jarkko@kernel.org
+Cc:     linux-sgx@vger.kernel.org, kai.huang@intel.com,
+        haitao.huang@intel.com, stable@vger.kernel.org,
+        Haitao Huang <haitao.huang@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>
+References: <20210115014638.15037-1-jarkko@kernel.org>
+ <YAhp4Jrj6hIcvgRC@google.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
+Date:   Fri, 22 Jan 2021 08:56:44 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210122135734.750091426@linuxfoundation.org>
+In-Reply-To: <YAhp4Jrj6hIcvgRC@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 03:12:45PM +0100, Greg Kroah-Hartman wrote:
-> From: Daniel Borkmann <daniel@iogearbox.net>
-> 
-> [ no upstream commit ]
-> 
-> Fix a potential kernel address leakage for the prerequisite where there is
-> a BPF program attached to the cgroup/setsockopt hook. The latter can only
-> be attached under root, however, if the attached program returns 1 to then
-> run the related kernel handler, an unprivileged program could probe for
-> kernel addresses that way. The reason this is possible is that we're under
-> set_fs(KERNEL_DS) when running the kernel setsockopt handler. Aside from
-> old cBPF there is also SCTP's struct sctp_getaddrs_old which contains
-> pointers in the uapi struct that further need copy_from_user() inside the
-> handler. In the normal case this would just return -EFAULT, but under a
-> temporary KERNEL_DS setting the memory would be copied and we'd end up at
-> a different error code, that is, -EINVAL, for both cases given subsequent
-> validations fail, which then allows the app to distinguish and make use of
-> this fact for probing the address space. In case of later kernel versions
-> this issue won't work anymore thanks to Christoph Hellwig's work that got
-> rid of the various temporary set_fs() address space overrides altogether.
-> One potential option for 5.4 as the only affected stable kernel with the
-> least complexity would be to remap those affected -EFAULT copy_from_user()
-> error codes with -EINVAL such that they cannot be probed anymore. Risk of
-> breakage should be rather low for this particular error case.
-> 
-> Fixes: 0d01da6afc54 ("bpf: implement getsockopt and setsockopt hooks")
-> Reported-by: Ryota Shiga (Flatt Security)
-> Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> Cc: Stanislav Fomichev <sdf@google.com>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On 1/20/21 9:35 AM, Sean Christopherson wrote:
+> Why haven't you included the splat that Haitao provided?  That would go a long
+> way to helping answer Boris' question about exactly what is broken...
 
-For sctp bits,
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+The bad news is that the original splat seems to be lost.
 
-...
-> --- a/net/sctp/socket.c
-> +++ b/net/sctp/socket.c
-> @@ -1319,7 +1319,7 @@ static int __sctp_setsockopt_connectx(st
->  
->  	kaddrs = memdup_user(addrs, addrs_size);
->  	if (IS_ERR(kaddrs))
-> -		return PTR_ERR(kaddrs);
-> +		return PTR_ERR(kaddrs) == -EFAULT ? -EINVAL : PTR_ERR(kaddrs);
->  
->  	/* Allow security module to validate connectx addresses. */
->  	err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_CONNECTX,
-> 
-> 
+The good news is that this is hard to reproduce and *might* not occur on
+what got merged in mainline.
+
+We're going to circle back around and make sure we have a clean
+reproduction before we try to fix this again.
