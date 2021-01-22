@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D22B9300B10
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0933300B12
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbhAVSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:20:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1728784AbhAVSUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728568AbhAVOXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728570AbhAVOXA (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:23:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5771123B70;
-        Fri, 22 Jan 2021 14:16:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B4F230FC;
+        Fri, 22 Jan 2021 14:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325013;
-        bh=2unsYnbqU3VXbkIxy0M8gfwixFW5ttWx8J23aoYZiHg=;
+        s=korg; t=1611325016;
+        bh=7NtATfN3pXCDymTXpZ4z8ks7bCXDDQ1jUjDDvwrcEmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmMAAGHjvP3A32fZUAYDPkfVOu0rEaL87xKBSml9pVNFUzV7JAGAjpNkYrlqqAahm
-         rkNKhzW6Us7hdbMswy22O6H8gfwYQa4Pm5a9xZFS4nqIbX1xGFTUhJiBKn2qQbW2rN
-         HpJoglTt3Y3Na+3uqO1eL1Jy9GDylAGCc5yQghtk=
+        b=GPdeSnGyc64mONBEv7B/JwMZNYNmrBdByPuTgZHoxIak+JZTIsqc2Mh9tw93GYMah
+         qjCPqx/JlUpjfvpjqii+MCzBeK8fr70i9FKMm5K9RgyGo0OuSEzUjR1wbJtbgfGBkQ
+         tTp1tdv8HqI2ia7lKPL6rOjnm3mM8mmrXnAJLbB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Barret Rhoden <brho@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jian Cai <jiancai@google.com>
-Subject: [PATCH 5.4 04/33] elfcore: fix building with clang
-Date:   Fri, 22 Jan 2021 15:12:20 +0100
-Message-Id: <20210122135733.751633696@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        zhengbin <zhengbin13@huawei.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 05/33] scsi: lpfc: Make function lpfc_defer_pt2pt_acc static
+Date:   Fri, 22 Jan 2021 15:12:21 +0100
+Message-Id: <20210122135733.790049063@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -44,110 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: zhengbin <zhengbin13@huawei.com>
 
-commit 6e7b64b9dd6d96537d816ea07ec26b7dedd397b9 upstream.
+commit f7cb0d0945ebc9879aff72cf7b3342fd1040ffaa upstream.
 
-kernel/elfcore.c only contains weak symbols, which triggers a bug with
-clang in combination with recordmcount:
+Fix sparse warnings:
 
-  Cannot find symbol for section 2: .text.
-  kernel/elfcore.o: failed
+drivers/scsi/lpfc/lpfc_nportdisc.c:290:1: warning: symbol 'lpfc_defer_pt2pt_acc' was not declared. Should it be static?
 
-Move the empty stubs into linux/elfcore.h as inline functions.  As only
-two architectures use these, just use the architecture specific Kconfig
-symbols to key off the declaration.
-
-Link: https://lkml.kernel.org/r/20201204165742.3815221-2-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Barret Rhoden <brho@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jian Cai <jiancai@google.com>
+Link: https://lore.kernel.org/r/1570183477-137273-1-git-send-email-zhengbin13@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Reviewed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/elfcore.h |   22 ++++++++++++++++++++++
- kernel/Makefile         |    1 -
- kernel/elfcore.c        |   26 --------------------------
- 3 files changed, 22 insertions(+), 27 deletions(-)
 
---- a/include/linux/elfcore.h
-+++ b/include/linux/elfcore.h
-@@ -58,6 +58,7 @@ static inline int elf_core_copy_task_xfp
- }
- #endif
- 
-+#if defined(CONFIG_UM) || defined(CONFIG_IA64)
- /*
-  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
-  * extra segments containing the gate DSO contents.  Dumping its
-@@ -72,5 +73,26 @@ elf_core_write_extra_phdrs(struct coredu
- extern int
- elf_core_write_extra_data(struct coredump_params *cprm);
- extern size_t elf_core_extra_data_size(void);
-+#else
-+static inline Elf_Half elf_core_extra_phdrs(void)
-+{
-+	return 0;
-+}
-+
-+static inline int elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
-+{
-+	return 1;
-+}
-+
-+static inline int elf_core_write_extra_data(struct coredump_params *cprm)
-+{
-+	return 1;
-+}
-+
-+static inline size_t elf_core_extra_data_size(void)
-+{
-+	return 0;
-+}
-+#endif
- 
- #endif /* _LINUX_ELFCORE_H */
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -93,7 +93,6 @@ obj-$(CONFIG_TASK_DELAY_ACCT) += delayac
- obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
- obj-$(CONFIG_TRACEPOINTS) += tracepoint.o
- obj-$(CONFIG_LATENCYTOP) += latencytop.o
--obj-$(CONFIG_ELFCORE) += elfcore.o
- obj-$(CONFIG_FUNCTION_TRACER) += trace/
- obj-$(CONFIG_TRACING) += trace/
- obj-$(CONFIG_TRACE_CLOCK) += trace/
---- a/kernel/elfcore.c
-+++ /dev/null
-@@ -1,26 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--#include <linux/elf.h>
--#include <linux/fs.h>
--#include <linux/mm.h>
--#include <linux/binfmts.h>
--#include <linux/elfcore.h>
--
--Elf_Half __weak elf_core_extra_phdrs(void)
--{
--	return 0;
--}
--
--int __weak elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
--{
--	return 1;
--}
--
--int __weak elf_core_write_extra_data(struct coredump_params *cprm)
--{
--	return 1;
--}
--
--size_t __weak elf_core_extra_data_size(void)
--{
--	return 0;
--}
+---
+ drivers/scsi/lpfc/lpfc_nportdisc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -286,7 +286,7 @@ lpfc_els_abort(struct lpfc_hba *phba, st
+  * This routine is only called if we are SLI3, direct connect pt2pt
+  * mode and the remote NPort issues the PLOGI after link up.
+  */
+-void
++static void
+ lpfc_defer_pt2pt_acc(struct lpfc_hba *phba, LPFC_MBOXQ_t *link_mbox)
+ {
+ 	LPFC_MBOXQ_t *login_mbox;
 
 
