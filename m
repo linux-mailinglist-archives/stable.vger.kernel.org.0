@@ -2,66 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1227300075
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 11:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94728300141
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 12:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727300AbhAVKfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 05:35:53 -0500
-Received: from mga01.intel.com ([192.55.52.88]:24443 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727732AbhAVK2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 05:28:08 -0500
-IronPort-SDR: la40UqFJOR8HLXIZZiLDu6bQe4N8XLBPVSi4sf3L3w4+hyEpGf/OlUEl63wEpBZljk91Jpid7x
- 1BiLDvLJzbuA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9871"; a="198181324"
-X-IronPort-AV: E=Sophos;i="5.79,366,1602572400"; 
-   d="scan'208";a="198181324"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 02:27:25 -0800
-IronPort-SDR: 6+8wOWlJjWzNUVVhTOUYuI38TGBXhAas0+Za4mtWanSQzB1g0m67iO7llQHlIS0kl0o2Mv+T4B
- aytBJxwYsLwQ==
-X-IronPort-AV: E=Sophos;i="5.79,366,1602572400"; 
-   d="scan'208";a="385711041"
-Received: from lcfenner-mobl1.ger.corp.intel.com (HELO [10.252.20.148]) ([10.252.20.148])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 02:27:23 -0800
-Subject: Re: [PATCH] drm/i915: Always flush the active worker before returning
- from the wait
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>, stable@vger.kernel.org
-References: <20210121232807.16618-1-chris@chris-wilson.co.uk>
-From:   Matthew Auld <matthew.auld@intel.com>
-Message-ID: <5b188fea-2417-fa6a-7a8c-c2d240b359f7@intel.com>
-Date:   Fri, 22 Jan 2021 10:27:21 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
-MIME-Version: 1.0
-In-Reply-To: <20210121232807.16618-1-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+        id S1727207AbhAVLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 06:12:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36710 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727805AbhAVLG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 06:06:57 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB0EC0613D6
+        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 03:06:16 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id u67so3469612pfb.3
+        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 03:06:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=8xmowMygRP96q6ZfQepL38bbSA5RtX+xDKaDnp6OZZo=;
+        b=xRAWJg9uWyvrqCaVbaGDdjfC4XRsikv5lqCfNDaWh8BruWcMsnByoGA5IerSTm4iLs
+         IfocfLfTFc1n302KZOhl75FOqrKzBRaL3p8dhxhuMc6rzBc3hVp6/sysJJDRo/yQAL0a
+         G9ok1GyFpyD3+RmFx6m1O4t+yCM2Foy3AHMkg7eQmFACmTQD3hgi2/PtUJZPV9lXX/O1
+         npcolHS9Hz6jth/kq/FBvjUahiuiIMWuM8T6WA9sRlekgcPftdYBDwaGdlz2zI5/GgfL
+         fhcnkCXn2jq71kYxLQNDNBBPTUVHzm1CuZUPl71eEoBunw7ejl9M0RfgFScOhTzszAFY
+         BPYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=8xmowMygRP96q6ZfQepL38bbSA5RtX+xDKaDnp6OZZo=;
+        b=Dm4G10C90kpS8TdZ7lmXZi6bxlYc4VL6uUWvKrO1jmfpN7lVKbUtLO1x5E/HKqiRch
+         twjOtyDwuk/JUP/k9deIuXovRsNMTsPQvpVgI1bBV0JofW64cXc7pbkhhNREd/qlW6oF
+         Lnvbwh+59hjBSORsoUnPpTyzWwi7FpYQ6OA+zd9SMWqdNEFl9pPkrN4DRB20OtCj9+0Q
+         fWZm5HSQa38sBJEGId4kspINCpmUU11NDipqr13ko3dIDSiDT0dKskxiblpYkMD/jKqo
+         +VBo/wjLXejLdygRe+lQoxAsoywdjMROTfJJC1SIsdhtGO5/pFy9oieEMBUD8wZQZRFF
+         N9xQ==
+X-Gm-Message-State: AOAM533upmvQjHHZE0FGd6zU8PhzfKoitPKIuhnu9k/InrLebngB4Qjb
+        XaibPxG60WFu9LUDuu/3R7hDiQ==
+X-Google-Smtp-Source: ABdhPJw9OXYA0Ves4zH7Zwge3APRupjHpxKEZURTnQT2SSrlD8+pcogSCSV9X4HvSz9Fw7OVlfcWLg==
+X-Received: by 2002:a65:4549:: with SMTP id x9mr4253916pgr.6.1611313575903;
+        Fri, 22 Jan 2021 03:06:15 -0800 (PST)
+Received: from localhost.localdomain ([122.173.53.31])
+        by smtp.gmail.com with ESMTPSA id j3sm8854562pjs.50.2021.01.22.03.06.12
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 Jan 2021 03:06:15 -0800 (PST)
+From:   Sumit Garg <sumit.garg@linaro.org>
+To:     kgdb-bugreport@lists.sourceforge.net
+Cc:     jason.wessel@windriver.com, daniel.thompson@linaro.org,
+        dianders@chromium.org, linux-kernel@vger.kernel.org,
+        Sumit Garg <sumit.garg@linaro.org>, stable@vger.kernel.org
+Subject: [PATCH v3] kdb: Make memory allocations more robust
+Date:   Fri, 22 Jan 2021 16:35:56 +0530
+Message-Id: <1611313556-4004-1-git-send-email-sumit.garg@linaro.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/01/2021 23:28, Chris Wilson wrote:
-> The first thing the active retirement worker does is decrement the
-> i915_active count.
-> 
-> The first thing we do during i915_active_wait is try to increment the
-> i915_active count, but only if already active [non-zero].
-> 
-> The wait may see that the retirement is already started and so marked the
-> i915_active as idle, and skip waiting for the retirement handler.
-> However, the caller of i915_active_wait may immediately free the
-> i915_active upon returning (e.g. i915_vma_destroy) so we must not return
-> before the concurrent access from the worker are completed. We must
-> always flush the worker.
-> 
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2473
-> Fixes: 274cbf20fd10 ("drm/i915: Push the i915_active.retire into a worker")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Matthew Auld <matthew.auld@intel.com>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Currently kdb uses in_interrupt() to determine whether its library
+code has been called from the kgdb trap handler or from a saner calling
+context such as driver init. This approach is broken because
+in_interrupt() alone isn't able to determine kgdb trap handler entry from
+normal task context. This can happen during normal use of basic features
+such as breakpoints and can also be trivially reproduced using:
+echo g > /proc/sysrq-trigger
+
+We can improve this by adding check for in_dbg_master() instead which
+explicitly determines if we are running in debugger context.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+---
+
+Changes in v3:
+- Refined commit description and Cc: stable@vger.kernel.org.
+
+Changes in v2:
+- Get rid of redundant in_atomic() check.
+
+ kernel/debug/kdb/kdb_private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/debug/kdb/kdb_private.h b/kernel/debug/kdb/kdb_private.h
+index 7a4a181..344eb0d 100644
+--- a/kernel/debug/kdb/kdb_private.h
++++ b/kernel/debug/kdb/kdb_private.h
+@@ -231,7 +231,7 @@ extern struct task_struct *kdb_curr_task(int);
+ 
+ #define kdb_task_has_cpu(p) (task_curr(p))
+ 
+-#define GFP_KDB (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL)
++#define GFP_KDB (in_dbg_master() ? GFP_ATOMIC : GFP_KERNEL)
+ 
+ extern void *debug_kmalloc(size_t size, gfp_t flags);
+ extern void debug_kfree(void *);
+-- 
+2.7.4
+
