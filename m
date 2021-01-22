@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31AFB300B66
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F0F300B99
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:45:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728700AbhAVSUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:20:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
+        id S1729948AbhAVSlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:41:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728561AbhAVOWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB64823B75;
-        Fri, 22 Jan 2021 14:16:50 +0000 (UTC)
+        id S1728166AbhAVOVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:21:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B16E023B31;
+        Fri, 22 Jan 2021 14:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325011;
-        bh=cVXMJvY5hJuBfENHnD5krYolc/OGDjdSaxeJg4eN1JA=;
+        s=korg; t=1611324930;
+        bh=JmVnQfWKwhYaZDyVXdXkt2AQPDOLA69fC0ZIEIZJPyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TL+Aru9HjVaPUXPi6dB4Lat4emlwdVsXnkTThIiM4X7lZcC3wepULtZmuLtFUYTw7
-         FxsPIgLhXkIHwBu0X1USHe36cq5/D/5cBrttpcxEAaBexTTPz98bgH5ADfRsNAksxc
-         P80gn9kGkeZj5oQ8aRKL3U4iO2e7fu4HMX1guCr8=
+        b=BJLyuJlt2Pt/SMgWSCy7FES49IWaIYD1xQmLotncmKHGvn9tOGkvoRXPJho+5sHH4
+         gHl8QKWTLf+IsHC6ATdTgRDB4KdKXT04ZodwSgV4WAyPyPMbA3h280pNy7CZsPz8SP
+         oZfmO+LiK1nkr9JJRWGkFC+yCGwRnXdh0eiofsFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: [PATCH 5.4 03/33] xen/privcmd: allow fetching resource sizes
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Subject: [PATCH 4.19 01/22] usb: ohci: Make distrust_firmware param default to false
 Date:   Fri, 22 Jan 2021 15:12:19 +0100
-Message-Id: <20210122135733.712747023@linuxfoundation.org>
+Message-Id: <20210122135731.979703017@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
+In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
+References: <20210122135731.921636245@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,83 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-commit ef3a575baf53571dc405ee4028e26f50856898e7 upstream.
+commit c4005a8f65edc55fb1700dfc5c1c3dc58be80209 upstream.
 
-Allow issuing an IOCTL_PRIVCMD_MMAP_RESOURCE ioctl with num = 0 and
-addr = 0 in order to fetch the size of a specific resource.
+The 'distrust_firmware' module parameter dates from 2004 and the USB
+subsystem is a lot more mature and reliable now than it was then.
+Alter the default to false now.
 
-Add a shortcut to the default map resource path, since fetching the
-size requires no address to be passed in, and thus no VMA to setup.
-
-This is missing from the initial implementation, and causes issues
-when mapping resources that don't have fixed or known sizes.
-
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Tested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: stable@vger.kernel.org # >= 4.18
-Link: https://lore.kernel.org/r/20210112115358.23346-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200910212512.16670-2-hamish.martin@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/privcmd.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -724,14 +724,15 @@ static long privcmd_ioctl_restrict(struc
- 	return 0;
- }
+---
+ drivers/usb/host/ohci-hcd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -101,7 +101,7 @@ static void io_watchdog_func(struct time
  
--static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
-+static long privcmd_ioctl_mmap_resource(struct file *file,
-+				struct privcmd_mmap_resource __user *udata)
- {
- 	struct privcmd_data *data = file->private_data;
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct privcmd_mmap_resource kdata;
- 	xen_pfn_t *pfns = NULL;
--	struct xen_mem_acquire_resource xdata;
-+	struct xen_mem_acquire_resource xdata = { };
- 	int rc;
  
- 	if (copy_from_user(&kdata, udata, sizeof(kdata)))
-@@ -741,6 +742,22 @@ static long privcmd_ioctl_mmap_resource(
- 	if (data->domid != DOMID_INVALID && data->domid != kdata.dom)
- 		return -EPERM;
- 
-+	/* Both fields must be set or unset */
-+	if (!!kdata.addr != !!kdata.num)
-+		return -EINVAL;
-+
-+	xdata.domid = kdata.dom;
-+	xdata.type = kdata.type;
-+	xdata.id = kdata.id;
-+
-+	if (!kdata.addr && !kdata.num) {
-+		/* Query the size of the resource. */
-+		rc = HYPERVISOR_memory_op(XENMEM_acquire_resource, &xdata);
-+		if (rc)
-+			return rc;
-+		return __put_user(xdata.nr_frames, &udata->num);
-+	}
-+
- 	down_write(&mm->mmap_sem);
- 
- 	vma = find_vma(mm, kdata.addr);
-@@ -775,10 +792,6 @@ static long privcmd_ioctl_mmap_resource(
- 	} else
- 		vma->vm_private_data = PRIV_VMA_LOCKED;
- 
--	memset(&xdata, 0, sizeof(xdata));
--	xdata.domid = kdata.dom;
--	xdata.type = kdata.type;
--	xdata.id = kdata.id;
- 	xdata.frame = kdata.idx;
- 	xdata.nr_frames = kdata.num;
- 	set_xen_guest_handle(xdata.frame_list, pfns);
+ /* Some boards misreport power switching/overcurrent */
+-static bool distrust_firmware = true;
++static bool distrust_firmware;
+ module_param (distrust_firmware, bool, 0);
+ MODULE_PARM_DESC (distrust_firmware,
+ 	"true to distrust firmware power/overcurrent setup");
 
 
