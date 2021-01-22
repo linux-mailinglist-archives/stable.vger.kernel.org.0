@@ -2,81 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E39EA3007A9
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 16:45:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF36300779
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 16:37:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729071AbhAVPoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 10:44:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
+        id S1729138AbhAVPg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 10:36:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728589AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0158923B7C;
-        Fri, 22 Jan 2021 14:17:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325062;
-        bh=EObke+J1RsHKcbk4dvp1s8i82tHpd7T+q7jt78/dGoU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D67s9HAWirYh6xWDfOr9gKJzeTv9y15P/RN+aMHTNAw+Qo+a7sGQyMSU1fXDcczsH
-         eOHO7ymJ167gTcGPBk8ZkiwyPOx/iSTVxiOEPcDcciLS0BH8Znvp8twpKDPKDERRVg
-         pmyiavgIsdjb099D3KmMhrphYMlLmo9Bp5Xi1fqQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+        id S1729169AbhAVPgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 10:36:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3542223A9A;
+        Fri, 22 Jan 2021 15:36:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611329770;
+        bh=7LaOeer6chAeQjGnD6VV2qVZxVZZ9WwWjinwdG3LDWA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FLgQkzkeUwiEOoREWZY7v0nqVJFGI0yXpp2C5az8WgcIU1jsKDmv9bXUSHYtbBAtI
+         dGBJ+Md4V6m/tCCDemjF7xoG1pFOqeiprn4mCUkL3/SPsuNeYs9PvXaabw9zEdoDtT
+         FnXT5o/VWBs+grFPO5BWayrza4+7KWzUi9RmjtL/2caHiq/InOXIK5dQZUV1BFFBrR
+         ZpQ71mSZmkNqtcZmgWfOZHLbvKDz+j30s6kz9YUoDbeoIr4cAlV/eGQxMptK+rBIHM
+         fBlqehVfTCToHtboGBe+dFyjLl84pFoL9TP8XctGCXptwIQusNn/qx3rsFHe90Zhv5
+         uDUMfWAxQRwsw==
+Date:   Fri, 22 Jan 2021 15:36:04 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 18/33] mlxsw: core: Increase critical threshold for ASIC thermal zone
-Date:   Fri, 22 Jan 2021 15:12:34 +0100
-Message-Id: <20210122135734.322039388@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
-User-Agent: quilt/0.66
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: Re: [PATCH 4.14 00/50] 4.14.217-rc1 review
+Message-ID: <20210122153604.GA24972@willie-the-truck>
+References: <20210122135735.176469491@linuxfoundation.org>
+ <CA+G9fYso4QNbRWdrQiiOiMb5RUr8VtM3AkKEGLasgN+KsPSvDw@mail.gmail.com>
+ <YArqULK9c1Cnt5gM@kroah.com>
+ <CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+On Fri, Jan 22, 2021 at 08:43:18PM +0530, Naresh Kamboju wrote:
+> On Fri, 22 Jan 2021 at 20:38, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Fri, Jan 22, 2021 at 08:32:46PM +0530, Naresh Kamboju wrote:
+> > > On Fri, 22 Jan 2021 at 19:45, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > This is the start of the stable review cycle for the 4.14.217 release.
+> > > > There are 50 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+> > > > Anything received after that time might be too late.
+> > > >
+> > > > The whole patch series can be found in one patch at:
+> > > >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.217-rc1.gz
+> > > > or in the git tree and branch at:
+> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> > > > and the diffstat can be found below.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > >
+> > > arm64 clang-10 builds breaks due to this patch on
+> > >    - stable-rc 4.14
+> > >    - stable-rc 4.9
+> > >    - stable-rc 4.4
+> > >
+> > > > Will Deacon <will@kernel.org>
+> > > >     compiler.h: Raise minimum version of GCC to 5.1 for arm64
+> > >
+> > > arm64 (defconfig) with clang-10 - FAILED
+> >
+> > How is a clang build breaking on a "check what version of gcc is being
+> > used" change?
+> >
+> > What is the error message?
+> 
+> make --silent --keep-going --jobs=8
+> O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=arm64
+> CROSS_COMPILE=aarch64-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
+> clang'
+> In file included from <built-in>:1:
+> include/linux/kconfig.h:74:
+> include/linux/compiler_types.h:58:
+> include/linux/compiler-gcc.h:160:3: error: Sorry, your version of GCC
+> is too old - please use 5.1 or newer.
+> # error Sorry, your version of GCC is too old - please use 5.1 or newer.
+>   ^
+> 1 error generated.
+> 
+> build error link:
+> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/980489003#L514
 
-[ Upstream commit b06ca3d5a43ca2dd806f7688a17e8e7e0619a80a ]
+Urgh, looks like we need backports of 815f0ddb346c
+("include/linux/compiler*.h: make compiler-*.h mutually exclusive") then.
 
-Increase critical threshold for ASIC thermal zone from 110C to 140C
-according to the system hardware requirements. All the supported ASICs
-(Spectrum-1, Spectrum-2, Spectrum-3) could be still operational with ASIC
-temperature below 140C. With the old critical threshold value system
-can perform unjustified shutdown.
+Greg -- please drop my changes from 4.14, 4.9 and 4.4 for now and I'll
+look at this next week.
 
-All the systems equipped with the above ASICs implement thermal
-protection mechanism at firmware level and firmware could decide to
-perform system thermal shutdown in case the temperature is below 140C.
-So with the new threshold system will not meltdown, while thermal
-operating range will be aligned with hardware abilities.
+Cheers,
 
-Fixes: 41e760841d26 ("mlxsw: core: Replace thermal temperature trips with defines")
-Fixes: a50c1e35650b ("mlxsw: core: Implement thermal zone")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -19,7 +19,7 @@
- #define MLXSW_THERMAL_ASIC_TEMP_NORM	75000	/* 75C */
- #define MLXSW_THERMAL_ASIC_TEMP_HIGH	85000	/* 85C */
- #define MLXSW_THERMAL_ASIC_TEMP_HOT	105000	/* 105C */
--#define MLXSW_THERMAL_ASIC_TEMP_CRIT	110000	/* 110C */
-+#define MLXSW_THERMAL_ASIC_TEMP_CRIT	140000	/* 140C */
- #define MLXSW_THERMAL_HYSTERESIS_TEMP	5000	/* 5C */
- #define MLXSW_THERMAL_MODULE_TEMP_SHIFT	(MLXSW_THERMAL_HYSTERESIS_TEMP * 2)
- #define MLXSW_THERMAL_ZONE_MAX_NAME	16
-
-
+Will
