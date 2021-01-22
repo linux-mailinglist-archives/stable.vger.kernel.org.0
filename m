@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE254300539
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 161B2300564
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:29:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728555AbhAVOWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:22:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
+        id S1728609AbhAVO2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:28:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728545AbhAVOWa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1AA123AC4;
-        Fri, 22 Jan 2021 14:15:48 +0000 (UTC)
+        id S1728694AbhAVOZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:25:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF4223BCD;
+        Fri, 22 Jan 2021 14:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324949;
-        bh=uArgpiAfCjeXqj2bldbMln1PPWrVV37LaS7jzvA4RLI=;
+        s=korg; t=1611325180;
+        bh=CnK54VVmj9CQnTdkY4M0XHyFmyMt4Oe32pQge64ot8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBWAu+0MFcLsgvSgnM07eBgZR4xfBi46LO5Q8vP9CNv0BRL5PCTQA5+kvoCJkBzq1
-         wEECO+FxE97+aEfKzJUAcbE95gqOucbo6tKXqg+EXaPHC0WEh7qBKZ1p8EvAMqoSl+
-         cCViIsE4/+4NYfuMEI+Oiju8DlZTFnuD2g1DMrww=
+        b=Nv/jvzBFOj3QRNNYanShxkGDviCcf1VUp0sj0LFNjDecRfr2/73xYaKStoJnBUvlJ
+         jNa/cIkvZ2ceBZbefpF8utzMOGJYiMCu5VMucArcnYJ2rzGWCb7ah5ysfcNdTpG1DS
+         MM2YjuB8KIvViseCfa9WoGIDWCiNekHT1KFF0fOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Greg Thelen <gthelen@google.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org,
+        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 16/22] net: avoid 32 x truesize under-estimation for tiny skbs
-Date:   Fri, 22 Jan 2021 15:12:34 +0100
-Message-Id: <20210122135732.555755452@linuxfoundation.org>
+Subject: [PATCH 5.10 20/43] rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+Date:   Fri, 22 Jan 2021 15:12:36 +0100
+Message-Id: <20210122135736.478632128@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+References: <20210122135735.652681690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
 
-[ Upstream commit 3226b158e67cfaa677fd180152bfb28989cb2fac ]
+[ Upstream commit e56b3d94d939f52d46209b9e1b6700c5bfff3123 ]
 
-Both virtio net and napi_get_frags() allocate skbs
-with a very small skb->head
+MSFT ActiveSync implementation requires that the size of the response for
+incoming query is to be provided in the request input length. Failure to
+set the input size proper results in failed request transfer, where the
+ActiveSync counterpart reports the NDIS_STATUS_INVALID_LENGTH (0xC0010014L)
+error.
 
-While using page fragments instead of a kmalloc backed skb->head might give
-a small performance improvement in some cases, there is a huge risk of
-under estimating memory usage.
+Set the input size for OID_GEN_PHYSICAL_MEDIUM query to the expected size
+of the response in order for the ActiveSync to properly respond to the
+request.
 
-For both GOOD_COPY_LEN and GRO_MAX_HEAD, we can fit at least 32 allocations
-per page (order-3 page in x86), or even 64 on PowerPC
-
-We have been tracking OOM issues on GKE hosts hitting tcp_mem limits
-but consuming far more memory for TCP buffers than instructed in tcp_mem[2]
-
-Even if we force napi_alloc_skb() to only use order-0 pages, the issue
-would still be there on arches with PAGE_SIZE >= 32768
-
-This patch makes sure that small skb head are kmalloc backed, so that
-other objects in the slab page can be reused instead of being held as long
-as skbs are sitting in socket queues.
-
-Note that we might in the future use the sk_buff napi cache,
-instead of going through a more expensive __alloc_skb()
-
-Another idea would be to use separate page sizes depending
-on the allocated length (to never have more than 4 frags per page)
-
-I would like to thank Greg Thelen for his precious help on this matter,
-analysing crash dumps is always a time consuming task.
-
-Fixes: fd11a83dd363 ("net: Pull out core bits of __netdev_alloc_skb and add __napi_alloc_skb")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Greg Thelen <gthelen@google.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20210113161819.1155526-1-eric.dumazet@gmail.com
+Fixes: 039ee17d1baa ("rndis_host: Add RNDIS physical medium checking into generic_rndis_bind()")
+Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+Link: https://lore.kernel.org/r/20210108095839.3335-1-andrey.zhizhikin@leica-geosystems.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/usb/rndis_host.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -459,13 +459,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
- struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
- 				 gfp_t gfp_mask)
- {
--	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
-+	struct napi_alloc_cache *nc;
- 	struct sk_buff *skb;
- 	void *data;
- 
- 	len += NET_SKB_PAD + NET_IP_ALIGN;
- 
--	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
-+	/* If requested length is either too small or too big,
-+	 * we use kmalloc() for skb->head allocation.
-+	 */
-+	if (len <= SKB_WITH_OVERHEAD(1024) ||
-+	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
- 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
- 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
- 		if (!skb)
-@@ -473,6 +477,7 @@ struct sk_buff *__napi_alloc_skb(struct
- 		goto skb_success;
- 	}
- 
-+	nc = this_cpu_ptr(&napi_alloc_cache);
- 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	len = SKB_DATA_ALIGN(len);
- 
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -387,7 +387,7 @@ generic_rndis_bind(struct usbnet *dev, s
+ 	reply_len = sizeof *phym;
+ 	retval = rndis_query(dev, intf, u.buf,
+ 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
+-			     0, (void **) &phym, &reply_len);
++			     reply_len, (void **)&phym, &reply_len);
+ 	if (retval != 0 || !phym) {
+ 		/* OID is optional so don't fail here. */
+ 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
 
 
