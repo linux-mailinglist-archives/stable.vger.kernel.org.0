@@ -2,92 +2,280 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B22FA300BC0
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07501300C2A
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:21:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730127AbhAVSnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:51 -0500
-Received: from mga11.intel.com ([192.55.52.93]:52349 "EHLO mga11.intel.com"
+        id S1729764AbhAVSlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:41:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729711AbhAVSWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 13:22:53 -0500
-IronPort-SDR: F0X181gO3IgYuhlwLztNYdTDYiZ4uTrgpAYy3m2QkTqUI8kMUXZVHB3N2EecHlCh98Zo9YoCCP
- QINPJJNt5oYw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9872"; a="175975562"
-X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
-   d="scan'208";a="175975562"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2021 10:21:03 -0800
-IronPort-SDR: IwZA0NZao4cRQlPMucSq74q6vlDjUHqkewQAzWTtoBBanWU2EWgFE5ssJnkPmB2ZbiZEHkyjD4
- rjv25oktYxJw==
-X-IronPort-AV: E=Sophos;i="5.79,367,1602572400"; 
-   d="scan'208";a="407866180"
-Received: from hhuan26-mobl1.amr.corp.intel.com (HELO mqcpg7oapc828.gar.corp.intel.com) ([10.213.188.87])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-SHA; 22 Jan 2021 10:21:01 -0800
-Content-Type: text/plain; charset=iso-8859-15; format=flowed; delsp=yes
-To:     "Dave Hansen" <dave.hansen@intel.com>,
-        "Jarkko Sakkinen" <jarkko@kernel.org>
-Cc:     "Borislav Petkov" <bp@alien8.de>, linux-sgx@vger.kernel.org,
-        kai.huang@intel.com, haitao.huang@intel.com, seanjc@google.com,
-        stable@vger.kernel.org, "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Jethro Beekman" <jethro@fortanix.com>
-Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
- sgx_release()
-References: <20210115014638.15037-1-jarkko@kernel.org>
- <20210115071809.GA9138@zn.tnic> <YAJ11v5tuS2uMuNm@kernel.org>
- <20210118185712.GE30090@zn.tnic> <YAhBeaItbqYmf0oF@kernel.org>
- <bb46fd98-0f67-76a7-9ba9-3a646c2a8f84@intel.com> <YAjKUO+nI2pJs1HD@kernel.org>
-Date:   Fri, 22 Jan 2021 12:20:59 -0600
+        id S1728390AbhAVOUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:20:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8965723B1A;
+        Fri, 22 Jan 2021 14:14:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611324873;
+        bh=fsFeeEYPR0hgaDIUKRnMXVXzBFXuPQ1FdhlNKS3OHKc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cOMBTu34O3Hjg4M/Sn+OARzkFjuqECexE2mkOkyRxUa8hfbRRP3M1+BD+4jC//ZEm
+         2+w3YeMuKLpcl/2qHlaGyB0e64mS5956re5PF9k6v7/7qyTMM+NQzyKtni60Zq7DCR
+         7cBwJC7FHmAj125D13qi6LQ1Q1egscOyYLQrOsAU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/50] 4.14.217-rc1 review
+Date:   Fri, 22 Jan 2021 15:11:41 +0100
+Message-Id: <20210122135735.176469491@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-From:   "Haitao Huang" <haitao.huang@linux.intel.com>
-Organization: Intel Corp
-Message-ID: <op.0xmvr1urwjvjmi@mqcpg7oapc828.gar.corp.intel.com>
-In-Reply-To: <YAjKUO+nI2pJs1HD@kernel.org>
-User-Agent: Opera Mail/1.0 (Win32)
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.217-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.217-rc1
+X-KernelTest-Deadline: 2021-01-24T13:57+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 20 Jan 2021 18:26:56 -0600, Jarkko Sakkinen <jarkko@kernel.org>  
-wrote:
+This is the start of the stable review cycle for the 4.14.217 release.
+There are 50 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-> On Wed, Jan 20, 2021 at 09:34:10AM -0800, Dave Hansen wrote:
->> On 1/20/21 6:43 AM, Jarkko Sakkinen wrote:
->> >> So why do you need the synchronize_srcu() call when this process  
->> sees an
->> >> empty mm_list already?
->> >>
->> >> Thx.
->> > The other process aka some process using the enclave calls  
->> list_del_rcu()
->> > (and synchronize_srcu()), which starts a new grace period. If we don't
->> > do it, then the cleanup_srcu() will race with that grace period.
->>
->> To me, this is only a partial explanation.
->>
->> That goal of synchronize_srcu() is to wait for the completion of a
->> *previous* grace period: one that might have observed the old state of
->> the list.
->>
->> Could you explain the *actual* effects of the misplaced
->> synchronize_srcu()?  If the race _occurs_, what is the side-effect?
->
-> As I haven't been able to reproduce this regression myself, I need
-> to take steps back and try to reproduce the it with Graphene.
->
-> WARN_ON()'s trigger inside cleanup_srcu_struct(), which causes a memory
-> leak since free_percpu() gets never called. If I recall correctly, it
-> was srcu_readers_active() but unfortunately I don't have a log available.
->
-> Perhaps Haitao could provide us one.
->
-> /Jarkko
+Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+Anything received after that time might be too late.
 
-Sorry I lost those logs too as our email server automatically clean up old  
-emails. I have been re-running the tests but have not been able to  
-reproduce the same issue.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.217-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Haitao
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.217-rc1
+
+Michael Hennerich <michael.hennerich@analog.com>
+    spi: cadence: cache reference clock rate during probe
+
+Aya Levin <ayal@nvidia.com>
+    net: ipv6: Validate GSO SKB before finish IPv6 processing
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    net: skbuff: disambiguate argument and member for skb_list_walk_safe helper
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    net: introduce skb_list_walk_safe for skb segment walking
+
+Edward Cree <ecree@solarflare.com>
+    net: use skb_list_del_init() to remove from RX sublists
+
+Hoang Le <hoang.h.le@dektech.com.au>
+    tipc: fix NULL deref in tipc_link_xmit()
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Fix handling of an unsupported token type in rxrpc_read()
+
+Eric Dumazet <edumazet@google.com>
+    net: avoid 32 x truesize under-estimation for tiny skbs
+
+Jakub Kicinski <kuba@kernel.org>
+    net: sit: unregister_netdevice on newlink's error path
+
+David Wu <david.wu@rock-chips.com>
+    net: stmmac: Fixed mtu channged by cache aligned
+
+Petr Machata <petrm@nvidia.com>
+    net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
+
+Petr Machata <me@pmachata.org>
+    net: dcb: Validate netlink message in DCB handler
+
+Willem de Bruijn <willemb@google.com>
+    esp: avoid unneeded kmap_atomic call
+
+Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+    rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+
+Manish Chopra <manishc@marvell.com>
+    netxen_nic: fix MSI/MSI-x interrupts
+
+J. Bruce Fields <bfields@redhat.com>
+    nfsd4: readdirplus shouldn't return parent of export
+
+Will Deacon <will@kernel.org>
+    compiler.h: Raise minimum version of GCC to 5.1 for arm64
+
+Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+    usb: ohci: Make distrust_firmware param default to false
+
+Jesper Dangaard Brouer <brouer@redhat.com>
+    netfilter: conntrack: fix reading nf_conntrack_buckets
+
+Geert Uytterhoeven <geert+renesas@glider.be>
+    ALSA: fireface: Fix integer overflow in transmit_midi_msg()
+
+Geert Uytterhoeven <geert+renesas@glider.be>
+    ALSA: firewire-tascam: Fix integer overflow in midi_port_work()
+
+Mike Snitzer <snitzer@redhat.com>
+    dm: eliminate potential source of excessive kernel log noise
+
+j.nixdorf@avm.de <j.nixdorf@avm.de>
+    net: sunrpc: interpret the return value of kstrtou32 correctly
+
+Jann Horn <jannh@google.com>
+    mm, slub: consider rest of partial list if acquire_slab() fails
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
+
+Jan Kara <jack@suse.cz>
+    ext4: fix superblock checksum failure when setting password salt
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: nfs_igrab_and_active must first reference the superblock
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS: Mark layout for return if return-on-close was not sent
+
+Dave Wysochanski <dwysocha@redhat.com>
+    NFS4: Fix use-after-free in trace_event_raw_event_nfs4_set_lock
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ASoC: Intel: fix error code cnl_set_dsp_D0()
+
+Al Viro <viro@zeniv.linux.org.uk>
+    dump_common_audit_data(): fix racy accesses to ->d_name
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: picoxcell: fix missing interrupt-parent properties
+
+Shawn Guo <shawn.guo@linaro.org>
+    ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
+
+Michael Ellerman <mpe@ellerman.id.au>
+    net: ethernet: fs_enet: Add missing MODULE_LICENSE
+
+Arnd Bergmann <arnd@arndb.de>
+    misdn: dsp: select CONFIG_BITREVERSE
+
+Randy Dunlap <rdunlap@infradead.org>
+    arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix transaction leak and crash after RO remount caused by qgroup rescan
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: add boot_targets to PHONY
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: add uImage.lzma to the top-level target
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
+
+yangerkun <yangerkun@huawei.com>
+    ext4: fix bug for rename with RENAME_WHITEOUT
+
+Leon Schuermann <leon@is.currently.online>
+    r8152: Add Lenovo Powered USB-C Travel Hub
+
+Akilesh Kailash <akailash@google.com>
+    dm snapshot: flush merged data before committing metadata
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/hugetlb: fix potential missing huge page size info
+
+Dexuan Cui <decui@microsoft.com>
+    ACPI: scan: Harden acpi_device_add() against device ID overflows
+
+Alexander Lobakin <alobakin@pm.me>
+    MIPS: relocatable: fix possible boot hangup with KASLR enabled
+
+Al Viro <viro@zeniv.linux.org.uk>
+    MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
+
+Paul Cercueil <paul@crapouillou.net>
+    MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
+
+Thomas Hebb <tommyhebb@gmail.com>
+    ASoC: dapm: remove widget from dirty list on free
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +--
+ arch/arc/Makefile                                  |  9 ++---
+ arch/arc/include/asm/page.h                        |  1 +
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi             |  4 +++
+ arch/mips/boot/compressed/decompress.c             |  3 +-
+ arch/mips/kernel/binfmt_elfn32.c                   |  7 ++++
+ arch/mips/kernel/binfmt_elfo32.c                   |  7 ++++
+ arch/mips/kernel/relocate.c                        | 10 ++++--
+ drivers/acpi/internal.h                            |  2 +-
+ drivers/acpi/scan.c                                | 15 +++++++-
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c       |  3 ++
+ drivers/isdn/mISDN/Kconfig                         |  1 +
+ drivers/md/dm-snap.c                               | 24 +++++++++++++
+ drivers/md/dm.c                                    |  2 +-
+ .../net/ethernet/freescale/fs_enet/mii-bitbang.c   |  1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-fec.c   |  1 +
+ drivers/net/ethernet/freescale/ucc_geth.h          |  9 ++++-
+ .../net/ethernet/qlogic/netxen/netxen_nic_main.c   |  7 +---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  3 +-
+ drivers/net/usb/cdc_ether.c                        |  7 ++++
+ drivers/net/usb/r8152.c                            |  1 +
+ drivers/net/usb/rndis_host.c                       |  2 +-
+ drivers/spi/spi-cadence.c                          |  6 ++--
+ drivers/usb/host/ohci-hcd.c                        |  2 +-
+ fs/btrfs/qgroup.c                                  | 13 +++++--
+ fs/btrfs/super.c                                   |  8 +++++
+ fs/ext4/ioctl.c                                    |  3 ++
+ fs/ext4/namei.c                                    | 16 +++++----
+ fs/nfs/internal.h                                  | 12 ++++---
+ fs/nfs/nfs4proc.c                                  |  2 +-
+ fs/nfs/pnfs.c                                      |  6 ++++
+ fs/nfsd/nfs3xdr.c                                  |  7 +++-
+ include/linux/acpi.h                               |  7 ++++
+ include/linux/compiler-gcc.h                       |  6 ++++
+ include/linux/skbuff.h                             | 16 +++++++++
+ mm/hugetlb.c                                       |  2 +-
+ mm/slub.c                                          |  2 +-
+ net/core/skbuff.c                                  |  9 +++--
+ net/dcb/dcbnl.c                                    |  2 ++
+ net/ipv4/esp4.c                                    |  7 +---
+ net/ipv6/esp6.c                                    |  7 +---
+ net/ipv6/ip6_output.c                              | 40 +++++++++++++++++++++-
+ net/ipv6/sit.c                                     |  5 ++-
+ net/netfilter/nf_conntrack_standalone.c            |  3 ++
+ net/rxrpc/key.c                                    |  6 ++--
+ net/sunrpc/addr.c                                  |  2 +-
+ net/tipc/link.c                                    |  9 +++--
+ security/lsm_audit.c                               |  7 ++--
+ sound/firewire/fireface/ff-transaction.c           |  2 +-
+ sound/firewire/tascam/tascam-transaction.c         |  2 +-
+ sound/soc/intel/skylake/cnl-sst.c                  |  1 +
+ sound/soc/soc-dapm.c                               |  1 +
+ 52 files changed, 263 insertions(+), 71 deletions(-)
+
+
