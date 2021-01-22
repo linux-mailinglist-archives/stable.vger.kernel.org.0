@@ -2,195 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E56312FFBF2
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 05:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E342FFBF8
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 06:03:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726301AbhAVEyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jan 2021 23:54:20 -0500
-Received: from eu-shark1.inbox.eu ([195.216.236.81]:42888 "EHLO
-        eu-shark1.inbox.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbhAVEyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jan 2021 23:54:16 -0500
-Received: from eu-shark1.inbox.eu (localhost [127.0.0.1])
-        by eu-shark1-out.inbox.eu (Postfix) with ESMTP id 59F706C007B0;
-        Fri, 22 Jan 2021 06:53:28 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=inbox.eu; s=20140211;
-        t=1611291208; bh=Km/F6ABJJwVBFUbMwwQJF/wazQaPWhv67wPVHMttxdw=;
-        h=References:From:To:Cc:Subject:In-reply-to:Date;
-        b=XZbOtmiqHHQkb8TiU6d/dNToknjAZhqUrlxtLNT59LUs8Dr60UaVFvgIP3s3b9jJE
-         xoK5D6/aNDZW5LUlgw88N6HWCz0GqOQBWNyxZ0bv91xzTZUuyGzx6KbiJdQOtjC13W
-         Cz6ekA5GTe2loPtcXGa6tzNu5ANzPreuoTySozpA=
-Received: from localhost (localhost [127.0.0.1])
-        by eu-shark1-in.inbox.eu (Postfix) with ESMTP id 474EA6C00792;
-        Fri, 22 Jan 2021 06:53:28 +0200 (EET)
-Received: from eu-shark1.inbox.eu ([127.0.0.1])
-        by localhost (eu-shark1.inbox.eu [127.0.0.1]) (spamfilter, port 35)
-        with ESMTP id Wu7vWTsR6Dng; Fri, 22 Jan 2021 06:53:27 +0200 (EET)
-Received: from mail.inbox.eu (eu-pop1 [127.0.0.1])
-        by eu-shark1-in.inbox.eu (Postfix) with ESMTP id A4F586C0076C;
-        Fri, 22 Jan 2021 06:53:27 +0200 (EET)
-Received: from nas (unknown [153.127.9.202])
-        (Authenticated sender: l@damenly.su)
-        by mail.inbox.eu (Postfix) with ESMTPA id 89B9E1BE00FF;
-        Fri, 22 Jan 2021 06:53:24 +0200 (EET)
-References: <20210121113910.14681-1-l@damenly.su>
- <20210121170756.GE6430@twin.jikos.cz>
-User-agent: mu4e 1.4.13; emacs 27.1
-From:   Su Yue <l@damenly.su>
-To:     dsterba@suse.cz
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org,
-        Erhard F <erhard_f@mailbox.org>, dave@stgolabs.net
-Subject: Re: [PATCH] btrfs: fix lockdep warning due to seqcount_mutex_init()
- with wrong address
-In-reply-to: <20210121170756.GE6430@twin.jikos.cz>
-Message-ID: <h7n9tvwl.fsf@damenly.su>
-Date:   Fri, 22 Jan 2021 12:53:14 +0800
+        id S1726168AbhAVFDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 00:03:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43122 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725468AbhAVFDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 00:03:09 -0500
+X-Greylist: delayed 426 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jan 2021 21:02:28 PST
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [IPv6:2a0b:5c81:1c1::37])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B540C06174A
+        for <stable@vger.kernel.org>; Thu, 21 Jan 2021 21:02:28 -0800 (PST)
+Received: from localhost.localdomain (85-76-102-71-nat.elisa-mobile.fi [85.76.102.71])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: jks)
+        by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 1C1C21B00122;
+        Fri, 22 Jan 2021 06:55:18 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+        t=1611291318;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nNVxmo79M/DbkplsImyEU/4ta1S8HjST/vF+5w3BUro=;
+        b=bApYgMfGnowH12xNOk3khZI+4f8HKWD+cElB8LQbri4ybddPRpMNhDYUMIACoPumWXutT7
+        h+8R5Pl+GXsIMAFXU1aXqog1QbDpp6H8ZRI5VgPZhEUPa90ylXCb1EEvewG6Fd83JmlTWW
+        UCAk6CtzblJdDWjQ0tBE86toK1eODBMjvC5tPxwU/bsaPJyZRsTS36k2sz/SjA69ISPRdD
+        ZtPw3OH+xJr6WL/epx0HNL49tuiOXS9SYWwh0RQRPuIJ68yNf6Jvu/lDepYo6GhZA7goKC
+        RigrsimOTGD+F+0+PEsJqfJIYZDs15fQCYms6iqDWh27ACIQVnUc1isFQxsEGg==
+From:   =?UTF-8?q?Jouni=20Sepp=C3=A4nen?= <jks@iki.fi>
+To:     stable@vger.kernel.org
+Cc:     =?UTF-8?q?Jouni=20K=2E=20Sepp=C3=A4nen?= <jks@iki.fi>,
+        kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: [BACKPORT 4.4.y, 4.9.y] net: cdc_ncm: correct overhead in delayed_ndp_size
+Date:   Fri, 22 Jan 2021 06:54:57 +0200
+Message-Id: <20210122045457.50289-1-jks@iki.fi>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <161070228139179@kroah.com>
+References: <161070228139179@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-Virus-Scanned: OK
-X-ESPOL: 6N1mkZY3ejOlj12/QnnZGw8prSpLQJ6b9qflkAEq73aAUTLmCkUMVhC2n2R1THi+og==
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+ARC-Seal: i=1; s=lahtoruutu; d=iki.fi; t=1611291318; a=rsa-sha256;
+        cv=none;
+        b=krgUNPzMExn5424gANkg5G8+Y6oXGkquEF1Ln01WZWwJvrgKLitm/On+6ZysptB5yGBCvg
+        5UkNnZ79pvtJzOUukxVLU4JtVAV2BE/ouZnfVbhOfEVpEBjW+iCminYhLSD6GE7WVKwCrd
+        Oo2T4oB29IC/bIBsbKB0ojPXSILGEiyRrJdkU6eHLpndhOXdCZjA0JSmNl11SIe7ukH4Y5
+        x8OiZ2o76lqgY3psJ3nZniD9UcSSTGTOrFxLvG7ixBanXN+vuyTfolWUamR3L2ba0MTWbm
+        iGz3U4W12WMotmOfkfxml+C8vLC+i8lR1+BLN6hWvVyy2/YVm8Gv5rRPtXxBbA==
+ARC-Authentication-Results: i=1;
+        ORIGINATING;
+        auth=pass smtp.auth=jks smtp.mailfrom=jks@iki.fi
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+        s=lahtoruutu; t=1611291318;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nNVxmo79M/DbkplsImyEU/4ta1S8HjST/vF+5w3BUro=;
+        b=JhCyLRRQCCjxZu0djvCoOE2fLwaknrnZmvqgJptBqmMVgApBWQeoPF0E1cO+pY7Ly5Ym1n
+        bAGn0yGhyO4jkcWYMtkQDQARWd37ulLQl4Vbp0gnRrRzGPn51F27nWoWdTTh7JF7lh1r1w
+        KYeNiyshmPbJzfOtj6WHOjiiLpZAqDQ/sogpOnZ8pDTjb4KvuYa84d0sNu2FMTZcgPfg1h
+        9QIvhsTw6WQ168zba/il3nY00eJB/SaSyY7l7u1bj2LJYSbPfTVQJzoraUE+b5W0M2dk01
+        mLh3vY0GEhOmwdxO0JEKYFU7sTURvXxI+Q9xOAcZw3pmREva6y/EwMBYj7XVhQ==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jouni K. Seppänen <jks@iki.fi>
 
-On Fri 22 Jan 2021 at 01:07, David Sterba <dsterba@suse.cz> wrote:
+commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 upstream.
 
-> Adding Davidlohr to CC as it's about reverting his patch.
->
-> In d5c8238849e7 ("btrfs: convert data_seqcount to 
-> seqcount_mutex_t")
-> the seqcount_mutex_t was added as an annotation for lockep so by 
-> revert
-> we'd lose that again.
->
-> On Thu, Jan 21, 2021 at 07:39:10PM +0800, Su Yue wrote:
->> while running xfstests on 32 bits test box, many tests failed 
->> because of
->> warnings in dmesg. One of those warnings(btrfs/003):
->> ========================================================================
->> [   66.441305] ------------[ cut here ]------------
->> [   66.441317] WARNING: CPU: 6 PID: 9251 at 
->> include/linux/seqlock.h:279 btrfs_remove_chunk+0x58b/0x7b0 
->> [btrfs]
->> [   66.441446] CPU: 6 PID: 9251 Comm: btrfs Tainted: G 
->> O      5.11.0-rc4-custom+ #5
->> [   66.441449] Hardware name: QEMU Standard PC (i440FX + PIIX, 
->> 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
->> [   66.441451] EIP: btrfs_remove_chunk+0x58b/0x7b0 [btrfs]
->> [   66.441472] EAX: 00000000 EBX: 00000001 ECX: c576070c EDX: 
->> c6b15803
->> [   66.441475] ESI: 10000000 EDI: 00000000 EBP: c56fbcfc ESP: 
->> c56fbc70
->> [   66.441477] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 
->> EFLAGS: 00010246
->> [   66.441481] CR0: 80050033 CR2: 05c8da20 CR3: 04b20000 CR4: 
->> 00350ed0
->> [   66.441485] Call Trace:
->> [   66.441510]  btrfs_relocate_chunk+0xb1/0x100 [btrfs]
->> [   66.441529]  ? btrfs_lookup_block_group+0x17/0x20 [btrfs]
->> [   66.441562]  btrfs_balance+0x8ed/0x13b0 [btrfs]
->> [   66.441586]  ? btrfs_ioctl_balance+0x333/0x3c0 [btrfs]
->> [   66.441619]  ? __this_cpu_preempt_check+0xf/0x11
->> [   66.441643]  btrfs_ioctl_balance+0x333/0x3c0 [btrfs]
->> [   66.441664]  ? btrfs_ioctl_get_supported_features+0x30/0x30 
->> [btrfs]
->> [   66.441683]  btrfs_ioctl+0x414/0x2ae0 [btrfs]
->> [   66.441700]  ? __lock_acquire+0x35f/0x2650
->> [   66.441717]  ? lockdep_hardirqs_on+0x87/0x120
->> [   66.441720]  ? lockdep_hardirqs_on_prepare+0xd0/0x1e0
->> [   66.441724]  ? call_rcu+0x2d3/0x530
->> [   66.441731]  ? __might_fault+0x41/0x90
->> [   66.441736]  ? kvm_sched_clock_read+0x15/0x50
->> [   66.441740]  ? sched_clock+0x8/0x10
->> [   66.441745]  ? sched_clock_cpu+0x13/0x180
->> [   66.441750]  ? btrfs_ioctl_get_supported_features+0x30/0x30 
->> [btrfs]
->> [   66.441750]  ? btrfs_ioctl_get_supported_features+0x30/0x30 
->> [btrfs]
->> [   66.441768]  __ia32_sys_ioctl+0x165/0x8a0
->> [   66.441773]  ? __this_cpu_preempt_check+0xf/0x11
->> [   66.441785]  ? __might_fault+0x89/0x90
->> [   66.441791]  __do_fast_syscall_32+0x54/0x80
->> [   66.441796]  do_fast_syscall_32+0x32/0x70
->> [   66.441801]  do_SYSENTER_32+0x15/0x20
->> [   66.441805]  entry_SYSENTER_32+0x9f/0xf2
->> [   66.441808] EIP: 0xab7b5549
->> [   66.441814] EAX: ffffffda EBX: 00000003 ECX: c4009420 EDX: 
->> bfa91f5c
->> [   66.441816] ESI: 00000003 EDI: 00000001 EBP: 00000000 ESP: 
->> bfa91e98
->> [   66.441818] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b 
->> EFLAGS: 00000292
->> [   66.441833] irq event stamp: 42579
->> [   66.441835] hardirqs last  enabled at (42585): [<c60eb065>] 
->> console_unlock+0x495/0x590
->> [   66.441838] hardirqs last disabled at (42590): [<c60eafd5>] 
->> console_unlock+0x405/0x590
->> [   66.441840] softirqs last  enabled at (41698): [<c601b76c>] 
->> call_on_stack+0x1c/0x60
->> [   66.441843] softirqs last disabled at (41681): [<c601b76c>] 
->> call_on_stack+0x1c/0x60
->> [   66.441846] ---[ end trace 7a9311b3f90a392e ]---
->> ========================================================================
->>
->> ========================================================================
->> btrfs_remove_chunk+0x58b/0x7b0:
->> __seqprop_mutex_assert at linux/./include/linux/seqlock.h:279
->> (inlined by) btrfs_device_set_bytes_used at 
->> linux/fs/btrfs/volumes.h:212
->> (inlined by) btrfs_remove_chunk at 
->> linux/fs/btrfs/volumes.c:2994
->> ========================================================================
->>
->> The warning is produced by lockdep_assert_held() in
->> __seqprop_mutex_assert() if CONFIG_LOCKDEP is enabled.
->> And "volumes.c:2994" is btrfs_device_set_bytes_used() with 
->> mutex lock
->> &fs_info->chunk_mutex hold already.
->>
+Aligning to tx_ndp_modulus is not sufficient because the next align
+call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
+ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
+on a Huawei 909s-120 LTE module as follows:
 
-My bad. btrfs_get/set_device_*() -> btrfs_device_get/set_*()
+- the condition marked /* if there is a remaining skb [...] */ is true
+  so the swaps happen
+- skb_out is set from ctx->tx_curr_skb
+- skb_out->len is exactly 0x3f52
+- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
+  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
+- the for loop over n is executed once
+- the cdc_ncm_align_tail call marked /* align beginning of next frame */
+  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
+- the condition marked /* check if we had enough room left [...] */ is
+  false so we break out of the loop
+- the condition marked /* If requested, put NDP at end of frame. */ is
+  true so the NDP is written into skb_out
+- now skb_out->len is 0x4002, so padding_count is minus two interpreted
+  as an unsigned number, which is used as the length argument to memset,
+  leading to a crash with various symptoms but usually including
 
->> After adding some debug prints, the cause was found that manyq
->> __alloc_device() are called with NULL @fs_info. Inside the 
->> function,
->> btrfs_device_data_ordered_init() is expanded to 
->> seqcount_mutex_init().
->> In this scenario, its second parameter(&info->chunk_mutex) 
->> passed is
->> &NULL->chunk_mutex which equals to offsetof(struct 
->> btrfs_fs_info,
->> chunk_mutex) unexpectly. Thus, seqcount_mutex_init() is called 
->> in wrong
->> way. And later btrfs_get/set_device_*() helpers triger lockdep 
->> warnings.
->>
+> Call Trace:
+>  <IRQ>
+>  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
+>  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
+>  usbnet_start_xmit+0x5d/0x720 [usbnet]
 
-Same here.
+The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
+boundary (adding at most ctx->tx_modulus-1 bytes), then adds
+ctx->tx_remainder bytes. Alternatively, the next alignment call can
+occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
+ctx->tx_ndp_modulus-1 bytes are added.
 
->> The complex solution is to delay the call of 
->> btrfs_device_data_ordered_
->> init() so the lockdep functionality can work well.
->> It requires that no btrfs_get/set_device_*() is called between
->> btrfs_alloc_device with NULL @fs_info and the delayed
->> btrfs_device_data_ordered_init(). Otherwise, total_bytes, 
->> disk_total_
->> bytes and bytes_uesed of device may be inconsistent in 32 bits
->> environments.
->
-> If the fs_info is not available at all times, would it be 
-> possible to
-> set it once it is? (And reset when the fs_info is released).
+A similar problem has occurred before, and the code is nontrivial to
+reason about, so add a guard before the crashing call. By that time it
+is too late to prevent any memory corruption (we'll have written past
+the end of the buffer already) but we can at least try to get a warning
+written into an on-disk log by avoiding the hard crash caused by padding
+past the buffer with a huge number of zeros.
 
-Please correct me if I am wrong. AFAIK, 
-btrfs_device_data_ordered_init()
-can be called correctly but only for the first time.
-Looking at include/linux/seqlock.h, seqcount_mutex_t::lock is 
-touched
-only in its initial timing. So when fs_info is released, there is
-not api to reset the seqcount_mutex_t::lock. Then warnings are 
-still
-there. Or we can allocate btrfs_device::data_seqcount in runtime.
-But is it worth changing struct btrfs_device only for the lockdep
-reason on 32 bits machines?
+Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
+Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[jks@iki.fi: backport to 4.4.y, 4.9.y]
+Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
+---
+Backport to 4.4.y and 4.9.y: there is no skb_put_zero or ctx->tx_curr_size
+so use memset(skb_put(...)) and ctx->tx_max, respectively.
+
+ drivers/net/usb/cdc_ncm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index e9f82b67c7ed..8de7797ea7e7 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1079,7 +1079,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
+ 	 * accordingly. Otherwise, we should check here.
+ 	 */
+ 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
+-		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
++		delayed_ndp_size = ctx->max_ndp_size +
++			max_t(u32,
++			      ctx->tx_ndp_modulus,
++			      ctx->tx_modulus + ctx->tx_remainder) - 1;
+ 	else
+ 		delayed_ndp_size = 0;
+
+@@ -1232,7 +1235,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
+ 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
+ 	    skb_out->len > ctx->min_tx_pkt) {
+ 		padding_count = ctx->tx_max - skb_out->len;
+-		memset(skb_put(skb_out, padding_count), 0, padding_count);
++		if (!WARN_ON(padding_count > ctx->tx_max))
++			memset(skb_put(skb_out, padding_count), 0, padding_count);
+ 	} else if (skb_out->len < ctx->tx_max &&
+ 		   (skb_out->len % dev->maxpacket) == 0) {
+ 		*skb_put(skb_out, 1) = 0;	/* force short packet */
+--
+2.20.1
