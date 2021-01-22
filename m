@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A7230062D
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:54:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7471A300627
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728600AbhAVOyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:54:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40006 "EHLO mail.kernel.org"
+        id S1728499AbhAVOxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:53:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728098AbhAVOXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 963C123B97;
-        Fri, 22 Jan 2021 14:18:16 +0000 (UTC)
+        id S1728146AbhAVOXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF2AA23B88;
+        Fri, 22 Jan 2021 14:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325097;
-        bh=BDBwdx4A9Le1xM2NMbXCJbK10ocruVqk176hAUfzWBA=;
+        s=korg; t=1611325081;
+        bh=o/eurK4c6tuXNbBi3YWhTOliawOpWz+i9hcPPayYzGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOiXmiZ/dMV+n070JPdFMHAYGJmya5528EGLeaz7wUEKkBxfs3QU1SQpTh9kOQLP3
-         5aY5+0v7QzTD5qUtfycZG+EzCRcH4fPVHS1BvQON5B607uul/9Mo+bv3egeuYhfKG4
-         Aq2dt1rI7nedQHBA0m3yeB64JxceQC7wOzCFYThU=
+        b=Qqfn5z/jQ8CMzhfcg9oh3yThij77D0pdIDpQiSJyglBLfijy6PzQGD0E3fP/V+PBN
+         MspR+wlLKkXwPV8sHEN9amIoOV2xQri+li8pj8bAodAiJGZ8QvI6nKpsf8HKtZv+8B
+         GGaCVDaN6UypQFgES2U8KbDYC75Y2ldru5U1wQ9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 14/43] netxen_nic: fix MSI/MSI-x interrupts
-Date:   Fri, 22 Jan 2021 15:12:30 +0100
-Message-Id: <20210122135736.224387720@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 15/33] net: skbuff: disambiguate argument and member for skb_list_walk_safe helper
+Date:   Fri, 22 Jan 2021 15:12:31 +0100
+Message-Id: <20210122135734.198767015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit a2bc221b972db91e4be1970e776e98f16aa87904 ]
+commit 5eee7bd7e245914e4e050c413dfe864e31805207 upstream.
 
-For all PCI functions on the netxen_nic adapter, interrupt
-mode (INTx or MSI) configuration is dependent on what has
-been configured by the PCI function zero in the shared
-interrupt register, as these adapters do not support mixed
-mode interrupts among the functions of a given adapter.
+This worked before, because we made all callers name their next pointer
+"next". But in trying to be more "drop-in" ready, the silliness here is
+revealed. This commit fixes the problem by making the macro argument and
+the member use different names.
 
-Logic for setting MSI/MSI-x interrupt mode in the shared interrupt
-register based on PCI function id zero check is not appropriate for
-all family of netxen adapters, as for some of the netxen family
-adapters PCI function zero is not really meant to be probed/loaded
-in the host but rather just act as a management function on the device,
-which caused all the other PCI functions on the adapter to always use
-legacy interrupt (INTx) mode instead of choosing MSI/MSI-x interrupt mode.
-
-This patch replaces that check with port number so that for all
-type of adapters driver attempts for MSI/MSI-x interrupt modes.
-
-Fixes: b37eb210c076 ("netxen_nic: Avoid mixed mode interrupts")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Link: https://lore.kernel.org/r/20210107101520.6735-1-manishc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ include/linux/skbuff.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
-+++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
-@@ -564,11 +564,6 @@ static const struct net_device_ops netxe
- 	.ndo_set_features = netxen_set_features,
- };
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1481,9 +1481,9 @@ static inline void skb_mark_not_on_list(
+ }
  
--static inline bool netxen_function_zero(struct pci_dev *pdev)
--{
--	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
--}
--
- static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
- 					     u32 mode)
+ /* Iterate through singly-linked GSO fragments of an skb. */
+-#define skb_list_walk_safe(first, skb, next)                                   \
+-	for ((skb) = (first), (next) = (skb) ? (skb)->next : NULL; (skb);      \
+-	     (skb) = (next), (next) = (skb) ? (skb)->next : NULL)
++#define skb_list_walk_safe(first, skb, next_skb)                               \
++	for ((skb) = (first), (next_skb) = (skb) ? (skb)->next : NULL; (skb);  \
++	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
+ 
+ static inline void skb_list_del_init(struct sk_buff *skb)
  {
-@@ -664,7 +659,7 @@ static int netxen_setup_intr(struct netx
- 	netxen_initialize_interrupt_registers(adapter);
- 	netxen_set_msix_bit(pdev, 0);
- 
--	if (netxen_function_zero(pdev)) {
-+	if (adapter->portnum == 0) {
- 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
- 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
- 		else
 
 
