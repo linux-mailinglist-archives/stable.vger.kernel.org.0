@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE32300D07
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79807300D08
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 21:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730502AbhAVT5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 14:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
+        id S1729228AbhAVT5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:57:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728135AbhAVOKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:10:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AF6A23A63;
-        Fri, 22 Jan 2021 14:09:24 +0000 (UTC)
+        id S1728276AbhAVOKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:10:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C80FA23A77;
+        Fri, 22 Jan 2021 14:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324565;
-        bh=5yugw90Ko4aivb8XQkrgzCxwHwauJny+K5bx2oqNd30=;
+        s=korg; t=1611324568;
+        bh=regSAMGbapBOv76T2bj2BS7L43T3k2GIlD+KtGtm4ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXV+yoMx3wgPUC6uIvBls5erGjhUoUjE9BiNbEuIVd0WGH8x1JbkpSWV+Q4NFnCGR
-         FmBmRuWZ3QY8tPQITGSmQFdglFvCffy6EBJQiIkRBF2dqiZy9hWB4RKMyRw2ZwMwoK
-         QRFqOYVSWB69J2AuNwsEINIi+3uulOLgr1qx5fAs=
+        b=00sh4NiQ2fqSeC//FFh2CoH2NwbyqiKbNtYzdf/TLg9kw8xnt5Ag2mPP0SHie6aMV
+         1AbuhmMScbxlboGL3tHjRviuHOtCGczo1kADmPF8XlTvUXkDjpVYfq+pwZsPDk3nR3
+         sl6Xzqd9UL/o1tF8CSuEbUsBJ6oq4gF8jC/hCzyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youjipeng <wangzhibei1999@gmail.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.4 22/31] nfsd4: readdirplus shouldnt return parent of export
-Date:   Fri, 22 Jan 2021 15:08:36 +0100
-Message-Id: <20210122135732.757781440@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "=?UTF-8?q?Jouni=20K . =20Sepp=C3=A4nen?=" <jks@iki.fi>,
+        kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 23/31] net: cdc_ncm: correct overhead in delayed_ndp_size
+Date:   Fri, 22 Jan 2021 15:08:37 +0100
+Message-Id: <20210122135732.797504665@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135731.873346566@linuxfoundation.org>
 References: <20210122135731.873346566@linuxfoundation.org>
@@ -40,52 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Jouni K. Seppänen <jks@iki.fi>
 
-commit 51b2ee7d006a736a9126e8111d1f24e4fd0afaa6 upstream.
+commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 upstream.
 
-If you export a subdirectory of a filesystem, a READDIRPLUS on the root
-of that export will return the filehandle of the parent with the ".."
-entry.
+Aligning to tx_ndp_modulus is not sufficient because the next align
+call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
+ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
+on a Huawei 909s-120 LTE module as follows:
 
-The filehandle is optional, so let's just not return the filehandle for
-".." if we're at the root of an export.
+- the condition marked /* if there is a remaining skb [...] */ is true
+  so the swaps happen
+- skb_out is set from ctx->tx_curr_skb
+- skb_out->len is exactly 0x3f52
+- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
+  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
+- the for loop over n is executed once
+- the cdc_ncm_align_tail call marked /* align beginning of next frame */
+  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
+- the condition marked /* check if we had enough room left [...] */ is
+  false so we break out of the loop
+- the condition marked /* If requested, put NDP at end of frame. */ is
+  true so the NDP is written into skb_out
+- now skb_out->len is 0x4002, so padding_count is minus two interpreted
+  as an unsigned number, which is used as the length argument to memset,
+  leading to a crash with various symptoms but usually including
 
-Note that once the client learns one filehandle outside of the export,
-they can trivially access the rest of the export using further lookups.
+> Call Trace:
+>  <IRQ>
+>  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
+>  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
+>  usbnet_start_xmit+0x5d/0x720 [usbnet]
 
-However, it is also not very difficult to guess filehandles outside of
-the export.  So exporting a subdirectory of a filesystem should
-considered equivalent to providing access to the entire filesystem.  To
-avoid confusion, we recommend only exporting entire filesystems.
+The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
+boundary (adding at most ctx->tx_modulus-1 bytes), then adds
+ctx->tx_remainder bytes. Alternatively, the next alignment call can
+occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
+ctx->tx_ndp_modulus-1 bytes are added.
 
-Reported-by: Youjipeng <wangzhibei1999@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+A similar problem has occurred before, and the code is nontrivial to
+reason about, so add a guard before the crashing call. By that time it
+is too late to prevent any memory corruption (we'll have written past
+the end of the buffer already) but we can at least try to get a warning
+written into an on-disk log by avoiding the hard crash caused by padding
+past the buffer with a huge number of zeros.
+
+Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
+Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[jks@iki.fi: backport to 4.4.y, 4.9.y]
+Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs3xdr.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/usb/cdc_ncm.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs3xdr.c
-+++ b/fs/nfsd/nfs3xdr.c
-@@ -821,9 +821,14 @@ compose_entry_fh(struct nfsd3_readdirres
- 	if (isdotent(name, namlen)) {
- 		if (namlen == 2) {
- 			dchild = dget_parent(dparent);
--			/* filesystem root - cannot return filehandle for ".." */
-+			/*
-+			 * Don't return filehandle for ".." if we're at
-+			 * the filesystem or export root:
-+			 */
- 			if (dchild == dparent)
- 				goto out;
-+			if (dparent == exp->ex_path.dentry)
-+				goto out;
- 		} else
- 			dchild = dget(dparent);
- 	} else
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1079,7 +1079,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
+ 	 * accordingly. Otherwise, we should check here.
+ 	 */
+ 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
+-		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
++		delayed_ndp_size = ctx->max_ndp_size +
++			max_t(u32,
++			      ctx->tx_ndp_modulus,
++			      ctx->tx_modulus + ctx->tx_remainder) - 1;
+ 	else
+ 		delayed_ndp_size = 0;
+ 
+@@ -1232,7 +1235,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
+ 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
+ 	    skb_out->len > ctx->min_tx_pkt) {
+ 		padding_count = ctx->tx_max - skb_out->len;
+-		memset(skb_put(skb_out, padding_count), 0, padding_count);
++		if (!WARN_ON(padding_count > ctx->tx_max))
++			memset(skb_put(skb_out, padding_count), 0, padding_count);
+ 	} else if (skb_out->len < ctx->tx_max &&
+ 		   (skb_out->len % dev->maxpacket) == 0) {
+ 		*skb_put(skb_out, 1) = 0;	/* force short packet */
 
 
