@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A47300B8C
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:41:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A251300B54
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729712AbhAVSkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:40:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
+        id S1728519AbhAVOV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:21:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbhAVOTp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728080AbhAVOTp (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Jan 2021 09:19:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 041AB23AA9;
-        Fri, 22 Jan 2021 14:14:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6798223AAC;
+        Fri, 22 Jan 2021 14:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324862;
-        bh=u204TgGO/4BDw82yYCpdPhK75rsavS1oAKSO44J18YE=;
+        s=korg; t=1611324864;
+        bh=PPIOShveQasA/lsuGz69f1uESWi/DAfX0a6fHsSbRZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WoxpXw1ru7Ok8iHHi4KVukok/W5jME5RVO8aorTOVQIquuA/NtRKQLAns2PTaENp
-         RCvXBgXhHXc/yyhJhfsfCSU1W7Um98aG/C+ghQS4TgvgqnJ4BL0zGyh8pFQapjqpr/
-         bFmIQYcN+VwIE0gUOJE+nizCZV+1TBMGt2c28V98=
+        b=ySUgcdcavH9DwSjl/ufEfdDeBBdmNxH/LeTYCk1LazeYOfOhq39LU0ydQufvkdF76
+         fz9jjjyw9sucZU1bfj83pI9Cfy+vo6M+2mr3C6uqaZLP9FSLISNZvH4Lptqof9mKST
+         KTiXcp8yjjZ1KyDVo+dm7B0sUIThy67qSMOM5GGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 06/50] mm/hugetlb: fix potential missing huge page size info
-Date:   Fri, 22 Jan 2021 15:11:47 +0100
-Message-Id: <20210122135735.433953389@linuxfoundation.org>
+        stable@vger.kernel.org, Akilesh Kailash <akailash@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 07/50] dm snapshot: flush merged data before committing metadata
+Date:   Fri, 22 Jan 2021 15:11:48 +0100
+Message-Id: <20210122135735.479437406@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -41,36 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Akilesh Kailash <akailash@google.com>
 
-commit 0eb98f1588c2cc7a79816d84ab18a55d254f481c upstream.
+commit fcc42338375a1e67b8568dbb558f8b784d0f3b01 upstream.
 
-The huge page size is encoded for VM_FAULT_HWPOISON errors only.  So if
-we return VM_FAULT_HWPOISON, huge page size would just be ignored.
+If the origin device has a volatile write-back cache and the following
+events occur:
 
-Link: https://lkml.kernel.org/r/20210107123449.38481-1-linmiaohe@huawei.com
-Fixes: aa50d3a7aa81 ("Encode huge page size for VM_FAULT_HWPOISON errors")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+1: After finishing merge operation of one set of exceptions,
+   merge_callback() is invoked.
+2: Update the metadata in COW device tracking the merge completion.
+   This update to COW device is flushed cleanly.
+3: System crashes and the origin device's cache where the recent
+   merge was completed has not been flushed.
+
+During the next cycle when we read the metadata from the COW device,
+we will skip reading those metadata whose merge was completed in
+step (1). This will lead to data loss/corruption.
+
+To address this, flush the origin device post merge IO before
+updating the metadata.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Akilesh Kailash <akailash@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/hugetlb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-snap.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3797,7 +3797,7 @@ retry:
- 		 * So we need to block hugepage fault by PG_hwpoison bit check.
- 		 */
- 		if (unlikely(PageHWPoison(page))) {
--			ret = VM_FAULT_HWPOISON |
-+			ret = VM_FAULT_HWPOISON_LARGE |
- 				VM_FAULT_SET_HINDEX(hstate_index(h));
- 			goto backout_unlocked;
- 		}
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -137,6 +137,11 @@ struct dm_snapshot {
+ 	 * for them to be committed.
+ 	 */
+ 	struct bio_list bios_queued_during_merge;
++
++	/*
++	 * Flush data after merge.
++	 */
++	struct bio flush_bio;
+ };
+ 
+ /*
+@@ -1060,6 +1065,17 @@ shut:
+ 
+ static void error_bios(struct bio *bio);
+ 
++static int flush_data(struct dm_snapshot *s)
++{
++	struct bio *flush_bio = &s->flush_bio;
++
++	bio_reset(flush_bio);
++	bio_set_dev(flush_bio, s->origin->bdev);
++	flush_bio->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
++
++	return submit_bio_wait(flush_bio);
++}
++
+ static void merge_callback(int read_err, unsigned long write_err, void *context)
+ {
+ 	struct dm_snapshot *s = context;
+@@ -1073,6 +1089,11 @@ static void merge_callback(int read_err,
+ 		goto shut;
+ 	}
+ 
++	if (flush_data(s) < 0) {
++		DMERR("Flush after merge failed: shutting down merge");
++		goto shut;
++	}
++
+ 	if (s->store->type->commit_merge(s->store,
+ 					 s->num_merging_chunks) < 0) {
+ 		DMERR("Write error in exception store: shutting down merge");
+@@ -1197,6 +1218,7 @@ static int snapshot_ctr(struct dm_target
+ 	s->first_merging_chunk = 0;
+ 	s->num_merging_chunks = 0;
+ 	bio_list_init(&s->bios_queued_during_merge);
++	bio_init(&s->flush_bio, NULL, 0);
+ 
+ 	/* Allocate hash table for COW data */
+ 	if (init_hash_tables(s)) {
+@@ -1391,6 +1413,8 @@ static void snapshot_dtr(struct dm_targe
+ 
+ 	mutex_destroy(&s->lock);
+ 
++	bio_uninit(&s->flush_bio);
++
+ 	dm_put_device(ti, s->cow);
+ 
+ 	dm_put_device(ti, s->origin);
 
 
