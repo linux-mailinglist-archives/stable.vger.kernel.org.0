@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C90300B92
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AFF300B96
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729876AbhAVSlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:41:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
+        id S1729907AbhAVSlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728453AbhAVOVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:21:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 140E523ABA;
-        Fri, 22 Jan 2021 14:15:08 +0000 (UTC)
+        id S1728467AbhAVOVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:21:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4C9423AC2;
+        Fri, 22 Jan 2021 14:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324908;
-        bh=Wi2KvzeV8ltrKz2NYN0wBNArqkOwihmlWj5whBjcTl8=;
+        s=korg; t=1611324911;
+        bh=dYZj4iGGDR/kuqmoAy1acWUzu2m9LQhEVgdmONgnaCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01d+SFOvnupcgLnaL9VLqJ6hqvQ7UduFrmSYkNQ3cbFx1lYIzTeU9BAJuHfYgow/5
-         d24cNVa9e1QGy6zmr7fwhpippt/92mx3KVYeFRnGChIm4V/I3dfHna0hw4HNo8PkBl
-         MhqCf1mqynPch8xH6Ku+8oDAm4j0Fa8SFIAm+QZA=
+        b=NK4ot7A41qjmje+B22utwwTJvbM1CyTCtYPXqhBLdGGniLCoLUBEc3AwOZdvcO18n
+         I6E/yHd5F5Xfhwn9HQ8/p7S6whCkPEkbL0pKQW8W94Ix3WcWyoatJD8DvBQCG8cJqY
+         sKNORz/MCgpmE7ybdVi/33/e7fgHmB6P3FBynm7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@kernel.org>, Will Deacon <will@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Theodore Tso <tytso@mit.edu>,
-        Florian Weimer <fweimer@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.14 34/50] compiler.h: Raise minimum version of GCC to 5.1 for arm64
-Date:   Fri, 22 Jan 2021 15:12:15 +0100
-Message-Id: <20210122135736.580527275@linuxfoundation.org>
+        stable@vger.kernel.org, Youjipeng <wangzhibei1999@gmail.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.14 35/50] nfsd4: readdirplus shouldnt return parent of export
+Date:   Fri, 22 Jan 2021 15:12:16 +0100
+Message-Id: <20210122135736.619424367@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.176469491@linuxfoundation.org>
 References: <20210122135735.176469491@linuxfoundation.org>
@@ -46,56 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
+commit 51b2ee7d006a736a9126e8111d1f24e4fd0afaa6 upstream.
 
-GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
-beyond the stack pointer, resulting in memory corruption if an interrupt
-is taken after the stack pointer has been adjusted but before the
-reference has been executed. This leads to subtle, infrequent data
-corruption such as the EXT4 problems reported by Russell King at the
-link below.
+If you export a subdirectory of a filesystem, a READDIRPLUS on the root
+of that export will return the filehandle of the parent with the ".."
+entry.
 
-Life is too short for buggy compilers, so raise the minimum GCC version
-required by arm64 to 5.1.
+The filehandle is optional, so let's just not return the filehandle for
+".." if we're at the root of an export.
 
-Reported-by: Russell King <linux@armlinux.org.uk>
-Suggested-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Florian Weimer <fweimer@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
-Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[will: backport to 4.4.y/4.9.y/4.14.y]
-Signed-off-by: Will Deacon <will@kernel.org>
+Note that once the client learns one filehandle outside of the export,
+they can trivially access the rest of the export using further lookups.
+
+However, it is also not very difficult to guess filehandles outside of
+the export.  So exporting a subdirectory of a filesystem should
+considered equivalent to providing access to the entire filesystem.  To
+avoid confusion, we recommend only exporting entire filesystems.
+
+Reported-by: Youjipeng <wangzhibei1999@gmail.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/compiler-gcc.h |    6 ++++++
- 1 file changed, 6 insertions(+)
 
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -152,6 +152,12 @@
- 
- #if GCC_VERSION < 30200
- # error Sorry, your compiler is too old - please upgrade it.
-+#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100
-+/*
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
-+ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
-+ */
-+# error Sorry, your version of GCC is too old - please use 5.1 or newer.
- #endif
- 
- #if GCC_VERSION < 30300
+---
+ fs/nfsd/nfs3xdr.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -845,9 +845,14 @@ compose_entry_fh(struct nfsd3_readdirres
+ 	if (isdotent(name, namlen)) {
+ 		if (namlen == 2) {
+ 			dchild = dget_parent(dparent);
+-			/* filesystem root - cannot return filehandle for ".." */
++			/*
++			 * Don't return filehandle for ".." if we're at
++			 * the filesystem or export root:
++			 */
+ 			if (dchild == dparent)
+ 				goto out;
++			if (dparent == exp->ex_path.dentry)
++				goto out;
+ 		} else
+ 			dchild = dget(dparent);
+ 	} else
 
 
