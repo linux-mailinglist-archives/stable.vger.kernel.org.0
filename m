@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 096BB300C3E
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A5F300D01
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 20:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729585AbhAVSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:42:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
+        id S1729236AbhAVT4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:56:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728525AbhAVOWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 838B023B52;
-        Fri, 22 Jan 2021 14:16:07 +0000 (UTC)
+        id S1728263AbhAVOKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:10:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E1CA23A62;
+        Fri, 22 Jan 2021 14:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324968;
-        bh=nnGMVQlWgPgHufE3sp+L4vPltDrGHjcCpMgLKlHs15E=;
+        s=korg; t=1611324552;
+        bh=YgQUU3JGdz9Z7qSovjyPHJGG9w9hfxgTurz6kM3ADEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqnLXO+/Vz8I0Khu8AaUD3ELkQJy3KvJ/Njsyl3il6lfS2w9E8ALDeLdKcPGMe42u
-         kiPYsNFkDNw/jKu77Dw6+fHZkL6OCRhHFd+B356JqXlbohmHUicpaUP72f/NJ59lXa
-         g/VVajHFj7OOi0BNUAwX29Ya2i8Pb0KDvuq3p/pE=
+        b=ALL9f4mUoUMrSrQsDhA9PDiQwQ9/PU12SvGuAv8CY66HFF4Og+yXvi/3qYThiXTWE
+         ynWgFe3wyfqOl42j4zvfTyr/jFjh+l1BGqHPuJSftkvj14Qz0deXXyHq5ckFJro47a
+         3AlhPIlpJ4iZ39XCT61daDLN8VXsJTHgQN+uqQIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 22/22] spi: cadence: cache reference clock rate during probe
-Date:   Fri, 22 Jan 2021 15:12:40 +0100
-Message-Id: <20210122135732.786726542@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 17/31] mm, slub: consider rest of partial list if acquire_slab() fails
+Date:   Fri, 22 Jan 2021 15:08:31 +0100
+Message-Id: <20210122135732.561877500@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135731.873346566@linuxfoundation.org>
+References: <20210122135731.873346566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Jann Horn <jannh@google.com>
 
-commit 4d163ad79b155c71bf30366dc38f8d2502f78844 upstream.
+commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf upstream.
 
-The issue is that using SPI from a callback under the CCF lock will
-deadlock, since this code uses clk_get_rate().
+acquire_slab() fails if there is contention on the freelist of the page
+(probably because some other CPU is concurrently freeing an object from
+the page).  In that case, it might make sense to look for a different page
+(since there might be more remote frees to the page from other CPUs, and
+we don't want contention on struct page).
 
-Fixes: c474b38665463 ("spi: Add driver for Cadence SPI controller")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Link: https://lore.kernel.org/r/20210114154217.51996-1-alexandru.ardelean@analog.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+However, the current code accidentally stops looking at the partial list
+completely in that case.  Especially on kernels without CONFIG_NUMA set,
+this means that get_partial() fails and new_slab_objects() falls back to
+new_slab(), allocating new pages.  This could lead to an unnecessary
+increase in memory fragmentation.
+
+Link: https://lkml.kernel.org/r/20201228130853.1871516-1-jannh@google.com
+Fixes: 7ced37197196 ("slub: Acquire_slab() avoid loop")
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-cadence.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi-cadence.c
-+++ b/drivers/spi/spi-cadence.c
-@@ -119,6 +119,7 @@ struct cdns_spi {
- 	void __iomem *regs;
- 	struct clk *ref_clk;
- 	struct clk *pclk;
-+	unsigned int clk_rate;
- 	u32 speed_hz;
- 	const u8 *txbuf;
- 	u8 *rxbuf;
-@@ -258,7 +259,7 @@ static void cdns_spi_config_clock_freq(s
- 	u32 ctrl_reg, baud_rate_val;
- 	unsigned long frequency;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1682,7 +1682,7 @@ static void *get_partial_node(struct kme
  
--	frequency = clk_get_rate(xspi->ref_clk);
-+	frequency = xspi->clk_rate;
+ 		t = acquire_slab(s, n, page, object == NULL, &objects);
+ 		if (!t)
+-			break;
++			continue; /* cmpxchg raced */
  
- 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
- 
-@@ -628,8 +629,9 @@ static int cdns_spi_probe(struct platfor
- 	master->auto_runtime_pm = true;
- 	master->mode_bits = SPI_CPOL | SPI_CPHA;
- 
-+	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
- 	/* Set to default valid value */
--	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
-+	master->max_speed_hz = xspi->clk_rate / 4;
- 	xspi->speed_hz = master->max_speed_hz;
- 
- 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+ 		available += objects;
+ 		if (!object) {
 
 
