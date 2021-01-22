@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA68300643
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F65300638
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728795AbhAVOzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:55:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1728754AbhAVOyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:54:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728102AbhAVOXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F92423B86;
-        Fri, 22 Jan 2021 14:17:58 +0000 (UTC)
+        id S1728657AbhAVOYb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:24:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EF1423BAB;
+        Fri, 22 Jan 2021 14:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325078;
-        bh=Ezrq2UMDPmiA5cdvtmkULodDY1ScrX4C2r0E2sELQZ8=;
+        s=korg; t=1611325137;
+        bh=O78ukoxeG0IaNGNpHDKfzfTczag+olgjsCE1ncOn/90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdPWxgkAe0Ft9/Xvl3mK+24wqymC+qAHzbpewht/CUumsf1GFVL6Ahy2Qt383agU7
-         l2zK2abJwJruKpjNQ0lT9XJhqKScYhmMx1jUmnSuOzDfO0jqEiHbBUvK/RoxdWbNd9
-         cipl5Dpn1Nw++/UgpnlCc4HFsJKZEzzyTYbB53q0=
+        b=cokGubv8uOGurMkLwz0SDL2SDV6RY7Guq07iT/KGOQqSKiC2hJtn163vYiF/i+1Iu
+         lO67TzZYQLRTKOrHFimSX6/YByYDp+FMbm1FGON5NOr1ThsPdlRQP6HylBgTbkyvRw
+         OkvCOSD9nX4NkYpRrEPSBGa6AskfG5BPlpDcj/28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 24/33] rxrpc: Call state should be read with READ_ONCE() under some circumstances
-Date:   Fri, 22 Jan 2021 15:12:40 +0100
-Message-Id: <20210122135734.553550962@linuxfoundation.org>
+Subject: [PATCH 5.10 29/43] net: stmmac: fix taprio configuration when base_time is in the past
+Date:   Fri, 22 Jan 2021 15:12:45 +0100
+Message-Id: <20210122135736.834753723@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+References: <20210122135735.652681690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Yannick Vignon <yannick.vignon@nxp.com>
 
-[ Upstream commit a95d25dd7b94a5ba18246da09b4218f132fed60e ]
+[ Upstream commit fe28c53ed71d463e187748b6b10e1130dd72ceeb ]
 
-The call state may be changed at any time by the data-ready routine in
-response to received packets, so if the call state is to be read and acted
-upon several times in a function, READ_ONCE() must be used unless the call
-state lock is held.
+The Synopsys TSN MAC supports Qbv base times in the past, but only up to a
+certain limit. As a result, a taprio qdisc configuration with a small
+base time (for example when treating the base time as a simple phase
+offset) is not applied by the hardware and silently ignored.
 
-As it happens, we used READ_ONCE() to read the state a few lines above the
-unmarked read in rxrpc_input_data(), so use that value rather than
-re-reading it.
+This was observed on an NXP i.MX8MPlus device, but likely affects all
+TSN-variants of the MAC.
 
-Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/161046715522.2450566.488819910256264150.stgit@warthog.procyon.org.uk
+Fix the issue by making sure the base time is in the future, pushing it by
+an integer amount of cycle times if needed. (a similar check is already
+done in several other taprio implementations, see for example
+drivers/net/ethernet/intel/igc/igc_tsn.c#L116 or
+drivers/net/dsa/sja1105/sja1105_ptp.h#L39).
+
+Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Link: https://lore.kernel.org/r/20210113131557.24651-2-yannick.vignon@oss.nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/input.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -431,7 +431,7 @@ static void rxrpc_input_data(struct rxrp
- 		return;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+@@ -605,7 +605,8 @@ static int tc_setup_taprio(struct stmmac
+ {
+ 	u32 size, wid = priv->dma_cap.estwid, dep = priv->dma_cap.estdep;
+ 	struct plat_stmmacenet_data *plat = priv->plat;
+-	struct timespec64 time;
++	struct timespec64 time, current_time;
++	ktime_t current_time_ns;
+ 	bool fpe = false;
+ 	int i, ret = 0;
+ 	u64 ctr;
+@@ -700,7 +701,22 @@ static int tc_setup_taprio(struct stmmac
  	}
  
--	if (call->state == RXRPC_CALL_SERVER_RECV_REQUEST) {
-+	if (state == RXRPC_CALL_SERVER_RECV_REQUEST) {
- 		unsigned long timo = READ_ONCE(call->next_req_timo);
- 		unsigned long now, expect_req_by;
+ 	/* Adjust for real system time */
+-	time = ktime_to_timespec64(qopt->base_time);
++	priv->ptp_clock_ops.gettime64(&priv->ptp_clock_ops, &current_time);
++	current_time_ns = timespec64_to_ktime(current_time);
++	if (ktime_after(qopt->base_time, current_time_ns)) {
++		time = ktime_to_timespec64(qopt->base_time);
++	} else {
++		ktime_t base_time;
++		s64 n;
++
++		n = div64_s64(ktime_sub_ns(current_time_ns, qopt->base_time),
++			      qopt->cycle_time);
++		base_time = ktime_add_ns(qopt->base_time,
++					 (n + 1) * qopt->cycle_time);
++
++		time = ktime_to_timespec64(base_time);
++	}
++
+ 	priv->plat->est->btr[0] = (u32)time.tv_nsec;
+ 	priv->plat->est->btr[1] = (u32)time.tv_sec;
  
 
 
