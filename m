@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E06300B17
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB35D300B1D
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729368AbhAVSVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:21:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
+        id S1729645AbhAVSWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:22:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728578AbhAVOXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9422E23A79;
-        Fri, 22 Jan 2021 14:17:20 +0000 (UTC)
+        id S1728582AbhAVOXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41B9523A56;
+        Fri, 22 Jan 2021 14:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325041;
-        bh=OjkBCCbD6kjF52zIbkw0BilrXN/lZLYyKMMYNf7ASLw=;
+        s=korg; t=1611325043;
+        bh=rPGWp0uZ3k/mwcKTuBc9nh9FPZsHTbJNzxLEIW/fUmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hzz+rKeynI7UH/T9T7FT9MNvd4Qo5S5tIyc0bcXpn/FCAoFbEC6rDRfxmfj4MCkB1
-         J5SHsKn2fr6Kg9RTYtuyy7inN5axgcStYG7HMfVj4W6ZJ01qB+G8doLS9P+NdTt/HV
-         +iTjJiebYcrW3nOT/RvUxjTNOJuQEwiIscpmFtcw=
+        b=OGtzbyH+plWT7caabb4eJ6LqiLMYWHAgZbWu07jV6RIXTwoUaf1FyD4HS5AmHQxgv
+         fU3XrGpWev7zHpvWrh+cs7as4bUfX1rLGdDAKQD77C1Mod36PvijCuii6Qnlrb6l1j
+         0l9Xxjo4iIRb/G9+MU1mNUOtf9+2eMgdjWZAqx/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Greg Thelen <gthelen@google.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        David Howells <dhowells@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 27/33] net: avoid 32 x truesize under-estimation for tiny skbs
-Date:   Fri, 22 Jan 2021 15:12:43 +0100
-Message-Id: <20210122135734.669951214@linuxfoundation.org>
+Subject: [PATCH 5.4 28/33] rxrpc: Fix handling of an unsupported token type in rxrpc_read()
+Date:   Fri, 22 Jan 2021 15:12:44 +0100
+Message-Id: <20210122135734.711305392@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
 References: <20210122135733.565501039@linuxfoundation.org>
@@ -43,81 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 3226b158e67cfaa677fd180152bfb28989cb2fac ]
+[ Upstream commit d52e419ac8b50c8bef41b398ed13528e75d7ad48 ]
 
-Both virtio net and napi_get_frags() allocate skbs
-with a very small skb->head
+Clang static analysis reports the following:
 
-While using page fragments instead of a kmalloc backed skb->head might give
-a small performance improvement in some cases, there is a huge risk of
-under estimating memory usage.
+net/rxrpc/key.c:657:11: warning: Assigned value is garbage or undefined
+                toksize = toksizes[tok++];
+                        ^ ~~~~~~~~~~~~~~~
 
-For both GOOD_COPY_LEN and GRO_MAX_HEAD, we can fit at least 32 allocations
-per page (order-3 page in x86), or even 64 on PowerPC
+rxrpc_read() contains two consecutive loops.  The first loop calculates the
+token sizes and stores the results in toksizes[] and the second one uses
+the array.  When there is an error in identifying the token in the first
+loop, the token is skipped, no change is made to the toksizes[] array.
+When the same error happens in the second loop, the token is not skipped.
+This will cause the toksizes[] array to be out of step and will overrun
+past the calculated sizes.
 
-We have been tracking OOM issues on GKE hosts hitting tcp_mem limits
-but consuming far more memory for TCP buffers than instructed in tcp_mem[2]
+Fix this by making both loops log a message and return an error in this
+case.  This should only happen if a new token type is incompletely
+implemented, so it should normally be impossible to trigger this.
 
-Even if we force napi_alloc_skb() to only use order-0 pages, the issue
-would still be there on arches with PAGE_SIZE >= 32768
-
-This patch makes sure that small skb head are kmalloc backed, so that
-other objects in the slab page can be reused instead of being held as long
-as skbs are sitting in socket queues.
-
-Note that we might in the future use the sk_buff napi cache,
-instead of going through a more expensive __alloc_skb()
-
-Another idea would be to use separate page sizes depending
-on the allocated length (to never have more than 4 frags per page)
-
-I would like to thank Greg Thelen for his precious help on this matter,
-analysing crash dumps is always a time consuming task.
-
-Fixes: fd11a83dd363 ("net: Pull out core bits of __netdev_alloc_skb and add __napi_alloc_skb")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Greg Thelen <gthelen@google.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20210113161819.1155526-1-eric.dumazet@gmail.com
+Fixes: 9a059cd5ca7d ("rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()")
+Reported-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/161046503122.2445787.16714129930607546635.stgit@warthog.procyon.org.uk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/rxrpc/key.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -496,13 +496,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
- struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
- 				 gfp_t gfp_mask)
- {
--	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
-+	struct napi_alloc_cache *nc;
- 	struct sk_buff *skb;
- 	void *data;
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1110,7 +1110,7 @@ static long rxrpc_read(const struct key
+ 		default: /* we have a ticket we can't encode */
+ 			pr_err("Unsupported key token type (%u)\n",
+ 			       token->security_index);
+-			continue;
++			return -ENOPKG;
+ 		}
  
- 	len += NET_SKB_PAD + NET_IP_ALIGN;
+ 		_debug("token[%u]: toksize=%u", ntoks, toksize);
+@@ -1225,7 +1225,9 @@ static long rxrpc_read(const struct key
+ 			break;
  
--	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
-+	/* If requested length is either too small or too big,
-+	 * we use kmalloc() for skb->head allocation.
-+	 */
-+	if (len <= SKB_WITH_OVERHEAD(1024) ||
-+	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
- 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
- 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
- 		if (!skb)
-@@ -510,6 +514,7 @@ struct sk_buff *__napi_alloc_skb(struct
- 		goto skb_success;
- 	}
+ 		default:
+-			break;
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
++			return -ENOPKG;
+ 		}
  
-+	nc = this_cpu_ptr(&napi_alloc_cache);
- 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	len = SKB_DATA_ALIGN(len);
- 
+ 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
 
 
