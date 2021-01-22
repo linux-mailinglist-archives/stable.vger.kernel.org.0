@@ -2,356 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A07A300F17
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 22:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D98300FD5
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 23:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728531AbhAVVn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 16:43:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47373 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730019AbhAVVhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jan 2021 16:37:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611351378;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=h2JjQdofVOKmgepx/sw09k6ru9C7fqWQzwFYJIWAVW0=;
-        b=V24mtvKkyHJ+gGCFsmJAXMK3pDhdliAtF5DtqBiWtjn6BBf1GPWLnD0BObKaBCVe8odBDr
-        7FxFKL8shG7IWR+ju0JCtFAY0klcWwgfnb1PXHj9aCo4fIZh6slJjkAWPyzw+QkW/ble42
-        zUE4rR+F/2u910VQWTsBRrructd/1w8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-81-lBH0x4J2PwurnoowkjHG8A-1; Fri, 22 Jan 2021 16:36:15 -0500
-X-MC-Unique: lBH0x4J2PwurnoowkjHG8A-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A23B6806661
-        for <stable@vger.kernel.org>; Fri, 22 Jan 2021 21:36:14 +0000 (UTC)
-Received: from [172.23.4.52] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 97F1510013BD;
-        Fri, 22 Jan 2021 21:36:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1728385AbhAVTzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 14:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728368AbhAVOJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:09:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CE823A53;
+        Fri, 22 Jan 2021 14:08:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611324531;
+        bh=1mpKRTi1jtG7ewq+qqVDqtz1zY+T9CSlXpqXKI81no4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jtrKgpKq9o2Lid9QWvgIhTgnCrVodHpsbZATRGi6bqDhKvuCG/j7d5IhtKDA/l3e8
+         Mbj18TNV3d37PomoGFQnIq4CHcr07m0S216ilN6h3NvCzjoXWQwqobi/8g1GWxj6b+
+         pUvPEGoA91rYDfgRSN4fGi35QW63UkCKuEXNiOtw=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/31] 4.4.253-rc1 review
+Date:   Fri, 22 Jan 2021 15:08:14 +0100
+Message-Id: <20210122135731.873346566@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.10.9 (stable-queue)
-Date:   Fri, 22 Jan 2021 21:36:06 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>, Xiaowu Wu <xiawu@redhat.com>,
-        Baoquan He <bhe@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>,
-        David Arcari <darcari@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.DE61287912.91O3WZMPXI@redhat.com>
-X-Gitlab-Pipeline-ID: 621975
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/621975
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.253-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.253-rc1
+X-KernelTest-Deadline: 2021-01-24T13:57+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the start of the stable review cycle for the 4.4.253 release.
+There are 31 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Hello,
+Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+Anything received after that time might be too late.
 
-We ran automated tests on a recent commit from this kernel tree:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.253-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 7cb5c39aa952 - can: mcp251xfd: mcp251xfd_handle_rxif_one(=
-): fix wrong NULL pointer check
+thanks,
 
-The results of these automated tests are provided below.
+greg k-h
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/01/22/621975
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
-
-  x86_64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C xfstests - nfsv4.2
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
-er test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
-dule test
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
 -------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
+Pseudo-Shortlog of commits:
 
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.253-rc1
 
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+Michael Hennerich <michael.hennerich@analog.com>
+    spi: cadence: cache reference clock rate during probe
+
+Eric Dumazet <edumazet@google.com>
+    net: avoid 32 x truesize under-estimation for tiny skbs
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Fix handling of an unsupported token type in rxrpc_read()
+
+Jakub Kicinski <kuba@kernel.org>
+    net: sit: unregister_netdevice on newlink's error path
+
+Petr Machata <petrm@nvidia.com>
+    net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
+
+Petr Machata <me@pmachata.org>
+    net: dcb: Validate netlink message in DCB handler
+
+Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+    rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+
+Manish Chopra <manishc@marvell.com>
+    netxen_nic: fix MSI/MSI-x interrupts
+
+Jouni K. Seppänen <jks@iki.fi>
+    net: cdc_ncm: correct overhead in delayed_ndp_size
+
+J. Bruce Fields <bfields@redhat.com>
+    nfsd4: readdirplus shouldn't return parent of export
+
+Nuno Sá <nuno.sa@analog.com>
+    iio: buffer: Fix demux update
+
+Will Deacon <will@kernel.org>
+    compiler.h: Raise minimum version of GCC to 5.1 for arm64
+
+Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+    usb: ohci: Make distrust_firmware param default to false
+
+j.nixdorf@avm.de <j.nixdorf@avm.de>
+    net: sunrpc: interpret the return value of kstrtou32 correctly
+
+Jann Horn <jannh@google.com>
+    mm, slub: consider rest of partial list if acquire_slab() fails
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
+
+Jan Kara <jack@suse.cz>
+    ext4: fix superblock checksum failure when setting password salt
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: nfs_igrab_and_active must first reference the superblock
+
+Al Viro <viro@zeniv.linux.org.uk>
+    dump_common_audit_data(): fix racy accesses to ->d_name
+
+Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    Input: uinput - avoid FF flush when destroying device
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: picoxcell: fix missing interrupt-parent properties
+
+Shawn Guo <shawn.guo@linaro.org>
+    ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
+
+Michael Ellerman <mpe@ellerman.id.au>
+    net: ethernet: fs_enet: Add missing MODULE_LICENSE
+
+Arnd Bergmann <arnd@arndb.de>
+    misdn: dsp: select CONFIG_BITREVERSE
+
+Randy Dunlap <rdunlap@infradead.org>
+    arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
+
+Masahiro Yamada <masahiroy@kernel.org>
+    ARC: build: add boot_targets to PHONY
+
+yangerkun <yangerkun@huawei.com>
+    ext4: fix bug for rename with RENAME_WHITEOUT
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/hugetlb: fix potential missing huge page size info
+
+Al Viro <viro@zeniv.linux.org.uk>
+    MIPS: Fix malformed NT_FILE and NT_SIGINFO in 32bit coredumps
+
+Thomas Hebb <tommyhebb@gmail.com>
+    ASoC: dapm: remove widget from dirty list on free
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                             |  4 ++--
+ arch/arc/Makefile                                    |  1 +
+ arch/arc/include/asm/page.h                          |  1 +
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi               |  4 ++++
+ arch/mips/kernel/binfmt_elfn32.c                     |  7 +++++++
+ arch/mips/kernel/binfmt_elfo32.c                     |  7 +++++++
+ drivers/iio/industrialio-buffer.c                    |  6 +++---
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c         |  3 +++
+ drivers/input/ff-core.c                              | 13 ++++++++++---
+ drivers/input/misc/uinput.c                          | 18 ++++++++++++++++++
+ drivers/isdn/mISDN/Kconfig                           |  1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c |  1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-fec.c     |  1 +
+ drivers/net/ethernet/freescale/ucc_geth.h            |  9 ++++++++-
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |  7 +------
+ drivers/net/usb/cdc_ncm.c                            |  8 ++++++--
+ drivers/net/usb/rndis_host.c                         |  2 +-
+ drivers/spi/spi-cadence.c                            |  6 ++++--
+ drivers/usb/host/ohci-hcd.c                          |  2 +-
+ fs/ext4/ioctl.c                                      |  3 +++
+ fs/ext4/namei.c                                      | 16 +++++++++-------
+ fs/nfs/internal.h                                    | 12 +++++++-----
+ fs/nfsd/nfs3xdr.c                                    |  7 ++++++-
+ include/linux/acpi.h                                 |  7 +++++++
+ include/linux/compiler-gcc.h                         |  6 ++++++
+ include/linux/input.h                                |  1 +
+ mm/hugetlb.c                                         |  2 +-
+ mm/slub.c                                            |  2 +-
+ net/core/skbuff.c                                    |  9 +++++++--
+ net/dcb/dcbnl.c                                      |  2 ++
+ net/ipv6/sit.c                                       |  5 ++++-
+ net/rxrpc/ar-key.c                                   |  6 ++++--
+ net/sunrpc/addr.c                                    |  2 +-
+ security/lsm_audit.c                                 |  7 +++++--
+ sound/soc/soc-dapm.c                                 |  1 +
+ 35 files changed, 145 insertions(+), 44 deletions(-)
+
 
