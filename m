@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0B33005F1
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:49:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E76B2300642
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728923AbhAVOsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:48:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41478 "EHLO mail.kernel.org"
+        id S1728779AbhAVOy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:54:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbhAVOY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:24:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B8323A77;
-        Fri, 22 Jan 2021 14:19:01 +0000 (UTC)
+        id S1728660AbhAVOYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:24:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CB0023A7C;
+        Fri, 22 Jan 2021 14:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325142;
-        bh=4QU0QYJKASwhpGRzYAgrQ4RqEpVWwT2xa0k5nBxOIJM=;
+        s=korg; t=1611325144;
+        bh=PJGI0RI9n0b8CV72l3ojUzF7izWhFbMYwKg1ZcKpiKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SjHVHWieZnFC4B5Ai8uewof9siflGn30Khni2tSP5o71DCobxsrWPra2bd+S+c0Nb
-         gjSReS1TANCvpGxhbHGi1o+5+m5sf8iRzu0ANT5C4VBpHPOcqlFDCzQ2GoL9u2g9Tw
-         uC2HnElKfgoI8VB8bdOBMxtCGrHa+wjRSo9qbyxQ=
+        b=og2nmvC5HmF3pUleTF3OmvKOtyES8HgL11IZpGNBnpuCVql+xS0dOQiU2rIHdrkj4
+         kLnX7ES3DW91NQlxRYqYdx0u7KjCwV8U+m4xxmKoWCWEtTGk7bBNIj3zSrQIK2+KfD
+         GPQVf3ZSj8E/aehuAnGDa5sfqAug8fSeUhRX4BMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 31/43] dt-bindings: net: renesas,etheravb: RZ/G2H needs tx-internal-delay-ps
-Date:   Fri, 22 Jan 2021 15:12:47 +0100
-Message-Id: <20210122135736.917516580@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH 5.10 32/43] net: phy: smsc: fix clk error handling
+Date:   Fri, 22 Jan 2021 15:12:48 +0100
+Message-Id: <20210122135736.960032057@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
 References: <20210122135735.652681690@linuxfoundation.org>
@@ -40,34 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit f97844f9c518172f813b7ece18a9956b1f70c1bb ]
+[ Upstream commit a18caa97b1bda0a3d126a7be165ddcfc56c2dde6 ]
 
-The merge resolution of the interaction of commits 307eea32b202864c
-("dt-bindings: net: renesas,ravb: Add support for r8a774e1 SoC") and
-d7adf6331189cbe9 ("dt-bindings: net: renesas,etheravb: Convert to
-json-schema") missed that "tx-internal-delay-ps" should be a required
-property on RZ/G2H.
+Commit bedd8d78aba3 ("net: phy: smsc: LAN8710/20: add phy refclk in
+support") added the phy clk support. The commit already checks if
+clk_get_optional() throw an error but instead of returning the error it
+ignores it.
 
-Fixes: 8b0308fe319b8002 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210105151516.1540653-1-geert+renesas@glider.be
+Fixes: bedd8d78aba3 ("net: phy: smsc: LAN8710/20: add phy refclk in support")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210111085932.28680-1-m.felsch@pengutronix.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/net/renesas,etheravb.yaml |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/smsc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/net/renesas,etheravb.yaml
-+++ b/Documentation/devicetree/bindings/net/renesas,etheravb.yaml
-@@ -163,6 +163,7 @@ allOf:
-             enum:
-               - renesas,etheravb-r8a774a1
-               - renesas,etheravb-r8a774b1
-+              - renesas,etheravb-r8a774e1
-               - renesas,etheravb-r8a7795
-               - renesas,etheravb-r8a7796
-               - renesas,etheravb-r8a77961
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -284,7 +284,8 @@ static int smsc_phy_probe(struct phy_dev
+ 	/* Make clk optional to keep DTB backward compatibility. */
+ 	priv->refclk = clk_get_optional(dev, NULL);
+ 	if (IS_ERR(priv->refclk))
+-		dev_err_probe(dev, PTR_ERR(priv->refclk), "Failed to request clock\n");
++		return dev_err_probe(dev, PTR_ERR(priv->refclk),
++				     "Failed to request clock\n");
+ 
+ 	ret = clk_prepare_enable(priv->refclk);
+ 	if (ret)
 
 
