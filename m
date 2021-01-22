@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C74300653
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C14630062B
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728555AbhAVO5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:57:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40268 "EHLO mail.kernel.org"
+        id S1728433AbhAVOyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:54:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728605AbhAVOX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:23:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50F7F23B5F;
-        Fri, 22 Jan 2021 14:17:07 +0000 (UTC)
+        id S1728332AbhAVOXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9130623B8A;
+        Fri, 22 Jan 2021 14:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325027;
-        bh=lxS1+FlWF/d4MmrwMAW+6vTqUFurbol65PwbcHgH7X0=;
+        s=korg; t=1611325089;
+        bh=eTUjOqrazmNR+sYhqLigH/tF5ngdkSBGNgxIO1tUKn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeUFBx3aqOYD8bgs9CtFEjK+1yU3IvnNvopyfyZh9qS2i4aErsd43Efsj+VT501jO
-         5d6V6jw07zLx0n1k7TduHpcXxR63j60IMCXAe+qDlAn0y2aoIJH/Mjg6/CESWbERQD
-         LVk8cwW5ifhErhSfkVH9d9p+vYkyJWVGzHkONFR8=
+        b=fAnQUd2Cwe2npgEJvjuwZQtisJZo7rayY6sCmvxB//AaiJy0wqzmTZQIVVw1SDH3L
+         yJIS6uw50ndhX+5bKjYRx3gDbZBLYPSQRAwz5P59tFPGgstcsv+T+pkwMvCdMIgAzg
+         HMNbDKB+eeL8jTy+Oj47RQV/FYY4GYB47IzyX8zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youjipeng <wangzhibei1999@gmail.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.4 09/33] nfsd4: readdirplus shouldnt return parent of export
-Date:   Fri, 22 Jan 2021 15:12:25 +0100
-Message-Id: <20210122135733.949260509@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Elder <elder@kernel.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 11/43] net: ipa: modem: add missing SET_NETDEV_DEV() for proper sysfs links
+Date:   Fri, 22 Jan 2021 15:12:27 +0100
+Message-Id: <20210122135736.105072018@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+References: <20210122135735.652681690@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 51b2ee7d006a736a9126e8111d1f24e4fd0afaa6 upstream.
+[ Upstream commit afba9dc1f3a5390475006061c0bdc5ad4915878e ]
 
-If you export a subdirectory of a filesystem, a READDIRPLUS on the root
-of that export will return the filehandle of the parent with the ".."
-entry.
+At the moment it is quite hard to identify the network interface
+provided by IPA in userspace components: The network interface is
+created as virtual device, without any link to the IPA device.
+The interface name ("rmnet_ipa%d") is the only indication that the
+network interface belongs to IPA, but this is not very reliable.
 
-The filehandle is optional, so let's just not return the filehandle for
-".." if we're at the root of an export.
+Add SET_NETDEV_DEV() to associate the network interface with the
+IPA parent device. This allows userspace services like ModemManager
+to properly identify that this network interface is provided by IPA
+and belongs to the modem.
 
-Note that once the client learns one filehandle outside of the export,
-they can trivially access the rest of the export using further lookups.
-
-However, it is also not very difficult to guess filehandles outside of
-the export.  So exporting a subdirectory of a filesystem should
-considered equivalent to providing access to the entire filesystem.  To
-avoid confusion, we recommend only exporting entire filesystems.
-
-Reported-by: Youjipeng <wangzhibei1999@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Alex Elder <elder@kernel.org>
+Fixes: a646d6ec9098 ("soc: qcom: ipa: modem and microcontroller")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20210106100755.56800-1-stephan@gerhold.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/nfsd/nfs3xdr.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ipa/ipa_modem.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nfsd/nfs3xdr.c
-+++ b/fs/nfsd/nfs3xdr.c
-@@ -857,9 +857,14 @@ compose_entry_fh(struct nfsd3_readdirres
- 	if (isdotent(name, namlen)) {
- 		if (namlen == 2) {
- 			dchild = dget_parent(dparent);
--			/* filesystem root - cannot return filehandle for ".." */
-+			/*
-+			 * Don't return filehandle for ".." if we're at
-+			 * the filesystem or export root:
-+			 */
- 			if (dchild == dparent)
- 				goto out;
-+			if (dparent == exp->ex_path.dentry)
-+				goto out;
- 		} else
- 			dchild = dget(dparent);
- 	} else
+--- a/drivers/net/ipa/ipa_modem.c
++++ b/drivers/net/ipa/ipa_modem.c
+@@ -216,6 +216,7 @@ int ipa_modem_start(struct ipa *ipa)
+ 	ipa->name_map[IPA_ENDPOINT_AP_MODEM_TX]->netdev = netdev;
+ 	ipa->name_map[IPA_ENDPOINT_AP_MODEM_RX]->netdev = netdev;
+ 
++	SET_NETDEV_DEV(netdev, &ipa->pdev->dev);
+ 	priv = netdev_priv(netdev);
+ 	priv->ipa = ipa;
+ 
 
 
