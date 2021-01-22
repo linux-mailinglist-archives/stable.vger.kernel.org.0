@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A71300BAF
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9C2300BB4
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 19:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730048AbhAVSn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 13:43:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1730109AbhAVSns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 13:43:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728538AbhAVOWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:22:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BAA723AF8;
-        Fri, 22 Jan 2021 14:16:18 +0000 (UTC)
+        id S1728552AbhAVOWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:22:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8015923B6A;
+        Fri, 22 Jan 2021 14:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611324978;
-        bh=QbgaV8qTx959Oh2XOlCMlZHRt+0U8dHoNXiXXyuFuOM=;
+        s=korg; t=1611324995;
+        bh=NW0j9xkeE8PAdFRoCqVYZ135xURObUv492Mtof7FZ1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/ikN2jCqi9ZYk2hZiVIqY5ptQfN7IPowAu228m6HsduxGllu1ZTVLcqIctZheNYN
-         bzFL7iNurkRy1WKtm1OPrLfGrWFw6Iil1CH58eByyE4+ZX97UGGfcGgaPpYy0ZNu9t
-         zBqwfY5ZXdUvEjPeu9qucgCwb6Bi1Qxs7eXcnW6E=
+        b=F++r2/3GM8qBouyClp200Nvs0leP+z1I9u7wZNJF1ZtuWs6/Z7CXb4u0Qo8goploP
+         6XF+swxNl19hr6l0z9oNXWQLsaXWFs+PxoBrHcWmS1OlwciA0fkxb+w7o+KKlHfqzu
+         7DmBxnlS8CRsADLj8E1OIGZqe+571VSfB+PoGt2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Chulski <stefanc@marvell.com>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 08/22] net: mvpp2: Remove Pause and Asym_Pause support
+        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.4 10/33] bpf: Dont leak memory in bpf getsockopt when optlen == 0
 Date:   Fri, 22 Jan 2021 15:12:26 +0100
-Message-Id: <20210122135732.249256333@linuxfoundation.org>
+Message-Id: <20210122135733.995410579@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135731.921636245@linuxfoundation.org>
-References: <20210122135731.921636245@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 6f83802a1a06e74eafbdbc9b52c05516d3083d02 ]
+commit 4be34f3d0731b38a1b24566b37fbb39500aaf3a2 upstream.
 
-Packet Processor hardware not connected to MAC flow control unit and
-cannot support TX flow control.
-This patch disable flow control support.
+optlen == 0 indicates that the kernel should ignore BPF buffer
+and use the original one from the user. We, however, forget
+to free the temporary buffer that we've allocated for BPF.
 
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Acked-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/1610306582-16641-1-git-send-email-stefanc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d8fe449a9c51 ("bpf: Don't return EINVAL from {get,set}sockopt when optlen > PAGE_SIZE")
+Reported-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20210112162829.775079-1-sdf@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4266,8 +4266,6 @@ static void mvpp2_phylink_validate(struc
+---
+ kernel/bpf/cgroup.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -1057,12 +1057,13 @@ int __cgroup_bpf_run_filter_setsockopt(s
+ 		if (ctx.optlen != 0) {
+ 			*optlen = ctx.optlen;
+ 			*kernel_optval = ctx.optval;
++			/* export and don't free sockopt buf */
++			return 0;
+ 		}
+ 	}
  
- 	phylink_set(mask, Autoneg);
- 	phylink_set_port_modes(mask);
--	phylink_set(mask, Pause);
--	phylink_set(mask, Asym_Pause);
- 
- 	switch (state->interface) {
- 	case PHY_INTERFACE_MODE_10GKR:
+ out:
+-	if (ret)
+-		sockopt_free_buf(&ctx);
++	sockopt_free_buf(&ctx);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__cgroup_bpf_run_filter_setsockopt);
 
 
