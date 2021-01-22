@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47545300556
-	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:27:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A8E300546
+	for <lists+stable@lfdr.de>; Fri, 22 Jan 2021 15:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728604AbhAVO0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jan 2021 09:26:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40026 "EHLO mail.kernel.org"
+        id S1728644AbhAVOYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jan 2021 09:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbhAVOZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Jan 2021 09:25:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F03123BCC;
-        Fri, 22 Jan 2021 14:19:47 +0000 (UTC)
+        id S1728631AbhAVOXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Jan 2021 09:23:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9882623B85;
+        Fri, 22 Jan 2021 14:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611325188;
+        s=korg; t=1611325076;
         bh=Zxd3XrZdI3lZ0UThgxzxspuFym+5t4SDkMF9B5JveT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVyNcrpQncVilU5vfJh5eVnWIBiBVM9l8h2/3qM5q0L15zBg/tlPQJnB8ahHZMDm5
-         BcEbui5IYXLE1TISA388+1LGCzU6Q6R11KTuCv6oX2uZbBu542mmSbypTARCl+JpJJ
-         09VupfUeuBsVbIL+tGPJbMB13h9pqV6LmkTn0SZk=
+        b=NENtkAbf/QdJ9dSqKRH0qo3hgyVHx/O7yM0g6a2uDb4nC6I5zdeMcvZhJE65/HKep
+         favT1isCJPJQT0InL2sk/SccZXVBgPmjIjMUewINC8ECcfQpeKIzN+N9VvPMgA8fcM
+         CkuBzrohDNeceQffvOyDDuy3bF5I+YyMwUR2/lyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 23/43] net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
+Subject: [PATCH 5.4 23/33] net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
 Date:   Fri, 22 Jan 2021 15:12:39 +0100
-Message-Id: <20210122135736.599965441@linuxfoundation.org>
+Message-Id: <20210122135734.516133166@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
+In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
+References: <20210122135733.565501039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
