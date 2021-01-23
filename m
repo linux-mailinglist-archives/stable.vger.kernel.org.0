@@ -2,110 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7443015CC
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 15:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 400163015ED
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 15:36:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725984AbhAWO0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 09:26:06 -0500
-Received: from aposti.net ([89.234.176.197]:33652 "EHLO aposti.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725899AbhAWO0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 09:26:05 -0500
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Bin Liu <b-liu@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Tony Lindgren <tony@atomide.com>, od@zcrc.me,
-        linux-mips@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org
-Subject: [RE-RESEND PATCH 1/4] usb: musb: Fix runtime PM race in musb_queue_resume_work
-Date:   Sat, 23 Jan 2021 14:24:59 +0000
-Message-Id: <20210123142502.16980-1-paul@crapouillou.net>
+        id S1725984AbhAWOeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 09:34:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725935AbhAWOeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 09:34:20 -0500
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BA7C06174A;
+        Sat, 23 Jan 2021 06:33:40 -0800 (PST)
+Received: by mail-oi1-x231.google.com with SMTP id h6so8161729oie.5;
+        Sat, 23 Jan 2021 06:33:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=7b4ygAp0CUYJZu/XVNRrGWHKjRjKqVXmcebsLsvfSGw=;
+        b=V+tcIxtdlkjAHrgTjmHzQJuzWYTjKMuMJuUmM30q6gpaXlVmeZ7yKtRr/9eZNxJI+H
+         +D2SPBNxPO5vCwQXbywA3hpJurgqZ69w6Lew8dzy0zafiSE+jFPOUuSE5ZN4DL7EW5BM
+         Bd+KwS60u+YGDeJXUXATo2XZi9SI77Yf/Oczivxa32wrHs0ecDCNrmJpodUz5WuNyR+L
+         qqGZzgMbKPz265RgRfmwvdS1uiB7IN5IjLDpoLUYIQfh5vr1kH9OyzS1PDM7NViz5LKS
+         f+9KMZ8A+Ml9s1IIC0J07tvxiDr8gHQuA3nxwCM2Y/caW4hwv1AECU2zm9ipaLopCcze
+         88AQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=7b4ygAp0CUYJZu/XVNRrGWHKjRjKqVXmcebsLsvfSGw=;
+        b=oiFhESmmklSFQK0y4AVjNgz52akffmF4u8DdskpqxLmEbvzlge9X/2apRKgWq58wOp
+         6Xzu/SzcOrFVBa2+7exFqo+EQ8VxDEUPx4Xj6zdMgSiqAswek/AZQaQ79A8czRcCcjJv
+         DI8t09fA5wjwFkL59S0uHojM4bNp44oSadmUD79Rl+IunXaNFOAaC5/YyaSaIYqAdBWF
+         pqwz/EzPdcBZkvXmhkfbEgqTG5K7swj4dsCSsIBIChSHFRwT4lYfH5xBssUbDBObw8gE
+         ALu8oDXe/WDORoHgK0gnunkPU5PKYc5emVOS1T0U2forM5znYmb4VfayB93WEErInjTw
+         b48g==
+X-Gm-Message-State: AOAM5316Mm+Hio16h6vH6ZFmt/vDxbe86QaUOFMqXs/Tpp5W8Gzms5g+
+        0p79gpAgFRB2Mr2FslE/bu0=
+X-Google-Smtp-Source: ABdhPJyOgFNQdTSU9uFYQflPtGZ9LHkF14KBuPbQKXzkOw3v2WOntBAtztGK1PpBv5ThK8lyXhJhOw==
+X-Received: by 2002:aca:1a06:: with SMTP id a6mr6329498oia.29.1611412419840;
+        Sat, 23 Jan 2021 06:33:39 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d127sm2206627oob.14.2021.01.23.06.33.38
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 23 Jan 2021 06:33:39 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 23 Jan 2021 06:33:37 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/29] 4.4.253-rc2 review
+Message-ID: <20210123143337.GA87927@roeck-us.net>
+References: <20210122160822.198606273@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210122160822.198606273@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-musb_queue_resume_work() would call the provided callback if the runtime
-PM status was 'active'. Otherwise, it would enqueue the request if the
-hardware was still suspended (musb->is_runtime_suspended is true).
+On Fri, Jan 22, 2021 at 05:09:19PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.253 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 24 Jan 2021 16:08:14 +0000.
+> Anything received after that time might be too late.
+> 
 
-This causes a race with the runtime PM handlers, as it is possible to be
-in the case where the runtime PM status is not yet 'active', but the
-hardware has been awaken (PM resume function has been called).
+Build results:
+	total: 165 pass: 165 fail: 0
+Qemu test results:
+	total: 328 pass: 328 fail: 0
 
-When hitting the race, the resume work was not enqueued, which probably
-triggered other bugs further down the stack. For instance, a telnet
-connection on Ingenic SoCs would result in a 50/50 chance of a
-segmentation fault somewhere in the musb code.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Rework the code so that either we call the callback directly if
-(musb->is_runtime_suspended == 0), or enqueue the query otherwise.
-
-Fixes: ea2f35c01d5e ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
-Cc: stable@vger.kernel.org # v4.9+
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
----
- drivers/usb/musb/musb_core.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 849e0b770130..1cd87729ba60 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2240,32 +2240,35 @@ int musb_queue_resume_work(struct musb *musb,
- {
- 	struct musb_pending_work *w;
- 	unsigned long flags;
-+	bool is_suspended;
- 	int error;
- 
- 	if (WARN_ON(!callback))
- 		return -EINVAL;
- 
--	if (pm_runtime_active(musb->controller))
--		return callback(musb, data);
-+	spin_lock_irqsave(&musb->list_lock, flags);
-+	is_suspended = musb->is_runtime_suspended;
-+
-+	if (is_suspended) {
-+		w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
-+		if (!w) {
-+			error = -ENOMEM;
-+			goto out_unlock;
-+		}
- 
--	w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
--	if (!w)
--		return -ENOMEM;
-+		w->callback = callback;
-+		w->data = data;
- 
--	w->callback = callback;
--	w->data = data;
--	spin_lock_irqsave(&musb->list_lock, flags);
--	if (musb->is_runtime_suspended) {
- 		list_add_tail(&w->node, &musb->pending_list);
- 		error = 0;
--	} else {
--		dev_err(musb->controller, "could not add resume work %p\n",
--			callback);
--		devm_kfree(musb->controller, w);
--		error = -EINPROGRESS;
- 	}
-+
-+out_unlock:
- 	spin_unlock_irqrestore(&musb->list_lock, flags);
- 
-+	if (!is_suspended)
-+		error = callback(musb, data);
-+
- 	return error;
- }
- EXPORT_SYMBOL_GPL(musb_queue_resume_work);
--- 
-2.29.2
-
+Guenter
