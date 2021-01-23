@@ -2,65 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CDB30140F
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 09:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0719C30145D
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 10:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726539AbhAWI7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 03:59:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46926 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726476AbhAWI7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 03:59:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DCE520825;
-        Sat, 23 Jan 2021 08:58:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611392305;
-        bh=FsE8fYEWaykHIEMW3WpHDvxMIMv4mzO5r53rXIIcZzA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fQvYXUzBU3q8gcF85TFyLij7mbgZtg55Yk+lsL/1+Yvx87kYWkwxSkBX/cTzlrH5P
-         /7nve19ENzrtx3xEkcYpegr6ZpN1RobIf1O+WCSjBndUPVA1tI8fWGxhoZSwtNb8km
-         ZnlPZy6ecbsGCnoiPtaXc1zv1HbI8BmWHQbBM5Vpwv79+gESurrJy1RBQi86yqKxki
-         TIa3UDhI4Rul2AXYiqOLckY7LqqLGz3Xi0dEh6TBVniHi+EUduVtVU/75qroWj/m6x
-         R0q/bDIRvtLtHaPi2n82MZwulPaldoGSuZNAXr50uUbHL48FT5iUdY/A5Ne6hbSrHU
-         qNcf+IqYymhPw==
-Date:   Sat, 23 Jan 2021 10:58:23 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@intel.com>
-Cc:     Sean Christopherson <seanjc@google.com>, linux-sgx@vger.kernel.org,
-        kai.huang@intel.com, haitao.huang@intel.com,
-        stable@vger.kernel.org,
-        Haitao Huang <haitao.huang@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>
-Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
- sgx_release()
-Message-ID: <YAvlLxCfN88Ii5qb@kernel.org>
-References: <20210115014638.15037-1-jarkko@kernel.org>
- <YAhp4Jrj6hIcvgRC@google.com>
- <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
+        id S1726588AbhAWJxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 04:53:37 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:53640 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725940AbhAWJxg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 04:53:36 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id DDAB81C0B77; Sat, 23 Jan 2021 10:52:46 +0100 (CET)
+Date:   Sat, 23 Jan 2021 10:52:45 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/43] 5.10.10-rc1 review
+Message-ID: <20210123095244.GA6686@amd>
+References: <20210122135735.652681690@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-In-Reply-To: <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
+In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 08:56:44AM -0800, Dave Hansen wrote:
-> On 1/20/21 9:35 AM, Sean Christopherson wrote:
-> > Why haven't you included the splat that Haitao provided?  That would go a long
-> > way to helping answer Boris' question about exactly what is broken...
-> 
-> The bad news is that the original splat seems to be lost.
-> 
-> The good news is that this is hard to reproduce and *might* not occur on
-> what got merged in mainline.
-> 
-> We're going to circle back around and make sure we have a clean
-> reproduction before we try to fix this again.
 
-Yeah, this a good opportunity to level up the QA.
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/Jarkko
+Hi!
+
+> This is the start of the stable review cycle for the 5.10.10 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+> Anything received after that time might be too late.
+
+CIP testing did not find any problems here:
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmAL8ewACgkQMOfwapXb+vJ0oACaA4NZf4nzt1q9PlCcXKoKCziV
+iPsAoL6vZNxRo7bd+gEvZoGbfd1TmvGg
+=x5RA
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
