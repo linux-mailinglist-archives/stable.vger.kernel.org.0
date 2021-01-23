@@ -2,189 +2,815 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 485D2301639
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E930E301651
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:25:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726013AbhAWPVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 10:21:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43500 "EHLO mail.kernel.org"
+        id S1725943AbhAWPYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 10:24:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725968AbhAWPVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 10:21:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84BA2233E2;
-        Sat, 23 Jan 2021 15:20:24 +0000 (UTC)
+        id S1725550AbhAWPVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Jan 2021 10:21:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF052233EA;
+        Sat, 23 Jan 2021 15:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611415225;
-        bh=EDP5Ksv+kt16NjQJviHOUYR9S3iUEqNx0mINkjInDhw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WAP3psfKzJ4opc0che3DUGkLs617JcMAhhDM/8I+IYywSuc2iGlf1ZolRMib+lXm5
-         TGxUlAjLMrdWDUnw4ahMzVGj5uZYidjRKDaB8QS7Xxjs5kRcFlen8XqhbczQ/fSFA9
-         lH9PdAyIeMFX1Rcqu67cbEyivjn9L/TNHEqeuX/E=
+        s=korg; t=1611415228;
+        bh=RTlOlDcfuHTiszWJ2NG8r1DK6XTIYHkc/4+DhXPHNeY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lWMfiXxAACVT4S3Y2RC0o/Gqdv38ZTa5mtYx//kBMdRruTI+qvfChHNTfblDNq349
+         Wup/ca84skfRn1sC1eWFl3p0/E0ELAmwYz9FQfGxNRDDbjrzhvxThjJXaR/sIv2FIl
+         qqOPFf9g+/NagzKqxRRUeVISWNaF5MlnPnDD8nb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.253
-Date:   Sat, 23 Jan 2021 16:20:18 +0100
-Message-Id: <161141521820134@kroah.com>
+Subject: Re: Linux 4.9.253
+Date:   Sat, 23 Jan 2021 16:20:19 +0100
+Message-Id: <1611415218159100@kroah.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <161141521820134@kroah.com>
+References: <161141521820134@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.253 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                             |    2 +-
- arch/arc/Makefile                                    |    1 +
- arch/arc/include/asm/page.h                          |    1 +
- arch/arm/boot/dts/picoxcell-pc3x2.dtsi               |    4 ++++
- arch/mips/boot/compressed/decompress.c               |    3 ++-
- arch/mips/kernel/relocate.c                          |   10 ++++++++--
- drivers/acpi/internal.h                              |    2 +-
- drivers/acpi/scan.c                                  |   15 ++++++++++++++-
- drivers/infiniband/hw/usnic/usnic_ib_verbs.c         |    3 +++
- drivers/input/ff-core.c                              |   13 ++++++++++---
- drivers/input/misc/uinput.c                          |   18 ++++++++++++++++++
- drivers/isdn/mISDN/Kconfig                           |    1 +
- drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c |    1 +
- drivers/net/ethernet/freescale/fs_enet/mii-fec.c     |    1 +
- drivers/net/ethernet/freescale/ucc_geth.h            |    9 ++++++++-
- drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 +------
- drivers/net/usb/cdc_ncm.c                            |    8 ++++++--
- drivers/net/usb/rndis_host.c                         |    2 +-
- drivers/spi/spi-cadence.c                            |    6 ++++--
- drivers/usb/host/ohci-hcd.c                          |    2 +-
- fs/ext4/ioctl.c                                      |    3 +++
- fs/ext4/namei.c                                      |   16 +++++++++-------
- fs/nfs/internal.h                                    |   12 +++++++-----
- fs/nfsd/nfs3xdr.c                                    |    7 ++++++-
- include/linux/acpi.h                                 |    7 +++++++
- include/linux/input.h                                |    1 +
- mm/hugetlb.c                                         |    2 +-
- mm/slub.c                                            |    2 +-
- net/core/skbuff.c                                    |    9 +++++++--
- net/dcb/dcbnl.c                                      |    2 ++
- net/ipv6/sit.c                                       |    5 ++++-
- net/netfilter/nf_conntrack_standalone.c              |    3 +++
- net/rxrpc/key.c                                      |    6 ++++--
- net/sunrpc/addr.c                                    |    2 +-
- net/tipc/link.c                                      |   11 +++++++++--
- security/lsm_audit.c                                 |    7 +++++--
- sound/soc/soc-dapm.c                                 |    1 +
- 37 files changed, 158 insertions(+), 47 deletions(-)
-
-Al Viro (1):
-      dump_common_audit_data(): fix racy accesses to ->d_name
-
-Alexander Lobakin (1):
-      MIPS: relocatable: fix possible boot hangup with KASLR enabled
-
-Andrey Zhizhikin (1):
-      rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
-
-Arnd Bergmann (2):
-      misdn: dsp: select CONFIG_BITREVERSE
-      ARM: picoxcell: fix missing interrupt-parent properties
-
-David Howells (1):
-      rxrpc: Fix handling of an unsupported token type in rxrpc_read()
-
-Dexuan Cui (1):
-      ACPI: scan: Harden acpi_device_add() against device ID overflows
-
-Dinghao Liu (1):
-      RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
-
-Dmitry Torokhov (1):
-      Input: uinput - avoid FF flush when destroying device
-
-Eric Dumazet (1):
-      net: avoid 32 x truesize under-estimation for tiny skbs
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.253
-
-Hamish Martin (1):
-      usb: ohci: Make distrust_firmware param default to false
-
-Hoang Le (1):
-      tipc: fix NULL deref in tipc_link_xmit()
-
-J. Bruce Fields (1):
-      nfsd4: readdirplus shouldn't return parent of export
-
-Jakub Kicinski (1):
-      net: sit: unregister_netdevice on newlink's error path
-
-Jan Kara (1):
-      ext4: fix superblock checksum failure when setting password salt
-
-Jann Horn (1):
-      mm, slub: consider rest of partial list if acquire_slab() fails
-
-Jesper Dangaard Brouer (1):
-      netfilter: conntrack: fix reading nf_conntrack_buckets
-
-Jouni K. Seppänen (1):
-      net: cdc_ncm: correct overhead in delayed_ndp_size
-
-Manish Chopra (1):
-      netxen_nic: fix MSI/MSI-x interrupts
-
-Masahiro Yamada (1):
-      ARC: build: add boot_targets to PHONY
-
-Miaohe Lin (1):
-      mm/hugetlb: fix potential missing huge page size info
-
-Michael Ellerman (1):
-      net: ethernet: fs_enet: Add missing MODULE_LICENSE
-
-Michael Hennerich (1):
-      spi: cadence: cache reference clock rate during probe
-
-Paul Cercueil (1):
-      MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
-
-Petr Machata (2):
-      net: dcb: Validate netlink message in DCB handler
-      net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
-
-Randy Dunlap (1):
-      arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
-
-Rasmus Villemoes (1):
-      ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
-
-Shawn Guo (1):
-      ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
-
-Thomas Hebb (1):
-      ASoC: dapm: remove widget from dirty list on free
-
-Trond Myklebust (1):
-      NFS: nfs_igrab_and_active must first reference the superblock
-
-j.nixdorf@avm.de (1):
-      net: sunrpc: interpret the return value of kstrtou32 correctly
-
-yangerkun (1):
-      ext4: fix bug for rename with RENAME_WHITEOUT
-
+diff --git a/Makefile b/Makefile
+index 2213fe336705..62a07bdcfacb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 252
++SUBLEVEL = 253
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index fd79faab7892..5dc2d73c6499 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -108,6 +108,7 @@ bootpImage: vmlinux
+ 
+ boot_targets += uImage uImage.bin uImage.gz
+ 
++PHONY += $(boot_targets)
+ $(boot_targets): vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+ 
+diff --git a/arch/arc/include/asm/page.h b/arch/arc/include/asm/page.h
+index ffb5f33475f1..f0f43eb709d2 100644
+--- a/arch/arc/include/asm/page.h
++++ b/arch/arc/include/asm/page.h
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
++#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ #define copy_page(to, from)		memcpy((to), (from), PAGE_SIZE)
+ 
+ struct vm_area_struct;
+diff --git a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+index 533919e96eae..f22a6b436317 100644
+--- a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
++++ b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+@@ -54,18 +54,21 @@
+ 		emac: gem@30000 {
+ 			compatible = "cadence,gem";
+ 			reg = <0x30000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <31>;
+ 		};
+ 
+ 		dmac1: dmac@40000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x40000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <25>;
+ 		};
+ 
+ 		dmac2: dmac@50000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x50000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <26>;
+ 		};
+ 
+@@ -243,6 +246,7 @@
+ 		axi2pico@c0000000 {
+ 			compatible = "picochip,axi2pico-pc3x2";
+ 			reg = <0xc0000000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <13 14 15 16 17 18 19 20 21>;
+ 		};
+ 	};
+diff --git a/arch/mips/boot/compressed/decompress.c b/arch/mips/boot/compressed/decompress.c
+index fdf99e9dd4c3..3a015e41b762 100644
+--- a/arch/mips/boot/compressed/decompress.c
++++ b/arch/mips/boot/compressed/decompress.c
+@@ -17,6 +17,7 @@
+ #include <linux/libfdt.h>
+ 
+ #include <asm/addrspace.h>
++#include <asm/unaligned.h>
+ 
+ /*
+  * These two variables specify the free mem region
+@@ -124,7 +125,7 @@ void decompress_kernel(unsigned long boot_heap_start)
+ 		dtb_size = fdt_totalsize((void *)&__appended_dtb);
+ 
+ 		/* last four bytes is always image size in little endian */
+-		image_size = le32_to_cpup((void *)&__image_end - 4);
++		image_size = get_unaligned_le32((void *)&__image_end - 4);
+ 
+ 		/* copy dtb to where the booted kernel will expect it */
+ 		memcpy((void *)VMLINUX_LOAD_ADDRESS_ULL + image_size,
+diff --git a/arch/mips/kernel/relocate.c b/arch/mips/kernel/relocate.c
+index 1958910b75c0..b4a7c303019b 100644
+--- a/arch/mips/kernel/relocate.c
++++ b/arch/mips/kernel/relocate.c
+@@ -175,8 +175,14 @@ static int __init relocate_exception_table(long offset)
+ static inline __init unsigned long rotate_xor(unsigned long hash,
+ 					      const void *area, size_t size)
+ {
+-	size_t i;
+-	unsigned long *ptr = (unsigned long *)area;
++	const typeof(hash) *ptr = PTR_ALIGN(area, sizeof(hash));
++	size_t diff, i;
++
++	diff = (void *)ptr - area;
++	if (unlikely(size < diff + sizeof(hash)))
++		return hash;
++
++	size = ALIGN_DOWN(size - diff, sizeof(hash));
+ 
+ 	for (i = 0; i < size / sizeof(hash); i++) {
+ 		/* Rotate by odd number of bits and XOR. */
+diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
+index b012e94b7d9f..eae0b278d517 100644
+--- a/drivers/acpi/internal.h
++++ b/drivers/acpi/internal.h
+@@ -98,7 +98,7 @@ void acpi_scan_table_handler(u32 event, void *table, void *context);
+ extern struct list_head acpi_bus_id_list;
+ 
+ struct acpi_device_bus_id {
+-	char bus_id[15];
++	const char *bus_id;
+ 	unsigned int instance_no;
+ 	struct list_head node;
+ };
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 9a7f017dda47..f49e2b7880ac 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -485,6 +485,7 @@ static void acpi_device_del(struct acpi_device *device)
+ 				acpi_device_bus_id->instance_no--;
+ 			else {
+ 				list_del(&acpi_device_bus_id->node);
++				kfree_const(acpi_device_bus_id->bus_id);
+ 				kfree(acpi_device_bus_id);
+ 			}
+ 			break;
+@@ -673,7 +674,14 @@ int acpi_device_add(struct acpi_device *device,
+ 	}
+ 	if (!found) {
+ 		acpi_device_bus_id = new_bus_id;
+-		strcpy(acpi_device_bus_id->bus_id, acpi_device_hid(device));
++		acpi_device_bus_id->bus_id =
++			kstrdup_const(acpi_device_hid(device), GFP_KERNEL);
++		if (!acpi_device_bus_id->bus_id) {
++			pr_err(PREFIX "Memory allocation error for bus id\n");
++			result = -ENOMEM;
++			goto err_free_new_bus_id;
++		}
++
+ 		acpi_device_bus_id->instance_no = 0;
+ 		list_add_tail(&acpi_device_bus_id->node, &acpi_bus_id_list);
+ 	}
+@@ -708,6 +716,11 @@ int acpi_device_add(struct acpi_device *device,
+ 	if (device->parent)
+ 		list_del(&device->node);
+ 	list_del(&device->wakeup_list);
++
++ err_free_new_bus_id:
++	if (!found)
++		kfree(new_bus_id);
++
+ 	mutex_unlock(&acpi_device_lock);
+ 
+  err_detach:
+diff --git a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+index cacb720f44a0..2896808545f4 100644
+--- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
++++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+@@ -180,6 +180,7 @@ find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
+ 
+ 		}
+ 		usnic_uiom_free_dev_list(dev_list);
++		dev_list = NULL;
+ 	}
+ 
+ 	if (!found) {
+@@ -207,6 +208,8 @@ find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
+ 	spin_unlock(&vf->lock);
+ 	if (IS_ERR_OR_NULL(qp_grp)) {
+ 		usnic_err("Failed to allocate qp_grp\n");
++		if (usnic_ib_share_vf)
++			usnic_uiom_free_dev_list(dev_list);
+ 		return ERR_PTR(qp_grp ? PTR_ERR(qp_grp) : -ENOMEM);
+ 	}
+ 
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index 8f2042432c85..66a46c84e28f 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -237,9 +237,15 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file)
+ EXPORT_SYMBOL_GPL(input_ff_erase);
+ 
+ /*
+- * flush_effects - erase all effects owned by a file handle
++ * input_ff_flush - erase all effects owned by a file handle
++ * @dev: input device to erase effect from
++ * @file: purported owner of the effects
++ *
++ * This function erases all force-feedback effects associated with
++ * the given owner from specified device. Note that @file may be %NULL,
++ * in which case all effects will be erased.
+  */
+-static int flush_effects(struct input_dev *dev, struct file *file)
++int input_ff_flush(struct input_dev *dev, struct file *file)
+ {
+ 	struct ff_device *ff = dev->ff;
+ 	int i;
+@@ -255,6 +261,7 @@ static int flush_effects(struct input_dev *dev, struct file *file)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(input_ff_flush);
+ 
+ /**
+  * input_ff_event() - generic handler for force-feedback events
+@@ -343,7 +350,7 @@ int input_ff_create(struct input_dev *dev, unsigned int max_effects)
+ 	mutex_init(&ff->mutex);
+ 
+ 	dev->ff = ff;
+-	dev->flush = flush_effects;
++	dev->flush = input_ff_flush;
+ 	dev->event = input_ff_event;
+ 	__set_bit(EV_FF, dev->evbit);
+ 
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 89d37d0d45ed..fcd10a4708c3 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -231,6 +231,18 @@ static int uinput_dev_erase_effect(struct input_dev *dev, int effect_id)
+ 	return uinput_request_submit(udev, &request);
+ }
+ 
++static int uinput_dev_flush(struct input_dev *dev, struct file *file)
++{
++	/*
++	 * If we are called with file == NULL that means we are tearing
++	 * down the device, and therefore we can not handle FF erase
++	 * requests: either we are handling UI_DEV_DESTROY (and holding
++	 * the udev->mutex), or the file descriptor is closed and there is
++	 * nobody on the other side anymore.
++	 */
++	return file ? input_ff_flush(dev, file) : 0;
++}
++
+ static void uinput_destroy_device(struct uinput_device *udev)
+ {
+ 	const char *name, *phys;
+@@ -298,6 +310,12 @@ static int uinput_create_device(struct uinput_device *udev)
+ 		dev->ff->playback = uinput_dev_playback;
+ 		dev->ff->set_gain = uinput_dev_set_gain;
+ 		dev->ff->set_autocenter = uinput_dev_set_autocenter;
++		/*
++		 * The standard input_ff_flush() implementation does
++		 * not quite work for uinput as we can't reasonably
++		 * handle FF requests during device teardown.
++		 */
++		dev->flush = uinput_dev_flush;
+ 	}
+ 
+ 	error = input_register_device(udev->dev);
+diff --git a/drivers/isdn/mISDN/Kconfig b/drivers/isdn/mISDN/Kconfig
+index c0730d5c734d..fb61181a5c4f 100644
+--- a/drivers/isdn/mISDN/Kconfig
++++ b/drivers/isdn/mISDN/Kconfig
+@@ -12,6 +12,7 @@ if MISDN != n
+ config MISDN_DSP
+ 	tristate "Digital Audio Processing of transparent data"
+ 	depends on MISDN
++	select BITREVERSE
+ 	help
+ 	  Enable support for digital audio processing capability.
+ 
+diff --git a/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c b/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
+index 1f015edcca22..3c6fc61597f7 100644
+--- a/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
++++ b/drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c
+@@ -223,3 +223,4 @@ static struct platform_driver fs_enet_bb_mdio_driver = {
+ };
+ 
+ module_platform_driver(fs_enet_bb_mdio_driver);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/net/ethernet/freescale/fs_enet/mii-fec.c b/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
+index a89267b94352..fb2b0586469b 100644
+--- a/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
++++ b/drivers/net/ethernet/freescale/fs_enet/mii-fec.c
+@@ -224,3 +224,4 @@ static struct platform_driver fs_enet_fec_mdio_driver = {
+ };
+ 
+ module_platform_driver(fs_enet_fec_mdio_driver);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.h b/drivers/net/ethernet/freescale/ucc_geth.h
+index 5da19b440a6a..bf25e49d4fe3 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.h
++++ b/drivers/net/ethernet/freescale/ucc_geth.h
+@@ -580,7 +580,14 @@ struct ucc_geth_tx_global_pram {
+ 	u32 vtagtable[0x8];	/* 8 4-byte VLAN tags */
+ 	u32 tqptr;		/* a base pointer to the Tx Queues Memory
+ 				   Region */
+-	u8 res2[0x80 - 0x74];
++	u8 res2[0x78 - 0x74];
++	u64 snums_en;
++	u32 l2l3baseptr;	/* top byte consists of a few other bit fields */
++
++	u16 mtu[8];
++	u8 res3[0xa8 - 0x94];
++	u32 wrrtablebase;	/* top byte is reserved */
++	u8 res4[0xc0 - 0xac];
+ } __packed;
+ 
+ /* structure representing Extended Filtering Global Parameters in PRAM */
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+index 7a0281a36c28..a5ee3d328f3d 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+@@ -586,11 +586,6 @@ static const struct net_device_ops netxen_netdev_ops = {
+ #endif
+ };
+ 
+-static inline bool netxen_function_zero(struct pci_dev *pdev)
+-{
+-	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
+-}
+-
+ static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
+ 					     u32 mode)
+ {
+@@ -686,7 +681,7 @@ static int netxen_setup_intr(struct netxen_adapter *adapter)
+ 	netxen_initialize_interrupt_registers(adapter);
+ 	netxen_set_msix_bit(pdev, 0);
+ 
+-	if (netxen_function_zero(pdev)) {
++	if (adapter->portnum == 0) {
+ 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
+ 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
+ 		else
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index 99ca9526dd65..d418542924e1 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1128,7 +1128,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
+ 	 * accordingly. Otherwise, we should check here.
+ 	 */
+ 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
+-		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
++		delayed_ndp_size = ctx->max_ndp_size +
++			max_t(u32,
++			      ctx->tx_ndp_modulus,
++			      ctx->tx_modulus + ctx->tx_remainder) - 1;
+ 	else
+ 		delayed_ndp_size = 0;
+ 
+@@ -1281,7 +1284,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
+ 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
+ 	    skb_out->len > ctx->min_tx_pkt) {
+ 		padding_count = ctx->tx_max - skb_out->len;
+-		memset(skb_put(skb_out, padding_count), 0, padding_count);
++		if (!WARN_ON(padding_count > ctx->tx_max))
++			memset(skb_put(skb_out, padding_count), 0, padding_count);
+ 	} else if (skb_out->len < ctx->tx_max &&
+ 		   (skb_out->len % dev->maxpacket) == 0) {
+ 		*skb_put(skb_out, 1) = 0;	/* force short packet */
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index 9ccbdf143106..dc5b8e69f8e8 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -398,7 +398,7 @@ generic_rndis_bind(struct usbnet *dev, struct usb_interface *intf, int flags)
+ 	reply_len = sizeof *phym;
+ 	retval = rndis_query(dev, intf, u.buf,
+ 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
+-			     0, (void **) &phym, &reply_len);
++			     reply_len, (void **)&phym, &reply_len);
+ 	if (retval != 0 || !phym) {
+ 		/* OID is optional so don't fail here. */
+ 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index 1c57ce64abba..e383c6368915 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -118,6 +118,7 @@ struct cdns_spi {
+ 	void __iomem *regs;
+ 	struct clk *ref_clk;
+ 	struct clk *pclk;
++	unsigned int clk_rate;
+ 	u32 speed_hz;
+ 	const u8 *txbuf;
+ 	u8 *rxbuf;
+@@ -253,7 +254,7 @@ static void cdns_spi_config_clock_freq(struct spi_device *spi,
+ 	u32 ctrl_reg, baud_rate_val;
+ 	unsigned long frequency;
+ 
+-	frequency = clk_get_rate(xspi->ref_clk);
++	frequency = xspi->clk_rate;
+ 
+ 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
+ 
+@@ -558,8 +559,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	master->auto_runtime_pm = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA;
+ 
++	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
+ 	/* Set to default valid value */
+-	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
++	master->max_speed_hz = xspi->clk_rate / 4;
+ 	xspi->speed_hz = master->max_speed_hz;
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index 2a14c71739d7..c1c7df26d62f 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -100,7 +100,7 @@ static void io_watchdog_func(unsigned long _ohci);
+ 
+ 
+ /* Some boards misreport power switching/overcurrent */
+-static bool distrust_firmware = true;
++static bool distrust_firmware;
+ module_param (distrust_firmware, bool, 0);
+ MODULE_PARM_DESC (distrust_firmware,
+ 	"true to distrust firmware power/overcurrent setup");
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index 2016f5a5d3cf..75fff707beb6 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -799,7 +799,10 @@ long ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 			err = ext4_journal_get_write_access(handle, sbi->s_sbh);
+ 			if (err)
+ 				goto pwsalt_err_journal;
++			lock_buffer(sbi->s_sbh);
+ 			generate_random_uuid(sbi->s_es->s_encrypt_pw_salt);
++			ext4_superblock_csum_set(sb);
++			unlock_buffer(sbi->s_sbh);
+ 			err = ext4_handle_dirty_metadata(handle, NULL,
+ 							 sbi->s_sbh);
+ 		pwsalt_err_journal:
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 8ded38ac4cde..6224b0e6fb64 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3421,8 +3421,6 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
+ 			return retval;
+ 		}
+ 	}
+-	brelse(ent->bh);
+-	ent->bh = NULL;
+ 
+ 	return 0;
+ }
+@@ -3635,6 +3633,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		}
+ 	}
+ 
++	old_file_type = old.de->file_type;
+ 	if (IS_DIRSYNC(old.dir) || IS_DIRSYNC(new.dir))
+ 		ext4_handle_sync(handle);
+ 
+@@ -3662,7 +3661,6 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	force_reread = (new.dir->i_ino == old.dir->i_ino &&
+ 			ext4_test_inode_flag(new.dir, EXT4_INODE_INLINE_DATA));
+ 
+-	old_file_type = old.de->file_type;
+ 	if (whiteout) {
+ 		/*
+ 		 * Do this before adding a new entry, so the old entry is sure
+@@ -3734,15 +3732,19 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	retval = 0;
+ 
+ end_rename:
+-	brelse(old.dir_bh);
+-	brelse(old.bh);
+-	brelse(new.bh);
+ 	if (whiteout) {
+-		if (retval)
++		if (retval) {
++			ext4_setent(handle, &old,
++				old.inode->i_ino, old_file_type);
+ 			drop_nlink(whiteout);
++		}
+ 		unlock_new_inode(whiteout);
+ 		iput(whiteout);
++
+ 	}
++	brelse(old.dir_bh);
++	brelse(old.bh);
++	brelse(new.bh);
+ 	if (handle)
+ 		ext4_journal_stop(handle);
+ 	return retval;
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index 52ea41bce038..e0f0397fc7ce 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -572,12 +572,14 @@ extern int nfs4_test_session_trunk(struct rpc_clnt *,
+ 
+ static inline struct inode *nfs_igrab_and_active(struct inode *inode)
+ {
+-	inode = igrab(inode);
+-	if (inode != NULL && !nfs_sb_active(inode->i_sb)) {
+-		iput(inode);
+-		inode = NULL;
++	struct super_block *sb = inode->i_sb;
++
++	if (sb && nfs_sb_active(sb)) {
++		if (igrab(inode))
++			return inode;
++		nfs_sb_deactive(sb);
+ 	}
+-	return inode;
++	return NULL;
+ }
+ 
+ static inline void nfs_iput_and_deactive(struct inode *inode)
+diff --git a/fs/nfsd/nfs3xdr.c b/fs/nfsd/nfs3xdr.c
+index 7e50248ca432..93c6fb53cc0e 100644
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -822,9 +822,14 @@ compose_entry_fh(struct nfsd3_readdirres *cd, struct svc_fh *fhp,
+ 	if (isdotent(name, namlen)) {
+ 		if (namlen == 2) {
+ 			dchild = dget_parent(dparent);
+-			/* filesystem root - cannot return filehandle for ".." */
++			/*
++			 * Don't return filehandle for ".." if we're at
++			 * the filesystem or export root:
++			 */
+ 			if (dchild == dparent)
+ 				goto out;
++			if (dparent == exp->ex_path.dentry)
++				goto out;
+ 		} else
+ 			dchild = dget(dparent);
+ 	} else
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 5670bb9788bb..192b045cc56e 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -734,6 +734,13 @@ static inline int acpi_device_modalias(struct device *dev,
+ 	return -ENODEV;
+ }
+ 
++static inline struct platform_device *
++acpi_create_platform_device(struct acpi_device *adev,
++			    struct property_entry *properties)
++{
++	return NULL;
++}
++
+ static inline bool acpi_dma_supported(struct acpi_device *adev)
+ {
+ 	return false;
+diff --git a/include/linux/input.h b/include/linux/input.h
+index a65e3b24fb18..fb5e23c7ed98 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -529,6 +529,7 @@ int input_ff_event(struct input_dev *dev, unsigned int type, unsigned int code,
+ 
+ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, struct file *file);
+ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
++int input_ff_flush(struct input_dev *dev, struct file *file);
+ 
+ int input_ff_create_memless(struct input_dev *dev, void *data,
+ 		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index b469d099dc5f..52b5e0e026d6 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3767,7 +3767,7 @@ static int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		 * So we need to block hugepage fault by PG_hwpoison bit check.
+ 		 */
+ 		if (unlikely(PageHWPoison(page))) {
+-			ret = VM_FAULT_HWPOISON |
++			ret = VM_FAULT_HWPOISON_LARGE |
+ 				VM_FAULT_SET_HINDEX(hstate_index(h));
+ 			goto backout_unlocked;
+ 		}
+diff --git a/mm/slub.c b/mm/slub.c
+index 51a73d2d1082..7ccfc043c28e 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1833,7 +1833,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
+ 
+ 		t = acquire_slab(s, n, page, object == NULL, &objects);
+ 		if (!t)
+-			break;
++			continue; /* cmpxchg raced */
+ 
+ 		available += objects;
+ 		if (!object) {
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 026f4525063c..5582a4ed7c2f 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -489,13 +489,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
+ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 				 gfp_t gfp_mask)
+ {
+-	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
++	struct napi_alloc_cache *nc;
+ 	struct sk_buff *skb;
+ 	void *data;
+ 
+ 	len += NET_SKB_PAD + NET_IP_ALIGN;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
+@@ -503,6 +507,7 @@ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 		goto skb_success;
+ 	}
+ 
++	nc = this_cpu_ptr(&napi_alloc_cache);
+ 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 	len = SKB_DATA_ALIGN(len);
+ 
+diff --git a/net/dcb/dcbnl.c b/net/dcb/dcbnl.c
+index a1116701287f..2dbf5a0faad3 100644
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1726,6 +1726,8 @@ static int dcb_doit(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 	fn = &reply_funcs[dcb->cmd];
+ 	if (!fn->cb)
+ 		return -EOPNOTSUPP;
++	if (fn->type == RTM_SETDCB && !netlink_capable(skb, CAP_NET_ADMIN))
++		return -EPERM;
+ 
+ 	if (!tb[DCB_ATTR_IFNAME])
+ 		return -EINVAL;
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index df705303992e..a4a5863e482c 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1583,8 +1583,11 @@ static int ipip6_newlink(struct net *src_net, struct net_device *dev,
+ 	}
+ 
+ #ifdef CONFIG_IPV6_SIT_6RD
+-	if (ipip6_netlink_6rd_parms(data, &ip6rd))
++	if (ipip6_netlink_6rd_parms(data, &ip6rd)) {
+ 		err = ipip6_tunnel_update_6rd(nt, &ip6rd);
++		if (err < 0)
++			unregister_netdevice_queue(dev, NULL);
++	}
+ #endif
+ 
+ 	return err;
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 5f446cd9f3fd..0dbd17137dee 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -458,6 +458,9 @@ nf_conntrack_hash_sysctl(struct ctl_table *table, int write,
+ {
+ 	int ret;
+ 
++	/* module_param hashsize could have changed value */
++	nf_conntrack_htable_size_user = nf_conntrack_htable_size;
++
+ 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+ 	if (ret < 0 || !write)
+ 		return ret;
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index fa475b02bdce..16efd04d4a80 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1106,7 +1106,7 @@ static long rxrpc_read(const struct key *key,
+ 		default: /* we have a ticket we can't encode */
+ 			pr_err("Unsupported key token type (%u)\n",
+ 			       token->security_index);
+-			continue;
++			return -ENOPKG;
+ 		}
+ 
+ 		_debug("token[%u]: toksize=%u", ntoks, toksize);
+@@ -1226,7 +1226,9 @@ static long rxrpc_read(const struct key *key,
+ 			break;
+ 
+ 		default:
+-			break;
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
++			return -ENOPKG;
+ 		}
+ 
+ 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
+diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
+index 8391c2785550..7404f02702a1 100644
+--- a/net/sunrpc/addr.c
++++ b/net/sunrpc/addr.c
+@@ -184,7 +184,7 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
+ 			scope_id = dev->ifindex;
+ 			dev_put(dev);
+ 		} else {
+-			if (kstrtou32(p, 10, &scope_id) == 0) {
++			if (kstrtou32(p, 10, &scope_id) != 0) {
+ 				kfree(p);
+ 				return 0;
+ 			}
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index c7406c1fdc14..06327f78f203 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -877,9 +877,8 @@ void tipc_link_reset(struct tipc_link *l)
+ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 		   struct sk_buff_head *xmitq)
+ {
+-	struct tipc_msg *hdr = buf_msg(skb_peek(list));
+ 	unsigned int maxwin = l->window;
+-	unsigned int i, imp = msg_importance(hdr);
++	unsigned int i;
+ 	unsigned int mtu = l->mtu;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 seqno = l->snd_nxt;
+@@ -888,7 +887,13 @@ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+ 	struct sk_buff *skb, *_skb, *bskb;
+ 	int pkt_cnt = skb_queue_len(list);
++	struct tipc_msg *hdr;
++	int imp;
++
++	if (pkt_cnt <= 0)
++		return 0;
+ 
++	imp = msg_importance(hdr);
+ 	/* Match msg importance against this and all higher backlog limits: */
+ 	if (!skb_queue_empty(backlogq)) {
+ 		for (i = imp; i <= TIPC_SYSTEM_IMPORTANCE; i++) {
+@@ -896,6 +901,8 @@ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 				return link_schedule_user(l, list);
+ 		}
+ 	}
++
++	hdr = buf_msg(skb_peek(list));
+ 	if (unlikely(msg_size(hdr) > mtu)) {
+ 		skb_queue_purge(list);
+ 		return -EMSGSIZE;
+diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+index 44a20c218409..cc4000dba600 100644
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
+@@ -277,7 +277,9 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+ 		struct inode *inode;
+ 
+ 		audit_log_format(ab, " name=");
++		spin_lock(&a->u.dentry->d_lock);
+ 		audit_log_untrustedstring(ab, a->u.dentry->d_name.name);
++		spin_unlock(&a->u.dentry->d_lock);
+ 
+ 		inode = d_backing_inode(a->u.dentry);
+ 		if (inode) {
+@@ -295,8 +297,9 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+ 		dentry = d_find_alias(inode);
+ 		if (dentry) {
+ 			audit_log_format(ab, " name=");
+-			audit_log_untrustedstring(ab,
+-					 dentry->d_name.name);
++			spin_lock(&dentry->d_lock);
++			audit_log_untrustedstring(ab, dentry->d_name.name);
++			spin_unlock(&dentry->d_lock);
+ 			dput(dentry);
+ 		}
+ 		audit_log_format(ab, " dev=");
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 41a29bb21519..11edb6f6bdaf 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2349,6 +2349,7 @@ void snd_soc_dapm_free_widget(struct snd_soc_dapm_widget *w)
+ 	enum snd_soc_dapm_direction dir;
+ 
+ 	list_del(&w->list);
++	list_del(&w->dirty);
+ 	/*
+ 	 * remove source and sink paths associated to this widget.
+ 	 * While removing the path, remove reference to it from both
