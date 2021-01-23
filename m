@@ -2,140 +2,620 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4938C301646
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:24:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 399BB301648
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:24:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726164AbhAWPVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 10:21:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43716 "EHLO mail.kernel.org"
+        id S1726173AbhAWPV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 10:21:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726149AbhAWPVk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 10:21:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDAA9233FA;
-        Sat, 23 Jan 2021 15:20:41 +0000 (UTC)
+        id S1726137AbhAWPVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Jan 2021 10:21:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E29D233F6;
+        Sat, 23 Jan 2021 15:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611415242;
-        bh=AyedIDBQTikrHgftE6FrQm4bw7/2IX9U+qPVgw5S6BA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qmavp51O9a7dOYRYZBqcPbaTbAiokkNUb7a85uWNkMe4jzVtUUrZDYwp9bx7IFVT4
-         8XdlBPTHnV2yLT+IKc4YgC2R/kdn26hLAdFOlA/H7krgRRGk7oraAcUZ3W41+Y57ru
-         evCahCXMKIv2jwRBGzt/r4X+AkSyTBnC4m4hye5E=
+        s=korg; t=1611415239;
+        bh=cxfqHHTYkVPMUhQwPVTPWpi83A4j6kv/v+iyzTOVudw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MKLRD76z6T9vqfrlo/jcWpiTJgZOC0Ydxq0a1N+ZnYAd18ToiVQWHDUIIBLS+HT4W
+         /9CbXSeWILJKLERokhg9YF7//ArQAwPNZzCV/uKkLBglim7znUIIroW4x/Gyy2onYY
+         Qepb5Ln4eL8dLa9oATcxV+5e0ezraaVHW9j+Ur2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.170
-Date:   Sat, 23 Jan 2021 16:20:30 +0100
-Message-Id: <161141523097171@kroah.com>
+Subject: Re: Linux 4.19.170
+Date:   Sat, 23 Jan 2021 16:20:31 +0100
+Message-Id: <16114152309417@kroah.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <161141523097171@kroah.com>
+References: <161141523097171@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.170 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                             |    2 
- arch/x86/crypto/crc32c-pcl-intel-asm_64.S            |    2 
- drivers/md/dm-bufio.c                                |    6 ++
- drivers/md/dm-integrity.c                            |   50 +++++++++++++++++--
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c      |    2 
- drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 --
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c    |    3 -
- drivers/net/usb/rndis_host.c                         |    2 
- drivers/spi/spi-cadence.c                            |    6 +-
- drivers/usb/host/ohci-hcd.c                          |    2 
- fs/nfsd/nfs3xdr.c                                    |    7 ++
- include/linux/compiler-gcc.h                         |    6 ++
- include/linux/dm-bufio.h                             |    1 
- include/linux/skbuff.h                               |    5 +
- net/core/skbuff.c                                    |    9 ++-
- net/core/sock_reuseport.c                            |    2 
- net/dcb/dcbnl.c                                      |    2 
- net/ipv4/esp4.c                                      |    7 --
- net/ipv6/esp6.c                                      |    7 --
- net/ipv6/ip6_output.c                                |   40 ++++++++++++++-
- net/ipv6/sit.c                                       |    5 +
- net/rxrpc/input.c                                    |    2 
- net/rxrpc/key.c                                      |    6 +-
- net/tipc/link.c                                      |    9 ++-
- 24 files changed, 147 insertions(+), 43 deletions(-)
-
-Andrey Zhizhikin (1):
-      rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
-
-Arnd Bergmann (1):
-      crypto: x86/crc32c - fix building with clang ias
-
-Aya Levin (1):
-      net: ipv6: Validate GSO SKB before finish IPv6 processing
-
-Baptiste Lepers (2):
-      udp: Prevent reuseport_select_sock from reading uninitialized socks
-      rxrpc: Call state should be read with READ_ONCE() under some circumstances
-
-David Howells (1):
-      rxrpc: Fix handling of an unsupported token type in rxrpc_read()
-
-David Wu (1):
-      net: stmmac: Fixed mtu channged by cache aligned
-
-Eric Dumazet (1):
-      net: avoid 32 x truesize under-estimation for tiny skbs
-
-Greg Kroah-Hartman (1):
-      Linux 4.19.170
-
-Hamish Martin (1):
-      usb: ohci: Make distrust_firmware param default to false
-
-Hoang Le (1):
-      tipc: fix NULL deref in tipc_link_xmit()
-
-J. Bruce Fields (1):
-      nfsd4: readdirplus shouldn't return parent of export
-
-Jakub Kicinski (1):
-      net: sit: unregister_netdevice on newlink's error path
-
-Jason A. Donenfeld (2):
-      net: introduce skb_list_walk_safe for skb segment walking
-      net: skbuff: disambiguate argument and member for skb_list_walk_safe helper
-
-Manish Chopra (1):
-      netxen_nic: fix MSI/MSI-x interrupts
-
-Michael Hennerich (1):
-      spi: cadence: cache reference clock rate during probe
-
-Mikulas Patocka (1):
-      dm integrity: fix flush with external metadata device
-
-Petr Machata (2):
-      net: dcb: Validate netlink message in DCB handler
-      net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
-
-Stefan Chulski (1):
-      net: mvpp2: Remove Pause and Asym_Pause support
-
-Will Deacon (1):
-      compiler.h: Raise minimum version of GCC to 5.1 for arm64
-
-Willem de Bruijn (1):
-      esp: avoid unneeded kmap_atomic call
-
+diff --git a/Makefile b/Makefile
+index a994b12d2011..7f56c62d31e8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 169
++SUBLEVEL = 170
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/arch/x86/crypto/crc32c-pcl-intel-asm_64.S b/arch/x86/crypto/crc32c-pcl-intel-asm_64.S
+index d9b734d0c8cc..3c6e01520a97 100644
+--- a/arch/x86/crypto/crc32c-pcl-intel-asm_64.S
++++ b/arch/x86/crypto/crc32c-pcl-intel-asm_64.S
+@@ -170,7 +170,7 @@ continue_block:
+ 
+ 	## branch into array
+ 	lea	jump_table(%rip), bufp
+-	movzxw  (bufp, %rax, 2), len
++	movzwq  (bufp, %rax, 2), len
+ 	lea	crc_array(%rip), bufp
+ 	lea     (bufp, len, 1), bufp
+ 	JMP_NOSPEC bufp
+diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
+index dc385b70e4c3..b6e4ab67ae44 100644
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1471,6 +1471,12 @@ sector_t dm_bufio_get_device_size(struct dm_bufio_client *c)
+ }
+ EXPORT_SYMBOL_GPL(dm_bufio_get_device_size);
+ 
++struct dm_io_client *dm_bufio_get_dm_io_client(struct dm_bufio_client *c)
++{
++	return c->dm_io;
++}
++EXPORT_SYMBOL_GPL(dm_bufio_get_dm_io_client);
++
+ sector_t dm_bufio_get_block_number(struct dm_buffer *b)
+ {
+ 	return b->block;
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index 875c78b5e224..bb99b599de77 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -1153,12 +1153,52 @@ static int dm_integrity_rw_tag(struct dm_integrity_c *ic, unsigned char *tag, se
+ 	return 0;
+ }
+ 
+-static void dm_integrity_flush_buffers(struct dm_integrity_c *ic)
++struct flush_request {
++	struct dm_io_request io_req;
++	struct dm_io_region io_reg;
++	struct dm_integrity_c *ic;
++	struct completion comp;
++};
++
++static void flush_notify(unsigned long error, void *fr_)
++{
++	struct flush_request *fr = fr_;
++	if (unlikely(error != 0))
++		dm_integrity_io_error(fr->ic, "flusing disk cache", -EIO);
++	complete(&fr->comp);
++}
++
++static void dm_integrity_flush_buffers(struct dm_integrity_c *ic, bool flush_data)
+ {
+ 	int r;
++
++	struct flush_request fr;
++
++	if (!ic->meta_dev)
++		flush_data = false;
++	if (flush_data) {
++		fr.io_req.bi_op = REQ_OP_WRITE,
++		fr.io_req.bi_op_flags = REQ_PREFLUSH | REQ_SYNC,
++		fr.io_req.mem.type = DM_IO_KMEM,
++		fr.io_req.mem.ptr.addr = NULL,
++		fr.io_req.notify.fn = flush_notify,
++		fr.io_req.notify.context = &fr;
++		fr.io_req.client = dm_bufio_get_dm_io_client(ic->bufio),
++		fr.io_reg.bdev = ic->dev->bdev,
++		fr.io_reg.sector = 0,
++		fr.io_reg.count = 0,
++		fr.ic = ic;
++		init_completion(&fr.comp);
++		r = dm_io(&fr.io_req, 1, &fr.io_reg, NULL);
++		BUG_ON(r);
++	}
++
+ 	r = dm_bufio_write_dirty_buffers(ic->bufio);
+ 	if (unlikely(r))
+ 		dm_integrity_io_error(ic, "writing tags", r);
++
++	if (flush_data)
++		wait_for_completion(&fr.comp);
+ }
+ 
+ static void sleep_on_endio_wait(struct dm_integrity_c *ic)
+@@ -1846,7 +1886,7 @@ static void integrity_commit(struct work_struct *w)
+ 	flushes = bio_list_get(&ic->flush_bio_list);
+ 	if (unlikely(ic->mode != 'J')) {
+ 		spin_unlock_irq(&ic->endio_wait.lock);
+-		dm_integrity_flush_buffers(ic);
++		dm_integrity_flush_buffers(ic, true);
+ 		goto release_flush_bios;
+ 	}
+ 
+@@ -2057,7 +2097,7 @@ static void do_journal_write(struct dm_integrity_c *ic, unsigned write_start,
+ 	complete_journal_op(&comp);
+ 	wait_for_completion_io(&comp.comp);
+ 
+-	dm_integrity_flush_buffers(ic);
++	dm_integrity_flush_buffers(ic, true);
+ }
+ 
+ static void integrity_writer(struct work_struct *w)
+@@ -2099,7 +2139,7 @@ static void recalc_write_super(struct dm_integrity_c *ic)
+ {
+ 	int r;
+ 
+-	dm_integrity_flush_buffers(ic);
++	dm_integrity_flush_buffers(ic, false);
+ 	if (dm_integrity_failed(ic))
+ 		return;
+ 
+@@ -2409,7 +2449,7 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
+ 		if (ic->meta_dev)
+ 			queue_work(ic->writer_wq, &ic->writer_work);
+ 		drain_workqueue(ic->writer_wq);
+-		dm_integrity_flush_buffers(ic);
++		dm_integrity_flush_buffers(ic, true);
+ 	}
+ 
+ 	BUG_ON(!RB_EMPTY_ROOT(&ic->in_progress));
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index 986292a34f4f..bc5cfe062b10 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -4266,8 +4266,6 @@ static void mvpp2_phylink_validate(struct net_device *dev,
+ 
+ 	phylink_set(mask, Autoneg);
+ 	phylink_set_port_modes(mask);
+-	phylink_set(mask, Pause);
+-	phylink_set(mask, Asym_Pause);
+ 
+ 	switch (state->interface) {
+ 	case PHY_INTERFACE_MODE_10GKR:
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+index 59c70be22a84..42b99b182616 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+@@ -580,11 +580,6 @@ static const struct net_device_ops netxen_netdev_ops = {
+ 	.ndo_set_features = netxen_set_features,
+ };
+ 
+-static inline bool netxen_function_zero(struct pci_dev *pdev)
+-{
+-	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
+-}
+-
+ static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
+ 					     u32 mode)
+ {
+@@ -680,7 +675,7 @@ static int netxen_setup_intr(struct netxen_adapter *adapter)
+ 	netxen_initialize_interrupt_registers(adapter);
+ 	netxen_set_msix_bit(pdev, 0);
+ 
+-	if (netxen_function_zero(pdev)) {
++	if (adapter->portnum == 0) {
+ 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
+ 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
+ 		else
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4ac507b4d101..76d4b8e6ac3e 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3596,6 +3596,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int txfifosz = priv->plat->tx_fifo_size;
++	const int mtu = new_mtu;
+ 
+ 	if (txfifosz == 0)
+ 		txfifosz = priv->dma_cap.tx_fifo_size;
+@@ -3613,7 +3614,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+ 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
+ 		return -EINVAL;
+ 
+-	dev->mtu = new_mtu;
++	dev->mtu = mtu;
+ 
+ 	netdev_update_features(dev);
+ 
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index a22ae3137a3f..d3f79a4067e2 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -399,7 +399,7 @@ generic_rndis_bind(struct usbnet *dev, struct usb_interface *intf, int flags)
+ 	reply_len = sizeof *phym;
+ 	retval = rndis_query(dev, intf, u.buf,
+ 			     RNDIS_OID_GEN_PHYSICAL_MEDIUM,
+-			     0, (void **) &phym, &reply_len);
++			     reply_len, (void **)&phym, &reply_len);
+ 	if (retval != 0 || !phym) {
+ 		/* OID is optional so don't fail here. */
+ 		phym_unspec = cpu_to_le32(RNDIS_PHYSICAL_MEDIUM_UNSPECIFIED);
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index 94cc0a152449..f5055ceb7529 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -119,6 +119,7 @@ struct cdns_spi {
+ 	void __iomem *regs;
+ 	struct clk *ref_clk;
+ 	struct clk *pclk;
++	unsigned int clk_rate;
+ 	u32 speed_hz;
+ 	const u8 *txbuf;
+ 	u8 *rxbuf;
+@@ -258,7 +259,7 @@ static void cdns_spi_config_clock_freq(struct spi_device *spi,
+ 	u32 ctrl_reg, baud_rate_val;
+ 	unsigned long frequency;
+ 
+-	frequency = clk_get_rate(xspi->ref_clk);
++	frequency = xspi->clk_rate;
+ 
+ 	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
+ 
+@@ -628,8 +629,9 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	master->auto_runtime_pm = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA;
+ 
++	xspi->clk_rate = clk_get_rate(xspi->ref_clk);
+ 	/* Set to default valid value */
+-	master->max_speed_hz = clk_get_rate(xspi->ref_clk) / 4;
++	master->max_speed_hz = xspi->clk_rate / 4;
+ 	xspi->speed_hz = master->max_speed_hz;
+ 
+ 	master->bits_per_word_mask = SPI_BPW_MASK(8);
+diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+index e88486d8084a..5916235adf35 100644
+--- a/drivers/usb/host/ohci-hcd.c
++++ b/drivers/usb/host/ohci-hcd.c
+@@ -101,7 +101,7 @@ static void io_watchdog_func(struct timer_list *t);
+ 
+ 
+ /* Some boards misreport power switching/overcurrent */
+-static bool distrust_firmware = true;
++static bool distrust_firmware;
+ module_param (distrust_firmware, bool, 0);
+ MODULE_PARM_DESC (distrust_firmware,
+ 	"true to distrust firmware power/overcurrent setup");
+diff --git a/fs/nfsd/nfs3xdr.c b/fs/nfsd/nfs3xdr.c
+index 83919116d5cb..b90bea1c434e 100644
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -844,9 +844,14 @@ compose_entry_fh(struct nfsd3_readdirres *cd, struct svc_fh *fhp,
+ 	if (isdotent(name, namlen)) {
+ 		if (namlen == 2) {
+ 			dchild = dget_parent(dparent);
+-			/* filesystem root - cannot return filehandle for ".." */
++			/*
++			 * Don't return filehandle for ".." if we're at
++			 * the filesystem or export root:
++			 */
+ 			if (dchild == dparent)
+ 				goto out;
++			if (dparent == exp->ex_path.dentry)
++				goto out;
+ 		} else
+ 			dchild = dget(dparent);
+ 	} else
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index 14be09537109..a80d6de3c8ad 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -12,6 +12,12 @@
+ 
+ #if GCC_VERSION < 40600
+ # error Sorry, your compiler is too old - please upgrade it.
++#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100
++/*
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
++ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ */
++# error Sorry, your version of GCC is too old - please use 5.1 or newer.
+ #endif
+ 
+ /*
+diff --git a/include/linux/dm-bufio.h b/include/linux/dm-bufio.h
+index 3c8b7d274bd9..45ba37aaf6b7 100644
+--- a/include/linux/dm-bufio.h
++++ b/include/linux/dm-bufio.h
+@@ -138,6 +138,7 @@ void dm_bufio_set_minimum_buffers(struct dm_bufio_client *c, unsigned n);
+ 
+ unsigned dm_bufio_get_block_size(struct dm_bufio_client *c);
+ sector_t dm_bufio_get_device_size(struct dm_bufio_client *c);
++struct dm_io_client *dm_bufio_get_dm_io_client(struct dm_bufio_client *c);
+ sector_t dm_bufio_get_block_number(struct dm_buffer *b);
+ void *dm_bufio_get_block_data(struct dm_buffer *b);
+ void *dm_bufio_get_aux_data(struct dm_buffer *b);
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 703ce71caeac..06176ef2a842 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1363,6 +1363,11 @@ static inline void skb_mark_not_on_list(struct sk_buff *skb)
+ 	skb->next = NULL;
+ }
+ 
++/* Iterate through singly-linked GSO fragments of an skb. */
++#define skb_list_walk_safe(first, skb, next_skb)                               \
++	for ((skb) = (first), (next_skb) = (skb) ? (skb)->next : NULL; (skb);  \
++	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
++
+ static inline void skb_list_del_init(struct sk_buff *skb)
+ {
+ 	__list_del_entry(&skb->list);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 5b87d2dd7151..73f208466363 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -459,13 +459,17 @@ EXPORT_SYMBOL(__netdev_alloc_skb);
+ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 				 gfp_t gfp_mask)
+ {
+-	struct napi_alloc_cache *nc = this_cpu_ptr(&napi_alloc_cache);
++	struct napi_alloc_cache *nc;
+ 	struct sk_buff *skb;
+ 	void *data;
+ 
+ 	len += NET_SKB_PAD + NET_IP_ALIGN;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
+@@ -473,6 +477,7 @@ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
+ 		goto skb_success;
+ 	}
+ 
++	nc = this_cpu_ptr(&napi_alloc_cache);
+ 	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 	len = SKB_DATA_ALIGN(len);
+ 
+diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
+index 9c85ef2b7e1d..375a3bbe6485 100644
+--- a/net/core/sock_reuseport.c
++++ b/net/core/sock_reuseport.c
+@@ -299,7 +299,7 @@ struct sock *reuseport_select_sock(struct sock *sk,
+ 			i = j = reciprocal_scale(hash, socks);
+ 			while (reuse->socks[i]->sk_state == TCP_ESTABLISHED) {
+ 				i++;
+-				if (i >= reuse->num_socks)
++				if (i >= socks)
+ 					i = 0;
+ 				if (i == j)
+ 					goto out;
+diff --git a/net/dcb/dcbnl.c b/net/dcb/dcbnl.c
+index 5ee6b94131b2..33684f1818a8 100644
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1756,6 +1756,8 @@ static int dcb_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	fn = &reply_funcs[dcb->cmd];
+ 	if (!fn->cb)
+ 		return -EOPNOTSUPP;
++	if (fn->type == RTM_SETDCB && !netlink_capable(skb, CAP_NET_ADMIN))
++		return -EPERM;
+ 
+ 	if (!tb[DCB_ATTR_IFNAME])
+ 		return -EINVAL;
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 114f9def1ec5..0792a9e2a555 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -270,7 +270,6 @@ static int esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, struc
+ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
+ {
+ 	u8 *tail;
+-	u8 *vaddr;
+ 	int nfrags;
+ 	int esph_offset;
+ 	struct page *page;
+@@ -312,14 +311,10 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 			page = pfrag->page;
+ 			get_page(page);
+ 
+-			vaddr = kmap_atomic(page);
+-
+-			tail = vaddr + pfrag->offset;
++			tail = page_address(page) + pfrag->offset;
+ 
+ 			esp_output_fill_trailer(tail, esp->tfclen, esp->plen, esp->proto);
+ 
+-			kunmap_atomic(vaddr);
+-
+ 			nfrags = skb_shinfo(skb)->nr_frags;
+ 
+ 			__skb_fill_page_desc(skb, nfrags, page, pfrag->offset,
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index a7d996148eed..25317d5ccf2c 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -237,7 +237,6 @@ static void esp_output_fill_trailer(u8 *tail, int tfclen, int plen, __u8 proto)
+ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *esp)
+ {
+ 	u8 *tail;
+-	u8 *vaddr;
+ 	int nfrags;
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+@@ -270,14 +269,10 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 			page = pfrag->page;
+ 			get_page(page);
+ 
+-			vaddr = kmap_atomic(page);
+-
+-			tail = vaddr + pfrag->offset;
++			tail = page_address(page) + pfrag->offset;
+ 
+ 			esp_output_fill_trailer(tail, esp->tfclen, esp->plen, esp->proto);
+ 
+-			kunmap_atomic(vaddr);
+-
+ 			nfrags = skb_shinfo(skb)->nr_frags;
+ 
+ 			__skb_fill_page_desc(skb, nfrags, page, pfrag->offset,
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 22665e3638ac..e1bb7db88483 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -128,8 +128,42 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
+ 	return -EINVAL;
+ }
+ 
++static int
++ip6_finish_output_gso_slowpath_drop(struct net *net, struct sock *sk,
++				    struct sk_buff *skb, unsigned int mtu)
++{
++	struct sk_buff *segs, *nskb;
++	netdev_features_t features;
++	int ret = 0;
++
++	/* Please see corresponding comment in ip_finish_output_gso
++	 * describing the cases where GSO segment length exceeds the
++	 * egress MTU.
++	 */
++	features = netif_skb_features(skb);
++	segs = skb_gso_segment(skb, features & ~NETIF_F_GSO_MASK);
++	if (IS_ERR_OR_NULL(segs)) {
++		kfree_skb(skb);
++		return -ENOMEM;
++	}
++
++	consume_skb(skb);
++
++	skb_list_walk_safe(segs, segs, nskb) {
++		int err;
++
++		skb_mark_not_on_list(segs);
++		err = ip6_fragment(net, sk, segs, ip6_finish_output2);
++		if (err && ret == 0)
++			ret = err;
++	}
++
++	return ret;
++}
++
+ static int ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
++	unsigned int mtu;
+ 	int ret;
+ 
+ 	ret = BPF_CGROUP_RUN_PROG_INET_EGRESS(sk, skb);
+@@ -146,7 +180,11 @@ static int ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
+ 	}
+ #endif
+ 
+-	if ((skb->len > ip6_skb_dst_mtu(skb) && !skb_is_gso(skb)) ||
++	mtu = ip6_skb_dst_mtu(skb);
++	if (skb_is_gso(skb) && !skb_gso_validate_network_len(skb, mtu))
++		return ip6_finish_output_gso_slowpath_drop(net, sk, skb, mtu);
++
++	if ((skb->len > mtu && !skb_is_gso(skb)) ||
+ 	    dst_allfrag(skb_dst(skb)) ||
+ 	    (IP6CB(skb)->frag_max_size && skb->len > IP6CB(skb)->frag_max_size))
+ 		return ip6_fragment(net, sk, skb, ip6_finish_output2);
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index 98c108baf35e..bcf29201f87b 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1596,8 +1596,11 @@ static int ipip6_newlink(struct net *src_net, struct net_device *dev,
+ 	}
+ 
+ #ifdef CONFIG_IPV6_SIT_6RD
+-	if (ipip6_netlink_6rd_parms(data, &ip6rd))
++	if (ipip6_netlink_6rd_parms(data, &ip6rd)) {
+ 		err = ipip6_tunnel_update_6rd(nt, &ip6rd);
++		if (err < 0)
++			unregister_netdevice_queue(dev, NULL);
++	}
+ #endif
+ 
+ 	return err;
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 58bd558a277a..40711f410828 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -446,7 +446,7 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb,
+ 	if (state >= RXRPC_CALL_COMPLETE)
+ 		return;
+ 
+-	if (call->state == RXRPC_CALL_SERVER_RECV_REQUEST) {
++	if (state == RXRPC_CALL_SERVER_RECV_REQUEST) {
+ 		unsigned long timo = READ_ONCE(call->next_req_timo);
+ 		unsigned long now, expect_req_by;
+ 
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index 2fe2add62a8e..9be6b35fd9b2 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1112,7 +1112,7 @@ static long rxrpc_read(const struct key *key,
+ 		default: /* we have a ticket we can't encode */
+ 			pr_err("Unsupported key token type (%u)\n",
+ 			       token->security_index);
+-			continue;
++			return -ENOPKG;
+ 		}
+ 
+ 		_debug("token[%u]: toksize=%u", ntoks, toksize);
+@@ -1227,7 +1227,9 @@ static long rxrpc_read(const struct key *key,
+ 			break;
+ 
+ 		default:
+-			break;
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
++			return -ENOPKG;
+ 		}
+ 
+ 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index f756b721f93e..bd28ac7f2195 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -914,9 +914,7 @@ void tipc_link_reset(struct tipc_link *l)
+ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 		   struct sk_buff_head *xmitq)
+ {
+-	struct tipc_msg *hdr = buf_msg(skb_peek(list));
+ 	unsigned int maxwin = l->window;
+-	int imp = msg_importance(hdr);
+ 	unsigned int mtu = l->mtu;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 seqno = l->snd_nxt;
+@@ -925,13 +923,20 @@ int tipc_link_xmit(struct tipc_link *l, struct sk_buff_head *list,
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+ 	struct sk_buff *skb, *_skb, **tskb;
+ 	int pkt_cnt = skb_queue_len(list);
++	struct tipc_msg *hdr;
+ 	int rc = 0;
++	int imp;
++
++	if (pkt_cnt <= 0)
++		return 0;
+ 
++	hdr = buf_msg(skb_peek(list));
+ 	if (unlikely(msg_size(hdr) > mtu)) {
+ 		__skb_queue_purge(list);
+ 		return -EMSGSIZE;
+ 	}
+ 
++	imp = msg_importance(hdr);
+ 	/* Allow oversubscription of one data msg per source at congestion */
+ 	if (unlikely(l->backlog[imp].len >= l->backlog[imp].limit)) {
+ 		if (imp == TIPC_SYSTEM_IMPORTANCE) {
