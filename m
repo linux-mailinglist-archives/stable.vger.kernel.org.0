@@ -2,78 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4B530163E
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:21:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 634AE301637
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725891AbhAWPUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 10:20:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43354 "EHLO mail.kernel.org"
+        id S1725899AbhAWPVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 10:21:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725765AbhAWPUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 10:20:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1706E23331;
-        Sat, 23 Jan 2021 15:19:52 +0000 (UTC)
+        id S1725550AbhAWPU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Jan 2021 10:20:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E492523340;
+        Sat, 23 Jan 2021 15:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611415193;
-        bh=P/L4d2yOsgyqZk8TFlUgEOvOQSOdv+W/b8YOPk1MMwY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OOKAmQXD0WBehM7XlkPfcB52gla89oTjvSfEIr30vcNr2r/+7yxM68vyiPJTCSZh1
-         9/0flX8i1tL9WFENfGXnB0shVd/+pDvltS7rqO0VGXV3bAMZrIfSdwYYmE05Lt7fYo
-         hjgWo+8xHW6wD432dheXkrzX1MuAXt4QSZ6rTLoM=
-Date:   Sat, 23 Jan 2021 16:19:51 +0100
+        s=korg; t=1611415217;
+        bh=Wz42J4kL/jAVbjmGOGJRfBzPdK4recIHdMtSn/EEkYE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kZ7UULDnmYqUabrszx6ZNq0lSeTuMbAOkv28/N6AWdcs6n9cQWjek+K8z5tfJigVs
+         5sSkSDBiBaNCW588y8XsAnKV/o16m9/3pZaueDYNbPcJZk2Ovn8ajFCSUtRGficT9h
+         Y77mIq2yleq3GTCqntmRNeWdmPYEPDCOy0nLDF40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/43] 5.10.10-rc1 review
-Message-ID: <YAw+lzjQhsSuQRcq@kroah.com>
-References: <20210122135735.652681690@linuxfoundation.org>
- <49a6e4c24f834bcb926c2ea2573ea6b4@HQMAIL111.nvidia.com>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.253
+Date:   Sat, 23 Jan 2021 16:20:13 +0100
+Message-Id: <161141521313185@kroah.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <49a6e4c24f834bcb926c2ea2573ea6b4@HQMAIL111.nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 23, 2021 at 09:59:10AM +0000, Jon Hunter wrote:
-> On Fri, 22 Jan 2021 15:12:16 +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.10 release.
-> > There are 43 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.10-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> All tests passing for Tegra ...
-> 
-> Test results for stable-v5.10:
->     12 builds:	12 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     64 tests:	64 pass, 0 fail
-> 
-> Linux version:	5.10.10-rc1-g402284178c91
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+I'm announcing the release of the 4.4.253 kernel.
 
-Thanks for testing all of these and letting me know.
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                             |    2 +-
+ arch/arc/Makefile                                    |    1 +
+ arch/arc/include/asm/page.h                          |    1 +
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi               |    4 ++++
+ drivers/iio/industrialio-buffer.c                    |    6 +++---
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c         |    3 +++
+ drivers/input/ff-core.c                              |   13 ++++++++++---
+ drivers/input/misc/uinput.c                          |   18 ++++++++++++++++++
+ drivers/isdn/mISDN/Kconfig                           |    1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-bitbang.c |    1 +
+ drivers/net/ethernet/freescale/fs_enet/mii-fec.c     |    1 +
+ drivers/net/ethernet/freescale/ucc_geth.h            |    9 ++++++++-
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c |    7 +------
+ drivers/net/usb/cdc_ncm.c                            |    8 ++++++--
+ drivers/net/usb/rndis_host.c                         |    2 +-
+ drivers/spi/spi-cadence.c                            |    6 ++++--
+ drivers/usb/host/ohci-hcd.c                          |    2 +-
+ fs/ext4/ioctl.c                                      |    3 +++
+ fs/ext4/namei.c                                      |   16 +++++++++-------
+ fs/nfs/internal.h                                    |   12 +++++++-----
+ fs/nfsd/nfs3xdr.c                                    |    7 ++++++-
+ include/linux/acpi.h                                 |    7 +++++++
+ include/linux/input.h                                |    1 +
+ mm/hugetlb.c                                         |    2 +-
+ mm/slub.c                                            |    2 +-
+ net/core/skbuff.c                                    |    9 +++++++--
+ net/dcb/dcbnl.c                                      |    2 ++
+ net/ipv6/sit.c                                       |    5 ++++-
+ net/rxrpc/ar-key.c                                   |    6 ++++--
+ net/sunrpc/addr.c                                    |    2 +-
+ security/lsm_audit.c                                 |    7 +++++--
+ sound/soc/soc-dapm.c                                 |    1 +
+ 32 files changed, 124 insertions(+), 43 deletions(-)
+
+Al Viro (1):
+      dump_common_audit_data(): fix racy accesses to ->d_name
+
+Andrey Zhizhikin (1):
+      rndis_host: set proper input size for OID_GEN_PHYSICAL_MEDIUM request
+
+Arnd Bergmann (2):
+      misdn: dsp: select CONFIG_BITREVERSE
+      ARM: picoxcell: fix missing interrupt-parent properties
+
+David Howells (1):
+      rxrpc: Fix handling of an unsupported token type in rxrpc_read()
+
+Dinghao Liu (1):
+      RDMA/usnic: Fix memleak in find_free_vf_and_create_qp_grp
+
+Dmitry Torokhov (1):
+      Input: uinput - avoid FF flush when destroying device
+
+Eric Dumazet (1):
+      net: avoid 32 x truesize under-estimation for tiny skbs
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.253
+
+Hamish Martin (1):
+      usb: ohci: Make distrust_firmware param default to false
+
+J. Bruce Fields (1):
+      nfsd4: readdirplus shouldn't return parent of export
+
+Jakub Kicinski (1):
+      net: sit: unregister_netdevice on newlink's error path
+
+Jan Kara (1):
+      ext4: fix superblock checksum failure when setting password salt
+
+Jann Horn (1):
+      mm, slub: consider rest of partial list if acquire_slab() fails
+
+Jouni K. Seppänen (1):
+      net: cdc_ncm: correct overhead in delayed_ndp_size
+
+Manish Chopra (1):
+      netxen_nic: fix MSI/MSI-x interrupts
+
+Masahiro Yamada (1):
+      ARC: build: add boot_targets to PHONY
+
+Miaohe Lin (1):
+      mm/hugetlb: fix potential missing huge page size info
+
+Michael Ellerman (1):
+      net: ethernet: fs_enet: Add missing MODULE_LICENSE
+
+Michael Hennerich (1):
+      spi: cadence: cache reference clock rate during probe
+
+Nuno Sá (1):
+      iio: buffer: Fix demux update
+
+Petr Machata (2):
+      net: dcb: Validate netlink message in DCB handler
+      net: dcb: Accept RTM_GETDCB messages carrying set-like DCB commands
+
+Randy Dunlap (1):
+      arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+
+Rasmus Villemoes (1):
+      ethernet: ucc_geth: fix definition and size of ucc_geth_tx_global_pram
+
+Shawn Guo (1):
+      ACPI: scan: add stub acpi_create_platform_device() for !CONFIG_ACPI
+
+Thomas Hebb (1):
+      ASoC: dapm: remove widget from dirty list on free
+
+Trond Myklebust (1):
+      NFS: nfs_igrab_and_active must first reference the superblock
+
+j.nixdorf@avm.de (1):
+      net: sunrpc: interpret the return value of kstrtou32 correctly
+
+yangerkun (1):
+      ext4: fix bug for rename with RENAME_WHITEOUT
+
