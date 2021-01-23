@@ -2,86 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5700C30146C
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 11:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BD7301478
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 11:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726849AbhAWJ7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 04:59:45 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:5866 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726829AbhAWJ7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 04:59:45 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B600bf3680000>; Sat, 23 Jan 2021 01:59:04 -0800
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 23 Jan
- 2021 09:59:04 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Sat, 23 Jan 2021 09:59:04 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.4 00/33] 5.4.92-rc1 review
-In-Reply-To: <20210122135733.565501039@linuxfoundation.org>
-References: <20210122135733.565501039@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1726849AbhAWKMN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 23 Jan 2021 05:12:13 -0500
+Received: from lithops.sigma-star.at ([195.201.40.130]:44028 "EHLO
+        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726810AbhAWKMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 05:12:05 -0500
+X-Greylist: delayed 358 seconds by postgrey-1.27 at vger.kernel.org; Sat, 23 Jan 2021 05:12:04 EST
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id B54DA6074007;
+        Sat, 23 Jan 2021 11:05:22 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id iF0YWO0cr0Iq; Sat, 23 Jan 2021 11:05:21 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 0006C625DE06;
+        Sat, 23 Jan 2021 11:05:20 +0100 (CET)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Artg8sMjyD81; Sat, 23 Jan 2021 11:05:20 +0100 (CET)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lithops.sigma-star.at (Postfix) with ESMTP id CF7986074007;
+        Sat, 23 Jan 2021 11:05:20 +0100 (CET)
+Date:   Sat, 23 Jan 2021 11:05:20 +0100 (CET)
+From:   Richard Weinberger <richard@nod.at>
+To:     chengzhihao1 <chengzhihao1@huawei.com>
+Cc:     linux-mtd <linux-mtd@lists.infradead.org>,
+        david <david@sigma-star.at>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <311070065.273732.1611396320672.JavaMail.zimbra@nod.at>
+In-Reply-To: <5b51ff9c-8f5e-c348-5195-c0a0bf60b746@huawei.com>
+References: <20210122212229.17072-1-richard@nod.at> <20210122212229.17072-4-richard@nod.at> <5b51ff9c-8f5e-c348-5195-c0a0bf60b746@huawei.com>
+Subject: Re: [PATCH 3/4] ubifs: Update directory size when creating
+ whiteouts
 MIME-Version: 1.0
-Message-ID: <d3ee21664b5e4a9b8e63e48db33d4042@HQMAIL111.nvidia.com>
-Date:   Sat, 23 Jan 2021 09:59:04 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1611395944; bh=TccoXMm+0oeiW3Pm93axK57lQg8EfFR559pXqyOSaG8=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=mjr4QM3w9ei1ILGmPHVOwRbw/TCoKA8/RwLezRjgkhg/WKhQsqg0ZJ9sszj+mSH90
-         yogEOKIDetFb2HTBeTgqlMcQL6syLxljGr5UyMjtU/LCVRhIiPT8GliFyAWfuKhPLQ
-         l/GZ9O+ORa3qA75PvuEtFiGPJvERFhXISnwXR4VKNVKACtdd32RCQOr8k0vrRA6MyA
-         kMrW3Rqk9Luf3lS7utAv8fNrxv1QLeirOXHBq4Etp0xZsaZ3Babi/1vNpYYiX8e4Pr
-         yfrDGSRFKJRMPNsR6Pxz2rRbnoT4fOrv+cUhpAJ0E/YqUTRB0ibkI6pKs9/+4AnV30
-         YgreEdUn2b/CA==
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [195.201.40.130]
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF78 (Linux)/8.8.12_GA_3809)
+Thread-Topic: ubifs: Update directory size when creating whiteouts
+Thread-Index: lBYr5nCGsjlO2WH9TnqNoD/UEPd7gA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 22 Jan 2021 15:12:16 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.92 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.92-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+----- Ursprüngliche Mail -----
+> Von: "chengzhihao1" <chengzhihao1@huawei.com>
+> An: "richard" <richard@nod.at>, "linux-mtd" <linux-mtd@lists.infradead.org>
+> CC: "david" <david@sigma-star.at>, "linux-kernel" <linux-kernel@vger.kernel.org>, "stable" <stable@vger.kernel.org>
+> Gesendet: Samstag, 23. Januar 2021 03:45:15
+> Betreff: Re: [PATCH 3/4] ubifs: Update directory size when creating whiteouts
 
-All tests passing for Tegra ...
+> 在 2021/1/23 5:22, Richard Weinberger 写道:
+>> Although whiteouts are unlinked files they will get re-linked later,
+> I just want to make sure, is this where the count is increased?
+> do_rename -> inc_nlink(whiteout)
 
-Test results for stable-v5.4:
-    12 builds:	12 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    56 tests:	56 pass, 0 fail
+Exactly. The logic is a little wicked, I agree.
+Let me think again whether there isn't a better way to address 
+the problem.
 
-Linux version:	5.4.92-rc1-geb6c2292de97
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+Thanks,
+//richard
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+P.s: Thanks a lot for reviewing!
