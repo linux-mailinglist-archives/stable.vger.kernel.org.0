@@ -2,80 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00C130161B
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 15:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D0A301625
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 16:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725778AbhAWO6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 09:58:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
+        id S1725932AbhAWPHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 10:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725274AbhAWO57 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Jan 2021 09:57:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F095722AAA;
-        Sat, 23 Jan 2021 14:57:17 +0000 (UTC)
+        id S1725910AbhAWPHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Jan 2021 10:07:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09715224BE;
+        Sat, 23 Jan 2021 15:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611413838;
-        bh=mJ8Vk7OPDZudag1atvRjpfC0hiXiUkqHVgV0cu7w/68=;
+        s=korg; t=1611414395;
+        bh=mg56uEMm/qfhkXuvhg2qmXaJnB6cBfQBnS9++lNliZw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rJk6k5hZY7Mw5I1Qm8FNA33WQfONgqWi/a5fYFTxYzCUcjcV+sJyNfExbxzv7v2GQ
-         8sbSDWw1kH7+kRjsSh8EcRdO5iBBXzTzWeLJ/olkFS+oeWim//q/iAjMxdtOK9oLxy
-         D+zEGOEUd2031JuCweuqM5/MkBR2rkXmLvI9MfzE=
-Date:   Sat, 23 Jan 2021 15:57:15 +0100
+        b=pPqMQHuY/DQdz2XpBK4vr3Nn8UI/KYztPzL4ot1993I48t9S1CGd59lCzXuKTgJVi
+         WpJTVMOBJiTRhDsnGBwVnEyl9jw4jLDY/iIbELp2jcgl2v5nj/gZ6Iy9VkM6JKCVsM
+         iym1FIotW6dmgxDZRaGrDwID6vi4BV7104c9ZlBU=
+Date:   Sat, 23 Jan 2021 16:06:32 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Eric Dumazet <edumazet@google.com>
-Subject: Re: [PATCH 5.4 29/33] net, sctp, filter: remap copy_from_user
- failure error
-Message-ID: <YAw5S2rysk/PnwRS@kroah.com>
-References: <20210122135733.565501039@linuxfoundation.org>
- <20210122135734.750091426@linuxfoundation.org>
- <20210122165545.GJ3863@horizon.localdomain>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/43] 5.10.10-rc1 review
+Message-ID: <YAw7eBcrlYv9fdV7@kroah.com>
+References: <20210122135735.652681690@linuxfoundation.org>
+ <5ce91f74-86d0-778c-d884-769cf4d7e3b2@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210122165545.GJ3863@horizon.localdomain>
+In-Reply-To: <5ce91f74-86d0-778c-d884-769cf4d7e3b2@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 22, 2021 at 01:55:45PM -0300, Marcelo Ricardo Leitner wrote:
-> On Fri, Jan 22, 2021 at 03:12:45PM +0100, Greg Kroah-Hartman wrote:
-> > From: Daniel Borkmann <daniel@iogearbox.net>
+On Fri, Jan 22, 2021 at 05:24:01PM -0700, Shuah Khan wrote:
+> On 1/22/21 7:12 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.10 release.
+> > There are 43 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > [ no upstream commit ]
+> > Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
+> > Anything received after that time might be too late.
 > > 
-> > Fix a potential kernel address leakage for the prerequisite where there is
-> > a BPF program attached to the cgroup/setsockopt hook. The latter can only
-> > be attached under root, however, if the attached program returns 1 to then
-> > run the related kernel handler, an unprivileged program could probe for
-> > kernel addresses that way. The reason this is possible is that we're under
-> > set_fs(KERNEL_DS) when running the kernel setsockopt handler. Aside from
-> > old cBPF there is also SCTP's struct sctp_getaddrs_old which contains
-> > pointers in the uapi struct that further need copy_from_user() inside the
-> > handler. In the normal case this would just return -EFAULT, but under a
-> > temporary KERNEL_DS setting the memory would be copied and we'd end up at
-> > a different error code, that is, -EINVAL, for both cases given subsequent
-> > validations fail, which then allows the app to distinguish and make use of
-> > this fact for probing the address space. In case of later kernel versions
-> > this issue won't work anymore thanks to Christoph Hellwig's work that got
-> > rid of the various temporary set_fs() address space overrides altogether.
-> > One potential option for 5.4 as the only affected stable kernel with the
-> > least complexity would be to remap those affected -EFAULT copy_from_user()
-> > error codes with -EINVAL such that they cannot be probed anymore. Risk of
-> > breakage should be rather low for this particular error case.
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.10-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > and the diffstat can be found below.
 > > 
-> > Fixes: 0d01da6afc54 ("bpf: implement getsockopt and setsockopt hooks")
-> > Reported-by: Ryota Shiga (Flatt Security)
-> > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> > Cc: Stanislav Fomichev <sdf@google.com>
-> > Cc: Eric Dumazet <edumazet@google.com>
-> > Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> For sctp bits,
-> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> Compiled and booted on my test system. No dmesg regressions.
+> 
+> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Thanks for the review!
+Thanks for testing these and letting me know.
+
+greg k-h
