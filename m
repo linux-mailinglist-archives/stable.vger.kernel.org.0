@@ -2,86 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5831D301698
-	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 17:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3BD3016D2
+	for <lists+stable@lfdr.de>; Sat, 23 Jan 2021 17:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbhAWQFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jan 2021 11:05:12 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:10623 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726162AbhAWQFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 11:05:08 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B600bf37b0001>; Sat, 23 Jan 2021 01:59:28 -0800
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 23 Jan
- 2021 09:59:10 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Sat, 23 Jan 2021 09:59:10 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.10 00/43] 5.10.10-rc1 review
-In-Reply-To: <20210122135735.652681690@linuxfoundation.org>
-References: <20210122135735.652681690@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1725922AbhAWQev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jan 2021 11:34:51 -0500
+Received: from a1.mail.mailgun.net ([198.61.254.60]:19173 "EHLO
+        a1.mail.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725550AbhAWQeu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jan 2021 11:34:50 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1611419666; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
+ Subject: Sender; bh=oT7MRBChsv+idL281B/pS9tqQFqOqOFuyvZzg95aFI0=; b=doYCB3cyu2zlTalTp7+AjtHo19dtPyllr2Qdhs6s2XdxVoy8NXeDLelnWCO3Yl52RONt7btd
+ ALsSCXYaH+D6Y9AlPW1yL6KWmHuZCK2/sdugzZGhiL+khRvjNnpiyZGnSnEuF/SkJx8nX1HF
+ btFxVs8UjV4XK2y5Vvxv/B0eHPQ=
+X-Mailgun-Sending-Ip: 198.61.254.60
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
+ 600c4ff6fb02735e8cf5561e (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Sat, 23 Jan 2021 16:33:58
+ GMT
+Sender: gkohli=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id F1A0DC43461; Sat, 23 Jan 2021 16:33:57 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        NICE_REPLY_A,SPF_FAIL,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from [192.168.1.4] (unknown [136.185.226.226])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: gkohli)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id EC1ACC433ED;
+        Sat, 23 Jan 2021 16:33:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org EC1ACC433ED
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=gkohli@codeaurora.org
+Subject: Re: [PATCH v1] trace: Fix race in trace_open and buffer resize call
+To:     Denis Efremov <efremov@linux.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, stable@vger.kernel.org,
+        Julia Lawall <julia.lawall@inria.fr>
+References: <1601976833-24377-1-git-send-email-gkohli@codeaurora.org>
+ <f06efd7b-c7b5-85c9-1a0e-6bb865111ede@linux.com>
+ <20210121140951.2a554a5e@gandalf.local.home>
+ <021b1b38-47ce-bc8b-3867-99160cc85523@linux.com>
+ <20210121153732.43d7b96b@gandalf.local.home> <YAqwD/ivTgVJ7aap@kroah.com>
+ <8e17ad41-b62b-5d39-82ef-3ee6ea9f4278@codeaurora.org>
+ <20210122093758.320bb4f9@gandalf.local.home>
+ <5959315a-507a-00df-031a-e60d45c1f7ab@linux.com>
+From:   Gaurav Kohli <gkohli@codeaurora.org>
+Message-ID: <46d1f82b-1eb4-a828-c79c-e6556eccf9d5@codeaurora.org>
+Date:   Sat, 23 Jan 2021 22:03:27 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Message-ID: <49a6e4c24f834bcb926c2ea2573ea6b4@HQMAIL111.nvidia.com>
-Date:   Sat, 23 Jan 2021 09:59:10 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1611414148; bh=KZbiltbyUbfWJZEPxgjvsG0mPBNaRsZaqnHQ7HI62es=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=LBOUqizCYIdGetOsCw0N51sG5VM5Cn3T6EotxcRdCvas1f7IhIBKySMmmdsH05nbV
-         VPm64LZB4bYjt8vmbYHPYBMz9RKuvrFqP1cMrUkpRBaZhO3Ks03uJH1mbOPYUmwM0S
-         2zlqAE45FxmE4KUpk85SIftbWCGUfmYvh+4aXCgrqBVkMNJOXMGCuB1D+amGcj8QPE
-         Vg79WXAke5iWePXw5Z/Hl40hzWXLg5POqg64VFWfbT1rGXkOJPG1GixElSM5Sy5oYP
-         cTj5djXs1rDjkVW7v/Y5WOHB/FTgfvDyvlfPqK0re/Li5rak7sN1DKK4BuTOlpSH1v
-         0jUtiCfmYdTqA==
+In-Reply-To: <5959315a-507a-00df-031a-e60d45c1f7ab@linux.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 22 Jan 2021 15:12:16 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.10 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+
+
+On 1/23/2021 4:19 PM, Denis Efremov wrote:
 > 
-> Responses should be made by Sun, 24 Jan 2021 13:57:23 +0000.
-> Anything received after that time might be too late.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> On 1/22/21 5:37 PM, Steven Rostedt wrote:
+>> On Fri, 22 Jan 2021 16:55:29 +0530
+>> Gaurav Kohli <gkohli@codeaurora.org> wrote:
+>>
+>>>>> That could possibly work.
+>>>
+>>> Yes, this will work, As i have tested similar patch for internal testing
+>>> for kernel branches like 5.4/4.19.
+>>
+>> Can you or Denis send a proper patch for Greg to backport? I'll review it,
+>> test it and give my ack to it, so Greg can take it without issue.
+>>
 > 
-> thanks,
+> I can prepare the patch, but it will be compile-tested only from my side. Honestly,
+> I think it's better when the patch and its backports have the same author and
+> commit message. And I can't test the fix by myself as I don't know how to reproduce
+> conditions for the bug. I think it's better if Gaurav will prepare this backport,
+> unless he have reasons for me to do it or maybe just don't have enough time nowadays.
+> Gaurav, if you want to somehow mention me you add my Reported-by:
 > 
-> greg k-h
+> Thanks,
+> Denis
+> 
 
-All tests passing for Tegra ...
+Sure I will do, I have never posted on backport branches. Let me check 
+and post it.
 
-Test results for stable-v5.10:
-    12 builds:	12 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    64 tests:	64 pass, 0 fail
-
-Linux version:	5.10.10-rc1-g402284178c91
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+-- 
+Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center,
+Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
