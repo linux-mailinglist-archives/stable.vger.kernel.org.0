@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 249D6301C2F
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9660301C35
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725788AbhAXNYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:24:36 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41945 "EHLO
+        id S1726497AbhAXNZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:25:27 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44277 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726672AbhAXNYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:24:31 -0500
+        by vger.kernel.org with ESMTP id S1726672AbhAXNZ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:25:26 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 35849B0A;
-        Sun, 24 Jan 2021 08:23:50 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:23:50 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id B5CBCEB1;
+        Sun, 24 Jan 2021 08:24:19 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:24:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZnG/BV
-        rgrqDvrYSA1OB6XahX/ltRA+CNJnIV04qD06E=; b=nzmuHbIeyP4LcSeBhewTis
-        v0vNzBNkCjF227S6SJhXKm7j26rldeNLehgOOuAEYSXsZc6X+6troRboebKr173D
-        TeIcmQtlSWj959NO/5yNV+nHIz9PADzNufoeFl+Mda9zZqwEgl47MJnP7bgq6jsL
-        lNhqNv/20Z1zniFXc4VtckugktdjGx3VOxq0ray2sYbAszlG0NqFJdNdBvQ4jKRU
-        Uq8gDEw/o5YW9zTiQZbfeGMP52SSLKAehwH8pqBDYY5U87PGWfEg4YmVLzUm0nHC
-        VV91Lw0G64LVvqIFLuOX/PVBPjGHAPHzQ8TCkzwapr726WTeFHSKvBIS9Mx0UMBw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xV/4fZ
+        sHtbHe0vMDgsId3eEShClwlsHU3zzCl5J6yCs=; b=bE/fFKzmi3Z43p22J16TxO
+        5JKPlsIk6rnkUfXCjGapDz93Z97IalFDre1sbFOMiZPaqtlINHMKeNJ6Kq47BC47
+        i+GqzKsmwKsfXkPP0ULC2JUmgL91Tm6Z5qhnZ7S45L5fCZks+4gyFY1DBy2+vaah
+        /Ejbp6r6eJxy/QulTSu/gBKdLFgwLXzYRqni3xUQ/DuFKMBgQnHYVOcn4dmDEev8
+        JvYcL7gF2FbZTPQRJKgnHib/AU/A2XzIK7//Kjhhd+/a/Sl/JUVuMmYfNrxBgmtI
+        wWBCpIpxJ1QBjzHeFXuGWoJ8l63BCzl54rpN6WBYtzjbY96+TanHqOQEcQvcwZ6w
         ==
-X-ME-Sender: <xms:5XQNYJG9WvWU-C6_Ee3AuPlgDCtgWhYeFy_zS2UjD55ZntYvgNWkvw>
-    <xme:5XQNYOUYlcVLVHLmskMVx2NL4HPdX547XpJkul9Gcvyr9zQQaQLN2zja66xlgb55w
-    WNpKqnYLcC8Gg>
+X-ME-Sender: <xms:A3UNYHDzt8VEml6DH1Li-mvbrnoJ39XMjjGAIB1myDmYRAoFNtx44w>
+    <xme:A3UNYNhiP0cOo3tGKOIG9_MixLGDgaqFPMZpFtygAyJWWY6xawPvGXhrxMmc35KS9
+    MZEZym0c07mNg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeevkeelveeiteetfeehtddugeegffevgedtueegieeftd
-    effeelueetteeihfdtjeenucffohhmrghinhepghhoohhglhgvshhouhhrtggvrdgtohhm
-    pdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
-    hrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomh
-X-ME-Proxy: <xmx:5XQNYLKvVZWVgqek_WOuR8MZdMavNG2_vJwvlQH6oO2W3BCfcQ7LhA>
-    <xmx:5XQNYPEmUSqSmIV4v5mVUopvofhrRMEvU6Gnk_tT2It_9udjsZ5ZDg>
-    <xmx:5XQNYPXe-Q1-Rs8EhLvnIOMux1mzHjaY5FTgYo_1hknmlB_nkfXekA>
-    <xmx:5XQNYMj14x_CJlCQt0_px0SEIVzwnnz0qfdWj8qI0hGdDazd58bCzxKzzK8>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:A3UNYCl-S69aOnSbBfvVB1toqmCeQeoIpKQas380H6sINj2KKX-I4Q>
+    <xmx:A3UNYJz5LJcG2PRSnWW4JxLh9Oeme115_3BsL21Fegh17jsaiAMBEA>
+    <xmx:A3UNYMQzfGavCdYrwsMvqbHujLj63jfh8WyakAjs3Uno385dXN3u8g>
+    <xmx:A3UNYHIct366Ldy9DRIKnnE6q33IQonzJX0GxJOXO3ZLa7Vks-WOZLeBRC8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7F8A9240057;
-        Sun, 24 Jan 2021 08:23:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mmc: core: don't initialize block size from ext_csd if not" failed to apply to 4.14-stable tree
-To:     pcc@google.com, adrian.hunter@intel.com, damien.lemoal@wdc.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id DFF071080059;
+        Sun, 24 Jan 2021 08:24:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mmc: sdhci-of-dwcmshc: fix rpmb access" failed to apply to 4.19-stable tree
+To:     Jisheng.Zhang@synaptics.com, adrian.hunter@intel.com,
         ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jan 2021 14:23:39 +0100
-Message-ID: <161149461967212@kroah.com>
+Date:   Sun, 24 Jan 2021 14:24:17 +0100
+Message-ID: <1611494657113254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,44 +71,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b503087445ce7e45fabdee87ca9e460d5b5b5168 Mon Sep 17 00:00:00 2001
-From: Peter Collingbourne <pcc@google.com>
-Date: Thu, 14 Jan 2021 12:14:05 -0800
-Subject: [PATCH] mmc: core: don't initialize block size from ext_csd if not
- present
+From ca1219c0a7432272324660fc9f61a9940f90c50b Mon Sep 17 00:00:00 2001
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Date: Tue, 29 Dec 2020 16:16:25 +0800
+Subject: [PATCH] mmc: sdhci-of-dwcmshc: fix rpmb access
 
-If extended CSD was not available, the eMMC driver would incorrectly
-set the block size to 0, as the data_sector_size field of ext_csd
-was never initialized. This issue was exposed by commit 817046ecddbc
-("block: Align max_hw_sectors to logical blocksize") which caused
-max_sectors and max_hw_sectors to be set to 0 after setting the block
-size to 0, resulting in a kernel panic in bio_split when attempting
-to read from the device. Fix it by only reading the block size from
-ext_csd if it is available.
+Commit a44f7cb93732 ("mmc: core: use mrq->sbc when sending CMD23 for
+RPMB") began to use ACMD23 for RPMB if the host supports ACMD23. In
+RPMB ACM23 case, we need to set bit 31 to CMD23 argument, otherwise
+RPMB write operation will return general fail.
 
-Fixes: a5075eb94837 ("mmc: block: Allow disabling 512B sector size emulation")
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Link: https://linux-review.googlesource.com/id/If244d178da4d86b52034459438fec295b02d6e60
+However, no matter V4 is enabled or not, the dwcmshc's ARGUMENT2
+register is 32-bit block count register which doesn't support stuff
+bits of CMD23 argument. So let's handle this specific ACMD23 case.
+
+From another side, this patch also prepare for future v4 enabling
+for dwcmshc, because from the 4.10 spec, the ARGUMENT2 register is
+redefined as 32bit block count which doesn't support stuff bits of
+CMD23 argument.
+
+Fixes: a44f7cb93732 ("mmc: core: use mrq->sbc when sending CMD23 for RPMB")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20201229161625.38255233@xhacker.debian
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210114201405.2934886-1-pcc@google.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-index de7cb0369c30..002426e3cf76 100644
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -384,8 +384,10 @@ static void mmc_setup_queue(struct mmc_queue *mq, struct mmc_card *card)
- 		     "merging was advertised but not possible");
- 	blk_queue_max_segments(mq->queue, mmc_get_max_segments(host));
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index 4b673792b5a4..d90020ed3622 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -16,6 +16,8 @@
  
--	if (mmc_card_mmc(card))
-+	if (mmc_card_mmc(card) && card->ext_csd.data_sector_size) {
- 		block_size = card->ext_csd.data_sector_size;
-+		WARN_ON(block_size != 512 && block_size != 4096);
-+	}
+ #include "sdhci-pltfm.h"
  
- 	blk_queue_logical_block_size(mq->queue, block_size);
- 	/*
++#define SDHCI_DWCMSHC_ARG2_STUFF	GENMASK(31, 16)
++
+ /* DWCMSHC specific Mode Select value */
+ #define DWCMSHC_CTRL_HS400		0x7
+ 
+@@ -49,6 +51,29 @@ static void dwcmshc_adma_write_desc(struct sdhci_host *host, void **desc,
+ 	sdhci_adma_write_desc(host, desc, addr, len, cmd);
+ }
+ 
++static void dwcmshc_check_auto_cmd23(struct mmc_host *mmc,
++				     struct mmc_request *mrq)
++{
++	struct sdhci_host *host = mmc_priv(mmc);
++
++	/*
++	 * No matter V4 is enabled or not, ARGUMENT2 register is 32-bit
++	 * block count register which doesn't support stuff bits of
++	 * CMD23 argument on dwcmsch host controller.
++	 */
++	if (mrq->sbc && (mrq->sbc->arg & SDHCI_DWCMSHC_ARG2_STUFF))
++		host->flags &= ~SDHCI_AUTO_CMD23;
++	else
++		host->flags |= SDHCI_AUTO_CMD23;
++}
++
++static void dwcmshc_request(struct mmc_host *mmc, struct mmc_request *mrq)
++{
++	dwcmshc_check_auto_cmd23(mmc, mrq);
++
++	sdhci_request(mmc, mrq);
++}
++
+ static void dwcmshc_set_uhs_signaling(struct sdhci_host *host,
+ 				      unsigned int timing)
+ {
+@@ -133,6 +158,8 @@ static int dwcmshc_probe(struct platform_device *pdev)
+ 
+ 	sdhci_get_of_property(pdev);
+ 
++	host->mmc_host_ops.request = dwcmshc_request;
++
+ 	err = sdhci_add_host(host);
+ 	if (err)
+ 		goto err_clk;
 
