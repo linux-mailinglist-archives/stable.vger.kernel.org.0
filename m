@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EE1301D8D
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 17:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F71301E07
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 19:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbhAXQq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 11:46:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48456 "EHLO
+        id S1725918AbhAXSCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 13:02:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725798AbhAXQq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 11:46:56 -0500
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08414C061573;
-        Sun, 24 Jan 2021 08:46:16 -0800 (PST)
-Received: by mail-oi1-x232.google.com with SMTP id j25so6730740oii.0;
-        Sun, 24 Jan 2021 08:46:15 -0800 (PST)
+        with ESMTP id S1725855AbhAXSCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 13:02:45 -0500
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9F6C061573
+        for <stable@vger.kernel.org>; Sun, 24 Jan 2021 10:02:04 -0800 (PST)
+Received: by mail-lf1-x131.google.com with SMTP id v24so14546389lfr.7
+        for <stable@vger.kernel.org>; Sun, 24 Jan 2021 10:02:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=UiTpXgmVqFrHSdksd6Jn05Y0HoKR56zNJyN5+XF3nCs=;
-        b=Fw+JGRqwt19HNU2/fqZw9PWWTu0xTJ1b3IqyG75mQiaGieUCDIDG1ocXgC07bwp3Kw
-         OX7TAeN7G4Zzeq/objdWirVByqKeJyYR/ts/Rnk1U96fz33uH3ghyMLcgM3wL1N3Gcdx
-         yiOEZXKh1Tf0r3y1keYMReB+GrqfTi6liOS5Of3SJ92pgqNRAyL1Ax3NR3XFpDut42Ou
-         ZK6mr6DOF0TPs0qCCK4APs0kkUUZHKZzwEAnsbTWy9iyjoNHJsFKFrdnOaEv9V/T9j72
-         oV8i5bBdImxzIjuX+v0ZfliIpX0pZNSYmJ7+U2nvd3lFxzq099juJiEBm8Y0bWyaCeOO
-         F5YQ==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=qhc7cnz0RKFXOf698IrJkfakceVLloqd5WmltfYsgto=;
+        b=ZC2/TGkDAYL98/DPFpoGdIc7/hZCRHLxArcJi5wFjJoAPBnlzdizpyFoz+c3Sl8x4F
+         NT6pR18r4pfdOGhZZoJ2rkz25i+QptDZaPtUt8kYuKTgsKfbKZPAIcCippOJJiErqq8n
+         386umxMzxipEa0drs+PoarwmbHL7Da9zCu7GEVHLfj9VytPDwsYKWkG9ukZTXIOVxLPl
+         1TAcp9r7QMMhYO0LB96sDSSQMG3oEOXaL+rpUjAoeSKf9Q5rqw7msEpiCkDB+2OIU7M9
+         xdx4j/Et7XG4Og4iAH/5+bDuvYphX1VHjcnMbL6/FVGTyGcNMBYCh55qpZ8aAhKi77xK
+         DREw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UiTpXgmVqFrHSdksd6Jn05Y0HoKR56zNJyN5+XF3nCs=;
-        b=HXxvnBBW9GcAZNrP0JF0TCydvj5YkzUESv5IRYU4O3OpmWJlgRXXz6s/x1aXNche7W
-         j9Ffl9+XkXbNMWJtT1dtVj90AOIo8PVaFH2wKNYlxO3dkE07O9cLZE54i4oApLcPUzLa
-         bSg9UNPlXunlQpG7C5C2V3iVrqsUp3n38qN4DOeiEigFXVPIYYXbE/6ra2LRPWQd/E6f
-         Xf4RYhGOGEcMBIZglGrXmG1nPVnuITo0fRCw6VadgIiXil6kPJOqtVuPmMN2bhRqc0hM
-         o5UX/bUPdtAJ76l11vtUcoygAGhmoW8nWYXPvS4cFsEpVMzAABq5lI4DzyDudRLcU1rB
-         jEIQ==
-X-Gm-Message-State: AOAM530gJLxS/M4YKur6QWz/s+taw7KCWrYurKVr6oXi7TFrMsIdMX2d
-        /ksY1ky17PNdNrmejb4eJao=
-X-Google-Smtp-Source: ABdhPJxnJZMo/BCEeC7qhTl/foakowuDozCp3pXfrSEjihqt3hMw3AzneTvOsOjynkK2ZiQk1P/L7g==
-X-Received: by 2002:aca:60d6:: with SMTP id u205mr937823oib.82.1611506774487;
-        Sun, 24 Jan 2021 08:46:14 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q6sm3053243ota.44.2021.01.24.08.46.13
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 24 Jan 2021 08:46:13 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sun, 24 Jan 2021 08:46:12 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Thomas Hebb <tommyhebb@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bob Hepple <bob.hepple@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        linux-hwmon@vger.kernel.org
-Subject: Re: [PATCH] hwmon: (dell-smm) Add XPS 15 L502X to fan control
- blacklist
-Message-ID: <20210124164612.GA136698@roeck-us.net>
-References: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=qhc7cnz0RKFXOf698IrJkfakceVLloqd5WmltfYsgto=;
+        b=S+0t1EA/1TYtSi6Waso4WU8gkWfehcGUHkDfNZM3Ok99IOOzrlhqgHuotrEcjjSp1w
+         87S2Clr/KXFEOl5lG+nIH9nTZgFfl2ceCUOVLowfcvtpVdX3wwhsGoYHBx8F1cJJZSKt
+         W/TpE3Bhbe/SAknF5yG8N7DnbxWqjLXyFz4PJBHYZP5FMcCO2Q8FEqELPBXY1XQQguQv
+         518NDBwC0yv6aOFm/lUqjJYOLxz0zG3juSB9kFz/hZZIXB+YxqAypHKgC2YetUOyhWzP
+         HisnamiXaCC21ssgjB09IU3XKlvHPmJib05wuiRR2WIzk0brbC4a1kL2+j7W0iWIRcqh
+         jI6w==
+X-Gm-Message-State: AOAM5314pZVGsjLGsMHkww3bTS9GDZUFfL+ugQk/RPOrh8JrlV6J3DWA
+        C0iuJs6QfSnPzlWy9DTrizHvAVl22+Ligf8aTHOeCg==
+X-Google-Smtp-Source: ABdhPJxu5eVM/lKokhkCxod5AjChPP5/rCoA3Q4eaevWLtFpplMXPwX8bkxls7c8I5NQJ3UMRT6dol7p1SIoFmtYKv8=
+X-Received: by 2002:a19:644b:: with SMTP id b11mr610105lfj.358.1611511322517;
+ Sun, 24 Jan 2021 10:02:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20210123210029.a7c704d0cab204683e41ad10@linux-foundation.org> <20210124050119.34lm1Gw1Q%akpm@linux-foundation.org>
+In-Reply-To: <20210124050119.34lm1Gw1Q%akpm@linux-foundation.org>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Sun, 24 Jan 2021 10:01:51 -0800
+Message-ID: <CALvZod7vf=NF40xSFqtugaZUaVx7X75LS10dpF6Q8LR=R=JhDA@mail.gmail.com>
+Subject: Re: [patch 06/19] mm: memcontrol: prevent starvation when writing memory.high
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Roman Gushchin <guro@fb.com>, Johannes Weiner <hannes@cmpxchg.org>,
+        Linux MM <linux-mm@kvack.org>, Michal Hocko <mhocko@suse.com>,
+        =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 23, 2021 at 06:46:08PM -0800, Thomas Hebb wrote:
-> It has been reported[0] that the Dell XPS 15 L502X exhibits similar
-> freezing behavior to the other systems[1] on this blacklist. The issue
-> was exposed by a prior change of mine to automatically load
-> dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
-> this model to the blacklist.
-> 
-> [0] https://bugzilla.kernel.org/show_bug.cgi?id=211081
-> [1] https://bugzilla.kernel.org/show_bug.cgi?id=195751
-> 
-> Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS models")
-> Cc: stable@vger.kernel.org
-> Reported-by: Bob Hepple <bob.hepple@gmail.com>
-> Tested-by: Bob Hepple <bob.hepple@gmail.com>
-> Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+On Sat, Jan 23, 2021 at 9:01 PM Andrew Morton <akpm@linux-foundation.org> w=
+rote:
+>
+> From: Johannes Weiner <hannes@cmpxchg.org>
+> Subject: mm: memcontrol: prevent starvation when writing memory.high
+>
+> When a value is written to a cgroup's memory.high control file, the
+> write() context first tries to reclaim the cgroup to size before putting
+> the limit in place for the workload.  Concurrent charges from the workloa=
+d
+> can keep such a write() looping in reclaim indefinitely.
+>
+> In the past, a write to memory.high would first put the limit in place fo=
+r
+> the workload, then do targeted reclaim until the new limit has been met -
+> similar to how we do it for memory.max.  This wasn't prone to the
+> described starvation issue.  However, this sequence could cause excessive
+> latencies in the workload, when allocating threads could be put into long
+> penalty sleeps on the sudden memory.high overage created by the write(),
+> before that had a chance to work it off.
+>
+> Now that memory_high_write() performs reclaim before enforcing the new
+> limit, reflect that the cgroup may well fail to converge due to concurren=
+t
+> workload activity.  Bail out of the loop after a few tries.
+>
+> Link: https://lkml.kernel.org/r/20210112163011.127833-1-hannes@cmpxchg.or=
+g
+> Fixes: 536d3bf261a2 ("mm: memcontrol: avoid workload stalls when lowering=
+ memory.high")
+> Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+> Reviewed-by: Shakeel Butt <shakeelb@google.com>
+> Reported-by: Tejun Heo <tj@kernel.org>
+> Acked-by: Roman Gushchin <guro@fb.com>
+> Reviewed-by: Michal Koutn=C3=BD <mkoutny@suse.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: <stable@vger.kernel.org>    [5.8+]
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-Applied.
-
-Thanks,
-Guenter
-
-> ---
-> 
->  drivers/hwmon/dell-smm-hwmon.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-> index ec448f5f2dc3..73b9db9e3aab 100644
-> --- a/drivers/hwmon/dell-smm-hwmon.c
-> +++ b/drivers/hwmon/dell-smm-hwmon.c
-> @@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
->  			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
->  		},
->  	},
-> +	{
-> +		.ident = "Dell XPS 15 L502X",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> +			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
-> +		},
-> +	},
->  	{ }
->  };
->  
+Johannes requested to replace this patch with
+https://lore.kernel.org/linux-mm/20210122184341.292461-1-hannes@cmpxchg.org=
+/
