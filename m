@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D4B301C2D
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9652F301C30
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:25:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725855AbhAXNY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:24:26 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35857 "EHLO
+        id S1726980AbhAXNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:24:48 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51605 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725788AbhAXNYV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:24:21 -0500
+        by vger.kernel.org with ESMTP id S1726672AbhAXNYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:24:47 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 74DCFB21;
-        Sun, 24 Jan 2021 08:23:15 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:23:15 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 81808A1B;
+        Sun, 24 Jan 2021 08:23:40 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:23:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/c8Aa6
-        UBcj9CUkRrFzWkE1Ay1KxdU6A4m8jooTrG+e8=; b=DkFUQcvpVOJXsnFfFkcPjL
-        K+z0ys8F1MkxL9Gmg/XHnb+E68v0/y9VRLRM/w6avtCK9+MkU528mrlgeFMbLJ0v
-        szQOSVcj2kf3SL0Bfnlj9Db4acwQ+J2hPsX5sK2n1lg6otcel8D8I/NbvTUAAw4o
-        +7KlypEHe19NilYl7x5gu9HY4DGD+7oe6HGUIjisyC1EVYgC227cGzZq3qgmWaB3
-        GDIbH1BvCaIQVTBCmMLXyBj7OxlXI1Gm+oZTpeuxV+/wUi6pLj5U8++H6ocX7w5i
-        kTp1gSHtV/ZZn5ObLY3GHc9h7PO+WHjO3hok/si+5+QNixOXY0Fq+xAsriqNMxiA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+W6j68
+        9QRCec1+/hoXJOjdsRKoN2rRP/u6L89FWsGOU=; b=TCKHa86TfjJpTkeQH4yJN8
+        GRXvGd1+Not97NHUcFe59vyTE6zKTvMVyzMID+EdPleT9GW+eJrA7cd6UgA3zrhm
+        9leXfDVi9dOhYQXNSQwOIA7kTd6gAtQSIWJaU7rj8osv8bOcoOc/4mzSlxi825xn
+        TCjxu4WO+tTpcgWu/Ziw3yK1/eVjh4fBZL4bhMdfOF9AJhHTc7xUnxf+8k9cGasN
+        YFngAouN7Gc8Cd0Szl9HioPdFawlGd9mde/y2Ay6BTUXjOBOMqqxl/6JHMXEgMUK
+        Nt+XfS2Wuhb3BSFINANs5+wgsFR1k8zSOoqC725QjqDXnsZJJxAyyNP91BPFTvZQ
         ==
-X-ME-Sender: <xms:wnQNYHFSwxvF71fH5AMk-pgb5ufzqZ2zKenrYqqK7CU7U7loCm18vg>
-    <xme:wnQNYEW8XZTtJU9TXwzg_F5RIzM37wWG9d7JYp9ok2rbJJx_QK7lvyb6njMIBCVFY
-    XRw57U9aoKA6A>
+X-ME-Sender: <xms:23QNYHTDvGxX_xox9QtazJokjf-kgmxt5SauwBZcp6aI5emv0qO95g>
+    <xme:23QNYIyM3_IGEM9DdLW_cxS1N8GDO3WLGv4ecx0Nbnj2nSvwYF3OIGJUgo9kcFWc_
+    0x7gKhga4cCgw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:wnQNYJJ_C8DTtoIh0QhQhwB6hrtolDkOCe0WrKjP9mbdiyb-DN6t9g>
-    <xmx:wnQNYFHp_ZQ6wSswgSkXnqsllAsGmOGyzMp8ppdigOnFH1czIhwvWA>
-    <xmx:wnQNYNXhqiABRfM8Ysfr9yHmnoJRVDk1rKY4QPO3LQK72vpxKUf3zw>
-    <xmx:w3QNYOc8HixhE6gfdVKN7arvU_bjXTBd4Yko6I4ch9t0ewZoL1hrqP8z7oI>
+    qeenucggtffrrghtthgvrhhnpeevkeelveeiteetfeehtddugeegffevgedtueegieeftd
+    effeelueetteeihfdtjeenucffohhmrghinhepghhoohhglhgvshhouhhrtggvrdgtohhm
+    pdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
+    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
+    tghomh
+X-ME-Proxy: <xmx:23QNYM335DHUUXPvbO-U5YO14Wut-SPnGTGFAR_n2SeS-UOYqz6RZQ>
+    <xmx:23QNYHAc_3CWYF8jKIP07dnaQEBcES27oJe6LxxRhYYanF0qhXapDA>
+    <xmx:23QNYAiAr-NPZoapFmA8qZF30ok6-5w95vcqLkZP-r111WIjW9HiLA>
+    <xmx:3HQNYDuGF5CXo0q9g_3_hOOKvS8N7LOZRRmNtzsPBdLhnvu-xqCeoc1_CHU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9314D108005B;
-        Sun, 24 Jan 2021 08:23:14 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: ingenic: Fix JZ4760 support" failed to apply to 5.4-stable tree
-To:     paul@crapouillou.net, linus.walleij@linaro.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4825A24005A;
+        Sun, 24 Jan 2021 08:23:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mmc: core: don't initialize block size from ext_csd if not" failed to apply to 4.4-stable tree
+To:     pcc@google.com, adrian.hunter@intel.com, damien.lemoal@wdc.com,
+        ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jan 2021 14:23:13 +0100
-Message-ID: <1611494593252195@kroah.com>
+Date:   Sun, 24 Jan 2021 14:23:38 +0100
+Message-ID: <161149461822989@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,144 +72,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9a85c09a3f507b925d75cb0c7c8f364467038052 Mon Sep 17 00:00:00 2001
-From: Paul Cercueil <paul@crapouillou.net>
-Date: Fri, 11 Dec 2020 23:28:09 +0000
-Subject: [PATCH] pinctrl: ingenic: Fix JZ4760 support
+From b503087445ce7e45fabdee87ca9e460d5b5b5168 Mon Sep 17 00:00:00 2001
+From: Peter Collingbourne <pcc@google.com>
+Date: Thu, 14 Jan 2021 12:14:05 -0800
+Subject: [PATCH] mmc: core: don't initialize block size from ext_csd if not
+ present
 
-- JZ4760 and JZ4760B have a similar register layout as the JZ4740, and
-  don't use the new register layout, which was introduced with the
-  JZ4770 SoC and not the JZ4760 or JZ4760B SoCs.
+If extended CSD was not available, the eMMC driver would incorrectly
+set the block size to 0, as the data_sector_size field of ext_csd
+was never initialized. This issue was exposed by commit 817046ecddbc
+("block: Align max_hw_sectors to logical blocksize") which caused
+max_sectors and max_hw_sectors to be set to 0 after setting the block
+size to 0, resulting in a kernel panic in bio_split when attempting
+to read from the device. Fix it by only reading the block size from
+ext_csd if it is available.
 
-- The JZ4740 code path only expected two function modes to be
-  configurable for each pin, and wouldn't work with more than two. Fix
-  it for the JZ4760, which has four configurable function modes.
+Fixes: a5075eb94837 ("mmc: block: Allow disabling 512B sector size emulation")
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Link: https://linux-review.googlesource.com/id/If244d178da4d86b52034459438fec295b02d6e60
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210114201405.2934886-1-pcc@google.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-Fixes: 0257595a5cf4 ("pinctrl: Ingenic: Add pinctrl driver for JZ4760 and JZ4760B.")
-Cc: <stable@vger.kernel.org> # 5.3
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20201211232810.261565-1-paul@crapouillou.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-
-diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index 53a6a24bd052..8ac3091c4469 100644
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -1688,7 +1688,7 @@ static inline bool ingenic_gpio_get_value(struct ingenic_gpio_chip *jzgc,
- static void ingenic_gpio_set_value(struct ingenic_gpio_chip *jzgc,
- 				   u8 offset, int value)
- {
--	if (jzgc->jzpc->info->version >= ID_JZ4760)
-+	if (jzgc->jzpc->info->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_PAT0, offset, !!value);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, offset, !!value);
-@@ -1718,7 +1718,7 @@ static void irq_set_type(struct ingenic_gpio_chip *jzgc,
- 		break;
- 	}
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index de7cb0369c30..002426e3cf76 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -384,8 +384,10 @@ static void mmc_setup_queue(struct mmc_queue *mq, struct mmc_card *card)
+ 		     "merging was advertised but not possible");
+ 	blk_queue_max_segments(mq->queue, mmc_get_max_segments(host));
  
--	if (jzgc->jzpc->info->version >= ID_JZ4760) {
-+	if (jzgc->jzpc->info->version >= ID_JZ4770) {
- 		reg1 = JZ4760_GPIO_PAT1;
- 		reg2 = JZ4760_GPIO_PAT0;
- 	} else {
-@@ -1758,7 +1758,7 @@ static void ingenic_gpio_irq_enable(struct irq_data *irqd)
- 	struct ingenic_gpio_chip *jzgc = gpiochip_get_data(gc);
- 	int irq = irqd->hwirq;
+-	if (mmc_card_mmc(card))
++	if (mmc_card_mmc(card) && card->ext_csd.data_sector_size) {
+ 		block_size = card->ext_csd.data_sector_size;
++		WARN_ON(block_size != 512 && block_size != 4096);
++	}
  
--	if (jzgc->jzpc->info->version >= ID_JZ4760)
-+	if (jzgc->jzpc->info->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, true);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, true);
-@@ -1774,7 +1774,7 @@ static void ingenic_gpio_irq_disable(struct irq_data *irqd)
- 
- 	ingenic_gpio_irq_mask(irqd);
- 
--	if (jzgc->jzpc->info->version >= ID_JZ4760)
-+	if (jzgc->jzpc->info->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, false);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, false);
-@@ -1799,7 +1799,7 @@ static void ingenic_gpio_irq_ack(struct irq_data *irqd)
- 			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
- 	}
- 
--	if (jzgc->jzpc->info->version >= ID_JZ4760)
-+	if (jzgc->jzpc->info->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_FLAG, irq, false);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, irq, true);
-@@ -1856,7 +1856,7 @@ static void ingenic_gpio_irq_handler(struct irq_desc *desc)
- 
- 	chained_irq_enter(irq_chip, desc);
- 
--	if (jzgc->jzpc->info->version >= ID_JZ4760)
-+	if (jzgc->jzpc->info->version >= ID_JZ4770)
- 		flag = ingenic_gpio_read_reg(jzgc, JZ4760_GPIO_FLAG);
- 	else
- 		flag = ingenic_gpio_read_reg(jzgc, JZ4740_GPIO_FLAG);
-@@ -1938,7 +1938,7 @@ static int ingenic_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
- 	struct ingenic_pinctrl *jzpc = jzgc->jzpc;
- 	unsigned int pin = gc->base + offset;
- 
--	if (jzpc->info->version >= ID_JZ4760) {
-+	if (jzpc->info->version >= ID_JZ4770) {
- 		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
- 		    ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
- 			return GPIO_LINE_DIRECTION_IN;
-@@ -1996,7 +1996,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, func & 0x1);
- 		ingenic_shadow_config_pin_load(jzpc, pin);
--	} else if (jzpc->info->version >= ID_JZ4760) {
-+	} else if (jzpc->info->version >= ID_JZ4770) {
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
- 		ingenic_config_pin(jzpc, pin, GPIO_MSK, false);
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
-@@ -2004,7 +2004,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
- 	} else {
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_FUNC, true);
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_TRIG, func & 0x2);
--		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func > 0);
-+		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func & 0x1);
- 	}
- 
- 	return 0;
-@@ -2061,7 +2061,7 @@ static int ingenic_pinmux_gpio_set_direction(struct pinctrl_dev *pctldev,
- 		ingenic_shadow_config_pin(jzpc, pin, GPIO_MSK, true);
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
- 		ingenic_shadow_config_pin_load(jzpc, pin);
--	} else if (jzpc->info->version >= ID_JZ4760) {
-+	} else if (jzpc->info->version >= ID_JZ4770) {
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
- 		ingenic_config_pin(jzpc, pin, GPIO_MSK, true);
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
-@@ -2091,7 +2091,7 @@ static int ingenic_pinconf_get(struct pinctrl_dev *pctldev,
- 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
- 	bool pull;
- 
--	if (jzpc->info->version >= ID_JZ4760)
-+	if (jzpc->info->version >= ID_JZ4770)
- 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PEN);
- 	else
- 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
-@@ -2141,7 +2141,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
- 					REG_SET(X1830_GPIO_PEH), bias << idxh);
- 		}
- 
--	} else if (jzpc->info->version >= ID_JZ4760) {
-+	} else if (jzpc->info->version >= ID_JZ4770) {
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PEN, !bias);
- 	} else {
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_PULL_DIS, !bias);
-@@ -2151,7 +2151,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
- static void ingenic_set_output_level(struct ingenic_pinctrl *jzpc,
- 				     unsigned int pin, bool high)
- {
--	if (jzpc->info->version >= ID_JZ4760)
-+	if (jzpc->info->version >= ID_JZ4770)
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, high);
- 	else
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_DATA, high);
+ 	blk_queue_logical_block_size(mq->queue, block_size);
+ 	/*
 
