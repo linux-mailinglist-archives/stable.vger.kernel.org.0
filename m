@@ -2,59 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A40C1301C01
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2BF4301C17
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbhAXNME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:12:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42104 "EHLO mail.kernel.org"
+        id S1726677AbhAXNQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:16:33 -0500
+Received: from mx2.suse.de ([195.135.220.15]:43246 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726456AbhAXNMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Jan 2021 08:12:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B634522ADC;
-        Sun, 24 Jan 2021 13:11:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611493883;
-        bh=eQ88PvupuioCNW7tkGGhAMMpSfJ8kHhHjNZWNJQTuKw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AlFpSiGSBozQ1MSnPObM9Ji5GyJORj9/cG24SRXZQddU5koRJpijMM2GVd2W6rHdr
-         DogO261pf3bQq0RkFLVv3K7Nxvh2X89x5w0mVlg8KSCQ3TG4F4kTq81fQC7AWS2Gnc
-         VjVq5FuP3AVjQC0BT13xl2JonigKb4CKXu9lJ4jHFDzT+ky91muj093De5cZ8VuYgk
-         mVLR/uRFFeWf6cIXYKEAXVzT6ksxHrvLo8L2VmSSaGn8KToz2trRIgtlka2RckkXtW
-         9sLEYdvWUjFhJX2L1uXNddorp0drsQpZh3y74X0eIFlhhWl1XWccHXiB8FiUZd7g2s
-         6zKbaUAhve/4A==
-Date:   Sun, 24 Jan 2021 08:11:21 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org
-Subject: Re: [PATCH AUTOSEL 5.10 26/45] x86/xen: Fix xen_hvm_smp_init() when
- vector callback not available
-Message-ID: <20210124131121.GG4035784@sasha-vm>
-References: <20210120012602.769683-1-sashal@kernel.org>
- <20210120012602.769683-26-sashal@kernel.org>
- <86c0baa1-f8c5-2580-6ee9-efc7043c2bf5@oracle.com>
+        id S1726613AbhAXNQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Jan 2021 08:16:32 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 2081FACE1;
+        Sun, 24 Jan 2021 13:15:50 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 39ABEDA7D7; Sun, 24 Jan 2021 14:14:04 +0100 (CET)
+Date:   Sun, 24 Jan 2021 14:14:04 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Josef Bacik <josef@toxicpanda.com>
+Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] btrfs: fix possible free space tree corruption with
+ online conversion
+Message-ID: <20210124131404.GH1993@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
+        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
+        stable@vger.kernel.org
+References: <c3b7d56951de1a9163b96a8ce90ef71b3532ec71.1610745887.git.josef@toxicpanda.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <86c0baa1-f8c5-2580-6ee9-efc7043c2bf5@oracle.com>
+In-Reply-To: <c3b7d56951de1a9163b96a8ce90ef71b3532ec71.1610745887.git.josef@toxicpanda.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 19, 2021 at 08:35:04PM -0500, Boris Ostrovsky wrote:
->
->On 1/19/21 8:25 PM, Sasha Levin wrote:
->> From: David Woodhouse <dwmw@amazon.co.uk>
->>
->> [ Upstream commit 3d7746bea92530e8695258a3cf3ddec7a135edd6 ]
->
->
->Sasha, you will also want https://lore.kernel.org/lkml/20210115191123.27572-1-rdunlap@infradead.org/, it is sitting in Xen staging tree.
+On Fri, Jan 15, 2021 at 04:26:17PM -0500, Josef Bacik wrote:
+> While running btrfs/011 in a loop I would often ASSERT() while trying to
+> add a new free space entry that already existed, or get an -EEXIST while
+> adding a new block to the extent tree, which is another indication of
+> double allocation.
+> 
+> This occurs because when we do the free space tree population, we create
+> the new root and then populate the tree and commit the transaction.
+> The problem is when you create a new root, the root node and commit root
+> node are the same.  During this initial transaction commit we will run
+> all of the delayed refs that were paused during the free space tree
+> generation, and thus begin to cache block groups.  While caching block
+> groups the caching thread will be reading from the main root for the
+> free space tree, so as we make allocations we'll be changing the free
+> space tree, which can cause us to add the same range twice which results
+> in either the ASSERT(ret != -EEXIST); in __btrfs_add_free_space, or in a
 
-I'll grab it too, thanks!
+Still no stacktraces but at least this gives some pointer to the code
+which assert is hit.
 
--- 
-Thanks,
-Sasha
+> variety of different errors when running delayed refs because of a
+> double allocation.
+> 
+> Fix this by marking the fs_info as unsafe to load the free space tree,
+> and fall back on the old slow method.  We could be smarter than this,
+> for example caching the block group while we're populating the free
+> space tree, but since this is a serious problem I've opted for the
+> simplest solution.
+> 
+> CC: stable@vger.kernel.org # 4.5+
+> Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+
+Added to misc-next with Filipe's review from v2, thanks.
