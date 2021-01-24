@@ -2,74 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BF4301C17
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B0C301C1E
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:22:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726677AbhAXNQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:16:33 -0500
-Received: from mx2.suse.de ([195.135.220.15]:43246 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726613AbhAXNQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Jan 2021 08:16:32 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 2081FACE1;
-        Sun, 24 Jan 2021 13:15:50 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 39ABEDA7D7; Sun, 24 Jan 2021 14:14:04 +0100 (CET)
-Date:   Sun, 24 Jan 2021 14:14:04 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] btrfs: fix possible free space tree corruption with
- online conversion
-Message-ID: <20210124131404.GH1993@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
-        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-References: <c3b7d56951de1a9163b96a8ce90ef71b3532ec71.1610745887.git.josef@toxicpanda.com>
+        id S1725822AbhAXNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:21:50 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:38151 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725789AbhAXNVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:21:49 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id C72A9EA1;
+        Sun, 24 Jan 2021 08:20:42 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:20:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=bT/V4g
+        Qhi8qc0HW2aKvlFqhkJeyNmvF8IHvjm7HeA20=; b=VmVz7WiSqEzfYjbqaHUH3a
+        obexpcmrKLopA/tDDZ1Xt0Jzhbf+AlxalC0nBpTdfYx2PezxXn9Z68PGLucDbA1v
+        CP/eQZsAK8Nk4UKPe7+bcZRafGVtnkwVaLBiaDPKnsh1eJunZYF4Oo9lwfZU6oxv
+        j925R2fxCgxDAYmyBUGa+dA++WdAsaX21l+pkOiKE+VBU4lE56VrQn8PIBmFZrm3
+        WZmC7ffyjHNnoA3wx7SUZIp48EcSoAkuCUQBFk3EpX0YGraPYggzM5H9J4IlmNs1
+        Z+E6SOYfAreS3uGYoI+pSHStU+PsuogZv1yb6motnN4x3R65PvmcLy6aSotl/B8Q
+        ==
+X-ME-Sender: <xms:KXQNYA9bfObqTTU4ND_lXXUU3hboQMiGsCrA0QWEgflMXTFoZQlU9w>
+    <xme:KXQNYItbjBh5j9-5vaCGxHWyUkTt22tYijTbZ8khS6eWU-87xH8g4dDZoLNiYW2D7
+    O2hIr1qXWM17g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:KXQNYGA0hnMP6OexH16G32BJ3af_EySD2GIQeDeS4Dhin24-ozWgbA>
+    <xmx:KXQNYAf5lZCf5vTp_dRJrpFY5q7BLHmwtceLBt7aOzp8gUS1wrF5FQ>
+    <xmx:KXQNYFMWTy6sNOwFRZYqgcZM8QbkyJPH7esGDMvDYwQAnfYqLRrguA>
+    <xmx:KnQNYHV9AZm9rVuprf6hNafL_BsBhvQceIYldiZslzUZb1lFMLqACXssWq4>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 889F624005B;
+        Sun, 24 Jan 2021 08:20:41 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: do not double free backref nodes on error" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 24 Jan 2021 14:20:40 +0100
+Message-ID: <1611494440159166@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c3b7d56951de1a9163b96a8ce90ef71b3532ec71.1610745887.git.josef@toxicpanda.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 15, 2021 at 04:26:17PM -0500, Josef Bacik wrote:
-> While running btrfs/011 in a loop I would often ASSERT() while trying to
-> add a new free space entry that already existed, or get an -EEXIST while
-> adding a new block to the extent tree, which is another indication of
-> double allocation.
-> 
-> This occurs because when we do the free space tree population, we create
-> the new root and then populate the tree and commit the transaction.
-> The problem is when you create a new root, the root node and commit root
-> node are the same.  During this initial transaction commit we will run
-> all of the delayed refs that were paused during the free space tree
-> generation, and thus begin to cache block groups.  While caching block
-> groups the caching thread will be reading from the main root for the
-> free space tree, so as we make allocations we'll be changing the free
-> space tree, which can cause us to add the same range twice which results
-> in either the ASSERT(ret != -EEXIST); in __btrfs_add_free_space, or in a
 
-Still no stacktraces but at least this gives some pointer to the code
-which assert is hit.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> variety of different errors when running delayed refs because of a
-> double allocation.
-> 
-> Fix this by marking the fs_info as unsafe to load the free space tree,
-> and fall back on the old slow method.  We could be smarter than this,
-> for example caching the block group while we're populating the free
-> space tree, but since this is a serious problem I've opted for the
-> simplest solution.
-> 
-> CC: stable@vger.kernel.org # 4.5+
-> Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+thanks,
 
-Added to misc-next with Filipe's review from v2, thanks.
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 49ecc679ab48b40ca799bf94b327d5284eac9e46 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Wed, 16 Dec 2020 11:22:11 -0500
+Subject: [PATCH] btrfs: do not double free backref nodes on error
+
+Zygo reported the following KASAN splat:
+
+  BUG: KASAN: use-after-free in btrfs_backref_cleanup_node+0x18a/0x420
+  Read of size 8 at addr ffff888112402950 by task btrfs/28836
+
+  CPU: 0 PID: 28836 Comm: btrfs Tainted: G        W         5.10.0-e35f27394290-for-next+ #23
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+  Call Trace:
+   dump_stack+0xbc/0xf9
+   ? btrfs_backref_cleanup_node+0x18a/0x420
+   print_address_description.constprop.8+0x21/0x210
+   ? record_print_text.cold.34+0x11/0x11
+   ? btrfs_backref_cleanup_node+0x18a/0x420
+   ? btrfs_backref_cleanup_node+0x18a/0x420
+   kasan_report.cold.10+0x20/0x37
+   ? btrfs_backref_cleanup_node+0x18a/0x420
+   __asan_load8+0x69/0x90
+   btrfs_backref_cleanup_node+0x18a/0x420
+   btrfs_backref_release_cache+0x83/0x1b0
+   relocate_block_group+0x394/0x780
+   ? merge_reloc_roots+0x4a0/0x4a0
+   btrfs_relocate_block_group+0x26e/0x4c0
+   btrfs_relocate_chunk+0x52/0x120
+   btrfs_balance+0xe2e/0x1900
+   ? check_flags.part.50+0x6c/0x1e0
+   ? btrfs_relocate_chunk+0x120/0x120
+   ? kmem_cache_alloc_trace+0xa06/0xcb0
+   ? _copy_from_user+0x83/0xc0
+   btrfs_ioctl_balance+0x3a7/0x460
+   btrfs_ioctl+0x24c8/0x4360
+   ? __kasan_check_read+0x11/0x20
+   ? check_chain_key+0x1f4/0x2f0
+   ? __asan_loadN+0xf/0x20
+   ? btrfs_ioctl_get_supported_features+0x30/0x30
+   ? kvm_sched_clock_read+0x18/0x30
+   ? check_chain_key+0x1f4/0x2f0
+   ? lock_downgrade+0x3f0/0x3f0
+   ? handle_mm_fault+0xad6/0x2150
+   ? do_vfs_ioctl+0xfc/0x9d0
+   ? ioctl_file_clone+0xe0/0xe0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags+0x26/0x30
+   ? lock_is_held_type+0xc3/0xf0
+   ? syscall_enter_from_user_mode+0x1b/0x60
+   ? do_syscall_64+0x13/0x80
+   ? rcu_read_lock_sched_held+0xa1/0xd0
+   ? __kasan_check_read+0x11/0x20
+   ? __fget_light+0xae/0x110
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f4c4bdfe427
+
+  Allocated by task 28836:
+   kasan_save_stack+0x21/0x50
+   __kasan_kmalloc.constprop.18+0xbe/0xd0
+   kasan_kmalloc+0x9/0x10
+   kmem_cache_alloc_trace+0x410/0xcb0
+   btrfs_backref_alloc_node+0x46/0xf0
+   btrfs_backref_add_tree_node+0x60d/0x11d0
+   build_backref_tree+0xc5/0x700
+   relocate_tree_blocks+0x2be/0xb90
+   relocate_block_group+0x2eb/0x780
+   btrfs_relocate_block_group+0x26e/0x4c0
+   btrfs_relocate_chunk+0x52/0x120
+   btrfs_balance+0xe2e/0x1900
+   btrfs_ioctl_balance+0x3a7/0x460
+   btrfs_ioctl+0x24c8/0x4360
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  Freed by task 28836:
+   kasan_save_stack+0x21/0x50
+   kasan_set_track+0x20/0x30
+   kasan_set_free_info+0x1f/0x30
+   __kasan_slab_free+0xf3/0x140
+   kasan_slab_free+0xe/0x10
+   kfree+0xde/0x200
+   btrfs_backref_error_cleanup+0x452/0x530
+   build_backref_tree+0x1a5/0x700
+   relocate_tree_blocks+0x2be/0xb90
+   relocate_block_group+0x2eb/0x780
+   btrfs_relocate_block_group+0x26e/0x4c0
+   btrfs_relocate_chunk+0x52/0x120
+   btrfs_balance+0xe2e/0x1900
+   btrfs_ioctl_balance+0x3a7/0x460
+   btrfs_ioctl+0x24c8/0x4360
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This occurred because we freed our backref node in
+btrfs_backref_error_cleanup(), but then tried to free it again in
+btrfs_backref_release_cache().  This is because
+btrfs_backref_release_cache() will cycle through all of the
+cache->leaves nodes and free them up.  However
+btrfs_backref_error_cleanup() freed the backref node with
+btrfs_backref_free_node(), which simply kfree()d the backref node
+without unlinking it from the cache.  Change this to a
+btrfs_backref_drop_node(), which does the appropriate cleanup and
+removes the node from the cache->leaves list, so when we go to free the
+remaining cache we don't trip over items we've already dropped.
+
+Fixes: 75bfb9aff45e ("Btrfs: cleanup error handling in build_backref_tree")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 02d7d7b2563b..9cadacf3ec27 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -3117,7 +3117,7 @@ void btrfs_backref_error_cleanup(struct btrfs_backref_cache *cache,
+ 		list_del_init(&lower->list);
+ 		if (lower == node)
+ 			node = NULL;
+-		btrfs_backref_free_node(cache, lower);
++		btrfs_backref_drop_node(cache, lower);
+ 	}
+ 
+ 	btrfs_backref_cleanup_node(cache, node);
+
