@@ -2,104 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E19301997
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 06:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E5C301A68
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 09:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726056AbhAXFDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 00:03:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47612 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726192AbhAXFC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Jan 2021 00:02:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A79B622CA1;
-        Sun, 24 Jan 2021 05:02:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611464539;
-        bh=rV4ggstgXVVZo13vNCl7ATS5VQr6rVwe0P4vsUhQdCE=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=evCw1pelC9pR9w0W2moHdb/+3vfUmRfE1tkNd9r3MD92LOVfJ7X6bdGDUJ6OrxZc3
-         QTP2FLEbxvtJfSchA5fyj/37HKGUEc4gWIC47kMeIof8YM67rOl1TxIkwRnWM1D4bI
-         TOCOOAhWJhg+s5bdFSt73sP+BMRMONrP4dGOAo5U=
-Date:   Sat, 23 Jan 2021 21:02:16 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     adobriyan@gmail.com, akpm@linux-foundation.org,
-        hkallweit1@gmail.com, keescook@chromium.org, linux-mm@kvack.org,
-        mcgrof@kernel.org, mhiramat@kernel.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, nixiaoming@huawei.com,
-        rdunlap@infradead.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz, yzaikin@google.com
-Subject:  [patch 18/19] proc_sysctl: fix oops caused by incorrect
- command parameters
-Message-ID: <20210124050216.W3v89CyuW%akpm@linux-foundation.org>
-In-Reply-To: <20210123210029.a7c704d0cab204683e41ad10@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726398AbhAXICh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 03:02:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726367AbhAXICg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 03:02:36 -0500
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE4DC061573
+        for <stable@vger.kernel.org>; Sun, 24 Jan 2021 00:01:56 -0800 (PST)
+Received: by mail-vs1-xe33.google.com with SMTP id m13so375082vsr.2
+        for <stable@vger.kernel.org>; Sun, 24 Jan 2021 00:01:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ahNfYpOuO+qlUa8cXocQfZXdayIhW5BHmYP7ArXw06A=;
+        b=eeRVBlJJI7odQScvp4ipboFDJrrp9CdPQeFHBN+zj0lK8A01JS82h/PyGEe0jsPtCg
+         TAvbyqbdBhYgeDgMWt9rsFDpxPBclti9pDbSc2gKtVnFnY0ROAg07jZFTli2MUV+wPk3
+         bdvtLb3r3/qlKjlkGacvAGsDL3tZb5x6h7B0MX51huFYd6BLc0jylzKgDHd9sZso5b2O
+         BjIcYpPJQHuOLBffLJZlV3T2YqvK00F/IxwqvRupbXIvrOmQS6oCyZj1zqGx2YvDQhn9
+         ZxmwwtgI7mg3F40dGsKn2s2KESpWMbA0yYbVeefHuCUwzJ9J30TtRkDaDQ4ANuucC4Cu
+         j2fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ahNfYpOuO+qlUa8cXocQfZXdayIhW5BHmYP7ArXw06A=;
+        b=GfqHJa8MbDoMhIr+gzJCkymnZUetZ7h/hYLGkOSAEmX4kg4HaBn2e3o7Vf6SJhFQgx
+         f1jk/qQoTiBbaajU9FA56ZrnoP4WYG79TKHH19CJ/PCa14WrtjsllvzotSyHkR9rtaEz
+         Eeaim+CsBZUkQEbPbN2KsUiIQIAAAi0amu2aAeOva3gMD4pBARgsV523JpBnft1zgPqv
+         1Vttko1/hUOvojDpi63hxt4+fssZEdtcXDHSHnZOVLOqwGvVTGP//BIdV+NTrM5Kxsol
+         n2llXcngThQof64fHcTL8rBF/ydW/6ftO5Rt3fs6URFblxFQWJKdvtLubyUFXKxIAT9T
+         gtzA==
+X-Gm-Message-State: AOAM531zPTAN25PU0r/LvHznSFhcCqblrS4I2QkNhneNDqUL8IVgzK+w
+        7PObE7kTMF9IApQDPTYovvVzYYZCzwY9Jfr0H20=
+X-Google-Smtp-Source: ABdhPJxbkwimV1PVGyyl4BT6oEsTCj2NyidNfO2ouV4buOxuSDGELWwUtA8HAqsGw2OIAH+Xu2AEqcv4XvqxH9GNBD0=
+X-Received: by 2002:a05:6102:1c8:: with SMTP id s8mr100530vsq.52.1611475315343;
+ Sun, 24 Jan 2021 00:01:55 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ab0:20d8:0:0:0:0:0 with HTTP; Sun, 24 Jan 2021 00:01:54
+ -0800 (PST)
+Reply-To: lincobah14@gmail.com
+From:   Lincoln Bah Bah <adnanamuhammad48@gmail.com>
+Date:   Sun, 24 Jan 2021 09:01:54 +0100
+Message-ID: <CAAvm_G6gK=pj3qqDjk2bGQDkbQdjKK_CHwVa2XqAjNnfNndRxw@mail.gmail.com>
+Subject: HELLO DEAR HOW ARE YOU
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
-Subject: proc_sysctl: fix oops caused by incorrect command parameters
+Dear Friend,
 
-The process_sysctl_arg() does not check whether val is empty before
-invoking strlen(val).  If the command line parameter () is incorrectly
-configured and val is empty, oops is triggered.
+With due respect to your person and much sincerity of purpose.I wrote
+you two days ago expecting that you would reply as regards the urgency
+of this proposal that i passed to you.Anyway, I don't know if you did
+receive it or not that is the reason I am re-sending it.I have a
+business proposal which I will like to handle with you. $35 million
+USD is involves. But be rest assured that everything is legal and risk
+free as I have concluded all the arrangements and the legal papers
+that will back the transaction up. Kindly indicate your interest as to
+enable me tell you more detail of the proposal.
 
-For example:
-  "hung_task_panic=1" is incorrectly written as "hung_task_panic", oops is
-  triggered. The call stack is as follows:
-    Kernel command line: .... hung_task_panic
-    ......
-    Call trace:
-    __pi_strlen+0x10/0x98
-    parse_args+0x278/0x344
-    do_sysctl_args+0x8c/0xfc
-    kernel_init+0x5c/0xf4
-    ret_from_fork+0x10/0x30
-
-To fix it, check whether "val" is empty when "phram" is a sysctl field.
-Error codes are returned in the failure branch, and error logs are
-generated by parse_args().
-
-Link: https://lkml.kernel.org/r/20210118133029.28580-1-nixiaoming@huawei.com
-Fixes: 3db978d480e2843 ("kernel/sysctl: support setting sysctl parameters from kernel command line")
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Iurii Zaikin <yzaikin@google.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: <stable@vger.kernel.org>	[5.8+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/proc/proc_sysctl.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
---- a/fs/proc/proc_sysctl.c~proc_sysctl-fix-oops-caused-by-incorrect-command-parameters
-+++ a/fs/proc/proc_sysctl.c
-@@ -1770,6 +1770,12 @@ static int process_sysctl_arg(char *para
- 			return 0;
- 	}
- 
-+	if (!val)
-+		return -EINVAL;
-+	len = strlen(val);
-+	if (len == 0)
-+		return -EINVAL;
-+
- 	/*
- 	 * To set sysctl options, we use a temporary mount of proc, look up the
- 	 * respective sys/ file and write to it. To avoid mounting it when no
-@@ -1811,7 +1817,6 @@ static int process_sysctl_arg(char *para
- 				file, param, val);
- 		goto out;
- 	}
--	len = strlen(val);
- 	wret = kernel_write(file, val, len, &pos);
- 	if (wret < 0) {
- 		err = wret;
-_
+Waiting for your urgent response.
+Yours Faithfully,
+Thanks
+Lincoln Bah
