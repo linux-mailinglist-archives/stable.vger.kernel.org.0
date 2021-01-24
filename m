@@ -2,158 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D475301ADF
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 10:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2167F301AE3
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 10:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726551AbhAXJg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 04:36:58 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.53]:34853 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726571AbhAXJg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 04:36:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1611480842;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:From:
-        Subject:Sender;
-        bh=mCVy4eLrRJbdl2dHa1XDLejA8ESNtl7mbhYMqlTsyYA=;
-        b=AsQloTZQAmCQ+3w2kVtbvuGi2Aom9AHe5Om01sPPFd1WCCoc6mXN6YFxwpykBLUJvz
-        FTuKHYsusLg1pkOSVj9StxulumErQEfJimHvAnsAYnShZAxOZV5yCzGB9Wf4tVnJBhta
-        HHemri4gbkjJSJfWltrl8saQb+bkvFBIWUiDKis8pDakkQJ6httiV6dXThKDEWtw19vN
-        Yy5rtZ9u4jnoXXp5Q0EQ8BlWN326gd1vD5VuH2fMaf+gsmhlEaAJWk6wmtlXHVmMSRhp
-        CdOt+VSf/2lxqeFw+D+0rbur8dC9drnn7sq1MjL0NNxlMhIYJH1MTlzqebSu83P7iq3u
-        fVAA==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj5Qpw97WFDlaVXA0IcxE="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 47.12.1 DYNA|AUTH)
-        with ESMTPSA id m056b3x0O9UpGIF
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-        Sun, 24 Jan 2021 10:30:51 +0100 (CET)
-Subject: Re: [PATCH v3 4/4] drm/ingenic: Fix non-OSD mode
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <20210124085552.29146-5-paul@crapouillou.net>
-Date:   Sun, 24 Jan 2021 10:30:50 +0100
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        od@zcrc.me, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <30F302B6-04A1-472B-B026-009F7665E39C@goldelico.com>
-References: <20210124085552.29146-1-paul@crapouillou.net> <20210124085552.29146-5-paul@crapouillou.net>
-To:     Paul Cercueil <paul@crapouillou.net>
-X-Mailer: Apple Mail (2.3124)
+        id S1726634AbhAXJni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 04:43:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726456AbhAXJnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 04:43:35 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2974DC061573;
+        Sun, 24 Jan 2021 01:42:55 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id o20so6671968pfu.0;
+        Sun, 24 Jan 2021 01:42:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PQ44xik+7XANT2IZc6LuepYmbWe770X4q0h/Z2Y6KZ0=;
+        b=ocbfbjE+PcOlCirBDsX3looE6wpG9CM3KRicaLbJhIsE3dABo3LpqmaTEsl7F0cvJJ
+         5Xm1Dhebz3hO/X54G3hqHxLoMsYjHYzaxvzwKdTC0w0+/vEdXGw3ikkzs9s8DVSwGX60
+         1rk/zt0jH8AbkbM7nOpIw3LSf/xui2V/Bct5Q5vBIt+RnntRUr+HNhXXHysigRKydfnc
+         XgsBy6c4qWVYK9XA1R+YaDstSrXUoQMJP8BT+88WlMu5JvulrJNSLQp73+s0oLGcLfE+
+         zlix7kk/rX+4zBnP0YyMnDyYaG8qXoitvfBG9ePBujPPQw+GuvJYM1/ws5GgbPZaaPtQ
+         +zlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PQ44xik+7XANT2IZc6LuepYmbWe770X4q0h/Z2Y6KZ0=;
+        b=mNBc+Hh+tTYjscnG7W3L4Bpz4fW8XB8rtfpmHP1Pp1LYe6RujzgHWRbnbJ4emzGedp
+         HKs1moeVTi2kzr9pkr52utGG59TQ6LmTKBhYNMEmFW9yaata1SBtsc9NK3NJAl5B9XmL
+         W9ex115+3fPT2MLjTvRbrItNoNjuDrJjwl30TtAsO6cBvbhSPMub/TeM5cATIU1wsV7T
+         f8JE61MOIKqYxbLRWwIP7Y5gk6ojKIG/aoYNFFThzf56dHa6iAlPUXYJWbBZWmHd8Gwn
+         5PdsPlb8TqEJODaeVhikXG7PSD2o52Ay0/qivKOFh9Z6Z5hPvSnd57elyy/ZBOLgae7K
+         dx3w==
+X-Gm-Message-State: AOAM532hTAEb6u/T/WIs26GL+qBih1GYBTJ+RtVAiaMXZQ5RBKOOr4Zm
+        A99qZ3l9PIhSnmixwOdTQjU=
+X-Google-Smtp-Source: ABdhPJylWVk9gJ3aB7g8AYW6A+WAtsMqrJclv+1l46vYVLUKnpqiP266oyIKAa80hT3NspJ9beAnBQ==
+X-Received: by 2002:a05:6a00:854:b029:1b7:6233:c5f with SMTP id q20-20020a056a000854b02901b762330c5fmr13120233pfk.73.1611481374763;
+        Sun, 24 Jan 2021 01:42:54 -0800 (PST)
+Received: from localhost (42-3-19-066.static.netvigator.com. [42.3.19.66])
+        by smtp.gmail.com with ESMTPSA id z29sm13352972pfk.67.2021.01.24.01.42.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 Jan 2021 01:42:54 -0800 (PST)
+From:   Qiujun Huang <hqjagain@gmail.com>
+To:     paul@crapouillou.net, vkoul@kernel.org, kishon@ti.com,
+        zhouyanjie@wanyeetech.com, aric.pzqi@ingenic.com
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Qiujun Huang <hqjagain@gmail.com>
+Subject: [PATCH v2] PHY: Ingenic: Fixes: compile phy-ingenic-usb only if it was enabled
+Date:   Sun, 24 Jan 2021 17:42:49 +0800
+Message-Id: <20210124094249.51591-1-hqjagain@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paul,
-we observed the same issue on the jz4730 (which is almost identical
-to the jz4740 wrt. LCDC) and our solution [1] was simpler.
+We should compile this driver only if we enable PHY_INGENIC_USB.
 
-It leaves the hwdesc f0 and f1 as they are and just takes f1 for really
-programming the first DMA descriptor if there is no OSD.
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+---
+v2:
+Add a Fixes:tag and Cc linux-stable
+---
+ drivers/phy/ingenic/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-We have tested on jz4730 and jz4780.
-
-Maybe you want to consider that. Then I can officially post it.
-
-[1] =
-https://github.com/goldelico/letux-kernel/commit/3be1de5fdabf2cc1c17f198de=
-d3328cc6e4b9844
-
-> Am 24.01.2021 um 09:55 schrieb Paul Cercueil <paul@crapouillou.net>:
->=20
-> Even though the JZ4740 did not have the OSD mode, it had (according to
-> the documentation) two DMA channels, but there is absolutely no
-> information about how to select the second DMA channel.
->=20
-> Make the ingenic-drm driver work in non-OSD mode by using the
-> foreground0 plane (which is bound to the DMA0 channel) as the primary
-> plane, instead of the foreground1 plane, which is the primary plane
-> when in OSD mode.
->=20
-> Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
-> Cc: <stable@vger.kernel.org> # v5.8+
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> ---
-> drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 11 +++++++----
-> 1 file changed, 7 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c =
-b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> index b23011c1c5d9..59ce43862e16 100644
-> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> @@ -554,7 +554,7 @@ static void ingenic_drm_plane_atomic_update(struct =
-drm_plane *plane,
-> 		height =3D state->src_h >> 16;
-> 		cpp =3D state->fb->format->cpp[0];
->=20
-> -		if (priv->soc_info->has_osd && plane->type =3D=3D =
-DRM_PLANE_TYPE_OVERLAY)
-> +		if (!priv->soc_info->has_osd || plane->type =3D=3D =
-DRM_PLANE_TYPE_OVERLAY)
-> 			hwdesc =3D &priv->dma_hwdescs->hwdesc_f0;
-> 		else
-> 			hwdesc =3D &priv->dma_hwdescs->hwdesc_f1;
-
-we just replace this with
-
-                if (priv->soc_info->has_osd && plane->type !=3D =
-DRM_PLANE_TYPE_OVERLAY)
-                        hwdesc =3D &priv->dma_hwdescs->hwdesc_f1;
-                else
-                        hwdesc =3D &priv->dma_hwdescs->hwdesc_f0;
-
-and the remainder can stay as is.
-
-> @@ -826,6 +826,7 @@ static int ingenic_drm_bind(struct device *dev, =
-bool has_components)
-> 	const struct jz_soc_info *soc_info;
-> 	struct ingenic_drm *priv;
-> 	struct clk *parent_clk;
-> +	struct drm_plane *primary;
-> 	struct drm_bridge *bridge;
-> 	struct drm_panel *panel;
-> 	struct drm_encoder *encoder;
-> @@ -940,9 +941,11 @@ static int ingenic_drm_bind(struct device *dev, =
-bool has_components)
-> 	if (soc_info->has_osd)
-> 		priv->ipu_plane =3D drm_plane_from_index(drm, 0);
->=20
-> -	drm_plane_helper_add(&priv->f1, =
-&ingenic_drm_plane_helper_funcs);
-> +	primary =3D priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
->=20
-> -	ret =3D drm_universal_plane_init(drm, &priv->f1, 1,
-> +	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
-> +
-> +	ret =3D drm_universal_plane_init(drm, primary, 1,
-> 				       &ingenic_drm_primary_plane_funcs,
-> 				       priv->soc_info->formats_f1,
-> 				       priv->soc_info->num_formats_f1,
-> @@ -954,7 +957,7 @@ static int ingenic_drm_bind(struct device *dev, =
-bool has_components)
->=20
-> 	drm_crtc_helper_add(&priv->crtc, =
-&ingenic_drm_crtc_helper_funcs);
->=20
-> -	ret =3D drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
-> +	ret =3D drm_crtc_init_with_planes(drm, &priv->crtc, primary,
-> 					NULL, &ingenic_drm_crtc_funcs, =
-NULL);
-> 	if (ret) {
-> 		dev_err(dev, "Failed to init CRTC: %i\n", ret);
-> --=20
-> 2.29.2
->=20
-
-BR and thanks,
-Nikolaus
+diff --git a/drivers/phy/ingenic/Makefile b/drivers/phy/ingenic/Makefile
+index 65d5ea00fc9d..a00306651423 100644
+--- a/drivers/phy/ingenic/Makefile
++++ b/drivers/phy/ingenic/Makefile
+@@ -1,2 +1,2 @@
+ # SPDX-License-Identifier: GPL-2.0
+-obj-y		+= phy-ingenic-usb.o
++obj-$(PHY_INGENIC_USB)		+= phy-ingenic-usb.o
+-- 
+2.25.1
 
