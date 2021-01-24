@@ -2,79 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7744301B8C
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 12:51:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A40C1301C01
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:12:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbhAXLvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 06:51:16 -0500
-Received: from mga06.intel.com ([134.134.136.31]:22732 "EHLO mga06.intel.com"
+        id S1726552AbhAXNME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:12:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726904AbhAXLuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Jan 2021 06:50:32 -0500
-IronPort-SDR: 04r2c8Z/NMlAnrPFlXlPWtRgL1v1VRJVJbI7mL07xRNkMMImX+XhOXtGbR23dts8etrZWjBFIx
- gyL2okH8mOjg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9873"; a="241148559"
-X-IronPort-AV: E=Sophos;i="5.79,371,1602572400"; 
-   d="scan'208";a="241148559"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jan 2021 03:49:51 -0800
-IronPort-SDR: DKtA1IrDy53e5SYhvH9xaepu8Nbr2v6aDb5vdMfpyNVLwV3rGPDmpXtxfBsDIfAxpNEF9eptMa
- vrpsl6pZsUBg==
-X-IronPort-AV: E=Sophos;i="5.79,371,1602572400"; 
-   d="scan'208";a="368194809"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.138])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jan 2021 03:49:48 -0800
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Wim Van Sebroeck <wim@iguana.be>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
-Subject: [watchdog v2] watchdog: mei_wdt: request stop on unregister
-Date:   Sun, 24 Jan 2021 13:49:38 +0200
-Message-Id: <20210124114938.373885-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726456AbhAXNMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Jan 2021 08:12:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B634522ADC;
+        Sun, 24 Jan 2021 13:11:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611493883;
+        bh=eQ88PvupuioCNW7tkGGhAMMpSfJ8kHhHjNZWNJQTuKw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AlFpSiGSBozQ1MSnPObM9Ji5GyJORj9/cG24SRXZQddU5koRJpijMM2GVd2W6rHdr
+         DogO261pf3bQq0RkFLVv3K7Nxvh2X89x5w0mVlg8KSCQ3TG4F4kTq81fQC7AWS2Gnc
+         VjVq5FuP3AVjQC0BT13xl2JonigKb4CKXu9lJ4jHFDzT+ky91muj093De5cZ8VuYgk
+         mVLR/uRFFeWf6cIXYKEAXVzT6ksxHrvLo8L2VmSSaGn8KToz2trRIgtlka2RckkXtW
+         9sLEYdvWUjFhJX2L1uXNddorp0drsQpZh3y74X0eIFlhhWl1XWccHXiB8FiUZd7g2s
+         6zKbaUAhve/4A==
+Date:   Sun, 24 Jan 2021 08:11:21 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org
+Subject: Re: [PATCH AUTOSEL 5.10 26/45] x86/xen: Fix xen_hvm_smp_init() when
+ vector callback not available
+Message-ID: <20210124131121.GG4035784@sasha-vm>
+References: <20210120012602.769683-1-sashal@kernel.org>
+ <20210120012602.769683-26-sashal@kernel.org>
+ <86c0baa1-f8c5-2580-6ee9-efc7043c2bf5@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <86c0baa1-f8c5-2580-6ee9-efc7043c2bf5@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+On Tue, Jan 19, 2021 at 08:35:04PM -0500, Boris Ostrovsky wrote:
+>
+>On 1/19/21 8:25 PM, Sasha Levin wrote:
+>> From: David Woodhouse <dwmw@amazon.co.uk>
+>>
+>> [ Upstream commit 3d7746bea92530e8695258a3cf3ddec7a135edd6 ]
+>
+>
+>Sasha, you will also want https://lore.kernel.org/lkml/20210115191123.27572-1-rdunlap@infradead.org/, it is sitting in Xen staging tree.
 
-The MEI bus has a special behavior on suspend it destroys
-all the attached devices, this is due to the fact that also
-firmware context is not persistent across power flows.
+I'll grab it too, thanks!
 
-If watchdog on MEI bus is ticking before suspending the firmware
-times out and reports that the OS is missing watchdog tick.
-Send the stop command to the firmware on watchdog unregistered
-to eliminate the false event on suspend.
-This does not make the things worse from the user-space perspective
-as a user-space should re-open watchdog device after
-suspending before this patch.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
-V2: Update the commit message with better explanation
-
- drivers/watchdog/mei_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-index 5391bf3e6b11..c5967d8b4256 100644
---- a/drivers/watchdog/mei_wdt.c
-+++ b/drivers/watchdog/mei_wdt.c
-@@ -382,6 +382,7 @@ static int mei_wdt_register(struct mei_wdt *wdt)
- 
- 	watchdog_set_drvdata(&wdt->wdd, wdt);
- 	watchdog_stop_on_reboot(&wdt->wdd);
-+	watchdog_stop_on_unregister(&wdt->wdd);
- 
- 	ret = watchdog_register_device(&wdt->wdd);
- 	if (ret)
 -- 
-2.26.2
-
+Thanks,
+Sasha
