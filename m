@@ -2,65 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A80B301C44
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:35:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BCBF301C43
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:34:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726456AbhAXNe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:34:59 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34181 "EHLO
+        id S1726439AbhAXNev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:34:51 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48795 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726398AbhAXNe7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:34:59 -0500
+        by vger.kernel.org with ESMTP id S1726398AbhAXNeu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:34:50 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id BFDE8E2F;
-        Sun, 24 Jan 2021 08:33:52 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:33:53 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 09785E9F;
+        Sun, 24 Jan 2021 08:34:03 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:34:04 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XEEujJ
-        R0rcvgPmpbbMWRtL3K66ovayb7ZGn4ODoCP/o=; b=OFMctk83SLo5rmH6Ew45G7
-        sAjqGnZxzjN0qNAekI11ZIE9mihcNKtY9fR0EpC9ro1WCkXamQxyHdUoCe4q6VD4
-        XJGHs9ur/+UocquYHziB9Qp1oLEoRIeDFNHBrZA+FdmX+FMMimjRaz4J7aiUrZ4h
-        zDqy1TEXLMcCS5qNonJYG4u1HKtKOv5HwLqH3SZMLFrkd35QkRYFlCTSE6DkXhVZ
-        stHxJYLoq/M7PMf21YbRCn7a2jHj68mc1EUtmPvoB7QsNQ0mpWVNfHx+I7b4OCtu
-        nNnyKuGFmu85B4JihRGeX5ZIMF+KdHkOauy8icLlwwEp1kIRYz3w4QigcHVoLXYw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PYB0vj
+        +SkWMQmKI/mUKue1SqCeZL82NFT1LznPmL+40=; b=jhMTYn+gTfGY/aiUJTiXmo
+        +x7Q2SO7TjhTF9UI3XSYij8Sa2u+1DgD1yWeiol+afDi+lP7jmWtDecV8ioaAAJF
+        LldA69Dd+dAhytlK4ChMnmNsgRW0BM3VgjqImcDARMukDmBk6iGhihc7yZsFb0pf
+        BVLzCt/mFb7V4GpcSGXVI1Sd+18rMhrUyPXBEuZ/qqsDTakaMo2KRpYcCn6w9asa
+        TLSPBlYLWph5Q1KCvdY7I5TQLAhpdxEvs7wGjbWiUtKRUWDyTGo6EGEDvZtJKGzG
+        4dybCTIZcTQPZCVFWhvT5MKbd23KfXS6eC5sMLip/b+9SdwsMcsZu4Z0z2ljsa3Q
         ==
-X-ME-Sender: <xms:QHcNYLWGlTDW1vxBCZMzm-0TIwfPgzZ95dEkq8RS7gFi7qfhqhhj0A>
-    <xme:QHcNYDkVg3OmF6sUFhbcktsBN8-gbIiMpOZtAXPyxhPlalx9uIwTffSpDWh5TLSQi
-    pZ6ZHRMWHx7sA>
+X-ME-Sender: <xms:S3cNYI1JbaRezncoQqd9fdRrOOghKuzn-GRivpdYWxrvJ2jQ9LUe0A>
+    <xme:S3cNYDEbj47TyuaYg0rNWWJByoKBy-9CuZ3Vu4r2SuNM1UbjqON4f4pbDvt-4Idw1
+    fnNwOLftJZS1w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
-    fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
-    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrh
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejheefge
+    evhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
     grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:QHcNYHaXzekE1vi6Fi4zLaaQlGTo9x7Tz6q1M_8k3-xt8qCo2OXL9Q>
-    <xmx:QHcNYGXtSHyjIHmcPXgQ-Ekmah-7Hx_u1g5gNMo1tuVdsfc5MvHC4g>
-    <xmx:QHcNYFmWtRsSeq8A0J5fZLXrMVkleiw5zeQ8529OVdUoSLwMar7L4Q>
-    <xmx:QHcNYFtgyHbgxYbLFm5le-gOJfxKm7Qfdx_xpe8txAfheiv6qjrvrjEj1ug>
+X-ME-Proxy: <xmx:S3cNYA7y6MsaI0qKib6yZf0eODlJkoxuxxjk4nl3EbY-mGZtiHSUPw>
+    <xmx:S3cNYB0Qc6mslMwR_-xnVNQk_3qaoy1yX5RTv4Qk01Bz0ActSLUMVQ>
+    <xmx:S3cNYLGud8ME-MgpxR8-wdGYBOYnZhRAj_CrCUkQREFfOQ1w64YKtQ>
+    <xmx:S3cNYOMCsc04Pdh4KHDyyaEqqeQ7KVjSr9O-fNt73em6ldxzABNjlfnRw0I>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 176B824005A;
-        Sun, 24 Jan 2021 08:33:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: Check for rq->hwsp validity after acquiring RCU" failed to apply to 5.4-stable tree
-To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
-        stable@vger.kernel.org, tvrtko.ursulin@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5164A108005C;
+        Sun, 24 Jan 2021 08:34:03 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Only enable DFP 4:4:4->4:2:0 conversion when" failed to apply to 5.10-stable tree
+To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jan 2021 14:33:51 +0100
-Message-ID: <1611495231189205@kroah.com>
+Date:   Sun, 24 Jan 2021 14:34:02 +0100
+Message-ID: <161149524220215@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,187 +70,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 45db630e5f7ec83817c57c8ae387fe219bd42adf Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Mon, 18 Jan 2021 10:17:55 +0000
-Subject: [PATCH] drm/i915: Check for rq->hwsp validity after acquiring RCU
- lock
+From 1c4995b0a576d24bb7ead991fb037c8b47ab6e32 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Mon, 18 Jan 2021 17:43:55 +0200
+Subject: [PATCH] drm/i915: Only enable DFP 4:4:4->4:2:0 conversion when
+ outputting YCbCr 4:4:4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Since we allow removing the timeline map at runtime, there is a risk
-that rq->hwsp points into a stale page. To control that risk, we hold
-the RCU read lock while reading *rq->hwsp, but we missed a couple of
-important barriers. First, the unpinning / removal of the timeline map
-must be after all RCU readers into that map are complete, i.e. after an
-rcu barrier (in this case courtesy of call_rcu()). Secondly, we must
-make sure that the rq->hwsp we are about to dereference under the RCU
-lock is valid. In this case, we make the rq->hwsp pointer safe during
-i915_request_retire() and so we know that rq->hwsp may become invalid
-only after the request has been signaled. Therefore is the request is
-not yet signaled when we acquire rq->hwsp under the RCU, we know that
-rq->hwsp will remain valid for the duration of the RCU read lock.
+Let's not enable the 4:4:4->4:2:0 conversion bit in the DFP unless we're
+actually outputting YCbCr 4:4:4. It would appear some protocol
+converters blindy consult this bit even when the source is outputting
+RGB, resulting in a visual mess.
 
-This is a very small window that may lead to either considering the
-request not completed (causing a delay until the request is checked
-again, any wait for the request is not affected) or dereferencing an
-invalid pointer.
-
-Fixes: 3adac4689f58 ("drm/i915: Introduce concept of per-timeline (context) HWSP")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.1+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201218122421.18344-1-chris@chris-wilson.co.uk
-(cherry picked from commit 9bb36cf66091ddf2d8840e5aa705ad3c93a6279b)
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2914
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210111164111.13302-1-ville.syrjala@linux.intel.com
+Fixes: 181567aa9f0d ("drm/i915: Do YCbCr 444->420 conversion via DP protocol converters")
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 3170a21f7059c4660c469f59bf529f372a57da5f)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210118101755.476744-1-chris@chris-wilson.co.uk
+Link: https://patchwork.freedesktop.org/patch/msgid/20210118154355.24453-1-ville.syrjala@linux.intel.com
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index a24cc1ff08a0..0625cbb3b431 100644
---- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -134,11 +134,6 @@ static bool remove_signaling_context(struct intel_breadcrumbs *b,
- 	return true;
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 92940a0c5ef8..d5ace48b1ace 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -3725,7 +3725,7 @@ static void hsw_ddi_pre_enable_dp(struct intel_atomic_state *state,
+ 	intel_ddi_init_dp_buf_reg(encoder, crtc_state);
+ 	if (!is_mst)
+ 		intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
+-	intel_dp_configure_protocol_converter(intel_dp);
++	intel_dp_configure_protocol_converter(intel_dp, crtc_state);
+ 	intel_dp_sink_set_decompression_state(intel_dp, crtc_state,
+ 					      true);
+ 	intel_dp_sink_set_fec_ready(intel_dp, crtc_state);
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 37f1a10fd021..09123e8625c4 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4014,7 +4014,8 @@ static void intel_dp_enable_port(struct intel_dp *intel_dp,
+ 	intel_de_posting_read(dev_priv, intel_dp->output_reg);
  }
  
--static inline bool __request_completed(const struct i915_request *rq)
--{
--	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
--}
--
- __maybe_unused static bool
- check_signal_order(struct intel_context *ce, struct i915_request *rq)
+-void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
++void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
++					   const struct intel_crtc_state *crtc_state)
  {
-@@ -257,7 +252,7 @@ static void signal_irq_work(struct irq_work *work)
- 		list_for_each_entry_rcu(rq, &ce->signals, signal_link) {
- 			bool release;
+ 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+ 	u8 tmp;
+@@ -4033,8 +4034,8 @@ void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
+ 		drm_dbg_kms(&i915->drm, "Failed to set protocol converter HDMI mode to %s\n",
+ 			    enableddisabled(intel_dp->has_hdmi_sink));
  
--			if (!__request_completed(rq))
-+			if (!__i915_request_is_complete(rq))
- 				break;
+-	tmp = intel_dp->dfp.ycbcr_444_to_420 ?
+-		DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
++	tmp = crtc_state->output_format == INTEL_OUTPUT_FORMAT_YCBCR444 &&
++		intel_dp->dfp.ycbcr_444_to_420 ? DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
  
- 			if (!test_and_clear_bit(I915_FENCE_FLAG_SIGNAL,
-@@ -379,7 +374,7 @@ static void insert_breadcrumb(struct i915_request *rq)
- 	 * straight onto a signaled list, and queue the irq worker for
- 	 * its signal completion.
- 	 */
--	if (__request_completed(rq)) {
-+	if (__i915_request_is_complete(rq)) {
- 		if (__signal_request(rq) &&
- 		    llist_add(&rq->signal_node, &b->signaled_requests))
- 			irq_work_queue(&b->irq_work);
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index 7ea94d201fe6..8015964043eb 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -126,6 +126,10 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
- 	struct intel_timeline_cacheline *cl =
- 		container_of(rcu, typeof(*cl), rcu);
- 
-+	/* Must wait until after all *rq->hwsp are complete before removing */
-+	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
-+	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
-+
- 	i915_active_fini(&cl->active);
- 	kfree(cl);
- }
-@@ -133,11 +137,6 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
- static void __idle_cacheline_free(struct intel_timeline_cacheline *cl)
- {
- 	GEM_BUG_ON(!i915_active_is_idle(&cl->active));
--
--	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
--	i915_vma_put(cl->hwsp->vma);
--	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
--
- 	call_rcu(&cl->rcu, __rcu_cacheline_free);
- }
- 
-@@ -179,7 +178,6 @@ cacheline_alloc(struct intel_timeline_hwsp *hwsp, unsigned int cacheline)
- 		return ERR_CAST(vaddr);
+ 	if (drm_dp_dpcd_writeb(&intel_dp->aux,
+ 			       DP_PROTOCOL_CONVERTER_CONTROL_1, tmp) != 1)
+@@ -4088,7 +4089,7 @@ static void intel_enable_dp(struct intel_atomic_state *state,
  	}
  
--	i915_vma_get(hwsp->vma);
- 	cl->hwsp = hwsp;
- 	cl->vaddr = page_pack_bits(vaddr, cacheline);
+ 	intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
+-	intel_dp_configure_protocol_converter(intel_dp);
++	intel_dp_configure_protocol_converter(intel_dp, pipe_config);
+ 	intel_dp_start_link_train(intel_dp, pipe_config);
+ 	intel_dp_stop_link_train(intel_dp, pipe_config);
  
-diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
-index 620b6fab2c5c..92adfee30c7c 100644
---- a/drivers/gpu/drm/i915/i915_request.h
-+++ b/drivers/gpu/drm/i915/i915_request.h
-@@ -434,7 +434,7 @@ static inline u32 hwsp_seqno(const struct i915_request *rq)
- 
- static inline bool __i915_request_has_started(const struct i915_request *rq)
- {
--	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno - 1);
-+	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno - 1);
- }
- 
- /**
-@@ -465,11 +465,19 @@ static inline bool __i915_request_has_started(const struct i915_request *rq)
-  */
- static inline bool i915_request_started(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (i915_request_signaled(rq))
- 		return true;
- 
--	/* Remember: started but may have since been preempted! */
--	return __i915_request_has_started(rq);
-+	result = true;
-+	rcu_read_lock(); /* the HWSP may be freed at runtime */
-+	if (likely(!i915_request_signaled(rq)))
-+		/* Remember: started but may have since been preempted! */
-+		result = __i915_request_has_started(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- /**
-@@ -482,10 +490,16 @@ static inline bool i915_request_started(const struct i915_request *rq)
-  */
- static inline bool i915_request_is_running(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (!i915_request_is_active(rq))
- 		return false;
- 
--	return __i915_request_has_started(rq);
-+	rcu_read_lock();
-+	result = __i915_request_has_started(rq) && i915_request_is_active(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- /**
-@@ -509,12 +523,25 @@ static inline bool i915_request_is_ready(const struct i915_request *rq)
- 	return !list_empty(&rq->sched.link);
- }
- 
-+static inline bool __i915_request_is_complete(const struct i915_request *rq)
-+{
-+	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
-+}
-+
- static inline bool i915_request_completed(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (i915_request_signaled(rq))
- 		return true;
- 
--	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno);
-+	result = true;
-+	rcu_read_lock(); /* the HWSP may be freed at runtime */
-+	if (likely(!i915_request_signaled(rq)))
-+		result = __i915_request_is_complete(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- static inline void i915_request_mark_complete(struct i915_request *rq)
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.h b/drivers/gpu/drm/i915/display/intel_dp.h
+index b871a09b6901..05f7ddf7a795 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.h
++++ b/drivers/gpu/drm/i915/display/intel_dp.h
+@@ -51,7 +51,8 @@ int intel_dp_get_link_train_fallback_values(struct intel_dp *intel_dp,
+ int intel_dp_retrain_link(struct intel_encoder *encoder,
+ 			  struct drm_modeset_acquire_ctx *ctx);
+ void intel_dp_set_power(struct intel_dp *intel_dp, u8 mode);
+-void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp);
++void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
++					   const struct intel_crtc_state *crtc_state);
+ void intel_dp_sink_set_decompression_state(struct intel_dp *intel_dp,
+ 					   const struct intel_crtc_state *crtc_state,
+ 					   bool enable);
 
