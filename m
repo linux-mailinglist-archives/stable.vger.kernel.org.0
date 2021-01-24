@@ -2,69 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 655D2301E90
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 20:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4902E301EBD
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 21:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbhAXTx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 14:53:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43812 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726481AbhAXTxZ (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 24 Jan 2021 14:53:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71F90229C5;
-        Sun, 24 Jan 2021 19:52:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611517964;
-        bh=52KkmDBN4KUf4ijGJKSxhN/aTL3++2JXmmjs9akkqiE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=b6/RHA8fNb7Er7DZZ6+OSIY2GhXbDAvWILGUvoER0ZvnxYOpPY6lNl0vpLzlSiDEN
-         PfzA6L+u4wnSCU4ureXyMplV38HJrZ9H9ZGuPuCxfjHdm4sCDXFuADuvvmjjZz+77u
-         CGG7Li+u2VuVq3fh6BmbReYVimsjnmB5fAYDQthovOz82UuwKbiaG3S/kNx6s5Q+4B
-         Z6kRhmgBSsWqCxq4yQTqxWW32ZDuM15nIdrCIeQ9zG4wbC0ScXxXX+kdtRLyS1s+Bi
-         7Zauww2vAyr3j0piTWp58BrrfYvlsAMmVPsPf6oi0U6M/z2yW/ZbbQyi4Z8S2k/VJY
-         0oCy/1H0K2pbw==
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     linux-iio@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH] iio:adc:stm32-adc: Add HAS_IOMEM dependency
-Date:   Sun, 24 Jan 2021 19:50:34 +0000
-Message-Id: <20210124195034.22576-1-jic23@kernel.org>
-X-Mailer: git-send-email 2.30.0
+        id S1725969AbhAXUeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 15:34:19 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:37980 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725968AbhAXUeQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 15:34:16 -0500
+From:   John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1611520414;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=D/IqCWHHyGiwt+g3GQmqDtT2+ZYdsv/r2P6TKaoW1gc=;
+        b=suIfycoDCwE5wAe/CXnU6pJLmifovx0uu37daXYbR+J54G0EgAeNh5biRQglBM0/6+pbcp
+        u8CStzKzgUt29BeKGA6+oPXp7lbR3UfWmJM6dNvO9azqJCM/LCS6Z04cYGthEW2UNk9Da3
+        9JgB1W9EyF/Hd7jCeynRT1lwycmix5C9lsI6Zl+NdI0qpVaAYMVc4PU43niWVzh1AImA/k
+        +VC86saBkvv8/gnNzBMqwR6TSl14PK7bpmBJb0Al9OfUqvja0xJn/LhjOBozc9Fv0hqsL7
+        445w7YWFf9wJOhawNUahjRqOxVdbRdVzfPoipkWg6gsaicnLq1vgVcQDdrmpDA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1611520414;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=D/IqCWHHyGiwt+g3GQmqDtT2+ZYdsv/r2P6TKaoW1gc=;
+        b=wursuvBrDvHJsIzHX/c+PC1c7jhm/FFkVUJmA7ob18YhAsFvv4RBWwD/7DG616NTmtLyG8
+        lUoFJlj73maKFiAw==
+To:     gregkh@linuxfoundation.org, gregkh@linuxfoundation.org,
+        pmladek@suse.com, sergey.senozhatsky@gmail.com,
+        stable@vger.kernel.org
+Cc:     stable-commits@vger.kernel.org
+Subject: Re: Patch "printk: fix buffer overflow potential for print_text()" has been added to the 5.10-stable tree
+In-Reply-To: <1611495423221153@kroah.com>
+References: <1611495423221153@kroah.com>
+Date:   Sun, 24 Jan 2021 21:39:33 +0106
+Message-ID: <87zh0ym5wi.fsf@jogness.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Hi Greg,
 
-Seems that there are config combinations in which this driver gets enabled
-and hence selects the MFD, but with out HAS_IOMEM getting pulled in
-via some other route.  MFD is entirely contained in an
-if HAS_IOMEM block, leading to the build issue in this bugzilla.
+On 2021-01-24, <gregkh@linuxfoundation.org> wrote:
+> This is a note to let you know that I've just added the patch titled
+>
+>     printk: fix buffer overflow potential for print_text()
 
-https://bugzilla.kernel.org/show_bug.cgi?id=209889
+We just learned that this patch introduces a new problem. I have just
+posted a patch to fix the new problem:
 
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
- drivers/iio/adc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+https://lkml.kernel.org/r/20210124202728.4718-1-john.ogness@linutronix.de
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index bf7d22fa4be2..6605c263949c 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -923,6 +923,7 @@ config STM32_ADC_CORE
- 	depends on ARCH_STM32 || COMPILE_TEST
- 	depends on OF
- 	depends on REGULATOR
-+	depends on HAS_IOMEM
- 	select IIO_BUFFER
- 	select MFD_STM32_TIMERS
- 	select IIO_STM32_TIMER_TRIGGER
--- 
-2.30.0
+You may want to hold off on applying the first fix until the second fix
+has been accepted. Then you can apply both.
 
+John Ogness
