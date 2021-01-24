@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B13301C20
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E15F4301C26
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726056AbhAXNWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:22:43 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35083 "EHLO
+        id S1726398AbhAXNXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:23:24 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:33231 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726050AbhAXNWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:22:43 -0500
+        by vger.kernel.org with ESMTP id S1725855AbhAXNXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:23:23 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id F3E16B21;
-        Sun, 24 Jan 2021 08:21:56 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:21:57 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 85CD8A1B;
+        Sun, 24 Jan 2021 08:22:17 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:22:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Alv93M
-        FTbQhmzMhSiF1UJzryOxXSO1pjUz2IH7VtEmU=; b=c+69vD1OVmpqXxb5dk1Y+c
-        HKhuuXJPcge1/YfK9Xh0BoEPzFYC1P/nuWffNQ7A6uiEWNCOPQvr8PpQ4Ol81+kK
-        oDzzUJNlQ5h1hdvUs5pa+h1Z4s4w1O24W948C0cot2wd9VNLf4SpiSlJ2STUrhM5
-        yh4RO9zYXbd+/hkekxjOkURU0uNini3odZ5olbhSSJpGuZj8VaGm1jbK0OG/8nx8
-        J8La+aLYfx7slFcdmEYN7VIB25VTVNb5bgMaLv3+W6iEtjpjSnJcWh+rvJmllcms
-        obcE3PHgR1wGMDMFAW+RJ4oSEVvzlOrY7x+APk+Q1DjNd8V9deyS9AB8TujZVI6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1WaOkr
+        Om1UlsiKCtcXn/mZwEkamv8jxfBp8XVVvxzcI=; b=nbd357EFRk86OA460Qzyz0
+        Cn3eBCD2zWJH0wud68wcOgPp/2bS9jsc/LcrNVpRPJc1JRc3vs0LnfuyCN/5R8KI
+        HwcYtIgI+YpunQ/dIYkEuN+zGKzGPzgOehq5TQNNurlgB+RjrHEr07dOb2NDKLvH
+        GCXI55O0aYgyOQMRD0XKzvlsb8tfPBgYjdgEhWrdH6y+BikCg63U+zeblxuTGcqT
+        NMFx/GrqzX6QqxFJePmXffei7GN0QPe4tgflU40kkFzpBllxRgrnmh5Kwk3da9vV
+        USuUXsfPiXNgC2Gah4lClkkZqo6QI1qG0O2PeGz1qQ05+468sverX6UmPpiw49uQ
         ==
-X-ME-Sender: <xms:dHQNYKAuRr8H5qnFYSYihI9OaxXqwiEj7tyBzTCkdP-sFQ3GTI3oAw>
-    <xme:dHQNYEi2O4JpsisA6Yx2eRp9LPVrPSx9Qt-8R7bGGjKRE9orAGLrTUTyhd5d7U6Oa
-    jmFjioT8yspIw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehvdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:iXQNYAS8HRvuoBmbgv3jSLE6GCKqxu74X5dkQ5iaQjoQBxzqJ74iqQ>
+    <xme:iXQNYNzBOlbg3LXULrrxnx1a7YuQ1pN9rMIt1sJBNznQFGB4ltbtcyk7rcBzLP5yr
+    7-b2iBSK1fsDg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:dHQNYNmk8YpS7dPIdFSlz8d05S5lAxAIfz4flpib3UsX1TPL1Hi6iA>
-    <xmx:dHQNYIyS7a2Gsai42XL16IrcSB78cbhXIDoV4MGZRc8u5cAq6rkcjQ>
-    <xmx:dHQNYPTxJD3RNr3uNdmSwOWxrI26g0zkt9yju_HuImNNGI8t6cj50Q>
-    <xmx:dHQNYKfJGBXuG9Apar3ALvM9hnMa11WYNWjynU38ruOVSxw3ZuxQXHmFYlY>
+X-ME-Proxy: <xmx:iXQNYN2KYPeJCTkO7IfAsWhr3Yurpw9ZkJbAHLr_0et4ITelMUB56w>
+    <xmx:iXQNYEAaff_8VL3junGAowEmg0t2PA4m_35f6TLjqSOPuZpcIg8OkA>
+    <xmx:iXQNYJhxHR3GVz8NYgP1OGV0QN5ai1VQ5GjI3q2Rm08k1nqHjxXbdw>
+    <xmx:iXQNYMsZHJqVXBu9X38Vxl2NE72NhNe2sGu9EFeNcki6fbFlhFSjFZr1BvM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1311B1080057;
-        Sun, 24 Jan 2021 08:21:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: fix lockdep splat in btrfs_recover_relocation" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BC49A240057;
+        Sun, 24 Jan 2021 08:22:16 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: don't clear ret in btrfs_start_dirty_block_groups" failed to apply to 4.4-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com, johannes.thumshirn@wdc.com,
         wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jan 2021 14:21:55 +0100
-Message-ID: <161149451574240@kroah.com>
+Date:   Sun, 24 Jan 2021 14:22:15 +0100
+Message-ID: <161149453515816@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,133 +71,15 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb286100974e7239af243bc2255a52f29442f9c8 Mon Sep 17 00:00:00 2001
+From 34d1eb0e599875064955a74712f08ff14c8e3d5f Mon Sep 17 00:00:00 2001
 From: Josef Bacik <josef@toxicpanda.com>
-Date: Wed, 16 Dec 2020 11:22:14 -0500
-Subject: [PATCH] btrfs: fix lockdep splat in btrfs_recover_relocation
+Date: Wed, 16 Dec 2020 11:22:17 -0500
+Subject: [PATCH] btrfs: don't clear ret in btrfs_start_dirty_block_groups
 
-While testing the error paths of relocation I hit the following lockdep
-splat:
-
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.10.0-rc6+ #217 Not tainted
-  ------------------------------------------------------
-  mount/779 is trying to acquire lock:
-  ffffa0e676945418 (&fs_info->balance_mutex){+.+.}-{3:3}, at: btrfs_recover_balance+0x2f0/0x340
-
-  but task is already holding lock:
-  ffffa0e60ee31da8 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x100
-
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #2 (btrfs-root-00){++++}-{3:3}:
-	 down_read_nested+0x43/0x130
-	 __btrfs_tree_read_lock+0x27/0x100
-	 btrfs_read_lock_root_node+0x31/0x40
-	 btrfs_search_slot+0x462/0x8f0
-	 btrfs_update_root+0x55/0x2b0
-	 btrfs_drop_snapshot+0x398/0x750
-	 clean_dirty_subvols+0xdf/0x120
-	 btrfs_recover_relocation+0x534/0x5a0
-	 btrfs_start_pre_rw_mount+0xcb/0x170
-	 open_ctree+0x151f/0x1726
-	 btrfs_mount_root.cold+0x12/0xea
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 vfs_kern_mount.part.0+0x71/0xb0
-	 btrfs_mount+0x10d/0x380
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 path_mount+0x433/0xc10
-	 __x64_sys_mount+0xe3/0x120
-	 do_syscall_64+0x33/0x40
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #1 (sb_internal#2){.+.+}-{0:0}:
-	 start_transaction+0x444/0x700
-	 insert_balance_item.isra.0+0x37/0x320
-	 btrfs_balance+0x354/0xf40
-	 btrfs_ioctl_balance+0x2cf/0x380
-	 __x64_sys_ioctl+0x83/0xb0
-	 do_syscall_64+0x33/0x40
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #0 (&fs_info->balance_mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x1120/0x1e10
-	 lock_acquire+0x116/0x370
-	 __mutex_lock+0x7e/0x7b0
-	 btrfs_recover_balance+0x2f0/0x340
-	 open_ctree+0x1095/0x1726
-	 btrfs_mount_root.cold+0x12/0xea
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 vfs_kern_mount.part.0+0x71/0xb0
-	 btrfs_mount+0x10d/0x380
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 path_mount+0x433/0xc10
-	 __x64_sys_mount+0xe3/0x120
-	 do_syscall_64+0x33/0x40
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  other info that might help us debug this:
-
-  Chain exists of:
-    &fs_info->balance_mutex --> sb_internal#2 --> btrfs-root-00
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(btrfs-root-00);
-				 lock(sb_internal#2);
-				 lock(btrfs-root-00);
-    lock(&fs_info->balance_mutex);
-
-   *** DEADLOCK ***
-
-  2 locks held by mount/779:
-   #0: ffffa0e60dc040e0 (&type->s_umount_key#47/1){+.+.}-{3:3}, at: alloc_super+0xb5/0x380
-   #1: ffffa0e60ee31da8 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x100
-
-  stack backtrace:
-  CPU: 0 PID: 779 Comm: mount Not tainted 5.10.0-rc6+ #217
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  Call Trace:
-   dump_stack+0x8b/0xb0
-   check_noncircular+0xcf/0xf0
-   ? trace_call_bpf+0x139/0x260
-   __lock_acquire+0x1120/0x1e10
-   lock_acquire+0x116/0x370
-   ? btrfs_recover_balance+0x2f0/0x340
-   __mutex_lock+0x7e/0x7b0
-   ? btrfs_recover_balance+0x2f0/0x340
-   ? btrfs_recover_balance+0x2f0/0x340
-   ? rcu_read_lock_sched_held+0x3f/0x80
-   ? kmem_cache_alloc_trace+0x2c4/0x2f0
-   ? btrfs_get_64+0x5e/0x100
-   btrfs_recover_balance+0x2f0/0x340
-   open_ctree+0x1095/0x1726
-   btrfs_mount_root.cold+0x12/0xea
-   ? rcu_read_lock_sched_held+0x3f/0x80
-   legacy_get_tree+0x30/0x50
-   vfs_get_tree+0x28/0xc0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x10d/0x380
-   ? __kmalloc_track_caller+0x2f2/0x320
-   legacy_get_tree+0x30/0x50
-   vfs_get_tree+0x28/0xc0
-   ? capable+0x3a/0x60
-   path_mount+0x433/0xc10
-   __x64_sys_mount+0xe3/0x120
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-This is straightforward to fix, simply release the path before we setup
-the balance_ctl.
+If we fail to update a block group item in the loop we'll break, however
+we'll do btrfs_run_delayed_refs and lose our error value in ret, and
+thus not clean up properly.  Fix this by only running the delayed refs
+if there was no failure.
 
 CC: stable@vger.kernel.org # 4.4+
 Reviewed-by: Qu Wenruo <wqu@suse.com>
@@ -206,17 +88,18 @@ Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 2c0aa03b6437..0c7f4f6237e8 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4318,6 +4318,8 @@ int btrfs_recover_balance(struct btrfs_fs_info *fs_info)
- 		btrfs_warn(fs_info,
- 	"balance: cannot set exclusive op status, resume manually");
- 
-+	btrfs_release_path(path);
-+
- 	mutex_lock(&fs_info->balance_mutex);
- 	BUG_ON(fs_info->balance_ctl);
- 	spin_lock(&fs_info->balance_lock);
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 52f2198d44c9..0886e81e5540 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2669,7 +2669,8 @@ int btrfs_start_dirty_block_groups(struct btrfs_trans_handle *trans)
+ 	 * Go through delayed refs for all the stuff we've just kicked off
+ 	 * and then loop back (just once)
+ 	 */
+-	ret = btrfs_run_delayed_refs(trans, 0);
++	if (!ret)
++		ret = btrfs_run_delayed_refs(trans, 0);
+ 	if (!ret && loops == 0) {
+ 		loops++;
+ 		spin_lock(&cur_trans->dirty_bgs_lock);
 
