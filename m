@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC505301C2A
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D4B301C2D
+	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 14:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726600AbhAXNXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 08:23:52 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:42813 "EHLO
+        id S1725855AbhAXNY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 08:24:26 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35857 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726530AbhAXNXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:23:51 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 6A97AB6B;
-        Sun, 24 Jan 2021 08:23:07 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sun, 24 Jan 2021 08:23:07 -0500
+        by vger.kernel.org with ESMTP id S1725788AbhAXNYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 08:24:21 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 74DCFB21;
+        Sun, 24 Jan 2021 08:23:15 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 24 Jan 2021 08:23:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=roT1G0
-        aZB7X4CtgYkHIxMVD7vk3Xl/HnUgomnIGBP/4=; b=G13G9Ud1rvZHCBYPe+SuMu
-        /MhJ3FAx05od15QX+u8OZ40PjvKvpiGzpPbqghK7bteA2BpYwEk/LGe6HdPE/ewW
-        iq1u/WWflwDeeRvk/Lddy3TmnsDfS49x/KZYvKT1NbMUDOrEWvgL8ErP0NB5S3Ju
-        ZRJiNYoK4qm+P2SFnXlALBdtZqmVJfnzXwxbpAyHrc9ud6hmi08BSF63eB+3KmsJ
-        xjUxc4UUKhslvWUbUIxvd6IfvPC2lgVkN2I1CEg9Qq6Pby3B1RHoiCJEXAUWg/RQ
-        5eJEyMLPKez8Ss/BEx+NUZ9j9EP5dc0OhQbTI6qmHcQncCNdiPz/qRep82GXHbyw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/c8Aa6
+        UBcj9CUkRrFzWkE1Ay1KxdU6A4m8jooTrG+e8=; b=DkFUQcvpVOJXsnFfFkcPjL
+        K+z0ys8F1MkxL9Gmg/XHnb+E68v0/y9VRLRM/w6avtCK9+MkU528mrlgeFMbLJ0v
+        szQOSVcj2kf3SL0Bfnlj9Db4acwQ+J2hPsX5sK2n1lg6otcel8D8I/NbvTUAAw4o
+        +7KlypEHe19NilYl7x5gu9HY4DGD+7oe6HGUIjisyC1EVYgC227cGzZq3qgmWaB3
+        GDIbH1BvCaIQVTBCmMLXyBj7OxlXI1Gm+oZTpeuxV+/wUi6pLj5U8++H6ocX7w5i
+        kTp1gSHtV/ZZn5ObLY3GHc9h7PO+WHjO3hok/si+5+QNixOXY0Fq+xAsriqNMxiA
         ==
-X-ME-Sender: <xms:unQNYLLRaKm5QkmtoduGDE0p_S92tNoOHaXkVPl7JmrYlwTndiAcfg>
-    <xme:unQNYIzns9V5TufwxidxRRNyWzPwrq3fLDpBzhAZtZBKMPCccAup-EhnbjESM3RCj
-    PB3c6ZJmLbQ9A>
+X-ME-Sender: <xms:wnQNYHFSwxvF71fH5AMk-pgb5ufzqZ2zKenrYqqK7CU7U7loCm18vg>
+    <xme:wnQNYEW8XZTtJU9TXwzg_F5RIzM37wWG9d7JYp9ok2rbJJx_QK7lvyb6njMIBCVFY
+    XRw57U9aoKA6A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:unQNYDtWgy5XpyzLX4gw3zdsiG8OOyTneOgZ46P8vJidn4O53GhNuQ>
-    <xmx:unQNYHvBRqo6kMWWOdfTnSm7pfHT8NfF-FvD6q0_unrG3FGU94kIPA>
-    <xmx:unQNYANnIwIcLFoeK_19vlnqVm3dyL7GP2hS1YjtUalfeEvp2KhtGQ>
-    <xmx:u3QNYD4nalD2xyaid4SCz02C-FejU7mVXoYNxOLQRhMGLBSWJczHadyaUbY>
+X-ME-Proxy: <xmx:wnQNYJJ_C8DTtoIh0QhQhwB6hrtolDkOCe0WrKjP9mbdiyb-DN6t9g>
+    <xmx:wnQNYFHp_ZQ6wSswgSkXnqsllAsGmOGyzMp8ppdigOnFH1czIhwvWA>
+    <xmx:wnQNYNXhqiABRfM8Ysfr9yHmnoJRVDk1rKY4QPO3LQK72vpxKUf3zw>
+    <xmx:w3QNYOc8HixhE6gfdVKN7arvU_bjXTBd4Yko6I4ch9t0ewZoL1hrqP8z7oI>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8A5CE24005C;
-        Sun, 24 Jan 2021 08:23:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] fs: fix lazytime expiration handling in" failed to apply to 5.4-stable tree
-To:     ebiggers@google.com, hch@lst.de, jack@suse.cz
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9314D108005B;
+        Sun, 24 Jan 2021 08:23:14 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: ingenic: Fix JZ4760 support" failed to apply to 5.4-stable tree
+To:     paul@crapouillou.net, linus.walleij@linaro.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jan 2021 14:23:00 +0100
-Message-ID: <1611494580155241@kroah.com>
+Date:   Sun, 24 Jan 2021 14:23:13 +0100
+Message-ID: <1611494593252195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,111 +71,144 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1e249cb5b7fc09ff216aa5a12f6c302e434e88f9 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 12 Jan 2021 11:02:43 -0800
-Subject: [PATCH] fs: fix lazytime expiration handling in
- __writeback_single_inode()
+From 9a85c09a3f507b925d75cb0c7c8f364467038052 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Fri, 11 Dec 2020 23:28:09 +0000
+Subject: [PATCH] pinctrl: ingenic: Fix JZ4760 support
 
-When lazytime is enabled and an inode is being written due to its
-in-memory updated timestamps having expired, either due to a sync() or
-syncfs() system call or due to dirtytime_expire_interval having elapsed,
-the VFS needs to inform the filesystem so that the filesystem can copy
-the inode's timestamps out to the on-disk data structures.
+- JZ4760 and JZ4760B have a similar register layout as the JZ4740, and
+  don't use the new register layout, which was introduced with the
+  JZ4770 SoC and not the JZ4760 or JZ4760B SoCs.
 
-This is done by __writeback_single_inode() calling
-mark_inode_dirty_sync(), which then calls ->dirty_inode(I_DIRTY_SYNC).
+- The JZ4740 code path only expected two function modes to be
+  configurable for each pin, and wouldn't work with more than two. Fix
+  it for the JZ4760, which has four configurable function modes.
 
-However, this occurs after __writeback_single_inode() has already
-cleared the dirty flags from ->i_state.  This causes two bugs:
+Fixes: 0257595a5cf4 ("pinctrl: Ingenic: Add pinctrl driver for JZ4760 and JZ4760B.")
+Cc: <stable@vger.kernel.org> # 5.3
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20201211232810.261565-1-paul@crapouillou.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-- mark_inode_dirty_sync() redirties the inode, causing it to remain
-  dirty.  This wastefully causes the inode to be written twice.  But
-  more importantly, it breaks cases where sync_filesystem() is expected
-  to clean dirty inodes.  This includes the FS_IOC_REMOVE_ENCRYPTION_KEY
-  ioctl (as reported at
-  https://lore.kernel.org/r/20200306004555.GB225345@gmail.com), as well
-  as possibly filesystem freezing (freeze_super()).
-
-- Since ->i_state doesn't contain I_DIRTY_TIME when ->dirty_inode() is
-  called from __writeback_single_inode() for lazytime expiration,
-  xfs_fs_dirty_inode() ignores the notification.  (XFS only cares about
-  lazytime expirations, and it assumes that i_state will contain
-  I_DIRTY_TIME during those.)  Therefore, lazy timestamps aren't
-  persisted by sync(), syncfs(), or dirtytime_expire_interval on XFS.
-
-Fix this by moving the call to mark_inode_dirty_sync() to earlier in
-__writeback_single_inode(), before the dirty flags are cleared from
-i_state.  This makes filesystems be properly notified of the timestamp
-expiration, and it avoids incorrectly redirtying the inode.
-
-This fixes xfstest generic/580 (which tests
-FS_IOC_REMOVE_ENCRYPTION_KEY) when run on ext4 or f2fs with lazytime
-enabled.  It also fixes the new lazytime xfstest I've proposed, which
-reproduces the above-mentioned XFS bug
-(https://lore.kernel.org/r/20210105005818.92978-1-ebiggers@kernel.org).
-
-Alternatively, we could call ->dirty_inode(I_DIRTY_SYNC) directly.  But
-due to the introduction of I_SYNC_QUEUED, mark_inode_dirty_sync() is the
-right thing to do because mark_inode_dirty_sync() now knows not to move
-the inode to a writeback list if it is currently queued for sync.
-
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-Cc: stable@vger.kernel.org
-Depends-on: 5afced3bf281 ("writeback: Avoid skipping inode writeback")
-Link: https://lore.kernel.org/r/20210112190253.64307-2-ebiggers@kernel.org
-Suggested-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index acfb55834af2..c41cb887eb7d 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1474,21 +1474,25 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
+diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+index 53a6a24bd052..8ac3091c4469 100644
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -1688,7 +1688,7 @@ static inline bool ingenic_gpio_get_value(struct ingenic_gpio_chip *jzgc,
+ static void ingenic_gpio_set_value(struct ingenic_gpio_chip *jzgc,
+ 				   u8 offset, int value)
+ {
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_PAT0, offset, !!value);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, offset, !!value);
+@@ -1718,7 +1718,7 @@ static void irq_set_type(struct ingenic_gpio_chip *jzgc,
+ 		break;
  	}
  
- 	/*
--	 * Some filesystems may redirty the inode during the writeback
--	 * due to delalloc, clear dirty metadata flags right before
--	 * write_inode()
-+	 * If the inode has dirty timestamps and we need to write them, call
-+	 * mark_inode_dirty_sync() to notify the filesystem about it and to
-+	 * change I_DIRTY_TIME into I_DIRTY_SYNC.
- 	 */
--	spin_lock(&inode->i_lock);
--
--	dirty = inode->i_state & I_DIRTY;
- 	if ((inode->i_state & I_DIRTY_TIME) &&
--	    ((dirty & I_DIRTY_INODE) ||
--	     wbc->sync_mode == WB_SYNC_ALL || wbc->for_sync ||
-+	    (wbc->sync_mode == WB_SYNC_ALL || wbc->for_sync ||
- 	     time_after(jiffies, inode->dirtied_time_when +
- 			dirtytime_expire_interval * HZ))) {
--		dirty |= I_DIRTY_TIME;
- 		trace_writeback_lazytime(inode);
-+		mark_inode_dirty_sync(inode);
+-	if (jzgc->jzpc->info->version >= ID_JZ4760) {
++	if (jzgc->jzpc->info->version >= ID_JZ4770) {
+ 		reg1 = JZ4760_GPIO_PAT1;
+ 		reg2 = JZ4760_GPIO_PAT0;
+ 	} else {
+@@ -1758,7 +1758,7 @@ static void ingenic_gpio_irq_enable(struct irq_data *irqd)
+ 	struct ingenic_gpio_chip *jzgc = gpiochip_get_data(gc);
+ 	int irq = irqd->hwirq;
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, true);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, true);
+@@ -1774,7 +1774,7 @@ static void ingenic_gpio_irq_disable(struct irq_data *irqd)
+ 
+ 	ingenic_gpio_irq_mask(irqd);
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, false);
+@@ -1799,7 +1799,7 @@ static void ingenic_gpio_irq_ack(struct irq_data *irqd)
+ 			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
  	}
-+
-+	/*
-+	 * Some filesystems may redirty the inode during the writeback
-+	 * due to delalloc, clear dirty metadata flags right before
-+	 * write_inode()
-+	 */
-+	spin_lock(&inode->i_lock);
-+	dirty = inode->i_state & I_DIRTY;
- 	inode->i_state &= ~dirty;
  
- 	/*
-@@ -1509,8 +1513,6 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_FLAG, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, irq, true);
+@@ -1856,7 +1856,7 @@ static void ingenic_gpio_irq_handler(struct irq_desc *desc)
  
- 	spin_unlock(&inode->i_lock);
+ 	chained_irq_enter(irq_chip, desc);
  
--	if (dirty & I_DIRTY_TIME)
--		mark_inode_dirty_sync(inode);
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & ~I_DIRTY_PAGES) {
- 		int err = write_inode(inode, wbc);
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4760_GPIO_FLAG);
+ 	else
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4740_GPIO_FLAG);
+@@ -1938,7 +1938,7 @@ static int ingenic_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
+ 	struct ingenic_pinctrl *jzpc = jzgc->jzpc;
+ 	unsigned int pin = gc->base + offset;
+ 
+-	if (jzpc->info->version >= ID_JZ4760) {
++	if (jzpc->info->version >= ID_JZ4770) {
+ 		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
+ 		    ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
+ 			return GPIO_LINE_DIRECTION_IN;
+@@ -1996,7 +1996,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, func & 0x1);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, false);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+@@ -2004,7 +2004,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_FUNC, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_TRIG, func & 0x2);
+-		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func > 0);
++		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func & 0x1);
+ 	}
+ 
+ 	return 0;
+@@ -2061,7 +2061,7 @@ static int ingenic_pinmux_gpio_set_direction(struct pinctrl_dev *pctldev,
+ 		ingenic_shadow_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+@@ -2091,7 +2091,7 @@ static int ingenic_pinconf_get(struct pinctrl_dev *pctldev,
+ 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
+ 	bool pull;
+ 
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PEN);
+ 	else
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
+@@ -2141,7 +2141,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ 					REG_SET(X1830_GPIO_PEH), bias << idxh);
+ 		}
+ 
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PEN, !bias);
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_PULL_DIS, !bias);
+@@ -2151,7 +2151,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ static void ingenic_set_output_level(struct ingenic_pinctrl *jzpc,
+ 				     unsigned int pin, bool high)
+ {
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, high);
+ 	else
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_DATA, high);
 
