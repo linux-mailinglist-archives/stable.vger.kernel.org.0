@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0CA303361
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5136303318
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbhAZEvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:51:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
+        id S1727271AbhAZEqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:46:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730547AbhAYSrD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:47:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B202310C;
-        Mon, 25 Jan 2021 18:46:38 +0000 (UTC)
+        id S1726841AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:43:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 481D2224B8;
+        Mon, 25 Jan 2021 18:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600399;
-        bh=JUWO5N09CA/rTL28Kmwloy0GeK7cGXaIy3Ic3p3UxMc=;
+        s=korg; t=1611600168;
+        bh=GbKiPl4FrLdmNGuDrJtuO/IkvXwmqiodDztJthqRBmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgwW/Kb6FGUhfxdNrxxiOL86Hzf8zgO25PF4if+7wGGD8vTUGWmFm+rnjOa6uEkSw
-         nQNB0Arn9EWCxkXUXuNIdPEL5gzG2J2q7olfiIKaVRMwBJbtA0lzQDD5zxNiBe8kYL
-         en+fO1uTpGNHFftRuLxIkM2VDgQiNuwFgd9rMbfk=
+        b=AfasrGnxryG746IxlO1ozZbK2LOxrD8DJc3p7ziSJLQhx2Uyxuq1LQQgOEslBldgo
+         0gnijRnR/0ill/tSfBou28s/Ow5poK3GIuNp634HBRYA+FDbUiSNvK92C29N3ftPS5
+         jeGav3UJsF6mSTIFhzSbFOdm9wsweGHQ5OQ9YpVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 74/86] skbuff: back tiny skbs with kmalloc() in __netdev_alloc_skb() too
-Date:   Mon, 25 Jan 2021 19:39:56 +0100
-Message-Id: <20210125183204.175062563@linuxfoundation.org>
+Subject: [PATCH 4.19 56/58] net: mscc: ocelot: allow offloading of bridge on top of LAG
+Date:   Mon, 25 Jan 2021 19:39:57 +0100
+Message-Id: <20210125183159.100401355@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 66c556025d687dbdd0f748c5e1df89c977b6c02a upstream.
+commit 79267ae22615496655feee2db0848f6786bcf67a upstream.
 
-Commit 3226b158e67c ("net: avoid 32 x truesize under-estimation for
-tiny skbs") ensured that skbs with data size lower than 1025 bytes
-will be kmalloc'ed to avoid excessive page cache fragmentation and
-memory consumption.
-However, the fix adressed only __napi_alloc_skb() (primarily for
-virtio_net and napi_get_frags()), but the issue can still be achieved
-through __netdev_alloc_skb(), which is still used by several drivers.
-Drivers often allocate a tiny skb for headers and place the rest of
-the frame to frags (so-called copybreak).
-Mirror the condition to __netdev_alloc_skb() to handle this case too.
+The blamed commit was too aggressive, and it made ocelot_netdevice_event
+react only to network interface events emitted for the ocelot switch
+ports.
 
-Since v1 [0]:
- - fix "Fixes:" tag;
- - refine commit message (mention copybreak usecase).
+In fact, only the PRECHANGEUPPER should have had that check.
 
-[0] https://lore.kernel.org/netdev/20210114235423.232737-1-alobakin@pm.me
+When we ignore all events that are not for us, we miss the fact that the
+upper of the LAG changes, and the bonding interface gets enslaved to a
+bridge. This is an operation we could offload under certain conditions.
 
-Fixes: a1c7fff7e18f ("net: netdev_alloc_skb() use build_skb()")
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Link: https://lore.kernel.org/r/20210115150354.85967-1-alobakin@pm.me
+Fixes: 7afb3e575e5a ("net: mscc: ocelot: don't handle netdev events for other netdevs")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210118135210.2666246-1-olteanv@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/skbuff.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -431,7 +431,11 @@ struct sk_buff *__netdev_alloc_skb(struc
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1549,10 +1549,8 @@ static int ocelot_netdevice_event(struct
+ 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+ 	int ret = 0;
  
- 	len += NET_SKB_PAD;
- 
--	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
-+	/* If requested length is either too small or too big,
-+	 * we use kmalloc() for skb->head allocation.
-+	 */
-+	if (len <= SKB_WITH_OVERHEAD(1024) ||
-+	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
- 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
- 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
- 		if (!skb)
+-	if (!ocelot_netdevice_dev_check(dev))
+-		return 0;
+-
+ 	if (event == NETDEV_PRECHANGEUPPER &&
++	    ocelot_netdevice_dev_check(dev) &&
+ 	    netif_is_lag_master(info->upper_dev)) {
+ 		struct netdev_lag_upper_info *lag_upper_info = info->upper_info;
+ 		struct netlink_ext_ack *extack;
 
 
