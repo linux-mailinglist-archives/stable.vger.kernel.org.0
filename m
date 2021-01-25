@@ -2,128 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6BBB30321A
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:48:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CBD3031D9
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729764AbhAYOs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 09:48:56 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:50519 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729767AbhAYOsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:48:09 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 78C9BF49;
-        Mon, 25 Jan 2021 09:47:15 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:47:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xUzn0Z
-        9Tlsezh3jvmoQ1VFF6Wen4hVsEQWR5iDmqu8Y=; b=QCzPCryziSqrMZ8avsvcOR
-        sXCF/S4jf0UXlzWZIquUqVrgmyTD8RJKmtmQMORH37DLwouEJysh9/rWTHh3roPG
-        3mt0UEi/nJtMkgv29oApdRF2GKVBKpsS7wgLBviHsCwacZBsgbyvil7slcmVpB1X
-        JAf67IWeNCE1/Uja/kf5oxl7RsajJj/k1DWGiitcYdnYUwQRLggTHevj/uYey4is
-        HrYMVRB0XxdYjblsBfVaGTH2pF8XKpK4ETITS3cUxXXUweZKT1GVIZ+YzMGKTuxU
-        nDP2ubG3xN4eVNpYPhMOslP8qBpTqxFW0yFj6rliezJmanM8QVo7V8+220A0IpoQ
-        ==
-X-ME-Sender: <xms:89kOYBKiWJaiYM_EDUxkNMLyOQuBUPLF3mMMAUm8cZ0CtfPxLDv2MQ>
-    <xme:89kOYNJJ5_HDPlACtQFzQrb5ZeizwgtnR7uDt6lq7WE2gljxAPe7QhFyMkStLcRMg
-    wNi1IKPPyWgag>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeiiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:89kOYJtyxexkytnKqkgSbQoU3yCHEX85WAbHJt4ydWO5YY-nuVdhvA>
-    <xmx:89kOYCZ60Iq1cn5zzNo1T-HatAYYqRpi8vjs56QKUDS5Pvk6xUn-Aw>
-    <xmx:89kOYIbqzTMRg0JUIuSVbGLkbJrgm0tl0wILN6wRU89YuDNwebO6kQ>
-    <xmx:89kOYBAoViXuEKCq2dXdLUz1JLWq9iFmnFkXNkB2OhS3tOHbn7mlm0wOWsw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AEAC9240066;
-        Mon, 25 Jan 2021 09:47:14 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mtd: spinand: Fix MTD_OPS_AUTO_OOB requests" failed to apply to 5.10-stable tree
-To:     miquel.raynal@bootlin.com, nbd@nbd.name
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:47:05 +0100
-Message-ID: <161158602523135@kroah.com>
+        id S1727013AbhAYSmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:42:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726847AbhAYSmG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:42:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 828D8207B3;
+        Mon, 25 Jan 2021 18:40:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611600051;
+        bh=5rQcYV71KV3JmQ4KsDwVdvTYld0jKiuvXxDFcSAvbW8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VaB10BsJcM+FnPHorO1eHR/gy+9UXbM6/pZ2gZup4QajGCx47G9dHWrtcdqbMJXtr
+         0fuCByVnkOvFL4QaiDYrFmbRGeE5H3Fx84hqzwXOkVppRZ3KI+A2HCWdA9tzFoVhOX
+         TdtoCFaqGEYwsi7ibXcsMJShGYCPsxDk0z26r7FU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/58] dm integrity: select CRYPTO_SKCIPHER
+Date:   Mon, 25 Jan 2021 19:39:13 +0100
+Message-Id: <20210125183157.221452946@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Anthony Iliopoulos <ailiop@suse.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit f7b347acb5f6c29d9229bb64893d8b6a2c7949fb ]
 
-thanks,
+The integrity target relies on skcipher for encryption/decryption, but
+certain kernel configurations may not enable CRYPTO_SKCIPHER, leading to
+compilation errors due to unresolved symbols. Explicitly select
+CRYPTO_SKCIPHER for DM_INTEGRITY, since it is unconditionally dependent
+on it.
 
-greg k-h
+Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/md/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
------------------- original commit in Linus's tree ------------------
+diff --git a/drivers/md/Kconfig b/drivers/md/Kconfig
+index 8b8c123cae66f..7d61ef03cb187 100644
+--- a/drivers/md/Kconfig
++++ b/drivers/md/Kconfig
+@@ -527,6 +527,7 @@ config DM_INTEGRITY
+ 	select BLK_DEV_INTEGRITY
+ 	select DM_BUFIO
+ 	select CRYPTO
++	select CRYPTO_SKCIPHER
+ 	select ASYNC_XOR
+ 	---help---
+ 	  This device-mapper target emulates a block device that has
+-- 
+2.27.0
 
-From e708789c4a87989faff1131ccfdc465a1c1eddbc Mon Sep 17 00:00:00 2001
-From: Miquel Raynal <miquel.raynal@bootlin.com>
-Date: Thu, 7 Jan 2021 09:38:13 +0100
-Subject: [PATCH] mtd: spinand: Fix MTD_OPS_AUTO_OOB requests
 
-The initial change breaking the logic is
-commit 3d1f08b032dc ("mtd: spinand: Use the external ECC engine logic")
-It inadvertently dropped proper OOB support while doing something
-else.
-
-Shortly later, half of it got re-integrated by
-commit 868cbe2a6dce ("mtd: spinand: Fix OOB read")
-(pointing by the way to a  more early change which had nothing to do
-with the issue). Problem is, this commit failed to revert the faulty
-change entirely and missed the logic handling MTD_OPS_AUTO_OOB
-requests.
-
-Let's fix this mess by re-inserting the missing part now.
-
-Fixes: 868cbe2a6dce ("mtd: spinand: Fix OOB read")
-Reported-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210107083813.24283-1-miquel.raynal@bootlin.com
-
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 8ea545bb924d..61d932c1b718 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -343,6 +343,7 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
- 				      const struct nand_page_io_req *req)
- {
- 	struct nand_device *nand = spinand_to_nand(spinand);
-+	struct mtd_info *mtd = spinand_to_mtd(spinand);
- 	struct spi_mem_dirmap_desc *rdesc;
- 	unsigned int nbytes = 0;
- 	void *buf = NULL;
-@@ -382,9 +383,16 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
- 		memcpy(req->databuf.in, spinand->databuf + req->dataoffs,
- 		       req->datalen);
- 
--	if (req->ooblen)
--		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
--		       req->ooblen);
-+	if (req->ooblen) {
-+		if (req->mode == MTD_OPS_AUTO_OOB)
-+			mtd_ooblayout_get_databytes(mtd, req->oobbuf.in,
-+						    spinand->oobbuf,
-+						    req->ooboffs,
-+						    req->ooblen);
-+		else
-+			memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
-+			       req->ooblen);
-+	}
- 
- 	return 0;
- }
 
