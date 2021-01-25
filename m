@@ -2,32 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A75304A80
+	by mail.lfdr.de (Postfix) with ESMTP id D597F304A81
 	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731108AbhAZFFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:05:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40802 "EHLO mail.kernel.org"
+        id S1731123AbhAZFFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731338AbhAYSyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:54:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AF8920719;
-        Mon, 25 Jan 2021 18:53:44 +0000 (UTC)
+        id S1731340AbhAYSy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:54:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D357A224B8;
+        Mon, 25 Jan 2021 18:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600825;
-        bh=YaoFlUXHhcaBDbyC+y3UWkB3R7NV44U7PV0JzBxp0U0=;
+        s=korg; t=1611600827;
+        bh=CIcf/ZN1RY906Zqt3lGhz1MtgYcz7o/eaoC+BLandio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/rgiZU3KtMJsaadcu3blCmvN1iDjeN2fDBtWUU8XOUGb/8yJhq7mSoTXyhIzd8g1
-         11yds1MDw61XXp/oFRLy8bKneLoYW8Tbqqr3D49ASBhuEu99UJX4DBQm2p10ATQTq0
-         OiRQIJSp87X3k801Q4gZoBiH5it2Vj+GZ6ObpjnQ=
+        b=hEEqOmsPKUiw/7nBFTt2ePfos9aAQd+gW4BrMrSwHubhj7eGyUoo0h+DVRe0MCjD9
+         VJZ509dJ0a79y0qZRJQ/phuoXEqfLP8l5qPBb+juaDLmRCTw6umbN8Hc2pakApu+DO
+         +3dc4Y/G/pPBKplxRLuaUx0w34FckB6718l7TPQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 166/199] skbuff: back tiny skbs with kmalloc() in __netdev_alloc_skb() too
-Date:   Mon, 25 Jan 2021 19:39:48 +0100
-Message-Id: <20210125183223.200711279@linuxfoundation.org>
+        stable@vger.kernel.org, Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        YJ Chiang <yj.chiang@mediatek.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 167/199] kasan: fix unaligned address is unhandled in kasan_remove_zero_shadow
+Date:   Mon, 25 Jan 2021 19:39:49 +0100
+Message-Id: <20210125183223.241454115@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,51 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Lecopzer Chen <lecopzer@gmail.com>
 
-commit 66c556025d687dbdd0f748c5e1df89c977b6c02a upstream.
+commit a11a496ee6e2ab6ed850233c96b94caf042af0b9 upstream.
 
-Commit 3226b158e67c ("net: avoid 32 x truesize under-estimation for
-tiny skbs") ensured that skbs with data size lower than 1025 bytes
-will be kmalloc'ed to avoid excessive page cache fragmentation and
-memory consumption.
-However, the fix adressed only __napi_alloc_skb() (primarily for
-virtio_net and napi_get_frags()), but the issue can still be achieved
-through __netdev_alloc_skb(), which is still used by several drivers.
-Drivers often allocate a tiny skb for headers and place the rest of
-the frame to frags (so-called copybreak).
-Mirror the condition to __netdev_alloc_skb() to handle this case too.
+During testing kasan_populate_early_shadow and kasan_remove_zero_shadow,
+if the shadow start and end address in kasan_remove_zero_shadow() is not
+aligned to PMD_SIZE, the remain unaligned PTE won't be removed.
 
-Since v1 [0]:
- - fix "Fixes:" tag;
- - refine commit message (mention copybreak usecase).
+In the test case for kasan_remove_zero_shadow():
 
-[0] https://lore.kernel.org/netdev/20210114235423.232737-1-alobakin@pm.me
+    shadow_start: 0xffffffb802000000, shadow end: 0xffffffbfbe000000
 
-Fixes: a1c7fff7e18f ("net: netdev_alloc_skb() use build_skb()")
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Link: https://lore.kernel.org/r/20210115150354.85967-1-alobakin@pm.me
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+    3-level page table:
+      PUD_SIZE: 0x40000000 PMD_SIZE: 0x200000 PAGE_SIZE: 4K
+
+0xffffffbf80000000 ~ 0xffffffbfbdf80000 will not be removed because in
+kasan_remove_pud_table(), kasan_pmd_table(*pud) is true but the next
+address is 0xffffffbfbdf80000 which is not aligned to PUD_SIZE.
+
+In the correct condition, this should fallback to the next level
+kasan_remove_pmd_table() but the condition flow always continue to skip
+the unaligned part.
+
+Fix by correcting the condition when next and addr are neither aligned.
+
+Link: https://lkml.kernel.org/r/20210103135621.83129-1-lecopzer@gmail.com
+Fixes: 0207df4fa1a86 ("kernel/memremap, kasan: make ZONE_DEVICE with work with KASAN")
+Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: YJ Chiang <yj.chiang@mediatek.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/skbuff.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ mm/kasan/init.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -432,7 +432,11 @@ struct sk_buff *__netdev_alloc_skb(struc
+--- a/mm/kasan/init.c
++++ b/mm/kasan/init.c
+@@ -377,9 +377,10 @@ static void kasan_remove_pmd_table(pmd_t
  
- 	len += NET_SKB_PAD;
+ 		if (kasan_pte_table(*pmd)) {
+ 			if (IS_ALIGNED(addr, PMD_SIZE) &&
+-			    IS_ALIGNED(next, PMD_SIZE))
++			    IS_ALIGNED(next, PMD_SIZE)) {
+ 				pmd_clear(pmd);
+-			continue;
++				continue;
++			}
+ 		}
+ 		pte = pte_offset_kernel(pmd, addr);
+ 		kasan_remove_pte_table(pte, addr, next);
+@@ -402,9 +403,10 @@ static void kasan_remove_pud_table(pud_t
  
--	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
-+	/* If requested length is either too small or too big,
-+	 * we use kmalloc() for skb->head allocation.
-+	 */
-+	if (len <= SKB_WITH_OVERHEAD(1024) ||
-+	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
- 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
- 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
- 		if (!skb)
+ 		if (kasan_pmd_table(*pud)) {
+ 			if (IS_ALIGNED(addr, PUD_SIZE) &&
+-			    IS_ALIGNED(next, PUD_SIZE))
++			    IS_ALIGNED(next, PUD_SIZE)) {
+ 				pud_clear(pud);
+-			continue;
++				continue;
++			}
+ 		}
+ 		pmd = pmd_offset(pud, addr);
+ 		pmd_base = pmd_offset(pud, 0);
+@@ -428,9 +430,10 @@ static void kasan_remove_p4d_table(p4d_t
+ 
+ 		if (kasan_pud_table(*p4d)) {
+ 			if (IS_ALIGNED(addr, P4D_SIZE) &&
+-			    IS_ALIGNED(next, P4D_SIZE))
++			    IS_ALIGNED(next, P4D_SIZE)) {
+ 				p4d_clear(p4d);
+-			continue;
++				continue;
++			}
+ 		}
+ 		pud = pud_offset(p4d, addr);
+ 		kasan_remove_pud_table(pud, addr, next);
+@@ -462,9 +465,10 @@ void kasan_remove_zero_shadow(void *star
+ 
+ 		if (kasan_p4d_table(*pgd)) {
+ 			if (IS_ALIGNED(addr, PGDIR_SIZE) &&
+-			    IS_ALIGNED(next, PGDIR_SIZE))
++			    IS_ALIGNED(next, PGDIR_SIZE)) {
+ 				pgd_clear(pgd);
+-			continue;
++				continue;
++			}
+ 		}
+ 
+ 		p4d = p4d_offset(pgd, addr);
 
 
