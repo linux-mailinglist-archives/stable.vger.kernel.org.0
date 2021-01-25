@@ -2,30 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CE630256F
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 14:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA58302572
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 14:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728771AbhAYNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 08:22:23 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:59279 "EHLO
+        id S1728719AbhAYNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 08:24:19 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:59299 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728721AbhAYNVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 08:21:37 -0500
+        with ESMTP id S1728774AbhAYNWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 08:22:53 -0500
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23693246-1500050 
-        for multiple; Mon, 25 Jan 2021 13:20:49 +0000
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23693268-1500050 
+        for multiple; Mon, 25 Jan 2021 13:21:57 +0000
 From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lsits.freedesktop.org
+To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?q?Matti=20H=C3=A4m=C3=A4l=C3=A4inen?= <ccr@tnsp.org>,
         Matthew Auld <matthew.auld@intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>, stable@vger.kernel.org
 Subject: [PATCH] drm/i915/gem: Drop lru bumping on display unpinning
-Date:   Mon, 25 Jan 2021 13:20:50 +0000
-Message-Id: <20210125132050.2402043-1-chris@chris-wilson.co.uk>
+Date:   Mon, 25 Jan 2021 13:21:58 +0000
+Message-Id: <20210125132158.2402159-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -37,6 +39,7 @@ frontbuffers being eagerly shrunk. Now we protect frontbuffers from the
 shrinker, and we avoid accidentally evicting from the GTT, so the
 benefit from bumping LRU is no more, and we can save more time by not.
 
+Reported-and-tested-by: Matti Hämäläinen <ccr@tnsp.org>
 Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2905
 Fixes: c1793ba86a41 ("drm/i915: Add ww locking to pin_to_display_plane, v2.")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
@@ -46,8 +49,6 @@ Link: https://patchwork.freedesktop.org/patch/msgid/20210119214336.1463-6-chris@
 Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc: Jani Nikula <jani.nikula@intel.com>
 Cc: <stable@vger.kernel.org> # v5.10+
----
-This patch is in drm-intel-gt-next but needs promotion to -fixes.
 ---
  drivers/gpu/drm/i915/display/intel_display.c |  7 +--
  drivers/gpu/drm/i915/display/intel_overlay.c |  4 +-
