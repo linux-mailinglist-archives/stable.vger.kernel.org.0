@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84FBE304B23
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5515A304B7C
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728503AbhAZEui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:50:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33786 "EHLO mail.kernel.org"
+        id S1727288AbhAZEpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:45:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730343AbhAYSqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:46:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D85E2083E;
-        Mon, 25 Jan 2021 18:46:12 +0000 (UTC)
+        id S1727697AbhAYSmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:42:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56AA5206B2;
+        Mon, 25 Jan 2021 18:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600372;
-        bh=6qUKba3U+XS8Xjrh/Qv9ZVteUNEBPoA5480vfKdzlcQ=;
+        s=korg; t=1611600134;
+        bh=kQ38umAKWVsDV+fLqjxbuXs7+lKRqag3m1nfj79qei0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTEVNzl/JzQnkMvdygbaSy51SAWiOIx4ssXbJ6sy6/fEL30HMLnf9EruG920L/dL5
-         04HHRIqGiQxC8iwvpufqkD8RDnoXuNhIKebPHyaOrY3Bk5NbBQP7Z/69nLVYNphk4Z
-         RWKUDK13Yy2hhJU18ILSH5kmYyOo/7inNjVLabU4=
+        b=0RqqeUh3ZXVCFmbgjdRkxxwuwo7ayPwKHX66IJEJu3yfO8PixEbJTtWndL2aL12Sw
+         B2y7SMJMVveGquy4qVY1E8O7YG+ugkSsJkhKCTfQ6S16EPHqCOrJi6remO5zKmcBA4
+         vfh1u4+MPpWthMV1rn2FX3ZiFN5NzyppaDYxZW4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Robert Richter <rric@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/86] i2c: octeon: check correct size of maximum RECV_LEN packet
+        stable@vger.kernel.org, Antoine Tenart <atenart@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/58] selftests: net: fib_tests: remove duplicate log test
 Date:   Mon, 25 Jan 2021 19:39:28 +0100
-Message-Id: <20210125183203.011708324@linuxfoundation.org>
+Message-Id: <20210125183157.861861091@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 1b2cfa2d1dbdcc3b6dba1ecb7026a537a1d7277f ]
+[ Upstream commit fd23d2dc180fccfad4b27a8e52ba1bc415d18509 ]
 
-I2C_SMBUS_BLOCK_MAX defines already the maximum number as defined in the
-SMBus 2.0 specs. No reason to add one to it.
+The previous test added an address with a specified metric and check if
+correspond route was created. I somehow added two logs for the same
+test. Remove the duplicated one.
 
-Fixes: 886f6f8337dd ("i2c: octeon: Support I2C_M_RECV_LEN")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Robert Richter <rric@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Reported-by: Antoine Tenart <atenart@redhat.com>
+Fixes: 0d29169a708b ("selftests/net/fib_tests: update addr_metric_test for peer route testing")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20210119025930.2810532-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-octeon-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/fib_tests.sh | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index d9607905dc2f1..845eda70b8cab 100644
---- a/drivers/i2c/busses/i2c-octeon-core.c
-+++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -347,7 +347,7 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- 		if (result)
- 			return result;
- 		if (recv_len && i == 0) {
--			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1)
-+			if (data[i] > I2C_SMBUS_BLOCK_MAX)
- 				return -EPROTO;
- 			length += data[i];
- 		}
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index 67048f922ff20..a5ba149761bf9 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -987,7 +987,6 @@ ipv6_addr_metric_test()
+ 
+ 	check_route6 "2001:db8:104::1 dev dummy2 proto kernel metric 260"
+ 	log_test $? 0 "Set metric with peer route on local side"
+-	log_test $? 0 "User specified metric on local address"
+ 	check_route6 "2001:db8:104::2 dev dummy2 proto kernel metric 260"
+ 	log_test $? 0 "Set metric with peer route on peer side"
+ 
 -- 
 2.27.0
 
