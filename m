@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD54302624
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 15:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9AC5302667
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 15:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbhAYOOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 09:14:21 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44467 "EHLO
+        id S1729731AbhAYOn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 09:43:26 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:32965 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729315AbhAYONT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:13:19 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id A5303D71;
-        Mon, 25 Jan 2021 09:11:16 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:11:16 -0500
+        by vger.kernel.org with ESMTP id S1729614AbhAYOmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:42:20 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 8A074871;
+        Mon, 25 Jan 2021 09:41:16 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 25 Jan 2021 09:41:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nAaTXW
-        Z18WrKCgBPZTJc7KCGnHCkhqPKjxKRuzEUt7k=; b=IVxWzpJVkKI/dWVW/wH6/G
-        qoYPXh05v5Zb7zXZoiaF3/MUK7jBFcViTyhFuW6HIUxnNs8g+N2yqK4mJaAViXYS
-        wQMYMB3euPUJr9vj3wv/2CAdfisMURyZyi2bFX6V7jRP4Ca5nm8qXSQl8BzHlyTr
-        l0MON+5T06569f0Gm5Pqmz+mT54gvYKCtVg1jHgdVPWBiS9f0QoQhA3qC2d045XA
-        2NJ//IhqJfRx2g4oAmHYtT7qyj9UHVP9DwlXQp30H5ByARFIZx+WQfq92lsFZ/Na
-        Bh5ok1jJyb/RhhkYR957DXhPHKcXqHs0JPItn9qm13F3bf4voB5l9WUNNAp7NuCw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=clvtl8
+        UmWXadWwD9BkW6lyRSe/WVXDOuKPG6hvQz06M=; b=AZit35zhKoXRHhPTfH+5+B
+        EyUHfcq0i9OfszLR97JwiVkVV7nLFP/Wgt+mDcnGMfOExRc59jke1qzqENcMxpst
+        cPVmT7jRr5dIrWL4rNUe3PLjw2xxjjNzP6KhLBQn9TdsKMBbkVowYmqiqCQ+M4C6
+        hjHFIbxzYdtqK7fEt+y0U/uVFl4/lNYO8v4bcjpp74+A0pVWbfqA6Zvy7F+sGxie
+        2/WpjRIRT8m0f6xjhjzielMX1uKQIMO+BzfCObN8H1dVzosC/my0ILMiF0jv05aH
+        8spQHqJlwQYLF0A2ftmIOOhgqp1zTIdgWnhePtirzPH1FdyXtpHPh9F6c0FYlNaA
         ==
-X-ME-Sender: <xms:hNEOYOj5Im1-G36ccR8QXnClYg6RrPyyObY3SRU5FLsxJaZttssCTQ>
-    <xme:hNEOYPDzQL6H0GhTZabD3XNEVEI7gwN4IDr_kF1dk-BBRwXzJ__7w0cuZgG_UtTFE
-    dV7i5m42ltmCw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:i9gOYLakBUIO-gAova2n3t3FURmCE-MmmasPz9nke0RyGmwA5Pfnng>
+    <xme:i9gOYOuQwndAmayJrO_u0zv2p9mzDAfuq53Jfn336uBc3LNL8KxCn1HRVun19EKgW
+    5OkubP_6EQvGA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeihecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeegveelueegtdejkeffkeffkeeujeehgfejgfdvheefgf
-    elveffgfehgedthfehudenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdeigedrshgs
-    pdgvgigtvghpthhiohhnshdqieegshdrshgspdhlughsrdhssgenucfkphepkeefrdekie
-    drjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhr
-    ohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:hNEOYGHVcVWpq3JFjz2hT9T1bjqkAD7fG6wCtuQNyuXWeKQxnnnGsw>
-    <xmx:hNEOYHRsfL_tWOhKk-gOzimtXeOMmJ7Oax9Z8o4w6DyOPtLc2NXhWw>
-    <xmx:hNEOYLwpniBjOAgmbvDjsA1CULqDOQzI37F9M7-AUvdlz3WhlxCIsw>
-    <xmx:hNEOYEoSgcqIL6PQH0EBBFLkyJmZ20mXGSas4rLqttRrwZNyBo2ogPRPZWc>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:i9gOYNGIQwrAYYyjp6zj2djerQTqVUuX-tDDso501RsEPo9VrdgCPA>
+    <xmx:i9gOYJz-Khxy22PJEh1M_DvBMmy0HVQITJzFddhq1eoxfnh6_JyDKw>
+    <xmx:i9gOYMiYXNOK3G2ExZcBzbjBsYjhRunzq0FQwF7iUnAA99axouEFXw>
+    <xmx:jNgOYC6hNpNanEimnZ4j-diWSeqZ9psG8z3gsC1qMzXD7p2KExMuFbn_x90>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EEFC41080063;
-        Mon, 25 Jan 2021 09:11:15 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc/64s: fix scv entry fallback flush vs interrupt" failed to apply to 4.14-stable tree
-To:     npiggin@gmail.com, mpe@ellerman.id.au, tuliom@linux.ibm.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id A777824005D;
+        Mon, 25 Jan 2021 09:41:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: qcom: Properly clear "intr_ack_high" interrupts when" failed to apply to 5.10-stable tree
+To:     dianders@chromium.org, bjorn.andersson@linaro.org,
+        linus.walleij@linaro.org, mkshah@codeaurora.org,
+        swboyd@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:11:10 +0100
-Message-ID: <1611583870169171@kroah.com>
+Date:   Mon, 25 Jan 2021 15:41:14 +0100
+Message-ID: <1611585674115135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,197 +72,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 08685be7761d69914f08c3d6211c543a385a5b9c Mon Sep 17 00:00:00 2001
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Mon, 11 Jan 2021 16:24:08 +1000
-Subject: [PATCH] powerpc/64s: fix scv entry fallback flush vs interrupt
+From a95881d6aa2c000e3649f27a1a7329cf356e6bb3 Mon Sep 17 00:00:00 2001
+From: Douglas Anderson <dianders@chromium.org>
+Date: Thu, 14 Jan 2021 19:16:23 -0800
+Subject: [PATCH] pinctrl: qcom: Properly clear "intr_ack_high" interrupts when
+ unmasking
 
-The L1D flush fallback functions are not recoverable vs interrupts,
-yet the scv entry flush runs with MSR[EE]=1. This can result in a
-timer (soft-NMI) or MCE or SRESET interrupt hitting here and overwriting
-the EXRFI save area, which ends up corrupting userspace registers for
-scv return.
+In commit 4b7618fdc7e6 ("pinctrl: qcom: Add irq_enable callback for
+msm gpio") we tried to Ack interrupts during unmask.  However, that
+patch forgot to check "intr_ack_high" so, presumably, it only worked
+for a certain subset of SoCs.
 
-Fix this by disabling RI and EE for the scv entry fallback flush.
+Let's add a small accessor so we don't need to open-code the logic in
+both places.
 
-Fixes: f79643787e0a0 ("powerpc/64s: flush L1D on kernel entry")
-Cc: stable@vger.kernel.org # 5.9+ which also have flush L1D patch backport
-Reported-by: Tulio Magno Quites Machado Filho <tuliom@linux.ibm.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210111062408.287092-1-npiggin@gmail.com
+This was found by code inspection.  I don't have any access to the
+hardware in question nor software that needs the Ack during unmask.
 
-diff --git a/arch/powerpc/include/asm/exception-64s.h b/arch/powerpc/include/asm/exception-64s.h
-index 1d32b174ab6a..c1a8aac01cf9 100644
---- a/arch/powerpc/include/asm/exception-64s.h
-+++ b/arch/powerpc/include/asm/exception-64s.h
-@@ -63,6 +63,12 @@
- 	nop;								\
- 	nop;
+Fixes: 4b7618fdc7e6 ("pinctrl: qcom: Add irq_enable callback for msm gpio")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Maulik Shah <mkshah@codeaurora.org>
+Tested-by: Maulik Shah <mkshah@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210114191601.v7.3.I32d0f4e174d45363b49ab611a13c3da8f1e87d0f@changeid
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 2f363c28d9d9..192ed31eabf4 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -96,6 +96,14 @@ MSM_ACCESSOR(intr_cfg)
+ MSM_ACCESSOR(intr_status)
+ MSM_ACCESSOR(intr_target)
  
-+#define SCV_ENTRY_FLUSH_SLOT						\
-+	SCV_ENTRY_FLUSH_FIXUP_SECTION;					\
-+	nop;								\
-+	nop;								\
-+	nop;
++static void msm_ack_intr_status(struct msm_pinctrl *pctrl,
++				const struct msm_pingroup *g)
++{
++	u32 val = g->intr_ack_high ? BIT(g->intr_status_bit) : 0;
 +
- /*
-  * r10 must be free to use, r13 must be paca
-  */
-@@ -70,6 +76,13 @@
- 	STF_ENTRY_BARRIER_SLOT;						\
- 	ENTRY_FLUSH_SLOT
++	msm_writel_intr_status(val, pctrl, g);
++}
++
+ static int msm_get_groups_count(struct pinctrl_dev *pctldev)
+ {
+ 	struct msm_pinctrl *pctrl = pinctrl_dev_get_drvdata(pctldev);
+@@ -797,7 +805,7 @@ static void msm_gpio_irq_clear_unmask(struct irq_data *d, bool status_clear)
+ 	 * when the interrupt is not in use.
+ 	 */
+ 	if (status_clear)
+-		msm_writel_intr_status(0, pctrl, g);
++		msm_ack_intr_status(pctrl, g);
  
-+/*
-+ * r10, ctr must be free to use, r13 must be paca
-+ */
-+#define SCV_INTERRUPT_TO_KERNEL						\
-+	STF_ENTRY_BARRIER_SLOT;						\
-+	SCV_ENTRY_FLUSH_SLOT
-+
- /*
-  * Macros for annotating the expected destination of (h)rfid
-  *
-diff --git a/arch/powerpc/include/asm/feature-fixups.h b/arch/powerpc/include/asm/feature-fixups.h
-index f6d2acb57425..ac605fc369c4 100644
---- a/arch/powerpc/include/asm/feature-fixups.h
-+++ b/arch/powerpc/include/asm/feature-fixups.h
-@@ -240,6 +240,14 @@ label##3:					       	\
- 	FTR_ENTRY_OFFSET 957b-958b;			\
- 	.popsection;
+ 	val = msm_readl_intr_cfg(pctrl, g);
+ 	val |= BIT(g->intr_raw_status_bit);
+@@ -890,7 +898,6 @@ static void msm_gpio_irq_ack(struct irq_data *d)
+ 	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
+ 	const struct msm_pingroup *g;
+ 	unsigned long flags;
+-	u32 val;
  
-+#define SCV_ENTRY_FLUSH_FIXUP_SECTION			\
-+957:							\
-+	.pushsection __scv_entry_flush_fixup,"a";	\
-+	.align 2;					\
-+958:							\
-+	FTR_ENTRY_OFFSET 957b-958b;			\
-+	.popsection;
-+
- #define RFI_FLUSH_FIXUP_SECTION				\
- 951:							\
- 	.pushsection __rfi_flush_fixup,"a";		\
-@@ -273,10 +281,12 @@ label##3:					       	\
+ 	if (test_bit(d->hwirq, pctrl->skip_wake_irqs)) {
+ 		if (test_bit(d->hwirq, pctrl->dual_edge_irqs))
+@@ -902,8 +909,7 @@ static void msm_gpio_irq_ack(struct irq_data *d)
  
- extern long stf_barrier_fallback;
- extern long entry_flush_fallback;
-+extern long scv_entry_flush_fallback;
- extern long __start___stf_entry_barrier_fixup, __stop___stf_entry_barrier_fixup;
- extern long __start___stf_exit_barrier_fixup, __stop___stf_exit_barrier_fixup;
- extern long __start___uaccess_flush_fixup, __stop___uaccess_flush_fixup;
- extern long __start___entry_flush_fixup, __stop___entry_flush_fixup;
-+extern long __start___scv_entry_flush_fixup, __stop___scv_entry_flush_fixup;
- extern long __start___rfi_flush_fixup, __stop___rfi_flush_fixup;
- extern long __start___barrier_nospec_fixup, __stop___barrier_nospec_fixup;
- extern long __start__btb_flush_fixup, __stop__btb_flush_fixup;
-diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
-index aa1af139d947..33ddfeef4fe9 100644
---- a/arch/powerpc/kernel/entry_64.S
-+++ b/arch/powerpc/kernel/entry_64.S
-@@ -75,7 +75,7 @@ BEGIN_FTR_SECTION
- 	bne	.Ltabort_syscall
- END_FTR_SECTION_IFSET(CPU_FTR_TM)
- #endif
--	INTERRUPT_TO_KERNEL
-+	SCV_INTERRUPT_TO_KERNEL
- 	mr	r10,r1
- 	ld	r1,PACAKSAVE(r13)
- 	std	r10,0(r1)
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index e02ad6fefa46..6e53f7638737 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -2993,6 +2993,25 @@ TRAMP_REAL_BEGIN(entry_flush_fallback)
- 	ld	r11,PACA_EXRFI+EX_R11(r13)
- 	blr
+ 	raw_spin_lock_irqsave(&pctrl->lock, flags);
  
-+/*
-+ * The SCV entry flush happens with interrupts enabled, so it must disable
-+ * to prevent EXRFI being clobbered by NMIs (e.g., soft_nmi_common). r10
-+ * (containing LR) does not need to be preserved here because scv entry
-+ * puts 0 in the pt_regs, CTR can be clobbered for the same reason.
-+ */
-+TRAMP_REAL_BEGIN(scv_entry_flush_fallback)
-+	li	r10,0
-+	mtmsrd	r10,1
-+	lbz	r10,PACAIRQHAPPENED(r13)
-+	ori	r10,r10,PACA_IRQ_HARD_DIS
-+	stb	r10,PACAIRQHAPPENED(r13)
-+	std	r11,PACA_EXRFI+EX_R11(r13)
-+	L1D_DISPLACEMENT_FLUSH
-+	ld	r11,PACA_EXRFI+EX_R11(r13)
-+	li	r10,MSR_RI
-+	mtmsrd	r10,1
-+	blr
-+
- TRAMP_REAL_BEGIN(rfi_flush_fallback)
- 	SET_SCRATCH0(r13);
- 	GET_PACA(r13);
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 4ab426b8b0e0..72fa3c00229a 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -145,6 +145,13 @@ SECTIONS
- 		__stop___entry_flush_fixup = .;
- 	}
+-	val = g->intr_ack_high ? BIT(g->intr_status_bit) : 0;
+-	msm_writel_intr_status(val, pctrl, g);
++	msm_ack_intr_status(pctrl, g);
  
-+	. = ALIGN(8);
-+	__scv_entry_flush_fixup : AT(ADDR(__scv_entry_flush_fixup) - LOAD_OFFSET) {
-+		__start___scv_entry_flush_fixup = .;
-+		*(__scv_entry_flush_fixup)
-+		__stop___scv_entry_flush_fixup = .;
-+	}
-+
- 	. = ALIGN(8);
- 	__stf_exit_barrier_fixup : AT(ADDR(__stf_exit_barrier_fixup) - LOAD_OFFSET) {
- 		__start___stf_exit_barrier_fixup = .;
-diff --git a/arch/powerpc/lib/feature-fixups.c b/arch/powerpc/lib/feature-fixups.c
-index 47821055b94c..1fd31b4b0e13 100644
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -290,9 +290,6 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
- 	long *start, *end;
- 	int i;
- 
--	start = PTRRELOC(&__start___entry_flush_fixup);
--	end = PTRRELOC(&__stop___entry_flush_fixup);
--
- 	instrs[0] = 0x60000000; /* nop */
- 	instrs[1] = 0x60000000; /* nop */
- 	instrs[2] = 0x60000000; /* nop */
-@@ -312,6 +309,8 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
- 	if (types & L1D_FLUSH_MTTRIG)
- 		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
- 
-+	start = PTRRELOC(&__start___entry_flush_fixup);
-+	end = PTRRELOC(&__stop___entry_flush_fixup);
- 	for (i = 0; start < end; start++, i++) {
- 		dest = (void *)start + *start;
- 
-@@ -328,6 +327,25 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
- 		patch_instruction((struct ppc_inst *)(dest + 2), ppc_inst(instrs[2]));
- 	}
- 
-+	start = PTRRELOC(&__start___scv_entry_flush_fixup);
-+	end = PTRRELOC(&__stop___scv_entry_flush_fixup);
-+	for (; start < end; start++, i++) {
-+		dest = (void *)start + *start;
-+
-+		pr_devel("patching dest %lx\n", (unsigned long)dest);
-+
-+		patch_instruction((struct ppc_inst *)dest, ppc_inst(instrs[0]));
-+
-+		if (types == L1D_FLUSH_FALLBACK)
-+			patch_branch((struct ppc_inst *)(dest + 1), (unsigned long)&scv_entry_flush_fallback,
-+				     BRANCH_SET_LINK);
-+		else
-+			patch_instruction((struct ppc_inst *)(dest + 1), ppc_inst(instrs[1]));
-+
-+		patch_instruction((struct ppc_inst *)(dest + 2), ppc_inst(instrs[2]));
-+	}
-+
-+
- 	printk(KERN_DEBUG "entry-flush: patched %d locations (%s flush)\n", i,
- 		(types == L1D_FLUSH_NONE)       ? "no" :
- 		(types == L1D_FLUSH_FALLBACK)   ? "fallback displacement" :
+ 	if (test_bit(d->hwirq, pctrl->dual_edge_irqs))
+ 		msm_gpio_update_dual_edge_pos(pctrl, g, d);
 
