@@ -2,68 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A84913032DC
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1DB43032E0
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbhAZEjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:39:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54132 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729412AbhAYO0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 09:26:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D1002228A;
-        Mon, 25 Jan 2021 14:25:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611584724;
-        bh=Nh0hwKfWuuovNjFuNV1OJrKe8tPMi30Xe/6U1+0epYo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NBi82+G0eQXXvThxyrUpm5lWq+C2YFGflcx2mTBkGyAt3XAlKVGGXd1lGmvf/M+BR
-         sqOUjvWVFbag5dIlZhKyHozBx/C9tBDr4Pvo65vzafbdCwItk2eql9vG878EvGCoiK
-         mtF4crFhPNK9uFUNKNPrNQF9NqcE+Zafqm1tcrWE=
-Date:   Mon, 25 Jan 2021 15:25:22 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: Re: [PATCH stable-5.10] drm/i915: Only enable DFP 4:4:4->4:2:0
- conversion when outputting YCbCr 4:4:4
-Message-ID: <YA7U0gT/mqE76sBP@kroah.com>
-References: <161149524220215@kroah.com>
- <20210125132711.27101-1-ville.syrjala@linux.intel.com>
+        id S1726970AbhAZEjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:39:33 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:53791 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729494AbhAYOun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:50:43 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id F218DF73;
+        Mon, 25 Jan 2021 09:49:14 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:49:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Rjfp0o
+        gaCqxnwNC5JG6rYo/AsVB+KMfzprPFxPDvvjQ=; b=HgRS3ZKH3O5N2gByZs+PJL
+        /1KP4yD5WEJfQ/9SitmYIP+HOxwJlgpUau5iPhxvY1JqSlkdr+P0fyZxB1xgY9NF
+        w85natmRXJnujgodQupbh4+4iUfYASaL7UzVANSjO3LujI5aFWiUH+hy2h2xEqo5
+        Rvk3TCDigg7uZKWDYw3G5R7S4zazNpzvPaDbtgLNdYxO8n5Ra7Jn4TBljRBufFh6
+        6xWlehyBNOc7WJGWH7jkDJWBXNMlUHas0cevxZkwB7QAXLcyVZXdI9hnm4R4o2Tk
+        nDowyI55N0OaiRO9qg9PY+xIhmlBCVX9TcLyUvUNebmfel7MksuULLsZU/PNdGhg
+        ==
+X-ME-Sender: <xms:atoOYEZe8Pzyoh3Gl4o_ysPSjEU33kBlSilUdcjBAbtbEOYcI9WSsg>
+    <xme:atoOYPYjiYth0-hO-5HtnDXulCk8-hQuOLq2oaA3EUlGQQSY_91ktVyoTXFW9JR_8
+    pfOtYZsCHhtfw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeiiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:atoOYO-r2xF8lGUESEalJFJ3dXFOPMH7QEwkUcAjUeIcRw4MyeBlnA>
+    <xmx:atoOYOpaOP4jvjZLnZVugGM-Uy_z-a-0Az_NTQTWW53pRzrzE0CDXw>
+    <xmx:atoOYPq1qNfyqLznyKv2TcIkxa3ljuSSUw9NY6d533F6Qy27MuIr1Q>
+    <xmx:atoOYIAZ5Fo_kimYrbe6GhAQ5tb09wHQUK7faUuXArvl-5WPZsRjybOjR_g>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id F37BE1080063;
+        Mon, 25 Jan 2021 09:49:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] octeontx2-af: Fix missing check bugs in rvu_cgx.c" failed to apply to 5.4-stable tree
+To:     wangyingjie55@126.com, gakula@marvell.com, kuba@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 Jan 2021 15:49:12 +0100
+Message-ID: <1611586152165188@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210125132711.27101-1-ville.syrjala@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 25, 2021 at 03:27:11PM +0200, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> commit 1c4995b0a576d24bb7ead991fb037c8b47ab6e32 upstream.
-> 
-> Let's not enable the 4:4:4->4:2:0 conversion bit in the DFP unless we're
-> actually outputting YCbCr 4:4:4. It would appear some protocol
-> converters blindy consult this bit even when the source is outputting
-> RGB, resulting in a visual mess.
-> 
-> Cc: <stable@vger.kernel.org> # 0e634efd858e: drm/i915: s/intel_dp_sink_dpms/intel_dp_set_power/
-> Cc: stable@vger.kernel.org
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2914
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210111164111.13302-1-ville.syrjala@linux.intel.com
-> Fixes: 181567aa9f0d ("drm/i915: Do YCbCr 444->420 conversion via DP protocol converters")
-> Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-> (cherry picked from commit 3170a21f7059c4660c469f59bf529f372a57da5f)
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210118154355.24453-1-ville.syrjala@linux.intel.com
-> (cherry picked from commit 1c4995b0a576d24bb7ead991fb037c8b47ab6e32)
-> ---
-> Note the extra depdendency on commit 0e634efd858e
-> ("drm/i915: s/intel_dp_sink_dpms/intel_dp_set_power/").
 
-Thanks for this, now queued up.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From b7ba6cfabc42fc846eb96e33f1edcd3ea6290a27 Mon Sep 17 00:00:00 2001
+From: Yingjie Wang <wangyingjie55@126.com>
+Date: Fri, 15 Jan 2021 06:10:04 -0800
+Subject: [PATCH] octeontx2-af: Fix missing check bugs in rvu_cgx.c
+
+In rvu_mbox_handler_cgx_mac_addr_get()
+and rvu_mbox_handler_cgx_mac_addr_set(),
+the msg is expected only from PFs that are mapped to CGX LMACs.
+It should be checked before mapping,
+so we add the is_cgx_config_permitted() in the functions.
+
+Fixes: 96be2e0da85e ("octeontx2-af: Support for MAC address filters in CGX")
+Signed-off-by: Yingjie Wang <wangyingjie55@126.com>
+Reviewed-by: Geetha sowjanya<gakula@marvell.com>
+Link: https://lore.kernel.org/r/1610719804-35230-1-git-send-email-wangyingjie55@126.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
+index d298b9357177..6c6b411e78fd 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
+@@ -469,6 +469,9 @@ int rvu_mbox_handler_cgx_mac_addr_set(struct rvu *rvu,
+ 	int pf = rvu_get_pf(req->hdr.pcifunc);
+ 	u8 cgx_id, lmac_id;
+ 
++	if (!is_cgx_config_permitted(rvu, req->hdr.pcifunc))
++		return -EPERM;
++
+ 	rvu_get_cgx_lmac_id(rvu->pf2cgxlmac_map[pf], &cgx_id, &lmac_id);
+ 
+ 	cgx_lmac_addr_set(cgx_id, lmac_id, req->mac_addr);
+@@ -485,6 +488,9 @@ int rvu_mbox_handler_cgx_mac_addr_get(struct rvu *rvu,
+ 	int rc = 0, i;
+ 	u64 cfg;
+ 
++	if (!is_cgx_config_permitted(rvu, req->hdr.pcifunc))
++		return -EPERM;
++
+ 	rvu_get_cgx_lmac_id(rvu->pf2cgxlmac_map[pf], &cgx_id, &lmac_id);
+ 
+ 	rsp->hdr.rc = rc;
+
