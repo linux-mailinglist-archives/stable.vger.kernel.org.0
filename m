@@ -2,130 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797BA302730
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 16:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A68930274A
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 16:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730461AbhAYPr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 10:47:59 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42257 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730452AbhAYPrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 10:47:55 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 53808E0B;
-        Mon, 25 Jan 2021 10:17:55 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 10:17:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5jaDXP
-        oigUVchXSke2tMO7JZ5pLWNvXTNZH5rrAGbvM=; b=B3IPOswUSc0dSxBe4HTYz6
-        Y3Dyrq9/wYRyz8wC+hIkzfUUrSA4VH9tjsjR8XUcufDwKB+nqV6TBVgWxTAXnGT2
-        H61msfkaJqP/4s9eF6SEhqThZJ6zfBbBDqvT4EX71rJsUysfSCRkZ7IDbl4lRbMt
-        +TGcqN08AAo/PoqH+nGk9vjfXd+QBWo84lMUQonDe+zBT9ZUpcidsiF/CfldKh/B
-        vnUz3aRLQueC5zB3Ga2CWnFsQiuO0omoZwa+PCOvSrJI9kHRHZPZa4qWbayiDjLa
-        BwWhcEBWUKIPDZJA+xGZSBh/wVc+mQ9U9CS81LIcKWR/A/jXfUK5MvZ/xniA5KhQ
-        ==
-X-ME-Sender: <xms:IuEOYLhRoopyXvG8woMUklb3RArzIYVaaLMjlp_nzpTjIBXm7R_uzw>
-    <xme:IuEOYIA3HgrTcVfR7TOgG6WYBPftsysSEE3Yh35V1ZCRdXDMKHVEuhbw56dQ8Kczm
-    B63cENL-8WfNg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdejvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:IuEOYLH5GpZU6yBaofUDzYtZpdIJaKhvG8kibY1_-deSmgmYDGZFlg>
-    <xmx:IuEOYITC4BcRheheTmHF4t2WYk2er6w4UNrIDOJDW8_GaiNCwwcHVQ>
-    <xmx:IuEOYIwuaR8kqljifCHQ3lBs7T_5YNMPtA5XaIeZuhQxfNBAwSARPA>
-    <xmx:IuEOYD8Bf8uFFZ410DipwOyzvX5l-83JtgnYaIlhxpCBMLRx0kIrYJMO_sM>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9D3CF1080068;
-        Mon, 25 Jan 2021 10:17:54 -0500 (EST)
-Subject: FAILED: patch "[PATCH] net_sched: reject silly cell_log in qdisc_get_rtab()" failed to apply to 4.9-stable tree
-To:     edumazet@google.com, cong.wang@bytedance.com, kuba@kernel.org,
-        syzkaller@googlegroups.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 16:17:44 +0100
-Message-ID: <1611587864135158@kroah.com>
+        id S1730077AbhAYPu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 10:50:29 -0500
+Received: from mga17.intel.com ([192.55.52.151]:12253 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730295AbhAYPtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 10:49:50 -0500
+IronPort-SDR: w+iw90LK9NFQyzXdzUdh7DGlBsxvJloCWSvsycQhn85+aB612nxiCPBO4kf4EPzmM6TaKthLcT
+ rSEWuasny1NA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9875"; a="159522079"
+X-IronPort-AV: E=Sophos;i="5.79,373,1602572400"; 
+   d="scan'208";a="159522079"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2021 07:49:06 -0800
+IronPort-SDR: 0MBPuFo9NoQvRyQ0tE3H2pgg2yKxU/QJoq/27dzz+6fJLgLn5behxqsKhdWL0Ms9bNjqWtKNPQ
+ rgriEH3u4kFA==
+X-IronPort-AV: E=Sophos;i="5.79,373,1602572400"; 
+   d="scan'208";a="361552950"
+Received: from stalawai-desk.amr.corp.intel.com (HELO [10.254.124.248]) ([10.254.124.248])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2021 07:49:05 -0800
+Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
+ sgx_release()
+To:     Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     Sean Christopherson <seanjc@google.com>, linux-sgx@vger.kernel.org,
+        kai.huang@intel.com, haitao.huang@intel.com,
+        stable@vger.kernel.org,
+        Haitao Huang <haitao.huang@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>
+References: <20210115014638.15037-1-jarkko@kernel.org>
+ <YAhp4Jrj6hIcvgRC@google.com>
+ <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
+ <YAvlLxCfN88Ii5qb@kernel.org>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <5b881022-d9f1-3ac4-89e5-7da6d6ce2fc8@intel.com>
+Date:   Mon, 25 Jan 2021 07:49:04 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <YAvlLxCfN88Ii5qb@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Haitao managed to create another splat over the weekend.  It was, indeed:
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> WARNING: CPU: 3 PID: 7620 at kernel/rcu/srcutree.c:374 cleanup_srcu_struct+0xed/0x100
 
-thanks,
+which is:
 
-greg k-h
+>         if (WARN_ON(!srcu_get_delay(ssp)))
+>                 return; /* Just leak it! */
 
------------------- original commit in Linus's tree ------------------
+That check means that there is an outstanding "expedited" grace period.
+ The fact that it's expedited is not important.  This:
 
-From e4bedf48aaa5552bc1f49703abd17606e7e6e82a Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Thu, 14 Jan 2021 08:06:37 -0800
-Subject: [PATCH] net_sched: reject silly cell_log in qdisc_get_rtab()
+	https://lwn.net/Articles/202847/
 
-iproute2 probably never goes beyond 8 for the cell exponent,
-but stick to the max shift exponent for signed 32bit.
+describes the reasoning behind the warning:
 
-UBSAN reported:
-UBSAN: shift-out-of-bounds in net/sched/sch_api.c:389:22
-shift exponent 130 is too large for 32-bit type 'int'
-CPU: 1 PID: 8450 Comm: syz-executor586 Not tainted 5.11.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x183/0x22e lib/dump_stack.c:120
- ubsan_epilogue lib/ubsan.c:148 [inline]
- __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
- __detect_linklayer+0x2a9/0x330 net/sched/sch_api.c:389
- qdisc_get_rtab+0x2b5/0x410 net/sched/sch_api.c:435
- cbq_init+0x28f/0x12c0 net/sched/sch_cbq.c:1180
- qdisc_create+0x801/0x1470 net/sched/sch_api.c:1246
- tc_modify_qdisc+0x9e3/0x1fc0 net/sched/sch_api.c:1662
- rtnetlink_rcv_msg+0xb1d/0xe60 net/core/rtnetlink.c:5564
- netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x5a2/0x900 net/socket.c:2345
- ___sys_sendmsg net/socket.c:2399 [inline]
- __sys_sendmsg+0x319/0x400 net/socket.c:2432
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+	If the struct srcu_struct is dynamically allocated, then
+	cleanup_srcu_struct() must be called before it is freed ... the
+	caller must take care to ensure that all SRCU read-side critical
+	sections have completed (and that no more will commence) before
+	calling cleanup_srcu_struct().
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20210114160637.1660597-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+synchronize_srcu() will (obviously) wait for the grace period to
+complete.  Calling it will shut up the warning for sure, most of the time.
 
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 51cb553e4317..6fe4e5cc807c 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -412,7 +412,8 @@ struct qdisc_rate_table *qdisc_get_rtab(struct tc_ratespec *r,
- {
- 	struct qdisc_rate_table *rtab;
- 
--	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
-+	if (tab == NULL || r->rate == 0 ||
-+	    r->cell_log == 0 || r->cell_log >= 32 ||
- 	    nla_len(tab) != TC_RTAB_SIZE) {
- 		NL_SET_ERR_MSG(extack, "Invalid rate table parameters for searching");
- 		return NULL;
+The required sequence of events is in here:
 
+> https://lore.kernel.org/lkml/1492472726-3841-4-git-send-email-paulmck@linux.vnet.ibm.com/
+
+I suspect that the mmu notifier's synchronize_srcu() is run in parallel
+very close to when cleanup_srcu_struct() is called.  This violates the
+"prevent any further calls to synchronize_srcu" rule.
+
+So, while I suspect that adding a synchronize_srcu() is *part* of the
+correct solution, I'm still not convinced that the
+sgx_mmu_notifier_release() code is correct.
