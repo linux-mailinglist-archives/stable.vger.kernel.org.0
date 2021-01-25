@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B0663031B6
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC3D3031B3
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbhAYSth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:49:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35644 "EHLO mail.kernel.org"
+        id S1726623AbhAYSt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:49:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730728AbhAYSs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:48:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BAB02067B;
-        Mon, 25 Jan 2021 18:47:45 +0000 (UTC)
+        id S1730617AbhAYSsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:48:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 961DF20719;
+        Mon, 25 Jan 2021 18:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600465;
-        bh=Q4um/mPmFlhHEcZTIbeme6olhiiq6rbGgcy8LRTLgUA=;
+        s=korg; t=1611600453;
+        bh=I4Ggq71HLMxfwbyBqwuhkQztkEwcKE0EWT3rCLpybCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6FabGNHSs32vgyIzoPHj4cyuzJ2yJXrQCI/3BB7nabYBxSYfUg8EGA8I7HNv4Njw
-         otsys5a0RUCDMm/lQDmYUNqIesEfv/jenU2wSldZvaI4HZ6eUfikWZ1/li6x/5z94C
-         gkFAFLbCQJPhS+I5Gfb7NMjhDpKkpVs/AsUb1ehE=
+        b=v5KJK7pnaXAuBxG1tcDQGdol+WYM3eTFoz0owWyP0dQdk0pB4OeViYT5dzPgPlgrS
+         k+aZ0ZLDUt0beagsexwnavu6VKClcuMJibpW4gnNmwCtwj2hEVKuAPImfFhsSOahux
+         7tFzA9sse5CNKmZd96r5BYas7laVhOmOLv6K1pnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moody Salem <moody@uniswap.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 006/199] platform/x86: i2c-multi-instantiate: Dont create platform device for INT3515 ACPI nodes
-Date:   Mon, 25 Jan 2021 19:37:08 +0100
-Message-Id: <20210125183216.521133883@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 020/199] pinctrl: ingenic: Fix JZ4760 support
+Date:   Mon, 25 Jan 2021 19:37:22 +0100
+Message-Id: <20210125183217.111672597@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -40,83 +39,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 9bba96275576da0cf78ede62aeb2fc975ed8a32d upstream.
+commit 9a85c09a3f507b925d75cb0c7c8f364467038052 upstream.
 
-There are several reports about the tps6598x causing
-interrupt flood on boards with the INT3515 ACPI node, which
-then causes instability. There appears to be several
-problems with the interrupt. One problem is that the
-I2CSerialBus resources do not always map to the Interrupt
-resource with the same index, but that is not the only
-problem. We have not been able to come up with a solution
-for all the issues, and because of that disabling the device
-for now.
+- JZ4760 and JZ4760B have a similar register layout as the JZ4740, and
+  don't use the new register layout, which was introduced with the
+  JZ4770 SoC and not the JZ4760 or JZ4760B SoCs.
 
-The PD controller on these platforms is autonomous, and the
-purpose for the driver is primarily to supply status to the
-userspace, so this will not affect any functionality.
+- The JZ4740 code path only expected two function modes to be
+  configurable for each pin, and wouldn't work with more than two. Fix
+  it for the JZ4760, which has four configurable function modes.
 
-Reported-by: Moody Salem <moody@uniswap.org>
-Fixes: a3dd034a1707 ("ACPI / scan: Create platform device for INT3515 ACPI nodes")
-Cc: stable@vger.kernel.org
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1883511
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20201223143644.33341-1-heikki.krogerus@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 0257595a5cf4 ("pinctrl: Ingenic: Add pinctrl driver for JZ4760 and JZ4760B.")
+Cc: <stable@vger.kernel.org> # 5.3
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20201211232810.261565-1-paul@crapouillou.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/i2c-multi-instantiate.c |   31 ++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/pinctrl/pinctrl-ingenic.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -166,13 +166,29 @@ static const struct i2c_inst_data bsg215
- 	{}
- };
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -2052,7 +2052,7 @@ static inline bool ingenic_gpio_get_valu
+ static void ingenic_gpio_set_value(struct ingenic_gpio_chip *jzgc,
+ 				   u8 offset, int value)
+ {
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_PAT0, offset, !!value);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, offset, !!value);
+@@ -2082,7 +2082,7 @@ static void irq_set_type(struct ingenic_
+ 		break;
+ 	}
  
--static const struct i2c_inst_data int3515_data[]  = {
--	{ "tps6598x", IRQ_RESOURCE_APIC, 0 },
--	{ "tps6598x", IRQ_RESOURCE_APIC, 1 },
--	{ "tps6598x", IRQ_RESOURCE_APIC, 2 },
--	{ "tps6598x", IRQ_RESOURCE_APIC, 3 },
--	{}
--};
-+/*
-+ * Device with _HID INT3515 (TI PD controllers) has some unresolved interrupt
-+ * issues. The most common problem seen is interrupt flood.
-+ *
-+ * There are at least two known causes. Firstly, on some boards, the
-+ * I2CSerialBus resource index does not match the Interrupt resource, i.e. they
-+ * are not one-to-one mapped like in the array below. Secondly, on some boards
-+ * the IRQ line from the PD controller is not actually connected at all. But the
-+ * interrupt flood is also seen on some boards where those are not a problem, so
-+ * there are some other problems as well.
-+ *
-+ * Because of the issues with the interrupt, the device is disabled for now. If
-+ * you wish to debug the issues, uncomment the below, and add an entry for the
-+ * INT3515 device to the i2c_multi_instance_ids table.
-+ *
-+ * static const struct i2c_inst_data int3515_data[]  = {
-+ *	{ "tps6598x", IRQ_RESOURCE_APIC, 0 },
-+ *	{ "tps6598x", IRQ_RESOURCE_APIC, 1 },
-+ *	{ "tps6598x", IRQ_RESOURCE_APIC, 2 },
-+ *	{ "tps6598x", IRQ_RESOURCE_APIC, 3 },
-+ *	{ }
-+ * };
-+ */
+-	if (jzgc->jzpc->info->version >= ID_JZ4760) {
++	if (jzgc->jzpc->info->version >= ID_JZ4770) {
+ 		reg1 = JZ4760_GPIO_PAT1;
+ 		reg2 = JZ4760_GPIO_PAT0;
+ 	} else {
+@@ -2122,7 +2122,7 @@ static void ingenic_gpio_irq_enable(stru
+ 	struct ingenic_gpio_chip *jzgc = gpiochip_get_data(gc);
+ 	int irq = irqd->hwirq;
  
- /*
-  * Note new device-ids must also be added to i2c_multi_instantiate_ids in
-@@ -181,7 +197,6 @@ static const struct i2c_inst_data int351
- static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
- 	{ "BSG1160", (unsigned long)bsg1160_data },
- 	{ "BSG2150", (unsigned long)bsg2150_data },
--	{ "INT3515", (unsigned long)int3515_data },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, i2c_multi_inst_acpi_ids);
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, true);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, true);
+@@ -2138,7 +2138,7 @@ static void ingenic_gpio_irq_disable(str
+ 
+ 	ingenic_gpio_irq_mask(irqd);
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, false);
+@@ -2163,7 +2163,7 @@ static void ingenic_gpio_irq_ack(struct
+ 			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
+ 	}
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_FLAG, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, irq, true);
+@@ -2220,7 +2220,7 @@ static void ingenic_gpio_irq_handler(str
+ 
+ 	chained_irq_enter(irq_chip, desc);
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4760_GPIO_FLAG);
+ 	else
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4740_GPIO_FLAG);
+@@ -2302,7 +2302,7 @@ static int ingenic_gpio_get_direction(st
+ 	struct ingenic_pinctrl *jzpc = jzgc->jzpc;
+ 	unsigned int pin = gc->base + offset;
+ 
+-	if (jzpc->info->version >= ID_JZ4760) {
++	if (jzpc->info->version >= ID_JZ4770) {
+ 		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
+ 		    ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
+ 			return GPIO_LINE_DIRECTION_IN;
+@@ -2360,7 +2360,7 @@ static int ingenic_pinmux_set_pin_fn(str
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, func & 0x1);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, false);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+@@ -2368,7 +2368,7 @@ static int ingenic_pinmux_set_pin_fn(str
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_FUNC, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_TRIG, func & 0x2);
+-		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func > 0);
++		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func & 0x1);
+ 	}
+ 
+ 	return 0;
+@@ -2418,7 +2418,7 @@ static int ingenic_pinmux_gpio_set_direc
+ 		ingenic_shadow_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+@@ -2448,7 +2448,7 @@ static int ingenic_pinconf_get(struct pi
+ 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
+ 	bool pull;
+ 
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PEN);
+ 	else
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
+@@ -2498,7 +2498,7 @@ static void ingenic_set_bias(struct inge
+ 					REG_SET(X1830_GPIO_PEH), bias << idxh);
+ 		}
+ 
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PEN, !bias);
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_PULL_DIS, !bias);
+@@ -2508,7 +2508,7 @@ static void ingenic_set_bias(struct inge
+ static void ingenic_set_output_level(struct ingenic_pinctrl *jzpc,
+ 				     unsigned int pin, bool high)
+ {
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, high);
+ 	else
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_DATA, high);
 
 
