@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D089830333A
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE56330331C
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726166AbhAZEsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:48:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
+        id S1727408AbhAZEqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:46:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbhAYSpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:45:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97C942083E;
-        Mon, 25 Jan 2021 18:45:01 +0000 (UTC)
+        id S1728507AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:43:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07CEC229C5;
+        Mon, 25 Jan 2021 18:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600302;
-        bh=Htx6PgQPWCpEABjyXQR66WLslRWX+D+EPaJOlMYiHTc=;
+        s=korg; t=1611600179;
+        bh=0KM3P452JV5sRjpfsh+9a+nhHk68faqHIAIwdiEHptc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJJb8xKFhYEM8cb3MmVT4OjMF+nFnC4gQKdHiivqqA+3bLPGXh9b/QOsn4oLCn0J9
-         SfgFzRdbibWVwKms/cc3jeCw+XkhtVb80wt68MLCmKXxwT4I36wMXbJf++QV+9aKoH
-         CS3e/+n7+sLecAzdOx2SRbdGHli6cZQWqUXEurZQ=
+        b=i+kjOxK8jbfw8fbQkICn7lfepQD2K7kr51u/iWOL4klb0yA/7UTvwYBuTu0dcp/FI
+         5OFOC5M4eOuia9VjMHAJG0OQe+5ff9PsQXt5BT9z0h2+8UekW2ralBa9TXCEkvV2nt
+         7wgJFMFPVF48hUiWuQ513ihlDcfdjl2qM5nx63Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/86] can: vxcan: vxcan_xmit: fix use after free bug
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 31/58] iio: ad5504: Fix setting power-down state
 Date:   Mon, 25 Jan 2021 19:39:32 +0100
-Message-Id: <20210125183203.169714464@linuxfoundation.org>
+Message-Id: <20210125183158.039145976@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 75854cad5d80976f6ea0f0431f8cedd3bcc475cb ]
+commit efd597b2839a9895e8a98fcb0b76d2f545802cd4 upstream.
 
-After calling netif_rx_ni(skb), dereferencing skb is unsafe.
-Especially, the canfd_frame cfd which aliases skb memory is accessed
-after the netif_rx_ni().
+The power-down mask of the ad5504 is actually a power-up mask. Meaning if
+a bit is set the corresponding channel is powered up and if it is not set
+the channel is powered down.
 
-Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
-Link: https://lore.kernel.org/r/20210120114137.200019-3-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The driver currently has this the wrong way around, resulting in the
+channel being powered up when requested to be powered down and vice versa.
+
+Fixes: 3bbbf150ffde ("staging:iio:dac:ad5504: Use strtobool for boolean values")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Link: https://lore.kernel.org/r/20201209104649.5794-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/can/vxcan.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/dac/ad5504.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
-index d6ba9426be4de..b1baa4ac1d537 100644
---- a/drivers/net/can/vxcan.c
-+++ b/drivers/net/can/vxcan.c
-@@ -39,6 +39,7 @@ static netdev_tx_t vxcan_xmit(struct sk_buff *skb, struct net_device *dev)
- 	struct net_device *peer;
- 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
- 	struct net_device_stats *peerstats, *srcstats = &dev->stats;
-+	u8 len;
+--- a/drivers/iio/dac/ad5504.c
++++ b/drivers/iio/dac/ad5504.c
+@@ -189,9 +189,9 @@ static ssize_t ad5504_write_dac_powerdow
+ 		return ret;
  
- 	if (can_dropped_invalid_skb(dev, skb))
- 		return NETDEV_TX_OK;
-@@ -61,12 +62,13 @@ static netdev_tx_t vxcan_xmit(struct sk_buff *skb, struct net_device *dev)
- 	skb->dev        = peer;
- 	skb->ip_summed  = CHECKSUM_UNNECESSARY;
+ 	if (pwr_down)
+-		st->pwr_down_mask |= (1 << chan->channel);
+-	else
+ 		st->pwr_down_mask &= ~(1 << chan->channel);
++	else
++		st->pwr_down_mask |= (1 << chan->channel);
  
-+	len = cfd->len;
- 	if (netif_rx_ni(skb) == NET_RX_SUCCESS) {
- 		srcstats->tx_packets++;
--		srcstats->tx_bytes += cfd->len;
-+		srcstats->tx_bytes += len;
- 		peerstats = &peer->stats;
- 		peerstats->rx_packets++;
--		peerstats->rx_bytes += cfd->len;
-+		peerstats->rx_bytes += len;
- 	}
- 
- out_unlock:
--- 
-2.27.0
-
+ 	ret = ad5504_spi_write(st, AD5504_ADDR_CTRL,
+ 				AD5504_DAC_PWRDWN_MODE(st->pwr_down_mode) |
 
 
