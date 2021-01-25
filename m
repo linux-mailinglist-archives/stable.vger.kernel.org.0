@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A34D4304AB9
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1442304AB0
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727967AbhAZE6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:58:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36206 "EHLO mail.kernel.org"
+        id S1730435AbhAZE7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730863AbhAYSuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ECDA22B3F;
-        Mon, 25 Jan 2021 18:49:46 +0000 (UTC)
+        id S1731094AbhAYSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4399206FA;
+        Mon, 25 Jan 2021 18:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600586;
-        bh=IrDWy5ojDmRIZePrgpvvPS9G4CZwVRqYK/yx2XOA914=;
+        s=korg; t=1611600594;
+        bh=ql/kFEkBLHLBDz/G+ZYC3wDISYxrGGwrIfVrsmmQ7DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tor+xjHCbmEq5uqH/b8QhOUNj1q6P6Q3KThAy13rP7GKG5AWwQ374iwzq0u8tiGIw
-         kVza9G85myzYeab0gKEo1R9ShhkKoDWghZzPwtX2unprKQ42cwfZ2BBTy8j9asTBVt
-         oBq3z5wYDJbhNlua4GQ1Zr/jrqfScAaMnwwXIDKg=
+        b=sYK9yMJAPYu54j3O8j9JorTKlehUY5jjUBz7KNiwNxLizyj1g64LCKXQXblmCpwcL
+         zN0deFlZSr2OjNMH7/jzKfeZOZyEeoIghPiY3Momb3XB+Aw6vqRa3jWLkKHGXCWDxw
+         eq5MA4fskFRUEuz7VfkjfyPs2HDTqxonPCLXrPoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
-        Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Juergen Gross <jgross@suse.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/199] RISC-V: Set current memblock limit
-Date:   Mon, 25 Jan 2021 19:38:15 +0100
-Message-Id: <20210125183219.349363043@linuxfoundation.org>
+Subject: [PATCH 5.10 075/199] x86/xen: fix nopvspin build error
+Date:   Mon, 25 Jan 2021 19:38:17 +0100
+Message-Id: <20210125183219.433270205@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,62 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit abb8e86b269604e906a6a4af7a09f04b72dbb862 ]
+[ Upstream commit bd9dcef67ffcae2de49e319fba349df76472fd10 ]
 
-Currently, linux kernel can not use last 4k bytes of addressable space
-because IS_ERR_VALUE macro treats those as an error. This will be an issue
-for RV32 as any memblock allocator potentially allocate chunk of memory
-from the end of DRAM (2GB) leading bad address error even though the
-address was technically valid.
+Fix build error in x86/xen/ when PARAVIRT_SPINLOCKS is not enabled.
 
-Fix this issue by limiting the memblock if available memory spans the
-entire address space.
+Fixes this build error:
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+../arch/x86/xen/smp_hvm.c: In function ‘xen_hvm_smp_init’:
+../arch/x86/xen/smp_hvm.c:77:3: error: ‘nopvspin’ undeclared (first use in this function)
+   nopvspin = true;
+
+Fixes: 3d7746bea925 ("x86/xen: Fix xen_hvm_smp_init() when vector callback not available")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210115191123.27572-1-rdunlap@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/x86/xen/smp_hvm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index e4133c20744ce..608082fb9a6c6 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -155,9 +155,10 @@ disable:
- void __init setup_bootmem(void)
- {
- 	phys_addr_t mem_start = 0;
--	phys_addr_t start, end = 0;
-+	phys_addr_t start, dram_end, end = 0;
- 	phys_addr_t vmlinux_end = __pa_symbol(&_end);
- 	phys_addr_t vmlinux_start = __pa_symbol(&_start);
-+	phys_addr_t max_mapped_addr = __pa(~(ulong)0);
- 	u64 i;
+diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
+index 056430a1080bb..6ff3c887e0b99 100644
+--- a/arch/x86/xen/smp_hvm.c
++++ b/arch/x86/xen/smp_hvm.c
+@@ -74,7 +74,9 @@ void __init xen_hvm_smp_init(void)
+ 	smp_ops.cpu_die = xen_hvm_cpu_die;
  
- 	/* Find the memory region containing the kernel */
-@@ -179,7 +180,18 @@ void __init setup_bootmem(void)
- 	/* Reserve from the start of the kernel to the end of the kernel */
- 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
- 
--	max_pfn = PFN_DOWN(memblock_end_of_DRAM());
-+	dram_end = memblock_end_of_DRAM();
-+
-+	/*
-+	 * memblock allocator is not aware of the fact that last 4K bytes of
-+	 * the addressable memory can not be mapped because of IS_ERR_VALUE
-+	 * macro. Make sure that last 4k bytes are not usable by memblock
-+	 * if end of dram is equal to maximum addressable memory.
-+	 */
-+	if (max_mapped_addr == (dram_end - 1))
-+		memblock_set_current_limit(max_mapped_addr - 4096);
-+
-+	max_pfn = PFN_DOWN(dram_end);
- 	max_low_pfn = max_pfn;
- 	set_max_mapnr(max_low_pfn);
+ 	if (!xen_have_vector_callback) {
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
+ 		nopvspin = true;
++#endif
+ 		return;
+ 	}
  
 -- 
 2.27.0
