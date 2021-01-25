@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AA5C304B43
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B632B304B4A
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727944AbhAZEsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33154 "EHLO mail.kernel.org"
+        id S1727796AbhAZEru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:47:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729763AbhAYSpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:45:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9830922482;
-        Mon, 25 Jan 2021 18:44:27 +0000 (UTC)
+        id S1728161AbhAYSoq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:44:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B0CD207B3;
+        Mon, 25 Jan 2021 18:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600268;
-        bh=0hrJF+NWXKamCqth1nMxroNM+7XBuor2rAVPNP+TJTY=;
+        s=korg; t=1611600270;
+        bh=x8SzVggovaHzS2vLj57odYH8uRPPp+IM+ZSmWzDora4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvmVnKgLNLMls67Lhzbi9+925velTLSbnwdSviSCR5Lwm9GTo3BfYVOJ1TfNUMM2s
-         Jhh9T5XmUPGmqKvjAvttiQ/WjntrSmDcbgKWFf+9/hs0yCI/I73pua2qzt/htM7Kzi
-         ZmgPYtu8TePVTs8T8DZF+Lz6AgutspbC1QWFPDbg=
+        b=DDKFmlldbeRE0pv/NQwI8mhjHEsUlw4MDhhglK4oR+9u/UusosBc1hKHwXnwnkVrm
+         4JcQufU6r7zek6P4IkzwzZFeHNWau1FENmeaEO3t7yyFjW7t7TrPjIOwPjvUSU1o5o
+         /nTFEgSiOiguPHUx1Zl3HlHjxLNL3mvCs5/dr498=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Victor Zhao <Victor.Zhao@amd.com>,
-        "Emily.Deng" <Emily.Deng@amd.com>,
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/86] drm/amdgpu/psp: fix psp gfx ctrl cmds
-Date:   Mon, 25 Jan 2021 19:39:17 +0100
-Message-Id: <20210125183202.542299481@linuxfoundation.org>
+Subject: [PATCH 5.4 36/86] drm/amd/display: Fix to be able to stop crc calculation
+Date:   Mon, 25 Jan 2021 19:39:18 +0100
+Message-Id: <20210125183202.588431351@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -41,36 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Zhao <Victor.Zhao@amd.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit f14a5c34d143f6627f0be70c0de1d962f3a6ff1c ]
+[ Upstream commit 02ce73b01e09e388614b22b7ebc71debf4a588f0 ]
 
-psp GFX_CTRL_CMD_ID_CONSUME_CMD different for windows and linux,
-according to psp, linux cmds are not correct.
+[Why]
+Find out when we try to disable CRC calculation,
+crc generation is still enabled. Main reason is
+that dc_stream_configure_crc() will never get
+called when the source is AMDGPU_DM_PIPE_CRC_SOURCE_NONE.
 
-v2: only correct GFX_CTRL_CMD_ID_CONSUME_CMD.
+[How]
+Add checking condition that when source is
+AMDGPU_DM_PIPE_CRC_SOURCE_NONE, we should also call
+dc_stream_configure_crc() to disable crc calculation.
+Also, clean up crc window when disable crc calculation.
 
-Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
-Reviewed-by: Emily.Deng <Emily.Deng@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h | 2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-index 74a9fe8e0cfb9..8c54f0be51bab 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-@@ -44,7 +44,7 @@ enum psp_gfx_crtl_cmd_id
-     GFX_CTRL_CMD_ID_DISABLE_INT     = 0x00060000,   /* disable PSP-to-Gfx interrupt */
-     GFX_CTRL_CMD_ID_MODE1_RST       = 0x00070000,   /* trigger the Mode 1 reset */
-     GFX_CTRL_CMD_ID_GBR_IH_SET      = 0x00080000,   /* set Gbr IH_RB_CNTL registers */
--    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x000A0000,   /* send interrupt to psp for updating write pointer of vf */
-+    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x00090000,   /* send interrupt to psp for updating write pointer of vf */
-     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING = 0x000C0000, /* destroy GPCOM ring */
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+index a549c7c717ddc..f0b001b3af578 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+@@ -113,7 +113,7 @@ int amdgpu_dm_crtc_configure_crc_source(struct drm_crtc *crtc,
+ 	mutex_lock(&adev->dm.dc_lock);
  
-     GFX_CTRL_CMD_ID_MAX             = 0x000F0000,   /* max command ID */
+ 	/* Enable CRTC CRC generation if necessary. */
+-	if (dm_is_crc_source_crtc(source)) {
++	if (dm_is_crc_source_crtc(source) || source == AMDGPU_DM_PIPE_CRC_SOURCE_NONE) {
+ 		if (!dc_stream_configure_crc(stream_state->ctx->dc,
+ 					     stream_state, enable, enable)) {
+ 			ret = -EINVAL;
 -- 
 2.27.0
 
