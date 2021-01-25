@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9C63032D5
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 338263032D9
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726714AbhAZEiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:38:54 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:55255 "EHLO
+        id S1726738AbhAZEi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:38:57 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:34005 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729258AbhAYORd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:17:33 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 3A5EF533;
-        Mon, 25 Jan 2021 09:15:59 -0500 (EST)
+        by vger.kernel.org with ESMTP id S1729384AbhAYOUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:20:52 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id CCD7CE41;
+        Mon, 25 Jan 2021 09:19:54 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 25 Jan 2021 09:15:59 -0500
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:19:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ojXrkm
-        ZlL3hzN8Brh52OahB9NkRoYmh9mpCxKQilaxI=; b=Xw6/65DjoIZ/kVugo9H42T
-        IbaZyqx3MjmREJszxakasMshGRcHjvGm1/ku9QBOOpP+OvEnga40ql94G79dlqd0
-        xUQxbprhXOTajLpFRKp1DCM92/8Sjdpl8JKWP4OaiHTO/XMG4Dk43ir03nTHZcVi
-        YE9qdflNnBmTi04Eru8HTJpZDrgEWlLISJzDP86Rs68XyXgXpxhZlowXuxm46bKz
-        4OrNUH9VjWWv1t0sVI3XMEeG1f1g79njD0O9D1H5xpECJa5Zm2Drxl3y5h3ZesT4
-        kw81/tlqfj1OGp7BQyuR8lwkcBho3vsd1+0jqiS6EaayPBH0H9UL5R74A49b7a2g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XfrTMu
+        SGiC+abEWvCctV1Q6GyWiBSdliD6ScDPOdk0w=; b=ABqpTGCH7r/a9+jWhq3EzU
+        pDfqCjJB5uCmIc49Gh+pd0nXOt+mhgupNOQd9ixrymgNx/54SzuEIho9FedQtm3x
+        rnHR6LoTlNtXIewitdc9iyEn7nrjOZ1Xh2xPZKa7exrQBBaE2oU4oJs4sEjX/Yb/
+        NP/bZ72HMmSon0X80yY99JWHbQXMJylxJgQzN4xrsuBh+M1X5tF6kjK052QifOah
+        aUnsGowiYRM4hPukOzta5fc2+Bsm4j+R/Pmpf3yaMG4nDhUC+AjdNJCpSiwhw4uA
+        IwM/XhZl4dswuQDro0KDKvyOoGfpkHsyTubj92RPr5rSJb4SQASA6I8uRbu2gonQ
         ==
-X-ME-Sender: <xms:ntIOYBurPSkEcXFZTpYQvrj1DVTWdhpdMZljPxacjEff1UAm4eP3rg>
-    <xme:ntIOYGwJi9_dPtfqetVq0GlcsCFysNdwOKZWZtYNhqtJ_IrOr611XDn-63zHcYYf_
-    uITejBPV1UOvQ>
+X-ME-Sender: <xms:itMOYPY7V-T2ebQig9bVbqCh6IwcSEK_P-kPasj2awtg_z8vCrrtvg>
+    <xme:itMOYOanwXvPfbr_2Ro05b1hTzh5o5BKeRU1yMvNrnlnraQ3zST7RXRTLR5UiKCGv
+    1h40iQ0kgCcGw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:ntIOYHgUOX9VwCsUu1FSbnJehCGiCkmOjmHdYODXSPmvVlY8WeGSpg>
-    <xmx:ntIOYKAm5Tq6gEfbHJFE1GmcpaZECrAn6YbSyj2_F1gjLkwxNlaZ9Q>
-    <xmx:ntIOYEsoDoTeO8XQMZdAhF9oYXtnRGwsmF2NVpL9idak38_Zto3-rg>
-    <xmx:ntIOYKd8CiR6k4RlN76r8nc6rvc-wQd8J_TyuE7a4siFVwZ2OTEbqqmpi3o>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:itMOYB95teGrL8TllQhSmSi0TgDO0mGdowBwozdDaw9_mrU1TfKGbg>
+    <xmx:itMOYFrYjfTxzunrzsXh7QZP_jZleHdE9PGHeMMUUIXz3hXLunVKVQ>
+    <xmx:itMOYKq-AUyBSEnh7ZHV0M2XKewFMtsM0La9MtFjbZXx4JKCSQQ7AA>
+    <xmx:itMOYPDUAebfRFQRCJ_VxqI2zc-fgA4LRYOa6jTabDSkI8aeE045IqmPOAQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1CEB5108005F;
-        Mon, 25 Jan 2021 09:15:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: account io_uring internal files as REQ_F_INFLIGHT" failed to apply to 5.10-stable tree
-To:     axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id CB697108005B;
+        Mon, 25 Jan 2021 09:19:53 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: udc: core: Use lock when write to soft_connect" failed to apply to 4.4-stable tree
+To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
+        gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:15:55 +0100
-Message-ID: <161158415525311@kroah.com>
+Date:   Mon, 25 Jan 2021 15:19:51 +0100
+Message-ID: <1611584391127172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,92 +71,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 02a13674fa0e8dd326de8b9f4514b41b03d99003 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sat, 23 Jan 2021 15:49:31 -0700
-Subject: [PATCH] io_uring: account io_uring internal files as REQ_F_INFLIGHT
+From c28095bc99073ddda65e4f31f6ae0d908d4d5cd8 Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 14 Jan 2021 00:09:51 -0800
+Subject: [PATCH] usb: udc: core: Use lock when write to soft_connect
 
-We need to actively cancel anything that introduces a potential circular
-loop, where io_uring holds a reference to itself. If the file in question
-is an io_uring file, then add the request to the inflight list.
+Use lock to guard against concurrent access for soft-connect/disconnect
+operations when writing to soft_connect sysfs.
 
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
+Cc: stable@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8a98afed50cd..c07913ec0cca 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1075,8 +1075,11 @@ static bool io_match_task(struct io_kiocb *head,
- 		return true;
+diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/core.c
+index 6a62bbd01324..ea114f922ccf 100644
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -1529,10 +1529,13 @@ static ssize_t soft_connect_store(struct device *dev,
+ 		struct device_attribute *attr, const char *buf, size_t n)
+ {
+ 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
++	ssize_t			ret;
  
- 	io_for_each_link(req, head) {
--		if ((req->flags & REQ_F_WORK_INITIALIZED) &&
--		    (req->work.flags & IO_WQ_WORK_FILES) &&
-+		if (!(req->flags & REQ_F_WORK_INITIALIZED))
-+			continue;
-+		if (req->file && req->file->f_op == &io_uring_fops)
-+			return true;
-+		if ((req->work.flags & IO_WQ_WORK_FILES) &&
- 		    req->work.identity->files == files)
- 			return true;
- 	}
-@@ -1505,11 +1508,14 @@ static bool io_grab_identity(struct io_kiocb *req)
- 			return false;
- 		atomic_inc(&id->files->count);
- 		get_nsproxy(id->nsproxy);
--		req->flags |= REQ_F_INFLIGHT;
- 
--		spin_lock_irq(&ctx->inflight_lock);
--		list_add(&req->inflight_entry, &ctx->inflight_list);
--		spin_unlock_irq(&ctx->inflight_lock);
-+		if (!(req->flags & REQ_F_INFLIGHT)) {
-+			req->flags |= REQ_F_INFLIGHT;
-+
-+			spin_lock_irq(&ctx->inflight_lock);
-+			list_add(&req->inflight_entry, &ctx->inflight_list);
-+			spin_unlock_irq(&ctx->inflight_lock);
-+		}
- 		req->work.flags |= IO_WQ_WORK_FILES;
- 	}
- 	if (!(req->work.flags & IO_WQ_WORK_MM) &&
-@@ -6164,8 +6170,10 @@ static void io_req_drop_files(struct io_kiocb *req)
- 	struct io_uring_task *tctx = req->task->io_uring;
- 	unsigned long flags;
- 
--	put_files_struct(req->work.identity->files);
--	put_nsproxy(req->work.identity->nsproxy);
-+	if (req->work.flags & IO_WQ_WORK_FILES) {
-+		put_files_struct(req->work.identity->files);
-+		put_nsproxy(req->work.identity->nsproxy);
-+	}
- 	spin_lock_irqsave(&ctx->inflight_lock, flags);
- 	list_del(&req->inflight_entry);
- 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
-@@ -6450,6 +6458,15 @@ static struct file *io_file_get(struct io_submit_state *state,
- 		file = __io_file_get(state, fd);
++	mutex_lock(&udc_lock);
+ 	if (!udc->driver) {
+ 		dev_err(dev, "soft-connect without a gadget driver\n");
+-		return -EOPNOTSUPP;
++		ret = -EOPNOTSUPP;
++		goto out;
  	}
  
-+	if (file && file->f_op == &io_uring_fops) {
-+		io_req_init_async(req);
-+		req->flags |= REQ_F_INFLIGHT;
-+
-+		spin_lock_irq(&ctx->inflight_lock);
-+		list_add(&req->inflight_entry, &ctx->inflight_list);
-+		spin_unlock_irq(&ctx->inflight_lock);
-+	}
-+
- 	return file;
+ 	if (sysfs_streq(buf, "connect")) {
+@@ -1543,10 +1546,14 @@ static ssize_t soft_connect_store(struct device *dev,
+ 		usb_gadget_udc_stop(udc);
+ 	} else {
+ 		dev_err(dev, "unsupported command '%s'\n", buf);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 
+-	return n;
++	ret = n;
++out:
++	mutex_unlock(&udc_lock);
++	return ret;
  }
+ static DEVICE_ATTR_WO(soft_connect);
  
-@@ -8860,8 +8877,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 
- 		spin_lock_irq(&ctx->inflight_lock);
- 		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
--			if (req->task != task ||
--			    req->work.identity->files != files)
-+			if (!io_match_task(req, task, files))
- 				continue;
- 			found = true;
- 			break;
 
