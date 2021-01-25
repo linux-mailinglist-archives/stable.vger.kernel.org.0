@@ -2,104 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC93302578
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 14:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD54302624
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 15:17:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728736AbhAYNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 08:25:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45160 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728820AbhAYNZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 08:25:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC3422DFB;
-        Mon, 25 Jan 2021 13:24:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611581072;
-        bh=5GiYmwGzV4JHurHiAg6NtioYPugoWSn030T3iDqS5ss=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fXBnuZuU9TUEnWBhf5aO7KTv0N+YMPIwvLsCFzwS0eed2CZRpmyKI55ji+kPGOZRY
-         16Om0miDTjh2W1xAC71K9SNizou+iHIl6GxRez/BAxMVbqNi22Noh0l6Kbgb4iu9Zb
-         ZjlcEzI8NTKKSyGQC2HwkIPds11EJ8Y1sx1t1uNqERoUu3P/4PGFesEl6RMJfvWwW4
-         VuWUXIGvm3kqK5x08U/dKIxAm8c7aETc1ot9h9uU/+5o/opxnlFsUSjCAIbaJcdSH/
-         DBQ0AxDwvle3pUYj1YEsNcx++/KmdGX/Q2tnBq/LnPEHuWjSP+6Ibwwkve5c6O0s0A
-         eUB0fktEXP6Cg==
-From:   Will Deacon <will@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
-        Will Deacon <will@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Florian Weimer <fweimer@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [STABLE BACKPORT v2 4.4.y, 4.9.y and 4.14.y] compiler.h: Raise minimum version of GCC to 5.1 for arm64
-Date:   Mon, 25 Jan 2021 13:24:25 +0000
-Message-Id: <20210125132425.28245-1-will@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        id S1729210AbhAYOOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 09:14:21 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44467 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729315AbhAYONT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:13:19 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id A5303D71;
+        Mon, 25 Jan 2021 09:11:16 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:11:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nAaTXW
+        Z18WrKCgBPZTJc7KCGnHCkhqPKjxKRuzEUt7k=; b=IVxWzpJVkKI/dWVW/wH6/G
+        qoYPXh05v5Zb7zXZoiaF3/MUK7jBFcViTyhFuW6HIUxnNs8g+N2yqK4mJaAViXYS
+        wQMYMB3euPUJr9vj3wv/2CAdfisMURyZyi2bFX6V7jRP4Ca5nm8qXSQl8BzHlyTr
+        l0MON+5T06569f0Gm5Pqmz+mT54gvYKCtVg1jHgdVPWBiS9f0QoQhA3qC2d045XA
+        2NJ//IhqJfRx2g4oAmHYtT7qyj9UHVP9DwlXQp30H5ByARFIZx+WQfq92lsFZ/Na
+        Bh5ok1jJyb/RhhkYR957DXhPHKcXqHs0JPItn9qm13F3bf4voB5l9WUNNAp7NuCw
+        ==
+X-ME-Sender: <xms:hNEOYOj5Im1-G36ccR8QXnClYg6RrPyyObY3SRU5FLsxJaZttssCTQ>
+    <xme:hNEOYPDzQL6H0GhTZabD3XNEVEI7gwN4IDr_kF1dk-BBRwXzJ__7w0cuZgG_UtTFE
+    dV7i5m42ltmCw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehlecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeegveelueegtdejkeffkeffkeeujeehgfejgfdvheefgf
+    elveffgfehgedthfehudenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdeigedrshgs
+    pdgvgigtvghpthhiohhnshdqieegshdrshgspdhlughsrdhssgenucfkphepkeefrdekie
+    drjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:hNEOYGHVcVWpq3JFjz2hT9T1bjqkAD7fG6wCtuQNyuXWeKQxnnnGsw>
+    <xmx:hNEOYHRsfL_tWOhKk-gOzimtXeOMmJ7Oax9Z8o4w6DyOPtLc2NXhWw>
+    <xmx:hNEOYLwpniBjOAgmbvDjsA1CULqDOQzI37F9M7-AUvdlz3WhlxCIsw>
+    <xmx:hNEOYEoSgcqIL6PQH0EBBFLkyJmZ20mXGSas4rLqttRrwZNyBo2ogPRPZWc>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id EEFC41080063;
+        Mon, 25 Jan 2021 09:11:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc/64s: fix scv entry fallback flush vs interrupt" failed to apply to 4.14-stable tree
+To:     npiggin@gmail.com, mpe@ellerman.id.au, tuliom@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 Jan 2021 15:11:10 +0100
+Message-ID: <1611583870169171@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
 
-GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
-beyond the stack pointer, resulting in memory corruption if an interrupt
-is taken after the stack pointer has been adjusted but before the
-reference has been executed. This leads to subtle, infrequent data
-corruption such as the EXT4 problems reported by Russell King at the
-link below.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Life is too short for buggy compilers, so raise the minimum GCC version
-required by arm64 to 5.1.
+thanks,
 
-Reported-by: Russell King <linux@armlinux.org.uk>
-Suggested-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: <stable@vger.kernel.org> # 4.4.y, 4.9.y and 4.14.y only
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Florian Weimer <fweimer@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
-Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[will: backport to 4.4.y/4.9.y/4.14.y; add __clang__ check]
-Link: https://lore.kernel.org/r/CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
----
- include/linux/compiler-gcc.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+greg k-h
 
-diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-index af8b4a879934..9485abe76b68 100644
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -145,6 +145,12 @@
+------------------ original commit in Linus's tree ------------------
+
+From 08685be7761d69914f08c3d6211c543a385a5b9c Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Mon, 11 Jan 2021 16:24:08 +1000
+Subject: [PATCH] powerpc/64s: fix scv entry fallback flush vs interrupt
+
+The L1D flush fallback functions are not recoverable vs interrupts,
+yet the scv entry flush runs with MSR[EE]=1. This can result in a
+timer (soft-NMI) or MCE or SRESET interrupt hitting here and overwriting
+the EXRFI save area, which ends up corrupting userspace registers for
+scv return.
+
+Fix this by disabling RI and EE for the scv entry fallback flush.
+
+Fixes: f79643787e0a0 ("powerpc/64s: flush L1D on kernel entry")
+Cc: stable@vger.kernel.org # 5.9+ which also have flush L1D patch backport
+Reported-by: Tulio Magno Quites Machado Filho <tuliom@linux.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210111062408.287092-1-npiggin@gmail.com
+
+diff --git a/arch/powerpc/include/asm/exception-64s.h b/arch/powerpc/include/asm/exception-64s.h
+index 1d32b174ab6a..c1a8aac01cf9 100644
+--- a/arch/powerpc/include/asm/exception-64s.h
++++ b/arch/powerpc/include/asm/exception-64s.h
+@@ -63,6 +63,12 @@
+ 	nop;								\
+ 	nop;
  
- #if GCC_VERSION < 30200
- # error Sorry, your compiler is too old - please upgrade it.
-+#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100 && !defined(__clang__)
++#define SCV_ENTRY_FLUSH_SLOT						\
++	SCV_ENTRY_FLUSH_FIXUP_SECTION;					\
++	nop;								\
++	nop;								\
++	nop;
++
+ /*
+  * r10 must be free to use, r13 must be paca
+  */
+@@ -70,6 +76,13 @@
+ 	STF_ENTRY_BARRIER_SLOT;						\
+ 	ENTRY_FLUSH_SLOT
+ 
 +/*
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
-+ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ * r10, ctr must be free to use, r13 must be paca
 + */
-+# error Sorry, your version of GCC is too old - please use 5.1 or newer.
- #endif
++#define SCV_INTERRUPT_TO_KERNEL						\
++	STF_ENTRY_BARRIER_SLOT;						\
++	SCV_ENTRY_FLUSH_SLOT
++
+ /*
+  * Macros for annotating the expected destination of (h)rfid
+  *
+diff --git a/arch/powerpc/include/asm/feature-fixups.h b/arch/powerpc/include/asm/feature-fixups.h
+index f6d2acb57425..ac605fc369c4 100644
+--- a/arch/powerpc/include/asm/feature-fixups.h
++++ b/arch/powerpc/include/asm/feature-fixups.h
+@@ -240,6 +240,14 @@ label##3:					       	\
+ 	FTR_ENTRY_OFFSET 957b-958b;			\
+ 	.popsection;
  
- #if GCC_VERSION < 30300
--- 
-2.30.0.280.ga3ce27912f-goog
++#define SCV_ENTRY_FLUSH_FIXUP_SECTION			\
++957:							\
++	.pushsection __scv_entry_flush_fixup,"a";	\
++	.align 2;					\
++958:							\
++	FTR_ENTRY_OFFSET 957b-958b;			\
++	.popsection;
++
+ #define RFI_FLUSH_FIXUP_SECTION				\
+ 951:							\
+ 	.pushsection __rfi_flush_fixup,"a";		\
+@@ -273,10 +281,12 @@ label##3:					       	\
+ 
+ extern long stf_barrier_fallback;
+ extern long entry_flush_fallback;
++extern long scv_entry_flush_fallback;
+ extern long __start___stf_entry_barrier_fixup, __stop___stf_entry_barrier_fixup;
+ extern long __start___stf_exit_barrier_fixup, __stop___stf_exit_barrier_fixup;
+ extern long __start___uaccess_flush_fixup, __stop___uaccess_flush_fixup;
+ extern long __start___entry_flush_fixup, __stop___entry_flush_fixup;
++extern long __start___scv_entry_flush_fixup, __stop___scv_entry_flush_fixup;
+ extern long __start___rfi_flush_fixup, __stop___rfi_flush_fixup;
+ extern long __start___barrier_nospec_fixup, __stop___barrier_nospec_fixup;
+ extern long __start__btb_flush_fixup, __stop__btb_flush_fixup;
+diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
+index aa1af139d947..33ddfeef4fe9 100644
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -75,7 +75,7 @@ BEGIN_FTR_SECTION
+ 	bne	.Ltabort_syscall
+ END_FTR_SECTION_IFSET(CPU_FTR_TM)
+ #endif
+-	INTERRUPT_TO_KERNEL
++	SCV_INTERRUPT_TO_KERNEL
+ 	mr	r10,r1
+ 	ld	r1,PACAKSAVE(r13)
+ 	std	r10,0(r1)
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index e02ad6fefa46..6e53f7638737 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -2993,6 +2993,25 @@ TRAMP_REAL_BEGIN(entry_flush_fallback)
+ 	ld	r11,PACA_EXRFI+EX_R11(r13)
+ 	blr
+ 
++/*
++ * The SCV entry flush happens with interrupts enabled, so it must disable
++ * to prevent EXRFI being clobbered by NMIs (e.g., soft_nmi_common). r10
++ * (containing LR) does not need to be preserved here because scv entry
++ * puts 0 in the pt_regs, CTR can be clobbered for the same reason.
++ */
++TRAMP_REAL_BEGIN(scv_entry_flush_fallback)
++	li	r10,0
++	mtmsrd	r10,1
++	lbz	r10,PACAIRQHAPPENED(r13)
++	ori	r10,r10,PACA_IRQ_HARD_DIS
++	stb	r10,PACAIRQHAPPENED(r13)
++	std	r11,PACA_EXRFI+EX_R11(r13)
++	L1D_DISPLACEMENT_FLUSH
++	ld	r11,PACA_EXRFI+EX_R11(r13)
++	li	r10,MSR_RI
++	mtmsrd	r10,1
++	blr
++
+ TRAMP_REAL_BEGIN(rfi_flush_fallback)
+ 	SET_SCRATCH0(r13);
+ 	GET_PACA(r13);
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 4ab426b8b0e0..72fa3c00229a 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -145,6 +145,13 @@ SECTIONS
+ 		__stop___entry_flush_fixup = .;
+ 	}
+ 
++	. = ALIGN(8);
++	__scv_entry_flush_fixup : AT(ADDR(__scv_entry_flush_fixup) - LOAD_OFFSET) {
++		__start___scv_entry_flush_fixup = .;
++		*(__scv_entry_flush_fixup)
++		__stop___scv_entry_flush_fixup = .;
++	}
++
+ 	. = ALIGN(8);
+ 	__stf_exit_barrier_fixup : AT(ADDR(__stf_exit_barrier_fixup) - LOAD_OFFSET) {
+ 		__start___stf_exit_barrier_fixup = .;
+diff --git a/arch/powerpc/lib/feature-fixups.c b/arch/powerpc/lib/feature-fixups.c
+index 47821055b94c..1fd31b4b0e13 100644
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -290,9 +290,6 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
+ 	long *start, *end;
+ 	int i;
+ 
+-	start = PTRRELOC(&__start___entry_flush_fixup);
+-	end = PTRRELOC(&__stop___entry_flush_fixup);
+-
+ 	instrs[0] = 0x60000000; /* nop */
+ 	instrs[1] = 0x60000000; /* nop */
+ 	instrs[2] = 0x60000000; /* nop */
+@@ -312,6 +309,8 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
+ 	if (types & L1D_FLUSH_MTTRIG)
+ 		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
+ 
++	start = PTRRELOC(&__start___entry_flush_fixup);
++	end = PTRRELOC(&__stop___entry_flush_fixup);
+ 	for (i = 0; start < end; start++, i++) {
+ 		dest = (void *)start + *start;
+ 
+@@ -328,6 +327,25 @@ void do_entry_flush_fixups(enum l1d_flush_type types)
+ 		patch_instruction((struct ppc_inst *)(dest + 2), ppc_inst(instrs[2]));
+ 	}
+ 
++	start = PTRRELOC(&__start___scv_entry_flush_fixup);
++	end = PTRRELOC(&__stop___scv_entry_flush_fixup);
++	for (; start < end; start++, i++) {
++		dest = (void *)start + *start;
++
++		pr_devel("patching dest %lx\n", (unsigned long)dest);
++
++		patch_instruction((struct ppc_inst *)dest, ppc_inst(instrs[0]));
++
++		if (types == L1D_FLUSH_FALLBACK)
++			patch_branch((struct ppc_inst *)(dest + 1), (unsigned long)&scv_entry_flush_fallback,
++				     BRANCH_SET_LINK);
++		else
++			patch_instruction((struct ppc_inst *)(dest + 1), ppc_inst(instrs[1]));
++
++		patch_instruction((struct ppc_inst *)(dest + 2), ppc_inst(instrs[2]));
++	}
++
++
+ 	printk(KERN_DEBUG "entry-flush: patched %d locations (%s flush)\n", i,
+ 		(types == L1D_FLUSH_NONE)       ? "no" :
+ 		(types == L1D_FLUSH_FALLBACK)   ? "fallback displacement" :
 
