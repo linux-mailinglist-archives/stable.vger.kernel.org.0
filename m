@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE513031C9
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E383031A7
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:18:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbhAYSof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58352 "EHLO mail.kernel.org"
+        id S1731312AbhAYSyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:54:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725959AbhAYSoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:44:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3399E2067B;
-        Mon, 25 Jan 2021 18:43:46 +0000 (UTC)
+        id S1730888AbhAYSxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:53:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C29221FB;
+        Mon, 25 Jan 2021 18:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600226;
-        bh=W5NAZVDP8beKlp9/Yh4Wz4PsHIzzl1P5C8CT2bQsD3c=;
+        s=korg; t=1611600814;
+        bh=StjzP9ss1a/bEPqV7AaDH6R4B/vUv/S2+ILEGi46ltg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8ohI0fftqUghO42s1Sp8BVABECM2lE5uLDaSs7MnAal41+CCYHrbT2bYMnPo1GPq
-         cWGpiU/culhAq4K3HynlDs0ekElhcrCs2m5BTaYQDAP+bkAuM+k18sRi0UttIYAftI
-         qrD1Nz8ZTGq/+6HiFVXR1XxLEJBh30jO7mvw93Dc=
+        b=EmYoRnUtC+aGeN2ljDD5BV4XnFCaQyaasp5UsnJqlJo8XSsOu3ImFKiXbhTbJn9Kx
+         u+GNItX3MDPgaYTZTmv5LQnZTCrftqHI9yolb94PA2/8tfIBW9MgPNfifTDZOrwSqz
+         qJL+I5GM2lWIk1gD8nRy/z7cH5u13sNcM27oMp2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/86] scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
+        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 121/199] proc_sysctl: fix oops caused by incorrect command parameters
 Date:   Mon, 25 Jan 2021 19:39:03 +0100
-Message-Id: <20210125183201.946251764@linuxfoundation.org>
+Message-Id: <20210125183221.332143557@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Xiaoming Ni <nixiaoming@huawei.com>
 
-[ Upstream commit 35fc4cd34426c242ab015ef280853b7bff101f48 ]
+commit 697edcb0e4eadc41645fe88c991fe6a206b1a08d upstream.
 
-Users can initiate resets to specific SCSI device/target/host through
-IOCTL. When this happens, the SCSI cmd passed to eh_device/target/host
-_reset_handler() callbacks is initialized with a request whose tag is -1.
-In this case it is not right for eh_device_reset_handler() callback to
-count on the LUN get from hba->lrb[-1]. Fix it by getting LUN from the SCSI
-device associated with the SCSI cmd.
+The process_sysctl_arg() does not check whether val is empty before
+invoking strlen(val).  If the command line parameter () is incorrectly
+configured and val is empty, oops is triggered.
 
-Link: https://lore.kernel.org/r/1609157080-26283-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example:
+  "hung_task_panic=1" is incorrectly written as "hung_task_panic", oops is
+  triggered. The call stack is as follows:
+    Kernel command line: .... hung_task_panic
+    ......
+    Call trace:
+    __pi_strlen+0x10/0x98
+    parse_args+0x278/0x344
+    do_sysctl_args+0x8c/0xfc
+    kernel_init+0x5c/0xf4
+    ret_from_fork+0x10/0x30
+
+To fix it, check whether "val" is empty when "phram" is a sysctl field.
+Error codes are returned in the failure branch, and error logs are
+generated by parse_args().
+
+Link: https://lkml.kernel.org/r/20210118133029.28580-1-nixiaoming@huawei.com
+Fixes: 3db978d480e2843 ("kernel/sysctl: support setting sysctl parameters from kernel command line")
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Iurii Zaikin <yzaikin@google.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: <stable@vger.kernel.org>	[5.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/ufs/ufshcd.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ fs/proc/proc_sysctl.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index b888117f4ecd3..476ef8044ae59 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5980,19 +5980,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- {
- 	struct Scsi_Host *host;
- 	struct ufs_hba *hba;
--	unsigned int tag;
- 	u32 pos;
- 	int err;
--	u8 resp = 0xF;
--	struct ufshcd_lrb *lrbp;
-+	u8 resp = 0xF, lun;
- 	unsigned long flags;
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -1770,6 +1770,12 @@ static int process_sysctl_arg(char *para
+ 			return 0;
+ 	}
  
- 	host = cmd->device->host;
- 	hba = shost_priv(host);
--	tag = cmd->request->tag;
- 
--	lrbp = &hba->lrb[tag];
--	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
-+	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
-+	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
- 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
- 		if (!err)
- 			err = resp;
-@@ -6001,7 +5998,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
--		if (hba->lrb[pos].lun == lrbp->lun) {
-+		if (hba->lrb[pos].lun == lun) {
- 			err = ufshcd_clear_cmd(hba, pos);
- 			if (err)
- 				break;
--- 
-2.27.0
-
++	if (!val)
++		return -EINVAL;
++	len = strlen(val);
++	if (len == 0)
++		return -EINVAL;
++
+ 	/*
+ 	 * To set sysctl options, we use a temporary mount of proc, look up the
+ 	 * respective sys/ file and write to it. To avoid mounting it when no
+@@ -1811,7 +1817,6 @@ static int process_sysctl_arg(char *para
+ 				file, param, val);
+ 		goto out;
+ 	}
+-	len = strlen(val);
+ 	wret = kernel_write(file, val, len, &pos);
+ 	if (wret < 0) {
+ 		err = wret;
 
 
