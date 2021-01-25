@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF59304B09
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EEA304B27
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:17:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbhAZEvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:51:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
+        id S1728553AbhAZEvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:51:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730501AbhAYSrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730507AbhAYSrC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:47:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0E7230FC;
-        Mon, 25 Jan 2021 18:46:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 194ED2310A;
+        Mon, 25 Jan 2021 18:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600386;
-        bh=ov3FmQGYXtay5+d3Y9V4KQpgQ1m0QaQUBD3loz4xp1o=;
+        s=korg; t=1611600388;
+        bh=51aHdVLXDLt3PsUVQ8e6XiJdc+h8t2YBjzF49iWhIbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcH273ZhfbVFKh43noLRiY7g7gJz115oTeHGxImb3bC9ZevqCm3xM2TTkcUYsVuyO
-         6/LY6GxN3ZsoNtfqVMs8NLls4eGIRuXYAkw/IwolAc8u/3HDM+KlpSHq4Vo4V2xf+1
-         RLMrXQ4CCJI20460McuT4jv53mPSGr+s4y2KBxkU=
+        b=lNR4IrRYnTeHJC+wIuTAHXHz8Wfrk7UQgoT77JPLa0pabpxPjB2gSk4mDS9qcCixf
+         JXkEI5mQejwfGw+DWB/89WrSysv9S7ApJoM0djOqN3wmSJslst2BIzX5cs9fH918LC
+         z72WjuIaW0dLS5600XPvG7TFBCdtmF9zLCbuXF6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Boris Pismenny <borisp@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 82/86] net: mscc: ocelot: allow offloading of bridge on top of LAG
-Date:   Mon, 25 Jan 2021 19:40:04 +0100
-Message-Id: <20210125183204.520907156@linuxfoundation.org>
+Subject: [PATCH 5.4 83/86] net: Disable NETIF_F_HW_TLS_RX when RXCSUM is disabled
+Date:   Mon, 25 Jan 2021 19:40:05 +0100
+Message-Id: <20210125183204.554206537@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -40,44 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit 79267ae22615496655feee2db0848f6786bcf67a upstream.
+commit a3eb4e9d4c9218476d05c52dfd2be3d6fdce6b91 upstream.
 
-The blamed commit was too aggressive, and it made ocelot_netdevice_event
-react only to network interface events emitted for the ocelot switch
-ports.
+With NETIF_F_HW_TLS_RX packets are decrypted in HW. This cannot be
+logically done when RXCSUM offload is off.
 
-In fact, only the PRECHANGEUPPER should have had that check.
-
-When we ignore all events that are not for us, we miss the fact that the
-upper of the LAG changes, and the bonding interface gets enslaved to a
-bridge. This is an operation we could offload under certain conditions.
-
-Fixes: 7afb3e575e5a ("net: mscc: ocelot: don't handle netdev events for other netdevs")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210118135210.2666246-1-olteanv@gmail.com
+Fixes: 14136564c8ee ("net: Add TLS RX offload feature")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Boris Pismenny <borisp@nvidia.com>
+Link: https://lore.kernel.org/r/20210117151538.9411-1-tariqt@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mscc/ocelot.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/core/dev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1716,10 +1716,8 @@ static int ocelot_netdevice_event(struct
- 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
- 	int ret = 0;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -8692,6 +8692,11 @@ static netdev_features_t netdev_fix_feat
+ 		}
+ 	}
  
--	if (!ocelot_netdevice_dev_check(dev))
--		return 0;
--
- 	if (event == NETDEV_PRECHANGEUPPER &&
-+	    ocelot_netdevice_dev_check(dev) &&
- 	    netif_is_lag_master(info->upper_dev)) {
- 		struct netdev_lag_upper_info *lag_upper_info = info->upper_info;
- 		struct netlink_ext_ack *extack;
++	if ((features & NETIF_F_HW_TLS_RX) && !(features & NETIF_F_RXCSUM)) {
++		netdev_dbg(dev, "Dropping TLS RX HW offload feature since no RXCSUM feature.\n");
++		features &= ~NETIF_F_HW_TLS_RX;
++	}
++
+ 	return features;
+ }
+ 
 
 
