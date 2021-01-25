@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0AD304A75
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DF3304A76
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730944AbhAZFEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
+        id S1730959AbhAZFEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:04:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730968AbhAYSxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:53:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 282EE2067B;
-        Mon, 25 Jan 2021 18:53:02 +0000 (UTC)
+        id S1731275AbhAYSxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:53:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2B6020758;
+        Mon, 25 Jan 2021 18:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600783;
-        bh=PPZ0MfUPWSy1AH5SxpOjJFEARfCKR9NukERrkOVpdPg=;
+        s=korg; t=1611600786;
+        bh=CnUNnC7URhAek0WU9cE7ehGK+skGDbU0czUbUaRg7yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUXqRJDDerGvSTqdicIujrl2E8EW5I+bouHfTqF4ERSejSTT2SgOtBx4RHm2C+Tu+
-         xMU6GHBoQFpUzI7rYnB+cCNT0mTqdfIRwPYS+yMJNkIm5ZBYEyeVfVNOrjbK8WkLWQ
-         tyS5WXuIaG1zMD0VhNuVsblSwbiTSLbyNb7X0Ok4=
+        b=YzZEFMx/eIuj69m4y9ws3UMN1Q+SsHNIRddR6lJ+if64P7FpzmGsDoYRnWDMzjw/S
+         LC029r3KvogWDUUc4D+KR1MNFICsoORmATM+bcjzCSBTSrh40DDCUBplQ19ZYxNiY/
+         kstfxo3yF4/ZPsfGIzG++WNlEsm18e1MiFtR5+WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Xin Long <lucien.xin@gmail.com>, Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+2624e3778b18fc497c92@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 149/199] cls_flower: call nla_ok() before nla_next()
-Date:   Mon, 25 Jan 2021 19:39:31 +0100
-Message-Id: <20210125183222.503822502@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 150/199] netfilter: rpfilter: mask ecn bits before fib lookup
+Date:   Mon, 25 Jan 2021 19:39:32 +0100
+Message-Id: <20210125183222.544792526@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,90 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit c96adff95619178e2118925578343ad54857c80c upstream.
+commit 2e5a6266fbb11ae93c468dfecab169aca9c27b43 upstream.
 
-fl_set_enc_opt() simply checks if there are still bytes left to parse,
-but this is not sufficent as syzbot seems to be able to generate
-malformatted netlink messages. nla_ok() is more strict so should be
-used to validate the next nlattr here.
+RT_TOS() only masks one of the two ECN bits. Therefore rpfilter_mt()
+treats Not-ECT or ECT(1) packets in a different way than those with
+ECT(0) or CE.
 
-And nla_validate_nested_deprecated() has less strict check too, it is
-probably too late to switch to the strict version, but we can just
-call nla_ok() too after it.
+Reproducer:
 
-Reported-and-tested-by: syzbot+2624e3778b18fc497c92@syzkaller.appspotmail.com
-Fixes: 0a6e77784f49 ("net/sched: allow flower to match tunnel options")
-Fixes: 79b1011cb33d ("net: sched: allow flower to match erspan options")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20210115185024.72298-1-xiyou.wangcong@gmail.com
+  Create two netns, connected with a veth:
+  $ ip netns add ns0
+  $ ip netns add ns1
+  $ ip link add name veth01 netns ns0 type veth peer name veth10 netns ns1
+  $ ip -netns ns0 link set dev veth01 up
+  $ ip -netns ns1 link set dev veth10 up
+  $ ip -netns ns0 address add 192.0.2.10/32 dev veth01
+  $ ip -netns ns1 address add 192.0.2.11/32 dev veth10
+
+  Add a route to ns1 in ns0:
+  $ ip -netns ns0 route add 192.0.2.11/32 dev veth01
+
+  In ns1, only packets with TOS 4 can be routed to ns0:
+  $ ip -netns ns1 route add 192.0.2.10/32 tos 4 dev veth10
+
+  Ping from ns0 to ns1 works regardless of the ECN bits, as long as TOS
+  is 4:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 0% packet loss ...
+
+  Now use iptable's rpfilter module in ns1:
+  $ ip netns exec ns1 iptables-legacy -t raw -A PREROUTING -m rpfilter --invert -j DROP
+
+  Not-ECT and ECT(1) packets still pass:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+
+  But ECT(0) and ECN packets are dropped:
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 100% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 100% packet loss ...
+
+After this patch, rpfilter doesn't drop ECT(0) and CE packets anymore.
+
+Fixes: 8f97339d3feb ("netfilter: add ipv4 reverse path filter match")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_flower.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ net/ipv4/netfilter/ipt_rpfilter.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -1272,6 +1272,10 @@ static int fl_set_enc_opt(struct nlattr
+--- a/net/ipv4/netfilter/ipt_rpfilter.c
++++ b/net/ipv4/netfilter/ipt_rpfilter.c
+@@ -76,7 +76,7 @@ static bool rpfilter_mt(const struct sk_
+ 	flow.daddr = iph->saddr;
+ 	flow.saddr = rpfilter_get_saddr(iph->daddr);
+ 	flow.flowi4_mark = info->flags & XT_RPFILTER_VALID_MARK ? skb->mark : 0;
+-	flow.flowi4_tos = RT_TOS(iph->tos);
++	flow.flowi4_tos = iph->tos & IPTOS_RT_MASK;
+ 	flow.flowi4_scope = RT_SCOPE_UNIVERSE;
+ 	flow.flowi4_oif = l3mdev_master_ifindex_rcu(xt_in(par));
  
- 		nla_opt_msk = nla_data(tb[TCA_FLOWER_KEY_ENC_OPTS_MASK]);
- 		msk_depth = nla_len(tb[TCA_FLOWER_KEY_ENC_OPTS_MASK]);
-+		if (!nla_ok(nla_opt_msk, msk_depth)) {
-+			NL_SET_ERR_MSG(extack, "Invalid nested attribute for masks");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	nla_for_each_attr(nla_opt_key, nla_enc_key,
-@@ -1307,9 +1311,6 @@ static int fl_set_enc_opt(struct nlattr
- 				NL_SET_ERR_MSG(extack, "Key and mask miss aligned");
- 				return -EINVAL;
- 			}
--
--			if (msk_depth)
--				nla_opt_msk = nla_next(nla_opt_msk, &msk_depth);
- 			break;
- 		case TCA_FLOWER_KEY_ENC_OPTS_VXLAN:
- 			if (key->enc_opts.dst_opt_type) {
-@@ -1340,9 +1341,6 @@ static int fl_set_enc_opt(struct nlattr
- 				NL_SET_ERR_MSG(extack, "Key and mask miss aligned");
- 				return -EINVAL;
- 			}
--
--			if (msk_depth)
--				nla_opt_msk = nla_next(nla_opt_msk, &msk_depth);
- 			break;
- 		case TCA_FLOWER_KEY_ENC_OPTS_ERSPAN:
- 			if (key->enc_opts.dst_opt_type) {
-@@ -1373,14 +1371,20 @@ static int fl_set_enc_opt(struct nlattr
- 				NL_SET_ERR_MSG(extack, "Key and mask miss aligned");
- 				return -EINVAL;
- 			}
--
--			if (msk_depth)
--				nla_opt_msk = nla_next(nla_opt_msk, &msk_depth);
- 			break;
- 		default:
- 			NL_SET_ERR_MSG(extack, "Unknown tunnel option type");
- 			return -EINVAL;
- 		}
-+
-+		if (!msk_depth)
-+			continue;
-+
-+		if (!nla_ok(nla_opt_msk, msk_depth)) {
-+			NL_SET_ERR_MSG(extack, "A mask attribute is invalid");
-+			return -EINVAL;
-+		}
-+		nla_opt_msk = nla_next(nla_opt_msk, &msk_depth);
- 	}
- 
- 	return 0;
 
 
