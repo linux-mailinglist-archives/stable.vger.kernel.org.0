@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6477303301
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E9A303303
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:45:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727120AbhAZEo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:44:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
+        id S1727147AbhAZEoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:44:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727669AbhAYSmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727678AbhAYSmt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:42:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B19423105;
-        Mon, 25 Jan 2021 18:42:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D6220758;
+        Mon, 25 Jan 2021 18:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600129;
-        bh=QuJmZNIir1CDuoiX+eW7XOgiW57FkfJXOpL5Q1c2yYI=;
+        s=korg; t=1611600132;
+        bh=COVkIUrBU1g4MgiSVX59ZRoHTENOzHOaCYoVyIS9IDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GE7Sm+/VWhxAxwPvVcbwqwWGZSQw4Vujnv6/lXSOmN02JCGhgoVDnHEH8XWMY6nLQ
-         GlyRD/oQsAQdzpXPJ/eO9sbKVGY0EOEq2YSIQfu73zdFo+mlrrZ6CLYuRjKNqHCczR
-         AjWURGhQ/6UzRaM3ZaFAI6pSDzp13pIljyPryW38=
+        b=CIgTgsLTK0MlSLc6GyTECaIY3dK4bJ3Nv84dpjdbY405Li1N4dbI52MYn8CLJmQEv
+         o/9Sk1P2SMXJJ9xQiD9Nq8gxCO04DtHCSWUlOjcbNkGNumybJST9syXnC3HmENymQQ
+         0iGZQxPLMSOraRvQ6AQGJ5enOM968D64tAr5KXWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Saravana Kannan <saravanak@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 43/58] driver core: Extend device_is_dependent()
-Date:   Mon, 25 Jan 2021 19:39:44 +0100
-Message-Id: <20210125183158.568871999@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 44/58] netfilter: rpfilter: mask ecn bits before fib lookup
+Date:   Mon, 25 Jan 2021 19:39:45 +0100
+Message-Id: <20210125183158.609415967@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
 References: <20210125183156.702907356@linuxfoundation.org>
@@ -40,66 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 3d1cf435e201d1fd63e4346b141881aed086effd upstream.
+commit 2e5a6266fbb11ae93c468dfecab169aca9c27b43 upstream.
 
-If the device passed as the target (second argument) to
-device_is_dependent() is not completely registered (that is, it has
-been initialized, but not added yet), but the parent pointer of it
-is set, it may be missing from the list of the parent's children
-and device_for_each_child() called by device_is_dependent() cannot
-be relied on to catch that dependency.
+RT_TOS() only masks one of the two ECN bits. Therefore rpfilter_mt()
+treats Not-ECT or ECT(1) packets in a different way than those with
+ECT(0) or CE.
 
-For this reason, modify device_is_dependent() to check the ancestors
-of the target device by following its parent pointer in addition to
-the device_for_each_child() walk.
+Reproducer:
 
-Fixes: 9ed9895370ae ("driver core: Functional dependencies tracking support")
-Reported-by: Stephan Gerhold <stephan@gerhold.net>
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/17705994.d592GUb2YH@kreacher
-Cc: stable <stable@vger.kernel.org>
+  Create two netns, connected with a veth:
+  $ ip netns add ns0
+  $ ip netns add ns1
+  $ ip link add name veth01 netns ns0 type veth peer name veth10 netns ns1
+  $ ip -netns ns0 link set dev veth01 up
+  $ ip -netns ns1 link set dev veth10 up
+  $ ip -netns ns0 address add 192.0.2.10/32 dev veth01
+  $ ip -netns ns1 address add 192.0.2.11/32 dev veth10
+
+  Add a route to ns1 in ns0:
+  $ ip -netns ns0 route add 192.0.2.11/32 dev veth01
+
+  In ns1, only packets with TOS 4 can be routed to ns0:
+  $ ip -netns ns1 route add 192.0.2.10/32 tos 4 dev veth10
+
+  Ping from ns0 to ns1 works regardless of the ECN bits, as long as TOS
+  is 4:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 0% packet loss ...
+
+  Now use iptable's rpfilter module in ns1:
+  $ ip netns exec ns1 iptables-legacy -t raw -A PREROUTING -m rpfilter --invert -j DROP
+
+  Not-ECT and ECT(1) packets still pass:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+
+  But ECT(0) and ECN packets are dropped:
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 100% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 100% packet loss ...
+
+After this patch, rpfilter doesn't drop ECT(0) and CE packets anymore.
+
+Fixes: 8f97339d3feb ("netfilter: add ipv4 reverse path filter match")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/core.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ net/ipv4/netfilter/ipt_rpfilter.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -93,6 +93,16 @@ void device_links_read_unlock(int not_us
- }
- #endif /* !CONFIG_SRCU */
+--- a/net/ipv4/netfilter/ipt_rpfilter.c
++++ b/net/ipv4/netfilter/ipt_rpfilter.c
+@@ -94,7 +94,7 @@ static bool rpfilter_mt(const struct sk_
+ 	flow.daddr = iph->saddr;
+ 	flow.saddr = rpfilter_get_saddr(iph->daddr);
+ 	flow.flowi4_mark = info->flags & XT_RPFILTER_VALID_MARK ? skb->mark : 0;
+-	flow.flowi4_tos = RT_TOS(iph->tos);
++	flow.flowi4_tos = iph->tos & IPTOS_RT_MASK;
+ 	flow.flowi4_scope = RT_SCOPE_UNIVERSE;
+ 	flow.flowi4_oif = l3mdev_master_ifindex_rcu(xt_in(par));
  
-+static bool device_is_ancestor(struct device *dev, struct device *target)
-+{
-+	while (target->parent) {
-+		target = target->parent;
-+		if (dev == target)
-+			return true;
-+	}
-+	return false;
-+}
-+
- /**
-  * device_is_dependent - Check if one device depends on another one
-  * @dev: Device to check dependencies for.
-@@ -106,7 +116,12 @@ static int device_is_dependent(struct de
- 	struct device_link *link;
- 	int ret;
- 
--	if (dev == target)
-+	/*
-+	 * The "ancestors" check is needed to catch the case when the target
-+	 * device has not been completely initialized yet and it is still
-+	 * missing from the list of children of its parent device.
-+	 */
-+	if (dev == target || device_is_ancestor(dev, target))
- 		return 1;
- 
- 	ret = device_for_each_child(dev, target, device_is_dependent);
 
 
