@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61018304B3F
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D2E304B3D
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727989AbhAZEsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:48:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33350 "EHLO mail.kernel.org"
+        id S1728002AbhAZEsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:48:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729855AbhAYSp1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:45:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB8BF20719;
-        Mon, 25 Jan 2021 18:44:45 +0000 (UTC)
+        id S1729866AbhAYSp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:45:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C7420758;
+        Mon, 25 Jan 2021 18:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600286;
-        bh=mSyYz7o+5VCrYCB8JhJKofsluDqZot6dmzURsiJwzNo=;
+        s=korg; t=1611600288;
+        bh=hJKOoBD8W/cKk0OsUkS6P/cs5GPCHWp0tKsvACmIvu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZSxL8H0SW56z8UhhUpKt/MxxNJKjEubWb4WQf5ZerXCw0cMPPw7hdOH3cqtabEHR
-         elt0NpZ1+QnrAuNWCyRAeUkWJoEr6v5YR3dSD9wYdkf7G9G5RLcQ3C52Gm1e5kzwZi
-         artG72zZh6xCUq6AII27q0MReyfgUpkXX2tncHA8=
+        b=BTNmP5j2uf0oYKM6OnWKBs8xobLC9fS2G1Tc743W0ybDFPk8jCColclOTNkDx5Ixs
+         pqx0om1FV9s+GygiPi/Uc+dqzlYIiC9xyJKm38BjRPVVKa1j825VyqBydUfVXzPvAw
+         ynrsC71oC8Cmwu92PanVCq+3fi9zB77xfHAIVcbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Leibovich <alexl@marvell.com>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 12/86] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-Date:   Mon, 25 Jan 2021 19:38:54 +0100
-Message-Id: <20210125183201.557581602@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Martin Wilck <mwilck@suse.com>, Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 13/86] dm: avoid filesystem lookup in dm_get_dev_t()
+Date:   Mon, 25 Jan 2021 19:38:55 +0100
+Message-Id: <20210125183201.599174722@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -41,45 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Leibovich <alexl@marvell.com>
+From: Hannes Reinecke <hare@suse.de>
 
-commit 1a3ed0dc3594d99ff341ec63865a40519ea24b8d upstream.
+commit 809b1e4945774c9ec5619a8f4e2189b7b3833c0c upstream.
 
-Automatic Clock Gating is a feature used for the power consumption
-optimisation. It turned out that during early init phase it may prevent the
-stable voltage switch to 1.8V - due to that on some platforms an endless
-printout in dmesg can be observed: "mmc1: 1.8V regulator output did not
-became stable" Fix the problem by disabling the ACG at very beginning of
-the sdhci_init and let that be enabled later.
+This reverts commit
+644bda6f3460 ("dm table: fall back to getting device using name_to_dev_t()")
 
-Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
-Signed-off-by: Alex Leibovich <alexl@marvell.com>
-Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+dm_get_dev_t() is just used to convert an arbitrary 'path' string
+into a dev_t. It doesn't presume that the device is present; that
+check will be done later, as the only caller is dm_get_device(),
+which does a dm_get_table_device() later on, which will properly
+open the device.
+
+So if the path string already _is_ in major:minor representation
+we can convert it directly, avoiding a recursion into the filesystem
+to lookup the block device.
+
+This avoids a hang in multipath_message() when the filesystem is
+inaccessible.
+
+Fixes: 644bda6f3460 ("dm table: fall back to getting device using name_to_dev_t()")
 Cc: stable@vger.kernel.org
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20201211141656.24915-1-mw@semihalf.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-xenon.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/md/dm-table.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-xenon.c
-+++ b/drivers/mmc/host/sdhci-xenon.c
-@@ -167,7 +167,12 @@ static void xenon_reset_exit(struct sdhc
- 	/* Disable tuning request and auto-retuning again */
- 	xenon_retune_setup(host);
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -428,14 +428,23 @@ int dm_get_device(struct dm_target *ti,
+ {
+ 	int r;
+ 	dev_t dev;
++	unsigned int major, minor;
++	char dummy;
+ 	struct dm_dev_internal *dd;
+ 	struct dm_table *t = ti->table;
  
--	xenon_set_acg(host, true);
-+	/*
-+	 * The ACG should be turned off at the early init time, in order
-+	 * to solve a possible issues with the 1.8V regulator stabilization.
-+	 * The feature is enabled in later stage.
-+	 */
-+	xenon_set_acg(host, false);
+ 	BUG_ON(!t);
  
- 	xenon_set_sdclk_off_idle(host, sdhc_id, false);
+-	dev = dm_get_dev_t(path);
+-	if (!dev)
+-		return -ENODEV;
++	if (sscanf(path, "%u:%u%c", &major, &minor, &dummy) == 2) {
++		/* Extract the major/minor numbers */
++		dev = MKDEV(major, minor);
++		if (MAJOR(dev) != major || MINOR(dev) != minor)
++			return -EOVERFLOW;
++	} else {
++		dev = dm_get_dev_t(path);
++		if (!dev)
++			return -ENODEV;
++	}
  
+ 	dd = find_device(&t->devices, dev);
+ 	if (!dd) {
 
 
