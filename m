@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA8130331F
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:47:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0CA303361
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727453AbhAZEqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:46:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
+        id S1726540AbhAZEvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:51:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727110AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:43:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CAA82063A;
-        Mon, 25 Jan 2021 18:42:34 +0000 (UTC)
+        id S1730547AbhAYSrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:47:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B202310C;
+        Mon, 25 Jan 2021 18:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600155;
-        bh=o83ylCUfxbzbCq5XjeXyQwxE4Ttl85gv0/ylqg955+w=;
+        s=korg; t=1611600399;
+        bh=JUWO5N09CA/rTL28Kmwloy0GeK7cGXaIy3Ic3p3UxMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dn2Z4AvFm8KydDqyE1RNcQZ0yu+WGYYJzfREWAVkVS6c0L//cPL7sdfHTZOnyznCk
-         OgblGKJK3UcxBClzP+CEyQCrgDH3bPK99PS5AKYDLRHNXSy8l+prD85RjSrgZUQQHI
-         /tBToqJA1ybgLiXC5oXToVC4Ck7rRb/d1od1fzEM=
+        b=BgwW/Kb6FGUhfxdNrxxiOL86Hzf8zgO25PF4if+7wGGD8vTUGWmFm+rnjOa6uEkSw
+         nQNB0Arn9EWCxkXUXuNIdPEL5gzG2J2q7olfiIKaVRMwBJbtA0lzQDD5zxNiBe8kYL
+         en+fO1uTpGNHFftRuLxIkM2VDgQiNuwFgd9rMbfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 52/58] ipv6: create multicast route with RTPROT_KERNEL
-Date:   Mon, 25 Jan 2021 19:39:53 +0100
-Message-Id: <20210125183158.939467569@linuxfoundation.org>
+Subject: [PATCH 5.4 74/86] skbuff: back tiny skbs with kmalloc() in __netdev_alloc_skb() too
+Date:   Mon, 25 Jan 2021 19:39:56 +0100
+Message-Id: <20210125183204.175062563@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
-References: <20210125183156.702907356@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-commit a826b04303a40d52439aa141035fca5654ccaccd upstream.
+commit 66c556025d687dbdd0f748c5e1df89c977b6c02a upstream.
 
-The ff00::/8 multicast route is created without specifying the fc_protocol
-field, so the default RTPROT_BOOT value is used:
+Commit 3226b158e67c ("net: avoid 32 x truesize under-estimation for
+tiny skbs") ensured that skbs with data size lower than 1025 bytes
+will be kmalloc'ed to avoid excessive page cache fragmentation and
+memory consumption.
+However, the fix adressed only __napi_alloc_skb() (primarily for
+virtio_net and napi_get_frags()), but the issue can still be achieved
+through __netdev_alloc_skb(), which is still used by several drivers.
+Drivers often allocate a tiny skb for headers and place the rest of
+the frame to frags (so-called copybreak).
+Mirror the condition to __netdev_alloc_skb() to handle this case too.
 
-  $ ip -6 -d route
-  unicast ::1 dev lo proto kernel scope global metric 256 pref medium
-  unicast fe80::/64 dev eth0 proto kernel scope global metric 256 pref medium
-  unicast ff00::/8 dev eth0 proto boot scope global metric 256 pref medium
+Since v1 [0]:
+ - fix "Fixes:" tag;
+ - refine commit message (mention copybreak usecase).
 
-As the documentation says, this value identifies routes installed during
-boot, but the route is created when interface is set up.
-Change the value to RTPROT_KERNEL which is a better value.
+[0] https://lore.kernel.org/netdev/20210114235423.232737-1-alobakin@pm.me
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Fixes: a1c7fff7e18f ("net: netdev_alloc_skb() use build_skb()")
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Link: https://lore.kernel.org/r/20210115150354.85967-1-alobakin@pm.me
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv6/addrconf.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/skbuff.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -2397,6 +2397,7 @@ static void addrconf_add_mroute(struct n
- 		.fc_flags = RTF_UP,
- 		.fc_type = RTN_UNICAST,
- 		.fc_nlinfo.nl_net = dev_net(dev),
-+		.fc_protocol = RTPROT_KERNEL,
- 	};
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -431,7 +431,11 @@ struct sk_buff *__netdev_alloc_skb(struc
  
- 	ipv6_addr_set(&cfg.fc_dst, htonl(0xFF000000), 0, 0, 0);
+ 	len += NET_SKB_PAD;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
 
 
