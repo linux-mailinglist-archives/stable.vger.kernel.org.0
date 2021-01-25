@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB963032D0
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F9C63032D5
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726689AbhAZEiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:38:52 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44787 "EHLO
+        id S1726714AbhAZEiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:38:54 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:55255 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729203AbhAYOQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:16:03 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 6504AD46;
-        Mon, 25 Jan 2021 09:14:32 -0500 (EST)
+        by vger.kernel.org with ESMTP id S1729258AbhAYORd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:17:33 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id 3A5EF533;
+        Mon, 25 Jan 2021 09:15:59 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:14:33 -0500
+  by compute2.internal (MEProxy); Mon, 25 Jan 2021 09:15:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ErXnZs
-        qk6ytRynOaARu3efNfzYO68Ea+6azC730CvxM=; b=TK3JChydd4neUqWIvMWX2Y
-        XxgPAOa0EBk6snk2qnAPi6HbDQCdqGA/nuw7Ubd6dlbl8vo2n8Rcvz3gQP5Ltn1Q
-        dxV9wcfL5J7HzNKWjH6heGbwx8iA7QHwIiv24v3ZMiJb90IA84tcy4cKDufTqJkE
-        sl8aHPV+o/KDV5y4ehRPTs17b60V+crCh6HYQi0to2Etz3HvzqN6sCy5GR+vleZM
-        kM5afquHDYsrwrWILEGm49KrAha5kkL+F/46C7hV8AmGFX/nEbJQslJ72oKO4SAv
-        PVzqnrGXoLJTaSrgEI7IrKiMRnQBWM1LpgZuf5UiVk6EZi63/KSe4zTrWP19GOGQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ojXrkm
+        ZlL3hzN8Brh52OahB9NkRoYmh9mpCxKQilaxI=; b=Xw6/65DjoIZ/kVugo9H42T
+        IbaZyqx3MjmREJszxakasMshGRcHjvGm1/ku9QBOOpP+OvEnga40ql94G79dlqd0
+        xUQxbprhXOTajLpFRKp1DCM92/8Sjdpl8JKWP4OaiHTO/XMG4Dk43ir03nTHZcVi
+        YE9qdflNnBmTi04Eru8HTJpZDrgEWlLISJzDP86Rs68XyXgXpxhZlowXuxm46bKz
+        4OrNUH9VjWWv1t0sVI3XMEeG1f1g79njD0O9D1H5xpECJa5Zm2Drxl3y5h3ZesT4
+        kw81/tlqfj1OGp7BQyuR8lwkcBho3vsd1+0jqiS6EaayPBH0H9UL5R74A49b7a2g
         ==
-X-ME-Sender: <xms:R9IOYJll9ZCLCPBLfoMi6bvOyhfQyCq23FuiQKK-3IsE751VRx4Skg>
-    <xme:R9IOYE3UxdBfpESy9d_rO6iogMvrfK1nEcTdnjYqqxq7rrvssNrQIzwBLc1lv3n0Z
-    23hUgKbMckUSg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:ntIOYBurPSkEcXFZTpYQvrj1DVTWdhpdMZljPxacjEff1UAm4eP3rg>
+    <xme:ntIOYGwJi9_dPtfqetVq0GlcsCFysNdwOKZWZtYNhqtJ_IrOr611XDn-63zHcYYf_
+    uITejBPV1UOvQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:R9IOYPrqVBVRAwN8uS4oCv70paVJNhBHjIlqWShbOLbVdV5Z5qe8Jg>
-    <xmx:R9IOYJkUoA_014YawyPq8fYoL0_XaZ2UNGx-dOqsx3QExQfP0I_hug>
-    <xmx:R9IOYH3_-WCUziA4yV6gBoJp8ThZcy1qvmtNQ_TrujKnXWboJGSSFA>
-    <xmx:SNIOYBpj280v7SeNJHicF0wMZ_N90TF8XXzqt7rivb6lRtAreNWYfVj7vys>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:ntIOYHgUOX9VwCsUu1FSbnJehCGiCkmOjmHdYODXSPmvVlY8WeGSpg>
+    <xmx:ntIOYKAm5Tq6gEfbHJFE1GmcpaZECrAn6YbSyj2_F1gjLkwxNlaZ9Q>
+    <xmx:ntIOYEsoDoTeO8XQMZdAhF9oYXtnRGwsmF2NVpL9idak38_Zto3-rg>
+    <xmx:ntIOYKd8CiR6k4RlN76r8nc6rvc-wQd8J_TyuE7a4siFVwZ2OTEbqqmpi3o>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 92A3B1080059;
-        Mon, 25 Jan 2021 09:14:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: fix numa stats for thp migration" failed to apply to 4.19-stable tree
-To:     shakeelb@google.com, akpm@linux-foundation.org, guro@fb.com,
-        hannes@cmpxchg.org, mhocko@kernel.org, shy828301@gmail.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1CEB5108005F;
+        Mon, 25 Jan 2021 09:15:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: account io_uring internal files as REQ_F_INFLIGHT" failed to apply to 5.10-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:14:22 +0100
-Message-ID: <1611584062251@kroah.com>
+Date:   Mon, 25 Jan 2021 15:15:55 +0100
+Message-ID: <161158415525311@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,94 +70,92 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c447d274f3746fbed6e695e7b9a2d7bd8b31b71 Mon Sep 17 00:00:00 2001
-From: Shakeel Butt <shakeelb@google.com>
-Date: Sat, 23 Jan 2021 21:01:15 -0800
-Subject: [PATCH] mm: fix numa stats for thp migration
+From 02a13674fa0e8dd326de8b9f4514b41b03d99003 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sat, 23 Jan 2021 15:49:31 -0700
+Subject: [PATCH] io_uring: account io_uring internal files as REQ_F_INFLIGHT
 
-Currently the kernel is not correctly updating the numa stats for
-NR_FILE_PAGES and NR_SHMEM on THP migration.  Fix that.
+We need to actively cancel anything that introduces a potential circular
+loop, where io_uring holds a reference to itself. If the file in question
+is an io_uring file, then add the request to the inflight list.
 
-For NR_FILE_DIRTY and NR_ZONE_WRITE_PENDING, although at the moment
-there is no need to handle THP migration as kernel still does not have
-write support for file THP but to be more future proof, this patch adds
-the THP support for those stats as well.
+Cc: stable@vger.kernel.org # 5.9+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Link: https://lkml.kernel.org/r/20210108155813.2914586-2-shakeelb@google.com
-Fixes: e71769ae52609 ("mm: enable thp migration for shmem thp")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 613794f6a433..c0efe921bca5 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -402,6 +402,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
- 	struct zone *oldzone, *newzone;
- 	int dirty;
- 	int expected_count = expected_page_refs(mapping, page) + extra_count;
-+	int nr = thp_nr_pages(page);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 8a98afed50cd..c07913ec0cca 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1075,8 +1075,11 @@ static bool io_match_task(struct io_kiocb *head,
+ 		return true;
  
- 	if (!mapping) {
- 		/* Anonymous page without mapping */
-@@ -437,7 +438,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
- 	 */
- 	newpage->index = page->index;
- 	newpage->mapping = page->mapping;
--	page_ref_add(newpage, thp_nr_pages(page)); /* add cache reference */
-+	page_ref_add(newpage, nr); /* add cache reference */
- 	if (PageSwapBacked(page)) {
- 		__SetPageSwapBacked(newpage);
- 		if (PageSwapCache(page)) {
-@@ -459,7 +460,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
- 	if (PageTransHuge(page)) {
- 		int i;
- 
--		for (i = 1; i < HPAGE_PMD_NR; i++) {
-+		for (i = 1; i < nr; i++) {
- 			xas_next(&xas);
- 			xas_store(&xas, newpage);
- 		}
-@@ -470,7 +471,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
- 	 * to one less reference.
- 	 * We know this isn't the last reference.
- 	 */
--	page_ref_unfreeze(page, expected_count - thp_nr_pages(page));
-+	page_ref_unfreeze(page, expected_count - nr);
- 
- 	xas_unlock(&xas);
- 	/* Leave irq disabled to prevent preemption while updating stats */
-@@ -493,17 +494,17 @@ int migrate_page_move_mapping(struct address_space *mapping,
- 		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
- 		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
- 
--		__dec_lruvec_state(old_lruvec, NR_FILE_PAGES);
--		__inc_lruvec_state(new_lruvec, NR_FILE_PAGES);
-+		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
-+		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
- 		if (PageSwapBacked(page) && !PageSwapCache(page)) {
--			__dec_lruvec_state(old_lruvec, NR_SHMEM);
--			__inc_lruvec_state(new_lruvec, NR_SHMEM);
-+			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
-+			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
- 		}
- 		if (dirty && mapping_can_writeback(mapping)) {
--			__dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
--			__dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
--			__inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
--			__inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
-+			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
-+			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
-+			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
-+			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
- 		}
+ 	io_for_each_link(req, head) {
+-		if ((req->flags & REQ_F_WORK_INITIALIZED) &&
+-		    (req->work.flags & IO_WQ_WORK_FILES) &&
++		if (!(req->flags & REQ_F_WORK_INITIALIZED))
++			continue;
++		if (req->file && req->file->f_op == &io_uring_fops)
++			return true;
++		if ((req->work.flags & IO_WQ_WORK_FILES) &&
+ 		    req->work.identity->files == files)
+ 			return true;
  	}
- 	local_irq_enable();
+@@ -1505,11 +1508,14 @@ static bool io_grab_identity(struct io_kiocb *req)
+ 			return false;
+ 		atomic_inc(&id->files->count);
+ 		get_nsproxy(id->nsproxy);
+-		req->flags |= REQ_F_INFLIGHT;
+ 
+-		spin_lock_irq(&ctx->inflight_lock);
+-		list_add(&req->inflight_entry, &ctx->inflight_list);
+-		spin_unlock_irq(&ctx->inflight_lock);
++		if (!(req->flags & REQ_F_INFLIGHT)) {
++			req->flags |= REQ_F_INFLIGHT;
++
++			spin_lock_irq(&ctx->inflight_lock);
++			list_add(&req->inflight_entry, &ctx->inflight_list);
++			spin_unlock_irq(&ctx->inflight_lock);
++		}
+ 		req->work.flags |= IO_WQ_WORK_FILES;
+ 	}
+ 	if (!(req->work.flags & IO_WQ_WORK_MM) &&
+@@ -6164,8 +6170,10 @@ static void io_req_drop_files(struct io_kiocb *req)
+ 	struct io_uring_task *tctx = req->task->io_uring;
+ 	unsigned long flags;
+ 
+-	put_files_struct(req->work.identity->files);
+-	put_nsproxy(req->work.identity->nsproxy);
++	if (req->work.flags & IO_WQ_WORK_FILES) {
++		put_files_struct(req->work.identity->files);
++		put_nsproxy(req->work.identity->nsproxy);
++	}
+ 	spin_lock_irqsave(&ctx->inflight_lock, flags);
+ 	list_del(&req->inflight_entry);
+ 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+@@ -6450,6 +6458,15 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 		file = __io_file_get(state, fd);
+ 	}
+ 
++	if (file && file->f_op == &io_uring_fops) {
++		io_req_init_async(req);
++		req->flags |= REQ_F_INFLIGHT;
++
++		spin_lock_irq(&ctx->inflight_lock);
++		list_add(&req->inflight_entry, &ctx->inflight_list);
++		spin_unlock_irq(&ctx->inflight_lock);
++	}
++
+ 	return file;
+ }
+ 
+@@ -8860,8 +8877,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 
+ 		spin_lock_irq(&ctx->inflight_lock);
+ 		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
+-			if (req->task != task ||
+-			    req->work.identity->files != files)
++			if (!io_match_task(req, task, files))
+ 				continue;
+ 			found = true;
+ 			break;
 
