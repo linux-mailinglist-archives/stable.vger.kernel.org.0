@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 320A4304AB8
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFED304AD7
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbhAZE6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:58:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36910 "EHLO mail.kernel.org"
+        id S1726242AbhAZE41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:56:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730660AbhAYSt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:49:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF9E22460;
-        Mon, 25 Jan 2021 18:49:15 +0000 (UTC)
+        id S1730859AbhAYSsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:48:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBD0B22460;
+        Mon, 25 Jan 2021 18:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600556;
-        bh=8NmroIXwyEPKeQya12VtiDZxyxXxVV+r8YuVfqTFcwQ=;
+        s=korg; t=1611600487;
+        bh=HmkN0mm9wbN/TCVJTimhHdMI1XEsCsdxLiIIZk5t0hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMp1afZmHYUxXHP6fj8x7UYgs5hC5IPfxoii79yqxwL4B2ZD/tWXCT3fC1muk1SO+
-         pohK1GJ6EZSiy0Oi13lLhyVNci2l6qzyzE+dKrcjjsoSuSNBa0t/37maMMMAEDsmZP
-         Rd8HehuZyYu12UY760iYiACagJncJgL67h91fe88=
+        b=PD0A6d5aWQAnXWbTSIfzjUXsxhSpmo5jYnv44MjXyuJeHXybm+UT0qVL9DglfaB0l
+         egAUJh8Xt8hy69Ij41NgyPCxF1WGdQeq/fqdJhd1l6n4rIZdpF3jrV6Vc9m0o9EUAl
+         zLKxpqtqCXkvelGBtEwbtEcCSOZ8qdkD7yRtgE8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 030/199] drm/amdgpu: remove gpu info firmware of green sardine
-Date:   Mon, 25 Jan 2021 19:37:32 +0100
-Message-Id: <20210125183217.526949343@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 034/199] ASoC: Intel: haswell: Add missing pm_ops
+Date:   Mon, 25 Jan 2021 19:37:36 +0100
+Message-Id: <20210125183217.685434338@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -40,32 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Rui <ray.huang@amd.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-commit acc214bfafbafcd29d5d25d1ede5f11c14ffc147 upstream.
+[ Upstream commit bb224c3e3e41d940612d4cc9573289cdbd5cb8f5 ]
 
-The ip discovery is supported on green sardine, it doesn't need gpu info
-firmware anymore.
+haswell machine board is missing pm_ops what prevents it from undergoing
+suspend-resume procedure successfully. Assign default snd_soc_pm_ops so
+this is no longer the case.
 
-Signed-off-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Prike Liang <Prike.Liang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.10.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20201217105401.27865-1-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/intel/boards/haswell.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -80,7 +80,6 @@ MODULE_FIRMWARE("amdgpu/renoir_gpu_info.
- MODULE_FIRMWARE("amdgpu/navi10_gpu_info.bin");
- MODULE_FIRMWARE("amdgpu/navi14_gpu_info.bin");
- MODULE_FIRMWARE("amdgpu/navi12_gpu_info.bin");
--MODULE_FIRMWARE("amdgpu/green_sardine_gpu_info.bin");
+diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
+index c55d1239e705b..c763bfeb1f38f 100644
+--- a/sound/soc/intel/boards/haswell.c
++++ b/sound/soc/intel/boards/haswell.c
+@@ -189,6 +189,7 @@ static struct platform_driver haswell_audio = {
+ 	.probe = haswell_audio_probe,
+ 	.driver = {
+ 		.name = "haswell-audio",
++		.pm = &snd_soc_pm_ops,
+ 	},
+ };
  
- #define AMDGPU_RESUME_MS		2000
- 
+-- 
+2.27.0
+
 
 
