@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 020B03033A8
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 538B43033AD
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727222AbhAZFCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:02:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36812 "EHLO mail.kernel.org"
+        id S1727251AbhAZFCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731165AbhAYSvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:51:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 110A02067B;
-        Mon, 25 Jan 2021 18:51:24 +0000 (UTC)
+        id S1727220AbhAYSvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:51:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA34E224B8;
+        Mon, 25 Jan 2021 18:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600685;
-        bh=j19lPMeMRNJJalpLPNr9zePRXO3jPIrpJiqsFNQVtEw=;
+        s=korg; t=1611600693;
+        bh=fP0oFZlIytRDhnTOnXTs7OtIBpYJHgmXAmSSJf78FdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEqU4Zg6/vAx8J7OQn1F/sLRb54I+EfbGisxEdQcHSly3slrSVM9HgMRd0mmW/8qw
-         iHba5L8UffIPKoZizSjbPye+SnceIB8IG8iM6KgTrXMAqkRXPzze8ezzGfHTRYUoL9
-         9cCZpw3ByRjMqBuYK/VxNKi4buYaJ7iNqywsDtro=
+        b=ZKylyXF8/c4H0G3fBytdJcWk+wydEmJOzClKZtZ4iO15vW0KGozFTMRDWkziRWgVk
+         CJDirfUQszLvFXOgZDZHa4GNWu2noltOM9Unnvr4mR2PvbvDrJX6cNow0bmvzRMu5s
+         UwBRO6c29JbDHl7h9EX0DZtcRPxjVPzqV5Tay+Es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 111/199] iio: common: st_sensors: fix possible infinite loop in st_sensors_irq_thread
-Date:   Mon, 25 Jan 2021 19:38:53 +0100
-Message-Id: <20210125183220.938415186@linuxfoundation.org>
+Subject: [PATCH 5.10 114/199] iio: adc: ti_am335x_adc: remove omitted iio_kfifo_free()
+Date:   Mon, 25 Jan 2021 19:38:56 +0100
+Message-Id: <20210125183221.051056008@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,98 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit 40c48fb79b9798954691f24b8ece1d3a7eb1b353 upstream.
+commit 7e6d9788aa02333a4353058816d52b9a90aae0d3 upstream.
 
-Return a boolean value in st_sensors_new_samples_available routine in
-order to avoid an infinite loop in st_sensors_irq_thread if
-stat_drdy.addr is not defined or stat_drdy read fails
+When the conversion was done to use devm_iio_kfifo_allocate(), a call to
+iio_kfifo_free() was omitted (to be removed).
+This change removes it.
 
-Fixes: 90efe05562921 ("iio: st_sensors: harden interrupt handling")
-Reported-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/c9ec69ed349e7200c779fd7a5bf04c1aaa2817aa.1607438132.git.lorenzo@kernel.org
+Fixes: 3c5308058899 ("iio: adc: ti_am335x_adc: alloc kfifo & IRQ via devm_ functions")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Link: https://lore.kernel.org/r/20201203072650.24128-1-alexandru.ardelean@analog.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/common/st_sensors/st_sensors_trigger.c |   31 +++++++++++----------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/iio/common/st_sensors/st_sensors_trigger.c
-+++ b/drivers/iio/common/st_sensors/st_sensors_trigger.c
-@@ -23,35 +23,31 @@
-  * @sdata: Sensor data.
-  *
-  * returns:
-- * 0 - no new samples available
-- * 1 - new samples available
-- * negative - error or unknown
-+ * false - no new samples available or read error
-+ * true - new samples available
-  */
--static int st_sensors_new_samples_available(struct iio_dev *indio_dev,
--					    struct st_sensor_data *sdata)
-+static bool st_sensors_new_samples_available(struct iio_dev *indio_dev,
-+					     struct st_sensor_data *sdata)
- {
- 	int ret, status;
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -397,16 +397,12 @@ static int tiadc_iio_buffered_hardware_s
+ 	ret = devm_request_threaded_irq(dev, irq, pollfunc_th, pollfunc_bh,
+ 				flags, indio_dev->name, indio_dev);
+ 	if (ret)
+-		goto error_kfifo_free;
++		return ret;
  
- 	/* How would I know if I can't check it? */
- 	if (!sdata->sensor_settings->drdy_irq.stat_drdy.addr)
--		return -EINVAL;
-+		return true;
+ 	indio_dev->setup_ops = setup_ops;
+ 	indio_dev->modes |= INDIO_BUFFER_SOFTWARE;
  
- 	/* No scan mask, no interrupt */
- 	if (!indio_dev->active_scan_mask)
--		return 0;
-+		return false;
- 
- 	ret = regmap_read(sdata->regmap,
- 			  sdata->sensor_settings->drdy_irq.stat_drdy.addr,
- 			  &status);
- 	if (ret < 0) {
- 		dev_err(sdata->dev, "error checking samples available\n");
--		return ret;
-+		return false;
- 	}
- 
--	if (status & sdata->sensor_settings->drdy_irq.stat_drdy.mask)
--		return 1;
+ 	return 0;
 -
--	return 0;
-+	return !!(status & sdata->sensor_settings->drdy_irq.stat_drdy.mask);
+-error_kfifo_free:
+-	iio_kfifo_free(indio_dev->buffer);
+-	return ret;
  }
  
- /**
-@@ -180,9 +176,15 @@ int st_sensors_allocate_trigger(struct i
- 
- 	/* Tell the interrupt handler that we're dealing with edges */
- 	if (irq_trig == IRQF_TRIGGER_FALLING ||
--	    irq_trig == IRQF_TRIGGER_RISING)
-+	    irq_trig == IRQF_TRIGGER_RISING) {
-+		if (!sdata->sensor_settings->drdy_irq.stat_drdy.addr) {
-+			dev_err(&indio_dev->dev,
-+				"edge IRQ not supported w/o stat register.\n");
-+			err = -EOPNOTSUPP;
-+			goto iio_trigger_free;
-+		}
- 		sdata->edge_irq = true;
--	else
-+	} else {
- 		/*
- 		 * If we're not using edges (i.e. level interrupts) we
- 		 * just mask off the IRQ, handle one interrupt, then
-@@ -190,6 +192,7 @@ int st_sensors_allocate_trigger(struct i
- 		 * interrupt handler top half again and start over.
- 		 */
- 		irq_trig |= IRQF_ONESHOT;
-+	}
- 
- 	/*
- 	 * If the interrupt pin is Open Drain, by definition this
+ static const char * const chan_name_ain[] = {
 
 
