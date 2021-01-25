@@ -2,79 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14751304A68
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E28304A66
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:43:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731376AbhAZFF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41854 "EHLO mail.kernel.org"
+        id S1731399AbhAZFFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731395AbhAYSzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:55:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A6E0206E5;
-        Mon, 25 Jan 2021 18:55:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600911;
-        bh=SQc3nBFL0NCJTc5IkCd0Cqx8M4i4sWedKovUs/8iX7Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1yewgmE29hUBXBRjvrsd/ZrMl4ls2bURGxLsZnbhUaCYlqiJ/2d3j0Ka2ekB77se
-         mbR4RDm7XUNsIJ+ei8O4Hq5NOCLytSay5ISuOG7GDNVytMKeVInj3fS6szj9SZE5gc
-         zxQcF6LGm12LU+G7JkfWaeebBGsNk9ImeBm8p/no=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+        id S1731716AbhAYTWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 14:22:10 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E129020E65;
+        Mon, 25 Jan 2021 19:21:27 +0000 (UTC)
+Date:   Mon, 25 Jan 2021 14:21:26 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     stable <stable@vger.kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Georgi Djakov <georgi.djakov@linaro.org>
-Subject: [PATCH 5.10 199/199] interconnect: imx8mq: Use icc_sync_state
-Date:   Mon, 25 Jan 2021 19:40:21 +0100
-Message-Id: <20210125183224.566786282@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
-User-Agent: quilt/0.66
+        Denis Efremov <efremov@linux.com>,
+        Gaurav Kohli <gkohli@codeaurora.org>
+Subject: [PATCH v5.4 and earlier] trace: Fix race in trace_open and buffer
+ resize call
+Message-ID: <20210125142126.70d6a33c@gandalf.local.home>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Gaurav Kohli <gkohli@codeaurora.org>
 
-commit 67288f74d4837b82ef937170da3389b0779c17be upstream.
+[ upstream commit bbeb97464eefc65f506084fd9f18f21653e01137 ]
 
-Add the icc_sync_state callback to notify the framework when consumers
-are probed and the bandwidth doesn't have to be kept at maximum anymore.
+Below race can come, if trace_open and resize of
+cpu buffer is running parallely on different cpus
+CPUX                                CPUY
+				    ring_buffer_resize
+				    atomic_read(&buffer->resize_disabled)
+tracing_open
+tracing_reset_online_cpus
+ring_buffer_reset_cpu
+rb_reset_cpu
+				    rb_update_pages
+				    remove/insert pages
+resetting pointer
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Suggested-by: Georgi Djakov <georgi.djakov@linaro.org>
-Fixes: 7d3b0b0d8184 ("interconnect: qcom: Use icc_sync_state")
-Link: https://lore.kernel.org/r/20201210100906.18205-6-martin.kepplinger@puri.sm
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This race can cause data abort or some times infinite loop in
+rb_remove_pages and rb_insert_pages while checking pages
+for sanity.
 
+Take buffer lock to fix this.
+
+Link: https://lkml.kernel.org/r/1601976833-24377-1-git-send-email-gkohli@codeaurora.org
+
+Cc: stable@vger.kernel.org
+Fixes: 83f40318dab00 ("ring-buffer: Make removal of ring buffer pages atomic")
+Reported-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Gaurav Kohli <gkohli@codeaurora.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- drivers/interconnect/imx/imx8mq.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/interconnect/imx/imx8mq.c
-+++ b/drivers/interconnect/imx/imx8mq.c
-@@ -7,6 +7,7 @@
- 
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/interconnect-provider.h>
- #include <dt-bindings/interconnect/imx8mq.h>
- 
- #include "imx.h"
-@@ -94,6 +95,7 @@ static struct platform_driver imx8mq_icc
- 	.remove = imx8mq_icc_remove,
- 	.driver = {
- 		.name = "imx8mq-interconnect",
-+		.sync_state = icc_sync_state,
- 	},
- };
- 
+I updated the "Fixes:" tag with the proper commit it fixes.
+-- Steve
 
+ kernel/trace/ring_buffer.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 077877ed54f7..728374166653 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4448,6 +4448,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+ 
+ 	if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 		return;
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
+ 
+ 	atomic_inc(&buffer->resize_disabled);
+ 	atomic_inc(&cpu_buffer->record_disabled);
+@@ -4471,6 +4473,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+ 
+ 	atomic_dec(&cpu_buffer->record_disabled);
+ 	atomic_dec(&buffer->resize_disabled);
++
++	mutex_unlock(&buffer->mutex);
+ }
+ EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ 
+-- 
+2.25.4
 
