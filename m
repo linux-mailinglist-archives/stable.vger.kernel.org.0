@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F39213031C6
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:26:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBA33031A8
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbhAYSpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:45:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33228 "EHLO mail.kernel.org"
+        id S1731290AbhAYSxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:53:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729824AbhAYSpR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:45:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A4BB224DF;
-        Mon, 25 Jan 2021 18:44:35 +0000 (UTC)
+        id S1731279AbhAYSxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:53:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C004E2074B;
+        Mon, 25 Jan 2021 18:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600276;
-        bh=0vaSpt8UTfCAODmVo1G0Aj3+/qvjp3OxCQURV5qPFAc=;
+        s=korg; t=1611600791;
+        bh=6/ggl5O6X5ty4jZKvBiscLmFgeezdL+nq4Ufp0LkcBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZwlZfJkpXkOkb5I3UP3vGwd0z/MxTxQYctkRfDZrdBKEoCOjtDNOspX2vWKzYqo9
-         yYP/3U6DmWBWMDQ2Jf81znKfBnvrFrbh6OsThh2YTe2UXgP9RLl9cjL8plHcp2QNdi
-         f+4fuDkbMA2DwG+hR1Ydtnxos4HnFD8G0Qy2NYoM=
+        b=1PTwLokje5+nSvBjaAfDyaAlon+ctWn8Nf0Gqw5uU0ssvLmYqnKLlI/mmK/jY+D1p
+         BeDfu8F0hH37m+dB+OxWjZfWwjAIyugCCrwKje6v77p4XusCWg+y4Bxt86z01RLqqQ
+         vlLsC2kSd63n/oxyaHsY52tE08plNLwTY6TlyRn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/86] drm/nouveau/privring: ack interrupts the same way as RM
-Date:   Mon, 25 Jan 2021 19:39:20 +0100
-Message-Id: <20210125183202.675342538@linuxfoundation.org>
+        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.10 151/199] tools: gpio: fix %llu warning in gpio-event-mon.c
+Date:   Mon, 25 Jan 2021 19:39:33 +0100
+Message-Id: <20210125183222.587410865@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,119 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Kent Gibson <warthog618@gmail.com>
 
-[ Upstream commit e05e06cd34f5311f677294a08b609acfbc315236 ]
+commit 2fe7c2f99440d52613e1cf845c96e8e463c28111 upstream.
 
-Whatever it is that we were doing before doesn't work on Ampere.
+Some platforms, such as mips64, don't map __u64 to long long unsigned
+int so using %llu produces a warning:
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+gpio-event-mon.c:110:37: warning: format ‘%llu’ expects argument of type ‘long long unsigned int’, but argument 3 has type ‘__u64’ {aka ‘long unsigned int’} [-Wformat=]
+  110 |   fprintf(stdout, "GPIO EVENT at %llu on line %d (%d|%d) ",
+      |                                  ~~~^
+      |                                     |
+      |                                     long long unsigned int
+      |                                  %lu
+  111 |    event.timestamp_ns, event.offset, event.line_seqno,
+      |    ~~~~~~~~~~~~~~~~~~
+      |         |
+      |         __u64 {aka long unsigned int}
+
+Replace the %llu with PRIu64 and cast the argument to uint64_t.
+
+Fixes: 03fd11b03362 ("tools/gpio/gpio-event-mon: fix warning")
+Signed-off-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c | 10 +++++++---
- drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c | 10 +++++++---
- 2 files changed, 14 insertions(+), 6 deletions(-)
+ tools/gpio/gpio-event-mon.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-index d80dbc8f09b20..55a4ea4393c62 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
-  */
- #include "priv.h"
-+#include <subdev/timer.h>
- 
- static void
- gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
-@@ -31,7 +32,6 @@ gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0400));
- 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x122128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -42,7 +42,6 @@ gf100_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0400));
- 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x124128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -53,7 +52,6 @@ gf100_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0400));
- 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x128128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- void
-@@ -90,6 +88,12 @@ gf100_ibus_intr(struct nvkm_subdev *ibus)
- 			intr1 &= ~stat;
+--- a/tools/gpio/gpio-event-mon.c
++++ b/tools/gpio/gpio-event-mon.c
+@@ -107,8 +107,8 @@ int monitor_device(const char *device_na
+ 			ret = -EIO;
+ 			break;
  		}
- 	}
-+
-+	nvkm_mask(device, 0x121c4c, 0x0000003f, 0x00000002);
-+	nvkm_msec(device, 2000,
-+		if (!(nvkm_rd32(device, 0x121c4c) & 0x0000003f))
-+			break;
-+	);
- }
- 
- static int
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-index 9025ed1bd2a99..4caf3ef087e1d 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
-  */
- #include "priv.h"
-+#include <subdev/timer.h>
- 
- static void
- gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
-@@ -31,7 +32,6 @@ gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0800));
- 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x122128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -42,7 +42,6 @@ gk104_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0800));
- 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x124128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -53,7 +52,6 @@ gk104_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0800));
- 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x128128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- void
-@@ -90,6 +88,12 @@ gk104_ibus_intr(struct nvkm_subdev *ibus)
- 			intr1 &= ~stat;
- 		}
- 	}
-+
-+	nvkm_mask(device, 0x12004c, 0x0000003f, 0x00000002);
-+	nvkm_msec(device, 2000,
-+		if (!(nvkm_rd32(device, 0x12004c) & 0x0000003f))
-+			break;
-+	);
- }
- 
- static int
--- 
-2.27.0
-
+-		fprintf(stdout, "GPIO EVENT at %llu on line %d (%d|%d) ",
+-			event.timestamp_ns, event.offset, event.line_seqno,
++		fprintf(stdout, "GPIO EVENT at %" PRIu64 " on line %d (%d|%d) ",
++			(uint64_t)event.timestamp_ns, event.offset, event.line_seqno,
+ 			event.seqno);
+ 		switch (event.id) {
+ 		case GPIO_V2_LINE_EVENT_RISING_EDGE:
 
 
