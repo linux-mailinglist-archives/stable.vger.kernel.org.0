@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 482E0302A92
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E90E7302AAB
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726613AbhAYSny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:43:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        id S1730363AbhAYSrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:47:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728492AbhAYSn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:43:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8431020665;
-        Mon, 25 Jan 2021 18:42:37 +0000 (UTC)
+        id S1727287AbhAYSrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:47:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53CC3207B3;
+        Mon, 25 Jan 2021 18:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600158;
-        bh=mg8NDMbXTiGz2vnM2wRCdZ6fsdYgYOYEY+WBXAWVZYM=;
+        s=korg; t=1611600419;
+        bh=vYsC0gqdQq06cgoQOpMyq5CWgPbVWA1Bwdlpt+wZp8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DhDzzbFrfF+SYcr5HTI3jUNP7Ji9qbBPhuG7jjwcBySJFzTHpUKlh5CO+krIEKLr
-         y8XRvUYwT1tX0YX0QEW7IGFB4CCNlvC48HZnvtLxGfU68AMcn1YxHaUqvujo6ghMMM
-         Bmnn+9qxwJvQg6XkpvI85dahh2fqr4JTAATzEapc=
+        b=NRPtwvmQ7Upg0+ztBvD3J2XqPhARul5EsdgcfL0XivPTIH/zcgcI58U5eRa9oo3Zw
+         +MC2a42cseJ9J+BmXVqqk64P3LqAoxnMpHTy7MwZewRWPOGYYw6tRCZ2bnZCW8RNuu
+         2xqgC0eT4dA4vOClBPYh2ZdbMmWAWTRGYTfJUr38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 53/58] net_sched: avoid shift-out-of-bounds in tcindex_set_parms()
+Subject: [PATCH 5.4 72/86] sh_eth: Fix power down vs. is_opened flag ordering
 Date:   Mon, 25 Jan 2021 19:39:54 +0100
-Message-Id: <20210125183158.974465946@linuxfoundation.org>
+Message-Id: <20210125183204.090410046@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
-References: <20210125183156.702907356@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit bcd0cf19ef8258ac31b9a20248b05c15a1f4b4b0 upstream.
+commit f6a2e94b3f9d89cb40771ff746b16b5687650cbb upstream.
 
-tc_index being 16bit wide, we need to check that TCA_TCINDEX_SHIFT
-attribute is not silly.
+sh_eth_close() does a synchronous power down of the device before
+marking it closed.  Revert the order, to make sure the device is never
+marked opened while suspended.
 
-UBSAN: shift-out-of-bounds in net/sched/cls_tcindex.c:260:29
-shift exponent 255 is too large for 32-bit type 'int'
-CPU: 0 PID: 8516 Comm: syz-executor228 Not tainted 5.10.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
- valid_perfect_hash net/sched/cls_tcindex.c:260 [inline]
- tcindex_set_parms.cold+0x1b/0x215 net/sched/cls_tcindex.c:425
- tcindex_change+0x232/0x340 net/sched/cls_tcindex.c:546
- tc_new_tfilter+0x13fb/0x21b0 net/sched/cls_api.c:2127
- rtnetlink_rcv_msg+0x8b6/0xb80 net/core/rtnetlink.c:5555
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2336
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2390
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2423
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+While at it, use pm_runtime_put() instead of pm_runtime_put_sync(), as
+there is no reason to do a synchronous power down.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210114185229.1742255-1-eric.dumazet@gmail.com
+Fixes: 7fa2955ff70ce453 ("sh_eth: Fix sleeping function called from invalid context")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/20210118150812.796791-1-geert+renesas@glider.be
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_tcindex.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/renesas/sh_eth.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -339,9 +339,13 @@ tcindex_set_parms(struct net *net, struc
- 	if (tb[TCA_TCINDEX_MASK])
- 		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2640,10 +2640,10 @@ static int sh_eth_close(struct net_devic
+ 	/* Free all the skbuffs in the Rx queue and the DMA buffer. */
+ 	sh_eth_ring_free(ndev);
  
--	if (tb[TCA_TCINDEX_SHIFT])
-+	if (tb[TCA_TCINDEX_SHIFT]) {
- 		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
+-	pm_runtime_put_sync(&mdp->pdev->dev);
 -
-+		if (cp->shift > 16) {
-+			err = -EINVAL;
-+			goto errout;
-+		}
-+	}
- 	if (!cp->hash) {
- 		/* Hash not specified, use perfect hash if the upper limit
- 		 * of the hashing index is below the threshold.
+ 	mdp->is_opened = 0;
+ 
++	pm_runtime_put(&mdp->pdev->dev);
++
+ 	return 0;
+ }
+ 
 
 
