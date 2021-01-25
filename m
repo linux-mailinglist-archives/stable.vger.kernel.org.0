@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8C7302AD0
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FDE302AA4
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727349AbhAYSxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:53:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39598 "EHLO mail.kernel.org"
+        id S1730456AbhAYSq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:46:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731232AbhAYSxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:53:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2674C22D58;
-        Mon, 25 Jan 2021 18:52:44 +0000 (UTC)
+        id S1730433AbhAYSqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:46:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D272063A;
+        Mon, 25 Jan 2021 18:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600764;
-        bh=Otdx/4uXP1vIh12+8pO3NNJbSGYpwcNiDH8GCaqQ3x0=;
+        s=korg; t=1611600365;
+        bh=0PvCsjP4ushUz+Zpo+xE0Cig+aVTUvoTMcuKn/LeGuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNQ4dSzv0CFhKB4vDgpmSGxSnn/Qlz1DiI+x7i+neqWpugouIZYjIsv5MGaIqJZwU
-         iDZL3CVdYMQOGCPBVIQlgV5MVs+4Dc54oqFkxei0z2x39FpXOyQCSEmRojPucLC9uo
-         Vi0edbmuYvPO5Jrt50hnnAeBP+ClemWIY9Oue6CU=
+        b=WhRTt9R+9GpcRooPVu6II/NnYa9pFPArzo3oCY192OXkf9ow0b1mbKL0OUk7m7MQy
+         Lr7BdBKL6h4NHFRdDOVqrjQ2ltZkAlWy8gkHiiM3wZZW52sZu633Mn8MjvGYnhbvTY
+         38MiLPE28ksKG9oHLmHCVM/lP1FtYs3Vn6se09O8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>
-Subject: [PATCH 5.10 142/199] drivers core: Free dma_range_map when driver probe failed
-Date:   Mon, 25 Jan 2021 19:39:24 +0100
-Message-Id: <20210125183222.206380485@linuxfoundation.org>
+        stable@vger.kernel.org, Billy Tsai <billy_tsai@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 43/86] pinctrl: aspeed: g6: Fix PWMG0 pinctrl setting
+Date:   Mon, 25 Jan 2021 19:39:25 +0100
+Message-Id: <20210125183202.882373545@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,45 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Billy Tsai <billy_tsai@aspeedtech.com>
 
-commit d0243bbd5dd3ebbd49dafa8b56bb911d971131d0 upstream.
+[ Upstream commit 92ff62a7bcc17d47c0ce8dddfb7a6e1a2e55ebf4 ]
 
-There will be memory leak if driver probe failed. Trace as below:
-  backtrace:
-    [<000000002415258f>] kmemleak_alloc+0x3c/0x50
-    [<00000000f447ebe4>] __kmalloc+0x208/0x530
-    [<0000000048bc7b3a>] of_dma_get_range+0xe4/0x1b0
-    [<0000000041e39065>] of_dma_configure_id+0x58/0x27c
-    [<000000006356866a>] platform_dma_configure+0x2c/0x40
-    ......
-    [<000000000afcf9b5>] ret_from_fork+0x10/0x3c
+The SCU offset for signal PWM8 in group PWM8G0 is wrong, fix it from
+SCU414 to SCU4B4.
 
-This issue is introduced by commit e0d072782c73("dma-mapping:
-introduce DMA range map, supplanting dma_pfn_offset "). It doesn't
-free dma_range_map when driver probe failed and cause above
-memory leak. So, add code to free it in error path.
-
-Fixes: e0d072782c73 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset ")
-Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Link: https://lore.kernel.org/r/20210105070927.14968-1-Meng.Li@windriver.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Fixes: 2eda1cdec49f ("pinctrl: aspeed: Add AST2600 pinmux support")
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20201217024912.3198-1-billy_tsai@aspeedtech.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -612,6 +612,8 @@ dev_groups_failed:
- 	else if (drv->remove)
- 		drv->remove(dev);
- probe_failed:
-+	kfree(dev->dma_range_map);
-+	dev->dma_range_map = NULL;
- 	if (dev->bus)
- 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
- 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
+diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
+index bb07024d22edc..0a745769e7127 100644
+--- a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
++++ b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
+@@ -334,7 +334,7 @@ FUNC_GROUP_DECL(RMII4, F24, E23, E24, E25, C25, C24, B26, B25, B24);
+ 
+ #define D22 40
+ SIG_EXPR_LIST_DECL_SESG(D22, SD1CLK, SD1, SIG_DESC_SET(SCU414, 8));
+-SIG_EXPR_LIST_DECL_SEMG(D22, PWM8, PWM8G0, PWM8, SIG_DESC_SET(SCU414, 8));
++SIG_EXPR_LIST_DECL_SEMG(D22, PWM8, PWM8G0, PWM8, SIG_DESC_SET(SCU4B4, 8));
+ PIN_DECL_2(D22, GPIOF0, SD1CLK, PWM8);
+ GROUP_DECL(PWM8G0, D22);
+ 
+-- 
+2.27.0
+
 
 
