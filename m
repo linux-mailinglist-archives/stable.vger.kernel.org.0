@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E430030321B
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:48:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BBB30321A
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:48:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729788AbhAYOsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 09:48:47 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:41429 "EHLO
+        id S1729764AbhAYOs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 09:48:56 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:50519 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729764AbhAYOsJ (ORCPT
+        by vger.kernel.org with ESMTP id S1729767AbhAYOsJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:48:09 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 799CEEAD;
-        Mon, 25 Jan 2021 09:47:07 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:47:07 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 78C9BF49;
+        Mon, 25 Jan 2021 09:47:15 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:47:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=A4iuBu
-        vJTIgz/t2JKzGUAS54wPF/7U07dtwaBz+fCOM=; b=KCxi1BMYAR+iXSQHiqZ3vk
-        PKtLC5DQkVU3bunOqLQa3CqhKUsZflm26hnroX2kjgEMWnAbzInqqvGn6CJNP49b
-        EukuZauSHFq55vz8Mdkp8ZCiQgopUcmK4QK4nUkQibAGo2gB3pYZVJwA70uxZqAf
-        DP1dwn5EaMp2GgZqZmQj6iaMNRcHCD+CdyGnkCk0aERj/FVzfTlx9fmNMzPEYvSe
-        jMbrJh7zlbTc6dRzTwZBASu/qWwySedvqgGisF72HExTfG/uBU+2+TkyPepwWxkw
-        EjGJcwACYKrdO1J7+ORCCCUxauM2rPuP0EwsDdb9Hly0zJOYLnarY82UCARPK4nw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xUzn0Z
+        9Tlsezh3jvmoQ1VFF6Wen4hVsEQWR5iDmqu8Y=; b=QCzPCryziSqrMZ8avsvcOR
+        sXCF/S4jf0UXlzWZIquUqVrgmyTD8RJKmtmQMORH37DLwouEJysh9/rWTHh3roPG
+        3mt0UEi/nJtMkgv29oApdRF2GKVBKpsS7wgLBviHsCwacZBsgbyvil7slcmVpB1X
+        JAf67IWeNCE1/Uja/kf5oxl7RsajJj/k1DWGiitcYdnYUwQRLggTHevj/uYey4is
+        HrYMVRB0XxdYjblsBfVaGTH2pF8XKpK4ETITS3cUxXXUweZKT1GVIZ+YzMGKTuxU
+        nDP2ubG3xN4eVNpYPhMOslP8qBpTqxFW0yFj6rliezJmanM8QVo7V8+220A0IpoQ
         ==
-X-ME-Sender: <xms:6tkOYPJajjR94COwxAldYfAQYYFcmk_FdhaIEdP0oHkDz2anGMESzw>
-    <xme:6tkOYBFto09zx2iFfml3Mgis157vpqBcRNtgLMX-vs7Fd9DTs8ld5W3o-0ZCofr_M
-    YhfHS1G7O04uw>
+X-ME-Sender: <xms:89kOYBKiWJaiYM_EDUxkNMLyOQuBUPLF3mMMAUm8cZ0CtfPxLDv2MQ>
+    <xme:89kOYNJJ5_HDPlACtQFzQrb5ZeizwgtnR7uDt6lq7WE2gljxAPe7QhFyMkStLcRMg
+    wNi1IKPPyWgag>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdeiiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:6tkOYKD3r_02m8gLp3FaDGm1RTiiXTH4JGysmf0svI_R1_rAax7w_Q>
-    <xmx:6tkOYM-JqWwGUHpq0AfgUvfQdRoYOeSiqtFn_NDFTAa8K2R6IInuFg>
-    <xmx:6tkOYOAWwQbEV1pS_159BX8lXv-GhbVIWsroDcERhpEFpyaCsKJQAg>
-    <xmx:69kOYA0mjfOqyxbt8b5b1oIsTc663YBf4vTx0Ae0Qesyzw3ycJPXjRsNisA>
+X-ME-Proxy: <xmx:89kOYJtyxexkytnKqkgSbQoU3yCHEX85WAbHJt4ydWO5YY-nuVdhvA>
+    <xmx:89kOYCZ60Iq1cn5zzNo1T-HatAYYqRpi8vjs56QKUDS5Pvk6xUn-Aw>
+    <xmx:89kOYIbqzTMRg0JUIuSVbGLkbJrgm0tl0wILN6wRU89YuDNwebO6kQ>
+    <xmx:89kOYBAoViXuEKCq2dXdLUz1JLWq9iFmnFkXNkB2OhS3tOHbn7mlm0wOWsw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 19141108005F;
-        Mon, 25 Jan 2021 09:47:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mtd: spinand: Fix MTD_OPS_AUTO_OOB requests" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AEAC9240066;
+        Mon, 25 Jan 2021 09:47:14 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mtd: spinand: Fix MTD_OPS_AUTO_OOB requests" failed to apply to 5.10-stable tree
 To:     miquel.raynal@bootlin.com, nbd@nbd.name
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:47:04 +0100
-Message-ID: <1611586024229193@kroah.com>
+Date:   Mon, 25 Jan 2021 15:47:05 +0100
+Message-ID: <161158602523135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
