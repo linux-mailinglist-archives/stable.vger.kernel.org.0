@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99356303392
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9D6303391
 	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbhAZE6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:58:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37294 "EHLO mail.kernel.org"
+        id S1730092AbhAZE6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731070AbhAYSuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B4F20679;
-        Mon, 25 Jan 2021 18:49:30 +0000 (UTC)
+        id S1727212AbhAYSuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9712067B;
+        Mon, 25 Jan 2021 18:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600571;
-        bh=MJksqXmuYaGUzjr4jC6xeLEyWJivFShEUeqd9qu+zGo=;
+        s=korg; t=1611600589;
+        bh=p1zvHNvX4mBTOFr0HwcT/Szj2x4F0eoll/67TJiUa4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9UROJK6+S4E/burVp55KfuiJcuUy8owVhEuwQSPu6uBQUblAQBReHCqzQbY8CK+v
-         12o3E2BwfsFpnHr4dCmOeRh2rn0GCj4yRIYl0xHnMLmhP6zf7GRlgXa9/B+XhkrLcR
-         fu70ns4WSVdPYvNUIvIDS/jf+KR6zj/tjNW1cwkM=
+        b=2QRLTk4rlRgWE5pyJYliEqfNatALrSdrmBVaak1Dzy8UY8WX2xfdMIxYV/aEaakEz
+         4Dl+zvr6cc8sro1pls9M2XDYZ/V6Dl3OSbkRaLm4bmT4bzSNoBXrpXensx4MyXRtl1
+         cpd2b4Yq+i1y5GGI2G7OOzhGroaClO88ZGXGIbxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
+        Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/199] drm/nouveau/i2c/gm200: increase width of aux semaphore owner fields
-Date:   Mon, 25 Jan 2021 19:38:09 +0100
-Message-Id: <20210125183219.096400419@linuxfoundation.org>
+Subject: [PATCH 5.10 074/199] RISC-V: Fix maximum allowed phsyical memory for RV32
+Date:   Mon, 25 Jan 2021 19:38:16 +0100
+Message-Id: <20210125183219.391097351@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,53 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-[ Upstream commit ba6e9ab0fcf3d76e3952deb12b5f993991621d9c ]
+[ Upstream commit e557793799c5a8406afb08aa170509619f7eac36 ]
 
-Noticed while debugging GA102.
+Linux kernel can only map 1GB of address space for RV32 as the page offset
+is set to 0xC0000000. The current description in the Kconfig is confusing
+as it indicates that RV32 can support 2GB of physical memory. That is
+simply not true for current kernel. In future, a 2GB split support can be
+added to allow 2GB physical address space.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/riscv/Kconfig | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-index edb6148cbca04..d0e80ad526845 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
-@@ -33,7 +33,7 @@ static void
- gm200_i2c_aux_fini(struct gm200_i2c_aux *aux)
- {
- 	struct nvkm_device *device = aux->base.pad->i2c->subdev.device;
--	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00310000, 0x00000000);
-+	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00710000, 0x00000000);
- }
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 44377fd7860e4..234a21d26f674 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -134,7 +134,7 @@ config PA_BITS
  
- static int
-@@ -54,10 +54,10 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
- 			AUX_ERR(&aux->base, "begin idle timeout %08x", ctrl);
- 			return -EBUSY;
- 		}
--	} while (ctrl & 0x03010000);
-+	} while (ctrl & 0x07010000);
+ config PAGE_OFFSET
+ 	hex
+-	default 0xC0000000 if 32BIT && MAXPHYSMEM_2GB
++	default 0xC0000000 if 32BIT && MAXPHYSMEM_1GB
+ 	default 0x80000000 if 64BIT && !MMU
+ 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
+ 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
+@@ -247,10 +247,12 @@ config MODULE_SECTIONS
  
- 	/* set some magic, and wait up to 1ms for it to appear */
--	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00300000, ureq);
-+	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00700000, ureq);
- 	timeout = 1000;
- 	do {
- 		ctrl = nvkm_rd32(device, 0x00d954 + (aux->ch * 0x50));
-@@ -67,7 +67,7 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
- 			gm200_i2c_aux_fini(aux);
- 			return -EBUSY;
- 		}
--	} while ((ctrl & 0x03000000) != urep);
-+	} while ((ctrl & 0x07000000) != urep);
+ choice
+ 	prompt "Maximum Physical Memory"
+-	default MAXPHYSMEM_2GB if 32BIT
++	default MAXPHYSMEM_1GB if 32BIT
+ 	default MAXPHYSMEM_2GB if 64BIT && CMODEL_MEDLOW
+ 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
  
- 	return 0;
- }
++	config MAXPHYSMEM_1GB
++		bool "1GiB"
+ 	config MAXPHYSMEM_2GB
+ 		bool "2GiB"
+ 	config MAXPHYSMEM_128GB
 -- 
 2.27.0
 
