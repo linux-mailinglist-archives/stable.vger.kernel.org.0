@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A4F3031AB
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:19:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D5483031CC
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbhAYSvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:51:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S1728888AbhAYSn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:43:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731019AbhAYSvJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:51:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74426224D1;
-        Mon, 25 Jan 2021 18:50:34 +0000 (UTC)
+        id S1728705AbhAYSnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:43:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAF34207B3;
+        Mon, 25 Jan 2021 18:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600634;
-        bh=kMn8CfxQziRnH48xb4v4RCCNXXh+0G5URM2cOoDmtm8=;
+        s=korg; t=1611600203;
+        bh=nHqKweedei2LYxtp/IjBgHO4pOd3oRIKcYCJ268FmtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1F61VAS3wvZaNQEZNh+IPF/XiBJ2y6OGYLEO6WbHWZmG2VuvU0+UGT7OguGR1H1Rc
-         mPg3FMlzpwvxfLuDRu/ou6g2yLk1YNnFm2u3eX6GVilDR6L+TYiyTnYTBXlQ56w9M1
-         z5x2QJLQKv6A0iriKU1CfP7PP33an2+AI2O1wfBo=
+        b=vTTbZhaGpPuJfqF37jtXgEQtypSChz9y7BJLmpNWtths6046pCX8qu+0WbGE1qyvT
+         9jbBh1ZZjfKDfkoKPSppwi1RfxL8jS97E2NHJSFbJBmw/fpYOR87vjzjy9QMhkKk1B
+         /WsefhFU6v1Opwe4xJmzjYwuHRfc/2977YZGv9uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Victor Zhao <Victor.Zhao@amd.com>,
-        "Emily.Deng" <Emily.Deng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/199] drm/amdgpu/psp: fix psp gfx ctrl cmds
-Date:   Mon, 25 Jan 2021 19:38:03 +0100
-Message-Id: <20210125183218.850058628@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e42504ff21cff05a595f@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 04/86] ALSA: seq: oss: Fix missing error check in snd_seq_oss_synth_make_info()
+Date:   Mon, 25 Jan 2021 19:38:46 +0100
+Message-Id: <20210125183201.223332147@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Zhao <Victor.Zhao@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f14a5c34d143f6627f0be70c0de1d962f3a6ff1c ]
+commit 217bfbb8b0bfa24619b11ab75c135fec99b99b20 upstream.
 
-psp GFX_CTRL_CMD_ID_CONSUME_CMD different for windows and linux,
-according to psp, linux cmds are not correct.
+snd_seq_oss_synth_make_info() didn't check the error code from
+snd_seq_oss_midi_make_info(), and this leads to the call of strlcpy()
+with the uninitialized string as the source, which may lead to the
+access over the limit.
 
-v2: only correct GFX_CTRL_CMD_ID_CONSUME_CMD.
+Add the proper error check for avoiding the failure.
 
-Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
-Reviewed-by: Emily.Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+e42504ff21cff05a595f@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210115093428.15882-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/seq/oss/seq_oss_synth.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-index 4137dc710aafd..7ad0434be293b 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
-@@ -47,7 +47,7 @@ enum psp_gfx_crtl_cmd_id
-     GFX_CTRL_CMD_ID_DISABLE_INT     = 0x00060000,   /* disable PSP-to-Gfx interrupt */
-     GFX_CTRL_CMD_ID_MODE1_RST       = 0x00070000,   /* trigger the Mode 1 reset */
-     GFX_CTRL_CMD_ID_GBR_IH_SET      = 0x00080000,   /* set Gbr IH_RB_CNTL registers */
--    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x000A0000,   /* send interrupt to psp for updating write pointer of vf */
-+    GFX_CTRL_CMD_ID_CONSUME_CMD     = 0x00090000,   /* send interrupt to psp for updating write pointer of vf */
-     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING = 0x000C0000, /* destroy GPCOM ring */
+--- a/sound/core/seq/oss/seq_oss_synth.c
++++ b/sound/core/seq/oss/seq_oss_synth.c
+@@ -611,7 +611,8 @@ snd_seq_oss_synth_make_info(struct seq_o
  
-     GFX_CTRL_CMD_ID_MAX             = 0x000F0000,   /* max command ID */
--- 
-2.27.0
-
+ 	if (info->is_midi) {
+ 		struct midi_info minf;
+-		snd_seq_oss_midi_make_info(dp, info->midi_mapped, &minf);
++		if (snd_seq_oss_midi_make_info(dp, info->midi_mapped, &minf))
++			return -ENXIO;
+ 		inf->synth_type = SYNTH_TYPE_MIDI;
+ 		inf->synth_subtype = 0;
+ 		inf->nr_voices = 16;
 
 
