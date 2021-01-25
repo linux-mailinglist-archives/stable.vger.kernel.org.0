@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13234304AED
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2371304AE1
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729026AbhAZEyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:54:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
+        id S1727013AbhAZEym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:54:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730593AbhAYSr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730594AbhAYSr6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:47:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48AC2230FA;
-        Mon, 25 Jan 2021 18:47:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA4020665;
+        Mon, 25 Jan 2021 18:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600460;
-        bh=8/n197WWxFF7Liv056co3I4ULU751T8Zt5vCREeLy1E=;
+        s=korg; t=1611600463;
+        bh=Mv2rqlaJW1BoCRBzU6hB7XGeAPeXtLJmXqqtg6DUfBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zW7btDD6v5vzaupRjL7jlZqZwYKUsO2n9S95IsxzbE/2TzBOMYQ3rmxeyueEtYuR1
-         yTHV2i1YtO8t+CaT+0Wb2134PI2+yLGBlP0OL2gvjU64AxwBKdhW3RQ50HNUMnfqmW
-         WgmwZcKkj2BY0uQ/vmB5DRzvdyosNOv8g+50Bdus=
+        b=qCglI4lKS9aT5BTnmntFQIn5n6gwnW8aLIXTw2URTzLjqMiMO7J+v1t2WS6/+Q/82
+         9jlcV180P0JWhRffAeFJjymXP+VFQFpF73PZrCJ3ixSPNRX6HXLD6jwxiQqyv8dmaE
+         SWK2UQowvvrdvh3PxRPtWglNBc6kVFFw06lIVjQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 004/199] i2c: tegra: Wait for config load atomically while in ISR
-Date:   Mon, 25 Jan 2021 19:37:06 +0100
-Message-Id: <20210125183216.438507060@linuxfoundation.org>
+Subject: [PATCH 5.10 005/199] i2c: bpmp-tegra: Ignore unknown I2C_M flags
+Date:   Mon, 25 Jan 2021 19:37:07 +0100
+Message-Id: <20210125183216.478749211@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,37 +41,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mikko Perttunen <mperttunen@nvidia.com>
 
-commit 27b7c6e096264cc7b91bb80a4f65f8c0a66f079f upstream.
+commit bc1c2048abbe3c3074b4de91d213595c57741a6b upstream.
 
-Upon a communication error, the interrupt handler can call
-tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
-unless the current transaction was marked atomic. Fix this by
-making the poll happen atomically if we are in an IRQ.
+In order to not to start returning errors when new I2C_M flags are
+added, change behavior to just ignore all flags that we don't know
+about. This includes the I2C_M_DMA_SAFE flag that already exists but
+causes -EINVAL to be returned for valid transactions.
 
-This matches the behavior prior to the patch mentioned
-in the Fixes tag.
-
-Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.19+
 Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-tegra.c |    2 +-
+ drivers/i2c/busses/i2c-tegra-bpmp.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struc
- 	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
- 	u32 val;
+--- a/drivers/i2c/busses/i2c-tegra-bpmp.c
++++ b/drivers/i2c/busses/i2c-tegra-bpmp.c
+@@ -80,7 +80,7 @@ static int tegra_bpmp_xlate_flags(u16 fl
+ 		flags &= ~I2C_M_RECV_LEN;
+ 	}
  
--	if (!i2c_dev->atomic_mode)
-+	if (!i2c_dev->atomic_mode && !in_irq())
- 		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
- 						  delay_us, timeout_us);
+-	return (flags != 0) ? -EINVAL : 0;
++	return 0;
+ }
  
+ /**
 
 
