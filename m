@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F7F30337A
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8293D303383
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729147AbhAZEyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
+        id S1728707AbhAZE5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:57:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730837AbhAYSsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:48:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FDFF2063A;
-        Mon, 25 Jan 2021 18:48:26 +0000 (UTC)
+        id S1731025AbhAYStO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:49:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B98A2063A;
+        Mon, 25 Jan 2021 18:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600507;
-        bh=nIMReitFDPKoV2KJphe6j4zD/0wHrTy1EqDsoCywc/M=;
+        s=korg; t=1611600535;
+        bh=v96sACv011yE0+Z3rLK+GaGBJSBWc3PlydDDvFBYxyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2vwk4NXk0Uq2mPUnWMrQza5n2JurdvGkJNMcVTQYklCii+5MkO4FQ2TG4dsrjfKG
-         CpSYVeEsIyaZMAWlu6huXD3ApYx0oUCg9EclzqNXvS3EZezySun4QdT6w+cBLFskSz
-         K33DJKz3LOh2PD82TDakXv7QO4/mq87r6iffvMqE=
+        b=vUgEPmAFkI0BkP08NxQVab4tDkJJCdel9tkSW3GOp681b/QKyOAGxANdxVZV7hjYm
+         FuEVbHNsV403UTExn6uRoHN7nyZME2imbZv0O8pyLdQhgnez/1MbIqkeevfts0+e6q
+         v3gr3w9edNQbKiMVY9rTQ0bi2VUxtFxjxRm1pTr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 024/199] mmc: sdhci-brcmstb: Fix mmc timeout errors on S5 suspend
-Date:   Mon, 25 Jan 2021 19:37:26 +0100
-Message-Id: <20210125183217.271928907@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Martin Wilck <mwilck@suse.com>, Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.10 025/199] dm: avoid filesystem lookup in dm_get_dev_t()
+Date:   Mon, 25 Jan 2021 19:37:27 +0100
+Message-Id: <20210125183217.318368884@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,46 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Hannes Reinecke <hare@suse.de>
 
-commit 5b191dcba719319148eeecf6ed409949fac55b39 upstream.
+commit 809b1e4945774c9ec5619a8f4e2189b7b3833c0c upstream.
 
-Commit e7b5d63a82fe ("mmc: sdhci-brcmstb: Add shutdown callback")
-that added a shutdown callback to the diver, is causing "mmc timeout"
-errors on S5 suspend. The problem was that the "remove" was queuing
-additional MMC commands after the "shutdown" and these caused
-timeouts as the MMC queues were cleaned up for "remove". The
-shutdown callback will be changed to calling sdhci-pltfm_suspend
-which should get better power savings because the clocks will be
-shutdown.
+This reverts commit
+644bda6f3460 ("dm table: fall back to getting device using name_to_dev_t()")
 
-Fixes: e7b5d63a82fe ("mmc: sdhci-brcmstb: Add shutdown callback")
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+dm_get_dev_t() is just used to convert an arbitrary 'path' string
+into a dev_t. It doesn't presume that the device is present; that
+check will be done later, as the only caller is dm_get_device(),
+which does a dm_get_table_device() later on, which will properly
+open the device.
+
+So if the path string already _is_ in major:minor representation
+we can convert it directly, avoiding a recursion into the filesystem
+to lookup the block device.
+
+This avoids a hang in multipath_message() when the filesystem is
+inaccessible.
+
+Fixes: 644bda6f3460 ("dm table: fall back to getting device using name_to_dev_t()")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210107221509.6597-1-alcooperx@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-brcmstb.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/md/dm-table.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-brcmstb.c
-+++ b/drivers/mmc/host/sdhci-brcmstb.c
-@@ -314,11 +314,7 @@ err_clk:
- 
- static void sdhci_brcmstb_shutdown(struct platform_device *pdev)
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -370,14 +370,23 @@ int dm_get_device(struct dm_target *ti,
  {
--	int ret;
--
--	ret = sdhci_pltfm_unregister(pdev);
--	if (ret)
--		dev_err(&pdev->dev, "failed to shutdown\n");
-+	sdhci_pltfm_suspend(&pdev->dev);
- }
+ 	int r;
+ 	dev_t dev;
++	unsigned int major, minor;
++	char dummy;
+ 	struct dm_dev_internal *dd;
+ 	struct dm_table *t = ti->table;
  
- MODULE_DEVICE_TABLE(of, sdhci_brcm_of_match);
+ 	BUG_ON(!t);
+ 
+-	dev = dm_get_dev_t(path);
+-	if (!dev)
+-		return -ENODEV;
++	if (sscanf(path, "%u:%u%c", &major, &minor, &dummy) == 2) {
++		/* Extract the major/minor numbers */
++		dev = MKDEV(major, minor);
++		if (MAJOR(dev) != major || MINOR(dev) != minor)
++			return -EOVERFLOW;
++	} else {
++		dev = dm_get_dev_t(path);
++		if (!dev)
++			return -ENODEV;
++	}
+ 
+ 	dd = find_device(&t->devices, dev);
+ 	if (!dd) {
 
 
