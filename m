@@ -2,184 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA58302572
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 14:24:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC93302578
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 14:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbhAYNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 08:24:19 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:59299 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728774AbhAYNWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 08:22:53 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23693268-1500050 
-        for multiple; Mon, 25 Jan 2021 13:21:57 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?q?Matti=20H=C3=A4m=C3=A4l=C3=A4inen?= <ccr@tnsp.org>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gem: Drop lru bumping on display unpinning
-Date:   Mon, 25 Jan 2021 13:21:58 +0000
-Message-Id: <20210125132158.2402159-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.30.0
+        id S1728736AbhAYNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 08:25:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45160 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728820AbhAYNZO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 08:25:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC3422DFB;
+        Mon, 25 Jan 2021 13:24:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611581072;
+        bh=5GiYmwGzV4JHurHiAg6NtioYPugoWSn030T3iDqS5ss=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fXBnuZuU9TUEnWBhf5aO7KTv0N+YMPIwvLsCFzwS0eed2CZRpmyKI55ji+kPGOZRY
+         16Om0miDTjh2W1xAC71K9SNizou+iHIl6GxRez/BAxMVbqNi22Noh0l6Kbgb4iu9Zb
+         ZjlcEzI8NTKKSyGQC2HwkIPds11EJ8Y1sx1t1uNqERoUu3P/4PGFesEl6RMJfvWwW4
+         VuWUXIGvm3kqK5x08U/dKIxAm8c7aETc1ot9h9uU/+5o/opxnlFsUSjCAIbaJcdSH/
+         DBQ0AxDwvle3pUYj1YEsNcx++/KmdGX/Q2tnBq/LnPEHuWjSP+6Ibwwkve5c6O0s0A
+         eUB0fktEXP6Cg==
+From:   Will Deacon <will@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Florian Weimer <fweimer@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [STABLE BACKPORT v2 4.4.y, 4.9.y and 4.14.y] compiler.h: Raise minimum version of GCC to 5.1 for arm64
+Date:   Mon, 25 Jan 2021 13:24:25 +0000
+Message-Id: <20210125132425.28245-1-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Simplify the frontbuffer unpin by removing the lock requirement. The LRU
-bumping was primarily to protect the GTT from being evicted and from
-frontbuffers being eagerly shrunk. Now we protect frontbuffers from the
-shrinker, and we avoid accidentally evicting from the GTT, so the
-benefit from bumping LRU is no more, and we can save more time by not.
+commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
 
-Reported-and-tested-by: Matti Hämäläinen <ccr@tnsp.org>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2905
-Fixes: c1793ba86a41 ("drm/i915: Add ww locking to pin_to_display_plane, v2.")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210119214336.1463-6-chris@chris-wilson.co.uk
-(cherry picked from commit 14ca83eece9565a2d2177291ceb122982dc38420)
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: <stable@vger.kernel.org> # v5.10+
+GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
+beyond the stack pointer, resulting in memory corruption if an interrupt
+is taken after the stack pointer has been adjusted but before the
+reference has been executed. This leads to subtle, infrequent data
+corruption such as the EXT4 problems reported by Russell King at the
+link below.
+
+Life is too short for buggy compilers, so raise the minimum GCC version
+required by arm64 to 5.1.
+
+Reported-by: Russell King <linux@armlinux.org.uk>
+Suggested-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org> # 4.4.y, 4.9.y and 4.14.y only
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
+Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[will: backport to 4.4.y/4.9.y/4.14.y; add __clang__ check]
+Link: https://lore.kernel.org/r/CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_display.c |  7 +--
- drivers/gpu/drm/i915/display/intel_overlay.c |  4 +-
- drivers/gpu/drm/i915/gem/i915_gem_domain.c   | 45 --------------------
- drivers/gpu/drm/i915/gem/i915_gem_object.h   |  1 -
- 4 files changed, 4 insertions(+), 53 deletions(-)
+ include/linux/compiler-gcc.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index aabf09f89cad..b6566a992069 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -2294,7 +2294,7 @@ intel_pin_and_fence_fb_obj(struct drm_framebuffer *fb,
- 		 */
- 		ret = i915_vma_pin_fence(vma);
- 		if (ret != 0 && INTEL_GEN(dev_priv) < 4) {
--			i915_gem_object_unpin_from_display_plane(vma);
-+			i915_vma_unpin(vma);
- 			vma = ERR_PTR(ret);
- 			goto err;
- 		}
-@@ -2312,12 +2312,9 @@ intel_pin_and_fence_fb_obj(struct drm_framebuffer *fb,
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index af8b4a879934..9485abe76b68 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -145,6 +145,12 @@
  
- void intel_unpin_fb_vma(struct i915_vma *vma, unsigned long flags)
- {
--	i915_gem_object_lock(vma->obj, NULL);
- 	if (flags & PLANE_HAS_FENCE)
- 		i915_vma_unpin_fence(vma);
--	i915_gem_object_unpin_from_display_plane(vma);
--	i915_gem_object_unlock(vma->obj);
--
-+	i915_vma_unpin(vma);
- 	i915_vma_put(vma);
- }
+ #if GCC_VERSION < 30200
+ # error Sorry, your compiler is too old - please upgrade it.
++#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100 && !defined(__clang__)
++/*
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
++ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ */
++# error Sorry, your version of GCC is too old - please use 5.1 or newer.
+ #endif
  
-diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
-index 52b4f6193b4c..0095c8cac9b4 100644
---- a/drivers/gpu/drm/i915/display/intel_overlay.c
-+++ b/drivers/gpu/drm/i915/display/intel_overlay.c
-@@ -359,7 +359,7 @@ static void intel_overlay_release_old_vma(struct intel_overlay *overlay)
- 	intel_frontbuffer_flip_complete(overlay->i915,
- 					INTEL_FRONTBUFFER_OVERLAY(overlay->crtc->pipe));
- 
--	i915_gem_object_unpin_from_display_plane(vma);
-+	i915_vma_unpin(vma);
- 	i915_vma_put(vma);
- }
- 
-@@ -860,7 +860,7 @@ static int intel_overlay_do_put_image(struct intel_overlay *overlay,
- 	return 0;
- 
- out_unpin:
--	i915_gem_object_unpin_from_display_plane(vma);
-+	i915_vma_unpin(vma);
- out_pin_section:
- 	atomic_dec(&dev_priv->gpu_error.pending_fb_pin);
- 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-index fcce6909f201..3d435bfff764 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-@@ -387,48 +387,6 @@ i915_gem_object_pin_to_display_plane(struct drm_i915_gem_object *obj,
- 	return vma;
- }
- 
--static void i915_gem_object_bump_inactive_ggtt(struct drm_i915_gem_object *obj)
--{
--	struct drm_i915_private *i915 = to_i915(obj->base.dev);
--	struct i915_vma *vma;
--
--	if (list_empty(&obj->vma.list))
--		return;
--
--	mutex_lock(&i915->ggtt.vm.mutex);
--	spin_lock(&obj->vma.lock);
--	for_each_ggtt_vma(vma, obj) {
--		if (!drm_mm_node_allocated(&vma->node))
--			continue;
--
--		GEM_BUG_ON(vma->vm != &i915->ggtt.vm);
--		list_move_tail(&vma->vm_link, &vma->vm->bound_list);
--	}
--	spin_unlock(&obj->vma.lock);
--	mutex_unlock(&i915->ggtt.vm.mutex);
--
--	if (i915_gem_object_is_shrinkable(obj)) {
--		unsigned long flags;
--
--		spin_lock_irqsave(&i915->mm.obj_lock, flags);
--
--		if (obj->mm.madv == I915_MADV_WILLNEED &&
--		    !atomic_read(&obj->mm.shrink_pin))
--			list_move_tail(&obj->mm.link, &i915->mm.shrink_list);
--
--		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
--	}
--}
--
--void
--i915_gem_object_unpin_from_display_plane(struct i915_vma *vma)
--{
--	/* Bump the LRU to try and avoid premature eviction whilst flipping  */
--	i915_gem_object_bump_inactive_ggtt(vma->obj);
--
--	i915_vma_unpin(vma);
--}
--
- /**
-  * Moves a single object to the CPU read, and possibly write domain.
-  * @obj: object to act on
-@@ -569,9 +527,6 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
- 	else
- 		err = i915_gem_object_set_to_cpu_domain(obj, write_domain);
- 
--	/* And bump the LRU for this access */
--	i915_gem_object_bump_inactive_ggtt(obj);
--
- 	i915_gem_object_unlock(obj);
- 
- 	if (write_domain)
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-index d46db8d8f38e..bc4871797120 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-@@ -471,7 +471,6 @@ i915_gem_object_pin_to_display_plane(struct drm_i915_gem_object *obj,
- 				     u32 alignment,
- 				     const struct i915_ggtt_view *view,
- 				     unsigned int flags);
--void i915_gem_object_unpin_from_display_plane(struct i915_vma *vma);
- 
- void i915_gem_object_make_unshrinkable(struct drm_i915_gem_object *obj);
- void i915_gem_object_make_shrinkable(struct drm_i915_gem_object *obj);
+ #if GCC_VERSION < 30300
 -- 
-2.30.0
+2.30.0.280.ga3ce27912f-goog
 
