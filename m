@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA70C3033C0
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D641B3033BE
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730874AbhAZFEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:04:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
+        id S1730848AbhAZFEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:04:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731233AbhAYSxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731235AbhAYSxO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:53:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED2EF230FE;
-        Mon, 25 Jan 2021 18:52:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCF5623109;
+        Mon, 25 Jan 2021 18:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600775;
-        bh=tFJsgbeEb1S0X6dUwi4IMz3gu1oWvrKHhcBdUUON2fk=;
+        s=korg; t=1611600778;
+        bh=pE2/4ZCUNQS0GZDWJVO1JKT2qNL0UogyE9WcovNsNcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJqcdww4yrmhzY2nvV/PhOASfje6JmpiFnF7XigCfMWlpFnLF+3EWICVmyqa4Mnkb
-         wrwHOH6c2RwiCGZGiQcG6Ovk58tza8hoAdyEPNrgeFs4sy/v+Lft2gyp6JixPFxcZF
-         5r0FWRvSYxCVo3DYNTUONxMdhEp4kQdHKyDi/PrY=
+        b=2aNIynVbEegAjdaCOBOQQG9d9zvYsOKdkT4NMCLSNvldjoJH/yknr/KuyhZIXAiWD
+         4igbZZMQ9+PNZ3yuBMMFE/09ruv/br7Lyj6hehhafBqFQapeMwraq/uWFxpLSeDzDg
+         UVyHQdGK46JF4NzwN3LBdyaHTkhz/+uOdA0JniBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 146/199] drm/i915: Only enable DFP 4:4:4->4:2:0 conversion when outputting YCbCr 4:4:4
-Date:   Mon, 25 Jan 2021 19:39:28 +0100
-Message-Id: <20210125183222.378390361@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 147/199] x86/entry: Fix noinstr fail
+Date:   Mon, 25 Jan 2021 19:39:29 +0100
+Message-Id: <20210125183222.420164398@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,85 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1c4995b0a576d24bb7ead991fb037c8b47ab6e32 upstream.
+commit 9caa7ff509add50959a793b811cc7c9339e281cd upstream.
 
-Let's not enable the 4:4:4->4:2:0 conversion bit in the DFP unless we're
-actually outputting YCbCr 4:4:4. It would appear some protocol
-converters blindy consult this bit even when the source is outputting
-RGB, resulting in a visual mess.
+  vmlinux.o: warning: objtool: __do_fast_syscall_32()+0x47: call to syscall_enter_from_user_mode_work() leaves .noinstr.text section
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2914
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210111164111.13302-1-ville.syrjala@linux.intel.com
-Fixes: 181567aa9f0d ("drm/i915: Do YCbCr 444->420 conversion via DP protocol converters")
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 3170a21f7059c4660c469f59bf529f372a57da5f)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210118154355.24453-1-ville.syrjala@linux.intel.com
+Fixes: 4facb95b7ada ("x86/entry: Unbreak 32bit fast syscall")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210106144017.472696632@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/display/intel_ddi.c |    2 +-
- drivers/gpu/drm/i915/display/intel_dp.c  |    9 +++++----
- drivers/gpu/drm/i915/display/intel_dp.h  |    3 ++-
- 3 files changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -3470,7 +3470,7 @@ static void hsw_ddi_pre_enable_dp(struct
- 	intel_ddi_init_dp_buf_reg(encoder);
- 	if (!is_mst)
- 		intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
--	intel_dp_configure_protocol_converter(intel_dp);
-+	intel_dp_configure_protocol_converter(intel_dp, crtc_state);
- 	intel_dp_sink_set_decompression_state(intel_dp, crtc_state,
- 					      true);
- 	intel_dp_sink_set_fec_ready(intel_dp, crtc_state);
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3856,7 +3856,8 @@ static void intel_dp_enable_port(struct
- 	intel_de_posting_read(dev_priv, intel_dp->output_reg);
+---
+ arch/x86/entry/common.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -73,10 +73,8 @@ static __always_inline void do_syscall_3
+ 						  unsigned int nr)
+ {
+ 	if (likely(nr < IA32_NR_syscalls)) {
+-		instrumentation_begin();
+ 		nr = array_index_nospec(nr, IA32_NR_syscalls);
+ 		regs->ax = ia32_sys_call_table[nr](regs);
+-		instrumentation_end();
+ 	}
  }
  
--void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp)
-+void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
-+					   const struct intel_crtc_state *crtc_state)
- {
- 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
- 	u8 tmp;
-@@ -3875,8 +3876,8 @@ void intel_dp_configure_protocol_convert
- 		drm_dbg_kms(&i915->drm, "Failed to set protocol converter HDMI mode to %s\n",
- 			    enableddisabled(intel_dp->has_hdmi_sink));
+@@ -91,8 +89,11 @@ __visible noinstr void do_int80_syscall_
+ 	 * or may not be necessary, but it matches the old asm behavior.
+ 	 */
+ 	nr = (unsigned int)syscall_enter_from_user_mode(regs, nr);
++	instrumentation_begin();
  
--	tmp = intel_dp->dfp.ycbcr_444_to_420 ?
--		DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
-+	tmp = crtc_state->output_format == INTEL_OUTPUT_FORMAT_YCBCR444 &&
-+		intel_dp->dfp.ycbcr_444_to_420 ? DP_CONVERSION_TO_YCBCR420_ENABLE : 0;
+ 	do_syscall_32_irqs_on(regs, nr);
++
++	instrumentation_end();
+ 	syscall_exit_to_user_mode(regs);
+ }
  
- 	if (drm_dp_dpcd_writeb(&intel_dp->aux,
- 			       DP_PROTOCOL_CONVERTER_CONTROL_1, tmp) != 1)
-@@ -3930,7 +3931,7 @@ static void intel_enable_dp(struct intel
+@@ -121,11 +122,12 @@ static noinstr bool __do_fast_syscall_32
+ 		res = get_user(*(u32 *)&regs->bp,
+ 		       (u32 __user __force *)(unsigned long)(u32)regs->sp);
  	}
+-	instrumentation_end();
  
- 	intel_dp_set_power(intel_dp, DP_SET_POWER_D0);
--	intel_dp_configure_protocol_converter(intel_dp);
-+	intel_dp_configure_protocol_converter(intel_dp, pipe_config);
- 	intel_dp_start_link_train(intel_dp);
- 	intel_dp_stop_link_train(intel_dp);
+ 	if (res) {
+ 		/* User code screwed up. */
+ 		regs->ax = -EFAULT;
++
++		instrumentation_end();
+ 		syscall_exit_to_user_mode(regs);
+ 		return false;
+ 	}
+@@ -135,6 +137,8 @@ static noinstr bool __do_fast_syscall_32
  
---- a/drivers/gpu/drm/i915/display/intel_dp.h
-+++ b/drivers/gpu/drm/i915/display/intel_dp.h
-@@ -51,7 +51,8 @@ int intel_dp_get_link_train_fallback_val
- int intel_dp_retrain_link(struct intel_encoder *encoder,
- 			  struct drm_modeset_acquire_ctx *ctx);
- void intel_dp_set_power(struct intel_dp *intel_dp, u8 mode);
--void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp);
-+void intel_dp_configure_protocol_converter(struct intel_dp *intel_dp,
-+					   const struct intel_crtc_state *crtc_state);
- void intel_dp_sink_set_decompression_state(struct intel_dp *intel_dp,
- 					   const struct intel_crtc_state *crtc_state,
- 					   bool enable);
+ 	/* Now this is just like a normal syscall. */
+ 	do_syscall_32_irqs_on(regs, nr);
++
++	instrumentation_end();
+ 	syscall_exit_to_user_mode(regs);
+ 	return true;
+ }
 
 
