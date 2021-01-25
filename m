@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E42B7304AA1
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B74304A94
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:50:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730550AbhAZFCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:02:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
+        id S1730622AbhAZFCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:02:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731157AbhAYSvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:51:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C907022D50;
-        Mon, 25 Jan 2021 18:51:19 +0000 (UTC)
+        id S1729140AbhAYSv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:51:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EC32224D4;
+        Mon, 25 Jan 2021 18:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600680;
-        bh=qNMbMR6gSXD/xwqN1u5eSvEpKQ+ELG4nCxm4Rtt3GOw=;
+        s=korg; t=1611600700;
+        bh=L0Qp7PhH17kthonGmjN4nMEHUWMGrxvxtbev0IxJl1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywB4Qos2FMOdH/rhRj7ZsaYE+UVouK5HPAFMPdGPgAjyiodeX5U8UZyx1JnUWWPNX
-         5XHxTL0UHxYB2b79eGqU7QrlOxKSKXu7D+2FU5IYYULhCLf68f1yYAt/XwacSrgb8F
-         rKnMvmLuTTOKIvRpUNx/UZp41UKJPbxUGdfltFJ8=
+        b=mgy0PExgfzSIld5IQ/GJy6RpTJIR64D298x6k1rvOiXBdjVHTe7KVtTHoU0nLa0cK
+         OzxuqleVitlLgc1pkXCKhV6H0nZlP5J20Gr+A1GBQigm3ALJNNjvPvkS/U8er9ujfd
+         0AXcnwGnwsdvJdU7nkwNxusO78JYBx+X6iI5K+9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/199] perf evlist: Fix id index for heterogeneous systems
-Date:   Mon, 25 Jan 2021 19:38:51 +0100
-Message-Id: <20210125183220.858161972@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 117/199] cifs: do not fail __smb_send_rqst if non-fatal signals are pending
+Date:   Mon, 25 Jan 2021 19:38:59 +0100
+Message-Id: <20210125183221.172800351@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,78 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit fc705fecf3a0c9128933cc6db59159c050aaca33 ]
+commit 214a5ea081e77346e4963dd6d20c5539ff8b6ae6 upstream.
 
-perf_evlist__set_sid_idx() updates perf_sample_id with the evlist map
-index, CPU number and TID. It is passed indexes to the evsel's cpu and
-thread maps, but references the evlist's maps instead. That results in
-using incorrect CPU numbers on heterogeneous systems. Fix it by using
-evsel maps.
+RHBZ 1848178
 
-The id index (PERF_RECORD_ID_INDEX) is used by AUX area tracing when in
-sampling mode. Having an incorrect CPU number causes the trace data to
-be attributed to the wrong CPU, and can result in decoder errors because
-the trace data is then associated with the wrong process.
+The original intent of returning an error in this function
+in the patch:
+  "CIFS: Mask off signals when sending SMB packets"
+was to avoid interrupting packet send in the middle of
+sending the data (and thus breaking an SMB connection),
+but we also don't want to fail the request for non-fatal
+signals even before we have had a chance to try to
+send it (the reported problem could be reproduced e.g.
+by exiting a child process when the parent process was in
+the midst of calling futimens to update a file's timestamps).
 
-Committer notes:
+In addition, since the signal may remain pending when we enter the
+sending loop, we may end up not sending the whole packet before
+TCP buffers become full. In this case the code returns -EINTR
+but what we need here is to return -ERESTARTSYS instead to
+allow system calls to be restarted.
 
-Keep the class prefix convention in the function name, switching from
-perf_evlist__set_sid_idx() to perf_evsel__set_sid_idx().
+Fixes: b30c74c73c78 ("CIFS: Mask off signals when sending SMB packets")
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 3c659eedada2fbf9 ("perf tools: Add id index")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20210121125446.11287-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/perf/evlist.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ fs/cifs/transport.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
-index cfcdbd7be066e..17465d454a0e3 100644
---- a/tools/lib/perf/evlist.c
-+++ b/tools/lib/perf/evlist.c
-@@ -367,21 +367,13 @@ static struct perf_mmap* perf_evlist__alloc_mmap(struct perf_evlist *evlist, boo
- 	return map;
- }
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -338,7 +338,7 @@ __smb_send_rqst(struct TCP_Server_Info *
+ 	if (ssocket == NULL)
+ 		return -EAGAIN;
  
--static void perf_evlist__set_sid_idx(struct perf_evlist *evlist,
--				     struct perf_evsel *evsel, int idx, int cpu,
--				     int thread)
-+static void perf_evsel__set_sid_idx(struct perf_evsel *evsel, int idx, int cpu, int thread)
- {
- 	struct perf_sample_id *sid = SID(evsel, cpu, thread);
+-	if (signal_pending(current)) {
++	if (fatal_signal_pending(current)) {
+ 		cifs_dbg(FYI, "signal pending before send request\n");
+ 		return -ERESTARTSYS;
+ 	}
+@@ -429,7 +429,7 @@ unmask:
  
- 	sid->idx = idx;
--	if (evlist->cpus && cpu >= 0)
--		sid->cpu = evlist->cpus->map[cpu];
--	else
--		sid->cpu = -1;
--	if (!evsel->system_wide && evlist->threads && thread >= 0)
--		sid->tid = perf_thread_map__pid(evlist->threads, thread);
--	else
--		sid->tid = -1;
-+	sid->cpu = perf_cpu_map__cpu(evsel->cpus, cpu);
-+	sid->tid = perf_thread_map__pid(evsel->threads, thread);
- }
- 
- static struct perf_mmap*
-@@ -500,8 +492,7 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 			if (perf_evlist__id_add_fd(evlist, evsel, cpu, thread,
- 						   fd) < 0)
- 				return -1;
--			perf_evlist__set_sid_idx(evlist, evsel, idx, cpu,
--						 thread);
-+			perf_evsel__set_sid_idx(evsel, idx, cpu, thread);
- 		}
+ 	if (signal_pending(current) && (total_len != send_length)) {
+ 		cifs_dbg(FYI, "signal is pending after attempt to send\n");
+-		rc = -EINTR;
++		rc = -ERESTARTSYS;
  	}
  
--- 
-2.27.0
-
+ 	/* uncork it */
 
 
