@@ -2,295 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A02A23031A3
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 661BC30323C
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:54:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731366AbhAYSzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:55:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40936 "EHLO mail.kernel.org"
+        id S1729229AbhAYOC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 09:02:29 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34164 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731062AbhAYSy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:54:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF8BD2074B;
-        Mon, 25 Jan 2021 18:54:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600882;
-        bh=F2KhbkdM5kdozMCfnf+UP0A137aoseQ2sDhZjGYPWG8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6nikJQKSQGFRg1wc5nYp/LgAlPOCMwrces0wSTsgzB44I2lJOsIAMaPywf7s4jLG
-         rUnsRM/0Zt1gNYNdvnXLD1/JxqKqNmipI9zI5tGqJYhpD1q8IITcQlRCXdfJiKXAvS
-         bPq62YWjVBKF+DV/+reWatt2C1g3/qO/6Xuxt35M=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Maulik Shah <mkshah@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 186/199] pinctrl: qcom: Dont clear pending interrupts when enabling
-Date:   Mon, 25 Jan 2021 19:40:08 +0100
-Message-Id: <20210125183224.028424479@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729052AbhAYOBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 09:01:16 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1611583214; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=sdcHMLB31tbVyd/BVCp9LaTCjmBsfraBzDo/3Q+9DY0=;
+        b=a+FXT8qjH2HLENLcySw+AEVEMq3UZKQkhDpMgaFFkB5quYElNpPQP/9K13VrYvtrJ2mk8E
+        HXo1oyd6S52wm9Ck4hPZD1//7kYwxWiQD3+kJo7VRZ+22wVC1mRDMla2ykm8i7igFHcxJa
+        1WuCmcl4PO8kMCN1ZzQbhfe2/WQ9KHg=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 78AC0AC45;
+        Mon, 25 Jan 2021 14:00:14 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] x86/xen: avoid warning in Xen pv guest with CONFIG_AMD_MEM_ENCRYPT enabled
+Date:   Mon, 25 Jan 2021 15:00:13 +0100
+Message-Id: <20210125140013.10198-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+When booting a kernel which has been built with CONFIG_AMD_MEM_ENCRYPT
+enabled as a Xen pv guest a warning is issued for each processor:
 
-commit cf9d052aa6005f1e8dfaf491d83bf37f368af69e upstream.
+[    5.964347] ------------[ cut here ]------------
+[    5.968314] WARNING: CPU: 0 PID: 1 at /home/gross/linux/head/arch/x86/xen/enlighten_pv.c:660 get_trap_addr+0x59/0x90
+[    5.972321] Modules linked in:
+[    5.976313] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G        W         5.11.0-rc5-default #75
+[    5.980313] Hardware name: Dell Inc. OptiPlex 9020/0PC5F7, BIOS A05 12/05/2013
+[    5.984313] RIP: e030:get_trap_addr+0x59/0x90
+[    5.988313] Code: 42 10 83 f0 01 85 f6 74 04 84 c0 75 1d b8 01 00 00 00 c3 48 3d 00 80 83 82 72 08 48 3d 20 81 83 82 72 0c b8 01 00 00 00 eb db <0f> 0b 31 c0 c3 48 2d 00 80 83 82 48 ba 72 1c c7 71 1c c7 71 1c 48
+[    5.992313] RSP: e02b:ffffc90040033d38 EFLAGS: 00010202
+[    5.996313] RAX: 0000000000000001 RBX: ffffffff82a141d0 RCX: ffffffff8222ec38
+[    6.000312] RDX: ffffffff8222ec38 RSI: 0000000000000005 RDI: ffffc90040033d40
+[    6.004313] RBP: ffff8881003984a0 R08: 0000000000000007 R09: ffff888100398000
+[    6.008312] R10: 0000000000000007 R11: ffffc90040246000 R12: ffff8884082182a8
+[    6.012313] R13: 0000000000000100 R14: 000000000000001d R15: ffff8881003982d0
+[    6.016316] FS:  0000000000000000(0000) GS:ffff888408200000(0000) knlGS:0000000000000000
+[    6.020313] CS:  e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    6.024313] CR2: ffffc900020ef000 CR3: 000000000220a000 CR4: 0000000000050660
+[    6.028314] Call Trace:
+[    6.032313]  cvt_gate_to_trap.part.7+0x3f/0x90
+[    6.036313]  ? asm_exc_double_fault+0x30/0x30
+[    6.040313]  xen_convert_trap_info+0x87/0xd0
+[    6.044313]  xen_pv_cpu_up+0x17a/0x450
+[    6.048313]  bringup_cpu+0x2b/0xc0
+[    6.052313]  ? cpus_read_trylock+0x50/0x50
+[    6.056313]  cpuhp_invoke_callback+0x80/0x4c0
+[    6.060313]  _cpu_up+0xa7/0x140
+[    6.064313]  cpu_up+0x98/0xd0
+[    6.068313]  bringup_nonboot_cpus+0x4f/0x60
+[    6.072313]  smp_init+0x26/0x79
+[    6.076313]  kernel_init_freeable+0x103/0x258
+[    6.080313]  ? rest_init+0xd0/0xd0
+[    6.084313]  kernel_init+0xa/0x110
+[    6.088313]  ret_from_fork+0x1f/0x30
+[    6.092313] ---[ end trace be9ecf17dceeb4f3 ]---
 
-In Linux, if a driver does disable_irq() and later does enable_irq()
-on its interrupt, I believe it's expecting these properties:
-* If an interrupt was pending when the driver disabled then it will
-  still be pending after the driver re-enables.
-* If an edge-triggered interrupt comes in while an interrupt is
-  disabled it should assert when the interrupt is re-enabled.
+Reason is that there is no Xen pv trap entry for X86_TRAP_VC.
 
-If you think that the above sounds a lot like the disable_irq() and
-enable_irq() are supposed to be masking/unmasking the interrupt
-instead of disabling/enabling it then you've made an astute
-observation.  Specifically when talking about interrupts, "mask"
-usually means to stop posting interrupts but keep tracking them and
-"disable" means to fully shut off interrupt detection.  It's
-unfortunate that this is so confusing, but presumably this is all the
-way it is for historical reasons.
+Fix that by defining a trap entry for X86_TRAP_VC in Xen pv mode.
 
-Perhaps more confusing than the above is that, even though clients of
-IRQs themselves don't have a way to request mask/unmask
-vs. disable/enable calls, IRQ chips themselves can implement both.
-...and yet more confusing is that if an IRQ chip implements
-disable/enable then they will be called when a client driver calls
-disable_irq() / enable_irq().
-
-It does feel like some of the above could be cleared up.  However,
-without any other core interrupt changes it should be clear that when
-an IRQ chip gets a request to "disable" an IRQ that it has to treat it
-like a mask of that IRQ.
-
-In any case, after that long interlude you can see that the "unmask
-and clear" can break things.  Maulik tried to fix it so that we no
-longer did "unmask and clear" in commit 71266d9d3936 ("pinctrl: qcom:
-Move clearing pending IRQ to .irq_request_resources callback"), but it
-only handled the PDC case and it had problems (it caused
-sc7180-trogdor devices to fail to suspend).  Let's fix.
-
->From my understanding the source of the phantom interrupt in the
-were these two things:
-1. One that could have been introduced in msm_gpio_irq_set_type()
-   (only for the non-PDC case).
-2. Edges could have been detected when a GPIO was muxed away.
-
-Fixing case #1 is easy.  We can just add a clear in
-msm_gpio_irq_set_type().
-
-Fixing case #2 is harder.  Let's use a concrete example.  In
-sc7180-trogdor.dtsi we configure the uart3 to have two pinctrl states,
-sleep and default, and mux between the two during runtime PM and
-system suspend (see geni_se_resources_{on,off}() for more
-details). The difference between the sleep and default state is that
-the RX pin is muxed to a GPIO during sleep and muxed to the UART
-otherwise.
-
-As per Qualcomm, when we mux the pin over to the UART function the PDC
-(or the non-PDC interrupt detection logic) is still watching it /
-latching edges.  These edges don't cause interrupts because the
-current code masks the interrupt unless we're entering suspend.
-However, as soon as we enter suspend we unmask the interrupt and it's
-counted as a wakeup.
-
-Let's deal with the problem like this:
-* When we mux away, we'll mask our interrupt.  This isn't necessary in
-  the above case since the client already masked us, but it's a good
-  idea in general.
-* When we mux back will clear any interrupts and unmask.
-
-Fixes: 4b7618fdc7e6 ("pinctrl: qcom: Add irq_enable callback for msm gpio")
-Fixes: 71266d9d3936 ("pinctrl: qcom: Move clearing pending IRQ to .irq_request_resources callback")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Maulik Shah <mkshah@codeaurora.org>
-Tested-by: Maulik Shah <mkshah@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210114191601.v7.4.I7cf3019783720feb57b958c95c2b684940264cd1@changeid
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0786138c78e793 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Cc: <stable@vger.kernel.org> # v5.10
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- drivers/pinctrl/qcom/pinctrl-msm.c |   74 +++++++++++++++++++++++++------------
- 1 file changed, 50 insertions(+), 24 deletions(-)
+ arch/x86/include/asm/idtentry.h |  3 +++
+ arch/x86/xen/enlighten_pv.c     | 11 +++++++++++
+ arch/x86/xen/xen-asm.S          |  3 +++
+ 3 files changed, 17 insertions(+)
 
---- a/drivers/pinctrl/qcom/pinctrl-msm.c
-+++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-@@ -51,6 +51,7 @@
-  * @dual_edge_irqs: Bitmap of irqs that need sw emulated dual edge
-  *                  detection.
-  * @skip_wake_irqs: Skip IRQs that are handled by wakeup interrupt controller
-+ * @disabled_for_mux: These IRQs were disabled because we muxed away.
-  * @soc:            Reference to soc_data of platform specific data.
-  * @regs:           Base addresses for the TLMM tiles.
-  * @phys_base:      Physical base address
-@@ -72,6 +73,7 @@ struct msm_pinctrl {
- 	DECLARE_BITMAP(dual_edge_irqs, MAX_NR_GPIO);
- 	DECLARE_BITMAP(enabled_irqs, MAX_NR_GPIO);
- 	DECLARE_BITMAP(skip_wake_irqs, MAX_NR_GPIO);
-+	DECLARE_BITMAP(disabled_for_mux, MAX_NR_GPIO);
+diff --git a/arch/x86/include/asm/idtentry.h b/arch/x86/include/asm/idtentry.h
+index 247a60a47331..115a76e77e65 100644
+--- a/arch/x86/include/asm/idtentry.h
++++ b/arch/x86/include/asm/idtentry.h
+@@ -609,6 +609,9 @@ DECLARE_IDTENTRY_DF(X86_TRAP_DF,	exc_double_fault);
+ /* #VC */
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ DECLARE_IDTENTRY_VC(X86_TRAP_VC,	exc_vmm_communication);
++#ifdef CONFIG_XEN_PV
++DECLARE_IDTENTRY_RAW(X86_TRAP_VC,	xenpv_exc_vmm_communication);
++#endif
+ #endif
  
- 	const struct msm_pinctrl_soc_data *soc;
- 	void __iomem *regs[MAX_NR_TILES];
-@@ -179,6 +181,10 @@ static int msm_pinmux_set_mux(struct pin
- 			      unsigned group)
- {
- 	struct msm_pinctrl *pctrl = pinctrl_dev_get_drvdata(pctldev);
-+	struct gpio_chip *gc = &pctrl->chip;
-+	unsigned int irq = irq_find_mapping(gc->irq.domain, group);
-+	struct irq_data *d = irq_get_irq_data(irq);
-+	unsigned int gpio_func = pctrl->soc->gpio_func;
- 	const struct msm_pingroup *g;
- 	unsigned long flags;
- 	u32 val, mask;
-@@ -195,6 +201,20 @@ static int msm_pinmux_set_mux(struct pin
- 	if (WARN_ON(i == g->nfuncs))
- 		return -EINVAL;
- 
-+	/*
-+	 * If an GPIO interrupt is setup on this pin then we need special
-+	 * handling.  Specifically interrupt detection logic will still see
-+	 * the pin twiddle even when we're muxed away.
-+	 *
-+	 * When we see a pin with an interrupt setup on it then we'll disable
-+	 * (mask) interrupts on it when we mux away until we mux back.  Note
-+	 * that disable_irq() refcounts and interrupts are disabled as long as
-+	 * at least one disable_irq() has been called.
-+	 */
-+	if (d && i != gpio_func &&
-+	    !test_and_set_bit(d->hwirq, pctrl->disabled_for_mux))
-+		disable_irq(irq);
-+
- 	raw_spin_lock_irqsave(&pctrl->lock, flags);
- 
- 	val = msm_readl_ctl(pctrl, g);
-@@ -204,6 +224,20 @@ static int msm_pinmux_set_mux(struct pin
- 
- 	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
- 
-+	if (d && i == gpio_func &&
-+	    test_and_clear_bit(d->hwirq, pctrl->disabled_for_mux)) {
-+		/*
-+		 * Clear interrupts detected while not GPIO since we only
-+		 * masked things.
-+		 */
-+		if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
-+			irq_chip_set_parent_state(d, IRQCHIP_STATE_PENDING, false);
-+		else
-+			msm_ack_intr_status(pctrl, g);
-+
-+		enable_irq(irq);
-+	}
-+
- 	return 0;
+ #ifdef CONFIG_XEN_PV
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 4409306364dc..82948251f57b 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -583,6 +583,14 @@ DEFINE_IDTENTRY_RAW(xenpv_exc_debug)
+ 		exc_debug(regs);
  }
  
-@@ -781,7 +815,7 @@ static void msm_gpio_irq_mask(struct irq
- 	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
- }
- 
--static void msm_gpio_irq_clear_unmask(struct irq_data *d, bool status_clear)
-+static void msm_gpio_irq_unmask(struct irq_data *d)
- {
- 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
- 	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
-@@ -799,14 +833,6 @@ static void msm_gpio_irq_clear_unmask(st
- 
- 	raw_spin_lock_irqsave(&pctrl->lock, flags);
- 
--	/*
--	 * clear the interrupt status bit before unmask to avoid
--	 * any erroneous interrupts that would have got latched
--	 * when the interrupt is not in use.
--	 */
--	if (status_clear)
--		msm_ack_intr_status(pctrl, g);
--
- 	val = msm_readl_intr_cfg(pctrl, g);
- 	val |= BIT(g->intr_raw_status_bit);
- 	val |= BIT(g->intr_enable_bit);
-@@ -826,7 +852,7 @@ static void msm_gpio_irq_enable(struct i
- 		irq_chip_enable_parent(d);
- 
- 	if (!test_bit(d->hwirq, pctrl->skip_wake_irqs))
--		msm_gpio_irq_clear_unmask(d, true);
-+		msm_gpio_irq_unmask(d);
- }
- 
- static void msm_gpio_irq_disable(struct irq_data *d)
-@@ -841,11 +867,6 @@ static void msm_gpio_irq_disable(struct
- 		msm_gpio_irq_mask(d);
- }
- 
--static void msm_gpio_irq_unmask(struct irq_data *d)
--{
--	msm_gpio_irq_clear_unmask(d, false);
--}
--
- /**
-  * msm_gpio_update_dual_edge_parent() - Prime next edge for IRQs handled by parent.
-  * @d: The irq dta.
-@@ -934,6 +955,7 @@ static int msm_gpio_irq_set_type(struct
- 	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
- 	const struct msm_pingroup *g;
- 	unsigned long flags;
-+	bool was_enabled;
- 	u32 val;
- 
- 	if (msm_gpio_needs_dual_edge_parent_workaround(d, type)) {
-@@ -995,6 +1017,7 @@ static int msm_gpio_irq_set_type(struct
- 	 * could cause the INTR_STATUS to be set for EDGE interrupts.
- 	 */
- 	val = msm_readl_intr_cfg(pctrl, g);
-+	was_enabled = val & BIT(g->intr_raw_status_bit);
- 	val |= BIT(g->intr_raw_status_bit);
- 	if (g->intr_detection_width == 2) {
- 		val &= ~(3 << g->intr_detection_bit);
-@@ -1044,6 +1067,14 @@ static int msm_gpio_irq_set_type(struct
- 	}
- 	msm_writel_intr_cfg(val, pctrl, g);
- 
-+	/*
-+	 * The first time we set RAW_STATUS_EN it could trigger an interrupt.
-+	 * Clear the interrupt.  This is safe because we have
-+	 * IRQCHIP_SET_TYPE_MASKED.
-+	 */
-+	if (!was_enabled)
-+		msm_ack_intr_status(pctrl, g);
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++DEFINE_IDTENTRY_RAW(xenpv_exc_vmm_communication)
++{
++	/* This should never happen and there is no way to handle it. */
++	panic("X86_TRAP_VC in Xen PV mode.");
++}
++#endif
 +
- 	if (test_bit(d->hwirq, pctrl->dual_edge_irqs))
- 		msm_gpio_update_dual_edge_pos(pctrl, g, d);
+ struct trap_array_entry {
+ 	void (*orig)(void);
+ 	void (*xen)(void);
+@@ -625,6 +633,9 @@ static struct trap_array_entry trap_array[] = {
+ 	TRAP_ENTRY(exc_coprocessor_error,		false ),
+ 	TRAP_ENTRY(exc_alignment_check,			false ),
+ 	TRAP_ENTRY(exc_simd_coprocessor_error,		false ),
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	TRAP_ENTRY_REDIR(exc_vmm_communication,		true ),
++#endif
+ };
  
-@@ -1097,16 +1128,11 @@ static int msm_gpio_irq_reqres(struct ir
- 	}
- 
- 	/*
--	 * Clear the interrupt that may be pending before we enable
--	 * the line.
--	 * This is especially a problem with the GPIOs routed to the
--	 * PDC. These GPIOs are direct-connect interrupts to the GIC.
--	 * Disabling the interrupt line at the PDC does not prevent
--	 * the interrupt from being latched at the GIC. The state at
--	 * GIC needs to be cleared before enabling.
-+	 * The disable / clear-enable workaround we do in msm_pinmux_set_mux()
-+	 * only works if disable is not lazy since we only clear any bogus
-+	 * interrupt in hardware. Explicitly mark the interrupt as UNLAZY.
- 	 */
--	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
--		irq_chip_set_parent_state(d, IRQCHIP_STATE_PENDING, 0);
-+	irq_set_status_flags(d->irq, IRQ_DISABLE_UNLAZY);
- 
- 	return 0;
- out:
-
+ static bool __ref get_trap_addr(void **addr, unsigned int ist)
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index 1cb0e84b9161..16f4db35de44 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -175,6 +175,9 @@ xen_pv_trap asm_exc_alignment_check
+ xen_pv_trap asm_exc_machine_check
+ #endif /* CONFIG_X86_MCE */
+ xen_pv_trap asm_exc_simd_coprocessor_error
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++xen_pv_trap asm_xenpv_exc_vmm_communication
++#endif /* CONFIG_AMD_MEM_ENCRYPT */
+ #ifdef CONFIG_IA32_EMULATION
+ xen_pv_trap entry_INT80_compat
+ #endif
+-- 
+2.26.2
 
