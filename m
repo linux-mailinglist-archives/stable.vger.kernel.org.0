@@ -2,121 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAA4302964
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 18:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BC6302994
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731252AbhAYR4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 12:56:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
+        id S1731198AbhAYSGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:06:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731108AbhAYRz0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 12:55:26 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDB4C061A29
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 09:45:41 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id 31so8082426plb.10
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 09:45:41 -0800 (PST)
+        with ESMTP id S1731129AbhAYSGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 13:06:01 -0500
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C44C061797;
+        Mon, 25 Jan 2021 10:05:20 -0800 (PST)
+Received: by mail-io1-xd2c.google.com with SMTP id y19so28385898iov.2;
+        Mon, 25 Jan 2021 10:05:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dsuPhefQgichTP7XKQR2dbMq1C95W4+Nrc5ixBeFe88=;
-        b=n371yiXKR4rpFvO3dlu3vZ6fj41f1XusH9YqyJsGTZ3ivKkrPp7K2YiP3M4y1HotOi
-         Yvb2zCtjrt84f/npurbsGhraWCqbKcmWfJ9c5FSlAGy7fl7qzgOHESJDkuYHh5hWy1Xs
-         fpDEj6cWYHPlJyijsv+zFQYl89saZoLcUP8ySH5DzRZXJGnHOIFk91IRbJXYa2hC2XI/
-         VDcFibLi1BszsrRjjDjp1d3VswVCrX8wtfYIGQu1uXchIlVzWQbiRpUmqHAOIcO9ljpS
-         SCyUg/988+fi7bu7lTusz8/d89mLl434jjT14M1RUtW9bMetZJJTFRkmibRp5VF+bn3m
-         Nylg==
+         :cc:content-transfer-encoding;
+        bh=+aL0fFGSd2hHhX1foJGcaTOt1XHt4P+imCuVYIdpXgA=;
+        b=sT7OiZSLtqZDgoBTi8QeiduUPtYM7a3AbWlVlkgqDtUCsn5SuRuyBIKc2Gwi4x0sis
+         r9M1LmslSJay/vDCipMiHRJjn4lmYIGYyT1Eeyq3Wid5QEAGaRcSWZFyQaFbSInCwlQI
+         qkmsC8lx5qL+Cl0ryn2305iHmWaUb5KaT9Dh5/Lk1W5ia+jybA6rtMiKibzzYg5oAS4Y
+         60H9HNw0S/eSA5BulYIMWJd1fPddMvlvcDuoNH0358YuKivdAYEBIHqlNvXX3hPVyxPU
+         8YU+A/mTpjeJFu6057q7Za6/z2s3PELIiLMum7oJJGKRw7L/Qm9MHRcxDSy/66ncGd4S
+         DHqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dsuPhefQgichTP7XKQR2dbMq1C95W4+Nrc5ixBeFe88=;
-        b=aGSB6ws+fZGF3yuCWawb9q5lBTVoNWRvhI8NX61IikoIQSqjEz99tZWYNJvnIVlOxe
-         DwMFjuxDoApkFVAXQetbuy1yVzSAXsMbIyNf4byCjEN2xRuycJD3CxwPGWMBIHE4slIW
-         pRaBWL7VKTD5X1Dl6LBlw9iV/JSlZexSNPClGzFCW57id3MmZJUt7y0gn4Bkx6tDV9x+
-         qWRi2IROVaZGIyTLUO/PowdFbWHPUX1d1CtWf+ZeFKtZtX02hb1dlInVZCIuZvxR11qn
-         Y7Hxx35r8NMSufVnh49J4Kfehh5Jdf2L0RnxE6dYRvux45vISyK+icyYAJOvWnl9XRHK
-         jB3A==
-X-Gm-Message-State: AOAM530ONpKmvVATZ1KkpZOznXE5/B8XjMyy6OqRjb0bR9vz3WyuGV+l
-        rJ6eQrKgcsZqZUXUZUC1ohkJTUoWEYkhP7oDPaA7IQ==
-X-Google-Smtp-Source: ABdhPJwF0/eChIPL6NG4kkphRa701CHL8KDBNEVztnfayL6Xiabbojvgo5qaXEaSDXWydeq5bneoSsvfKr2owwxCQYo=
-X-Received: by 2002:a17:902:ed94:b029:de:8844:a650 with SMTP id
- e20-20020a170902ed94b02900de8844a650mr1591452plj.56.1611596740552; Mon, 25
- Jan 2021 09:45:40 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+aL0fFGSd2hHhX1foJGcaTOt1XHt4P+imCuVYIdpXgA=;
+        b=N3H4pubthNxAHyTi6zMeyQUSzM479xQhheRpopyF3nXyLXQIDbsGeTdHFucv3hbO4M
+         gdC+dpwdKKQ0AVm93nnlzs4hiVcnZUC8PSjyEHs4gPOYfq0w6Kr3va2Fcz2C0JiHQVCB
+         c2nbIX7tSC++43LzI5t1F9iSAXBf4n5eenps51AQ+wcJfI2g4a8XsMlEj7P+UGf5TXkh
+         YBxgq6tVP5mBjvLKENQ4xuwJ+yYODlyUen/CKXKTYnKd6Gf1Px3dqvGRm1D5dRD76qdX
+         WBCjuY6EtkbLl5n9UIYEOIHrbdEP+Tu5Nj13hhqXBhs79NWURG9VmTQsibkC41Yc5SbS
+         zPUw==
+X-Gm-Message-State: AOAM532deW99aQ80oyMMKqfDx+Tu1qbfWZoGCME0eFwi2mAUiD3KiFo8
+        VJ8wf+gQoV+MqkRBxcWAvSkU0la5ZtsNIIKD2VE=
+X-Google-Smtp-Source: ABdhPJy0m8NQdKU+D2Xr/21OA4cWpRmMdDC0FkfmQMKvssxUCySHvd9XbuqE6/F7SQ9hdImDkDU2lgsA1yL3Ggn9uX0=
+X-Received: by 2002:a05:6e02:1aa8:: with SMTP id l8mr1402991ilv.251.1611597920147;
+ Mon, 25 Jan 2021 10:05:20 -0800 (PST)
 MIME-Version: 1.0
-References: <20210125132425.28245-1-will@kernel.org> <YA7WztCb4OGA6m4S@kroah.com>
-In-Reply-To: <YA7WztCb4OGA6m4S@kroah.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 25 Jan 2021 09:45:30 -0800
-Message-ID: <CAKwvOdkjWuH5MJz-H7T95B8rOAcoBWGXi1RsKT-YXYr1-K6A5g@mail.gmail.com>
-Subject: Re: [STABLE BACKPORT v2 4.4.y, 4.9.y and 4.14.y] compiler.h: Raise
- minimum version of GCC to 5.1 for arm64
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Will Deacon <will@kernel.org>, "# 3.4.x" <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Florian Weimer <fweimer@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
+References: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
+ <20210125100540.55wbgdsem3htplx3@pali>
+In-Reply-To: <20210125100540.55wbgdsem3htplx3@pali>
+From:   Tom Hebb <tommyhebb@gmail.com>
+Date:   Mon, 25 Jan 2021 10:05:08 -0800
+Message-ID: <CAMcCCgTo87HmwexZS696ok16e9s_8gRgFd38uoLP34r7TbAzBg@mail.gmail.com>
+Subject: Re: [PATCH] hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
+To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bob Hepple <bob.hepple@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 25, 2021 at 6:34 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Mon, Jan 25, 2021 at 2:05 AM Pali Roh=C3=A1r <pali@kernel.org> wrote:
 >
-> On Mon, Jan 25, 2021 at 01:24:25PM +0000, Will Deacon wrote:
-> > commit dca5244d2f5b94f1809f0c02a549edf41ccd5493 upstream.
+> On Saturday 23 January 2021 18:46:08 Thomas Hebb wrote:
+> > It has been reported[0] that the Dell XPS 15 L502X exhibits similar
+> > freezing behavior to the other systems[1] on this blacklist. The issue
+> > was exposed by a prior change of mine to automatically load
+> > dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
+> > this model to the blacklist.
 > >
-> > GCC versions >= 4.9 and < 5.1 have been shown to emit memory references
-> > beyond the stack pointer, resulting in memory corruption if an interrupt
-> > is taken after the stack pointer has been adjusted but before the
-> > reference has been executed. This leads to subtle, infrequent data
-> > corruption such as the EXT4 problems reported by Russell King at the
-> > link below.
+> > [0] https://bugzilla.kernel.org/show_bug.cgi?id=3D211081
+> > [1] https://bugzilla.kernel.org/show_bug.cgi?id=3D195751
 > >
-> > Life is too short for buggy compilers, so raise the minimum GCC version
-> > required by arm64 to 5.1.
-> >
-> > Reported-by: Russell King <linux@armlinux.org.uk>
-> > Suggested-by: Arnd Bergmann <arnd@kernel.org>
-> > Signed-off-by: Will Deacon <will@kernel.org>
-> > Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: <stable@vger.kernel.org> # 4.4.y, 4.9.y and 4.14.y only
-> > Cc: Theodore Ts'o <tytso@mit.edu>
-> > Cc: Florian Weimer <fweimer@redhat.com>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Nick Desaulniers <ndesaulniers@google.com>
-> > Cc: Nathan Chancellor <natechancellor@gmail.com>
-> > Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-> > Link: https://lore.kernel.org/r/20210105154726.GD1551@shell.armlinux.org.uk
-> > Link: https://lore.kernel.org/r/20210112224832.10980-1-will@kernel.org
-> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > [will: backport to 4.4.y/4.9.y/4.14.y; add __clang__ check]
-
-LGTM
-
-> > Link: https://lore.kernel.org/r/CA+G9fYuzE9WMSB7uGjV4gTzK510SHEdJb_UXQCzsQ5MqA=h9SA@mail.gmail.com
-> > Signed-off-by: Will Deacon <will@kernel.org>
+> > Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS m=
+odels")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Bob Hepple <bob.hepple@gmail.com>
+> > Tested-by: Bob Hepple <bob.hepple@gmail.com>
+> > Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
 > > ---
-> >  include/linux/compiler-gcc.h | 6 ++++++
-> >  1 file changed, 6 insertions(+)
+> >
+> >  drivers/hwmon/dell-smm-hwmon.c | 7 +++++++
+> >  1 file changed, 7 insertions(+)
+> >
+> > diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hw=
+mon.c
+> > index ec448f5f2dc3..73b9db9e3aab 100644
+> > --- a/drivers/hwmon/dell-smm-hwmon.c
+> > +++ b/drivers/hwmon/dell-smm-hwmon.c
+> > @@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklist_fan_su=
+pport_dmi_table[] __initdata =3D {
+> >                       DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
+> >               },
+> >       },
+> > +     {
+> > +             .ident =3D "Dell XPS 15 L502X",
+> > +             .matches =3D {
+> > +                     DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> > +                     DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XP=
+S L502X"),
 >
-> Thanks, now queued up, let's try this again :)
+> Hello! Are you sure that it is required to completely disable fan
+> support? And not only access to fan type label for which is different
+> blaclist i8k_blacklist_fan_type_dmi_table?
+
+This is a good question. We didn't try the other list. Bob is the one with =
+the
+affected system. Could you try moving the added block of code from
+i8k_blacklist_fan_support_dmi_table a few lines up to
+i8k_blacklist_fan_type_dmi_table, Bob, to see if the issue reappears or if =
+it
+remains fixed?
+
 >
-> greg k-h
+> And have you reported this issue to Dell support?
+>
+> > +             },
+> > +     },
+> >       { }
+> >  };
+> >
+> > --
+> > 2.30.0
+> >
 
+(Apologies for the previous HTML copy of this reply, to those directly CCed=
+.)
 
-
--- 
-Thanks,
-~Nick Desaulniers
+-Tom
