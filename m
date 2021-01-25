@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4F330335F
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 018C03033A1
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728747AbhAZEvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:51:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33670 "EHLO mail.kernel.org"
+        id S1727298AbhAZFBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:01:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730533AbhAYSrD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:47:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 502E72310E;
-        Mon, 25 Jan 2021 18:46:33 +0000 (UTC)
+        id S1731131AbhAYSvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:51:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ECA922DFB;
+        Mon, 25 Jan 2021 18:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600393;
-        bh=MML0RhjYqf4iDB6sL55kedkhNv5IKT2gLQybQyxIeXA=;
+        s=korg; t=1611600645;
+        bh=TvoxUaYKyTJSm4C6R/yNO1CK4InwfvxfRJEgKERmIds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08AsxYBN3OchZcyWwuVqgnKeCtoL5+VPbZC1pW+LLnKc2ketv+XfzixjB4m6WgXTc
-         8GhjAqiUb8bfa/WxOJBRhy0Aa9OZwV4fLgUd2+A4SFwteNrSRlLf0pvsuNUd4bT60V
-         PZjz5oa753DqsCKTFzVoelpfy3S2Jv//Kswf+3x0=
+        b=YwjvKwRKvmXltvBKdGHz28YoadxzbLc90FFNjAt4XyQnw+m+G1hEerJqaZOgDlLVZ
+         P/1Sg/RK6LgXLCuK1/kfiUX7zTuA1zLHSEZ2h/0864ehretEgqe58CJScoCt6TzIVh
+         UNgdL+C1qIoY25WHm/jMPOpHEgRN4frz/cEKkO9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Juerg Haefliger <juergh@canonical.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 85/86] tcp: do not mess with cloned skbs in tcp_add_backlog()
-Date:   Mon, 25 Jan 2021 19:40:07 +0100
-Message-Id: <20210125183204.641595910@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 055/199] xen: Fix event channel callback via INTX/GSI
+Date:   Mon, 25 Jan 2021 19:37:57 +0100
+Message-Id: <20210125183218.588061023@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,113 +41,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-commit b160c28548bc0a87cbd16d5af6d3edcfd70b8c9a upstream.
+[ Upstream commit 3499ba8198cad47b731792e5e56b9ec2a78a83a2 ]
 
-Heiner Kallweit reported that some skbs were sent with
-the following invalid GSO properties :
-- gso_size > 0
-- gso_type == 0
+For a while, event channel notification via the PCI platform device
+has been broken, because we attempt to communicate with xenstore before
+we even have notifications working, with the xs_reset_watches() call
+in xs_init().
 
-This was triggerring a WARN_ON_ONCE() in rtl8169_tso_csum_v2.
+We tend to get away with this on Xen versions below 4.0 because we avoid
+calling xs_reset_watches() anyway, because xenstore might not cope with
+reading a non-existent key. And newer Xen *does* have the vector
+callback support, so we rarely fall back to INTX/GSI delivery.
 
-Juerg Haefliger was able to reproduce a similar issue using
-a lan78xx NIC and a workload mixing TCP incoming traffic
-and forwarded packets.
+To fix it, clean up a bit of the mess of xs_init() and xenbus_probe()
+startup. Call xs_init() directly from xenbus_init() only in the !XS_HVM
+case, deferring it to be called from xenbus_probe() in the XS_HVM case
+instead.
 
-The problem is that tcp_add_backlog() is writing
-over gso_segs and gso_size even if the incoming packet will not
-be coalesced to the backlog tail packet.
+Then fix up the invocation of xenbus_probe() to happen either from its
+device_initcall if the callback is available early enough, or when the
+callback is finally set up. This means that the hack of calling
+xenbus_probe() from a workqueue after the first interrupt, or directly
+from the PCI platform device setup, is no longer needed.
 
-While skb_try_coalesce() would bail out if tail packet is cloned,
-this overwriting would lead to corruptions of other packets
-cooked by lan78xx, sharing a common super-packet.
-
-The strategy used by lan78xx is to use a big skb, and split
-it into all received packets using skb_clone() to avoid copies.
-The drawback of this strategy is that all the small skb share a common
-struct skb_shared_info.
-
-This patch rewrites TCP gso_size/gso_segs handling to only
-happen on the tail skb, since skb_try_coalesce() made sure
-it was not cloned.
-
-Fixes: 4f693b55c3d2 ("tcp: implement coalescing on backlog queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Bisected-by: Juerg Haefliger <juergh@canonical.com>
-Tested-by: Juerg Haefliger <juergh@canonical.com>
-Reported-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209423
-Link: https://lore.kernel.org/r/20210119164900.766957-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210113132606.422794-2-dwmw2@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ arch/arm/xen/enlighten.c          |  2 +-
+ drivers/xen/events/events_base.c  | 10 ----
+ drivers/xen/platform-pci.c        |  1 -
+ drivers/xen/xenbus/xenbus.h       |  1 +
+ drivers/xen/xenbus/xenbus_comms.c |  8 ---
+ drivers/xen/xenbus/xenbus_probe.c | 81 +++++++++++++++++++++++++------
+ include/xen/xenbus.h              |  2 +-
+ 7 files changed, 70 insertions(+), 35 deletions(-)
 
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1657,6 +1657,7 @@ int tcp_v4_early_demux(struct sk_buff *s
- bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
+diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
+index 60e901cd0de6a..5a957a9a09843 100644
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -371,7 +371,7 @@ static int __init xen_guest_init(void)
+ 	}
+ 	gnttab_init();
+ 	if (!xen_initial_domain())
+-		xenbus_probe(NULL);
++		xenbus_probe();
+ 
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 6038c4c35db5a..bbebe248b7264 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -2010,16 +2010,6 @@ static struct irq_chip xen_percpu_chip __read_mostly = {
+ 	.irq_ack		= ack_dynirq,
+ };
+ 
+-int xen_set_callback_via(uint64_t via)
+-{
+-	struct xen_hvm_param a;
+-	a.domid = DOMID_SELF;
+-	a.index = HVM_PARAM_CALLBACK_IRQ;
+-	a.value = via;
+-	return HYPERVISOR_hvm_op(HVMOP_set_param, &a);
+-}
+-EXPORT_SYMBOL_GPL(xen_set_callback_via);
+-
+ #ifdef CONFIG_XEN_PVHVM
+ /* Vector callbacks are better than PCI interrupts to receive event
+  * channel notifications because we can receive vector callbacks on any
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index dd911e1ff782c..9db557b76511b 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -149,7 +149,6 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+-	xenbus_probe(NULL);
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
+diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
+index 2a93b7c9c1599..dc15373354144 100644
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -115,6 +115,7 @@ int xenbus_probe_node(struct xen_bus_type *bus,
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
++void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
+index eb5151fc8efab..e5fda0256feb3 100644
+--- a/drivers/xen/xenbus/xenbus_comms.c
++++ b/drivers/xen/xenbus/xenbus_comms.c
+@@ -57,16 +57,8 @@ DEFINE_MUTEX(xs_response_mutex);
+ static int xenbus_irq;
+ static struct task_struct *xenbus_task;
+ 
+-static DECLARE_WORK(probe_work, xenbus_probe);
+-
+-
+ static irqreturn_t wake_waiting(int irq, void *unused)
  {
- 	u32 limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf);
-+	u32 tail_gso_size, tail_gso_segs;
- 	struct skb_shared_info *shinfo;
- 	const struct tcphdr *th;
- 	struct tcphdr *thtail;
-@@ -1664,6 +1665,7 @@ bool tcp_add_backlog(struct sock *sk, st
- 	unsigned int hdrlen;
- 	bool fragstolen;
- 	u32 gso_segs;
-+	u32 gso_size;
- 	int delta;
- 
- 	/* In case all data was pulled from skb frags (in __pskb_pull_tail()),
-@@ -1689,13 +1691,6 @@ bool tcp_add_backlog(struct sock *sk, st
- 	 */
- 	th = (const struct tcphdr *)skb->data;
- 	hdrlen = th->doff * 4;
--	shinfo = skb_shinfo(skb);
+-	if (unlikely(xenstored_ready == 0)) {
+-		xenstored_ready = 1;
+-		schedule_work(&probe_work);
+-	}
 -
--	if (!shinfo->gso_size)
--		shinfo->gso_size = skb->len - hdrlen;
+ 	wake_up(&xb_waitq);
+ 	return IRQ_HANDLED;
+ }
+diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
+index 44634d970a5ca..c8f0282bb6497 100644
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -683,29 +683,76 @@ void unregister_xenstore_notifier(struct notifier_block *nb)
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
+ 
+-void xenbus_probe(struct work_struct *unused)
++void xenbus_probe(void)
+ {
+ 	xenstored_ready = 1;
+ 
++	/*
++	 * In the HVM case, xenbus_init() deferred its call to
++	 * xs_init() in case callbacks were not operational yet.
++	 * So do it now.
++	 */
++	if (xen_store_domain_type == XS_HVM)
++		xs_init();
++
+ 	/* Notify others that xenstore is up */
+ 	blocking_notifier_call_chain(&xenstore_chain, 0, NULL);
+ }
+-EXPORT_SYMBOL_GPL(xenbus_probe);
+ 
+-static int __init xenbus_probe_initcall(void)
++/*
++ * Returns true when XenStore init must be deferred in order to
++ * allow the PCI platform device to be initialised, before we
++ * can actually have event channel interrupts working.
++ */
++static bool xs_hvm_defer_init_for_callback(void)
+ {
+-	if (!xen_domain())
+-		return -ENODEV;
++#ifdef CONFIG_XEN_PVHVM
++	return xen_store_domain_type == XS_HVM &&
++		!xen_have_vector_callback;
++#else
++	return false;
++#endif
++}
+ 
+-	if (xen_initial_domain() || xen_hvm_domain())
+-		return 0;
++static int __init xenbus_probe_initcall(void)
++{
++	/*
++	 * Probe XenBus here in the XS_PV case, and also XS_HVM unless we
++	 * need to wait for the platform PCI device to come up.
++	 */
++	if (xen_store_domain_type == XS_PV ||
++	    (xen_store_domain_type == XS_HVM &&
++	     !xs_hvm_defer_init_for_callback()))
++		xenbus_probe();
+ 
+-	xenbus_probe(NULL);
+ 	return 0;
+ }
 -
--	if (!shinfo->gso_segs)
--		shinfo->gso_segs = 1;
+ device_initcall(xenbus_probe_initcall);
  
- 	tail = sk->sk_backlog.tail;
- 	if (!tail)
-@@ -1718,6 +1713,15 @@ bool tcp_add_backlog(struct sock *sk, st
- 		goto no_coalesce;
- 
- 	__skb_pull(skb, hdrlen);
++int xen_set_callback_via(uint64_t via)
++{
++	struct xen_hvm_param a;
++	int ret;
 +
-+	shinfo = skb_shinfo(skb);
-+	gso_size = shinfo->gso_size ?: skb->len;
-+	gso_segs = shinfo->gso_segs ?: 1;
++	a.domid = DOMID_SELF;
++	a.index = HVM_PARAM_CALLBACK_IRQ;
++	a.value = via;
 +
-+	shinfo = skb_shinfo(tail);
-+	tail_gso_size = shinfo->gso_size ?: (tail->len - hdrlen);
-+	tail_gso_segs = shinfo->gso_segs ?: 1;
++	ret = HYPERVISOR_hvm_op(HVMOP_set_param, &a);
++	if (ret)
++		return ret;
 +
- 	if (skb_try_coalesce(tail, skb, &fragstolen, &delta)) {
- 		TCP_SKB_CB(tail)->end_seq = TCP_SKB_CB(skb)->end_seq;
++	/*
++	 * If xenbus_probe_initcall() deferred the xenbus_probe()
++	 * due to the callback not functioning yet, we can do it now.
++	 */
++	if (!xenstored_ready && xs_hvm_defer_init_for_callback())
++		xenbus_probe();
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xen_set_callback_via);
++
+ /* Set up event channel for xenstored which is run as a local process
+  * (this is normally used only in dom0)
+  */
+@@ -818,11 +865,17 @@ static int __init xenbus_init(void)
+ 		break;
+ 	}
  
-@@ -1744,11 +1748,8 @@ bool tcp_add_backlog(struct sock *sk, st
- 		}
+-	/* Initialize the interface to xenstore. */
+-	err = xs_init();
+-	if (err) {
+-		pr_warn("Error initializing xenstore comms: %i\n", err);
+-		goto out_error;
++	/*
++	 * HVM domains may not have a functional callback yet. In that
++	 * case let xs_init() be called from xenbus_probe(), which will
++	 * get invoked at an appropriate time.
++	 */
++	if (xen_store_domain_type != XS_HVM) {
++		err = xs_init();
++		if (err) {
++			pr_warn("Error initializing xenstore comms: %i\n", err);
++			goto out_error;
++		}
+ 	}
  
- 		/* Not as strict as GRO. We only need to carry mss max value */
--		skb_shinfo(tail)->gso_size = max(shinfo->gso_size,
--						 skb_shinfo(tail)->gso_size);
--
--		gso_segs = skb_shinfo(tail)->gso_segs + shinfo->gso_segs;
--		skb_shinfo(tail)->gso_segs = min_t(u32, gso_segs, 0xFFFF);
-+		shinfo->gso_size = max(gso_size, tail_gso_size);
-+		shinfo->gso_segs = min_t(u32, gso_segs + tail_gso_segs, 0xFFFF);
+ 	if ((xen_store_domain_type != XS_LOCAL) &&
+diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+index 00c7235ae93e7..2c43b0ef1e4d5 100644
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -192,7 +192,7 @@ void xs_suspend_cancel(void);
  
- 		sk->sk_backlog.len += delta;
- 		__NET_INC_STATS(sock_net(sk),
+ struct work_struct;
+ 
+-void xenbus_probe(struct work_struct *);
++void xenbus_probe(void);
+ 
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
+-- 
+2.27.0
+
 
 
