@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4741302AC9
+	by mail.lfdr.de (Postfix) with ESMTP id 5874E302AC8
 	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730739AbhAYSwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:52:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
+        id S1730650AbhAYSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:52:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726873AbhAYSw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:52:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8682C20719;
-        Mon, 25 Jan 2021 18:51:45 +0000 (UTC)
+        id S1729835AbhAYSw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:52:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 247E820E65;
+        Mon, 25 Jan 2021 18:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600706;
-        bh=dtHWywZcjIYTvK9Xnj3nvbbc7zy5dcn9/5bvnLGxh/k=;
+        s=korg; t=1611600708;
+        bh=Hz/PhX6BP8NQZxm3lsKRW4iLuewYuhA1lT9S6nwoeSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVp1PXqQYMwzSe5pwjFVvrPLq1ZRMeYfHQCJR6Xi+Qi8R5VO7JEze0FATOPlltsXg
-         vgfXfwhUUvcVu8CVkYqOU4ELD7iu4qyNUMcC3s7KJo9J/v3K6z/aT8zoPKxKHd8UXM
-         KIbKanLW+PKdr5fRJRxn6zUFGSPbGzWl9BiDV1T0=
+        b=AhsCiFL32crjBAmPzPULdw/3Pna3r2l+zRXNnCZKDTzrNg+RRSSDeOOzM95dcLmYn
+         7ZZNhCIAH7VYciHEOusSsSIHFGroVB9TOfGBVJJkEfjSFuBqYINy6KzUPyIFMW0vjL
+         VZkS/8LtejsEIwlvwruTpdJAfr7r2Sy9wgxkcMPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 118/199] irqchip/mips-cpu: Set IPI domain parent chip
-Date:   Mon, 25 Jan 2021 19:39:00 +0100
-Message-Id: <20210125183221.214457390@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Mazur <krzysiek@podlesie.net>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        =?UTF-8?q?Krzysztof=20Piotr=20Ol=C4=99dzki?= <ole@ans.pl>
+Subject: [PATCH 5.10 119/199] x86/mmx: Use KFPU_387 for MMX string operations
+Date:   Mon, 25 Jan 2021 19:39:01 +0100
+Message-Id: <20210125183221.250497496@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,47 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Kresin <dev@kresin.me>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 599b3063adf4bf041a87a69244ee36aded0d878f upstream.
+commit 67de8dca50c027ca0fa3b62a488ee5035036a0da upstream.
 
-Since commit 55567976629e ("genirq/irqdomain: Allow partial trimming of
-irq_data hierarchy") the irq_data chain is valided.
+The default kernel_fpu_begin() doesn't work on systems that support XMM but
+haven't yet enabled CR4.OSFXSR.  This causes crashes when _mmx_memcpy() is
+called too early because LDMXCSR generates #UD when the aforementioned bit
+is clear.
 
-The irq_domain_trim_hierarchy() function doesn't consider the irq + ipi
-domain hierarchy as valid, since the ipi domain has the irq domain set
-as parent, but the parent domain has no chip set. Hence the boot ends in
-a kernel panic.
+Fix it by using kernel_fpu_begin_mask(KFPU_387) explicitly.
 
-Set the chip for the parent domain as it is done in the mips gic irq
-driver, to have a valid irq_data chain.
-
-Fixes: 3838a547fda2 ("irqchip: mips-cpu: Introduce IPI IRQ domain support")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Mathias Kresin <dev@kresin.me>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210107213603.1637781-1-dev@kresin.me
+Fixes: 7ad816762f9b ("x86/fpu: Reset MXCSR to default in kernel_fpu_begin()")
+Reported-by: Krzysztof Mazur <krzysiek@podlesie.net>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Krzysztof Piotr Olędzki <ole@ans.pl>
+Tested-by: Krzysztof Mazur <krzysiek@podlesie.net>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/e7bf21855fe99e5f3baa27446e32623358f69e8d.1611205691.git.luto@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-mips-cpu.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/lib/mmx_32.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/irqchip/irq-mips-cpu.c
-+++ b/drivers/irqchip/irq-mips-cpu.c
-@@ -197,6 +197,13 @@ static int mips_cpu_ipi_alloc(struct irq
- 		if (ret)
- 			return ret;
+--- a/arch/x86/lib/mmx_32.c
++++ b/arch/x86/lib/mmx_32.c
+@@ -26,6 +26,16 @@
+ #include <asm/fpu/api.h>
+ #include <asm/asm.h>
  
-+		ret = irq_domain_set_hwirq_and_chip(domain->parent, virq + i, hwirq,
-+						    &mips_mt_cpu_irq_controller,
-+						    NULL);
++/*
++ * Use KFPU_387.  MMX instructions are not affected by MXCSR,
++ * but both AMD and Intel documentation states that even integer MMX
++ * operations will result in #MF if an exception is pending in FCW.
++ *
++ * EMMS is not needed afterwards because, after calling kernel_fpu_end(),
++ * any subsequent user of the 387 stack will reinitialize it using
++ * KFPU_387.
++ */
 +
-+		if (ret)
-+			return ret;
-+
- 		ret = irq_set_irq_type(virq + i, IRQ_TYPE_LEVEL_HIGH);
- 		if (ret)
- 			return ret;
+ void *_mmx_memcpy(void *to, const void *from, size_t len)
+ {
+ 	void *p;
+@@ -37,7 +47,7 @@ void *_mmx_memcpy(void *to, const void *
+ 	p = to;
+ 	i = len >> 6; /* len/64 */
+ 
+-	kernel_fpu_begin();
++	kernel_fpu_begin_mask(KFPU_387);
+ 
+ 	__asm__ __volatile__ (
+ 		"1: prefetch (%0)\n"		/* This set is 28 bytes */
+@@ -127,7 +137,7 @@ static void fast_clear_page(void *page)
+ {
+ 	int i;
+ 
+-	kernel_fpu_begin();
++	kernel_fpu_begin_mask(KFPU_387);
+ 
+ 	__asm__ __volatile__ (
+ 		"  pxor %%mm0, %%mm0\n" : :
+@@ -160,7 +170,7 @@ static void fast_copy_page(void *to, voi
+ {
+ 	int i;
+ 
+-	kernel_fpu_begin();
++	kernel_fpu_begin_mask(KFPU_387);
+ 
+ 	/*
+ 	 * maybe the prefetch stuff can go before the expensive fnsave...
+@@ -247,7 +257,7 @@ static void fast_clear_page(void *page)
+ {
+ 	int i;
+ 
+-	kernel_fpu_begin();
++	kernel_fpu_begin_mask(KFPU_387);
+ 
+ 	__asm__ __volatile__ (
+ 		"  pxor %%mm0, %%mm0\n" : :
+@@ -282,7 +292,7 @@ static void fast_copy_page(void *to, voi
+ {
+ 	int i;
+ 
+-	kernel_fpu_begin();
++	kernel_fpu_begin_mask(KFPU_387);
+ 
+ 	__asm__ __volatile__ (
+ 		"1: prefetch (%0)\n"
 
 
