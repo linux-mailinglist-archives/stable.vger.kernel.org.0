@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F5C303393
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99356303392
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbhAZE7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:59:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
+        id S1730141AbhAZE6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:58:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731066AbhAYSuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB0A224B8;
-        Mon, 25 Jan 2021 18:49:28 +0000 (UTC)
+        id S1731070AbhAYSuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B4F20679;
+        Mon, 25 Jan 2021 18:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600569;
-        bh=tkRm8I8OG2GTvTEPQ7/nYssvYEKXkyiQeKqAZLNClwg=;
+        s=korg; t=1611600571;
+        bh=MJksqXmuYaGUzjr4jC6xeLEyWJivFShEUeqd9qu+zGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gK1djtmLMdcrjQtNi0wJfrPlIIumAYbCHVQEmFmKQWVmQsaNSwQHgJbLkkodwf9GF
-         t7Spn/eCYlT5QuBpsDcLcpPLgtrkzFyfgFWd+azDv99VSvHkM0PGF5pcPRXS11JUEj
-         44N8b0VGsfaNkT0g8+vhU1K21QusXYM0CE2SDAX8=
+        b=T9UROJK6+S4E/burVp55KfuiJcuUy8owVhEuwQSPu6uBQUblAQBReHCqzQbY8CK+v
+         12o3E2BwfsFpnHr4dCmOeRh2rn0GCj4yRIYl0xHnMLmhP6zf7GRlgXa9/B+XhkrLcR
+         fu70ns4WSVdPYvNUIvIDS/jf+KR6zj/tjNW1cwkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/199] drm/nouveau/privring: ack interrupts the same way as RM
-Date:   Mon, 25 Jan 2021 19:38:08 +0100
-Message-Id: <20210125183219.054567603@linuxfoundation.org>
+Subject: [PATCH 5.10 067/199] drm/nouveau/i2c/gm200: increase width of aux semaphore owner fields
+Date:   Mon, 25 Jan 2021 19:38:09 +0100
+Message-Id: <20210125183219.096400419@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,115 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit e05e06cd34f5311f677294a08b609acfbc315236 ]
+[ Upstream commit ba6e9ab0fcf3d76e3952deb12b5f993991621d9c ]
 
-Whatever it is that we were doing before doesn't work on Ampere.
+Noticed while debugging GA102.
 
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c | 10 +++++++---
- drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c | 10 +++++++---
- 2 files changed, 14 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-index 2340040942c93..1115376bc85f5 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gf100.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
-  */
- #include "priv.h"
-+#include <subdev/timer.h>
- 
- static void
- gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
-@@ -31,7 +32,6 @@ gf100_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0400));
- 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x122128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -42,7 +42,6 @@ gf100_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0400));
- 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x124128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -53,7 +52,6 @@ gf100_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0400));
- 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0400));
- 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x128128 + (i * 0x0400), 0x00000200, 0x00000000);
- }
- 
- void
-@@ -90,6 +88,12 @@ gf100_ibus_intr(struct nvkm_subdev *ibus)
- 			intr1 &= ~stat;
- 		}
- 	}
-+
-+	nvkm_mask(device, 0x121c4c, 0x0000003f, 0x00000002);
-+	nvkm_msec(device, 2000,
-+		if (!(nvkm_rd32(device, 0x121c4c) & 0x0000003f))
-+			break;
-+	);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
+index edb6148cbca04..d0e80ad526845 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c
+@@ -33,7 +33,7 @@ static void
+ gm200_i2c_aux_fini(struct gm200_i2c_aux *aux)
+ {
+ 	struct nvkm_device *device = aux->base.pad->i2c->subdev.device;
+-	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00310000, 0x00000000);
++	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00710000, 0x00000000);
  }
  
  static int
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-index f3915f85838ed..22e487b493ad1 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/ibus/gk104.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
-  */
- #include "priv.h"
-+#include <subdev/timer.h>
- 
- static void
- gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
-@@ -31,7 +32,6 @@ gk104_ibus_intr_hub(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x122124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x122128 + (i * 0x0800));
- 	nvkm_debug(ibus, "HUB%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x122128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -42,7 +42,6 @@ gk104_ibus_intr_rop(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x124124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x124128 + (i * 0x0800));
- 	nvkm_debug(ibus, "ROP%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x124128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- static void
-@@ -53,7 +52,6 @@ gk104_ibus_intr_gpc(struct nvkm_subdev *ibus, int i)
- 	u32 data = nvkm_rd32(device, 0x128124 + (i * 0x0800));
- 	u32 stat = nvkm_rd32(device, 0x128128 + (i * 0x0800));
- 	nvkm_debug(ibus, "GPC%d: %06x %08x (%08x)\n", i, addr, data, stat);
--	nvkm_mask(device, 0x128128 + (i * 0x0800), 0x00000200, 0x00000000);
- }
- 
- void
-@@ -90,6 +88,12 @@ gk104_ibus_intr(struct nvkm_subdev *ibus)
- 			intr1 &= ~stat;
+@@ -54,10 +54,10 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
+ 			AUX_ERR(&aux->base, "begin idle timeout %08x", ctrl);
+ 			return -EBUSY;
  		}
- 	}
-+
-+	nvkm_mask(device, 0x12004c, 0x0000003f, 0x00000002);
-+	nvkm_msec(device, 2000,
-+		if (!(nvkm_rd32(device, 0x12004c) & 0x0000003f))
-+			break;
-+	);
- }
+-	} while (ctrl & 0x03010000);
++	} while (ctrl & 0x07010000);
  
- static int
+ 	/* set some magic, and wait up to 1ms for it to appear */
+-	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00300000, ureq);
++	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00700000, ureq);
+ 	timeout = 1000;
+ 	do {
+ 		ctrl = nvkm_rd32(device, 0x00d954 + (aux->ch * 0x50));
+@@ -67,7 +67,7 @@ gm200_i2c_aux_init(struct gm200_i2c_aux *aux)
+ 			gm200_i2c_aux_fini(aux);
+ 			return -EBUSY;
+ 		}
+-	} while ((ctrl & 0x03000000) != urep);
++	} while ((ctrl & 0x07000000) != urep);
+ 
+ 	return 0;
+ }
 -- 
 2.27.0
 
