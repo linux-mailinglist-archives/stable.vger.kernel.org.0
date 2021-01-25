@@ -2,166 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A433302FFE
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 00:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED44F303010
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 00:25:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732900AbhAYXTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 18:19:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35154 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732710AbhAYXTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 18:19:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2913229EF;
-        Mon, 25 Jan 2021 23:19:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611616741;
-        bh=5mvxTS2uDTKRs6w5XFMhTlPUtVzRbXOP7NVE6OrP3pY=;
-        h=Date:From:To:Subject:From;
-        b=jtbLGa40COr+850cjbcsBDKfJBvRU2weGycIJ4vkxFAywyCTIDDq/KwpiUHqfSoPb
-         60BFv78zvSwYDsRcDBn0J6jUREStuqTtaagzeRIzHddrqKFa2+J97qQbt1GxT/YVS+
-         jl6BuS9pphDIzz2oeYbQvX09a2vB2rcEG8net2JI=
-Date:   Mon, 25 Jan 2021 15:19:00 -0800
-From:   akpm@linux-foundation.org
-To:     alex.shi@linux.alibaba.com, hannes@cmpxchg.org,
-        linmiaohe@huawei.com, longman@redhat.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, smuchun@gmail.com,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  +
- =?US-ASCII?Q?mm-filemap-adding-missing-mem=5Fcgroup=5Funcharge-to-?=
- =?US-ASCII?Q?=5F=5Fadd=5Fto=5Fpage=5Fcache=5Flocked.patch?= added to -mm
- tree
-Message-ID: <20210125231900.aBuUkBskf%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1732105AbhAYXZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 18:25:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48238 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732242AbhAYXZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 18:25:07 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831E7C061574
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 15:24:27 -0800 (PST)
+From:   John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1611617065;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=TO/uRQAj7KNjfnxwAqIacQ050Bk7n+fmYm03Ic1drGg=;
+        b=nj0kmWpl2Dut2fKBF1jIAOxM0asxfUOdERt+InJQfowHz6PA1buVDpM0I374rJZKc5LwgX
+        MSobFh1rwSB6rV6fCe7n8zvxg2VBofVJxQ/6eDaJwVGT09xPRUGv1SMJEY0+Ao5rP+gAW2
+        K6sYv+036DKzNp1aYuYRhFsiBT9FuSkhwnkaXVgRg5PHJg8uJPdkLDRMnNbaaN+cQDVTIc
+        wI2RJPhabYqtArBiMUaWHNkC6zUwxuaV31xsqIljMov53qOTk5NH2G0bFl1rrew5wy9FnD
+        SduIhJRgoaSqk3gQlm+9C0C6wNvF9eopn2W1VNLP+bySSRloDDmKsdcbkQqbdQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1611617065;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=TO/uRQAj7KNjfnxwAqIacQ050Bk7n+fmYm03Ic1drGg=;
+        b=kcfZ+Yw1B27y1UbcAC2TGYcR2UO9M2Mn7FmT8y8JDp8nNSgerhVGnD9/Ce0BYcbhpmEnI3
+        iuilMhT2aEgzOSCg==
+To:     stable@vger.kernel.org
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: printk: buffer overflow fixes
+Date:   Tue, 26 Jan 2021 00:30:24 +0106
+Message-ID: <878s8g38if.fsf@jogness.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello stable,
 
-The patch titled
-     Subject: mm/filemap: add missing mem_cgroup_uncharge() to __add_to_page_cache_locked()
-has been added to the -mm tree.  Its filename is
-     mm-filemap-adding-missing-mem_cgroup_uncharge-to-__add_to_page_cache_locked.patch
+The following printk patches fixing a buffer overflow potential in 5.10
+are now available in Linus' tree:
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-filemap-adding-missing-mem_cgroup_uncharge-to-__add_to_page_cache_locked.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-filemap-adding-missing-mem_cgroup_uncharge-to-__add_to_page_cache_locked.patch
+f0e386ee0c0b71ea6f7238506a4d0965a2dbef11 ("printk: fix buffer overflow
+potential for print_text()")
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+08d60e5999540110576e7c1346d486220751b7f9 ("printk: fix string
+termination for record_print_text()")
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+The first one (f0e386ee0c0b) was already queued up for 5.10-stable but I
+requested it not be applied until this second one was accepted. Now they
+are both accepted and both should be applied. Thanks.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Waiman Long <longman@redhat.com>
-Subject: mm/filemap: add missing mem_cgroup_uncharge() to __add_to_page_cache_locked()
-
-commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") introduced a bug in __add_to_page_cache_locked()
-causing the following splat:
-
- [ 1570.068330] page dumped because: VM_BUG_ON_PAGE(page_memcg(page))
- [ 1570.068333] pages's memcg:ffff8889a4116000
- [ 1570.068343] ------------[ cut here ]------------
- [ 1570.068346] kernel BUG at mm/memcontrol.c:2924!
- [ 1570.068355] invalid opcode: 0000 [#1] SMP KASAN PTI
- [ 1570.068359] CPU: 35 PID: 12345 Comm: cat Tainted: G S      W I       5.11.0-rc4-debug+ #1
- [ 1570.068363] Hardware name: HP HP Z8 G4 Workstation/81C7, BIOS P60 v01.25 12/06/2017
- [ 1570.068365] RIP: 0010:commit_charge+0xf4/0x130
-   :
- [ 1570.068375] RSP: 0018:ffff8881b38d70e8 EFLAGS: 00010286
- [ 1570.068379] RAX: 0000000000000000 RBX: ffffea00260ddd00 RCX: 0000000000000027
- [ 1570.068382] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff88907ebe05a8
- [ 1570.068384] RBP: ffffea00260ddd00 R08: ffffed120fd7c0b6 R09: ffffed120fd7c0b6
- [ 1570.068386] R10: ffff88907ebe05ab R11: ffffed120fd7c0b5 R12: ffffea00260ddd38
- [ 1570.068389] R13: ffff8889a4116000 R14: ffff8889a4116000 R15: 0000000000000001
- [ 1570.068391] FS:  00007ff039638680(0000) GS:ffff88907ea00000(0000) knlGS:0000000000000000
- [ 1570.068394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [ 1570.068396] CR2: 00007f36f354cc20 CR3: 00000008a0126006 CR4: 00000000007706e0
- [ 1570.068398] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [ 1570.068400] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [ 1570.068402] PKRU: 55555554
- [ 1570.068404] Call Trace:
- [ 1570.068407]  mem_cgroup_charge+0x175/0x770
- [ 1570.068413]  __add_to_page_cache_locked+0x712/0xad0
- [ 1570.068439]  add_to_page_cache_lru+0xc5/0x1f0
- [ 1570.068461]  cachefiles_read_or_alloc_pages+0x895/0x2e10 [cachefiles]
- [ 1570.068524]  __fscache_read_or_alloc_pages+0x6c0/0xa00 [fscache]
- [ 1570.068540]  __nfs_readpages_from_fscache+0x16d/0x630 [nfs]
- [ 1570.068585]  nfs_readpages+0x24e/0x540 [nfs]
- [ 1570.068693]  read_pages+0x5b1/0xc40
- [ 1570.068711]  page_cache_ra_unbounded+0x460/0x750
- [ 1570.068729]  generic_file_buffered_read_get_pages+0x290/0x1710
- [ 1570.068756]  generic_file_buffered_read+0x2a9/0xc30
- [ 1570.068832]  nfs_file_read+0x13f/0x230 [nfs]
- [ 1570.068872]  new_sync_read+0x3af/0x610
- [ 1570.068901]  vfs_read+0x339/0x4b0
- [ 1570.068909]  ksys_read+0xf1/0x1c0
- [ 1570.068920]  do_syscall_64+0x33/0x40
- [ 1570.068926]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- [ 1570.068930] RIP: 0033:0x7ff039135595
-
-Before that commit, there was a try_charge() and commit_charge() in
-__add_to_page_cache_locked().  These 2 separated charge functions were
-replaced by a single mem_cgroup_charge().  However, it forgot to add a
-matching mem_cgroup_uncharge() when the xarray insertion failed with the
-page released back to the pool.  Fix this by adding a
-mem_cgroup_uncharge() call when insertion error happens.
-
-Link: https://lkml.kernel.org/r/20210125042441.20030-1-longman@redhat.com
-Fixes: 3fea5a499d57 ("mm: memcontrol: convert page cache to a new mem_cgroup_charge() API")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Muchun Song <smuchun@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/filemap.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
---- a/mm/filemap.c~mm-filemap-adding-missing-mem_cgroup_uncharge-to-__add_to_page_cache_locked
-+++ a/mm/filemap.c
-@@ -835,6 +835,7 @@ noinline int __add_to_page_cache_locked(
- 	XA_STATE(xas, &mapping->i_pages, offset);
- 	int huge = PageHuge(page);
- 	int error;
-+	bool charged = false;
- 
- 	VM_BUG_ON_PAGE(!PageLocked(page), page);
- 	VM_BUG_ON_PAGE(PageSwapBacked(page), page);
-@@ -848,6 +849,7 @@ noinline int __add_to_page_cache_locked(
- 		error = mem_cgroup_charge(page, current->mm, gfp);
- 		if (error)
- 			goto error;
-+		charged = true;
- 	}
- 
- 	gfp &= GFP_RECLAIM_MASK;
-@@ -896,6 +898,8 @@ unlock:
- 
- 	if (xas_error(&xas)) {
- 		error = xas_error(&xas);
-+		if (charged)
-+			mem_cgroup_uncharge(page);
- 		goto error;
- 	}
- 
-_
-
-Patches currently in -mm which might be from longman@redhat.com are
-
-mm-filemap-adding-missing-mem_cgroup_uncharge-to-__add_to_page_cache_locked.patch
-
+John Ogness
