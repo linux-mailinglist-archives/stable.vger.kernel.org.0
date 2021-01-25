@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24293031CA
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 248463031CB
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726630AbhAYSoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:44:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
+        id S1726292AbhAYSoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:44:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729122AbhAYSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729140AbhAYSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:43:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1814522DFB;
-        Mon, 25 Jan 2021 18:43:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13B59230FC;
+        Mon, 25 Jan 2021 18:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600216;
-        bh=3flzZVOpmy7euOhMJjlYjhvWlHsCABkn3rtjvZT42fI=;
+        s=korg; t=1611600221;
+        bh=T4UKDtTLH3uErx25Eb+nAvlGUQBbaXBFMPyk+zDVVGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgNnjuDqukJXafarPVI1tLEN6z97+OmeK5i44iMYvLHBPAZi8+9ZVn6G17Nj0jLRJ
-         Tc+XP+VD7gIK28vDVi/uNdHkhaTB4TAIfRG/lk+y1YOaC7SpePGUhsN80pUauahoAA
-         ZIJmIre11AfPIa38uom7fxt9vcALMCZ3e5PGPpjo=
+        b=o/vMzD/4OoAInLR8z8jvTQkYtjEox+vBwCpkWotlvC5kW58lMJQJr8ePmZ3V7Ubrl
+         v5FBHqq/mUhWwskHyL0yXN+xeCcsOtDso4a+EPrMLW9JIk3DbquX1/v37Yj+K5wj/Y
+         viB0lxGObWZa9+tZA+/rtOZXIvJKz7zy84CkS82c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Roper <matthew.d.roper@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.4 17/86] drm/i915/gt: Prevent use of engine->wa_ctx after error
-Date:   Mon, 25 Jan 2021 19:38:59 +0100
-Message-Id: <20210125183201.777126820@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 19/86] HID: multitouch: Enable multi-input for Synaptics pointstick/touchpad device
+Date:   Mon, 25 Jan 2021 19:39:01 +0100
+Message-Id: <20210125183201.858660293@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -42,45 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 488751a0ef9b5ce572c47301ce62d54fc6b5a74d upstream.
+[ Upstream commit c3d6eb6e54373f297313b65c1f2319d36914d579 ]
 
-On error we unpin and free the wa_ctx.vma, but do not clear any of the
-derived flags. During lrc_init, we look at the flags and attempt to
-dereference the wa_ctx.vma if they are set. To protect the error path
-where we try to limp along without the wa_ctx, make sure we clear those
-flags!
+Pointstick and its left/right buttons on HP EliteBook 850 G7 need
+multi-input quirk to work correctly.
 
-Reported-by: Matt Roper <matthew.d.roper@intel.com>
-Fixes: 604a8f6f1e33 ("drm/i915/lrc: Only enable per-context and per-bb buffers if set")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v4.15+
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210108204026.20682-1-chris@chris-wilson.co.uk
-(cherry-picked from 5b4dc95cf7f573e927fbbd406ebe54225d41b9b2)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210118095332.458813-1-chris@chris-wilson.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -2245,6 +2245,9 @@ err:
- static void lrc_destroy_wa_ctx(struct intel_engine_cs *engine)
- {
- 	i915_vma_unpin_and_release(&engine->wa_ctx.vma, 0);
-+
-+	/* Called on error unwind, clear all flags to prevent further use */
-+	memset(&engine->wa_ctx, 0, sizeof(engine->wa_ctx));
- }
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 128d8f4319b9f..d91e6679afb18 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2084,6 +2084,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
  
- typedef u32 *(*wa_bb_func_t)(struct intel_engine_cs *engine, u32 *batch);
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_SYNAPTICS, 0xce09) },
++
+ 	/* TopSeed panels */
+ 	{ .driver_data = MT_CLS_TOPSEED,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
+-- 
+2.27.0
+
 
 
