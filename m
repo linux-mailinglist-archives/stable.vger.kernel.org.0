@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C815302F55
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 927E2302F3B
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732677AbhAYWpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 17:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S1732650AbhAYWlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 17:41:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732882AbhAYVfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 16:35:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 782F4208C7;
-        Mon, 25 Jan 2021 21:34:49 +0000 (UTC)
+        id S1732811AbhAYVfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 16:35:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2FF320C56;
+        Mon, 25 Jan 2021 21:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611610489;
-        bh=tHBRtFM+DBhfjg+9yisl4TLz5gr0WP9baJk3JUE7D0M=;
+        s=korg; t=1611610493;
+        bh=Zsh3yI4q1ZoCJeWfyDZYQVmhGOstOHOfJ3NclDQ972k=;
         h=Date:From:To:Subject:From;
-        b=Qy0y2emKDU1nS7wWDwq6anttR2DMqHMplIcHsSx3eK5djY5lQQmMuQKLR4wOdL8MY
-         r5HJ7xKx9APyjfZZJ+4FJy4rMGuOWKiXs6VN0X5bb4D3KcoFOTfQJ4ewXQBzBSNBQE
-         8DxuQOMlepKp53oUGHq9eJHoJQCKWCv2qILY2Jhk=
-Date:   Mon, 25 Jan 2021 13:34:49 -0800
+        b=H7O0jyY+AzDsgVC5t/sYHDC5bKFKdb+k143oIi4+PLfMdFjRraou8RYk6q5LN1WFj
+         SvN0t3Ai+VkCyy8CGtS9D1/uB/nzElbjzKxuPQtqzYPrNKIg41qi4VPZ1X70106Z8C
+         SJdrJ/QIE40u8s3oU4rUwSvScB/lP/ZHvj4IZJUc=
+Date:   Mon, 25 Jan 2021 13:34:52 -0800
 From:   akpm@linux-foundation.org
-To:     bhe@redhat.com, bp@alien8.de, cai@lca.pw, david@redhat.com,
-        hpa@zytor.com, mgorman@suse.de, mhocko@kernel.org,
-        mingo@redhat.com, mm-commits@vger.kernel.org, rppt@linux.ibm.com,
-        stable@vger.kernel.org, tglx@linutronix.de, vbabka@suse.cz
+To:     aarcange@redhat.com, bhe@redhat.com, bp@alien8.de, cai@lca.pw,
+        david@redhat.com, hpa@zytor.com, mgorman@suse.de,
+        mhocko@kernel.org, mingo@redhat.com, mm-commits@vger.kernel.org,
+        rppt@linux.ibm.com, stable@vger.kernel.org, tglx@linutronix.de,
+        vbabka@suse.cz
 Subject:  [merged]
- x86-setup-dont-remove-e820_type_ram-for-pfn-0.patch removed from -mm tree
-Message-ID: <20210125213449.I2QHaqedF%akpm@linux-foundation.org>
+ mm-fix-initialization-of-struct-page-for-holes-in-memory-layout.patch
+ removed from -mm tree
+Message-ID: <20210125213452.sE-h6uf-x%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,56 +38,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: x86/setup: don't remove E820_TYPE_RAM for pfn 0
+     Subject: mm: fix initialization of struct page for holes in memory layout
 has been removed from the -mm tree.  Its filename was
-     x86-setup-dont-remove-e820_type_ram-for-pfn-0.patch
+     mm-fix-initialization-of-struct-page-for-holes-in-memory-layout.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: x86/setup: don't remove E820_TYPE_RAM for pfn 0
+Subject: mm: fix initialization of struct page for holes in memory layout
 
-Patch series "mm: fix initialization of struct page for holes in  memory layout", v3.
+There could be struct pages that are not backed by actual physical memory.
+This can happen when the actual memory bank is not a multiple of
+SECTION_SIZE or when an architecture does not register memory holes
+reserved by the firmware as memblock.memory.
 
-Commit 73a6e474cb37 ("mm: memmap_init: iterate over
-memblock regions rather that check each PFN") exposed several issues with
-the memory map initialization and these patches fix those issues.
+Such pages are currently initialized using init_unavailable_mem() function
+that iterates through PFNs in holes in memblock.memory and if there is a
+struct page corresponding to a PFN, the fields if this page are set to
+default values and the page is marked as Reserved.
 
-Initially there were crashes during compaction that Qian Cai reported back
-in April [1]. It seemed back then that the problem was fixed, but a few
-weeks ago Andrea Arcangeli hit the same bug [2] and there was an additional
-discussion at [3].
+init_unavailable_mem() does not take into account zone and node the page
+belongs to and sets both zone and node links in struct page to zero.
 
-[1] https://lore.kernel.org/lkml/8C537EB7-85EE-4DCF-943E-3CC0ED0DF56D@lca.pw
-[2] https://lore.kernel.org/lkml/20201121194506.13464-1-aarcange@redhat.com
-[3] https://lore.kernel.org/mm-commits/20201206005401.qKuAVgOXr%akpm@linux-foundation.org
+On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+instance in a configuration below:
 
+	# grep -A1 E820 /proc/iomem
+	7a17b000-7a216fff : Unknown E820 type
+	7a217000-7bffffff : System RAM
 
-This patch (of 2):
-
-The first 4Kb of memory is a BIOS owned area and to avoid its allocation
-for the kernel it was not listed in e820 tables as memory.  As the result,
-pfn 0 was never recognised by the generic memory management and it is not
-a part of neither node 0 nor ZONE_DMA.
-
-If set_pfnblock_flags_mask() would be ever called for the pageblock
-corresponding to the first 2Mbytes of memory, having pfn 0 outside of
-ZONE_DMA would trigger
+unset zone link in struct page will trigger
 
 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
 
-Along with reserving the first 4Kb in e820 tables, several first pages are
-reserved with memblock in several places during setup_arch().  These
-reservations are enough to ensure the kernel does not touch the BIOS area
-and it is not necessary to remove E820_TYPE_RAM for pfn 0.
+because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+in struct page) in the same pageblock.
 
-Remove the update of e820 table that changes the type of pfn 0 and move
-the comment describing why it was done to trim_low_memory_range() that
-reserves the beginning of the memory.
+Update init_unavailable_mem() to use zone constraints defined by an
+architecture to properly setup the zone link and use node ID of the
+adjacent range in memblock.memory to set the node link.
 
-Link: https://lkml.kernel.org/r/20210111194017.22696-2-rppt@kernel.org
+Link: https://lkml.kernel.org/r/20210111194017.22696-3-rppt@kernel.org
+Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Baoquan He <bhe@redhat.com>
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: David Hildenbrand <david@redhat.com>
@@ -100,45 +98,137 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/x86/kernel/setup.c |   20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ mm/page_alloc.c |   84 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 50 insertions(+), 34 deletions(-)
 
---- a/arch/x86/kernel/setup.c~x86-setup-dont-remove-e820_type_ram-for-pfn-0
-+++ a/arch/x86/kernel/setup.c
-@@ -661,17 +661,6 @@ static void __init trim_platform_memory_
- static void __init trim_bios_range(void)
+--- a/mm/page_alloc.c~mm-fix-initialization-of-struct-page-for-holes-in-memory-layout
++++ a/mm/page_alloc.c
+@@ -7078,23 +7078,26 @@ void __init free_area_init_memoryless_no
+  * Initialize all valid struct pages in the range [spfn, epfn) and mark them
+  * PageReserved(). Return the number of struct pages that were initialized.
+  */
+-static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn)
++static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn,
++					 int zone, int nid)
  {
- 	/*
--	 * A special case is the first 4Kb of memory;
--	 * This is a BIOS owned area, not kernel ram, but generally
--	 * not listed as such in the E820 table.
--	 *
--	 * This typically reserves additional memory (64KiB by default)
--	 * since some BIOSes are known to corrupt low memory.  See the
--	 * Kconfig help text for X86_RESERVE_LOW.
--	 */
--	e820__range_update(0, PAGE_SIZE, E820_TYPE_RAM, E820_TYPE_RESERVED);
--
--	/*
- 	 * special case: Some BIOSes report the PC BIOS
- 	 * area (640Kb -> 1Mb) as RAM even though it is not.
- 	 * take them out.
-@@ -728,6 +717,15 @@ early_param("reservelow", parse_reservel
+-	unsigned long pfn;
++	unsigned long pfn, zone_spfn, zone_epfn;
+ 	u64 pgcnt = 0;
  
- static void __init trim_low_memory_range(void)
- {
-+	/*
-+	 * A special case is the first 4Kb of memory;
-+	 * This is a BIOS owned area, not kernel ram, but generally
-+	 * not listed as such in the E820 table.
-+	 *
-+	 * This typically reserves additional memory (64KiB by default)
-+	 * since some BIOSes are known to corrupt low memory.  See the
-+	 * Kconfig help text for X86_RESERVE_LOW.
-+	 */
- 	memblock_reserve(0, ALIGN(reserve_low, PAGE_SIZE));
++	zone_spfn = arch_zone_lowest_possible_pfn[zone];
++	zone_epfn = arch_zone_highest_possible_pfn[zone];
++
++	spfn = clamp(spfn, zone_spfn, zone_epfn);
++	epfn = clamp(epfn, zone_spfn, zone_epfn);
++
+ 	for (pfn = spfn; pfn < epfn; pfn++) {
+ 		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+ 			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+ 				+ pageblock_nr_pages - 1;
+ 			continue;
+ 		}
+-		/*
+-		 * Use a fake node/zone (0) for now. Some of these pages
+-		 * (in memblock.reserved but not in memblock.memory) will
+-		 * get re-initialized via reserve_bootmem_region() later.
+-		 */
+-		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
++
++		__init_single_page(pfn_to_page(pfn), pfn, zone, nid);
+ 		__SetPageReserved(pfn_to_page(pfn));
+ 		pgcnt++;
+ 	}
+@@ -7103,51 +7106,64 @@ static u64 __init init_unavailable_range
  }
- 	
+ 
+ /*
+- * Only struct pages that are backed by physical memory are zeroed and
+- * initialized by going through __init_single_page(). But, there are some
+- * struct pages which are reserved in memblock allocator and their fields
+- * may be accessed (for example page_to_pfn() on some configuration accesses
+- * flags). We must explicitly initialize those struct pages.
++ * Only struct pages that correspond to ranges defined by memblock.memory
++ * are zeroed and initialized by going through __init_single_page() during
++ * memmap_init().
+  *
+- * This function also addresses a similar issue where struct pages are left
+- * uninitialized because the physical address range is not covered by
+- * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=, or when the highest physical
+- * address (max_pfn) does not end on a section boundary.
++ * But, there could be struct pages that correspond to holes in
++ * memblock.memory. This can happen because of the following reasons:
++ * - phyiscal memory bank size is not necessarily the exact multiple of the
++ *   arbitrary section size
++ * - early reserved memory may not be listed in memblock.memory
++ * - memory layouts defined with memmap= kernel parameter may not align
++ *   nicely with memmap sections
++ *
++ * Explicitly initialize those struct pages so that:
++ * - PG_Reserved is set
++ * - zone link is set accorging to the architecture constrains
++ * - node is set to node id of the next populated region except for the
++ *   trailing hole where last node id is used
+  */
+-static void __init init_unavailable_mem(void)
++static void __init init_zone_unavailable_mem(int zone)
+ {
+-	phys_addr_t start, end;
+-	u64 i, pgcnt;
+-	phys_addr_t next = 0;
++	unsigned long start, end;
++	int i, nid;
++	u64 pgcnt;
++	unsigned long next = 0;
+ 
+ 	/*
+-	 * Loop through unavailable ranges not covered by memblock.memory.
++	 * Loop through holes in memblock.memory and initialize struct
++	 * pages corresponding to these holes
+ 	 */
+ 	pgcnt = 0;
+-	for_each_mem_range(i, &start, &end) {
++	for_each_mem_pfn_range(i, MAX_NUMNODES, &start, &end, &nid) {
+ 		if (next < start)
+-			pgcnt += init_unavailable_range(PFN_DOWN(next),
+-							PFN_UP(start));
++			pgcnt += init_unavailable_range(next, start, zone, nid);
+ 		next = end;
+ 	}
+ 
+ 	/*
+-	 * Early sections always have a fully populated memmap for the whole
+-	 * section - see pfn_valid(). If the last section has holes at the
+-	 * end and that section is marked "online", the memmap will be
+-	 * considered initialized. Make sure that memmap has a well defined
+-	 * state.
++	 * Last section may surpass the actual end of memory (e.g. we can
++	 * have 1Gb section and 512Mb of RAM pouplated).
++	 * Make sure that memmap has a well defined state in this case.
+ 	 */
+-	pgcnt += init_unavailable_range(PFN_DOWN(next),
+-					round_up(max_pfn, PAGES_PER_SECTION));
++	end = round_up(max_pfn, PAGES_PER_SECTION);
++	pgcnt += init_unavailable_range(next, end, zone, nid);
+ 
+ 	/*
+ 	 * Struct pages that do not have backing memory. This could be because
+ 	 * firmware is using some of this memory, or for some other reasons.
+ 	 */
+ 	if (pgcnt)
+-		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
++		pr_info("Zone %s: zeroed struct page in unavailable ranges: %lld pages", zone_names[zone], pgcnt);
++}
++
++static void __init init_unavailable_mem(void)
++{
++	int zone;
++
++	for (zone = 0; zone < ZONE_MOVABLE; zone++)
++		init_zone_unavailable_mem(zone);
+ }
+ #else
+ static inline void __init init_unavailable_mem(void)
 _
 
 Patches currently in -mm which might be from rppt@linux.ibm.com are
