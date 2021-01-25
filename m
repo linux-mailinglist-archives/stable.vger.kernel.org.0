@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589FF302F03
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A523302EFE
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:26:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732206AbhAYW11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 17:27:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
+        id S1732158AbhAYW0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 17:26:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732971AbhAYVhZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732977AbhAYVhZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 16:37:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE1B22795;
-        Mon, 25 Jan 2021 21:35:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A77AF229EF;
+        Mon, 25 Jan 2021 21:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611610519;
-        bh=2IkpBXpcg4aiUDPMW1GIxXdkULJ16rqsy/VSY5JTYEs=;
+        s=korg; t=1611610534;
+        bh=EK4tVLL/2DGK3li1UXQNVujHvuxaE5cBk47IHUYo/Ps=;
         h=Date:From:To:Subject:From;
-        b=lV5vFu3zUt8rQk/68jo+b0fnmoY2Whb+uP6rKosduTReYH+IEFoKKtjVihvI9L+QC
-         gBptFZEHNsOBUv2288l/AllK2ht9vrA9oZPd5zqZaD5hd9HcLxX/YCav3qBnvJIk82
-         UWEOBimpkeAimCZiJTBHey184xQd5f3xwvob64uE=
-Date:   Mon, 25 Jan 2021 13:35:19 -0800
+        b=Ab4ts2FxHKj64VBaGAyasnZ55btqlzGlyZZskpOkJyMkyJ8SjPLsWMKbeCROLiYRS
+         jAfnR3LwWsaBEJkuYosCTAZcGFv7Zq+wCWJXmZSuEN4iIVbnMvbItXK9MTsealeFTS
+         ErnkPYCGILDGiSQKQkkrqqmK3FFN9PMjkKgAkiQc=
+Date:   Mon, 25 Jan 2021 13:35:33 -0800
 From:   akpm@linux-foundation.org
-To:     cai@lca.pw, dan.j.williams@intel.com, david@redhat.com,
-        mhocko@suse.com, mm-commits@vger.kernel.org,
-        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org
+To:     adobriyan@gmail.com, hkallweit1@gmail.com, keescook@chromium.org,
+        mcgrof@kernel.org, mhiramat@kernel.org, mhocko@suse.com,
+        mm-commits@vger.kernel.org, nixiaoming@huawei.com,
+        rdunlap@infradead.org, stable@vger.kernel.org, vbabka@suse.cz,
+        yzaikin@google.com
 Subject:  [merged]
- mm-fix-page-reference-leak-in-soft_offline_page.patch removed from -mm tree
-Message-ID: <20210125213519.d3clJCbJB%akpm@linux-foundation.org>
+ proc_sysctl-fix-oops-caused-by-incorrect-command-parameters.patch removed
+ from -mm tree
+Message-ID: <20210125213533.VRqjjuL6-%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,93 +38,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: fix page reference leak in soft_offline_page()
+     Subject: proc_sysctl: fix oops caused by incorrect command parameters
 has been removed from the -mm tree.  Its filename was
-     mm-fix-page-reference-leak-in-soft_offline_page.patch
+     proc_sysctl-fix-oops-caused-by-incorrect-command-parameters.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: mm: fix page reference leak in soft_offline_page()
+From: Xiaoming Ni <nixiaoming@huawei.com>
+Subject: proc_sysctl: fix oops caused by incorrect command parameters
 
-The conversion to move pfn_to_online_page() internal to
-soft_offline_page() missed that the get_user_pages() reference taken by
-the madvise() path needs to be dropped when pfn_to_online_page() fails. 
-Note the direct sysfs-path to soft_offline_page() does not perform a
-get_user_pages() lookup.
+The process_sysctl_arg() does not check whether val is empty before
+invoking strlen(val).  If the command line parameter () is incorrectly
+configured and val is empty, oops is triggered.
 
-When soft_offline_page() is handed a pfn_valid() && !pfn_to_online_page()
-pfn the kernel hangs at dax-device shutdown due to a leaked reference.
+For example:
+  "hung_task_panic=1" is incorrectly written as "hung_task_panic", oops is
+  triggered. The call stack is as follows:
+    Kernel command line: .... hung_task_panic
+    ......
+    Call trace:
+    __pi_strlen+0x10/0x98
+    parse_args+0x278/0x344
+    do_sysctl_args+0x8c/0xfc
+    kernel_init+0x5c/0xf4
+    ret_from_fork+0x10/0x30
 
-Link: https://lkml.kernel.org/r/161058501210.1840162.8108917599181157327.stgit@dwillia2-desk3.amr.corp.intel.com
-Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+To fix it, check whether "val" is empty when "phram" is a sysctl field.
+Error codes are returned in the failure branch, and error logs are
+generated by parse_args().
+
+Link: https://lkml.kernel.org/r/20210118133029.28580-1-nixiaoming@huawei.com
+Fixes: 3db978d480e2843 ("kernel/sysctl: support setting sysctl parameters from kernel command line")
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Iurii Zaikin <yzaikin@google.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: <stable@vger.kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: <stable@vger.kernel.org>	[5.8+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ fs/proc/proc_sysctl.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c~mm-fix-page-reference-leak-in-soft_offline_page
-+++ a/mm/memory-failure.c
-@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct
- 	return rc;
- }
- 
-+static void put_ref_page(struct page *page)
-+{
-+	if (page)
-+		put_page(page);
-+}
-+
- /**
-  * soft_offline_page - Soft offline a page.
-  * @pfn: pfn to soft-offline
-@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct
- int soft_offline_page(unsigned long pfn, int flags)
- {
- 	int ret;
--	struct page *page;
- 	bool try_again = true;
-+	struct page *page, *ref_page = NULL;
-+
-+	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
- 
- 	if (!pfn_valid(pfn))
- 		return -ENXIO;
-+	if (flags & MF_COUNT_INCREASED)
-+		ref_page = pfn_to_page(pfn);
-+
- 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
- 	page = pfn_to_online_page(pfn);
--	if (!page)
-+	if (!page) {
-+		put_ref_page(ref_page);
- 		return -EIO;
-+	}
- 
- 	if (PageHWPoison(page)) {
- 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
--		if (flags & MF_COUNT_INCREASED)
--			put_page(page);
-+		put_ref_page(ref_page);
- 		return 0;
+--- a/fs/proc/proc_sysctl.c~proc_sysctl-fix-oops-caused-by-incorrect-command-parameters
++++ a/fs/proc/proc_sysctl.c
+@@ -1770,6 +1770,12 @@ static int process_sysctl_arg(char *para
+ 			return 0;
  	}
  
++	if (!val)
++		return -EINVAL;
++	len = strlen(val);
++	if (len == 0)
++		return -EINVAL;
++
+ 	/*
+ 	 * To set sysctl options, we use a temporary mount of proc, look up the
+ 	 * respective sys/ file and write to it. To avoid mounting it when no
+@@ -1811,7 +1817,6 @@ static int process_sysctl_arg(char *para
+ 				file, param, val);
+ 		goto out;
+ 	}
+-	len = strlen(val);
+ 	wret = kernel_write(file, val, len, &pos);
+ 	if (wret < 0) {
+ 		err = wret;
 _
 
-Patches currently in -mm which might be from dan.j.williams@intel.com are
+Patches currently in -mm which might be from nixiaoming@huawei.com are
 
-mm-move-pfn_to_online_page-out-of-line.patch
-mm-teach-pfn_to_online_page-to-consider-subsection-validity.patch
-mm-teach-pfn_to_online_page-about-zone_device-section-collisions.patch
-mm-teach-pfn_to_online_page-about-zone_device-section-collisions-fix.patch
-mm-fix-memory_failure-handling-of-dax-namespace-metadata.patch
 
