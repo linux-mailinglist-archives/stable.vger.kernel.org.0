@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D07302AAC
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB97302AAF
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:50:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730559AbhAYSrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:47:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34028 "EHLO mail.kernel.org"
+        id S1727963AbhAYStd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:49:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727117AbhAYSrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:47:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8970D229C5;
-        Mon, 25 Jan 2021 18:47:17 +0000 (UTC)
+        id S1730725AbhAYSsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:48:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84F8620665;
+        Mon, 25 Jan 2021 18:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600438;
-        bh=pc0OoL18Yg6H34jeynlF4H2Jan8QidmzwzqFdeXQ3kI=;
+        s=korg; t=1611600490;
+        bh=Zgo+Eu0ONQsyiqmfFfZYOd5kp7Y4SaoXFo9SIbMhikc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8dACt77JgXcjZmj/vWIOJFTbHoOC+yM1lY+X/aZoNA/sVnM7GfkK9ENXfUZ6HFf9
-         U8xHtfeLy4K9w86b2SZ3kftyu5ckugBj6/CIgioIfUUSjzLwV+LcOFJew2TGVfRM4u
-         /1R328ITTzEzZzS4P/uCPhnW8HRzBc58hRsgLWsA=
+        b=1AtN6nIuvXT4TbnBcH10D35QweeKOCehBF4HKm4ab4j3ZnK9Skv7T8PKGoN28UdAd
+         B2SFHjaG28GVP19SWAaV/DYa/zo4Y3WDBnisuaVJf1IVEte/LMUVpmZNfZqW39nS/0
+         i+Os1M1YuknIMWFBjjA1a3EKLoiytZAvjXVLz5sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 015/199] btrfs: do not double free backref nodes on error
-Date:   Mon, 25 Jan 2021 19:37:17 +0100
-Message-Id: <20210125183216.894926329@linuxfoundation.org>
+        stable@vger.kernel.org, Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 035/199] ASoC: rt711: mutex between calibration and power state changes
+Date:   Mon, 25 Jan 2021 19:37:37 +0100
+Message-Id: <20210125183217.725193823@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,136 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-commit 49ecc679ab48b40ca799bf94b327d5284eac9e46 upstream.
+[ Upstream commit 6108f990c0887d3e8f1db2d13c7012e40a061f28 ]
 
-Zygo reported the following KASAN splat:
+To avoid calibration time-out, this patch adds the mutex between calibration and power state changes
 
-  BUG: KASAN: use-after-free in btrfs_backref_cleanup_node+0x18a/0x420
-  Read of size 8 at addr ffff888112402950 by task btrfs/28836
-
-  CPU: 0 PID: 28836 Comm: btrfs Tainted: G        W         5.10.0-e35f27394290-for-next+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  Call Trace:
-   dump_stack+0xbc/0xf9
-   ? btrfs_backref_cleanup_node+0x18a/0x420
-   print_address_description.constprop.8+0x21/0x210
-   ? record_print_text.cold.34+0x11/0x11
-   ? btrfs_backref_cleanup_node+0x18a/0x420
-   ? btrfs_backref_cleanup_node+0x18a/0x420
-   kasan_report.cold.10+0x20/0x37
-   ? btrfs_backref_cleanup_node+0x18a/0x420
-   __asan_load8+0x69/0x90
-   btrfs_backref_cleanup_node+0x18a/0x420
-   btrfs_backref_release_cache+0x83/0x1b0
-   relocate_block_group+0x394/0x780
-   ? merge_reloc_roots+0x4a0/0x4a0
-   btrfs_relocate_block_group+0x26e/0x4c0
-   btrfs_relocate_chunk+0x52/0x120
-   btrfs_balance+0xe2e/0x1900
-   ? check_flags.part.50+0x6c/0x1e0
-   ? btrfs_relocate_chunk+0x120/0x120
-   ? kmem_cache_alloc_trace+0xa06/0xcb0
-   ? _copy_from_user+0x83/0xc0
-   btrfs_ioctl_balance+0x3a7/0x460
-   btrfs_ioctl+0x24c8/0x4360
-   ? __kasan_check_read+0x11/0x20
-   ? check_chain_key+0x1f4/0x2f0
-   ? __asan_loadN+0xf/0x20
-   ? btrfs_ioctl_get_supported_features+0x30/0x30
-   ? kvm_sched_clock_read+0x18/0x30
-   ? check_chain_key+0x1f4/0x2f0
-   ? lock_downgrade+0x3f0/0x3f0
-   ? handle_mm_fault+0xad6/0x2150
-   ? do_vfs_ioctl+0xfc/0x9d0
-   ? ioctl_file_clone+0xe0/0xe0
-   ? check_flags.part.50+0x6c/0x1e0
-   ? check_flags.part.50+0x6c/0x1e0
-   ? check_flags+0x26/0x30
-   ? lock_is_held_type+0xc3/0xf0
-   ? syscall_enter_from_user_mode+0x1b/0x60
-   ? do_syscall_64+0x13/0x80
-   ? rcu_read_lock_sched_held+0xa1/0xd0
-   ? __kasan_check_read+0x11/0x20
-   ? __fget_light+0xae/0x110
-   __x64_sys_ioctl+0xc3/0x100
-   do_syscall_64+0x37/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f4c4bdfe427
-
-  Allocated by task 28836:
-   kasan_save_stack+0x21/0x50
-   __kasan_kmalloc.constprop.18+0xbe/0xd0
-   kasan_kmalloc+0x9/0x10
-   kmem_cache_alloc_trace+0x410/0xcb0
-   btrfs_backref_alloc_node+0x46/0xf0
-   btrfs_backref_add_tree_node+0x60d/0x11d0
-   build_backref_tree+0xc5/0x700
-   relocate_tree_blocks+0x2be/0xb90
-   relocate_block_group+0x2eb/0x780
-   btrfs_relocate_block_group+0x26e/0x4c0
-   btrfs_relocate_chunk+0x52/0x120
-   btrfs_balance+0xe2e/0x1900
-   btrfs_ioctl_balance+0x3a7/0x460
-   btrfs_ioctl+0x24c8/0x4360
-   __x64_sys_ioctl+0xc3/0x100
-   do_syscall_64+0x37/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  Freed by task 28836:
-   kasan_save_stack+0x21/0x50
-   kasan_set_track+0x20/0x30
-   kasan_set_free_info+0x1f/0x30
-   __kasan_slab_free+0xf3/0x140
-   kasan_slab_free+0xe/0x10
-   kfree+0xde/0x200
-   btrfs_backref_error_cleanup+0x452/0x530
-   build_backref_tree+0x1a5/0x700
-   relocate_tree_blocks+0x2be/0xb90
-   relocate_block_group+0x2eb/0x780
-   btrfs_relocate_block_group+0x26e/0x4c0
-   btrfs_relocate_chunk+0x52/0x120
-   btrfs_balance+0xe2e/0x1900
-   btrfs_ioctl_balance+0x3a7/0x460
-   btrfs_ioctl+0x24c8/0x4360
-   __x64_sys_ioctl+0xc3/0x100
-   do_syscall_64+0x37/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-This occurred because we freed our backref node in
-btrfs_backref_error_cleanup(), but then tried to free it again in
-btrfs_backref_release_cache().  This is because
-btrfs_backref_release_cache() will cycle through all of the
-cache->leaves nodes and free them up.  However
-btrfs_backref_error_cleanup() freed the backref node with
-btrfs_backref_free_node(), which simply kfree()d the backref node
-without unlinking it from the cache.  Change this to a
-btrfs_backref_drop_node(), which does the appropriate cleanup and
-removes the node from the cache->leaves list, so when we go to free the
-remaining cache we don't trip over items we've already dropped.
-
-Fixes: 75bfb9aff45e ("Btrfs: cleanup error handling in build_backref_tree")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20201217085651.24580-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt711.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -3124,7 +3124,7 @@ void btrfs_backref_error_cleanup(struct
- 		list_del_init(&lower->list);
- 		if (lower == node)
- 			node = NULL;
--		btrfs_backref_free_node(cache, lower);
-+		btrfs_backref_drop_node(cache, lower);
- 	}
+diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
+index 65b59dbfb43c8..a9b1b4180c471 100644
+--- a/sound/soc/codecs/rt711.c
++++ b/sound/soc/codecs/rt711.c
+@@ -462,6 +462,8 @@ static int rt711_set_amp_gain_put(struct snd_kcontrol *kcontrol,
+ 	unsigned int read_ll, read_rl;
+ 	int i;
  
- 	btrfs_backref_cleanup_node(cache, node);
++	mutex_lock(&rt711->calibrate_mutex);
++
+ 	/* Can't use update bit function, so read the original value first */
+ 	addr_h = mc->reg;
+ 	addr_l = mc->rreg;
+@@ -547,6 +549,8 @@ static int rt711_set_amp_gain_put(struct snd_kcontrol *kcontrol,
+ 	if (dapm->bias_level <= SND_SOC_BIAS_STANDBY)
+ 		regmap_write(rt711->regmap,
+ 				RT711_SET_AUDIO_POWER_STATE, AC_PWRST_D3);
++
++	mutex_unlock(&rt711->calibrate_mutex);
+ 	return 0;
+ }
+ 
+@@ -859,9 +863,11 @@ static int rt711_set_bias_level(struct snd_soc_component *component,
+ 		break;
+ 
+ 	case SND_SOC_BIAS_STANDBY:
++		mutex_lock(&rt711->calibrate_mutex);
+ 		regmap_write(rt711->regmap,
+ 			RT711_SET_AUDIO_POWER_STATE,
+ 			AC_PWRST_D3);
++		mutex_unlock(&rt711->calibrate_mutex);
+ 		break;
+ 
+ 	default:
+-- 
+2.27.0
+
 
 
