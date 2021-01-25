@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E383031A7
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B773031BF
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731312AbhAYSyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:54:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
+        id S1726817AbhAYSou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:44:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730888AbhAYSxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:53:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C29221FB;
-        Mon, 25 Jan 2021 18:53:33 +0000 (UTC)
+        id S1727974AbhAYSoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:44:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D95C220719;
+        Mon, 25 Jan 2021 18:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600814;
-        bh=StjzP9ss1a/bEPqV7AaDH6R4B/vUv/S2+ILEGi46ltg=;
+        s=korg; t=1611600234;
+        bh=B16VwjtU/uK42xprLih02I1hGdHlO+34NmRSj06vrrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmYoRnUtC+aGeN2ljDD5BV4XnFCaQyaasp5UsnJqlJo8XSsOu3ImFKiXbhTbJn9Kx
-         u+GNItX3MDPgaYTZTmv5LQnZTCrftqHI9yolb94PA2/8tfIBW9MgPNfifTDZOrwSqz
-         qJL+I5GM2lWIk1gD8nRy/z7cH5u13sNcM27oMp2w=
+        b=ME/Aw3SjjMI6fcwSo/XfIlysgAUpWZYlINLUUo6eANImAkMTHfBPJc/E/LXqjPU8p
+         ZIPBOxyGWvrN+gRMA3Ot+Yr+zCTg51++rFxK5ErYlEyxCe4aSb811DfcAp52BYPYFi
+         AEqBVUIONq1kfzZEbh7HG7SQ2Si/x70VX5KywPXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 121/199] proc_sysctl: fix oops caused by incorrect command parameters
-Date:   Mon, 25 Jan 2021 19:39:03 +0100
-Message-Id: <20210125183221.332143557@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 24/86] riscv: Fix kernel time_init()
+Date:   Mon, 25 Jan 2021 19:39:06 +0100
+Message-Id: <20210125183202.068401417@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,73 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 697edcb0e4eadc41645fe88c991fe6a206b1a08d upstream.
+[ Upstream commit 11f4c2e940e2f317c9d8fb5a79702f2a4a02ff98 ]
 
-The process_sysctl_arg() does not check whether val is empty before
-invoking strlen(val).  If the command line parameter () is incorrectly
-configured and val is empty, oops is triggered.
+If of_clk_init() is not called in time_init(), clock providers defined
+in the system device tree are not initialized, resulting in failures for
+other devices to initialize due to missing clocks.
+Similarly to other architectures and to the default kernel time_init()
+implementation, call of_clk_init() before executing timer_probe() in
+time_init().
 
-For example:
-  "hung_task_panic=1" is incorrectly written as "hung_task_panic", oops is
-  triggered. The call stack is as follows:
-    Kernel command line: .... hung_task_panic
-    ......
-    Call trace:
-    __pi_strlen+0x10/0x98
-    parse_args+0x278/0x344
-    do_sysctl_args+0x8c/0xfc
-    kernel_init+0x5c/0xf4
-    ret_from_fork+0x10/0x30
-
-To fix it, check whether "val" is empty when "phram" is a sysctl field.
-Error codes are returned in the failure branch, and error logs are
-generated by parse_args().
-
-Link: https://lkml.kernel.org/r/20210118133029.28580-1-nixiaoming@huawei.com
-Fixes: 3db978d480e2843 ("kernel/sysctl: support setting sysctl parameters from kernel command line")
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Iurii Zaikin <yzaikin@google.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: <stable@vger.kernel.org>	[5.8+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/proc_sysctl.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/time.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -1770,6 +1770,12 @@ static int process_sysctl_arg(char *para
- 			return 0;
- 	}
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 6a53c02e9c734..8aa70b519e04f 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -4,6 +4,7 @@
+  * Copyright (C) 2017 SiFive
+  */
  
-+	if (!val)
-+		return -EINVAL;
-+	len = strlen(val);
-+	if (len == 0)
-+		return -EINVAL;
++#include <linux/of_clk.h>
+ #include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+@@ -24,5 +25,7 @@ void __init time_init(void)
+ 	riscv_timebase = prop;
+ 
+ 	lpj_fine = riscv_timebase / HZ;
 +
- 	/*
- 	 * To set sysctl options, we use a temporary mount of proc, look up the
- 	 * respective sys/ file and write to it. To avoid mounting it when no
-@@ -1811,7 +1817,6 @@ static int process_sysctl_arg(char *para
- 				file, param, val);
- 		goto out;
- 	}
--	len = strlen(val);
- 	wret = kernel_write(file, val, len, &pos);
- 	if (wret < 0) {
- 		err = wret;
++	of_clk_init(NULL);
+ 	timer_probe();
+ }
+-- 
+2.27.0
+
 
 
