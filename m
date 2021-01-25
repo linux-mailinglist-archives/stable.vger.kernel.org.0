@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90E7302AAB
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD75302ADC
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730363AbhAYSrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:47:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34956 "EHLO mail.kernel.org"
+        id S1730867AbhAYSzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:55:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727287AbhAYSrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:47:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53CC3207B3;
-        Mon, 25 Jan 2021 18:46:59 +0000 (UTC)
+        id S1726698AbhAYSzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:55:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AA77224BE;
+        Mon, 25 Jan 2021 18:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600419;
-        bh=vYsC0gqdQq06cgoQOpMyq5CWgPbVWA1Bwdlpt+wZp8A=;
+        s=korg; t=1611600861;
+        bh=QPyzoAnFKy+IVHJkJOlMtUaE78rNJTGrjdCQ+WPAP18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRPtwvmQ7Upg0+ztBvD3J2XqPhARul5EsdgcfL0XivPTIH/zcgcI58U5eRa9oo3Zw
-         +MC2a42cseJ9J+BmXVqqk64P3LqAoxnMpHTy7MwZewRWPOGYYw6tRCZ2bnZCW8RNuu
-         2xqgC0eT4dA4vOClBPYh2ZdbMmWAWTRGYTfJUr38=
+        b=r3nfdJp+UoMrFCaneQxMpIKBd0XEVKL3PTbz5dtNENdiaUww70fNbrJVi2ZN3I2fW
+         2fzLsCt6xKjN1IWsB56KAuyYGBprYqCNL8WWyvluf1Ca9y2s2mI4mG/YqyWfLBQNSc
+         Au5N57qt8QD+E0iUjKXQJb/oA1cPq2uwVE0sbss8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Juerg Haefliger <juergh@canonical.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 72/86] sh_eth: Fix power down vs. is_opened flag ordering
-Date:   Mon, 25 Jan 2021 19:39:54 +0100
-Message-Id: <20210125183204.090410046@linuxfoundation.org>
+Subject: [PATCH 5.10 179/199] tcp: do not mess with cloned skbs in tcp_add_backlog()
+Date:   Mon, 25 Jan 2021 19:40:01 +0100
+Message-Id: <20210125183223.751786083@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eric Dumazet <edumazet@google.com>
 
-commit f6a2e94b3f9d89cb40771ff746b16b5687650cbb upstream.
+commit b160c28548bc0a87cbd16d5af6d3edcfd70b8c9a upstream.
 
-sh_eth_close() does a synchronous power down of the device before
-marking it closed.  Revert the order, to make sure the device is never
-marked opened while suspended.
+Heiner Kallweit reported that some skbs were sent with
+the following invalid GSO properties :
+- gso_size > 0
+- gso_type == 0
 
-While at it, use pm_runtime_put() instead of pm_runtime_put_sync(), as
-there is no reason to do a synchronous power down.
+This was triggerring a WARN_ON_ONCE() in rtl8169_tso_csum_v2.
 
-Fixes: 7fa2955ff70ce453 ("sh_eth: Fix sleeping function called from invalid context")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/20210118150812.796791-1-geert+renesas@glider.be
+Juerg Haefliger was able to reproduce a similar issue using
+a lan78xx NIC and a workload mixing TCP incoming traffic
+and forwarded packets.
+
+The problem is that tcp_add_backlog() is writing
+over gso_segs and gso_size even if the incoming packet will not
+be coalesced to the backlog tail packet.
+
+While skb_try_coalesce() would bail out if tail packet is cloned,
+this overwriting would lead to corruptions of other packets
+cooked by lan78xx, sharing a common super-packet.
+
+The strategy used by lan78xx is to use a big skb, and split
+it into all received packets using skb_clone() to avoid copies.
+The drawback of this strategy is that all the small skb share a common
+struct skb_shared_info.
+
+This patch rewrites TCP gso_size/gso_segs handling to only
+happen on the tail skb, since skb_try_coalesce() made sure
+it was not cloned.
+
+Fixes: 4f693b55c3d2 ("tcp: implement coalescing on backlog queue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Bisected-by: Juerg Haefliger <juergh@canonical.com>
+Tested-by: Juerg Haefliger <juergh@canonical.com>
+Reported-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209423
+Link: https://lore.kernel.org/r/20210119164900.766957-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/renesas/sh_eth.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_ipv4.c |   25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -2640,10 +2640,10 @@ static int sh_eth_close(struct net_devic
- 	/* Free all the skbuffs in the Rx queue and the DMA buffer. */
- 	sh_eth_ring_free(ndev);
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1755,6 +1755,7 @@ int tcp_v4_early_demux(struct sk_buff *s
+ bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
+ {
+ 	u32 limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf);
++	u32 tail_gso_size, tail_gso_segs;
+ 	struct skb_shared_info *shinfo;
+ 	const struct tcphdr *th;
+ 	struct tcphdr *thtail;
+@@ -1762,6 +1763,7 @@ bool tcp_add_backlog(struct sock *sk, st
+ 	unsigned int hdrlen;
+ 	bool fragstolen;
+ 	u32 gso_segs;
++	u32 gso_size;
+ 	int delta;
  
--	pm_runtime_put_sync(&mdp->pdev->dev);
+ 	/* In case all data was pulled from skb frags (in __pskb_pull_tail()),
+@@ -1787,13 +1789,6 @@ bool tcp_add_backlog(struct sock *sk, st
+ 	 */
+ 	th = (const struct tcphdr *)skb->data;
+ 	hdrlen = th->doff * 4;
+-	shinfo = skb_shinfo(skb);
 -
- 	mdp->is_opened = 0;
+-	if (!shinfo->gso_size)
+-		shinfo->gso_size = skb->len - hdrlen;
+-
+-	if (!shinfo->gso_segs)
+-		shinfo->gso_segs = 1;
  
-+	pm_runtime_put(&mdp->pdev->dev);
+ 	tail = sk->sk_backlog.tail;
+ 	if (!tail)
+@@ -1816,6 +1811,15 @@ bool tcp_add_backlog(struct sock *sk, st
+ 		goto no_coalesce;
+ 
+ 	__skb_pull(skb, hdrlen);
 +
- 	return 0;
- }
++	shinfo = skb_shinfo(skb);
++	gso_size = shinfo->gso_size ?: skb->len;
++	gso_segs = shinfo->gso_segs ?: 1;
++
++	shinfo = skb_shinfo(tail);
++	tail_gso_size = shinfo->gso_size ?: (tail->len - hdrlen);
++	tail_gso_segs = shinfo->gso_segs ?: 1;
++
+ 	if (skb_try_coalesce(tail, skb, &fragstolen, &delta)) {
+ 		TCP_SKB_CB(tail)->end_seq = TCP_SKB_CB(skb)->end_seq;
  
+@@ -1842,11 +1846,8 @@ bool tcp_add_backlog(struct sock *sk, st
+ 		}
+ 
+ 		/* Not as strict as GRO. We only need to carry mss max value */
+-		skb_shinfo(tail)->gso_size = max(shinfo->gso_size,
+-						 skb_shinfo(tail)->gso_size);
+-
+-		gso_segs = skb_shinfo(tail)->gso_segs + shinfo->gso_segs;
+-		skb_shinfo(tail)->gso_segs = min_t(u32, gso_segs, 0xFFFF);
++		shinfo->gso_size = max(gso_size, tail_gso_size);
++		shinfo->gso_segs = min_t(u32, gso_segs + tail_gso_segs, 0xFFFF);
+ 
+ 		sk->sk_backlog.len += delta;
+ 		__NET_INC_STATS(sock_net(sk),
 
 
