@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE56330331C
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C1030333F
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbhAZEqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:46:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
+        id S1728122AbhAZEtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:49:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728507AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:43:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07CEC229C5;
-        Mon, 25 Jan 2021 18:42:58 +0000 (UTC)
+        id S1727012AbhAYSpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:45:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF23B22B3F;
+        Mon, 25 Jan 2021 18:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600179;
-        bh=0KM3P452JV5sRjpfsh+9a+nhHk68faqHIAIwdiEHptc=;
+        s=korg; t=1611600307;
+        bh=pYY4Hw+FeNNXlhA/qwXAktZ/rmfmUgyV7qnaFeZ4De8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+kjOxK8jbfw8fbQkICn7lfepQD2K7kr51u/iWOL4klb0yA/7UTvwYBuTu0dcp/FI
-         5OFOC5M4eOuia9VjMHAJG0OQe+5ff9PsQXt5BT9z0h2+8UekW2ralBa9TXCEkvV2nt
-         7wgJFMFPVF48hUiWuQ513ihlDcfdjl2qM5nx63Lk=
+        b=l2y+lYsrCme5D4HiUMW1gKaBdUaPkZDmlkANl9WUcZI2lwl3BVmyscRPMaLEoLxyZ
+         tPb5BSnaRN0VkUxGrkKuj06hUBoycJUoT1TvPXPwuDMYdg3yGW1HXpCkPVSr4k2rDu
+         SYZ3XpLg8/qOjEPOIICcyaPwXhRWJcOG5yMGnjKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 31/58] iio: ad5504: Fix setting power-down state
-Date:   Mon, 25 Jan 2021 19:39:32 +0100
-Message-Id: <20210125183158.039145976@linuxfoundation.org>
+Subject: [PATCH 5.4 52/86] iio: ad5504: Fix setting power-down state
+Date:   Mon, 25 Jan 2021 19:39:34 +0100
+Message-Id: <20210125183203.247995037@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
-References: <20210125183156.702907356@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/iio/dac/ad5504.c
 +++ b/drivers/iio/dac/ad5504.c
-@@ -189,9 +189,9 @@ static ssize_t ad5504_write_dac_powerdow
+@@ -188,9 +188,9 @@ static ssize_t ad5504_write_dac_powerdow
  		return ret;
  
  	if (pwr_down)
