@@ -2,133 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A68930274A
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 16:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C2330278C
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 17:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730077AbhAYPu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 10:50:29 -0500
-Received: from mga17.intel.com ([192.55.52.151]:12253 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730295AbhAYPtu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 10:49:50 -0500
-IronPort-SDR: w+iw90LK9NFQyzXdzUdh7DGlBsxvJloCWSvsycQhn85+aB612nxiCPBO4kf4EPzmM6TaKthLcT
- rSEWuasny1NA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9875"; a="159522079"
-X-IronPort-AV: E=Sophos;i="5.79,373,1602572400"; 
-   d="scan'208";a="159522079"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2021 07:49:06 -0800
-IronPort-SDR: 0MBPuFo9NoQvRyQ0tE3H2pgg2yKxU/QJoq/27dzz+6fJLgLn5behxqsKhdWL0Ms9bNjqWtKNPQ
- rgriEH3u4kFA==
-X-IronPort-AV: E=Sophos;i="5.79,373,1602572400"; 
-   d="scan'208";a="361552950"
-Received: from stalawai-desk.amr.corp.intel.com (HELO [10.254.124.248]) ([10.254.124.248])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2021 07:49:05 -0800
-Subject: Re: [PATCH v4] x86/sgx: Fix the call order of synchronize_srcu() in
- sgx_release()
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     Sean Christopherson <seanjc@google.com>, linux-sgx@vger.kernel.org,
-        kai.huang@intel.com, haitao.huang@intel.com,
-        stable@vger.kernel.org,
-        Haitao Huang <haitao.huang@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>
-References: <20210115014638.15037-1-jarkko@kernel.org>
- <YAhp4Jrj6hIcvgRC@google.com>
- <8d232931-3675-efea-2b53-a0c76e723bff@intel.com>
- <YAvlLxCfN88Ii5qb@kernel.org>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <5b881022-d9f1-3ac4-89e5-7da6d6ce2fc8@intel.com>
-Date:   Mon, 25 Jan 2021 07:49:04 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1730560AbhAYQM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 11:12:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730329AbhAYQMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 11:12:10 -0500
+Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF055C06174A
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 08:11:29 -0800 (PST)
+Received: by mail-vs1-xe2c.google.com with SMTP id b5so2858308vsh.3
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 08:11:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Hig6/IreCUlDumVNstNRr9CcTHNDRCGBluvlK3pY3/I=;
+        b=FbpiDf3ND9qTov5f4Wg6JF/1qjQl/kh8FHCcoRiZ6Y0D1MIDtzN9ir3MxjXZO85vE7
+         AFkSoQUv6ht++QBit4oMYmeqejC3y8PeLN7e++HetAu1fF/2eOFwRp2zN60bAGfe7i2O
+         w1pDvr78A//yT1RgUJgKClWMmBde9vTuqVqNU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Hig6/IreCUlDumVNstNRr9CcTHNDRCGBluvlK3pY3/I=;
+        b=ISaXz+huwmifc4aGnwTk5W75cdWj8vbtNY7SbXnB677E6mT3VttRnT4UpZ0woyn4NR
+         R3zjqOmfRWp12NchoJ/xyHaT1SbtCLd8xeN9Wc7Q06QdmJPfa2G6YgwosoEANmd6iZq2
+         uQnH4moM7xO0aJbo8C8BAY0BVlVc81rycydqEKR17ueSl/jyLyszmGk65qNg72WhgPRJ
+         dyt6cHT3KkKLop0lZWAp8RbZAA9gHyICrd1+dmS6GTMcI3TZVWVXUOHDVyFJK8/AcagB
+         ly1EuQ1bNj3MFgwKN72CviaFlw4EHuUka0GUbev+JJ1FePt5id1SXg3xpUe+dP6XVmxk
+         kZmA==
+X-Gm-Message-State: AOAM5309PXnY3TqQTqHhw42QN/dKGTRfkiSYXJPLcjkZPd/H0uPyNMUw
+        PT7uwDKuLr30CvB9KvNhsZu7XVfXme+k+g==
+X-Google-Smtp-Source: ABdhPJz4+CFYQTWzNXTks+R93ayHCVT4QOOKa/YVBqZdcLshPBlJ6wN/tu2FdUsZeeNhrH0RfeBHxg==
+X-Received: by 2002:a05:6102:22da:: with SMTP id a26mr1197930vsh.56.1611591088658;
+        Mon, 25 Jan 2021 08:11:28 -0800 (PST)
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com. [209.85.221.170])
+        by smtp.gmail.com with ESMTPSA id a22sm2602359vkm.0.2021.01.25.08.11.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Jan 2021 08:11:27 -0800 (PST)
+Received: by mail-vk1-f170.google.com with SMTP id q140so2439254vkb.1
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 08:11:27 -0800 (PST)
+X-Received: by 2002:a1f:4901:: with SMTP id w1mr1142412vka.17.1611591086775;
+ Mon, 25 Jan 2021 08:11:26 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <YAvlLxCfN88Ii5qb@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <1611585674115135@kroah.com>
+In-Reply-To: <1611585674115135@kroah.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Mon, 25 Jan 2021 08:11:15 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=Vx02dQ2icjt7D3gC7ew=m27ZMKKhE1jsYD4hcFcwwN8g@mail.gmail.com>
+Message-ID: <CAD=FV=Vx02dQ2icjt7D3gC7ew=m27ZMKKhE1jsYD4hcFcwwN8g@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] pinctrl: qcom: Properly clear
+ "intr_ack_high" interrupts when" failed to apply to 5.10-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        LinusW <linus.walleij@linaro.org>,
+        Maulik Shah <mkshah@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Haitao managed to create another splat over the weekend.  It was, indeed:
+Hi,
 
-> WARNING: CPU: 3 PID: 7620 at kernel/rcu/srcutree.c:374 cleanup_srcu_struct+0xed/0x100
+On Mon, Jan 25, 2021 at 6:41 AM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From a95881d6aa2c000e3649f27a1a7329cf356e6bb3 Mon Sep 17 00:00:00 2001
+> From: Douglas Anderson <dianders@chromium.org>
+> Date: Thu, 14 Jan 2021 19:16:23 -0800
+> Subject: [PATCH] pinctrl: qcom: Properly clear "intr_ack_high" interrupts when
+>  unmasking
 
-which is:
+For 5.10, we should just take these 4 patches:
 
->         if (WARN_ON(!srcu_get_delay(ssp)))
->                 return; /* Just leak it! */
+cf9d052aa600 pinctrl: qcom: Don't clear pending interrupts when enabling
+a95881d6aa2c pinctrl: qcom: Properly clear "intr_ack_high" interrupts
+when unmasking
+4079d35fa4fc pinctrl: qcom: No need to read-modify-write the interrupt status
+a82e537807d5 pinctrl: qcom: Allow SoCs to specify a GPIO function that's not 0
 
-That check means that there is an outstanding "expedited" grace period.
- The fact that it's expedited is not important.  This:
+If we apply all 4 together we should be good and no backport should be needed.
 
-	https://lwn.net/Articles/202847/
-
-describes the reasoning behind the warning:
-
-	If the struct srcu_struct is dynamically allocated, then
-	cleanup_srcu_struct() must be called before it is freed ... the
-	caller must take care to ensure that all SRCU read-side critical
-	sections have completed (and that no more will commence) before
-	calling cleanup_srcu_struct().
-
-synchronize_srcu() will (obviously) wait for the grace period to
-complete.  Calling it will shut up the warning for sure, most of the time.
-
-The required sequence of events is in here:
-
-> https://lore.kernel.org/lkml/1492472726-3841-4-git-send-email-paulmck@linux.vnet.ibm.com/
-
-I suspect that the mmu notifier's synchronize_srcu() is run in parallel
-very close to when cleanup_srcu_struct() is called.  This violates the
-"prevent any further calls to synchronize_srcu" rule.
-
-So, while I suspect that adding a synchronize_srcu() is *part* of the
-correct solution, I'm still not convinced that the
-sgx_mmu_notifier_release() code is correct.
+-Doug
