@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D756302A97
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:45:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7E7302ACA
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729371AbhAYSoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:44:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32908 "EHLO mail.kernel.org"
+        id S1725959AbhAYSxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:53:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729288AbhAYSor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:44:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D49F822460;
-        Mon, 25 Jan 2021 18:44:06 +0000 (UTC)
+        id S1731184AbhAYSwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:52:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60FD822460;
+        Mon, 25 Jan 2021 18:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600247;
-        bh=EbDvrSM9XOkP9uHJHSEhVoZGXE8b80g6BNmz3C88Zlo=;
+        s=korg; t=1611600733;
+        bh=n75Q2tY6ZfNexKfok1s9pQn9mz47sj6JLbYAKUy6jNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/vOqcpKbiPoY7wL7MZUzPl0vaqvqdsbuaBbuUyuHTZ9K+d8kqts9IVCsfwvf5vQK
-         RsbIYdkIR0UvBjuG13gWHo94EwlPe3b22tbx0BZA6tLXqVwvlbQ1HYStRPYeyiqsVv
-         U4gv1LWl4S24inZ1qVeyxOcMD/AUZbsXB2WhCnkg=
+        b=a4WaeozaAX5fVFSo3hwzWN2bMRpy/RpTGci/70E2jnuXVYyUgx5RfvirmevvSP+AV
+         3KHHQzDw42ll34pR+2TxlWCjWJ3UfK7U8qWWO/Jnr/sSUN5QJ1byklMJuGlMRTFs/w
+         ZZyCIqKbhsGmrD9/QkRdUeokYyPtuXtdQW8D4TNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Ion Agorria <ion@agorria.com>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Peter Geis <pgwipeout@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/86] clk: tegra30: Add hda clock default rates to clock driver
-Date:   Mon, 25 Jan 2021 19:39:10 +0100
-Message-Id: <20210125183202.243942436@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.10 131/199] serial: mvebu-uart: fix tx lost characters at power off
+Date:   Mon, 25 Jan 2021 19:39:13 +0100
+Message-Id: <20210125183221.747799528@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Geis <pgwipeout@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f4eccc7fea203cfb35205891eced1ab51836f362 ]
+commit 54ca955b5a4024e2ce0f206b03adb7109bc4da26 upstream.
 
-Current implementation defaults the hda clocks to clk_m. This causes hda
-to run too slow to operate correctly. Fix this by defaulting to pll_p and
-setting the frequency to the correct rate.
+Commit c685af1108d7 ("serial: mvebu-uart: fix tx lost characters") fixed tx
+lost characters at low baud rates but started causing tx lost characters
+when kernel is going to power off or reboot.
 
-This matches upstream t124 and downstream t30.
+TX_EMP tells us when transmit queue is empty therefore all characters were
+transmitted. TX_RDY tells us when CPU can send a new character.
 
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Tested-by: Ion Agorria <ion@agorria.com>
-Acked-by: Sameer Pujar <spujar@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Peter Geis <pgwipeout@gmail.com>
-Link: https://lore.kernel.org/r/20210108135913.2421585-2-pgwipeout@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Therefore we need to use different check prior transmitting new character
+and different check after all characters were sent.
+
+This patch splits polling code into two functions: wait_for_xmitr() which
+waits for TX_RDY and wait_for_xmite() which waits for TX_EMP.
+
+When rebooting A3720 platform without this patch on UART is print only:
+[   42.699�
+
+And with this patch on UART is full output:
+[   39.530216] reboot: Restarting system
+
+Fixes: c685af1108d7 ("serial: mvebu-uart: fix tx lost characters")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201223191931.18343-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/tegra/clk-tegra30.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/mvebu-uart.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra30.c b/drivers/clk/tegra/clk-tegra30.c
-index 7b4c6a488527d..501929d9f70ed 100644
---- a/drivers/clk/tegra/clk-tegra30.c
-+++ b/drivers/clk/tegra/clk-tegra30.c
-@@ -1263,6 +1263,8 @@ static struct tegra_clk_init_table init_table[] __initdata = {
- 	{ TEGRA30_CLK_I2S3_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
- 	{ TEGRA30_CLK_I2S4_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
- 	{ TEGRA30_CLK_VIMCLK_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
-+	{ TEGRA30_CLK_HDA, TEGRA30_CLK_PLL_P, 102000000, 0 },
-+	{ TEGRA30_CLK_HDA2CODEC_2X, TEGRA30_CLK_PLL_P, 48000000, 0 },
- 	/* must be the last entry */
- 	{ TEGRA30_CLK_CLK_MAX, TEGRA30_CLK_CLK_MAX, 0, 0 },
- };
--- 
-2.27.0
-
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -648,6 +648,14 @@ static void wait_for_xmitr(struct uart_p
+ 				  (val & STAT_TX_RDY(port)), 1, 10000);
+ }
+ 
++static void wait_for_xmite(struct uart_port *port)
++{
++	u32 val;
++
++	readl_poll_timeout_atomic(port->membase + UART_STAT, val,
++				  (val & STAT_TX_EMP), 1, 10000);
++}
++
+ static void mvebu_uart_console_putchar(struct uart_port *port, int ch)
+ {
+ 	wait_for_xmitr(port);
+@@ -675,7 +683,7 @@ static void mvebu_uart_console_write(str
+ 
+ 	uart_console_write(port, s, count, mvebu_uart_console_putchar);
+ 
+-	wait_for_xmitr(port);
++	wait_for_xmite(port);
+ 
+ 	if (ier)
+ 		writel(ier, port->membase + UART_CTRL(port));
 
 
