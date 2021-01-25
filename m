@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4902E301EBD
-	for <lists+stable@lfdr.de>; Sun, 24 Jan 2021 21:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73607301FD2
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 02:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725969AbhAXUeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jan 2021 15:34:19 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:37980 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725968AbhAXUeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 15:34:16 -0500
-From:   John Ogness <john.ogness@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1611520414;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=D/IqCWHHyGiwt+g3GQmqDtT2+ZYdsv/r2P6TKaoW1gc=;
-        b=suIfycoDCwE5wAe/CXnU6pJLmifovx0uu37daXYbR+J54G0EgAeNh5biRQglBM0/6+pbcp
-        u8CStzKzgUt29BeKGA6+oPXp7lbR3UfWmJM6dNvO9azqJCM/LCS6Z04cYGthEW2UNk9Da3
-        9JgB1W9EyF/Hd7jCeynRT1lwycmix5C9lsI6Zl+NdI0qpVaAYMVc4PU43niWVzh1AImA/k
-        +VC86saBkvv8/gnNzBMqwR6TSl14PK7bpmBJb0Al9OfUqvja0xJn/LhjOBozc9Fv0hqsL7
-        445w7YWFf9wJOhawNUahjRqOxVdbRdVzfPoipkWg6gsaicnLq1vgVcQDdrmpDA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1611520414;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=D/IqCWHHyGiwt+g3GQmqDtT2+ZYdsv/r2P6TKaoW1gc=;
-        b=wursuvBrDvHJsIzHX/c+PC1c7jhm/FFkVUJmA7ob18YhAsFvv4RBWwD/7DG616NTmtLyG8
-        lUoFJlj73maKFiAw==
-To:     gregkh@linuxfoundation.org, gregkh@linuxfoundation.org,
-        pmladek@suse.com, sergey.senozhatsky@gmail.com,
-        stable@vger.kernel.org
-Cc:     stable-commits@vger.kernel.org
-Subject: Re: Patch "printk: fix buffer overflow potential for print_text()" has been added to the 5.10-stable tree
-In-Reply-To: <1611495423221153@kroah.com>
-References: <1611495423221153@kroah.com>
-Date:   Sun, 24 Jan 2021 21:39:33 +0106
-Message-ID: <87zh0ym5wi.fsf@jogness.linutronix.de>
+        id S1726597AbhAYBJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jan 2021 20:09:16 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:11580 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726571AbhAYBHv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jan 2021 20:07:51 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DPBVM3GdmzMPRl;
+        Mon, 25 Jan 2021 09:04:59 +0800 (CST)
+Received: from [10.174.176.185] (10.174.176.185) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.498.0; Mon, 25 Jan 2021 09:05:48 +0800
+Subject: Re: [PATCH 3/4] ubifs: Update directory size when creating whiteouts
+From:   Zhihao Cheng <chengzhihao1@huawei.com>
+To:     Richard Weinberger <richard@nod.at>,
+        <linux-mtd@lists.infradead.org>
+CC:     <david@sigma-star.at>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <20210122212229.17072-1-richard@nod.at>
+ <20210122212229.17072-4-richard@nod.at>
+ <5b51ff9c-8f5e-c348-5195-c0a0bf60b746@huawei.com>
+Message-ID: <cca6ac4f-4739-76be-9b48-b3643017a556@huawei.com>
+Date:   Mon, 25 Jan 2021 09:05:48 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <5b51ff9c-8f5e-c348-5195-c0a0bf60b746@huawei.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.176.185]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+在 2021/1/23 10:45, Zhihao Cheng 写道:
 
-On 2021-01-24, <gregkh@linuxfoundation.org> wrote:
-> This is a note to let you know that I've just added the patch titled
->
->     printk: fix buffer overflow potential for print_text()
+>> @@ -430,6 +433,7 @@ static int do_tmpfile(struct inode *dir, struct 
+>> dentry *dentry,
+>>       return 0;
+>>   out_cancel:
+Still one question:
+> Does this need a judgment? Like this,
+> if (whiteout)
+>      dir->i_size -= sz_change;
 
-We just learned that this patch introduces a new problem. I have just
-posted a patch to fix the new problem:
+>> +    dir->i_size -= sz_change;
+>>       mutex_unlock(&dir_ui->ui_mutex);
+>>   out_inode:
+>>       make_bad_inode(inode);
+>>
+> 
+> 
+> ______________________________________________________
+> Linux MTD discussion mailing list
+> http://lists.infradead.org/mailman/listinfo/linux-mtd/
 
-https://lkml.kernel.org/r/20210124202728.4718-1-john.ogness@linutronix.de
-
-You may want to hold off on applying the first fix until the second fix
-has been accepted. Then you can apply both.
-
-John Ogness
