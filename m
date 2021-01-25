@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D612302ABC
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:52:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA08302ABE
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 19:52:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731136AbhAYSvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:51:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S1731138AbhAYSvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:51:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730015AbhAYSto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:49:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB75120758;
-        Mon, 25 Jan 2021 18:49:02 +0000 (UTC)
+        id S1727163AbhAYSuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F1072063A;
+        Mon, 25 Jan 2021 18:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600543;
-        bh=gGUduK6MdbqDUC7gU/Os07HogcN1GBUxcwWnvsA0Gz8=;
+        s=korg; t=1611600564;
+        bh=sJhGEme1dz39LpSWoym7b5fWuUSGevs/wVnlhT0c6HE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuvjXjVG0AYU5lgB3e89cpQsZv5G6oGRPK59algbzxk+X7ithZP7PRvVGU+qn3N2T
-         tpw13ZpYTzyJT7hsVB5Ib88A6taBE3TsGisqF6AGYiArZPCJdCQ4b+OxAnAroOIpdR
-         8DD8LcaCEa1KNuQr0nIHyd430CFJStrGLTn9YgkU=
+        b=qfPRXJQEtkonAX7mx+wbCRuUaqtttSbl/IjsAGK/67H7sgxgFyQqWjoz5GqAAC+wV
+         I58FMXJV5edKoyoAdLWbvFjEfFNZY6eKO72Ao0O8KQ674hZ4aSMR6Gs81+HmDSpz4a
+         QFGq2O/2tZuMJOYARXNaks6128Ey6sfk39TCWG8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/199] arm64: make atomic helpers __always_inline
-Date:   Mon, 25 Jan 2021 19:37:56 +0100
-Message-Id: <20210125183218.544109444@linuxfoundation.org>
+Subject: [PATCH 5.10 056/199] x86/xen: Add xen_no_vector_callback option to test PCI INTX delivery
+Date:   Mon, 25 Jan 2021 19:37:58 +0100
+Message-Id: <20210125183218.627284362@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,109 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit c35a824c31834d947fb99b0c608c1b9f922b4ba0 ]
+[ Upstream commit b36b0fe96af13460278bf9b173beced1bd15f85d ]
 
-With UBSAN enabled and building with clang, there are occasionally
-warnings like
+It's useful to be able to test non-vector event channel delivery, to make
+sure Linux will work properly on older Xen which doesn't have it.
 
-WARNING: modpost: vmlinux.o(.text+0xc533ec): Section mismatch in reference from the function arch_atomic64_or() to the variable .init.data:numa_nodes_parsed
-The function arch_atomic64_or() references
-the variable __initdata numa_nodes_parsed.
-This is often because arch_atomic64_or lacks a __initdata
-annotation or the annotation of numa_nodes_parsed is wrong.
+It's also useful for those working on Xen and Xen-compatible hypervisors,
+because there are guest kernels still in active use which use PCI INTX
+even when vector delivery is available.
 
-for functions that end up not being inlined as intended but operating
-on __initdata variables. Mark these as __always_inline, along with
-the corresponding asm-generic wrappers.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20210108092024.4034860-1-arnd@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210106153958.584169-4-dwmw2@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic.h     | 10 +++++-----
- include/asm-generic/bitops/atomic.h |  6 +++---
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |  4 ++++
+ arch/x86/xen/enlighten_hvm.c                    | 11 ++++++++++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/atomic.h b/arch/arm64/include/asm/atomic.h
-index 015ddffaf6caa..b56a4b2bc2486 100644
---- a/arch/arm64/include/asm/atomic.h
-+++ b/arch/arm64/include/asm/atomic.h
-@@ -17,7 +17,7 @@
- #include <asm/lse.h>
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index f6a1513dfb76c..26bfe7ae711b8 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5965,6 +5965,10 @@
+ 			This option is obsoleted by the "nopv" option, which
+ 			has equivalent effect for XEN platform.
  
- #define ATOMIC_OP(op)							\
--static inline void arch_##op(int i, atomic_t *v)			\
-+static __always_inline void arch_##op(int i, atomic_t *v)		\
- {									\
- 	__lse_ll_sc_body(op, i, v);					\
++	xen_no_vector_callback
++			[KNL,X86,XEN] Disable the vector callback for Xen
++			event channel interrupts.
++
+ 	xen_scrub_pages=	[XEN]
+ 			Boolean option to control scrubbing pages before giving them back
+ 			to Xen, for use by other domains. Can be also changed at runtime
+diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+index 9e87ab010c82b..ec50b7423a4c8 100644
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -188,6 +188,8 @@ static int xen_cpu_dead_hvm(unsigned int cpu)
+        return 0;
  }
-@@ -32,7 +32,7 @@ ATOMIC_OP(atomic_sub)
- #undef ATOMIC_OP
  
- #define ATOMIC_FETCH_OP(name, op)					\
--static inline int arch_##op##name(int i, atomic_t *v)			\
-+static __always_inline int arch_##op##name(int i, atomic_t *v)		\
- {									\
- 	return __lse_ll_sc_body(op##name, i, v);			\
- }
-@@ -56,7 +56,7 @@ ATOMIC_FETCH_OPS(atomic_sub_return)
- #undef ATOMIC_FETCH_OPS
- 
- #define ATOMIC64_OP(op)							\
--static inline void arch_##op(long i, atomic64_t *v)			\
-+static __always_inline void arch_##op(long i, atomic64_t *v)		\
- {									\
- 	__lse_ll_sc_body(op, i, v);					\
- }
-@@ -71,7 +71,7 @@ ATOMIC64_OP(atomic64_sub)
- #undef ATOMIC64_OP
- 
- #define ATOMIC64_FETCH_OP(name, op)					\
--static inline long arch_##op##name(long i, atomic64_t *v)		\
-+static __always_inline long arch_##op##name(long i, atomic64_t *v)	\
- {									\
- 	return __lse_ll_sc_body(op##name, i, v);			\
- }
-@@ -94,7 +94,7 @@ ATOMIC64_FETCH_OPS(atomic64_sub_return)
- #undef ATOMIC64_FETCH_OP
- #undef ATOMIC64_FETCH_OPS
- 
--static inline long arch_atomic64_dec_if_positive(atomic64_t *v)
-+static __always_inline long arch_atomic64_dec_if_positive(atomic64_t *v)
++static bool no_vector_callback __initdata;
++
+ static void __init xen_hvm_guest_init(void)
  {
- 	return __lse_ll_sc_body(atomic64_dec_if_positive, v);
- }
-diff --git a/include/asm-generic/bitops/atomic.h b/include/asm-generic/bitops/atomic.h
-index dd90c9792909d..0e7316a86240b 100644
---- a/include/asm-generic/bitops/atomic.h
-+++ b/include/asm-generic/bitops/atomic.h
-@@ -11,19 +11,19 @@
-  * See Documentation/atomic_bitops.txt for details.
-  */
+ 	if (xen_pv_domain())
+@@ -207,7 +209,7 @@ static void __init xen_hvm_guest_init(void)
  
--static inline void set_bit(unsigned int nr, volatile unsigned long *p)
-+static __always_inline void set_bit(unsigned int nr, volatile unsigned long *p)
- {
- 	p += BIT_WORD(nr);
- 	atomic_long_or(BIT_MASK(nr), (atomic_long_t *)p);
- }
+ 	xen_panic_handler_init();
  
--static inline void clear_bit(unsigned int nr, volatile unsigned long *p)
-+static __always_inline void clear_bit(unsigned int nr, volatile unsigned long *p)
- {
- 	p += BIT_WORD(nr);
- 	atomic_long_andnot(BIT_MASK(nr), (atomic_long_t *)p);
- }
+-	if (xen_feature(XENFEAT_hvm_callback_vector))
++	if (!no_vector_callback && xen_feature(XENFEAT_hvm_callback_vector))
+ 		xen_have_vector_callback = 1;
  
--static inline void change_bit(unsigned int nr, volatile unsigned long *p)
-+static __always_inline void change_bit(unsigned int nr, volatile unsigned long *p)
+ 	xen_hvm_smp_init();
+@@ -233,6 +235,13 @@ static __init int xen_parse_nopv(char *arg)
+ }
+ early_param("xen_nopv", xen_parse_nopv);
+ 
++static __init int xen_parse_no_vector_callback(char *arg)
++{
++	no_vector_callback = true;
++	return 0;
++}
++early_param("xen_no_vector_callback", xen_parse_no_vector_callback);
++
+ bool __init xen_hvm_need_lapic(void)
  {
- 	p += BIT_WORD(nr);
- 	atomic_long_xor(BIT_MASK(nr), (atomic_long_t *)p);
+ 	if (xen_pv_domain())
 -- 
 2.27.0
 
