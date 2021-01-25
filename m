@@ -2,61 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A405F3026F8
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 16:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2655E30271B
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 16:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729870AbhAYPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 10:32:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60096 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729879AbhAYO7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 09:59:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E5A6208CA;
-        Mon, 25 Jan 2021 14:58:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611586699;
-        bh=USilElEcapQDLbjrL5xkQI0SwX/jVGB0EdSP0RsOtVA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KO+zXquYR6DAlQ9MC2T8kAL9J9e/YGLDFkZu3S8r0V0GL7k2Ee0GvivwC0Vo07HKz
-         oiIxhKNosXnyV3w77hdD7WkNkvvaKJ/V4LSbnt8fBIJCA4xwY/u7XYxxu2aIZy9011
-         mV20Ys1NZ0tZ7mJNLP4fj6cHU7JoAOGc5vEh4s20=
-Date:   Mon, 25 Jan 2021 15:58:16 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     John Ogness <john.ogness@linutronix.de>
-Cc:     pmladek@suse.com, sergey.senozhatsky@gmail.com,
-        stable@vger.kernel.org, stable-commits@vger.kernel.org
-Subject: Re: Patch "printk: fix buffer overflow potential for print_text()"
- has been added to the 5.10-stable tree
-Message-ID: <YA7ciGUMJE2yls61@kroah.com>
-References: <1611495423221153@kroah.com>
- <87zh0ym5wi.fsf@jogness.linutronix.de>
+        id S1730282AbhAYPna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 10:43:30 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:51097 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730277AbhAYPnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 10:43:15 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 9FFEFE41;
+        Mon, 25 Jan 2021 10:16:16 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 10:16:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=khwK9i
+        rg0TFooYuGoCI+KVWPFbgvqD2nbJ5t4MRXtfo=; b=jPQeTSgCpdj52xOdDLTCSv
+        v6VFzt2Dzg8aPIOqZ0uDtIMs8pPOxJEHXXoJrbynxS39kuY051fYdjIztrtXcqE3
+        vMko16eJLwmEGWzvVvZMRLX06LFW5smsYScA+vvtNkii6srEUt6FOFO8WMseHVdO
+        NusqbWirthmS+Jkh0OQ3mhAsmBWOur17L9iVyNKmZr8HK9xeqD640TmJ8rO8IEgQ
+        AfKvQmf/W42pEgF1DZMuEMcG9N8pHlx3n4C4U6WHJwU6eTV6KTNpIVfOt6E7aOOq
+        /vEULbkDamq+9kr5zDvV1ojeyrp03yB43jfsY+9Q7StKiULDFwTss+rzjVAs0crA
+        ==
+X-ME-Sender: <xms:wOAOYIY3ZbunW26FY-gZ82FPklK3WSBEJvpIW95kEJeOiOkEAvooeg>
+    <xme:wOAOYAFULSsopLLJvot7G4wujvr--jp-xSXHnX3ackGiAsiKSWBAp2yjIjSrc3eat
+    W44ZF88oAP1fg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdejudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:wOAOYG2Nn-QawA-pRAXhYNStFVBJpvTAHSJy3Mk-u98hq9Zj7GxRGw>
+    <xmx:wOAOYMwYQTU_04GoWdnbmVX-09Z5N4DYg66XkwlMq4rkOoVtWEwqgQ>
+    <xmx:wOAOYHgkhrRTFNdeiMJ3q41rFVjbAfUWVPSL7YmDSxXeKpNtBtMg6Q>
+    <xmx:wOAOYC8lP85VrsNxeOQ1YJ_DHDbZg_1oZy8frrIeao1SacQKbVUO8Dk4M9k>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C781F1080057;
+        Mon, 25 Jan 2021 10:16:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net_sched: gen_estimator: support large ewma log" failed to apply to 4.19-stable tree
+To:     edumazet@google.com, kuba@kernel.org, syzkaller@googlegroups.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 Jan 2021 16:16:06 +0100
+Message-ID: <161158776662165@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87zh0ym5wi.fsf@jogness.linutronix.de>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 24, 2021 at 09:39:33PM +0106, John Ogness wrote:
-> Hi Greg,
-> 
-> On 2021-01-24, <gregkh@linuxfoundation.org> wrote:
-> > This is a note to let you know that I've just added the patch titled
-> >
-> >     printk: fix buffer overflow potential for print_text()
-> 
-> We just learned that this patch introduces a new problem. I have just
-> posted a patch to fix the new problem:
-> 
-> https://lkml.kernel.org/r/20210124202728.4718-1-john.ogness@linutronix.de
-> 
-> You may want to hold off on applying the first fix until the second fix
-> has been accepted. Then you can apply both.
 
-Thanks, now queued up.  Can you let stable@vger.kernel.org know when
-this one has been merged by Linus so we know to take both?
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From dd5e073381f2ada3630f36be42833c6e9c78b75e Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 14 Jan 2021 10:19:29 -0800
+Subject: [PATCH] net_sched: gen_estimator: support large ewma log
+
+syzbot report reminded us that very big ewma_log were supported in the past,
+even if they made litle sense.
+
+tc qdisc replace dev xxx root est 1sec 131072sec ...
+
+While fixing the bug, also add boundary checks for ewma_log, in line
+with range supported by iproute2.
+
+UBSAN: shift-out-of-bounds in net/core/gen_estimator.c:83:38
+shift exponent -1 is negative
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
+ est_timer.cold+0xbb/0x12d net/core/gen_estimator.c:83
+ call_timer_fn+0x1a5/0x710 kernel/time/timer.c:1417
+ expire_timers kernel/time/timer.c:1462 [inline]
+ __run_timers.part.0+0x692/0xa80 kernel/time/timer.c:1731
+ __run_timers kernel/time/timer.c:1712 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1744
+ __do_softirq+0x2bc/0xa77 kernel/softirq.c:343
+ asm_call_irq_on_stack+0xf/0x20
+ </IRQ>
+ __run_on_irqstack arch/x86/include/asm/irq_stack.h:26 [inline]
+ run_on_irqstack_cond arch/x86/include/asm/irq_stack.h:77 [inline]
+ do_softirq_own_stack+0xaa/0xd0 arch/x86/kernel/irq_64.c:77
+ invoke_softirq kernel/softirq.c:226 [inline]
+ __irq_exit_rcu+0x17f/0x200 kernel/softirq.c:420
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:432
+ sysvec_apic_timer_interrupt+0x4d/0x100 arch/x86/kernel/apic/apic.c:1096
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:628
+RIP: 0010:native_save_fl arch/x86/include/asm/irqflags.h:29 [inline]
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/irqflags.h:79 [inline]
+RIP: 0010:arch_irqs_disabled arch/x86/include/asm/irqflags.h:169 [inline]
+RIP: 0010:acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+RIP: 0010:acpi_idle_do_entry+0x1c9/0x250 drivers/acpi/processor_idle.c:516
+
+Fixes: 1c0d32fde5bd ("net_sched: gen_estimator: complete rewrite of rate estimators")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20210114181929.1717985-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/core/gen_estimator.c b/net/core/gen_estimator.c
+index 80dbf2f4016e..8e582e29a41e 100644
+--- a/net/core/gen_estimator.c
++++ b/net/core/gen_estimator.c
+@@ -80,11 +80,11 @@ static void est_timer(struct timer_list *t)
+ 	u64 rate, brate;
+ 
+ 	est_fetch_counters(est, &b);
+-	brate = (b.bytes - est->last_bytes) << (10 - est->ewma_log - est->intvl_log);
+-	brate -= (est->avbps >> est->ewma_log);
++	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
++	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
+ 
+-	rate = (b.packets - est->last_packets) << (10 - est->ewma_log - est->intvl_log);
+-	rate -= (est->avpps >> est->ewma_log);
++	rate = (b.packets - est->last_packets) << (10 - est->intvl_log);
++	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
+ 
+ 	write_seqcount_begin(&est->seq);
+ 	est->avbps += brate;
+@@ -143,6 +143,9 @@ int gen_new_estimator(struct gnet_stats_basic_packed *bstats,
+ 	if (parm->interval < -2 || parm->interval > 3)
+ 		return -EINVAL;
+ 
++	if (parm->ewma_log == 0 || parm->ewma_log >= 31)
++		return -EINVAL;
++
+ 	est = kzalloc(sizeof(*est), GFP_KERNEL);
+ 	if (!est)
+ 		return -ENOBUFS;
+
