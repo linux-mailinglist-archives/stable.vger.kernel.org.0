@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D597F304A81
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52337304A82
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:47:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731123AbhAZFFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:05:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40828 "EHLO mail.kernel.org"
+        id S1731138AbhAZFFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731340AbhAYSy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:54:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D357A224B8;
-        Mon, 25 Jan 2021 18:53:46 +0000 (UTC)
+        id S1731341AbhAYSyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:54:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91576224D1;
+        Mon, 25 Jan 2021 18:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600827;
-        bh=CIcf/ZN1RY906Zqt3lGhz1MtgYcz7o/eaoC+BLandio=;
+        s=korg; t=1611600830;
+        bh=ukEi+vhPWq6KXCBmDHjfToPs8cn6gzqUIJytbWwpn8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEEqOmsPKUiw/7nBFTt2ePfos9aAQd+gW4BrMrSwHubhj7eGyUoo0h+DVRe0MCjD9
-         VJZ509dJ0a79y0qZRJQ/phuoXEqfLP8l5qPBb+juaDLmRCTw6umbN8Hc2pakApu+DO
-         +3dc4Y/G/pPBKplxRLuaUx0w34FckB6718l7TPQc=
+        b=PDQDkD7Ad6HkduSbWE98O1937sNFzTLbB5dG/QXCdlkdBm1Bb6V/8Mf6VmARdxU2K
+         athzcqsigoKy21Q6epBVjBTypSwT/4cTnvdCXAILq2+pfFwByafU5qFoHB1gTL8SXh
+         1mwNSzFUs7t46pTaaq9/wOcEzMHdIJR/WpZ1ZlJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
         Andrey Ryabinin <aryabinin@virtuozzo.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Dmitry Vyukov <dvyukov@google.com>,
         Alexander Potapenko <glider@google.com>,
-        YJ Chiang <yj.chiang@mediatek.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 167/199] kasan: fix unaligned address is unhandled in kasan_remove_zero_shadow
-Date:   Mon, 25 Jan 2021 19:39:49 +0100
-Message-Id: <20210125183223.241454115@linuxfoundation.org>
+Subject: [PATCH 5.10 168/199] kasan: fix incorrect arguments passing in kasan_add_zero_shadow
+Date:   Mon, 25 Jan 2021 19:39:50 +0100
+Message-Id: <20210125183223.285349254@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -48,99 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lecopzer Chen <lecopzer@gmail.com>
 
-commit a11a496ee6e2ab6ed850233c96b94caf042af0b9 upstream.
+commit 5dabd1712cd056814f9ab15f1d68157ceb04e741 upstream.
 
-During testing kasan_populate_early_shadow and kasan_remove_zero_shadow,
-if the shadow start and end address in kasan_remove_zero_shadow() is not
-aligned to PMD_SIZE, the remain unaligned PTE won't be removed.
+kasan_remove_zero_shadow() shall use original virtual address, start and
+size, instead of shadow address.
 
-In the test case for kasan_remove_zero_shadow():
-
-    shadow_start: 0xffffffb802000000, shadow end: 0xffffffbfbe000000
-
-    3-level page table:
-      PUD_SIZE: 0x40000000 PMD_SIZE: 0x200000 PAGE_SIZE: 4K
-
-0xffffffbf80000000 ~ 0xffffffbfbdf80000 will not be removed because in
-kasan_remove_pud_table(), kasan_pmd_table(*pud) is true but the next
-address is 0xffffffbfbdf80000 which is not aligned to PUD_SIZE.
-
-In the correct condition, this should fallback to the next level
-kasan_remove_pmd_table() but the condition flow always continue to skip
-the unaligned part.
-
-Fix by correcting the condition when next and addr are neither aligned.
-
-Link: https://lkml.kernel.org/r/20210103135621.83129-1-lecopzer@gmail.com
+Link: https://lkml.kernel.org/r/20210103063847.5963-1-lecopzer@gmail.com
 Fixes: 0207df4fa1a86 ("kernel/memremap, kasan: make ZONE_DEVICE with work with KASAN")
 Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
 Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Dmitry Vyukov <dvyukov@google.com>
 Cc: Alexander Potapenko <glider@google.com>
-Cc: YJ Chiang <yj.chiang@mediatek.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/kasan/init.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ mm/kasan/init.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/mm/kasan/init.c
 +++ b/mm/kasan/init.c
-@@ -377,9 +377,10 @@ static void kasan_remove_pmd_table(pmd_t
+@@ -492,7 +492,6 @@ int kasan_add_zero_shadow(void *start, u
  
- 		if (kasan_pte_table(*pmd)) {
- 			if (IS_ALIGNED(addr, PMD_SIZE) &&
--			    IS_ALIGNED(next, PMD_SIZE))
-+			    IS_ALIGNED(next, PMD_SIZE)) {
- 				pmd_clear(pmd);
--			continue;
-+				continue;
-+			}
- 		}
- 		pte = pte_offset_kernel(pmd, addr);
- 		kasan_remove_pte_table(pte, addr, next);
-@@ -402,9 +403,10 @@ static void kasan_remove_pud_table(pud_t
- 
- 		if (kasan_pmd_table(*pud)) {
- 			if (IS_ALIGNED(addr, PUD_SIZE) &&
--			    IS_ALIGNED(next, PUD_SIZE))
-+			    IS_ALIGNED(next, PUD_SIZE)) {
- 				pud_clear(pud);
--			continue;
-+				continue;
-+			}
- 		}
- 		pmd = pmd_offset(pud, addr);
- 		pmd_base = pmd_offset(pud, 0);
-@@ -428,9 +430,10 @@ static void kasan_remove_p4d_table(p4d_t
- 
- 		if (kasan_pud_table(*p4d)) {
- 			if (IS_ALIGNED(addr, P4D_SIZE) &&
--			    IS_ALIGNED(next, P4D_SIZE))
-+			    IS_ALIGNED(next, P4D_SIZE)) {
- 				p4d_clear(p4d);
--			continue;
-+				continue;
-+			}
- 		}
- 		pud = pud_offset(p4d, addr);
- 		kasan_remove_pud_table(pud, addr, next);
-@@ -462,9 +465,10 @@ void kasan_remove_zero_shadow(void *star
- 
- 		if (kasan_p4d_table(*pgd)) {
- 			if (IS_ALIGNED(addr, PGDIR_SIZE) &&
--			    IS_ALIGNED(next, PGDIR_SIZE))
-+			    IS_ALIGNED(next, PGDIR_SIZE)) {
- 				pgd_clear(pgd);
--			continue;
-+				continue;
-+			}
- 		}
- 
- 		p4d = p4d_offset(pgd, addr);
+ 	ret = kasan_populate_early_shadow(shadow_start, shadow_end);
+ 	if (ret)
+-		kasan_remove_zero_shadow(shadow_start,
+-					size >> KASAN_SHADOW_SCALE_SHIFT);
++		kasan_remove_zero_shadow(start, size);
+ 	return ret;
+ }
 
 
