@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20245304ABA
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0598E304ABE
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730120AbhAZE6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:58:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37382 "EHLO mail.kernel.org"
+        id S1730217AbhAZE7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:59:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729342AbhAYSuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0298D224D1;
-        Mon, 25 Jan 2021 18:49:35 +0000 (UTC)
+        id S1731072AbhAYSuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 955A2229C5;
+        Mon, 25 Jan 2021 18:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600576;
-        bh=w47xUjtssxFdsLz2ijKucaSRH0GvyKyr248a8MEcdPY=;
+        s=korg; t=1611600579;
+        bh=JSqO86IcU7wWeh0jt6MYWgKzZMeT5qwq0pmHSi2cXSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wytI0WV5Pt1nEFuv97urECGB1LtMlTZrASB8p7JvJT0vZzvUNDGyZ45Ctvoj+oumH
-         8z1ieNBke9WTWN+Y7vsct0OhLeEHLlFhajXmOnRl9MR2J/RGe2aGb7UgGhQvNW2gRL
-         afQJXezhO5LvdxQ7+ISyobRLg1rf+FR3kLlYk/18=
+        b=wwv6zHoyKz0iBiOscG5UfdPvmfX0StMzI0P0kd98WgZtTb5kbFDUWk0RgFr30wN5B
+         hYEjA1IvGQ94ZYytciedgY+AtURxcOIIXVzbCmRPO0tmg1i+zkVpQfIuCEN9fopPKa
+         IK5wB2yxfxLwecHeTdbTHrVKsC2CTBUnRH83EonY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/199] drm/nouveau/kms/nv50-: fix case where notifier buffer is at offset 0
-Date:   Mon, 25 Jan 2021 19:38:11 +0100
-Message-Id: <20210125183219.182666861@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marcelo Diop-Gonzalez <marcelo827@gmail.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 070/199] io_uring: flush timeouts that should already have expired
+Date:   Mon, 25 Jan 2021 19:38:12 +0100
+Message-Id: <20210125183219.225369810@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,68 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Marcelo Diop-Gonzalez <marcelo827@gmail.com>
 
-[ Upstream commit caeb6ab899c3d36a74cda6e299c6e1c9c4e2a22e ]
+[ Upstream commit f010505b78a4fa8d5b6480752566e7313fb5ca6e ]
 
-VRAM offset 0 is a valid address, triggered on GA102.
+Right now io_flush_timeouts() checks if the current number of events
+is equal to ->timeout.target_seq, but this will miss some timeouts if
+there have been more than 1 event added since the last time they were
+flushed (possible in io_submit_flush_completions(), for example). Fix
+it by recording the last sequence at which timeouts were flushed so
+that the number of events seen can be compared to the number of events
+needed without overflow.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Marcelo Diop-Gonzalez <marcelo827@gmail.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c     | 4 ++--
- drivers/gpu/drm/nouveau/dispnv50/disp.h     | 2 +-
- drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ fs/io_uring.c | 34 ++++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index 36d6b6093d16d..5b8cabb099eb1 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -221,7 +221,7 @@ nv50_dmac_wait(struct nvif_push *push, u32 size)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 265aea2cd7bc8..2348104857000 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -353,6 +353,7 @@ struct io_ring_ctx {
+ 		unsigned		cq_entries;
+ 		unsigned		cq_mask;
+ 		atomic_t		cq_timeouts;
++		unsigned		cq_last_tm_flush;
+ 		unsigned long		cq_check_overflow;
+ 		struct wait_queue_head	cq_wait;
+ 		struct fasync_struct	*cq_fasync;
+@@ -1521,19 +1522,38 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
  
- int
- nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
--		 const s32 *oclass, u8 head, void *data, u32 size, u64 syncbuf,
-+		 const s32 *oclass, u8 head, void *data, u32 size, s64 syncbuf,
- 		 struct nv50_dmac *dmac)
+ static void io_flush_timeouts(struct io_ring_ctx *ctx)
  {
- 	struct nouveau_cli *cli = (void *)device->object.client;
-@@ -270,7 +270,7 @@ nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
- 	if (ret)
- 		return ret;
+-	while (!list_empty(&ctx->timeout_list)) {
++	u32 seq;
++
++	if (list_empty(&ctx->timeout_list))
++		return;
++
++	seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
++
++	do {
++		u32 events_needed, events_got;
+ 		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
+ 						struct io_kiocb, timeout.list);
  
--	if (!syncbuf)
-+	if (syncbuf < 0)
- 		return 0;
+ 		if (io_is_timeout_noseq(req))
+ 			break;
+-		if (req->timeout.target_seq != ctx->cached_cq_tail
+-					- atomic_read(&ctx->cq_timeouts))
++
++		/*
++		 * Since seq can easily wrap around over time, subtract
++		 * the last seq at which timeouts were flushed before comparing.
++		 * Assuming not more than 2^31-1 events have happened since,
++		 * these subtractions won't have wrapped, so we can check if
++		 * target is in [last_seq, current_seq] by comparing the two.
++		 */
++		events_needed = req->timeout.target_seq - ctx->cq_last_tm_flush;
++		events_got = seq - ctx->cq_last_tm_flush;
++		if (events_got < events_needed)
+ 			break;
  
- 	ret = nvif_object_ctor(&dmac->base.user, "kmsSyncCtxDma", NV50_DISP_HANDLE_SYNCBUF,
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.h b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-index 92bddc0836171..38dec11e7dda5 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-@@ -95,7 +95,7 @@ struct nv50_outp_atom {
+ 		list_del_init(&req->timeout.list);
+ 		io_kill_timeout(req);
+-	}
++	} while (!list_empty(&ctx->timeout_list));
++
++	ctx->cq_last_tm_flush = seq;
+ }
  
- int nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
- 		     const s32 *oclass, u8 head, void *data, u32 size,
--		     u64 syncbuf, struct nv50_dmac *dmac);
-+		     s64 syncbuf, struct nv50_dmac *dmac);
- void nv50_dmac_destroy(struct nv50_dmac *);
+ static void io_commit_cqring(struct io_ring_ctx *ctx)
+@@ -5582,6 +5602,12 @@ static int io_timeout(struct io_kiocb *req)
+ 	tail = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
+ 	req->timeout.target_seq = tail + off;
  
- /*
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-index 685b708713242..b390029c69ec1 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-@@ -76,7 +76,7 @@ wimmc37b_init_(const struct nv50_wimm_func *func, struct nouveau_drm *drm,
- 	int ret;
- 
- 	ret = nv50_dmac_create(&drm->client.device, &disp->disp->object,
--			       &oclass, 0, &args, sizeof(args), 0,
-+			       &oclass, 0, &args, sizeof(args), -1,
- 			       &wndw->wimm);
- 	if (ret) {
- 		NV_ERROR(drm, "wimm%04x allocation failed: %d\n", oclass, ret);
++	/* Update the last seq here in case io_flush_timeouts() hasn't.
++	 * This is safe because ->completion_lock is held, and submissions
++	 * and completions are never mixed in the same ->completion_lock section.
++	 */
++	ctx->cq_last_tm_flush = tail;
++
+ 	/*
+ 	 * Insertion sort, ensuring the first entry in the list is always
+ 	 * the one we need first.
 -- 
 2.27.0
 
