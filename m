@@ -2,138 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03BD0302F2A
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:39:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C42D0302FBF
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 00:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732366AbhAYWjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 17:39:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35688 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732908AbhAYVgD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 16:36:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BFE9221E3;
-        Mon, 25 Jan 2021 21:35:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1611610500;
-        bh=Tc/VsYYkMK2PDPjiotHBKAbPWgi5MkgdiqjA+whokww=;
-        h=Date:From:To:Subject:From;
-        b=geMzXvrnPJH/wSoAWqVJu/dckCxpNKARECRsYCnN58P0vOfuHyfj6AUlxVtLWMvz5
-         /Q1zePPczAe7nt21GtERmAXKjxZkz8aq1q8/YI/iIMYpvhUC0Zl4sbXp4lQSbofSpX
-         ljlDeMIQhfAy1rKYKUlezGFinW4GjyW3gQrgZ1p8=
-Date:   Mon, 25 Jan 2021 13:35:00 -0800
-From:   akpm@linux-foundation.org
-To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        shy828301@gmail.com, songmuchun@bytedance.com,
-        stable@vger.kernel.org
-Subject:  [merged] mm-fix-numa-stats-for-thp-migration.patch
- removed from -mm tree
-Message-ID: <20210125213500.VODCyEXRV%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1732659AbhAYXEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 18:04:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59382 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732634AbhAYW4l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 17:56:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611615308;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9e4FAvdLJ+vUpdO9XUnrNO0jrJiCmbRBqZ4RaWPWJDc=;
+        b=R7utSaGaytxzSkKrtY688O1S9ry32/IR8CCR4p6mW4ZhMDsWmgQKebIsmnwzP+2eexUxKv
+        1TQyJb/lW0FFT8FmHkGvaIipoaMQHPY6+xZccVEn51s4s8VnzbxKWAMeJlenoePiJWWr6l
+        BEaxjWE5LIb4vyNx2z1Y241VW/XOiPw=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-343-JX0o7VgtNm651EpLUS6XLQ-1; Mon, 25 Jan 2021 17:55:05 -0500
+X-MC-Unique: JX0o7VgtNm651EpLUS6XLQ-1
+Received: by mail-qv1-f70.google.com with SMTP id j4so3539450qvi.8
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 14:55:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
+         :in-reply-to:references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=9e4FAvdLJ+vUpdO9XUnrNO0jrJiCmbRBqZ4RaWPWJDc=;
+        b=ipPrm488qgNsdaptlmwKoHnLlYgIFV+NzA3coRYOKtZWsJos09to05GRwb3tbzzsAj
+         mwd7oyhO7lB48ApEpJF/Rpwoh4ScpfxW9txc5EUtjv8TNtrytrhHDJIeTkWCzh8Ehzl9
+         0+T0W50HYDWNhRzxLsOefuugx038OtOyuhAivr2/cH4NBiC63R6QGuaH9nZQ25cJsPaQ
+         0r42vkbviB0hAjx1q/pKdFqq9X9RT6VD6TvpHTqVxAm6IFyBAz+BlQocv3l+oOsS0P5h
+         LsNvOdhqO/Ox6HKgCWLihCH/9DC+535IgMe18fE/DJQ5MEx4sPsvhxOxSYrZmJEKY9Dx
+         gvGQ==
+X-Gm-Message-State: AOAM533tQx7RfEJQe8iqHT3kRR4PQhsQLu3o5hBS54ozo/BZKEUHHZUv
+        OmGCBrkt1uyuLvEFKImrg2c63nZbIndB1IFH6FPaOGbJEK2huZwu39t7xxYwltzU5o5/jz7f2fy
+        u/jR9Fi4lJAp0YM4p
+X-Received: by 2002:a37:ba03:: with SMTP id k3mr1526320qkf.366.1611615304729;
+        Mon, 25 Jan 2021 14:55:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy8/GAHwGAKmqTyc789/Fm6Q0GnEm2ZQgcQRVN4akiaq6WX6NQk5Jw6mwLG1DJf22YaJcTU+A==
+X-Received: by 2002:a37:ba03:: with SMTP id k3mr1526311qkf.366.1611615304484;
+        Mon, 25 Jan 2021 14:55:04 -0800 (PST)
+Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id c17sm13208946qkb.13.2021.01.25.14.55.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Jan 2021 14:55:03 -0800 (PST)
+Message-ID: <f036f8aff9079d97c2997929478621d3be34a69d.camel@redhat.com>
+Subject: Re: [PATCH 2/2] drm/i915: Fix the MST PBN divider calculation
+From:   Lyude Paul <lyude@redhat.com>
+Reply-To: lyude@redhat.com
+To:     imre.deak@intel.com
+Cc:     intel-gfx@lists.freedesktop.org,
+        Ville Syrjala <ville.syrjala@intel.com>, stable@vger.kernel.org
+Date:   Mon, 25 Jan 2021 17:55:03 -0500
+In-Reply-To: <20210125210434.GA1756222@ideak-desk.fi.intel.com>
+References: <20210125173636.1733812-1-imre.deak@intel.com>
+         <20210125173636.1733812-2-imre.deak@intel.com>
+         <2be72160accef04bf2ed7341b3619befc2121330.camel@redhat.com>
+         <20210125210434.GA1756222@ideak-desk.fi.intel.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.3 (3.38.3-1.fc33) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 2021-01-25 at 23:04 +0200, Imre Deak wrote:
+> On Mon, Jan 25, 2021 at 02:24:58PM -0500, Lyude Paul wrote:
+> > On Mon, 2021-01-25 at 19:36 +0200, Imre Deak wrote:
+> > > Atm the driver will calculate a wrong MST timeslots/MTP (aka time unit)
+> > > value for MST streams if the link parameters (link rate or lane count)
+> > > are limited in a way independent of the sink capabilities (reported by
+> > > DPCD).
+> > > 
+> > > One example of such a limitation is when a MUX between the sink and
+> > > source connects only a limited number of lanes to the display and
+> > > connects the rest of the lanes to other peripherals (USB).
+> > > 
+> > > Another issue is that atm MST core calculates the divider based on the
+> > > backwards compatible DPCD (at address 0x0000) vs. the extended
+> > > capability info (at address 0x2200). This can result in leaving some
+> > > part of the MST BW unused (For instance in case of the WD19TB dock).
+> > > 
+> > > Fix the above two issues by calculating the PBN divider value based on
+> > > the rate and lane count link parameters that the driver uses for all
+> > > other computation.
+> > > 
+> > > Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/2977
+> > > Cc: Lyude Paul <lyude@redhat.com>
+> > > Cc: Ville Syrjala <ville.syrjala@intel.com>
+> > > Cc: <stable@vger.kernel.org>
+> > > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > > ---
+> > >  drivers/gpu/drm/i915/display/intel_dp_mst.c | 4 +++-
+> > >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > index d6a1b961a0e8..b4621ed0127e 100644
+> > > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > @@ -68,7 +68,9 @@ static int intel_dp_mst_compute_link_config(struct
+> > > intel_encoder *encoder,
+> > >  
+> > >                 slots = drm_dp_atomic_find_vcpi_slots(state, &intel_dp-
+> > > > mst_mgr,
+> > >                                                       connector->port,
+> > > -                                                     crtc_state->pbn, 0);
+> > > +                                                     crtc_state->pbn,
+> > > +                                                    
+> > > drm_dp_get_vc_payload_bw(crtc_state->port_clock,
+> > > +                                                                      
+> > 
+> > This patch looks fine, however you should take care to also update the
+> > documentation for drm_dp_atomic_find_vcpi_slots() so that it mentiones that
+> > pbn_div should be DSC aware but also is not exclusive to systems supporting
+> > DSC
+> > over MST (see the docs for the @pbn_div parameter)
+> 
+> I thought (as a follow-up work) that drm_dp_atomic_find_vcpi_slots() and
+> drm_dp_mst_allocate_vcpi() could be made more generic, requiring the
+> drivers to always pass in pbn_div. By that we could remove
+> mst_mgr::pbn_div, keeping only one copy of this value (the one passed to
+> the above functions).
 
-The patch titled
-     Subject: mm: fix numa stats for thp migration
-has been removed from the -mm tree.  Its filename was
-     mm-fix-numa-stats-for-thp-migration.patch
+I'm fine with that! The only thing I ask is (even though it's taken forever) we
+are eventually planning on making it so that we'll have MST helpers that can
+suggest changing the PBN divisor in order to implement link fallback retraining.
+As long as we're still able to make that work in the future, I'm totally fine
+with this.
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+> 
+> > Thank you for doing this! I've been meaning to fix the WD19 issues for a
+> > while
+> > now but have been too bogged down by other stuff to spend any time on MST
+> > recently.
+> > 
+> > >         crtc_state->lane_count));
+> > >                 if (slots == -EDEADLK)
+> > >                         return slots;
+> > >                 if (slots >= 0)
+> > 
+> > -- 
+> > Sincerely,
+> >    Lyude Paul (she/her)
+> >    Software Engineer at Red Hat
+> >    
+> > Note: I deal with a lot of emails and have a lot of bugs on my plate. If
+> > you've
+> > asked me a question, are waiting for a review/merge on a patch, etc. and I
+> > haven't responded in a while, please feel free to send me another email to
+> > check
+> > on my status. I don't bite!
+> > 
+> 
 
-------------------------------------------------------
-From: Shakeel Butt <shakeelb@google.com>
-Subject: mm: fix numa stats for thp migration
-
-Currently the kernel is not correctly updating the numa stats for
-NR_FILE_PAGES and NR_SHMEM on THP migration.  Fix that.  For NR_FILE_DIRTY
-and NR_ZONE_WRITE_PENDING, although at the moment there is no need to
-handle THP migration as kernel still does not have write support for file
-THP but to be more future proof, this patch adds the THP support for those
-stats as well.
-
-Link: https://lkml.kernel.org/r/20210108155813.2914586-2-shakeelb@google.com
-Fixes: e71769ae52609 ("mm: enable thp migration for shmem thp")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/migrate.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
-
---- a/mm/migrate.c~mm-fix-numa-stats-for-thp-migration
-+++ a/mm/migrate.c
-@@ -402,6 +402,7 @@ int migrate_page_move_mapping(struct add
- 	struct zone *oldzone, *newzone;
- 	int dirty;
- 	int expected_count = expected_page_refs(mapping, page) + extra_count;
-+	int nr = thp_nr_pages(page);
- 
- 	if (!mapping) {
- 		/* Anonymous page without mapping */
-@@ -437,7 +438,7 @@ int migrate_page_move_mapping(struct add
- 	 */
- 	newpage->index = page->index;
- 	newpage->mapping = page->mapping;
--	page_ref_add(newpage, thp_nr_pages(page)); /* add cache reference */
-+	page_ref_add(newpage, nr); /* add cache reference */
- 	if (PageSwapBacked(page)) {
- 		__SetPageSwapBacked(newpage);
- 		if (PageSwapCache(page)) {
-@@ -459,7 +460,7 @@ int migrate_page_move_mapping(struct add
- 	if (PageTransHuge(page)) {
- 		int i;
- 
--		for (i = 1; i < HPAGE_PMD_NR; i++) {
-+		for (i = 1; i < nr; i++) {
- 			xas_next(&xas);
- 			xas_store(&xas, newpage);
- 		}
-@@ -470,7 +471,7 @@ int migrate_page_move_mapping(struct add
- 	 * to one less reference.
- 	 * We know this isn't the last reference.
- 	 */
--	page_ref_unfreeze(page, expected_count - thp_nr_pages(page));
-+	page_ref_unfreeze(page, expected_count - nr);
- 
- 	xas_unlock(&xas);
- 	/* Leave irq disabled to prevent preemption while updating stats */
-@@ -493,17 +494,17 @@ int migrate_page_move_mapping(struct add
- 		old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
- 		new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
- 
--		__dec_lruvec_state(old_lruvec, NR_FILE_PAGES);
--		__inc_lruvec_state(new_lruvec, NR_FILE_PAGES);
-+		__mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
-+		__mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
- 		if (PageSwapBacked(page) && !PageSwapCache(page)) {
--			__dec_lruvec_state(old_lruvec, NR_SHMEM);
--			__inc_lruvec_state(new_lruvec, NR_SHMEM);
-+			__mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
-+			__mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
- 		}
- 		if (dirty && mapping_can_writeback(mapping)) {
--			__dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
--			__dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
--			__inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
--			__inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
-+			__mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
-+			__mod_zone_page_state(oldzone, NR_ZONE_WRITE_PENDING, -nr);
-+			__mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
-+			__mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
- 		}
- 	}
- 	local_irq_enable();
-_
-
-Patches currently in -mm which might be from shakeelb@google.com are
-
-mm-memcg-add-swapcache-stat-for-memcg-v2.patch
+-- 
+Sincerely,
+   Lyude Paul (she/her)
+   Software Engineer at Red Hat
+   
+Note: I deal with a lot of emails and have a lot of bugs on my plate. If you've
+asked me a question, are waiting for a review/merge on a patch, etc. and I
+haven't responded in a while, please feel free to send me another email to check
+on my status. I don't bite!
 
