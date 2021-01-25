@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A64E53031A1
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:17:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BCEC3031BA
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:24:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731353AbhAYSy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:54:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41036 "EHLO mail.kernel.org"
+        id S1730577AbhAYSrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:47:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731203AbhAYSyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:54:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29E1A221E3;
-        Mon, 25 Jan 2021 18:54:03 +0000 (UTC)
+        id S1726866AbhAYSrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:47:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C51D72067B;
+        Mon, 25 Jan 2021 18:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600843;
-        bh=rhdd9zoGwTGc+vAf2PO+qrNMwyqttEzin2sdVGvKGeg=;
+        s=korg; t=1611600414;
+        bh=soEzrRJoIclsAyQ7S53/k86JhzKiV0gfGhIDkv4RFas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIAbtxraEmUFfqKMofHU+X3+LtwVCV2qUP1MKJFESnxf8IT7HybkWUmB4CsQAaZ8y
-         AYzjSBI9LzVjY0QBCsnU8cze0LIqOx6ve8++ICfNU5iuQ1uXxvPqAepqlpM8lnMd1k
-         3w3arIoR8wxHP3OVYETy2XiKaj9Wvd0lunEiKNJA=
+        b=uzsgJZoawoQJUCqQnJanDuvYdV5yT5jTl1lXtcLMZI443qMD90uUafZ+1uE6GLXIZ
+         DnAgwqLGDqlPqIRouxOxwAWzejUoqomCUtPF+jw4W/QvS1hhGrXO1Kgaelkb8/euGT
+         U0YP8Iyzylr/UlYI8nY000YpNw+q52t9SQn6UERs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 173/199] net_sched: avoid shift-out-of-bounds in tcindex_set_parms()
-Date:   Mon, 25 Jan 2021 19:39:55 +0100
-Message-Id: <20210125183223.498903589@linuxfoundation.org>
+Subject: [PATCH 5.4 80/86] net_sched: reject silly cell_log in qdisc_get_rtab()
+Date:   Mon, 25 Jan 2021 19:40:02 +0100
+Message-Id: <20210125183204.435866873@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
-References: <20210125183216.245315437@linuxfoundation.org>
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +43,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit bcd0cf19ef8258ac31b9a20248b05c15a1f4b4b0 upstream.
+commit e4bedf48aaa5552bc1f49703abd17606e7e6e82a upstream.
 
-tc_index being 16bit wide, we need to check that TCA_TCINDEX_SHIFT
-attribute is not silly.
+iproute2 probably never goes beyond 8 for the cell exponent,
+but stick to the max shift exponent for signed 32bit.
 
-UBSAN: shift-out-of-bounds in net/sched/cls_tcindex.c:260:29
-shift exponent 255 is too large for 32-bit type 'int'
-CPU: 0 PID: 8516 Comm: syz-executor228 Not tainted 5.10.0-syzkaller #0
+UBSAN reported:
+UBSAN: shift-out-of-bounds in net/sched/sch_api.c:389:22
+shift exponent 130 is too large for 32-bit type 'int'
+CPU: 1 PID: 8450 Comm: syz-executor586 Not tainted 5.11.0-rc3-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
  __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
- valid_perfect_hash net/sched/cls_tcindex.c:260 [inline]
- tcindex_set_parms.cold+0x1b/0x215 net/sched/cls_tcindex.c:425
- tcindex_change+0x232/0x340 net/sched/cls_tcindex.c:546
- tc_new_tfilter+0x13fb/0x21b0 net/sched/cls_api.c:2127
- rtnetlink_rcv_msg+0x8b6/0xb80 net/core/rtnetlink.c:5555
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
+ dump_stack+0x183/0x22e lib/dump_stack.c:120
+ ubsan_epilogue lib/ubsan.c:148 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
+ __detect_linklayer+0x2a9/0x330 net/sched/sch_api.c:389
+ qdisc_get_rtab+0x2b5/0x410 net/sched/sch_api.c:435
+ cbq_init+0x28f/0x12c0 net/sched/sch_cbq.c:1180
+ qdisc_create+0x801/0x1470 net/sched/sch_api.c:1246
+ tc_modify_qdisc+0x9e3/0x1fc0 net/sched/sch_api.c:1662
+ rtnetlink_rcv_msg+0xb1d/0xe60 net/core/rtnetlink.c:5564
+ netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2494
  netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
+ netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1919
  sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2336
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2390
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2423
+ sock_sendmsg net/socket.c:672 [inline]
+ ____sys_sendmsg+0x5a2/0x900 net/socket.c:2345
+ ___sys_sendmsg net/socket.c:2399 [inline]
+ __sys_sendmsg+0x319/0x400 net/socket.c:2432
  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210114185229.1742255-1-eric.dumazet@gmail.com
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20210114160637.1660597-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_tcindex.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/sched/sch_api.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -366,9 +366,13 @@ tcindex_set_parms(struct net *net, struc
- 	if (tb[TCA_TCINDEX_MASK])
- 		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -409,7 +409,8 @@ struct qdisc_rate_table *qdisc_get_rtab(
+ {
+ 	struct qdisc_rate_table *rtab;
  
--	if (tb[TCA_TCINDEX_SHIFT])
-+	if (tb[TCA_TCINDEX_SHIFT]) {
- 		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
--
-+		if (cp->shift > 16) {
-+			err = -EINVAL;
-+			goto errout;
-+		}
-+	}
- 	if (!cp->hash) {
- 		/* Hash not specified, use perfect hash if the upper limit
- 		 * of the hashing index is below the threshold.
+-	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
++	if (tab == NULL || r->rate == 0 ||
++	    r->cell_log == 0 || r->cell_log >= 32 ||
+ 	    nla_len(tab) != TC_RTAB_SIZE) {
+ 		NL_SET_ERR_MSG(extack, "Invalid rate table parameters for searching");
+ 		return NULL;
 
 
