@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46707304B36
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C509304B68
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbhAZEss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:48:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
+        id S1727352AbhAZEqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:46:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730007AbhAYSpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:45:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52B38224D4;
-        Mon, 25 Jan 2021 18:45:04 +0000 (UTC)
+        id S1728559AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:43:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB61222B3F;
+        Mon, 25 Jan 2021 18:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600304;
-        bh=A6Tuk1W0KU1j65fNYQ13cRoK160I/YaFsQapL9FOrNU=;
+        s=korg; t=1611600182;
+        bh=FnC34r+embwRCybJmTYTo1BmKrAG/YhPaaf7AAS0BkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgVH3JMbZ/x7QKrTg8Hr5Zpk+ifLKoWwJoqp88A6SumRgzyYMcSr34gfSE/4q1g8T
-         j9PSM3o/AR+syVh8m0ZP9T9b3xFy7XUovWLvChKCl1q2/kWevFBIt5HCmASfl5buZB
-         Uk2ePH6ehQkWn5dM97KelB/7jfqL0XdG64/DdRxg=
+        b=SqN7r92VnkJoytOYPPxqZv6+SfQnXJf6L+MtUkf4tWIdczqZcQULIXRlRTq6xa2/i
+         EV4ly1tmIiJamrVB0CBKuc4V0tSxJEO93fW4H8Yd52uX1ZSRIVXHjy/UhjSwHh3mQN
+         10lMfk279zO/k4hWCzmxmOhsQEFJvAl07SKl93n0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/86] can: peak_usb: fix use after free bugs
+        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 32/58] irqchip/mips-cpu: Set IPI domain parent chip
 Date:   Mon, 25 Jan 2021 19:39:33 +0100
-Message-Id: <20210125183203.205554514@linuxfoundation.org>
+Message-Id: <20210125183158.082247482@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Mathias Kresin <dev@kresin.me>
 
-[ Upstream commit 50aca891d7a554db0901b245167cd653d73aaa71 ]
+commit 599b3063adf4bf041a87a69244ee36aded0d878f upstream.
 
-After calling peak_usb_netif_rx_ni(skb), dereferencing skb is unsafe.
-Especially, the can_frame cf which aliases skb memory is accessed
-after the peak_usb_netif_rx_ni().
+Since commit 55567976629e ("genirq/irqdomain: Allow partial trimming of
+irq_data hierarchy") the irq_data chain is valided.
 
-Reordering the lines solves the issue.
+The irq_domain_trim_hierarchy() function doesn't consider the irq + ipi
+domain hierarchy as valid, since the ipi domain has the irq domain set
+as parent, but the parent domain has no chip set. Hence the boot ends in
+a kernel panic.
 
-Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
-Link: https://lore.kernel.org/r/20210120114137.200019-4-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Set the chip for the parent domain as it is done in the mips gic irq
+driver, to have a valid irq_data chain.
+
+Fixes: 3838a547fda2 ("irqchip: mips-cpu: Introduce IPI IRQ domain support")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210107213603.1637781-1-dev@kresin.me
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/irqchip/irq-mips-cpu.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index dee3e689b54da..96bbdef672bc9 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -512,11 +512,11 @@ static int pcan_usb_fd_decode_canmsg(struct pcan_usb_fd_if *usb_if,
- 	else
- 		memcpy(cfd->data, rm->d, cfd->len);
+--- a/drivers/irqchip/irq-mips-cpu.c
++++ b/drivers/irqchip/irq-mips-cpu.c
+@@ -201,6 +201,13 @@ static int mips_cpu_ipi_alloc(struct irq
+ 		if (ret)
+ 			return ret;
  
--	peak_usb_netif_rx(skb, &usb_if->time_ref, le32_to_cpu(rm->ts_low));
--
- 	netdev->stats.rx_packets++;
- 	netdev->stats.rx_bytes += cfd->len;
- 
-+	peak_usb_netif_rx(skb, &usb_if->time_ref, le32_to_cpu(rm->ts_low));
++		ret = irq_domain_set_hwirq_and_chip(domain->parent, virq + i, hwirq,
++						    &mips_mt_cpu_irq_controller,
++						    NULL);
 +
- 	return 0;
- }
- 
-@@ -578,11 +578,11 @@ static int pcan_usb_fd_decode_status(struct pcan_usb_fd_if *usb_if,
- 	if (!skb)
- 		return -ENOMEM;
- 
--	peak_usb_netif_rx(skb, &usb_if->time_ref, le32_to_cpu(sm->ts_low));
--
- 	netdev->stats.rx_packets++;
- 	netdev->stats.rx_bytes += cf->can_dlc;
- 
-+	peak_usb_netif_rx(skb, &usb_if->time_ref, le32_to_cpu(sm->ts_low));
++		if (ret)
++			return ret;
 +
- 	return 0;
- }
- 
--- 
-2.27.0
-
+ 		ret = irq_set_irq_type(virq + i, IRQ_TYPE_LEVEL_HIGH);
+ 		if (ret)
+ 			return ret;
 
 
