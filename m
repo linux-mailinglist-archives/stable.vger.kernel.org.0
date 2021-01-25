@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC323304B55
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66D4F304B86
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbhAZErU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:47:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59494 "EHLO mail.kernel.org"
+        id S1725980AbhAZElX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:41:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729159AbhAYSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:43:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D33922D50;
-        Mon, 25 Jan 2021 18:43:38 +0000 (UTC)
+        id S1727088AbhAYSm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:42:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A495C20719;
+        Mon, 25 Jan 2021 18:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600219;
-        bh=PGuMs4WIllYlMcEsKh2EnKnF4jCyBPRhs34xat9Jk1g=;
+        s=korg; t=1611600089;
+        bh=JaIU3/pIKgCO1wlrX4supaU7123yKweSYk85zX5aXmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tw2/S0qJxDESqNTDHTeWqpU/EvtHmvF+Up7OjP99NFPjM02gqwDs8twrV2Nbkgymk
-         nxpYqzOc6rIeoaXZnyCzaIelteCabIVFP2Ypk/5oZKmT92TdgVy1YPe6uTPK5RJmPs
-         ej3hQb682Gxm5i+MC8+tXAgd0c3WOXTF9HjBe7mI=
+        b=QLHG2BzoXA4Kuv4EbCKDmdXRQjKUabNnFRVKM3gEH/+G8hUgEm0+H7fd4uhF2LkGG
+         9Gn1uXd+ytzLqXkbxiscil1Srn4njl/qVzo3j/MX2HaobgEPdBMqMfDArBXVKiquE2
+         +8IA3P/hqWUyngev74pD2xnFh30SzM0zr8mEtDa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/86] ASoC: Intel: haswell: Add missing pm_ops
-Date:   Mon, 25 Jan 2021 19:39:00 +0100
-Message-Id: <20210125183201.820157667@linuxfoundation.org>
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "Rafael J . Wysocki" <rafael@kernel.org>
+Subject: [PATCH 4.19 04/58] ACPI: scan: Make acpi_bus_get_device() clear return pointer on error
+Date:   Mon, 25 Jan 2021 19:39:05 +0100
+Message-Id: <20210125183156.891035876@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
-References: <20210125183201.024962206@linuxfoundation.org>
+In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
+References: <20210125183156.702907356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit bb224c3e3e41d940612d4cc9573289cdbd5cb8f5 ]
+commit 78a18fec5258c8df9435399a1ea022d73d3eceb9 upstream.
 
-haswell machine board is missing pm_ops what prevents it from undergoing
-suspend-resume procedure successfully. Assign default snd_soc_pm_ops so
-this is no longer the case.
+Set the acpi_device pointer which acpi_bus_get_device() returns-by-
+reference to NULL on errors.
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20201217105401.27865-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We've recently had 2 cases where callers of acpi_bus_get_device()
+did not properly error check the return value, so set the returned-
+by-reference acpi_device pointer to NULL, because at least some
+callers of acpi_bus_get_device() expect that to be done on errors.
+
+[ rjw: This issue was exposed by commit 71da201f38df ("ACPI: scan:
+  Defer enumeration of devices with _DEP lists") which caused it to
+  be much more likely to occur on some systems, but the real defect
+  had been introduced by an earlier commit. ]
+
+Fixes: 40e7fcb19293 ("ACPI: Add _DEP support to fix battery issue on Asus T100TA")
+Fixes: bcfcd409d4db ("usb: split code locating ACPI companion into port and device")
+Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Diagnosed-by: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: All applicable <stable@vger.kernel.org>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/intel/boards/haswell.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/scan.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
-index 3dadf9bff796a..cf47fd9cd506b 100644
---- a/sound/soc/intel/boards/haswell.c
-+++ b/sound/soc/intel/boards/haswell.c
-@@ -206,6 +206,7 @@ static struct platform_driver haswell_audio = {
- 	.probe = haswell_audio_probe,
- 	.driver = {
- 		.name = "haswell-audio",
-+		.pm = &snd_soc_pm_ops,
- 	},
- };
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -586,6 +586,8 @@ static int acpi_get_device_data(acpi_han
+ 	if (!device)
+ 		return -EINVAL;
  
--- 
-2.27.0
-
++	*device = NULL;
++
+ 	status = acpi_get_data_full(handle, acpi_scan_drop_device,
+ 				    (void **)device, callback);
+ 	if (ACPI_FAILURE(status) || !*device) {
 
 
