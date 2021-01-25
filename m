@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DFD53031B7
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BACE33031AE
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:20:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730633AbhAYStq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:49:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        id S1731153AbhAYSvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730810AbhAYSsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:48:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A565322482;
-        Mon, 25 Jan 2021 18:48:24 +0000 (UTC)
+        id S1730969AbhAYSvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:51:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5D9224BE;
+        Mon, 25 Jan 2021 18:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600505;
-        bh=7HR1EgVX0mj2UGYAr+8JnEuzf1ABQgq6VSSdswUwEbU=;
+        s=korg; t=1611600632;
+        bh=hMs1Enxi29RFmdXP40/oB+4f2xHXZetfroIgBXwOUt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcJy+KHqWXXEEOy7AIoKpS1/0aYM+R/cSJyWJ3cP9wfq96mrJhro5lQoEJw2/XqPz
-         LShcsJkHH67rzC2iKIZ+E3xn7chaXOvMGAvLCSecLusawaEdCvArvBZ9F5VdmrlW0E
-         KqjLS5tEhA/8qaGJkcrbc8SL5U0hhXFFl+d9WpO4=
+        b=lImcFUseqe0aa5j9EksDmo01vebxGjP0qIILmGK+sh3mCQ+DyVDOZYnMXNoK30Kir
+         /pUGjwbFW1xEDA+BSw6svE1oi8UwI+rg7JHpE2nn+yOxVZutuJpghcd6O6Pf0Mz79b
+         qXvlF0fX4eRtOMlIFliIXt3TdsnXmc9Ihry/7i1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/199] scsi: ufs: Relax the condition of UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
-Date:   Mon, 25 Jan 2021 19:37:43 +0100
-Message-Id: <20210125183217.981708976@linuxfoundation.org>
+Subject: [PATCH 5.10 060/199] riscv: defconfig: enable gpio support for HiFive Unleashed
+Date:   Mon, 25 Jan 2021 19:38:02 +0100
+Message-Id: <20210125183218.807945713@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,47 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-[ Upstream commit 21acf4601cc63cf564c6fc1a74d81b191313c929 ]
+[ Upstream commit 0983834a83931606a647c275e5d4165ce4e7b49f ]
 
-UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL is intended to skip enabling
-fWriteBoosterBufferFlushEn while WriteBooster is initializing.  Therefore
-it is better to apply the checking during WriteBooster initialization only.
+Ethernet phy VSC8541-01 on HiFive Unleashed has its reset line
+connected to a gpio, so enable GPIO driver's required to reset
+the phy.
 
-Link: https://lore.kernel.org/r/20201222072905.32221-3-stanley.chu@mediatek.com
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/riscv/configs/defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 7b9a9a771b11b..66430cb086245 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -283,7 +283,8 @@ static inline void ufshcd_wb_config(struct ufs_hba *hba)
- 	if (ret)
- 		dev_err(hba->dev, "%s: En WB flush during H8: failed: %d\n",
- 			__func__, ret);
--	ufshcd_wb_toggle_flush(hba, true);
-+	if (!(hba->quirks & UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL))
-+		ufshcd_wb_toggle_flush(hba, true);
- }
- 
- static void ufshcd_scsi_unblock_requests(struct ufs_hba *hba)
-@@ -5353,9 +5354,6 @@ static int ufshcd_wb_toggle_flush_during_h8(struct ufs_hba *hba, bool set)
- 
- static inline void ufshcd_wb_toggle_flush(struct ufs_hba *hba, bool enable)
- {
--	if (hba->quirks & UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL)
--		return;
--
- 	if (enable)
- 		ufshcd_wb_buf_flush_enable(hba);
- 	else
+diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
+index d222d353d86d4..8c3d1e4517031 100644
+--- a/arch/riscv/configs/defconfig
++++ b/arch/riscv/configs/defconfig
+@@ -64,6 +64,8 @@ CONFIG_HW_RANDOM=y
+ CONFIG_HW_RANDOM_VIRTIO=y
+ CONFIG_SPI=y
+ CONFIG_SPI_SIFIVE=y
++CONFIG_GPIOLIB=y
++CONFIG_GPIO_SIFIVE=y
+ # CONFIG_PTP_1588_CLOCK is not set
+ CONFIG_POWER_RESET=y
+ CONFIG_DRM=y
 -- 
 2.27.0
 
