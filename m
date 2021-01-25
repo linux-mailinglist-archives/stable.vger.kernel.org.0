@@ -2,56 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E696D304B90
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:30:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E7A304B87
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726363AbhAZEik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:38:40 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:56071 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729248AbhAYOKj (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 25 Jan 2021 09:10:39 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id A5C07E1D;
-        Mon, 25 Jan 2021 09:09:48 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Mon, 25 Jan 2021 09:09:49 -0500
+        id S1726861AbhAZEj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:39:29 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50547 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729615AbhAYOmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:42:24 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5547E19538CC;
+        Mon, 25 Jan 2021 09:14:53 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:14:53 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZoLVCC
-        33einsGjLWBX7nHwrBWlXuPbt+DCcHg7qJyQw=; b=oNY4SoRJlOKCyzWOgiTuLC
-        R0T5/uX5KxXN13uF6hhpPWAm354c/yeX1Ef7E0PSH5NRszRWxyciCviAv56Bxqn4
-        WYi0v2RZmJfKgpXip42/FQIgyIw2NS5Aq2at1iuZ8uBe7Qe6slkfbYuhqpE4mKY1
-        xNxcKYBgrZIDNpsw8DDpADmQq80ulq0qKyHY8ZGzjZgf7nEKgK69Vq3Yb0gqcQAP
-        43/Dp0+1PbGNq+klDaEXNaPtWD3DVHQQf3vDA4FnsNGdObYrtupipG1mEhb2vqsY
-        lDc37idqO5CdJpRbHp2sOKY20cPsNz1/WXpyoy5kVlc59AF/k8K9qrVG7MkTTQoA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PBFj+X
+        nVQ4v2N1jfRlqc1xg+ebE4dLTVPbsp5toR2eI=; b=raJL2kIkM29xbrm78SQ4T9
+        YJwcJTHtezyTG95VnLB9oY5Rt5cgoHVSemvVtwXrbpItFhCCvVZPDLxa587w/V2C
+        fafS2sdgVKX07tyuhvTpCbSKjFUa5bn0rtrd1i3+FcxgpiapbmoWdlYTEGtDfmOk
+        66Rz1SSd60cR3Tw7JYfPdwJ8OJqQQHtcOeSBq9pn1zZ6jcY940O8bcnYjeRhNTlU
+        NzlRZ09oPJn3XjASyLiN/4QHfD28idhs4rZ6oWEiAOWZtzZ3iduRcd9G3FBD8iCX
+        RlQ+X9U8rVzf5qImFWVrgnslwxAICXKHYiCE8xJKWbmWdkTI7FAIDuK4dNYrKvqA
         ==
-X-ME-Sender: <xms:K9EOYMLwN-4BIqnXsECqV1381mNIzzCr3ZGsqvRtVKEKKd_B9dxDWQ>
-    <xme:K9EOYMFPbUcM6TpBfEvrq-_QubC-RCr8HCj8wFh-0byi8OPmUBf11dSt0Aol51z19
-    6C-kkCknlAnRw>
+X-ME-Sender: <xms:W9IOYEvEJ-44zBkxwS6JEfH09sY32QMmtgNLbPoNdwc7xHM7dB5oVA>
+    <xme:W9IOYBcSZGgRe3368jYrRSwyBVg4-l1AwogfhwnQHHCFPfgzN0qOLkum2mnrcPpxQ
+    sh16XFbxagHSQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:K9EOYJlQQyRlRxfA9LT9D3ndYfor7Gej5iHcvDsD5CK5oZWx7p9www>
-    <xmx:K9EOYBK0yacW5z6rCkALMQdU17fBlBoF5eDXnHm3dYf6f5ZZHp16wg>
-    <xmx:K9EOYCbhQFTo5yhR-gccFIW70c8AEIrgGEB4O76umGDbkZx_7yRsMQ>
-    <xmx:LNEOYOWZLqrfnM1wYcoQ1wArtCBZPCcD6i3PggYNjKbOTsue8ERvI1zeXvs>
+    uegrihhlohhuthemuceftddtnecufghrlhcuvffnffculdeimdenucfjughrpefuvffhff
+    fkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhu
+    nhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetge
+    dugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgv
+    lhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpe
+    dvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:W9IOYPy1cPFjNXsFhVuZ0EMr95-cwlv4BVKCBDDnoF4g2oOqSAnFIw>
+    <xmx:W9IOYHNQsaEjBiQ53qXR9n1SIvZyJ4eH6l3J2DEx1pO0Ri7afRWOIQ>
+    <xmx:W9IOYE9XDkcQFSAx9fXt5vIxqNvFEQIRldSf6zkwk1mQMg-jdF9_Ag>
+    <xmx:XdIOYEzSCoVmBfK-B08WvyuPnpJuUXjZqiiuGv-pUZ7NQNHjoHBnGw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 371011080063;
-        Mon, 25 Jan 2021 09:09:47 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: common: st_sensors: fix possible infinite loop in" failed to apply to 5.4-stable tree
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, jic23@kernel.org, linus.walleij@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D4E2A240062;
+        Mon, 25 Jan 2021 09:14:50 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm: fix page reference leak in soft_offline_page()" failed to apply to 5.10-stable tree
+To:     dan.j.williams@intel.com, akpm@linux-foundation.org, cai@lca.pw,
+        david@redhat.com, mhocko@suse.com, naoya.horiguchi@nec.com,
+        osalvador@suse.de, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:09:44 +0100
-Message-ID: <161158378469210@kroah.com>
+Date:   Mon, 25 Jan 2021 15:14:49 +0100
+Message-ID: <16115840891069@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,96 +73,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 40c48fb79b9798954691f24b8ece1d3a7eb1b353 Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Tue, 8 Dec 2020 15:36:40 +0100
-Subject: [PATCH] iio: common: st_sensors: fix possible infinite loop in
- st_sensors_irq_thread
+From dad4e5b390866ca902653df0daa864ae4b8d4147 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Sat, 23 Jan 2021 21:01:52 -0800
+Subject: [PATCH] mm: fix page reference leak in soft_offline_page()
 
-Return a boolean value in st_sensors_new_samples_available routine in
-order to avoid an infinite loop in st_sensors_irq_thread if
-stat_drdy.addr is not defined or stat_drdy read fails
+The conversion to move pfn_to_online_page() internal to
+soft_offline_page() missed that the get_user_pages() reference taken by
+the madvise() path needs to be dropped when pfn_to_online_page() fails.
 
-Fixes: 90efe05562921 ("iio: st_sensors: harden interrupt handling")
-Reported-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/c9ec69ed349e7200c779fd7a5bf04c1aaa2817aa.1607438132.git.lorenzo@kernel.org
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Note the direct sysfs-path to soft_offline_page() does not perform a
+get_user_pages() lookup.
 
-diff --git a/drivers/iio/common/st_sensors/st_sensors_trigger.c b/drivers/iio/common/st_sensors/st_sensors_trigger.c
-index 0507283bd4c1..2dbd2646e44e 100644
---- a/drivers/iio/common/st_sensors/st_sensors_trigger.c
-+++ b/drivers/iio/common/st_sensors/st_sensors_trigger.c
-@@ -23,35 +23,31 @@
-  * @sdata: Sensor data.
-  *
-  * returns:
-- * 0 - no new samples available
-- * 1 - new samples available
-- * negative - error or unknown
-+ * false - no new samples available or read error
-+ * true - new samples available
-  */
--static int st_sensors_new_samples_available(struct iio_dev *indio_dev,
--					    struct st_sensor_data *sdata)
-+static bool st_sensors_new_samples_available(struct iio_dev *indio_dev,
-+					     struct st_sensor_data *sdata)
- {
- 	int ret, status;
- 
- 	/* How would I know if I can't check it? */
- 	if (!sdata->sensor_settings->drdy_irq.stat_drdy.addr)
--		return -EINVAL;
-+		return true;
- 
- 	/* No scan mask, no interrupt */
- 	if (!indio_dev->active_scan_mask)
--		return 0;
-+		return false;
- 
- 	ret = regmap_read(sdata->regmap,
- 			  sdata->sensor_settings->drdy_irq.stat_drdy.addr,
- 			  &status);
- 	if (ret < 0) {
- 		dev_err(sdata->dev, "error checking samples available\n");
--		return ret;
-+		return false;
- 	}
- 
--	if (status & sdata->sensor_settings->drdy_irq.stat_drdy.mask)
--		return 1;
--
--	return 0;
-+	return !!(status & sdata->sensor_settings->drdy_irq.stat_drdy.mask);
+When soft_offline_page() is handed a pfn_valid() && !pfn_to_online_page()
+pfn the kernel hangs at dax-device shutdown due to a leaked reference.
+
+Link: https://lkml.kernel.org/r/161058501210.1840162.8108917599181157327.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 04d9f154a130..e9481632fcd1 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct page *page)
+ 	return rc;
  }
  
++static void put_ref_page(struct page *page)
++{
++	if (page)
++		put_page(page);
++}
++
  /**
-@@ -180,9 +176,15 @@ int st_sensors_allocate_trigger(struct iio_dev *indio_dev,
+  * soft_offline_page - Soft offline a page.
+  * @pfn: pfn to soft-offline
+@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct page *page)
+ int soft_offline_page(unsigned long pfn, int flags)
+ {
+ 	int ret;
+-	struct page *page;
+ 	bool try_again = true;
++	struct page *page, *ref_page = NULL;
++
++	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
  
- 	/* Tell the interrupt handler that we're dealing with edges */
- 	if (irq_trig == IRQF_TRIGGER_FALLING ||
--	    irq_trig == IRQF_TRIGGER_RISING)
-+	    irq_trig == IRQF_TRIGGER_RISING) {
-+		if (!sdata->sensor_settings->drdy_irq.stat_drdy.addr) {
-+			dev_err(&indio_dev->dev,
-+				"edge IRQ not supported w/o stat register.\n");
-+			err = -EOPNOTSUPP;
-+			goto iio_trigger_free;
-+		}
- 		sdata->edge_irq = true;
--	else
-+	} else {
- 		/*
- 		 * If we're not using edges (i.e. level interrupts) we
- 		 * just mask off the IRQ, handle one interrupt, then
-@@ -190,6 +192,7 @@ int st_sensors_allocate_trigger(struct iio_dev *indio_dev,
- 		 * interrupt handler top half again and start over.
- 		 */
- 		irq_trig |= IRQF_ONESHOT;
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	if (flags & MF_COUNT_INCREASED)
++		ref_page = pfn_to_page(pfn);
++
+ 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
+ 	page = pfn_to_online_page(pfn);
+-	if (!page)
++	if (!page) {
++		put_ref_page(ref_page);
+ 		return -EIO;
 +	}
  
- 	/*
- 	 * If the interrupt pin is Open Drain, by definition this
+ 	if (PageHWPoison(page)) {
+ 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
+-		if (flags & MF_COUNT_INCREASED)
+-			put_page(page);
++		put_ref_page(ref_page);
+ 		return 0;
+ 	}
+ 
 
