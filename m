@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5E0304B50
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC323304B55
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727758AbhAZErj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59170 "EHLO mail.kernel.org"
+        id S1727683AbhAZErU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:47:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729215AbhAYSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729159AbhAYSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:43:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E463206FA;
-        Mon, 25 Jan 2021 18:43:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D33922D50;
+        Mon, 25 Jan 2021 18:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600214;
-        bh=NalgFaZxeCG4MOFTWsJoR7g3pn9r0ZIB6BPUDqTqA8I=;
+        s=korg; t=1611600219;
+        bh=PGuMs4WIllYlMcEsKh2EnKnF4jCyBPRhs34xat9Jk1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJFktSacsAkhJ6xfrOaVYoOzA4H8vib+raC+gsUC2UQ266j40eRhLKvCMqHHL0xvW
-         4cZ7JtQ6mwEZSYhuBj4k4ONHEjjc9gkRDZQrXXdDAIfuxXRq28nxYU7fjKxythUY6a
-         +edD3yN4kyRgRTxi/Z8BdaYsSFB0nYTvhS1mXWI8=
+        b=Tw2/S0qJxDESqNTDHTeWqpU/EvtHmvF+Up7OjP99NFPjM02gqwDs8twrV2Nbkgymk
+         nxpYqzOc6rIeoaXZnyCzaIelteCabIVFP2Ypk/5oZKmT92TdgVy1YPe6uTPK5RJmPs
+         ej3hQb682Gxm5i+MC8+tXAgd0c3WOXTF9HjBe7mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.4 16/86] drm/syncobj: Fix use-after-free
-Date:   Mon, 25 Jan 2021 19:38:58 +0100
-Message-Id: <20210125183201.728770789@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 18/86] ASoC: Intel: haswell: Add missing pm_ops
+Date:   Mon, 25 Jan 2021 19:39:00 +0100
+Message-Id: <20210125183201.820157667@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -46,69 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-commit a37eef63bc9e16e06361b539e528058146af80ab upstream.
+[ Upstream commit bb224c3e3e41d940612d4cc9573289cdbd5cb8f5 ]
 
-While reviewing Christian's annotation patch I noticed that we have a
-user-after-free for the WAIT_FOR_SUBMIT case: We drop the syncobj
-reference before we've completed the waiting.
+haswell machine board is missing pm_ops what prevents it from undergoing
+suspend-resume procedure successfully. Assign default snd_soc_pm_ops so
+this is no longer the case.
 
-Of course usually there's nothing bad happening here since userspace
-keeps the reference, but we can't rely on userspace to play nice here!
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Fixes: bc9c80fe01a2 ("drm/syncobj: use the timeline point in drm_syncobj_find_fence v4")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.2+
-Link: https://patchwork.freedesktop.org/patch/msgid/20210119130318.615145-1-daniel.vetter@ffwll.ch
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20201217105401.27865-1-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_syncobj.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/haswell.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/drm_syncobj.c
-+++ b/drivers/gpu/drm/drm_syncobj.c
-@@ -326,19 +326,18 @@ int drm_syncobj_find_fence(struct drm_fi
- 		return -ENOENT;
+diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
+index 3dadf9bff796a..cf47fd9cd506b 100644
+--- a/sound/soc/intel/boards/haswell.c
++++ b/sound/soc/intel/boards/haswell.c
+@@ -206,6 +206,7 @@ static struct platform_driver haswell_audio = {
+ 	.probe = haswell_audio_probe,
+ 	.driver = {
+ 		.name = "haswell-audio",
++		.pm = &snd_soc_pm_ops,
+ 	},
+ };
  
- 	*fence = drm_syncobj_fence_get(syncobj);
--	drm_syncobj_put(syncobj);
- 
- 	if (*fence) {
- 		ret = dma_fence_chain_find_seqno(fence, point);
- 		if (!ret)
--			return 0;
-+			goto out;
- 		dma_fence_put(*fence);
- 	} else {
- 		ret = -EINVAL;
- 	}
- 
- 	if (!(flags & DRM_SYNCOBJ_WAIT_FLAGS_WAIT_FOR_SUBMIT))
--		return ret;
-+		goto out;
- 
- 	memset(&wait, 0, sizeof(wait));
- 	wait.task = current;
-@@ -370,6 +369,9 @@ int drm_syncobj_find_fence(struct drm_fi
- 	if (wait.node.next)
- 		drm_syncobj_remove_wait(syncobj, &wait);
- 
-+out:
-+	drm_syncobj_put(syncobj);
-+
- 	return ret;
- }
- EXPORT_SYMBOL(drm_syncobj_find_fence);
+-- 
+2.27.0
+
 
 
