@@ -2,71 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B54D3030A2
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 00:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9665E303132
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 02:29:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732072AbhAYXzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 18:55:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732084AbhAYXzb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 18:55:31 -0500
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A6A0C061573
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 15:54:51 -0800 (PST)
-Received: by mail-yb1-xb2c.google.com with SMTP id e206so2789180ybh.13
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 15:54:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=Aq4jx6ZJmmJrk4vcQ+XOoF5zsi6P3HFOE3fFsbhbQZk=;
-        b=UxhpO19ZFbPLPmMQlGF62AcWhw5CfgPb42mVAx8iWKzu1Jm6xT3FALo7OBkA8Vr98O
-         3UxSoK/tX7Jgepn0HFfpR8DZ+YAim+s7MyzBtC0wXneRzUpnh6g/37K6Pn3I9+wINJmj
-         nJItTzKcgkE1GaunE/q7zYitsV+b/l/RGe6hZ0Sk3IU7wVyAVNAtov/xqtM0UcdIsxVk
-         VQ75SjvG3pdwyqILbGLcpHk66X6jc9Ha1r0Z0l8uDEOsBTtoL7rQG0dIrz5X2s/v8ItA
-         W+zpAgrwcJZXQbkJoy7teec5yfUZiaUCK7neSwTdSgVbu5bADjKJwwZFUG63Uyb/J5fj
-         7XtA==
+        id S1729838AbhAZBZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 20:25:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34718 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731954AbhAYTgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 14:36:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611603314;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dTm8KkWeoMqY1NMXfpUUnmE85GAUqbldlznQCf84YPQ=;
+        b=jH6cjFDnR5yjw4bZ2jgJ3PuqzE12+wiqjX1yfFu44FGp+iMoUvXcT2bQSMWYTlI3fBqA97
+        qmU8Pzi8WgAU9Xppo6ZzEvbccZwlyK+GItzvVjLOTItGu9O40fHTCfI8AKZdqEpA37YYpp
+        mFZK4eLY1clcF3NwYNHvhtHjzeP6EvM=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-251-ccvSwajPPNishiuziUzGfA-1; Mon, 25 Jan 2021 14:35:11 -0500
+X-MC-Unique: ccvSwajPPNishiuziUzGfA-1
+Received: by mail-ed1-f70.google.com with SMTP id f4so8081482eds.5
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 11:35:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=Aq4jx6ZJmmJrk4vcQ+XOoF5zsi6P3HFOE3fFsbhbQZk=;
-        b=eFRHGJChYGlz44bct34ytkSguS7w6Fi4xBZe8c0rgz7g7phKktQ6hw/XXS4L1wt48O
-         bjVoKXS5lcVpPgNv43Vp9CZrlYz8NgehzglrzLOcYu6gRWe7cH79yCxScUuhJPk2j9GO
-         QlvDvnT0+KVpeEZhXVm7arq74YG4pt+GJLnBmGwnW6qYTx9Bjdr8jRYlUQ655hm6SCUW
-         mEPBr4qXrnm+f3hn5UhS3iCny8F/mVRUrUa3ogfoY9TSWGyTaaEYLjzpaZuVJeUz+PqE
-         zXW31RxObLXL3oBoQycy/ba+WOvsby7Ii0OMDbQvncW0vrx1cVyIzEPmyJU8q18FWrQ2
-         9nmA==
-X-Gm-Message-State: AOAM532Yf11kn0abT7eSyTzxb64VVQs5lI/lnggZgcsu3/I21VRNGm0P
-        Ih68voiNgWWRM2hy1adKFI9C5CC6KvbYkZ+vBKBWgLV3QnmnBg==
-X-Google-Smtp-Source: ABdhPJzEyy2ZxPlQ2MU+C0j6RmpEM+SOTRNkPBbpEfF9yIp1V1UpCx9xf9ztYf+mZ+/ka6gIEO9UGy6FDCt+KSof6ng=
-X-Received: by 2002:a25:2802:: with SMTP id o2mr4178708ybo.351.1611618890069;
- Mon, 25 Jan 2021 15:54:50 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dTm8KkWeoMqY1NMXfpUUnmE85GAUqbldlznQCf84YPQ=;
+        b=fvcwbLjXdUfIrJWqXBN74Dgf3X84CGiZ5Zf3W0R01UfC4Lt7KovWzHaZoLtATzr1nM
+         0W4Uwp0Og5GREQPLkwIhJVI9umRF8TzGNmqUA4d3e9Paa+FX9BVff1kh5AD+o6g2hBmt
+         YSIogv31ht+dB6TqhFeuOato6wiZ8de0Md9XgeNJLajMt7GWqema7+c4pdB4JHae7g2w
+         xiIBwjJW4EpXEjy3uWUhnsfbIVt9vqWhk3RSPd6Xe1TLSNortrnds3QTQbJnbCzcya55
+         cqPdDy66v+1CpwLOuw8Uu6kEYlBFafwg6yD+KQjCWlRCI8QFHfIVbHD+jJ9zqz4OV6zy
+         oksg==
+X-Gm-Message-State: AOAM530gExutzsWtsKbnSJr59L62Dd6BY4mu/ueuU4BMpdjGIJbIJMLU
+        fIRuWsCDyWshCrNjRTyCxgOTPOnDUdT8s8OqEcLrQ4B2tQ+cP/FMKG1bfSjtV+li166GgQibFug
+        4WhxbcllVnsBgLvVO9MQzYfowuUyCaTlN8pBG580JRdTycBpd5qN3eizBlZMYQ1XK64UE
+X-Received: by 2002:a50:d552:: with SMTP id f18mr1800615edj.168.1611603310339;
+        Mon, 25 Jan 2021 11:35:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx7yvA/3vdrnGvBeOjexbw/4ggd4FoC4n3YqRVtQrKPUDJ+85s+hGxVzZmzSbJD4J9B2D/1Nw==
+X-Received: by 2002:a50:d552:: with SMTP id f18mr1800600edj.168.1611603310149;
+        Mon, 25 Jan 2021 11:35:10 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id cx6sm11511897edb.53.2021.01.25.11.35.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Jan 2021 11:35:09 -0800 (PST)
+Subject: Re: [PATCH] KVM: x86: allow KVM_REQ_GET_NESTED_STATE_PAGES outside
+ guest mode for VMX
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210125172044.1360661-1-pbonzini@redhat.com>
+ <YA8ZHrh9ca0lPJgk@google.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <0b90c11b-0dce-60f3-c98d-3441b418e771@redhat.com>
+Date:   Mon, 25 Jan 2021 20:35:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-From:   Alistair Delva <adelva@google.com>
-Date:   Mon, 25 Jan 2021 15:54:39 -0800
-Message-ID: <CANDihLGoyJcOc6svbBJg+Esg44waexk6Jjn0HzLZqs7XYoEYGQ@mail.gmail.com>
-Subject: c8a950d0d3b9 to 5.10, 5.4 and 4.19
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        jean-philippe@linaro.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <YA8ZHrh9ca0lPJgk@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable maintainers,
+On 25/01/21 20:16, Sean Christopherson wrote:
+>>   }
+>>   
+>> +static bool vmx_get_nested_state_pages(struct kvm_vcpu *vcpu)
+>> +{
+>> +	if (!nested_get_evmcs_page(vcpu))
+>> +		return false;
+>> +
+>> +	if (is_guest_mode(vcpu) && !nested_get_vmcs12_pages(vcpu))
+>> +		return false;
+> nested_get_evmcs_page() will get called twice in the common case of
+> is_guest_mode() == true.  I can't tell if that will ever be fatal, but it's
+> definitely weird.  Maybe this?
+> 
+> 	if (!is_guest_mode(vcpu))
+> 		return nested_get_evmcs_page(vcpu);
+> 
+> 	return nested_get_vmcs12_pages(vcpu);
+> 
 
-Please consider cherry-picking c8a950d0d3b9 ("tools: Factor HOSTCC,
-HOSTLD, HOSTAR definitions") to 5.10, 5.4 and 4.19. It fixes a problem
-where the host tools set by the user could be ignored for
-'prepare-objtool', and is needed on x86 to enable the ORC unwinder,
-dynamic ftrace, etc. with LLVM=1 and a 'hermetic' toolchain
-environment.
+I wouldn't say there is a common case; however the idea was to remove 
+the call to nested_get_evmcs_page from nested_get_vmcs12_pages, since 
+that one is only needed after KVM_GET_NESTED_STATE and not during 
+VMLAUNCH/VMRESUME.
 
-On 5.10.10 it cherry-picks cleanly. On 5.4.92 and 4.19.170 it
-cherry-picks cleanly, besides 'tools/bpf/resolve_btfids/Makefile'
-which was introduced after 5.8-rc2. (This file can be ignored.)
+Paolo
 
-Thanks!
