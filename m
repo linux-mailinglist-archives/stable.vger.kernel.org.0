@@ -2,119 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944753031D5
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C43303279
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 04:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727379AbhAYSmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:42:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
+        id S1727327AbhAYKJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 05:09:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727145AbhAYSm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:42:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D62320665;
-        Mon, 25 Jan 2021 18:41:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600084;
-        bh=LzI0L2NqO0MGnBms4BkXDnOE6izfjAqWGxoMyYwO2d4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHsHyJW3oksGY9eTbM3Y3NOGpSLd4Wk8z8qugDagZLgZyD+zH0MIqMAc24ZIEPyPC
-         LF6AJep1qDK/VzxmZgSLEuJ8yLiEvfoHxmguyrJ66kpXyyGR4FVRyBVqFJ+Kfb8CRE
-         DM2QiX6VfyNvFF8PQUO5kJ9+3JdAHPnHrQ6Ly+uY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Oester <kernel@linuxace.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/58] scsi: megaraid_sas: Fix MEGASAS_IOC_FIRMWARE regression
-Date:   Mon, 25 Jan 2021 19:39:25 +0100
-Message-Id: <20210125183157.736898314@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
-References: <20210125183156.702907356@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727294AbhAYKIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 05:08:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA15206CA;
+        Mon, 25 Jan 2021 10:05:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611569143;
+        bh=MCTa+q6iPkQHIalIYo2lmB7dFC4VnbP/EmWCBTj00N4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=b6OyhQ0gIN3pHAzEO7RpzrxN0PBbk+GjjcKXJe+76uDL3Lscc8xlNLjkqJst7GvgZ
+         gEqFpXK8Mr+MXXILuasEx2doE+g6olEYwz9/h54ppRGvvsfzUd/uDXPYm7pHpiZaAZ
+         X/KG/L+kIe/FqD39ZKbjbXdke/IrVgJf7p7VTa9Z6fURd0cO8d8I6a+eySrGempOSR
+         0FBEXXgx2mq+kp3Q5O4BvXOEklMMj4USYkKL3q6rxI0phT/x06mHU4jaKilZ1qiEOq
+         JGlzvCX5PFzl6WES/GYHmE+ATmDiwFeDTQ2p2z5UVYuZjFmrOoCLcFORvcv23XEvlx
+         m1zoVhzbYwxfg==
+Received: by pali.im (Postfix)
+        id 18D8F768; Mon, 25 Jan 2021 11:05:41 +0100 (CET)
+Date:   Mon, 25 Jan 2021 11:05:40 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Thomas Hebb <tommyhebb@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bob Hepple <bob.hepple@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
+Subject: Re: [PATCH] hwmon: (dell-smm) Add XPS 15 L502X to fan control
+ blacklist
+Message-ID: <20210125100540.55wbgdsem3htplx3@pali>
+References: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Saturday 23 January 2021 18:46:08 Thomas Hebb wrote:
+> It has been reported[0] that the Dell XPS 15 L502X exhibits similar
+> freezing behavior to the other systems[1] on this blacklist. The issue
+> was exposed by a prior change of mine to automatically load
+> dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
+> this model to the blacklist.
+> 
+> [0] https://bugzilla.kernel.org/show_bug.cgi?id=211081
+> [1] https://bugzilla.kernel.org/show_bug.cgi?id=195751
+> 
+> Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS models")
+> Cc: stable@vger.kernel.org
+> Reported-by: Bob Hepple <bob.hepple@gmail.com>
+> Tested-by: Bob Hepple <bob.hepple@gmail.com>
+> Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+> ---
+> 
+>  drivers/hwmon/dell-smm-hwmon.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
+> index ec448f5f2dc3..73b9db9e3aab 100644
+> --- a/drivers/hwmon/dell-smm-hwmon.c
+> +++ b/drivers/hwmon/dell-smm-hwmon.c
+> @@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
+>  			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
+>  		},
+>  	},
+> +	{
+> +		.ident = "Dell XPS 15 L502X",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
 
-[ Upstream commit b112036535eda34460677ea883eaecc3a45a435d ]
+Hello! Are you sure that it is required to completely disable fan
+support? And not only access to fan type label for which is different
+blaclist i8k_blacklist_fan_type_dmi_table?
 
-Phil Oester reported that a fix for a possible buffer overrun that I sent
-caused a regression that manifests in this output:
+And have you reported this issue to Dell support?
 
- Event Message: A PCI parity error was detected on a component at bus 0 device 5 function 0.
- Severity: Critical
- Message ID: PCI1308
-
-The original code tried to handle the sense data pointer differently when
-using 32-bit 64-bit DMA addressing, which would lead to a 32-bit dma_addr_t
-value of 0x11223344 to get stored
-
-32-bit kernel:       44 33 22 11 ?? ?? ?? ??
-64-bit LE kernel:    44 33 22 11 00 00 00 00
-64-bit BE kernel:    00 00 00 00 44 33 22 11
-
-or a 64-bit dma_addr_t value of 0x1122334455667788 to get stored as
-
-32-bit kernel:       88 77 66 55 ?? ?? ?? ??
-64-bit kernel:       88 77 66 55 44 33 22 11
-
-In my patch, I tried to ensure that the same value is used on both 32-bit
-and 64-bit kernels, and picked what seemed to be the most sensible
-combination, storing 32-bit addresses in the first four bytes (as 32-bit
-kernels already did), and 64-bit addresses in eight consecutive bytes (as
-64-bit kernels already did), but evidently this was incorrect.
-
-Always storing the dma_addr_t pointer as 64-bit little-endian,
-i.e. initializing the second four bytes to zero in case of 32-bit
-addressing, apparently solved the problem for Phil, and is consistent with
-what all 64-bit little-endian machines did before.
-
-I also checked in the history that in previous versions of the code, the
-pointer was always in the first four bytes without padding, and that
-previous attempts to fix 64-bit user space, big-endian architectures and
-64-bit DMA were clearly flawed and seem to have introduced made this worse.
-
-Link: https://lore.kernel.org/r/20210104234137.438275-1-arnd@kernel.org
-Fixes: 381d34e376e3 ("scsi: megaraid_sas: Check user-provided offsets")
-Fixes: 107a60dd71b5 ("scsi: megaraid_sas: Add support for 64bit consistent DMA")
-Fixes: 94cd65ddf4d7 ("[SCSI] megaraid_sas: addded support for big endian architecture")
-Fixes: 7b2519afa1ab ("[SCSI] megaraid_sas: fix 64 bit sense pointer truncation")
-Reported-by: Phil Oester <kernel@linuxace.com>
-Tested-by: Phil Oester <kernel@linuxace.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/megaraid/megaraid_sas_base.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 83d25ee88f028..8877a21102f1d 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -7323,11 +7323,9 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
- 			goto out;
- 		}
- 
-+		/* always store 64 bits regardless of addressing */
- 		sense_ptr = (void *)cmd->frame + ioc->sense_off;
--		if (instance->consistent_mask_64bit)
--			put_unaligned_le64(sense_handle, sense_ptr);
--		else
--			put_unaligned_le32(sense_handle, sense_ptr);
-+		put_unaligned_le64(sense_handle, sense_ptr);
- 	}
- 
- 	/*
--- 
-2.27.0
-
-
-
+> +		},
+> +	},
+>  	{ }
+>  };
+>  
+> -- 
+> 2.30.0
+> 
