@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9D6303391
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4F3303397
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:00:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730092AbhAZE6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:58:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S1730444AbhAZE7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:59:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727212AbhAYSuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9712067B;
-        Mon, 25 Jan 2021 18:49:48 +0000 (UTC)
+        id S1731104AbhAYSuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 826E8207B3;
+        Mon, 25 Jan 2021 18:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600589;
-        bh=p1zvHNvX4mBTOFr0HwcT/Szj2x4F0eoll/67TJiUa4s=;
+        s=korg; t=1611600597;
+        bh=5jnrlHnylrYAHa/akBJ9ZvTWQzQ1pKGPovbDQaIXsEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QRLTk4rlRgWE5pyJYliEqfNatALrSdrmBVaak1Dzy8UY8WX2xfdMIxYV/aEaakEz
-         4Dl+zvr6cc8sro1pls9M2XDYZ/V6Dl3OSbkRaLm4bmT4bzSNoBXrpXensx4MyXRtl1
-         cpd2b4Yq+i1y5GGI2G7OOzhGroaClO88ZGXGIbxo=
+        b=vXs4UgRZIse6ahGcpZ/5DeJepQ/gUk2HbV/SID/YNg+2r26rmsF02W67ALZb2o5aa
+         NeNEYr9OlKzh6rW4TgLq0d26aY6G7794CvFDFwl+swZBZFYFPO3N4cfZqE1mo4c8w9
+         IsjuG3N/S6f1Q35oum5Djgu3eg61gvRyR8brIvh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
-        Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/199] RISC-V: Fix maximum allowed phsyical memory for RV32
-Date:   Mon, 25 Jan 2021 19:38:16 +0100
-Message-Id: <20210125183219.391097351@linuxfoundation.org>
+Subject: [PATCH 5.10 076/199] nfsd: Fixes for nfsd4_encode_read_plus_data()
+Date:   Mon, 25 Jan 2021 19:38:18 +0100
+Message-Id: <20210125183219.474286489@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,51 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit e557793799c5a8406afb08aa170509619f7eac36 ]
+[ Upstream commit 72d78717c6d06adf65d2e3dccc96d9e9dc978593 ]
 
-Linux kernel can only map 1GB of address space for RV32 as the page offset
-is set to 0xC0000000. The current description in the Kconfig is confusing
-as it indicates that RV32 can support 2GB of physical memory. That is
-simply not true for current kernel. In future, a 2GB split support can be
-added to allow 2GB physical address space.
+Ensure that we encode the data payload + padding, and that we truncate
+the preallocated buffer to the actual read size.
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: 528b84934eb9 ("NFSD: Add READ_PLUS data support")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfsd/nfs4xdr.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 44377fd7860e4..234a21d26f674 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -134,7 +134,7 @@ config PA_BITS
+diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
+index 833a2c64dfe80..26f6e277101de 100644
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -4632,6 +4632,7 @@ nfsd4_encode_read_plus_data(struct nfsd4_compoundres *resp,
+ 			    resp->rqstp->rq_vec, read->rd_vlen, maxcount, eof);
+ 	if (nfserr)
+ 		return nfserr;
++	xdr_truncate_encode(xdr, starting_len + 16 + xdr_align_size(*maxcount));
  
- config PAGE_OFFSET
- 	hex
--	default 0xC0000000 if 32BIT && MAXPHYSMEM_2GB
-+	default 0xC0000000 if 32BIT && MAXPHYSMEM_1GB
- 	default 0x80000000 if 64BIT && !MMU
- 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
- 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
-@@ -247,10 +247,12 @@ config MODULE_SECTIONS
+ 	tmp = htonl(NFS4_CONTENT_DATA);
+ 	write_bytes_to_xdr_buf(xdr->buf, starting_len,      &tmp,   4);
+@@ -4639,6 +4640,10 @@ nfsd4_encode_read_plus_data(struct nfsd4_compoundres *resp,
+ 	write_bytes_to_xdr_buf(xdr->buf, starting_len + 4,  &tmp64, 8);
+ 	tmp = htonl(*maxcount);
+ 	write_bytes_to_xdr_buf(xdr->buf, starting_len + 12, &tmp,   4);
++
++	tmp = xdr_zero;
++	write_bytes_to_xdr_buf(xdr->buf, starting_len + 16 + *maxcount, &tmp,
++			       xdr_pad_size(*maxcount));
+ 	return nfs_ok;
+ }
  
- choice
- 	prompt "Maximum Physical Memory"
--	default MAXPHYSMEM_2GB if 32BIT
-+	default MAXPHYSMEM_1GB if 32BIT
- 	default MAXPHYSMEM_2GB if 64BIT && CMODEL_MEDLOW
- 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
- 
-+	config MAXPHYSMEM_1GB
-+		bool "1GiB"
- 	config MAXPHYSMEM_2GB
- 		bool "2GiB"
- 	config MAXPHYSMEM_128GB
 -- 
 2.27.0
 
