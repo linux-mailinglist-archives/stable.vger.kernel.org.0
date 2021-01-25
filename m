@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 106C03031D6
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 944753031D5
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 03:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726904AbhAYSmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 13:42:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58162 "EHLO mail.kernel.org"
+        id S1727379AbhAYSmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 13:42:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbhAYSmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:42:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC955224B8;
-        Mon, 25 Jan 2021 18:41:00 +0000 (UTC)
+        id S1727145AbhAYSm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:42:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D62320665;
+        Mon, 25 Jan 2021 18:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600061;
-        bh=KGpDxYJ+g6L/VPqmi7zokT5Xz6lfTzBbY1R8MRG1KoQ=;
+        s=korg; t=1611600084;
+        bh=LzI0L2NqO0MGnBms4BkXDnOE6izfjAqWGxoMyYwO2d4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pztYr3Vxx1J4CQ4HKBmHQbzFNYkh7nj7w4ug4vIne2d8x1mGH7VmB0p2q5JFNV6ak
-         1dj48QjB4R3jfnT07+w7ef1dpi12lU/VhrXqRN58txWJmLG/52wkqP/Tx5vCIY2OP3
-         C3G4RSdhW6Q+IjHiGaLho+i4/4BZkPBlnNj6c16E=
+        b=wHsHyJW3oksGY9eTbM3Y3NOGpSLd4Wk8z8qugDagZLgZyD+zH0MIqMAc24ZIEPyPC
+         LF6AJep1qDK/VzxmZgSLEuJ8yLiEvfoHxmguyrJ66kpXyyGR4FVRyBVqFJ+Kfb8CRE
+         DM2QiX6VfyNvFF8PQUO5kJ9+3JdAHPnHrQ6Ly+uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Miller <miller.seth@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/58] HID: Ignore battery for Elan touchscreen on ASUS UX550
-Date:   Mon, 25 Jan 2021 19:39:17 +0100
-Message-Id: <20210125183157.393443096@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Oester <kernel@linuxace.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/58] scsi: megaraid_sas: Fix MEGASAS_IOC_FIRMWARE regression
+Date:   Mon, 25 Jan 2021 19:39:25 +0100
+Message-Id: <20210125183157.736898314@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
 References: <20210125183156.702907356@linuxfoundation.org>
@@ -39,47 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Miller <miller.seth@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7c38e769d5c508939ce5dc26df72602f3c902342 ]
+[ Upstream commit b112036535eda34460677ea883eaecc3a45a435d ]
 
-Battery status is being reported for the Elan touchscreen on ASUS
-UX550 laptops despite not having a batter. It always shows either 0 or
-1%.
+Phil Oester reported that a fix for a possible buffer overrun that I sent
+caused a regression that manifests in this output:
 
-Signed-off-by: Seth Miller <miller.seth@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+ Event Message: A PCI parity error was detected on a component at bus 0 device 5 function 0.
+ Severity: Critical
+ Message ID: PCI1308
+
+The original code tried to handle the sense data pointer differently when
+using 32-bit 64-bit DMA addressing, which would lead to a 32-bit dma_addr_t
+value of 0x11223344 to get stored
+
+32-bit kernel:       44 33 22 11 ?? ?? ?? ??
+64-bit LE kernel:    44 33 22 11 00 00 00 00
+64-bit BE kernel:    00 00 00 00 44 33 22 11
+
+or a 64-bit dma_addr_t value of 0x1122334455667788 to get stored as
+
+32-bit kernel:       88 77 66 55 ?? ?? ?? ??
+64-bit kernel:       88 77 66 55 44 33 22 11
+
+In my patch, I tried to ensure that the same value is used on both 32-bit
+and 64-bit kernels, and picked what seemed to be the most sensible
+combination, storing 32-bit addresses in the first four bytes (as 32-bit
+kernels already did), and 64-bit addresses in eight consecutive bytes (as
+64-bit kernels already did), but evidently this was incorrect.
+
+Always storing the dma_addr_t pointer as 64-bit little-endian,
+i.e. initializing the second four bytes to zero in case of 32-bit
+addressing, apparently solved the problem for Phil, and is consistent with
+what all 64-bit little-endian machines did before.
+
+I also checked in the history that in previous versions of the code, the
+pointer was always in the first four bytes without padding, and that
+previous attempts to fix 64-bit user space, big-endian architectures and
+64-bit DMA were clearly flawed and seem to have introduced made this worse.
+
+Link: https://lore.kernel.org/r/20210104234137.438275-1-arnd@kernel.org
+Fixes: 381d34e376e3 ("scsi: megaraid_sas: Check user-provided offsets")
+Fixes: 107a60dd71b5 ("scsi: megaraid_sas: Add support for 64bit consistent DMA")
+Fixes: 94cd65ddf4d7 ("[SCSI] megaraid_sas: addded support for big endian architecture")
+Fixes: 7b2519afa1ab ("[SCSI] megaraid_sas: fix 64 bit sense pointer truncation")
+Reported-by: Phil Oester <kernel@linuxace.com>
+Tested-by: Phil Oester <kernel@linuxace.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6d118da1615d4..ab2be7a115d8f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -386,6 +386,7 @@
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
-+#define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 83d25ee88f028..8877a21102f1d 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -7323,11 +7323,9 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
+ 			goto out;
+ 		}
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 13deb9a676855..4dd151b2924e2 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -334,6 +334,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
++		/* always store 64 bits regardless of addressing */
+ 		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+-		if (instance->consistent_mask_64bit)
+-			put_unaligned_le64(sense_handle, sense_ptr);
+-		else
+-			put_unaligned_le32(sense_handle, sense_ptr);
++		put_unaligned_le64(sense_handle, sense_ptr);
+ 	}
  
+ 	/*
 -- 
 2.27.0
 
