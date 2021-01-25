@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C509304B68
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 960C4304B61
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727352AbhAZEqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:46:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
+        id S1727471AbhAZEqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728559AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728542AbhAYSnZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:43:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB61222B3F;
-        Mon, 25 Jan 2021 18:43:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EE4922D58;
+        Mon, 25 Jan 2021 18:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600182;
-        bh=FnC34r+embwRCybJmTYTo1BmKrAG/YhPaaf7AAS0BkE=;
+        s=korg; t=1611600185;
+        bh=/3IHmFBK+i9o0ZchEW+8498GZB+nRuXyVcfGyBjaUcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqN7r92VnkJoytOYPPxqZv6+SfQnXJf6L+MtUkf4tWIdczqZcQULIXRlRTq6xa2/i
-         EV4ly1tmIiJamrVB0CBKuc4V0tSxJEO93fW4H8Yd52uX1ZSRIVXHjy/UhjSwHh3mQN
-         10lMfk279zO/k4hWCzmxmOhsQEFJvAl07SKl93n0=
+        b=L/CZyyqU/LoeTQnjKjASXe9gJvvuk3H0ADJ4rLqez5I0pQG9Bek8/bvfPGyODdfR+
+         FIFRMFVulIFloTcpHoAOU1B3JOuj6+nCIQZPiIgy2ZbDBImjZv67FO1+diEBvYZI1M
+         LQAD0c+jCPFjvNIvNwUqnD2DCHfrZ2pPxV8vt01A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 32/58] irqchip/mips-cpu: Set IPI domain parent chip
-Date:   Mon, 25 Jan 2021 19:39:33 +0100
-Message-Id: <20210125183158.082247482@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.19 33/58] intel_th: pci: Add Alder Lake-P support
+Date:   Mon, 25 Jan 2021 19:39:34 +0100
+Message-Id: <20210125183158.129415534@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183156.702907356@linuxfoundation.org>
 References: <20210125183156.702907356@linuxfoundation.org>
@@ -39,47 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Kresin <dev@kresin.me>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 599b3063adf4bf041a87a69244ee36aded0d878f upstream.
+commit cb5c681ab9037e25fcca20689c82cf034566d610 upstream.
 
-Since commit 55567976629e ("genirq/irqdomain: Allow partial trimming of
-irq_data hierarchy") the irq_data chain is valided.
+This adds support for the Trace Hub in Alder Lake-P.
 
-The irq_domain_trim_hierarchy() function doesn't consider the irq + ipi
-domain hierarchy as valid, since the ipi domain has the irq domain set
-as parent, but the parent domain has no chip set. Hence the boot ends in
-a kernel panic.
-
-Set the chip for the parent domain as it is done in the mips gic irq
-driver, to have a valid irq_data chain.
-
-Fixes: 3838a547fda2 ("irqchip: mips-cpu: Introduce IPI IRQ domain support")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Mathias Kresin <dev@kresin.me>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210107213603.1637781-1-dev@kresin.me
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20210115195917.3184-3-alexander.shishkin@linux.intel.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-mips-cpu.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/irqchip/irq-mips-cpu.c
-+++ b/drivers/irqchip/irq-mips-cpu.c
-@@ -201,6 +201,13 @@ static int mips_cpu_ipi_alloc(struct irq
- 		if (ret)
- 			return ret;
- 
-+		ret = irq_domain_set_hwirq_and_chip(domain->parent, virq + i, hwirq,
-+						    &mips_mt_cpu_irq_controller,
-+						    NULL);
-+
-+		if (ret)
-+			return ret;
-+
- 		ret = irq_set_irq_type(virq + i, IRQ_TYPE_LEVEL_HIGH);
- 		if (ret)
- 			return ret;
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -231,6 +231,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Alder Lake-P */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x51a6),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Emmitsburg PCH */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1bcc),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
