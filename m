@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2D8304AD3
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDE2304AD9
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729791AbhAZE5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:57:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36384 "EHLO mail.kernel.org"
+        id S1727793AbhAZE4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:56:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731054AbhAYStX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:49:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CFDE22D50;
-        Mon, 25 Jan 2021 18:48:42 +0000 (UTC)
+        id S1730924AbhAYStA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:49:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C028620758;
+        Mon, 25 Jan 2021 18:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600522;
-        bh=9uNivUSLfoWxjuidh93RwflJqr4GN2MeQteNSR8ysB0=;
+        s=korg; t=1611600525;
+        bh=UOqp19TyeTSMYkkUvVfDI2f3oeJjYUfYWfIoj8Nh5D4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Q2U42Fl14Oze9m4v7Wd61QWzd5HeyKgmVVQFh5J/jcgtRFBQazU9X58+70k8ZRfm
-         E3fSWtKBzdxKIfOI0X7p0GmTb7Xo/7uKAFQfYg5olisrw9ELiCebRFGHY3LB0cXGUn
-         5TvevB1+kbPMGHtD8xWBQnU4rzsF797fKjOyNI4w=
+        b=rn2zc3CnsgyZ5LD1gq14Zpry3EwUTrRM+8CXLYhtADmabpSStiITpSsFi8x0pj/AG
+         UgKV+qf7ggfqbklIXTarK9CPR3I7CcKFHaZU3+wyTpLzBTh6x8pYSMXx0vO2jhc2Zb
+         t3VdsyxB0q1sU8lPIFFxvZ5YDzPONrUYMOtW8tHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
         Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 047/199] riscv: Fix sifive serial driver
-Date:   Mon, 25 Jan 2021 19:37:49 +0100
-Message-Id: <20210125183218.239517318@linuxfoundation.org>
+Subject: [PATCH 5.10 048/199] riscv: Enable interrupts during syscalls with M-Mode
+Date:   Mon, 25 Jan 2021 19:37:50 +0100
+Message-Id: <20210125183218.282312736@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,41 +42,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 1f1496a923b6ba16679074fe77100e1b53cdb880 ]
+[ Upstream commit 643437b996bac9267785e0bd528332e2d5811067 ]
 
-Setup the port uartclk in sifive_serial_probe() so that the base baud
-rate is correctly printed during device probe instead of always showing
-"0".  I.e. the probe message is changed from
-
-38000000.serial: ttySIF0 at MMIO 0x38000000 (irq = 1,
-base_baud = 0) is a SiFive UART v0
-
-to the correct:
-
-38000000.serial: ttySIF0 at MMIO 0x38000000 (irq = 1,
-base_baud = 115200) is a SiFive UART v0
+When running is M-Mode (no MMU config), MPIE does not get set. This
+results in all syscalls being executed with interrupts disabled as
+handle_exception never sets SR_IE as it always sees SR_PIE being
+cleared. Fix this by always force enabling interrupts in
+handle_syscall when CONFIG_RISCV_M_MODE is enabled.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sifive.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/kernel/entry.S | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
-index 13eadcb8aec4e..214bf3086c68a 100644
---- a/drivers/tty/serial/sifive.c
-+++ b/drivers/tty/serial/sifive.c
-@@ -999,6 +999,7 @@ static int sifive_serial_probe(struct platform_device *pdev)
- 	/* Set up clock divider */
- 	ssp->clkin_rate = clk_get_rate(ssp->clk);
- 	ssp->baud_rate = SIFIVE_DEFAULT_BAUD_RATE;
-+	ssp->port.uartclk = ssp->baud_rate * 16;
- 	__ssp_update_div(ssp);
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 835e45bb59c40..744f3209c48d0 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -155,6 +155,15 @@ skip_context_tracking:
+ 	tail do_trap_unknown
  
- 	platform_set_drvdata(pdev, ssp);
+ handle_syscall:
++#ifdef CONFIG_RISCV_M_MODE
++	/*
++	 * When running is M-Mode (no MMU config), MPIE does not get set.
++	 * As a result, we need to force enable interrupts here because
++	 * handle_exception did not do set SR_IE as it always sees SR_PIE
++	 * being cleared.
++	 */
++	csrs CSR_STATUS, SR_IE
++#endif
+ #if defined(CONFIG_TRACE_IRQFLAGS) || defined(CONFIG_CONTEXT_TRACKING)
+ 	/* Recover a0 - a7 for system calls */
+ 	REG_L a0, PT_A0(sp)
 -- 
 2.27.0
 
