@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14885304A8B
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D41A0304A71
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:46:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730793AbhAZFEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:04:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
+        id S1730910AbhAZFEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:04:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731199AbhAYSxH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:53:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C58620679;
-        Mon, 25 Jan 2021 18:52:26 +0000 (UTC)
+        id S1731245AbhAYSxR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:53:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 760C1229C5;
+        Mon, 25 Jan 2021 18:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600747;
-        bh=J/MqnpdPnis/WjdqvfjzUhp8QDvAxGk/8m9Oo+CbvSA=;
+        s=korg; t=1611600757;
+        bh=+qUg0p/0sWZfeRZBm2diOvSAHm06m/hEH45ZRb+24pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQde5+mOuOcXTxNZAR9pOKpP9H6H6H8DA7ATtbso7Uma129czYKPlnEp5e38fj7S3
-         xdEqO1moXMyJ56DGYahbUZzMaNKL4yn1wPkKq6yrZcg1I4fY5mcnH83Iuy/ndosVjB
-         N7uFS0cDHpRUT4SvoPDKxvmiemAw4Cfl8ozv7sj0=
+        b=hKx3P7Jn0p1VS5Br44beeQOLRUSkPc7DXSrhHS8b5+p0vhHETMiXmuNjWuttUXVml
+         x/fePkKZcM/NKRTGpFtwEY3i24idEaLyS9rOBunZEslEN7JXAErAM0LbHMZ0gQyFpv
+         /p6iQ7cL6QgC6jUG3jgaaCb15SJ5uoJT1DRoQ5OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.10 136/199] usb: udc: core: Use lock when write to soft_connect
-Date:   Mon, 25 Jan 2021 19:39:18 +0100
-Message-Id: <20210125183221.960781508@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 140/199] xhci: make sure TRB is fully written before giving it to the controller
+Date:   Mon, 25 Jan 2021 19:39:22 +0100
+Message-Id: <20210125183222.123732324@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -39,57 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c28095bc99073ddda65e4f31f6ae0d908d4d5cd8 upstream.
+commit 576667bad341516edc4e18eb85acb0a2b4c9c9d9 upstream.
 
-Use lock to guard against concurrent access for soft-connect/disconnect
-operations when writing to soft_connect sysfs.
+Once the command ring doorbell is rung the xHC controller will parse all
+command TRBs on the command ring that have the cycle bit set properly.
 
-Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
-Cc: stable@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com
+If the driver just started writing the next command TRB to the ring when
+hardware finished the previous TRB, then HW might fetch an incomplete TRB
+as long as its cycle bit set correctly.
+
+A command TRB is 16 bytes (128 bits) long.
+Driver writes the command TRB in four 32 bit chunks, with the chunk
+containing the cycle bit last. This does however not guarantee that
+chunks actually get written in that order.
+
+This was detected in stress testing when canceling URBs with several
+connected USB devices.
+Two consecutive "Set TR Dequeue pointer" commands got queued right
+after each other, and the second one was only partially written when
+the controller parsed it, causing the dequeue pointer to be set
+to bogus values. This was seen as error messages:
+
+"Mismatch between completed Set TR Deq Ptr command & xHCI internal state"
+
+Solution is to add a write memory barrier before writing the cycle bit.
+
+Cc: <stable@vger.kernel.org>
+Tested-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210115161907.2875631-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/core.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-ring.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -1532,10 +1532,13 @@ static ssize_t soft_connect_store(struct
- 		struct device_attribute *attr, const char *buf, size_t n)
- {
- 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
-+	ssize_t			ret;
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2930,6 +2930,8 @@ static void queue_trb(struct xhci_hcd *x
+ 	trb->field[0] = cpu_to_le32(field1);
+ 	trb->field[1] = cpu_to_le32(field2);
+ 	trb->field[2] = cpu_to_le32(field3);
++	/* make sure TRB is fully written before giving it to the controller */
++	wmb();
+ 	trb->field[3] = cpu_to_le32(field4);
  
-+	mutex_lock(&udc_lock);
- 	if (!udc->driver) {
- 		dev_err(dev, "soft-connect without a gadget driver\n");
--		return -EOPNOTSUPP;
-+		ret = -EOPNOTSUPP;
-+		goto out;
- 	}
- 
- 	if (sysfs_streq(buf, "connect")) {
-@@ -1546,10 +1549,14 @@ static ssize_t soft_connect_store(struct
- 		usb_gadget_udc_stop(udc);
- 	} else {
- 		dev_err(dev, "unsupported command '%s'\n", buf);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 
--	return n;
-+	ret = n;
-+out:
-+	mutex_unlock(&udc_lock);
-+	return ret;
- }
- static DEVICE_ATTR_WO(soft_connect);
- 
+ 	trace_xhci_queue_trb(ring, trb);
 
 
