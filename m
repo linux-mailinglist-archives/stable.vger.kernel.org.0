@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D07F3033CC
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:06:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6763033C6
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731358AbhAZFFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:05:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
+        id S1731210AbhAZFFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730650AbhAYSzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:55:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3B092075B;
-        Mon, 25 Jan 2021 18:54:49 +0000 (UTC)
+        id S1731217AbhAYSyt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:54:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 401C320E65;
+        Mon, 25 Jan 2021 18:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600890;
-        bh=dYV+tZd4GEFHW6Zq3N8EVPrfHAsiQAiTEqml3zHC67I=;
+        s=korg; t=1611600848;
+        bh=FMECQMMtOPfi0xgDdiUBRLUER12IjMMeOsSU1oudaPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/XkVyIVIrawqsrUdIZ2LFz3rkAzzkctQwBFH/PfW0IGGnGyIOvhcz95JTd5DxU/n
-         ITBrQTszpFTwi+jiPwNmxxMKRgJ85+09xFdMA/MamGFT2lSFfy9F6hUApBXDsP8Qax
-         e4/iJQ89NJ7pOk5yXzDYEKzSXgac9IQGxyFonQA4=
+        b=p4pq6EPtVRj9tw9H+xDBr0crhrzIDFQYb792VttVhao9aSViC3YiFlivqnVKyYdt+
+         Jo+YRdieOimJrN3qVaMoo3fYVNrjWLPQqrnnRgPMP7OpXhxXijryUm2XH2jGJFNS4S
+         SmvY86QxbTJpUaeIaNc+MmuKSr747jPH/9NrphfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eirik Fuller <efuller@redhat.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 160/199] selftests/powerpc: Fix exit status of pkey tests
-Date:   Mon, 25 Jan 2021 19:39:42 +0100
-Message-Id: <20210125183222.948455270@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 174/199] net_sched: reject silly cell_log in qdisc_get_rtab()
+Date:   Mon, 25 Jan 2021 19:39:56 +0100
+Message-Id: <20210125183223.543879069@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -40,46 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 92a5e1fdb286851d5bd0eb966b8d075be27cf5ee upstream.
+commit e4bedf48aaa5552bc1f49703abd17606e7e6e82a upstream.
 
-Since main() does not return a value explicitly, the
-return values from FAIL_IF() conditions are ignored
-and the tests can still pass irrespective of failures.
-This makes sure that we always explicitly return the
-correct test exit status.
+iproute2 probably never goes beyond 8 for the cell exponent,
+but stick to the max shift exponent for signed 32bit.
 
-Fixes: 1addb6444791 ("selftests/powerpc: Add test for execute-disabled pkeys")
-Fixes: c27f2fd1705a ("selftests/powerpc: Add test for pkey siginfo verification")
-Reported-by: Eirik Fuller <efuller@redhat.com>
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210118093145.10134-1-sandipan@linux.ibm.com
+UBSAN reported:
+UBSAN: shift-out-of-bounds in net/sched/sch_api.c:389:22
+shift exponent 130 is too large for 32-bit type 'int'
+CPU: 1 PID: 8450 Comm: syz-executor586 Not tainted 5.11.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x183/0x22e lib/dump_stack.c:120
+ ubsan_epilogue lib/ubsan.c:148 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
+ __detect_linklayer+0x2a9/0x330 net/sched/sch_api.c:389
+ qdisc_get_rtab+0x2b5/0x410 net/sched/sch_api.c:435
+ cbq_init+0x28f/0x12c0 net/sched/sch_cbq.c:1180
+ qdisc_create+0x801/0x1470 net/sched/sch_api.c:1246
+ tc_modify_qdisc+0x9e3/0x1fc0 net/sched/sch_api.c:1662
+ rtnetlink_rcv_msg+0xb1d/0xe60 net/core/rtnetlink.c:5564
+ netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2494
+ netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+ netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ ____sys_sendmsg+0x5a2/0x900 net/socket.c:2345
+ ___sys_sendmsg net/socket.c:2399 [inline]
+ __sys_sendmsg+0x319/0x400 net/socket.c:2432
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20210114160637.1660597-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/powerpc/mm/pkey_exec_prot.c |    2 +-
- tools/testing/selftests/powerpc/mm/pkey_siginfo.c   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/sched/sch_api.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/powerpc/mm/pkey_exec_prot.c
-+++ b/tools/testing/selftests/powerpc/mm/pkey_exec_prot.c
-@@ -290,5 +290,5 @@ static int test(void)
- 
- int main(void)
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -412,7 +412,8 @@ struct qdisc_rate_table *qdisc_get_rtab(
  {
--	test_harness(test, "pkey_exec_prot");
-+	return test_harness(test, "pkey_exec_prot");
- }
---- a/tools/testing/selftests/powerpc/mm/pkey_siginfo.c
-+++ b/tools/testing/selftests/powerpc/mm/pkey_siginfo.c
-@@ -329,5 +329,5 @@ static int test(void)
+ 	struct qdisc_rate_table *rtab;
  
- int main(void)
- {
--	test_harness(test, "pkey_siginfo");
-+	return test_harness(test, "pkey_siginfo");
- }
+-	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
++	if (tab == NULL || r->rate == 0 ||
++	    r->cell_log == 0 || r->cell_log >= 32 ||
+ 	    nla_len(tab) != TC_RTAB_SIZE) {
+ 		NL_SET_ERR_MSG(extack, "Invalid rate table parameters for searching");
+ 		return NULL;
 
 
