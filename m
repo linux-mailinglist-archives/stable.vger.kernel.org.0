@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7364C303370
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:56:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE66303367
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729013AbhAZEyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33932 "EHLO mail.kernel.org"
+        id S1728888AbhAZExd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:53:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727069AbhAYSrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:47:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87339224DF;
-        Mon, 25 Jan 2021 18:47:12 +0000 (UTC)
+        id S1727109AbhAYSrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:47:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFBD8224F9;
+        Mon, 25 Jan 2021 18:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600433;
-        bh=JaIU3/pIKgCO1wlrX4supaU7123yKweSYk85zX5aXmo=;
+        s=korg; t=1611600435;
+        bh=QJSYt0gvms/+YPFjwxwnMPFOkm6BK6CGltD7tj1wmDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWu/yWlyfiikknjVtiKQmPRMIhLC6ikqPBvOQWigeHVTstO1berOXJH9IvcijhPLm
-         kXv4vEmDp53G/jgBCkbHZa0vL4NsYOdP/Wk9Ed8ojAEnTpqea6WaQv50nt5oQPqIFC
-         9bjlUsmaOiU1zTRNy+2dBNfF2g0rj+t8/R7bMeBo=
+        b=ddgEgF1aGz123T77lBBDmFiyh7gVvbU2HNiutc+d38GSdcpKuc5p/CPiXVZ9OI+aW
+         rlhqyaYN9ITnxSk5Bwn3VQahl0Vw1pjuHxKZnchYytmCtY7EHFLs7KgL6/nKBoEXMj
+         FFUPZEis2/e0fFslLGhCk23X4zdizHGTUXvny5lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        "Rafael J . Wysocki" <rafael@kernel.org>
-Subject: [PATCH 5.10 013/199] ACPI: scan: Make acpi_bus_get_device() clear return pointer on error
-Date:   Mon, 25 Jan 2021 19:37:15 +0100
-Message-Id: <20210125183216.811483453@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 014/199] btrfs: dont get an EINTR during drop_snapshot for reloc
+Date:   Mon, 25 Jan 2021 19:37:16 +0100
+Message-Id: <20210125183216.850049459@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,48 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 78a18fec5258c8df9435399a1ea022d73d3eceb9 upstream.
+commit 18d3bff411c8d46d40537483bdc0b61b33ce0371 upstream.
 
-Set the acpi_device pointer which acpi_bus_get_device() returns-by-
-reference to NULL on errors.
+This was partially fixed by f3e3d9cc3525 ("btrfs: avoid possible signal
+interruption of btrfs_drop_snapshot() on relocation tree"), however it
+missed a spot when we restart a trans handle because we need to end the
+transaction.  The fix is the same, simply use btrfs_join_transaction()
+instead of btrfs_start_transaction() when deleting reloc roots.
 
-We've recently had 2 cases where callers of acpi_bus_get_device()
-did not properly error check the return value, so set the returned-
-by-reference acpi_device pointer to NULL, because at least some
-callers of acpi_bus_get_device() expect that to be done on errors.
-
-[ rjw: This issue was exposed by commit 71da201f38df ("ACPI: scan:
-  Defer enumeration of devices with _DEP lists") which caused it to
-  be much more likely to occur on some systems, but the real defect
-  had been introduced by an earlier commit. ]
-
-Fixes: 40e7fcb19293 ("ACPI: Add _DEP support to fix battery issue on Asus T100TA")
-Fixes: bcfcd409d4db ("usb: split code locating ACPI companion into port and device")
-Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Diagnosed-by: Rafael J. Wysocki <rafael@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: All applicable <stable@vger.kernel.org>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: f3e3d9cc3525 ("btrfs: avoid possible signal interruption of btrfs_drop_snapshot() on relocation tree")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/scan.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/extent-tree.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -586,6 +586,8 @@ static int acpi_get_device_data(acpi_han
- 	if (!device)
- 		return -EINVAL;
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5571,7 +5571,15 @@ int btrfs_drop_snapshot(struct btrfs_roo
+ 				goto out_free;
+ 			}
  
-+	*device = NULL;
-+
- 	status = acpi_get_data_full(handle, acpi_scan_drop_device,
- 				    (void **)device, callback);
- 	if (ACPI_FAILURE(status) || !*device) {
+-			trans = btrfs_start_transaction(tree_root, 0);
++		       /*
++			* Use join to avoid potential EINTR from transaction
++			* start. See wait_reserve_ticket and the whole
++			* reservation callchain.
++			*/
++			if (for_reloc)
++				trans = btrfs_join_transaction(tree_root);
++			else
++				trans = btrfs_start_transaction(tree_root, 0);
+ 			if (IS_ERR(trans)) {
+ 				err = PTR_ERR(trans);
+ 				goto out_free;
 
 
