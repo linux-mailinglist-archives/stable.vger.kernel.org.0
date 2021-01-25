@@ -2,150 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E7A304B87
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 319D1304B8C
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:30:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726861AbhAZEj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:39:29 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50547 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729615AbhAYOmY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 09:42:24 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5547E19538CC;
-        Mon, 25 Jan 2021 09:14:53 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 25 Jan 2021 09:14:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PBFj+X
-        nVQ4v2N1jfRlqc1xg+ebE4dLTVPbsp5toR2eI=; b=raJL2kIkM29xbrm78SQ4T9
-        YJwcJTHtezyTG95VnLB9oY5Rt5cgoHVSemvVtwXrbpItFhCCvVZPDLxa587w/V2C
-        fafS2sdgVKX07tyuhvTpCbSKjFUa5bn0rtrd1i3+FcxgpiapbmoWdlYTEGtDfmOk
-        66Rz1SSd60cR3Tw7JYfPdwJ8OJqQQHtcOeSBq9pn1zZ6jcY940O8bcnYjeRhNTlU
-        NzlRZ09oPJn3XjASyLiN/4QHfD28idhs4rZ6oWEiAOWZtzZ3iduRcd9G3FBD8iCX
-        RlQ+X9U8rVzf5qImFWVrgnslwxAICXKHYiCE8xJKWbmWdkTI7FAIDuK4dNYrKvqA
-        ==
-X-ME-Sender: <xms:W9IOYEvEJ-44zBkxwS6JEfH09sY32QMmtgNLbPoNdwc7xHM7dB5oVA>
-    <xme:W9IOYBcSZGgRe3368jYrRSwyBVg4-l1AwogfhwnQHHCFPfgzN0qOLkum2mnrcPpxQ
-    sh16XFbxagHSQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgdehlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecufghrlhcuvffnffculdeimdenucfjughrpefuvffhff
-    fkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhu
-    nhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetge
-    dugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgv
-    lhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpe
-    dvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:W9IOYPy1cPFjNXsFhVuZ0EMr95-cwlv4BVKCBDDnoF4g2oOqSAnFIw>
-    <xmx:W9IOYHNQsaEjBiQ53qXR9n1SIvZyJ4eH6l3J2DEx1pO0Ri7afRWOIQ>
-    <xmx:W9IOYE9XDkcQFSAx9fXt5vIxqNvFEQIRldSf6zkwk1mQMg-jdF9_Ag>
-    <xmx:XdIOYEzSCoVmBfK-B08WvyuPnpJuUXjZqiiuGv-pUZ7NQNHjoHBnGw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D4E2A240062;
-        Mon, 25 Jan 2021 09:14:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: fix page reference leak in soft_offline_page()" failed to apply to 5.10-stable tree
-To:     dan.j.williams@intel.com, akpm@linux-foundation.org, cai@lca.pw,
-        david@redhat.com, mhocko@suse.com, naoya.horiguchi@nec.com,
-        osalvador@suse.de, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Jan 2021 15:14:49 +0100
-Message-ID: <16115840891069@kroah.com>
+        id S1726897AbhAZEjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:39:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58416 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729790AbhAYOtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 09:49:24 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B36A520848;
+        Mon, 25 Jan 2021 14:48:40 +0000 (UTC)
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1l43AU-009tYm-Ut; Mon, 25 Jan 2021 14:48:39 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 25 Jan 2021 14:48:38 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] genirq/msi: Activate Multi-MSI early when
+ MSI_FLAG_ACTIVATE_EARLY is set
+In-Reply-To: <19ddad1517f0495d92c2248d04cf0d5c@huawei.com>
+References: <20210123122759.1781359-1-maz@kernel.org>
+ <19ddad1517f0495d92c2248d04cf0d5c@huawei.com>
+User-Agent: Roundcube Webmail/1.4.10
+Message-ID: <4e7ea548f1667410dd6197509ab15ef4@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: shameerali.kolothum.thodi@huawei.com, linux-kernel@vger.kernel.org, tglx@linutronix.de, bhelgaas@google.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2021-01-25 14:39, Shameerali Kolothum Thodi wrote:
+>> -----Original Message-----
+>> From: Marc Zyngier [mailto:maz@kernel.org]
+>> Sent: 23 January 2021 12:28
+>> To: linux-kernel@vger.kernel.org
+>> Cc: Thomas Gleixner <tglx@linutronix.de>; Bjorn Helgaas
+>> <bhelgaas@google.com>; Shameerali Kolothum Thodi
+>> <shameerali.kolothum.thodi@huawei.com>; stable@vger.kernel.org
+>> Subject: [PATCH] genirq/msi: Activate Multi-MSI early when
+>> MSI_FLAG_ACTIVATE_EARLY is set
+>> 
+>> When MSI_FLAG_ACTIVATE_EARLY is set (which is the case for PCI),
+>> we perform the activation of the interrupt (which in the case of
+>> PCI results in the endpoint being programmed) as soon as the
+>> interrupt is allocated.
+>> 
+>> But it appears that this is only done for the first vector,
+>> introducing an inconsistent behaviour for PCI Multi-MSI.
+>> 
+>> Fix it by iterating over the number of vectors allocated to
+>> each MSI descriptor. This is easily achieved by introducing
+>> a new "for_each_msi_vector" iterator, together with a tiny
+>> bit of refactoring.
+>> 
+>> Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated 
+>> early")
+>> Reported-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+>> Cc: stable@vger.kernel.org
+>> ---
+>>  include/linux/msi.h |  6 ++++++
+>>  kernel/irq/msi.c    | 44 ++++++++++++++++++++------------------------
+>>  2 files changed, 26 insertions(+), 24 deletions(-)
+>> 
+>> diff --git a/include/linux/msi.h b/include/linux/msi.h
+>> index 360a0a7e7341..aef35fd1cf11 100644
+>> --- a/include/linux/msi.h
+>> +++ b/include/linux/msi.h
+>> @@ -178,6 +178,12 @@ struct msi_desc {
+>>  	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
+>>  #define for_each_msi_entry_safe(desc, tmp, dev)	\
+>>  	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), 
+>> list)
+>> +#define for_each_msi_vector(desc, __irq, dev)				\
+>> +	for_each_msi_entry((desc), (dev))				\
+>> +		if ((desc)->irq)					\
+>> +			for (__irq = (desc)->irq;			\
+>> +			     __irq < ((desc)->irq + (desc)->nvec_used);	\
+>> +			     __irq++)
+>> 
+>>  #ifdef CONFIG_IRQ_MSI_IOMMU
+>>  static inline const void *msi_desc_get_iommu_cookie(struct msi_desc 
+>> *desc)
+>> diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+>> index 2c0c4d6d0f83..d924676c8781 100644
+>> --- a/kernel/irq/msi.c
+>> +++ b/kernel/irq/msi.c
+>> @@ -436,22 +436,22 @@ int __msi_domain_alloc_irqs(struct irq_domain
+>> *domain, struct device *dev,
+>> 
+>>  	can_reserve = msi_check_reservation_mode(domain, info, dev);
+>> 
+>> -	for_each_msi_entry(desc, dev) {
+>> -		virq = desc->irq;
+>> -		if (desc->nvec_used == 1)
+>> -			dev_dbg(dev, "irq %d for MSI\n", virq);
+>> -		else
+>> +	/*
+>> +	 * This flag is set by the PCI layer as we need to activate
+>> +	 * the MSI entries before the PCI layer enables MSI in the
+>> +	 * card. Otherwise the card latches a random msi message.
+>> +	 */
+>> +	if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
+>> +		goto skip_activate;
+> 
+> This will change the dbg print behavior. From the commit f3b0946d629c,
+> it looks like the below dev_dbg() code was there for 
+> !MSI_FLAG_ACTIVATE_EARLY
+> case as well. Not sure how much this matters though.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I'm not sure this matters either. We may have relied on these statements
+some 6/7 years ago, as the whole hierarchy stuff was brand new, but we
+now have a much better debug infrastructure thanks to Thomas. I'd be
+totally in favour of dropping it.
 
-thanks,
+Thanks,
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From dad4e5b390866ca902653df0daa864ae4b8d4147 Mon Sep 17 00:00:00 2001
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Sat, 23 Jan 2021 21:01:52 -0800
-Subject: [PATCH] mm: fix page reference leak in soft_offline_page()
-
-The conversion to move pfn_to_online_page() internal to
-soft_offline_page() missed that the get_user_pages() reference taken by
-the madvise() path needs to be dropped when pfn_to_online_page() fails.
-
-Note the direct sysfs-path to soft_offline_page() does not perform a
-get_user_pages() lookup.
-
-When soft_offline_page() is handed a pfn_valid() && !pfn_to_online_page()
-pfn the kernel hangs at dax-device shutdown due to a leaked reference.
-
-Link: https://lkml.kernel.org/r/161058501210.1840162.8108917599181157327.stgit@dwillia2-desk3.amr.corp.intel.com
-Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 04d9f154a130..e9481632fcd1 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct page *page)
- 	return rc;
- }
- 
-+static void put_ref_page(struct page *page)
-+{
-+	if (page)
-+		put_page(page);
-+}
-+
- /**
-  * soft_offline_page - Soft offline a page.
-  * @pfn: pfn to soft-offline
-@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct page *page)
- int soft_offline_page(unsigned long pfn, int flags)
- {
- 	int ret;
--	struct page *page;
- 	bool try_again = true;
-+	struct page *page, *ref_page = NULL;
-+
-+	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
- 
- 	if (!pfn_valid(pfn))
- 		return -ENXIO;
-+	if (flags & MF_COUNT_INCREASED)
-+		ref_page = pfn_to_page(pfn);
-+
- 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
- 	page = pfn_to_online_page(pfn);
--	if (!page)
-+	if (!page) {
-+		put_ref_page(ref_page);
- 		return -EIO;
-+	}
- 
- 	if (PageHWPoison(page)) {
- 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
--		if (flags & MF_COUNT_INCREASED)
--			put_page(page);
-+		put_ref_page(ref_page);
- 		return 0;
- 	}
- 
-
+         M.
+-- 
+Jazz is not dead. It just smells funny...
