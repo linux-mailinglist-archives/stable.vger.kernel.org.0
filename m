@@ -2,101 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F13A7302E65
-	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 22:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589FF302F03
+	for <lists+stable@lfdr.de>; Mon, 25 Jan 2021 23:29:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732854AbhAYVxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 16:53:41 -0500
-Received: from m42-8.mailgun.net ([69.72.42.8]:56275 "EHLO m42-8.mailgun.net"
+        id S1732206AbhAYW11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 17:27:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732651AbhAYVxg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 16:53:36 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1611611590; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=wjOwZ7hnkSut6Udf2hJQbonOlbKoFsbqZco5e9Oswzk=; b=fR2qsfRVUa1S9421tOeLI3rJqmaFSqDDRk06xBrDqbp4tQYjJCohacD7BfhiirWt8GNmaLFI
- iSw5ZF5hCLwoqXrzyiOcbLKosC/ogI+V1/NetCaIkj5BDV4KJZNUSNt4MuMBhMf4N7aZxcjn
- 2qQkmUUsvnPTnlzgjGvtalXVAZg=
-X-Mailgun-Sending-Ip: 69.72.42.8
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n07.prod.us-east-1.postgun.com with SMTP id
- 600f3da02c36b2106dd15037 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 25 Jan 2021 21:52:32
- GMT
-Sender: isaacm=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id D2380C433C6; Mon, 25 Jan 2021 21:52:31 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from isaacm-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: isaacm)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id EB1D3C433CA;
-        Mon, 25 Jan 2021 21:52:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org EB1D3C433CA
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=isaacm@codeaurora.org
-From:   "Isaac J. Manjarres" <isaacm@codeaurora.org>
-To:     will@kernel.org, robin.murphy@arm.com, joro@8bytes.org,
-        bjorn.andersson@linaro.org
-Cc:     "Isaac J. Manjarres" <isaacm@codeaurora.org>,
-        linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] iommu/arm-smmu-qcom: Fix mask extraction for bootloader programmed SMRs
-Date:   Mon, 25 Jan 2021 13:52:25 -0800
-Message-Id: <1611611545-19055-1-git-send-email-isaacm@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
+        id S1732971AbhAYVhZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 16:37:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE1B22795;
+        Mon, 25 Jan 2021 21:35:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1611610519;
+        bh=2IkpBXpcg4aiUDPMW1GIxXdkULJ16rqsy/VSY5JTYEs=;
+        h=Date:From:To:Subject:From;
+        b=lV5vFu3zUt8rQk/68jo+b0fnmoY2Whb+uP6rKosduTReYH+IEFoKKtjVihvI9L+QC
+         gBptFZEHNsOBUv2288l/AllK2ht9vrA9oZPd5zqZaD5hd9HcLxX/YCav3qBnvJIk82
+         UWEOBimpkeAimCZiJTBHey184xQd5f3xwvob64uE=
+Date:   Mon, 25 Jan 2021 13:35:19 -0800
+From:   akpm@linux-foundation.org
+To:     cai@lca.pw, dan.j.williams@intel.com, david@redhat.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org
+Subject:  [merged]
+ mm-fix-page-reference-leak-in-soft_offline_page.patch removed from -mm tree
+Message-ID: <20210125213519.d3clJCbJB%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When extracting the mask for a SMR that was programmed by the
-bootloader, the SMR's valid bit is also extracted and is treated
-as part of the mask, which is not correct. Consider the scenario
-where an SMMU master whose context is determined by a bootloader
-programmed SMR is removed (omitting parts of device/driver core):
 
-->iommu_release_device()
- -> arm_smmu_release_device()
-  -> arm_smmu_master_free_smes()
-   -> arm_smmu_free_sme() /* Assume that the SME is now free */
-   -> arm_smmu_write_sme()
-    -> arm_smmu_write_smr() /* Construct SMR value using mask and SID */
+The patch titled
+     Subject: mm: fix page reference leak in soft_offline_page()
+has been removed from the -mm tree.  Its filename was
+     mm-fix-page-reference-leak-in-soft_offline_page.patch
 
-Since the valid bit was considered as part of the mask, the SMR will
-be programmed as valid.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-Fix the SMR mask extraction step for bootloader programmed SMRs
-by masking out the valid bit when we know that we're already
-working with a valid SMR.
+------------------------------------------------------
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: mm: fix page reference leak in soft_offline_page()
 
-Fixes: 07a7f2caaa5a ("iommu/arm-smmu-qcom: Read back stream mappings")
-Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-Cc: stable@vger.kernel.org
+The conversion to move pfn_to_online_page() internal to
+soft_offline_page() missed that the get_user_pages() reference taken by
+the madvise() path needs to be dropped when pfn_to_online_page() fails. 
+Note the direct sysfs-path to soft_offline_page() does not perform a
+get_user_pages() lookup.
+
+When soft_offline_page() is handed a pfn_valid() && !pfn_to_online_page()
+pfn the kernel hangs at dax-device shutdown due to a leaked reference.
+
+Link: https://lkml.kernel.org/r/161058501210.1840162.8108917599181157327.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-index bcda170..abb1d2f 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-@@ -206,6 +206,8 @@ static int qcom_smmu_cfg_probe(struct arm_smmu_device *smmu)
- 		smr = arm_smmu_gr0_read(smmu, ARM_SMMU_GR0_SMR(i));
+ mm/memory-failure.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+--- a/mm/memory-failure.c~mm-fix-page-reference-leak-in-soft_offline_page
++++ a/mm/memory-failure.c
+@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct
+ 	return rc;
+ }
  
- 		if (FIELD_GET(ARM_SMMU_SMR_VALID, smr)) {
-+			/* Ignore valid bit for SMR mask extraction. */
-+			smr &= ~ARM_SMMU_SMR_VALID;
- 			smmu->smrs[i].id = FIELD_GET(ARM_SMMU_SMR_ID, smr);
- 			smmu->smrs[i].mask = FIELD_GET(ARM_SMMU_SMR_MASK, smr);
- 			smmu->smrs[i].valid = true;
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
++static void put_ref_page(struct page *page)
++{
++	if (page)
++		put_page(page);
++}
++
+ /**
+  * soft_offline_page - Soft offline a page.
+  * @pfn: pfn to soft-offline
+@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct
+ int soft_offline_page(unsigned long pfn, int flags)
+ {
+ 	int ret;
+-	struct page *page;
+ 	bool try_again = true;
++	struct page *page, *ref_page = NULL;
++
++	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
+ 
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	if (flags & MF_COUNT_INCREASED)
++		ref_page = pfn_to_page(pfn);
++
+ 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
+ 	page = pfn_to_online_page(pfn);
+-	if (!page)
++	if (!page) {
++		put_ref_page(ref_page);
+ 		return -EIO;
++	}
+ 
+ 	if (PageHWPoison(page)) {
+ 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
+-		if (flags & MF_COUNT_INCREASED)
+-			put_page(page);
++		put_ref_page(ref_page);
+ 		return 0;
+ 	}
+ 
+_
+
+Patches currently in -mm which might be from dan.j.williams@intel.com are
+
+mm-move-pfn_to_online_page-out-of-line.patch
+mm-teach-pfn_to_online_page-to-consider-subsection-validity.patch
+mm-teach-pfn_to_online_page-about-zone_device-section-collisions.patch
+mm-teach-pfn_to_online_page-about-zone_device-section-collisions-fix.patch
+mm-fix-memory_failure-handling-of-dax-namespace-metadata.patch
 
