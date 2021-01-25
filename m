@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2E9304AAD
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6083D304AAF
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730521AbhAZFAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:00:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
+        id S1730441AbhAZE7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730871AbhAYSuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F403A2063A;
-        Mon, 25 Jan 2021 18:50:13 +0000 (UTC)
+        id S1731101AbhAYSuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A59DB22460;
+        Mon, 25 Jan 2021 18:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600614;
-        bh=N8+4XAaY5SVHvDSceX+S21bvw7FkyehDhyC0eYvfnXQ=;
+        s=korg; t=1611600622;
+        bh=2G6Rn/gY2Xs3mtp8EI9OyKOISUUsP/Wfg/cSZ0Fc9Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otRsr3oUKqngR2nWkZ+QrMK15klu8kKwwy0C4chQGJhCirlOfGPT0HLF1YmZBQb8z
-         j2HRQyQKF6KvxN+liMKg/UGlUD4T7RqD1mffarkXVDTNM3HOxOAmi5IY5dHA8iyZjD
-         KEmxQEN9JHqnJTuhTsHF6h+lajACIp+VdNP1+kgo=
+        b=HZw+pNaVrvNlspyfb+EZ/TULMrMcFY+Kusri6+dv9rw10OhxgB1jdAWuBT/ZMmYfQ
+         rN44lI9EcoJ433epoPZGViwxftZfUMDl+tr9ViiQQQ3c2nCQobugzKNtoMQBAsP/Xx
+         glgJhn+AzSJY9xSDbJH5ATRA5d1tpIo2g8VYH1Fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Oester <kernel@linuxace.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/199] scsi: megaraid_sas: Fix MEGASAS_IOC_FIRMWARE regression
-Date:   Mon, 25 Jan 2021 19:38:25 +0100
-Message-Id: <20210125183219.770744554@linuxfoundation.org>
+Subject: [PATCH 5.10 085/199] scsi: ufs: Fix tm request when non-fatal error happens
+Date:   Mon, 25 Jan 2021 19:38:27 +0100
+Message-Id: <20210125183219.855785587@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -41,78 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit b112036535eda34460677ea883eaecc3a45a435d ]
+[ Upstream commit eeb1b55b6e25c5f7265ff45cd050f3bc2cc423a4 ]
 
-Phil Oester reported that a fix for a possible buffer overrun that I sent
-caused a regression that manifests in this output:
+When non-fatal error like line-reset happens, ufshcd_err_handler() starts
+to abort tasks by ufshcd_try_to_abort_task(). When it tries to issue a task
+management request, we hit two warnings:
 
- Event Message: A PCI parity error was detected on a component at bus 0 device 5 function 0.
- Severity: Critical
- Message ID: PCI1308
+WARNING: CPU: 7 PID: 7 at block/blk-core.c:630 blk_get_request+0x68/0x70
+WARNING: CPU: 4 PID: 157 at block/blk-mq-tag.c:82 blk_mq_get_tag+0x438/0x46c
 
-The original code tried to handle the sense data pointer differently when
-using 32-bit 64-bit DMA addressing, which would lead to a 32-bit dma_addr_t
-value of 0x11223344 to get stored
+After fixing the above warnings we hit another tm_cmd timeout which may be
+caused by unstable controller state:
 
-32-bit kernel:       44 33 22 11 ?? ?? ?? ??
-64-bit LE kernel:    44 33 22 11 00 00 00 00
-64-bit BE kernel:    00 00 00 00 44 33 22 11
+__ufshcd_issue_tm_cmd: task management cmd 0x80 timed-out
 
-or a 64-bit dma_addr_t value of 0x1122334455667788 to get stored as
+Then, ufshcd_err_handler() enters full reset, and kernel gets stuck. It
+turned out ufshcd_print_trs() printed too many messages on console which
+requires CPU locks. Likewise hba->silence_err_logs, we need to avoid too
+verbose messages. This is actually not an error case.
 
-32-bit kernel:       88 77 66 55 ?? ?? ?? ??
-64-bit kernel:       88 77 66 55 44 33 22 11
-
-In my patch, I tried to ensure that the same value is used on both 32-bit
-and 64-bit kernels, and picked what seemed to be the most sensible
-combination, storing 32-bit addresses in the first four bytes (as 32-bit
-kernels already did), and 64-bit addresses in eight consecutive bytes (as
-64-bit kernels already did), but evidently this was incorrect.
-
-Always storing the dma_addr_t pointer as 64-bit little-endian,
-i.e. initializing the second four bytes to zero in case of 32-bit
-addressing, apparently solved the problem for Phil, and is consistent with
-what all 64-bit little-endian machines did before.
-
-I also checked in the history that in previous versions of the code, the
-pointer was always in the first four bytes without padding, and that
-previous attempts to fix 64-bit user space, big-endian architectures and
-64-bit DMA were clearly flawed and seem to have introduced made this worse.
-
-Link: https://lore.kernel.org/r/20210104234137.438275-1-arnd@kernel.org
-Fixes: 381d34e376e3 ("scsi: megaraid_sas: Check user-provided offsets")
-Fixes: 107a60dd71b5 ("scsi: megaraid_sas: Add support for 64bit consistent DMA")
-Fixes: 94cd65ddf4d7 ("[SCSI] megaraid_sas: addded support for big endian architecture")
-Fixes: 7b2519afa1ab ("[SCSI] megaraid_sas: fix 64 bit sense pointer truncation")
-Reported-by: Phil Oester <kernel@linuxace.com>
-Tested-by: Phil Oester <kernel@linuxace.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210107185316.788815-3-jaegeuk@kernel.org
+Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 9ebeb031329d9..cc45cdac13844 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -8232,11 +8232,9 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
- 			goto out;
- 		}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 974a4f339ede2..8132893284670 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4913,7 +4913,8 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 		break;
+ 	} /* end of switch */
  
-+		/* always store 64 bits regardless of addressing */
- 		sense_ptr = (void *)cmd->frame + ioc->sense_off;
--		if (instance->consistent_mask_64bit)
--			put_unaligned_le64(sense_handle, sense_ptr);
--		else
--			put_unaligned_le32(sense_handle, sense_ptr);
-+		put_unaligned_le64(sense_handle, sense_ptr);
+-	if ((host_byte(result) != DID_OK) && !hba->silence_err_logs)
++	if ((host_byte(result) != DID_OK) &&
++	    (host_byte(result) != DID_REQUEUE) && !hba->silence_err_logs)
+ 		ufshcd_print_trs(hba, 1 << lrbp->task_tag, true);
+ 	return result;
+ }
+@@ -6208,9 +6209,13 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
  	}
  
- 	/*
+-	if (enabled_intr_status && retval == IRQ_NONE) {
+-		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
+-					__func__, intr_status);
++	if (enabled_intr_status && retval == IRQ_NONE &&
++				!ufshcd_eh_in_progress(hba)) {
++		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x (0x%08x, 0x%08x)\n",
++					__func__,
++					intr_status,
++					hba->ufs_stats.last_intr_status,
++					enabled_intr_status);
+ 		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
+ 	}
+ 
+@@ -6254,7 +6259,10 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
+ 	 * Even though we use wait_event() which sleeps indefinitely,
+ 	 * the maximum wait time is bounded by %TM_CMD_TIMEOUT.
+ 	 */
+-	req = blk_get_request(q, REQ_OP_DRV_OUT, BLK_MQ_REQ_RESERVED);
++	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
++
+ 	req->end_io_data = &wait;
+ 	free_slot = req->tag;
+ 	WARN_ON_ONCE(free_slot < 0 || free_slot >= hba->nutmrs);
 -- 
 2.27.0
 
