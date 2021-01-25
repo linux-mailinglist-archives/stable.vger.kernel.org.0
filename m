@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DEF13033A9
+	by mail.lfdr.de (Postfix) with ESMTP id D98693033AA
 	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726732AbhAZFCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38958 "EHLO mail.kernel.org"
+        id S1730603AbhAZFCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:02:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731164AbhAYSvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:51:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07FFF20665;
-        Mon, 25 Jan 2021 18:51:01 +0000 (UTC)
+        id S1731171AbhAYSvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:51:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E8B52075B;
+        Mon, 25 Jan 2021 18:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600662;
-        bh=6M1+X/O+rb9PG7g8fHUffNHEDfkKlAkXvrGxIqgZfPI=;
+        s=korg; t=1611600665;
+        bh=2Cjgi29JUGLSAOFH70Rues25dQhNiGdruvG3IE7tMGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAWnNry1juv07Zq8Bvd4j7Zp2zIInJ6O7Xg+2BPfzhQtBGEvpjbGMnNz8z6vtRnRW
-         Ocjko9nnYVNp9UhkmxIIpnvvsLKI4+QGWmmyHAGgaQMC2QD2/+GJ20CRWb9biLHZBo
-         zZs6CTjEHjKG4KNWz/UJUpOYIRFHg2mh2WLL8sKI=
+        b=rhYii92aQNm1bmRpGFuuMorde/rdlSxdBxpy0k0ScCJjVGxlOhsP7G2wmA+XwZEu+
+         mIhgB/8msY+Ftv+9SNDaFrMO2fbTEqhzR4pJqR7BXHOsxFX5kO9RiErtLPfC02s5b0
+         YBFAtnnFqkDJhZ9j7iy2d7Rz4j5YKdwAsqsKgEW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kenneth R. Crudup" <kenny@panix.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 103/199] ALSA: hda: Balance runtime/system PM if direct-complete is disabled
-Date:   Mon, 25 Jan 2021 19:38:45 +0100
-Message-Id: <20210125183220.617523783@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 104/199] xsk: Clear pool even for inactive queues
+Date:   Mon, 25 Jan 2021 19:38:46 +0100
+Message-Id: <20210125183220.658165590@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -40,112 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit 2b73649cee65b8e33c75c66348cb1bfe0ff9d766 ]
+[ Upstream commit b425e24a934e21a502d25089c6c7443d799c5594 ]
 
-After hibernation, HDA controller can't be runtime-suspended after
-commit 215a22ed31a1 ("ALSA: hda: Refactor codjc PM to use
-direct-complete optimization"), which enables direct-complete for HDA
-codec.
+The number of queues can change by other means, rather than ethtool. For
+example, attaching an mqprio qdisc with num_tc > 1 leads to creating
+multiple sets of TX queues, which may be then destroyed when mqprio is
+deleted. If an AF_XDP socket is created while mqprio is active,
+dev->_tx[queue_id].pool will be filled, but then real_num_tx_queues may
+decrease with deletion of mqprio, which will mean that the pool won't be
+NULLed, and a further increase of the number of TX queues may expose a
+dangling pointer.
 
-The HDA codec driver didn't expect direct-complete will be disabled
-after it returns a positive value from prepare() callback. However,
-there are some places that PM core can disable direct-complete. For
-instance, system hibernation or when codec has subordinates like LEDs.
+To avoid any potential misbehavior, this commit clears pool for RX and
+TX queues, regardless of real_num_*_queues, still taking into
+consideration num_*_queues to avoid overflows.
 
-So if the codec is prepared for direct-complete but PM core still calls
-codec's suspend or freeze callback, partially revert the commit and take
-the original approach, which uses pm_runtime_force_*() helpers to
-ensure PM refcount are balanced. Meanwhile, still keep prepare() and
-complete() callbacks to enable direct-complete and request a resume for
-jack detection, respectively.
-
-Reported-by: Kenneth R. Crudup <kenny@panix.com>
-Fixes: 215a22ed31a1 ("ALSA: hda: Refactor codec PM to use direct-complete optimization")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20210119152145.346558-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 1c1efc2af158 ("xsk: Create and free buffer pool independently from umem")
+Fixes: a41b4f3c58dd ("xsk: simplify xdp_clear_umem_at_qid implementation")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20210118160333.333439-1-maximmi@mellanox.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c | 24 +++++++-----------------
- 1 file changed, 7 insertions(+), 17 deletions(-)
+ net/xdp/xsk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 687216e745267..eec1775dfffe9 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -2934,7 +2934,7 @@ static void hda_call_codec_resume(struct hda_codec *codec)
- 	snd_hdac_leave_pm(&codec->core);
- }
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index d5f42c62fd79e..52fd1f96b241e 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -107,9 +107,9 @@ EXPORT_SYMBOL(xsk_get_pool_from_qid);
  
--static int hda_codec_suspend(struct device *dev)
-+static int hda_codec_runtime_suspend(struct device *dev)
+ void xsk_clear_pool_at_qid(struct net_device *dev, u16 queue_id)
  {
- 	struct hda_codec *codec = dev_to_hda_codec(dev);
- 	unsigned int state;
-@@ -2953,7 +2953,7 @@ static int hda_codec_suspend(struct device *dev)
- 	return 0;
+-	if (queue_id < dev->real_num_rx_queues)
++	if (queue_id < dev->num_rx_queues)
+ 		dev->_rx[queue_id].pool = NULL;
+-	if (queue_id < dev->real_num_tx_queues)
++	if (queue_id < dev->num_tx_queues)
+ 		dev->_tx[queue_id].pool = NULL;
  }
- 
--static int hda_codec_resume(struct device *dev)
-+static int hda_codec_runtime_resume(struct device *dev)
- {
- 	struct hda_codec *codec = dev_to_hda_codec(dev);
- 
-@@ -2968,16 +2968,6 @@ static int hda_codec_resume(struct device *dev)
- 	return 0;
- }
- 
--static int hda_codec_runtime_suspend(struct device *dev)
--{
--	return hda_codec_suspend(dev);
--}
--
--static int hda_codec_runtime_resume(struct device *dev)
--{
--	return hda_codec_resume(dev);
--}
--
- #endif /* CONFIG_PM */
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -2998,31 +2988,31 @@ static void hda_codec_pm_complete(struct device *dev)
- static int hda_codec_pm_suspend(struct device *dev)
- {
- 	dev->power.power_state = PMSG_SUSPEND;
--	return hda_codec_suspend(dev);
-+	return pm_runtime_force_suspend(dev);
- }
- 
- static int hda_codec_pm_resume(struct device *dev)
- {
- 	dev->power.power_state = PMSG_RESUME;
--	return hda_codec_resume(dev);
-+	return pm_runtime_force_resume(dev);
- }
- 
- static int hda_codec_pm_freeze(struct device *dev)
- {
- 	dev->power.power_state = PMSG_FREEZE;
--	return hda_codec_suspend(dev);
-+	return pm_runtime_force_suspend(dev);
- }
- 
- static int hda_codec_pm_thaw(struct device *dev)
- {
- 	dev->power.power_state = PMSG_THAW;
--	return hda_codec_resume(dev);
-+	return pm_runtime_force_resume(dev);
- }
- 
- static int hda_codec_pm_restore(struct device *dev)
- {
- 	dev->power.power_state = PMSG_RESTORE;
--	return hda_codec_resume(dev);
-+	return pm_runtime_force_resume(dev);
- }
- #endif /* CONFIG_PM_SLEEP */
  
 -- 
 2.27.0
