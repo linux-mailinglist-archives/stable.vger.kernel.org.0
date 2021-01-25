@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AE0303354
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD44303357
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728404AbhAZEty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:49:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33734 "EHLO mail.kernel.org"
+        id S1728460AbhAZEuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:50:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730161AbhAYSqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730226AbhAYSqT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Jan 2021 13:46:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F63230FA;
-        Mon, 25 Jan 2021 18:45:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95BEA20758;
+        Mon, 25 Jan 2021 18:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600349;
-        bh=Kq0aYncV1wz5N8/Ipur8uGJBgZLsF/TF5GYQip7CU4E=;
+        s=korg; t=1611600357;
+        bh=CnUNnC7URhAek0WU9cE7ehGK+skGDbU0czUbUaRg7yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tl8xAHRWJSur/9v8C0bIA6y2ZRZhJlan0Ro5DsIN3k1ecIGDl1QBuaNayNcsvH9bw
-         gAofz8AiIOtIwVsrPLN7D8Ar5IkVLlJ+Jz9halBmPTQWqnJbdWu1Iq+hUKazvQxzxn
-         wnreFsje+1/k3QcDeoxioO+vFDDFSxSyx2yBDBJY=
+        b=fUe1LvAGp5QfUYUqKjOB141e+KBOWh75iXfuysjOZohdqnAKoE2vwEm87izGgN0FE
+         ceNT+Ls1aanwwc8oMDDmojZbqGIUmKZi0QOy28xS5+os5Xl4cunslZh3o9rBMpU3X7
+         SlG57fa4t5uhNjEnlQgKoWTGQHGf6bYkzTFJ6CxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 67/86] pinctrl: ingenic: Fix JZ4760 support
-Date:   Mon, 25 Jan 2021 19:39:49 +0100
-Message-Id: <20210125183203.875160331@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 69/86] netfilter: rpfilter: mask ecn bits before fib lookup
+Date:   Mon, 25 Jan 2021 19:39:51 +0100
+Message-Id: <20210125183203.961605243@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
 References: <20210125183201.024962206@linuxfoundation.org>
@@ -39,139 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 9a85c09a3f507b925d75cb0c7c8f364467038052 upstream.
+commit 2e5a6266fbb11ae93c468dfecab169aca9c27b43 upstream.
 
-- JZ4760 and JZ4760B have a similar register layout as the JZ4740, and
-  don't use the new register layout, which was introduced with the
-  JZ4770 SoC and not the JZ4760 or JZ4760B SoCs.
+RT_TOS() only masks one of the two ECN bits. Therefore rpfilter_mt()
+treats Not-ECT or ECT(1) packets in a different way than those with
+ECT(0) or CE.
 
-- The JZ4740 code path only expected two function modes to be
-  configurable for each pin, and wouldn't work with more than two. Fix
-  it for the JZ4760, which has four configurable function modes.
+Reproducer:
 
-Fixes: 0257595a5cf4 ("pinctrl: Ingenic: Add pinctrl driver for JZ4760 and JZ4760B.")
-Cc: <stable@vger.kernel.org> # 5.3
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20201211232810.261565-1-paul@crapouillou.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+  Create two netns, connected with a veth:
+  $ ip netns add ns0
+  $ ip netns add ns1
+  $ ip link add name veth01 netns ns0 type veth peer name veth10 netns ns1
+  $ ip -netns ns0 link set dev veth01 up
+  $ ip -netns ns1 link set dev veth10 up
+  $ ip -netns ns0 address add 192.0.2.10/32 dev veth01
+  $ ip -netns ns1 address add 192.0.2.11/32 dev veth10
+
+  Add a route to ns1 in ns0:
+  $ ip -netns ns0 route add 192.0.2.11/32 dev veth01
+
+  In ns1, only packets with TOS 4 can be routed to ns0:
+  $ ip -netns ns1 route add 192.0.2.10/32 tos 4 dev veth10
+
+  Ping from ns0 to ns1 works regardless of the ECN bits, as long as TOS
+  is 4:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 0% packet loss ...
+
+  Now use iptable's rpfilter module in ns1:
+  $ ip netns exec ns1 iptables-legacy -t raw -A PREROUTING -m rpfilter --invert -j DROP
+
+  Not-ECT and ECT(1) packets still pass:
+  $ ip netns exec ns0 ping -Q 4 192.0.2.11   # TOS 4, Not-ECT
+    ... 0% packet loss ...
+  $ ip netns exec ns0 ping -Q 5 192.0.2.11   # TOS 4, ECT(1)
+    ... 0% packet loss ...
+
+  But ECT(0) and ECN packets are dropped:
+  $ ip netns exec ns0 ping -Q 6 192.0.2.11   # TOS 4, ECT(0)
+    ... 100% packet loss ...
+  $ ip netns exec ns0 ping -Q 7 192.0.2.11   # TOS 4, CE
+    ... 100% packet loss ...
+
+After this patch, rpfilter doesn't drop ECT(0) and CE packets anymore.
+
+Fixes: 8f97339d3feb ("netfilter: add ipv4 reverse path filter match")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/pinctrl/pinctrl-ingenic.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ net/ipv4/netfilter/ipt_rpfilter.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -1378,7 +1378,7 @@ static inline bool ingenic_gpio_get_valu
- static void ingenic_gpio_set_value(struct ingenic_gpio_chip *jzgc,
- 				   u8 offset, int value)
- {
--	if (jzgc->jzpc->version >= ID_JZ4760)
-+	if (jzgc->jzpc->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_PAT0, offset, !!value);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, offset, !!value);
-@@ -1389,7 +1389,7 @@ static void irq_set_type(struct ingenic_
- {
- 	u8 reg1, reg2;
+--- a/net/ipv4/netfilter/ipt_rpfilter.c
++++ b/net/ipv4/netfilter/ipt_rpfilter.c
+@@ -76,7 +76,7 @@ static bool rpfilter_mt(const struct sk_
+ 	flow.daddr = iph->saddr;
+ 	flow.saddr = rpfilter_get_saddr(iph->daddr);
+ 	flow.flowi4_mark = info->flags & XT_RPFILTER_VALID_MARK ? skb->mark : 0;
+-	flow.flowi4_tos = RT_TOS(iph->tos);
++	flow.flowi4_tos = iph->tos & IPTOS_RT_MASK;
+ 	flow.flowi4_scope = RT_SCOPE_UNIVERSE;
+ 	flow.flowi4_oif = l3mdev_master_ifindex_rcu(xt_in(par));
  
--	if (jzgc->jzpc->version >= ID_JZ4760) {
-+	if (jzgc->jzpc->version >= ID_JZ4770) {
- 		reg1 = JZ4760_GPIO_PAT1;
- 		reg2 = JZ4760_GPIO_PAT0;
- 	} else {
-@@ -1464,7 +1464,7 @@ static void ingenic_gpio_irq_enable(stru
- 	struct ingenic_gpio_chip *jzgc = gpiochip_get_data(gc);
- 	int irq = irqd->hwirq;
- 
--	if (jzgc->jzpc->version >= ID_JZ4760)
-+	if (jzgc->jzpc->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, true);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, true);
-@@ -1480,7 +1480,7 @@ static void ingenic_gpio_irq_disable(str
- 
- 	ingenic_gpio_irq_mask(irqd);
- 
--	if (jzgc->jzpc->version >= ID_JZ4760)
-+	if (jzgc->jzpc->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, false);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, false);
-@@ -1505,7 +1505,7 @@ static void ingenic_gpio_irq_ack(struct
- 			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
- 	}
- 
--	if (jzgc->jzpc->version >= ID_JZ4760)
-+	if (jzgc->jzpc->version >= ID_JZ4770)
- 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_FLAG, irq, false);
- 	else
- 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, irq, true);
-@@ -1562,7 +1562,7 @@ static void ingenic_gpio_irq_handler(str
- 
- 	chained_irq_enter(irq_chip, desc);
- 
--	if (jzgc->jzpc->version >= ID_JZ4760)
-+	if (jzgc->jzpc->version >= ID_JZ4770)
- 		flag = ingenic_gpio_read_reg(jzgc, JZ4760_GPIO_FLAG);
- 	else
- 		flag = ingenic_gpio_read_reg(jzgc, JZ4740_GPIO_FLAG);
-@@ -1643,7 +1643,7 @@ static int ingenic_gpio_get_direction(st
- 	struct ingenic_pinctrl *jzpc = jzgc->jzpc;
- 	unsigned int pin = gc->base + offset;
- 
--	if (jzpc->version >= ID_JZ4760)
-+	if (jzpc->version >= ID_JZ4770)
- 		return ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
- 			ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1);
- 
-@@ -1676,7 +1676,7 @@ static int ingenic_pinmux_set_pin_fn(str
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, func & 0x1);
- 		ingenic_shadow_config_pin_load(jzpc, pin);
--	} else if (jzpc->version >= ID_JZ4760) {
-+	} else if (jzpc->version >= ID_JZ4770) {
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
- 		ingenic_config_pin(jzpc, pin, GPIO_MSK, false);
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
-@@ -1684,7 +1684,7 @@ static int ingenic_pinmux_set_pin_fn(str
- 	} else {
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_FUNC, true);
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_TRIG, func & 0x2);
--		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func > 0);
-+		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func & 0x1);
- 	}
- 
- 	return 0;
-@@ -1734,7 +1734,7 @@ static int ingenic_pinmux_gpio_set_direc
- 		ingenic_shadow_config_pin(jzpc, pin, GPIO_MSK, true);
- 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
- 		ingenic_shadow_config_pin_load(jzpc, pin);
--	} else if (jzpc->version >= ID_JZ4760) {
-+	} else if (jzpc->version >= ID_JZ4770) {
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
- 		ingenic_config_pin(jzpc, pin, GPIO_MSK, true);
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
-@@ -1764,7 +1764,7 @@ static int ingenic_pinconf_get(struct pi
- 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
- 	bool pull;
- 
--	if (jzpc->version >= ID_JZ4760)
-+	if (jzpc->version >= ID_JZ4770)
- 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PEN);
- 	else
- 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
-@@ -1796,7 +1796,7 @@ static int ingenic_pinconf_get(struct pi
- static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
- 		unsigned int pin, bool enabled)
- {
--	if (jzpc->version >= ID_JZ4760)
-+	if (jzpc->version >= ID_JZ4770)
- 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PEN, !enabled);
- 	else
- 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_PULL_DIS, !enabled);
 
 
