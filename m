@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C199C303375
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 114D5303385
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 05:59:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729105AbhAZEyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:54:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34028 "EHLO mail.kernel.org"
+        id S1729873AbhAZE6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jan 2021 23:58:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbhAYSsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:48:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D40224D1;
-        Mon, 25 Jan 2021 18:48:14 +0000 (UTC)
+        id S1728492AbhAYSte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:49:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FE8E221E3;
+        Mon, 25 Jan 2021 18:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600495;
-        bh=QYbcRn/BnzG2H2nzpKhuqui5hnSozgbRMaT/E0YsHbQ=;
+        s=korg; t=1611600532;
+        bh=nNAHqXNlik6Lp82foU7Am+8xOHXb3VK7DiEQfGKesrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5qUHQ0oZDZKTrUFobZWTmsUxa1f6vppWJLgGFmOQxwAawVE2Mkt2IgAx1s82sp7a
-         FxDkuAks1nQYVMKxx7r0NcEQgUgT99bgibN/zomL4UVxKFAdOQFoJhsk81Y4HvO1tS
-         vb7/P9cGluJOEKKNGjMPB4fg3TqUfjJfMLTXQeak=
+        b=P+GCwpxrI2u+I8XYubggHbDV3c+hmb5LEK30Og1kbJfaKJ/nM1pi1XSEnMDa0q13g
+         dfdwGaHAAdHF+flbxd9jlnBQo+YD6TJ7IXQV59QxNlt9rhvY6MYIbQv4GFjuiyCzfD
+         5716ja3On1+tHav2FdjUEnSmaX4yuA8nDlGNLBk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/199] HID: multitouch: Enable multi-input for Synaptics pointstick/touchpad device
-Date:   Mon, 25 Jan 2021 19:37:39 +0100
-Message-Id: <20210125183217.812217367@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ion Agorria <ion@agorria.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Peter Geis <pgwipeout@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 051/199] clk: tegra30: Add hda clock default rates to clock driver
+Date:   Mon, 25 Jan 2021 19:37:53 +0100
+Message-Id: <20210125183218.416641681@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -40,35 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Peter Geis <pgwipeout@gmail.com>
 
-[ Upstream commit c3d6eb6e54373f297313b65c1f2319d36914d579 ]
+[ Upstream commit f4eccc7fea203cfb35205891eced1ab51836f362 ]
 
-Pointstick and its left/right buttons on HP EliteBook 850 G7 need
-multi-input quirk to work correctly.
+Current implementation defaults the hda clocks to clk_m. This causes hda
+to run too slow to operate correctly. Fix this by defaulting to pll_p and
+setting the frequency to the correct rate.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This matches upstream t124 and downstream t30.
+
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Tested-by: Ion Agorria <ion@agorria.com>
+Acked-by: Sameer Pujar <spujar@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Peter Geis <pgwipeout@gmail.com>
+Link: https://lore.kernel.org/r/20210108135913.2421585-2-pgwipeout@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/tegra/clk-tegra30.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index d670bcd57bdef..0743ef51d3b24 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2054,6 +2054,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
- 
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_SYNAPTICS, 0xce09) },
-+
- 	/* TopSeed panels */
- 	{ .driver_data = MT_CLS_TOPSEED,
- 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
+diff --git a/drivers/clk/tegra/clk-tegra30.c b/drivers/clk/tegra/clk-tegra30.c
+index 37244a7e68c22..9cf249c344d9e 100644
+--- a/drivers/clk/tegra/clk-tegra30.c
++++ b/drivers/clk/tegra/clk-tegra30.c
+@@ -1256,6 +1256,8 @@ static struct tegra_clk_init_table init_table[] __initdata = {
+ 	{ TEGRA30_CLK_I2S3_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
+ 	{ TEGRA30_CLK_I2S4_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
+ 	{ TEGRA30_CLK_VIMCLK_SYNC, TEGRA30_CLK_CLK_MAX, 24000000, 0 },
++	{ TEGRA30_CLK_HDA, TEGRA30_CLK_PLL_P, 102000000, 0 },
++	{ TEGRA30_CLK_HDA2CODEC_2X, TEGRA30_CLK_PLL_P, 48000000, 0 },
+ 	/* must be the last entry */
+ 	{ TEGRA30_CLK_CLK_MAX, TEGRA30_CLK_CLK_MAX, 0, 0 },
+ };
 -- 
 2.27.0
 
