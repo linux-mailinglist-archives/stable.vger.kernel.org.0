@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A39F33033CB
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D07F3033CC
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731342AbhAZFFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:05:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41536 "EHLO mail.kernel.org"
+        id S1731358AbhAZFFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730694AbhAYSz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:55:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B68224B8;
-        Mon, 25 Jan 2021 18:54:46 +0000 (UTC)
+        id S1730650AbhAYSzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:55:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3B092075B;
+        Mon, 25 Jan 2021 18:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600887;
-        bh=mgx7pnFdilp/Ys9xnrEwavJygvFFYBcW5x63QN/EosA=;
+        s=korg; t=1611600890;
+        bh=dYV+tZd4GEFHW6Zq3N8EVPrfHAsiQAiTEqml3zHC67I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXOpkbXMkASBhkTEzNgzBJOrN+wFhJfagCC+vL8qA0WqwmL7VWLDiMRo4HMwhUgFQ
-         6TsmWKIMwuCoAhhWNXS4Xy+WNENoZnslP1DtYXnD/rjY7cV/AmtwL05VCWnxvBHUkd
-         vx2i+04yQrMIJ6Ja8p+dhS58AMVxyyOqUukki/rc=
+        b=V/XkVyIVIrawqsrUdIZ2LFz3rkAzzkctQwBFH/PfW0IGGnGyIOvhcz95JTd5DxU/n
+         ITBrQTszpFTwi+jiPwNmxxMKRgJ85+09xFdMA/MamGFT2lSFfy9F6hUApBXDsP8Qax
+         e4/iJQ89NJ7pOk5yXzDYEKzSXgac9IQGxyFonQA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Tobias Waldekranz <tobias@waldekranz.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 159/199] net: dsa: mv88e6xxx: also read STU state in mv88e6250_g1_vtu_getnext
-Date:   Mon, 25 Jan 2021 19:39:41 +0100
-Message-Id: <20210125183222.907604965@linuxfoundation.org>
+        stable@vger.kernel.org, Eirik Fuller <efuller@redhat.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 160/199] selftests/powerpc: Fix exit status of pkey tests
+Date:   Mon, 25 Jan 2021 19:39:42 +0100
+Message-Id: <20210125183222.948455270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,48 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Sandipan Das <sandipan@linux.ibm.com>
 
-commit 87fe04367d842c4d97a77303242d4dd4ac351e46 upstream.
+commit 92a5e1fdb286851d5bd0eb966b8d075be27cf5ee upstream.
 
-mv88e6xxx_port_vlan_join checks whether the VTU already contains an
-entry for the given vid (via mv88e6xxx_vtu_getnext), and if so, merely
-changes the relevant .member[] element and loads the updated entry
-into the VTU.
+Since main() does not return a value explicitly, the
+return values from FAIL_IF() conditions are ignored
+and the tests can still pass irrespective of failures.
+This makes sure that we always explicitly return the
+correct test exit status.
 
-However, at least for the mv88e6250, the on-stack struct
-mv88e6xxx_vtu_entry vlan never has its .state[] array explicitly
-initialized, neither in mv88e6xxx_port_vlan_join() nor inside the
-getnext implementation. So the new entry has random garbage for the
-STU bits, breaking VLAN filtering.
-
-When the VTU entry is initially created, those bits are all zero, and
-we should make sure to keep them that way when the entry is updated.
-
-Fixes: 92307069a96c (net: dsa: mv88e6xxx: Avoid VTU corruption on 6097)
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Tobias Waldekranz <tobias@waldekranz.com>
-Tested-by: Tobias Waldekranz <tobias@waldekranz.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1addb6444791 ("selftests/powerpc: Add test for execute-disabled pkeys")
+Fixes: c27f2fd1705a ("selftests/powerpc: Add test for pkey siginfo verification")
+Reported-by: Eirik Fuller <efuller@redhat.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210118093145.10134-1-sandipan@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/dsa/mv88e6xxx/global1_vtu.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/powerpc/mm/pkey_exec_prot.c |    2 +-
+ tools/testing/selftests/powerpc/mm/pkey_siginfo.c   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-@@ -351,6 +351,10 @@ int mv88e6250_g1_vtu_getnext(struct mv88
- 		if (err)
- 			return err;
+--- a/tools/testing/selftests/powerpc/mm/pkey_exec_prot.c
++++ b/tools/testing/selftests/powerpc/mm/pkey_exec_prot.c
+@@ -290,5 +290,5 @@ static int test(void)
  
-+		err = mv88e6185_g1_stu_data_read(chip, entry);
-+		if (err)
-+			return err;
-+
- 		/* VTU DBNum[3:0] are located in VTU Operation 3:0
- 		 * VTU DBNum[5:4] are located in VTU Operation 9:8
- 		 */
+ int main(void)
+ {
+-	test_harness(test, "pkey_exec_prot");
++	return test_harness(test, "pkey_exec_prot");
+ }
+--- a/tools/testing/selftests/powerpc/mm/pkey_siginfo.c
++++ b/tools/testing/selftests/powerpc/mm/pkey_siginfo.c
+@@ -329,5 +329,5 @@ static int test(void)
+ 
+ int main(void)
+ {
+-	test_harness(test, "pkey_siginfo");
++	return test_harness(test, "pkey_siginfo");
+ }
 
 
