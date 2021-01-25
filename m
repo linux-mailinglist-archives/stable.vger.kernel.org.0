@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6BE0304AC4
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2E9304AAD
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730396AbhAZE7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jan 2021 23:59:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S1730521AbhAZFAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:00:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731089AbhAYSu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 13:50:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D2EC20E65;
-        Mon, 25 Jan 2021 18:50:11 +0000 (UTC)
+        id S1730871AbhAYSuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Jan 2021 13:50:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F403A2063A;
+        Mon, 25 Jan 2021 18:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611600612;
-        bh=NbxqSg6P/0Bg8LdgOIG/xRb0rV+9aihp1ZJXZJPLeB8=;
+        s=korg; t=1611600614;
+        bh=N8+4XAaY5SVHvDSceX+S21bvw7FkyehDhyC0eYvfnXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCSsE5ADK3wT6fVUik18zlSmetLjOuwtAJyhsuATOv7HRDjHHHpra1BQ/VcuNZYGs
-         +mFL5M+A25Mke/tPKue6a7lH8iQupwFuGKySs97+R+wPIC3YkzRKEaCttKBQnTXpIT
-         8yjOou0pCvxCI0e/ahnj9rpvmo64q2NwH5KVwH88=
+        b=otRsr3oUKqngR2nWkZ+QrMK15klu8kKwwy0C4chQGJhCirlOfGPT0HLF1YmZBQb8z
+         j2HRQyQKF6KvxN+liMKg/UGlUD4T7RqD1mffarkXVDTNM3HOxOAmi5IY5dHA8iyZjD
+         KEmxQEN9JHqnJTuhTsHF6h+lajACIp+VdNP1+kgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Phil Oester <kernel@linuxace.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 082/199] btrfs: print the actual offset in btrfs_root_name
-Date:   Mon, 25 Jan 2021 19:38:24 +0100
-Message-Id: <20210125183219.725539538@linuxfoundation.org>
+Subject: [PATCH 5.10 083/199] scsi: megaraid_sas: Fix MEGASAS_IOC_FIRMWARE regression
+Date:   Mon, 25 Jan 2021 19:38:25 +0100
+Message-Id: <20210125183219.770744554@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 References: <20210125183216.245315437@linuxfoundation.org>
@@ -42,84 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 71008734d27f2276fcef23a5e546d358430f2d52 ]
+[ Upstream commit b112036535eda34460677ea883eaecc3a45a435d ]
 
-We're supposed to print the root_key.offset in btrfs_root_name in the
-case of a reloc root, not the objectid.  Fix this helper to take the key
-so we have access to the offset when we need it.
+Phil Oester reported that a fix for a possible buffer overrun that I sent
+caused a regression that manifests in this output:
 
-Fixes: 457f1864b569 ("btrfs: pretty print leaked root name")
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+ Event Message: A PCI parity error was detected on a component at bus 0 device 5 function 0.
+ Severity: Critical
+ Message ID: PCI1308
+
+The original code tried to handle the sense data pointer differently when
+using 32-bit 64-bit DMA addressing, which would lead to a 32-bit dma_addr_t
+value of 0x11223344 to get stored
+
+32-bit kernel:       44 33 22 11 ?? ?? ?? ??
+64-bit LE kernel:    44 33 22 11 00 00 00 00
+64-bit BE kernel:    00 00 00 00 44 33 22 11
+
+or a 64-bit dma_addr_t value of 0x1122334455667788 to get stored as
+
+32-bit kernel:       88 77 66 55 ?? ?? ?? ??
+64-bit kernel:       88 77 66 55 44 33 22 11
+
+In my patch, I tried to ensure that the same value is used on both 32-bit
+and 64-bit kernels, and picked what seemed to be the most sensible
+combination, storing 32-bit addresses in the first four bytes (as 32-bit
+kernels already did), and 64-bit addresses in eight consecutive bytes (as
+64-bit kernels already did), but evidently this was incorrect.
+
+Always storing the dma_addr_t pointer as 64-bit little-endian,
+i.e. initializing the second four bytes to zero in case of 32-bit
+addressing, apparently solved the problem for Phil, and is consistent with
+what all 64-bit little-endian machines did before.
+
+I also checked in the history that in previous versions of the code, the
+pointer was always in the first four bytes without padding, and that
+previous attempts to fix 64-bit user space, big-endian architectures and
+64-bit DMA were clearly flawed and seem to have introduced made this worse.
+
+Link: https://lore.kernel.org/r/20210104234137.438275-1-arnd@kernel.org
+Fixes: 381d34e376e3 ("scsi: megaraid_sas: Check user-provided offsets")
+Fixes: 107a60dd71b5 ("scsi: megaraid_sas: Add support for 64bit consistent DMA")
+Fixes: 94cd65ddf4d7 ("[SCSI] megaraid_sas: addded support for big endian architecture")
+Fixes: 7b2519afa1ab ("[SCSI] megaraid_sas: fix 64 bit sense pointer truncation")
+Reported-by: Phil Oester <kernel@linuxace.com>
+Tested-by: Phil Oester <kernel@linuxace.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c    |  2 +-
- fs/btrfs/print-tree.c | 10 +++++-----
- fs/btrfs/print-tree.h |  2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index af97ddcc6b3e8..56f3b9acd2154 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1482,7 +1482,7 @@ void btrfs_check_leaked_roots(struct btrfs_fs_info *fs_info)
- 		root = list_first_entry(&fs_info->allocated_roots,
- 					struct btrfs_root, leak_list);
- 		btrfs_err(fs_info, "leaked root %s refcount %d",
--			  btrfs_root_name(root->root_key.objectid, buf),
-+			  btrfs_root_name(&root->root_key, buf),
- 			  refcount_read(&root->refs));
- 		while (refcount_read(&root->refs) > 1)
- 			btrfs_put_root(root);
-diff --git a/fs/btrfs/print-tree.c b/fs/btrfs/print-tree.c
-index 7695c4783d33b..c62771f3af8c6 100644
---- a/fs/btrfs/print-tree.c
-+++ b/fs/btrfs/print-tree.c
-@@ -26,22 +26,22 @@ static const struct root_name_map root_map[] = {
- 	{ BTRFS_DATA_RELOC_TREE_OBJECTID,	"DATA_RELOC_TREE"	},
- };
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 9ebeb031329d9..cc45cdac13844 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -8232,11 +8232,9 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
+ 			goto out;
+ 		}
  
--const char *btrfs_root_name(u64 objectid, char *buf)
-+const char *btrfs_root_name(const struct btrfs_key *key, char *buf)
- {
- 	int i;
- 
--	if (objectid == BTRFS_TREE_RELOC_OBJECTID) {
-+	if (key->objectid == BTRFS_TREE_RELOC_OBJECTID) {
- 		snprintf(buf, BTRFS_ROOT_NAME_BUF_LEN,
--			 "TREE_RELOC offset=%llu", objectid);
-+			 "TREE_RELOC offset=%llu", key->offset);
- 		return buf;
++		/* always store 64 bits regardless of addressing */
+ 		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+-		if (instance->consistent_mask_64bit)
+-			put_unaligned_le64(sense_handle, sense_ptr);
+-		else
+-			put_unaligned_le32(sense_handle, sense_ptr);
++		put_unaligned_le64(sense_handle, sense_ptr);
  	}
  
- 	for (i = 0; i < ARRAY_SIZE(root_map); i++) {
--		if (root_map[i].id == objectid)
-+		if (root_map[i].id == key->objectid)
- 			return root_map[i].name;
- 	}
- 
--	snprintf(buf, BTRFS_ROOT_NAME_BUF_LEN, "%llu", objectid);
-+	snprintf(buf, BTRFS_ROOT_NAME_BUF_LEN, "%llu", key->objectid);
- 	return buf;
- }
- 
-diff --git a/fs/btrfs/print-tree.h b/fs/btrfs/print-tree.h
-index 78b99385a503f..8c3e9319ec4ef 100644
---- a/fs/btrfs/print-tree.h
-+++ b/fs/btrfs/print-tree.h
-@@ -11,6 +11,6 @@
- 
- void btrfs_print_leaf(struct extent_buffer *l);
- void btrfs_print_tree(struct extent_buffer *c, bool follow);
--const char *btrfs_root_name(u64 objectid, char *buf);
-+const char *btrfs_root_name(const struct btrfs_key *key, char *buf);
- 
- #endif
+ 	/*
 -- 
 2.27.0
 
