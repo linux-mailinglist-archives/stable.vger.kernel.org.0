@@ -2,100 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A943044E8
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 18:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D423044EA
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 18:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388820AbhAZRRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 12:17:44 -0500
-Received: from cmyk.emenem.pl ([217.79.154.63]:33666 "EHLO smtp.emenem.pl"
+        id S2390317AbhAZRSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 12:18:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389301AbhAZHEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 02:04:25 -0500
-X-Virus-Scanned: amavisd-new at emenem.pl
-Received: from [192.168.1.10] (50-78-106-33-static.hfc.comcastbusiness.net [50.78.106.33])
-        (authenticated bits=0)
-        by cmyk.emenem.pl (8.16.1/8.16.1) with ESMTPSA id 10Q73KTY004535
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
-        Tue, 26 Jan 2021 08:03:22 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ans.pl; s=20190507;
-        t=1611644604; bh=TrMD3FOf+kYV4iVemjpv9uv2g6NIByAxM4bdy2QXUcg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=JRknTEvF/LG/fVhbNvod3UxDwkueT+HBJHzM9aScl+Jm6/rr3cOgLC2SHoBZHny7l
-         HXj6uI35w9kIi+fZZJg4rv1tyDt1yW26h4BTWz3WYfS8I1uOTcRsqQgz6NVoHmun0b
-         xTDw4fR7Jhpyh5vjw2TKxyKBXFmAHpjoahkuFNy0=
-Subject: Re: [PATCH 5.4 55/86] x86/mmx: Use KFPU_387 for MMX string operations
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
-Cc:     stable@vger.kernel.org, Krzysztof Mazur <krzysiek@podlesie.net>,
-        Borislav Petkov <bp@suse.de>
-References: <20210125183201.024962206@linuxfoundation.org>
- <20210125183203.376765980@linuxfoundation.org>
-From:   =?UTF-8?Q?Krzysztof_Ol=c4=99dzki?= <ole@ans.pl>
-Message-ID: <e2877c91-bd08-ad07-6f5c-4da59acbf2d6@ans.pl>
-Date:   Mon, 25 Jan 2021 23:03:18 -0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+        id S2390312AbhAZIoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 03:44:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA172065C;
+        Tue, 26 Jan 2021 08:43:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611650611;
+        bh=RGOC6SXuU+lbMn+ZX7UyoYXvwogc/UEwlnkWFIn9f4U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kSaoX74K2eXtrwg/yJ3X5QKORA14j5cvZVrspdE6ewg1AztLk/aKSJObGLezpIOZ9
+         YlVsAUHn4DWkubCNTFePyiKQDPKYpjh2qvBkkB91KoEQ8I2TEkBbLTr4CnOjfgYH1V
+         Bq2Z/q9wxKQVVJh9cz3L4i1y7HFuOcIZP90q8mE4=
+Date:   Tue, 26 Jan 2021 09:43:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>,
+        linux-kernel@vger.kernel.org, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org
+Subject: Re: [PATCH 5.10 000/199] 5.10.11-rc1 review
+Message-ID: <YA/WMSIMjeclLv+Y@kroah.com>
+References: <20210125183216.245315437@linuxfoundation.org>
+ <ef5b0670-83ea-e754-033c-2f3f56a8c822@linaro.org>
+ <20210125201806.GA78651@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20210125183203.376765980@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210125201806.GA78651@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-01-25 at 10:39, Greg Kroah-Hartman wrote:
-> From: Andy Lutomirski <luto@kernel.org>
+On Mon, Jan 25, 2021 at 12:18:06PM -0800, Guenter Roeck wrote:
+> On Mon, Jan 25, 2021 at 01:36:03PM -0600, Daniel Díaz wrote:
+> > Hello!
+> > 
+> > 
+> > On 1/25/21 12:37 PM, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.10.11 release.
+> > > There are 199 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed, 27 Jan 2021 18:31:44 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.11-rc1.gz
+> > > or in the git tree and branch at:
+> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > Sanity results from Linaro’s test farm.
+> > Regressions detected.
+> > 
+> [ ... ]
+> > 
+> > Errors look like the following:
+> > 
+> >   make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=x86_64 CROSS_COMPILE=x86_64-linux-gnu- 'CC=sccache x86_64-linux-gnu-gcc' 'HOSTCC=sccache gcc'
+> >   /builds/1nZbYji0zW0SkEnWMrDznWWzerI/arch/x86/kernel/cpu/amd.c: In function 'bsp_init_amd':
+> >   /builds/1nZbYji0zW0SkEnWMrDznWWzerI/arch/x86/kernel/cpu/amd.c:572:3: error: '__max_die_per_package' undeclared (first use in this function); did you mean 'topology_max_die_per_package'?
+> >     572 |   __max_die_per_package = nodes_per_socket = ((ecx >> 8) & 7) + 1;
+> >         |   ^~~~~~~~~~~~~~~~~~~~~
+> >         |   topology_max_die_per_package
+> > 
+> > Will find out more soon.
+> > 
 > 
-> commit 67de8dca50c027ca0fa3b62a488ee5035036a0da upstream.
+> This may be due to commit 76e2fc63ca40 ("x86/cpu/amd: Set __max_die_per_package
+> on AMD").
 > 
-> The default kernel_fpu_begin() doesn't work on systems that support XMM but
-> haven't yet enabled CR4.OSFXSR.  This causes crashes when _mmx_memcpy() is
-> called too early because LDMXCSR generates #UD when the aforementioned bit
-> is clear.
+> Our patches robot tells me:
 > 
-> Fix it by using kernel_fpu_begin_mask(KFPU_387) explicitly.
+> SHA 76e2fc63ca40 recursively fixed by: 1eb8f690bcb5
 > 
-> Fixes: 7ad816762f9b ("x86/fpu: Reset MXCSR to default in kernel_fpu_begin()")
-> Reported-by: Krzysztof Mazur <krzysiek@podlesie.net>
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> Signed-off-by: Borislav Petkov <bp@suse.de>
-> Tested-by: Krzysztof Piotr Olędzki <ole@ans.pl>
-> Tested-by: Krzysztof Mazur <krzysiek@podlesie.net>
-> Cc: <stable@vger.kernel.org>
-> Link: https://lkml.kernel.org/r/e7bf21855fe99e5f3baa27446e32623358f69e8d.1611205691.git.luto@kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> I don't see commit 1eb8f690bcb5 ("x86/topology: Make __max_die_per_package
+> available unconditionally") in the commit log. I have not checked,
+> but it is at least possible that applying it fixes the problem.
 
-Similar to 5.10.11, we also need 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e45122893a9870813f9bd7b4add4f613e6f29008 
-in 5.4.93:
+Argh, the one time I don't run my "are there any fixes for the patches
+in the queue" script, and this pops up...
 
-Otherwise, the kernel will fail to compile if CONFIG_X86_USE_3DNOW=y
+Thanks for this, turns out there's another patch missing as well.  I'll
+be doing a -rc2 soon for two queues...
 
-arch/x86/lib/mmx_32.c: In function '_mmx_memcpy':
-arch/x86/lib/mmx_32.c:50:2: error: implicit declaration of function 
-'kernel_fpu_begin_mask'; did you mean 'kernel_fpu_begin'? 
-[-Werror=implicit-function-declaration]
-    50 |  kernel_fpu_begin_mask(KFPU_387);
-       |  ^~~~~~~~~~~~~~~~~~~~~
-       |  kernel_fpu_begin
-arch/x86/lib/mmx_32.c:50:24: error: 'KFPU_387' undeclared (first use in 
-this function)
-    50 |  kernel_fpu_begin_mask(KFPU_387);
-       |                        ^~~~~~~~
-arch/x86/lib/mmx_32.c:50:24: note: each undeclared identifier is 
-reported only once for each function it appears in
-arch/x86/lib/mmx_32.c: In function 'fast_clear_page':
-arch/x86/lib/mmx_32.c:140:24: error: 'KFPU_387' undeclared (first use in 
-this function)
-   140 |  kernel_fpu_begin_mask(KFPU_387);
-       |                        ^~~~~~~~
-arch/x86/lib/mmx_32.c: In function 'fast_copy_page':
-arch/x86/lib/mmx_32.c:173:24: error: 'KFPU_387' undeclared (first use in 
-this function)
-   173 |  kernel_fpu_begin_mask(KFPU_387);
-       |                        ^~~~~~~~
+thanks,
 
-Thanks,
-  Krzysztof
-
+greg k-h
