@@ -2,195 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C1B304C23
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 23:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D21E304C24
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 23:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbhAZWBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 17:01:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726313AbhAZVHF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 16:07:05 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151BBC061573
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 13:05:49 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id lw17so1862192pjb.0
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 13:05:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cVBb1Qkvfsw2wnFpkUfJVS+qCG/jlwN6125+9xvoHoI=;
-        b=e1RDE6xWju3PDmIQjhPtBB79uyzdhRkcOVxlBoca7iyNVNAa39y+tA7CtCkMT1D3x6
-         BjU78atNXFZmLHqcNVQn1lG8N3Il08ijdFysmBBAAHfWoIBrDSFx7q9NStANfatJbanT
-         t31Si+Ckb51EC6BB/VmWWdMTg54zy8MSXKBa6Q4GLcAPcJs/eiURnKqpWn5El3K6mBbC
-         ks4ZCF/B/5g0HNBlp3I0xOoa4/5dDcy3/0NM+MxWHv/E7Ca/D1MgiIioqSfZ82DFC7cV
-         FUUeFuHZkUl+q4kRW5nq52BNHiOAA88wUWcLAz3gBOZKudIfzaQGVVLCuEHKNy4Ekjgp
-         9Iag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cVBb1Qkvfsw2wnFpkUfJVS+qCG/jlwN6125+9xvoHoI=;
-        b=WdIQNsgIAnkdIW3iZC4wLgTlkT4FhD9rXy5EPak5WTqcewJwm9QxedqZ6n2s4Npy0F
-         2Zet5inUDMPyUzuelTw/3qgsWX+KsQ3FBUXOm5K7mgNmQkdJVmSVRIzBJFkkUSxQK0Wo
-         hq10nkgbIlm2otvuaOxIOHkwpD2ADhMo01g8G8tvmWwZnQ9ExMFtiNxLJX1MXHFaftSK
-         yuz8aER/NxhQ8VT+GHDj/jq0wMZpqIQx3Nrp/B6iC+uPhujoyPomx11vtTY+RR0YpmEP
-         vaOJX+vhC92WjlzKe+ZaGyPf5OItmLlquwM4cDxreWVdOTsFTo930F2qIq/Qb2+WV/Xz
-         I0Qw==
-X-Gm-Message-State: AOAM530p2wt9Ffi8zZDtRxzq14NDuHI2FD4+I3KvU2RyCf2DW81erEtV
-        cHFlkoHePEykE3eijRpQp02qHN0lnbtm4PJ7
-X-Google-Smtp-Source: ABdhPJzHz4VzqRT47JzH0Cywntazh2aMksVJ47x4h+L65Bo2HNV5voKzwQo6AlBvoOg4sEpNjeR79A==
-X-Received: by 2002:a17:90a:7e88:: with SMTP id j8mr1689370pjl.217.1611695148184;
-        Tue, 26 Jan 2021 13:05:48 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m77sm33562pfd.82.2021.01.26.13.05.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 13:05:47 -0800 (PST)
-Message-ID: <6010842b.1c69fb81.bd19.025e@mx.google.com>
-Date:   Tue, 26 Jan 2021 13:05:47 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.10-203-g7b2d1845e2139
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 186 runs,
- 3 regressions (v5.10.10-203-g7b2d1845e2139)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1727570AbhAZWBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 17:01:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728534AbhAZVPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 16:15:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A77722B2C;
+        Tue, 26 Jan 2021 21:14:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1611695698;
+        bh=LJa+EjZkO8n/sGtn9wsG2+5gf+uriwbCGuXersm6trM=;
+        h=Date:From:To:Subject:From;
+        b=XUBzEnbmzD97Lz3kOmv5fDAA7y6gkI5oh9B7h8W+pkmxrFAmWellrtVe38bWXJa6x
+         B8leTKMe5Z2cRyZnARHSw5mnxAM79oDLGEt4VkPQ7dLslypfvKqdId4yYSn/1dcap0
+         PkbAv3RWqQf0mx0YHY4CawR7Cv8fP5e4aeN7tC44=
+Date:   Tue, 26 Jan 2021 13:14:57 -0800
+From:   akpm@linux-foundation.org
+To:     linmiaohe@huawei.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, songmuchun@bytedance.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages.patch added to -mm
+ tree
+Message-ID: <20210126211457.EUKDwYVhX%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 186 runs, 3 regressions (v5.10.10-203-g7b2d1=
-845e2139)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm: hugetlb: fix missing put_page in gather_surplus_pages()
+has been added to the -mm tree.  Its filename is
+     mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages.patch
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-imx8mp-evk                 | arm64 | lab-nxp      | gcc-8    | defconfig | =
-1          =
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages.patch
 
-meson-gxm-q200             | arm64 | lab-baylibre | gcc-8    | defconfig | =
-1          =
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-8    | defconfig | =
-1          =
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.10-203-g7b2d1845e2139/plan/baseline/
+------------------------------------------------------
+From: Muchun Song <songmuchun@bytedance.com>
+Subject: mm: hugetlb: fix missing put_page in gather_surplus_pages()
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.10-203-g7b2d1845e2139
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7b2d1845e21395805add41fc896fb22ffde8f03a =
+The VM_BUG_ON_PAGE avoids the generation of any code, even if that
+expression has side-effects when !CONFIG_DEBUG_VM.
 
+Link: https://lkml.kernel.org/r/20210126031009.96266-1-songmuchun@bytedance.com
+Fixes: e5dfacebe4a4 ("mm/hugetlb.c: just use put_page_testzero() instead of page_count()")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ mm/hugetlb.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Test Regressions
----------------- =
+--- a/mm/hugetlb.c~mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages
++++ a/mm/hugetlb.c
+@@ -2047,13 +2047,16 @@ retry:
+ 
+ 	/* Free the needed pages to the hugetlb pool */
+ 	list_for_each_entry_safe(page, tmp, &surplus_list, lru) {
++		int zeroed;
++
+ 		if ((--needed) < 0)
+ 			break;
+ 		/*
+ 		 * This page is now managed by the hugetlb allocator and has
+ 		 * no users -- drop the buddy allocator's reference.
+ 		 */
+-		VM_BUG_ON_PAGE(!put_page_testzero(page), page);
++		zeroed = put_page_testzero(page);
++		VM_BUG_ON_PAGE(!zeroed, page);
+ 		enqueue_huge_page(h, page);
+ 	}
+ free:
+_
 
+Patches currently in -mm which might be from songmuchun@bytedance.com are
 
+mm-hugetlbfs-fix-cannot-migrate-the-fallocated-hugetlb-page.patch
+mm-hugetlb-fix-a-race-between-freeing-and-dissolving-the-page.patch
+mm-hugetlb-fix-a-race-between-isolating-and-freeing-page.patch
+mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch
+mm-migrate-do-not-migrate-hugetlb-page-whose-refcount-is-one.patch
+mm-hugetlb-fix-missing-put_page-in-gather_surplus_pages.patch
+mm-memcontrol-optimize-per-lruvec-stats-counter-memory-usage.patch
+mm-memcontrol-fix-nr_anon_thps-accounting-in-charge-moving.patch
+mm-memcontrol-convert-nr_anon_thps-account-to-pages.patch
+mm-memcontrol-convert-nr_file_thps-account-to-pages.patch
+mm-memcontrol-convert-nr_shmem_thps-account-to-pages.patch
+mm-memcontrol-convert-nr_shmem_pmdmapped-account-to-pages.patch
+mm-memcontrol-convert-nr_file_pmdmapped-account-to-pages.patch
+mm-memcontrol-make-the-slab-calculation-consistent.patch
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-imx8mp-evk                 | arm64 | lab-nxp      | gcc-8    | defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6010500e6db82e0915d3dfc9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6010500e6db82e0915d3d=
-fca
-        new failure (last pass: v5.10.10-199-g7697e1eb59f82) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-meson-gxm-q200             | arm64 | lab-baylibre | gcc-8    | defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60104f09b852c8594fd3dff5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60104f09b852c8594fd3d=
-ff6
-        new failure (last pass: v5.10.10-199-g7697e1eb59f82) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-8    | defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60104efab852c8594fd3dfd2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.10-=
-203-g7b2d1845e2139/arm64/defconfig/gcc-8/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60104efab852c8594fd3d=
-fd3
-        new failure (last pass: v5.10.10-199-g7697e1eb59f82) =
-
- =20
