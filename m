@@ -2,94 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E52304074
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67704304067
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730898AbhAZOZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 09:25:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392785AbhAZOYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 09:24:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2BDF206CA;
-        Tue, 26 Jan 2021 14:24:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611671041;
-        bh=OS2qj0rZ73Kn1++CTKbRtcRE3tmPjJooU8sCDJZqYcI=;
-        h=Subject:To:From:Date:From;
-        b=IYiM7FJE6NkIriFEt6WSGh3UBsykCi5g+YHHwuVDT87O11JkZAbK+pRqY+lQWzttV
-         C92pQGZBpKneNRIu0SQCn2jbvZ5aRUu3BwwSZINh7sWMIkfSzInmGcWVhmnsriep5F
-         a1yJ08KS1PvTd4M/9gpLxdmU4yJW9CrQ2qWMQhpw=
-Subject: patch "usb: gadget: aspeed: add missing of_node_put" added to usb-linus
-To:     lkp@intel.com, gregkh@linuxfoundation.org, julia.lawall@inria.fr,
-        stable@vger.kernel.org, sylphrenadin@gmail.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 26 Jan 2021 15:23:58 +0100
-Message-ID: <16116710383596@kroah.com>
+        id S2392762AbhAZOex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 09:34:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392748AbhAZOb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 09:31:29 -0500
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E84C061D73
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 06:30:48 -0800 (PST)
+Received: by mail-qt1-x832.google.com with SMTP id d15so12265983qtw.12
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 06:30:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cnQKRa1F2EPOzJJlOmZC39ZEc9CoOc05/pnXM6vhQqM=;
+        b=CqAIGBek2YTA0stJ19SPJ0SnPEZycikjeY7CnanSn4ZRyjS3R5O0Jw/kBb6sW+GpNv
+         RSntH39V+WBlBz+d0FIDe6vGApF+EXdsRFTY+cP0Y9oLF94KgApG4RRHvWftK2DNqPST
+         c9Hqu7nzlOwuNZAIIBmaJyBYWYWc6Npz/1I3rXipdd7ivNUPjRUgkrH/94xqDRegM0ld
+         6x3fo/VzwHlIguvgHVzL4v/Qq3Tow3yV9D0MV1Otad59Olqx+ssg5KBujuaEMn8WHbgf
+         7oTQPBYVbcMwF+Fz7P8rqcHqJr9S7nvH1Ldm720no8yzgEyNfx8MsDqE1KZawRNoXOa/
+         nHkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cnQKRa1F2EPOzJJlOmZC39ZEc9CoOc05/pnXM6vhQqM=;
+        b=PdsV3avlMoVs8ge03jNzwsfEPPG6VuNHQQOmfUNHhWq/u/n2eHQK5llVyUlunBAAo6
+         8lY2xCoBaBhsnCNWPEK9fTkitdUKQSdmQde3BdwKqXWO2z4tRcB3/3UEL363y9qaqEgO
+         YmAq2EXPLjhtn+Ocusrv7akfuNccMBTZd2sxLWBudWVoSIjjxL62tkwBZhszjQriiLGh
+         ei89mJyUuQ7HUOkxE1i/Ag7itx6J6iKEbyF8KrVpe3cfGE3vxO1N64J2YJ1es9xjyoqZ
+         XyuWTDpQ4PANcPZPjZI0dPFrLSMBacQWXkJENMw2a30PD6L8ionRMn1hYp09MvUX2mB/
+         nzgQ==
+X-Gm-Message-State: AOAM530taUI6XUU/UQq2lzxm7BJQ6J8wMiIqJfNtdUGAqVcY49JgvjD+
+        mp8Wj7+DspvZug0NkJAPJthsraz8BPdcPPb/
+X-Google-Smtp-Source: ABdhPJx1dfNA+3TC6TmAw/g8cbA7ibCQPo6igGadI3jLfsIn4j6YIBUeA2X/Atpah6vFvKLsPESV+A==
+X-Received: by 2002:aed:2644:: with SMTP id z62mr5394060qtc.146.1611671447521;
+        Tue, 26 Jan 2021 06:30:47 -0800 (PST)
+Received: from [192.168.1.45] (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
+        by smtp.gmail.com with ESMTPSA id c12sm13611176qtq.76.2021.01.26.06.30.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Jan 2021 06:30:46 -0800 (PST)
+Subject: Re: [PATCH] btrfs: avoid double put of block group when emptying
+ cluster
+To:     Nikolay Borisov <nborisov@suse.com>, linux-btrfs@vger.kernel.org,
+        kernel-team@fb.com
+Cc:     stable@vger.kernel.org
+References: <5ca694ff4f8cff4c0ef6896593a1f1d01fbe956d.1611610947.git.josef@toxicpanda.com>
+ <bf8cd92d-12a0-3bb3-34c0-dd9c938bf349@suse.com>
+From:   Josef Bacik <josef@toxicpanda.com>
+Message-ID: <ad0ea42a-5e41-f9b9-986d-8c70e9f2eed3@toxicpanda.com>
+Date:   Tue, 26 Jan 2021 09:30:45 -0500
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <bf8cd92d-12a0-3bb3-34c0-dd9c938bf349@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 1/26/21 4:02 AM, Nikolay Borisov wrote:
+> 
+> 
+> On 25.01.21 г. 23:42 ч., Josef Bacik wrote:
+>> In __btrfs_return_cluster_to_free_space we will bail doing the cleanup
+>> of the cluster if the block group we passed in doesn't match the block
+>> group on the cluster.  However we drop a reference to block_group, as
+>> the cluster holds a reference to the block group while it's attached to
+>> the cluster.  If cluster->block_group != block_group however then this
+>> is an extra put, which means we'll go negative and free this block group
+>> down the line, leading to a UAF.
+> 
+> Was this found by code inspection or did you hit in production. Also why
+> in btrfs_remove_free_space_cache just before
+> __btrfs_return_cluster_to_free_space there is:
+> 
 
-This is a note to let you know that I've just added the patch titled
+It was found in production sort of halfway.  I was doing something for WhatsApp 
+and had to convert our block group reference counting to the refcount stuff so I 
+could find where I made a mistake.  Turns out this was where the problem was, my 
+stuff had just made it way more likely to happen.  I don't have the stack trace 
+because this was like 6 months ago, I'm going through all my WhatsApp magic and 
+getting them actually usable for upstream.
 
-    usb: gadget: aspeed: add missing of_node_put
+> WARN_ON(cluster->block_group != block_group);
+> 
+> IMO this patch should also remove the WARN_ON if it's a valid condition
+> to have the passed bg be different than the one in the cluster. Also
+> that WARN_ON is likely racy since it's done outside of cluster->lock.
+> 
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Yup that's in a follow up thing, I wanted to get the actual fix out before I got 
+distracted by my mountain of meetings this week.  Thanks,
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a55a9a4c5c6253f6e4dea268af728664ac997790 Mon Sep 17 00:00:00 2001
-From: kernel test robot <lkp@intel.com>
-Date: Thu, 21 Jan 2021 19:12:54 +0100
-Subject: usb: gadget: aspeed: add missing of_node_put
-
-Breaking out of for_each_child_of_node requires a put on the
-child value.
-
-Generated by: scripts/coccinelle/iterators/for_each_child.cocci
-
-Fixes: 82c2d81361ec ("coccinelle: iterators: Add for_each_child.cocci script")
-CC: Sumera Priyadarsini <sylphrenadin@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Julia Lawall <julia.lawall@inria.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2101211907060.14700@hadrien
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/udc/aspeed-vhub/hub.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/gadget/udc/aspeed-vhub/hub.c b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-index 6497185ec4e7..bfd8e77788e2 100644
---- a/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-+++ b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-@@ -999,8 +999,10 @@ static int ast_vhub_of_parse_str_desc(struct ast_vhub *vhub,
- 		str_array[offset].s = NULL;
- 
- 		ret = ast_vhub_str_alloc_add(vhub, &lang_str);
--		if (ret)
-+		if (ret) {
-+			of_node_put(child);
- 			break;
-+		}
- 	}
- 
- 	return ret;
--- 
-2.30.0
-
-
+Josef
