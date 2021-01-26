@@ -2,80 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 217DC30367B
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 07:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7076B3037ED
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 09:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbhAZGZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 01:25:59 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:11877 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732496AbhAZGVM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 01:21:12 -0500
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DPxQG71Q8z7b5G;
-        Tue, 26 Jan 2021 14:19:02 +0800 (CST)
-Received: from [10.174.179.117] (10.174.179.117) by
- DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 26 Jan 2021 14:20:10 +0800
-Subject: Re: [PATCH] mm: hugetlb: fix missing put_page in
- gather_surplus_pages()
-To:     Muchun Song <songmuchun@bytedance.com>
-CC:     <sh_def@163.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <mike.kravetz@oracle.com>, <akpm@linux-foundation.org>
-References: <20210126031009.96266-1-songmuchun@bytedance.com>
-From:   Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <becc96f8-9abd-21e1-337f-22b1cd7a9c96@huawei.com>
-Date:   Tue, 26 Jan 2021 14:20:10 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S2390117AbhAZIbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 03:31:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37213 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2390147AbhAZIaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 03:30:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611649728;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bhV4Mq5/sBWiSQk3XJm+QtpJxWDhek1THdWB8YUzVxE=;
+        b=gS/m9471EbvRBZyAUCCPUVXUxK5gCojKY/vsj8/h+vbQ0HlQYrBUbMML4OK1NySGK2xnYz
+        hYjRHj2HFNj3PWzXridt4BnTDIcD8DV1XfgaKhuWLyz6shG4byiqIzHEViFyT2s96xIdDI
+        I3UBSV94NMWvYqgF3/lu+JPGv2wT7hM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-83--4Inxhf7N6asR7JiI5xpBw-1; Tue, 26 Jan 2021 03:28:44 -0500
+X-MC-Unique: -4Inxhf7N6asR7JiI5xpBw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EFFA310054FF;
+        Tue, 26 Jan 2021 08:28:42 +0000 (UTC)
+Received: from [10.72.12.70] (ovpn-12-70.pek2.redhat.com [10.72.12.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8B76672168;
+        Tue, 26 Jan 2021 08:28:35 +0000 (UTC)
+Subject: Re: [PATCH v3] vhost_vdpa: fix the problem in
+ vhost_vdpa_set_config_call
+To:     Cindy Lu <lulu@redhat.com>, mst@redhat.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20210126071607.31487-1-lulu@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <757a05d2-c82e-e957-1b7c-55eb64495f1b@redhat.com>
+Date:   Tue, 26 Jan 2021 16:28:34 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210126031009.96266-1-songmuchun@bytedance.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20210126071607.31487-1-lulu@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.179.117]
-X-CFilter-Loop: Reflected
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi:
-On 2021/1/26 11:10, Muchun Song wrote:
-> The VM_BUG_ON_PAGE avoids the generation of any code, even if that
-> expression has side-effects when !CONFIG_DEBUG_VM.
-> 
-> Fixes: e5dfacebe4a4 ("mm/hugetlb.c: just use put_page_testzero() instead of page_count()")
-> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> Cc: <stable@vger.kernel.org>
+
+On 2021/1/26 下午3:16, Cindy Lu wrote:
+> In vhost_vdpa_set_config_call, the cb.private should be vhost_vdpa.
+> this cb.private will finally use in vhost_vdpa_config_cb as
+> vhost_vdpa. Fix this issue.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 776f395004d82 ("vhost_vdpa: Support config interrupt in vdpa")
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
 > ---
->  mm/hugetlb.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index a6bad1f686c5..082ed643020b 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -2047,13 +2047,16 @@ static int gather_surplus_pages(struct hstate *h, long delta)
->  
->  	/* Free the needed pages to the hugetlb pool */
->  	list_for_each_entry_safe(page, tmp, &surplus_list, lru) {
-> +		int zeroed;
-> +
->  		if ((--needed) < 0)
->  			break;
->  		/*
->  		 * This page is now managed by the hugetlb allocator and has
->  		 * no users -- drop the buddy allocator's reference.
->  		 */
-> -		VM_BUG_ON_PAGE(!put_page_testzero(page), page);
-> +		zeroed = put_page_testzero(page);
-> +		VM_BUG_ON_PAGE(!zeroed, page);
->  		enqueue_huge_page(h, page);
->  	}
->  free:
-> 
+>   drivers/vhost/vdpa.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index ef688c8c0e0e..3fbb9c1f49da 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -319,7 +319,7 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
+>   	struct eventfd_ctx *ctx;
+>   
+>   	cb.callback = vhost_vdpa_config_cb;
+> -	cb.private = v->vdpa;
+> +	cb.private = v;
+>   	if (copy_from_user(&fd, argp, sizeof(fd)))
+>   		return  -EFAULT;
+>   
 
-Good Catch! Thanks.
-
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
