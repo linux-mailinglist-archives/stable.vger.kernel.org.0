@@ -2,89 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A152D303A73
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 11:36:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1AA303ABC
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 11:50:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404062AbhAZKgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 05:36:10 -0500
-Received: from foss.arm.com ([217.140.110.172]:60670 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404175AbhAZKfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 05:35:23 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 862E2D6E;
-        Tue, 26 Jan 2021 02:34:34 -0800 (PST)
-Received: from [10.57.43.46] (unknown [10.57.43.46])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4FCA73F66B;
-        Tue, 26 Jan 2021 02:34:33 -0800 (PST)
-Subject: Re: [PATCH] iommu/arm-smmu-qcom: Fix mask extraction for bootloader
- programmed SMRs
-To:     "Isaac J. Manjarres" <isaacm@codeaurora.org>, will@kernel.org,
-        joro@8bytes.org, bjorn.andersson@linaro.org
-Cc:     stable@vger.kernel.org, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <1611611545-19055-1-git-send-email-isaacm@codeaurora.org>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <21495c0d-d029-48c8-bbe7-fc45ff7d9326@arm.com>
-Date:   Tue, 26 Jan 2021 10:34:31 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
-MIME-Version: 1.0
-In-Reply-To: <1611611545-19055-1-git-send-email-isaacm@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+        id S1731577AbhAZKtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 05:49:25 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:14476 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404372AbhAZKtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 05:49:10 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B600ff37d0003>; Tue, 26 Jan 2021 02:48:29 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 26 Jan
+ 2021 10:47:44 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Tue, 26 Jan 2021 10:47:44 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/86] 5.4.93-rc1 review
+In-Reply-To: <20210125183201.024962206@linuxfoundation.org>
+References: <20210125183201.024962206@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <4456fcb266434d6296d2b69d3b8ea392@HQMAIL111.nvidia.com>
+Date:   Tue, 26 Jan 2021 10:47:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1611658109; bh=9yGdReLerh2zqQ1FvOcamaF4eb/F7yVwPGzy5Rlo/dE=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=HmSmxhNFt0S0dz7wWVcmGsKi73xz8/lTXOu7GLk7BDKg1TFY1DP6YNW8Sy74AlzlF
+         ld4Cdnf0y0X1YzvgZ91OqiCO4t570vaMkyygd2cjwF8u2UdE+KGOcrnAmZ9sxnodC9
+         Jne5r4G/bSz+yA1pTQHDTeorKQqJncWWknX+45hzo5nIzbF6m7v3NDddJGBlS6BY5o
+         3nmrGL34ED9hBJ+WrPrZMP+MtNUm9iLOlbc+wZF02eXgL2NhGZ4qElT0Etv64cj1rc
+         tmom/+1qBIlQVzpXBCTDRFUwl/2k7erd7E91bTlfseVIE3m20KzC5OHRZK4YjLg5Qj
+         VRQcGTK+vkV/Q==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-01-25 21:52, Isaac J. Manjarres wrote:
-> When extracting the mask for a SMR that was programmed by the
-> bootloader, the SMR's valid bit is also extracted and is treated
-> as part of the mask, which is not correct. Consider the scenario
-> where an SMMU master whose context is determined by a bootloader
-> programmed SMR is removed (omitting parts of device/driver core):
+On Mon, 25 Jan 2021 19:38:42 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.93 release.
+> There are 86 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> ->iommu_release_device()
->   -> arm_smmu_release_device()
->    -> arm_smmu_master_free_smes()
->     -> arm_smmu_free_sme() /* Assume that the SME is now free */
->     -> arm_smmu_write_sme()
->      -> arm_smmu_write_smr() /* Construct SMR value using mask and SID */
+> Responses should be made by Wed, 27 Jan 2021 18:31:44 +0000.
+> Anything received after that time might be too late.
 > 
-> Since the valid bit was considered as part of the mask, the SMR will
-> be programmed as valid.
-
-Ah, right, because ARM_SMMU_SMR_{ID,MASK} are 16-bit fields to 
-accommodate EXIDS, which doesn't matter normally when the IDs are 
-strictly validated in arm_smmu_probe_device()...
-
-> Fix the SMR mask extraction step for bootloader programmed SMRs
-> by masking out the valid bit when we know that we're already
-> working with a valid SMR.
-
-This seems like the neatest approach to me.
-
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-
-> Fixes: 07a7f2caaa5a ("iommu/arm-smmu-qcom: Read back stream mappings")
-> Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-> Cc: stable@vger.kernel.org
-> ---
->   drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c | 2 ++
->   1 file changed, 2 insertions(+)
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.93-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-> index bcda170..abb1d2f 100644
-> --- a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
-> @@ -206,6 +206,8 @@ static int qcom_smmu_cfg_probe(struct arm_smmu_device *smmu)
->   		smr = arm_smmu_gr0_read(smmu, ARM_SMMU_GR0_SMR(i));
->   
->   		if (FIELD_GET(ARM_SMMU_SMR_VALID, smr)) {
-> +			/* Ignore valid bit for SMR mask extraction. */
-> +			smr &= ~ARM_SMMU_SMR_VALID;
->   			smmu->smrs[i].id = FIELD_GET(ARM_SMMU_SMR_ID, smr);
->   			smmu->smrs[i].mask = FIELD_GET(ARM_SMMU_SMR_MASK, smr);
->   			smmu->smrs[i].valid = true;
+> thanks,
 > 
+> greg k-h
+
+All tests passing for Tegra ...
+
+Test results for stable-v5.4:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
+
+Linux version:	5.4.93-rc1-g3deaa28e41d9
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
