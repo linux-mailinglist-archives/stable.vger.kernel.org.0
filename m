@@ -2,195 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE38D304BE1
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8958A304BE2
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 22:57:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727623AbhAZV4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 16:56:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389998AbhAZRru (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 12:47:50 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46869C0613D6
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 09:46:56 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id d22so20830300edy.1
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 09:46:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=mXB337YdK4IoZ5DxwneF4YucLGz7gHAsDlI9WdfF+Xs=;
-        b=XVgXeP3Zpj0gHS7wcEIekmC5q6fS2qubWSqIJ/tXf3u8/4O9cztKYG0q5vt83lwym6
-         4B3/EOWRk/0Di+vK867cmPMR/X+1n3odZ1dPHH2OE9Nee0ay15s8Gk27UkN8otq8+qj7
-         eP0FLvGokV3P7NVHCKAlFbxNuRMTIJ5kQNHBULgCK16U8m0lagPjFPbhV5WwrcgPmovm
-         Wk3oUpZ5P3dyTtYKQWC+W4lB9sgIrZCBnaVZOi+Oee12xKl8zZ8Vaet2FcXZZr8Jyhx6
-         ksW3Mg5lJvdyRX0JnnoHvVVfs5uTY5MWm49p7fMH2KSCjbrtZTs34NhhHVwBb2Fziv24
-         NAyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=mXB337YdK4IoZ5DxwneF4YucLGz7gHAsDlI9WdfF+Xs=;
-        b=cM7QKhQ9U70+D+ofIuZ1Id0NrAh9dfJjmlZFP+iCidw/BzbK1TkX1NGqVhqr5jthx8
-         kgXIp2PYvwhD55RjVudbK2iSXV85R2KSuYII3ZBbgJDesj6dUZunnYp/sb9yaBRVxloP
-         MW4oKbpw7VvUbqKROP3ELuHFyTYKxj8c8IrgHKbQAsEAo+ueIQ7QOVzmnvOSAh+On6eR
-         /rg0aGj7Y558YN6z55nEB+QdUQFAjaRi31dpxU8gNmdOmn73IJYZVVoNgRR0mLR6+yTS
-         V2SYx0yZesr9sgo5zVzq/rsBMlf9LbuXhariWA0P6EVksQhPcA42Us1D3fwphnEeyrQh
-         bajA==
-X-Gm-Message-State: AOAM5307TBPkSEbZTn4HtIBDtKLwOAdO4cVpRovxCVZZwi7WDFw83N+k
-        BBD0fM9wG5jefDHcolY9Hclo9DJYm4QDjU77vQYyHg==
-X-Google-Smtp-Source: ABdhPJz6nAEmn2QE7WVksOPb+TUUaBRyPeexFhgY6Q05ooWC3FMV+f0zMBq0XC7DjIZ893pPqjRDdQUMM4CxXicDhNQ=
-X-Received: by 2002:aa7:d905:: with SMTP id a5mr5701870edr.78.1611683214629;
- Tue, 26 Jan 2021 09:46:54 -0800 (PST)
+        id S1726893AbhAZV45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 16:56:57 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:35488 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2392438AbhAZR7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 12:59:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611683876;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=p9VIkEjgV6LmYhA2YGMiaRvwDiPVcCHIF5TfSu17MrE=;
+        b=OqgOi4DKHIS4R+x8vi5gs9MlLeLmWO0G2tlMIYrUcwjsfnlzZy5adpJ3XbilmXqW47AfsX
+        FOCEQIx/cQrtCvXMSXjBIfF9yuuDpOXcTp1XRgNu2+1Q9B9WnGbYkLgFDdijR1d9uSPaOW
+        /0orcXhUqEYKJ4k1gFPMY73JQVil18c=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-181-22wtDDh0M9G_517SDnTkgA-1; Tue, 26 Jan 2021 12:57:54 -0500
+X-MC-Unique: 22wtDDh0M9G_517SDnTkgA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED8808017FB;
+        Tue, 26 Jan 2021 17:57:52 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BEFAD10023AB;
+        Tue, 26 Jan 2021 17:57:49 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 10QHvnZJ021031;
+        Tue, 26 Jan 2021 12:57:49 -0500
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 10QHvmdg021028;
+        Tue, 26 Jan 2021 12:57:48 -0500
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 26 Jan 2021 12:57:48 -0500 (EST)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     gregkh@linuxfoundation.org
+cc:     dg@emlix.com, snitzer@redhat.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] dm integrity: conditionally disable
+ "recalculate" feature" failed to apply to 5.4-stable tree
+In-Reply-To: <161149489911460@kroah.com>
+Message-ID: <alpine.LRH.2.02.2101261256560.17343@file01.intranet.prod.int.rdu2.redhat.com>
+References: <161149489911460@kroah.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-References: <20210126094313.589480033@linuxfoundation.org>
-In-Reply-To: <20210126094313.589480033@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 26 Jan 2021 23:16:43 +0530
-Message-ID: <CA+G9fYvWxoK=hOdvVUcB1n7Nk5vmWdh-4GzyaaFFyRijHLrnyA@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/203] 5.10.11-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Jan 2021 at 15:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.11 release.
-> There are 203 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 28 Jan 2021 09:42:40 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.11-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Here I'm submitting the updated patch for the 5.4 branch.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Mikulas
 
-Summary
-------------------------------------------------------------------------
 
-kernel: 5.10.11-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.10.y
-git commit: 460ab443f340e551b97897f77ba6d1dfd6dfbd32
-git describe: v5.10.10-204-g460ab443f340
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
-.y/build/v5.10.10-204-g460ab443f340
 
-No regressions (compared to build v5.10.10)
+commit 5c02406428d5219c367c5f53457698c58bc5f917
+Author: Mikulas Patocka <mpatocka@redhat.com>
+Date:   Wed Jan 20 13:59:11 2021 -0500
 
-No fixes (compared to build v5.10.10)
+    dm integrity: conditionally disable "recalculate" feature
+    
+    Otherwise a malicious user could (ab)use the "recalculate" feature
+    that makes dm-integrity calculate the checksums in the background
+    while the device is already usable. When the system restarts before all
+    checksums have been calculated, the calculation continues where it was
+    interrupted even if the recalculate feature is not requested the next
+    time the dm device is set up.
+    
+    Disable recalculating if we use internal_hash or journal_hash with a
+    key (e.g. HMAC) and we don't have the "legacy_recalculate" flag.
+    
+    This may break activation of a volume, created by an older kernel,
+    that is not yet fully recalculated -- if this happens, the user should
+    add the "legacy_recalculate" flag to constructor parameters.
+    
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+    Reported-by: Daniel Glockner <dg@emlix.com>
+    Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-Ran 57016 total tests in the following environments and test suites.
+Index: linux-stable/Documentation/admin-guide/device-mapper/dm-integrity.rst
+===================================================================
+--- linux-stable.orig/Documentation/admin-guide/device-mapper/dm-integrity.rst
++++ linux-stable/Documentation/admin-guide/device-mapper/dm-integrity.rst
+@@ -177,6 +177,12 @@ bitmap_flush_interval:number
+ 	The bitmap flush interval in milliseconds. The metadata buffers
+ 	are synchronized when this interval expires.
+ 
++legacy_recalculate
++	Allow recalculating of volumes with HMAC keys. This is disabled by
++	default for security reasons - an attacker could modify the volume,
++	set recalc_sector to zero, and the kernel would not detect the
++	modification.
++
+ 
+ The journal mode (D/J), buffer_sectors, journal_watermark, commit_time can
+ be changed when reloading the target (load an inactive table and swap the
+Index: linux-stable/drivers/md/dm-integrity.c
+===================================================================
+--- linux-stable.orig/drivers/md/dm-integrity.c
++++ linux-stable/drivers/md/dm-integrity.c
+@@ -254,6 +254,7 @@ struct dm_integrity_c {
+ 	bool journal_uptodate;
+ 	bool just_formatted;
+ 	bool recalculate_flag;
++	bool legacy_recalculate;
+ 
+ 	struct alg_spec internal_hash_alg;
+ 	struct alg_spec journal_crypt_alg;
+@@ -381,6 +382,14 @@ static int dm_integrity_failed(struct dm
+ 	return READ_ONCE(ic->failed);
+ }
+ 
++static bool dm_integrity_disable_recalculate(struct dm_integrity_c *ic)
++{
++	if ((ic->internal_hash_alg.key || ic->journal_mac_alg.key) &&
++	    !ic->legacy_recalculate)
++		return true;
++	return false;
++}
++
+ static commit_id_t dm_integrity_commit_id(struct dm_integrity_c *ic, unsigned i,
+ 					  unsigned j, unsigned char seq)
+ {
+@@ -2998,6 +3007,7 @@ static void dm_integrity_status(struct d
+ 		arg_count += !!ic->internal_hash_alg.alg_string;
+ 		arg_count += !!ic->journal_crypt_alg.alg_string;
+ 		arg_count += !!ic->journal_mac_alg.alg_string;
++		arg_count += ic->legacy_recalculate;
+ 		DMEMIT("%s %llu %u %c %u", ic->dev->name, (unsigned long long)ic->start,
+ 		       ic->tag_size, ic->mode, arg_count);
+ 		if (ic->meta_dev)
+@@ -3017,6 +3027,8 @@ static void dm_integrity_status(struct d
+ 			DMEMIT(" sectors_per_bit:%llu", (unsigned long long)ic->sectors_per_block << ic->log2_blocks_per_bitmap_bit);
+ 			DMEMIT(" bitmap_flush_interval:%u", jiffies_to_msecs(ic->bitmap_flush_interval));
+ 		}
++		if (ic->legacy_recalculate)
++			DMEMIT(" legacy_recalculate");
+ 
+ #define EMIT_ALG(a, n)							\
+ 		do {							\
+@@ -3625,7 +3637,7 @@ static int dm_integrity_ctr(struct dm_ta
+ 	unsigned extra_args;
+ 	struct dm_arg_set as;
+ 	static const struct dm_arg _args[] = {
+-		{0, 15, "Invalid number of feature args"},
++		{0, 14, "Invalid number of feature args"},
+ 	};
+ 	unsigned journal_sectors, interleave_sectors, buffer_sectors, journal_watermark, sync_msec;
+ 	bool should_write_sb;
+@@ -3769,6 +3781,8 @@ static int dm_integrity_ctr(struct dm_ta
+ 				goto bad;
+ 		} else if (!strcmp(opt_string, "recalculate")) {
+ 			ic->recalculate_flag = true;
++		} else if (!strcmp(opt_string, "legacy_recalculate")) {
++			ic->legacy_recalculate = true;
+ 		} else {
+ 			r = -EINVAL;
+ 			ti->error = "Invalid argument";
+@@ -4061,6 +4075,14 @@ try_smaller_buffer:
+ 		}
+ 	}
+ 
++	if (ic->sb->flags & cpu_to_le32(SB_FLAG_RECALCULATING) &&
++	    le64_to_cpu(ic->sb->recalc_sector) < ic->provided_data_sectors &&
++	    dm_integrity_disable_recalculate(ic)) {
++		ti->error = "Recalculating with HMAC is disabled for security reasons - if you really need it, use the argument \"legacy_recalculate\"";
++		r = -EOPNOTSUPP;
++		goto bad;
++	}
++
+ 	ic->bufio = dm_bufio_client_create(ic->meta_dev ? ic->meta_dev->bdev : ic->dev->bdev,
+ 			1U << (SECTOR_SHIFT + ic->log2_buffer_sectors), 1, 0, NULL, NULL);
+ 	if (IS_ERR(ic->bufio)) {
 
-Environments
---------------
-- arc
-- arm
-- arm64
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- parisc
-- powerpc
-- qemu-arm-clang
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-i386-clang
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu-x86_64-kcsan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- riscv
-- s390
-- sh
-- sparc
-- x15
-- x86
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-tracing-tests
-* ltp-controllers-tests
-* ltp-open-posix-tests
-* network-basic-tests
-* fwts
-* kunit
-* rcutorture
-* kselftest
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
