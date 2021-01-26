@@ -2,53 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E04303FD9
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:13:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71377303FF6
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405566AbhAZOMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 09:12:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52238 "EHLO mail.kernel.org"
+        id S2392134AbhAZOQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 09:16:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392714AbhAZOLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 09:11:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73CD322B2C;
-        Tue, 26 Jan 2021 14:11:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611670266;
-        bh=qO17FhbVa3mQXfbFaSTtqkRgjyif4xmgiKHzen6itRo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=N+xve1OJpR7HBorZfqUr1945A9NAf59Lvo8Uq7T1lqXBFwT31Pa9jTP+oHJdYXgg/
-         aYOVFbu86zBOF5WBky1usTgRxs2TPN+2wpcklFUA6l6WTWLZ7MKp9jhiotX94PQhnf
-         mgCJV+QKA1rTPB65bcWaWiOHmmI9uwa49eKMslpJHkDQ/D/im6fmPXN2eaSnQV8dXc
-         kiluAp+fKvxGgSxh0nFRRfBwgcYGY8XZJnnZwm20X5tU5bpAXbRanqDksS+i8nDs+W
-         EQg/sIaRA61l3wj/SjTapp1o7D13yN+DE2F8BxyzNyN4Vi2VpALVWBjLgUkCkP+G4z
-         tnyVMc2eP4JKA==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1l4P3r-0004bh-Tj; Tue, 26 Jan 2021 15:11:15 +0100
-Date:   Tue, 26 Jan 2021 15:11:15 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     linux-usb@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>, Vladimir <svv75@mail.ru>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: ftdi_sio: fix FTX sub-integer prescaler
-Message-ID: <YBAjA7rpUzUJrplZ@hovoldconsulting.com>
-References: <20210126135917.17545-1-johan@kernel.org>
+        id S2392667AbhAZOQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 09:16:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12783206CA;
+        Tue, 26 Jan 2021 14:15:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611670557;
+        bh=ta2LJeQ35NJjiWDOdPasolz3iOXygMQW0EWIxBnJ4uA=;
+        h=Subject:To:From:Date:From;
+        b=idfBLJStUAu54DM2r9OegEQ6du47aXSrLje5Dn4ENMxL2cXfoHJRqXdTHNBBhbfJk
+         WD2T3BgdeDpPe6I08VBldDI7mX0mtxqO0NfM+CEr0ms0Yunyug4Kq78JUgmPgPCLlN
+         fCIPJvt0qjzRMFsm/2UVE6L2HJxAewJvMkpBTDV8=
+Subject: patch "USB: usblp: don't call usb_set_interface if there's a single alt" added to usb-linus
+To:     kernel@jeremyfiggins.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, zaitcev@redhat.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 26 Jan 2021 15:15:55 +0100
+Message-ID: <1611670555227110@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210126135917.17545-1-johan@kernel.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 02:59:17PM +0100, Johan Hovold wrote:
-> The most-significant bit of the sub-integer-prescaler index is set in
-> the high byte of the baudrate request wIndex also for FTX devices.
-> 
-> This fixes rates like 1152000 which got mapped to 12 MBd.
 
-Hmm. I played around with this using an FT232H which has a 12 MHz clock
-so this example is off for FTX. I'll fix it up before applying.
+This is a note to let you know that I've just added the patch titled
 
-Johan
+    USB: usblp: don't call usb_set_interface if there's a single alt
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From d8c6edfa3f4ee0d45d7ce5ef18d1245b78774b9d Mon Sep 17 00:00:00 2001
+From: Jeremy Figgins <kernel@jeremyfiggins.com>
+Date: Sat, 23 Jan 2021 18:21:36 -0600
+Subject: USB: usblp: don't call usb_set_interface if there's a single alt
+
+Some devices, such as the Winbond Electronics Corp. Virtual Com Port
+(Vendor=0416, ProdId=5011), lockup when usb_set_interface() or
+usb_clear_halt() are called. This device has only a single
+altsetting, so it should not be necessary to call usb_set_interface().
+
+Acked-by: Pete Zaitcev <zaitcev@redhat.com>
+Signed-off-by: Jeremy Figgins <kernel@jeremyfiggins.com>
+Link: https://lore.kernel.org/r/YAy9kJhM/rG8EQXC@watson
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/usblp.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 134dc2005ce9..c9f6e9758288 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -1329,14 +1329,17 @@ static int usblp_set_protocol(struct usblp *usblp, int protocol)
+ 	if (protocol < USBLP_FIRST_PROTOCOL || protocol > USBLP_LAST_PROTOCOL)
+ 		return -EINVAL;
+ 
+-	alts = usblp->protocol[protocol].alt_setting;
+-	if (alts < 0)
+-		return -EINVAL;
+-	r = usb_set_interface(usblp->dev, usblp->ifnum, alts);
+-	if (r < 0) {
+-		printk(KERN_ERR "usblp: can't set desired altsetting %d on interface %d\n",
+-			alts, usblp->ifnum);
+-		return r;
++	/* Don't unnecessarily set the interface if there's a single alt. */
++	if (usblp->intf->num_altsetting > 1) {
++		alts = usblp->protocol[protocol].alt_setting;
++		if (alts < 0)
++			return -EINVAL;
++		r = usb_set_interface(usblp->dev, usblp->ifnum, alts);
++		if (r < 0) {
++			printk(KERN_ERR "usblp: can't set desired altsetting %d on interface %d\n",
++				alts, usblp->ifnum);
++			return r;
++		}
+ 	}
+ 
+ 	usblp->bidir = (usblp->protocol[protocol].epread != NULL);
+-- 
+2.30.0
+
+
