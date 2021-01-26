@@ -2,119 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D803044E3
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 18:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A943044E8
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 18:18:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731238AbhAZRRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 12:17:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50756 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728776AbhAZGME (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 01:12:04 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7D1C061573
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 22:11:16 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id jx18so1599308pjb.5
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 22:11:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ofSELr0g41+S/wAw3xUz/6AdS5ttG052FfoGVJVMa5Q=;
-        b=bILGxlB47kIhXwRWllAtOsJDXq1D44Np3y2XBbrmDSS0huIuZvwiEMXPTWNx1d5sQK
-         I8CMHgjfEPvlrsqswpl3e9Q/61LViVjIu9pWJGjaFv2O7S9UGqOe3fm2q2YIJ+lt5b9e
-         98q/TYG+kyTRBNzl/chArtL/7111QjEBH7shEk9Eu1DYwBoK3JDDz4Uu12QMOmZgZ1GN
-         3FqaDuRrSiEaHeLiAlv+uP78EjTyqsTunE1svH6sReSPMKyTv1/3kRmQaaskITmAenir
-         MdgMILFDGAxPp2EkmKJjIRXEpR45HtXarB9maMuNLcIIRg9F/WG6zgm5moDwmLKIgBYg
-         Vj6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ofSELr0g41+S/wAw3xUz/6AdS5ttG052FfoGVJVMa5Q=;
-        b=guok/GR864S3KTmSMm3H+5DcS9iTVobd+7TYtE1eNDhTsHEXiixXlPZ5EgzcGTsnRF
-         MHemJQyhHhazymtRv8O5M9rXrvAtuNi09rAQhvkN258MY15wTJraSwCi4EyIi6bhO0SO
-         ZoT0rDOwjkzD3VdySPxP7SJDtyKCPNCRXqQHGRB90qqT/PLVKBTBBASe+t7Do1ZEIZ22
-         3RM44rWt6EPFrdcw0nIFoPLX/5Z1CfIDcJHLC7RXxo3tcz53W0F993XPrbbXFIK0ZfRL
-         vEauu+yzcnrlNdPK0xvABG4dxuLPwp9+0VNJ3qm73AN1kX8mdPTqJOvYLpI64/d0vz0f
-         FetA==
-X-Gm-Message-State: AOAM533SMt5krJqjYm+2VN0YSWUOK16zLw5gi0DwrM4YMSOdJVjIKc6/
-        CCTVPGHVQCRJ4kbK6qhd1k3IWK2CgQZnpnd6LqxtY8RKQPzrX6cG
-X-Google-Smtp-Source: ABdhPJyLCHgfCC70u4HOxxVDs+uHV5Nmsr//xCGybvnz30Ufog35rQHYCZhHYjMe9eYjblkzVR3QBZOZUB+TUHb0W8c=
-X-Received: by 2002:a17:90a:3e81:: with SMTP id k1mr4517001pjc.13.1611641476408;
- Mon, 25 Jan 2021 22:11:16 -0800 (PST)
+        id S2388820AbhAZRRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 12:17:44 -0500
+Received: from cmyk.emenem.pl ([217.79.154.63]:33666 "EHLO smtp.emenem.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389301AbhAZHEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 02:04:25 -0500
+X-Virus-Scanned: amavisd-new at emenem.pl
+Received: from [192.168.1.10] (50-78-106-33-static.hfc.comcastbusiness.net [50.78.106.33])
+        (authenticated bits=0)
+        by cmyk.emenem.pl (8.16.1/8.16.1) with ESMTPSA id 10Q73KTY004535
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Tue, 26 Jan 2021 08:03:22 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ans.pl; s=20190507;
+        t=1611644604; bh=TrMD3FOf+kYV4iVemjpv9uv2g6NIByAxM4bdy2QXUcg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=JRknTEvF/LG/fVhbNvod3UxDwkueT+HBJHzM9aScl+Jm6/rr3cOgLC2SHoBZHny7l
+         HXj6uI35w9kIi+fZZJg4rv1tyDt1yW26h4BTWz3WYfS8I1uOTcRsqQgz6NVoHmun0b
+         xTDw4fR7Jhpyh5vjw2TKxyKBXFmAHpjoahkuFNy0=
+Subject: Re: [PATCH 5.4 55/86] x86/mmx: Use KFPU_387 for MMX string operations
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
+Cc:     stable@vger.kernel.org, Krzysztof Mazur <krzysiek@podlesie.net>,
+        Borislav Petkov <bp@suse.de>
+References: <20210125183201.024962206@linuxfoundation.org>
+ <20210125183203.376765980@linuxfoundation.org>
+From:   =?UTF-8?Q?Krzysztof_Ol=c4=99dzki?= <ole@ans.pl>
+Message-ID: <e2877c91-bd08-ad07-6f5c-4da59acbf2d6@ans.pl>
+Date:   Mon, 25 Jan 2021 23:03:18 -0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-References: <20210126031009.96266-1-songmuchun@bytedance.com> <f0388d4e-c72a-947f-6f12-8ae52d588543@oracle.com>
-In-Reply-To: <f0388d4e-c72a-947f-6f12-8ae52d588543@oracle.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Tue, 26 Jan 2021 14:10:39 +0800
-Message-ID: <CAMZfGtXqOXC8JTt5v-75Uumaj+eLSGn-xo5mnNvmm7ZtBKgboA@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH] mm: hugetlb: fix missing put_page in gather_surplus_pages()
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, Hui Su <sh_def@163.com>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210125183203.376765980@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 12:31 PM Mike Kravetz <mike.kravetz@oracle.com> wrote:
->
-> On 1/25/21 7:10 PM, Muchun Song wrote:
-> > The VM_BUG_ON_PAGE avoids the generation of any code, even if that
-> > expression has side-effects when !CONFIG_DEBUG_VM.
-> >
-> > Fixes: e5dfacebe4a4 ("mm/hugetlb.c: just use put_page_testzero() instead of page_count()")
-> > Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> > Cc: <stable@vger.kernel.org>
-> > ---
-> >  mm/hugetlb.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
->
-> Thanks for finding and fixing this!  My bad for not noticing when the bug
-> was introduced.
->
-> >
-> > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> > index a6bad1f686c5..082ed643020b 100644
-> > --- a/mm/hugetlb.c
-> > +++ b/mm/hugetlb.c
-> > @@ -2047,13 +2047,16 @@ static int gather_surplus_pages(struct hstate *h, long delta)
-> >
-> >       /* Free the needed pages to the hugetlb pool */
-> >       list_for_each_entry_safe(page, tmp, &surplus_list, lru) {
-> > +             int zeroed;
-> > +
-> >               if ((--needed) < 0)
-> >                       break;
-> >               /*
-> >                * This page is now managed by the hugetlb allocator and has
-> >                * no users -- drop the buddy allocator's reference.
-> >                */
-> > -             VM_BUG_ON_PAGE(!put_page_testzero(page), page);
-> > +             zeroed = put_page_testzero(page);
-> > +             VM_BUG_ON_PAGE(!zeroed, page);
-> >               enqueue_huge_page(h, page);
->
-> I was wondering why this was not causing any problems.  We are putting the
-> hugetlb page on the free list with a count of 1.  There is no check in the
-> enqueue code.  When we dequeue the page, set_page_refcounted() is used to
-> set the count to 1 without looking at the current value.  And, all the other
-> VM_DEBUG macros are off so we mostly do not notice the bug.
+On 2021-01-25 at 10:39, Greg Kroah-Hartman wrote:
+> From: Andy Lutomirski <luto@kernel.org>
+> 
+> commit 67de8dca50c027ca0fa3b62a488ee5035036a0da upstream.
+> 
+> The default kernel_fpu_begin() doesn't work on systems that support XMM but
+> haven't yet enabled CR4.OSFXSR.  This causes crashes when _mmx_memcpy() is
+> called too early because LDMXCSR generates #UD when the aforementioned bit
+> is clear.
+> 
+> Fix it by using kernel_fpu_begin_mask(KFPU_387) explicitly.
+> 
+> Fixes: 7ad816762f9b ("x86/fpu: Reset MXCSR to default in kernel_fpu_begin()")
+> Reported-by: Krzysztof Mazur <krzysiek@podlesie.net>
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Tested-by: Krzysztof Piotr Olędzki <ole@ans.pl>
+> Tested-by: Krzysztof Mazur <krzysiek@podlesie.net>
+> Cc: <stable@vger.kernel.org>
+> Link: https://lkml.kernel.org/r/e7bf21855fe99e5f3baa27446e32623358f69e8d.1611205691.git.luto@kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Yeah. You are right. I also thought about this question.
-It is a very hidden bug.
+Similar to 5.10.11, we also need 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e45122893a9870813f9bd7b4add4f613e6f29008 
+in 5.4.93:
 
->
-> Thanks again,
->
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
->
-> --
-> Mike Kravetz
->
-> >       }
-> >  free:
-> >
+Otherwise, the kernel will fail to compile if CONFIG_X86_USE_3DNOW=y
+
+arch/x86/lib/mmx_32.c: In function '_mmx_memcpy':
+arch/x86/lib/mmx_32.c:50:2: error: implicit declaration of function 
+'kernel_fpu_begin_mask'; did you mean 'kernel_fpu_begin'? 
+[-Werror=implicit-function-declaration]
+    50 |  kernel_fpu_begin_mask(KFPU_387);
+       |  ^~~~~~~~~~~~~~~~~~~~~
+       |  kernel_fpu_begin
+arch/x86/lib/mmx_32.c:50:24: error: 'KFPU_387' undeclared (first use in 
+this function)
+    50 |  kernel_fpu_begin_mask(KFPU_387);
+       |                        ^~~~~~~~
+arch/x86/lib/mmx_32.c:50:24: note: each undeclared identifier is 
+reported only once for each function it appears in
+arch/x86/lib/mmx_32.c: In function 'fast_clear_page':
+arch/x86/lib/mmx_32.c:140:24: error: 'KFPU_387' undeclared (first use in 
+this function)
+   140 |  kernel_fpu_begin_mask(KFPU_387);
+       |                        ^~~~~~~~
+arch/x86/lib/mmx_32.c: In function 'fast_copy_page':
+arch/x86/lib/mmx_32.c:173:24: error: 'KFPU_387' undeclared (first use in 
+this function)
+   173 |  kernel_fpu_begin_mask(KFPU_387);
+       |                        ^~~~~~~~
+
+Thanks,
+  Krzysztof
+
