@@ -2,93 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C61E0305499
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 08:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDF53054CF
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 08:39:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbhA0H0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 02:26:49 -0500
-Received: from mga18.intel.com ([134.134.136.126]:44355 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S316653AbhA0AjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 19:39:16 -0500
-IronPort-SDR: +/bW+LTKZvJtasLZ+RjQeoan3L70K9ZbTdZik44Xg+ArDanJ0gwPUP4pR0Php5RxzDTJvp5XdU
- xp5/X8mfa9YA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9876"; a="167666945"
-X-IronPort-AV: E=Sophos;i="5.79,378,1602572400"; 
-   d="scan'208";a="167666945"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2021 16:37:55 -0800
-IronPort-SDR: izRmj+LflD4/Gvd2EAT8bbLibLT/SFc47kq861oWBkgRC5tGr/L+pX9eK9mxfSYa2GZC00ZBBD
- CYNC5ut8RrcA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,378,1602572400"; 
-   d="scan'208";a="402923270"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
-  by fmsmga004.fm.intel.com with ESMTP; 26 Jan 2021 16:37:53 -0800
-Cc:     baolu.lu@linux.intel.com, linux-kernel@vger.kernel.org,
-        Nadav Amit <namit@vmware.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/vt-d: do not use flush-queue when caching-mode is
- on
-To:     Nadav Amit <nadav.amit@gmail.com>, iommu@lists.linux-foundation.org
-References: <20210126203856.1544088-1-namit@vmware.com>
- <cf693fca-4f5a-a6a6-cc58-3f4e3cd882b6@linux.intel.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <72cab17b-7b2f-1e4d-3bd5-3041b7edc724@linux.intel.com>
-Date:   Wed, 27 Jan 2021 08:29:37 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S234263AbhA0Hi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 02:38:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56362 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S317412AbhA0AAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 19:00:08 -0500
+Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08996C061A30
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 15:34:22 -0800 (PST)
+Received: by mail-il1-x131.google.com with SMTP id f18so41966ilj.8
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 15:34:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=/zib3hAneJNs9BQgwmcNOajlGeO7H9kxS77lhi3666Q=;
+        b=QSxx24xF7iJVPqjblzQzmKN5CEViZlJ5oCN6qklloVlq5mjZIYNvW1Vd7jZrxP9ZOi
+         LIpvT/mWtZ5q5/TdyeUFfMpxqvsZW+tE+V6E2c4C92fO5GDvNfb92mexUlXXYapYSlSB
+         iuSgUHWbBi/STQBlWIOXwZ9SRUa15FpjXYe08=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/zib3hAneJNs9BQgwmcNOajlGeO7H9kxS77lhi3666Q=;
+        b=bPdT/xn0C5B6ZDHPh5tKAsPI7a7MOeuqZOSqfQp5SzEE++e4iFZ08x+h+PGU5gw5Vk
+         j34scPdaMtvE4TTwHRKeKlLoB2saaaFuOXhkQozTuwN6+mzxxd4Isorg47pkifSZlrDd
+         2RCCUqPP7W0bqLjGQ2mpN7TnbbfUIHtXRoeADt41jqJMGCrtd5g9URqY0M/Pw4vyJfxC
+         mOI/S7w07uLIo/UqdTPFQBlDeeqNPXLOC4rPi4fCFhyPnhqzE+0t4i/+UTAEsHal2WRr
+         2VUlM/eUqCzL3g45D7Gv4YonBSgO7hMMoV8e5h5gLp5kVWil5NF7W4bQzeNiegYx8zWC
+         GhFw==
+X-Gm-Message-State: AOAM533JDjWHzAxkFLKPmCEd5lZQ0S/HY5o6YV9Zn+edqSL9HsZzixcH
+        XPP+ltL0wCwsURek5jtUs1tOng==
+X-Google-Smtp-Source: ABdhPJwWG4SBiQ1h64sg/mo89B/hCHgUFmD4Q3SjgKqQeMlLq1V4mW5zc+nw6i7qVZvkHECMgXfYhA==
+X-Received: by 2002:a05:6e02:e94:: with SMTP id t20mr6688099ilj.10.1611704062266;
+        Tue, 26 Jan 2021 15:34:22 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id b2sm208219iot.4.2021.01.26.15.34.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Jan 2021 15:34:21 -0800 (PST)
+Subject: Re: [PATCH 5.10 000/199] 5.10.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20210125183216.245315437@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <c5de2e29-dba1-a49e-33ef-08d71d572479@linuxfoundation.org>
+Date:   Tue, 26 Jan 2021 16:34:20 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <cf693fca-4f5a-a6a6-cc58-3f4e3cd882b6@linux.intel.com>
+In-Reply-To: <20210125183216.245315437@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/27/21 8:26 AM, Lu Baolu wrote:
->> +{
->> +    struct dmar_domain *dmar_domain = to_dmar_domain(domain);
->> +    struct intel_iommu *iommu = domain_get_iommu(dmar_domain);
->> +
->> +    if (intel_iommu_strict)
->> +        return 0;
->> +
->> +    /*
->> +     * The flush queue implementation does not perform page-selective
->> +     * invalidations that are required for efficient TLB flushes in 
->> virtual
->> +     * environments. The benefit of batching is likely to be much 
->> lower than
->> +     * the overhead of synchronizing the virtual and physical IOMMU
->> +     * page-tables.
->> +     */
->> +    if (iommu && cap_caching_mode(iommu->cap)) {
->> +        pr_warn_once("IOMMU batching is partially disabled due to 
->> virtualization");
->> +        return 0;
->> +    }
+On 1/25/21 11:37 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.11 release.
+> There are 199 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> domain_get_iommu() only returns the first iommu, and could return NULL
-> when this is called before domain attaching to any device. A better
-> choice could be check caching mode globally and return false if caching
-> mode is supported on any iommu.
+> Responses should be made by Wed, 27 Jan 2021 18:31:44 +0000.
+> Anything received after that time might be too late.
 > 
->         struct dmar_drhd_unit *drhd;
->         struct intel_iommu *iommu;
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
->         rcu_read_lock();
->         for_each_active_iommu(iommu, drhd) {
->                  if (cap_caching_mode(iommu->cap))
->                          return false;
+> thanks,
+> 
+> greg k-h
+> 
 
-We should unlock rcu before return here. Sorry!
+Compiled and booted on my test system. No dmesg regressions.
 
->          }
->          rcu_read_unlock();
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Best regards,
-baolu
+thanks,
+-- Shuah
+
