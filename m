@@ -2,353 +2,312 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3A8304C21
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 23:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59658304C22
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 23:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbhAZWBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 17:01:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728656AbhAZU62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 15:58:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95774221EF;
-        Tue, 26 Jan 2021 20:57:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611694666;
-        bh=LT/2xDC/IcAQS0U6Ow4SjbSH5RpwS5qjp6X7NPWRP0o=;
-        h=Date:From:To:Cc:Subject:From;
-        b=H6ev4GpEYbdm4jMyIxIswaKjbrcmZJ+nrYgeB5WlCRDu783QA2/ucWtJfMDjglzWw
-         myXKLWWU/8MYhUMupjSPq7W2IP7jDNdiEk0IpL84zV9CCZXhIZRtXK/DFoKNmgu6TK
-         Ls1iExpgTsrYTUYsCu0g4aXsj5Wa6MQlxDaqSZ0lM8pGlnK8Ver3H0QznnAhIPb974
-         OZzeXnt3F7gpu+J1NCZmRCfRkoZJ/HwueF8jIaWapb88+7nUmFwrnMDSWS1GbCnq6T
-         7GNDHDWUfPuf4pR1vOnRsb1TnI/utsqbdaNGVl0J+pbOLUO39uOVl1ISMc5krmluzo
-         y3Ny0G5ngYBcg==
-Date:   Tue, 26 Jan 2021 13:57:43 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux@googlegroups.com
-Subject: Backport of 09e43968db40 to 4.14, 4.9, and 4.4
-Message-ID: <20210126205743.GA2093914@ubuntu-m3-large-x86>
+        id S1727486AbhAZWBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 17:01:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45648 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731342AbhAZVCT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 16:02:19 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B31C061573
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 13:01:24 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id u67so11189742pfb.3
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 13:01:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fjCiNv0TMSpYG2tW63zJm9JYTNxve0PlbEHALZ1A5Gc=;
+        b=IjQfzc8quWn47znDAUnBppYFoPaZneyPjFUEoJrdgUg9SnndsvX0rmQKuospxkDtFg
+         qTsvaxULeVGt3WuuC/+mQIf7Rpbvr49fvaL2quUqpXvqCNv/wVfntb/BmESAqnsXe0zQ
+         XC1sKVP2c21DAQhOO79FaFQrDbLFr/Nv1yQtDih9R44tLQRetaCgN2mMfQyAEWzeHWJm
+         T2AuGMSrbSApIjJ9ARHzRsZZ9N0qIORCOMnTxOPwb0PlOSZNHQ5sOrT08ZGAi6FhGJin
+         w/m4owZs7qDIUmTz+4OiyGcopaXxnElCC+gjbkp02s0FZSKYgXpn8HZkVH+Jgi3cWoQz
+         9CJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fjCiNv0TMSpYG2tW63zJm9JYTNxve0PlbEHALZ1A5Gc=;
+        b=in4TWsRZ/VQP6r4qhh59WA0I1irZ6ED5Cn77gg0QPYh0btfRsH+DC0PUZRjF4zaN1Q
+         znQBh9GDnmbmfQ0IlQxdStki/8F8zRvzSjDFAFhAoCBScmgMVoB3ygJl9aaICE8Xt837
+         67aTIg/DYkkiVT2KEoxfuU6TyRT7caHdKenUR21/Tj78PYdjfINVZ1aeYoso13T2b2w6
+         4VWSkJBXWOwOzQD1GAzm5XLJTunB5TjKq2/7vpwugGy0k5gYSA0w3KfTAtyCTX4KrHm1
+         eIjRvziLB2l6fqd53T/nkyALg0x+4XAiQX3nzB4HOMZGQYoyCQDBJehO9ZLMOCBPmTxn
+         tU1A==
+X-Gm-Message-State: AOAM5308hP71aSvHKniigpQrQwk6xL3925gXYGCFY2n2nPpiNrs308IF
+        611jxTIsWL/gvtI47UgFMBJjrTGuTqneMEb6
+X-Google-Smtp-Source: ABdhPJz/cr2fW/dqCKxPcM5zNIUC5bfkyThEs67Q/LkuVIW7AVld3v6uvziPcvSI1Pvwq6TgKqGCcw==
+X-Received: by 2002:a63:43c6:: with SMTP id q189mr7409604pga.245.1611694883661;
+        Tue, 26 Jan 2021 13:01:23 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w7sm30712pfb.62.2021.01.26.13.01.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Jan 2021 13:01:22 -0800 (PST)
+Message-ID: <60108322.1c69fb81.abdaf.01fb@mx.google.com>
+Date:   Tue, 26 Jan 2021 13:01:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.170-56-gc5cd3d6d2950
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 122 runs,
+ 6 regressions (v4.19.170-56-gc5cd3d6d2950)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.19 baseline: 122 runs, 6 regressions (v4.19.170-56-gc5cd3=
+d6d2950)
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Regressions Summary
+-------------------
 
-Hi Greg and Sasha,
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-Please find attached backports of 09e43968db40 ("x86/boot/compressed:
-Disable relocation relaxation"), targeting 4.14, 4.9, and 4.4. This
-fixes an observed boot failure in our CI:
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-https://github.com/ClangBuiltLinux/continuous-integration2/runs/1766193534
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Cheers,
-Nathan
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
---LZvS9be/3tNcYl/X
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="4.14-09e43968db40.patch"
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-From f123004e00dcb4083a6faf062cdcfa94673cb65a Mon Sep 17 00:00:00 2001
-From: Arvind Sankar <nivedita@alum.mit.edu>
-Date: Tue, 11 Aug 2020 20:43:08 -0400
-Subject: [PATCH 4.14] x86/boot/compressed: Disable relocation relaxation
-
-commit 09e43968db40c33a73e9ddbfd937f46d5c334924 upstream.
-
-The x86-64 psABI [0] specifies special relocation types
-(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
-Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
-can take advantage of for optimization (relaxation) at link time. This
-is supported by LLD and binutils versions 2.26 onwards.
-
-The compressed kernel is position-independent code, however, when using
-LLD or binutils versions before 2.27, it must be linked without the -pie
-option. In this case, the linker may optimize certain instructions into
-a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
-
-This potential issue has been present with LLD and binutils-2.26 for a
-long time, but it has never manifested itself before now:
-
-- LLD and binutils-2.26 only relax
-	movq	foo@GOTPCREL(%rip), %reg
-  to
-	leaq	foo(%rip), %reg
-  which is still position-independent, rather than
-	mov	$foo, %reg
-  which is permitted by the psABI when -pie is not enabled.
-
-- GCC happens to only generate GOTPCREL relocations on mov instructions.
-
-- CLang does generate GOTPCREL relocations on non-mov instructions, but
-  when building the compressed kernel, it uses its integrated assembler
-  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
-  which has so far defaulted to not generating the GOTPCRELX
-  relocations.
-
-Nick Desaulniers reports [1,2]:
-
-  "A recent change [3] to a default value of configuration variable
-   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
-   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
-   relocations. LLD will relax instructions with these relocations based
-   on whether the image is being linked as position independent or not.
-   When not, then LLD will relax these instructions to use absolute
-   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
-   Clang and linked with LLD to fail to boot."
-
-Patch series [4] is a solution to allow the compressed kernel to be
-linked with -pie unconditionally, but even if merged is unlikely to be
-backported. As a simple solution that can be applied to stable as well,
-prevent the assembler from generating the relaxed relocation types using
-the -mrelax-relocations=no option. For ease of backporting, do this
-unconditionally.
-
-[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
-[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
-[2] https://github.com/ClangBuiltLinux/linux/issues/1121
-[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
-[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
-[nc: Backport to 4.14]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/x86/boot/compressed/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 3a250ca2406c..644f9e14cb09 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -36,6 +36,8 @@ KBUILD_CFLAGS += -mno-mmx -mno-sse
- KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
- KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
- KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
-+# Disable relocation relaxation in case the link is not PIE.
-+KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- 
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
-
-base-commit: 2d2791fce891fc20709232d49a6bae075b9a77f8
--- 
-2.30.0
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
 
---LZvS9be/3tNcYl/X
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="4.9-09e43968db40.patch"
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.170-56-gc5cd3d6d2950/plan/baseline/
 
-From b5488c5acc9ad2123117fdb5fbcaaa4a9bcb84e3 Mon Sep 17 00:00:00 2001
-From: Arvind Sankar <nivedita@alum.mit.edu>
-Date: Tue, 11 Aug 2020 20:43:08 -0400
-Subject: [PATCH 4.9] x86/boot/compressed: Disable relocation relaxation
-
-commit 09e43968db40c33a73e9ddbfd937f46d5c334924 upstream.
-
-The x86-64 psABI [0] specifies special relocation types
-(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
-Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
-can take advantage of for optimization (relaxation) at link time. This
-is supported by LLD and binutils versions 2.26 onwards.
-
-The compressed kernel is position-independent code, however, when using
-LLD or binutils versions before 2.27, it must be linked without the -pie
-option. In this case, the linker may optimize certain instructions into
-a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
-
-This potential issue has been present with LLD and binutils-2.26 for a
-long time, but it has never manifested itself before now:
-
-- LLD and binutils-2.26 only relax
-	movq	foo@GOTPCREL(%rip), %reg
-  to
-	leaq	foo(%rip), %reg
-  which is still position-independent, rather than
-	mov	$foo, %reg
-  which is permitted by the psABI when -pie is not enabled.
-
-- GCC happens to only generate GOTPCREL relocations on mov instructions.
-
-- CLang does generate GOTPCREL relocations on non-mov instructions, but
-  when building the compressed kernel, it uses its integrated assembler
-  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
-  which has so far defaulted to not generating the GOTPCRELX
-  relocations.
-
-Nick Desaulniers reports [1,2]:
-
-  "A recent change [3] to a default value of configuration variable
-   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
-   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
-   relocations. LLD will relax instructions with these relocations based
-   on whether the image is being linked as position independent or not.
-   When not, then LLD will relax these instructions to use absolute
-   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
-   Clang and linked with LLD to fail to boot."
-
-Patch series [4] is a solution to allow the compressed kernel to be
-linked with -pie unconditionally, but even if merged is unlikely to be
-backported. As a simple solution that can be applied to stable as well,
-prevent the assembler from generating the relaxed relocation types using
-the -mrelax-relocations=no option. For ease of backporting, do this
-unconditionally.
-
-[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
-[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
-[2] https://github.com/ClangBuiltLinux/linux/issues/1121
-[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
-[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
-[nc: Backport to 4.9]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/x86/boot/compressed/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 89b163351e64..7be7acd6a540 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -35,6 +35,8 @@ KBUILD_CFLAGS += -mno-mmx -mno-sse
- KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
- KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
- KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
-+# Disable relocation relaxation in case the link is not PIE.
-+KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- 
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
-
-base-commit: 8db42574fc93d05e7f1f5fbd88af55f4f69ff586
--- 
-2.30.0
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.170-56-gc5cd3d6d2950
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c5cd3d6d295021c13d67e20b2025b1cd46d7ab7c =
 
 
---LZvS9be/3tNcYl/X
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="4.4-09e43968db40.patch"
 
-From 68e7a6bb917358c767187d34cc8f8184e64e0ade Mon Sep 17 00:00:00 2001
-From: Arvind Sankar <nivedita@alum.mit.edu>
-Date: Tue, 11 Aug 2020 20:43:08 -0400
-Subject: [PATCH 4.4] x86/boot/compressed: Disable relocation relaxation
-
-commit 09e43968db40c33a73e9ddbfd937f46d5c334924 upstream.
-
-The x86-64 psABI [0] specifies special relocation types
-(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
-Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
-can take advantage of for optimization (relaxation) at link time. This
-is supported by LLD and binutils versions 2.26 onwards.
-
-The compressed kernel is position-independent code, however, when using
-LLD or binutils versions before 2.27, it must be linked without the -pie
-option. In this case, the linker may optimize certain instructions into
-a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
-
-This potential issue has been present with LLD and binutils-2.26 for a
-long time, but it has never manifested itself before now:
-
-- LLD and binutils-2.26 only relax
-	movq	foo@GOTPCREL(%rip), %reg
-  to
-	leaq	foo(%rip), %reg
-  which is still position-independent, rather than
-	mov	$foo, %reg
-  which is permitted by the psABI when -pie is not enabled.
-
-- GCC happens to only generate GOTPCREL relocations on mov instructions.
-
-- CLang does generate GOTPCREL relocations on non-mov instructions, but
-  when building the compressed kernel, it uses its integrated assembler
-  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
-  which has so far defaulted to not generating the GOTPCRELX
-  relocations.
-
-Nick Desaulniers reports [1,2]:
-
-  "A recent change [3] to a default value of configuration variable
-   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
-   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
-   relocations. LLD will relax instructions with these relocations based
-   on whether the image is being linked as position independent or not.
-   When not, then LLD will relax these instructions to use absolute
-   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
-   Clang and linked with LLD to fail to boot."
-
-Patch series [4] is a solution to allow the compressed kernel to be
-linked with -pie unconditionally, but even if merged is unlikely to be
-backported. As a simple solution that can be applied to stable as well,
-prevent the assembler from generating the relaxed relocation types using
-the -mrelax-relocations=no option. For ease of backporting, do this
-unconditionally.
-
-[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
-[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
-[2] https://github.com/ClangBuiltLinux/linux/issues/1121
-[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
-[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
-[nc: Backport to 4.4]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/x86/boot/compressed/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index bf0c7b6b00c3..01eafd8aeec6 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -31,6 +31,8 @@ KBUILD_CFLAGS += -mno-mmx -mno-sse
- KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
- KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
- KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
-+# Disable relocation relaxation in case the link is not PIE.
-+KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- 
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
-
-base-commit: 4f907dff9d3629fc87f9608770168b68958a9f46
--- 
-2.30.0
+Test Regressions
+---------------- =
 
 
---LZvS9be/3tNcYl/X--
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6010490483c0ed960ad3dfe3
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6010490483c0ed9=
+60ad3dfe8
+        failing since 9 days (last pass: v4.19.167-43-g7a15ea567512, first =
+fail: v4.19.167-55-gb4942424ad93)
+        2 lines
+
+    2021-01-26 16:53:19.312000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601047a7537478dd97d3dfce
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601047a7537478dd97d3d=
+fcf
+        failing since 73 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601047ab537478dd97d3dfd3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601047ab537478dd97d3d=
+fd4
+        failing since 73 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601047a7e4d150cc8ad3e000
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601047a8e4d150cc8ad3e=
+001
+        failing since 73 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6010475687d8218ea1d3dfd3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6010475687d8218ea1d3d=
+fd4
+        failing since 73 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60104777e4d150cc8ad3dfd4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.170=
+-56-gc5cd3d6d2950/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60104777e4d150cc8ad3d=
+fd5
+        failing since 73 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
