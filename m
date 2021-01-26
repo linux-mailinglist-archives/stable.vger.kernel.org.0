@@ -2,152 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9822304A4C
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:42:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28965304A4F
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 21:42:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726736AbhAZFHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:07:46 -0500
-Received: from cmyk.emenem.pl ([217.79.154.63]:56576 "EHLO smtp.emenem.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728990AbhAZDhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Jan 2021 22:37:31 -0500
-X-Greylist: delayed 692 seconds by postgrey-1.27 at vger.kernel.org; Mon, 25 Jan 2021 22:37:30 EST
-X-Virus-Scanned: amavisd-new at emenem.pl
-Received: from [192.168.1.10] (50-78-106-33-static.hfc.comcastbusiness.net [50.78.106.33])
-        (authenticated bits=0)
-        by cmyk.emenem.pl (8.16.1/8.16.1) with ESMTPSA id 10Q3Ow7V015842
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
-        Tue, 26 Jan 2021 04:25:00 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ans.pl; s=20190507;
-        t=1611631503; bh=KlyRjMaieKMZIvNAJ6yRy3OT2SlHWR2wfZFkABYRv1o=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=Ac6s4HWzqqXycxFz+pqdmhlkvpwj5Y6E+ZRi/5YLiH6yzvc7M4NkHZ8TVXk8AG0cL
-         b3eormt4U+KPDCe3oH46nG9Z0t2/WXV5TGMKiDfakF2NbBv1TP4uyfpe8gsQPaVJdL
-         uydqxPkSg3yjjL8d61pUuj4s+0VGHGtHzBs1YnhQ=
-Subject: Re: [PATCH 5.10 119/199] x86/mmx: Use KFPU_387 for MMX string
- operations
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
-Cc:     stable@vger.kernel.org, Krzysztof Mazur <krzysiek@podlesie.net>,
-        Borislav Petkov <bp@suse.de>
-References: <20210125183216.245315437@linuxfoundation.org>
- <20210125183221.250497496@linuxfoundation.org>
-From:   =?UTF-8?Q?Krzysztof_Ol=c4=99dzki?= <ole@ans.pl>
-Message-ID: <82dfa5e7-286d-777a-b1aa-ebe5144e79db@ans.pl>
-Date:   Mon, 25 Jan 2021 19:24:56 -0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+        id S1731578AbhAZFIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:08:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727037AbhAZDvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 22:51:02 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11AA6C061574
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 19:50:22 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id l18so1433534pji.3
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 19:50:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=sOvbk+fgmkxPf8BVo60WmrhebGS30AeJFD5kIm3/kyw=;
+        b=2QKFclqLf959Y/+nsRej2Do8jmUpdQ5H8eBUQANUt269sKFju8iuJ8kQgNGZdph3bo
+         75XKZAYR1KpFnqOrWuOaf6plL0fXfde+kxpYhygUIs4CZszkFzvuA+E3+4eSNHdns0td
+         Cx8nD48Ns6h110N1hb2IdxV+22wb865uRgWsCYZs0j2rNS5L29rvFnw2kq49m74EBH9F
+         eJSbL3Akn6Scoba7wwtp9h/lILYbvOPpvIf9Cf9BR7lOu4AhCflat3Xv+vqNjM9MaLvM
+         IavwBIiGSyu0U1FupRfTv23y6m2cv3UWJiG3pyAzsbASUz99Tznqt0POAWjGMpBjxWJN
+         HrEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=sOvbk+fgmkxPf8BVo60WmrhebGS30AeJFD5kIm3/kyw=;
+        b=O065KNWzWqAyRQoYYe3ckS4BXb1a8naS4E4HbmVRKE5ytr88PT9c5SeaIYxutu64u/
+         iLTqv98CGiX7ipDYJyv0WcMH+b4EK/M4ughimFEMxTaieW1474seLoaxYH/TACZqVGah
+         Jo7CiudDnQrUtY+xURrchXpaW6ig214FwG0l6Ke6OkHoQLJczpEhnDHftCEmGQFI4/YF
+         k6x4K9YZZjqfSkbkxvURgPimn9phQY4weJeUdsQzlcNCVGL0f40xG3wbG2J3nO9YP037
+         pmSjB4JT9BcLjOiq0Op2xAjM3PzWObf48s1m3wdWJipN3cNupmjyfl2OUSRj8qxrUcj5
+         6mTw==
+X-Gm-Message-State: AOAM53311HMfk6taBZQMS/0P89niTCTDVBzsYkLXH2GHqgzkFO7VJvid
+        4Z85JCqpHmnA6GdfFnWzBBEJgr/2ZDaX8csQ
+X-Google-Smtp-Source: ABdhPJxFGvT/oAzyRCHSQfWBJ8eJUGRC+it3R4TaeWeXYNKFdwxUbOai4kGZ7aRjstKytxxsIp8KPA==
+X-Received: by 2002:a17:902:8213:b029:e0:1096:7eec with SMTP id x19-20020a1709028213b02900e010967eecmr1231283pln.50.1611633021387;
+        Mon, 25 Jan 2021 19:50:21 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q79sm19096030pfc.63.2021.01.25.19.50.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Jan 2021 19:50:20 -0800 (PST)
+Message-ID: <600f917c.1c69fb81.c4668.e424@mx.google.com>
+Date:   Mon, 25 Jan 2021 19:50:20 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210125183221.250497496@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.10-200-gefec2624e657
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 186 runs,
+ 1 regressions (v5.10.10-200-gefec2624e657)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-5.10.y baseline: 186 runs, 1 regressions (v5.10.10-200-gefe=
+c2624e657)
 
-I think for both 5.4-stable and 5.10-stable we also need 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e45122893a9870813f9bd7b4add4f613e6f29008 
-- "x86/fpu: Add kernel_fpu_begin_mask() to selectively initialize state"
+Regressions Summary
+-------------------
 
-Without this, there is no kernel_fpu_begin_mask().
-
-Thanks,
-  Krzysztof
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
 
-On 2021-01-25 at 10:39, Greg Kroah-Hartman wrote:
-> From: Andy Lutomirski <luto@kernel.org>
-> 
-> commit 67de8dca50c027ca0fa3b62a488ee5035036a0da upstream.
-> 
-> The default kernel_fpu_begin() doesn't work on systems that support XMM but
-> haven't yet enabled CR4.OSFXSR.  This causes crashes when _mmx_memcpy() is
-> called too early because LDMXCSR generates #UD when the aforementioned bit
-> is clear.
-> 
-> Fix it by using kernel_fpu_begin_mask(KFPU_387) explicitly.
-> 
-> Fixes: 7ad816762f9b ("x86/fpu: Reset MXCSR to default in kernel_fpu_begin()")
-> Reported-by: Krzysztof Mazur <krzysiek@podlesie.net>
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> Signed-off-by: Borislav Petkov <bp@suse.de>
-> Tested-by: Krzysztof Piotr Olędzki <ole@ans.pl>
-> Tested-by: Krzysztof Mazur <krzysiek@podlesie.net>
-> Cc: <stable@vger.kernel.org>
-> Link: https://lkml.kernel.org/r/e7bf21855fe99e5f3baa27446e32623358f69e8d.1611205691.git.luto@kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> ---
->   arch/x86/lib/mmx_32.c |   20 +++++++++++++++-----
->   1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> --- a/arch/x86/lib/mmx_32.c
-> +++ b/arch/x86/lib/mmx_32.c
-> @@ -26,6 +26,16 @@
->   #include <asm/fpu/api.h>
->   #include <asm/asm.h>
->   
-> +/*
-> + * Use KFPU_387.  MMX instructions are not affected by MXCSR,
-> + * but both AMD and Intel documentation states that even integer MMX
-> + * operations will result in #MF if an exception is pending in FCW.
-> + *
-> + * EMMS is not needed afterwards because, after calling kernel_fpu_end(),
-> + * any subsequent user of the 387 stack will reinitialize it using
-> + * KFPU_387.
-> + */
-> +
->   void *_mmx_memcpy(void *to, const void *from, size_t len)
->   {
->   	void *p;
-> @@ -37,7 +47,7 @@ void *_mmx_memcpy(void *to, const void *
->   	p = to;
->   	i = len >> 6; /* len/64 */
->   
-> -	kernel_fpu_begin();
-> +	kernel_fpu_begin_mask(KFPU_387);
->   
->   	__asm__ __volatile__ (
->   		"1: prefetch (%0)\n"		/* This set is 28 bytes */
-> @@ -127,7 +137,7 @@ static void fast_clear_page(void *page)
->   {
->   	int i;
->   
-> -	kernel_fpu_begin();
-> +	kernel_fpu_begin_mask(KFPU_387);
->   
->   	__asm__ __volatile__ (
->   		"  pxor %%mm0, %%mm0\n" : :
-> @@ -160,7 +170,7 @@ static void fast_copy_page(void *to, voi
->   {
->   	int i;
->   
-> -	kernel_fpu_begin();
-> +	kernel_fpu_begin_mask(KFPU_387);
->   
->   	/*
->   	 * maybe the prefetch stuff can go before the expensive fnsave...
-> @@ -247,7 +257,7 @@ static void fast_clear_page(void *page)
->   {
->   	int i;
->   
-> -	kernel_fpu_begin();
-> +	kernel_fpu_begin_mask(KFPU_387);
->   
->   	__asm__ __volatile__ (
->   		"  pxor %%mm0, %%mm0\n" : :
-> @@ -282,7 +292,7 @@ static void fast_copy_page(void *to, voi
->   {
->   	int i;
->   
-> -	kernel_fpu_begin();
-> +	kernel_fpu_begin_mask(KFPU_387);
->   
->   	__asm__ __volatile__ (
->   		"1: prefetch (%0)\n"
-> 
-> 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.10-200-gefec2624e657/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.10-200-gefec2624e657
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      efec2624e657b370b1621e8514a1fa6d65eb20a0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/600f6251b319e047ebd3dfca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+0-200-gefec2624e657/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+0-200-gefec2624e657/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/600f6251b319e047ebd3d=
+fcb
+        failing since 2 days (last pass: v5.10.9, first fail: v5.10.9-44-g4=
+02284178c914) =
+
+ =20
