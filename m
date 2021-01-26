@@ -2,103 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AEF2304083
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4227D304072
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391557AbhAZOhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 09:37:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
+        id S2390928AbhAZNZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 08:25:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391535AbhAZJxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 04:53:17 -0500
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE10C061573
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 01:52:36 -0800 (PST)
-Received: by mail-lj1-x236.google.com with SMTP id s18so5634243ljg.7
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 01:52:36 -0800 (PST)
+        with ESMTP id S2391758AbhAZJ4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 04:56:24 -0500
+Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2286EC06174A
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 01:55:44 -0800 (PST)
+Received: by mail-vs1-xe29.google.com with SMTP id p20so8705541vsq.7
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 01:55:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Xl+szrNKltw4M9EkOt6Ku8phtfpsNC6B9vqlONxx0g4=;
-        b=ETXxVM2bLAeaCcj1UVibB+xzYWVDbEQPAGexw9B8RYRZue9PL7GzvgHmtFb1o0R7oT
-         mtB24aVlehH1AnDLZ0B/etqmD5yLUoEPaK18N3RlZhzBOOhPcEtq1BNGhUvCiUigkyT0
-         AWLbVzTPiW2ztrNE1OBGr3Zne1+sdlNWslLg5Pqxar6+9Cm5i4KqulWIwkRZRbKHHjKs
-         0x2GoyFNCwbphjOh0pcyzy1GSqn3Q18kYPBzvvq4RJ/p2qIn/3x8DdbDsRod07Kh5kPQ
-         +jHrsl4/rIh483QgCKofWC7ei83w4/JhFrmUbnl5RKwPFXF0oGeQvBdFBHpyLVt/zfe4
-         wUBw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=arxHqUjVCPMGGo+kdWhr5qA09DPzoA8oDcXRjdjMesU=;
+        b=EcShE3WriMxg/Eue+lluAhZy6XFdaiE7q/zIsBoYY7Ag15pVcIAPm2Rt5omAdELLCc
+         11mz6CsjnLhyj61t/GIlOHf/TvdxS3gxdXSFfStT0k870nQbJoQ9eSIIYNuucpdWD8/S
+         Sw/hzDKeBM6ISYAhYAe2Lw3q1xaBQtNpijQLFlW35bgeheAvsC77lBYtyV4oVcHveh1s
+         3mcs8sn6PHPe4ll+5zwuh/wDZZFvTa6fkB1RVZgsUwDAgARuLfkdcz9/RPCFOQ0/UuW7
+         /8XScZGzxB7cHdgTdkOiUb9Ll6WPzk2b+hSIWlPzYClk0yitUo36hYJGl2aqUGZPViDE
+         uldw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Xl+szrNKltw4M9EkOt6Ku8phtfpsNC6B9vqlONxx0g4=;
-        b=RRshHZI44ugeF2uQcam0TFHhEDnEflT6/OYQNWVt6r2XUT9snIaQ680XYk3S9mWAZh
-         6xDSwkcXlGQczIXR8ybfwoQgoqXOsCcWLorSxgBHBYZz4Vs06r0f2e/pSgwhG01omt2S
-         KMLYuHQ/7Rgz40JP4W+ini/jCxAcY4zQWPJ5FZXX17tqX3gYQoxVo/o7u+u5zprBCC5W
-         z6gVYDJ2XawnbiV/g0qrS5tEtGXtUQIu51Ni2JJoPQ9gglDNjxTyR21AE3EugoT88Xhf
-         TbqaeFWrcLjpPoG8yaP3fZwSg/wSnWxRDz0FHYh/l+JU4FbVQ1a1/EBMfJULjrmrem9J
-         Zf/A==
-X-Gm-Message-State: AOAM533WgptTn8oSG1OdVD73oThdexzdQbtg3WUOcVWapT7DffsW5cZ0
-        3jR1c8mFwxOHNP9bu4styCJKZg==
-X-Google-Smtp-Source: ABdhPJwe2hBaInwMyQJ6bm/S6REpkGRtWsL6YNFzyylZ3R0mgoyfmjcIrsAuAKVG67ByJ+1FBIUMlw==
-X-Received: by 2002:a2e:81d1:: with SMTP id s17mr2447074ljg.49.1611654755466;
-        Tue, 26 Jan 2021 01:52:35 -0800 (PST)
-Received: from localhost.localdomain (h-98-128-180-179.NA.cust.bahnhof.se. [98.128.180.179])
-        by smtp.gmail.com with ESMTPSA id x28sm2031841lfn.98.2021.01.26.01.52.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 01:52:34 -0800 (PST)
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-To:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Nicolas Schichan <nschichan@freebox.fr>, stable@vger.kernel.org
-Subject: [PATCH] mmc: sdhci-pltfm: Fix linking err for sdhci-brcmstb
-Date:   Tue, 26 Jan 2021 10:52:30 +0100
-Message-Id: <20210126095230.26580-1-ulf.hansson@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=arxHqUjVCPMGGo+kdWhr5qA09DPzoA8oDcXRjdjMesU=;
+        b=sn6Xvzs+RtHzlbDWEjVuUb7JvUd+fWNlW4C8Cg2WotqM804GXZz1BJuijUoI2fWGg3
+         0p/cJ8BOrpX8/jwrA//pwO/pS9seSY3JPPAITu2oUTcuoMDvnlqRl4hmFE3JPEYQ1sB3
+         lQAspNUQ4y2alZ3ubFCo3HdXi4bCfHXBEA5JR8kJjvkjbSsZebve4hgNip2qKORleKkw
+         wi4JJO6Qj6U46CT88qMc2RJd36cDa89+EzcLlND6rOE2Qjjcxz3k26jzaMAE+uEYAYRK
+         3bWs+KD2q2+R5d/6ivC1CKSFLHDyGTZkX+R4Afq/ALpr3ILSJdOsLotvgb+JV7FGXUeS
+         GoYw==
+X-Gm-Message-State: AOAM533YcVln/3gNbkbgAkxnoOEfBxfINV78FVLb+ws2u769BDRuFgLJ
+        YkXt3qKjGV3O9sN7hr2siFnLgzrgQSJ3Q+ImvSnjWA==
+X-Google-Smtp-Source: ABdhPJz0yZvD2Kri9nEUdn+/MXiaY91SPbRIkAAb7URMZZAOXugfNTa0Bn9xEPlfbJnKhse7FqsZsh1vyYupSyURNt8=
+X-Received: by 2002:a05:6102:67b:: with SMTP id z27mr2242407vsf.19.1611654943282;
+ Tue, 26 Jan 2021 01:55:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210125125050.102605-1-arnd@kernel.org> <f671f5d2-36c4-ded5-c4b9-93c5c57cc9f2@gmail.com>
+In-Reply-To: <f671f5d2-36c4-ded5-c4b9-93c5c57cc9f2@gmail.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Tue, 26 Jan 2021 10:55:07 +0100
+Message-ID: <CAPDyKFoGDHtE8JgLurwuN-W6CmmyBB3GP+7Z-bWqJiWw+TJEaQ@mail.gmail.com>
+Subject: Re: [PATCH] mmc: brcmstb: Fix sdhci_pltfm_suspend link error
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Nicolas Schichan <nschichan@freebox.fr>
+Cc:     Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The implementation of sdhci_pltfm_suspend() is only available when
-CONFIG_PM_SLEEP is set, which triggers a linking error:
+On Mon, 25 Jan 2021 at 18:40, Florian Fainelli <f.fainelli@gmail.com> wrote:
+>
+> +Nicolas,
+>
+> On 1/25/2021 4:50 AM, Arnd Bergmann wrote:
+> > From: Arnd Bergmann <arnd@arndb.de>
+> >
+> > sdhci_pltfm_suspend() is only available when CONFIG_PM_SLEEP
+> > support is built into the kernel, which caused a regression
+> > in a recent bugfix:
+> >
+> > ld.lld: error: undefined symbol: sdhci_pltfm_suspend
+> >>>> referenced by sdhci-brcmstb.c
+> >>>>               mmc/host/sdhci-brcmstb.o:(sdhci_brcmstb_shutdown) in archive drivers/built-in.a
+> >
+> > Making the call conditional on the symbol fixes the link
+> > error.
+> >
+> > Fixes: 5b191dcba719 ("mmc: sdhci-brcmstb: Fix mmc timeout errors on S5 suspend")
+> > Fixes: e7b5d63a82fe ("mmc: sdhci-brcmstb: Add shutdown callback")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> > It would be helpful if someone could test this to ensure that the
+> > driver works correctly even when CONFIG_PM_SLEEP is disabled
+>
+> Why not create stubs for sdhci_pltfm_suspend() when CONFIG_PM_SLEEP=n? I
+> don't think this is going to be a functional issue given that the
+> purpose of having the .shutdown() function is to save power if we cannot
+> that is fine, too.
+> --
+> Florian
 
-"undefined symbol: sdhci_pltfm_suspend" when building sdhci-brcmstb.c.
+I would prefer this approach - we shouldn't leave stub functions
+unimplemented, which is what looks to me.
 
-Fix this by implementing the missing stubs when CONFIG_PM_SLEEP is unset.
+I just posted a new patch for this, please have a look and test it.
 
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Nicolas Schichan <nschichan@freebox.fr>
-Fixes: 5b191dcba719 ("mmc: sdhci-brcmstb: Fix mmc timeout errors on S5 suspend")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
----
- drivers/mmc/host/sdhci-pltfm.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/mmc/host/sdhci-pltfm.h b/drivers/mmc/host/sdhci-pltfm.h
-index 6301b81cf573..9bd717ff784b 100644
---- a/drivers/mmc/host/sdhci-pltfm.h
-+++ b/drivers/mmc/host/sdhci-pltfm.h
-@@ -111,8 +111,13 @@ static inline void *sdhci_pltfm_priv(struct sdhci_pltfm_host *host)
- 	return host->private;
- }
- 
-+extern const struct dev_pm_ops sdhci_pltfm_pmops;
-+#ifdef CONFIG_PM_SLEEP
- int sdhci_pltfm_suspend(struct device *dev);
- int sdhci_pltfm_resume(struct device *dev);
--extern const struct dev_pm_ops sdhci_pltfm_pmops;
-+#else
-+static inline int sdhci_pltfm_suspend(struct device *dev) { return 0; }
-+static inline int sdhci_pltfm_resume(struct device *dev) { return 0; }
-+#endif
- 
- #endif /* _DRIVERS_MMC_SDHCI_PLTFM_H */
--- 
-2.25.1
-
+Kind regards
+Uffe
