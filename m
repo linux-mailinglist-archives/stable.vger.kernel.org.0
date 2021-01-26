@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 730BD3033D9
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEDF03033D8
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 06:08:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727414AbhAZFGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 00:06:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
+        id S1726592AbhAZFF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 00:05:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732158AbhAZCF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 21:05:56 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10CB4C06178C
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 16:19:49 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id u67so9380727pfb.3
-        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 16:19:49 -0800 (PST)
+        with ESMTP id S1732104AbhAZCFv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jan 2021 21:05:51 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C35C061793
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 16:20:48 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id p18so10069855pgm.11
+        for <stable@vger.kernel.org>; Mon, 25 Jan 2021 16:20:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=lOFPg7seChXoETscbzwW0WwKXE5XXA7LE0svz4iDsEY=;
-        b=wdFyZTL/sHVeftzCPaJivbr5omoWyti/GtOI79Vs5NOTv6Yd8s5sWsxKVNzXQ2PKdG
-         IpplO+aq0gRmRwOK/WucAzPRa0MMx+TscORC8QeCfQqj6vay1CTqFfDVZUQ3HaJNQGk2
-         k3dRRh8oyDo5KJ8Pg1sGKE8+iHnK6gHZMjUGN7cJtTv2YnSin3DIWpog+W9H0KN8/buq
-         hT3e9LYxLx49rQqnxOSp+tL8Yhw07CgTMb0Mjn2wgl7hfSMRHUsDmyYLniegryynzL5N
-         uqk1y1otZ+6sYbiyAAqYdZK5m9ZthyPKpLOAu7OjcyTZep1pJBrntjL4CD16nbfzN+fh
-         gLtw==
+        bh=3UeG629xQS+iuS96u+QvBgMYgADDzsYk1gdYDNN0Ef0=;
+        b=hd44906bst+3ds7C25kNklgUTl3U+ilnncf0y+h0I0qSTtsBr5T8xug6wn8vtS0aW8
+         uM6kGpflHbJ3zGz/d+OB2DBA4V3P1agmuDaNW5zfiTEpClM97R1+ksmc2i1azkPQY3CM
+         TxBPHbpBrJDW8IFftPAhw9liFyhThlcgOh4xGL/d5AUJfA4H/YqzaGZ77UI7mCfGPpkd
+         lT3dhzUYGQbdkU2SCOP1PpAm2yJ+q1Sa32weJxQ+VD4i8DI+d2qHlVJVkX1ZeyHxzUEZ
+         ZIlEwyPvtwoLS9av9SEh0O9S0Kyzcq2OlaUHiOWbSTeG6ZSldL/drziGoIqhnHZMNOGM
+         M7vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=lOFPg7seChXoETscbzwW0WwKXE5XXA7LE0svz4iDsEY=;
-        b=KKswFkIG/BrYtHRKLBRQz8ffMfErJglg8PE7FnyEFt2ieUx213VaarI61ob7HoNumr
-         j7tLkS3jHyt8mN21QgEBXOtLxMQoV01Y+3piSBdE2sCkmCOM7kGOLFVeKSpyrISBk1Mp
-         4WcCU8zVOEajZFAwN/Fa+qW43QO60NnHORfOkWKwm/S7Xwzlt7PYUA2o+gn9AzdDs2ak
-         LH9UKhyXUOjmtsEA7ZKZuWv6rODGV/2Ok/Q+LIjcsSLQGFtwI3VTloLdqPBvWzEv12kt
-         9WT7t35QqbRPILqMQQHlq6feBHy0jzSLdu5bF8yaIW7E/OCC3Nv5KA4CJ33Zuj68sgZJ
-         j0NQ==
-X-Gm-Message-State: AOAM530yCxXPinOVeYYcYmwlLRY5cPFqTFsxfuuHyKpdkgTSQdClNUy9
-        38pR+sJMcAhBgBV7Q6ewhHXjpevnCyIuI4hD
-X-Google-Smtp-Source: ABdhPJyi2h2SGPqpmJ7Wt4jM34aPDzxDSJmUfQWwYuxe4lvY12q+zm15kfybh895EMEYu0QJdwYg8Q==
-X-Received: by 2002:a63:6b42:: with SMTP id g63mr3004301pgc.107.1611620387537;
-        Mon, 25 Jan 2021 16:19:47 -0800 (PST)
+        bh=3UeG629xQS+iuS96u+QvBgMYgADDzsYk1gdYDNN0Ef0=;
+        b=kDbOfNvEyMM6CYH4i+b5+ldzcyEsSvdCAytFGVp9A92JNqhKLCpzgJ8Mv0E3+UDblx
+         Y5Lu/ZUdkD056idzt8alX2HOMDmhs1m1fuACznyTRvri3+fghVDBoxfxj8CU4fCpwV11
+         hcffQwCAFopoZFGiRXjeNUVcpvHDZsSQ4WcKtinABzUk+aBo+Ol4qLRBdIpQ4RISmSwZ
+         HNZeLw9Z3riqzb1Tc/9JbRo2ILTsrtisJE2pKkzfQAYwFOIDKRBwU+rzT5gCGiO174e8
+         IvANZMgO995XNq91Jxperuo8SIevbj7wGlWLBu9OFLELTBrKJKru+RliBEUYxSHM9F3o
+         BU/A==
+X-Gm-Message-State: AOAM530EmQ3DCneZO1O4ca0flBwCQMHP7fwSlh7dja3SXPyeAwbXiLXu
+        WsSwjbEsXW/GcLTSzAArTfA2LGeLODQGV+iV
+X-Google-Smtp-Source: ABdhPJy98Z0OzxWV+K4ksecIDVxBGXrXGeIfDrhQaaC8MNk9bPq6ybI55ttS7DYgkb8IuVNZab6CwQ==
+X-Received: by 2002:a63:ce42:: with SMTP id r2mr3076633pgi.8.1611620447129;
+        Mon, 25 Jan 2021 16:20:47 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j5sm454893pjf.47.2021.01.25.16.19.46
+        by smtp.gmail.com with ESMTPSA id 16sm454615pjc.28.2021.01.25.16.20.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 16:19:46 -0800 (PST)
-Message-ID: <600f6022.1c69fb81.8aadb.1e4e@mx.google.com>
-Date:   Mon, 25 Jan 2021 16:19:46 -0800 (PST)
+        Mon, 25 Jan 2021 16:20:46 -0800 (PST)
+Message-ID: <600f605e.1c69fb81.a65f5.1f06@mx.google.com>
+Date:   Mon, 25 Jan 2021 16:20:46 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.10-199-g7697e1eb59f82
+X-Kernelci-Kernel: v5.10.10-200-gefec2624e657
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 build: 196 builds: 4 failed, 192 passed, 4 errors,
- 13 warnings (v5.10.10-199-g7697e1eb59f82)
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y build: 196 builds: 4 failed, 192 passed,
+ 4 errors, 13 warnings (v5.10.10-200-gefec2624e657)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 196 builds: 4 failed, 192 passed, 4 errors, 13 =
-warnings (v5.10.10-199-g7697e1eb59f82)
+stable-rc/linux-5.10.y build: 196 builds: 4 failed, 192 passed, 4 errors, 1=
+3 warnings (v5.10.10-200-gefec2624e657)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.10-199-g7697e1eb59f82/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.10.=
+y/kernel/v5.10.10-200-gefec2624e657/
 
 Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.10-199-g7697e1eb59f82
-Git Commit: 7697e1eb59f825c3808c1f23eaf22eddb7b44ff7
+Branch: linux-5.10.y
+Git Describe: v5.10.10-200-gefec2624e657
+Git Commit: efec2624e657b370b1621e8514a1fa6d65eb20a0
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -153,6 +153,36 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    arch/x86/kernel/cpu/amd.c:572:3: error: =E2=80=98__max_die_per_package=
+=E2=80=99 undeclared (first use in this function); did you mean =E2=80=98to=
+pology_max_die_per_package=E2=80=99?
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mi=
 smatches
 
@@ -165,36 +195,6 @@ pology_max_die_per_package=E2=80=99?
 -----
 allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
-mismatches
-
-Errors:
-    arch/x86/kernel/cpu/amd.c:572:3: error: =E2=80=98__max_die_per_package=
-=E2=80=99 undeclared (first use in this function); did you mean =E2=80=98to=
-pology_max_die_per_package=E2=80=99?
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1051,6 +1051,31 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mis=
+matches
+
+Errors:
+    arch/x86/kernel/cpu/amd.c:572:3: error: =E2=80=98__max_die_per_package=
+=E2=80=99 undeclared (first use in this function); did you mean =E2=80=98to=
+pology_max_die_per_package=E2=80=99?
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
 smatches
 
@@ -1066,31 +1091,6 @@ Warnings:
 -----
 tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mis=
-matches
-
-Errors:
-    arch/x86/kernel/cpu/amd.c:572:3: error: =E2=80=98__max_die_per_package=
-=E2=80=99 undeclared (first use in this function); did you mean =E2=80=98to=
-pology_max_die_per_package=E2=80=99?
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
 
 ---------------------------------------------------------------------------=
 -----
