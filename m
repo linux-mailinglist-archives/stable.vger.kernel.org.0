@@ -2,113 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 542E5303CA9
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 13:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FCE7303C7C
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 13:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392549AbhAZMLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 07:11:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59242 "EHLO
+        id S2392220AbhAZMGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 07:06:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403835AbhAZLOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 06:14:44 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8A7C0613D6
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:14:04 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id w1so22334568ejf.11
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:14:04 -0800 (PST)
+        with ESMTP id S2392338AbhAZLW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 06:22:58 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A1FC061786
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:04 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id a10so22414811ejg.10
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fYupSZfGSpqos6EzshWCWKgBwX/sGM1t83TUapOfzmM=;
-        b=VbexN5wLBRJtg3Xgj9BkYYyyr8SuLc06wkm+NGzg/+9oJil7Roa4JQw0qf+F1c9gey
-         kwas/UBso+IGlk25Nb7MvzV7jPPHeySjaDI9Y6Z7wxy8F2tglLnCJ8I3B3YO7WE4fjt4
-         LmmHmByJBRG/pXkHSCmfehy8xkazxFN7wpStnCmiDR1guqhho+s9k+OVjSORLAr6A6rb
-         i63WLSkgoZIt7ZTM4X0kp9tTXECGodFypL8yEyj6XQApclBz1gCrNEGQg5qTruHQEbxt
-         eDV/QlD6K5kgFiZAzlNWxYeJGca740vq8hLL5xNKz+rLBRehXA9/Ek+Oeov/dObbNTPi
-         vItA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=suQfLER1J7hWgKba7DAAjmsln0J3BgW+wjZ6YaOdEvs=;
+        b=oc3pOW2vOm+5zQ3X6kVaTwwj1CZvObGy87BZf4qDIMnbq1/E4P1xG7/o/t/EClp8fQ
+         N63ccgibgCoPUyqYMSvyY1dh2Tub1HSBwUZEJ6crZtL9jOKc21jSScQGOYcjpugqsunc
+         k0DVSm4lpWii9H3sQNYa3xHwfjI5KTYChyb/MWk+TEaraEFXdYXniXNHPUlK/615MjAd
+         AapDmDaRjNkZXB5oaYhM7hL181aDlPGr0Ovr3OkmjOrHZZk9Hmo8bE9h0LM+eF0AQd9M
+         TbrHCHPMv1BKqVIom71nqkOixOjGf/ONXYIwZUrXtFa72V902/VikcapP1Hgo44iNnZ0
+         LKqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fYupSZfGSpqos6EzshWCWKgBwX/sGM1t83TUapOfzmM=;
-        b=J/SABH3kw43EvEIwO3+l3MMF/Wv9pQmjpccXC358BLFndorxQtH8Kx/zDngQhPWba3
-         7Vw83+KH81aCDhg5kURhzuTAW1kgMzA45jITLMPo/LTj4wECf+9vXIxm0xqi+KjhI2L+
-         tGVChhgOGo0ULOnL0/V9VWkRY3BiGIz4K+IVUle7UcvmbP+NcXkNQ5+mVvqFyqKL0GzH
-         3qyl5fJRspSOSfpMXZfh7GiA/fOP2lFQn4BlbcOPd6PxoEw8FxBWs45zi4dD9RHZkfEY
-         XpXXFBHspjfnpuIceZFph5s9D9RXt+S+4A2Z7rqsYtswfrJpkSUcmLF8iwsYJPtLWpUT
-         vdfw==
-X-Gm-Message-State: AOAM533zjYZ7ztx8r5Z2+/tpxY74pAfJuq6mmM42pkdQx3BzExjDDH9u
-        80lvhpPmfAJTgF09Yus3l5M84aKmQr9UXZO6UkaiAA==
-X-Google-Smtp-Source: ABdhPJwITm2P906snRNQzkdwvalIaBuZXKqAsdaamIm+KLMDW0TYv3btFTjih2Ul5m4jPuWGP8A2Ce1hF4b8DTtGZAQ=
-X-Received: by 2002:a17:906:39d0:: with SMTP id i16mr3149157eje.18.1611659642780;
- Tue, 26 Jan 2021 03:14:02 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=suQfLER1J7hWgKba7DAAjmsln0J3BgW+wjZ6YaOdEvs=;
+        b=CM/Y1B7eDuzDgsG2EUt1HHzqbAcz+9sK/NcFUp1aCUnH7a/6VeRAe2cFUR70cUYO4V
+         Z3dFGBpkfVd0vI7YtSYSutmwKrJSBuYTV53zEUFi0BkbHZN4k4fKF7siOCAyVMUnItlO
+         Ac2GiBqAUCVZ35n5r/lKHkKvaw4iyYQiJqfLVSxnCBy2SF6sWUkL5GkhtNeNF5bgd3+z
+         +tI88pGUwsvexMJdnqQjK93Cb2ia+1RtSpVH+1udE2BImd/JSjTuWhvEw1UBbrcfBraB
+         7BJsd9NuqX/RNe1OAi9rc/WC+o4EZBU3ahNXa4QTO7vTx9SV+cxJ/gTOuNprI/8v4uD8
+         1bQw==
+X-Gm-Message-State: AOAM532JcCQqcspOMAvOHCx4PEHjRbHTiIAAeWJduVs5QhN7ADb9rrCB
+        GkN0CU981j9J30SEELtTEEIsaPSnFTjM7g==
+X-Google-Smtp-Source: ABdhPJy5DbZqN3SYkdEdjL2bh9WRDbGn/yAddWJSzkheVJ1wW4+H1Sd4TjRayFmBJUU3jBmtguy7sw==
+X-Received: by 2002:a17:906:d0c1:: with SMTP id bq1mr3060941ejb.202.1611660063132;
+        Tue, 26 Jan 2021 03:21:03 -0800 (PST)
+Received: from localhost.localdomain ([148.252.129.161])
+        by smtp.gmail.com with ESMTPSA id o17sm12167128edr.17.2021.01.26.03.21.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Jan 2021 03:21:02 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        syzbot+ab412638aeb652ded540@syzkaller.appspotmail.com
+Subject: [PATCH stable 05/11] io_uring: fix null-deref in io_disable_sqo_submit
+Date:   Tue, 26 Jan 2021 11:17:04 +0000
+Message-Id: <cdec1207337932aaa7433a4abfd5f38fa4cb2de0.1611659564.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1611659564.git.asml.silence@gmail.com>
+References: <cover.1611659564.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-References: <20210126094301.457437398@linuxfoundation.org>
-In-Reply-To: <20210126094301.457437398@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 26 Jan 2021 16:43:51 +0530
-Message-ID: <CA+G9fYtqJDKOwFGevaOmmK7gbKgo61CpL70yyG2daOxvRp5FSQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/88] 5.4.93-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, sagar.kadam@sifive.com,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Jan 2021 at 15:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.93 release.
-> There are 88 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 28 Jan 2021 09:42:44 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.93-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+[ Upstream commit b4411616c26f26c4017b8fa4d3538b1a02028733 ]
 
-As Daniel pointed in the other email thread,
-riscv failed build:
-     * clang-10-defconfig -  FAILED
-     * clang-11-defconfig -  FAILED
-     * gcc-8-defconfig -  FAILED
-     * gcc-9-defconfig -  FAILED
-     * gcc-10-defconfig -  FAILED
+general protection fault, probably for non-canonical address
+	0xdffffc0000000022: 0000 [#1] KASAN: null-ptr-deref
+	in range [0x0000000000000110-0x0000000000000117]
+RIP: 0010:io_ring_set_wakeup_flag fs/io_uring.c:6929 [inline]
+RIP: 0010:io_disable_sqo_submit+0xdb/0x130 fs/io_uring.c:8891
+Call Trace:
+ io_uring_create fs/io_uring.c:9711 [inline]
+ io_uring_setup+0x12b1/0x38e0 fs/io_uring.c:9739
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-the riscv build failed due to the below commit.
+io_disable_sqo_submit() might be called before user rings were
+allocated, don't do io_ring_set_wakeup_flag() in those cases.
 
-> Sagar Shrikant Kadam <sagar.kadam@sifive.com>
->     dts: phy: add GPIO number and active state used for phy reset
+Cc: stable@vger.kernel.org # 5.5+
+Reported-by: syzbot+ab412638aeb652ded540@syzkaller.appspotmail.com
+Fixes: d9d05217cb69 ("io_uring: stop SQPOLL submit on creator's death")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=riscv
-CROSS_COMPILE=riscv64-linux-gnu- 'CC=sccache riscv64-linux-gnu-gcc'
-'HOSTCC=sccache gcc'
-arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts:88.27-28 syntax error
-FATAL ERROR: Unable to parse input tree
-
-Build log,
-https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/986616680
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 723e1eb5349a..f1f1de815755 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8726,7 +8726,8 @@ static void io_disable_sqo_submit(struct io_ring_ctx *ctx)
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+ 	/* make sure callers enter the ring to get error */
+-	io_ring_set_wakeup_flag(ctx);
++	if (ctx->rings)
++		io_ring_set_wakeup_flag(ctx);
+ }
+ 
+ /*
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+2.24.0
+
