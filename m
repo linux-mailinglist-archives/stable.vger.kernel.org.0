@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4AF303F83
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA30C303FCC
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405675AbhAZOAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 09:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50032 "EHLO mail.kernel.org"
+        id S2392712AbhAZOLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 09:11:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405672AbhAZOAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 09:00:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC2AC2255F;
-        Tue, 26 Jan 2021 13:59:59 +0000 (UTC)
+        id S2391192AbhAZOLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 09:11:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C36022DFB;
+        Tue, 26 Jan 2021 14:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611669599;
-        bh=UJdTGuP7kPmv4EQdEgDLzSPN4IacqDna8sDBPRJVI5A=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dML41tYYbb/MRZUR6/gda1UEqcGvkrsPYJaqPOta30Rkj4/uaU1RoM8j2E1xV5TSl
-         A/N9hujrBsphMVhGAevoiqKrWAWJb0V3Hd+KtalI3ZiFdPg4/K4zXE0rL1Trr6EeIN
-         QrHVcj4YCMYlr8eIerdL7mX9woxQ0TiVTiabKTZoYXpSXSV961QKys/IPGxIygAI/c
-         NHemqfjNSQ+a5XvxXuU8iikLLWJLTHLfoySPIRgwRDPOfR4RA9KKgS/4H3QNssuUul
-         SKRMDohTSDF4Qjq9sWCcBWTsgzJcm2LlT/67eo478EJIjZaRsRUx+wkseKrBdND6Xf
-         ILJciOyQT7hOg==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1l4Ot6-0004Zr-B7; Tue, 26 Jan 2021 15:00:09 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     linux-usb@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>, Vladimir <svv75@mail.ru>,
-        stable@vger.kernel.org
-Subject: [PATCH] USB: serial: ftdi_sio: fix FTX sub-integer prescaler
-Date:   Tue, 26 Jan 2021 14:59:17 +0100
-Message-Id: <20210126135917.17545-1-johan@kernel.org>
-X-Mailer: git-send-email 2.26.2
+        s=k20201202; t=1611670212;
+        bh=GB4LM+e+KeQGmPPaLGcE23K9W8YeHZUp43KVm86dkoA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=i7uSImQguDH5lJDoFDoN2maBLvW1GpbbrufKZVE4cQBo8cXKNsyvoYJETsxfFNny0
+         X922heTn/Md9zsoDABajJXyvr3oYttOinUXgvYni4sKnWa49/3TrpWWS0dJ4a98h3x
+         6SqIA/VrVDzTsWeYU7cQb6e7Joe9fG07rKh+ablVnJmvMNBpNfpVkBL43mvugJU4G+
+         qtUewldsJ7XMQw350kaNvoJORSFL7VGwAFz7f9vxw8usB/bq/aJBqL4lgzdqu9XdQ4
+         U/MOJYK59W9rpH0qWAFLvW/xbpwe64lrKb1H3CFKRUlj+6Wsu2f4cmZzIUS9lv8GS9
+         votvddrUrAYhw==
+Received: by mail-ot1-f54.google.com with SMTP id s2so14075395otp.5;
+        Tue, 26 Jan 2021 06:10:12 -0800 (PST)
+X-Gm-Message-State: AOAM5337LYhsSfgI07pSjUk4sxKhsXs9MeFTi/naMUCfjMphlg7MgDgD
+        TN83QwCsUzGA1/Z3SlrCGxv+NO0XwgI6pFmulGo=
+X-Google-Smtp-Source: ABdhPJw7ommRj9+grbObZCNjDx1zbb9kddzZfzWL972a7v/ySOvAuA/pnVFKhfW2s+774OmbYvq4E5qfNtKYQWjbJ2g=
+X-Received: by 2002:a05:6830:139a:: with SMTP id d26mr4103374otq.305.1611670211771;
+ Tue, 26 Jan 2021 06:10:11 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210126095230.26580-1-ulf.hansson@linaro.org>
+In-Reply-To: <20210126095230.26580-1-ulf.hansson@linaro.org>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Tue, 26 Jan 2021 15:09:55 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2MyPc81OdOsOryVgGqomum-UL=5vEDGjtdwNPUJKFFjw@mail.gmail.com>
+Message-ID: <CAK8P3a2MyPc81OdOsOryVgGqomum-UL=5vEDGjtdwNPUJKFFjw@mail.gmail.com>
+Subject: Re: [PATCH] mmc: sdhci-pltfm: Fix linking err for sdhci-brcmstb
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Nicolas Schichan <nschichan@freebox.fr>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The most-significant bit of the sub-integer-prescaler index is set in
-the high byte of the baudrate request wIndex also for FTX devices.
+On Tue, Jan 26, 2021 at 10:52 AM Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>
+> The implementation of sdhci_pltfm_suspend() is only available when
+> CONFIG_PM_SLEEP is set, which triggers a linking error:
+>
+> "undefined symbol: sdhci_pltfm_suspend" when building sdhci-brcmstb.c.
+>
+> Fix this by implementing the missing stubs when CONFIG_PM_SLEEP is unset.
+>
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
+> Cc: Nicolas Schichan <nschichan@freebox.fr>
+> Fixes: 5b191dcba719 ("mmc: sdhci-brcmstb: Fix mmc timeout errors on S5 suspend")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
 
-This fixes rates like 1152000 which got mapped to 12 MBd.
-
-Reported-by: Vladimir <svv75@mail.ru>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210351
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/ftdi_sio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 94398f89e600..4168801b9595 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1386,8 +1386,9 @@ static int change_speed(struct tty_struct *tty, struct usb_serial_port *port)
- 	index_value = get_ftdi_divisor(tty, port);
- 	value = (u16)index_value;
- 	index = (u16)(index_value >> 16);
--	if ((priv->chip_type == FT2232C) || (priv->chip_type == FT2232H) ||
--		(priv->chip_type == FT4232H) || (priv->chip_type == FT232H)) {
-+	if (priv->chip_type == FT2232C || priv->chip_type == FT2232H ||
-+			priv->chip_type == FT4232H || priv->chip_type == FT232H ||
-+			priv->chip_type == FTX) {
- 		/* Probably the BM type needs the MSB of the encoded fractional
- 		 * divider also moved like for the chips above. Any infos? */
- 		index = (u16)((index << 8) | priv->interface);
--- 
-2.26.2
-
+Acked-by: Arnd Bergmann <arnd@arndb.de>
