@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FEE303B81
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 12:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D56303B82
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 12:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392364AbhAZLX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 06:23:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60994 "EHLO
+        id S2392247AbhAZLXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 06:23:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392340AbhAZLW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 06:22:56 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658ADC06178B
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:07 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id w1so22361437ejf.11
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:07 -0800 (PST)
+        with ESMTP id S2392345AbhAZLW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 06:22:58 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DF8C061794
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:10 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id a10so22415175ejg.10
+        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 03:21:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=b62UQnLTv6+nYld9hSZxRvsaLNtFsASEvgTrPG6d828=;
-        b=O9guSWsKduHr7hx4bRqcF3hwxeAP+h7NFcoYeCVc+Cc+JM9ocJQ5Re+mSq4lYAKW6M
-         NyL/tsMDb2aVpHGN37BWmWLFNNf/twb7lru8KlrHnDv9Yu8mGAWs6OchDJHdK/rLfNfP
-         bNANIJ4AnxjG6ag7d89K4YRFQnM7Bfx+MKTUgdo0Itq9f+Wr4nXNx3qcARxNK6eVxrxv
-         5TNcN3lD5FEiqTDwLrVHEF3r31lsh90QlmTn3+N3H3mFaUWM57Pe8VJ5QL2zQfb9akCH
-         02hxP8jSO7L0oSdvwz/sL5AnnVzm/cfUKsKr93uE7IOFLUF+vLcsh+sFpuzPs6rZEAR7
-         WDPQ==
+        bh=H8jaeSNFaDfrMbH20xY2YYq+yl/M/sDJfXI3SIGJV/o=;
+        b=ZbfN9DWroEUtEy3ihgHVbEqXlOTQBU4J48JMU+nDkBEUJQbIkmULtnVO5dE8xOo0jd
+         qCTFPSWpwVVz96P6yvVnaNg5A+u0Wv2ruBZGQA/69n77h4lU6EQzXYRwkmRU8fa174zV
+         T/QhPdp6x1ip0pwlxiGCFBcM+c72mtICJBiofvPL5VZ8PIXsv1BJ6ZMOtNCAT3joseTL
+         6nTRZgQSRRUHaF8n+lx2/xuLp7SvHTnzabgNKV8twjC6GVl1cWzRn2rUoUTacp4DSXQT
+         YWoDdnWQ6iKFxMuotsw28hqEVU639oJg4EbGt9zuFgsT+O4UXy9yCKaKuptrELBsVwf/
+         T79w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=b62UQnLTv6+nYld9hSZxRvsaLNtFsASEvgTrPG6d828=;
-        b=V2YBvc8KeD+6+WM6fO21MIFCh2ilPUCWqk6iQfLwBrabTksjkkZDQX8SBIMvAWX6Sf
-         SDZpBGXElah4WBlUbn1I6JcjVOrIIOxACo70xW+KUlr6YZIyJ/9F/oYOXzaUS3Re/YTy
-         x2xRg4ZrwDb4qJNTOF89qLlTVZjnAYGcOJth856nVwy71yRgFfvBKfUMatdI1joIm9R1
-         CrYIiN3hxj/2ZgPvSLIti9BXo7r3QVX00AkVKGJ/vDe1z9yk6od2ldncpuNW8xI7MLX5
-         S5wCBaCQKRW1S57ObP0Sn3tsMsV3wf+tykwgw+F8rtXafvnaaJjs1XqRB8CqVVntijxH
-         5u1A==
-X-Gm-Message-State: AOAM530uNAke+NA91E9VWCXA9IC60sKJat+20TO+VlKPCo9vpFzsbnrs
-        gUqh5Z+bFK8eCfqMGh2kdRVXYftAeAQF4A==
-X-Google-Smtp-Source: ABdhPJy92NyAiiWgaw12rKLE1fQXN7h99NqGBiohKryl6vCWqsdl/BUmJ8BpFsuZjI4rHYKi5VPZTA==
-X-Received: by 2002:a17:906:6407:: with SMTP id d7mr1950702ejm.133.1611660065951;
-        Tue, 26 Jan 2021 03:21:05 -0800 (PST)
+        bh=H8jaeSNFaDfrMbH20xY2YYq+yl/M/sDJfXI3SIGJV/o=;
+        b=eEL0s0nyE3TSt5FUaYCvsEuXak8eE+bhgAI86YdcVeEkleiVgGjp9m1O5VUBKS6dIM
+         CoqwYzky2Xzvq3UufVedlzQk1DrzIs29JcoYGMGZ9sb9D0i0fK7iWd0Uyccqp6e49+j+
+         SijmWhixH9BDJeTt/Y0Y6Hd4awCXP9sMDTxjw5TYrb8k7HF7iftyd7vrYb4Y4ZhPFe04
+         0JySE/uwmBj5T12BmcUdVto9hfXp4ousFIkkoSU7jtNLSTq7blW2rZLw+MTOBGbjLg5m
+         X8ywTKf6I8zeeEnyejXGH6pU2FX7WcwbDGVSYFyV8wXcqACDWwqqsGKW2MTANbkrvnXr
+         cenw==
+X-Gm-Message-State: AOAM530mEll4ycmBeSivxL/ZaEQyt0iXXuWMGp6IYVV72R3o2os44rld
+        EskKhM+VvjOx2KxkqpGdM03Is9jUTAuXHA==
+X-Google-Smtp-Source: ABdhPJziU1O5y5pkltAF7hnarhkEP3bGfusLW4eecujstGW+0LZsUPYjL4J7sHCd2bY7AhiMzBH/Eg==
+X-Received: by 2002:a17:906:25db:: with SMTP id n27mr3182414ejb.552.1611660068557;
+        Tue, 26 Jan 2021 03:21:08 -0800 (PST)
 Received: from localhost.localdomain ([148.252.129.161])
-        by smtp.gmail.com with ESMTPSA id o17sm12167128edr.17.2021.01.26.03.21.05
+        by smtp.gmail.com with ESMTPSA id o17sm12167128edr.17.2021.01.26.03.21.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 03:21:05 -0800 (PST)
+        Tue, 26 Jan 2021 03:21:08 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        syzbot+a32b546d58dde07875a1@syzkaller.appspotmail.com
-Subject: [PATCH stable 08/11] io_uring: fix uring_flush in exit_files() warning
-Date:   Tue, 26 Jan 2021 11:17:07 +0000
-Message-Id: <0e32dce528dd20f3539b624e52b2f60d47e067fa.1611659564.git.asml.silence@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>, Abaci <abaci@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Subject: [PATCH stable 11/11] io_uring: fix sleeping under spin in __io_clean_op
+Date:   Tue, 26 Jan 2021 11:17:10 +0000
+Message-Id: <61e93a6403ea6cc28764e7508cd877ca30345371.1611659564.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1611659564.git.asml.silence@gmail.com>
 References: <cover.1611659564.git.asml.silence@gmail.com>
@@ -63,60 +64,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4325cb498cb743dacaa3edbec398c5255f476ef6 ]
+[ Upstream commit 9d5c8190683a462dbc787658467a0da17011ea5f ]
 
-WARNING: CPU: 1 PID: 11100 at fs/io_uring.c:9096
-	io_uring_flush+0x326/0x3a0 fs/io_uring.c:9096
-RIP: 0010:io_uring_flush+0x326/0x3a0 fs/io_uring.c:9096
-Call Trace:
- filp_close+0xb4/0x170 fs/open.c:1280
- close_files fs/file.c:401 [inline]
- put_files_struct fs/file.c:416 [inline]
- put_files_struct+0x1cc/0x350 fs/file.c:413
- exit_files+0x7e/0xa0 fs/file.c:433
- do_exit+0xc22/0x2ae0 kernel/exit.c:820
- do_group_exit+0x125/0x310 kernel/exit.c:922
- get_signal+0x3e9/0x20a0 kernel/signal.c:2770
- arch_do_signal_or_restart+0x2a8/0x1eb0 arch/x86/kernel/signal.c:811
- handle_signal_work kernel/entry/common.c:147 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
- exit_to_user_mode_prepare+0x148/0x250 kernel/entry/common.c:201
- __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
- syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:302
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   27.629441] BUG: sleeping function called from invalid context
+	at fs/file.c:402
+[   27.631317] in_atomic(): 1, irqs_disabled(): 1, non_block: 0,
+	pid: 1012, name: io_wqe_worker-0
+[   27.633220] 1 lock held by io_wqe_worker-0/1012:
+[   27.634286]  #0: ffff888105e26c98 (&ctx->completion_lock)
+	{....}-{2:2}, at: __io_req_complete.part.102+0x30/0x70
+[   27.649249] Call Trace:
+[   27.649874]  dump_stack+0xac/0xe3
+[   27.650666]  ___might_sleep+0x284/0x2c0
+[   27.651566]  put_files_struct+0xb8/0x120
+[   27.652481]  __io_clean_op+0x10c/0x2a0
+[   27.653362]  __io_cqring_fill_event+0x2c1/0x350
+[   27.654399]  __io_req_complete.part.102+0x41/0x70
+[   27.655464]  io_openat2+0x151/0x300
+[   27.656297]  io_issue_sqe+0x6c/0x14e0
+[   27.660991]  io_wq_submit_work+0x7f/0x240
+[   27.662890]  io_worker_handle_work+0x501/0x8a0
+[   27.664836]  io_wqe_worker+0x158/0x520
+[   27.667726]  kthread+0x134/0x180
+[   27.669641]  ret_from_fork+0x1f/0x30
 
-An SQPOLL ring creator task may have gotten rid of its file note during
-exit and called io_disable_sqo_submit(), but the io_uring is still left
-referenced through fdtable, which will be put during close_files() and
-cause a false positive warning.
+Instead of cleaning files on overflow, return back overflow cancellation
+into io_uring_cancel_files(). Previously it was racy to clean
+REQ_F_OVERFLOW flag, but we got rid of it, and can do it through
+repetitive attempts targeting all matching requests.
 
-First split the warning into two for more clarity when is hit, and the
-add sqo_dead check to handle the described case.
-
-Cc: stable@vger.kernel.org # 5.5+
-Reported-by: syzbot+a32b546d58dde07875a1@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # 5.9+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e8d0bea702a3..12fa5e09cefa 100644
+index 1c5d71829bf5..f77821626a92 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8931,7 +8931,10 @@ static int io_uring_flush(struct file *file, void *data)
+@@ -970,6 +970,7 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
+ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+ 			     const struct iovec *fast_iov,
+ 			     struct iov_iter *iter, bool force);
++static void io_req_drop_files(struct io_kiocb *req);
  
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		/* there is only one file note, which is owned by sqo_task */
--		WARN_ON_ONCE((ctx->sqo_task == current) ==
-+		WARN_ON_ONCE(ctx->sqo_task != current &&
-+			     xa_load(&tctx->xa, (unsigned long)file));
-+		/* sqo_dead check is for when this happens after cancellation */
-+		WARN_ON_ONCE(ctx->sqo_task == current && !ctx->sqo_dead &&
- 			     !xa_load(&tctx->xa, (unsigned long)file));
+ static struct kmem_cache *req_cachep;
  
- 		io_disable_sqo_submit(ctx);
+@@ -990,8 +991,7 @@ EXPORT_SYMBOL(io_uring_get_socket);
+ 
+ static inline void io_clean_op(struct io_kiocb *req)
+ {
+-	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED |
+-			  REQ_F_INFLIGHT))
++	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
+ 		__io_clean_op(req);
+ }
+ 
+@@ -1255,6 +1255,8 @@ static void io_req_clean_work(struct io_kiocb *req)
+ 			free_fs_struct(fs);
+ 		req->work.flags &= ~IO_WQ_WORK_FS;
+ 	}
++	if (req->flags & REQ_F_INFLIGHT)
++		io_req_drop_files(req);
+ 
+ 	io_put_identity(req->task->io_uring, req);
+ }
+@@ -5929,9 +5931,6 @@ static void __io_clean_op(struct io_kiocb *req)
+ 		}
+ 		req->flags &= ~REQ_F_NEED_CLEANUP;
+ 	}
+-
+-	if (req->flags & REQ_F_INFLIGHT)
+-		io_req_drop_files(req);
+ }
+ 
+ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
+@@ -8669,6 +8668,8 @@ static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 			break;
+ 		/* cancel this request, or head link requests */
+ 		io_attempt_cancel(ctx, cancel_req);
++		io_cqring_overflow_flush(ctx, true, task, files);
++
+ 		io_put_req(cancel_req);
+ 		/* cancellations _may_ trigger task work */
+ 		io_run_task_work();
 -- 
 2.24.0
 
