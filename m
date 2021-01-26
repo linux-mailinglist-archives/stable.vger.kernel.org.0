@@ -2,76 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7757B303F0A
-	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 14:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4AF303F83
+	for <lists+stable@lfdr.de>; Tue, 26 Jan 2021 15:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392694AbhAZNmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 08:42:32 -0500
-Received: from foss.arm.com ([217.140.110.172]:40152 "EHLO foss.arm.com"
+        id S2405675AbhAZOAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 09:00:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404692AbhAZNmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 08:42:12 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 623C831B;
-        Tue, 26 Jan 2021 05:41:24 -0800 (PST)
-Received: from e119884-lin.cambridge.arm.com (e119884-lin.cambridge.arm.com [10.1.196.72])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 45C933F68F;
-        Tue, 26 Jan 2021 05:41:23 -0800 (PST)
-From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
-To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH] arm64: Fix kernel address detection of __is_lm_address()
-Date:   Tue, 26 Jan 2021 13:40:56 +0000
-Message-Id: <20210126134056.45747-1-vincenzo.frascino@arm.com>
-X-Mailer: git-send-email 2.30.0
+        id S2405672AbhAZOAk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 09:00:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC2AC2255F;
+        Tue, 26 Jan 2021 13:59:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611669599;
+        bh=UJdTGuP7kPmv4EQdEgDLzSPN4IacqDna8sDBPRJVI5A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dML41tYYbb/MRZUR6/gda1UEqcGvkrsPYJaqPOta30Rkj4/uaU1RoM8j2E1xV5TSl
+         A/N9hujrBsphMVhGAevoiqKrWAWJb0V3Hd+KtalI3ZiFdPg4/K4zXE0rL1Trr6EeIN
+         QrHVcj4YCMYlr8eIerdL7mX9woxQ0TiVTiabKTZoYXpSXSV961QKys/IPGxIygAI/c
+         NHemqfjNSQ+a5XvxXuU8iikLLWJLTHLfoySPIRgwRDPOfR4RA9KKgS/4H3QNssuUul
+         SKRMDohTSDF4Qjq9sWCcBWTsgzJcm2LlT/67eo478EJIjZaRsRUx+wkseKrBdND6Xf
+         ILJciOyQT7hOg==
+Received: from johan by xi.lan with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1l4Ot6-0004Zr-B7; Tue, 26 Jan 2021 15:00:09 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     linux-usb@vger.kernel.org
+Cc:     Johan Hovold <johan@kernel.org>, Vladimir <svv75@mail.ru>,
+        stable@vger.kernel.org
+Subject: [PATCH] USB: serial: ftdi_sio: fix FTX sub-integer prescaler
+Date:   Tue, 26 Jan 2021 14:59:17 +0100
+Message-Id: <20210126135917.17545-1-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, the __is_lm_address() check just masks out the top 12 bits
-of the address, but if they are 0, it still yields a true result.
-This has as a side effect that virt_addr_valid() returns true even for
-invalid virtual addresses (e.g. 0x0).
+The most-significant bit of the sub-integer-prescaler index is set in
+the high byte of the baudrate request wIndex also for FTX devices.
 
-Fix the detection checking that it's actually a kernel address starting
-at PAGE_OFFSET.
+This fixes rates like 1152000 which got mapped to 12 MBd.
 
-Fixes: f4693c2716b35 ("arm64: mm: extend linear region for 52-bit VA configurations")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reported-by: Vladimir <svv75@mail.ru>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=210351
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- arch/arm64/include/asm/memory.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ftdi_sio.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index 18fce223b67b..99d7e1494aaa 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -247,9 +247,11 @@ static inline const void *__tag_set(const void *addr, u8 tag)
- 
- 
- /*
-- * The linear kernel range starts at the bottom of the virtual address space.
-+ * Check whether an arbitrary address is within the linear map, which
-+ * lives in the [PAGE_OFFSET, PAGE_END) interval at the bottom of the
-+ * kernel's TTBR1 address range.
-  */
--#define __is_lm_address(addr)	(((u64)(addr) & ~PAGE_OFFSET) < (PAGE_END - PAGE_OFFSET))
-+#define __is_lm_address(addr)	(((u64)(addr) ^ PAGE_OFFSET) < (PAGE_END - PAGE_OFFSET))
- 
- #define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
- #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 94398f89e600..4168801b9595 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1386,8 +1386,9 @@ static int change_speed(struct tty_struct *tty, struct usb_serial_port *port)
+ 	index_value = get_ftdi_divisor(tty, port);
+ 	value = (u16)index_value;
+ 	index = (u16)(index_value >> 16);
+-	if ((priv->chip_type == FT2232C) || (priv->chip_type == FT2232H) ||
+-		(priv->chip_type == FT4232H) || (priv->chip_type == FT232H)) {
++	if (priv->chip_type == FT2232C || priv->chip_type == FT2232H ||
++			priv->chip_type == FT4232H || priv->chip_type == FT232H ||
++			priv->chip_type == FTX) {
+ 		/* Probably the BM type needs the MSB of the encoded fractional
+ 		 * divider also moved like for the chips above. Any infos? */
+ 		index = (u16)((index << 8) | priv->interface);
 -- 
-2.30.0
+2.26.2
 
