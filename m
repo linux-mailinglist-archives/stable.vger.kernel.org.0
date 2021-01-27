@@ -2,121 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F80B305D64
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:39:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86785305D69
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbhA0NjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 08:39:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233821AbhA0Nh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Jan 2021 08:37:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B3492072C;
-        Wed, 27 Jan 2021 13:37:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611754638;
-        bh=XlzbyapUdttW+xJq4rvU59E0QgnwCtUcs5L72kwNr3E=;
-        h=Subject:To:From:Date:From;
-        b=qP9KuWE35TItHvgEF5VmHwKzNBn+SS26WtN1tEdY3aJGBZrXc1qp3At6LrLXmlzNR
-         12g0EA32yx8JWEWQCv22eQ1KN2pY2rkjVmn9taQB+MC+CsVBHT+uSni+gDpAt2oN+p
-         2DYfllXyoG51njDBMVy8Edw2R/jT+Z7doITuxq6o=
-Subject: patch "virt: vbox: Do not use wait_event_interruptible when called from" added to char-misc-testing
-To:     hdegoede@redhat.com, bugreports@pouzenc.fr,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Jan 2021 14:37:16 +0100
-Message-ID: <16117546367238@kroah.com>
+        id S232471AbhA0NlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 08:41:20 -0500
+Received: from guitar.tcltek.co.il ([192.115.133.116]:58862 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234589AbhA0Nkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 08:40:39 -0500
+Received: from tarshish.tkos.co.il (unknown [10.0.8.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx.tkos.co.il (Postfix) with ESMTPS id 3447644025F;
+        Wed, 27 Jan 2021 15:39:56 +0200 (IST)
+From:   Baruch Siach <baruch@tkos.co.il>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Russell King <linux@armlinux.org.uk>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH v2 5.10-stable] gpio: mvebu: fix pwm .get_state period calculation
+Date:   Wed, 27 Jan 2021 15:39:49 +0200
+Message-Id: <4d2da0aff7e22f22df9310f01f6c5c0f2a7d7bd5.1611754789.git.baruch@tkos.co.il>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit e73b0101ae5124bf7cd3fb5d250302ad2f16a416 upstream.
 
-This is a note to let you know that I've just added the patch titled
+The period is the sum of on and off values. That is, calculate period as
 
-    virt: vbox: Do not use wait_event_interruptible when called from
+  ($on + $off) / clkrate
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+instead of
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+  $off / clkrate - $on / clkrate
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
+that makes no sense.
 
-If you have any questions about this process, please let me know.
-
-
-From c35901b39ddc20077f4ae7b9f7bf344487f62212 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Thu, 21 Jan 2021 16:07:54 +0100
-Subject: virt: vbox: Do not use wait_event_interruptible when called from
- kernel context
-
-Do not use wait_event_interruptible when vbg_hgcm_call() gets called from
-kernel-context, such as it being called by the vboxsf filesystem code.
-
-This fixes some filesystem related system calls on shared folders
-unexpectedly failing with -EINTR.
-
-Fixes: 0532a1b0d045 ("virt: vbox: Implement passing requestor info to the host for VirtualBox 6.0.x")
-Reported-by: Ludovic Pouzenc <bugreports@pouzenc.fr>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210121150754.147598-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Russell King <linux@armlinux.org.uk>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: 757642f9a584e ("gpio: mvebu: Add limited PWM support")
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+[baruch: backport to kernels <= v5.10]
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 ---
- drivers/virt/vboxguest/vboxguest_utils.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/virt/vboxguest/vboxguest_utils.c b/drivers/virt/vboxguest/vboxguest_utils.c
-index ea05af41ec69..8d195e3f8301 100644
---- a/drivers/virt/vboxguest/vboxguest_utils.c
-+++ b/drivers/virt/vboxguest/vboxguest_utils.c
-@@ -468,7 +468,7 @@ static int hgcm_cancel_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call)
-  *               Cancellation fun.
-  */
- static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
--			    u32 timeout_ms, bool *leak_it)
-+			    u32 timeout_ms, bool interruptible, bool *leak_it)
- {
- 	int rc, cancel_rc, ret;
- 	long timeout;
-@@ -495,10 +495,15 @@ static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
+This backported patch applies to all kernels between 4.14 and 5.10
+(inclusive).
+
+v2:
+
+  * Add a note on backport with another SoB
+
+  * Add Uwe's Reviewed-by tag
+---
+ drivers/gpio/gpio-mvebu.c | 25 ++++++++++---------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
+index 2f245594a90a..ed7c5fc47f52 100644
+--- a/drivers/gpio/gpio-mvebu.c
++++ b/drivers/gpio/gpio-mvebu.c
+@@ -660,9 +660,8 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
+ 
+ 	spin_lock_irqsave(&mvpwm->lock, flags);
+ 
+-	val = (unsigned long long)
+-		readl_relaxed(mvebu_pwmreg_blink_on_duration(mvpwm));
+-	val *= NSEC_PER_SEC;
++	u = readl_relaxed(mvebu_pwmreg_blink_on_duration(mvpwm));
++	val = (unsigned long long) u * NSEC_PER_SEC;
+ 	do_div(val, mvpwm->clk_rate);
+ 	if (val > UINT_MAX)
+ 		state->duty_cycle = UINT_MAX;
+@@ -671,21 +670,17 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
  	else
- 		timeout = msecs_to_jiffies(timeout_ms);
+ 		state->duty_cycle = 1;
  
--	timeout = wait_event_interruptible_timeout(
--					gdev->hgcm_wq,
--					hgcm_req_done(gdev, &call->header),
--					timeout);
-+	if (interruptible) {
-+		timeout = wait_event_interruptible_timeout(gdev->hgcm_wq,
-+							   hgcm_req_done(gdev, &call->header),
-+							   timeout);
-+	} else {
-+		timeout = wait_event_timeout(gdev->hgcm_wq,
-+					     hgcm_req_done(gdev, &call->header),
-+					     timeout);
-+	}
+-	val = (unsigned long long)
+-		readl_relaxed(mvebu_pwmreg_blink_off_duration(mvpwm));
++	val = (unsigned long long) u; /* on duration */
++	/* period = on + off duration */
++	val += readl_relaxed(mvebu_pwmreg_blink_off_duration(mvpwm));
+ 	val *= NSEC_PER_SEC;
+ 	do_div(val, mvpwm->clk_rate);
+-	if (val < state->duty_cycle) {
++	if (val > UINT_MAX)
++		state->period = UINT_MAX;
++	else if (val)
++		state->period = val;
++	else
+ 		state->period = 1;
+-	} else {
+-		val -= state->duty_cycle;
+-		if (val > UINT_MAX)
+-			state->period = UINT_MAX;
+-		else if (val)
+-			state->period = val;
+-		else
+-			state->period = 1;
+-	}
  
- 	/* timeout > 0 means hgcm_req_done has returned true, so success */
- 	if (timeout > 0)
-@@ -631,7 +636,8 @@ int vbg_hgcm_call(struct vbg_dev *gdev, u32 requestor, u32 client_id,
- 	hgcm_call_init_call(call, client_id, function, parms, parm_count,
- 			    bounce_bufs);
- 
--	ret = vbg_hgcm_do_call(gdev, call, timeout_ms, &leak_it);
-+	ret = vbg_hgcm_do_call(gdev, call, timeout_ms,
-+			       requestor & VMMDEV_REQUESTOR_USERMODE, &leak_it);
- 	if (ret == 0) {
- 		*vbox_status = call->header.result;
- 		ret = hgcm_call_copy_back_result(call, parms, parm_count,
+ 	regmap_read(mvchip->regs, GPIO_BLINK_EN_OFF + mvchip->offset, &u);
+ 	if (u)
 -- 
-2.30.0
-
+2.29.2
 
