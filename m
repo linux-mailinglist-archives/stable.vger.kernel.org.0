@@ -2,85 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E0E3055F5
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 09:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4BD30562E
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 09:54:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbhA0IkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 03:40:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S316902AbhAZXMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 18:12:05 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E549C0613ED
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 15:10:16 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id jx18so134888pjb.5
-        for <stable@vger.kernel.org>; Tue, 26 Jan 2021 15:10:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HQObKKSE5vuDsoooUB32J7Kk+tA9rn8yWjz82H0MqC8=;
-        b=IsXZ6AVsbd6O9Z0cFT3PBS/RJNtNM2XJtyaaO0UwmfubfXJoIdSncE7qf0pmXEDit3
-         H8dX/ubGwBjS6aA4Q2sSM7Onoa3N3i3/V6LcwH/ryOrbDmmjVqTeti6AUbYZJ8c9HdQi
-         D1TfpWnzciIxEy4DkfQyf9U5EeyWpFDmgFPHCaIWJkWzjQwa7BljNsU3peKEfCY4zLgk
-         UVoYirmVQrL/GbuA7oEohpSHUtmla6fTZ6y1IYsp5WIgRFEujTU+QlKNadINq5yKzpWl
-         rsrnYI2DT8IFm1XFhtMRCeQGHR1+Nn25595y0VuVGvxpbOfrbzDHxTioqvFYA6jgC2PB
-         s8Ag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=HQObKKSE5vuDsoooUB32J7Kk+tA9rn8yWjz82H0MqC8=;
-        b=g4nF/Vl7BE4irfUxWXKBY7zHpXCpNg22BequhdEOv+MxZc2yh/ftJHub1ChnYAqzXP
-         /QyufjYk0moSwB8lQqfUMyruTKPPDgKVTpqZRSnKB7EzGHstj6B5blB81ACzRSyjZUSm
-         dpwY4MPPAyUg4eRYpZk31P0cQqobE9UmZCg0BvSLNjsDJMLG1Gfz1OpdSYsDqg7GQHuG
-         mjlNqjS0HPu+YawjTtR/6QhCShqTNTGHZNYcuy0PgjusuBwA1M+oSsfBs2bv59hBY7xp
-         Q2qhPx0qV3jnzBMY5mZFh61J33A8PYJPDgu48EK3AhqiwL0BGL3LRsH1lFVt708OuGsI
-         OEBw==
-X-Gm-Message-State: AOAM531hncUant1Xu0bwPGcTHUN3pxJ4mfDXcwc0jIghmxq7SlmKKyQd
-        qjv3H0o4AGkY+MbRRb87mfQvYg==
-X-Google-Smtp-Source: ABdhPJxl7q69Ha3Jh0Ps46T3ONL6qVzI+3HdbBTFQIcdgZ5tsJeSGhBc8xHENLjPewRZWZT0KTYgqQ==
-X-Received: by 2002:a17:90a:7e82:: with SMTP id j2mr2147173pjl.217.1611702615801;
-        Tue, 26 Jan 2021 15:10:15 -0800 (PST)
-Received: from google.com ([2620:15c:f:10:1ea0:b8ff:fe73:50f5])
-        by smtp.gmail.com with ESMTPSA id m77sm155892pfd.82.2021.01.26.15.10.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 15:10:15 -0800 (PST)
-Date:   Tue, 26 Jan 2021 15:10:08 -0800
-From:   Sean Christopherson <seanjc@google.com>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     Peter Gonda <pgonda@google.com>, kvm@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Brijesh Singh <brijesh.singh@amd.com>, x86@kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix unsynchronized access to sev members through
- svm_register_enc_region
-Message-ID: <YBChUOc1iKZv8TJ1@google.com>
-References: <20210126185431.1824530-1-pgonda@google.com>
- <6407cdf6-5dc7-96c0-343b-d2c0e1d7aaa4@amd.com>
+        id S232659AbhA0IyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 03:54:17 -0500
+Received: from gloria.sntech.de ([185.11.138.130]:41610 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232904AbhA0Ivy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 03:51:54 -0500
+Received: from ip5f5aa64a.dynamic.kabel-deutschland.de ([95.90.166.74] helo=phil.lan)
+        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <heiko@sntech.de>)
+        id 1l4gX6-00007Q-CP; Wed, 27 Jan 2021 09:50:36 +0100
+From:   Heiko Stuebner <heiko@sntech.de>
+To:     hminas@synopsys.com, gregkh@linuxfoundation.org
+Cc:     christoph.muellner@theobroma-systems.com, paulz@synopsys.com,
+        yousaf.kaukab@intel.com, balbi@ti.com, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, heiko@sntech.de,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] usb: dwc2: Fix endpoint direction check in ep_from_windex
+Date:   Wed, 27 Jan 2021 09:50:34 +0100
+Message-Id: <20210127085034.36397-1-heiko@sntech.de>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6407cdf6-5dc7-96c0-343b-d2c0e1d7aaa4@amd.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 26, 2021, Tom Lendacky wrote:
-> On 1/26/21 12:54 PM, Peter Gonda wrote:
-> > sev_pin_memory assumes that callers hold the kvm->lock. This was true for
-> > all callers except svm_register_enc_region since it does not originate
-> > from svm_mem_enc_op. Also added lockdep annotation to help prevent
-> > future regressions.
-> 
-> I'm not exactly sure what the problem is that your fixing? What is the
-> symptom that you're seeing?
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-svm_register_enc_region() calls sev_pin_memory() without holding kvm->lock.  If
-userspace does multiple KVM_MEMORY_ENCRYPT_REG_REGION in parallel, it could
-circumvent the rlimit(RLIMIT_MEMLOCK) check.
+dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
+the endpoint for the index provided in the wIndex request param.
+
+In a test-case with a rndis gadget running and sending a malformed
+packet to it like:
+    dev.ctrl_transfer(
+        0x82,      # bmRequestType
+        0x00,       # bRequest
+        0x0000,     # wValue
+        0x0001,     # wIndex
+        0x00       # wLength
+    )
+it is possible to cause a crash:
+
+[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
+[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
+...
+[  218.313189] Call trace:
+[  218.330217]  ep_from_windex+0x3c/0x54
+[  218.348565]  usb_gadget_giveback_request+0x10/0x20
+[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
+
+This happens because ep_from_windex wants to compare the endpoint
+direction even if index_to_ep() didn't return an endpoint due to
+the direction not matching.
+
+The fix is easy insofar that the actual direction check is already
+happening when calling index_to_ep() which will return NULL if there
+is no endpoint for the targeted direction, so the offending check
+can go away completely.
+
+Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Cc: stable@vger.kernel.org
+---
+changes in v2:
+- remove unused struct dwc2_hsotg_ep *ep;
+
+ drivers/usb/dwc2/gadget.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 0a0d11151cfb..ad4c94366dad 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1543,7 +1543,6 @@ static void dwc2_hsotg_complete_oursetup(struct usb_ep *ep,
+ static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
+ 					    u32 windex)
+ {
+-	struct dwc2_hsotg_ep *ep;
+ 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
+ 	int idx = windex & 0x7F;
+ 
+@@ -1553,12 +1552,7 @@ static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
+ 	if (idx > hsotg->num_of_eps)
+ 		return NULL;
+ 
+-	ep = index_to_ep(hsotg, idx, dir);
+-
+-	if (idx && ep->dir_in != dir)
+-		return NULL;
+-
+-	return ep;
++	return index_to_ep(hsotg, idx, dir);
+ }
+ 
+ /**
+-- 
+2.29.2
+
