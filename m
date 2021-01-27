@@ -2,80 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4D5305C91
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BB6305CA3
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238268AbhA0NJz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 27 Jan 2021 08:09:55 -0500
-Received: from guitar.tcltek.co.il ([192.115.133.116]:58824 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238157AbhA0NHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Jan 2021 08:07:43 -0500
-Received: from tarshish (unknown [10.0.8.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx.tkos.co.il (Postfix) with ESMTPS id 095094403E5;
-        Wed, 27 Jan 2021 15:06:56 +0200 (IST)
-References: <d1d7d548eba25119397de87211de763c54b5d8cd.1611651611.git.baruch@tkos.co.il>
- <20210126180650.xsrycbnwzu4lzl55@pengutronix.de>
-User-agent: mu4e 1.4.14; emacs 27.1
-From:   Baruch Siach <baruch@tkos.co.il>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH 5.10-stable] gpio: mvebu: fix pwm .get_state period
- calculation
-In-reply-to: <20210126180650.xsrycbnwzu4lzl55@pengutronix.de>
-Date:   Wed, 27 Jan 2021 15:06:55 +0200
-Message-ID: <87im7iy1e8.fsf@tarshish>
+        id S1343782AbhA0NMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 08:12:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56460 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238049AbhA0NKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 08:10:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA235207A3;
+        Wed, 27 Jan 2021 13:09:56 +0000 (UTC)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     linux-kernel@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com
+Cc:     Will Deacon <will@kernel.org>, stable@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH] arm64: Fix kernel address detection of __is_lm_address()
+Date:   Wed, 27 Jan 2021 13:09:54 +0000
+Message-Id: <161175296410.16506.3810718723675940477.b4-ty@arm.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210126134056.45747-1-vincenzo.frascino@arm.com>
+References: <20210126134056.45747-1-vincenzo.frascino@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Uwe,
+On Tue, 26 Jan 2021 13:40:56 +0000, Vincenzo Frascino wrote:
+> Currently, the __is_lm_address() check just masks out the top 12 bits
+> of the address, but if they are 0, it still yields a true result.
+> This has as a side effect that virt_addr_valid() returns true even for
+> invalid virtual addresses (e.g. 0x0).
+> 
+> Fix the detection checking that it's actually a kernel address starting
+> at PAGE_OFFSET.
 
-Thanks for your review.
+Applied to arm64 (for-next/fixes), thanks!
 
-On Tue, Jan 26 2021, Uwe Kleine-König wrote:
-> On Tue, Jan 26, 2021 at 11:00:11AM +0200, Baruch Siach wrote:
->> commit e73b0101ae5124bf7cd3fb5d250302ad2f16a416 upstream.
->> 
->> The period is the sum of on and off values. That is, calculate period as
->> 
->>   ($on + $off) / clkrate
->> 
->> instead of
->> 
->>   $off / clkrate - $on / clkrate
->> 
->> that makes no sense.
->> 
->> Reported-by: Russell King <linux@armlinux.org.uk>
->> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->> Fixes: 757642f9a584e ("gpio: mvebu: Add limited PWM support")
->> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
->> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> Doesn't this need something like:
->
-> 	[baruch: Backported to 5.10]
->
-> plus a new S-o-B?
-
-I could not find this requirement in the stable-kernel-rules.rst (Option
-3) text.
-
-Greg, should I resend the patch with another SoB?
-
-Thanks,
-baruch
+[1/1] arm64: Fix kernel address detection of __is_lm_address()
+      https://git.kernel.org/arm64/c/519ea6f1c82f
 
 -- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+Catalin
+
