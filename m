@@ -2,288 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A1C30622B
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 18:37:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F1F306265
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 18:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343941AbhA0RhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 12:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56772 "EHLO
+        id S236030AbhA0Roh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 12:44:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344034AbhA0Rgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 12:36:49 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E233DC06174A
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:36:07 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id 31so1425696plb.10
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:36:07 -0800 (PST)
+        with ESMTP id S1344112AbhA0RoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 12:44:24 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95DECC061574
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:43:43 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id f63so1641352pfa.13
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:43:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rmhZy8D0vanYVz9E9YKPWq3P6VPSSSiY6Zx8uLh7XDQ=;
-        b=tykLharylyvixP81+NCmniyusErRdevpZfSdregEpyOlixw8xSquIijkN6BqLRK66+
-         aHbJUOW9+QLIkjs1THp88RENFzN5e1GVr9LDm9TSAOrnIcZK4VjQyJ5VjDoY5rOOQU+M
-         HQzzoVBlJhTIcn3hdFY/3Bya2ifUkd3YUclRyo7Eto2GSoexk6cSbBTdcJLlPnixwgGF
-         I8rC0dFJxs3CvxQsIfcuX4vpas1qMJ+7IkRV3/fvHEy7AxaiIKqc2zQXR3TaOozUXqGp
-         tsK/Esm4+9U02atsYZY965/Nlh24QvhRQ16TVCxZezm307AAg84yHsVKUNENGYFMrJuh
-         ckCA==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=7sj7pim5IetR456CHcvRdOi+mjzmrDoe/hWhqa9Dot0=;
+        b=nZn951upXHINIYPKAhqqnA0gSx9fm6BFVM/jP6hftSq00DD9x0fQ79puVIjzJIf+Wy
+         iz9lW1hiLD0uRu0nh13kS4yHg7O3hEcaW0s59nyCqYBxc053a/nqV04OX2KJSn7J44g+
+         V8moEFcNU3aSxiW1iWkOW/VanCas20nn/jHn9FJLLkkkc2maImUnd6Ldl7xHRe4sU/lS
+         GjaY2uNfKEAvsh2J9AP/NRQp/iqK17FHew7+NCrz1GulAxqmMrqdpVNtJk6QyHIP20U6
+         NiRec482FiU3hQ8fIjjs06E1pqCY2G3DBMZqGbJBGe6TmcSLPnjcz+EIwl7eQWVhT1ll
+         84cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rmhZy8D0vanYVz9E9YKPWq3P6VPSSSiY6Zx8uLh7XDQ=;
-        b=W1bu0hHqkJPHytOpMFWCXsJ30pTVHvXJzxgO+F+VvHVSgZ+5n+gC6FNXAjbH/tQmlC
-         LcsoPf6NKHXWyUg4jXkvNodDyPTlpHtH4+0suAPJjozZCUd8W5GoIhxkO8Rg6jiXpbw7
-         ozFPt6eT0X+ms1wuUp6iEkyI8ACxhUXeYLheKxG/NvLKcidLxcbF3WlFIPs08Qlf1F1l
-         GeG8cVmNlBKLJitxxux3b/ryh0nxw8HX21J1p6+nifXYIB8F+DkxL+oSqCDsuP60PMbo
-         TjX6WWYnzfo/KctQXR2pnpMCUtSI8O8MttbhQ4oybvXdbeXx4wrvvxf/IIGYSeoB/4ZN
-         878Q==
-X-Gm-Message-State: AOAM532i2s0q9/eWYwzTiphSaiPeJsjyLFz4LK/9AOJIOW0hj1B+OtXr
-        6SppyU2Rm9VkDGpshwUgYAxFJJREkYfvWFO6
-X-Google-Smtp-Source: ABdhPJwihF0ggTsn6GHQiSGnTr5xPMOPHFAnW5SWn3aRi4DCRc4mnSv2faFoyheQWalFLIFU7hPENw==
-X-Received: by 2002:a17:90a:c82:: with SMTP id v2mr6770344pja.171.1611768967014;
-        Wed, 27 Jan 2021 09:36:07 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 11sm3057162pgz.22.2021.01.27.09.36.05
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=7sj7pim5IetR456CHcvRdOi+mjzmrDoe/hWhqa9Dot0=;
+        b=kv8wehPRbil0RoE2xX1JedYaUAXNTogGTsxsrpSirIB/dS+sGovoi8n6C3Gyf+iceS
+         KDOVj3NgJmohsRPrEUET6nr0xnTpyFni0DRj0SCX64preK6HFHDNTblugbzpMuEM4bXi
+         u3QR9GYJk5BvePh66pDRxFeiW+5r8tY3bnRZxASbQ4sGJG/46wcxDps0PTbmWkX3CPMT
+         D5c7Ou0FJr2RdEOmP0aHY0hqwNGlarKVHADkpBpUr0KaACaRz75nnBouL7oY8eQeh5cu
+         6eRQJ1ITTBUnP6CmOWyBpXTF9km8nnG13RwwZjSZaJhvrbMxf4HtG4ii0IXbECGQmzc0
+         QHZQ==
+X-Gm-Message-State: AOAM530is5SaZrZMQkh9Hqy+Q8pDSUqpoUirj1hiii7zSvhukoh94S5L
+        uDTXF2SUUybhU14JVQ3VwOM7oA==
+X-Google-Smtp-Source: ABdhPJwjvSKmNhCa/kWyqmBXH7mVKkYXDuapfT2VYBLLHkHVh7PWO3Yk6lwHCS5IEBayb3JboBIycw==
+X-Received: by 2002:a05:6a00:2286:b029:1ae:6c7f:31ce with SMTP id f6-20020a056a002286b02901ae6c7f31cemr11645761pfe.6.1611769423153;
+        Wed, 27 Jan 2021 09:43:43 -0800 (PST)
+Received: from xps15 (S0106889e681aac74.cg.shawcable.net. [68.147.0.187])
+        by smtp.gmail.com with ESMTPSA id 6sm2918057pfz.34.2021.01.27.09.43.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 09:36:06 -0800 (PST)
-Message-ID: <6011a486.1c69fb81.49688.6f93@mx.google.com>
-Date:   Wed, 27 Jan 2021 09:36:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 27 Jan 2021 09:43:42 -0800 (PST)
+Date:   Wed, 27 Jan 2021 10:43:40 -0700
+From:   Mathieu Poirier <mathieu.poirier@linaro.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     linux-arm-kernel@lists.infradead.org, coresight@lists.linaro.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Leo Yan <leo.yan@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>
+Subject: Re: [PATCH v2] coresight: etm4x: Handle accesses to TRCSTALLCTLR
+Message-ID: <20210127174340.GA1162729@xps15>
+References: <20210126145614.3607093-1-suzuki.poulose@arm.com>
+ <20210127120032.3611851-1-suzuki.poulose@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.93
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable/linux-5.4.y baseline: 176 runs, 6 regressions (v5.4.93)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210127120032.3611851-1-suzuki.poulose@arm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 176 runs, 6 regressions (v5.4.93)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2837-rpi-3-b-32   | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig=
-   | 1          =
-
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.93/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.93
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      131f8d8a889a5ca66a835eea82bba043ac91a7cf =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2837-rpi-3-b-32   | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig=
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60116fce511e62d67fd3dfc9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60116fce511e62d67fd3d=
-fca
-        new failure (last pass: v5.4.92) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6011716a2c95b05992d3dffa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6011716a2c95b05992d3d=
-ffb
-        new failure (last pass: v5.4.92) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601170d88dc249ef2bd3dfc9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601170d88dc249ef2bd3d=
-fca
-        failing since 69 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601170cf19291d9a52d3dff0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601170cf19291d9a52d3d=
-ff1
-        failing since 69 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601170ed8dc249ef2bd3e049
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601170ed8dc249ef2bd3e=
-04a
-        failing since 69 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6011708e9d2222c7b3d3e001
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.93/arm=
-/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6011708e9d2222c7b3d3e=
-002
-        failing since 69 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =20
+Good day,
+
+On Wed, Jan 27, 2021 at 12:00:32PM +0000, Suzuki K Poulose wrote:
+> TRCSTALLCTLR register is only implemented if
+> 
+>    TRCIDR3.STALLCTL == 0b1
+> 
+> Make sure the driver touches the register only it is implemented.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Cc: Leo Yan <leo.yan@linaro.org>
+> Cc: Mike Leach <mike.leach@linaro.org>
+> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> ---
+> Changes since v1:
+>   - No change to the patch, fixed the stable email address and
+>     added usual reviewers.
+> ---
+>  drivers/hwtracing/coresight/coresight-etm4x-core.c  | 9 ++++++---
+>  drivers/hwtracing/coresight/coresight-etm4x-sysfs.c | 3 +++
+>  2 files changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+> index b40e3c2bf818..814b49dae0c7 100644
+> --- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
+> +++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+> @@ -367,7 +367,8 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+>  	etm4x_relaxed_write32(csa, 0x0, TRCAUXCTLR);
+>  	etm4x_relaxed_write32(csa, config->eventctrl0, TRCEVENTCTL0R);
+>  	etm4x_relaxed_write32(csa, config->eventctrl1, TRCEVENTCTL1R);
+> -	etm4x_relaxed_write32(csa, config->stall_ctrl, TRCSTALLCTLR);
+> +	if (drvdata->stallctl)
+> +		etm4x_relaxed_write32(csa, config->stall_ctrl, TRCSTALLCTLR);
+>  	etm4x_relaxed_write32(csa, config->ts_ctrl, TRCTSCTLR);
+>  	etm4x_relaxed_write32(csa, config->syncfreq, TRCSYNCPR);
+>  	etm4x_relaxed_write32(csa, config->ccctlr, TRCCCCTLR);
+> @@ -1545,7 +1546,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+>  	state->trcauxctlr = etm4x_read32(csa, TRCAUXCTLR);
+>  	state->trceventctl0r = etm4x_read32(csa, TRCEVENTCTL0R);
+>  	state->trceventctl1r = etm4x_read32(csa, TRCEVENTCTL1R);
+> -	state->trcstallctlr = etm4x_read32(csa, TRCSTALLCTLR);
+> +	if (drvdata->stallctl)
+> +		state->trcstallctlr = etm4x_read32(csa, TRCSTALLCTLR);
+>  	state->trctsctlr = etm4x_read32(csa, TRCTSCTLR);
+>  	state->trcsyncpr = etm4x_read32(csa, TRCSYNCPR);
+>  	state->trcccctlr = etm4x_read32(csa, TRCCCCTLR);
+> @@ -1657,7 +1659,8 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+>  	etm4x_relaxed_write32(csa, state->trcauxctlr, TRCAUXCTLR);
+>  	etm4x_relaxed_write32(csa, state->trceventctl0r, TRCEVENTCTL0R);
+>  	etm4x_relaxed_write32(csa, state->trceventctl1r, TRCEVENTCTL1R);
+> -	etm4x_relaxed_write32(csa, state->trcstallctlr, TRCSTALLCTLR);
+> +	if (drvdata->stallctl)
+> +		etm4x_relaxed_write32(csa, state->trcstallctlr, TRCSTALLCTLR);
+>  	etm4x_relaxed_write32(csa, state->trctsctlr, TRCTSCTLR);
+>  	etm4x_relaxed_write32(csa, state->trcsyncpr, TRCSYNCPR);
+>  	etm4x_relaxed_write32(csa, state->trcccctlr, TRCCCCTLR);
+> diff --git a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+> index 1c490bcef3ad..cd9249fbf913 100644
+> --- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+> +++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+> @@ -296,6 +296,9 @@ static ssize_t mode_store(struct device *dev,
+>  	if (kstrtoul(buf, 16, &val))
+>  		return -EINVAL;
+>  
+> +	if ((val & ETM_MODE_ISTALL_EN) && !drvdata->stallctl)
+> +		return -EINVAL;
+> +
+
+We have two choices here:
+
+1) Follow what is already done in this function for implementation define
+options like ETM_MODE_BB, ETMv4_MODE_CTXID, ETM_MODE_RETURNSTACK and others.  In
+that case we would have:
+
+        /* bit[8], Instruction stall bit */
+        if ((config->mode & ETM_MODE_ISTALL_EN) && drvdata->stallctl == true))
+                config->stall_ctrl |= BIT(8);
+        else    
+                config->stall_ctrl &= ~BIT(8); 
+
+2) Return -EINVAL when something is not supported, like you have above.  In that
+case we'd have to enact the same behavior for all the options, which has the
+potential of breaking user space.
+
+I think option 1 is best.
+
+Thanks,
+Mathieu
+
+>  	spin_lock(&drvdata->spinlock);
+>  	config->mode = val & ETMv4_MODE_ALL;
+>  
+> -- 
+> 2.24.1
+> 
