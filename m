@@ -2,263 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0BC3063F6
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 20:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CBA306415
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 20:33:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbhA0TVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 14:21:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50964 "EHLO
+        id S231810AbhA0TcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 14:32:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231152AbhA0TVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 14:21:06 -0500
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEE3C061573
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 11:20:25 -0800 (PST)
-Received: by mail-pg1-x532.google.com with SMTP id o63so2238912pgo.6
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 11:20:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=e1E28SsEkpD63eN9LLP51kOJXrqjuWE6W+ugFCt5rAQ=;
-        b=EhU2zYvBP4eyb5ELV+B8pjcW9Em4H0u84bcq4ihG0gN7AVyC/gks1/tduoRNWPYO/M
-         q1rHDBhm3zr05GU+XkGtjVw7LgczEpELS1s+x3VesBmpLBq36f6DMRUqJpZMSU8Nitug
-         1xfMQ9l2Q9e6JZJ3SjagvWUAOm93R0jJ0B9MOBM8G1Qk28rRtU6rNwELm3wfo0zpDK1x
-         5xI4fhEeAkJZC6PTJsNGHB1O7dJoadPA77W9YVy9i4WGvDV0W6J3Yo/hjkQxyo4yIMn/
-         YHiw7IE7mIke4qtpJlPceEo6DfpVeQ63KRDi10MDv09IOoQ/VPUFmFm/6FUF/Kit97Yj
-         BRQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=e1E28SsEkpD63eN9LLP51kOJXrqjuWE6W+ugFCt5rAQ=;
-        b=ehwaZI6HduOXu7AYrWRTdod4cMDdnGCpp7GSiSwG+oLHgJOqGNw2/Z08IWn2xXWZlC
-         ST8KKyTBid7KwLnuM1XjmQPCB2nc7xynKM9uYipcbjnU6ENh3rUGEwhwMAWrFtu6qKMk
-         QLnXpvA9YxwFmePp6wsbVDj/3cwjMVzcnvBTEAuAvXPWS6SAv9Z2nN/Yb7XEFfKYJVLn
-         xBF0HeUcuDIPMq4jO+XcE0ThGascjDYYyQmvcCiDi44H5M0UpAgkaGWw032zCkt0wk6P
-         8TEOceZvlINPf6VFaS5XlX4B311FCW0csPx0mPCxuQWE5BnBGHMyBmyw7HcSPf8EcFPw
-         GKUQ==
-X-Gm-Message-State: AOAM530hPuUYVVAgaaEA+gl3aERDVmGX0ZqroRobvL010gfn7GAJCg2s
-        skurDG5Bw045Jg05atOo2uNfHBj/Yuseat2S
-X-Google-Smtp-Source: ABdhPJy2zGw0FZSJIwO+i4zD1YLdHmtyCG8t19OZr5tLPisxPGYiMvZ6fZQ/IZ1r+ZW3nhEUthpQ6g==
-X-Received: by 2002:a05:6a00:2127:b029:1bb:b6de:c875 with SMTP id n7-20020a056a002127b02901bbb6dec875mr12277233pfj.72.1611775224889;
-        Wed, 27 Jan 2021 11:20:24 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 32sm3007737pgq.80.2021.01.27.11.20.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 11:20:24 -0800 (PST)
-Message-ID: <6011bcf8.1c69fb81.e9a56.6ec0@mx.google.com>
-Date:   Wed, 27 Jan 2021 11:20:24 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231720AbhA0Tb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 14:31:56 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0F6C0613ED;
+        Wed, 27 Jan 2021 11:31:16 -0800 (PST)
+Date:   Wed, 27 Jan 2021 19:31:11 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1611775872;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=R9KJpESEezEw7FjK+8Es36GYVxqjET2QbkM5fuH5NNI=;
+        b=B/Q/ntJfB8QT/TcvewwOVIfuK/vi24dXZe/p7wS7f9XHeo5UTHExWxYKb3xg3nwrdeRc4y
+        D0QaNLlWHP2jYO+Ypdq0cpElIbGqnJgwRqGRcSM7PYs2uBQjQm0bqj41nRvCUlEwvoGfR4
+        ZL9fJJ1PFsR66XSIZmX1L12sy2xj1E0fOPKzrwuceAkF/c3d4vkm4V2QBuu9+IcQvOz+B9
+        qGw323nOphOEjSiY26xUvkrCaaq1wzvx3CbC3TyKbvpEMhnJAgUK/Ac86H7KBO2Fz7NZ43
+        SpjWv5fnUplVOkx+NyEm/j+9NPvyVTyzdzzKDxdF7Rou9B6dJZaVQzj33VIGpg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1611775872;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=R9KJpESEezEw7FjK+8Es36GYVxqjET2QbkM5fuH5NNI=;
+        b=NEAbkJu30Mfk1ccQH/2iDUDiLqcXtahPDP/GXHpiigRZTawJSOCwIEpcuOkYZ6FI3LKIJI
+        lv4sUUYF2r9BreCQ==
+From:   "tip-bot2 for Lukas Wunner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: efi/urgent] efi/apple-properties: Reinstate support for boolean
+ properties
+Cc:     <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Ard Biesheuvel <ardb@kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <be958bda75331a011d53c696d1deec8dccd06fd2.1609388549.git.lukas@wunner.de>
+References: <be958bda75331a011d53c696d1deec8dccd06fd2.1609388549.git.lukas@wunner.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.93
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 170 runs, 5 regressions (v5.4.93)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <161177587165.23325.6382610532034532665.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 170 runs, 5 regressions (v5.4.93)
+The following commit has been merged into the efi/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     355845b738e76445c8522802552146d96cb4afa7
+Gitweb:        https://git.kernel.org/tip/355845b738e76445c8522802552146d96cb4afa7
+Author:        Lukas Wunner <lukas@wunner.de>
+AuthorDate:    Thu, 31 Dec 2020 06:10:32 +01:00
+Committer:     Ard Biesheuvel <ardb@kernel.org>
+CommitterDate: Thu, 31 Dec 2020 10:28:53 +01:00
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+efi/apple-properties: Reinstate support for boolean properties
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+Since commit 4466bf82821b ("efi/apple-properties: use
+PROPERTY_ENTRY_U8_ARRAY_LEN"), my MacBook Pro issues a -ENODATA error
+when trying to assign EFI properties to the discrete GPU:
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+pci 0000:01:00.0: assigning 56 device properties
+pci 0000:01:00.0: error -61 assigning properties
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+That's because some of the properties have no value.  They're booleans
+whose presence can be checked by drivers, e.g. "use-backlight-blanking".
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Commit 6e98503dba64 ("efi/apple-properties: Remove redundant attribute
+initialization from unmarshal_key_value_pairs()") employed a trick to
+store such booleans as u8 arrays (which is the data type used for all
+other EFI properties on Macs):  It cleared the property_entry's
+"is_array" flag, thereby denoting that the value is stored inline in the
+property_entry.
 
+Commit 4466bf82821b erroneously removed that trick.  It was probably a
+little fragile to begin with.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.93/plan/baseline/
+Reinstate support for boolean properties by explicitly invoking the
+PROPERTY_ENTRY_BOOL() initializer for properties with zero-length value.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.93
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      131f8d8a889a5ca66a835eea82bba043ac91a7cf =
+Fixes: 4466bf82821b ("efi/apple-properties: use PROPERTY_ENTRY_U8_ARRAY_LEN")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/be958bda75331a011d53c696d1deec8dccd06fd2.1609388549.git.lukas@wunner.de
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/firmware/efi/apple-properties.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601189c32412f12acad3dfdf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601189c32412f12acad3d=
-fe0
-        failing since 68 days (last pass: v5.4.77-152-ga3746663c3479, first=
- fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601187002f54b8428bd3dff5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601187002f54b8428bd3d=
-ff6
-        failing since 73 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60118721825a36dfa7d3dfdf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60118721825a36dfa7d3d=
-fe0
-        failing since 73 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601187022f54b8428bd3dffe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601187022f54b8428bd3d=
-fff
-        failing since 73 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601186a89a5dc57cead3e038
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.93/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601186a89a5dc57cead3e=
-039
-        failing since 73 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =20
+diff --git a/drivers/firmware/efi/apple-properties.c b/drivers/firmware/efi/apple-properties.c
+index 34f53d8..e192648 100644
+--- a/drivers/firmware/efi/apple-properties.c
++++ b/drivers/firmware/efi/apple-properties.c
+@@ -3,8 +3,9 @@
+  * apple-properties.c - EFI device properties on Macs
+  * Copyright (C) 2016 Lukas Wunner <lukas@wunner.de>
+  *
+- * Note, all properties are considered as u8 arrays.
+- * To get a value of any of them the caller must use device_property_read_u8_array().
++ * Properties are stored either as:
++ * u8 arrays which can be retrieved with device_property_read_u8_array() or
++ * booleans which can be queried with device_property_present().
+  */
+ 
+ #define pr_fmt(fmt) "apple-properties: " fmt
+@@ -88,8 +89,12 @@ static void __init unmarshal_key_value_pairs(struct dev_header *dev_header,
+ 
+ 		entry_data = ptr + key_len + sizeof(val_len);
+ 		entry_len = val_len - sizeof(val_len);
+-		entry[i] = PROPERTY_ENTRY_U8_ARRAY_LEN(key, entry_data,
+-						       entry_len);
++		if (entry_len)
++			entry[i] = PROPERTY_ENTRY_U8_ARRAY_LEN(key, entry_data,
++							       entry_len);
++		else
++			entry[i] = PROPERTY_ENTRY_BOOL(key);
++
+ 		if (dump_properties) {
+ 			dev_info(dev, "property: %s\n", key);
+ 			print_hex_dump(KERN_INFO, pr_fmt(), DUMP_PREFIX_OFFSET,
