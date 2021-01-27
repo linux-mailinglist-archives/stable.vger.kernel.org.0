@@ -2,80 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E5430510A
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 05:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C296D305109
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 05:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239288AbhA0Ejk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jan 2021 23:39:40 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39066 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404732AbhA0BoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 20:44:16 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id BE3E6AD0B;
-        Wed, 27 Jan 2021 01:21:25 +0000 (UTC)
-Received: by localhost (Postfix, from userid 1000)
-        id 366415BD6DE; Tue, 26 Jan 2021 17:21:24 -0800 (PST)
-From:   Lee Duncan <leeman.duncan@gmail.com>
-To:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, stable@vger.kernel.org,
-        Lee Duncan <lduncan@suse.com>
-Subject: [PATCH] fnic: fixup patch to resolve stack frame issues
-Date:   Tue, 26 Jan 2021 17:21:24 -0800
-Message-Id: <20210127012124.22241-1-leeman.duncan@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        id S239286AbhA0Ejj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jan 2021 23:39:39 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41132 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2392134AbhA0B3B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jan 2021 20:29:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611710853;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=dU8QX/h/vjBjnhU5t98HRai2UnS3oSTBehfr01OHUMU=;
+        b=dbgARIllyz5ed2TZDvZN9PUy2Flj6UN4VYCJACztPuA9+GblkDiGXuOguNWiMZ629uQsNq
+        v4hHYQSMbLI/j3PPy9byu1k1OFbNyKrZy9DipOW8Lj0jsxqCCvDtin/IVluqQiO0zSO8tR
+        QDmTagAlJtP8k4aYpZnP8SH7oxucjXg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-102-umPzXiyZPsaWdMsRRUQQvw-1; Tue, 26 Jan 2021 20:27:30 -0500
+X-MC-Unique: umPzXiyZPsaWdMsRRUQQvw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B21AE190A7A0;
+        Wed, 27 Jan 2021 01:27:29 +0000 (UTC)
+Received: from treble.redhat.com (ovpn-120-118.rdu2.redhat.com [10.10.120.118])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 20EB15D9D5;
+        Wed, 27 Jan 2021 01:27:29 +0000 (UTC)
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     fengxiangjun <hifxj@yeah.net>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miroslav Benes <mbenes@suse.cz>
+Subject: [PATCH 5.10-stable] objtool: Don't fail on missing symbol table
+Date:   Tue, 26 Jan 2021 19:27:04 -0600
+Message-Id: <7e6b9d198e38edf8760ae730a0e5092e6e492924.1611710561.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+Commit 1d489151e9f9d1647110277ff77282fe4d96d09b upstream.
 
-Commit 42ec15ceaea7 fixed a gcc issue with unused variables, but
-introduced errors since it allocated an array of two u64-s but
-then used more than that. Set the arrays to the proper size.
+Thanks to a recent binutils change which doesn't generate unused
+symbols, it's now possible for thunk_64.o be completely empty without
+CONFIG_PREEMPTION: no text, no data, no symbols.
 
-Fixes: 42ec15ceaea74b5f7a621fc6686cbf69ca66c4cf
-Cc: stable@vger.kernel.org
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Lee Duncan <lduncan@suse.com>
+We could edit the Makefile to only build that file when
+CONFIG_PREEMPTION is enabled, but that will likely create confusion
+if/when the thunks end up getting used by some other code again.
+
+Just ignore it and move on.
+
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1254
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- drivers/scsi/fnic/vnic_dev.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/fnic/vnic_dev.c b/drivers/scsi/fnic/vnic_dev.c
-index 5988c300cc82..d29999064b89 100644
---- a/drivers/scsi/fnic/vnic_dev.c
-+++ b/drivers/scsi/fnic/vnic_dev.c
-@@ -697,7 +697,7 @@ int vnic_dev_hang_notify(struct vnic_dev *vdev)
+This fixes a build break caused by the most recent version of binutils
+(2.36).
+
+ tools/objtool/elf.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 4e1d7460574b..9452cfb01ef1 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -354,8 +354,11 @@ static int read_symbols(struct elf *elf)
  
- int vnic_dev_mac_addr(struct vnic_dev *vdev, u8 *mac_addr)
- {
--	u64 a[2] = {};
-+	u64 a[ETH_ALEN] = {};
- 	int wait = 1000;
- 	int err, i;
+ 	symtab = find_section_by_name(elf, ".symtab");
+ 	if (!symtab) {
+-		WARN("missing symbol table");
+-		return -1;
++		/*
++		 * A missing symbol table is actually possible if it's an empty
++		 * .o file.  This can happen for thunk_64.o.
++		 */
++		return 0;
+ 	}
  
-@@ -734,7 +734,7 @@ void vnic_dev_packet_filter(struct vnic_dev *vdev, int directed, int multicast,
- 
- void vnic_dev_add_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a[2] = {};
-+	u64 a[ETH_ALEN] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
-@@ -749,7 +749,7 @@ void vnic_dev_add_addr(struct vnic_dev *vdev, u8 *addr)
- 
- void vnic_dev_del_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a[2] = {};
-+	u64 a[ETH_ALEN] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
+ 	symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
 -- 
-2.26.2
+2.29.2
 
