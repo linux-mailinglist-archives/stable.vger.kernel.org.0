@@ -2,185 +2,332 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02EA73060EF
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 17:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 754F33060F8
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 17:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233393AbhA0QX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 11:23:59 -0500
-Received: from foss.arm.com ([217.140.110.172]:53644 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343556AbhA0QX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Jan 2021 11:23:26 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3180031B;
-        Wed, 27 Jan 2021 08:22:39 -0800 (PST)
-Received: from e119884-lin.cambridge.arm.com (e119884-lin.cambridge.arm.com [10.1.196.72])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 14AE23F66E;
-        Wed, 27 Jan 2021 08:22:37 -0800 (PST)
-From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
-To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH][for-stable-v5.4] arm64: mm: use single quantity to represent the PA to VA translation
-Date:   Wed, 27 Jan 2021 16:22:26 +0000
-Message-Id: <20210127162226.5663-1-vincenzo.frascino@arm.com>
-X-Mailer: git-send-email 2.30.0
+        id S235014AbhA0Q0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 11:26:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236699AbhA0Q0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 11:26:46 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10C0C061573
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 08:26:05 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id z21so1922871pgj.4
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 08:26:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Kns0aL+9W4WAJVwwpAJnwFUkBkQBdjQd5YubgglYaU4=;
+        b=wtgwGQZ8B7m1EsZPgJDoGO51NOmIzuG5x845DjwmFWmrrURBO1uoiKuVV1A/OKZSmc
+         0Fe6ZzFurf4nTqKKloCBhYpjzRnfxOdwZjULo5LzYQ9AzRk/eVnl5kJ70HrIhrJGczi6
+         KCpL4CZ+5PXWODXvl+n2Fb1dkvo1op2yId74s3i5iK8YkzSQ92w+aNfi0RLUg38ovq2c
+         W2VmvE/35M3PsMkjg+Vi1GEoaKt+CKs4WwH9zQfnZb6JIOj1Qw4QLRaE8ZVgDyCh4zKZ
+         hfDf5Eyf1MqaQRwzqR334//dMnkRAc9ww/amwwCYmfAhtANd9x5tlvWfRIaeEJwIMcyG
+         6iRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Kns0aL+9W4WAJVwwpAJnwFUkBkQBdjQd5YubgglYaU4=;
+        b=AnxtU1KZefckQjtHxJE/HOWXlu/LZcza+z5aqVA55sMz3B+xs2iV15Lz9xFcoiPI30
+         3brO7P4ClzdUcZYbbdxUWuOaGlQmiL243fYnnmwl8Lg3az+2YbzUSstYidThxBqimqUu
+         AgTtTTXRbwnY7jgTnu8kURKGZ6b5U0u7fHTWUV1IsE1s2bh5nuMJcce2ZE6+Xv674L/s
+         I0ptHyrPIWZ+wJUPiFCZFxs8NX3RycWO31s54zZe0GNdFnym7AZ3cxVNnbTlJTJW0hTn
+         mqcs2NL1QIIvJBeEL8S3DKBILwUYVvK7PPUX0brqfqlybJuJ9Qw5rtkVIVWdiGf1Vptc
+         FI/g==
+X-Gm-Message-State: AOAM530tqceIpPvNhiB64JucROZVcTdnOSRRZcMyrDkjKHa1bXwTns3/
+        HxI148ugsdgYUjxjYQH+KxCjJlTprmj55fBb
+X-Google-Smtp-Source: ABdhPJzLYCijPKNUzUygCaIImG5EWKqX3RM/Rc4zaqn1aGeFK7YqvRTOf+rHzpWXMhaHOcQIT2yquA==
+X-Received: by 2002:aa7:8f1c:0:b029:1c0:60c7:f7c5 with SMTP id x28-20020aa78f1c0000b02901c060c7f7c5mr11473215pfr.59.1611764764944;
+        Wed, 27 Jan 2021 08:26:04 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d76sm2983191pfd.193.2021.01.27.08.26.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Jan 2021 08:26:04 -0800 (PST)
+Message-ID: <6011941c.1c69fb81.391c.6d7b@mx.google.com>
+Date:   Wed, 27 Jan 2021 08:26:04 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.171-11-gd6c7d50dfd0f
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 159 runs,
+ 7 regressions (v4.19.171-11-gd6c7d50dfd0f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+stable-rc/queue/4.19 baseline: 159 runs, 7 regressions (v4.19.171-11-gd6c7d=
+50dfd0f)
 
-commit 7bc1a0f9e1765830e945669c99c59c35cf9bca82 upstream.
+Regressions Summary
+-------------------
 
-On arm64, the global variable memstart_addr represents the physical
-address of PAGE_OFFSET, and so physical to virtual translations or
-vice versa used to come down to simple additions or subtractions
-involving the values of PAGE_OFFSET and memstart_addr.
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 2          =
 
-When support for 52-bit virtual addressing was introduced, we had to
-deal with PAGE_OFFSET potentially being outside of the region that
-can be covered by the virtual range (as the 52-bit VA capable build
-needs to be able to run on systems that are only 48-bit VA capable),
-and for this reason, another translation was introduced, and recorded
-in the global variable physvirt_offset.
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
-However, if we go back to the original definition of memstart_addr,
-i.e., the physical address of PAGE_OFFSET, it turns out that there is
-no need for two separate translations: instead, we can simply subtract
-the size of the unaddressable VA space from memstart_addr to make the
-available physical memory appear in the 48-bit addressable VA region.
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
-This simplifies things, but also fixes a bug on KASLR builds, which
-may update memstart_addr later on in arm64_memblock_init(), but fails
-to update vmemmap and physvirt_offset accordingly.
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
 
-Fixes: 5383cc6efed1 ("arm64: mm: Introduce vabits_actual")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Steve Capper <steve.capper@arm.com>
-Link: https://lore.kernel.org/r/20201008153602.9467-2-ardb@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
----
- arch/arm64/include/asm/memory.h  |  5 ++---
- arch/arm64/include/asm/pgtable.h |  4 ++--
- arch/arm64/mm/init.c             | 30 ++++++++++--------------------
- 3 files changed, 14 insertions(+), 25 deletions(-)
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
 
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index 08df42e4db96..51d867cf146c 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -178,7 +178,6 @@ extern u64			vabits_actual;
- #include <linux/bitops.h>
- #include <linux/mmdebug.h>
- 
--extern s64			physvirt_offset;
- extern s64			memstart_addr;
- /* PHYS_OFFSET - the physical address of the start of memory. */
- #define PHYS_OFFSET		({ VM_BUG_ON(memstart_addr & 1); memstart_addr; })
-@@ -254,7 +253,7 @@ static inline const void *__tag_set(const void *addr, u8 tag)
-  */
- #define __is_lm_address(addr)	(!(((u64)addr) & BIT(vabits_actual - 1)))
- 
--#define __lm_to_phys(addr)	(((addr) + physvirt_offset))
-+#define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
- #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
- 
- #define __virt_to_phys_nodebug(x) ({					\
-@@ -272,7 +271,7 @@ extern phys_addr_t __phys_addr_symbol(unsigned long x);
- #define __phys_addr_symbol(x)	__pa_symbol_nodebug(x)
- #endif /* CONFIG_DEBUG_VIRTUAL */
- 
--#define __phys_to_virt(x)	((unsigned long)((x) - physvirt_offset))
-+#define __phys_to_virt(x)	((unsigned long)((x) - PHYS_OFFSET) | PAGE_OFFSET)
- #define __phys_to_kimg(x)	((unsigned long)((x) + kimage_voffset))
- 
- /*
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 69dfc340e71b..8c420f916fe2 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -23,6 +23,8 @@
- #define VMALLOC_START		(MODULES_END)
- #define VMALLOC_END		(- PUD_SIZE - VMEMMAP_SIZE - SZ_64K)
- 
-+#define vmemmap			((struct page *)VMEMMAP_START - (memstart_addr >> PAGE_SHIFT))
-+
- #define FIRST_USER_ADDRESS	0UL
- 
- #ifndef __ASSEMBLY__
-@@ -33,8 +35,6 @@
- #include <linux/mm_types.h>
- #include <linux/sched.h>
- 
--extern struct page *vmemmap;
--
- extern void __pte_error(const char *file, int line, unsigned long val);
- extern void __pmd_error(const char *file, int line, unsigned long val);
- extern void __pud_error(const char *file, int line, unsigned long val);
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 45c00a54909c..602bd19630ff 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -50,12 +50,6 @@
- s64 memstart_addr __ro_after_init = -1;
- EXPORT_SYMBOL(memstart_addr);
- 
--s64 physvirt_offset __ro_after_init;
--EXPORT_SYMBOL(physvirt_offset);
--
--struct page *vmemmap __ro_after_init;
--EXPORT_SYMBOL(vmemmap);
--
- phys_addr_t arm64_dma_phys_limit __ro_after_init;
- 
- #ifdef CONFIG_KEXEC_CORE
-@@ -321,20 +315,6 @@ void __init arm64_memblock_init(void)
- 	memstart_addr = round_down(memblock_start_of_DRAM(),
- 				   ARM64_MEMSTART_ALIGN);
- 
--	physvirt_offset = PHYS_OFFSET - PAGE_OFFSET;
--
--	vmemmap = ((struct page *)VMEMMAP_START - (memstart_addr >> PAGE_SHIFT));
--
--	/*
--	 * If we are running with a 52-bit kernel VA config on a system that
--	 * does not support it, we have to offset our vmemmap and physvirt_offset
--	 * s.t. we avoid the 52-bit portion of the direct linear map
--	 */
--	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52) && (vabits_actual != 52)) {
--		vmemmap += (_PAGE_OFFSET(48) - _PAGE_OFFSET(52)) >> PAGE_SHIFT;
--		physvirt_offset = PHYS_OFFSET - _PAGE_OFFSET(48);
--	}
--
- 	/*
- 	 * Remove the memory that we will not be able to cover with the
- 	 * linear mapping. Take care not to clip the kernel which may be
-@@ -349,6 +329,16 @@ void __init arm64_memblock_init(void)
- 		memblock_remove(0, memstart_addr);
- 	}
- 
-+	/*
-+	 * If we are running with a 52-bit kernel VA config on a system that
-+	 * does not support it, we have to place the available physical
-+	 * memory in the 48-bit addressable part of the linear region, i.e.,
-+	 * we have to move it upward. Since memstart_addr represents the
-+	 * physical address of PAGE_OFFSET, we have to *subtract* from it.
-+	 */
-+	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52) && (vabits_actual != 52))
-+		memstart_addr -= _PAGE_OFFSET(48) - _PAGE_OFFSET(52);
-+
- 	/*
- 	 * Apply the memory limit if it was set. Since the kernel may be loaded
- 	 * high up in memory, add back the kernel region that must be accessible
--- 
-2.30.0
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.171-11-gd6c7d50dfd0f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.171-11-gd6c7d50dfd0f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d6c7d50dfd0f4e3866eaed134e892972b502935b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60115a2732d4161ae8d3dfd1
+
+  Results:     2 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/60115a2732d4161=
+ae8d3dfd5
+        new failure (last pass: v4.19.170-58-g2da77944b6386)
+        8 lines
+
+    2021-01-27 12:17:44.826000+00:00  kern  :alert :   ESR =3D 0x86000006
+    2021-01-27 12:17:44.826000+00:00  kern  :alert :   Exception class =3D =
+IABT (current EL), IL =3D 32 bits
+    2021-01-27 12:17:44.827000+00:00  kern  :alert :   SET =3D 0, FnV =3D 0
+    2021-01-27 12:17:44.827000+00:00  kern  :alert :   EA =3D 0, S1PTW =3D =
+0<8>[   16.545100] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail=
+ UNITS=3Dlines MEASUREMENT=3D3>
+    2021-01-27 12:17:44.827000+00:00  =
+
+    2021-01-27 12:17:44.827000+00:00  kern  :ale<8>[   16.554313] <LAVA_SIG=
+NAL_ENDRUN 0_dmesg 638573_1.5.2.4.1>
+    2021-01-27 12:17:44.827000+00:00  rt : swapper pgtable: 4k pages, 48-bi=
+t VAs, pgdp =3D (____ptrval____)   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60115a2732d4161=
+ae8d3dfd6
+        new failure (last pass: v4.19.170-58-g2da77944b6386)
+        3 lines =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60115b4428a5ae362dd3dfee
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60115b4428a5ae3=
+62dd3dff3
+        failing since 9 days (last pass: v4.19.167-43-g7a15ea567512, first =
+fail: v4.19.167-55-gb4942424ad93)
+        2 lines
+
+    2021-01-27 12:23:27.789000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6011586c63c4653615d3e000
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6011586c63c4653615d3e=
+001
+        failing since 74 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6011587363c4653615d3e01b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6011587363c4653615d3e=
+01c
+        failing since 74 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6011587d20350be0fcd3dfcc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6011587d20350be0fcd3d=
+fcd
+        failing since 74 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6011582dd74fd5f590d3dfea
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.171=
+-11-gd6c7d50dfd0f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6011582dd74fd5f590d3d=
+feb
+        failing since 74 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
