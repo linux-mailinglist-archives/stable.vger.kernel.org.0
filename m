@@ -2,171 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D95373066DF
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 22:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95823306740
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 23:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231828AbhA0Vzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 16:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55708 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234162AbhA0VzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 16:55:20 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92CDC06174A
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 13:54:39 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id g15so2386676pjd.2
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 13:54:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=QhoJaXcBLO+tF0usfswt07f3dqsQi5Fzviu82scMC4E=;
-        b=Rc37eSOr2aNYJTUX0COdY4fMePBOXDX6j5spA7p2EF6kxytSBvfl53Ev63GQsuD9jy
-         l3mo3Qtn9Ir8tAB6rHXWh3MXYO10/wVHmekmCjF5oarpaPqwoI/LkcSqZlpJEZZR929e
-         TZatZqjvzDmDQmcpatwCwmZ5dyA/jhL8vREJBKV3VE0v7jeoAtt2Ufz4d5vzyKxEU/pX
-         NKMQKXA25b6WVsk7oI4+UVt4ijkTSiLR7oo6U/3cvnE6TzYaCoePXLKcCjiJLe+8e5kz
-         kc0MLqp/f6ZgCPB+VdPZQA0gQRGJM+F08hKL77eYoqvhuQrn4MH3xR0oSBs2GWoIX+On
-         HVrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=QhoJaXcBLO+tF0usfswt07f3dqsQi5Fzviu82scMC4E=;
-        b=XGFraNuZ6hlWZWpnmNeIf74T7RPIHbsy7SNHuBk1wnLgMUO7tZKU/9tP+MK3VgSHZM
-         4xN9lpny+6qq0E4AClHudMhKbpJWaWWNtJw/ar06JCjdpF6WngRMmZ8h6zu8seqhoWCJ
-         3MQbIj3FpLZsZQFDHyy3JdzB50E3xqZmz15DIqOHQPh2mbiVgNpvysXjr0OKJk4SbPxT
-         TAk7b/znhCEMTd3i+uPeoR9o6PRovpi4jg+/bMQGg56eNTLxDbaAaqBqd+gpIs6iY5gj
-         aeLWKuJTk3/5sCiTOuUPRHvVO7195vcF2pT7TXobq9WDLqwhLm54O1GB5qi9JqxgIcEV
-         TR9w==
-X-Gm-Message-State: AOAM530LK71FeGK3BM2emwDu+U7lyRnWJabvAjD+/0UO8hy+WWYvAiO2
-        //RICXCh6uL3Ok4lsSgSvCZxyg==
-X-Google-Smtp-Source: ABdhPJwLgzAVkx35Svk8ZRpuTj/a+g+Xoe2lGgzYVsUXm+iPuGDqiM9lglEoZGceFzE9yUs285TPzA==
-X-Received: by 2002:a17:90a:a483:: with SMTP id z3mr8085808pjp.140.1611784479079;
-        Wed, 27 Jan 2021 13:54:39 -0800 (PST)
-Received: from google.com ([2620:15c:f:10:1ea0:b8ff:fe73:50f5])
-        by smtp.gmail.com with ESMTPSA id q12sm3431952pgj.24.2021.01.27.13.54.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 13:54:38 -0800 (PST)
-Date:   Wed, 27 Jan 2021 13:54:31 -0800
-From:   Sean Christopherson <seanjc@google.com>
-To:     Peter Gonda <pgonda@google.com>
+        id S231610AbhA0Wxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 17:53:42 -0500
+Received: from mail-mw2nam12on2043.outbound.protection.outlook.com ([40.107.244.43]:16096
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231560AbhA0Wwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 17:52:54 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Qu4lfNVuWd9jYeln2/FsFAQU2Bigqyba9C9bPgQAMfA9XED9FgRp8kwEQ+EKB+85CcHgIkLfmnkANQtqMtAC52UZ06nKtfXqZQlObZT8tqT0bFhT0+jMGlfEDO2pJoS55DEwOviVZ7xGFHPVgwnMosO2aK064EqMeTzDVjOcFY/bOvHb8O/AhdRqWrD926K/o3cPSuLV2pcU89xBihWYoqiXbVStfxLN3XD9CZnEtdwk0v6ncKN3NcAV7AqW2SfNNQiGWw6NcQRJbnbYi7vZE9FTcF6KoyFJPc1HND2MZuniw5NeniFdiCd9UrRhIhxz+W+mhWr+Tiz9RtuQc0Lwsw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=acwX7CdS5efTg40C1zJnEHcTi29/gpC8KXe+uPrC3eE=;
+ b=HsgFPpDBMPJwbEJbyM2eWgcQeYX9Z1yLZPzgDfO3CY5lL+2/9cM4mNC+QpO2gTNQ/L+Hz0GYj9pEhxyCEtzQ+7CjvbCC0L2tUldTCuFBZb/tQFBfhB+3WIod47SvgKlD5RHF1vlOOZmM4Y+i9frEbJT6zKiJcQucOuRnpOZIqCVqiXnxHdrFXVvx3ZQJETRS0Tq+nmBym7mORyagPLkNheCX4rFe46DMuh50o5sq8y//BzzmPEg01hzGZLCbHPD7gIWpwzMHWgHGBQfFGEotBbZM9IbscfB1fnCj7u7Bf8cmu1OQTOjAKA3LJG/JgwY31e5mlJ6vg1wxSPfmffX2qQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=acwX7CdS5efTg40C1zJnEHcTi29/gpC8KXe+uPrC3eE=;
+ b=J6KohB+6d0WfSgcb21P9Mhp8u2GN21iRi0sXgjPv+frjFmwpl82kx+odYxHuiJ9A4FPzbwe/rE7fPlQJxPunvjlhRE6WmnOBi+C7Ciulp9Zg0T+O7H9mLh+ktkXjaKgDy1cw/0poup06anpKjilSAwwvnANIJ6A0lPBZgfpq4yo=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
+Received: from DM5PR12MB1355.namprd12.prod.outlook.com (2603:10b6:3:6e::7) by
+ DM6PR12MB3691.namprd12.prod.outlook.com (2603:10b6:5:1c5::30) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3784.13; Wed, 27 Jan 2021 22:52:00 +0000
+Received: from DM5PR12MB1355.namprd12.prod.outlook.com
+ ([fe80::cc15:4b1f:9f84:6914]) by DM5PR12MB1355.namprd12.prod.outlook.com
+ ([fe80::cc15:4b1f:9f84:6914%4]) with mapi id 15.20.3784.019; Wed, 27 Jan 2021
+ 22:52:00 +0000
+Subject: Re: [PATCH V2] Fix unsynchronized access to sev members through
+ svm_register_enc_region
+To:     Sean Christopherson <seanjc@google.com>,
+        Peter Gonda <pgonda@google.com>
 Cc:     kvm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
         "H. Peter Anvin" <hpa@zytor.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Joerg Roedel <joro@8bytes.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
         Brijesh Singh <brijesh.singh@amd.com>, x86@kernel.org,
         stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V2] Fix unsynchronized access to sev members through
- svm_register_enc_region
-Message-ID: <YBHhF8ktuMfivQEP@google.com>
 References: <20210127161524.2832400-1-pgonda@google.com>
+ <YBHhF8ktuMfivQEP@google.com>
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+Message-ID: <fecafe83-5f45-a0ab-c208-9ea4720fcb6a@amd.com>
+Date:   Wed, 27 Jan 2021 16:51:56 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+In-Reply-To: <YBHhF8ktuMfivQEP@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [67.79.209.213]
+X-ClientProxiedBy: SN2PR01CA0024.prod.exchangelabs.com (2603:10b6:804:2::34)
+ To DM5PR12MB1355.namprd12.prod.outlook.com (2603:10b6:3:6e::7)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210127161524.2832400-1-pgonda@google.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from office-linux.texastahm.com (67.79.209.213) by SN2PR01CA0024.prod.exchangelabs.com (2603:10b6:804:2::34) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.17 via Frontend Transport; Wed, 27 Jan 2021 22:51:58 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 806751bc-f702-4755-143e-08d8c3162836
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3691:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM6PR12MB3691A3A880652B7C3AD98D01ECBB9@DM6PR12MB3691.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BjOiZbTNPJvVNzOAcxVxVlcDhd/ZExjZf4cJaJa7SpQX+sGglD6t/QfnGiQCDNxn9zrp+kz/hkfIqwuaeUw9fgd86r8Ee1FJkSb6IyfJT5uY7+X+uATnZF2ks1FhQ0ebZrbQuIlDov0xUv1hc6OlcswQ2rtNW8a9TSAPC7lAd/Q/MCAEqiJBa3TADlLb2FwbMLJYPb0dmqDR4l/cOH6Zk70+JADHgXtVJ0tuRRxdMZUFEIw9NIbhfMrBPRhAJmHJIoWsCAcsm3lpDek2I4xmHcerfGurjzIerlE+o0LmCSZ8MrM3Zc4dELhj0Q0GUqi7qbi8ZWpNsHnid3px1U2W0KwZBD4TLPI4ackNugeMb3MzYirFjlG6VyW1fGK3hhYpzfjXjOschB/fD6zJtUxCJfRfcyrXganMNInpFGc8SsZIJc6v8ANZ9lvRXr2YTw3cqEtjgoqu7i2Q3Eq+6++YAB6TT7+cp26evqkiEJz/YhleltRh6zaZ9V/RW9xmAkXw3/H0oXhwSUYM0HaWlRQyNY9NgWjyvYkmANgbdebWIAw9ZUN/d/fHTgKySlu2bvGUGf/5jtmMKtEB+Nh3b2RM4g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR12MB1355.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(366004)(376002)(136003)(346002)(39860400002)(52116002)(54906003)(86362001)(5660300002)(7416002)(186003)(2616005)(16526019)(6512007)(31686004)(66946007)(31696002)(53546011)(66556008)(66476007)(316002)(6486002)(83380400001)(4326008)(26005)(6506007)(2906002)(110136005)(8676002)(8936002)(956004)(36756003)(478600001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?RUltelVXV3QyN2FSTlVWRDBhQ25VdUI2K3dwalFJUWFkNGVmMldXamN1WVJ6?=
+ =?utf-8?B?QmpudTljRk5LSkV1bEh4WTJOTER4bjFYUnE5N0UvYi9MenRiODNRRmQxV1BD?=
+ =?utf-8?B?YzFpVzFnS1l2ZWdia2xQYWRDYjBRc2t5U1BpbWgvUUdBMVh3ZnVOcHhlaVVt?=
+ =?utf-8?B?Y1I1K29yV2lXWG5xSyt4L1NpeTJVd2hZMlFHOUs0Mks1aldyb1I4V1YvVHAz?=
+ =?utf-8?B?NWx0UVdqaFM0V2NIa2RhblcyTlRJdURObzJRTit6bzBkYklLMWZyQ1RBbDBE?=
+ =?utf-8?B?ZGtlTEVVTkFTeE1MOC9MazZycVdzVTZsMm9qc1ozWklZRk9qeEFaQ0sySjFT?=
+ =?utf-8?B?WnBuZEJSQkI2bHBNR2ZKRWpVTW5lNWVSK2JtWlQ3b3kxcy9ldWpNWS9LeDZU?=
+ =?utf-8?B?dVpmMFRxWm13ci9mVUtpQmNOZVB4R3dZTXREa25rN2gyWWJiTHE2RU1rLzdK?=
+ =?utf-8?B?WDhVc0F1MFhxSklnQThaNzJIcHBVWnJnWUsyanNIZVpZaUVDZWFKd2FpQ0h6?=
+ =?utf-8?B?a0pqNGZoanpwOCtJek1lWTlISjNoOU5Ba3k2Z0FXaDZYTGp1SUk3bGNEbDFC?=
+ =?utf-8?B?RnU4NXErazV5aVB4d0dSaTdTZXoxTkw4SllQdlpCMlNrZzc5eCtXU2hFUWlr?=
+ =?utf-8?B?eEpQRnBNTEhJRG8yUGNWeGNuTFJJdkc0RWpsenc0Q01LK1IxUUhKZlVhdDVL?=
+ =?utf-8?B?MEh1c2ovdWowMS9EUTBiNUFHZ0lqTEdZeU5IY3dqck9hekt4RkRWY2lYdm11?=
+ =?utf-8?B?T2d0S1J4T0UwN3V0R3pjUEhleThtUmltM1VxTWtSazA5aHI1TitJV2drNnEv?=
+ =?utf-8?B?VEhvSDI5Ym0vRkVwWHdWbGcvb20rUEZ3ZGdPUzQvVFd3TXJDQ3pHVVhqbGUr?=
+ =?utf-8?B?UnQvWjZMZmJBSzdxcVc5Z2xVdXIxK09EWUM4NElBdFNMZzZENXdDUGFLR01W?=
+ =?utf-8?B?SnlQTHpvVmZjTC9UTEpZUDdHazFxYk13U2I0Y2pxbGhSdXFZUDNVWVBabjFt?=
+ =?utf-8?B?WnJUK2lnYWNOcGhMWHc2Y0NVc0YweEo5MFh3R1RJcVRjOXd2cURxTW9iWDBW?=
+ =?utf-8?B?OHlZWUhOWkN5b2N6NzZrdjQvVWdDdEFHOFpjYThiUXpiN2lzaEU0Y2hFbmJF?=
+ =?utf-8?B?UlZmb0pYck9uY0dGN2MvRzdtVmN3Z0MreVQvdVRFLzN4dTBBN1VGSnY4dnkv?=
+ =?utf-8?B?WFp4bndLaEY3dnVEN3lQM2pRcHJLbDB4Q3FxZGRZeEZJQS8vZ0F3M0VSYlVV?=
+ =?utf-8?B?dnpoMjg1bHp0dUt6RExZREhYUUMvTlJLUmpkMFMwakttb213Nk90MjB2bUYv?=
+ =?utf-8?B?SDlUU3d5cVlSa1RyQ0tmaEpZdkQwdFRQQXhQSUJEMGJZNG1PUHIrNHBLTmtM?=
+ =?utf-8?B?VmNoMlhwNkt4OEN6YzRnZ2dRMHBZbXFyOHVhRENmTE85WjIrMGh6MEJ5eXpI?=
+ =?utf-8?Q?zBc6nuvJ?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 806751bc-f702-4755-143e-08d8c3162836
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR12MB1355.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jan 2021 22:52:00.6323
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GldGXxMlGVpIe+gAEpvE91ZluATAIKeVn8iUyUCwsrMCmV+XvsaowmBlJ8v5MNkeN1c099M267SXtfVBOeHhEA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3691
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 27, 2021, Peter Gonda wrote:
-> Grab kvm->lock before pinning memory when registering an encrypted
-> region; sev_pin_memory() relies on kvm->lock being held to ensure
-> correctness when checking and updating the number of pinned pages.
+On 1/27/21 3:54 PM, Sean Christopherson wrote:
+> On Wed, Jan 27, 2021, Peter Gonda wrote:
+>> Grab kvm->lock before pinning memory when registering an encrypted
+>> region; sev_pin_memory() relies on kvm->lock being held to ensure
+>> correctness when checking and updating the number of pinned pages.
+>>
+...
+>> +
+>> +	list_add_tail(&region->list, &sev->regions_list);
+>> +	mutex_unlock(&kvm->lock);
+>> +
+>>   	/*
+>>   	 * The guest may change the memory encryption attribute from C=0 -> C=1
+>>   	 * or vice versa for this memory range. Lets make sure caches are
+>> @@ -1133,13 +1143,6 @@ int svm_register_enc_region(struct kvm *kvm,
+>>   	 */
+>>   	sev_clflush_pages(region->pages, region->npages);
 > 
-> Add a lockdep assertion to help prevent future regressions.
+> I don't think it actually matters, but it feels like the flush should be done
+> before adding the region to the list.  That would also make this sequence
+> consistent with the other flows.
 > 
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Tom Lendacky <thomas.lendacky@amd.com>
-> Cc: Brijesh Singh <brijesh.singh@amd.com>
-> Cc: Sean Christopherson <seanjc@google.com>
-> Cc: x86@kernel.org
-> Cc: kvm@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Fixes: 1e80fdc09d12 ("KVM: SVM: Pin guest memory when SEV is active")
-> Signed-off-by: Peter Gonda <pgonda@google.com>
-> 
-> V2
->  - Fix up patch description
->  - Correct file paths svm.c -> sev.c
->  - Add unlock of kvm->lock on sev_pin_memory error
-> 
-> V1
->  - https://lore.kernel.org/kvm/20210126185431.1824530-1-pgonda@google.com/
+> Tom, any thoughts?
 
-Put version info, and anything else that shouldn't be in the final commit, below
-the three dashes.  AFAIK that requires manually editing the patch file before
-sending it.
+I don't think it matters, either. This does keep the flushing outside of 
+the mutex, so if you are doing parallel operations, that should help speed 
+things up a bit.
 
-> 
-> ---
+Thanks,
+Tom
 
-Version info goes here.
-
->  arch/x86/kvm/svm/sev.c | 17 ++++++++++-------
->  1 file changed, 10 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-> index c8ffdbc81709..b80e9bf0a31b 100644
-> --- a/arch/x86/kvm/svm/sev.c
-> +++ b/arch/x86/kvm/svm/sev.c
-> @@ -342,6 +342,8 @@ static struct page **sev_pin_memory(struct kvm *kvm, unsigned long uaddr,
->  	unsigned long first, last;
->  	int ret;
->  
-> +	lockdep_assert_held(&kvm->lock);
-> +
->  	if (ulen == 0 || uaddr + ulen < uaddr)
->  		return ERR_PTR(-EINVAL);
->  
-> @@ -1119,12 +1121,20 @@ int svm_register_enc_region(struct kvm *kvm,
->  	if (!region)
->  		return -ENOMEM;
->  
-> +	mutex_lock(&kvm->lock);
->  	region->pages = sev_pin_memory(kvm, range->addr, range->size, &region->npages, 1);
->  	if (IS_ERR(region->pages)) {
->  		ret = PTR_ERR(region->pages);
-> +		mutex_unlock(&kvm->lock);
->  		goto e_free;
->  	}
->  
-> +	region->uaddr = range->addr;
-> +	region->size = range->size;
-> +
-> +	list_add_tail(&region->list, &sev->regions_list);
-> +	mutex_unlock(&kvm->lock);
-> +
->  	/*
->  	 * The guest may change the memory encryption attribute from C=0 -> C=1
->  	 * or vice versa for this memory range. Lets make sure caches are
-> @@ -1133,13 +1143,6 @@ int svm_register_enc_region(struct kvm *kvm,
->  	 */
->  	sev_clflush_pages(region->pages, region->npages);
-
-I don't think it actually matters, but it feels like the flush should be done
-before adding the region to the list.  That would also make this sequence
-consistent with the other flows.
-
-Tom, any thoughts?
-
->  
-> -	region->uaddr = range->addr;
-> -	region->size = range->size;
-> -
-> -	mutex_lock(&kvm->lock);
-> -	list_add_tail(&region->list, &sev->regions_list);
-> -	mutex_unlock(&kvm->lock);
-> -
->  	return ret;
->  
->  e_free:
-> -- 
-> 2.30.0.280.ga3ce27912f-goog
 > 
