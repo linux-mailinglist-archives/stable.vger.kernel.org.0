@@ -2,426 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24BB13053C1
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 07:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F3830549B
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 08:27:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbhA0G7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 01:59:15 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38014 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231127AbhA0G6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 01:58:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611730621;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=M0PQ3TcTr/ddyalSQ0lDmkUpY77DbxM1CTUe3moBxGE=;
-        b=ax5QLeT+ap/Flxidcd28XPgiNAHhbeLogvncJ7AauEjAS6XNFG6ORbyOdCMZjwp9PDGfML
-        xZHVLPNkDOMidWVVOLGB80BKXNb6rDpBZLX0SeX2dag0NJTrZrJt5UiM5OGcKbCifSOI2J
-        MiIiGQ67ZNx1DbWIfOxdtccdVoCAbBU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-248-9ZRzD_VyN4eCZPvkz7nojg-1; Wed, 27 Jan 2021 01:53:01 -0500
-X-MC-Unique: 9ZRzD_VyN4eCZPvkz7nojg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AC734190D343
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 06:53:00 +0000 (UTC)
-Received: from [172.23.4.2] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9A11072162;
-        Wed, 27 Jan 2021 06:52:53 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S233829AbhA0H1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 02:27:11 -0500
+Received: from mga18.intel.com ([134.134.136.126]:44352 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S317090AbhA0AiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Jan 2021 19:38:17 -0500
+IronPort-SDR: nvAGQbodmVY6z/7nrw6UG/gag3Kq9FNgDMhWUIO0ZeCUg6ScHnBGSlMPcpZ04Mv77DPU1anOXE
+ D0WQdksr7CiQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9876"; a="167666622"
+X-IronPort-AV: E=Sophos;i="5.79,378,1602572400"; 
+   d="scan'208";a="167666622"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2021 16:34:31 -0800
+IronPort-SDR: VsRZ5FzjX/+6FlHDQJstXZgFzv5Og8F3n7oMmLPz5rs1v+iHLOJnJ8UALefLQHQFKClkyLQYLs
+ kjB++NkxVsQQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,378,1602572400"; 
+   d="scan'208";a="402922586"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
+  by fmsmga004.fm.intel.com with ESMTP; 26 Jan 2021 16:34:28 -0800
+Cc:     baolu.lu@linux.intel.com, linux-kernel@vger.kernel.org,
+        Nadav Amit <namit@vmware.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/vt-d: do not use flush-queue when caching-mode is
+ on
+To:     Nadav Amit <nadav.amit@gmail.com>, iommu@lists.linux-foundation.org
+References: <20210126203856.1544088-1-namit@vmware.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <cf693fca-4f5a-a6a6-cc58-3f4e3cd882b6@linux.intel.com>
+Date:   Wed, 27 Jan 2021 08:26:12 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.10.10 (stable-queue)
-Date:   Wed, 27 Jan 2021 06:52:52 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>,
-        Xiaowu Wu <xiawu@redhat.com>, Baoquan He <bhe@redhat.com>,
-        David Arcari <darcari@redhat.com>
-Message-ID: <cki.E5FA73169F.S3XJTGGBQM@redhat.com>
-X-Gitlab-Pipeline-ID: 622197
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/622197
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20210126203856.1544088-1-namit@vmware.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Nadav,
 
-Hello,
+On 1/27/21 4:38 AM, Nadav Amit wrote:
+> From: Nadav Amit <namit@vmware.com>
+> 
+> When an Intel IOMMU is virtualized, and a physical device is
+> passed-through to the VM, changes of the virtual IOMMU need to be
+> propagated to the physical IOMMU. The hypervisor therefore needs to
+> monitor PTE mappings in the IOMMU page-tables. Intel specifications
+> provide "caching-mode" capability that a virtual IOMMU uses to report
+> that the IOMMU is virtualized and a TLB flush is needed after mapping to
+> allow the hypervisor to propagate virtual IOMMU mappings to the physical
+> IOMMU. To the best of my knowledge no real physical IOMMU reports
+> "caching-mode" as turned on.
+> 
+> Synchronizing the virtual and the physical TLBs is expensive if the
+> hypervisor is unaware which PTEs have changed, as the hypervisor is
+> required to walk all the virtualized tables and look for changes.
+> Consequently, domain flushes are much more expensive than page-specific
+> flushes on virtualized IOMMUs with passthrough devices. The kernel
+> therefore exploited the "caching-mode" indication to avoid domain
+> flushing and use page-specific flushing in virtualized environments. See
+> commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+> mode.")
+> 
+> This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+> of iova deferred flushing"). Now, when batched TLB flushing is used (the
+> default), full TLB domain flushes are performed frequently, requiring
+> the hypervisor to perform expensive synchronization between the virtual
+> TLB and the physical one.
 
-We ran automated tests on a recent commit from this kernel tree:
+Good catch. Thank you!
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: b333771b7992 - Commit 9bb48c82aced ("tty: implement write=
-_iter") converted the tty layer to use write_iter. Fix the redirected_tty_wri=
-te declaration also in n_tty and change the comparisons to use write_iter ins=
-tead of write. also in n_tty and change the comparisons to use write_iter ins=
-tead of write.
+> 
+> Getting batched TLB flushes to use in such circumstances page-specific
+> invalidations again is not easy, since the TLB invalidation scheme
+> assumes that "full" domain TLB flushes are performed for scalability.
+> 
+> Disable batched TLB flushes when caching-mode is on, as the performance
+> benefit from using batched TLB invalidations is likely to be much
+> smaller than the overhead of the virtual-to-physical IOMMU page-tables
+> synchronization.
+> 
+> Fixes: 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching mode.")
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> Cc: David Woodhouse <dwmw2@infradead.org>
+> Cc: Lu Baolu <baolu.lu@linux.intel.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>   drivers/iommu/intel/iommu.c | 26 +++++++++++++++++++++++++-
+>   1 file changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 788119c5b021..4e08f5e17175 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -5373,6 +5373,30 @@ intel_iommu_domain_set_attr(struct iommu_domain *domain,
+>   	return ret;
+>   }
+>   
+> +static int
+> +intel_iommu_domain_get_attr_use_flush_queue(struct iommu_domain *domain)
 
-The results of these automated tests are provided below.
+Just nit:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Can we just use this
 
-All kernel binaries, config files, and logs are available for download here:
+static bool domain_use_flush_queue(struct iommu_domain *domain)
 
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/01/26/622197
+?
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+> +{
+> +	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+> +	struct intel_iommu *iommu = domain_get_iommu(dmar_domain);
+> +
+> +	if (intel_iommu_strict)
+> +		return 0;
+> +
+> +	/*
+> +	 * The flush queue implementation does not perform page-selective
+> +	 * invalidations that are required for efficient TLB flushes in virtual
+> +	 * environments. The benefit of batching is likely to be much lower than
+> +	 * the overhead of synchronizing the virtual and physical IOMMU
+> +	 * page-tables.
+> +	 */
+> +	if (iommu && cap_caching_mode(iommu->cap)) {
+> +		pr_warn_once("IOMMU batching is partially disabled due to virtualization");
+> +		return 0;
+> +	}
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+domain_get_iommu() only returns the first iommu, and could return NULL
+when this is called before domain attaching to any device. A better
+choice could be check caching mode globally and return false if caching
+mode is supported on any iommu.
 
-Compile testing
----------------
+        struct dmar_drhd_unit *drhd;
+        struct intel_iommu *iommu;
 
-We compiled the kernel for 4 architectures:
+        rcu_read_lock();
+        for_each_active_iommu(iommu, drhd) {
+                 if (cap_caching_mode(iommu->cap))
+                         return false;
+         }
+         rcu_read_unlock();
 
-    aarch64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+> +
+> +	return 1;
+> +}
+> +
+>   static int
+>   intel_iommu_domain_get_attr(struct iommu_domain *domain,
+>   			    enum iommu_attr attr, void *data)
+> @@ -5383,7 +5407,7 @@ intel_iommu_domain_get_attr(struct iommu_domain *domain,
+>   	case IOMMU_DOMAIN_DMA:
+>   		switch (attr) {
+>   		case DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE:
+> -			*(int *)data = !intel_iommu_strict;
+> +			*(int *)data = !intel_iommu_domain_get_attr_use_flush_queue(domain);
+>   			return 0;
+>   		default:
+>   			return -ENODEV;
+> 
 
-    ppc64le:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ACPI table test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ACPI enabled test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Firmware test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
-tfilter test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=8F=B1  LTP
-       =E2=8F=B1  Loopdev Sanity
-       =E2=8F=B1  Memory: fork_mem
-       =E2=8F=B1  Memory function: memfd_create
-       =E2=8F=B1  AMTU (Abstract Machine Test Utility)
-       =E2=8F=B1  Networking bridge: sanity
-       =E2=8F=B1  Networking route: pmtu
-       =E2=8F=B1  Networking route_func - local
-       =E2=8F=B1  Networking route_func - forward
-       =E2=8F=B1  Networking TCP: keepalive test
-       =E2=8F=B1  Networking UDP: socket
-       =E2=8F=B1  Networking tunnel: geneve basic test
-       =E2=8F=B1  Networking tunnel: gre basic
-       =E2=8F=B1  L2TP basic test
-       =E2=8F=B1  Networking tunnel: vxlan basic
-       =E2=8F=B1  Networking ipsec: basic netns - transport
-       =E2=8F=B1  Networking ipsec: basic netns - tunnel
-       =E2=8F=B1  Libkcapi AF_ALG test
-       =E2=8F=B1  CIFS Connectathon
-       =E2=8F=B1  POSIX pjd-fstest suites
-       =E2=8F=B1  jvm - jcstress tests
-       =E2=8F=B1  Memory function: kaslr
-       =E2=8F=B1  Ethernet drivers sanity
-       =E2=8F=B1  Networking firewall: basic netfilter test
-       =E2=8F=B1  audit: audit testsuite test
-       =E2=8F=B1  trace: ftrace/tracer
-       =E2=8F=B1  kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9D=8C kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - nfsv4.2
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
-o test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
-er test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
-dule test
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+Best regards,
+baolu
