@@ -2,100 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C74306774
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 00:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 392A7306829
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 00:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbhA0XCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 18:02:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39894 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233102AbhA0XAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Jan 2021 18:00:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A6564DD5;
-        Wed, 27 Jan 2021 23:00:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611788404;
-        bh=6OndkKvgPn1usFvWt70AMS39vqsHZMLrv+enaXJhuac=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Vn5SHI8MM0wv1Ubalhfry4NlZYNLajiaY4cqS5B4whSr7h5w2bahMqs/zbd7/+H1F
-         JJfikZ5QW+CblL2Gc3YoEQyAA6pIy/B4jSuGLimzJqygrK0aC/O9fHSCliU5yPVOa4
-         5E4kBDKmNQycY1morq8/ZRlDhjhi+7bXQEuH5YKzgzOAoZAnw/PEXxLjsyGwCug02O
-         cRCwYQQKcEBXbAgZ+jSvIaKn4UdCW6XoFZG4A3DnOBxaRWSeDdPrpp1Q8qORNXvspu
-         XlR33BOVko4ygbYiVxh2e80a10bH8aJc3hC7EaRo+6pD5E7dF0KcVheEr7Et/+0WWP
-         AH5tB9FT7ni/g==
-Received: by pali.im (Postfix)
-        id D8616768; Thu, 28 Jan 2021 00:00:01 +0100 (CET)
-Date:   Thu, 28 Jan 2021 00:00:01 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Thomas Hebb <tommyhebb@gmail.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Bob Hepple <bob.hepple@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
-Subject: Re: [PATCH] hwmon: (dell-smm) Add XPS 15 L502X to fan control
- blacklist
-Message-ID: <20210127230001.7zeeczkfj33zj5sw@pali>
-References: <a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com>
- <20210125100540.55wbgdsem3htplx3@pali>
- <20210125201938.GB78651@roeck-us.net>
- <20210125202130.afwhcuznietmqo5s@pali>
+        id S231790AbhA0XmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 18:42:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234475AbhA0Xki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 18:40:38 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9600CC0613ED
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 15:39:50 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id gx1so2717473pjb.1
+        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 15:39:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=anholt-net.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jzve5vckTHg7fjAKwv7GG9vOPjfc2/ZvoO6K92nijE8=;
+        b=NCbiN+r97dsaQLltyBZ3gaFJvwPrqLjBmRpgTqLR5d0JdfmmTKkn3qb5HPPNGsuxH8
+         KMEhEk/Tq9aQUJDeN5hXdSE8SSNmeJiUeEjSI0kfFkg12aXeWKG4sFu6f5g/6nR/5jsv
+         3XrPdUe5XslusmQBZHpFQo9ld8goUvS3tRB6lKevCH0q0nQH5K4zPeUNITIycPeS5421
+         74c0IkxDd4kGJjdR/bHDHY/MKnV2p3mWMwcIIkizPfZNrOxBXoJZDDHuD/lf47Fk7i/Q
+         kf9QcmCMEalpaxdAvtt+XSjXwQgde29Qq4WRV6NHGMrjOBVzYOmIrAvyZRyok1MPZjEO
+         SuGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jzve5vckTHg7fjAKwv7GG9vOPjfc2/ZvoO6K92nijE8=;
+        b=aID5Bw2T0AKCyApCn/pJq/4cIIiWGuoTjfdJVfQVFQRLj/YtSNiwGK1M6tGxo6p2bg
+         ecprHs5Ahx806SKh/fUR02HQborrjuIqrD3qlu1LPjnLSeMr9B7jR1j8chQ9w3DU1w5/
+         bYq32ylUnbD4rMP1Cfi+jVD67TVnmB0i1GW2XlSkni1TFH3zfJu/bfG6SZ5sdyfe48lF
+         GJf43lQYyzJDiBzMdfOW1/cAK4zYvtWgiSYhvf6coyuw9pDbHLZ5+J5KKfRXSTnJC3QY
+         f0kjoPE4BpSXJXlkA4L3/0w/8k1UFMg91oFakoZEZlq5Co2/+Sh90a/m8ZWmAwUtFwyT
+         XPbA==
+X-Gm-Message-State: AOAM532M8UEfTH+8WyiyBQ+NvVsaP25YqBrtv2VOHadH+3zXBDqjzQ13
+        igl/u0FuDvsat4vPVeF6l8JHUQ==
+X-Google-Smtp-Source: ABdhPJyHdm4XvhFRofA7zneDyE3OCrjBFMuISqye3D0wUdgRQrhC7p6IojeYcxRmgEJXAxvXuWO4Tw==
+X-Received: by 2002:a17:90a:4a0e:: with SMTP id e14mr8264413pjh.200.1611790790011;
+        Wed, 27 Jan 2021 15:39:50 -0800 (PST)
+Received: from wildbow.anholt.net ([75.164.105.146])
+        by smtp.gmail.com with ESMTPSA id q2sm3282382pfj.32.2021.01.27.15.39.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Jan 2021 15:39:49 -0800 (PST)
+From:   Eric Anholt <eric@anholt.net>
+To:     dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org, Rob Clark <robdclark@gmail.com>,
+        Sean Paul <sean@poorly.run>,
+        Jordan Crouse <jcrouse@codeaurora.org>
+Cc:     linux-kernel@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] drm/msm: Fix race of GPU init vs timestamp power management.
+Date:   Wed, 27 Jan 2021 15:39:44 -0800
+Message-Id: <20210127233946.1286386-1-eric@anholt.net>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210125202130.afwhcuznietmqo5s@pali>
-User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Monday 25 January 2021 21:21:30 Pali Rohár wrote:
-> On Monday 25 January 2021 12:19:38 Guenter Roeck wrote:
-> > On Mon, Jan 25, 2021 at 11:05:40AM +0100, Pali Rohár wrote:
-> > > On Saturday 23 January 2021 18:46:08 Thomas Hebb wrote:
-> > > > It has been reported[0] that the Dell XPS 15 L502X exhibits similar
-> > > > freezing behavior to the other systems[1] on this blacklist. The issue
-> > > > was exposed by a prior change of mine to automatically load
-> > > > dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
-> > > > this model to the blacklist.
-> > > > 
-> > > > [0] https://bugzilla.kernel.org/show_bug.cgi?id=211081
-> > > > [1] https://bugzilla.kernel.org/show_bug.cgi?id=195751
-> > > > 
-> > > > Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS models")
-> > > > Cc: stable@vger.kernel.org
-> > > > Reported-by: Bob Hepple <bob.hepple@gmail.com>
-> > > > Tested-by: Bob Hepple <bob.hepple@gmail.com>
-> > > > Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-> > > > ---
-> > > > 
-> > > >  drivers/hwmon/dell-smm-hwmon.c | 7 +++++++
-> > > >  1 file changed, 7 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-> > > > index ec448f5f2dc3..73b9db9e3aab 100644
-> > > > --- a/drivers/hwmon/dell-smm-hwmon.c
-> > > > +++ b/drivers/hwmon/dell-smm-hwmon.c
-> > > > @@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
-> > > >  			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
-> > > >  		},
-> > > >  	},
-> > > > +	{
-> > > > +		.ident = "Dell XPS 15 L502X",
-> > > > +		.matches = {
-> > > > +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> > > > +			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
-> > > 
-> > > Hello! Are you sure that it is required to completely disable fan
-> > > support? And not only access to fan type label for which is different
-> > > blaclist i8k_blacklist_fan_type_dmi_table?
-> > > 
-> > 
-> > I'll drop this patch from my branch. Please send a Reviewed-by: or Acked-by: tag
-> > if/when I should apply it.
-> 
-> Of course! We will just wait for Bob test results.
+We were using the same force-poweron bit in the two codepaths, so they
+could race to have one of them lose GPU power early.
 
-Guenter, now we have all needed information, fix is really needed in
-this form. So you can add my:
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Cc: stable@vger.kernel.org # v5.9
+---
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 25 ++++++++++++++++++++++---
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.h |  8 ++++++++
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c |  4 ++--
+ 3 files changed, 32 insertions(+), 5 deletions(-)
 
-Reviewed-by: Pali Rohár <pali@kernel.org>
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+index 78836b4fb98e..378dc7f190c3 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+@@ -264,6 +264,16 @@ int _a6xx_gmu_set_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state, char
+ 		}
+ 		name = "GPU_SET";
+ 		break;
++	case GMU_OOB_PERFCOUNTER_SET:
++		if (gmu->legacy) {
++			request = GMU_OOB_PERFCOUNTER_REQUEST;
++			ack = GMU_OOB_PERFCOUNTER_ACK;
++		} else {
++			request = GMU_OOB_PERFCOUNTER_REQUEST_NEW;
++			ack = GMU_OOB_PERFCOUNTER_ACK_NEW;
++		}
++		name = "PERFCOUNTER";
++		break;
+ 	case GMU_OOB_BOOT_SLUMBER:
+ 		request = GMU_OOB_BOOT_SLUMBER_REQUEST;
+ 		ack = GMU_OOB_BOOT_SLUMBER_ACK;
+@@ -302,9 +312,14 @@ int _a6xx_gmu_set_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state, char
+ void a6xx_gmu_clear_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
+ {
+ 	if (!gmu->legacy) {
+-		WARN_ON(state != GMU_OOB_GPU_SET);
+-		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
+-			1 << GMU_OOB_GPU_SET_CLEAR_NEW);
++		if (state == GMU_OOB_GPU_SET) {
++			gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
++				1 << GMU_OOB_GPU_SET_CLEAR_NEW);
++		} else {
++			WARN_ON(state != GMU_OOB_PERFCOUNTER_SET);
++			gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
++				1 << GMU_OOB_PERFCOUNTER_CLEAR_NEW);
++		}
+ 		return;
+ 	}
+ 
+@@ -313,6 +328,10 @@ void a6xx_gmu_clear_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
+ 		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
+ 			1 << GMU_OOB_GPU_SET_CLEAR);
+ 		break;
++	case GMU_OOB_PERFCOUNTER_SET:
++		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
++			1 << GMU_OOB_PERFCOUNTER_CLEAR);
++		break;
+ 	case GMU_OOB_BOOT_SLUMBER:
+ 		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
+ 			1 << GMU_OOB_BOOT_SLUMBER_CLEAR);
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
+index c6d2bced8e5d..9fa278de2106 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
+@@ -156,6 +156,7 @@ enum a6xx_gmu_oob_state {
+ 	GMU_OOB_BOOT_SLUMBER = 0,
+ 	GMU_OOB_GPU_SET,
+ 	GMU_OOB_DCVS_SET,
++	GMU_OOB_PERFCOUNTER_SET,
+ };
+ 
+ /* These are the interrupt / ack bits for each OOB request that are set
+@@ -190,6 +191,13 @@ enum a6xx_gmu_oob_state {
+ #define GMU_OOB_GPU_SET_ACK_NEW		31
+ #define GMU_OOB_GPU_SET_CLEAR_NEW	31
+ 
++#define GMU_OOB_PERFCOUNTER_REQUEST	17
++#define GMU_OOB_PERFCOUNTER_ACK		25
++#define GMU_OOB_PERFCOUNTER_CLEAR	25
++
++#define GMU_OOB_PERFCOUNTER_REQUEST_NEW	28
++#define GMU_OOB_PERFCOUNTER_ACK_NEW	30
++#define GMU_OOB_PERFCOUNTER_CLEAR_NEW	30
+ 
+ void a6xx_hfi_init(struct a6xx_gmu *gmu);
+ int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state);
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index c8a9010c1a1d..7424a70b9d35 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1177,12 +1177,12 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+ 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
+ 
+ 	/* Force the GPU power on so we can read this register */
+-	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_GPU_SET);
++	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+ 
+ 	*value = gpu_read64(gpu, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
+ 		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
+ 
+-	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_GPU_SET);
++	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+ 	return 0;
+ }
+ 
+-- 
+2.30.0
+
