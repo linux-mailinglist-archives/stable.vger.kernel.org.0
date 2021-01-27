@@ -2,72 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D781305D0F
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4D5305C91
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 14:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238357AbhA0N03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 08:26:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S313560AbhAZWgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Jan 2021 17:36:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FBC22065E;
-        Tue, 26 Jan 2021 22:35:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611700547;
-        bh=Q1GyRhpkZiVQToN/jT2ZPcVt3BW6HFaKBIAmsCu2bCU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnxfXEhAt5e/63DrE8s+rWzNBER52n3jEXPQlNMC/nc6Ti+X+VSP/YbFKL+KxtwNb
-         kEryFl/EK49PYII5Z7np11Tl8nITq2dxISWzqHKW/Y58aC4cMHZ6heu3zPUcLzwrqv
-         Itz9HtP20hbwkvF5GkW295UitLIWTnWo6iTIZc6iphBD5ZnylWnn5m+3QIUHfqLgbo
-         BC+1sIgIzhqa/rmSbB8IWTdOMjvjtSxVkNhaixwuNEbg5FsIeXoEikEwfHgIBMB9C1
-         qS5uCgh4d0PJscnJS6d+lfkAmOg7ZzUZ0x5GeqzvM7nzUadOmqZ+wpnJvkYm3EoVeY
-         t+Phu04NZhDFw==
-From:   Will Deacon <will@kernel.org>
-To:     robin.murphy@arm.com, bjorn.andersson@linaro.org,
-        "Isaac J. Manjarres" <isaacm@codeaurora.org>, joro@8bytes.org
-Cc:     catalin.marinas@arm.com, kernel-team@android.com,
-        Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
-        iommu@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/arm-smmu-qcom: Fix mask extraction for bootloader programmed SMRs
-Date:   Tue, 26 Jan 2021 22:35:41 +0000
-Message-Id: <161167109569.3787430.13165422969483638185.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <1611611545-19055-1-git-send-email-isaacm@codeaurora.org>
-References: <1611611545-19055-1-git-send-email-isaacm@codeaurora.org>
+        id S238268AbhA0NJz convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 27 Jan 2021 08:09:55 -0500
+Received: from guitar.tcltek.co.il ([192.115.133.116]:58824 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238157AbhA0NHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 08:07:43 -0500
+Received: from tarshish (unknown [10.0.8.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx.tkos.co.il (Postfix) with ESMTPS id 095094403E5;
+        Wed, 27 Jan 2021 15:06:56 +0200 (IST)
+References: <d1d7d548eba25119397de87211de763c54b5d8cd.1611651611.git.baruch@tkos.co.il>
+ <20210126180650.xsrycbnwzu4lzl55@pengutronix.de>
+User-agent: mu4e 1.4.14; emacs 27.1
+From:   Baruch Siach <baruch@tkos.co.il>
+To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH 5.10-stable] gpio: mvebu: fix pwm .get_state period
+ calculation
+In-reply-to: <20210126180650.xsrycbnwzu4lzl55@pengutronix.de>
+Date:   Wed, 27 Jan 2021 15:06:55 +0200
+Message-ID: <87im7iy1e8.fsf@tarshish>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 Jan 2021 13:52:25 -0800, Isaac J. Manjarres wrote:
-> When extracting the mask for a SMR that was programmed by the
-> bootloader, the SMR's valid bit is also extracted and is treated
-> as part of the mask, which is not correct. Consider the scenario
-> where an SMMU master whose context is determined by a bootloader
-> programmed SMR is removed (omitting parts of device/driver core):
-> 
-> ->iommu_release_device()
->  -> arm_smmu_release_device()
->   -> arm_smmu_master_free_smes()
->    -> arm_smmu_free_sme() /* Assume that the SME is now free */
->    -> arm_smmu_write_sme()
->     -> arm_smmu_write_smr() /* Construct SMR value using mask and SID */
-> 
-> [...]
+Hi Uwe,
 
-Applied to will (for-joerg/arm-smmu/updates), thanks!
+Thanks for your review.
 
-[1/1] iommu/arm-smmu-qcom: Fix mask extraction for bootloader programmed SMRs
-      https://git.kernel.org/will/c/dead723e6f04
+On Tue, Jan 26 2021, Uwe Kleine-König wrote:
+> On Tue, Jan 26, 2021 at 11:00:11AM +0200, Baruch Siach wrote:
+>> commit e73b0101ae5124bf7cd3fb5d250302ad2f16a416 upstream.
+>> 
+>> The period is the sum of on and off values. That is, calculate period as
+>> 
+>>   ($on + $off) / clkrate
+>> 
+>> instead of
+>> 
+>>   $off / clkrate - $on / clkrate
+>> 
+>> that makes no sense.
+>> 
+>> Reported-by: Russell King <linux@armlinux.org.uk>
+>> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+>> Fixes: 757642f9a584e ("gpio: mvebu: Add limited PWM support")
+>> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+>> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>
+> Doesn't this need something like:
+>
+> 	[baruch: Backported to 5.10]
+>
+> plus a new S-o-B?
 
-Cheers,
+I could not find this requirement in the stable-kernel-rules.rst (Option
+3) text.
+
+Greg, should I resend the patch with another SoB?
+
+Thanks,
+baruch
+
 -- 
-Will
-
-https://fixes.arm64.dev
-https://next.arm64.dev
-https://will.arm64.dev
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
