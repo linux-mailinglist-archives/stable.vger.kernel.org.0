@@ -2,163 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F1F306265
-	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 18:45:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C173062AE
+	for <lists+stable@lfdr.de>; Wed, 27 Jan 2021 18:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236030AbhA0Roh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 12:44:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344112AbhA0RoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 12:44:24 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95DECC061574
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:43:43 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id f63so1641352pfa.13
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 09:43:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=7sj7pim5IetR456CHcvRdOi+mjzmrDoe/hWhqa9Dot0=;
-        b=nZn951upXHINIYPKAhqqnA0gSx9fm6BFVM/jP6hftSq00DD9x0fQ79puVIjzJIf+Wy
-         iz9lW1hiLD0uRu0nh13kS4yHg7O3hEcaW0s59nyCqYBxc053a/nqV04OX2KJSn7J44g+
-         V8moEFcNU3aSxiW1iWkOW/VanCas20nn/jHn9FJLLkkkc2maImUnd6Ldl7xHRe4sU/lS
-         GjaY2uNfKEAvsh2J9AP/NRQp/iqK17FHew7+NCrz1GulAxqmMrqdpVNtJk6QyHIP20U6
-         NiRec482FiU3hQ8fIjjs06E1pqCY2G3DBMZqGbJBGe6TmcSLPnjcz+EIwl7eQWVhT1ll
-         84cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=7sj7pim5IetR456CHcvRdOi+mjzmrDoe/hWhqa9Dot0=;
-        b=kv8wehPRbil0RoE2xX1JedYaUAXNTogGTsxsrpSirIB/dS+sGovoi8n6C3Gyf+iceS
-         KDOVj3NgJmohsRPrEUET6nr0xnTpyFni0DRj0SCX64preK6HFHDNTblugbzpMuEM4bXi
-         u3QR9GYJk5BvePh66pDRxFeiW+5r8tY3bnRZxASbQ4sGJG/46wcxDps0PTbmWkX3CPMT
-         D5c7Ou0FJr2RdEOmP0aHY0hqwNGlarKVHADkpBpUr0KaACaRz75nnBouL7oY8eQeh5cu
-         6eRQJ1ITTBUnP6CmOWyBpXTF9km8nnG13RwwZjSZaJhvrbMxf4HtG4ii0IXbECGQmzc0
-         QHZQ==
-X-Gm-Message-State: AOAM530is5SaZrZMQkh9Hqy+Q8pDSUqpoUirj1hiii7zSvhukoh94S5L
-        uDTXF2SUUybhU14JVQ3VwOM7oA==
-X-Google-Smtp-Source: ABdhPJwjvSKmNhCa/kWyqmBXH7mVKkYXDuapfT2VYBLLHkHVh7PWO3Yk6lwHCS5IEBayb3JboBIycw==
-X-Received: by 2002:a05:6a00:2286:b029:1ae:6c7f:31ce with SMTP id f6-20020a056a002286b02901ae6c7f31cemr11645761pfe.6.1611769423153;
-        Wed, 27 Jan 2021 09:43:43 -0800 (PST)
-Received: from xps15 (S0106889e681aac74.cg.shawcable.net. [68.147.0.187])
-        by smtp.gmail.com with ESMTPSA id 6sm2918057pfz.34.2021.01.27.09.43.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 09:43:42 -0800 (PST)
-Date:   Wed, 27 Jan 2021 10:43:40 -0700
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org, coresight@lists.linaro.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Leo Yan <leo.yan@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>
-Subject: Re: [PATCH v2] coresight: etm4x: Handle accesses to TRCSTALLCTLR
-Message-ID: <20210127174340.GA1162729@xps15>
-References: <20210126145614.3607093-1-suzuki.poulose@arm.com>
- <20210127120032.3611851-1-suzuki.poulose@arm.com>
+        id S1344253AbhA0Rww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 12:52:52 -0500
+Received: from mail-bn7nam10on2059.outbound.protection.outlook.com ([40.107.92.59]:51936
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1344249AbhA0Rwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 12:52:46 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=e3Y//DMEtQMJiI5N25BQmoajn0GzGFvAeb8kR0kowU7PVkq/edLOGE/KR1JkAqqC528TEwxFl8VW1VuELaXl/RDIGPY27taowX0BMwd8AaBDrU4pLXGIydZFDVgjJCUS4T7R/QpR3lc+rCPQYtmiN2L2eCbKqPaZVNF7LWzb46bXoxxWgeI/yxE4gv+vo10uBCGyMaGqHz0iC7Fw19zheqOsbXHm/OGyGshcyt8Flpxbw8MLuimyOyI+cbatDNVvTtuQ2oGFA3bmGr3aNIU8oGyKMjyY6pec372g46FcyVqxiHij8gwxNtTbnCOgDU0ivauAX4Llin3Qlijy6k+6Xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UG1HLDilZkuzO+uvTwoie/g0gqPAe2+gyezoMtKL7YI=;
+ b=ad83fyjS01mTxjWPs9h5jKHUX8p2l14giKXKP+aFCGp1jMNTIsQoyi+A+BiEQS4BS2cWCsKgcdaJttK/Vr4LC03hZXAoCugWi0z0I0CBoqnfRRSPkwJPzQOjLjgvXO9Rg/XUXOxNgVlNeh8cfNEKCPPMOawYlVa+6R+B+x1P1g3AWKNkIH+qOU0QppK3FJcXC9nP1eQt25Jcr92oZwUePxCqpI5XCw2QOA0LuptZH2hV8W7pxmIUOnir2Ds7d3nvOb79Zx93dpkJgDddhdbQXq4oA1fHzLECroiCFPJlk5XO/T0e8y/ZeHHOegWZaggkG0oWAR+ZmqIgf1pxqKOMqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UG1HLDilZkuzO+uvTwoie/g0gqPAe2+gyezoMtKL7YI=;
+ b=LhsxxJU3lsxgH2LFDArcnunOC/U3SO9J8c7oK8PC7RU9MgMHlOIpc1bOLOOuv6h6QKxek4aBQ4Pjtf6l/YR4S41Bz+r20LJXHCjWX2FgnsPiSDhES+1z37WtZJE+xrX4Tk2CDRdXav4nS+//eWgKLtFmb82cRS4E5xSghlbQLqk=
+Received: from (2603:10b6:a03:4a::18) by
+ BYAPR05MB4406.namprd05.prod.outlook.com (2603:10b6:a02:ef::22) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3805.6; Wed, 27 Jan 2021 17:51:50 +0000
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::ddba:e1e9:fde7:3b31]) by BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::ddba:e1e9:fde7:3b31%3]) with mapi id 15.20.3805.014; Wed, 27 Jan 2021
+ 17:51:50 +0000
+From:   Nadav Amit <namit@vmware.com>
+To:     Lu Baolu <baolu.lu@linux.intel.com>
+CC:     "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] iommu/vt-d: do not use flush-queue when caching-mode
+ is on
+Thread-Topic: [PATCH v2] iommu/vt-d: do not use flush-queue when caching-mode
+ is on
+Thread-Index: AQHW9J8qsK81TA6sQUu5BavghsL9SKo7wO2A
+Date:   Wed, 27 Jan 2021 17:51:50 +0000
+Message-ID: <DFC5801C-CD2A-4D2C-8AAE-CBCF76832858@vmware.com>
+References: <20210127061729.1596640-1-namit@vmware.com>
+ <15c974b1-b50d-9061-9d97-fef6f3804b22@linux.intel.com>
+In-Reply-To: <15c974b1-b50d-9061-9d97-fef6f3804b22@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linux.intel.com; dkim=none (message not signed)
+ header.d=none;linux.intel.com; dmarc=none action=none header.from=vmware.com;
+x-originating-ip: [24.6.216.183]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: eb43a804-1e8a-4d2d-d9d4-08d8c2ec3999
+x-ms-traffictypediagnostic: BYAPR05MB4406:
+x-microsoft-antispam-prvs: <BYAPR05MB44068D12187570EA6728AB12D0BB9@BYAPR05MB4406.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1824;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 7XoeTWCkMI0XX1Eu3YJBpg3Poj+maxGxF8kuWyNnCmvE3DyGs5oFgF52p3IRhk9+4ZDzOYLq4ALO1lbzcT7r3md7WT159qVoJ2Q8/sZtYeDa80teKv/7ZQmG4/f6BpRUqqU/3axDHaAdEFR9wEhs6g4pX6Ajy6/ijHjMF/S1HcRERhWn925zXbypks79FJMmdZU+WrSQIMbhEvcMhenWMTmp64W5Ul0eBld68oIgk2Nr/u82gUbiu2kdXNygvjD3AX6se9NDSSf99pjTyJmwdE30llVUwTuogYQRa8rBkBos8Ja8geqYMo1cFJ5V5rO2CJ/MKCkFqx7tOQOh4oWFeu1loSnryNCINjdH2AKtlkfwzHHPWS6jSIUmViQKj+lK8AaxbxUrAY7E2mR98Kf0oTb7tfOMnsdb3qZZztkU8SrTL2I2lYKMwDy8CZ7D5BmTlJtUu9GfWkJ61TvMTUtId26lErb3gSkgso89rKS/org0OTbUBBqTYe7IZ1C34ziFE3H8ocINJH22OGtHQM+EMpK/n7vUvsSA5CEdFMru7rLdIW64isQNAeyU8RDtN5ex3MfRcLG7zY1FG8bIPbKaqg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR05MB4776.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(366004)(39860400002)(396003)(136003)(346002)(71200400001)(186003)(8676002)(64756008)(6486002)(83380400001)(2906002)(4326008)(36756003)(478600001)(5660300002)(54906003)(66476007)(66446008)(66556008)(76116006)(2616005)(86362001)(8936002)(26005)(6506007)(66946007)(91956017)(316002)(6512007)(33656002)(53546011)(6916009)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?4sqZnnzj24TuL0UO0LC0fij6RPKwL93KrJlrsat9YMlHHl93r98KNeyKhSNE?=
+ =?us-ascii?Q?zpyTyK/LRTk2dzy8Je5PLrRNmWTPdbG/0EbtFP2MXfdKLnk5gpQiAUC5oQ6o?=
+ =?us-ascii?Q?GubFumNh3Oz3FHdfO76BrMIkWGv2pw54WO3Lng8X6vTvIo3Af1YsoyxM7yRG?=
+ =?us-ascii?Q?mP9BjkEs97/z0Bu6A5Wpvv+54LTDMrFddthG2wpVxDcMagi0uKnAAvjy/7fQ?=
+ =?us-ascii?Q?EgkOg6VViDa8/r0PbgQyKgBQDf6RhvkkXNxg1gyzWs8XYOfblFv3hWnqn9De?=
+ =?us-ascii?Q?mgjACfB9wgbJ0cKshxBXdXJ3aDsNbpKN/Qx9ISWbp41TjlI06VsNod+LxfN+?=
+ =?us-ascii?Q?TXydxOt6/WPnbFN3WpJ+oe21+v03bF6e13P5lP5aZ1oJ6XPqd0E7zcxdrikY?=
+ =?us-ascii?Q?ZCHty6DYKzrwXw2JMe6cfNmYhURjlmknyDjNQh78Gk+OuR45tUJ9A5M0YfEJ?=
+ =?us-ascii?Q?hvP7doMdgnFEWgenLMkS0qNjlh6Y5TRHiDoPvYTaHMPMURupW+He0790q3GS?=
+ =?us-ascii?Q?g5x9SdF36ZezaXlMfmZk4OoIhkIIftuUZHnTMIEbMy4NyBMbXAYMKK1Wp3nN?=
+ =?us-ascii?Q?OBRBqxQ3Vt91XMMkcVcPOQsJSZxj3x3Uecsmw4iCaHl5eOQyktRkCAZI9lKy?=
+ =?us-ascii?Q?0DN5EgNSrb5L9ahjMDHC7fw05SwTKcButVCgneDcZRWv5+YUSGMWtjoSbX0W?=
+ =?us-ascii?Q?uoi/7oA60J5v16ceEe6nk7UBtIufEQ6X3nAXORzrpj7gUSOAhj0URyUOxmru?=
+ =?us-ascii?Q?bXNyVb5KgWwMUn7dUmqFt/wButqtECffNnDMNv3K7iwVttvgr9EySOYzMcxn?=
+ =?us-ascii?Q?mJPx1UauzcKnn5S8knRXiGYLZD64uNwU6D5MSX94SchYFZ2VAnHqvBuhzotH?=
+ =?us-ascii?Q?Qi4GU3DOpZ/Ni5UlROeua2V7MEx8a/XfakMwKgZnG9t6bDBUommtmSAOzavh?=
+ =?us-ascii?Q?a2JVobnPanlZlfkbO/eCumyXk1FK/TtX2DKMlOoi/ZzVCoO0eavG1GCQC4pY?=
+ =?us-ascii?Q?ZdFiGQb3vQF/GYmHFcbDH5rFgVm9OuolVNx6RDjSNe5ihQAxE2L2ZGgQQR70?=
+ =?us-ascii?Q?jgWptAsz?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <B2D1CB1105001B46A1E81B855DA3DBAE@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210127120032.3611851-1-suzuki.poulose@arm.com>
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB4776.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb43a804-1e8a-4d2d-d9d4-08d8c2ec3999
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Jan 2021 17:51:50.6310
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 1kuaGzD3NoafsHGAbpUEGB+5PFCwgL3QuIXVwRkqh7EjRU6WiRUtajqI+a2KWGVGhsBiR3zyaYhqnU+oPjYHAQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB4406
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day,
+> On Jan 27, 2021, at 3:25 AM, Lu Baolu <baolu.lu@linux.intel.com> wrote:
+>=20
+> On 2021/1/27 14:17, Nadav Amit wrote:
+>> From: Nadav Amit <namit@vmware.com>
+>> When an Intel IOMMU is virtualized, and a physical device is
+>> passed-through to the VM, changes of the virtual IOMMU need to be
+>> propagated to the physical IOMMU. The hypervisor therefore needs to
+>> monitor PTE mappings in the IOMMU page-tables. Intel specifications
+>> provide "caching-mode" capability that a virtual IOMMU uses to report
+>> that the IOMMU is virtualized and a TLB flush is needed after mapping to
+>> allow the hypervisor to propagate virtual IOMMU mappings to the physical
+>> IOMMU. To the best of my knowledge no real physical IOMMU reports
+>> "caching-mode" as turned on.
+>> Synchronizing the virtual and the physical IOMMU tables is expensive if
+>> the hypervisor is unaware which PTEs have changed, as the hypervisor is
+>> required to walk all the virtualized tables and look for changes.
+>> Consequently, domain flushes are much more expensive than page-specific
+>> flushes on virtualized IOMMUs with passthrough devices. The kernel
+>> therefore exploited the "caching-mode" indication to avoid domain
+>> flushing and use page-specific flushing in virtualized environments. See
+>> commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+>> mode.")
+>> This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+>> of iova deferred flushing"). Now, when batched TLB flushing is used (the
+>> default), full TLB domain flushes are performed frequently, requiring
+>> the hypervisor to perform expensive synchronization between the virtual
+>> TLB and the physical one.
+>> Getting batched TLB flushes to use in such circumstances page-specific
+>> invalidations again is not easy, since the TLB invalidation scheme
+>> assumes that "full" domain TLB flushes are performed for scalability.
+>> Disable batched TLB flushes when caching-mode is on, as the performance
+>> benefit from using batched TLB invalidations is likely to be much
+>> smaller than the overhead of the virtual-to-physical IOMMU page-tables
+>> synchronization.
+>> Fixes: 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching mod=
+e.")
+>=20
+> Isn't it
+>=20
+> Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
+>=20
+> ?
 
-On Wed, Jan 27, 2021 at 12:00:32PM +0000, Suzuki K Poulose wrote:
-> TRCSTALLCTLR register is only implemented if
-> 
->    TRCIDR3.STALLCTL == 0b1
-> 
-> Make sure the driver touches the register only it is implemented.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Leo Yan <leo.yan@linaro.org>
-> Cc: Mike Leach <mike.leach@linaro.org>
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> ---
-> Changes since v1:
->   - No change to the patch, fixed the stable email address and
->     added usual reviewers.
-> ---
->  drivers/hwtracing/coresight/coresight-etm4x-core.c  | 9 ++++++---
->  drivers/hwtracing/coresight/coresight-etm4x-sysfs.c | 3 +++
->  2 files changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-> index b40e3c2bf818..814b49dae0c7 100644
-> --- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
-> +++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-> @@ -367,7 +367,8 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
->  	etm4x_relaxed_write32(csa, 0x0, TRCAUXCTLR);
->  	etm4x_relaxed_write32(csa, config->eventctrl0, TRCEVENTCTL0R);
->  	etm4x_relaxed_write32(csa, config->eventctrl1, TRCEVENTCTL1R);
-> -	etm4x_relaxed_write32(csa, config->stall_ctrl, TRCSTALLCTLR);
-> +	if (drvdata->stallctl)
-> +		etm4x_relaxed_write32(csa, config->stall_ctrl, TRCSTALLCTLR);
->  	etm4x_relaxed_write32(csa, config->ts_ctrl, TRCTSCTLR);
->  	etm4x_relaxed_write32(csa, config->syncfreq, TRCSYNCPR);
->  	etm4x_relaxed_write32(csa, config->ccctlr, TRCCCCTLR);
-> @@ -1545,7 +1546,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
->  	state->trcauxctlr = etm4x_read32(csa, TRCAUXCTLR);
->  	state->trceventctl0r = etm4x_read32(csa, TRCEVENTCTL0R);
->  	state->trceventctl1r = etm4x_read32(csa, TRCEVENTCTL1R);
-> -	state->trcstallctlr = etm4x_read32(csa, TRCSTALLCTLR);
-> +	if (drvdata->stallctl)
-> +		state->trcstallctlr = etm4x_read32(csa, TRCSTALLCTLR);
->  	state->trctsctlr = etm4x_read32(csa, TRCTSCTLR);
->  	state->trcsyncpr = etm4x_read32(csa, TRCSYNCPR);
->  	state->trcccctlr = etm4x_read32(csa, TRCCCCTLR);
-> @@ -1657,7 +1659,8 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
->  	etm4x_relaxed_write32(csa, state->trcauxctlr, TRCAUXCTLR);
->  	etm4x_relaxed_write32(csa, state->trceventctl0r, TRCEVENTCTL0R);
->  	etm4x_relaxed_write32(csa, state->trceventctl1r, TRCEVENTCTL1R);
-> -	etm4x_relaxed_write32(csa, state->trcstallctlr, TRCSTALLCTLR);
-> +	if (drvdata->stallctl)
-> +		etm4x_relaxed_write32(csa, state->trcstallctlr, TRCSTALLCTLR);
->  	etm4x_relaxed_write32(csa, state->trctsctlr, TRCTSCTLR);
->  	etm4x_relaxed_write32(csa, state->trcsyncpr, TRCSYNCPR);
->  	etm4x_relaxed_write32(csa, state->trcccctlr, TRCCCCTLR);
-> diff --git a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-> index 1c490bcef3ad..cd9249fbf913 100644
-> --- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-> +++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-> @@ -296,6 +296,9 @@ static ssize_t mode_store(struct device *dev,
->  	if (kstrtoul(buf, 16, &val))
->  		return -EINVAL;
->  
-> +	if ((val & ETM_MODE_ISTALL_EN) && !drvdata->stallctl)
-> +		return -EINVAL;
-> +
+Of course it is - bad copy-paste. I will send v3.
 
-We have two choices here:
-
-1) Follow what is already done in this function for implementation define
-options like ETM_MODE_BB, ETMv4_MODE_CTXID, ETM_MODE_RETURNSTACK and others.  In
-that case we would have:
-
-        /* bit[8], Instruction stall bit */
-        if ((config->mode & ETM_MODE_ISTALL_EN) && drvdata->stallctl == true))
-                config->stall_ctrl |= BIT(8);
-        else    
-                config->stall_ctrl &= ~BIT(8); 
-
-2) Return -EINVAL when something is not supported, like you have above.  In that
-case we'd have to enact the same behavior for all the options, which has the
-potential of breaking user space.
-
-I think option 1 is best.
-
-Thanks,
-Mathieu
-
->  	spin_lock(&drvdata->spinlock);
->  	config->mode = val & ETMv4_MODE_ALL;
->  
-> -- 
-> 2.24.1
-> 
+Thanks again,
+Nadav=
