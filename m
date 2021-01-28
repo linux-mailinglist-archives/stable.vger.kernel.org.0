@@ -2,126 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F373E307363
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 11:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB179307383
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 11:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231600AbhA1KGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 05:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42956 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbhA1KG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 05:06:29 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDAB1C061573;
-        Thu, 28 Jan 2021 02:05:45 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id m1so799721wml.2;
-        Thu, 28 Jan 2021 02:05:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=kBCcVC0SZ3UIXIu4hu72Rj9+3Dd8kHErgQA4UPujZrs=;
-        b=T3lzVsHMLs2U7sP8Oo0/0DWUlkbNttHUeNH6jsIrKyQmdNO+PVvkwe5VqwASF4WAQj
-         BSUjdTAkpdgY3aVbDhfx5UDCU3nC9qnqIfmodkGTpgy7CsdjFXoM5qGApOd0AOjKwn0T
-         vvsfWJeOBKEXLpL4gYer+Av0X2KElnbxDAeU2fssw562ql+9PM7LlgZhQlA48877mThU
-         Ebp90CmBfIF1h2DFN6XLjWBDSTq3Vb2WdnpDzzKit5fPTCbAxkJskXFFjs8YxHNp23nl
-         NqUgZ3jMm2Xy4VfG4P8IVfzT7dEEB1NSffOUoGrdmvgsGLVCpAEwVNbK7/uhR0J2CCSM
-         bebA==
+        id S231811AbhA1KQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 05:16:57 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57268 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231845AbhA1KQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 05:16:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611828916;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=264k/ES24/5FzBGHM2fYr7IzBwxBwCNGsVT8SMTVVPM=;
+        b=MutcVN+E+C1UaS1iKn3UPUTp1vmZeZy3F+SrUZzix2B+Fqsjn9gWgnYIbawWjLYDx20RI5
+        cCgTMsnmLwhILMJd5JFX52kL3zfTNia6N6tIxcXjKOYiwqQO/6AZGH4nQ0M8iclFlwVneJ
+        bprmvSA1nYVUtFTnXXTv4OCMLb2sg9c=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-257-pxiWP-loPUubrg_gV6yYIw-1; Thu, 28 Jan 2021 05:15:12 -0500
+X-MC-Unique: pxiWP-loPUubrg_gV6yYIw-1
+Received: by mail-ej1-f70.google.com with SMTP id h18so1967920ejx.17
+        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 02:15:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=kBCcVC0SZ3UIXIu4hu72Rj9+3Dd8kHErgQA4UPujZrs=;
-        b=WrUUNCmfWjOOLYM5uv9teENoV1hwBEnk0yKwJBTTdgiSya0XtfEtdJyGKY/iBHho6R
-         INni+4ZbNCVt7+g4DkGQN1Y/kl6m1p3zG8VYOULHGsEvUC3wwcUjlK9t6cjDX/P3RQJl
-         F73S9Et8YQTIB+ChMwCKi9U/iBpqax+RgQc6pM6JF09W2wK/tF4hJ5IagK7DrccAaTzl
-         4RXOa7el5pwHpdkx+dXIFNDo5QqcTXgQKzDVhg1d/LfqBhhwC+PGMpZZDoMgddgB3KcG
-         9PWrQNjE9TccZkIzC9e1J9wKULoEO2WzsrpDVdPJTS4SG4xu9zUPKkCE3KgrEoLRBD/g
-         aWSA==
-X-Gm-Message-State: AOAM530sG+iCyoiNNAoteNFRAvEHUn2JPoNl/waLvruwqrUVmJitQLP5
-        5u6bYfuv9YFC2bEoau6MaOfNKJfusww=
-X-Google-Smtp-Source: ABdhPJwrFGEC64XsGK1Z3Zcdt2iTuumJ900it1s3bmjvyCqRvyHy5YdHpgm95AxEG0qQRtJ+To0mSA==
-X-Received: by 2002:a7b:ca4d:: with SMTP id m13mr8258014wml.28.1611828344550;
-        Thu, 28 Jan 2021 02:05:44 -0800 (PST)
-Received: from [192.168.1.20] (5ec062a9.skybroadband.com. [94.192.98.169])
-        by smtp.googlemail.com with ESMTPSA id s4sm5406454wme.38.2021.01.28.02.05.43
+        bh=264k/ES24/5FzBGHM2fYr7IzBwxBwCNGsVT8SMTVVPM=;
+        b=cFMSBDaAmOk4UqFwaf53Qdm0ESiaQrWH0L/wbVoE4TobmgTG6loraa/+Rh0k2Lv0B3
+         9aWWjSdYMqlbi98+d6QctB+vx3w5LZyvkz3COQm9rt+Dim500N4MOrZp0FvBRhvhvMDl
+         V++j0BGPi5SPxCkZxUmRutzzpB4vMgQzGVTUVpmPEYkETqxsa7QwTQUoKgsJJLiMxjtp
+         mhAul2sPdCabWpuQhnShTSBoasWc6WIcCZ+zRxhScVplUwneb2XKHkJh8P6CHge15Z61
+         VfGEp0vZd/IY6KL05UG7IS0alVvTsMVAcsg3J5esoLWH0MLw8sJMsfTyqIH5zfP/KpEx
+         aYlA==
+X-Gm-Message-State: AOAM532s7EKh0fxh2dZl24FEQS6bDIrMw6FdLtYXshWrl2M48pJgwkPW
+        PXZn22af33OxutNPrqFx+h96tJs2KaK4rQYe3d7AHt1RhFNFo1WG2zlK5mOlKDf8+DFH1ScwrEC
+        PbLKqhk5406xn9hSM
+X-Received: by 2002:a05:6402:556:: with SMTP id i22mr12971191edx.56.1611828911311;
+        Thu, 28 Jan 2021 02:15:11 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy4SAH7IU0R5i26466TR/gOXJqVjt6mKq2oIXhXos1oK+4OFr5vXHw1ve0htUjPFzXJN36T8Q==
+X-Received: by 2002:a05:6402:556:: with SMTP id i22mr12971163edx.56.1611828911092;
+        Thu, 28 Jan 2021 02:15:11 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id f22sm2080999eje.34.2021.01.28.02.15.09
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 02:05:43 -0800 (PST)
-Subject: Re: linux-5.10.11 build failure
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-References: <f141f12d-a5b9-1e60-2740-388bf350b631@googlemail.com>
- <YBKFNUp5WYtdg9pE@kroah.com>
-From:   Chris Clayton <chris2553@googlemail.com>
-Message-ID: <fef32b91-89fe-64b8-fe57-d681db29f86e@googlemail.com>
-Date:   Thu, 28 Jan 2021 10:05:43 +0000
+        Thu, 28 Jan 2021 02:15:10 -0800 (PST)
+Subject: Re: [PATCH V2] Fix unsynchronized access to sev members through
+ svm_register_enc_region
+To:     Peter Gonda <pgonda@google.com>, kvm@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>, x86@kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210127161524.2832400-1-pgonda@google.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <bfb1205a-5442-536e-931c-206f4904e188@redhat.com>
+Date:   Thu, 28 Jan 2021 11:15:08 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-In-Reply-To: <YBKFNUp5WYtdg9pE@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
+In-Reply-To: <20210127161524.2832400-1-pgonda@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 28/01/2021 09:34, Greg Kroah-Hartman wrote:
-> On Thu, Jan 28, 2021 at 09:17:10AM +0000, Chris Clayton wrote:
->> Hi,
->>
->> Building 5.10.11 fails on my (x86-64) laptop thusly:
->>
->> ..
->>
->>  AS      arch/x86/entry/thunk_64.o
->>   CC      arch/x86/entry/vsyscall/vsyscall_64.o
->>   AS      arch/x86/realmode/rm/header.o
->>   CC      arch/x86/mm/pat/set_memory.o
->>   CC      arch/x86/events/amd/core.o
->>   CC      arch/x86/kernel/fpu/init.o
->>   CC      arch/x86/entry/vdso/vma.o
->>   CC      kernel/sched/core.o
->> arch/x86/entry/thunk_64.o: warning: objtool: missing symbol for insn at offset 0x3e
->>
->>   AS      arch/x86/realmode/rm/trampoline_64.o
->> make[2]: *** [scripts/Makefile.build:360: arch/x86/entry/thunk_64.o] Error 255
->> make[2]: *** Deleting file 'arch/x86/entry/thunk_64.o'
->> make[2]: *** Waiting for unfinished jobs....
->>
->> ..
->>
->> Compiler is latest snapshot of gcc-10.
->>
->> Happy to test the fix but please cc me as I'm not subscribed
+On 27/01/21 17:15, Peter Gonda wrote:
+> Grab kvm->lock before pinning memory when registering an encrypted
+> region; sev_pin_memory() relies on kvm->lock being held to ensure
+> correctness when checking and updating the number of pinned pages.
 > 
-> Can you do 'git bisect' to track down the offending commit?
+> Add a lockdep assertion to help prevent future regressions.
+> 
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Tom Lendacky <thomas.lendacky@amd.com>
+> Cc: Brijesh Singh <brijesh.singh@amd.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Cc: x86@kernel.org
+> Cc: kvm@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Fixes: 1e80fdc09d12 ("KVM: SVM: Pin guest memory when SEV is active")
+> Signed-off-by: Peter Gonda <pgonda@google.com>
+> 
+> V2
+>   - Fix up patch description
+>   - Correct file paths svm.c -> sev.c
+>   - Add unlock of kvm->lock on sev_pin_memory error
+> 
+> V1
+>   - https://lore.kernel.org/kvm/20210126185431.1824530-1-pgonda@google.com/
+> 
+> ---
+>   arch/x86/kvm/svm/sev.c | 17 ++++++++++-------
+>   1 file changed, 10 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+> index c8ffdbc81709..b80e9bf0a31b 100644
+> --- a/arch/x86/kvm/svm/sev.c
+> +++ b/arch/x86/kvm/svm/sev.c
+> @@ -342,6 +342,8 @@ static struct page **sev_pin_memory(struct kvm *kvm, unsigned long uaddr,
+>   	unsigned long first, last;
+>   	int ret;
+>   
+> +	lockdep_assert_held(&kvm->lock);
+> +
+>   	if (ulen == 0 || uaddr + ulen < uaddr)
+>   		return ERR_PTR(-EINVAL);
+>   
+> @@ -1119,12 +1121,20 @@ int svm_register_enc_region(struct kvm *kvm,
+>   	if (!region)
+>   		return -ENOMEM;
+>   
+> +	mutex_lock(&kvm->lock);
+>   	region->pages = sev_pin_memory(kvm, range->addr, range->size, &region->npages, 1);
+>   	if (IS_ERR(region->pages)) {
+>   		ret = PTR_ERR(region->pages);
+> +		mutex_unlock(&kvm->lock);
+>   		goto e_free;
+>   	}
+>   
+> +	region->uaddr = range->addr;
+> +	region->size = range->size;
+> +
+> +	list_add_tail(&region->list, &sev->regions_list);
+> +	mutex_unlock(&kvm->lock);
+> +
+>   	/*
+>   	 * The guest may change the memory encryption attribute from C=0 -> C=1
+>   	 * or vice versa for this memory range. Lets make sure caches are
+> @@ -1133,13 +1143,6 @@ int svm_register_enc_region(struct kvm *kvm,
+>   	 */
+>   	sev_clflush_pages(region->pages, region->npages);
+>   
+> -	region->uaddr = range->addr;
+> -	region->size = range->size;
+> -
+> -	mutex_lock(&kvm->lock);
+> -	list_add_tail(&region->list, &sev->regions_list);
+> -	mutex_unlock(&kvm->lock);
+> -
+>   	return ret;
+>   
+>   e_free:
 > 
 
-Sure, but I'll hold that request for a while. I updated to binutils-2.36 on Monday and I'm pretty sure that is a feature
-of this build fail. I've reverted binutils to 2.35.1, and the build succeeds. Updated to 2.36 again and, surprise,
-surprise, the kernel build fails again.
+Queued, thanks.
 
-I've had a glance at the binutils ML and there are all sorts of issues being reported, but it's beyond my knowledge to
-assess if this build error is related to any of them.
+Paolo
 
-I'll stick with binutils-2.35.1 for the time being.
-
-> And what exact gcc version are you using?
->
-
- It's built from the 10-20210123 snapshot tarball.
-
-I can report this to the binutils folks, but might it be better if the objtool maintainer looks at it first? The
-binutils change might just have opened the gate to a bug in objtool.
-
-> thanks,
-> 
-> greg k-h
-> 
-
-Thanks.
-
-Chris
