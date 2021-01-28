@@ -2,89 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0943F307BC9
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 18:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D48E307BDD
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 18:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232743AbhA1RHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 12:07:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48646 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232792AbhA1RH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 12:07:26 -0500
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD386C061573
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 09:06:45 -0800 (PST)
-Received: by mail-lj1-x235.google.com with SMTP id l12so7219982ljc.3
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 09:06:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LkrJm7U7mDdQ4OKQvfjV3ukz3WJDfPA15wLuPItmbOE=;
-        b=Ym/mHfhFk+OmPYHXLRGVpn540PUV51S08Uw5GDWkwaHamneo2AvmwwHRxCFuEMnahu
-         mTllj1MFqapNyaFROIlS1K+xBDTzW74tQ/gCydcXXFZ3XMAtfO30doqm/t2CPRAU58lC
-         CrRCRJZtp90i6NbsaVc5C3Cmo92Q4hPjhfro8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LkrJm7U7mDdQ4OKQvfjV3ukz3WJDfPA15wLuPItmbOE=;
-        b=psZ1sQR3bZE9zhzQmiLs84Q1OZgnzZm7bHfy0Cte6nN6n4YDsrNYEpaUrX7Ezno3f4
-         Zo7rpGvrsAKWZrKcUERHvmhIIdnS3p+KUBKz3u0nFY/E4kN3zSEbDP7byEYjnJuV0XXb
-         Njkk+ox/+lwdifPiHijfJJMHpPZFhbjtLvlnwxyz84gzUQOXSBvBNDGmN8IivfzHNcif
-         MafqI8x8n7WM8iHzjUqEfIy5Ig8tDxs6vNNP17EH1WjkNGejaFjKiupD0iSBmV/EamRD
-         1KmO4uS6Q1ZaKZsTrHWFoU7A6AjtPvms+sedPFqBHMzFeNrnqAu/mO//aRMDV3fzioT9
-         9Ygg==
-X-Gm-Message-State: AOAM531JZmYGeM/79OQTbia8Q3V64mF9khmUempkKpBTxE+3K0MiAYEU
-        w53VZhWd80z6I0G2anXlB5h3dFTXqyg0bg==
-X-Google-Smtp-Source: ABdhPJyIkomS0ysSsoGzhbPtdupaugR95O4uDVG0BlcVQaAJG3o0EgD89CFom+t3E1pFDXfQqkStOQ==
-X-Received: by 2002:a2e:9548:: with SMTP id t8mr140696ljh.284.1611853604104;
-        Thu, 28 Jan 2021 09:06:44 -0800 (PST)
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com. [209.85.167.54])
-        by smtp.gmail.com with ESMTPSA id j5sm1740390lfu.139.2021.01.28.09.06.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 09:06:42 -0800 (PST)
-Received: by mail-lf1-f54.google.com with SMTP id e2so4920211lfj.13
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 09:06:42 -0800 (PST)
-X-Received: by 2002:a19:8458:: with SMTP id g85mr9204lfd.487.1611853602335;
- Thu, 28 Jan 2021 09:06:42 -0800 (PST)
+        id S232798AbhA1RLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 12:11:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24128 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232785AbhA1RJc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 12:09:32 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1611853686;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=56oQ7o7FTqNZj3MPWTOvHCfMyHXwWD8QK/wEL2B1WRw=;
+        b=MmjlWuw+xjdVtnfad9N6+tdGllMpQbB3Am+Opq+3hRLIh0wnZgX6Kub8P0IvnlCf1wjKXh
+        /+LKQMBx89EzmtIxZV3K48BnGoWnyeAB+PXWqhMXZLrlWeQYVoSKWi6c+l0TyolOXRftNd
+        STiYIz24b95K3nTNhEIni2ZU28PXlZ0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-25-6MfMRXZwO1GQNqcfnJwJPQ-1; Thu, 28 Jan 2021 12:08:02 -0500
+X-MC-Unique: 6MfMRXZwO1GQNqcfnJwJPQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 536FC84A5E7;
+        Thu, 28 Jan 2021 17:08:01 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E9CA75D9EF;
+        Thu, 28 Jan 2021 17:08:00 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     jmattson@google.com, stable@vger.kernel.org
+Subject: [PATCH] KVM: x86: Allow guests to see MSR_IA32_TSX_CTRL even if tsx=off
+Date:   Thu, 28 Jan 2021 12:08:00 -0500
+Message-Id: <20210128170800.1783502-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-References: <20200616153100.633279950@linuxfoundation.org> <20200616153106.532769297@linuxfoundation.org>
-In-Reply-To: <20200616153106.532769297@linuxfoundation.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 28 Jan 2021 09:06:25 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whCd3aED5YOagwmt3-1+tbc796kgSrqF_PZAZ4_=d1ygg@mail.gmail.com>
-Message-ID: <CAHk-=whCd3aED5YOagwmt3-1+tbc796kgSrqF_PZAZ4_=d1ygg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 120/134] mm/slub: fix a memory leak in sysfs_slab_add()
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Note: this patch is getting reverted upstream, because it causes a
-double free (admittedly under very rare circumstances, but still).
+Userspace that does not know about KVM_GET_MSR_FEATURE_INDEX_LIST will
+generally use the default value for MSR_IA32_ARCH_CAPABILITIES.
+When this happens and the host has tsx=on, it is possible to end up
+with virtual machines that have HLE and RTM disabled, but TSX_CTRL
+disabled.
 
-I'll mark the revert for stable, since it seems to have made it into
-basically all stable kernels.
+If the fleet is then switched to tsx=off, kvm_get_arch_capabilities()
+will clear the ARCH_CAP_TSX_CTRL_MSR bit and it will not be possible
+to use the tsx=off as migration destinations, even though the guests
+indeed do not have TSX enabled.
 
-The revert commit is 757fed1d0898 Revert "mm/slub: fix a memory leak
-in sysfs_slab_add()".
+When tsx=off is used, however, we know that guests will not have
+HLE and RTM (or if userspace sets bogus CPUID data, we do not
+expect HLE and RTM to work in guests).  Therefore we can keep
+TSX_CTRL_RTM_DISABLE set for the entire life of the guests and
+save MSR reads and writes on KVM_RUN and in the user return
+notifiers.
 
-            Linus
+Cc: stable@vger.kernel.org
+Fixes: cbbaa2727aa3 ("KVM: x86: fix presentation of TSX feature in ARCH_CAPABILITIES")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/vmx/vmx.c | 12 +++++++++++-
+ arch/x86/kvm/x86.c     |  2 +-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-On Tue, Jun 16, 2020 at 8:41 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Wang Hai <wanghai38@huawei.com>
->
-> commit dde3c6b72a16c2db826f54b2d49bdea26c3534a2 upstream.
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index cc60b1fc3ee7..80491a729408 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6863,8 +6863,18 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
+ 			 * No need to pass TSX_CTRL_CPUID_CLEAR through, so
+ 			 * let's avoid changing CPUID bits under the host
+ 			 * kernel's feet.
++			 *
++			 * If the host disabled RTM, we may still need TSX_CTRL
++			 * to be supported in the guest; for example the guest
++			 * could have been created on a tsx=on host with hle=0,
++			 * rtm=0, tsx_ctrl=1 and later migrate to a tsx=off host.
++			 * In that case however do not change the value on the host,
++			 * so that TSX remains always disabled.
+ 			 */
+-			vmx->guest_uret_msrs[j].mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
++			if (boot_cpu_has(X86_FEATURE_RTM))
++				vmx->guest_uret_msrs[j].mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
++			else
++				vmx->guest_uret_msrs[j].mask = 0;
+ 			break;
+ 		default:
+ 			vmx->guest_uret_msrs[j].mask = -1ull;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 76bce832cade..15733013b266 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1401,7 +1401,7 @@ static u64 kvm_get_arch_capabilities(void)
+ 	 *	  This lets the guest use VERW to clear CPU buffers.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_RTM))
+-		data &= ~(ARCH_CAP_TAA_NO | ARCH_CAP_TSX_CTRL_MSR);
++		data &= ~ARCH_CAP_TAA_NO;
+ 	else if (!boot_cpu_has_bug(X86_BUG_TAA))
+ 		data |= ARCH_CAP_TAA_NO;
+ 
+-- 
+2.26.2
+
