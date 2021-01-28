@@ -2,106 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1910030682F
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 00:43:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4C4306869
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 01:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbhA0XnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 18:43:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50276 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232863AbhA0Xkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 18:40:42 -0500
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632EAC061788
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 15:39:51 -0800 (PST)
-Received: by mail-pf1-x433.google.com with SMTP id q131so2489460pfq.10
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 15:39:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=anholt-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=v21tqpgjolQTw9HY0r2tj0ANjKrErbpBBTjA+9enZnA=;
-        b=GSJN/wW2FLosUcOoaOOPX6pRLCpf1WGgRyuzL23NjZyHaXz1F2Lms6J8Txs907+HRd
-         ynRTinENDoHcgXcOV50q/G28w0/F/Pm/FMe/SsNGhGlPjl7Pz4pCk4WCWDXg0MWkz27N
-         gjBUw1AMQor+yWquWtv/ypkvU0lnRuy04CHOd+b29xOeK6yYPRmN98jhNct98ycmZ2pO
-         ouAzM80cCw/ZmLvlzsA/nU2rHNMLj+qvnb9kPjgzd1e4JNFWpQvQyklStfCloaenmWlT
-         +jR9qDLrcS4TpM7d1pY7xqU6H5+ifF8wDonv8yaIDesaEg0o8/svdnfHKkNLFvSA0FZK
-         UkYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=v21tqpgjolQTw9HY0r2tj0ANjKrErbpBBTjA+9enZnA=;
-        b=Vi6oYuNB3l4wD+PHNrGdR/1eaju2u5VRsd6vMwmd2GDfV5GBffGkfGh1JGdGxPIetN
-         sN75H8/+3kQLpRcbHNFKOWa1nNDm34FMSpL2diSgg2+Mj2h366DoT3qkCiRh+zfXBZIy
-         4KV6oCyLf8jIEMMZQbSklM0McimGQXwSqoy3Vbz+4s7BigSTqRCUdePQltnu91hL+zsI
-         QEBmlNdiGCywagiZ9/liqZW2LltXoLzdl2gOvFjP9eYs9wOQXAM6UuBllXlU3015hpsz
-         XielRvKI6h9qjK3SDDE7NQFkCmDrO/bzJiA/2dfobDbEanD06eah5lJGIzCsBR+KF3Bq
-         SVDg==
-X-Gm-Message-State: AOAM533GgKD3o3zaAtzciYf3y6deHLTYw/4A0P77SIHb+MckBWuYjYsP
-        EDQ8A3Vm2kqP39b17Q5GNpfTUw==
-X-Google-Smtp-Source: ABdhPJzmIapKXviXijCoY/g+Uxn8nZp1kHCOJ+D3IrJvEwM1XcEejiCexzx+2M4N95x4UBfEan29fA==
-X-Received: by 2002:a63:2cc5:: with SMTP id s188mr13948806pgs.233.1611790791019;
-        Wed, 27 Jan 2021 15:39:51 -0800 (PST)
-Received: from wildbow.anholt.net ([75.164.105.146])
-        by smtp.gmail.com with ESMTPSA id q2sm3282382pfj.32.2021.01.27.15.39.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 15:39:50 -0800 (PST)
-From:   Eric Anholt <eric@anholt.net>
-To:     dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>,
-        Jordan Crouse <jcrouse@codeaurora.org>
-Cc:     linux-kernel@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/3] drm/msm: Fix races managing the OOB state for timestamp vs timestamps.
-Date:   Wed, 27 Jan 2021 15:39:45 -0800
-Message-Id: <20210127233946.1286386-2-eric@anholt.net>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210127233946.1286386-1-eric@anholt.net>
-References: <20210127233946.1286386-1-eric@anholt.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S231645AbhA1ALW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 19:11:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229835AbhA1AKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 19:10:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF05164DD1;
+        Thu, 28 Jan 2021 00:09:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1611792568;
+        bh=meprjUpGiIVBheb707rmwX6RwWZvg57o5VvC2n4HDsk=;
+        h=Date:From:To:Subject:From;
+        b=pAHMDIQWJs4RMHGI0v3zCbPf0bTPThIpu7LAdSKfcRTiznKEcNldhW7/sOzbohdzF
+         DFqOKsbZDPuRtOpTnDKTtoHhQHQBEEjr9QgFQ+HOSsdH8BOyuh4aA5Bxj3Xt01GskV
+         7DlZQUnUvBfF1t9PDUJ4mm6vlWzdn76yHeBrK0rk=
+Date:   Wed, 27 Jan 2021 16:09:27 -0800
+From:   akpm@linux-foundation.org
+To:     hannes@cmpxchg.org, linmiaohe@huawei.com, louhongxiang@huawei.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        shakeelb@google.com, stable@vger.kernel.org, vbabka@suse.cz,
+        walken@google.com
+Subject:  +
+ mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte.patch added to -mm
+ tree
+Message-ID: <20210128000927.MhVdMWp-o%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now that we're not racing with GPU setup, also fix races of timestamps
-against other timestamps.  In CI, we were seeing this path trigger
-timeouts on setting the GMU bit, especially on the first set of tests
-right after boot (it's probably easier to lose the race than one might
-think, given that we start many tests in parallel, and waiting for NFS
-to page in code probably means that lots of tests hit the same point
-of screen init at the same time).
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Cc: stable@vger.kernel.org # v5.9
+The patch titled
+     Subject: mm/rmap: fix potential pte_unmap on an not mapped pte
+has been added to the -mm tree.  Its filename is
+     mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Miaohe Lin <linmiaohe@huawei.com>
+Subject: mm/rmap: fix potential pte_unmap on an not mapped pte
+
+For PMD-mapped page (usually THP), pvmw->pte is NULL.  For PTE-mapped THP,
+pvmw->pte is mapped.  But for HugeTLB pages, pvmw->pte is not mapped and
+set to the relevant page table entry.  So in page_vma_mapped_walk_done(),
+we may do pte_unmap() for HugeTLB pte which is not mapped.  Fix this by
+checking pvmw->page against PageHuge before trying to do pte_unmap().
+
+Link: https://lkml.kernel.org/r/20210127093349.39081-1-linmiaohe@huawei.com
+Fixes: ace71a19cec5 ("mm: introduce page_vma_mapped_walk()")
+Signed-off-by: Hongxiang Lou <louhongxiang@huawei.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 7424a70b9d35..e8f0b5325a7f 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1175,6 +1175,9 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+ include/linux/rmap.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/include/linux/rmap.h~mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte
++++ a/include/linux/rmap.h
+@@ -213,7 +213,8 @@ struct page_vma_mapped_walk {
+ 
+ static inline void page_vma_mapped_walk_done(struct page_vma_mapped_walk *pvmw)
  {
- 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
- 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
-+	static DEFINE_MUTEX(perfcounter_oob);
-+
-+	mutex_lock(&perfcounter_oob);
- 
- 	/* Force the GPU power on so we can read this register */
- 	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
-@@ -1183,6 +1186,7 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
- 		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
- 
- 	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
-+	mutex_unlock(&perfcounter_oob);
- 	return 0;
- }
- 
--- 
-2.30.0
+-	if (pvmw->pte)
++	/* HugeTLB pte is set to the relevant page table entry without pte_mapped. */
++	if (pvmw->pte && !PageHuge(pvmw->page))
+ 		pte_unmap(pvmw->pte);
+ 	if (pvmw->ptl)
+ 		spin_unlock(pvmw->ptl);
+_
+
+Patches currently in -mm which might be from linmiaohe@huawei.com are
+
+mm-rmap-fix-potential-pte_unmap-on-an-not-mapped-pte.patch
+mm-page_owner-use-helper-function-zone_end_pfn-to-get-end_pfn.patch
+mm-fix-potential-pte_unmap_unlock-pte-error.patch
+mm-hugetlb-fix-potential-double-free-in-hugetlb_register_node-error-path.patch
+mm-hugetlb-avoid-unnecessary-hugetlb_acct_memory-call.patch
+mm-hugetlb-use-helper-huge_page_order-and-pages_per_huge_page.patch
+mm-hugetlb-fix-use-after-free-when-subpool-max_hpages-accounting-is-not-enabled.patch
+mm-workingsetc-avoid-unnecessary-max_nodes-estimation-in-count_shadow_nodes.patch
+z3fold-remove-unused-attribute-for-release_z3fold_page.patch
+z3fold-simplify-the-zhdr-initialization-code-in-init_z3fold_page.patch
+mm-compaction-remove-duplicated-vm_bug_on_page-pagelocked.patch
+hugetlbfs-remove-useless-bug_oninode-in-hugetlbfs_setattr.patch
+hugetlbfs-use-helper-macro-default_hstate-in-init_hugetlbfs_fs.patch
+hugetlbfs-correct-obsolete-function-name-in-hugetlbfs_read_iter.patch
+hugetlbfs-remove-meaningless-variable-avoid_reserve.patch
+hugetlbfs-make-hugepage-size-conversion-more-readable.patch
+hugetlbfs-correct-some-obsolete-comments-about-inode-i_mutex.patch
+mm-memory_hotplug-use-helper-function-zone_end_pfn-to-get-end_pfn.patch
+mm-rmap-correct-some-obsolete-comments-of-anon_vma.patch
+mm-zsmallocc-convert-to-use-kmem_cache_zalloc-in-cache_alloc_zspage.patch
 
