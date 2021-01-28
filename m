@@ -2,71 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 720F33072E9
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 10:40:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E177530733D
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 10:57:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbhA1Jj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 04:39:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54140 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231561AbhA1Jfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Jan 2021 04:35:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12FF060C3D;
-        Thu, 28 Jan 2021 09:34:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611826491;
-        bh=uBf9wG5WIjmuGoa3jRdeISfU7YHOD2GcgT3b1zVeQ50=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X8YX0t3qIynspfZT5taR4Z0XXri1Ma7P/1pKLfXWf+viaYnLBaZraWso1YbKomBs7
-         g8Upb0P2G+ppndL12j6/E9gDd/7cwEfgtR+phyuk8CqfWqPhokeGv/DO9Cia2m+F/Z
-         YQBUNpCSl2gb90Xz9dwR7MaqPu4JGyzA8IKhqC2g=
-Date:   Thu, 28 Jan 2021 10:34:45 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Clayton <chris2553@googlemail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Subject: Re: linux-5.10.11 build failure
-Message-ID: <YBKFNUp5WYtdg9pE@kroah.com>
-References: <f141f12d-a5b9-1e60-2740-388bf350b631@googlemail.com>
+        id S229578AbhA1Jzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 04:55:39 -0500
+Received: from mo-csw1115.securemx.jp ([210.130.202.157]:37354 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231615AbhA1Jzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 04:55:38 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1115) id 10S9rS5I032263; Thu, 28 Jan 2021 18:53:28 +0900
+X-Iguazu-Qid: 2wGqsXjpvoEvKgCo9E
+X-Iguazu-QSIG: v=2; s=0; t=1611827608; q=2wGqsXjpvoEvKgCo9E; m=f7a5aESQgubMc8bv/IWoGFIVN8dF107aVQudu/NKBXM=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1112) id 10S9rROe017073;
+        Thu, 28 Jan 2021 18:53:27 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id 10S9rQTo012643;
+        Thu, 28 Jan 2021 18:53:26 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 10S9rQK1000662;
+        Thu, 28 Jan 2021 18:53:26 +0900
+Date:   Thu, 28 Jan 2021 18:53:25 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        Pawel Wieczorkiewicz <wipawel@amazon.de>,
+        Olivier Benjamin <oliben@amazon.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH/RFC] xen-blkback: set ring->xenblkd to NULL after
+ kthread_stop()
+X-TSB-HOP: ON
+Message-ID: <20210128095325.os57fkrwmyzt4t5o@toshiba.co.jp>
+References: <20210128090506.3174402-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f141f12d-a5b9-1e60-2740-388bf350b631@googlemail.com>
+In-Reply-To: <20210128090506.3174402-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 09:17:10AM +0000, Chris Clayton wrote:
-> Hi,
-> 
-> Building 5.10.11 fails on my (x86-64) laptop thusly:
-> 
-> ..
-> 
->  AS      arch/x86/entry/thunk_64.o
->   CC      arch/x86/entry/vsyscall/vsyscall_64.o
->   AS      arch/x86/realmode/rm/header.o
->   CC      arch/x86/mm/pat/set_memory.o
->   CC      arch/x86/events/amd/core.o
->   CC      arch/x86/kernel/fpu/init.o
->   CC      arch/x86/entry/vdso/vma.o
->   CC      kernel/sched/core.o
-> arch/x86/entry/thunk_64.o: warning: objtool: missing symbol for insn at offset 0x3e
-> 
->   AS      arch/x86/realmode/rm/trampoline_64.o
-> make[2]: *** [scripts/Makefile.build:360: arch/x86/entry/thunk_64.o] Error 255
-> make[2]: *** Deleting file 'arch/x86/entry/thunk_64.o'
-> make[2]: *** Waiting for unfinished jobs....
-> 
-> ..
-> 
-> Compiler is latest snapshot of gcc-10.
-> 
-> Happy to test the fix but please cc me as I'm not subscribed
+Hi,
 
-Can you do 'git bisect' to track down the offending commit?
+I forgot to write the kernel version.
+This is a patch for 4.4.y.
 
-And what exact gcc version are you using?
+Best regards,
+  Nobuhiro
 
-thanks,
-
-greg k-h
+On Thu, Jan 28, 2021 at 06:05:06PM +0900, Nobuhiro Iwamatsu wrote:
+> From: Pawel Wieczorkiewicz <wipawel@amazon.de>
+> 
+> commit 1c728719a4da6e654afb9cc047164755072ed7c9 upstream.
+> 
+> When xen_blkif_disconnect() is called, the kernel thread behind the
+> block interface is stopped by calling kthread_stop(ring->xenblkd).
+> The ring->xenblkd thread pointer being non-NULL determines if the
+> thread has been already stopped.
+> Normally, the thread's function xen_blkif_schedule() sets the
+> ring->xenblkd to NULL, when the thread's main loop ends.
+> 
+> However, when the thread has not been started yet (i.e.
+> wake_up_process() has not been called on it), the xen_blkif_schedule()
+> function would not be called yet.
+> 
+> In such case the kthread_stop() call returns -EINTR and the
+> ring->xenblkd remains dangling.
+> When this happens, any consecutive call to xen_blkif_disconnect (for
+> example in frontend_changed() callback) leads to a kernel crash in
+> kthread_stop() (e.g. NULL pointer dereference in exit_creds()).
+> 
+> This is XSA-350.
+> 
+> Cc: <stable@vger.kernel.org> # 4.12
+> Fixes: a24fa22ce22a ("xen/blkback: don't use xen_blkif_get() in xen-blkback kthread")
+> Reported-by: Olivier Benjamin <oliben@amazon.com>
+> Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+> Signed-off-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+> Reviewed-by: Julien Grall <jgrall@amazon.com>
+> Reviewed-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> [iwamatsu: change from ring to blkif]
+> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+> ---
+>  drivers/block/xen-blkback/xenbus.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+> index 823f3480ebd19e..f974ed7c33b5df 100644
+> --- a/drivers/block/xen-blkback/xenbus.c
+> +++ b/drivers/block/xen-blkback/xenbus.c
+> @@ -219,6 +219,7 @@ static int xen_blkif_disconnect(struct xen_blkif *blkif)
+>  
+>  	if (blkif->xenblkd) {
+>  		kthread_stop(blkif->xenblkd);
+> +		blkif->xenblkd = NULL;
+>  		wake_up(&blkif->shutdown_wq);
+>  	}
+>  
+> -- 
+> 2.30.0
+> 
+> 
