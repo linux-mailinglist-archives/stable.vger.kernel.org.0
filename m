@@ -2,92 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEE8306A74
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 02:36:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE94E306AC2
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 02:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231259AbhA1BfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jan 2021 20:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46384 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbhA1Bez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jan 2021 20:34:55 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D14EC061573
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 17:33:59 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id o20so2950542pfu.0
-        for <stable@vger.kernel.org>; Wed, 27 Jan 2021 17:33:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:content-transfer-encoding:in-reply-to:references
-         :subject:from:cc:to:date:message-id:user-agent;
-        bh=csr+vubEtxZXL8yZ0qw0LhP81IqAfO9jQ1ONZwxJeAw=;
-        b=kxykKAiVQ76RxKm+5xK0wGATcsMAaZODjbMyP5IvjmsOTcs6Qy6u63ewC5O1whqxZV
-         aUIG0M30udM7TeDnuzIYYj0byAwzGjaBiUcHwTlKcqPhNoP90I2osjFPFHggbagQG8cQ
-         cXtID4WOooFP4u2IGsbiwaEUW2EQNOSXjlTfM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:content-transfer-encoding
-         :in-reply-to:references:subject:from:cc:to:date:message-id
-         :user-agent;
-        bh=csr+vubEtxZXL8yZ0qw0LhP81IqAfO9jQ1ONZwxJeAw=;
-        b=J9syVYjPt29purVGPtjbnUAATsmunS78Ghn/AqYRrnXsm12pXtd5VQUqPTQdAxR4Bt
-         hlbP7kur8MXSz3+Zo/Mevi2PX7V/12MX6jx1w9BNgLl8yUUGf+6J7LP9nEa6R9GTeEsA
-         RrLOouwXh229KUuT7agDZ506n5FNltVG8GqaG4bGdNprMuxGxLfyKQ5mPk7lLapJslu8
-         RN3VspSLeuXrTEg91EMLgOsrmDqvnDJnBHvg/P6pNusjdMfbA0zU580mpyq5cJCbHWeY
-         nu+hJM6kaPTRE50vkE+EOmSQZGcLZnw/pRx7bT79p+ySrBCb0P/KUKa6mrotceTGug90
-         pmCQ==
-X-Gm-Message-State: AOAM533+EMFez0LAx8I83Adsd1BTrVC157GEyUF+F3ACgXoTuXEhQ3QA
-        ZIFjnGGk7owyS4LD7hEDVWJu/g==
-X-Google-Smtp-Source: ABdhPJy8yjNZJLeagHf8FZWyZhguvfYXVGj36VnR+uX+d1l8/ax2fWk04OBCFHHy0aTN+3BSmKpVew==
-X-Received: by 2002:a05:6a00:86:b029:1c1:99a1:fe2b with SMTP id c6-20020a056a000086b02901c199a1fe2bmr13885025pfj.29.1611797639088;
-        Wed, 27 Jan 2021 17:33:59 -0800 (PST)
-Received: from chromium.org ([2620:15c:202:201:304c:5453:303a:8268])
-        by smtp.gmail.com with ESMTPSA id r5sm3487125pfl.165.2021.01.27.17.33.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jan 2021 17:33:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20210126150241.10009-1-saiprakash.ranjan@codeaurora.org>
-References: <20210126150241.10009-1-saiprakash.ranjan@codeaurora.org>
-Subject: Re: [PATCH] watchdog: qcom: Remove incorrect usage of QCOM_WDT_ENABLE_IRQ
-From:   Stephen Boyd <swboyd@chromium.org>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        id S229597AbhA1Bxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jan 2021 20:53:34 -0500
+Received: from mga01.intel.com ([192.55.52.88]:14814 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229494AbhA1Bx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Jan 2021 20:53:28 -0500
+IronPort-SDR: fFMBxtAptYDbJFoL3+ZlwH0WiIKX8ylb7DUG5qkhd7PnHLhxRFA3a22x16rotR/BOn5rNnkc0f
+ PcvODrzgKSHw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9877"; a="198991706"
+X-IronPort-AV: E=Sophos;i="5.79,381,1602572400"; 
+   d="scan'208";a="198991706"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2021 17:51:41 -0800
+IronPort-SDR: rnpuTqtNP5HTpd56nN+iQtZfrfdhwWMnRLL81Xvssp8Mo7L9PCghuihYGjHq/9M98Z90fxl9z7
+ Ag00aOHWkVmw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,381,1602572400"; 
+   d="scan'208";a="403302867"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
+  by fmsmga004.fm.intel.com with ESMTP; 27 Jan 2021 17:51:39 -0800
+Cc:     baolu.lu@linux.intel.com, linux-kernel@vger.kernel.org,
+        Nadav Amit <namit@vmware.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         stable@vger.kernel.org
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        jorge@foundries.io, linux-watchdog@vger.kernel.org
-Date:   Wed, 27 Jan 2021 17:33:56 -0800
-Message-ID: <161179763694.76967.7406861246436700530@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.9.1
+Subject: Re: [PATCH v3] iommu/vt-d: do not use flush-queue when caching-mode
+ is on
+To:     Nadav Amit <nadav.amit@gmail.com>, iommu@lists.linux-foundation.org
+References: <20210127175317.1600473-1-namit@vmware.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <31808b1a-c5ce-b262-3022-ec6f31700728@linux.intel.com>
+Date:   Thu, 28 Jan 2021 09:43:21 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20210127175317.1600473-1-namit@vmware.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Sai Prakash Ranjan (2021-01-26 07:02:41)
-> As per register documentation, QCOM_WDT_ENABLE_IRQ which is BIT(1)
-> of watchdog control register is wakeup interrupt enable bit and
-> not related to bark interrupt at all, BIT(0) is used for that.
-> So remove incorrect usage of this bit when supporting bark irq for
-> pre-timeout notification. Currently with this bit set and bark
-> interrupt specified, pre-timeout notification and/or watchdog
-> reset/bite does not occur.
-
-It looks like the QCOM_WDT_ENABLE_IRQ bit is to catch a problem where a
-pending irq is unmasked but the watchdog irq isn't handled in time? So
-some sort of irq storm?
-
->=20
-> Fixes: 36375491a439 ("watchdog: qcom: support pre-timeout when the bark i=
-rq is available")
+On 1/28/21 1:53 AM, Nadav Amit wrote:
+> From: Nadav Amit <namit@vmware.com>
+> 
+> When an Intel IOMMU is virtualized, and a physical device is
+> passed-through to the VM, changes of the virtual IOMMU need to be
+> propagated to the physical IOMMU. The hypervisor therefore needs to
+> monitor PTE mappings in the IOMMU page-tables. Intel specifications
+> provide "caching-mode" capability that a virtual IOMMU uses to report
+> that the IOMMU is virtualized and a TLB flush is needed after mapping to
+> allow the hypervisor to propagate virtual IOMMU mappings to the physical
+> IOMMU. To the best of my knowledge no real physical IOMMU reports
+> "caching-mode" as turned on.
+> 
+> Synchronizing the virtual and the physical IOMMU tables is expensive if
+> the hypervisor is unaware which PTEs have changed, as the hypervisor is
+> required to walk all the virtualized tables and look for changes.
+> Consequently, domain flushes are much more expensive than page-specific
+> flushes on virtualized IOMMUs with passthrough devices. The kernel
+> therefore exploited the "caching-mode" indication to avoid domain
+> flushing and use page-specific flushing in virtualized environments. See
+> commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+> mode.")
+> 
+> This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+> of iova deferred flushing"). Now, when batched TLB flushing is used (the
+> default), full TLB domain flushes are performed frequently, requiring
+> the hypervisor to perform expensive synchronization between the virtual
+> TLB and the physical one.
+> 
+> Getting batched TLB flushes to use page-specific invalidations again in
+> such circumstances is not easy, since the TLB invalidation scheme
+> assumes that "full" domain TLB flushes are performed for scalability.
+> 
+> Disable batched TLB flushes when caching-mode is on, as the performance
+> benefit from using batched TLB invalidations is likely to be much
+> smaller than the overhead of the virtual-to-physical IOMMU page-tables
+> synchronization.
+> 
+> Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> Cc: David Woodhouse <dwmw2@infradead.org>
+> Cc: Lu Baolu <baolu.lu@linux.intel.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Will Deacon <will@kernel.org>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+> 
 > ---
+> v2->v3:
+> 
+> * Fix the fixes tag in the commit-log (Lu).
+> * Minor English rephrasing of the commit-log.
+> 
+> v1->v2:
+> 
+> * disable flush queue for all domains if caching-mode is on for any
+>    IOMMU (Lu).
+> ---
+>   drivers/iommu/intel/iommu.c | 32 +++++++++++++++++++++++++++++++-
+>   1 file changed, 31 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 788119c5b021..de3dd617cf60 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -5373,6 +5373,36 @@ intel_iommu_domain_set_attr(struct iommu_domain *domain,
+>   	return ret;
+>   }
+>   
+> +static bool domain_use_flush_queue(void)
+> +{
+> +	struct dmar_drhd_unit *drhd;
+> +	struct intel_iommu *iommu;
+> +	bool r = true;
+> +
+> +	if (intel_iommu_strict)
+> +		return false;
+> +
+> +	/*
+> +	 * The flush queue implementation does not perform page-selective
+> +	 * invalidations that are required for efficient TLB flushes in virtual
+> +	 * environments. The benefit of batching is likely to be much lower than
+> +	 * the overhead of synchronizing the virtual and physical IOMMU
+> +	 * page-tables.
+> +	 */
+> +	rcu_read_lock();
+> +	for_each_active_iommu(iommu, drhd) {
+> +		if (!cap_caching_mode(iommu->cap))
+> +			continue;
+> +
+> +		pr_warn_once("IOMMU batching is disabled due to virtualization");
+> +		r = false;
+> +		break;
+> +	}
+> +	rcu_read_unlock();
+> +
+> +	return r;
+> +}
+> +
+>   static int
+>   intel_iommu_domain_get_attr(struct iommu_domain *domain,
+>   			    enum iommu_attr attr, void *data)
+> @@ -5383,7 +5413,7 @@ intel_iommu_domain_get_attr(struct iommu_domain *domain,
+>   	case IOMMU_DOMAIN_DMA:
+>   		switch (attr) {
+>   		case DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE:
+> -			*(int *)data = !intel_iommu_strict;
+> +			*(int *)data = domain_use_flush_queue();
+>   			return 0;
+>   		default:
+>   			return -ENODEV;
+> 
 
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+
+Best regards,
+baolu
