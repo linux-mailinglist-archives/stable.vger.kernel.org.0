@@ -2,152 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A4E307A42
-	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 17:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A04E5307B10
+	for <lists+stable@lfdr.de>; Thu, 28 Jan 2021 17:36:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbhA1QEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 11:04:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231858AbhA1QET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 11:04:19 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A54C061573;
-        Thu, 28 Jan 2021 08:03:38 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id u14so4738130wml.4;
-        Thu, 28 Jan 2021 08:03:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=xfEXjTsyB40epa5HAx10VxFa68/B9Yc8HjeLy1Z8w0c=;
-        b=AkIjNt9CVsZu2vaoJ//RaV7Qch3/6PdGJZkQufXHoE7eBw6lVPORKpV8nBaBSN6KG3
-         I4c1LdK/iBPhaUvB0RKJAMw0KFzEo0udy96jVtYUmKIN1XQkGmf8KHRujpv8sil1ilby
-         z406g1vs6IfWggb5onfN3Ef7Q8RkQcCigZrOGrhGRMkyfallyI/NNsxXAnAVk33EAZqm
-         B1BBNWYXY/mrpBNvrFQftgPRmdt4Ae2ojUnn6nRINXwJkBHr795vG4OW9SW413l6gA0C
-         XpDGcur0sqHSIkUqqioxuE1wLuLV1TwXxFM8i01foMQuf+Xga7kpuEDvoodRsABsxUVK
-         WAsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=xfEXjTsyB40epa5HAx10VxFa68/B9Yc8HjeLy1Z8w0c=;
-        b=jsp2E+q0yCo7IhavZMjxkD/o5j/v8kOob/OxNjacj+8nQ/lV1NtYMOyl5PdveJ4hsi
-         nmwtRoGDKXwrn0UYF04tBFa68Yyg8UzKyPNaKdrf8MAniWYhdcPuOnBDyp2OnEVTyIqx
-         Z7fkm4Y6cYC8Yx8vkG+eREjXs9Dwi2kUKgDlk7B4ki5WjJ9M4sL0VkZ/x1SNRdBePPay
-         8nsZ6cAbpP89WKrgt7o9aaeswebyxvQ0yXBciqXHqZ6v/f5+NNWjTS6XCKiyMKqHyWcY
-         NIddeLrGhV4+G8q/JwZVMr5MTKhRT4RSuCAZfFf1c3BJ6TlEO3zkI7n5lhGDH98W5QmV
-         h8ew==
-X-Gm-Message-State: AOAM530KJgUKXD3Y261x48IoEkPPar8I9706uDbN83iq9z70gObTMG1T
-        asD/RFYomi7MLxdb9o+pKMxFIIjFgo0=
-X-Google-Smtp-Source: ABdhPJydEyg/ijZlcV8vGJLXFHj74OGaMlwKaFjjfluhIAXN0fOFwaDwz3h1h5bNOjSt4yyfo+Em2A==
-X-Received: by 2002:a1c:398b:: with SMTP id g133mr9136009wma.35.1611849817551;
-        Thu, 28 Jan 2021 08:03:37 -0800 (PST)
-Received: from [192.168.1.20] (5ec062a9.skybroadband.com. [94.192.98.169])
-        by smtp.googlemail.com with ESMTPSA id y24sm6207342wmi.47.2021.01.28.08.03.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 08:03:36 -0800 (PST)
-Subject: Re: linux-5.10.11 build failure
-To:     Josh Poimboeuf <jpoimboe@redhat.com>, Thomas Backlund <tmb@tmb.nu>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-References: <8b3e9d93-1381-b415-9ece-a10fb098b896@tmb.nu>
- <20210128155222.eu35xflfqlcinu7g@treble>
-From:   Chris Clayton <chris2553@googlemail.com>
-Message-ID: <fb240045-6a02-9f68-f122-481d044cffa2@googlemail.com>
-Date:   Thu, 28 Jan 2021 16:03:35 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S232606AbhA1Qfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 11:35:54 -0500
+Received: from mga18.intel.com ([134.134.136.126]:5495 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232416AbhA1Qet (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 Jan 2021 11:34:49 -0500
+IronPort-SDR: u8GJN2dCuWNXJCEZW/oUqlc6J73z76EV7SMhqTAF5iqro4ifi9d4ymXt7xWli6rdco76hsWRhY
+ /eO0rDkTe7XQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9878"; a="167935218"
+X-IronPort-AV: E=Sophos;i="5.79,383,1602572400"; 
+   d="scan'208";a="167935218"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2021 08:33:57 -0800
+IronPort-SDR: HqiKK/W4Qyv2rfvdGz+SHhylB8KjfEdszg9snAYeKw3w3LdBZS+pvTlys3/AA2AZ2OudH/Jnh1
+ bav1ywzzT/yg==
+X-IronPort-AV: E=Sophos;i="5.79,383,1602572400"; 
+   d="scan'208";a="388889428"
+Received: from emcabell-mobl.amr.corp.intel.com (HELO [10.212.164.154]) ([10.212.164.154])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2021 08:33:56 -0800
+Subject: Re: [PATCH v5] x86/sgx: Fix use-after-free in
+ sgx_mmu_notifier_release()
+To:     Jarkko Sakkinen <jarkko@kernel.org>, linux-sgx@vger.kernel.org
+Cc:     stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Haitao Huang <haitao.huang@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        linux-kernel@vger.kernel.org
+References: <20210128125823.18660-1-jarkko@kernel.org>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <9dd2a962-2328-8784-9aed-b913502e1102@intel.com>
+Date:   Thu, 28 Jan 2021 08:33:55 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210128155222.eu35xflfqlcinu7g@treble>
+In-Reply-To: <20210128125823.18660-1-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 28/01/2021 15:52, Josh Poimboeuf wrote:
-> On Thu, Jan 28, 2021 at 11:24:47AM +0000, Thomas Backlund wrote:
->> Den 28.1.2021 kl. 12:05, skrev Chris Clayton:
->>>
->>> On 28/01/2021 09:34, Greg Kroah-Hartman wrote:
->>>> On Thu, Jan 28, 2021 at 09:17:10AM +0000, Chris Clayton wrote:
->>>>> Hi,
->>>>>
->>>>> Building 5.10.11 fails on my (x86-64) laptop thusly:
->>>>>
->>>>> ..
->>>>>
->>>>>   AS      arch/x86/entry/thunk_64.o
->>>>>    CC      arch/x86/entry/vsyscall/vsyscall_64.o
->>>>>    AS      arch/x86/realmode/rm/header.o
->>>>>    CC      arch/x86/mm/pat/set_memory.o
->>>>>    CC      arch/x86/events/amd/core.o
->>>>>    CC      arch/x86/kernel/fpu/init.o
->>>>>    CC      arch/x86/entry/vdso/vma.o
->>>>>    CC      kernel/sched/core.o
->>>>> arch/x86/entry/thunk_64.o: warning: objtool: missing symbol for insn at offset 0x3e
->>>>>
->>>>>    AS      arch/x86/realmode/rm/trampoline_64.o
->>>>> make[2]: *** [scripts/Makefile.build:360: arch/x86/entry/thunk_64.o] Error 255
->>>>> make[2]: *** Deleting file 'arch/x86/entry/thunk_64.o'
->>>>> make[2]: *** Waiting for unfinished jobs....
->>>>>
->>>>> ..
->>>>>
->>>>> Compiler is latest snapshot of gcc-10.
->>>>>
->>>>> Happy to test the fix but please cc me as I'm not subscribed
->>>>
->>>> Can you do 'git bisect' to track down the offending commit?
->>>>
->>>
->>> Sure, but I'll hold that request for a while. I updated to binutils-2.36 on Monday and I'm pretty sure that is a feature
->>> of this build fail. I've reverted binutils to 2.35.1, and the build succeeds. Updated to 2.36 again and, surprise,
->>> surprise, the kernel build fails again.
->>>
->>> I've had a glance at the binutils ML and there are all sorts of issues being reported, but it's beyond my knowledge to
->>> assess if this build error is related to any of them.
->>>
->>> I'll stick with binutils-2.35.1 for the time being.
->>>
->>>> And what exact gcc version are you using?
->>>>
->>>
->>>   It's built from the 10-20210123 snapshot tarball.
->>>
->>> I can report this to the binutils folks, but might it be better if the objtool maintainer looks at it first? The
->>> binutils change might just have opened the gate to a bug in objtool.
->>>
->>>> thanks,
->>>>
->>>> greg k-h
->>>>
->>>
->>
->>
->> AFAIK you need this in stable trees:
->>
->>  From 1d489151e9f9d1647110277ff77282fe4d96d09b Mon Sep 17 00:00:00 2001
->> From: Josh Poimboeuf <jpoimboe@redhat.com>
->> Date: Thu, 14 Jan 2021 16:14:01 -0600
->> Subject: [PATCH] objtool: Don't fail on missing symbol table
+On 1/28/21 4:58 AM, Jarkko Sakkinen wrote:
+> The most trivial example of a race condition can be demonstrated by this
+> sequence where mm_list contains just one entry:
 > 
-> Actually I think you need:
-> 
->   5e6dca82bcaa ("x86/entry: Emit a symbol for register restoring thunk")
-> 
-> I submitted a patch to stable list a few days ago.
-> 
+> CPU A                           CPU B
+> -> sgx_release()
+>                                 -> sgx_mmu_notifier_release()
+>                                 -> list_del_rcu()
+>                                 <- list_del_rcu()
+> -> kref_put()
+> -> sgx_encl_release()
+>                                 -> synchronize_srcu()
+> -> cleanup_srcu_struct()
 
-Yes, that's what I concluded, Josh. 5.10.11 builds with that patch added but it's not in Linus's tree yet, so, as I
-understand it, is not yet a candidate from stable.
+This is missing some key details including a clear, unambiguous, problem
+statement.  To me, the patch should concentrate on the SRCU warning
+since that's where we started.  Here's the detail that needs to be added
+about the issue and the locking in general in this path:
 
+sgx_release() also does this:
 
-> (Though it's possible you need both commits, I'm not sure if binutils
->  2.36 has the symbol stripping stuff)
-> 
+	mmu_notifier_unregister(&encl_mm->mmu_notifier, encl_mm->mm);
+
+which does another synchronize_srcu() on the mmu_notifier's srcu_struct.
+ *But*, it only does this if its own list_del_rcu() is successful.  It
+does all of this before the kref_put().
+
+In other words, sgx_release() can *only* get to this buggy path if
+sgx_mmu_notifier_release() races with sgx_release and does a
+list_del_rcu() first.
+
+The key to this patch is that the sgx_mmu_notifier_release() will now
+take an 'encl' reference in that case, which prevents kref_put() from
+calling sgx_release() which cleans up and frees 'encl'.
+
+I was actually also hoping to see some better comments about the new
+refcount, and the locking in general.  There are *TWO* struct_srcu's in
+play, a spinlock and a refcount.  I took me several days with Sean and
+your help to identify the actual path and get a proper fix (versions 1-4
+did *not* fix the race).
+
+Also, the use-after-free is *fixed* in sgx_mmu_notifier_release() but
+does not *occur* in sgx_mmu_notifier_release().  The subject here is a
+bit misleading in that regard.
