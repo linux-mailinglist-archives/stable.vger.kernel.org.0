@@ -2,110 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31DC3082B8
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 01:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E16E13082C6
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 02:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbhA2Aws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 19:52:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231224AbhA2AwK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Jan 2021 19:52:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F9BD64DEB;
-        Fri, 29 Jan 2021 00:51:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611881489;
-        bh=lZ5LKd9/hBVdbeSFVOre7zKzMJV9tCrQqwYciLIfd1Y=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=CDcDMlaXzCLP69bdGv+YZWiNtN+7Nkc9y3JAL1tIE6XwxiZg9ZvyGFzYz7E36M9Ny
-         2EU/8cW0hlD5u3sLocvTQEasvwvkBydIXFWAv9kmmg+xJslJMBvimPlI2pitvq9M5a
-         fORAtZyjhjz3T9gY39Iitazb+uqCsXDMWZEjyJ+GB13PRwaPHUmIKcKaLEZziasfMK
-         dQSYBPaAP1nzFeQJNzLfoVuPvsvJwDAI9jWhtnjA3USBETdn5FTjIwtrG43AH0A5oe
-         ofFlTMO6WUmEKWcCLQx8vGKKd+YuHVd5JPwwjkXNvmbBs4URaNd3di3rlfzITWYtFl
-         S1bFEHLUq7oYw==
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id EF34335237A0; Thu, 28 Jan 2021 16:51:28 -0800 (PST)
-Date:   Thu, 28 Jan 2021 16:51:28 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Frederic Weisbecker <frederic@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Stable <stable@vger.kernel.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 08/16] rcu/nocb: Move trace_rcu_nocb_wake() calls outside
- nocb_lock when possible
-Message-ID: <20210129005128.GA2743@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20210128171222.131380-1-frederic@kernel.org>
- <20210128171222.131380-9-frederic@kernel.org>
+        id S231127AbhA2A5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 19:57:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231138AbhA2A5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 19:57:41 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4904BC061574
+        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:57:01 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id j18so5642736wmi.3
+        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:57:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexus-software-ie.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=0EQ8oHxswQLReramq9MegxVqQbGVrPNP9ryMhszFjBk=;
+        b=jwq8M9JUZCx6Pnwz1HkbsBA2fTitT+cg4tdbXBhP45yNzL13pw+G2HWtAFapRoG7SK
+         qyor7CDorsFQsC+9cpI8TPo35+nDzR56NPZukataTMmUNirp+VvY6jYKjZ/dfRWkLwxA
+         B3PkJ/2JCcEvFkfC6POrhHi+IZtEEk8X/AL+cg9NrqVFrPaqifCS5ZEBrOFzClf4oLh6
+         TU1TlxZ4KnDOSZAikzBzfDX3Lv/urkmVwGzy5d3XDyqOe6WuYPLHt+jz6mXmhHx9cpjU
+         PbNW9nlZQbKD9GOABpFXPHlyR/KYPVPI6G5kOOZXxtj3ESCLRjmPAsDsJO0esui+9Rpo
+         2TXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0EQ8oHxswQLReramq9MegxVqQbGVrPNP9ryMhszFjBk=;
+        b=pZ9HabLdBFTVGNhSi4LKVJVhUisTWQW60WbxWJxih11ffvtvAXKGQyPdJ4As4oJ7bo
+         8gSvFQHJZp7t2DpTzlUiH9iscQmacHoL7jpqR1dLfiuWdFbFulXdYvSo8HmjNi0p541G
+         rVaKqOOxt57ySvLU0W4wLMueZYr9WCImsHh14QcoNpd9dGVBH6Yri3jLzkgYDAP6f7Sx
+         pat1hFrLya/7aWHEJaXc7JfHCUCuHmqCkBo+UZu0JL91nO0XJxJoatYAiOtn9tRuTQk8
+         F7Q0KST1lmAkulo4QuqC1gpJ81UwVSuCFOnUwqhMkCIrozW2rMfPRlC6aW+MKVHnUmeA
+         28ow==
+X-Gm-Message-State: AOAM5329cFQtmuPUZW9ig7fqe3BBGlV7O+c0O1fIjFzFjhqhbKj1v7VE
+        IA0WMVq2uy7ggyme4b5TSujZtKYHohF3kg==
+X-Google-Smtp-Source: ABdhPJys7hSWhUI0t0CZYBMud1VhQErR8P6z+a5CQRh2QM9TbVxDiCmcvce6I0WEcPAc1wKhdSysNg==
+X-Received: by 2002:a1c:9850:: with SMTP id a77mr1443768wme.163.1611881819906;
+        Thu, 28 Jan 2021 16:56:59 -0800 (PST)
+Received: from [192.168.0.162] (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
+        by smtp.gmail.com with ESMTPSA id z184sm8185018wmg.7.2021.01.28.16.56.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Jan 2021 16:56:59 -0800 (PST)
+Subject: Re: [PATCH] usb: dwc3: gadget: Init only available HW eps
+To:     Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <3080c0452df14d510d24471ce0f9bb7592cdfd4d.1609866964.git.Thinh.Nguyen@synopsys.com>
+ <87eeiycxld.fsf@kernel.org>
+ <75d63bab-1cdc-737e-8ae2-64e0ddeeef75@synopsys.com>
+ <87k0spay6z.fsf@kernel.org>
+ <cacf58e7-e131-2caa-5fb3-1af7db8270b4@synopsys.com>
+ <19b685a9-0c25-9b6c-ecaf-ffca4069182b@synopsys.com>
+ <87eeivwrb9.fsf@kernel.org>
+From:   Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Message-ID: <c322742e-271d-e267-f499-3cc8a2dc7df6@nexus-software.ie>
+Date:   Fri, 29 Jan 2021 00:58:19 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210128171222.131380-9-frederic@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <87eeivwrb9.fsf@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 06:12:14PM +0100, Frederic Weisbecker wrote:
-> Those tracing calls don't need to be under the nocb lock. Move them
-> outside.
-
-This one looks fine (give or take the usual wordsmithing), but does
-not apply, presumably due to my not having yet taken one of the earlier
-patches.  So deferred for now, and please include it in your next version.
-
-							Thanx, Paul
-
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-> Cc: Joel Fernandes <joel@joelfernandes.org>
-> Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-> Cc: Boqun Feng <boqun.feng@gmail.com>
-> ---
->  kernel/rcu/tree_plugin.h | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+On 08/01/2021 12:23, Felipe Balbi wrote:
 > 
-> diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-> index 86c3bcceede6..8c5fea58ee80 100644
-> --- a/kernel/rcu/tree_plugin.h
-> +++ b/kernel/rcu/tree_plugin.h
-> @@ -1700,9 +1700,9 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
->  
->  	lockdep_assert_held(&rdp->nocb_lock);
->  	if (!READ_ONCE(rdp_gp->nocb_gp_kthread)) {
-> +		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
->  				    TPS("AlreadyAwake"));
-> -		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		return false;
->  	}
->  
-> @@ -1950,9 +1950,9 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
->  	// If we are being polled or there is no kthread, just leave.
->  	t = READ_ONCE(rdp->nocb_gp_kthread);
->  	if (rcu_nocb_poll || !t) {
-> +		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
->  				    TPS("WakeNotPoll"));
-> -		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		return;
->  	}
->  	// Need to actually to a wakeup.
-> @@ -1987,8 +1987,8 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
->  					   TPS("WakeOvfIsDeferred"));
->  		rcu_nocb_unlock_irqrestore(rdp, flags);
->  	} else {
-> +		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("WakeNot"));
-> -		rcu_nocb_unlock_irqrestore(rdp, flags);
->  	}
->  	return;
->  }
-> -- 
-> 2.25.1
+> Hi,
 > 
+> Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+>>>>>> How have you verified this patch? Did you read Bryan's commit log? This
+>>>>>> is likely to reintroduce the problem raised by Bryan.
+>>>>>>
+>>>>> We verified with our FPGA HAPS with various number of endpoints. No
+>>>>> issue is seen.
+>>>> That's cool. Could you please make sure our understanding of this is
+>>>> sound and won't interfere with any designs? If we modify this part of
+>>>> the code again, I'd like to see a clear reference to a specific section
+>>>> of the databook detailing the expected behavior :-)
+>>>>
+>>>> cheers
+>>>>
+>>> Hm... I didn't consider bidirection endpoint other than control endpoint.
+>>>
+>>> DWC3_USB3x_NUM_EPS specifies the number of device mode for single
+>>> directional endpoints. A bidirectional endpoint needs 2 single
+>>> directional endpoints, 1 IN and 1 OUT. So, if your setup uses 3
+>>> bidirection endpoints and only those, DWC3_USB3x_NUM_EPS should be 6.
+>>> DWC3_USB3x_NUM_IN_EPS specifies the maximum number of IN endpoint active
+>>> at any time.
+>>>
+>>> However, I will have to double check and confirm internally regarding
+>>> how to determine many endpoint would be available if bidirection
+>>> endpoints come into play.
+>>>
+>>> Thanks for pointing this out. Will get back on this.
+>>>
+>>> Thinh
+>>>
+>>
+>> Ok. Just had some discussion internally. So, like you said, any endpoint
+>> can be configured in either direction. However, we are limited to
+>> configuring up to DWC_USB3x_NUM_IN_EPS because each IN endpoint has its
+>> own TxFIFO while for OUT, they share the same RxFIFO. So we could have
+>> up to DWC_USB3x_NUM_EPS number of OUT endpoints. So, the issue Bryan
+>> attempted to address is still there.
+>>
+>> However, the current code still has some assumption on the number of IN
+>> and OUT endpoints, I need to think of a better solution.
+> 
+> Yes, the assumption still exists because at the time there was no better
+> solution :-)
+> 
+
+Just found this now.
+
+The commit log is too wordy. You can configure the RTL so that every 
+endpoint can be either direction.
+
+So DWC_USB3_NUM == DWC_USB3_NUM_IN_EPS
+
+The old code was predicated on the notion the RTL was configured with 
+EP0 IN/OUT basically fixed.
+
+In practice this _should_ be the case but the RTL does not enforce it 
+and yes this appears in a real SoC from Imagination.
+
+---
+bod
