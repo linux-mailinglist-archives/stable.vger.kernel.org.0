@@ -2,292 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DE73088C6
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 13:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353E73088D2
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 13:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232526AbhA2MBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 07:01:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54724 "EHLO mail.kernel.org"
+        id S232312AbhA2ME5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 07:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232432AbhA2L6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Jan 2021 06:58:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE0B64F5B;
-        Fri, 29 Jan 2021 11:12:30 +0000 (UTC)
+        id S232544AbhA2MCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Jan 2021 07:02:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E976D64F50;
+        Fri, 29 Jan 2021 11:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611918750;
-        bh=DTDXBYAvLegemn4pqnV8Hz8yupUpTspWp1Tmm7EXYbQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HK+LkIzqRZgHsIwqbIoBt3WpDxcV5Nz++Zo7jOd4nHSTiMXGU6n3iip+IqM/Z64dq
-         OQapP7InfNThPAnIWIKtm+rT5zIEJ/haGc1ikAI52B+GOuzIhsY+aAlEuGP8bwfjUb
-         QDu9IcXdkMSAdQ4pfxF10zjkSDFGQwUPQJ64jjdk=
+        s=korg; t=1611918734;
+        bh=MVW6R+rETXbR+XXYw48sJy9crjkdaF/bIztnEvIrKZ4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Be2j1OHH2XfCrC5Qlu6vMG9bCVzPC0yAJs7IwBXooMM0hmCDMjLdxhDxRU8aejelG
+         kQnGTPLMR+s+xajU5h+b+65NTRVdK4eZGtTcaUmWZNdMHnMaaQfwZNH2noJ/WC0Pt9
+         7Hft5Ip9d6MO1IcH8eFmDIByMJJ0HDZSk8Rmk8IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/50] xen: Fix event channel callback via INTX/GSI
-Date:   Fri, 29 Jan 2021 12:06:35 +0100
-Message-Id: <20210129105913.904220394@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/30] 4.9.254-rc1 review
+Date:   Fri, 29 Jan 2021 12:06:36 +0100
+Message-Id: <20210129105910.583037839@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210129105913.476540890@linuxfoundation.org>
-References: <20210129105913.476540890@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.254-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.254-rc1
+X-KernelTest-Deadline: 2021-01-31T10:59+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+This is the start of the stable review cycle for the 4.9.254 release.
+There are 30 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 3499ba8198cad47b731792e5e56b9ec2a78a83a2 ]
+Responses should be made by Sun, 31 Jan 2021 10:59:01 +0000.
+Anything received after that time might be too late.
 
-For a while, event channel notification via the PCI platform device
-has been broken, because we attempt to communicate with xenstore before
-we even have notifications working, with the xs_reset_watches() call
-in xs_init().
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.254-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-We tend to get away with this on Xen versions below 4.0 because we avoid
-calling xs_reset_watches() anyway, because xenstore might not cope with
-reading a non-existent key. And newer Xen *does* have the vector
-callback support, so we rarely fall back to INTX/GSI delivery.
+thanks,
 
-To fix it, clean up a bit of the mess of xs_init() and xenbus_probe()
-startup. Call xs_init() directly from xenbus_init() only in the !XS_HVM
-case, deferring it to be called from xenbus_probe() in the XS_HVM case
-instead.
+greg k-h
 
-Then fix up the invocation of xenbus_probe() to happen either from its
-device_initcall if the callback is available early enough, or when the
-callback is finally set up. This means that the hack of calling
-xenbus_probe() from a workqueue after the first interrupt, or directly
-from the PCI platform device setup, is no longer needed.
+-------------
+Pseudo-Shortlog of commits:
 
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20210113132606.422794-2-dwmw2@infradead.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/arm/xen/enlighten.c          |  2 +-
- drivers/xen/events/events_base.c  | 10 ----
- drivers/xen/platform-pci.c        |  1 -
- drivers/xen/xenbus/xenbus.h       |  1 +
- drivers/xen/xenbus/xenbus_comms.c |  8 ---
- drivers/xen/xenbus/xenbus_probe.c | 81 +++++++++++++++++++++++++------
- include/xen/xenbus.h              |  2 +-
- 7 files changed, 70 insertions(+), 35 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.254-rc1
 
-diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
-index ba7f4c8f5c3e4..e8e637c4f354d 100644
---- a/arch/arm/xen/enlighten.c
-+++ b/arch/arm/xen/enlighten.c
-@@ -393,7 +393,7 @@ static int __init xen_guest_init(void)
- 	}
- 	gnttab_init();
- 	if (!xen_initial_domain())
--		xenbus_probe(NULL);
-+		xenbus_probe();
- 
- 	/*
- 	 * Making sure board specific code will not set up ops for
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index aca8456752797..8c08c7d46d3d0 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1987,16 +1987,6 @@ static struct irq_chip xen_percpu_chip __read_mostly = {
- 	.irq_ack		= ack_dynirq,
- };
- 
--int xen_set_callback_via(uint64_t via)
--{
--	struct xen_hvm_param a;
--	a.domid = DOMID_SELF;
--	a.index = HVM_PARAM_CALLBACK_IRQ;
--	a.value = via;
--	return HYPERVISOR_hvm_op(HVMOP_set_param, &a);
--}
--EXPORT_SYMBOL_GPL(xen_set_callback_via);
--
- #ifdef CONFIG_XEN_PVHVM
- /* Vector callbacks are better than PCI interrupts to receive event
-  * channel notifications because we can receive vector callbacks on any
-diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
-index 5d7dcad0b0a0d..4cec8146609ad 100644
---- a/drivers/xen/platform-pci.c
-+++ b/drivers/xen/platform-pci.c
-@@ -162,7 +162,6 @@ static int platform_pci_probe(struct pci_dev *pdev,
- 	ret = gnttab_init();
- 	if (ret)
- 		goto grant_out;
--	xenbus_probe(NULL);
- 	return 0;
- grant_out:
- 	gnttab_free_auto_xlat_frames();
-diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
-index 139539b0ab20d..e6a8d02d35254 100644
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -114,6 +114,7 @@ int xenbus_probe_node(struct xen_bus_type *bus,
- 		      const char *type,
- 		      const char *nodename);
- int xenbus_probe_devices(struct xen_bus_type *bus);
-+void xenbus_probe(void);
- 
- void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
- 
-diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
-index eb5151fc8efab..e5fda0256feb3 100644
---- a/drivers/xen/xenbus/xenbus_comms.c
-+++ b/drivers/xen/xenbus/xenbus_comms.c
-@@ -57,16 +57,8 @@ DEFINE_MUTEX(xs_response_mutex);
- static int xenbus_irq;
- static struct task_struct *xenbus_task;
- 
--static DECLARE_WORK(probe_work, xenbus_probe);
--
--
- static irqreturn_t wake_waiting(int irq, void *unused)
- {
--	if (unlikely(xenstored_ready == 0)) {
--		xenstored_ready = 1;
--		schedule_work(&probe_work);
--	}
--
- 	wake_up(&xb_waitq);
- 	return IRQ_HANDLED;
- }
-diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
-index 217bcc092a968..fe24e8dcb2b8e 100644
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -674,29 +674,76 @@ void unregister_xenstore_notifier(struct notifier_block *nb)
- }
- EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
- 
--void xenbus_probe(struct work_struct *unused)
-+void xenbus_probe(void)
- {
- 	xenstored_ready = 1;
- 
-+	/*
-+	 * In the HVM case, xenbus_init() deferred its call to
-+	 * xs_init() in case callbacks were not operational yet.
-+	 * So do it now.
-+	 */
-+	if (xen_store_domain_type == XS_HVM)
-+		xs_init();
-+
- 	/* Notify others that xenstore is up */
- 	blocking_notifier_call_chain(&xenstore_chain, 0, NULL);
- }
--EXPORT_SYMBOL_GPL(xenbus_probe);
- 
--static int __init xenbus_probe_initcall(void)
-+/*
-+ * Returns true when XenStore init must be deferred in order to
-+ * allow the PCI platform device to be initialised, before we
-+ * can actually have event channel interrupts working.
-+ */
-+static bool xs_hvm_defer_init_for_callback(void)
- {
--	if (!xen_domain())
--		return -ENODEV;
-+#ifdef CONFIG_XEN_PVHVM
-+	return xen_store_domain_type == XS_HVM &&
-+		!xen_have_vector_callback;
-+#else
-+	return false;
-+#endif
-+}
- 
--	if (xen_initial_domain() || xen_hvm_domain())
--		return 0;
-+static int __init xenbus_probe_initcall(void)
-+{
-+	/*
-+	 * Probe XenBus here in the XS_PV case, and also XS_HVM unless we
-+	 * need to wait for the platform PCI device to come up.
-+	 */
-+	if (xen_store_domain_type == XS_PV ||
-+	    (xen_store_domain_type == XS_HVM &&
-+	     !xs_hvm_defer_init_for_callback()))
-+		xenbus_probe();
- 
--	xenbus_probe(NULL);
- 	return 0;
- }
--
- device_initcall(xenbus_probe_initcall);
- 
-+int xen_set_callback_via(uint64_t via)
-+{
-+	struct xen_hvm_param a;
-+	int ret;
-+
-+	a.domid = DOMID_SELF;
-+	a.index = HVM_PARAM_CALLBACK_IRQ;
-+	a.value = via;
-+
-+	ret = HYPERVISOR_hvm_op(HVMOP_set_param, &a);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * If xenbus_probe_initcall() deferred the xenbus_probe()
-+	 * due to the callback not functioning yet, we can do it now.
-+	 */
-+	if (!xenstored_ready && xs_hvm_defer_init_for_callback())
-+		xenbus_probe();
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(xen_set_callback_via);
-+
- /* Set up event channel for xenstored which is run as a local process
-  * (this is normally used only in dom0)
-  */
-@@ -810,11 +857,17 @@ static int __init xenbus_init(void)
- 		break;
- 	}
- 
--	/* Initialize the interface to xenstore. */
--	err = xs_init();
--	if (err) {
--		pr_warn("Error initializing xenstore comms: %i\n", err);
--		goto out_error;
-+	/*
-+	 * HVM domains may not have a functional callback yet. In that
-+	 * case let xs_init() be called from xenbus_probe(), which will
-+	 * get invoked at an appropriate time.
-+	 */
-+	if (xen_store_domain_type != XS_HVM) {
-+		err = xs_init();
-+		if (err) {
-+			pr_warn("Error initializing xenstore comms: %i\n", err);
-+			goto out_error;
-+		}
- 	}
- 
- 	if ((xen_store_domain_type != XS_LOCAL) &&
-diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
-index eba01ab5a55e0..fe9a9fa2ebc45 100644
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -187,7 +187,7 @@ void xs_suspend_cancel(void);
- 
- struct work_struct;
- 
--void xenbus_probe(struct work_struct *);
-+void xenbus_probe(void);
- 
- #define XENBUS_IS_ERR_READ(str) ({			\
- 	if (!IS_ERR(str) && strlen(str) == 0) {		\
--- 
-2.27.0
+Arvind Sankar <nivedita@alum.mit.edu>
+    x86/boot/compressed: Disable relocation relaxation
 
+Gaurav Kohli <gkohli@codeaurora.org>
+    tracing: Fix race in trace_open and buffer resize call
+
+Wang Hai <wanghai38@huawei.com>
+    Revert "mm/slub: fix a memory leak in sysfs_slab_add()"
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net: dsa: b53: fix an off by one in checking "vlan->vid"
+
+Eric Dumazet <edumazet@google.com>
+    net_sched: avoid shift-out-of-bounds in tcindex_set_parms()
+
+Matteo Croce <mcroce@microsoft.com>
+    ipv6: create multicast route with RTPROT_KERNEL
+
+Alexander Lobakin <alobakin@pm.me>
+    skbuff: back tiny skbs with kmalloc() in __netdev_alloc_skb() too
+
+Geert Uytterhoeven <geert+renesas@glider.be>
+    sh_eth: Fix power down vs. is_opened flag ordering
+
+Necip Fazil Yildiran <fazilyildiran@gmail.com>
+    sh: dma: fix kconfig dependency for G2_DMA
+
+Guillaume Nault <gnault@redhat.com>
+    netfilter: rpfilter: mask ecn bits before fib lookup
+
+Will Deacon <will@kernel.org>
+    compiler.h: Raise minimum version of GCC to 5.1 for arm64
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Fix buggy rsh min/max bounds tracking
+
+JC Kuo <jckuo@nvidia.com>
+    xhci: tegra: Delay for disabling LFPS detector
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: make sure TRB is fully written before giving it to the controller
+
+Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+    usb: bdc: Make bdc pci driver depend on BROKEN
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: udc: core: Use lock when write to soft_connect
+
+Longfang Liu <liulongfang@huawei.com>
+    USB: ehci: fix an interrupt calltrace error
+
+Eugene Korenevsky <ekorenevsky@astralinux.ru>
+    ehci: fix EHCI host controller initialization sequence
+
+Wang Hui <john.wanghui@huawei.com>
+    stm class: Fix module init return on allocation failure
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: ad5504: Fix setting power-down state
+
+Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+    can: dev: can_restart: fix use after free bug
+
+Wolfram Sang <wsa+renesas@sang-engineering.com>
+    i2c: octeon: check correct size of maximum RECV_LEN packet
+
+Ben Skeggs <bskeggs@redhat.com>
+    drm/nouveau/i2c/gm200: increase width of aux semaphore owner fields
+
+Ben Skeggs <bskeggs@redhat.com>
+    drm/nouveau/bios: fix issue shadowing expansion ROMs
+
+Can Guo <cang@codeaurora.org>
+    scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
+
+Cezary Rojewski <cezary.rojewski@intel.com>
+    ASoC: Intel: haswell: Add missing pm_ops
+
+Hannes Reinecke <hare@suse.de>
+    dm: avoid filesystem lookup in dm_get_dev_t()
+
+Hans de Goede <hdegoede@redhat.com>
+    ACPI: scan: Make acpi_bus_get_device() clear return pointer on error
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/via: Add minimum mute flag
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: seq: oss: Fix missing error check in snd_seq_oss_synth_make_info()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 ++--
+ arch/sh/drivers/dma/Kconfig                        |  3 +--
+ arch/x86/boot/compressed/Makefile                  |  2 ++
+ drivers/acpi/scan.c                                |  2 ++
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c  |  2 +-
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm200.c |  8 ++++----
+ drivers/hwtracing/stm/heartbeat.c                  |  6 ++++--
+ drivers/i2c/busses/i2c-octeon-core.c               |  2 +-
+ drivers/iio/dac/ad5504.c                           |  4 ++--
+ drivers/md/dm-table.c                              | 15 ++++++++++++---
+ drivers/net/can/dev.c                              |  4 ++--
+ drivers/net/dsa/b53/b53_common.c                   |  2 +-
+ drivers/net/ethernet/renesas/sh_eth.c              |  4 ++--
+ drivers/scsi/ufs/ufshcd.c                          | 11 ++++-------
+ drivers/usb/gadget/udc/bdc/Kconfig                 |  2 +-
+ drivers/usb/gadget/udc/core.c                      | 13 ++++++++++---
+ drivers/usb/host/ehci-hcd.c                        | 12 ++++++++++++
+ drivers/usb/host/ehci-hub.c                        |  3 +++
+ drivers/usb/host/xhci-ring.c                       |  2 ++
+ drivers/usb/host/xhci-tegra.c                      |  7 +++++++
+ include/linux/compiler-gcc.h                       |  6 ++++++
+ kernel/bpf/verifier.c                              |  7 +++----
+ kernel/trace/ring_buffer.c                         |  4 ++++
+ mm/slub.c                                          |  4 +---
+ net/core/skbuff.c                                  |  6 +++++-
+ net/ipv4/netfilter/ipt_rpfilter.c                  |  2 +-
+ net/ipv6/addrconf.c                                |  1 +
+ net/sched/cls_tcindex.c                            |  8 ++++++--
+ sound/core/seq/oss/seq_oss_synth.c                 |  3 ++-
+ sound/pci/hda/patch_via.c                          |  1 +
+ sound/soc/intel/boards/haswell.c                   |  1 +
+ 31 files changed, 106 insertions(+), 45 deletions(-)
 
 
