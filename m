@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EABA9308530
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 06:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3AD30852B
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 06:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229921AbhA2F2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 00:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
+        id S229757AbhA2FZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 00:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbhA2F2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 00:28:30 -0500
+        with ESMTP id S229459AbhA2FZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 00:25:29 -0500
+X-Greylist: delayed 60 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 28 Jan 2021 21:24:48 PST
 Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495A3C061573
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 21:27:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA195C061573;
+        Thu, 28 Jan 2021 21:24:48 -0800 (PST)
 Received: from ip4d149f6e.dynamic.kabel-deutschland.de ([77.20.159.110] helo=truhe.fritz.box); authenticated
         by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        id 1l5MG0-0002CY-2c; Fri, 29 Jan 2021 06:23:44 +0100
+        id 1l5MGx-0002RQ-9k; Fri, 29 Jan 2021 06:24:43 +0100
 From:   Thorsten Leemhuis <linux@leemhuis.info>
-To:     thl@ct.de
-Cc:     stable@vger.kernel.org
+To:     Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        linux-nvme@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: [PATCH] nvme-pci: add quirk to make Kingston A2000 SSD avoid deepest sleep state
-Date:   Fri, 29 Jan 2021 06:23:43 +0100
-Message-Id: <20210129052343.310728-1-linux@leemhuis.info>
+Date:   Fri, 29 Jan 2021 06:24:42 +0100
+Message-Id: <20210129052442.310780-1-linux@leemhuis.info>
 X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1611898070;ec4c9cae;
-X-HE-SMSGID: 1l5MG0-0002CY-2c
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1611897888;ecf5a23b;
+X-HE-SMSGID: 1l5MGx-0002RQ-9k
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
