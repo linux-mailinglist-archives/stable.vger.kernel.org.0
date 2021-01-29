@@ -2,89 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93213308ABF
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 17:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8D3308AC4
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 17:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231694AbhA2Q6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 11:58:13 -0500
-Received: from mga06.intel.com ([134.134.136.31]:61265 "EHLO mga06.intel.com"
+        id S231771AbhA2Q7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 11:59:01 -0500
+Received: from mga17.intel.com ([192.55.52.151]:33081 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231486AbhA2Q5w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Jan 2021 11:57:52 -0500
-IronPort-SDR: iSMex83aknaBIld/DCEJAPDeljf9Iym4tn+GHHikgukbNywPAuRU49hvPX0ldzNeNm4NtQJiO8
- vq8uNBwIW3dA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9879"; a="241971981"
+        id S231486AbhA2Q62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Jan 2021 11:58:28 -0500
+IronPort-SDR: ivZN/qH5bLMy1bydyCk/pPD6ug4vpLAeapfT0/8K+Idz5cXFtSREXPQf3dJreGmh3Ppk7ZLVp5
+ Y1UjN5+ouCjg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9879"; a="160223008"
 X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
-   d="scan'208";a="241971981"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 08:56:51 -0800
-IronPort-SDR: ArZMPgfaYKheNGDudyCzOhmxRAde/kCpsboTs6j5CSqJixBBgTkyFd8h7wub+dGh/4a3upyEDN
- oyJryWn3beBQ==
+   d="scan'208";a="160223008"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 08:57:36 -0800
+IronPort-SDR: Uhgu4+iz5u6Yv9X+PIrouD0tiAxiE8Oo6szF+PlGrLIlcBcutWUlAvrzzciasD5xmbN+CBOAYX
+ ObffK6RQKZRw==
 X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
-   d="scan'208";a="365330453"
+   d="scan'208";a="389373747"
 Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 08:56:50 -0800
-Date:   Fri, 29 Jan 2021 18:56:46 +0200
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 08:57:33 -0800
+Date:   Fri, 29 Jan 2021 18:57:31 +0200
 From:   Imre Deak <imre.deak@intel.com>
 To:     Ville Syrjala <ville.syrjala@linux.intel.com>
 Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/5] drm/i915: Skip vswing programming for TBT
-Message-ID: <20210129165646.GA183052@ideak-desk.fi.intel.com>
+Subject: Re: [Intel-gfx] [PATCH 2/5] drm/i915: Extract
+ intel_ddi_power_up_lanes()
+Message-ID: <20210129165731.GB183052@ideak-desk.fi.intel.com>
 Reply-To: imre.deak@intel.com
 References: <20210128155948.13678-1-ville.syrjala@linux.intel.com>
+ <20210128155948.13678-2-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210128155948.13678-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <20210128155948.13678-2-ville.syrjala@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 05:59:44PM +0200, Ville Syrjala wrote:
+On Thu, Jan 28, 2021 at 05:59:45PM +0200, Ville Syrjala wrote:
 > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> In thunderbolt mode the PHY is owned by the thunderbolt controller.
-> We are not supposed to touch it. So skip the vswing programming
-> as well (we already skipped the other steps not applicable to TBT).
-> 
-> Touching this stuff could supposedly interfere with the PHY
-> programming done by the thunderbolt controller.
+> Reduce the copypasta by pulling the combo PHY lane
+> power up stuff into a helper. We'll have a third user soon.
 > 
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Matches the spec:
 Reviewed-by: Imre Deak <imre.deak@intel.com>
 
 > ---
->  drivers/gpu/drm/i915/display/intel_ddi.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+>  drivers/gpu/drm/i915/display/intel_ddi.c | 35 +++++++++++++-----------
+>  1 file changed, 19 insertions(+), 16 deletions(-)
 > 
 > diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-> index 9506b8048530..c94650488dc1 100644
+> index c94650488dc1..88cc6e2fbe91 100644
 > --- a/drivers/gpu/drm/i915/display/intel_ddi.c
 > +++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-> @@ -2827,6 +2827,9 @@ static void icl_mg_phy_ddi_vswing_sequence(struct intel_encoder *encoder,
->  	int n_entries, ln;
->  	u32 val;
+> @@ -3641,6 +3641,23 @@ static void intel_ddi_disable_fec_state(struct intel_encoder *encoder,
+>  	intel_de_posting_read(dev_priv, dp_tp_ctl_reg(encoder, crtc_state));
+>  }
 >  
-> +	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
-> +		return;
+> +static void intel_ddi_power_up_lanes(struct intel_encoder *encoder,
+> +				     const struct intel_crtc_state *crtc_state)
+> +{
+> +	struct drm_i915_private *i915 = to_i915(encoder->base.dev);
+> +	struct intel_digital_port *dig_port = enc_to_dig_port(encoder);
+> +	enum phy phy = intel_port_to_phy(i915, encoder->port);
 > +
->  	ddi_translations = icl_get_mg_buf_trans(encoder, crtc_state, &n_entries);
->  
->  	if (drm_WARN_ON_ONCE(&dev_priv->drm, !ddi_translations))
-> @@ -2962,6 +2965,9 @@ tgl_dkl_phy_ddi_vswing_sequence(struct intel_encoder *encoder,
->  	u32 val, dpcnt_mask, dpcnt_val;
->  	int n_entries, ln;
->  
-> +	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
-> +		return;
+> +	if (intel_phy_is_combo(i915, phy)) {
+> +		bool lane_reversal =
+> +			dig_port->saved_port_bits & DDI_BUF_PORT_REVERSAL;
 > +
->  	ddi_translations = tgl_get_dkl_buf_trans(encoder, crtc_state, &n_entries);
+> +		intel_combo_phy_power_up_lanes(i915, phy, false,
+> +					       crtc_state->lane_count,
+> +					       lane_reversal);
+> +	}
+> +}
+> +
+>  static void tgl_ddi_pre_enable_dp(struct intel_atomic_state *state,
+>  				  struct intel_encoder *encoder,
+>  				  const struct intel_crtc_state *crtc_state,
+> @@ -3732,14 +3749,7 @@ static void tgl_ddi_pre_enable_dp(struct intel_atomic_state *state,
+>  	 * 7.f Combo PHY: Configure PORT_CL_DW10 Static Power Down to power up
+>  	 * the used lanes of the DDI.
+>  	 */
+> -	if (intel_phy_is_combo(dev_priv, phy)) {
+> -		bool lane_reversal =
+> -			dig_port->saved_port_bits & DDI_BUF_PORT_REVERSAL;
+> -
+> -		intel_combo_phy_power_up_lanes(dev_priv, phy, false,
+> -					       crtc_state->lane_count,
+> -					       lane_reversal);
+> -	}
+> +	intel_ddi_power_up_lanes(encoder, crtc_state);
 >  
->  	if (drm_WARN_ON_ONCE(&dev_priv->drm, !ddi_translations))
+>  	/*
+>  	 * 7.g Configure and enable DDI_BUF_CTL
+> @@ -3830,14 +3840,7 @@ static void hsw_ddi_pre_enable_dp(struct intel_atomic_state *state,
+>  	else
+>  		intel_prepare_dp_ddi_buffers(encoder, crtc_state);
+>  
+> -	if (intel_phy_is_combo(dev_priv, phy)) {
+> -		bool lane_reversal =
+> -			dig_port->saved_port_bits & DDI_BUF_PORT_REVERSAL;
+> -
+> -		intel_combo_phy_power_up_lanes(dev_priv, phy, false,
+> -					       crtc_state->lane_count,
+> -					       lane_reversal);
+> -	}
+> +	intel_ddi_power_up_lanes(encoder, crtc_state);
+>  
+>  	intel_ddi_init_dp_buf_reg(encoder, crtc_state);
+>  	if (!is_mst)
 > -- 
 > 2.26.2
 > 
