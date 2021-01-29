@@ -2,85 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBD1308282
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 01:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C063082B6
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 01:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231443AbhA2Ain (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 19:38:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231459AbhA2Ahj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 19:37:39 -0500
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA4FC061574
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:36:58 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id o10so6092365wmc.1
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:36:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=bGmoTo4O74TeYcI+tBriAh2d0JZnZa+lLIO+csMCmvs=;
-        b=CMWyKrMokBDhRa9dO45JsNCzasQXL21b6RgefApUahcxwhJb55PvZlCuedsZtaRYZz
-         NFBf81CPiyRAlLXzwJwg4th/nXXbslKmy0dbZ7Mm0p+UrQ6ld8Kyrb8jZOj1gV3pdbca
-         2atkCozBBpQibvBldACyJ5cdf9boUCgo+oTuhRSXFOXwcFeEhdn+CSXNn7dcUM7U0MuW
-         FxXR6HLoHBLuijB8NMtgIZY+E1ZHfZgvuGDLvd+/mBdWBMtOTvSi959QZeqTxINfA6ce
-         A8LmtY1VO//1vWei3/0p6flSZZ2bDjTGT7+gUhLDwFhXS7N2UjiiQm/wdtKViYxTepEQ
-         FvUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=bGmoTo4O74TeYcI+tBriAh2d0JZnZa+lLIO+csMCmvs=;
-        b=ZYyb/7hUqUDPA6tLl7CaVtEjMZKs4FtXpkeAfeN3uptIdigpdo8deK9rz4tIFgztpL
-         hf63XF5skQgKUiZmV92zTLexka4LNu2ik3q570PP+lZafl7AvFQCw2U078BMB0mrrK2F
-         a0EbtvALJpAjmBTWZSRDxzJxBVpYxVbIOPlctphSRphPfASvPskDHkcTpORvn1HEnpPt
-         F16NqSW0lOBv144pQBF4BhHqZqDsvc/Vx7fvNUz5KSTyZttpU7np1Jw1j2UJRvKt6qEe
-         8ajEc9Z34hGyNgHi9hpvRggTHN7LdZgJmIRLXbzvxkFqaX+p7T+rQVmYExysuYJLkaAP
-         /suA==
-X-Gm-Message-State: AOAM532H0Qu+rd37+N7w2NsPuNHXXNvOldkPSxkBTqQ3mherNI9Q6Jl7
-        XkkaFTNc965S9H09BBCljdSGPy/oqrCrm5n7S4w=
-X-Google-Smtp-Source: ABdhPJxcr+UQO1oYMSbE9QluR8cWR/TYdPLUbspQb1EykCQoZXQnn7XvGGKD/jhadUbneVKFba5BlHEPLs2vMtBRSBs=
-X-Received: by 2002:a7b:cf3a:: with SMTP id m26mr1483011wmg.66.1611880617192;
- Thu, 28 Jan 2021 16:36:57 -0800 (PST)
+        id S230525AbhA2Ave (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 19:51:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39536 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231378AbhA2Au0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 Jan 2021 19:50:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 008BD61481;
+        Fri, 29 Jan 2021 00:49:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611881385;
+        bh=zydfLupXKAPApg8smC/QMpzzcHh0Ib/J7FrqIXTF6VA=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=Y73yZecTKjnVfU3LJfP7fKgtZFHBSA1ozeX6mFvxVOV9X66rZQ13IJyQBaYgzLbUp
+         eDkbqh8PSdVbFZcOYW43sjxF7dBv61OoNfw84HOxP6NkkUq/gD/y5O9Xs4tYFNWZlc
+         nZUv0zSA/9jXKvAEt38RxssAF5BTIrmdmdQO7EBEc3vaaPe+iCdgrGll5xxe+h+pOS
+         usOSGDYWYJjPz1jz52OsUcp96I/aLcBbJCP25N2tSc/GP6F5fjEmR/1KL/G/3JgqlV
+         UTNohM2U+rAtkrBdBVRy7nI+MFNWfPz1d6qW5cTEyM7cR7xPgNayGxgCFIOldJGqsc
+         6EqBoBccXCm3w==
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id C335D35237A0; Thu, 28 Jan 2021 16:49:44 -0800 (PST)
+Date:   Thu, 28 Jan 2021 16:49:44 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Frederic Weisbecker <frederic@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Stable <stable@vger.kernel.org>,
+        Joel Fernandes <joel@joelfernandes.org>
+Subject: Re: [PATCH 07/16] rcu/nocb: Rename nocb_gp_update_state to
+ nocb_gp_update_state_deoffloading
+Message-ID: <20210129004944.GZ2743@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20210128171222.131380-1-frederic@kernel.org>
+ <20210128171222.131380-8-frederic@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:adf:fdc6:0:0:0:0:0 with HTTP; Thu, 28 Jan 2021 16:36:56
- -0800 (PST)
-Reply-To: aillmuhammad760@gmail.com
-From:   "Mr.Muhammad Aill" <willdanel8@gmail.com>
-Date:   Thu, 28 Jan 2021 16:36:56 -0800
-Message-ID: <CAHbWUvbb8oZtB4ftRBvsVxSyQK34geh8hDbsGtL_-B15GVo4dQ@mail.gmail.com>
-Subject: Dear friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210128171222.131380-8-frederic@kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-I am contacting you independently of my investigation in my bank and
-no one is informed of this communication.
-I need your urgent assistance in transferring the sum of $13.5million
-dollars to Your private account, that belongs to one of our late
-foreign customer who died a longtime with his supposed NEXT OF KIN
-since the year 2008.
+On Thu, Jan 28, 2021 at 06:12:13PM +0100, Frederic Weisbecker wrote:
+> Unconfuse a bit the name of this function which suggests returning true
+> when the state is updated. It actually returns true when the rdp is in
+> the process of deoffloading and we must ignore it.
+> 
+> Reported-by: Paul E. McKenney <paulmck@kernel.org>
+> Cc: Josh Triplett <josh@joshtriplett.org>
+> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+> Cc: Joel Fernandes <joel@joelfernandes.org>
+> Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+> Cc: Boqun Feng <boqun.feng@gmail.com>
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 
-The money has been here in our Bank lying dormant for years now
-without anybody coming for the claim of it as the deceased relation. I
-want to release the money to you as the relative to our deceased
-customer, the Banking laws here does not allow such money to stay more
-than 15years, because the money will be recalled to the Bank Treasury
-account as unclaimed fund.
+Fair point, thank you!  I have queued this one for further review and
+testing, with the usual wordsmithing shown below.
 
-I am ready to share with you 40% for you and 60% for me, by indicating
-your interest I will send you the full details on how the business
-will be executed without any hitch.
+							Thanx, Paul
 
-I will be waiting for your urgent response including your mobile that
-is in what sap for easy communication. Here is my Private Email
-address (aillmuhammad760@gmail.com)
+------------------------------------------------------------------------
 
-Thanks.
-Here is my mobile number and whatsApp 0022669813005
+commit 142d159f544763140e0f498936bca8f71563e0e0
+Author: Frederic Weisbecker <frederic@kernel.org>
+Date:   Thu Jan 28 18:12:13 2021 +0100
 
-Best Regards,
-Mr. Muhammad Aill
+    rcu/nocb: Rename nocb_gp_update_state to nocb_gp_update_state_deoffloading
+    
+    The name nocb_gp_update_state() is unenlightening, so this commit changes
+    it to nocb_gp_update_state_deoffloading().  This function now does what
+    its name says, updates state and returns true if the CPU corresponding to
+    the specified rcu_data structure is in the process of being de-offloaded.
+    
+    Reported-by: Paul E. McKenney <paulmck@kernel.org>
+    Cc: Josh Triplett <josh@joshtriplett.org>
+    Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+    Cc: Joel Fernandes <joel@joelfernandes.org>
+    Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+    Cc: Boqun Feng <boqun.feng@gmail.com>
+    Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+    Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index a3db700..9c0ee82 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2014,7 +2014,8 @@ static inline bool nocb_gp_enabled_cb(struct rcu_data *rdp)
+ 	return rcu_segcblist_test_flags(&rdp->cblist, flags);
+ }
+ 
+-static inline bool nocb_gp_update_state(struct rcu_data *rdp, bool *needwake_state)
++static inline bool nocb_gp_update_state_deoffloading(struct rcu_data *rdp,
++						     bool *needwake_state)
+ {
+ 	struct rcu_segcblist *cblist = &rdp->cblist;
+ 
+@@ -2024,7 +2025,7 @@ static inline bool nocb_gp_update_state(struct rcu_data *rdp, bool *needwake_sta
+ 			if (rcu_segcblist_test_flags(cblist, SEGCBLIST_KTHREAD_CB))
+ 				*needwake_state = true;
+ 		}
+-		return true;
++		return false;
+ 	}
+ 
+ 	/*
+@@ -2035,7 +2036,7 @@ static inline bool nocb_gp_update_state(struct rcu_data *rdp, bool *needwake_sta
+ 	rcu_segcblist_clear_flags(cblist, SEGCBLIST_KTHREAD_GP);
+ 	if (!rcu_segcblist_test_flags(cblist, SEGCBLIST_KTHREAD_CB))
+ 		*needwake_state = true;
+-	return false;
++	return true;
+ }
+ 
+ 
+@@ -2073,7 +2074,7 @@ static void nocb_gp_wait(struct rcu_data *my_rdp)
+ 			continue;
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("Check"));
+ 		rcu_nocb_lock_irqsave(rdp, flags);
+-		if (!nocb_gp_update_state(rdp, &needwake_state)) {
++		if (nocb_gp_update_state_deoffloading(rdp, &needwake_state)) {
+ 			rcu_nocb_unlock_irqrestore(rdp, flags);
+ 			if (needwake_state)
+ 				swake_up_one(&rdp->nocb_state_wq);
