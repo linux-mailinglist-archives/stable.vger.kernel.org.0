@@ -2,141 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E16E13082C6
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 02:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53370308351
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 02:39:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231127AbhA2A5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jan 2021 19:57:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbhA2A5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 19:57:41 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4904BC061574
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:57:01 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id j18so5642736wmi.3
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 16:57:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexus-software-ie.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0EQ8oHxswQLReramq9MegxVqQbGVrPNP9ryMhszFjBk=;
-        b=jwq8M9JUZCx6Pnwz1HkbsBA2fTitT+cg4tdbXBhP45yNzL13pw+G2HWtAFapRoG7SK
-         qyor7CDorsFQsC+9cpI8TPo35+nDzR56NPZukataTMmUNirp+VvY6jYKjZ/dfRWkLwxA
-         B3PkJ/2JCcEvFkfC6POrhHi+IZtEEk8X/AL+cg9NrqVFrPaqifCS5ZEBrOFzClf4oLh6
-         TU1TlxZ4KnDOSZAikzBzfDX3Lv/urkmVwGzy5d3XDyqOe6WuYPLHt+jz6mXmhHx9cpjU
-         PbNW9nlZQbKD9GOABpFXPHlyR/KYPVPI6G5kOOZXxtj3ESCLRjmPAsDsJO0esui+9Rpo
-         2TXQ==
+        id S231361AbhA2Biv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jan 2021 20:38:51 -0500
+Received: from mail-io1-f69.google.com ([209.85.166.69]:36559 "EHLO
+        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231237AbhA2Bir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jan 2021 20:38:47 -0500
+Received: by mail-io1-f69.google.com with SMTP id f7so5638916ioz.3
+        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 17:38:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0EQ8oHxswQLReramq9MegxVqQbGVrPNP9ryMhszFjBk=;
-        b=pZ9HabLdBFTVGNhSi4LKVJVhUisTWQW60WbxWJxih11ffvtvAXKGQyPdJ4As4oJ7bo
-         8gSvFQHJZp7t2DpTzlUiH9iscQmacHoL7jpqR1dLfiuWdFbFulXdYvSo8HmjNi0p541G
-         rVaKqOOxt57ySvLU0W4wLMueZYr9WCImsHh14QcoNpd9dGVBH6Yri3jLzkgYDAP6f7Sx
-         pat1hFrLya/7aWHEJaXc7JfHCUCuHmqCkBo+UZu0JL91nO0XJxJoatYAiOtn9tRuTQk8
-         F7Q0KST1lmAkulo4QuqC1gpJ81UwVSuCFOnUwqhMkCIrozW2rMfPRlC6aW+MKVHnUmeA
-         28ow==
-X-Gm-Message-State: AOAM5329cFQtmuPUZW9ig7fqe3BBGlV7O+c0O1fIjFzFjhqhbKj1v7VE
-        IA0WMVq2uy7ggyme4b5TSujZtKYHohF3kg==
-X-Google-Smtp-Source: ABdhPJys7hSWhUI0t0CZYBMud1VhQErR8P6z+a5CQRh2QM9TbVxDiCmcvce6I0WEcPAc1wKhdSysNg==
-X-Received: by 2002:a1c:9850:: with SMTP id a77mr1443768wme.163.1611881819906;
-        Thu, 28 Jan 2021 16:56:59 -0800 (PST)
-Received: from [192.168.0.162] (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
-        by smtp.gmail.com with ESMTPSA id z184sm8185018wmg.7.2021.01.28.16.56.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jan 2021 16:56:59 -0800 (PST)
-Subject: Re: [PATCH] usb: dwc3: gadget: Init only available HW eps
-To:     Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-Cc:     John Youn <John.Youn@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <3080c0452df14d510d24471ce0f9bb7592cdfd4d.1609866964.git.Thinh.Nguyen@synopsys.com>
- <87eeiycxld.fsf@kernel.org>
- <75d63bab-1cdc-737e-8ae2-64e0ddeeef75@synopsys.com>
- <87k0spay6z.fsf@kernel.org>
- <cacf58e7-e131-2caa-5fb3-1af7db8270b4@synopsys.com>
- <19b685a9-0c25-9b6c-ecaf-ffca4069182b@synopsys.com>
- <87eeivwrb9.fsf@kernel.org>
-From:   Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Message-ID: <c322742e-271d-e267-f499-3cc8a2dc7df6@nexus-software.ie>
-Date:   Fri, 29 Jan 2021 00:58:19 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.3
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=lm16eCirJMAjlWtITfJJw0jmgaMJxdBabVfxLijbAp0=;
+        b=sejScSJsL2V8wLAxi+XRV7ZZ6MGkYLuXEBni/x6wbtp8UhIh4EboqfI1qVVsgk9i+G
+         sCex4BwEWYWcBMzgpKVwf0/HnvosOwk0lZOR/GNMULqxTWbNYrWg8STYywOqnN42qAON
+         evSIlXuuGWIG3IcplExOnoeSbUGguoPkdU9F+FdFyxGCfc2Q6H1KC0TxWf4Sq3Wjwp85
+         DOmDFyjB3UupQuvEJL2/sAObTZHA3RMgxTQBdT32kyYM7mkuSeKFCYWI6aMG9/FqFn8V
+         st4URuy8mdjle2+/dzIiyuGLvt1HWIAPsUsxvypFAEUX45KlyC75KIZdBzcsT83xHLaN
+         smWA==
+X-Gm-Message-State: AOAM5323mIFJ+CDzAYy3q8x0YeEjT+zBSLPLTutemihcopTCjB+AIZnY
+        8oliMOjbctOXYnJNnMhPacviXzqQ5MP41J4Drp3qECytgs4M
+X-Google-Smtp-Source: ABdhPJzaeeto+90vKfwCqIzrB5cp8eqdHC8gCKgD33zO40cOrw2abKT9qoVAFdgqqOolzOUWECqyCPq1B3LE/EP9Hzwa53UUwB8D
 MIME-Version: 1.0
-In-Reply-To: <87eeivwrb9.fsf@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a6b:f714:: with SMTP id k20mr2029676iog.70.1611884286518;
+ Thu, 28 Jan 2021 17:38:06 -0800 (PST)
+Date:   Thu, 28 Jan 2021 17:38:06 -0800
+In-Reply-To: <000000000000619ae405b9f8cf6e@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000512a7f05ba000ead@google.com>
+Subject: Re: WARNING in io_uring_cancel_task_requests
+From:   syzbot <syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mingo@kernel.org, mingo@redhat.com,
+        peterz@infradead.org, rostedt@goodmis.org, stable@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, will@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/01/2021 12:23, Felipe Balbi wrote:
-> 
-> Hi,
-> 
-> Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
->>>>>> How have you verified this patch? Did you read Bryan's commit log? This
->>>>>> is likely to reintroduce the problem raised by Bryan.
->>>>>>
->>>>> We verified with our FPGA HAPS with various number of endpoints. No
->>>>> issue is seen.
->>>> That's cool. Could you please make sure our understanding of this is
->>>> sound and won't interfere with any designs? If we modify this part of
->>>> the code again, I'd like to see a clear reference to a specific section
->>>> of the databook detailing the expected behavior :-)
->>>>
->>>> cheers
->>>>
->>> Hm... I didn't consider bidirection endpoint other than control endpoint.
->>>
->>> DWC3_USB3x_NUM_EPS specifies the number of device mode for single
->>> directional endpoints. A bidirectional endpoint needs 2 single
->>> directional endpoints, 1 IN and 1 OUT. So, if your setup uses 3
->>> bidirection endpoints and only those, DWC3_USB3x_NUM_EPS should be 6.
->>> DWC3_USB3x_NUM_IN_EPS specifies the maximum number of IN endpoint active
->>> at any time.
->>>
->>> However, I will have to double check and confirm internally regarding
->>> how to determine many endpoint would be available if bidirection
->>> endpoints come into play.
->>>
->>> Thanks for pointing this out. Will get back on this.
->>>
->>> Thinh
->>>
->>
->> Ok. Just had some discussion internally. So, like you said, any endpoint
->> can be configured in either direction. However, we are limited to
->> configuring up to DWC_USB3x_NUM_IN_EPS because each IN endpoint has its
->> own TxFIFO while for OUT, they share the same RxFIFO. So we could have
->> up to DWC_USB3x_NUM_EPS number of OUT endpoints. So, the issue Bryan
->> attempted to address is still there.
->>
->> However, the current code still has some assumption on the number of IN
->> and OUT endpoints, I need to think of a better solution.
-> 
-> Yes, the assumption still exists because at the time there was no better
-> solution :-)
-> 
+syzbot has bisected this issue to:
 
-Just found this now.
+commit 4d004099a668c41522242aa146a38cc4eb59cb1e
+Author: Peter Zijlstra <peterz@infradead.org>
+Date:   Fri Oct 2 09:04:21 2020 +0000
 
-The commit log is too wordy. You can configure the RTL so that every 
-endpoint can be either direction.
+    lockdep: Fix lockdep recursion
 
-So DWC_USB3_NUM == DWC_USB3_NUM_IN_EPS
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=133f3090d00000
+start commit:   d03154e8 Add linux-next specific files for 20210128
+git tree:       linux-next
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=10bf3090d00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=173f3090d00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=6953ffb584722a1
+dashboard link: https://syzkaller.appspot.com/bug?extid=3e3d9bd0c6ce9efbc3ef
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11a924c4d00000
 
-The old code was predicated on the notion the RTL was configured with 
-EP0 IN/OUT basically fixed.
+Reported-by: syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com
+Fixes: 4d004099a668 ("lockdep: Fix lockdep recursion")
 
-In practice this _should_ be the case but the RTL does not enforce it 
-and yes this appears in a real SoC from Imagination.
-
----
-bod
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
