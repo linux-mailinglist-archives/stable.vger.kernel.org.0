@@ -2,98 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B548308B83
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 18:33:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9368E308BE1
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 18:53:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbhA2R1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 12:27:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:26351 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232496AbhA2RZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 12:25:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611941066;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1tJEDpVaTU2o7pEzEYi/Itw24bwaC7NiGn/22B7qnc4=;
-        b=FxJLjFZbOMYun0Xzb6wLVUBRr5pgeklEGdVzyiLgQ4Urwejh7wsGGHqjlJnAojRLTYQfsO
-        +QGs+M9E7d2P3gks4Nk0IK755ZQBqXoGbBzrzZZT8OF0/W5c66ef2VeK9WRRBiq6k5QTNm
-        F6f5vu9WGsElZYi+3l+ZbcLPiLWGORo=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-34-sNyJtDYdM_qLTb-NyMUslw-1; Fri, 29 Jan 2021 12:24:24 -0500
-X-MC-Unique: sNyJtDYdM_qLTb-NyMUslw-1
-Received: by mail-il1-f199.google.com with SMTP id g3so8223934ild.4
-        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 09:24:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:subject:to:cc:message-id:in-reply-to
-         :references:mime-version;
-        bh=1tJEDpVaTU2o7pEzEYi/Itw24bwaC7NiGn/22B7qnc4=;
-        b=jp2/PW6gDEI6ovt1MUfZDayZPLGUfq9mGp6Yu8bi/IXVM0inAlaY5QE4u7RCIMmO8o
-         6I2JpA8pgJASMl6xO1voGUYqNsh5pJDJCCqQfpojGGyzmpA3ulEN41SJB9Se+UFvpQQW
-         BDg4mwOhK3Hd0jKB7bepqZ2CXZUVcL5935NFjRjcfkvwg3UHnOAh0FS30C5033vJ++hY
-         bHxtj2rEH/iPsm705pAWl/gA7uTUMg3dDtZl4B5+wWaV3STYoVAaw7pdE4JOpN/VLikJ
-         KCpTobOYsXPmSs2sGy2kI4ei7oTq9s4yQfIWt+ja84yXSRugTxaa5AWGUR1eVcCXNHc5
-         sgmQ==
-X-Gm-Message-State: AOAM5338rnlsgoMQtYbiHiuF+B8LnoQWhoVEquB/kyXdc+yc/YiPRg24
-        t9XMHHnjYqszo+YB+E9FFpKftnUALRlm6XkEpb/ijkC8b5eUwdPNUVJ6T4C6N2z5jkE/cg9vWEk
-        EhAbQVqo/eszyrk44
-X-Received: by 2002:a05:6638:229b:: with SMTP id y27mr4572000jas.136.1611941063554;
-        Fri, 29 Jan 2021 09:24:23 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxBQCa/aQwAwI0WBJb/kQp4EcDUYeQ7uixWQ+zr7FFHIFR0qu+Poa5+gr/i329TB8Xg1vOo1g==
-X-Received: by 2002:a05:6638:229b:: with SMTP id y27mr4571989jas.136.1611941063408;
-        Fri, 29 Jan 2021 09:24:23 -0800 (PST)
-Received: from chargestone-cave ([2607:9000:0:57::8e])
-        by smtp.gmail.com with ESMTPSA id b16sm4761308ile.32.2021.01.29.09.24.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Jan 2021 09:24:22 -0800 (PST)
-Date:   Fri, 29 Jan 2021 11:24:16 -0600
-From:   Michael Catanzaro <mcatanzaro@redhat.com>
-Subject: Re: [REGRESSION] "ALSA: HDA: Early Forbid of runtime PM" broke
- =?UTF-8?Q?my=0D=0A?= laptop's internal audio
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     "N, Harshapriya" <harshapriya.n@intel.com>,
-        alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-kernel@vger.kernel.org,
-        kai.vehmanen@intel.com, stable@vger.kernel.org
-Message-Id: <GOHPNQ.RTPVHYRR9NQ62@redhat.com>
-In-Reply-To: <s5hft2jlnt4.wl-tiwai@suse.de>
-References: <EM1ONQ.OL5CFJTBEBBW@redhat.com>
-        <BY5PR11MB430713319F12454CF71A1E73FDB99@BY5PR11MB4307.namprd11.prod.outlook.com>
-        <U3BPNQ.P8Q6LYEGXHB5@redhat.com> <s5hsg6jlr4q.wl-tiwai@suse.de>
-        <9ACPNQ.AF32G3OJNPHA3@redhat.com> <IECPNQ.0TZXZXWOZX8L2@redhat.com>
-        <8CEPNQ.GAG87LR8RI871@redhat.com> <s5hft2jlnt4.wl-tiwai@suse.de>
-X-Mailer: geary/3.38.1
+        id S232535AbhA2Rpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 12:45:55 -0500
+Received: from mga11.intel.com ([192.55.52.93]:14122 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232553AbhA2Rnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Jan 2021 12:43:35 -0500
+IronPort-SDR: pDEiCcF7OawcaAYyDBGeAlpYWO9BWD/5GYyswIveKPgyYdaDPglPqTHc5BYTMSilNnpKkGUv4f
+ ClP+46v/Y/vw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9879"; a="176952163"
+X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
+   d="scan'208";a="176952163"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 09:40:27 -0800
+IronPort-SDR: ZrQ/cnhtRMHvTsAF1tV5hd/039K/H2FgupUL1a5205aoGNRchC4UEwFGHMgz8nEqKvTrcBtWLV
+ BPGqZwZvy9dA==
+X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
+   d="scan'208";a="365345834"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 09:40:26 -0800
+Date:   Fri, 29 Jan 2021 19:40:22 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 3/5] drm/i915: Power up combo PHY lanes for
+ for HDMI as well
+Message-ID: <20210129174022.GF183052@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20210128155948.13678-1-ville.syrjala@linux.intel.com>
+ <20210128155948.13678-3-ville.syrjala@linux.intel.com>
+ <20210129170633.GC183052@ideak-desk.fi.intel.com>
+ <YBRDS8ye67GY+kdM@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YBRDS8ye67GY+kdM@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 29, 2021 at 5:17 pm, Takashi Iwai <tiwai@suse.de> wrote:
-> --- a/sound/pci/hda/hda_intel.c
-> +++ b/sound/pci/hda/hda_intel.c
-> @@ -2217,8 +2217,6 @@ static const struct snd_pci_quirk 
-> power_save_denylist[] = {
->  	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
->  	SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
->  	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
-> -	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
-> -	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
->  	SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
->  	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
->  	/* Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA 
-> dev */
+On Fri, Jan 29, 2021 at 07:18:03PM +0200, Ville Syrjälä wrote:
+> On Fri, Jan 29, 2021 at 07:06:33PM +0200, Imre Deak wrote:
+> > On Thu, Jan 28, 2021 at 05:59:46PM +0200, Ville Syrjala wrote:
+> > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > 
+> > > Currently we only explicitly power up the combo PHY lanes
+> > > for DP. The spec says we should do it for HDMI as well.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > ---
+> > >  drivers/gpu/drm/i915/display/intel_ddi.c | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+> > > index 88cc6e2fbe91..8fbeb8c24efb 100644
+> > > --- a/drivers/gpu/drm/i915/display/intel_ddi.c
+> > > +++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+> > > @@ -4337,6 +4337,8 @@ static void intel_enable_ddi_hdmi(struct intel_atomic_state *state,
+> > >  		intel_de_write(dev_priv, reg, val);
+> > >  	}
+> > >  
+> > > +	intel_ddi_power_up_lanes(encoder, crtc_state);
+> > > +
+> > 
+> > Not sure if it matters, but the spec says to apply WA #1143 just before
+> > enabling DDI_BUF_CTL.
+> 
+> intel_ddi_power_up_lanes() is a nop for pre-icl, so we still do that.
 
-Hi,
+Ok, missed this detail, it looks ok then:
+Reviewed-by: Imre Deak <imre.deak@intel.com>
 
-This patch works fine on my laptop. I have no clue whether that means 
-it's really safe to remove the quirk. I've never noticed any clicking 
-noise myself, but I understand it has been a problem for other System76 
-laptops.
-
-Michael
-
-
+> Also not sure what the final fate of that w/a will be since apparently
+> it's not working as intended.
+> 
+> That said I was debating with myself what order to put these in, but
+> in the end I chose this order because the w/a is related to the
+> vswing programming, and so wanted to keep it next to the BUF_TRANS
+> programming.
+>
+> > >  	/* In HDMI/DVI mode, the port width, and swing/emphasis values
+> > >  	 * are ignored so nothing special needs to be done besides
+> > >  	 * enabling the port.
+> > > -- 
+> > > 2.26.2
+> > > 
+> > > _______________________________________________
+> > > Intel-gfx mailing list
+> > > Intel-gfx@lists.freedesktop.org
+> > > https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> 
+> -- 
+> Ville Syrjälä
+> Intel
