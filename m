@@ -2,216 +2,292 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E423308658
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 08:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DE73088C6
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 13:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230388AbhA2HWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 02:22:06 -0500
-Received: from mailout4.samsung.com ([203.254.224.34]:55809 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbhA2HWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 02:22:05 -0500
-Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20210129072120epoutp04a49d9da12b413a92b32c08c1d3afa5f3~eovLqH92g0140301403epoutp04x
-        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 07:21:20 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20210129072120epoutp04a49d9da12b413a92b32c08c1d3afa5f3~eovLqH92g0140301403epoutp04x
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1611904880;
-        bh=ZxUrhT4XL07XoRUNd+S7dt9dlQeeyIZW/iU9uD3HH7w=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=PAvZ1apRc8JRBO5v3rHTpHBkb5s2qXgfrLkNg8D7WX1UKXgdC/odOZgxUTcfa6PVo
-         x/WnKBJg4tC4B0fxPFRz/cuayOUuEjdIjNU+Y0U4lgYjZCo9aT1z5qb2mpaPnP1HNr
-         yozcRLxQ3ub/+8psEefkI0twgfd79ntKFDR2pECQ=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20210129072120epcas1p1e3f86d83e9259d06dc8c30e3c4ccb6e4~eovLGo8vf0192401924epcas1p12;
-        Fri, 29 Jan 2021 07:21:20 +0000 (GMT)
-Received: from epsmges1p2.samsung.com (unknown [182.195.40.160]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4DRpfl2bJ9z4x9Q1; Fri, 29 Jan
-        2021 07:21:19 +0000 (GMT)
-Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
-        epsmges1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        2D.D3.63458.E67B3106; Fri, 29 Jan 2021 16:21:18 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8~eovI7NpQm0549805498epcas1p2l;
-        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210129072117epsmtrp207fd2d2ecd1e7d4710a918ef042602be~eovI6h68I0251502515epsmtrp2K;
-        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
-X-AuditID: b6c32a36-6dfff7000000f7e2-e5-6013b76e4740
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        58.63.08745.D67B3106; Fri, 29 Jan 2021 16:21:17 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.88.103.87]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20210129072117epsmtip1cd58d4e706a6f6603289a2b94cf4e57f~eovIwxIoa0277902779epsmtip16;
-        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
-From:   Namjae Jeon <namjae.jeon@samsung.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     willy@infradead.org, rdunlap@infradead.org, sj1557.seo@samsung.com,
-        Namjae Jeon <namjae.jeon@samsung.com>, stable@vger.kernel.org
-Subject: [PATCH] exfat: fix shift-out-of-bounds in exfat_fill_super()
-Date:   Fri, 29 Jan 2021 16:12:21 +0900
-Message-Id: <20210129071222.7582-1-namjae.jeon@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrLKsWRmVeSWpSXmKPExsWy7bCmnm7eduEEgzkzhS327D3JYvFjer3F
-        2zvTWSy2/DvCarFg4yNGi98/5rA5sHlsXqHl0bdlFaPH501yAcxROTYZqYkpqUUKqXnJ+SmZ
-        eem2St7B8c7xpmYGhrqGlhbmSgp5ibmptkouPgG6bpk5QFuVFMoSc0qBQgGJxcVK+nY2Rfml
-        JakKGfnFJbZKqQUpOQWGBgV6xYm5xaV56XrJ+blWhgYGRqZAlQk5GU8P/mMvmKxYMeHxAqYG
-        xhfSXYycHBICJhIvFi5l6mLk4hAS2MEoMfPrXmYI5xOjxO0v3VDOZ0aJ2X0L2WFazt3ZywqR
-        2MUosabrEwtIAqxl9/uaLkYODjYBbYk/W0RBTBEBRYnL751AypkF2hklZh2czwxSLizgKrF+
-        /RlWEJtFQFViy+l9YGN4Bawl7jzfxwixS15i9YYDYEdICExnl9g77SMTRMJFYvKbWVAHCUu8
-        Or4FypaS+PxuLxvIYgmBaomP+5khwh2MEi++20LYxhI3129gBSlhFtCUWL9LHyKsKLHz91yw
-        tcwCfBLvvvawQkzhlehoE4IoUZXou3QY6gBpia72D1BLPSSerfzMCAmEWIlHT9+wT2CUnYWw
-        YAEj4ypGsdSC4tz01GLDAiPkKNrECE5HWmY7GCe9/aB3iJGJg/EQowQHs5II79s5QglCvCmJ
-        lVWpRfnxRaU5qcWHGE2BwTWRWUo0OR+YEPNK4g1NjYyNjS1MzMzNTI2VxHkTDR7ECwmkJ5ak
-        ZqemFqQWwfQxcXBKNTCJK+R88Srg8BN38n65x5o1+6nfBok5q/46B00wPb9t1++8dJUYu2Db
-        LZxCSzKvKT9hD/wl9XGlhXpx3vQeadXfCw5fT987g+ed86onlifWT0v5t2wF/z43tehp6o35
-        K8J2/e+OLLp2ok5M0tG07MD3f+e6yhf/2CuV2pilv3XVxN630XLuJx+L2esvuVGmWLCPf7ad
-        3szqG/e1c4xs+wVLRZ0iDrhvDTxQZ7PwyuzSszwrti6xXrCBrSZQ8v4boTNzimaWTu589d60
-        e4fL5Ydvyu7mMHXPCFAsW2iTm6mV3Whz6Oo1y+tr1rAfmiPi8PJtBCtb56YOPe47z7OTPXje
-        rHSq/cr0g/fdtkv2SaFKLMUZiYZazEXFiQD/ITyR0AMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrFJMWRmVeSWpSXmKPExsWy7bCSnG7uduEEg4bZxhZ79p5ksfgxvd7i
-        7Z3pLBZb/h1htViw8RGjxe8fc9gc2Dw2r9Dy6NuyitHj8ya5AOYoLpuU1JzMstQifbsEroyn
-        B/+xF0xWrJjweAFTA+ML6S5GTg4JAROJc3f2soLYQgI7GCU+HROAiEtLHDtxhrmLkQPIFpY4
-        fLgYouQDo8SRB/IgYTYBbYk/W0RBTBEBRYnL7526GLk4mAV6GSWaWrYyg5QLC7hKrF9/Bmw6
-        i4CqxJbT+1hAbF4Ba4k7z/cxQmySl1i94QDzBEaeBYwMqxglUwuKc9Nziw0LjPJSy/WKE3OL
-        S/PS9ZLzczcxgoNDS2sH455VH/QOMTJxMB5ilOBgVhLhfTtHKEGINyWxsiq1KD++qDQntfgQ
-        ozQHi5I474Wuk/FCAumJJanZqakFqUUwWSYOTqkGppklMlEXvhj/7Tjk4lYdeXVvs53TT52X
-        259JzzozYeZBq0frjkzRPrfI5f5m1rzafxmG9lvF+gRaz+6cefXT2lcyyX0Vye9bUwtCb6ye
-        Z3/DuY37zITKY1p6heuXbeSZNWnug/WmS04sziv8Oen9kq0XFd90mJ6dPOFczPkwSy9loxtl
-        Mss3BAn2xkj+Oj2b/1qOzoWFVWmG75LPnWF2TXT4dWPSw5YPV6ZIKx/7s2mdg+jleSKPvkg+
-        rpMy+L9m5/r+XJvc7Fv2GV9kEt67X+f6s3aFsdOZ888Fc1atyD7YdKGdq/RJ09Ni8btXGi3u
-        efYY/z4Tmjo/1qB76aRzy822PdUqDfq+7mNNJS//arupSizFGYmGWsxFxYkArwc/CX0CAAA=
-X-CMS-MailID: 20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8
-References: <CGME20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8@epcas1p2.samsung.com>
+        id S232526AbhA2MBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 07:01:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54724 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232432AbhA2L6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Jan 2021 06:58:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE0B64F5B;
+        Fri, 29 Jan 2021 11:12:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1611918750;
+        bh=DTDXBYAvLegemn4pqnV8Hz8yupUpTspWp1Tmm7EXYbQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HK+LkIzqRZgHsIwqbIoBt3WpDxcV5Nz++Zo7jOd4nHSTiMXGU6n3iip+IqM/Z64dq
+         OQapP7InfNThPAnIWIKtm+rT5zIEJ/haGc1ikAI52B+GOuzIhsY+aAlEuGP8bwfjUb
+         QDu9IcXdkMSAdQ4pfxF10zjkSDFGQwUPQJ64jjdk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/50] xen: Fix event channel callback via INTX/GSI
+Date:   Fri, 29 Jan 2021 12:06:35 +0100
+Message-Id: <20210129105913.904220394@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210129105913.476540890@linuxfoundation.org>
+References: <20210129105913.476540890@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-syzbot reported a warning which could cause shift-out-of-bounds issue.
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x183/0x22e lib/dump_stack.c:120
- ubsan_epilogue lib/ubsan.c:148 [inline]
- __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
- exfat_read_boot_sector fs/exfat/super.c:471 [inline]
- __exfat_fill_super fs/exfat/super.c:556 [inline]
- exfat_fill_super+0x2acb/0x2d00 fs/exfat/super.c:624
- get_tree_bdev+0x406/0x630 fs/super.c:1291
- vfs_get_tree+0x86/0x270 fs/super.c:1496
- do_new_mount fs/namespace.c:2881 [inline]
- path_mount+0x1937/0x2c50 fs/namespace.c:3211
- do_mount fs/namespace.c:3224 [inline]
- __do_sys_mount fs/namespace.c:3432 [inline]
- __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3409
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ Upstream commit 3499ba8198cad47b731792e5e56b9ec2a78a83a2 ]
 
-exfat specification describe sect_per_clus_bits field of boot sector
-could be at most 16 and at least 0. And sect_size_bits can also
-affect this calculation, It also needs validation.
-This patch add validation for sect_per_clus_bits and sect_size_bits
-field of boot sector.
+For a while, event channel notification via the PCI platform device
+has been broken, because we attempt to communicate with xenstore before
+we even have notifications working, with the xs_reset_watches() call
+in xs_init().
 
-Fixes: 719c1e182916 ("exfat: add super block operations")
-Cc: stable@vger.kernel.org # v5.9+
-Reported-by: syzbot+da4fe66aaadd3c2e2d1c@syzkaller.appspotmail.com
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+We tend to get away with this on Xen versions below 4.0 because we avoid
+calling xs_reset_watches() anyway, because xenstore might not cope with
+reading a non-existent key. And newer Xen *does* have the vector
+callback support, so we rarely fall back to INTX/GSI delivery.
+
+To fix it, clean up a bit of the mess of xs_init() and xenbus_probe()
+startup. Call xs_init() directly from xenbus_init() only in the !XS_HVM
+case, deferring it to be called from xenbus_probe() in the XS_HVM case
+instead.
+
+Then fix up the invocation of xenbus_probe() to happen either from its
+device_initcall if the callback is available early enough, or when the
+callback is finally set up. This means that the hack of calling
+xenbus_probe() from a workqueue after the first interrupt, or directly
+from the PCI platform device setup, is no longer needed.
+
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210113132606.422794-2-dwmw2@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/exfat_raw.h |  4 ++++
- fs/exfat/super.c     | 31 ++++++++++++++++++++++++++-----
- 2 files changed, 30 insertions(+), 5 deletions(-)
+ arch/arm/xen/enlighten.c          |  2 +-
+ drivers/xen/events/events_base.c  | 10 ----
+ drivers/xen/platform-pci.c        |  1 -
+ drivers/xen/xenbus/xenbus.h       |  1 +
+ drivers/xen/xenbus/xenbus_comms.c |  8 ---
+ drivers/xen/xenbus/xenbus_probe.c | 81 +++++++++++++++++++++++++------
+ include/xen/xenbus.h              |  2 +-
+ 7 files changed, 70 insertions(+), 35 deletions(-)
 
-diff --git a/fs/exfat/exfat_raw.h b/fs/exfat/exfat_raw.h
-index 6aec6288e1f2..7c4c356efa5f 100644
---- a/fs/exfat/exfat_raw.h
-+++ b/fs/exfat/exfat_raw.h
-@@ -77,6 +77,10 @@
+diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
+index ba7f4c8f5c3e4..e8e637c4f354d 100644
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -393,7 +393,7 @@ static int __init xen_guest_init(void)
+ 	}
+ 	gnttab_init();
+ 	if (!xen_initial_domain())
+-		xenbus_probe(NULL);
++		xenbus_probe();
  
- #define EXFAT_FILE_NAME_LEN		15
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index aca8456752797..8c08c7d46d3d0 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1987,16 +1987,6 @@ static struct irq_chip xen_percpu_chip __read_mostly = {
+ 	.irq_ack		= ack_dynirq,
+ };
  
-+#define EXFAT_MIN_SECT_SIZE_BITS	9
-+#define EXFAT_MAX_SECT_SIZE_BITS	12
-+#define EXFAT_MAX_SECT_PER_CLUS_BITS	16
-+
- /* EXFAT: Main and Backup Boot Sector (512 bytes) */
- struct boot_sector {
- 	__u8	jmp_boot[BOOTSEC_JUMP_BOOT_LEN];
-diff --git a/fs/exfat/super.c b/fs/exfat/super.c
-index 87be5bfc31eb..ac5a8f7d2397 100644
---- a/fs/exfat/super.c
-+++ b/fs/exfat/super.c
-@@ -381,8 +381,7 @@ static int exfat_calibrate_blocksize(struct super_block *sb, int logical_sect)
+-int xen_set_callback_via(uint64_t via)
+-{
+-	struct xen_hvm_param a;
+-	a.domid = DOMID_SELF;
+-	a.index = HVM_PARAM_CALLBACK_IRQ;
+-	a.value = via;
+-	return HYPERVISOR_hvm_op(HVMOP_set_param, &a);
+-}
+-EXPORT_SYMBOL_GPL(xen_set_callback_via);
+-
+ #ifdef CONFIG_XEN_PVHVM
+ /* Vector callbacks are better than PCI interrupts to receive event
+  * channel notifications because we can receive vector callbacks on any
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index 5d7dcad0b0a0d..4cec8146609ad 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -162,7 +162,6 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+-	xenbus_probe(NULL);
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
+diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
+index 139539b0ab20d..e6a8d02d35254 100644
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -114,6 +114,7 @@ int xenbus_probe_node(struct xen_bus_type *bus,
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
++void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
+index eb5151fc8efab..e5fda0256feb3 100644
+--- a/drivers/xen/xenbus/xenbus_comms.c
++++ b/drivers/xen/xenbus/xenbus_comms.c
+@@ -57,16 +57,8 @@ DEFINE_MUTEX(xs_response_mutex);
+ static int xenbus_irq;
+ static struct task_struct *xenbus_task;
+ 
+-static DECLARE_WORK(probe_work, xenbus_probe);
+-
+-
+ static irqreturn_t wake_waiting(int irq, void *unused)
  {
- 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+-	if (unlikely(xenstored_ready == 0)) {
+-		xenstored_ready = 1;
+-		schedule_work(&probe_work);
+-	}
+-
+ 	wake_up(&xb_waitq);
+ 	return IRQ_HANDLED;
+ }
+diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
+index 217bcc092a968..fe24e8dcb2b8e 100644
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -674,29 +674,76 @@ void unregister_xenstore_notifier(struct notifier_block *nb)
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
  
--	if (!is_power_of_2(logical_sect) ||
--	    logical_sect < 512 || logical_sect > 4096) {
-+	if (!is_power_of_2(logical_sect)) {
- 		exfat_err(sb, "bogus logical sector size %u", logical_sect);
- 		return -EIO;
- 	}
-@@ -451,6 +450,25 @@ static int exfat_read_boot_sector(struct super_block *sb)
- 		return -EINVAL;
- 	}
+-void xenbus_probe(struct work_struct *unused)
++void xenbus_probe(void)
+ {
+ 	xenstored_ready = 1;
  
 +	/*
-+	 * sect_size_bits could be at least 9 and at most 12.
++	 * In the HVM case, xenbus_init() deferred its call to
++	 * xs_init() in case callbacks were not operational yet.
++	 * So do it now.
 +	 */
-+	if (p_boot->sect_size_bits < EXFAT_MIN_SECT_SIZE_BITS ||
-+	    p_boot->sect_size_bits > EXFAT_MAX_SECT_SIZE_BITS) {
-+		exfat_err(sb, "bogus sector size bits : %u\n",
-+				p_boot->sect_size_bits);
-+		return -EINVAL;
-+	}
++	if (xen_store_domain_type == XS_HVM)
++		xs_init();
++
+ 	/* Notify others that xenstore is up */
+ 	blocking_notifier_call_chain(&xenstore_chain, 0, NULL);
+ }
+-EXPORT_SYMBOL_GPL(xenbus_probe);
+ 
+-static int __init xenbus_probe_initcall(void)
++/*
++ * Returns true when XenStore init must be deferred in order to
++ * allow the PCI platform device to be initialised, before we
++ * can actually have event channel interrupts working.
++ */
++static bool xs_hvm_defer_init_for_callback(void)
+ {
+-	if (!xen_domain())
+-		return -ENODEV;
++#ifdef CONFIG_XEN_PVHVM
++	return xen_store_domain_type == XS_HVM &&
++		!xen_have_vector_callback;
++#else
++	return false;
++#endif
++}
+ 
+-	if (xen_initial_domain() || xen_hvm_domain())
+-		return 0;
++static int __init xenbus_probe_initcall(void)
++{
++	/*
++	 * Probe XenBus here in the XS_PV case, and also XS_HVM unless we
++	 * need to wait for the platform PCI device to come up.
++	 */
++	if (xen_store_domain_type == XS_PV ||
++	    (xen_store_domain_type == XS_HVM &&
++	     !xs_hvm_defer_init_for_callback()))
++		xenbus_probe();
+ 
+-	xenbus_probe(NULL);
+ 	return 0;
+ }
+-
+ device_initcall(xenbus_probe_initcall);
+ 
++int xen_set_callback_via(uint64_t via)
++{
++	struct xen_hvm_param a;
++	int ret;
++
++	a.domid = DOMID_SELF;
++	a.index = HVM_PARAM_CALLBACK_IRQ;
++	a.value = via;
++
++	ret = HYPERVISOR_hvm_op(HVMOP_set_param, &a);
++	if (ret)
++		return ret;
 +
 +	/*
-+	 * sect_per_clus_bits could be at least 0 and at most 16.
++	 * If xenbus_probe_initcall() deferred the xenbus_probe()
++	 * due to the callback not functioning yet, we can do it now.
 +	 */
-+	if (p_boot->sect_per_clus_bits > EXFAT_MAX_SECT_PER_CLUS_BITS) {
-+		exfat_err(sb, "bogus sectors bits per cluster : %u\n",
-+				p_boot->sect_per_clus_bits);
-+		return -EINVAL;
-+	}
++	if (!xenstored_ready && xs_hvm_defer_init_for_callback())
++		xenbus_probe();
 +
- 	sbi->sect_per_clus = 1 << p_boot->sect_per_clus_bits;
- 	sbi->sect_per_clus_bits = p_boot->sect_per_clus_bits;
- 	sbi->cluster_size_bits = p_boot->sect_per_clus_bits +
-@@ -477,16 +495,19 @@ static int exfat_read_boot_sector(struct super_block *sb)
- 	sbi->used_clusters = EXFAT_CLUSTERS_UNTRACKED;
++	return ret;
++}
++EXPORT_SYMBOL_GPL(xen_set_callback_via);
++
+ /* Set up event channel for xenstored which is run as a local process
+  * (this is normally used only in dom0)
+  */
+@@ -810,11 +857,17 @@ static int __init xenbus_init(void)
+ 		break;
+ 	}
  
- 	/* check consistencies */
--	if (sbi->num_FAT_sectors << p_boot->sect_size_bits <
--	    sbi->num_clusters * 4) {
-+	if ((u64)sbi->num_FAT_sectors << p_boot->sect_size_bits <
-+	    (u64)sbi->num_clusters * 4) {
- 		exfat_err(sb, "bogus fat length");
- 		return -EINVAL;
+-	/* Initialize the interface to xenstore. */
+-	err = xs_init();
+-	if (err) {
+-		pr_warn("Error initializing xenstore comms: %i\n", err);
+-		goto out_error;
++	/*
++	 * HVM domains may not have a functional callback yet. In that
++	 * case let xs_init() be called from xenbus_probe(), which will
++	 * get invoked at an appropriate time.
++	 */
++	if (xen_store_domain_type != XS_HVM) {
++		err = xs_init();
++		if (err) {
++			pr_warn("Error initializing xenstore comms: %i\n", err);
++			goto out_error;
++		}
  	}
-+
- 	if (sbi->data_start_sector <
--	    sbi->FAT1_start_sector + sbi->num_FAT_sectors * p_boot->num_fats) {
-+	    (u64)sbi->FAT1_start_sector +
-+	    (u64)sbi->num_FAT_sectors * p_boot->num_fats) {
- 		exfat_err(sb, "bogus data start sector");
- 		return -EINVAL;
- 	}
-+
- 	if (sbi->vol_flags & VOLUME_DIRTY)
- 		exfat_warn(sb, "Volume was not properly unmounted. Some data may be corrupt. Please run fsck.");
- 	if (sbi->vol_flags & MEDIA_FAILURE)
+ 
+ 	if ((xen_store_domain_type != XS_LOCAL) &&
+diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+index eba01ab5a55e0..fe9a9fa2ebc45 100644
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -187,7 +187,7 @@ void xs_suspend_cancel(void);
+ 
+ struct work_struct;
+ 
+-void xenbus_probe(struct work_struct *);
++void xenbus_probe(void);
+ 
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
 -- 
-2.17.1
+2.27.0
+
+
 
