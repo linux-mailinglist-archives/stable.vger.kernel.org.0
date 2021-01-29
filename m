@@ -2,175 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4265730863F
-	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 08:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E423308658
+	for <lists+stable@lfdr.de>; Fri, 29 Jan 2021 08:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbhA2HJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 02:09:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232001AbhA2HJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 02:09:41 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A0DC061573
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 23:09:01 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id g10so7771291wrx.1
-        for <stable@vger.kernel.org>; Thu, 28 Jan 2021 23:09:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ult8zy5xj/tXqtlGi7vShUkHJCjjlZrRLpldHENqRBY=;
-        b=cBaGDGS2QWOESKozRcZotuvwRupav2CXJF7ahIQn+h0+WO/z5SKkLUccJxo94nXNxH
-         YMWlfKR6c92aQ2FN85YA+iC3zVa9/YotWR2/M4RrUJkLCg8KkPiYz0QJY7K9vjX+mZP3
-         mqpAQxkjD4DWL6MihojpYmp07WiSff6r4bobkkvj3TWHMfqswBanlkTM3Jux2xrbOLV/
-         oXbWTl9ByjD7RWsvYtodlLu3DMya7dPa/ZuXPnbMSv9tM0IfO55LepZY+Yc7H0/mVuwC
-         wjOmsKA8p7Ln7TNXXQz0rSc9DEnGSzZ9QAEiNusnTVWGmLmgKho7JsLOY/B9sDxpB3TM
-         C3Vg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ult8zy5xj/tXqtlGi7vShUkHJCjjlZrRLpldHENqRBY=;
-        b=Q9ptbPA11m740SZosQYW6NQ2XDS4Vo6ZmtFQgWVAVZw0lrHsxqpYkJ67Ks9zyrEkge
-         mnQ55cdnZKOqqB6MLlvJKtxHSvnxvsJ4+nP5RqXUOLvBdWYTuGzOpv7hSYNBKMf7qji+
-         YepFmNvFI1/rBxmoVqT2IEE4I/35uY6bV2sF/TF8BMEnZkTUFtVPoJeRlWJU7VOYVisG
-         Jp2O9v40DKTKrDv+SLSL4EgkfTCd87myfSEWfxicrb1cxvLUSyFlQcLHbF5fFrwgO4op
-         HKAF+GI20e1Ml92mVC83nGay4BUPvnyOOAD3F/e2G3xfOBaEWzYXdnueR6zycEKtC6fb
-         IeMw==
-X-Gm-Message-State: AOAM530D9FdzAtDXcmf0AeUUi/u7SU2l3myDQmXnmJQyzWrU8DK34EHH
-        OsW5G9Jz05xJLEClaxkOWvanlwb7ZvkXTHXRNZDQxQ==
-X-Google-Smtp-Source: ABdhPJzkowp1ilp+OFPEIMbGb6vSG9e69uA79k3/vA8VNzv9ZTNBTpkBH2Stn5OWV7WFH9rQ1eD4rtL1bZyOdiGOgOI=
-X-Received: by 2002:adf:e50e:: with SMTP id j14mr2960460wrm.162.1611904139317;
- Thu, 28 Jan 2021 23:08:59 -0800 (PST)
-MIME-Version: 1.0
-References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
- <20210112174507.GA23780@redhat.com> <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
- <20210113142202.GC22493@dhcp22.suse.cz> <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
- <20210126135254.GP827@dhcp22.suse.cz> <CAJuCfpEnMyo9XAnoF+q1j9EkC0okZfUxxdAFhzhPJi+adJYqjw@mail.gmail.com>
-In-Reply-To: <CAJuCfpEnMyo9XAnoF+q1j9EkC0okZfUxxdAFhzhPJi+adJYqjw@mail.gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Thu, 28 Jan 2021 23:08:48 -0800
-Message-ID: <CAJuCfpF861zhp8yR_pYx8gb+WMrORAZ0tbzcKtKxaj7L=jzw+Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S230388AbhA2HWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 02:22:06 -0500
+Received: from mailout4.samsung.com ([203.254.224.34]:55809 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229656AbhA2HWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 02:22:05 -0500
+Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20210129072120epoutp04a49d9da12b413a92b32c08c1d3afa5f3~eovLqH92g0140301403epoutp04x
+        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 07:21:20 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20210129072120epoutp04a49d9da12b413a92b32c08c1d3afa5f3~eovLqH92g0140301403epoutp04x
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1611904880;
+        bh=ZxUrhT4XL07XoRUNd+S7dt9dlQeeyIZW/iU9uD3HH7w=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=PAvZ1apRc8JRBO5v3rHTpHBkb5s2qXgfrLkNg8D7WX1UKXgdC/odOZgxUTcfa6PVo
+         x/WnKBJg4tC4B0fxPFRz/cuayOUuEjdIjNU+Y0U4lgYjZCo9aT1z5qb2mpaPnP1HNr
+         yozcRLxQ3ub/+8psEefkI0twgfd79ntKFDR2pECQ=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20210129072120epcas1p1e3f86d83e9259d06dc8c30e3c4ccb6e4~eovLGo8vf0192401924epcas1p12;
+        Fri, 29 Jan 2021 07:21:20 +0000 (GMT)
+Received: from epsmges1p2.samsung.com (unknown [182.195.40.160]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4DRpfl2bJ9z4x9Q1; Fri, 29 Jan
+        2021 07:21:19 +0000 (GMT)
+Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
+        epsmges1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        2D.D3.63458.E67B3106; Fri, 29 Jan 2021 16:21:18 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8~eovI7NpQm0549805498epcas1p2l;
+        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20210129072117epsmtrp207fd2d2ecd1e7d4710a918ef042602be~eovI6h68I0251502515epsmtrp2K;
+        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
+X-AuditID: b6c32a36-6dfff7000000f7e2-e5-6013b76e4740
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        58.63.08745.D67B3106; Fri, 29 Jan 2021 16:21:17 +0900 (KST)
+Received: from localhost.localdomain (unknown [10.88.103.87]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20210129072117epsmtip1cd58d4e706a6f6603289a2b94cf4e57f~eovIwxIoa0277902779epsmtip16;
+        Fri, 29 Jan 2021 07:21:17 +0000 (GMT)
+From:   Namjae Jeon <namjae.jeon@samsung.com>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     willy@infradead.org, rdunlap@infradead.org, sj1557.seo@samsung.com,
+        Namjae Jeon <namjae.jeon@samsung.com>, stable@vger.kernel.org
+Subject: [PATCH] exfat: fix shift-out-of-bounds in exfat_fill_super()
+Date:   Fri, 29 Jan 2021 16:12:21 +0900
+Message-Id: <20210129071222.7582-1-namjae.jeon@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrLKsWRmVeSWpSXmKPExsWy7bCmnm7eduEEgzkzhS327D3JYvFjer3F
+        2zvTWSy2/DvCarFg4yNGi98/5rA5sHlsXqHl0bdlFaPH501yAcxROTYZqYkpqUUKqXnJ+SmZ
+        eem2St7B8c7xpmYGhrqGlhbmSgp5ibmptkouPgG6bpk5QFuVFMoSc0qBQgGJxcVK+nY2Rfml
+        JakKGfnFJbZKqQUpOQWGBgV6xYm5xaV56XrJ+blWhgYGRqZAlQk5GU8P/mMvmKxYMeHxAqYG
+        xhfSXYycHBICJhIvFi5l6mLk4hAS2MEoMfPrXmYI5xOjxO0v3VDOZ0aJ2X0L2WFazt3ZywqR
+        2MUosabrEwtIAqxl9/uaLkYODjYBbYk/W0RBTBEBRYnL751AypkF2hklZh2czwxSLizgKrF+
+        /RlWEJtFQFViy+l9YGN4Bawl7jzfxwixS15i9YYDYEdICExnl9g77SMTRMJFYvKbWVAHCUu8
+        Or4FypaS+PxuLxvIYgmBaomP+5khwh2MEi++20LYxhI3129gBSlhFtCUWL9LHyKsKLHz91yw
+        tcwCfBLvvvawQkzhlehoE4IoUZXou3QY6gBpia72D1BLPSSerfzMCAmEWIlHT9+wT2CUnYWw
+        YAEj4ypGsdSC4tz01GLDAiPkKNrECE5HWmY7GCe9/aB3iJGJg/EQowQHs5II79s5QglCvCmJ
+        lVWpRfnxRaU5qcWHGE2BwTWRWUo0OR+YEPNK4g1NjYyNjS1MzMzNTI2VxHkTDR7ECwmkJ5ak
+        ZqemFqQWwfQxcXBKNTCJK+R88Srg8BN38n65x5o1+6nfBok5q/46B00wPb9t1++8dJUYu2Db
+        LZxCSzKvKT9hD/wl9XGlhXpx3vQeadXfCw5fT987g+ed86onlifWT0v5t2wF/z43tehp6o35
+        K8J2/e+OLLp2ok5M0tG07MD3f+e6yhf/2CuV2pilv3XVxN630XLuJx+L2esvuVGmWLCPf7ad
+        3szqG/e1c4xs+wVLRZ0iDrhvDTxQZ7PwyuzSszwrti6xXrCBrSZQ8v4boTNzimaWTu589d60
+        e4fL5Ydvyu7mMHXPCFAsW2iTm6mV3Whz6Oo1y+tr1rAfmiPi8PJtBCtb56YOPe47z7OTPXje
+        rHSq/cr0g/fdtkv2SaFKLMUZiYZazEXFiQD/ITyR0AMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrFJMWRmVeSWpSXmKPExsWy7bCSnG7uduEEg4bZxhZ79p5ksfgxvd7i
+        7Z3pLBZb/h1htViw8RGjxe8fc9gc2Dw2r9Dy6NuyitHj8ya5AOYoLpuU1JzMstQifbsEroyn
+        B/+xF0xWrJjweAFTA+ML6S5GTg4JAROJc3f2soLYQgI7GCU+HROAiEtLHDtxhrmLkQPIFpY4
+        fLgYouQDo8SRB/IgYTYBbYk/W0RBTBEBRYnL7526GLk4mAV6GSWaWrYyg5QLC7hKrF9/Bmw6
+        i4CqxJbT+1hAbF4Ba4k7z/cxQmySl1i94QDzBEaeBYwMqxglUwuKc9Nziw0LjPJSy/WKE3OL
+        S/PS9ZLzczcxgoNDS2sH455VH/QOMTJxMB5ilOBgVhLhfTtHKEGINyWxsiq1KD++qDQntfgQ
+        ozQHi5I474Wuk/FCAumJJanZqakFqUUwWSYOTqkGppklMlEXvhj/7Tjk4lYdeXVvs53TT52X
+        259JzzozYeZBq0frjkzRPrfI5f5m1rzafxmG9lvF+gRaz+6cefXT2lcyyX0Vye9bUwtCb6ye
+        Z3/DuY37zITKY1p6heuXbeSZNWnug/WmS04sziv8Oen9kq0XFd90mJ6dPOFczPkwSy9loxtl
+        Mss3BAn2xkj+Oj2b/1qOzoWFVWmG75LPnWF2TXT4dWPSw5YPV6ZIKx/7s2mdg+jleSKPvkg+
+        rpMy+L9m5/r+XJvc7Fv2GV9kEt67X+f6s3aFsdOZ888Fc1atyD7YdKGdq/RJ09Ni8btXGi3u
+        efYY/z4Tmjo/1qB76aRzy822PdUqDfq+7mNNJS//arupSizFGYmGWsxFxYkArwc/CX0CAAA=
+X-CMS-MailID: 20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8
+References: <CGME20210129072117epcas1p29cfb23f0ff88f659b404b1d54fb44ee8@epcas1p2.samsung.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 11:51 AM Suren Baghdasaryan <surenb@google.com> wrote:
->
-> On Tue, Jan 26, 2021 at 5:52 AM 'Michal Hocko' via kernel-team
-> <kernel-team@android.com> wrote:
-> >
-> > On Wed 20-01-21 14:17:39, Jann Horn wrote:
-> > > On Wed, Jan 13, 2021 at 3:22 PM Michal Hocko <mhocko@suse.com> wrote:
-> > > > On Tue 12-01-21 09:51:24, Suren Baghdasaryan wrote:
-> > > > > On Tue, Jan 12, 2021 at 9:45 AM Oleg Nesterov <oleg@redhat.com> wrote:
-> > > > > >
-> > > > > > On 01/12, Michal Hocko wrote:
-> > > > > > >
-> > > > > > > On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
-> > > > > > >
-> > > > > > > > What we want is the ability for one process to influence another process
-> > > > > > > > in order to optimize performance across the entire system while leaving
-> > > > > > > > the security boundary intact.
-> > > > > > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-> > > > > > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-> > > > > > > > and CAP_SYS_NICE for influencing process performance.
-> > > > > > >
-> > > > > > > I have to say that ptrace modes are rather obscure to me. So I cannot
-> > > > > > > really judge whether MODE_READ is sufficient. My understanding has
-> > > > > > > always been that this is requred to RO access to the address space. But
-> > > > > > > this operation clearly has a visible side effect. Do we have any actual
-> > > > > > > documentation for the existing modes?
-> > > > > > >
-> > > > > > > I would be really curious to hear from Jann and Oleg (now Cced).
-> > > > > >
-> > > > > > Can't comment, sorry. I never understood these security checks and never tried.
-> > > > > > IIUC only selinux/etc can treat ATTACH/READ differently and I have no idea what
-> > > > > > is the difference.
-> > >
-> > > Yama in particular only does its checks on ATTACH and ignores READ,
-> > > that's the difference you're probably most likely to encounter on a
-> > > normal desktop system, since some distros turn Yama on by default.
-> > > Basically the idea there is that running "gdb -p $pid" or "strace -p
-> > > $pid" as a normal user will usually fail, but reading /proc/$pid/maps
-> > > still works; so you can see things like detailed memory usage
-> > > information and such, but you're not supposed to be able to directly
-> > > peek into a running SSH client and inject data into the existing SSH
-> > > connection, or steal the cryptographic keys for the current
-> > > connection, or something like that.
-> > >
-> > > > > I haven't seen a written explanation on ptrace modes but when I
-> > > > > consulted Jann his explanation was:
-> > > > >
-> > > > > PTRACE_MODE_READ means you can inspect metadata about processes with
-> > > > > the specified domain, across UID boundaries.
-> > > > > PTRACE_MODE_ATTACH means you can fully impersonate processes with the
-> > > > > specified domain, across UID boundaries.
-> > > >
-> > > > Maybe this would be a good start to document expectations. Some more
-> > > > practical examples where the difference is visible would be great as
-> > > > well.
-> > >
-> > > Before documenting the behavior, it would be a good idea to figure out
-> > > what to do with perf_event_open(). That one's weird in that it only
-> > > requires PTRACE_MODE_READ, but actually allows you to sample stuff
-> > > like userspace stack and register contents (if perf_event_paranoid is
-> > > 1 or 2). Maybe for SELinux things (and maybe also for Yama), there
-> > > should be a level in between that allows fully inspecting the process
-> > > (for purposes like profiling) but without the ability to corrupt its
-> > > memory or registers or things like that. Or maybe perf_event_open()
-> > > should just use the ATTACH mode.
-> >
-> > Thanks for the clarification. I still cannot say I would have a good
-> > mental picture. Having something in Documentation/core-api/ sounds
-> > really needed. Wrt to perf_event_open it sounds really odd it can do
-> > more than other places restrict indeed. Something for the respective
-> > maintainer but I strongly suspect people simply copy the pattern from
-> > other places because the expected semantic is not really clear.
-> >
->
-> Sorry, back to the matters of this patch. Are there any actionable
-> items for me to take care of before it can be accepted? The only
-> request from Andrew to write a man page is being worked on at
-> https://lore.kernel.org/linux-mm/20210120202337.1481402-1-surenb@google.com/
-> and I'll follow up with the next version. I also CC'ed stable@ for
-> this to be included into 5.10 per Andrew's request. That CC was lost
-> at some point, so CC'ing again.
->
-> I do not see anything else on this patch to fix. Please chime in if
-> there are any more concerns, otherwise I would ask Andrew to take it
-> into mm-tree and stable@ to apply it to 5.10.
-> Thanks!
+syzbot reported a warning which could cause shift-out-of-bounds issue.
 
-process_madvise man page V2 is posted at:
-https://lore.kernel.org/linux-mm/20210129070340.566340-1-surenb@google.com/
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x183/0x22e lib/dump_stack.c:120
+ ubsan_epilogue lib/ubsan.c:148 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
+ exfat_read_boot_sector fs/exfat/super.c:471 [inline]
+ __exfat_fill_super fs/exfat/super.c:556 [inline]
+ exfat_fill_super+0x2acb/0x2d00 fs/exfat/super.c:624
+ get_tree_bdev+0x406/0x630 fs/super.c:1291
+ vfs_get_tree+0x86/0x270 fs/super.c:1496
+ do_new_mount fs/namespace.c:2881 [inline]
+ path_mount+0x1937/0x2c50 fs/namespace.c:3211
+ do_mount fs/namespace.c:3224 [inline]
+ __do_sys_mount fs/namespace.c:3432 [inline]
+ __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3409
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
->
->
-> > --
-> > Michal Hocko
-> > SUSE Labs
-> >
-> > --
-> > To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
-> >
+exfat specification describe sect_per_clus_bits field of boot sector
+could be at most 16 and at least 0. And sect_size_bits can also
+affect this calculation, It also needs validation.
+This patch add validation for sect_per_clus_bits and sect_size_bits
+field of boot sector.
+
+Fixes: 719c1e182916 ("exfat: add super block operations")
+Cc: stable@vger.kernel.org # v5.9+
+Reported-by: syzbot+da4fe66aaadd3c2e2d1c@syzkaller.appspotmail.com
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+---
+ fs/exfat/exfat_raw.h |  4 ++++
+ fs/exfat/super.c     | 31 ++++++++++++++++++++++++++-----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
+
+diff --git a/fs/exfat/exfat_raw.h b/fs/exfat/exfat_raw.h
+index 6aec6288e1f2..7c4c356efa5f 100644
+--- a/fs/exfat/exfat_raw.h
++++ b/fs/exfat/exfat_raw.h
+@@ -77,6 +77,10 @@
+ 
+ #define EXFAT_FILE_NAME_LEN		15
+ 
++#define EXFAT_MIN_SECT_SIZE_BITS	9
++#define EXFAT_MAX_SECT_SIZE_BITS	12
++#define EXFAT_MAX_SECT_PER_CLUS_BITS	16
++
+ /* EXFAT: Main and Backup Boot Sector (512 bytes) */
+ struct boot_sector {
+ 	__u8	jmp_boot[BOOTSEC_JUMP_BOOT_LEN];
+diff --git a/fs/exfat/super.c b/fs/exfat/super.c
+index 87be5bfc31eb..ac5a8f7d2397 100644
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -381,8 +381,7 @@ static int exfat_calibrate_blocksize(struct super_block *sb, int logical_sect)
+ {
+ 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
+ 
+-	if (!is_power_of_2(logical_sect) ||
+-	    logical_sect < 512 || logical_sect > 4096) {
++	if (!is_power_of_2(logical_sect)) {
+ 		exfat_err(sb, "bogus logical sector size %u", logical_sect);
+ 		return -EIO;
+ 	}
+@@ -451,6 +450,25 @@ static int exfat_read_boot_sector(struct super_block *sb)
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * sect_size_bits could be at least 9 and at most 12.
++	 */
++	if (p_boot->sect_size_bits < EXFAT_MIN_SECT_SIZE_BITS ||
++	    p_boot->sect_size_bits > EXFAT_MAX_SECT_SIZE_BITS) {
++		exfat_err(sb, "bogus sector size bits : %u\n",
++				p_boot->sect_size_bits);
++		return -EINVAL;
++	}
++
++	/*
++	 * sect_per_clus_bits could be at least 0 and at most 16.
++	 */
++	if (p_boot->sect_per_clus_bits > EXFAT_MAX_SECT_PER_CLUS_BITS) {
++		exfat_err(sb, "bogus sectors bits per cluster : %u\n",
++				p_boot->sect_per_clus_bits);
++		return -EINVAL;
++	}
++
+ 	sbi->sect_per_clus = 1 << p_boot->sect_per_clus_bits;
+ 	sbi->sect_per_clus_bits = p_boot->sect_per_clus_bits;
+ 	sbi->cluster_size_bits = p_boot->sect_per_clus_bits +
+@@ -477,16 +495,19 @@ static int exfat_read_boot_sector(struct super_block *sb)
+ 	sbi->used_clusters = EXFAT_CLUSTERS_UNTRACKED;
+ 
+ 	/* check consistencies */
+-	if (sbi->num_FAT_sectors << p_boot->sect_size_bits <
+-	    sbi->num_clusters * 4) {
++	if ((u64)sbi->num_FAT_sectors << p_boot->sect_size_bits <
++	    (u64)sbi->num_clusters * 4) {
+ 		exfat_err(sb, "bogus fat length");
+ 		return -EINVAL;
+ 	}
++
+ 	if (sbi->data_start_sector <
+-	    sbi->FAT1_start_sector + sbi->num_FAT_sectors * p_boot->num_fats) {
++	    (u64)sbi->FAT1_start_sector +
++	    (u64)sbi->num_FAT_sectors * p_boot->num_fats) {
+ 		exfat_err(sb, "bogus data start sector");
+ 		return -EINVAL;
+ 	}
++
+ 	if (sbi->vol_flags & VOLUME_DIRTY)
+ 		exfat_warn(sb, "Volume was not properly unmounted. Some data may be corrupt. Please run fsck.");
+ 	if (sbi->vol_flags & MEDIA_FAILURE)
+-- 
+2.17.1
+
