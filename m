@@ -2,100 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6F1A309130
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 02:15:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B2730925D
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 06:56:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232526AbhA3BOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jan 2021 20:14:05 -0500
-Received: from so15.mailgun.net ([198.61.254.15]:22329 "EHLO so15.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232528AbhA3BM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Jan 2021 20:12:27 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1611969119; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=ekryDzh7CqtuJpTiAyGom8aL8IUPv2qJB5wkgaK5lQQ=; b=DSrEyAQPGfbw2L7igKQM4REugY41fwSpLBvT5woB7rmXBRxG0aUB3nqInmmctUGzjNmpRHg6
- JhviDMr+VHZYl4ITeZ8biVsiyW9qX4BBkZlq6UQeXXtx3VioxAmE1WFnjVnwlrnD6B/V9FdW
- S+AHPW7rV598x9dTTW+96lD69eI=
-X-Mailgun-Sending-Ip: 198.61.254.15
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
- 6014af74f71e8b9934a9092a (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Sat, 30 Jan 2021 00:59:32
- GMT
-Sender: subbaram=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id DF450C433ED; Sat, 30 Jan 2021 00:59:31 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from subbaram-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: subbaram)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id C6A93C433C6;
-        Sat, 30 Jan 2021 00:59:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org C6A93C433C6
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=subbaram@codeaurora.org
-From:   Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-To:     Stephen Boyd <sboyd@kernel.org>, linux-kernel@vger.kernel.org
-Cc:     linux-arm-msm@vger.kernel.org,
-        David Collins <collinsd@codeaurora.org>,
-        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
-        stable@vger.kernel.org
-Subject: [RESEND PATCH] spmi: spmi-pmic-arb: Fix hw_irq overflow
-Date:   Fri, 29 Jan 2021 16:59:21 -0800
-Message-Id: <1611968361-30552-1-git-send-email-subbaram@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
+        id S233830AbhA3FzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 00:55:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233874AbhA3FwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jan 2021 00:52:18 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E524C061573
+        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 21:43:37 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id s11so13028199edd.5
+        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 21:43:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=0yXVbLcOAHd620JpYUZl8moLbJpXg6jwgqVqoTUEGTE=;
+        b=SovhJykjW1dJ3gfTEiRvaEepyxqGHAxl8nGb8TFdO++4F+mcp03jvH79d0jHeyKagA
+         pzh5Ce5i0Hqi8Q4uF9Z9ksGSX7qS3JNYtzzg8nTtsfiFpAEzeFmrsjc/bviCsB46QUyz
+         XRr+fYTFS/pLdSVBhEd3PyKfNDUjxmFXJe4pooHclNtwnIekK/VX+rOluNamJgBJxQKH
+         PBZGy3E1jg+BE6g9ukxt9tsLqIvx4LFSXOTN92ZjXHqpOI5sw/U51KJvhTtAPRm3eBog
+         P7gNvZ4bPdUGZvsIGBjtaP0Yu7thpnb/BrNkqhHI46sUC4u6UXX6MOi1Ibq7rVKJm3h/
+         qpsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=0yXVbLcOAHd620JpYUZl8moLbJpXg6jwgqVqoTUEGTE=;
+        b=SeUJkP/WsVROU2iqbLXjeZwm+nArBKLNnnp88+wFZcdo+8JZK/dr61QGGqWCrLE2/8
+         HpGB/8A8KI6RXdPb5MKfL0A0YCdqxDsy55MrcRoedKlgpsoHd2z2n+32vZbTvOs5nrI7
+         8E7lZMoDm/26nj+gdhFc4XL0NT11xn3KGUwuAfBHb6AxC7F/dZWoc3OGqpizp7jpajyP
+         6+/P1KWy7hlZ9MWQtinKzL4lbFjmOx3Z/Tl1dHVFH9jLUm73q0u3HNPqvcqeV/e8HQMd
+         zjWcLjAPgf/+QhVdIsX/rfByNMjM1uGMNUW8i/6qVRFBFhmsQN8L2BEBukGp116FejAB
+         AFvA==
+X-Gm-Message-State: AOAM531SaxlB7zjT2VYVsiLxWAxkbVpXMT94FvO5vgeg8sQ9xikGyhjO
+        J5goiGekywiw9KiEaHtmWePv+XR7PKhcU2pLLqPL3A==
+X-Google-Smtp-Source: ABdhPJxYuUTZP4ALDIsIjPBje8YWvwdJ7FZAmf6/2yV12PcoDU/7rX0gFy4L+KwVk/U3J7ll1kwI1oCV9sGsnNzs6bs=
+X-Received: by 2002:a05:6402:3088:: with SMTP id de8mr8571642edb.221.1611985416284;
+ Fri, 29 Jan 2021 21:43:36 -0800 (PST)
+MIME-Version: 1.0
+References: <20210129105910.685105711@linuxfoundation.org>
+In-Reply-To: <20210129105910.685105711@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 30 Jan 2021 11:13:25 +0530
+Message-ID: <CA+G9fYvNt7c=DXUzC1QihQROyWy6Ao65qqc-oPRLUNt3GS8vRg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/26] 4.19.172-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, when handling the SPMI summary interrupt, the hw_irq
-number is calculated based on SID, Peripheral ID, IRQ index and
-APID. This is then passed to irq_find_mapping() to see if a
-mapping exists for this hw_irq and if available, invoke the
-interrupt handler. Since the IRQ index uses an "int" type, hw_irq
-which is of unsigned long data type can take a large value when
-SID has its MSB set to 1 and the type conversion happens. Because
-of this, irq_find_mapping() returns 0 as there is no mapping
-for this hw_irq. This ends up invoking cleanup_irq() as if
-the interrupt is spurious whereas it is actually a valid
-interrupt. Fix this by using the proper data type (u32) for id.
+On Fri, 29 Jan 2021 at 16:45, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.172 release.
+> There are 26 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 31 Jan 2021 10:59:01 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.172-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
----
- drivers/spmi/spmi-pmic-arb.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spmi/spmi-pmic-arb.c b/drivers/spmi/spmi-pmic-arb.c
-index de844b4..bbbd311 100644
---- a/drivers/spmi/spmi-pmic-arb.c
-+++ b/drivers/spmi/spmi-pmic-arb.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2012-2015, 2017, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2012-2015, 2017, 2021, The Linux Foundation. All rights reserved.
-  */
- #include <linux/bitmap.h>
- #include <linux/delay.h>
-@@ -505,8 +505,7 @@ static void cleanup_irq(struct spmi_pmic_arb *pmic_arb, u16 apid, int id)
- static void periph_interrupt(struct spmi_pmic_arb *pmic_arb, u16 apid)
- {
- 	unsigned int irq;
--	u32 status;
--	int id;
-+	u32 status, id;
- 	u8 sid = (pmic_arb->apid_data[apid].ppid >> 8) & 0xF;
- 	u8 per = pmic_arb->apid_data[apid].ppid & 0xFF;
- 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.172-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: d36f1541af5ac2e86ea3548b7da2e962e4ef5266
+git describe: v4.19.171-27-gd36f1541af5a
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.171-27-gd36f1541af5a
+
+No regressions (compared to build v4.19.171)
+
+
+No fixes (compared to build v4.19.171)
+
+
+Ran 48448 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* fwts
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* rcutorture
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
