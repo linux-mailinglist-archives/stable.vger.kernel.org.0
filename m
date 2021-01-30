@@ -2,146 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C667309808
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 20:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A9130980D
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 20:36:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232013AbhA3T0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 14:26:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38908 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231861AbhA3T0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Jan 2021 14:26:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D1CE64E11;
-        Sat, 30 Jan 2021 19:26:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612034771;
-        bh=I6LY0HAE2jupB8OMT00M3A3D03Qojgg5AwyLaL3ZKmU=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=RGhxGTeY1H58fysQfw6t9t7eKNNxC5GTQYKvoihoGMH4uaMr6kGX5svzc4Kpo/y6F
-         CJHCWJu6tTZ9iqBHiPKLp8WpqjovIk9YRqlu4y8TEau5oxKPf24aOX5PhMrA29I0Pr
-         46KEF5CiKS7hBuY0fspgbgEPVQG8LZJbi2iiko+SiifUqHUqO2xKHTjwy1wtcuUaGD
-         683AtJYIgMfXXLvKC0EsrX3bCBd1GUcPSgm1eZ/Nni3PqJins3eylgBdDHNwg6pTW5
-         hDeHLZRfzTtS8i4hQFRs818Ih86qisXFMODGDZ+kap4a37QOJja60/osInYCImUU2F
-         +0hLcxgq7vLCg==
-Message-ID: <c11fb781953e0fc84f77ca75eca8db43ac10d289.camel@kernel.org>
-Subject: Re: [PATCH v5] x86/sgx: Fix use-after-free in
- sgx_mmu_notifier_release()
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@intel.com>, linux-sgx@vger.kernel.org
-Cc:     stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Haitao Huang <haitao.huang@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        linux-kernel@vger.kernel.org
-Date:   Sat, 30 Jan 2021 21:26:07 +0200
-In-Reply-To: <fa43948ba860d6ac99adabad3d8b6ff11f5d2239.camel@kernel.org>
-References: <20210128125823.18660-1-jarkko@kernel.org>
-         <9dd2a962-2328-8784-9aed-b913502e1102@intel.com>
-         <fa43948ba860d6ac99adabad3d8b6ff11f5d2239.camel@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.38.3 
+        id S230045AbhA3TgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 14:36:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229468AbhA3TgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jan 2021 14:36:06 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 070F9C061573
+        for <stable@vger.kernel.org>; Sat, 30 Jan 2021 11:35:25 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id q131so8793510pfq.10
+        for <stable@vger.kernel.org>; Sat, 30 Jan 2021 11:35:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4He27AJct3PoBMj6ALPPh5YKXmzAH5tt3pEyqR5JYLs=;
+        b=NbrrPQVVTEuov9Q57FTnmdcQI1hgWTWW+yj3PFtvOQcRm6TtN/qyZ/YQyTlsJeE3jf
+         sJH67Dcgfu0CU2Anjc20+TyxWxwEQH0kQMLfnDD4VDVYPi31or99yZ2B9F6jKc+Hqzhm
+         ulg/y7HAaO70Rg772vkN200yUwHdbRuSXm0PSQzY24U7wgqNfgKHbu/s3TLgLILdBS9D
+         ChthJpQDe8jRdbpOh+JHTW9AIBmMBV6mN0sUWM1posmWHxjI3G3OzCht+QGAxlZC6ZvD
+         fQsblTldAdEtk8GJ3yCCQ44gzlcjgQzUTfNwNamqCjaAqoYvPO66TbJt0Lsji1Tbui+J
+         lj/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4He27AJct3PoBMj6ALPPh5YKXmzAH5tt3pEyqR5JYLs=;
+        b=UKQtzo+C0ZOzmVGTcTGepMSPc3goiNotKZ57azQaibrMhw84p/TeJC+VK8S7lKt28T
+         KFMS0WR2DX87G3yD272U0mtwkQy3KqkqJNXDr8tm8iJTNw+Rvpu1QLMa9umkaZJQm1ir
+         WlSCHKYmicXSZpkyk7SC10dfQAdVP9wMppvKY+2m/1HT+zLbeLmb5KT3jWeL2ba5lljY
+         RE3uU8+5GZjVc1PobGUsHwm8tCpKsI8c0SPKkNDjd8sMZthDJoKwvHh4q8dJT2HzhL/R
+         9nMfhG0fuNi4HOE3+SfW0TZR+zYgrjaLWY+qgm2oTqZBLyBJkg4siGCB4peFsJFhQ71G
+         G4ag==
+X-Gm-Message-State: AOAM530kCYr8HDBEb0v4mNo8wSsXl81tJUVSmGLUYwP+qPPUKcDxrWZf
+        Hapv1aT9PHDMSFcksBbQ99p6+6ChHVR3sQ==
+X-Google-Smtp-Source: ABdhPJyQIqaqr3fHfT2jipposda2Smmr2qv6hMT9ZN20OjlLq0q3lQtF/BM079ht02rIRBVpIp6GQA==
+X-Received: by 2002:aa7:957b:0:b029:1c3:196d:aa81 with SMTP id x27-20020aa7957b0000b02901c3196daa81mr9458824pfq.44.1612035324937;
+        Sat, 30 Jan 2021 11:35:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q141sm12538034pfc.24.2021.01.30.11.35.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 30 Jan 2021 11:35:24 -0800 (PST)
+Message-ID: <6015b4fc.1c69fb81.fb8d7.e832@mx.google.com>
+Date:   Sat, 30 Jan 2021 11:35:24 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.12
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable/linux-5.10.y baseline: 170 runs, 1 regressions (v5.10.12)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2021-01-30 at 21:20 +0200, Jarkko Sakkinen wrote:
-> On Thu, 2021-01-28 at 08:33 -0800, Dave Hansen wrote:
-> > On 1/28/21 4:58 AM, Jarkko Sakkinen wrote:
-> > > The most trivial example of a race condition can be demonstrated by t=
-his
-> > > sequence where mm_list contains just one entry:
-> > >=20
-> > > CPU A=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 CPU B
-> > > -> sgx_release()
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -> sgx_mmu_notifier_release()
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -> list_del_rcu()
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 <- list_del_rcu()
-> > > -> kref_put()
-> > > -> sgx_encl_release()
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -> synchronize_srcu()
-> > > -> cleanup_srcu_struct()
-> >=20
-> > This is missing some key details including a clear, unambiguous, proble=
-m
-> > statement.=C2=A0 To me, the patch should concentrate on the SRCU warnin=
-g
-> > since that's where we started.=C2=A0 Here's the detail that needs to be=
- added
-> > about the issue and the locking in general in this path:
-> >=20
-> > sgx_release() also does this:
-> >=20
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mmu_notifier_unregister=
-(&encl_mm->mmu_notifier, encl_mm->mm);
-> >=20
-> > which does another synchronize_srcu() on the mmu_notifier's srcu_struct=
-.
-> > =C2=A0*But*, it only does this if its own list_del_rcu() is successful.=
-=C2=A0 It
-> > does all of this before the kref_put().
-> >=20
-> > In other words, sgx_release() can *only* get to this buggy path if
-> > sgx_mmu_notifier_release() races with sgx_release and does a
-> > list_del_rcu() first.
-> >=20
-> > The key to this patch is that the sgx_mmu_notifier_release() will now
-> > take an 'encl' reference in that case, which prevents kref_put() from
-> > calling sgx_release() which cleans up and frees 'encl'.
-> >=20
-> > I was actually also hoping to see some better comments about the new
-> > refcount, and the locking in general.=C2=A0 There are *TWO* struct_srcu=
-'s in
-> > play, a spinlock and a refcount.=C2=A0 I took me several days with Sean=
- and
-> > your help to identify the actual path and get a proper fix (versions 1-=
-4
-> > did *not* fix the race).
->=20
-> This was really good input, thank you. It made realize something but
-> now I need a sanity check.
->=20
-> I think that this bug fix is *neither* a legit one :-)
->=20
-> Example scenario would such that all removals "side-channel" through
-> the notifier callback. Then mmu_notifier_unregister() gets called
-> exactly zero times. No MMU notifier srcu sync would be then happening.
->=20
-> NOTE: There's bunch of other examples, I'm just giving one.
->=20
-> How I think this should be actually fixed is:
->=20
-> 1. Whenever MMU notifier is *registered* kref_get() should be called for
-> =C2=A0=C2=A0 the enclave reference count.
-> 2. *BOTH* sgx_release() and sgx_mmu_notifier_release() should
-> =C2=A0=C2=A0 decrease the refcount when they process an entry.
-> =C2=A0=C2=A0=20
-> I.e. the fix that I sent does kref_get() in wrong location. Please
-> sanity check my conclusion.=20
-> =C2=A0
-> > Also, the use-after-free is *fixed* in sgx_mmu_notifier_release() but
-> > does not *occur* in sgx_mmu_notifier_release().=C2=A0 The subject here =
-is a
-> > bit misleading in that regard.
->=20
-> Right, this is a valid point. It's incorrect. So if I just change the
-> short summary by substituting sgx_mmu_notifier_release() with
-> sgx_release()?
+stable/linux-5.10.y baseline: 170 runs, 1 regressions (v5.10.12)
 
-I.e. refcount should be increased in sgx_encl_mm_add(). That way the
-whole thing should be somewhat stable.
+Regressions Summary
+-------------------
 
-/Jarkko
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.12/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.12
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      05f6d2aa7e2f2cdd137ee600785704139e6dd3b7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6015856a5c2357b074d3dfc9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.12/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.12/a=
+rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6015856a5c2357b074d3d=
+fca
+        new failure (last pass: v5.10.11) =
+
+ =20
