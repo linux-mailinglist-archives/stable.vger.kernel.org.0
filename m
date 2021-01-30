@@ -2,149 +2,482 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A3C3095BC
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 15:11:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C29533095BE
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 15:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbhA3OKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 09:10:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S231535AbhA3OLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 09:11:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229763AbhA3OKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Jan 2021 09:10:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E006A61481;
-        Sat, 30 Jan 2021 14:10:10 +0000 (UTC)
+        id S230525AbhA3OK4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Jan 2021 09:10:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DA6B64E05;
+        Sat, 30 Jan 2021 14:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612015811;
-        bh=Vyo429r/5ZLCTm3U2V3TB5WpAYdshIEnAksuz3T896M=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WtojH1uMTlh+t8WMnI5EekhIG2PJmUS0GwUah+XoRl/BThvJu4594dRKkD8DW9C51
-         58OfXL0ZwpzMKtnLloRK9A8yi34pFVH5CLKpVLdVHPxRBAzHJU7r5UDcNLN0ivCJMC
-         hFwTd/3tuoVrx5zXccq5nCkxLrveTbiCdCpzzXDc=
+        s=korg; t=1612015815;
+        bh=muQc4k79mpW1mWUZnJxgq1Lr1vKk5jCGMamgpCiglfY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=xkBadN5AuQCDBPx50A/75CoYM3n7/AnvdoenqyguDs8ZYgE6T9JHV+BfuC+QRSJhj
+         HAGjjeVbtRv9yuTWpywzGeJERKnrd3o+PU+iSxUWvI77sqanuPE2jBgLeqOLq5DQut
+         9wVCuLgCmFVyx4W/chV7+o967VMKFw/3kulpsDH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.4.254
-Date:   Sat, 30 Jan 2021 15:10:07 +0100
-Message-Id: <1612015807198144@kroah.com>
+Subject: Re: Linux 4.4.254
+Date:   Sat, 30 Jan 2021 15:10:08 +0100
+Message-Id: <161201580795120@kroah.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <1612015807198144@kroah.com>
+References: <1612015807198144@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.4.254 kernel.
-
-All users of the 4.4 kernel series must upgrade.
-
-The updated 4.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                           |    2 +-
- arch/sh/drivers/dma/Kconfig                        |    3 +--
- arch/x86/boot/compressed/Makefile                  |    2 ++
- drivers/acpi/scan.c                                |    2 ++
- drivers/block/xen-blkback/xenbus.c                 |    1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c  |    2 +-
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c |    8 ++++----
- drivers/iio/dac/ad5504.c                           |    4 ++--
- drivers/md/dm-table.c                              |   15 ++++++++++++---
- drivers/net/can/dev.c                              |    4 ++--
- drivers/net/ethernet/renesas/sh_eth.c              |    4 ++--
- drivers/scsi/ufs/ufshcd.c                          |   11 ++++-------
- drivers/usb/gadget/udc/bdc/Kconfig                 |    2 +-
- drivers/usb/host/ehci-hcd.c                        |   12 ++++++++++++
- drivers/usb/host/xhci-ring.c                       |    2 ++
- include/linux/compiler-gcc.h                       |    6 ++++++
- kernel/trace/ring_buffer.c                         |    4 ++++
- mm/slub.c                                          |    4 +---
- net/core/skbuff.c                                  |    6 +++++-
- net/ipv4/netfilter/ipt_rpfilter.c                  |    2 +-
- net/ipv6/addrconf.c                                |    1 +
- net/sched/cls_tcindex.c                            |    8 ++++++--
- sound/core/seq/oss/seq_oss_synth.c                 |    3 ++-
- sound/pci/hda/patch_via.c                          |    1 +
- sound/soc/intel/boards/haswell.c                   |    1 +
- 25 files changed, 77 insertions(+), 33 deletions(-)
-
-Alexander Lobakin (1):
-      skbuff: back tiny skbs with kmalloc() in __netdev_alloc_skb() too
-
-Arvind Sankar (1):
-      x86/boot/compressed: Disable relocation relaxation
-
-Ben Skeggs (2):
-      drm/nouveau/bios: fix issue shadowing expansion ROMs
-      drm/nouveau/i2c/gm200: increase width of aux semaphore owner fields
-
-Can Guo (1):
-      scsi: ufs: Correct the LUN used in eh_device_reset_handler() callback
-
-Cezary Rojewski (1):
-      ASoC: Intel: haswell: Add missing pm_ops
-
-Eric Dumazet (1):
-      net_sched: avoid shift-out-of-bounds in tcindex_set_parms()
-
-Eugene Korenevsky (1):
-      ehci: fix EHCI host controller initialization sequence
-
-Gaurav Kohli (1):
-      tracing: Fix race in trace_open and buffer resize call
-
-Geert Uytterhoeven (1):
-      sh_eth: Fix power down vs. is_opened flag ordering
-
-Greg Kroah-Hartman (1):
-      Linux 4.4.254
-
-Guillaume Nault (1):
-      netfilter: rpfilter: mask ecn bits before fib lookup
-
-Hannes Reinecke (1):
-      dm: avoid filesystem lookup in dm_get_dev_t()
-
-Hans de Goede (1):
-      ACPI: scan: Make acpi_bus_get_device() clear return pointer on error
-
-Lars-Peter Clausen (1):
-      iio: ad5504: Fix setting power-down state
-
-Mathias Nyman (1):
-      xhci: make sure TRB is fully written before giving it to the controller
-
-Matteo Croce (1):
-      ipv6: create multicast route with RTPROT_KERNEL
-
-Necip Fazil Yildiran (1):
-      sh: dma: fix kconfig dependency for G2_DMA
-
-Patrik Jakobsson (1):
-      usb: bdc: Make bdc pci driver depend on BROKEN
-
-Pawel Wieczorkiewicz (1):
-      xen-blkback: set ring->xenblkd to NULL after kthread_stop()
-
-Takashi Iwai (2):
-      ALSA: seq: oss: Fix missing error check in snd_seq_oss_synth_make_info()
-      ALSA: hda/via: Add minimum mute flag
-
-Vincent Mailhol (1):
-      can: dev: can_restart: fix use after free bug
-
-Wang Hai (1):
-      Revert "mm/slub: fix a memory leak in sysfs_slab_add()"
-
-Will Deacon (1):
-      compiler.h: Raise minimum version of GCC to 5.1 for arm64
-
+diff --git a/Makefile b/Makefile
+index 8175b77e5105..5abb21c7d852 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 4
+-SUBLEVEL = 253
++SUBLEVEL = 254
+ EXTRAVERSION =
+ NAME = Blurry Fish Butt
+ 
+diff --git a/arch/sh/drivers/dma/Kconfig b/arch/sh/drivers/dma/Kconfig
+index 78bc97b1d027..ac834e9e0e0a 100644
+--- a/arch/sh/drivers/dma/Kconfig
++++ b/arch/sh/drivers/dma/Kconfig
+@@ -62,8 +62,7 @@ config PVR2_DMA
+ 
+ config G2_DMA
+ 	tristate "G2 Bus DMA support"
+-	depends on SH_DREAMCAST
+-	select SH_DMA_API
++	depends on SH_DREAMCAST && SH_DMA_API
+ 	help
+ 	  This enables support for the DMA controller for the Dreamcast's
+ 	  G2 bus. Drivers that want this will generally enable this on
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index bf0c7b6b00c3..01eafd8aeec6 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -31,6 +31,8 @@ KBUILD_CFLAGS += -mno-mmx -mno-sse
+ KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
+ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
++# Disable relocation relaxation in case the link is not PIE.
++KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+ 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 2ab4568aaddd..90ed17aacaa7 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -564,6 +564,8 @@ static int acpi_get_device_data(acpi_handle handle, struct acpi_device **device,
+ 	if (!device)
+ 		return -EINVAL;
+ 
++	*device = NULL;
++
+ 	status = acpi_get_data_full(handle, acpi_scan_drop_device,
+ 				    (void **)device, callback);
+ 	if (ACPI_FAILURE(status) || !*device) {
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index 823f3480ebd1..f974ed7c33b5 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -219,6 +219,7 @@ static int xen_blkif_disconnect(struct xen_blkif *blkif)
+ 
+ 	if (blkif->xenblkd) {
+ 		kthread_stop(blkif->xenblkd);
++		blkif->xenblkd = NULL;
+ 		wake_up(&blkif->shutdown_wq);
+ 	}
+ 
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+index 7deb81b6dbac..4b571cc6bc70 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadow.c
+@@ -75,7 +75,7 @@ shadow_image(struct nvkm_bios *bios, int idx, u32 offset, struct shadow *mthd)
+ 	nvkm_debug(subdev, "%08x: type %02x, %d bytes\n",
+ 		   image.base, image.type, image.size);
+ 
+-	if (!shadow_fetch(bios, mthd, image.size)) {
++	if (!shadow_fetch(bios, mthd, image.base + image.size)) {
+ 		nvkm_debug(subdev, "%08x: fetch failed\n", image.base);
+ 		return 0;
+ 	}
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
+index 7cac8fe372b6..a3cede8df4fd 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/auxgm204.c
+@@ -33,7 +33,7 @@ static void
+ gm204_i2c_aux_fini(struct gm204_i2c_aux *aux)
+ {
+ 	struct nvkm_device *device = aux->base.pad->i2c->subdev.device;
+-	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00310000, 0x00000000);
++	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00710000, 0x00000000);
+ }
+ 
+ static int
+@@ -54,10 +54,10 @@ gm204_i2c_aux_init(struct gm204_i2c_aux *aux)
+ 			AUX_ERR(&aux->base, "begin idle timeout %08x", ctrl);
+ 			return -EBUSY;
+ 		}
+-	} while (ctrl & 0x03010000);
++	} while (ctrl & 0x07010000);
+ 
+ 	/* set some magic, and wait up to 1ms for it to appear */
+-	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00300000, ureq);
++	nvkm_mask(device, 0x00d954 + (aux->ch * 0x50), 0x00700000, ureq);
+ 	timeout = 1000;
+ 	do {
+ 		ctrl = nvkm_rd32(device, 0x00d954 + (aux->ch * 0x50));
+@@ -67,7 +67,7 @@ gm204_i2c_aux_init(struct gm204_i2c_aux *aux)
+ 			gm204_i2c_aux_fini(aux);
+ 			return -EBUSY;
+ 		}
+-	} while ((ctrl & 0x03000000) != urep);
++	} while ((ctrl & 0x07000000) != urep);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/iio/dac/ad5504.c b/drivers/iio/dac/ad5504.c
+index 4e4c20d6d8b5..0367641aed07 100644
+--- a/drivers/iio/dac/ad5504.c
++++ b/drivers/iio/dac/ad5504.c
+@@ -189,9 +189,9 @@ static ssize_t ad5504_write_dac_powerdown(struct iio_dev *indio_dev,
+ 		return ret;
+ 
+ 	if (pwr_down)
+-		st->pwr_down_mask |= (1 << chan->channel);
+-	else
+ 		st->pwr_down_mask &= ~(1 << chan->channel);
++	else
++		st->pwr_down_mask |= (1 << chan->channel);
+ 
+ 	ret = ad5504_spi_write(st, AD5504_ADDR_CTRL,
+ 				AD5504_DAC_PWRDWN_MODE(st->pwr_down_mode) |
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 8eed39dc2036..a5a6c7f073af 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -393,14 +393,23 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+ {
+ 	int r;
+ 	dev_t dev;
++	unsigned int major, minor;
++	char dummy;
+ 	struct dm_dev_internal *dd;
+ 	struct dm_table *t = ti->table;
+ 
+ 	BUG_ON(!t);
+ 
+-	dev = dm_get_dev_t(path);
+-	if (!dev)
+-		return -ENODEV;
++	if (sscanf(path, "%u:%u%c", &major, &minor, &dummy) == 2) {
++		/* Extract the major/minor numbers */
++		dev = MKDEV(major, minor);
++		if (MAJOR(dev) != major || MINOR(dev) != minor)
++			return -EOVERFLOW;
++	} else {
++		dev = dm_get_dev_t(path);
++		if (!dev)
++			return -ENODEV;
++	}
+ 
+ 	dd = find_device(&t->devices, dev);
+ 	if (!dd) {
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 52110017fd40..45f15ac6b101 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -525,11 +525,11 @@ static void can_restart(struct net_device *dev)
+ 	}
+ 	cf->can_id |= CAN_ERR_RESTARTED;
+ 
+-	netif_rx_ni(skb);
+-
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += cf->can_dlc;
+ 
++	netif_rx_ni(skb);
++
+ restart:
+ 	netdev_dbg(dev, "restarted\n");
+ 	priv->can_stats.restarts++;
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 8413f93f5cd9..614b83c7ce81 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2507,10 +2507,10 @@ static int sh_eth_close(struct net_device *ndev)
+ 	/* Free all the skbuffs in the Rx queue and the DMA buffer. */
+ 	sh_eth_ring_free(ndev);
+ 
+-	pm_runtime_put_sync(&mdp->pdev->dev);
+-
+ 	mdp->is_opened = 0;
+ 
++	pm_runtime_put(&mdp->pdev->dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index e37f6db0dd15..5e1d922e9a6f 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3818,19 +3818,16 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+ {
+ 	struct Scsi_Host *host;
+ 	struct ufs_hba *hba;
+-	unsigned int tag;
+ 	u32 pos;
+ 	int err;
+-	u8 resp = 0xF;
+-	struct ufshcd_lrb *lrbp;
++	u8 resp = 0xF, lun;
+ 	unsigned long flags;
+ 
+ 	host = cmd->device->host;
+ 	hba = shost_priv(host);
+-	tag = cmd->request->tag;
+ 
+-	lrbp = &hba->lrb[tag];
+-	err = ufshcd_issue_tm_cmd(hba, lrbp->lun, 0, UFS_LOGICAL_RESET, &resp);
++	lun = ufshcd_scsi_to_upiu_lun(cmd->device->lun);
++	err = ufshcd_issue_tm_cmd(hba, lun, 0, UFS_LOGICAL_RESET, &resp);
+ 	if (err || resp != UPIU_TASK_MANAGEMENT_FUNC_COMPL) {
+ 		if (!err)
+ 			err = resp;
+@@ -3839,7 +3836,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
+ 
+ 	/* clear the commands that were pending for corresponding LUN */
+ 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
+-		if (hba->lrb[pos].lun == lrbp->lun) {
++		if (hba->lrb[pos].lun == lun) {
+ 			err = ufshcd_clear_cmd(hba, pos);
+ 			if (err)
+ 				break;
+diff --git a/drivers/usb/gadget/udc/bdc/Kconfig b/drivers/usb/gadget/udc/bdc/Kconfig
+index 0d7b8c9f72fd..778df4badf88 100644
+--- a/drivers/usb/gadget/udc/bdc/Kconfig
++++ b/drivers/usb/gadget/udc/bdc/Kconfig
+@@ -14,7 +14,7 @@ if USB_BDC_UDC
+ comment "Platform Support"
+ config	USB_BDC_PCI
+ 	tristate "BDC support for PCIe based platforms"
+-	depends on PCI
++	depends on PCI && BROKEN
+ 	default USB_BDC_UDC
+ 	help
+ 		Enable support for platforms which have BDC connected through PCIe, such as Lego3 FPGA platform.
+diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+index 330e05acf5f7..b9ad19d1b400 100644
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -575,6 +575,7 @@ static int ehci_run (struct usb_hcd *hcd)
+ 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
+ 	u32			temp;
+ 	u32			hcc_params;
++	int			rc;
+ 
+ 	hcd->uses_new_polling = 1;
+ 
+@@ -630,9 +631,20 @@ static int ehci_run (struct usb_hcd *hcd)
+ 	down_write(&ehci_cf_port_reset_rwsem);
+ 	ehci->rh_state = EHCI_RH_RUNNING;
+ 	ehci_writel(ehci, FLAG_CF, &ehci->regs->configured_flag);
++
++	/* Wait until HC become operational */
+ 	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
+ 	msleep(5);
++	rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT, 0, 100 * 1000);
++
+ 	up_write(&ehci_cf_port_reset_rwsem);
++
++	if (rc) {
++		ehci_err(ehci, "USB %x.%x, controller refused to start: %d\n",
++			 ((ehci->sbrn & 0xf0)>>4), (ehci->sbrn & 0x0f), rc);
++		return rc;
++	}
++
+ 	ehci->last_periodic_enable = ktime_get_real();
+ 
+ 	temp = HC_VERSION(ehci, ehci_readl(ehci, &ehci->caps->hc_capbase));
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 536251c6149d..a39b7a49b7cf 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2840,6 +2840,8 @@ static void queue_trb(struct xhci_hcd *xhci, struct xhci_ring *ring,
+ 	trb->field[0] = cpu_to_le32(field1);
+ 	trb->field[1] = cpu_to_le32(field2);
+ 	trb->field[2] = cpu_to_le32(field3);
++	/* make sure TRB is fully written before giving it to the controller */
++	wmb();
+ 	trb->field[3] = cpu_to_le32(field4);
+ 	inc_enq(xhci, ring, more_trbs_coming);
+ }
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index af8b4a879934..9485abe76b68 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -145,6 +145,12 @@
+ 
+ #if GCC_VERSION < 30200
+ # error Sorry, your compiler is too old - please upgrade it.
++#elif defined(CONFIG_ARM64) && GCC_VERSION < 50100 && !defined(__clang__)
++/*
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63293
++ * https://lore.kernel.org/r/20210107111841.GN1551@shell.armlinux.org.uk
++ */
++# error Sorry, your version of GCC is too old - please use 5.1 or newer.
+ #endif
+ 
+ #if GCC_VERSION < 30300
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 547a3a5ac57b..1ec760f6bf58 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4294,6 +4294,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+ 
+ 	if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 		return;
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
+ 
+ 	atomic_inc(&buffer->resize_disabled);
+ 	atomic_inc(&cpu_buffer->record_disabled);
+@@ -4317,6 +4319,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+ 
+ 	atomic_dec(&cpu_buffer->record_disabled);
+ 	atomic_dec(&buffer->resize_disabled);
++
++	mutex_unlock(&buffer->mutex);
+ }
+ EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ 
+diff --git a/mm/slub.c b/mm/slub.c
+index 48ff01d22d18..18d1622144af 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5425,10 +5425,8 @@ static int sysfs_slab_add(struct kmem_cache *s)
+ 
+ 	s->kobj.kset = cache_kset(s);
+ 	err = kobject_init_and_add(&s->kobj, &slab_ktype, NULL, "%s", name);
+-	if (err) {
+-		kobject_put(&s->kobj);
++	if (err)
+ 		goto out;
+-	}
+ 
+ 	err = sysfs_create_group(&s->kobj, &slab_attr_group);
+ 	if (err)
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 011c2cf4d041..171f81ce81d0 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -419,7 +419,11 @@ struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int len,
+ 
+ 	len += NET_SKB_PAD;
+ 
+-	if ((len > SKB_WITH_OVERHEAD(PAGE_SIZE)) ||
++	/* If requested length is either too small or too big,
++	 * we use kmalloc() for skb->head allocation.
++	 */
++	if (len <= SKB_WITH_OVERHEAD(1024) ||
++	    len > SKB_WITH_OVERHEAD(PAGE_SIZE) ||
+ 	    (gfp_mask & (__GFP_DIRECT_RECLAIM | GFP_DMA))) {
+ 		skb = __alloc_skb(len, gfp_mask, SKB_ALLOC_RX, NUMA_NO_NODE);
+ 		if (!skb)
+diff --git a/net/ipv4/netfilter/ipt_rpfilter.c b/net/ipv4/netfilter/ipt_rpfilter.c
+index 78cc64eddfc1..32a363465e0a 100644
+--- a/net/ipv4/netfilter/ipt_rpfilter.c
++++ b/net/ipv4/netfilter/ipt_rpfilter.c
+@@ -92,7 +92,7 @@ static bool rpfilter_mt(const struct sk_buff *skb, struct xt_action_param *par)
+ 	flow.saddr = rpfilter_get_saddr(iph->daddr);
+ 	flow.flowi4_oif = 0;
+ 	flow.flowi4_mark = info->flags & XT_RPFILTER_VALID_MARK ? skb->mark : 0;
+-	flow.flowi4_tos = RT_TOS(iph->tos);
++	flow.flowi4_tos = iph->tos & IPTOS_RT_MASK;
+ 	flow.flowi4_scope = RT_SCOPE_UNIVERSE;
+ 
+ 	return rpfilter_lookup_reverse(par->net, &flow, par->in, info->flags) ^ invert;
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 583765a330ff..392fc8ac4c6a 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -2238,6 +2238,7 @@ static void addrconf_add_mroute(struct net_device *dev)
+ 		.fc_dst_len = 8,
+ 		.fc_flags = RTF_UP,
+ 		.fc_nlinfo.nl_net = dev_net(dev),
++		.fc_protocol = RTPROT_KERNEL,
+ 	};
+ 
+ 	ipv6_addr_set(&cfg.fc_dst, htonl(0xFF000000), 0, 0, 0);
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 755e9ff40fca..3d891b11c077 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -273,9 +273,13 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	if (tb[TCA_TCINDEX_MASK])
+ 		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
+ 
+-	if (tb[TCA_TCINDEX_SHIFT])
++	if (tb[TCA_TCINDEX_SHIFT]) {
+ 		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
+-
++		if (cp->shift > 16) {
++			err = -EINVAL;
++			goto errout;
++		}
++	}
+ 	if (!cp->hash) {
+ 		/* Hash not specified, use perfect hash if the upper limit
+ 		 * of the hashing index is below the threshold.
+diff --git a/sound/core/seq/oss/seq_oss_synth.c b/sound/core/seq/oss/seq_oss_synth.c
+index df5b984bb33f..48b3398e9e9d 100644
+--- a/sound/core/seq/oss/seq_oss_synth.c
++++ b/sound/core/seq/oss/seq_oss_synth.c
+@@ -624,7 +624,8 @@ snd_seq_oss_synth_make_info(struct seq_oss_devinfo *dp, int dev, struct synth_in
+ 
+ 	if (info->is_midi) {
+ 		struct midi_info minf;
+-		snd_seq_oss_midi_make_info(dp, info->midi_mapped, &minf);
++		if (snd_seq_oss_midi_make_info(dp, info->midi_mapped, &minf))
++			return -ENXIO;
+ 		inf->synth_type = SYNTH_TYPE_MIDI;
+ 		inf->synth_subtype = 0;
+ 		inf->nr_voices = 16;
+diff --git a/sound/pci/hda/patch_via.c b/sound/pci/hda/patch_via.c
+index fc30d1e8aa76..9dd104c308e1 100644
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -135,6 +135,7 @@ static struct via_spec *via_new_spec(struct hda_codec *codec)
+ 		spec->codec_type = VT1708S;
+ 	spec->gen.indep_hp = 1;
+ 	spec->gen.keep_eapd_on = 1;
++	spec->gen.dac_min_mute = 1;
+ 	spec->gen.pcm_playback_hook = via_playback_pcm_hook;
+ 	spec->gen.add_stereo_mix_input = HDA_HINT_STEREO_MIX_AUTO;
+ 	codec->power_save_node = 1;
+diff --git a/sound/soc/intel/boards/haswell.c b/sound/soc/intel/boards/haswell.c
+index de955c2e8c4e..a0e67d5f5968 100644
+--- a/sound/soc/intel/boards/haswell.c
++++ b/sound/soc/intel/boards/haswell.c
+@@ -197,6 +197,7 @@ static struct platform_driver haswell_audio = {
+ 	.probe = haswell_audio_probe,
+ 	.driver = {
+ 		.name = "haswell-audio",
++		.pm = &snd_soc_pm_ops,
+ 	},
+ };
+ 
