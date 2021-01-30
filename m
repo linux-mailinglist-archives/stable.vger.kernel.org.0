@@ -2,190 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B2730925D
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 06:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5393092EC
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 10:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbhA3FzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 00:55:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40508 "EHLO
+        id S233669AbhA3EVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jan 2021 23:21:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233874AbhA3FwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jan 2021 00:52:18 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E524C061573
-        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 21:43:37 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id s11so13028199edd.5
-        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 21:43:37 -0800 (PST)
+        with ESMTP id S233665AbhA3EGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 23:06:37 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6054AC061794
+        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 19:40:44 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id g69so12216428oib.12
+        for <stable@vger.kernel.org>; Fri, 29 Jan 2021 19:40:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=0yXVbLcOAHd620JpYUZl8moLbJpXg6jwgqVqoTUEGTE=;
-        b=SovhJykjW1dJ3gfTEiRvaEepyxqGHAxl8nGb8TFdO++4F+mcp03jvH79d0jHeyKagA
-         pzh5Ce5i0Hqi8Q4uF9Z9ksGSX7qS3JNYtzzg8nTtsfiFpAEzeFmrsjc/bviCsB46QUyz
-         XRr+fYTFS/pLdSVBhEd3PyKfNDUjxmFXJe4pooHclNtwnIekK/VX+rOluNamJgBJxQKH
-         PBZGy3E1jg+BE6g9ukxt9tsLqIvx4LFSXOTN92ZjXHqpOI5sw/U51KJvhTtAPRm3eBog
-         P7gNvZ4bPdUGZvsIGBjtaP0Yu7thpnb/BrNkqhHI46sUC4u6UXX6MOi1Ibq7rVKJm3h/
-         qpsQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=Yj6zG2TXVdd+CCj4l0fOPqKE8LHYpPsYri/NcE0ve+Q=;
+        b=A1FkhXNDyXJuX0prLj8Bn++oTDx1B4UoYhNOTvGX5MRDSF+XeyBhDwPTK3oXt100su
+         dkPBFkJ0CElfacyPoYr18dT3l93V4IKoozKoXENZnjZquAoEdBV2om+yW/Ya8+gf8s/Z
+         3TBhWCEUK44pKlztZ1mNrWzr8e/IQcQjrz2N3Y3nb+Y5bgkiWdaSZ3pT3waYUHx7IPJX
+         ZyIcKEsWjHGEg+DZuUx6x37o5lNBtbxIOmBaPOptchiOIfQbH6JOwxKvuL0OWZKe5Kau
+         5zluf1p04envE1QGVD6ul3teN8aLhQm2jIJg476vpfnKsMDTUdYFjCMC/Fc6d2Vgn2+j
+         xszg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=0yXVbLcOAHd620JpYUZl8moLbJpXg6jwgqVqoTUEGTE=;
-        b=SeUJkP/WsVROU2iqbLXjeZwm+nArBKLNnnp88+wFZcdo+8JZK/dr61QGGqWCrLE2/8
-         HpGB/8A8KI6RXdPb5MKfL0A0YCdqxDsy55MrcRoedKlgpsoHd2z2n+32vZbTvOs5nrI7
-         8E7lZMoDm/26nj+gdhFc4XL0NT11xn3KGUwuAfBHb6AxC7F/dZWoc3OGqpizp7jpajyP
-         6+/P1KWy7hlZ9MWQtinKzL4lbFjmOx3Z/Tl1dHVFH9jLUm73q0u3HNPqvcqeV/e8HQMd
-         zjWcLjAPgf/+QhVdIsX/rfByNMjM1uGMNUW8i/6qVRFBFhmsQN8L2BEBukGp116FejAB
-         AFvA==
-X-Gm-Message-State: AOAM531SaxlB7zjT2VYVsiLxWAxkbVpXMT94FvO5vgeg8sQ9xikGyhjO
-        J5goiGekywiw9KiEaHtmWePv+XR7PKhcU2pLLqPL3A==
-X-Google-Smtp-Source: ABdhPJxYuUTZP4ALDIsIjPBje8YWvwdJ7FZAmf6/2yV12PcoDU/7rX0gFy4L+KwVk/U3J7ll1kwI1oCV9sGsnNzs6bs=
-X-Received: by 2002:a05:6402:3088:: with SMTP id de8mr8571642edb.221.1611985416284;
- Fri, 29 Jan 2021 21:43:36 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=Yj6zG2TXVdd+CCj4l0fOPqKE8LHYpPsYri/NcE0ve+Q=;
+        b=qjzF1jJOCBc/CFR5mNZiOtwnvD9jlkpP0UKUm/5LBMaDvnl3FEYG9qeE33eTp88MXA
+         J1hSp38WrXSf6SCW87uIzgLdlydJjlAJhzADHElWmNec5fA0vbr/i1VYnKm+DhWMm9D2
+         o+m7QPXKH67JsY4kyK2hL7Old2LA1lfE8WI5vV9yvfVtqBR6u5NVkY16lMeq8VGEgHEv
+         YamPribDnJeYB6mstpL35laX14phahbn+hkBbe0U6Oa5UVra+rOV5QUs2KbQLRwB4hNm
+         uoyE3EQNFp6SAN4jCdZoyMVoLzZHXVITi1eg/NRxzpWCHR7jnEe1bx5ZzoFBsvRBKYYg
+         Vuhw==
+X-Gm-Message-State: AOAM532i3aq8FsFPcFP+//9OwDkjLJWeLMTW+UUnWvPeZ2GZXfAkZ9Ji
+        VGhOsuiV9w+U43Bq9XXq6Wcu4MPqr55Tx0hpIAJww7yr/e0Htw==
+X-Google-Smtp-Source: ABdhPJySeYMOS/ELpM1KwM31MKNXWAsxypvVK0piVQLaca+WtHLixraH1WM4T6NzaspHlLospCx2WrPZag0Fi0gNc3c=
+X-Received: by 2002:aca:31c1:: with SMTP id x184mr4417654oix.74.1611978043689;
+ Fri, 29 Jan 2021 19:40:43 -0800 (PST)
 MIME-Version: 1.0
-References: <20210129105910.685105711@linuxfoundation.org>
-In-Reply-To: <20210129105910.685105711@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 30 Jan 2021 11:13:25 +0530
-Message-ID: <CA+G9fYvNt7c=DXUzC1QihQROyWy6Ao65qqc-oPRLUNt3GS8vRg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/26] 4.19.172-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+From:   Robert Hancock <hancockrwd@gmail.com>
+Date:   Fri, 29 Jan 2021 21:40:33 -0600
+Message-ID: <CADLC3L3RS-fYZXqPB_oZwfoFgBRou8O+5-1p4DetwQTH1UssyA@mail.gmail.com>
+Subject: Patch for stable: iwlwifi: provide gso_type to GSO packets
+To:     stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 29 Jan 2021 at 16:45, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.172 release.
-> There are 26 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 31 Jan 2021 10:59:01 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.172-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+I'm told netdev patches are going through the regular stable queue
+now, so I'd like to nominate this commit from mainline, if it hasn't
+been picked up already (I don't see it in the queue currently).
 
+This patch is reported to fix a severe upload speed regression in many
+Intel wireless adapters existing since kernel 5.9, as described in
+https://bugzilla.kernel.org/show_bug.cgi?id=209913 .
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+commit 81a86e1bd8e7060ebba1718b284d54f1238e9bf9
+Author: Eric Dumazet <edumazet@google.com>
+Date:   Mon Jan 25 07:09:49 2021 -0800
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+    iwlwifi: provide gso_type to GSO packets
 
-Summary
-------------------------------------------------------------------------
+    net/core/tso.c got recent support for USO, and this broke iwlfifi
+    because the driver implemented a limited form of GSO.
 
-kernel: 4.19.172-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: d36f1541af5ac2e86ea3548b7da2e962e4ef5266
-git describe: v4.19.171-27-gd36f1541af5a
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.171-27-gd36f1541af5a
+    Providing ->gso_type allows for skb_is_gso_tcp() to provide
+    a correct result.
 
-No regressions (compared to build v4.19.171)
-
-
-No fixes (compared to build v4.19.171)
-
-
-Ran 48448 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- s390
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* perf
-* fwts
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* rcutorture
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+    Fixes: 3d5b459ba0e3 ("net: tso: add UDP segmentation support")
+    Signed-off-by: Eric Dumazet <edumazet@google.com>
+    Reported-by: Ben Greear <greearb@candelatech.com>
+    Tested-by: Ben Greear <greearb@candelatech.com>
+    Cc: Luca Coelho <luciano.coelho@intel.com>
+    Cc: Johannes Berg <johannes@sipsolutions.net>
+    Link: https://bugzilla.kernel.org/show_bug.cgi?id=209913
+    Link: https://lore.kernel.org/r/20210125150949.619309-1-eric.dumazet@gmail.com
+    Signed-off-by: Jakub Kicinski <kuba@kernel.org>
