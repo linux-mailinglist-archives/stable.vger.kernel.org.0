@@ -2,190 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD53309463
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 11:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C559D3094AA
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 12:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbhA3KWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 05:22:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55944 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232450AbhA3A1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jan 2021 19:27:06 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DEE0C061573;
-        Fri, 29 Jan 2021 16:25:51 -0800 (PST)
-Date:   Sat, 30 Jan 2021 00:25:45 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1611966346;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+O2w7S5EIr+xgRrn3lyGkiuObLVFWzLYI3jLm0zSy/U=;
-        b=ja8CJybGquWcD7wxc/usJyM56b3UFxypqDDDtDspDxVrMoVoYvlT5Q0s7At0cqXOM3roEP
-        R3Rl/+CUltc1hsSR7kfK06bfQEkjriHOkot/CEr5Y3SH+dG5QIPU06cy4TEXHycMX99Sf4
-        Jjc/Z+u2BAx/gn1nfjZouSA779XKP/rbST2724j7U8jgwUzmudwcmpdpIr3MWIBZ88zyb0
-        9aKO65qBI+JQeyshoA9+3AEEPQnszDykyifcWOS0qIvzb2uFfCkvx5pgH4+6Hg93rXGZv5
-        3OmkwTcES8xRF2+3FvDx6fZJAJ2X/HfRTChoWhXTjW/pLzxRU9sHr+8VICahCg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1611966346;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+O2w7S5EIr+xgRrn3lyGkiuObLVFWzLYI3jLm0zSy/U=;
-        b=MRBubB14FDQzEGB0tTRGQtmEY00BfkciJEEtiWpfLIpBuQm87AJOg+c8d5+4nbzsCAU8qc
-        m7rtiZT71xnxkXDw==
-From:   "tip-bot2 for Marc Zyngier" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] genirq/msi: Activate Multi-MSI early when
- MSI_FLAG_ACTIVATE_EARLY is set
-Cc:     Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210123122759.1781359-1-maz@kernel.org>
-References: <20210123122759.1781359-1-maz@kernel.org>
+        id S229683AbhA3LNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 06:13:34 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:13268 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229620AbhA3LNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jan 2021 06:13:33 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B60153f350000>; Sat, 30 Jan 2021 03:12:53 -0800
+Received: from [10.26.74.139] (172.20.145.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 30 Jan
+ 2021 11:12:50 +0000
+Subject: Re: [PATCH 4.9 00/30] 4.9.254-rc1 review
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+References: <20210129105910.583037839@linuxfoundation.org>
+ <7002f2eaccbe4822ace69408bdf67448@HQMAIL105.nvidia.com>
+Message-ID: <f39129e5-6d38-6c33-f31e-cf15e4c0399d@nvidia.com>
+Date:   Sat, 30 Jan 2021 11:12:43 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Message-ID: <161196634552.23325.925660465209901325.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+In-Reply-To: <7002f2eaccbe4822ace69408bdf67448@HQMAIL105.nvidia.com>
 Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.20.145.6]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1612005173; bh=wbKKSPFv7rGHUAFgEhp4QjkXiqJiuFWXorSO27ViRdY=;
+        h=Subject:From:To:CC:References:Message-ID:Date:User-Agent:
+         MIME-Version:In-Reply-To:Content-Type:Content-Language:
+         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+        b=kBpBumaTtce3C8abkoyXARWV69eQXZvdNTyEWdpLaKCqtqG70HL6xT3GkwPHve4qZ
+         l93quEGwnxCPUPWVdO4nZSd8g3k9TxeEawouAEXPICdbokciDSdAXmOGB/kJzmyF9K
+         qfJSdJe/XcnzDLvvc1kLhS8gILRAAAM8gTt7ira9hDaejlLhPMDTnhpNfMCQYiPbkP
+         fEMKG/QK/phi6sSamL1BvKRcmj9QGD6H+4uJcC9fSdG0Ydvo6eII0Qu+PF+GEL+iEu
+         JfxFVmHTAPx1s/yN/Wti/qcS1nVrOLL74GJAm/HCPab+n0iQDcPXVPKps2wDGDkvzc
+         eQjS2VFPw3Kzw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
 
-Commit-ID:     4c457e8cb75eda91906a4f89fc39bde3f9a43922
-Gitweb:        https://git.kernel.org/tip/4c457e8cb75eda91906a4f89fc39bde3f9a43922
-Author:        Marc Zyngier <maz@kernel.org>
-AuthorDate:    Sat, 23 Jan 2021 12:27:59 
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 30 Jan 2021 01:22:31 +01:00
+On 29/01/2021 19:08, Jon Hunter wrote:
+> On Fri, 29 Jan 2021 12:06:36 +0100, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 4.9.254 release.
+>> There are 30 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Sun, 31 Jan 2021 10:59:01 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.254-rc1.gz
+>> or in the git tree and branch at:
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
+> 
+> All tests passing for Tegra ...
+> 
+> Test results for stable-v4.9:
+>     8 builds:	8 pass, 0 fail
+>     16 boots:	16 pass, 0 fail
+>     30 tests:	30 pass, 0 fail
+> 
+> Linux version:	4.9.254-rc1-g1aa322729224
+> Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra30-cardhu-a04
+> 
+> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> 
+> Jon
 
-genirq/msi: Activate Multi-MSI early when MSI_FLAG_ACTIVATE_EARLY is set
 
-When MSI_FLAG_ACTIVATE_EARLY is set (which is the case for PCI),
-__msi_domain_alloc_irqs() performs the activation of the interrupt (which
-in the case of PCI results in the endpoint being programmed) as soon as the
-interrupt is allocated.
+For some reason I don't appear to be receiving the 'review' request
+emails. We have a script that checks for them on lore.kernel.org/lkml
+but I don't seem to find them there either ...
 
-But it appears that this is only done for the first vector, introducing an
-inconsistent behaviour for PCI Multi-MSI.
+https://lore.kernel.org/lkml/?q=%5BPATCH+4.14+00%2F50%5D+4.14.218-rc1+review
 
-Fix it by iterating over the number of vectors allocated to each MSI
-descriptor. This is easily achieved by introducing a new
-"for_each_msi_vector" iterator, together with a tiny bit of refactoring.
+https://lore.kernel.org/lkml/?q=%5BPATCH+4.19+00%2F26%5D+4.19.172-rc1+review
 
-Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
-Reported-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210123122759.1781359-1-maz@kernel.org
+I thought it was our mail server but then I would have thought I would
+see them on lore. I often see a delay but they usually arrive within a day.
 
----
- include/linux/msi.h |  6 ++++++-
- kernel/irq/msi.c    | 44 ++++++++++++++++++++------------------------
- 2 files changed, 26 insertions(+), 24 deletions(-)
-
-diff --git a/include/linux/msi.h b/include/linux/msi.h
-index 360a0a7..aef35fd 100644
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -178,6 +178,12 @@ struct msi_desc {
- 	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
- #define for_each_msi_entry_safe(desc, tmp, dev)	\
- 	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), list)
-+#define for_each_msi_vector(desc, __irq, dev)				\
-+	for_each_msi_entry((desc), (dev))				\
-+		if ((desc)->irq)					\
-+			for (__irq = (desc)->irq;			\
-+			     __irq < ((desc)->irq + (desc)->nvec_used);	\
-+			     __irq++)
- 
- #ifdef CONFIG_IRQ_MSI_IOMMU
- static inline const void *msi_desc_get_iommu_cookie(struct msi_desc *desc)
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index dc0e2d7..b338d62 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -436,22 +436,22 @@ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
- 
- 	can_reserve = msi_check_reservation_mode(domain, info, dev);
- 
--	for_each_msi_entry(desc, dev) {
--		virq = desc->irq;
--		if (desc->nvec_used == 1)
--			dev_dbg(dev, "irq %d for MSI\n", virq);
--		else
-+	/*
-+	 * This flag is set by the PCI layer as we need to activate
-+	 * the MSI entries before the PCI layer enables MSI in the
-+	 * card. Otherwise the card latches a random msi message.
-+	 */
-+	if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
-+		goto skip_activate;
-+
-+	for_each_msi_vector(desc, i, dev) {
-+		if (desc->irq == i) {
-+			virq = desc->irq;
- 			dev_dbg(dev, "irq [%d-%d] for MSI\n",
- 				virq, virq + desc->nvec_used - 1);
--		/*
--		 * This flag is set by the PCI layer as we need to activate
--		 * the MSI entries before the PCI layer enables MSI in the
--		 * card. Otherwise the card latches a random msi message.
--		 */
--		if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
--			continue;
-+		}
- 
--		irq_data = irq_domain_get_irq_data(domain, desc->irq);
-+		irq_data = irq_domain_get_irq_data(domain, i);
- 		if (!can_reserve) {
- 			irqd_clr_can_reserve(irq_data);
- 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
-@@ -462,28 +462,24 @@ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
- 			goto cleanup;
- 	}
- 
-+skip_activate:
- 	/*
- 	 * If these interrupts use reservation mode, clear the activated bit
- 	 * so request_irq() will assign the final vector.
- 	 */
- 	if (can_reserve) {
--		for_each_msi_entry(desc, dev) {
--			irq_data = irq_domain_get_irq_data(domain, desc->irq);
-+		for_each_msi_vector(desc, i, dev) {
-+			irq_data = irq_domain_get_irq_data(domain, i);
- 			irqd_clr_activated(irq_data);
- 		}
- 	}
- 	return 0;
- 
- cleanup:
--	for_each_msi_entry(desc, dev) {
--		struct irq_data *irqd;
--
--		if (desc->irq == virq)
--			break;
--
--		irqd = irq_domain_get_irq_data(domain, desc->irq);
--		if (irqd_is_activated(irqd))
--			irq_domain_deactivate_irq(irqd);
-+	for_each_msi_vector(desc, i, dev) {
-+		irq_data = irq_domain_get_irq_data(domain, i);
-+		if (irqd_is_activated(irq_data))
-+			irq_domain_deactivate_irq(irq_data);
- 	}
- 	msi_domain_free_irqs(domain, dev);
- 	return ret;
+Cheers
+Jon
+ --
+nvpublic
