@@ -2,183 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE5B3095C9
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 15:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBDD43095CD
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 15:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbhA3OMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 09:12:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
+        id S231833AbhA3ONj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 09:13:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229851AbhA3OLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230085AbhA3OLs (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 30 Jan 2021 09:11:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E98064E18;
-        Sat, 30 Jan 2021 14:10:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CA7164E19;
+        Sat, 30 Jan 2021 14:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612015843;
-        bh=mSb778zqqMGChBhzbQe616vL65ICVG6OPfzLhYb+nOM=;
+        s=korg; t=1612015845;
+        bh=CzXnMe9zPo0Mv/BftkI6DRP91vh3hdaYaokRCHQ8kIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asGoYA4N2vQ7dXKwI6bOf9YR1fv/W2F7bRmx4K7HEeKYVpC3nBNMEZs89Iq2IqG3u
-         CzGpoSqAgtp8buRO4qf00BwsD0MnJUGqFNKVahW5rNXishx77MrFqTxT4R/g39NB7W
-         gv2obbz6D4zILzmdzEbL/HGN7cnROKxqZj5Hj/lU=
+        b=bcCkAkiP7CxODdD5hi3fi95O1B3kIe9otOx0aOgtfz4kfaLj3Z1nIQ7YnUn2l1rKp
+         i6fojrZ62FgmlFIIrkbBvSH/JwAyG9ccQwJaOkoA7tgaPT2DiEB05cT5rZNvUghExF
+         kuyjGs5NLxUfjwdcX/9bWtJbGeIG0B08qhoZbHKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.94
-Date:   Sat, 30 Jan 2021 15:10:31 +0100
-Message-Id: <1612015830247225@kroah.com>
+Subject: Re: Linux 5.10.12
+Date:   Sat, 30 Jan 2021 15:10:39 +0100
+Message-Id: <161201583814324@kroah.com>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <16120158304478@kroah.com>
-References: <16120158304478@kroah.com>
+In-Reply-To: <161201583820241@kroah.com>
+References: <161201583820241@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/admin-guide/device-mapper/dm-integrity.rst b/Documentation/admin-guide/device-mapper/dm-integrity.rst
-index a30aa91b5fbe..3463883844c0 100644
---- a/Documentation/admin-guide/device-mapper/dm-integrity.rst
-+++ b/Documentation/admin-guide/device-mapper/dm-integrity.rst
-@@ -177,6 +177,12 @@ bitmap_flush_interval:number
- 	The bitmap flush interval in milliseconds. The metadata buffers
- 	are synchronized when this interval expires.
- 
-+legacy_recalculate
-+	Allow recalculating of volumes with HMAC keys. This is disabled by
-+	default for security reasons - an attacker could modify the volume,
-+	set recalc_sector to zero, and the kernel would not detect the
-+	modification.
-+
- 
- The journal mode (D/J), buffer_sectors, journal_watermark, commit_time can
- be changed when reloading the target (load an inactive table and swap the
 diff --git a/Makefile b/Makefile
-index f8462f8d8a15..ad1b8dc6e462 100644
+index 7a5d906f6ee3..a6b2e64bcf6c 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,7 +1,7 @@
  # SPDX-License-Identifier: GPL-2.0
  VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 93
-+SUBLEVEL = 94
+ PATCHLEVEL = 10
+-SUBLEVEL = 11
++SUBLEVEL = 12
  EXTRAVERSION =
  NAME = Kleptomaniac Octopus
  
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index 08df42e4db96..51d867cf146c 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -178,7 +178,6 @@ extern u64			vabits_actual;
- #include <linux/bitops.h>
- #include <linux/mmdebug.h>
- 
--extern s64			physvirt_offset;
- extern s64			memstart_addr;
- /* PHYS_OFFSET - the physical address of the start of memory. */
- #define PHYS_OFFSET		({ VM_BUG_ON(memstart_addr & 1); memstart_addr; })
-@@ -254,7 +253,7 @@ static inline const void *__tag_set(const void *addr, u8 tag)
-  */
- #define __is_lm_address(addr)	(!(((u64)addr) & BIT(vabits_actual - 1)))
- 
--#define __lm_to_phys(addr)	(((addr) + physvirt_offset))
-+#define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
- #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
- 
- #define __virt_to_phys_nodebug(x) ({					\
-@@ -272,7 +271,7 @@ extern phys_addr_t __phys_addr_symbol(unsigned long x);
- #define __phys_addr_symbol(x)	__pa_symbol_nodebug(x)
- #endif /* CONFIG_DEBUG_VIRTUAL */
- 
--#define __phys_to_virt(x)	((unsigned long)((x) - physvirt_offset))
-+#define __phys_to_virt(x)	((unsigned long)((x) - PHYS_OFFSET) | PAGE_OFFSET)
- #define __phys_to_kimg(x)	((unsigned long)((x) + kimage_voffset))
- 
- /*
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 69dfc340e71b..8c420f916fe2 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -23,6 +23,8 @@
- #define VMALLOC_START		(MODULES_END)
- #define VMALLOC_END		(- PUD_SIZE - VMEMMAP_SIZE - SZ_64K)
- 
-+#define vmemmap			((struct page *)VMEMMAP_START - (memstart_addr >> PAGE_SHIFT))
-+
- #define FIRST_USER_ADDRESS	0UL
- 
- #ifndef __ASSEMBLY__
-@@ -33,8 +35,6 @@
- #include <linux/mm_types.h>
- #include <linux/sched.h>
- 
--extern struct page *vmemmap;
--
- extern void __pte_error(const char *file, int line, unsigned long val);
- extern void __pmd_error(const char *file, int line, unsigned long val);
- extern void __pud_error(const char *file, int line, unsigned long val);
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 45c00a54909c..602bd19630ff 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -50,12 +50,6 @@
- s64 memstart_addr __ro_after_init = -1;
- EXPORT_SYMBOL(memstart_addr);
- 
--s64 physvirt_offset __ro_after_init;
--EXPORT_SYMBOL(physvirt_offset);
--
--struct page *vmemmap __ro_after_init;
--EXPORT_SYMBOL(vmemmap);
--
- phys_addr_t arm64_dma_phys_limit __ro_after_init;
- 
- #ifdef CONFIG_KEXEC_CORE
-@@ -321,20 +315,6 @@ void __init arm64_memblock_init(void)
- 	memstart_addr = round_down(memblock_start_of_DRAM(),
- 				   ARM64_MEMSTART_ALIGN);
- 
--	physvirt_offset = PHYS_OFFSET - PAGE_OFFSET;
--
--	vmemmap = ((struct page *)VMEMMAP_START - (memstart_addr >> PAGE_SHIFT));
--
--	/*
--	 * If we are running with a 52-bit kernel VA config on a system that
--	 * does not support it, we have to offset our vmemmap and physvirt_offset
--	 * s.t. we avoid the 52-bit portion of the direct linear map
--	 */
--	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52) && (vabits_actual != 52)) {
--		vmemmap += (_PAGE_OFFSET(48) - _PAGE_OFFSET(52)) >> PAGE_SHIFT;
--		physvirt_offset = PHYS_OFFSET - _PAGE_OFFSET(48);
--	}
--
- 	/*
- 	 * Remove the memory that we will not be able to cover with the
- 	 * linear mapping. Take care not to clip the kernel which may be
-@@ -349,6 +329,16 @@ void __init arm64_memblock_init(void)
- 		memblock_remove(0, memstart_addr);
- 	}
- 
-+	/*
-+	 * If we are running with a 52-bit kernel VA config on a system that
-+	 * does not support it, we have to place the available physical
-+	 * memory in the 48-bit addressable part of the linear region, i.e.,
-+	 * we have to move it upward. Since memstart_addr represents the
-+	 * physical address of PAGE_OFFSET, we have to *subtract* from it.
-+	 */
-+	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52) && (vabits_actual != 52))
-+		memstart_addr -= _PAGE_OFFSET(48) - _PAGE_OFFSET(52);
-+
- 	/*
- 	 * Apply the memory limit if it was set. Since the kernel may be loaded
- 	 * high up in memory, add back the kernel region that must be accessible
 diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
-index 3985d6e1c17d..89a053b1d279 100644
+index 2f245594a90a..ed7c5fc47f52 100644
 --- a/drivers/gpio/gpio-mvebu.c
 +++ b/drivers/gpio/gpio-mvebu.c
-@@ -657,9 +657,8 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
+@@ -660,9 +660,8 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
  
  	spin_lock_irqsave(&mvpwm->lock, flags);
  
@@ -190,7 +66,7 @@ index 3985d6e1c17d..89a053b1d279 100644
  	do_div(val, mvpwm->clk_rate);
  	if (val > UINT_MAX)
  		state->duty_cycle = UINT_MAX;
-@@ -668,21 +667,17 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
+@@ -671,21 +670,17 @@ static void mvebu_pwm_get_state(struct pwm_chip *chip,
  	else
  		state->duty_cycle = 1;
  
@@ -220,6 +96,20 @@ index 3985d6e1c17d..89a053b1d279 100644
  
  	regmap_read(mvchip->regs, GPIO_BLINK_EN_OFF + mvchip->offset, &u);
  	if (u)
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 0743ef51d3b2..8429ebe7097e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -758,7 +758,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			MT_STORE_FIELD(inrange_state);
+ 			return 1;
+ 		case HID_DG_CONFIDENCE:
+-			if (cls->name == MT_CLS_WIN_8 &&
++			if ((cls->name == MT_CLS_WIN_8 ||
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+ 				app->quirks |= MT_QUIRK_CONFIDENCE;
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
 index 9e852b4bbf92..73dafa60080f 100644
 --- a/drivers/hid/wacom_sys.c
@@ -266,310 +156,434 @@ index da612b6e9c77..195910dd2154 100644
  	int pid;
  	int num_contacts_left;
  	u8 bt_features;
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index 57f66f2ad98d..c967c2cdba87 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -254,6 +254,7 @@ struct dm_integrity_c {
- 	bool journal_uptodate;
- 	bool just_formatted;
- 	bool recalculate_flag;
-+	bool legacy_recalculate;
- 
- 	struct alg_spec internal_hash_alg;
- 	struct alg_spec journal_crypt_alg;
-@@ -381,6 +382,14 @@ static int dm_integrity_failed(struct dm_integrity_c *ic)
- 	return READ_ONCE(ic->failed);
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+index c142f5e7f25f..de57f2fed743 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma.h
+@@ -509,6 +509,20 @@ static inline int ib_send_flags_to_pvrdma(int flags)
+ 	return flags & PVRDMA_MASK(PVRDMA_SEND_FLAGS_MAX);
  }
  
-+static bool dm_integrity_disable_recalculate(struct dm_integrity_c *ic)
++static inline int pvrdma_network_type_to_ib(enum pvrdma_network_type type)
 +{
-+	if ((ic->internal_hash_alg.key || ic->journal_mac_alg.key) &&
-+	    !ic->legacy_recalculate)
-+		return true;
-+	return false;
++	switch (type) {
++	case PVRDMA_NETWORK_ROCE_V1:
++		return RDMA_NETWORK_ROCE_V1;
++	case PVRDMA_NETWORK_IPV4:
++		return RDMA_NETWORK_IPV4;
++	case PVRDMA_NETWORK_IPV6:
++		return RDMA_NETWORK_IPV6;
++	default:
++		return RDMA_NETWORK_IPV6;
++	}
 +}
 +
- static commit_id_t dm_integrity_commit_id(struct dm_integrity_c *ic, unsigned i,
- 					  unsigned j, unsigned char seq)
- {
-@@ -2998,6 +3007,7 @@ static void dm_integrity_status(struct dm_target *ti, status_type_t type,
- 		arg_count += !!ic->internal_hash_alg.alg_string;
- 		arg_count += !!ic->journal_crypt_alg.alg_string;
- 		arg_count += !!ic->journal_mac_alg.alg_string;
-+		arg_count += ic->legacy_recalculate;
- 		DMEMIT("%s %llu %u %c %u", ic->dev->name, (unsigned long long)ic->start,
- 		       ic->tag_size, ic->mode, arg_count);
- 		if (ic->meta_dev)
-@@ -3017,6 +3027,8 @@ static void dm_integrity_status(struct dm_target *ti, status_type_t type,
- 			DMEMIT(" sectors_per_bit:%llu", (unsigned long long)ic->sectors_per_block << ic->log2_blocks_per_bitmap_bit);
- 			DMEMIT(" bitmap_flush_interval:%u", jiffies_to_msecs(ic->bitmap_flush_interval));
+ void pvrdma_qp_cap_to_ib(struct ib_qp_cap *dst,
+ 			 const struct pvrdma_qp_cap *src);
+ void ib_qp_cap_to_pvrdma(struct pvrdma_qp_cap *dst,
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_cq.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_cq.c
+index 319546a39a0d..62164db593a4 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_cq.c
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_cq.c
+@@ -364,7 +364,7 @@ static int pvrdma_poll_one(struct pvrdma_cq *cq, struct pvrdma_qp **cur_qp,
+ 	wc->dlid_path_bits = cqe->dlid_path_bits;
+ 	wc->port_num = cqe->port_num;
+ 	wc->vendor_err = cqe->vendor_err;
+-	wc->network_hdr_type = cqe->network_hdr_type;
++	wc->network_hdr_type = pvrdma_network_type_to_ib(cqe->network_hdr_type);
+ 
+ 	/* Update shared ring state */
+ 	pvrdma_idx_ring_inc(&cq->ring_state->rx.cons_head, cq->ibcq.cqe);
+diff --git a/drivers/media/common/videobuf2/videobuf2-v4l2.c b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+index 96d3b2b2aa31..3f61f5863bf7 100644
+--- a/drivers/media/common/videobuf2/videobuf2-v4l2.c
++++ b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+@@ -118,8 +118,7 @@ static int __verify_length(struct vb2_buffer *vb, const struct v4l2_buffer *b)
+ 				return -EINVAL;
  		}
-+		if (ic->legacy_recalculate)
-+			DMEMIT(" legacy_recalculate");
+ 	} else {
+-		length = (b->memory == VB2_MEMORY_USERPTR ||
+-			  b->memory == VB2_MEMORY_DMABUF)
++		length = (b->memory == VB2_MEMORY_USERPTR)
+ 			? b->length : vb->planes[0].length;
  
- #define EMIT_ALG(a, n)							\
- 		do {							\
-@@ -3625,7 +3637,7 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 	unsigned extra_args;
- 	struct dm_arg_set as;
- 	static const struct dm_arg _args[] = {
--		{0, 15, "Invalid number of feature args"},
-+		{0, 14, "Invalid number of feature args"},
- 	};
- 	unsigned journal_sectors, interleave_sectors, buffer_sectors, journal_watermark, sync_msec;
- 	bool should_write_sb;
-@@ -3769,6 +3781,8 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 				goto bad;
- 		} else if (!strcmp(opt_string, "recalculate")) {
- 			ic->recalculate_flag = true;
-+		} else if (!strcmp(opt_string, "legacy_recalculate")) {
-+			ic->legacy_recalculate = true;
- 		} else {
- 			r = -EINVAL;
- 			ti->error = "Invalid argument";
-@@ -4067,6 +4081,14 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 		}
- 	}
+ 		if (b->bytesused > length)
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
+index 8fa1c22fd96d..fcad5cdcabfa 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
+@@ -237,13 +237,6 @@ static int iwl_dbg_tlv_alloc_region(struct iwl_trans *trans,
+ 	if (le32_to_cpu(tlv->length) < sizeof(*reg))
+ 		return -EINVAL;
  
-+	if (ic->sb->flags & cpu_to_le32(SB_FLAG_RECALCULATING) &&
-+	    le64_to_cpu(ic->sb->recalc_sector) < ic->provided_data_sectors &&
-+	    dm_integrity_disable_recalculate(ic)) {
-+		ti->error = "Recalculating with HMAC is disabled for security reasons - if you really need it, use the argument \"legacy_recalculate\"";
-+		r = -EOPNOTSUPP;
-+		goto bad;
-+	}
-+
- 	ic->bufio = dm_bufio_client_create(ic->meta_dev ? ic->meta_dev->bdev : ic->dev->bdev,
- 			1U << (SECTOR_SHIFT + ic->log2_buffer_sectors), 1, 0, NULL, NULL);
- 	if (IS_ERR(ic->bufio)) {
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index be06b26d6ca0..7adecfd0c1e9 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -490,8 +490,8 @@ build_preauth_ctxt(struct smb2_preauth_neg_context *pneg_ctxt)
- 	pneg_ctxt->ContextType = SMB2_PREAUTH_INTEGRITY_CAPABILITIES;
- 	pneg_ctxt->DataLength = cpu_to_le16(38);
- 	pneg_ctxt->HashAlgorithmCount = cpu_to_le16(1);
--	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_SALT_SIZE);
--	get_random_bytes(pneg_ctxt->Salt, SMB311_SALT_SIZE);
-+	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_LINUX_CLIENT_SALT_SIZE);
-+	get_random_bytes(pneg_ctxt->Salt, SMB311_LINUX_CLIENT_SALT_SIZE);
- 	pneg_ctxt->HashAlgorithms = SMB2_PREAUTH_INTEGRITY_SHA512;
- }
- 
-@@ -617,6 +617,9 @@ static void decode_preauth_context(struct smb2_preauth_neg_context *ctxt)
- 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
- 		printk_once(KERN_WARNING "server sent bad preauth context\n");
- 		return;
-+	} else if (len < MIN_PREAUTH_CTXT_DATA_LEN + le16_to_cpu(ctxt->SaltLength)) {
-+		pr_warn_once("server sent invalid SaltLength\n");
-+		return;
- 	}
- 	if (le16_to_cpu(ctxt->HashAlgorithmCount) != 1)
- 		printk_once(KERN_WARNING "illegal SMB3 hash algorithm count\n");
-diff --git a/fs/cifs/smb2pdu.h b/fs/cifs/smb2pdu.h
-index f264e1d36fe1..2482978f0948 100644
---- a/fs/cifs/smb2pdu.h
-+++ b/fs/cifs/smb2pdu.h
-@@ -271,12 +271,20 @@ struct smb2_neg_context {
- 	/* Followed by array of data */
- } __packed;
- 
--#define SMB311_SALT_SIZE			32
-+#define SMB311_LINUX_CLIENT_SALT_SIZE			32
- /* Hash Algorithm Types */
- #define SMB2_PREAUTH_INTEGRITY_SHA512	cpu_to_le16(0x0001)
- #define SMB2_PREAUTH_HASH_SIZE 64
- 
--#define MIN_PREAUTH_CTXT_DATA_LEN	(SMB311_SALT_SIZE + 6)
-+/*
-+ * SaltLength that the server send can be zero, so the only three required
-+ * fields (all __le16) end up six bytes total, so the minimum context data len
-+ * in the response is six bytes which accounts for
-+ *
-+ *      HashAlgorithmCount, SaltLength, and 1 HashAlgorithm.
-+ */
-+#define MIN_PREAUTH_CTXT_DATA_LEN 6
-+
- struct smb2_preauth_neg_context {
- 	__le16	ContextType; /* 1 */
- 	__le16	DataLength;
-@@ -284,7 +292,7 @@ struct smb2_preauth_neg_context {
- 	__le16	HashAlgorithmCount; /* 1 */
- 	__le16	SaltLength;
- 	__le16	HashAlgorithms; /* HashAlgorithms[0] since only one defined */
--	__u8	Salt[SMB311_SALT_SIZE];
-+	__u8	Salt[SMB311_LINUX_CLIENT_SALT_SIZE];
- } __packed;
- 
- /* Encryption Algorithms Ciphers */
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 3bac525f0439..539d95bd364d 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5209,7 +5209,7 @@ static int other_inode_match(struct inode * inode, unsigned long ino,
- 	    (inode->i_state & I_DIRTY_TIME)) {
- 		struct ext4_inode_info	*ei = EXT4_I(inode);
- 
--		inode->i_state &= ~(I_DIRTY_TIME | I_DIRTY_TIME_EXPIRED);
-+		inode->i_state &= ~I_DIRTY_TIME;
- 		spin_unlock(&inode->i_lock);
- 
- 		spin_lock(&ei->i_raw_lock);
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 5f6400ba82c0..a2cf2db0d3de 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1238,7 +1238,7 @@ static bool inode_dirtied_after(struct inode *inode, unsigned long t)
-  */
- static int move_expired_inodes(struct list_head *delaying_queue,
- 			       struct list_head *dispatch_queue,
--			       int flags, unsigned long dirtied_before)
-+			       unsigned long dirtied_before)
- {
- 	LIST_HEAD(tmp);
- 	struct list_head *pos, *node;
-@@ -1254,8 +1254,6 @@ static int move_expired_inodes(struct list_head *delaying_queue,
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
- 		spin_lock(&inode->i_lock);
--		if (flags & EXPIRE_DIRTY_ATIME)
--			inode->i_state |= I_DIRTY_TIME_EXPIRED;
- 		inode->i_state |= I_SYNC_QUEUED;
- 		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
-@@ -1303,11 +1301,11 @@ static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work,
- 
- 	assert_spin_locked(&wb->list_lock);
- 	list_splice_init(&wb->b_more_io, &wb->b_io);
--	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, dirtied_before);
-+	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, dirtied_before);
- 	if (!work->for_sync)
- 		time_expire_jif = jiffies - dirtytime_expire_interval * HZ;
- 	moved += move_expired_inodes(&wb->b_dirty_time, &wb->b_io,
--				     EXPIRE_DIRTY_ATIME, time_expire_jif);
-+				     time_expire_jif);
- 	if (moved)
- 		wb_io_lists_populated(wb);
- 	trace_writeback_queue_io(wb, work, dirtied_before, moved);
-@@ -1475,26 +1473,26 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
- 			ret = err;
- 	}
- 
-+	/*
-+	 * If the inode has dirty timestamps and we need to write them, call
-+	 * mark_inode_dirty_sync() to notify the filesystem about it and to
-+	 * change I_DIRTY_TIME into I_DIRTY_SYNC.
-+	 */
-+	if ((inode->i_state & I_DIRTY_TIME) &&
-+	    (wbc->sync_mode == WB_SYNC_ALL || wbc->for_sync ||
-+	     time_after(jiffies, inode->dirtied_time_when +
-+			dirtytime_expire_interval * HZ))) {
-+		trace_writeback_lazytime(inode);
-+		mark_inode_dirty_sync(inode);
-+	}
-+
- 	/*
- 	 * Some filesystems may redirty the inode during the writeback
- 	 * due to delalloc, clear dirty metadata flags right before
- 	 * write_inode()
- 	 */
- 	spin_lock(&inode->i_lock);
+-	/* For safe using a string from FW make sure we have a
+-	 * null terminator
+-	 */
+-	reg->name[IWL_FW_INI_MAX_NAME - 1] = 0;
 -
- 	dirty = inode->i_state & I_DIRTY;
--	if (inode->i_state & I_DIRTY_TIME) {
--		if ((dirty & I_DIRTY_INODE) ||
--		    wbc->sync_mode == WB_SYNC_ALL ||
--		    unlikely(inode->i_state & I_DIRTY_TIME_EXPIRED) ||
--		    unlikely(time_after(jiffies,
--					(inode->dirtied_time_when +
--					 dirtytime_expire_interval * HZ)))) {
--			dirty |= I_DIRTY_TIME | I_DIRTY_TIME_EXPIRED;
--			trace_writeback_lazytime(inode);
--		}
--	} else
--		inode->i_state &= ~I_DIRTY_TIME_EXPIRED;
- 	inode->i_state &= ~dirty;
+-	IWL_DEBUG_FW(trans, "WRT: parsing region: %s\n", reg->name);
+-
+ 	if (id >= IWL_FW_INI_MAX_REGION_ID) {
+ 		IWL_ERR(trans, "WRT: Invalid region id %u\n", id);
+ 		return -EINVAL;
+diff --git a/fs/file.c b/fs/file.c
+index 4559b5fec3bd..21c0893f2f1d 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -21,7 +21,6 @@
+ #include <linux/rcupdate.h>
+ #include <linux/close_range.h>
+ #include <net/sock.h>
+-#include <linux/io_uring.h>
  
- 	/*
-@@ -1515,8 +1513,6 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
+ unsigned int sysctl_nr_open __read_mostly = 1024*1024;
+ unsigned int sysctl_nr_open_min = BITS_PER_LONG;
+@@ -453,7 +452,6 @@ void exit_files(struct task_struct *tsk)
+ 	struct files_struct * files = tsk->files;
  
- 	spin_unlock(&inode->i_lock);
- 
--	if (dirty & I_DIRTY_TIME)
--		mark_inode_dirty_sync(inode);
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & ~I_DIRTY_PAGES) {
- 		int err = write_inode(inode, wbc);
+ 	if (files) {
+-		io_uring_files_cancel(files);
+ 		task_lock(tsk);
+ 		tsk->files = NULL;
+ 		task_unlock(tsk);
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4127ea027a14..478df7e10767 100644
+index 8cb0db187d90..fd12d9327ee5 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2226,7 +2226,8 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 		/* Ensure we clear previously set non-block flag */
- 		req->rw.ki_flags &= ~IOCB_NOWAIT;
+@@ -260,6 +260,7 @@ struct io_ring_ctx {
+ 		unsigned int		drain_next: 1;
+ 		unsigned int		eventfd_async: 1;
+ 		unsigned int		restricted: 1;
++		unsigned int		sqo_dead: 1;
  
--		if (req->fs != current->fs && current->fs != old_fs_struct) {
-+		if ((req->fs && req->fs != current->fs) ||
-+		    (!req->fs && current->fs != old_fs_struct)) {
- 			task_lock(current);
- 			if (req->fs)
- 				current->fs = req->fs;
-@@ -2351,7 +2352,7 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 		mmput(cur_mm);
+ 		/*
+ 		 * Ring buffer of indices into array of io_uring_sqe, which is
+@@ -970,6 +971,7 @@ static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
+ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
+ 			     const struct iovec *fast_iov,
+ 			     struct iov_iter *iter, bool force);
++static void io_req_drop_files(struct io_kiocb *req);
+ 
+ static struct kmem_cache *req_cachep;
+ 
+@@ -990,8 +992,7 @@ EXPORT_SYMBOL(io_uring_get_socket);
+ 
+ static inline void io_clean_op(struct io_kiocb *req)
+ {
+-	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED |
+-			  REQ_F_INFLIGHT))
++	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
+ 		__io_clean_op(req);
+ }
+ 
+@@ -1213,11 +1214,6 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
+ 
+ 	/* order cqe stores with ring update */
+ 	smp_store_release(&rings->cq.tail, ctx->cached_cq_tail);
+-
+-	if (wq_has_sleeper(&ctx->cq_wait)) {
+-		wake_up_interruptible(&ctx->cq_wait);
+-		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
+-	}
+ }
+ 
+ static void io_put_identity(struct io_uring_task *tctx, struct io_kiocb *req)
+@@ -1260,6 +1256,8 @@ static void io_req_clean_work(struct io_kiocb *req)
+ 			free_fs_struct(fs);
+ 		req->work.flags &= ~IO_WQ_WORK_FS;
  	}
- 	revert_creds(old_cred);
--	if (old_fs_struct) {
-+	if (old_fs_struct != current->fs) {
- 		task_lock(current);
- 		current->fs = old_fs_struct;
- 		task_unlock(current);
-diff --git a/fs/xfs/libxfs/xfs_trans_inode.c b/fs/xfs/libxfs/xfs_trans_inode.c
-index 6c7354abd0ae..0ba7368b9a5f 100644
---- a/fs/xfs/libxfs/xfs_trans_inode.c
-+++ b/fs/xfs/libxfs/xfs_trans_inode.c
-@@ -100,9 +100,9 @@ xfs_trans_log_inode(
- 	 * to log the timestamps, or will clear already cleared fields in the
- 	 * worst case.
++	if (req->flags & REQ_F_INFLIGHT)
++		io_req_drop_files(req);
+ 
+ 	io_put_identity(req->task->io_uring, req);
+ }
+@@ -1603,6 +1601,10 @@ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+ 
+ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+ {
++	if (wq_has_sleeper(&ctx->cq_wait)) {
++		wake_up_interruptible(&ctx->cq_wait);
++		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
++	}
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 	if (ctx->sq_data && waitqueue_active(&ctx->sq_data->wait))
+@@ -2083,11 +2085,9 @@ static void io_req_task_cancel(struct callback_head *cb)
+ static void __io_req_task_submit(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	bool fail;
+ 
+-	fail = __io_sq_thread_acquire_mm(ctx);
+ 	mutex_lock(&ctx->uring_lock);
+-	if (!fail)
++	if (!ctx->sqo_dead && !__io_sq_thread_acquire_mm(ctx))
+ 		__io_queue_sqe(req, NULL);
+ 	else
+ 		__io_req_task_cancel(req, -EFAULT);
+@@ -5962,9 +5962,6 @@ static void __io_clean_op(struct io_kiocb *req)
+ 		}
+ 		req->flags &= ~REQ_F_NEED_CLEANUP;
+ 	}
+-
+-	if (req->flags & REQ_F_INFLIGHT)
+-		io_req_drop_files(req);
+ }
+ 
+ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
+@@ -6796,7 +6793,7 @@ static enum sq_ret __io_sq_thread(struct io_ring_ctx *ctx,
+ 		to_submit = 8;
+ 
+ 	mutex_lock(&ctx->uring_lock);
+-	if (likely(!percpu_ref_is_dying(&ctx->refs)))
++	if (likely(!percpu_ref_is_dying(&ctx->refs) && !ctx->sqo_dead))
+ 		ret = io_submit_sqes(ctx, to_submit);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+@@ -8487,6 +8484,10 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	mutex_lock(&ctx->uring_lock);
+ 	percpu_ref_kill(&ctx->refs);
+ 	/* if force is set, the ring is going away. always drop after that */
++
++	if (WARN_ON_ONCE((ctx->flags & IORING_SETUP_SQPOLL) && !ctx->sqo_dead))
++		ctx->sqo_dead = 1;
++
+ 	ctx->cq_overflow_flushed = 1;
+ 	if (ctx->rings)
+ 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
+@@ -8698,6 +8699,8 @@ static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 			break;
+ 		/* cancel this request, or head link requests */
+ 		io_attempt_cancel(ctx, cancel_req);
++		io_cqring_overflow_flush(ctx, true, task, files);
++
+ 		io_put_req(cancel_req);
+ 		/* cancellations _may_ trigger task work */
+ 		io_run_task_work();
+@@ -8745,6 +8748,17 @@ static bool __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 	return ret;
+ }
+ 
++static void io_disable_sqo_submit(struct io_ring_ctx *ctx)
++{
++	mutex_lock(&ctx->uring_lock);
++	ctx->sqo_dead = 1;
++	mutex_unlock(&ctx->uring_lock);
++
++	/* make sure callers enter the ring to get error */
++	if (ctx->rings)
++		io_ring_set_wakeup_flag(ctx);
++}
++
+ /*
+  * We need to iteratively cancel requests, in case a request has dependent
+  * hard links. These persist even for failure of cancelations, hence keep
+@@ -8756,6 +8770,9 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 	struct task_struct *task = current;
+ 
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
++		/* for SQPOLL only sqo_task has task notes */
++		WARN_ON_ONCE(ctx->sqo_task != current);
++		io_disable_sqo_submit(ctx);
+ 		task = ctx->sq_data->thread;
+ 		atomic_inc(&task->io_uring->in_idle);
+ 		io_sq_thread_park(ctx->sq_data);
+@@ -8835,23 +8852,6 @@ static void io_uring_del_task_file(struct file *file)
+ 		fput(file);
+ }
+ 
+-/*
+- * Drop task note for this file if we're the only ones that hold it after
+- * pending fput()
+- */
+-static void io_uring_attempt_task_drop(struct file *file)
+-{
+-	if (!current->io_uring)
+-		return;
+-	/*
+-	 * fput() is pending, will be 2 if the only other ref is our potential
+-	 * task file note. If the task is exiting, drop regardless of count.
+-	 */
+-	if (fatal_signal_pending(current) || (current->flags & PF_EXITING) ||
+-	    atomic_long_read(&file->f_count) == 2)
+-		io_uring_del_task_file(file);
+-}
+-
+ static void io_uring_remove_task_files(struct io_uring_task *tctx)
+ {
+ 	struct file *file;
+@@ -8917,6 +8917,10 @@ void __io_uring_task_cancel(void)
+ 	/* make sure overflow events are dropped */
+ 	atomic_inc(&tctx->in_idle);
+ 
++	/* trigger io_disable_sqo_submit() */
++	if (tctx->sqpoll)
++		__io_uring_files_cancel(NULL);
++
+ 	do {
+ 		/* read completions before cancelations */
+ 		inflight = tctx_inflight(tctx);
+@@ -8943,7 +8947,36 @@ void __io_uring_task_cancel(void)
+ 
+ static int io_uring_flush(struct file *file, void *data)
+ {
+-	io_uring_attempt_task_drop(file);
++	struct io_uring_task *tctx = current->io_uring;
++	struct io_ring_ctx *ctx = file->private_data;
++
++	if (!tctx)
++		return 0;
++
++	/* we should have cancelled and erased it before PF_EXITING */
++	WARN_ON_ONCE((current->flags & PF_EXITING) &&
++		     xa_load(&tctx->xa, (unsigned long)file));
++
++	/*
++	 * fput() is pending, will be 2 if the only other ref is our potential
++	 * task file note. If the task is exiting, drop regardless of count.
++	 */
++	if (atomic_long_read(&file->f_count) != 2)
++		return 0;
++
++	if (ctx->flags & IORING_SETUP_SQPOLL) {
++		/* there is only one file note, which is owned by sqo_task */
++		WARN_ON_ONCE(ctx->sqo_task != current &&
++			     xa_load(&tctx->xa, (unsigned long)file));
++		/* sqo_dead check is for when this happens after cancellation */
++		WARN_ON_ONCE(ctx->sqo_task == current && !ctx->sqo_dead &&
++			     !xa_load(&tctx->xa, (unsigned long)file));
++
++		io_disable_sqo_submit(ctx);
++	}
++
++	if (!(ctx->flags & IORING_SETUP_SQPOLL) || ctx->sqo_task == current)
++		io_uring_del_task_file(file);
+ 	return 0;
+ }
+ 
+@@ -9017,8 +9050,9 @@ static unsigned long io_uring_nommu_get_unmapped_area(struct file *file,
+ 
+ #endif /* !CONFIG_MMU */
+ 
+-static void io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
++static int io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
+ {
++	int ret = 0;
+ 	DEFINE_WAIT(wait);
+ 
+ 	do {
+@@ -9027,6 +9061,11 @@ static void io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
+ 
+ 		prepare_to_wait(&ctx->sqo_sq_wait, &wait, TASK_INTERRUPTIBLE);
+ 
++		if (unlikely(ctx->sqo_dead)) {
++			ret = -EOWNERDEAD;
++			goto out;
++		}
++
+ 		if (!io_sqring_full(ctx))
+ 			break;
+ 
+@@ -9034,6 +9073,8 @@ static void io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
+ 	} while (!signal_pending(current));
+ 
+ 	finish_wait(&ctx->sqo_sq_wait, &wait);
++out:
++	return ret;
+ }
+ 
+ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+@@ -9077,10 +9118,16 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
+ 
++		ret = -EOWNERDEAD;
++		if (unlikely(ctx->sqo_dead))
++			goto out;
+ 		if (flags & IORING_ENTER_SQ_WAKEUP)
+ 			wake_up(&ctx->sq_data->wait);
+-		if (flags & IORING_ENTER_SQ_WAIT)
+-			io_sqpoll_wait_sq(ctx);
++		if (flags & IORING_ENTER_SQ_WAIT) {
++			ret = io_sqpoll_wait_sq(ctx);
++			if (ret)
++				goto out;
++		}
+ 		submitted = to_submit;
+ 	} else if (to_submit) {
+ 		ret = io_uring_add_task_file(ctx, f.file);
+@@ -9491,6 +9538,7 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
  	 */
--	if (inode->i_state & (I_DIRTY_TIME | I_DIRTY_TIME_EXPIRED)) {
-+	if (inode->i_state & I_DIRTY_TIME) {
- 		spin_lock(&inode->i_lock);
--		inode->i_state &= ~(I_DIRTY_TIME | I_DIRTY_TIME_EXPIRED);
-+		inode->i_state &= ~I_DIRTY_TIME;
- 		spin_unlock(&inode->i_lock);
+ 	ret = io_uring_install_fd(ctx, file);
+ 	if (ret < 0) {
++		io_disable_sqo_submit(ctx);
+ 		/* fput will clean it up */
+ 		fput(file);
+ 		return ret;
+@@ -9499,6 +9547,7 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	trace_io_uring_create(ret, ctx, p->sq_entries, p->cq_entries, p->flags);
+ 	return ret;
+ err:
++	io_disable_sqo_submit(ctx);
+ 	io_ring_ctx_wait_and_kill(ctx);
+ 	return ret;
+ }
+diff --git a/include/uapi/linux/v4l2-subdev.h b/include/uapi/linux/v4l2-subdev.h
+index 00850b98078a..a38454d9e0f5 100644
+--- a/include/uapi/linux/v4l2-subdev.h
++++ b/include/uapi/linux/v4l2-subdev.h
+@@ -176,7 +176,7 @@ struct v4l2_subdev_capability {
+ };
+ 
+ /* The v4l2 sub-device video device node is registered in read-only mode. */
+-#define V4L2_SUBDEV_CAP_RO_SUBDEV		BIT(0)
++#define V4L2_SUBDEV_CAP_RO_SUBDEV		0x00000001
+ 
+ /* Backwards compatibility define --- to be removed */
+ #define v4l2_subdev_edid v4l2_edid
+diff --git a/include/uapi/rdma/vmw_pvrdma-abi.h b/include/uapi/rdma/vmw_pvrdma-abi.h
+index f8b638c73371..901a4fd72c09 100644
+--- a/include/uapi/rdma/vmw_pvrdma-abi.h
++++ b/include/uapi/rdma/vmw_pvrdma-abi.h
+@@ -133,6 +133,13 @@ enum pvrdma_wc_flags {
+ 	PVRDMA_WC_FLAGS_MAX		= PVRDMA_WC_WITH_NETWORK_HDR_TYPE,
+ };
+ 
++enum pvrdma_network_type {
++	PVRDMA_NETWORK_IB,
++	PVRDMA_NETWORK_ROCE_V1 = PVRDMA_NETWORK_IB,
++	PVRDMA_NETWORK_IPV4,
++	PVRDMA_NETWORK_IPV6
++};
++
+ struct pvrdma_alloc_ucontext_resp {
+ 	__u32 qp_tab_size;
+ 	__u32 reserved;
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 1f236ed375f8..d13d67fc5f4e 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -63,6 +63,7 @@
+ #include <linux/random.h>
+ #include <linux/rcuwait.h>
+ #include <linux/compat.h>
++#include <linux/io_uring.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/unistd.h>
+@@ -762,6 +763,7 @@ void __noreturn do_exit(long code)
+ 		schedule();
  	}
  
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 4c82683e034a..ef118b8ba699 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2161,7 +2161,6 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
- #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
- #define I_LINKABLE		(1 << 10)
- #define I_DIRTY_TIME		(1 << 11)
--#define I_DIRTY_TIME_EXPIRED	(1 << 12)
- #define I_WB_SWITCH		(1 << 13)
- #define I_OVL_INUSE		(1 << 14)
- #define I_CREATING		(1 << 15)
-diff --git a/include/trace/events/writeback.h b/include/trace/events/writeback.h
-index a8af22e469ce..011e8faa608b 100644
---- a/include/trace/events/writeback.h
-+++ b/include/trace/events/writeback.h
-@@ -20,7 +20,6 @@
- 		{I_CLEAR,		"I_CLEAR"},		\
- 		{I_SYNC,		"I_SYNC"},		\
- 		{I_DIRTY_TIME,		"I_DIRTY_TIME"},	\
--		{I_DIRTY_TIME_EXPIRED,	"I_DIRTY_TIME_EXPIRED"}, \
- 		{I_REFERENCED,		"I_REFERENCED"}		\
- 	)
++	io_uring_files_cancel(tsk->files);
+ 	exit_signals(tsk);  /* sets PF_EXITING */
  
+ 	/* sync mm's RSS info before statistics gathering */
 diff --git a/kernel/futex.c b/kernel/futex.c
-index b6dec5f79370..042c2707e913 100644
+index 00259c7e288e..0693b3ea0f9a 100644
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -857,6 +857,29 @@ static struct futex_pi_state *alloc_pi_state(void)
+@@ -765,6 +765,29 @@ static struct futex_pi_state *alloc_pi_state(void)
  	return pi_state;
  }
  
@@ -599,7 +613,7 @@ index b6dec5f79370..042c2707e913 100644
  static void get_pi_state(struct futex_pi_state *pi_state)
  {
  	WARN_ON_ONCE(!refcount_inc_not_zero(&pi_state->refcount));
-@@ -879,17 +902,11 @@ static void put_pi_state(struct futex_pi_state *pi_state)
+@@ -787,17 +810,11 @@ static void put_pi_state(struct futex_pi_state *pi_state)
  	 * and has cleaned up the pi_state already
  	 */
  	if (pi_state->owner) {
@@ -619,7 +633,7 @@ index b6dec5f79370..042c2707e913 100644
  		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
  	}
  
-@@ -1035,7 +1052,8 @@ static inline void exit_pi_state_list(struct task_struct *curr) { }
+@@ -943,7 +960,8 @@ static inline void exit_pi_state_list(struct task_struct *curr) { }
   *	FUTEX_OWNER_DIED bit. See [4]
   *
   * [10] There is no transient state which leaves owner and user space
@@ -629,7 +643,7 @@ index b6dec5f79370..042c2707e913 100644
   *
   *
   * Serialization and lifetime rules:
-@@ -1614,26 +1632,15 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
+@@ -1523,26 +1541,15 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
  			ret = -EINVAL;
  	}
  
@@ -665,7 +679,7 @@ index b6dec5f79370..042c2707e913 100644
  
  out_unlock:
  	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
-@@ -2456,18 +2463,13 @@ static void unqueue_me_pi(struct futex_q *q)
+@@ -2325,18 +2332,13 @@ static void unqueue_me_pi(struct futex_q *q)
  	spin_unlock(q->lock_ptr);
  }
  
@@ -674,9 +688,8 @@ index b6dec5f79370..042c2707e913 100644
 +static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
 +				  struct task_struct *argowner)
  {
-+	u32 uval, uninitialized_var(curval), newval, newtid;
  	struct futex_pi_state *pi_state = q->pi_state;
--	u32 uval, uninitialized_var(curval), newval;
+-	u32 uval, curval, newval;
  	struct task_struct *oldowner, *newowner;
 -	u32 newtid;
 -	int ret, err = 0;
@@ -684,11 +697,12 @@ index b6dec5f79370..042c2707e913 100644
 -	lockdep_assert_held(q->lock_ptr);
 -
 -	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
++	u32 uval, curval, newval, newtid;
 +	int err = 0;
  
  	oldowner = pi_state->owner;
  
-@@ -2501,14 +2503,12 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+@@ -2370,14 +2372,12 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
  			 * We raced against a concurrent self; things are
  			 * already fixed up. Nothing to do.
  			 */
@@ -706,7 +720,7 @@ index b6dec5f79370..042c2707e913 100644
  		}
  
  		/*
-@@ -2535,8 +2535,7 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+@@ -2404,8 +2404,7 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
  			 * We raced against a concurrent self; things are
  			 * already fixed up. Nothing to do.
  			 */
@@ -716,7 +730,7 @@ index b6dec5f79370..042c2707e913 100644
  		}
  		newowner = argowner;
  	}
-@@ -2566,22 +2565,9 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+@@ -2435,22 +2434,9 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
  	 * We fixed up user space. Now we need to fix the pi_state
  	 * itself.
  	 */
@@ -741,7 +755,7 @@ index b6dec5f79370..042c2707e913 100644
  
  	/*
  	 * In order to reschedule or handle a page fault, we need to drop the
-@@ -2602,17 +2588,16 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+@@ -2471,17 +2457,16 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
  
  	switch (err) {
  	case -EFAULT:
@@ -761,7 +775,7 @@ index b6dec5f79370..042c2707e913 100644
  		break;
  	}
  
-@@ -2622,17 +2607,44 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+@@ -2491,17 +2476,44 @@ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
  	/*
  	 * Check if someone else fixed it for us:
  	 */
@@ -814,7 +828,7 @@ index b6dec5f79370..042c2707e913 100644
  	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
  	return ret;
  }
-@@ -2656,8 +2668,6 @@ static long futex_wait_restart(struct restart_block *restart);
+@@ -2525,8 +2537,6 @@ static long futex_wait_restart(struct restart_block *restart);
   */
  static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
  {
@@ -823,24 +837,24 @@ index b6dec5f79370..042c2707e913 100644
  	if (locked) {
  		/*
  		 * Got the lock. We might not be the anticipated owner if we
-@@ -2668,8 +2678,8 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+@@ -2537,8 +2547,8 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
  		 * stable state, anything else needs more attention.
  		 */
  		if (q->pi_state->owner != current)
 -			ret = fixup_pi_state_owner(uaddr, q, current);
--		goto out;
+-		return ret ? ret : locked;
 +			return fixup_pi_state_owner(uaddr, q, current);
 +		return 1;
  	}
  
  	/*
-@@ -2680,24 +2690,17 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+@@ -2549,23 +2559,17 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
  	 * Another speculative read; pi_state->owner == current is unstable
  	 * but needs our attention.
  	 */
 -	if (q->pi_state->owner == current) {
 -		ret = fixup_pi_state_owner(uaddr, q, NULL);
--		goto out;
+-		return ret;
 -	}
 +	if (q->pi_state->owner == current)
 +		return fixup_pi_state_owner(uaddr, q, NULL);
@@ -859,13 +873,12 @@ index b6dec5f79370..042c2707e913 100644
 +	if (WARN_ON_ONCE(rt_mutex_owner(&q->pi_state->pi_mutex) == current))
 +		return fixup_pi_state_owner(uaddr, q, current);
  
--out:
--	return ret ? ret : locked;
+-	return ret;
 +	return 0;
  }
  
  /**
-@@ -2909,7 +2912,6 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
+@@ -2773,7 +2777,6 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
  			 ktime_t *time, int trylock)
  {
  	struct hrtimer_sleeper timeout, *to;
@@ -873,7 +886,7 @@ index b6dec5f79370..042c2707e913 100644
  	struct task_struct *exiting = NULL;
  	struct rt_mutex_waiter rt_waiter;
  	struct futex_hash_bucket *hb;
-@@ -3046,23 +3048,9 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
+@@ -2909,23 +2912,8 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
  	if (res)
  		ret = (res < 0) ? res : 0;
  
@@ -888,16 +901,16 @@ index b6dec5f79370..042c2707e913 100644
 -
  	/* Unqueue and drop the lock */
  	unqueue_me_pi(&q);
- 
+-
 -	if (pi_state) {
 -		rt_mutex_futex_unlock(&pi_state->pi_mutex);
 -		put_pi_state(pi_state);
 -	}
 -
- 	goto out_put_key;
+ 	goto out;
  
  out_unlock_put_key:
-@@ -3328,7 +3316,6 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
+@@ -3185,7 +3173,6 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
  				 u32 __user *uaddr2)
  {
  	struct hrtimer_sleeper timeout, *to;
@@ -905,7 +918,7 @@ index b6dec5f79370..042c2707e913 100644
  	struct rt_mutex_waiter rt_waiter;
  	struct futex_hash_bucket *hb;
  	union futex_key key2 = FUTEX_KEY_INIT;
-@@ -3406,16 +3393,17 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
+@@ -3263,16 +3250,17 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
  		if (q.pi_state && (q.pi_state->owner != current)) {
  			spin_lock(q.lock_ptr);
  			ret = fixup_pi_state_owner(uaddr2, &q, current);
@@ -927,7 +940,7 @@ index b6dec5f79370..042c2707e913 100644
  		}
  	} else {
  		struct rt_mutex *pi_mutex;
-@@ -3446,25 +3434,10 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
+@@ -3303,25 +3291,10 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
  		if (res)
  			ret = (res < 0) ? res : 0;
  
@@ -954,10 +967,10 @@ index b6dec5f79370..042c2707e913 100644
  		/*
  		 * We've already been requeued, but cannot restart by calling
 diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 2874bf556162..734698aec5f9 100644
+index cfdd5b93264d..2f8cd616d3b2 100644
 --- a/kernel/locking/rtmutex.c
 +++ b/kernel/locking/rtmutex.c
-@@ -1718,8 +1718,7 @@ void rt_mutex_init_proxy_locked(struct rt_mutex *lock,
+@@ -1716,8 +1716,7 @@ void rt_mutex_init_proxy_locked(struct rt_mutex *lock,
   * possible because it belongs to the pi_state which is about to be freed
   * and it is not longer visible to other tasks.
   */
@@ -981,33 +994,138 @@ index d1d62f942be2..ca6fb489007b 100644
  extern void rt_mutex_init_waiter(struct rt_mutex_waiter *waiter);
  extern int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
  				     struct rt_mutex_waiter *waiter,
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 077877ed54f7..728374166653 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -4448,6 +4448,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 801f8bc52b34..aafec8cb8637 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -1338,11 +1338,16 @@ static size_t info_print_prefix(const struct printk_info  *info, bool syslog,
+  * done:
+  *
+  *   - Add prefix for each line.
++ *   - Drop truncated lines that no longer fit into the buffer.
+  *   - Add the trailing newline that has been removed in vprintk_store().
+- *   - Drop truncated lines that do not longer fit into the buffer.
++ *   - Add a string terminator.
++ *
++ * Since the produced string is always terminated, the maximum possible
++ * return value is @r->text_buf_size - 1;
+  *
+  * Return: The length of the updated/prepared text, including the added
+- * prefixes and the newline. The dropped line(s) are not counted.
++ * prefixes and the newline. The terminator is not counted. The dropped
++ * line(s) are not counted.
+  */
+ static size_t record_print_text(struct printk_record *r, bool syslog,
+ 				bool time)
+@@ -1385,26 +1390,31 @@ static size_t record_print_text(struct printk_record *r, bool syslog,
  
- 	if (!cpumask_test_cpu(cpu, buffer->cpumask))
- 		return;
-+	/* prevent another thread from changing buffer sizes */
-+	mutex_lock(&buffer->mutex);
+ 		/*
+ 		 * Truncate the text if there is not enough space to add the
+-		 * prefix and a trailing newline.
++		 * prefix and a trailing newline and a terminator.
+ 		 */
+-		if (len + prefix_len + text_len + 1 > buf_size) {
++		if (len + prefix_len + text_len + 1 + 1 > buf_size) {
+ 			/* Drop even the current line if no space. */
+-			if (len + prefix_len + line_len + 1 > buf_size)
++			if (len + prefix_len + line_len + 1 + 1 > buf_size)
+ 				break;
  
- 	atomic_inc(&buffer->resize_disabled);
- 	atomic_inc(&cpu_buffer->record_disabled);
-@@ -4471,6 +4473,8 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+-			text_len = buf_size - len - prefix_len - 1;
++			text_len = buf_size - len - prefix_len - 1 - 1;
+ 			truncated = true;
+ 		}
  
- 	atomic_dec(&cpu_buffer->record_disabled);
- 	atomic_dec(&buffer->resize_disabled);
+ 		memmove(text + prefix_len, text, text_len);
+ 		memcpy(text, prefix, prefix_len);
+ 
++		/*
++		 * Increment the prepared length to include the text and
++		 * prefix that were just moved+copied. Also increment for the
++		 * newline at the end of this line. If this is the last line,
++		 * there is no newline, but it will be added immediately below.
++		 */
+ 		len += prefix_len + line_len + 1;
+-
+ 		if (text_len == line_len) {
+ 			/*
+-			 * Add the trailing newline removed in
+-			 * vprintk_store().
++			 * This is the last line. Add the trailing newline
++			 * removed in vprintk_store().
+ 			 */
+ 			text[prefix_len + line_len] = '\n';
+ 			break;
+@@ -1429,6 +1439,14 @@ static size_t record_print_text(struct printk_record *r, bool syslog,
+ 		text_len -= line_len + 1;
+ 	}
+ 
++	/*
++	 * If a buffer was provided, it will be terminated. Space for the
++	 * string terminator is guaranteed to be available. The terminator is
++	 * not counted in the return value.
++	 */
++	if (buf_size > 0)
++		r->text_buf[len] = 0;
 +
-+	mutex_unlock(&buffer->mutex);
+ 	return len;
  }
- EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 14b9e83ff9da..88639706ae17 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2846,20 +2846,20 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
+ {
+ 	struct page *page;
+ 
+-#ifdef CONFIG_CMA
+-	/*
+-	 * Balance movable allocations between regular and CMA areas by
+-	 * allocating from CMA when over half of the zone's free memory
+-	 * is in the CMA area.
+-	 */
+-	if (alloc_flags & ALLOC_CMA &&
+-	    zone_page_state(zone, NR_FREE_CMA_PAGES) >
+-	    zone_page_state(zone, NR_FREE_PAGES) / 2) {
+-		page = __rmqueue_cma_fallback(zone, order);
+-		if (page)
+-			return page;
++	if (IS_ENABLED(CONFIG_CMA)) {
++		/*
++		 * Balance movable allocations between regular and CMA areas by
++		 * allocating from CMA when over half of the zone's free memory
++		 * is in the CMA area.
++		 */
++		if (alloc_flags & ALLOC_CMA &&
++		    zone_page_state(zone, NR_FREE_CMA_PAGES) >
++		    zone_page_state(zone, NR_FREE_PAGES) / 2) {
++			page = __rmqueue_cma_fallback(zone, order);
++			if (page)
++				goto out;
++		}
+ 	}
+-#endif
+ retry:
+ 	page = __rmqueue_smallest(zone, order, migratetype);
+ 	if (unlikely(!page)) {
+@@ -2870,8 +2870,9 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype,
+ 								alloc_flags))
+ 			goto retry;
+ 	}
+-
+-	trace_mm_page_alloc_zone_locked(page, order, migratetype);
++out:
++	if (page)
++		trace_mm_page_alloc_zone_locked(page, order, migratetype);
+ 	return page;
+ }
  
 diff --git a/mm/slub.c b/mm/slub.c
-index 8b3ef45a0f10..e622e8f4c2ac 100644
+index 3f4303f4b657..071e41067ea6 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
-@@ -5819,10 +5819,8 @@ static int sysfs_slab_add(struct kmem_cache *s)
+@@ -5620,10 +5620,8 @@ static int sysfs_slab_add(struct kmem_cache *s)
  
  	s->kobj.kset = kset;
  	err = kobject_init_and_add(&s->kobj, &slab_ktype, NULL, "%s", name);
@@ -1019,8 +1137,70 @@ index 8b3ef45a0f10..e622e8f4c2ac 100644
  
  	err = sysfs_create_group(&s->kobj, &slab_attr_group);
  	if (err)
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index d58361109066..16db9d1ebcbf 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1045,16 +1045,18 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
+ 	/* Only single cluster request supported */
+ 	WARN_ON_ONCE(n_goal > 1 && size == SWAPFILE_CLUSTER);
+ 
++	spin_lock(&swap_avail_lock);
++
+ 	avail_pgs = atomic_long_read(&nr_swap_pages) / size;
+-	if (avail_pgs <= 0)
++	if (avail_pgs <= 0) {
++		spin_unlock(&swap_avail_lock);
+ 		goto noswap;
++	}
+ 
+ 	n_goal = min3((long)n_goal, (long)SWAP_BATCH, avail_pgs);
+ 
+ 	atomic_long_sub(n_goal * size, &nr_swap_pages);
+ 
+-	spin_lock(&swap_avail_lock);
+-
+ start_over:
+ 	node = numa_node_id();
+ 	plist_for_each_entry_safe(si, next, &swap_avail_heads[node], avail_lists[node]) {
+@@ -1128,14 +1130,13 @@ swp_entry_t get_swap_page_of_type(int type)
+ 
+ 	spin_lock(&si->lock);
+ 	if (si->flags & SWP_WRITEOK) {
+-		atomic_long_dec(&nr_swap_pages);
+ 		/* This is called for allocating swap entry, not cache */
+ 		offset = scan_swap_map(si, 1);
+ 		if (offset) {
++			atomic_long_dec(&nr_swap_pages);
+ 			spin_unlock(&si->lock);
+ 			return swp_entry(type, offset);
+ 		}
+-		atomic_long_inc(&nr_swap_pages);
+ 	}
+ 	spin_unlock(&si->lock);
+ fail:
+diff --git a/tools/bpf/resolve_btfids/Makefile b/tools/bpf/resolve_btfids/Makefile
+index 66cb92136de4..bf656432ad73 100644
+--- a/tools/bpf/resolve_btfids/Makefile
++++ b/tools/bpf/resolve_btfids/Makefile
+@@ -18,15 +18,6 @@ else
+ endif
+ 
+ # always use the host compiler
+-ifneq ($(LLVM),)
+-HOSTAR  ?= llvm-ar
+-HOSTCC  ?= clang
+-HOSTLD  ?= ld.lld
+-else
+-HOSTAR  ?= ar
+-HOSTCC  ?= gcc
+-HOSTLD  ?= ld
+-endif
+ AR       = $(HOSTAR)
+ CC       = $(HOSTCC)
+ LD       = $(HOSTLD)
 diff --git a/tools/build/Makefile b/tools/build/Makefile
-index 727050c40f09..8a55378e8b7c 100644
+index 722f1700d96a..bae48e6fa995 100644
 --- a/tools/build/Makefile
 +++ b/tools/build/Makefile
 @@ -15,10 +15,6 @@ endef
@@ -1035,7 +1215,7 @@ index 727050c40f09..8a55378e8b7c 100644
  
  ifeq ($(V),1)
 diff --git a/tools/objtool/Makefile b/tools/objtool/Makefile
-index f591c4d1b6fe..9ae4a10438ee 100644
+index 4ea9a833dde7..5cdb19036d7f 100644
 --- a/tools/objtool/Makefile
 +++ b/tools/objtool/Makefile
 @@ -3,15 +3,6 @@ include ../scripts/Makefile.include
@@ -1054,11 +1234,29 @@ index f591c4d1b6fe..9ae4a10438ee 100644
  AR	 = $(HOSTAR)
  CC	 = $(HOSTCC)
  LD	 = $(HOSTLD)
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 4e1d7460574b..9452cfb01ef1 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -354,8 +354,11 @@ static int read_symbols(struct elf *elf)
+ 
+ 	symtab = find_section_by_name(elf, ".symtab");
+ 	if (!symtab) {
+-		WARN("missing symbol table");
+-		return -1;
++		/*
++		 * A missing symbol table is actually possible if it's an empty
++		 * .o file.  This can happen for thunk_64.o.
++		 */
++		return 0;
+ 	}
+ 
+ 	symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
 diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index 902c792f326a..961f5e4fd656 100644
+index 7ce3f2e8b9c7..62f3deb1d3a8 100644
 --- a/tools/perf/Makefile.perf
 +++ b/tools/perf/Makefile.perf
-@@ -163,10 +163,6 @@ endef
+@@ -175,10 +175,6 @@ endef
  
  LD += $(EXTRA_LDFLAGS)
  
@@ -1082,7 +1280,7 @@ index 54a2857c2510..331f6d30f472 100644
  # check if compiler option is supported
  cc-supports = ${shell if $(CC) ${1} -S -o /dev/null -x c /dev/null > /dev/null 2>&1; then echo "$(1)"; fi;}
 diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
-index 6d2f3a1b2249..812fc97bb1a9 100644
+index a7974638561c..1358e89cdf7d 100644
 --- a/tools/scripts/Makefile.include
 +++ b/tools/scripts/Makefile.include
 @@ -59,6 +59,16 @@ $(call allow-override,LD,$(CROSS_COMPILE)ld)
