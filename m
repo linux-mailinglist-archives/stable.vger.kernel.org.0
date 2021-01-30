@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BFB330987C
-	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 22:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 723B230987E
+	for <lists+stable@lfdr.de>; Sat, 30 Jan 2021 22:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbhA3V2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jan 2021 16:28:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55798 "EHLO mail.kernel.org"
+        id S231970AbhA3V3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jan 2021 16:29:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231970AbhA3V2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Jan 2021 16:28:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD36464E15;
-        Sat, 30 Jan 2021 21:28:02 +0000 (UTC)
+        id S231617AbhA3V3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Jan 2021 16:29:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1D1864E28;
+        Sat, 30 Jan 2021 21:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612042083;
-        bh=LWAUUOMJxMF/jjGGiyOe5lWXDEo2fMBk8QuQVYWzdnQ=;
+        s=k20201202; t=1612042124;
+        bh=IEdMkWfaMTpe+aItAOx3xlsZs03km5O75suvzry/28w=;
         h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=V6l+T18uJAOQ2eB2aiMhcq6mfHLzuTLqwX8MprZnYP7pbqcikBThmFt1byoTIwQHM
-         Z7YMRldjCyXI1yu7/0QX+YQ5O/ou1PXQ3xm0CzToWNWUR8mbXDZ62gMhBeD/LwWiKX
-         eyPOPg0mRh4FpYhEstc/GruLmRJy9TXLz4zVM/HELNjTTGerNAA9VgqvwHKwxA+Em+
-         rsPK6iaP9O2QVE9h677ZbtaBr/Lb3g3T6oahffFJSmA18xe2e5n0qi/PQi8AoahRHN
-         gdovgP63ckDq388sSoNDJZq3hhA5pNWT7rI1CdsjVeFvPitnDjih9ZLXAtfYRPHiLm
-         8ykeRgX9ns3EQ==
-Message-ID: <1a2bb90a6468093aa128940a52ad8e38ea9538ab.camel@kernel.org>
+        b=buPG/morYZRoEr5mAEcHCiEwlkSM9fk+PxXS3rmbfofrBO44kYEyTni17cXza0z8w
+         deQ3WJOYkq0uCpCZutyiaIsMK96P+/kNjTA5xkBzTio3TEIRO/wG/V512FLPgaprAG
+         Y+pECB4Ishpy43Yt/mnKIVPT+hb55iZW/iYquNtvptHxJZPhcTcSXLEC6kIugsevXk
+         qkQaReJojFMtA2WR1mQ7DJHFjRBWVNM9I9VWO8zk7J9m97UwUx5KBctrXCYWHy9Xnj
+         ndZXJpvhUln50WadzubAQycvdGohyvMPWjI/0jG+lK5f+O3wl3dpP5y1NH3Dlijtry
+         CjtdnZjs2F/RQ==
+Message-ID: <fe83527d3745b5f071b2807d724f27f7632ed8cb.camel@kernel.org>
 Subject: Re: [PATCH v5 3/3] KEYS: trusted: Reserve TPM for seal and unseal
  operations
 From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Sumit Garg <sumit.garg@linaro.org>
-Cc:     linux-integrity@vger.kernel.org,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        stable <stable@vger.kernel.org>,
-        David Howells <dhowells@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+To:     Mimi Zohar <zohar@linux.ibm.com>, linux-integrity@vger.kernel.org
+Cc:     "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
         Peter Huewe <peterhuewe@gmx.de>,
         Jason Gunthorpe <jgg@ziepe.ca>,
         James Bottomley <jejb@linux.ibm.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>
-Date:   Sat, 30 Jan 2021 23:27:58 +0200
-In-Reply-To: <CAFA6WYOAbHV=sOxuUdJq91sZbKDMbo6D5KXcSp9ix0PWLpSdaA@mail.gmail.com>
+Date:   Sat, 30 Jan 2021 23:28:39 +0200
+In-Reply-To: <6459b955f8cb05dae7d15a233f26ff9c9501b839.camel@linux.ibm.com>
 References: <20210128235621.127925-1-jarkko@kernel.org>
          <20210128235621.127925-4-jarkko@kernel.org>
-         <CAFA6WYOAbHV=sOxuUdJq91sZbKDMbo6D5KXcSp9ix0PWLpSdaA@mail.gmail.com>
+         <6459b955f8cb05dae7d15a233f26ff9c9501b839.camel@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.38.3 
@@ -51,9 +49,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2021-01-29 at 14:44 +0530, Sumit Garg wrote:
-> On Fri, 29 Jan 2021 at 05:26, <jarkko@kernel.org> wrote:
-> >=20
+On Fri, 2021-01-29 at 08:58 -0500, Mimi Zohar wrote:
+> On Fri, 2021-01-29 at 01:56 +0200, jarkko@kernel.org=C2=A0wrote:
 > > From: Jarkko Sakkinen <jarkko@kernel.org>
 > >=20
 > > When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
@@ -76,20 +73,11 @@ com>
 > > Cc: Mimi Zohar <zohar@linux.ibm.com>
 > > Cc: Sumit Garg <sumit.garg@linaro.org>
 > > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-> > ---
-> > =C2=A0drivers/char/tpm/tpm.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=
-=C2=A0 4 ----
-> > =C2=A0include/linux/tpm.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 |=C2=A0 5 ++++-
-> > =C2=A0security/keys/trusted-keys/trusted_tpm2.c | 24 ++++++++++++++++++=
------
-> > =C2=A03 files changed, 23 insertions(+), 10 deletions(-)
-> >=20
 >=20
-> Acked-by: Sumit Garg <sumit.garg@linaro.org>
+> Tested-by: Mimi Zohar <zohar@linux.ibm.com> (on TPM 1.2 & PTT, discrete
+> TPM 2.0)
 
-Thanks.
+Thanks, is it OK to apply the whole series?
 
 /Jarkko
+
