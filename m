@@ -2,105 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9055D309D2C
-	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 15:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 407D7309D47
+	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 16:13:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbhAaOsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Jan 2021 09:48:24 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34843 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231891AbhAaOof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 09:44:35 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 660B7FDC;
-        Sun, 31 Jan 2021 09:43:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 31 Jan 2021 09:43:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rarQGj
-        ZWXWbz+FsSLdatrjPm0FegaWopNKv3hXySBIE=; b=pmAwVeX48QqstSuFQgwpsB
-        hiO+XZRbzWh89PHy6Ei0yufJRW+syW9CGyTfTp2K66od0CwqInUfYwJrBey9AQ8R
-        PD6DwUCaAyP5fyXZtfeLmDeO308CgjnYLFKTuhfSY/EI5fhnne4L3M1+DOggewVL
-        v/0pFc0hlp6MrY31cNrW+SO0IuawbFHiqpFa3YeucleVz7kbkA308LqHlCDW+C4o
-        idHnRnp6P6FsSk367UMo8TOMv/7DK22hOQGEI8QSmXj5qccyJvC3mYLq3aLhr1rF
-        OAwPqfS4YI7W9tKa6t5js9VsHfrLGB3eFz4ERuV9vcp7nljjYiUG8/jNxcazXjIA
-        ==
-X-ME-Sender: <xms:E8IWYJ1CPWF1DTjlT_wRAk8Wc_9WZ6H_WvpTRLBt-bnaMgntfN3rPQ>
-    <xme:E8IWYAGHoEd3DuTCtByeYaiah6vaPaVhbUruUyVudxatGQ4ar_Q1SSwVacFv5TVpM
-    4NNAX3mBZfPGg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeigdeifecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
-    dufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:E8IWYJ658AIqKzqUvx2iXxj5vomHI5XGrkyuiYjJgLFSTZ2gvPb_-Q>
-    <xmx:E8IWYG1ozu3W8FShYNsPG87JP2K4RlPGgXLtqSa6Ya0WxYj4MmxAbg>
-    <xmx:E8IWYMEodLnXNqC755snN1ZF8ia-y_XAjHirMz76ZtVIRc8Z3i6vUg>
-    <xmx:FMIWYHMsdAI_6DGI2RbJJqcvfWmTx18WATJEz8o7IeiuJQoFF0OyuB96qVc>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AD7261080057;
-        Sun, 31 Jan 2021 09:43:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] PM: hibernate: flush swap writer after marking" failed to apply to 4.9-stable tree
-To:     laurentbadel@eaton.com, rafael.j.wysocki@intel.com,
+        id S231408AbhAaPFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Jan 2021 10:05:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231913AbhAaPDQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 10:03:16 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B856C061573;
+        Sun, 31 Jan 2021 07:02:10 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id v15so13854114wrx.4;
+        Sun, 31 Jan 2021 07:02:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=LjV7ACSqP+y+JnewS778JoLSAcQ5qx8sJ+ZVcy+lM+4=;
+        b=FjBe/XzupUekMOot8PEzjBp8l9ZHr4GVrzUD+osKm2joyH0KvbD6t4boRgT8ffRubS
+         /kRI9y4jGlJn1y/zwQ5xOWrxyYf9o3xvsOfZ2FGNO5x3iODENtI6Ms1ihuVB7SL1EvS3
+         RVyyFoLWUJAl1b9Ray73p4oeVs7EVLrobwKzi2gyMozlky6CE1yXMi8h4RBxh2hq9vxr
+         32mMTRpkhZNxyX65gWxVYpFNw5g5CbGSJ8Cig+6M6kN+h1C53UrB4eeqkN8HG3cFhzQ/
+         ciAlntaZgQUnx4Tut892YcGZaBDAPJZ0+7yD7QAcAZMOvIuLuZPQpt54N/fFJjh5QD4C
+         Ds8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=LjV7ACSqP+y+JnewS778JoLSAcQ5qx8sJ+ZVcy+lM+4=;
+        b=PGxgAvZziPaKhylKhVsh0CRHNVqQiuT+f56SRQVf8s+80Xj9FBWaHvJfZPIVGc6wcK
+         fG7hjRwpfyMepF1basl7YFtDwroYWfvf4wEO3UI0Emn4sUe54i/rW9Hhoitz0wRdRZRq
+         I4sRv8LpSNu+XwLHUg7vAiZgXJ58+TzEPwSTaKT81yyQblh1Onw1HkvGUaPud6RzKE9K
+         Wg5GnXihyf92SzZLZN63hdfcNQedqRDDYjKjqTg7W/yensnCQEUNzzGo9tNdpr71L6PK
+         PMO5fh37saXjv9THX6g3TLfAW0+XdL2LEHDc0fNMdAP/vfZw2z9a84VcbBZdv0FiqZuF
+         i9hg==
+X-Gm-Message-State: AOAM533VFNx3cLtbqHJZctE0si2UjFARDIcbah9QsJZIco64eUALzeuV
+        t9gCB+629vSRt1RRm63W0ZiHwREpZEn+6G4s
+X-Google-Smtp-Source: ABdhPJwADIFtf12tUEUVrchilS5bjUGWeeee7D163mWyiDjr0XlCEtWtBP1e9CDewJbpjk8YOX3gtg==
+X-Received: by 2002:a05:6000:188b:: with SMTP id a11mr13699113wri.151.1612105328923;
+        Sun, 31 Jan 2021 07:02:08 -0800 (PST)
+Received: from ziggy.stardust ([213.195.126.134])
+        by smtp.gmail.com with ESMTPSA id i59sm25056300wri.3.2021.01.31.07.02.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 31 Jan 2021 07:02:08 -0800 (PST)
+Subject: Re: [PATCH v2] dts64: mt7622: fix slow sd card access
+To:     Frank Wunderlich <linux@fw-web.de>,
+        linux-mediatek@lists.infradead.org
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Jimin Wang <jimin.wang@mediatek.com>,
+        Ryder Lee <ryder.lee@mediatek.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        sin_wenjiehu <sin_wenjiehu@mediatek.com>,
+        Wenbin.Mei@mediatek.com, skylake.huang@mediatek.com,
         stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 31 Jan 2021 15:43:21 +0100
-Message-ID: <161210420119485@kroah.com>
+References: <20210113180919.49523-1-linux@fw-web.de>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+Message-ID: <1109b776-b20d-91e1-d398-c48f3f5aa240@gmail.com>
+Date:   Sun, 31 Jan 2021 16:02:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210113180919.49523-1-linux@fw-web.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+On 13/01/2021 19:09, Frank Wunderlich wrote:
+> From: Frank Wunderlich <frank-w@public-files.de>
+> 
+> Fix extreme slow speed (200MB takes ~20 min) on writing sdcard on
+> bananapi-r64 by adding reset-control for mmc1 like it's done for mmc0/emmc.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 2c002a3049f7 ("arm64: dts: mt7622: add mmc related device nodes")
+> Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 
-greg k-h
+Applied to v5.11-next/dts64
 
------------------- original commit in Linus's tree ------------------
+Thanks!
 
-From fef9c8d28e28a808274a18fbd8cc2685817fd62a Mon Sep 17 00:00:00 2001
-From: Laurent Badel <laurentbadel@eaton.com>
-Date: Fri, 22 Jan 2021 17:19:41 +0100
-Subject: [PATCH] PM: hibernate: flush swap writer after marking
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-﻿Flush the swap writer after, not before, marking the files, to ensure the
-signature is properly written.
-
-Fixes: 6f612af57821 ("PM / Hibernate: Group swap ops")
-Signed-off-by: Laurent Badel <laurentbadel@eaton.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index c73f2e295167..72e33054a2e1 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -497,10 +497,10 @@ static int swap_writer_finish(struct swap_map_handle *handle,
- 		unsigned int flags, int error)
- {
- 	if (!error) {
--		flush_swap_writer(handle);
- 		pr_info("S");
- 		error = mark_swapfiles(handle, flags);
- 		pr_cont("|\n");
-+		flush_swap_writer(handle);
- 	}
- 
- 	if (error)
-
+> ---
+> changes since v1:
+>  - drop change to uhs-mode because mt7622 does not support it
+> ---
+>  arch/arm64/boot/dts/mediatek/mt7622.dtsi | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/mediatek/mt7622.dtsi b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+> index 5b9ec032ce8d..7c6d871538a6 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+> +++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+> @@ -698,6 +698,8 @@ mmc1: mmc@11240000 {
+>  		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
+>  			 <&topckgen CLK_TOP_AXI_SEL>;
+>  		clock-names = "source", "hclk";
+> +		resets = <&pericfg MT7622_PERI_MSDC1_SW_RST>;
+> +		reset-names = "hrst";
+>  		status = "disabled";
+>  	};
+>  
+> 
