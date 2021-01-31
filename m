@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADED7309D2F
-	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 15:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0E7309D30
+	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 15:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbhAaOuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Jan 2021 09:50:13 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:37347 "EHLO
+        id S231966AbhAaOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Jan 2021 09:50:15 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:42373 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231963AbhAaOmi (ORCPT
+        by vger.kernel.org with ESMTP id S231956AbhAaOmi (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 09:42:38 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 17810194590B;
-        Sun, 31 Jan 2021 09:41:26 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 31 Jan 2021 09:41:26 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0AC3B1947774;
+        Sun, 31 Jan 2021 09:41:27 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 31 Jan 2021 09:41:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=9PUnhn
-        whd70mQrwaOltnVl1SHuq7OkLUiHwjTNsCYOU=; b=LVy+M0dX6OXtw27fiiMW3G
-        TAx9eMDlysMT4x9+/wMU6a2Ff12HvCMu+PVYMCFQEM03J+ym90TlRky2Nkf7WMnY
-        F55pqx+Ro3An8JiTGUVe5DCXcE/Y/g2uHP59lXLLfJRj2GMa+g7A0e7IWlUn65Q4
-        CmSUQNln0f3L3xAl8byni44LhK+nXlqEqFQDtEXYH2sTWRE5mTBhwyhGLDDDXHOF
-        c90HCLtb2662nPejGskDywruLT7RgE078oVZ8fOlGKvktuV807oGC0mXmWDLUTmp
-        JppdoYX9zbY7dqsdOk2Aju8P+7yFb7U94kRYo0KmEJX9sNZIl4CeEOZpIVWWte2Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MWT7rz
+        p88EdbdeP4JvzK73OovYfxlqiKsL9R7Xy1B2Y=; b=KFQTyjKRZt6AjjNCsi5IfL
+        hzMz2x5flUF4qpXLmOyF2eNm1YWrKgvupo2JQE3fKgLhNke1dnBGxCd0iWJ+ks5N
+        dRvtyKjk6oVVYlrqqxS+xiCvdRm95ciw+tbxRJMwtkcBihIOH51jxNkjVpLycYGG
+        XTixeUZBdaIQL4gybRrJ2QEX2pSODiftSnuqVlk2w2LMqDieLX0Wi5vymrOs2DmG
+        pe7jJM0dhGOuAsf+u4MunO1/ZfZDIxoIiOjE5gRB57HkJeontBFLWBCfeaQCdQf1
+        pG8XRidXsA0NsKjh4sj9PVTRkC9OtFOg+7NstO8H7n9tAXxOabtZlP0vb0sUk3OA
         ==
-X-ME-Sender: <xms:lcEWYEzvPT-dLf0HFnK7LjpP_9J-aV3S336t5DIP7HxYaYNbSiJP0Q>
-    <xme:lcEWYIRHY1yNPsscOpni6aJ7R-RQZhyNsj4QYwfH1D6G3DVCpO8OKnLHVwr6TB5Ts
-    mpUmpwGzKB5xw>
+X-ME-Sender: <xms:lsEWYI73k6rFMQFzLVCApth_lthc8POteuWDwToq9N2MByb-j07GVw>
+    <xme:lsEWYJ4XSDSPzkRZTm2hMEMXK7EAty2ldHrzZWScrGRPC6bBfYh4TPYJnFd971fWf
+    QE2e_CKbkgeJg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeigdeivdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeigdeivdcutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:lcEWYGVjluXKSa6k17fUCEXmdavhoKIWs9QdVFoXWme1fRORd4WKGA>
-    <xmx:lcEWYCh8VFrpHA4Yz7bkLGOGWR5tn82Tkqo0jWWAKfNniUZQP-3hFg>
-    <xmx:lcEWYGCRqL4WMsLz6vlFl-tiXDXyCPMY6SE1tS-zM2NDqvWU9-hXtg>
-    <xmx:lsEWYJ-FpdB0aJkQ3lQ1uiSsFwRmtNlR36quSTPk4sHJRR4nsQLhQA>
+X-ME-Proxy: <xmx:lsEWYHda8sjScAzKP-Gb40qLk1Obyd-VBhk4EtUjibnHYmGNiCOV7A>
+    <xmx:lsEWYNLaDinXNGuFigiS3ZYeX5rGFkjZpvzT9zgi4NSJK4dmpaQahw>
+    <xmx:lsEWYMKbx-UjpHsH-uTIJHf221kWO6urV2LGyXd2UsA7yjNZ3PpQRg>
+    <xmx:l8EWYBFw7gliU5XoxqtCmctwppSi_yJLLUSpZ1FGwI_i2Ma-eL4tQA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0DB841080059;
-        Sun, 31 Jan 2021 09:41:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Do not use flush-queue when caching-mode is on" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 907EF24005A;
+        Sun, 31 Jan 2021 09:41:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Do not use flush-queue when caching-mode is on" failed to apply to 4.19-stable tree
 To:     namit@vmware.com, baolu.lu@linux.intel.com, dwmw2@infradead.org,
         joro@8bytes.org, jroedel@suse.de, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 31 Jan 2021 15:41:23 +0100
-Message-ID: <161210408319221@kroah.com>
+Date:   Sun, 31 Jan 2021 15:41:25 +0100
+Message-ID: <1612104085206179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
