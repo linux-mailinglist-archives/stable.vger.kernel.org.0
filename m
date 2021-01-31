@@ -2,72 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEF2309EB8
-	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 21:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DC6309E7B
+	for <lists+stable@lfdr.de>; Sun, 31 Jan 2021 21:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbhAaULs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Jan 2021 15:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42298 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231261AbhAaTqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 14:46:11 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C90C061573
-        for <stable@vger.kernel.org>; Sun, 31 Jan 2021 09:20:30 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id h7so19577722lfc.6
-        for <stable@vger.kernel.org>; Sun, 31 Jan 2021 09:20:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=J4+twYNb0mZJk4mxYRbnTD8Ep5+/OnLPRZ1CIGlvtVM=;
-        b=GtvnJXkWK937x7lV0YFhU+tbfJMh84A4ZC+751wr/vk2R5qU5q3I3Lk+5A0RgVQ0B8
-         yjj0Xw5LkP4Vj4/vKIBbVYThHenN10Hj7eflOgoeLY5BUocnE8dOuta1IrWQYz4mkdSt
-         YCtXglgLi2j31Qrr8jG0u/DzsBkiuoqf+I+2G9B71JZjBlBccz5bq3PS9CKJjutWCiMv
-         Ze8Jgt5CAsMByIiVd2wj2hPw9x8plbL0AJyvYipNLjm6uK9AdkvzwztegFE2lA3euaTv
-         Mv8fuq/Df/37ikXlD0yrzg68/gXnOE244jkfoLnuh68poWf281x0C+n3gFgmlbqdK+JY
-         5A3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=J4+twYNb0mZJk4mxYRbnTD8Ep5+/OnLPRZ1CIGlvtVM=;
-        b=R2BqhAvuQsK8b94dC3ZQ2IuzK6NykQcWVYzVz5amzNQ39o6HL8/gHXml63FN7uKx35
-         BGncT1gDUvLP/WXjZEc7S+zHjvh6Q13qY9qADRpaVg58JoRDg4rpjYqPNXTv0Ve0RNqk
-         dZsSxX6wFjQERpGlF7oTeS68ozqNg88y/KsE/5frHGAaRNCM93nNpvdhrGHu51RuP/l+
-         WvG5MepzMVAqR9nT+zVF7h+WgE3++e9iBGmuucGUfn+1/kYyI9IxVcmncYgGrsAofqkS
-         VZSVsl7ChsWPWWL2aPxVRcx6jgyMhWBNSlwDZB7X4LRoLfn6GvezXxv7oar0lT2SiVKR
-         iFxQ==
-X-Gm-Message-State: AOAM530mhZtGliJn/D0u602m9W7pKrOAEmfAhsfkOHxiOeTqwUfuxr4W
-        3QdDNTDFAyp+S/5WMJwOOvyLHtZHrGTsAyDwCkYKm3VS
-X-Google-Smtp-Source: ABdhPJyYbRL7aLYl8cgfb+XZ2qN2NoCr2TBfRCFbjKeD5HS1dBBjXTvuc/iLqWtmot4oVhmLkFZfyaVnvH7gp79aDhM=
-X-Received: by 2002:a19:c357:: with SMTP id t84mr6588878lff.150.1612113629128;
- Sun, 31 Jan 2021 09:20:29 -0800 (PST)
+        id S231623AbhAaUA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Jan 2021 15:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231627AbhAaTys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 31 Jan 2021 14:54:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E2CA64E29;
+        Sun, 31 Jan 2021 17:24:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612113888;
+        bh=Pgx1xQlhxhvc42+ZU5Of6p7hke3nHkCDSMZPPWV20MQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mRwJZlNBMjLMTVToV0i6u22MXY6CBw1J8Y/fBNV7iJHUUenqSxm9CMSnZ1gNW9vAC
+         2JQlfL3fPYV8EjhFRkEkTbnFG4pOw2f4BSQC39cWDmDJ/far8IWx5RKVG3Ij7GpCvL
+         rlCFj44otlIEfCFF2ygjvn0z79cN4i+D20lFy00wzzRUpMUto4Cp3eY7Yx+9FdFU/A
+         rqrMoDiXQn37UYPcgSl3cReM9vz1eCELrY7FP0fWUjc20DpWpxdR1jmF/t+MehB4fL
+         nTwZQhGtfu5Q6j9AYXtOWy23xm/4SGb+2+nc80gFMcHm47qAovxOsB0NmAGOtR4Bgu
+         gqE+l5L6qYDqw==
+From:   Andy Lutomirski <luto@kernel.org>
+To:     x86@kernel.org
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 01/11] x86/fault: Fix AMD erratum #91 errata fixup for user code
+Date:   Sun, 31 Jan 2021 09:24:32 -0800
+Message-Id: <7aaa6ff8d29faea5a9324a85e5ad6c41c654e9e0.1612113550.git.luto@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1612113550.git.luto@kernel.org>
+References: <cover.1612113550.git.luto@kernel.org>
 MIME-Version: 1.0
-From:   Jason Andryuk <jandryuk@gmail.com>
-Date:   Sun, 31 Jan 2021 12:20:18 -0500
-Message-ID: <CAKf6xptBwdnhgVYgXhXRvUg9jL3TOf9hT4EcnkZFLJsVVp2M-Q@mail.gmail.com>
-Subject: Request: xen: Fix XenStore initialisation for XS_LOCAL
-To:     stable@vger.kernel.org,
-        Michael Labriola <michael.d.labriola@gmail.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Roger Pau Monne <roger.pau@citrix.com>,
-        =?UTF-8?Q?Marek_Marczykowski=2DG=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xen: Fix XenStore initialisation for XS_LOCAL
+The recent rework of probe_kernel_read() and its conversion to
+get_kernel_nofault() inadvertently broke is_prefetch().  We were using
+probe_kernel_read() as a sloppy "read user or kernel memory" helper, but it
+doens't do that any more.  The new get_kernel_nofault() reads *kernel*
+memory only, which completely broke is_prefetch() for user access.
 
-commit 5f46400f7a6a4fad635d5a79e2aa5a04a30ffea1 upstream
+Adjust the code to the the correct accessor based on access mode.  The
+manual address bounds check is no longer necessary, since the accessor
+helpers (get_user() / get_kernel_nofault()) do the right thing all by
+themselves.  As a bonus, by using the correct accessor, we don't need the
+open-coded address bounds check.
 
-The requested patch fixes Xen Dom0 xenstore support.  It has a "Fixes:
-3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")" in the
-commit - that patch was introduced to stable in 5.4.93 and 5.10.11
-(didn't check other branches).
+While we're at it, disable the workaround on all CPUs except AMD Family
+0xF.  By my reading of the Revision Guide for AMD Athlon™ 64 and AMD
+Opteron™ Processors, only family 0xF is affected.
 
-Regards,
-Jason
+Fixes: eab0c6089b68 ("maccess: unify the probe kernel arch hooks")
+Cc: stable@vger.kernel.org
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ arch/x86/mm/fault.c | 31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 106b22d1d189..50dfdc71761e 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -54,7 +54,7 @@ kmmio_fault(struct pt_regs *regs, unsigned long addr)
+  * 32-bit mode:
+  *
+  *   Sometimes AMD Athlon/Opteron CPUs report invalid exceptions on prefetch.
+- *   Check that here and ignore it.
++ *   Check that here and ignore it.  This is AMD erratum #91.
+  *
+  * 64-bit mode:
+  *
+@@ -83,11 +83,7 @@ check_prefetch_opcode(struct pt_regs *regs, unsigned char *instr,
+ #ifdef CONFIG_X86_64
+ 	case 0x40:
+ 		/*
+-		 * In AMD64 long mode 0x40..0x4F are valid REX prefixes
+-		 * Need to figure out under what instruction mode the
+-		 * instruction was issued. Could check the LDT for lm,
+-		 * but for now it's good enough to assume that long
+-		 * mode only uses well known segments or kernel.
++		 * In 64-bit mode 0x40..0x4F are valid REX prefixes
+ 		 */
+ 		return (!user_mode(regs) || user_64bit_mode(regs));
+ #endif
+@@ -124,23 +120,38 @@ is_prefetch(struct pt_regs *regs, unsigned long error_code, unsigned long addr)
+ 	if (error_code & X86_PF_INSTR)
+ 		return 0;
+ 
++	if (likely(boot_cpu_data.x86_vendor != X86_VENDOR_AMD
++		   || boot_cpu_data.x86 != 0xf))
++		return 0;
++
+ 	instr = (void *)convert_ip_to_linear(current, regs);
+ 	max_instr = instr + 15;
+ 
+-	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE_MAX)
+-		return 0;
++	/*
++	 * This code has historically always bailed out if IP points to a
++	 * not-present page (e.g. due to a race).  No one has ever
++	 * complained about this.
++	 */
++	pagefault_disable();
+ 
+ 	while (instr < max_instr) {
+ 		unsigned char opcode;
+ 
+-		if (get_kernel_nofault(opcode, instr))
+-			break;
++		if (user_mode(regs)) {
++			if (get_user(opcode, instr))
++				break;
++		} else {
++			if (get_kernel_nofault(opcode, instr))
++				break;
++		}
+ 
+ 		instr++;
+ 
+ 		if (!check_prefetch_opcode(regs, instr, opcode, &prefetch))
+ 			break;
+ 	}
++
++	pagefault_enable();
+ 	return prefetch;
+ }
+ 
+-- 
+2.29.2
+
