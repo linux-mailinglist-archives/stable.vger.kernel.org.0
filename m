@@ -2,110 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF0930AE08
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 18:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E9530AEA8
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 19:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbhBARht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 12:37:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232221AbhBARhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 12:37:45 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E966C06174A
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 09:37:05 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id y142so4082403pfb.3
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 09:37:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=e3tLlamqi6EsHVI2NML0yw8IMYcpeNFO/sOLZ/Il4hQ=;
-        b=iyRrXXzxgZFJhT+KMYt6Kuw+uzwHeh+0+EkgErubLCKnjEQw9Vik72Di9Ogu/Qh8y+
-         CpQzhU0GHe17xOUwyUvlBjixXGD+IH/Arvv63Yonyvp3HHiG/iMB3Q9kdx0I0PvEu5yb
-         gH9QtAUA+JXLDeIQts7wc/wkTLWiOjdSWBb0PCqe6evv4KXBFP+k0X6ilKl8l+qrD8DZ
-         QOq1bdQmuo+9fAtlziV6ZV/ahvcdvkxSbwDEAQsU0BRn38+FCegdeMcoyNdnnGhQ2VKb
-         dzc0V3ZK3QgA+aKeC9hrn2w4B1crU5u06JQvlQ2NSiinLNAASHIaiob2Sy+wWo7gmTRe
-         B+HA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=e3tLlamqi6EsHVI2NML0yw8IMYcpeNFO/sOLZ/Il4hQ=;
-        b=F5g+PzRXIn9zOlIRZSS47D6VnoPsADczHuLliTIlSEEXjuiCzqU9T48FiBZdEGhECe
-         qQE7ct/bVty0ewW2mcWJk2PfvUrBXUZbUZMljiCN6iZBrvxH8ouE9IZnvnXR6bJ9mrvG
-         24MEPXfXsF63Nv0Dj8SGShbLGqmt9LG1O1x7epNg2wj44dtkwVxrbHjdh1revPol+r06
-         xMHjmerJ12NDDm1AMh/wy3RK021Xfcxuc4PrA8u6T5yw/Qtsnpk+sxxZkOpOlusXog+C
-         8wYMC8NWaEZAhB2fmmwGY6nADTnB+MuPi7vNJoakT+q8h1qSnHb+Tk6LSp6rBvkGI+ir
-         haRg==
-X-Gm-Message-State: AOAM5303tMzPTdClyu9PMVrC1dDtWUiGFiwlqiy7+kXxtz4irh2vUnRw
-        MnzqK32xPyIZyGh3fpKGPGUmpA==
-X-Google-Smtp-Source: ABdhPJzXJTscogj6sdKLUOea1VrRG7owfCMyOVFziKIOgEM12lAm5hyJ1PaJ/GQS4SctTAhN96mMVA==
-X-Received: by 2002:a62:8f96:0:b029:1b7:75a9:a8b7 with SMTP id n144-20020a628f960000b02901b775a9a8b7mr17694285pfd.28.1612201024719;
-        Mon, 01 Feb 2021 09:37:04 -0800 (PST)
-Received: from google.com ([2620:15c:f:10:829:fccd:80d7:796f])
-        by smtp.gmail.com with ESMTPSA id y75sm18416329pfg.119.2021.02.01.09.37.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 09:37:04 -0800 (PST)
-Date:   Mon, 1 Feb 2021 09:36:57 -0800
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        jmattson@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: x86: Allow guests to see MSR_IA32_TSX_CTRL even
- if tsx=off
-Message-ID: <YBg8OcuPFhQjsz3w@google.com>
-References: <20210129101912.1857809-1-pbonzini@redhat.com>
- <YBQ+peAEdX2h3tro@google.com>
- <37be5fb8-056f-8fba-3016-464634e069af@redhat.com>
- <618c5513-5092-f7cd-b47b-933936001180@redhat.com>
- <YBgugM03fsEiOxz1@google.com>
- <cac389ad-96b0-293e-f977-4e9c6d719dea@redhat.com>
+        id S229763AbhBASDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 13:03:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53872 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229555AbhBASDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Feb 2021 13:03:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 213AB64EA5;
+        Mon,  1 Feb 2021 18:02:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612202577;
+        bh=DJ9ICFsS9IRWDkenOCWqKHa2sb36lWtmArNO1qICcfI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pm1WuywWJq5gJ3ZW+O+hWC9ubhoXFaoNL/jJGuOWVKNrYjWnFX4HPoH3RlArxl4xe
+         iPrR/xnMiL9GyYnjcZARKsAaHzt0X4B2U83Zly4MPtqrDc4xIAp/WYhoQD/4dtuoM8
+         7QuM9cCWTjnZ+2PU7yP2FAOuWBnRUifCu3uvKd2Y5dSXB+fLaDkq0QAfIpZPaSyHM3
+         /9wa50Znvnlo3h1DmDSNuU/X3u8UsR16FBA/0D9BkBNyF3YRe8Ts7kHK2qaGcZUqZj
+         IdjG9ciwx5j0tqtSni/R5Y6T6lOQu8swueaSndKyN/C3bYkgATKa2Ng53j+HEU5Dfn
+         xag2UNtWOajTQ==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-crypto@vger.kernel.org
+Cc:     herbert@gondor.apana.org.au, ebiggers@kernel.org,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 1/9] crypto: michael_mic - fix broken misalignment handling
+Date:   Mon,  1 Feb 2021 19:02:29 +0100
+Message-Id: <20210201180237.3171-2-ardb@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210201180237.3171-1-ardb@kernel.org>
+References: <20210201180237.3171-1-ardb@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <cac389ad-96b0-293e-f977-4e9c6d719dea@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021, Paolo Bonzini wrote:
-> On 01/02/21 17:38, Sean Christopherson wrote:
-> > > > >      /*
-> > > > >       * On TAA affected systems:
-> > > > >       *      - nothing to do if TSX is disabled on the host.
-> > > > >       *      - we emulate TSX_CTRL if present on the host.
-> > > > >       *      This lets the guest use VERW to clear CPU buffers.
-> > > > >       */
-> > 
-> > it says "nothing to do..." and then clears a
-> > flag.  The other interpretation of "nothing to do... at runtime" is also wrong
-> > as KVM emulates the MSR as a nop.
-> > 
-> > I guess I just find the whole comment more confusing than the code itself.
-> 
-> What about:
-> 
-> 
->         if (!boot_cpu_has(X86_FEATURE_RTM)) {
->                 /*
->                  * If RTM=0 because the kernel has disabled TSX, the host might
->                  * have TAA_NO or TSX_CTRL.  Clear TAA_NO (the guest sees RTM=0
->                  * and therefore knows that there cannot be TAA) but keep
->                  * TSX_CTRL: some buggy userspaces leave it set on tsx=on hosts,
->                  * and we want to allow migrating those guests to tsx=off hosts.
->                  */
->                 data &= ~ARCH_CAP_TAA_NO;
->         } else if (!boot_cpu_has_bug(X86_BUG_TAA)) {
->                 data |= ARCH_CAP_TAA_NO;
->         } else {
->                 /*
->                  * Nothing to do here; we emulate TSX_CTRL if present on the
->                  * host so the guest can choose between disabling TSX or
->                  * using VERW to clear CPU buffers.
->                  */
->         }
+The Michael MIC driver uses the cra_alignmask to ensure that pointers
+presented to its update and finup/final methods are 32-bit aligned.
+However, due to the way the shash API works, this is no guarantee that
+the 32-bit reads occurring in the update method are also aligned, as the
+size of the buffer presented to update may be of uneven length. For
+instance, an update() of 3 bytes followed by a misaligned update() of 4
+or more bytes will result in a misaligned access using an accessor that
+is not suitable for this.
 
-Awesome!  Thanks much!
+On most architectures, this does not matter, and so setting the
+cra_alignmask is pointless. On architectures where this does matter,
+setting the cra_alignmask does not actually solve the problem.
+
+So let's get rid of the cra_alignmask, and use unaligned accessors
+instead, where appropriate.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ crypto/michael_mic.c | 31 ++++++++------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
+
+diff --git a/crypto/michael_mic.c b/crypto/michael_mic.c
+index 63350c4ad461..f4c31049601c 100644
+--- a/crypto/michael_mic.c
++++ b/crypto/michael_mic.c
+@@ -7,7 +7,7 @@
+  * Copyright (c) 2004 Jouni Malinen <j@w1.fi>
+  */
+ #include <crypto/internal/hash.h>
+-#include <asm/byteorder.h>
++#include <asm/unaligned.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+@@ -19,7 +19,7 @@ struct michael_mic_ctx {
+ };
+ 
+ struct michael_mic_desc_ctx {
+-	u8 pending[4];
++	__le32 pending;
+ 	size_t pending_len;
+ 
+ 	u32 l, r;
+@@ -60,13 +60,12 @@ static int michael_update(struct shash_desc *desc, const u8 *data,
+ 			   unsigned int len)
+ {
+ 	struct michael_mic_desc_ctx *mctx = shash_desc_ctx(desc);
+-	const __le32 *src;
+ 
+ 	if (mctx->pending_len) {
+ 		int flen = 4 - mctx->pending_len;
+ 		if (flen > len)
+ 			flen = len;
+-		memcpy(&mctx->pending[mctx->pending_len], data, flen);
++		memcpy((u8 *)&mctx->pending + mctx->pending_len, data, flen);
+ 		mctx->pending_len += flen;
+ 		data += flen;
+ 		len -= flen;
+@@ -74,23 +73,21 @@ static int michael_update(struct shash_desc *desc, const u8 *data,
+ 		if (mctx->pending_len < 4)
+ 			return 0;
+ 
+-		src = (const __le32 *)mctx->pending;
+-		mctx->l ^= le32_to_cpup(src);
++		mctx->l ^= le32_to_cpu(mctx->pending);
+ 		michael_block(mctx->l, mctx->r);
+ 		mctx->pending_len = 0;
+ 	}
+ 
+-	src = (const __le32 *)data;
+-
+ 	while (len >= 4) {
+-		mctx->l ^= le32_to_cpup(src++);
++		mctx->l ^= get_unaligned_le32(data);
+ 		michael_block(mctx->l, mctx->r);
++		data += 4;
+ 		len -= 4;
+ 	}
+ 
+ 	if (len > 0) {
+ 		mctx->pending_len = len;
+-		memcpy(mctx->pending, src, len);
++		memcpy(&mctx->pending, data, len);
+ 	}
+ 
+ 	return 0;
+@@ -100,8 +97,7 @@ static int michael_update(struct shash_desc *desc, const u8 *data,
+ static int michael_final(struct shash_desc *desc, u8 *out)
+ {
+ 	struct michael_mic_desc_ctx *mctx = shash_desc_ctx(desc);
+-	u8 *data = mctx->pending;
+-	__le32 *dst = (__le32 *)out;
++	u8 *data = (u8 *)&mctx->pending;
+ 
+ 	/* Last block and padding (0x5a, 4..7 x 0) */
+ 	switch (mctx->pending_len) {
+@@ -123,8 +119,8 @@ static int michael_final(struct shash_desc *desc, u8 *out)
+ 	/* l ^= 0; */
+ 	michael_block(mctx->l, mctx->r);
+ 
+-	dst[0] = cpu_to_le32(mctx->l);
+-	dst[1] = cpu_to_le32(mctx->r);
++	put_unaligned_le32(mctx->l, out);
++	put_unaligned_le32(mctx->r, out + 4);
+ 
+ 	return 0;
+ }
+@@ -135,13 +131,11 @@ static int michael_setkey(struct crypto_shash *tfm, const u8 *key,
+ {
+ 	struct michael_mic_ctx *mctx = crypto_shash_ctx(tfm);
+ 
+-	const __le32 *data = (const __le32 *)key;
+-
+ 	if (keylen != 8)
+ 		return -EINVAL;
+ 
+-	mctx->l = le32_to_cpu(data[0]);
+-	mctx->r = le32_to_cpu(data[1]);
++	mctx->l = get_unaligned_le32(key);
++	mctx->r = get_unaligned_le32(key + 4);
+ 	return 0;
+ }
+ 
+@@ -156,7 +150,6 @@ static struct shash_alg alg = {
+ 		.cra_name		=	"michael_mic",
+ 		.cra_driver_name	=	"michael_mic-generic",
+ 		.cra_blocksize		=	8,
+-		.cra_alignmask		=	3,
+ 		.cra_ctxsize		=	sizeof(struct michael_mic_ctx),
+ 		.cra_module		=	THIS_MODULE,
+ 	}
+-- 
+2.20.1
+
