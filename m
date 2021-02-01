@@ -2,116 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0BB30A1FB
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 07:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF29330A1C7
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 07:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231591AbhBAGeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 01:34:19 -0500
-Received: from mail29.static.mailgun.info ([104.130.122.29]:20157 "EHLO
-        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231636AbhBAGYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 01:24:12 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1612160571; h=Message-ID: Subject: Cc: To: From: Date:
- Content-Transfer-Encoding: Content-Type: MIME-Version: Sender;
- bh=Jh17zm3LJ/fkvFZiP2D/oYzmhX3zrbE4xBRWshtxx68=; b=rww3hPpdWNwmx25GoZW587BShVdmqamIdVcgJ1KQbz+6fv+cerkdQcFuyzbsM/DDVM8CKkYZ
- TCXbEQW//XwWfcuVyCh0BZVu5LASy2CJLvWCDF+KymmRlcj/Ev6lrUjqqo8Jbzl1gpRpjli2
- oYDZnKa6vw6kNc6Q59ZyWdBqNxM=
-X-Mailgun-Sending-Ip: 104.130.122.29
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n06.prod.us-west-2.postgun.com with SMTP id
- 6017976aab96aecb9f17f400 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 01 Feb 2021 05:53:46
- GMT
-Sender: saiprakash.ranjan=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 75039C43462; Mon,  1 Feb 2021 05:53:46 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: saiprakash.ranjan)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id A7E24C433CA;
-        Mon,  1 Feb 2021 05:53:45 +0000 (UTC)
+        id S231831AbhBAGCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 01:02:49 -0500
+Received: from mailgw02.mediatek.com ([1.203.163.81]:58450 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231846AbhBAF7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 00:59:04 -0500
+X-UUID: 4e8daef9ca0d4d6a939c80119b1f19be-20210201
+X-UUID: 4e8daef9ca0d4d6a939c80119b1f19be-20210201
+Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1854773642; Mon, 01 Feb 2021 13:58:00 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ MTKMBS31N1.mediatek.inc (172.27.4.69) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 1 Feb 2021 13:57:50 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 1 Feb 2021 13:57:50 +0800
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ikjoon Jang <ikjn@chromium.org>
+CC:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Zhanyong Wang <zhanyong.wang@mediatek.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        stable <stable@vger.kernel.org>
+Subject: [next PATCH] usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints
+Date:   Mon, 1 Feb 2021 13:57:44 +0800
+Message-ID: <1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 01 Feb 2021 11:23:45 +0530
-From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-To:     "Jorge Ramirez-Ortiz, Foundries" <jorge@foundries.io>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        linux-watchdog@vger.kernel.org,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] watchdog: qcom: Remove incorrect usage of
- QCOM_WDT_ENABLE_IRQ
-Message-ID: <7e30acdb750c44d30d5903e0d2afa641@codeaurora.org>
-X-Sender: saiprakash.ranjan@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 7B8658DABE72D61BB90A22D8DACFB89029C9D3F4800EC3985BB294711E3736262000:8
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-01-31 22:33, Jorge Ramirez-Ortiz, Foundries wrote:
-> On 28/01/21, Sai Prakash Ranjan wrote:
->> On 2021-01-28 13:49, Jorge Ramirez-Ortiz, Foundries wrote:
->> > On 26/01/21, Sai Prakash Ranjan wrote:
->> > > As per register documentation, QCOM_WDT_ENABLE_IRQ which is BIT(1)
->> > > of watchdog control register is wakeup interrupt enable bit and
->> > > not related to bark interrupt at all, BIT(0) is used for that.
->> > > So remove incorrect usage of this bit when supporting bark irq for
->> > > pre-timeout notification. Currently with this bit set and bark
->> > > interrupt specified, pre-timeout notification and/or watchdog
->> > > reset/bite does not occur.
->> > >
->> > > Fixes: 36375491a439 ("watchdog: qcom: support pre-timeout when the
->> > > bark irq is available")
->> > > Cc: stable@vger.kernel.org
->> > > Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
->> > > ---
->> > >
->> > > Reading the conversations from when qcom pre-timeout support was
->> > > added [1], Bjorn already had mentioned it was not right to touch this
->> > > bit, not sure which SoC the pre-timeout was tested on at that time,
->> > > but I have tested this on SDM845, SM8150, SC7180 and watchdog bark
->> > > and bite does not occur with enabling this bit with the bark irq
->> > > specified in DT.
->> >
->> > this was tested on QCS404. have you validated there? unfortunately I
->> > no longer have access to that hardware or the documentation
->> >
->> 
->> I didn't validate on qcs404 yet since I didn't have access to it.
->> But now that you mention it, let me arrange for a setup and test it
->> there as well. Note: I did not see bark irq entry in upstream qcs404
->> dtsi, so you must have had some local change when you tested?
-> 
-> TBH I dont quite remember. I suppose that if those with access to the
-> documents and hardware are OK with this change then it shouldnt cause
-> regressions (I just cant check from my end)
-> 
+For those unchecked endpoints, we don't allocate bandwidth for
+them, so no need free the bandwidth, otherwise will decrease
+the allocated bandwidth.
+Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
+rename bw_ep_list_new as bw_ep_chk_list.
 
-No worries, I got the documentation access now and it is the same as
-other SoCs which I have tested above, meaning the BIT(1) is not related
-to bark irq. I am arranging a setup as well now, it took some time as
-I don't work on QCS* chipsets but I can confirm by this week.
+Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 61 ++++++++++++++++++---------------
+ drivers/usb/host/xhci-mtk.h     |  4 ++-
+ 2 files changed, 36 insertions(+), 29 deletions(-)
 
-Thanks,
-Sai
-
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index a313e75ff1c6..dee8a329076d 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -200,6 +200,7 @@ static struct mu3h_sch_ep_info *create_sch_ep(struct usb_device *udev,
+ 
+ 	sch_ep->sch_tt = tt;
+ 	sch_ep->ep = ep;
++	INIT_LIST_HEAD(&sch_ep->endpoint);
+ 	INIT_LIST_HEAD(&sch_ep->tt_endpoint);
+ 
+ 	return sch_ep;
+@@ -374,6 +375,7 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
+ 					sch_ep->bw_budget_table[j];
+ 		}
+ 	}
++	sch_ep->allocated = used;
+ }
+ 
+ static int check_sch_tt(struct usb_device *udev,
+@@ -542,6 +544,22 @@ static int check_sch_bw(struct usb_device *udev,
+ 	return 0;
+ }
+ 
++static void destroy_sch_ep(struct usb_device *udev,
++	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
++{
++	/* only release ep bw check passed by check_sch_bw() */
++	if (sch_ep->allocated)
++		update_bus_bw(sch_bw, sch_ep, 0);
++
++	list_del(&sch_ep->endpoint);
++
++	if (sch_ep->sch_tt) {
++		list_del(&sch_ep->tt_endpoint);
++		drop_tt(udev);
++	}
++	kfree(sch_ep);
++}
++
+ static bool need_bw_sch(struct usb_host_endpoint *ep,
+ 	enum usb_device_speed speed, int has_tt)
+ {
+@@ -584,7 +602,7 @@ int xhci_mtk_sch_init(struct xhci_hcd_mtk *mtk)
+ 
+ 	mtk->sch_array = sch_array;
+ 
+-	INIT_LIST_HEAD(&mtk->bw_ep_list_new);
++	INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+@@ -636,29 +654,12 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 
+ 	setup_sch_info(udev, ep_ctx, sch_ep);
+ 
+-	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_list_new);
++	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_add_ep_quirk);
+ 
+-static void xhci_mtk_drop_ep(struct xhci_hcd_mtk *mtk, struct usb_device *udev,
+-			     struct mu3h_sch_ep_info *sch_ep)
+-{
+-	struct xhci_hcd *xhci = hcd_to_xhci(mtk->hcd);
+-	int bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+-	struct mu3h_sch_bw_info *sch_bw = &mtk->sch_array[bw_index];
+-
+-	update_bus_bw(sch_bw, sch_ep, 0);
+-	list_del(&sch_ep->endpoint);
+-
+-	if (sch_ep->sch_tt) {
+-		list_del(&sch_ep->tt_endpoint);
+-		drop_tt(udev);
+-	}
+-	kfree(sch_ep);
+-}
+-
+ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 		struct usb_host_endpoint *ep)
+ {
+@@ -688,9 +689,8 @@ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 	sch_bw = &sch_array[bw_index];
+ 
+ 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
+-		if (sch_ep->ep == ep) {
+-			xhci_mtk_drop_ep(mtk, udev, sch_ep);
+-		}
++		if (sch_ep->ep == ep)
++			destroy_sch_ep(udev, sch_bw, sch_ep);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
+@@ -704,9 +704,9 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
+ 	int bw_index, ret;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry(sch_ep, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry(sch_ep, &mtk->bw_ep_chk_list, endpoint) {
+ 		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+ 		sch_bw = &mtk->sch_array[bw_index];
+ 
+@@ -717,7 +717,7 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 		}
+ 	}
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
+ 		struct xhci_ep_ctx *ep_ctx;
+ 		struct usb_host_endpoint *ep = sch_ep->ep;
+ 		unsigned int ep_index = xhci_get_endpoint_index(&ep->desc);
+@@ -746,12 +746,17 @@ EXPORT_SYMBOL_GPL(xhci_mtk_check_bandwidth);
+ void xhci_mtk_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ {
+ 	struct xhci_hcd_mtk *mtk = hcd_to_mtk(hcd);
++	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	struct mu3h_sch_bw_info *sch_bw;
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
++	int bw_index;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
+-		xhci_mtk_drop_ep(mtk, udev, sch_ep);
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
++		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
++		sch_bw = &mtk->sch_array[bw_index];
++		destroy_sch_ep(udev, sch_bw, sch_ep);
+ 	}
+ 
+ 	xhci_reset_bandwidth(hcd, udev);
+diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
+index 577f431c5c93..cbb09dfea62e 100644
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -59,6 +59,7 @@ struct mu3h_sch_bw_info {
+  * @ep_type: endpoint type
+  * @maxpkt: max packet size of endpoint
+  * @ep: address of usb_host_endpoint struct
++ * @allocated: the bandwidth is aready allocated from bus_bw
+  * @offset: which uframe of the interval that transfer should be
+  *		scheduled first time within the interval
+  * @repeat: the time gap between two uframes that transfers are
+@@ -86,6 +87,7 @@ struct mu3h_sch_ep_info {
+ 	u32 ep_type;
+ 	u32 maxpkt;
+ 	void *ep;
++	bool allocated;
+ 	/*
+ 	 * mtk xHCI scheduling information put into reserved DWs
+ 	 * in ep context
+@@ -130,8 +132,8 @@ struct mu3c_ippc_regs {
+ struct xhci_hcd_mtk {
+ 	struct device *dev;
+ 	struct usb_hcd *hcd;
+-	struct list_head bw_ep_list_new;
+ 	struct mu3h_sch_bw_info *sch_array;
++	struct list_head bw_ep_chk_list;
+ 	struct mu3c_ippc_regs __iomem *ippc_regs;
+ 	bool has_ippc;
+ 	int num_u2_ports;
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
-member
-of Code Aurora Forum, hosted by The Linux Foundation
+2.18.0
+
