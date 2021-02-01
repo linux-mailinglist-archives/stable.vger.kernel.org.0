@@ -2,92 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE10330A922
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 14:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B10C330A934
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 14:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbhBANzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 08:55:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49072 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229707AbhBANzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Feb 2021 08:55:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C9B64D9D;
-        Mon,  1 Feb 2021 13:55:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612187711;
-        bh=dmMa6igSrfr8Kqr11tNDaLEvYhkM+qbuD/1gq1a+Pp8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d9OMeoSn54heoMcY93O8Sy1eY721FH6QtFz00ZXp8ZGiMQMkGCDPYcmWheefS5PI6
-         3jqsL16flnObQNxUGRQ8ox/U0Q6bamMm9xcMqtcEPCan52yhV4bbAWWVI0DWM/q2J8
-         DVVuk0GCVkslZKKb7uCZ97lTb0xv/44ZES64p5QU=
-Date:   Mon, 1 Feb 2021 14:55:08 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
-        kvm@vger.kernel.org, Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [stable-5.4][PATCH] KVM: Forbid the use of tagged userspace
- addresses for memslots
-Message-ID: <YBgIPLYuf3P4lqB3@kroah.com>
-References: <20210201133137.3541896-1-maz@kernel.org>
- <b08e3ccf-9a69-819a-8632-46c82dade2fa@redhat.com>
+        id S232075AbhBAN6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 08:58:34 -0500
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:36211 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231284AbhBAN6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 08:58:32 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailnew.west.internal (Postfix) with ESMTP id 606A6700;
+        Mon,  1 Feb 2021 08:57:19 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 01 Feb 2021 08:57:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=/WbbSYzmuwJ/weHeowBD5BlC0fI
+        PxX86SPNb0fC8mSk=; b=qLKWDWqzYVqb/LORAMCpnjxu4CfomiFlk+pxvr7IwiK
+        xhl1dlu/6J2MuUDeXFZg1T0bK/BR/LC7UNQMJ3Z60ZVDsG+bVauTz8lh/wM1AA1A
+        hCBFalLav5NSZqMcxpf7nXIF6LBjNW14GGzLv02sMYeCufIbiULnG2Rj0CqRhhoQ
+        HFoG1NAyx4gNXMyN7x+zBiU2Boj4k/F9jZ13VYOdVv+CCsfL/P2yhgG2xiL8nt5F
+        2vVLw2KcMFEmzNAt4f0nChW+cYhCjHhJrn4n4NlFEAt8cZ5Ojek2dYh+/y/VUlX6
+        W5Pp5JBTDbFhHDWY+zVpSmIYBqWzEeoe0NitkgFZTAQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/WbbSY
+        zmuwJ/weHeowBD5BlC0fIPxX86SPNb0fC8mSk=; b=PXKsvS8RC4fCpqt+1NCZi2
+        atFUZU6IKKmgzm1IrSE94fhEF97TePioWuaLuxmigQnQC0ioBAm+UsJ13oggn7wQ
+        QVWjC6VPsxwrXNKmhTm+EfcHZSh9IfKeSt9tZftRnup+8lAvEJEua3VvZvAcwdAU
+        VA6aJ8Ong5RFtHusDi3X0ZZ414FpGXXcppj9liwfMIYL4IEywD0fT3TBy94kotmj
+        xgopAyZJRhNRjzVW7YDW5tblgeV3gERZlm0VU5b8+ZRtaByrxLbhVoPskNtYRSIM
+        uXFXcRoRp82STRmfKjygVtMYKaBAjVtiNTfS35bs42fRl3JIYoT2mL4r7Fzd6elw
+        ==
+X-ME-Sender: <xms:vggYYOdQIBFOOpNcKJ4H8RD1Vt6jZc5mDGSwAVE8KpK_0sMURGOqag>
+    <xme:vggYYIMYXILKTiKFbt1jV0453-pVsqHahHHrCgnXMjHWFTjfdriUXdc-5qKlEiETr
+    Asw4-8D6_3ceQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeekgdehkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:vggYYPh5YGnnAq7kp2ph5imM8maBX8H7EzsAOx3ksW-G8Lvlu0QsOg>
+    <xmx:vggYYL8qLFF1pF-sWDmsYRHoMW2fDCnEC1I43qr0S4QisNZ9XPRV8w>
+    <xmx:vggYYKuRjYQ9RPZwMgEXoM8sPcjXh3-mBDzQqsCErYAJ-lVaDbxkiA>
+    <xmx:vggYYIDQgf4dAiZll_554tYZE-hX_wICLpiPD0wq-BzKw4l3MzBW3YR83ZM>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 52A81108005B;
+        Mon,  1 Feb 2021 08:57:18 -0500 (EST)
+Date:   Mon, 1 Feb 2021 14:57:16 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     Jason Andryuk <jandryuk@gmail.com>, stable@vger.kernel.org,
+        Michael Labriola <michael.d.labriola@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Roger Pau Monne <roger.pau@citrix.com>,
+        Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
+        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>
+Subject: Re: Request: xen: Fix XenStore initialisation for XS_LOCAL
+Message-ID: <YBgIvEO/ZF09smN2@kroah.com>
+References: <CAKf6xptBwdnhgVYgXhXRvUg9jL3TOf9hT4EcnkZFLJsVVp2M-Q@mail.gmail.com>
+ <YBcU3/cl/j4ppLJY@eldamar.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b08e3ccf-9a69-819a-8632-46c82dade2fa@redhat.com>
+In-Reply-To: <YBcU3/cl/j4ppLJY@eldamar.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 02:38:05PM +0100, Paolo Bonzini wrote:
-> On 01/02/21 14:31, Marc Zyngier wrote:
-> > commit 139bc8a6146d92822c866cf2fd410159c56b3648 upstream.
-> > 
-> > The use of a tagged address could be pretty confusing for the
-> > whole memslot infrastructure as well as the MMU notifiers.
-> > 
-> > Forbid it altogether, as it never quite worked the first place.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-> > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > ---
-> >   Documentation/virt/kvm/api.txt | 3 +++
-> >   virt/kvm/kvm_main.c            | 1 +
-> >   2 files changed, 4 insertions(+)
-> > 
-> > diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
-> > index a18e996fa54b..7064efd3b5ea 100644
-> > --- a/Documentation/virt/kvm/api.txt
-> > +++ b/Documentation/virt/kvm/api.txt
-> > @@ -1132,6 +1132,9 @@ field userspace_addr, which must point at user addressable memory for
-> >   the entire memory slot size.  Any object may back this memory, including
-> >   anonymous memory, ordinary files, and hugetlbfs.
-> > +On architectures that support a form of address tagging, userspace_addr must
-> > +be an untagged address.
-> > +
-> >   It is recommended that the lower 21 bits of guest_phys_addr and userspace_addr
-> >   be identical.  This allows large pages in the guest to be backed by large
-> >   pages in the host.
-> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> > index 8f3b40ec02b7..f25b5043cbca 100644
-> > --- a/virt/kvm/kvm_main.c
-> > +++ b/virt/kvm/kvm_main.c
-> > @@ -1017,6 +1017,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
-> >   	/* We can read the guest memory with __xxx_user() later on. */
-> >   	if ((id < KVM_USER_MEM_SLOTS) &&
-> >   	    ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
-> > +	     (mem->userspace_addr != untagged_addr(mem->userspace_addr)) ||
-> >   	     !access_ok((void __user *)(unsigned long)mem->userspace_addr,
-> >   			mem->memory_size)))
-> >   		goto out;
-> > 
+On Sun, Jan 31, 2021 at 09:36:47PM +0100, Salvatore Bonaccorso wrote:
+> Hi,
 > 
-> Indeed untagged_addr was added in 5.3.
+> On Sun, Jan 31, 2021 at 12:20:18PM -0500, Jason Andryuk wrote:
+> > xen: Fix XenStore initialisation for XS_LOCAL
+> > 
+> > commit 5f46400f7a6a4fad635d5a79e2aa5a04a30ffea1 upstream
+> > 
+> > The requested patch fixes Xen Dom0 xenstore support.  It has a "Fixes:
+> > 3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")" in the
+> > commit - that patch was introduced to stable in 5.4.93 and 5.10.11
+> > (didn't check other branches).
 > 
-> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+> Confirmed it is needed as well for older branches as well. The commit
+> was backported to 4.14.218, 4.19.171, 5.4.93 and 5.10.11. At least for
+> 4.19.y I could confirm (by a report of a user in Debian) that it is
+> broken in 4.19.171 and fixed by cherry-picking the above mentioned
+> commit. 
 
-Now queued up, thanks.
+All queued up, thanks.
 
 greg k-h
