@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C96F30AAC3
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 16:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A2A30AAC8
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 16:15:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbhBAPOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 10:14:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38308 "EHLO
+        id S231451AbhBAPO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 10:14:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbhBAPOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 10:14:22 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B73C061756
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 07:13:42 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id u14so12937929wml.4
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 07:13:42 -0800 (PST)
+        with ESMTP id S231292AbhBAPOz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 10:14:55 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C5BC06178B
+        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 07:13:43 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id z6so16909593wrq.10
+        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 07:13:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ltrudIytk8l60pTfQhCRnlUeawvarsYISOCC5mS7dpk=;
-        b=YBCL+lGGCAyPwLyPt/JVUWMlZrUPnYgZ44oOBXgwxAaOPw4BMSJfY2jMh1SBE9jqrz
-         WbZfK7pqQW/1mOLjorBzr+VaZLo5M0aBpxB9fZdeklGiQxjs+It/15vM9fCjYk/yZRYj
-         6PGhRDgcYgttNlUV7ETurNk5XU9ZTfeXoaupfBkCGN6DKDFa3QXgNx8OxINtmK6w63zy
-         l0GOyY3nBnluVyi25d81wZsG7PnXD3gw9EAGxGYvuoPpCBHwlGnWmbps6xWT3EerXyV/
-         zszCNGvjei/yt0eVe8T4A/31VtRIuF9cobiQ9iIt1LJqcg/+XMRgmIT3DTcJ/yRKI88D
-         hsdA==
+        bh=QzQj1EdG176w+bcW/LUmQ/cOr3Onvdscuk/WhMM2DZg=;
+        b=xQgq5dWOnqZGP4Cwr00PBH50Nqo2h5cQTfJiDLh4MArixKV0YGdCU8DEuN02AB5M+K
+         R4/1G2+7iQACv35wdiRHwrpH/KCvllQXF7KH4afBp1fRQtycOgRK9kNggF6OG4HHwayj
+         ZA/QxbB+vlbOuMBsQ72jYG0t+iyGm2IY+rWZusY6NFJIeEUT+DdOU6VrpCggJeYXLvzb
+         UpMBDhWqgKjLofEarjn1TuGznQjTHIf9ad3XcVhGIrdZ0AVM/25Q94+o9gnDV94mAUxt
+         g9bxeISDp4eHQwfmyILTspyNg6UAbc7Q23Dam1zP6J5OhcEEC32qYrb9U2vWqHsnbpF3
+         uBxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ltrudIytk8l60pTfQhCRnlUeawvarsYISOCC5mS7dpk=;
-        b=T0VTh5Jj39S9pHXVGyibG0WjJ2qCj1P/DzijitMHIQK4UaFlNR2XPskwoflaWoS/Xi
-         BJ6+pEpL1aM3MEaAgxKMdfn+O+ujVm8aNPUiHdiesNyc3flH1OVOW6oHBoMcgCq2o2v1
-         9shpE/imZsGvO9Vgc/iZtu9wy+xAitC7iM35Ynpav/jvUROjtLHlZZuhv3o83V2FOH5d
-         3cG1fOziYgFlXaIujHwJlD0fCIolAhYQ6M4fwphvNmG0LOLdsk+evHgfT+r0AuoR8PYM
-         CGMER2kxVM/vkomU+NsP64tSSyHJaO9ltMkqzd6N69jVI4SLQK8x2u9jFgVcwr8At7LL
-         1RgA==
-X-Gm-Message-State: AOAM530O/ex+NXlHR5RddLAaTrmtaT4PkW81bljN8fH6Xn/6Cxkolg9N
-        KAzHIglPlZATljo2QLhv1vKMh/Le6eP+JrWi
-X-Google-Smtp-Source: ABdhPJxSJtlGnHGdiIjp7+MRTHAXW8axFq4H2wdUirPJ+U7Xlk6cjSBo1K5yR7RqNpG7W1OmagqHTw==
-X-Received: by 2002:a1c:20d8:: with SMTP id g207mr3076950wmg.77.1612192420706;
-        Mon, 01 Feb 2021 07:13:40 -0800 (PST)
+        bh=QzQj1EdG176w+bcW/LUmQ/cOr3Onvdscuk/WhMM2DZg=;
+        b=isjRxU4CdEWSBGPlKvlo9d+qV/u4eT7Ook8/5rHCSRoVwCNhIbCgK/jA5lHjr7lJNj
+         LgBQFzNodjtXqeBzCJ6ztLEBlMT9kpWT75dOVg8EnaNcncE6jDlkZVsd+H1Std0JgUuj
+         XtCx9J5M0RyXj36OBFyDiILGBzFVDauh9wvn5/KZ5rR9xx7yeivri8n58a6EZsM2H9Zu
+         MHobqYT14kwEdHus0srGhQYsZv79y+9gRLusaFJrjWHuwDZo0znAiD3LoeFOlYBkMmQX
+         BnrGRbJ9YN2yNZqrIeaE9wbfm71s3aLNKs3OiwYZNoJKMBkgUbJyT8/Rbp4Sx4lzqWZM
+         s0Wg==
+X-Gm-Message-State: AOAM531hBI2oyYdw1YPKShbONLsYvz6w3YwuAks17x+vnu7Sd+s+kR9o
+        6YoitSpaZSk8XkUFKgAkfXNJeyj9j2Lc4SNb
+X-Google-Smtp-Source: ABdhPJyQiFecMcD7vb7rYTGuCNZXFoVX51CLzdIGJiAwHYR8lLpZNRq02uvpnUKWZunX2chFoshacQ==
+X-Received: by 2002:adf:f189:: with SMTP id h9mr12200603wro.286.1612192421834;
+        Mon, 01 Feb 2021 07:13:41 -0800 (PST)
 Received: from dell.default ([91.110.221.188])
-        by smtp.gmail.com with ESMTPSA id 192sm23323381wme.27.2021.02.01.07.13.39
+        by smtp.gmail.com with ESMTPSA id 192sm23323381wme.27.2021.02.01.07.13.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 07:13:40 -0800 (PST)
+        Mon, 01 Feb 2021 07:13:41 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
@@ -54,9 +54,9 @@ Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Peter Zijlstra <peterz@infradead.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 06/12] futex: Set task::futex_state to DEAD right after handling futex exit
-Date:   Mon,  1 Feb 2021 15:12:08 +0000
-Message-Id: <20210201151214.2193508-7-lee.jones@linaro.org>
+Subject: [PATCH 07/12] futex: Mark the begin of futex exit explicitly
+Date:   Mon,  1 Feb 2021 15:12:09 +0000
+Message-Id: <20210201151214.2193508-8-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210201151214.2193508-1-lee.jones@linaro.org>
 References: <20210201151214.2193508-1-lee.jones@linaro.org>
@@ -68,47 +68,157 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit f24f22435dcc11389acc87e5586239c1819d217c upstream.
+commit 18f694385c4fd77a09851fd301236746ca83f3cb upstream.
 
-Setting task::futex_state in do_exit() is rather arbitrarily placed for no
-reason. Move it into the futex code.
+Instead of relying on PF_EXITING use an explicit state for the futex exit
+and set it in the futex exit function. This moves the smp barrier and the
+lock/unlock serialization into the futex code.
 
-Note, this is only done for the exit cleanup as the exec cleanup cannot set
-the state to FUTEX_STATE_DEAD because the task struct is still in active
-use.
+As with the DEAD state this is restricted to the exit path as exec
+continues to use the same task struct.
+
+This allows to simplify that logic in a next step.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Ingo Molnar <mingo@kernel.org>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.439511191@linutronix.de
+Link: https://lkml.kernel.org/r/20191106224556.539409004@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- kernel/exit.c  | 1 -
- kernel/futex.c | 1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ include/linux/futex.h | 31 +++----------------------------
+ kernel/exit.c         |  8 +-------
+ kernel/futex.c        | 37 ++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 40 insertions(+), 36 deletions(-)
 
+diff --git a/include/linux/futex.h b/include/linux/futex.h
+index 063a5cd00d770..805508373fcea 100644
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -57,6 +57,7 @@ union futex_key {
+ #ifdef CONFIG_FUTEX
+ enum {
+ 	FUTEX_STATE_OK,
++	FUTEX_STATE_EXITING,
+ 	FUTEX_STATE_DEAD,
+ };
+ 
+@@ -71,33 +72,7 @@ static inline void futex_init_task(struct task_struct *tsk)
+ 	tsk->futex_state = FUTEX_STATE_OK;
+ }
+ 
+-/**
+- * futex_exit_done - Sets the tasks futex state to FUTEX_STATE_DEAD
+- * @tsk:	task to set the state on
+- *
+- * Set the futex exit state of the task lockless. The futex waiter code
+- * observes that state when a task is exiting and loops until the task has
+- * actually finished the futex cleanup. The worst case for this is that the
+- * waiter runs through the wait loop until the state becomes visible.
+- *
+- * This has two callers:
+- *
+- * - futex_mm_release() after the futex exit cleanup has been done
+- *
+- * - do_exit() from the recursive fault handling path.
+- *
+- * In case of a recursive fault this is best effort. Either the futex exit
+- * code has run already or not. If the OWNER_DIED bit has been set on the
+- * futex then the waiter can take it over. If not, the problem is pushed
+- * back to user space. If the futex exit code did not run yet, then an
+- * already queued waiter might block forever, but there is nothing which
+- * can be done about that.
+- */
+-static inline void futex_exit_done(struct task_struct *tsk)
+-{
+-	tsk->futex_state = FUTEX_STATE_DEAD;
+-}
+-
++void futex_exit_recursive(struct task_struct *tsk);
+ void futex_exit_release(struct task_struct *tsk);
+ void futex_exec_release(struct task_struct *tsk);
+ 
+@@ -105,7 +80,7 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ 	      u32 __user *uaddr2, u32 val2, u32 val3);
+ #else
+ static inline void futex_init_task(struct task_struct *tsk) { }
+-static inline void futex_exit_done(struct task_struct *tsk) { }
++static inline void futex_exit_recursive(struct task_struct *tsk) { }
+ static inline void futex_exit_release(struct task_struct *tsk) { }
+ static inline void futex_exec_release(struct task_struct *tsk) { }
+ #endif
 diff --git a/kernel/exit.c b/kernel/exit.c
-index a098d76a9877e..b39f4b3c0f37c 100644
+index b39f4b3c0f37c..8d3c268fb1b8d 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
-@@ -784,7 +784,6 @@ void do_exit(long code)
- 	 * Make sure we are holding no locks:
+@@ -695,18 +695,12 @@ void do_exit(long code)
  	 */
- 	debug_check_no_locks_held();
--	futex_exit_done(tsk);
+ 	if (unlikely(tsk->flags & PF_EXITING)) {
+ 		pr_alert("Fixing recursive fault but reboot is needed!\n");
+-		futex_exit_done(tsk);
++		futex_exit_recursive(tsk);
+ 		set_current_state(TASK_UNINTERRUPTIBLE);
+ 		schedule();
+ 	}
  
- 	if (tsk->io_context)
- 		exit_io_context(tsk);
+ 	exit_signals(tsk);  /* sets PF_EXITING */
+-	/*
+-	 * tsk->flags are checked in the futex code to protect against
+-	 * an exiting task cleaning up the robust pi futexes.
+-	 */
+-	smp_mb();
+-	raw_spin_unlock_wait(&tsk->pi_lock);
+ 
+ 	if (unlikely(in_atomic())) {
+ 		pr_info("note: %s[%d] exited with preempt_count %d\n",
 diff --git a/kernel/futex.c b/kernel/futex.c
-index 32a606b605cbb..f85635ff2fce1 100644
+index f85635ff2fce1..5bd3afee4e139 100644
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -3255,6 +3255,7 @@ void futex_exec_release(struct task_struct *tsk)
+@@ -3252,10 +3252,45 @@ void futex_exec_release(struct task_struct *tsk)
+ 		exit_pi_state_list(tsk);
+ }
+ 
++/**
++ * futex_exit_recursive - Set the tasks futex state to FUTEX_STATE_DEAD
++ * @tsk:	task to set the state on
++ *
++ * Set the futex exit state of the task lockless. The futex waiter code
++ * observes that state when a task is exiting and loops until the task has
++ * actually finished the futex cleanup. The worst case for this is that the
++ * waiter runs through the wait loop until the state becomes visible.
++ *
++ * This is called from the recursive fault handling path in do_exit().
++ *
++ * This is best effort. Either the futex exit code has run already or
++ * not. If the OWNER_DIED bit has been set on the futex then the waiter can
++ * take it over. If not, the problem is pushed back to user space. If the
++ * futex exit code did not run yet, then an already queued waiter might
++ * block forever, but there is nothing which can be done about that.
++ */
++void futex_exit_recursive(struct task_struct *tsk)
++{
++	tsk->futex_state = FUTEX_STATE_DEAD;
++}
++
  void futex_exit_release(struct task_struct *tsk)
  {
++	tsk->futex_state = FUTEX_STATE_EXITING;
++	/*
++	 * Ensure that all new tsk->pi_lock acquisitions must observe
++	 * FUTEX_STATE_EXITING. Serializes against attach_to_pi_owner().
++	 */
++	smp_mb();
++	/*
++	 * Ensure that we must observe the pi_state in exit_pi_state_list().
++	 */
++	raw_spin_lock_irq(&tsk->pi_lock);
++	raw_spin_unlock_irq(&tsk->pi_lock);
++
  	futex_exec_release(tsk);
-+	futex_exit_done(tsk);
+-	futex_exit_done(tsk);
++
++	tsk->futex_state = FUTEX_STATE_DEAD;
  }
  
  long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
