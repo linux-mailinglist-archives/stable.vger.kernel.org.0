@@ -2,159 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A66D30A0D2
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 05:25:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC5330A0D4
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 05:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231153AbhBAEZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Jan 2021 23:25:12 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:37751 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbhBAEZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 23:25:06 -0500
-Received: from epcas1p3.samsung.com (unknown [182.195.41.47])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20210201042425epoutp01fdb22e124effce7b8ad25543cd8bd41c~fhQjuZ9rP0903809038epoutp01j
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 04:24:25 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20210201042425epoutp01fdb22e124effce7b8ad25543cd8bd41c~fhQjuZ9rP0903809038epoutp01j
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1612153465;
-        bh=mzsOWaLVGB19SDLHA+p5zA0nXz4UWOzySUeCX32NA5Q=;
-        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-        b=KsnMTuiL/FqCqqhRqlFZVLmdjKeFjQVjdxuQK62EAVHFSgv6Gmd+HNFafQnjrOZ8+
-         eqC/O0iz23nt87vbDNsl5aanQlkAufnQtb08IhQttq8a28rXg2TjqsTcje0upa+TvP
-         N6wxCyxiEfrZXPyzKvqWJIHk4RlnS8csby0TFuOw=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20210201042424epcas1p236f4e9f2d64901b136a1dead4d229e75~fhQi9PXEm2745027450epcas1p2m;
-        Mon,  1 Feb 2021 04:24:24 +0000 (GMT)
-Received: from epsmges1p4.samsung.com (unknown [182.195.40.162]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4DTZbC1N50z4x9Py; Mon,  1 Feb
-        2021 04:24:23 +0000 (GMT)
-Received: from epcas1p1.samsung.com ( [182.195.41.45]) by
-        epsmges1p4.samsung.com (Symantec Messaging Gateway) with SMTP id
-        BF.13.10463.57287106; Mon,  1 Feb 2021 13:24:21 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210201042420epcas1p246004f977a64fba2d843957c50cd4a4d~fhQfsjg8H2745027450epcas1p2X;
-        Mon,  1 Feb 2021 04:24:20 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210201042420epsmtrp2d8c9f7bfb4b7f08f2fe8cc34d21cb380~fhQfrhQSQ0857308573epsmtrp2J;
-        Mon,  1 Feb 2021 04:24:20 +0000 (GMT)
-X-AuditID: b6c32a38-f11ff700000028df-a3-601782752303
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        47.50.13470.47287106; Mon,  1 Feb 2021 13:24:20 +0900 (KST)
-Received: from namjaejeon01 (unknown [10.88.104.63]) by epsmtip1.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20210201042420epsmtip12ea66c24553c76fbcc9d958b1a57ed44~fhQfh3iwq0720307203epsmtip1K;
-        Mon,  1 Feb 2021 04:24:20 +0000 (GMT)
-From:   "Namjae Jeon" <namjae.jeon@samsung.com>
-To:     "'Randy Dunlap'" <rdunlap@infradead.org>,
-        <linux-fsdevel@vger.kernel.org>
-Cc:     <sj1557.seo@samsung.com>, <stable@vger.kernel.org>
-In-Reply-To: <554abcaf-e92c-4f39-5c31-c07db9332f4d@infradead.org>
-Subject: RE: [PATCH v2] exfat: fix shift-out-of-bounds in exfat_fill_super()
-Date:   Mon, 1 Feb 2021 13:24:20 +0900
-Message-ID: <004101d6f852$1cbca4a0$5635ede0$@samsung.com>
+        id S231410AbhBAEZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Jan 2021 23:25:56 -0500
+Received: from mail-40136.protonmail.ch ([185.70.40.136]:16636 "EHLO
+        mail-40136.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231308AbhBAEZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 31 Jan 2021 23:25:50 -0500
+Date:   Mon, 01 Feb 2021 04:24:51 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1612153500;
+        bh=Zb7ULZT7e66rly2USppGm7Xzx2fnacIRQRjSbtzMRNk=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=QJps2d/UT/K6V3FVJKgq1sL2ySKj1557bsXooFjaT12HgN74NcR8/GcQB3MzcHU7U
+         IUJzePEIXuxL8YmxCFCAtcMdrAUu0dIM8JJhCyXprRdUFPbaaASmT0VKuL7dsVgPqd
+         117T2VTY7KWM1gNW/nZF3aOy0HD/uOpGrvxqOIgY=
+To:     Takashi Iwai <tiwai@suse.de>
+From:   Erich Ritz <erich.public@protonmail.com>
+Cc:     Michael Catanzaro <mcatanzaro@redhat.com>,
+        "N, Harshapriya" <harshapriya.n@intel.com>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kai.vehmanen@intel.com" <kai.vehmanen@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Reply-To: Erich Ritz <erich.public@protonmail.com>
+Subject: Re: [REGRESSION] "ALSA: HDA: Early Forbid of runtime PM" broke my laptop's internal audio
+Message-ID: <CJr5txskJyVLQIDd7L6WNNMBMJ3eQEltNH7Y_yJ_r2X8aflHnfGHT9_Mpuznx8iDgfAu03gs9aIqVO7gXbRp4WCL--tXZAUajwyo_Eet5Os=@protonmail.com>
+In-Reply-To: <s5hft2jlnt4.wl-tiwai@suse.de>
+References: <EM1ONQ.OL5CFJTBEBBW@redhat.com> <BY5PR11MB430713319F12454CF71A1E73FDB99@BY5PR11MB4307.namprd11.prod.outlook.com> <U3BPNQ.P8Q6LYEGXHB5@redhat.com> <s5hsg6jlr4q.wl-tiwai@suse.de> <9ACPNQ.AF32G3OJNPHA3@redhat.com> <IECPNQ.0TZXZXWOZX8L2@redhat.com> <8CEPNQ.GAG87LR8RI871@redhat.com> <s5hft2jlnt4.wl-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQHNCddPt7VLYABXHZak/VUr9I1ozAIxmPhpAmwvT7mqMZ+okA==
-Content-Language: ko
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrNKsWRmVeSWpSXmKPExsWy7bCmrm5pk3iCwe0p0hZ79p5ksXh7ZzqL
-        xZZ/R1gtFmx8xOjA4rF5hZZH35ZVjB6fN8kFMEfl2GSkJqakFimk5iXnp2TmpdsqeQfHO8eb
-        mhkY6hpaWpgrKeQl5qbaKrn4BOi6ZeYALVNSKEvMKQUKBSQWFyvp29kU5ZeWpCpk5BeX2Cql
-        FqTkFBgaFOgVJ+YWl+al6yXn51oZGhgYmQJVJuRkHO5RLnjIX7F07gXmBsYZvF2MnBwSAiYS
-        T/dNZ+5i5OIQEtjBKLFz5jN2COcTo8TkB4+hMt8YJU683sQO09K/ehkbRGIvo8Thrl0sEM5L
-        RonnC36wglSxCehK/PuzH6iKg0NEwF/i0XYdEJNZwExi2kkrkApOAUeJp7v2g1ULC/hI7Gx4
-        wQhiswioSCx+cpcFxOYVsJSY+PglG4QtKHFy5hOwOLOAvMT2t3OYIe5RkPj5dBnYHBEBJ4lt
-        XyeyQtSISMzubAN7QELgK7vEu4vNUA+4SLy9s4AVwhaWeHV8C1RcSuLzu71gJ0sIVEt83A81
-        v4NR4sV3WwjbWOLm+g2sEK9oSqzfpQ8RVpTY+XsuI8RaPol3X3tYIabwSnS0CUGUqEr0XTrM
-        BGFLS3S1f2CfwKg0C8ljs5A8NgvJA7MQli1gZFnFKJZaUJybnlpsWGCCHNObGMGpUMtiB+Pc
-        tx/0DjEycTAeYpTgYFYS4T01SSxBiDclsbIqtSg/vqg0J7X4EKMpMKgnMkuJJucDk3FeSbyh
-        qZGxsbGFiZm5mamxkjhvksGDeCGB9MSS1OzU1ILUIpg+Jg5OqQamBlsFcY770xgW/n2jNPfM
-        3ftb6rdPWt49iXGC4p23zttTD0+dtPninkOiq1klGjqTNl1vUxL5v1d2k7ngvm2lvI+P7rPj
-        i54kl3dia+33hRazOtmYrfrUOaVbdjFHyGtPX/ji/EJj2b4VZ3IetH137Lrru7NONdZS+qGH
-        FXujQ8quEym+b97v6+a8+z/rW3vmjAfJXXeN1B6ctubUDI31sIvRvhc6rcPkgGtmZx7TkveT
-        Few2GFk/7U0xX1p7dInYn0iZ1DMOyewujPxHG0/PKL93VN5MvFTnzrEaz9LIMJWNk6VffQlW
-        1rkpHHfssjTj4ZxvP9ed/i/l0SYaUec8NfXWg7V7Zse5lp+1WSWmxFKckWioxVxUnAgAh/ih
-        ng4EAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrGLMWRmVeSWpSXmKPExsWy7bCSnG5Jk3iCwcqzqhZ79p5ksXh7ZzqL
-        xZZ/R1gtFmx8xOjA4rF5hZZH35ZVjB6fN8kFMEdx2aSk5mSWpRbp2yVwZRzuUS54yF+xdO4F
-        5gbGGbxdjJwcEgImEv2rl7GB2EICuxkl7v/wgohLSxw7cYa5i5EDyBaWOHy4uIuRC6jkOaPE
-        1EU/mEBq2AR0Jf792c8GUiMi4C/xaLsOSJhZwELiwos3LBD1hxglbvx7CTafU8BR4umu/awg
-        trCAj8TOhheMIDaLgIrE4id3WUBsXgFLiYmPIep5BQQlTs58wgIxVFvi6c2nULa8xPa3c5gh
-        7lSQ+Pl0GdhMEQEniW1fJ7JC1IhIzO5sY57AKDwLyahZSEbNQjJqFpKWBYwsqxglUwuKc9Nz
-        iw0LDPNSy/WKE3OLS/PS9ZLzczcxgqNCS3MH4/ZVH/QOMTJxMAI9ycGsJMJ7apJYghBvSmJl
-        VWpRfnxRaU5q8SFGaQ4WJXHeC10n44UE0hNLUrNTUwtSi2CyTBycUg1MtXdvNsTq2JVmfJA/
-        eYzbdMrBdtcLs+YFOJvWRa+Y822vzPVpy/ZabgxlcNmmphAyS0YjdUn+9AWFi4IZqyPu3GFc
-        eHTn+dTL/RuVDy3u3WY3Me1g/qYnK1uEW2pK5kn7N+0+ce+H4KtdXX1XoruvMzplF0xcldh1
-        vWb7f6ZjEr+F+OJyV9gv1VTSz5qwJyhYe8HWBW/OWm9gCmMsLbOL0956SDqbr/oJ+2/PoFN1
-        H8VelQmtUN7z+f3lkrf9bEd5H234uljq5MHlrdsLosOfn79U8bzyb3LhhWNpnWWXPvdx8U4w
-        9j13quz/a8uPL52f7N24deIxTe9/D6f/mbz7yJSDq2b/8ph4s3hCS1LI5TtKLMUZiYZazEXF
-        iQBuAHWV+QIAAA==
-X-CMS-MailID: 20210201042420epcas1p246004f977a64fba2d843957c50cd4a4d
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20210201025358epcas1p46c6943424d296e8ba46b361d637d0068
-References: <CGME20210201025358epcas1p46c6943424d296e8ba46b361d637d0068@epcas1p4.samsung.com>
-        <20210201024620.2178-1-namjae.jeon@samsung.com>
-        <554abcaf-e92c-4f39-5c31-c07db9332f4d@infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> On 1/31/21 6:46 PM, Namjae Jeon wrote:
-> > syzbot reported a warning which could cause shift-out-of-bounds issue.
+On Friday, January 29, 2021 9:17 AM, Takashi Iwai <tiwai@suse.de> wrote:
+
+> On Fri, 29 Jan 2021 17:12:08 +0100,
+> Michael Catanzaro wrote:
+>
+> > On Fri, Jan 29, 2021 at 9:30 am, Michael Catanzaro
+> > mcatanzaro@redhat.com wrote:
 > >
-> > Call Trace:
-> >  __dump_stack lib/dump_stack.c:79 [inline]  dump_stack+0x183/0x22e
-> > lib/dump_stack.c:120  ubsan_epilogue lib/ubsan.c:148 [inline]
-> >  __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
-> > exfat_read_boot_sector fs/exfat/super.c:471 [inline]
-> > __exfat_fill_super fs/exfat/super.c:556 [inline]
-> >  exfat_fill_super+0x2acb/0x2d00 fs/exfat/super.c:624
-> >  get_tree_bdev+0x406/0x630 fs/super.c:1291
-> >  vfs_get_tree+0x86/0x270 fs/super.c:1496  do_new_mount
-> > fs/namespace.c:2881 [inline]
-> >  path_mount+0x1937/0x2c50 fs/namespace.c:3211  do_mount
-> > fs/namespace.c:3224 [inline]  __do_sys_mount fs/namespace.c:3432
-> > [inline]
-> >  __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3409
-> >  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-> >  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > > OK, I found "ALSA: hda/via: Apply the workaround generically for
+> > > Clevo machines" which was just merged yesterday. So I will test
+> > > again to find out.
 > >
-> > exfat specification describe sect_per_clus_bits field of boot sector
-> > could be at most 25 - sect_size_bits and at least 0. And
-> > sect_size_bits can also affect this calculation, It also needs validation.
-> > This patch add validation for sect_per_clus_bits and sect_size_bits
-> > field of boot sector.
-> >
-> > Fixes: 719c1e182916 ("exfat: add super block operations")
-> > Cc: stable@vger.kernel.org # v5.9+
-> > Reported-by: syzbot+da4fe66aaadd3c2e2d1c@syzkaller.appspotmail.com
-> > Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-> > Tested-by: Randy Dunlap <rdunlap@infradead.org>
-> > Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
-> 
-> Tested-by: Randy Dunlap <rdunlap@infradead.org> # for v2
-Thanks for your testing!
-> 
-> 
-> > ---
-> > v2:
-> >  - change at most sect_per_clus_bits from 16 to 25 - sect_size_bits.
-> >
-> >  fs/exfat/exfat_raw.h |  4 ++++
-> >  fs/exfat/super.c     | 31 ++++++++++++++++++++++++++-----
-> >  2 files changed, 30 insertions(+), 5 deletions(-)
-> 
-> thanks.
-> --
-> ~Randy
+> > Hi Takashi, hi Harsha,
+> > I can confirm that the problem is fixed by this commit:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/comm=
+it/?id=3D4961167bf7482944ca09a6f71263b9e47f949851
+>
+> Thanks, good to hear.
+>
+> Then I think we can drop the entry from power_save_denylist in
+> hda_intel.c. Could you try that it still works with the patch below?
+>
+> thanks,
+>
+> Takashi
+>
+> --- a/sound/pci/hda/hda_intel.c
+> +++ b/sound/pci/hda/hda_intel.c
+> @@ -2217,8 +2217,6 @@ static const struct snd_pci_quirk power_save_denyli=
+st[] =3D {
+> /* https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 /
+> SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
+> / https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 */
+>
+> -   SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
+> -   /* https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 /
+>     SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
+>     / https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 /
+>     / Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA dev =
+*/
+
+For me applying patch 4961167bf7482944ca09a6f71263b9e47f949851 on top of 5.=
+10.12 fixes audio, but the above quoted patch applied to 5.10.12 does NOT f=
+ix audio.  What I mean by fixes:
+Audio works normally on 5.4.94, and on 5.10.12 with patch 4961167 applied.
+I hear no audio from the laptop speakers on 5.10.12 and 5.10.12 with the ab=
+ove quoted patch applied.  Opening pavucontrol shows a graphical response i=
+n the meter, but no audio is heard from the speakers.  I did not test plugg=
+ing in headphones and did not test audio over HDMI.
+
+I have a System76 Gazelle Pro 7 (gazp7).
+
+# lspci -s "00:1b" -vv
+00:1b.0 Audio device: Intel Corporation 7 Series/C210 Series Chipset Family=
+ High Definition Audio Controller (rev 04)
+        Subsystem: CLEVO/KAPOK Computer 7 Series/C210 Series Chipset Family=
+ High Definition Audio Controller
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+ Stepping- SERR- FastB2B- DisINTx+
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- <T=
+Abort- <MAbort- >SERR- <PERR- INTx-
+        Latency: 0, Cache Line Size: 64 bytes
+        Interrupt: pin A routed to IRQ 36
+        Region 0: Memory at f7e10000 (64-bit, non-prefetchable) [size=3D16K=
+]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D55mA PME(D0+,D1-,D=
+2-,D3hot+,D3cold+)
+                Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+        Capabilities: [60] MSI: Enable+ Count=3D1/1 Maskable- 64bit+
+                Address: 00000000fee003b8  Data: 0000
+        Capabilities: [70] Express (v1) Root Complex Integrated Endpoint, M=
+SI 00
+                DevCap: MaxPayload 128 bytes, PhantFunc 0
+                        ExtTag- RBE-
+                DevCtl: Report errors: Correctable- Non-Fatal- Fatal- Unsup=
+ported-
+                        RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+                        MaxPayload 128 bytes, MaxReadReq 128 bytes
+                DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+ Tr=
+ansPend-
+        Capabilities: [100 v1] Virtual Channel
+                Caps:   LPEVC=3D0 RefClk=3D100ns PATEntryBits=3D1
+                Arb:    Fixed- WRR32- WRR64- WRR128-
+                Ctrl:   ArbSelect=3DFixed
+                Status: InProgress-
+                VC0:    Caps:   PATOffset=3D00 MaxTimeSlots=3D1 RejSnoopTra=
+ns-
+                        Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR25=
+6-
+                        Ctrl:   Enable+ ID=3D0 ArbSelect=3DFixed TC/VC=3D01
+                        Status: NegoPending- InProgress-
+                VC1:    Caps:   PATOffset=3D00 MaxTimeSlots=3D1 RejSnoopTra=
+ns-
+                        Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR25=
+6-
+                        Ctrl:   Enable+ ID=3D1 ArbSelect=3DFixed TC/VC=3D22
+                        Status: NegoPending- InProgress-
+        Capabilities: [130 v1] Root Complex Link
+                Desc:   PortNumber=3D0f ComponentID=3D00 EltType=3DConfig
+                Link0:  Desc:   TargetPort=3D00 TargetComponent=3D00 AssocR=
+CRB- LinkType=3DMemMapped LinkValid+
+                        Addr:   00000000fed1c000
+        Kernel driver in use: snd_hda_intel
+        Kernel modules: snd_hda_intel
+
+And on kernel 5.4.94:
+# dmesg | grep hda
+[   21.307684] snd_hda_intel 0000:00:1b.0: bound 0000:00:02.0 (ops i915_aud=
+io_component_bind_ops [i915])
+[   21.493303] snd_hda_codec_via hdaudioC0D0: autoconfig for VT1802: line_o=
+uts=3D1 (0x24/0x0/0x0/0x0/0x0) type:speaker
+[   21.493306] snd_hda_codec_via hdaudioC0D0:    speaker_outs=3D0 (0x0/0x0/=
+0x0/0x0/0x0)
+[   21.493309] snd_hda_codec_via hdaudioC0D0:    hp_outs=3D1 (0x25/0x0/0x0/=
+0x0/0x0)
+[   21.493310] snd_hda_codec_via hdaudioC0D0:    mono: mono_out=3D0x0
+[   21.493312] snd_hda_codec_via hdaudioC0D0:    inputs:
+[   21.493315] snd_hda_codec_via hdaudioC0D0:      Mic=3D0x2b
+[   21.493317] snd_hda_codec_via hdaudioC0D0:      Internal Mic=3D0x29
 
 
+Apologies if this is noise.  I haven't been able to find if 4961167bf748294=
+4ca09a6f71263b9e47f949851 is queued up for the next stable release of 5.10.
+
+Erich
