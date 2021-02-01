@@ -2,271 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C17930A446
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 10:21:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1EEC30A46A
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 10:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhBAJVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 04:21:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231992AbhBAJVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 04:21:22 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CE6C061573
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 01:20:42 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id g15so11665433pgu.9
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 01:20:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SbMuFSgh3hr3dFklO+f875czdlYyM5GeImwLmAoRm6w=;
-        b=ifgKEbl2qJf4cTm77gAQDroic8ArAi72Bw5NaKOmairtEYamHEnBR6T/1YJzNntWrW
-         J9VRUdimGea0Dumgw08zuSTRcIBK/J78suy+/732mrFeMUwzits0NxVpsoS2hV7bDmwR
-         ocFx60xoUbw4gCcm8Vhw1MYVB6yKItNQSk63s=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SbMuFSgh3hr3dFklO+f875czdlYyM5GeImwLmAoRm6w=;
-        b=GO9tgXfJhuQirs7UBq52FHu6I1dK5wSCakKACxlMGX6SdLJzFW+h+d2ZVtEyBfI5VD
-         5DFhOY5jhMz3qjQnMl0vxPH/1FuXSafBko1sfKY0e1H1KZW1HyMIhk5TAINae+Y3IWDA
-         6kE/9D1Yh/eyYhwWKNLctoBGpJ57h/VaP5ICayoRYLi/2//Cz7wRld7QgKpGst7uE93U
-         MksI4nwnj/5UKZh5F5zsA7Lwygc41zS7kF+NoqdTTaRV+7vCOvRuvtjyTJxde/JvdeLW
-         ClLOcWE6R5PYplDJONWj89gAC0Esbh7oL+X/MU3+WCJR1O1h6fKXIN5jsID2OOYEQnob
-         /kqA==
-X-Gm-Message-State: AOAM531Ze9KPgz1xB4BEozi5/sy1tftg+FbkqBKAbUty9qPcewTqpJLM
-        es4vVbAFAypIieFYahnSfQ25zYsu82Ax3X3ogPQ1+w==
-X-Google-Smtp-Source: ABdhPJzSYnS1s6DdHuyZOGevPBj5cK11OSvI0fuN6o/tNl92e+pA2OwmRQgGtb5EyAYza9zj9EE6xURZmN8TYzSx4zc=
-X-Received: by 2002:a05:6a00:a8f:b029:1bd:bb89:5911 with SMTP id
- b15-20020a056a000a8fb02901bdbb895911mr15412045pfl.42.1612171241505; Mon, 01
- Feb 2021 01:20:41 -0800 (PST)
+        id S232785AbhBAJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 04:34:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48732 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232771AbhBAJeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 04:34:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1612171975;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TRJgwth9GyqyyQWIRdUel3dkprdXQQtXGasEdO9dd+4=;
+        b=cjkcrE+ueaI911nUlt0Bfk/RmuJTucV3Hrhs7/Y/b10TCWwRFHgUz+0ct5KCjGDgZw/xyA
+        3RKRcmVu/gbZp0bFMDGgCpeHeL6msyvraaA3ZXxsBrPenclVaRbak53I6qMMIeMcZl2ydc
+        onocBW0mWpZjtRwsdgnX6zM1vNej1/4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-10-AK_YxLelMz630S1tQGjELQ-1; Mon, 01 Feb 2021 04:32:53 -0500
+X-MC-Unique: AK_YxLelMz630S1tQGjELQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E6304801AF1;
+        Mon,  1 Feb 2021 09:32:50 +0000 (UTC)
+Received: from [10.36.115.24] (ovpn-115-24.ams2.redhat.com [10.36.115.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DBD9260C66;
+        Mon,  1 Feb 2021 09:32:45 +0000 (UTC)
+To:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+References: <20210130221035.4169-1-rppt@kernel.org>
+ <20210130221035.4169-2-rppt@kernel.org>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Subject: Re: [PATCH v4 1/2] x86/setup: always add the beginning of RAM as
+ memblock.memory
+Message-ID: <56e2c568-b121-8860-a6b0-274ace46d835@redhat.com>
+Date:   Mon, 1 Feb 2021 10:32:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-References: <1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com>
-In-Reply-To: <1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com>
-From:   Ikjoon Jang <ikjn@chromium.org>
-Date:   Mon, 1 Feb 2021 17:20:30 +0800
-Message-ID: <CAATdQgCkLxU2ts_dUq5+MnaxQ6RD69zddVKxqPRRZAGG2iq2hA@mail.gmail.com>
-Subject: Re: [next PATCH] usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc:     Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Zhanyong Wang <zhanyong.wang@mediatek.com>,
-        linux-usb@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210130221035.4169-2-rppt@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HI Chunfeng,
-
-On Mon, Feb 1, 2021 at 1:58 PM Chunfeng Yun <chunfeng.yun@mediatek.com> wrote:
->
-> For those unchecked endpoints, we don't allocate bandwidth for
-> them, so no need free the bandwidth, otherwise will decrease
-> the allocated bandwidth.
-> Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
-> rename bw_ep_list_new as bw_ep_chk_list.
->
-> Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-
-Reviewed-and-tested-by: Ikjoon Jang <ikjn@chromium.org>
-
+On 30.01.21 23:10, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> The physical memory on an x86 system starts at address 0, but this is not
+> always reflected in e820 map. For example, the BIOS can have e820 entries
+> like
+> 
+> [    0.000000] BIOS-provided physical RAM map:
+> [    0.000000] BIOS-e820: [mem 0x0000000000001000-0x000000000009ffff] usable
+> 
+> or
+> 
+> [    0.000000] BIOS-provided physical RAM map:
+> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x0000000000000fff] reserved
+> [    0.000000] BIOS-e820: [mem 0x0000000000001000-0x0000000000057fff] usable
+> 
+> In either case, e820__memblock_setup() won't add the range 0x0000 - 0x1000
+> to memblock.memory and later during memory map initialization this range is
+> left outside any zone.
+> 
+> With SPARSEMEM=y there is always a struct page for pfn 0 and this struct
+> page will have it's zone link wrong no matter what value will be set there.
+> 
+> To avoid this inconsistency, add the beginning of RAM to memblock.memory.
+> Limit the added chunk size to match the reserved memory to avoid
+> registering memory that may be used by the firmware but never reserved at
+> e820__memblock_setup() time.
+> 
+> Fixes: bde9cfa3afe4 ("x86/setup: don't remove E820_TYPE_RAM for pfn 0")
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> Cc: stable@vger.kernel.org
 > ---
->  drivers/usb/host/xhci-mtk-sch.c | 61 ++++++++++++++++++---------------
->  drivers/usb/host/xhci-mtk.h     |  4 ++-
->  2 files changed, 36 insertions(+), 29 deletions(-)
->
-> diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-> index a313e75ff1c6..dee8a329076d 100644
-> --- a/drivers/usb/host/xhci-mtk-sch.c
-> +++ b/drivers/usb/host/xhci-mtk-sch.c
-> @@ -200,6 +200,7 @@ static struct mu3h_sch_ep_info *create_sch_ep(struct usb_device *udev,
->
->         sch_ep->sch_tt = tt;
->         sch_ep->ep = ep;
-> +       INIT_LIST_HEAD(&sch_ep->endpoint);
->         INIT_LIST_HEAD(&sch_ep->tt_endpoint);
->
->         return sch_ep;
-> @@ -374,6 +375,7 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
->                                         sch_ep->bw_budget_table[j];
->                 }
->         }
-> +       sch_ep->allocated = used;
-
-Yes, this is really needed!
-
->  }
->
->  static int check_sch_tt(struct usb_device *udev,
-> @@ -542,6 +544,22 @@ static int check_sch_bw(struct usb_device *udev,
->         return 0;
->  }
->
-> +static void destroy_sch_ep(struct usb_device *udev,
-> +       struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
-> +{
-> +       /* only release ep bw check passed by check_sch_bw() */
-> +       if (sch_ep->allocated)
-> +               update_bus_bw(sch_bw, sch_ep, 0);
-
-So only these two lines really matter.
-
+>   arch/x86/kernel/setup.c | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+> index 3412c4595efd..67c77ed6eef8 100644
+> --- a/arch/x86/kernel/setup.c
+> +++ b/arch/x86/kernel/setup.c
+> @@ -727,6 +727,14 @@ static void __init trim_low_memory_range(void)
+>   	 * Kconfig help text for X86_RESERVE_LOW.
+>   	 */
+>   	memblock_reserve(0, ALIGN(reserve_low, PAGE_SIZE));
 > +
-> +       list_del(&sch_ep->endpoint);
-> +
-> +       if (sch_ep->sch_tt) {
-> +               list_del(&sch_ep->tt_endpoint);
-> +               drop_tt(udev);
-> +       }
-> +       kfree(sch_ep);
-> +}
-> +
->  static bool need_bw_sch(struct usb_host_endpoint *ep,
->         enum usb_device_speed speed, int has_tt)
->  {
-> @@ -584,7 +602,7 @@ int xhci_mtk_sch_init(struct xhci_hcd_mtk *mtk)
->
->         mtk->sch_array = sch_array;
->
-> -       INIT_LIST_HEAD(&mtk->bw_ep_list_new);
-> +       INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
->
->         return 0;
->  }
-> @@ -636,29 +654,12 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
->
->         setup_sch_info(udev, ep_ctx, sch_ep);
->
-> -       list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_list_new);
-> +       list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_chk_list);
->
->         return 0;
->  }
->  EXPORT_SYMBOL_GPL(xhci_mtk_add_ep_quirk);
->
-> -static void xhci_mtk_drop_ep(struct xhci_hcd_mtk *mtk, struct usb_device *udev,
-> -                            struct mu3h_sch_ep_info *sch_ep)
-> -{
-> -       struct xhci_hcd *xhci = hcd_to_xhci(mtk->hcd);
-> -       int bw_index = get_bw_index(xhci, udev, sch_ep->ep);
-> -       struct mu3h_sch_bw_info *sch_bw = &mtk->sch_array[bw_index];
-> -
-> -       update_bus_bw(sch_bw, sch_ep, 0);
-> -       list_del(&sch_ep->endpoint);
-> -
-> -       if (sch_ep->sch_tt) {
-> -               list_del(&sch_ep->tt_endpoint);
-> -               drop_tt(udev);
-> -       }
-> -       kfree(sch_ep);
-> -}
-> -
->  void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
->                 struct usb_host_endpoint *ep)
->  {
-> @@ -688,9 +689,8 @@ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
->         sch_bw = &sch_array[bw_index];
->
->         list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
-> -               if (sch_ep->ep == ep) {
-> -                       xhci_mtk_drop_ep(mtk, udev, sch_ep);
-> -               }
-> +               if (sch_ep->ep == ep)
-> +                       destroy_sch_ep(udev, sch_bw, sch_ep);
+> +	/*
+> +	 * Even if the firmware does not report the memory at address 0 as
+> +	 * usable, inform the generic memory management about its existence
+> +	 * to ensure it is a part of ZONE_DMA and the memory map for it is
+> +	 * properly initialized.
+> +	 */
+> +	memblock_add(0, ALIGN(reserve_low, PAGE_SIZE));
+>   }
+>   	
+>   /*
+> 
 
-not so critical but I've also missed 'break' here.
-Can you please add a break statement here?
+I think, to make that code more robust, and to not rely on archs to do 
+the right thing, we should do something like
 
->         }
->  }
->  EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
-> @@ -704,9 +704,9 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
->         struct mu3h_sch_ep_info *sch_ep, *tmp;
->         int bw_index, ret;
->
-> -       dev_dbg(&udev->dev, "%s\n", __func__);
-> +       xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
->
-> -       list_for_each_entry(sch_ep, &mtk->bw_ep_list_new, endpoint) {
-> +       list_for_each_entry(sch_ep, &mtk->bw_ep_chk_list, endpoint) {
->                 bw_index = get_bw_index(xhci, udev, sch_ep->ep);
->                 sch_bw = &mtk->sch_array[bw_index];
->
-> @@ -717,7 +717,7 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
->                 }
->         }
->
-> -       list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
-> +       list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
->                 struct xhci_ep_ctx *ep_ctx;
->                 struct usb_host_endpoint *ep = sch_ep->ep;
->                 unsigned int ep_index = xhci_get_endpoint_index(&ep->desc);
-> @@ -746,12 +746,17 @@ EXPORT_SYMBOL_GPL(xhci_mtk_check_bandwidth);
->  void xhci_mtk_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
->  {
->         struct xhci_hcd_mtk *mtk = hcd_to_mtk(hcd);
-> +       struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-> +       struct mu3h_sch_bw_info *sch_bw;
->         struct mu3h_sch_ep_info *sch_ep, *tmp;
-> +       int bw_index;
->
-> -       dev_dbg(&udev->dev, "%s\n", __func__);
-> +       xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
->
-> -       list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
-> -               xhci_mtk_drop_ep(mtk, udev, sch_ep);
-> +       list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
-> +               bw_index = get_bw_index(xhci, udev, sch_ep->ep);
-> +               sch_bw = &mtk->sch_array[bw_index];
-> +               destroy_sch_ep(udev, sch_bw, sch_ep);
->         }
->
->         xhci_reset_bandwidth(hcd, udev);
-> diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
-> index 577f431c5c93..cbb09dfea62e 100644
-> --- a/drivers/usb/host/xhci-mtk.h
-> +++ b/drivers/usb/host/xhci-mtk.h
-> @@ -59,6 +59,7 @@ struct mu3h_sch_bw_info {
->   * @ep_type: endpoint type
->   * @maxpkt: max packet size of endpoint
->   * @ep: address of usb_host_endpoint struct
-> + * @allocated: the bandwidth is aready allocated from bus_bw
->   * @offset: which uframe of the interval that transfer should be
->   *             scheduled first time within the interval
->   * @repeat: the time gap between two uframes that transfers are
-> @@ -86,6 +87,7 @@ struct mu3h_sch_ep_info {
->         u32 ep_type;
->         u32 maxpkt;
->         void *ep;
-> +       bool allocated;
->         /*
->          * mtk xHCI scheduling information put into reserved DWs
->          * in ep context
-> @@ -130,8 +132,8 @@ struct mu3c_ippc_regs {
->  struct xhci_hcd_mtk {
->         struct device *dev;
->         struct usb_hcd *hcd;
-> -       struct list_head bw_ep_list_new;
->         struct mu3h_sch_bw_info *sch_array;
-> +       struct list_head bw_ep_chk_list;
->         struct mu3c_ippc_regs __iomem *ippc_regs;
->         bool has_ippc;
->         int num_u2_ports;
-> --
-> 2.18.0
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+1) Make sure in free_area_init() that each PFN with a memmap (i.e., 
+falls into a partial present section) is spanned by a zone; that would 
+include PFN 0 in this case.
+
+2) In init_zone_unavailable_mem(), similar to round_up(max_pfn, 
+PAGES_PER_SECTION) handling, consider range
+	[round_down(min_pfn, PAGES_PER_SECTION), min_pfn - 1]
+which would handle in the x86-64 case [0..0] and, therefore, initialize 
+PFN 0.
+
+Also, I think the special-case of PFN 0 is analogous to the 
+round_up(max_pfn, PAGES_PER_SECTION) handling in 
+init_zone_unavailable_mem(): who guarantees that these PFN above the 
+highest present PFN are actually spanned by a zone?
+
+I'd suggest going through all zone ranges in free_area_init() first, 
+dealing with zones that have "not section aligned start/end", clamping 
+them up/down if required such that no holes within a section are left 
+uncovered by a zone.
+
+-- 
+Thanks,
+
+David / dhildenb
+
