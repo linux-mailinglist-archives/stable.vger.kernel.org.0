@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D900730A81D
+	by mail.lfdr.de (Postfix) with ESMTP id 6824F30A81C
 	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 13:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231490AbhBAMzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 07:55:41 -0500
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:53073 "EHLO
+        id S231758AbhBAMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 07:55:25 -0500
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:50985 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231516AbhBAMzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 07:55:35 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id C0CF27DC;
-        Mon,  1 Feb 2021 07:54:24 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Feb 2021 07:54:25 -0500
+        by vger.kernel.org with ESMTP id S231516AbhBAMzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 07:55:20 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id A7E3E7AE;
+        Mon,  1 Feb 2021 07:54:32 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Mon, 01 Feb 2021 07:54:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XfrqyT
-        9Ju+2LhJ3o/dXHpA5psRGl0MLx9OQcfJx0bT8=; b=Cnp5QjXSkTL05llyY1IDfQ
-        AK1JDfwnF+LrhYnIfZxA6fIWzT3keHedwopZQgOYylWnCyEKWHxV9+TuwbzCqjSV
-        6GWuU87JQi8sKEFERb7t1cASVekDvDIa74Pz3EOXV64cDtacUWzswjsfPKyw5PEN
-        r2jF6meIlXdjD8nhyt2IV2vWhFBgHGOKfBLhCP5mFU30R/W/ORZCzaULfgu53QmS
-        +vedoC9Cj02cQb/UEJk9uzhnxio49Hatj2dgKz+cJmDMNk33Wb4ULwFXDXFzPxds
-        57aufDP9bgwbwY/5imRYMIyyDpXHseH263xDulcR5vDz7u7fHv8sei/qXQgSVMMw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=U0UMHX
+        BDDIxZgcYZ1Ou7zu73g0IX5EQpb91fr9fFH3Y=; b=jy5sz1nvFyF3W8MKOqgE1x
+        oIcC14zmv65Z2RB4Yr4apw8fikgyANrytSO5OrbPwHlv8WTck2l+lb+b2no+e//S
+        QSK6CR3cZ6p7oSiCxds/FHkeSQ4gjP/1lLd0F243j1eB4DhCCuhY0HmBvhCQhFQE
+        83Nf2vPgAddLel/NbLWuSdcc4uhYe840CeeY8G2+sUsiv7o2BlJ7h642A/IBe/mQ
+        +oirN/J+YpSEPQBXV7BBiPDou5Q+Xys9PQVPKeGVC/ce/fR9GE/L4gzQmSnHE224
+        CQK1iPDLHAqKp7OQCHtHnbHEsZ338LXVCAvjHN+1XQ5LQqmPAVGMLw6xgpzT3xHw
         ==
-X-ME-Sender: <xms:APoXYJm-rMJ-e7JJvmJJ9khJXQcEtdT98vARENd53K9LuD2m2qE2SA>
-    <xme:APoXYE25zMH0_bS4xfnEHCP407MU69ykj4FBo0NMauiNB3ZeiPUKpYdJY0jDy07_b
-    aHykf2A4dVA6w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeekgdeghecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:CPoXYHXhr4wMYO3IRV5ia3vpCB7eha8VnhseHAy-Z31Z5IPN4MmbwA>
+    <xme:CPoXYGndfJw0xL_FjHPyFDanxqTO6SvD9uVAP95KBIpVTo5iurYKeHwm03mgOENtd
+    lEFabNiUYq97A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeekgdegiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:APoXYPprAgMDa2ynpOibCg8uJmADFKhQ7UlhKDGQFTYtXmOqNhgpKA>
-    <xmx:APoXYJkBZhB0RQWPbs3dxx4pY8WVHzCH58O_KFUycWarcDchZZ9qFQ>
-    <xmx:APoXYH3oLQRppTA60ZHmGJ-rAgqATHmMMzBQwSef3QzEdDaLwPEqgQ>
-    <xmx:APoXYE9Oz-3U6aE9ifr6XBGWKY95waAWfj7ML_b8umP0-upF4yuSlCM8j08>
+X-ME-Proxy: <xmx:CPoXYIapzGh-Nrp2-eYLXd9YSjkNH8-W0FYhvdxghWV0Ng1K8iym_Q>
+    <xmx:CPoXYBOgGtTrPtHGmpI_vp6vZ1o92PShNa8IPLIWIfsRWkcsR5AD9w>
+    <xmx:CPoXYNZv7PORU1RIfAlyJYhOB76iO0N1bgqYKWVHtS2Y2p4wXlDf_A>
+    <xmx:CPoXYM9UvSGJk-ekt_paqAvpAfTIJuEk7Ayu2rFeJRzD3TgUQqrHA_kazl0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1A1611080057;
-        Mon,  1 Feb 2021 07:54:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: fix list corruption for splice file_get" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B902B24005D;
+        Mon,  1 Feb 2021 07:54:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: fix sqo ownership false positive warning" failed to apply to 5.10-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Feb 2021 13:54:23 +0100
-Message-ID: <161218406313176@kroah.com>
+Date:   Mon, 01 Feb 2021 13:54:30 +0100
+Message-ID: <161218407067144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,47 +70,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f609cbb8911e40e15f9055e8f945f926ac906924 Mon Sep 17 00:00:00 2001
+From 70b2c60d3797bffe182dddb9bb55975b9be5889a Mon Sep 17 00:00:00 2001
 From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 28 Jan 2021 18:39:24 +0000
-Subject: [PATCH] io_uring: fix list corruption for splice file_get
+Date: Thu, 28 Jan 2021 18:39:25 +0000
+Subject: [PATCH] io_uring: fix sqo ownership false positive warning
 
-kernel BUG at lib/list_debug.c:29!
+WARNING: CPU: 0 PID: 21359 at fs/io_uring.c:9042
+    io_uring_cancel_task_requests+0xe55/0x10c0 fs/io_uring.c:9042
 Call Trace:
- __list_add include/linux/list.h:67 [inline]
- list_add include/linux/list.h:86 [inline]
- io_file_get+0x8cc/0xdb0 fs/io_uring.c:6466
- __io_splice_prep+0x1bc/0x530 fs/io_uring.c:3866
- io_splice_prep fs/io_uring.c:3920 [inline]
- io_req_prep+0x3546/0x4e80 fs/io_uring.c:6081
- io_queue_sqe+0x609/0x10d0 fs/io_uring.c:6628
- io_submit_sqe fs/io_uring.c:6705 [inline]
- io_submit_sqes+0x1495/0x2720 fs/io_uring.c:6953
- __do_sys_io_uring_enter+0x107d/0x1f30 fs/io_uring.c:9353
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ io_uring_flush+0x47b/0x6e0 fs/io_uring.c:9227
+ filp_close+0xb4/0x170 fs/open.c:1295
+ close_files fs/file.c:403 [inline]
+ put_files_struct fs/file.c:418 [inline]
+ put_files_struct+0x1cc/0x350 fs/file.c:415
+ exit_files+0x7e/0xa0 fs/file.c:435
+ do_exit+0xc22/0x2ae0 kernel/exit.c:820
+ do_group_exit+0x125/0x310 kernel/exit.c:922
+ get_signal+0x427/0x20f0 kernel/signal.c:2773
+ arch_do_signal_or_restart+0x2a8/0x1eb0 arch/x86/kernel/signal.c:811
+ handle_signal_work kernel/entry/common.c:147 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+ exit_to_user_mode_prepare+0x148/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:302
  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-io_file_get() may be called from splice, and so REQ_F_INFLIGHT may
-already be set.
+Now io_uring_cancel_task_requests() can be called not through file
+notes but directly, remove a WARN_ONCE() there that give us false
+positives. That check is not very important and we catch it in other
+places.
 
-Fixes: 02a13674fa0e8 ("io_uring: account io_uring internal files as REQ_F_INFLIGHT")
+Fixes: 84965ff8a84f0 ("io_uring: if we see flush on exit, cancel related tasks")
 Cc: stable@vger.kernel.org # 5.9+
-Reported-by: syzbot+6879187cf57845801267@syzkaller.appspotmail.com
+Reported-by: syzbot+3e3d9bd0c6ce9efbc3ef@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ae388cc52843..39ae1f821cef 100644
+index 39ae1f821cef..12bf7180c0f1 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -6460,7 +6460,8 @@ static struct file *io_file_get(struct io_submit_state *state,
- 		file = __io_file_get(state, fd);
- 	}
+@@ -8967,8 +8967,6 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
+ 	struct task_struct *task = current;
  
--	if (file && file->f_op == &io_uring_fops) {
-+	if (file && file->f_op == &io_uring_fops &&
-+	    !(req->flags & REQ_F_INFLIGHT)) {
- 		io_req_init_async(req);
- 		req->flags |= REQ_F_INFLIGHT;
- 
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
+-		/* for SQPOLL only sqo_task has task notes */
+-		WARN_ON_ONCE(ctx->sqo_task != current);
+ 		io_disable_sqo_submit(ctx);
+ 		task = ctx->sq_data->thread;
+ 		atomic_inc(&task->io_uring->in_idle);
 
