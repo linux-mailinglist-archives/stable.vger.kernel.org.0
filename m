@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87EE030A4D8
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 11:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC0230A4E2
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 11:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbhBAKC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 05:02:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56050 "EHLO
+        id S233009AbhBAKDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 05:03:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbhBAKCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 05:02:55 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527E8C0613D6
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 02:02:15 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id g10so15884497wrx.1
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 02:02:15 -0800 (PST)
+        with ESMTP id S233011AbhBAKDi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 05:03:38 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C4B6C061788
+        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 02:02:18 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id p15so15827322wrq.8
+        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 02:02:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=j+pI7rP4alOtZeqOXZIiiPmT2Z8ZBGSq2k5HmQdHbwQ=;
-        b=Rt/sFTvfyALMfEuNJqHxRt42NAbvFlxfpyDxd4WvR4tzgOgT8BiTE1h3/cR067jYbB
-         G2a9TidXAOiiL7JNtulcuB5DzozZAbe0NQ9vtoW33fBSWipvxwcROquNonsOizLe5R9w
-         BhEcU4i+KOJ5rW7d1xfasOZC5XgUmZw7jBngWRH8icfp5Rq0M1c9RsYJgVnXRAgBKbkG
-         6Fyq4cgD0p8VBRqppRfBXaFkQL4tvGn1nouAMwcnhMsLpTSjvo/Rv7WmC+0Osz4hLZCZ
-         WomNIKOwMK6dYnnhK8Ue58jHWuiIn6GY5PS2vzWMRl/yTxOOcGGpDpkQR7/hHOljzbmB
-         6Ysg==
+        bh=qqBoT1xpWEYMKezlYyKQ2zkhv0Ilyy8rHIYG+0h8Im8=;
+        b=VZVSw6E8CrBMDpWIroh7AP3ijX6WSF/iNqU7a3OsFxWDE0C7NN8ad06UubkFhbSf/P
+         lQ7oLzLCLKTTf9lN7OtY4wHQP7Mb+Fz5x1RjWlODXgfdFRBd80r42g9lJgS9BlNq68bu
+         Fj0NWOAWoAZAli//1fi/8NttxABhPJcroBYktMSX07jPfzFzQvjF666VbzibrVmaZrOE
+         lbosIeCcY5GXi1PrXa5hGUrE2YJEcGMPJogSmB1lf2eNI+BlaC14clUDpe8qfqtOZpdR
+         9BH6Bd14T2l6x8BcXaMfLaRXHikK9jwM5HSNK9rSf+AbYjxzj7lrXr2IbJVZFcQe/KJM
+         gJBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=j+pI7rP4alOtZeqOXZIiiPmT2Z8ZBGSq2k5HmQdHbwQ=;
-        b=OQ0VlINDYW+sFY36CqML+qFWMfIlVSpcHQ1vtXK+MJSB6h+ho4/ufxpavw3YH2pfNT
-         2NBwIf2w1/1+pwWSFHJt6z6HADf8rH2tmckt1SBXQyVMVY/9bIL/w3N/mP0BkzLP5xyO
-         rNrAqCgc9RSJCpEVTP4lZ8mKQtoDJl9PvtCLVo87S2AJyBXak8TWmn2kBivVpFODGf2O
-         IAgFeUe7k7W2EOfxx+0QR6Be2+mf5iBApw8dbS4gqilEh2ng67QIIzQ5qzz8SZy6KtNK
-         oB625uGZp+7qTth+UtPiwg289UZ5hOMXtyv5HagM7J+OhAenS8Ozz2IoXJKYUMt8gX8E
-         KK7A==
-X-Gm-Message-State: AOAM533kRrYDRlGUlXnO665dSp2xZDKRR5i6QNEEyI4l28QowUR0+T62
-        nKV8p8yFX2t17idtBLonOeq9YeHLZtFBUD69
-X-Google-Smtp-Source: ABdhPJz6QFfphJkrkIq4JOr/hlP4jRDoMjkxcks9E2XNu8OtSjMvOv9ZumojNziMe00aAocPZyYhKw==
-X-Received: by 2002:adf:b60e:: with SMTP id f14mr4988231wre.99.1612173733625;
-        Mon, 01 Feb 2021 02:02:13 -0800 (PST)
+        bh=qqBoT1xpWEYMKezlYyKQ2zkhv0Ilyy8rHIYG+0h8Im8=;
+        b=eIeJXIQ6L+Fwf1aoY4BErFxkqp+wG6e7B8hTIqDItKE8XDAfmFeoJgsprIYmIiVvWE
+         9ucFBkq22b4RbdMBfA2L9LYDXtxpqTNpg7GWkE9xu8Y50o1yI+3E6SCRN4yBroJnnV7R
+         fMjtE6xxW/iDAj1ltyOIkr60fb4qGpvRK3qeKEwL+ooq5O7w+tCtH+6Ma1sxN9EY4cTq
+         fPwEB6/bJ0muc4WeAlt8Sv3fXxtivF1Zawkh2cR0PZO/HRTwPflCv4pJxnMiU8//Go26
+         xeO1cKL4s+Y2365TyOgl4q+qwFal8SVAL79p1co9QT/Br1q/bARF5MqoP9nt8wAnRme5
+         VzYg==
+X-Gm-Message-State: AOAM530VRrM17gzCLRFFXAH6+Iklg4RE+9F1OBbQt2pP+RZNrASMs5y5
+        EfixULX21BcAQwDzzeJZKy7zmHEchLHkCAxZ
+X-Google-Smtp-Source: ABdhPJz7kIyduzRBRM6Stw5d2o2h50P0RG2vt2xn90Xv1VB1DNTd0rW+KM/D2n8V+SOIhZRz3rnMjw==
+X-Received: by 2002:a5d:5283:: with SMTP id c3mr16682221wrv.319.1612173734636;
+        Mon, 01 Feb 2021 02:02:14 -0800 (PST)
 Received: from dell.default ([91.110.221.188])
-        by smtp.gmail.com with ESMTPSA id p15sm26151387wrt.15.2021.02.01.02.02.12
+        by smtp.gmail.com with ESMTPSA id p15sm26151387wrt.15.2021.02.01.02.02.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 02:02:13 -0800 (PST)
+        Mon, 01 Feb 2021 02:02:14 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
@@ -54,9 +54,9 @@ Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Peter Zijlstra <peterz@infradead.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 04/12] exit/exec: Seperate mm_release()
-Date:   Mon,  1 Feb 2021 10:01:35 +0000
-Message-Id: <20210201100143.2028618-5-lee.jones@linaro.org>
+Subject: [PATCH 05/12] futex: Split futex_mm_release() for exit/exec
+Date:   Mon,  1 Feb 2021 10:01:36 +0000
+Message-Id: <20210201100143.2028618-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210201100143.2028618-1-lee.jones@linaro.org>
 References: <20210201100143.2028618-1-lee.jones@linaro.org>
@@ -68,105 +68,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 4610ba7ad877fafc0a25a30c6c82015304120426 upstream.
+commit 150d71584b12809144b8145b817e83b81158ae5f upstream.
 
-mm_release() contains the futex exit handling. mm_release() is called from
-do_exit()->exit_mm() and from exec()->exec_mm().
-
-In the exit_mm() case PF_EXITING and the futex state is updated. In the
-exec_mm() case these states are not touched.
-
-As the futex exit code needs further protections against exit races, this
-needs to be split into two functions.
+To allow separate handling of the futex exit state in the futex exit code
+for exit and exec, split futex_mm_release() into two functions and invoke
+them from the corresponding exit/exec_mm_release() callsites.
 
 Preparatory only, no functional change.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Ingo Molnar <mingo@kernel.org>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.240518241@linutronix.de
+Link: https://lkml.kernel.org/r/20191106224556.332094221@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- fs/exec.c             |  2 +-
- include/linux/sched.h |  6 ++++--
- kernel/exit.c         |  2 +-
- kernel/fork.c         | 12 +++++++++++-
- 4 files changed, 17 insertions(+), 5 deletions(-)
+ include/linux/futex.h | 6 ++++--
+ kernel/fork.c         | 5 ++---
+ kernel/futex.c        | 7 ++++++-
+ 3 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index cd5da140f94cb..319a1f5732fa9 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1021,7 +1021,7 @@ static int exec_mmap(struct mm_struct *mm)
- 	/* Notify parent that we're no longer interested in the old VM */
- 	tsk = current;
- 	old_mm = current->mm;
--	mm_release(tsk, old_mm);
-+	exec_mm_release(tsk, old_mm);
- 
- 	if (old_mm) {
- 		sync_mm_rss(old_mm);
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 4de48b251447f..fcbe5904cbd97 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -2955,8 +2955,10 @@ extern struct mm_struct *get_task_mm(struct task_struct *task);
-  * succeeds.
-  */
- extern struct mm_struct *mm_access(struct task_struct *task, unsigned int mode);
--/* Remove the current tasks stale references to the old mm_struct */
--extern void mm_release(struct task_struct *, struct mm_struct *);
-+/* Remove the current tasks stale references to the old mm_struct on exit() */
-+extern void exit_mm_release(struct task_struct *, struct mm_struct *);
-+/* Remove the current tasks stale references to the old mm_struct on exec() */
-+extern void exec_mm_release(struct task_struct *, struct mm_struct *);
- 
- #ifdef CONFIG_HAVE_COPY_THREAD_TLS
- extern int copy_thread_tls(unsigned long, unsigned long, unsigned long,
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 969e1468f2538..b65285f5ee0c9 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -464,7 +464,7 @@ static void exit_mm(struct task_struct *tsk)
- 	struct mm_struct *mm = tsk->mm;
- 	struct core_state *core_state;
- 
--	mm_release(tsk, mm);
-+	exit_mm_release(tsk, mm);
- 	if (!mm)
- 		return;
- 	sync_mm_rss(mm);
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 000447bfcfde5..ad9dbbf03d7bc 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1082,7 +1082,7 @@ static int wait_for_vfork_done(struct task_struct *child,
-  * restoring the old one. . .
-  * Eric Biederman 10 January 1998
-  */
--void mm_release(struct task_struct *tsk, struct mm_struct *mm)
-+static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
- 	/* Get rid of any futexes when releasing the mm */
- 	futex_mm_release(tsk);
-@@ -1119,6 +1119,16 @@ void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- 		complete_vfork_done(tsk);
+diff --git a/include/linux/futex.h b/include/linux/futex.h
+index a0de6fe28e00b..063a5cd00d770 100644
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -98,13 +98,15 @@ static inline void futex_exit_done(struct task_struct *tsk)
+ 	tsk->futex_state = FUTEX_STATE_DEAD;
  }
  
-+void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+-void futex_mm_release(struct task_struct *tsk);
++void futex_exit_release(struct task_struct *tsk);
++void futex_exec_release(struct task_struct *tsk);
+ 
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ 	      u32 __user *uaddr2, u32 val2, u32 val3);
+ #else
+ static inline void futex_init_task(struct task_struct *tsk) { }
+-static inline void futex_mm_release(struct task_struct *tsk) { }
+ static inline void futex_exit_done(struct task_struct *tsk) { }
++static inline void futex_exit_release(struct task_struct *tsk) { }
++static inline void futex_exec_release(struct task_struct *tsk) { }
+ #endif
+ #endif
+diff --git a/kernel/fork.c b/kernel/fork.c
+index ad9dbbf03d7bc..91349fd3e162d 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1084,9 +1084,6 @@ static int wait_for_vfork_done(struct task_struct *child,
+  */
+ static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ {
+-	/* Get rid of any futexes when releasing the mm */
+-	futex_mm_release(tsk);
+-
+ 	uprobe_free_utask(tsk);
+ 
+ 	/* Get rid of any cached register state */
+@@ -1121,11 +1118,13 @@ static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ 
+ void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ {
++	futex_exit_release(tsk);
+ 	mm_release(tsk, mm);
+ }
+ 
+ void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ {
++	futex_exec_release(tsk);
+ 	mm_release(tsk, mm);
+ }
+ 
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 51bbe57bb14ac..902ce420c4ba0 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3269,7 +3269,7 @@ static void exit_robust_list(struct task_struct *curr)
+ 				   curr, pip);
+ }
+ 
+-void futex_mm_release(struct task_struct *tsk)
++void futex_exec_release(struct task_struct *tsk)
+ {
+ 	if (unlikely(tsk->robust_list)) {
+ 		exit_robust_list(tsk);
+@@ -3287,6 +3287,11 @@ void futex_mm_release(struct task_struct *tsk)
+ 		exit_pi_state_list(tsk);
+ }
+ 
++void futex_exit_release(struct task_struct *tsk)
 +{
-+	mm_release(tsk, mm);
++	futex_exec_release(tsk);
 +}
 +
-+void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
-+{
-+	mm_release(tsk, mm);
-+}
-+
- /*
-  * Allocate a new mm structure and copy contents from the
-  * mm structure of the passed in task structure.
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ 		u32 __user *uaddr2, u32 val2, u32 val3)
+ {
 -- 
 2.25.1
 
