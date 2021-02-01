@@ -2,152 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1EEC30A46A
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 10:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A87B30A47E
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 10:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbhBAJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 04:34:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48732 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232771AbhBAJeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 04:34:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1612171975;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TRJgwth9GyqyyQWIRdUel3dkprdXQQtXGasEdO9dd+4=;
-        b=cjkcrE+ueaI911nUlt0Bfk/RmuJTucV3Hrhs7/Y/b10TCWwRFHgUz+0ct5KCjGDgZw/xyA
-        3RKRcmVu/gbZp0bFMDGgCpeHeL6msyvraaA3ZXxsBrPenclVaRbak53I6qMMIeMcZl2ydc
-        onocBW0mWpZjtRwsdgnX6zM1vNej1/4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-10-AK_YxLelMz630S1tQGjELQ-1; Mon, 01 Feb 2021 04:32:53 -0500
-X-MC-Unique: AK_YxLelMz630S1tQGjELQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E6304801AF1;
-        Mon,  1 Feb 2021 09:32:50 +0000 (UTC)
-Received: from [10.36.115.24] (ovpn-115-24.ams2.redhat.com [10.36.115.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DBD9260C66;
-        Mon,  1 Feb 2021 09:32:45 +0000 (UTC)
-To:     Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>,
-        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
-References: <20210130221035.4169-1-rppt@kernel.org>
- <20210130221035.4169-2-rppt@kernel.org>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Subject: Re: [PATCH v4 1/2] x86/setup: always add the beginning of RAM as
- memblock.memory
-Message-ID: <56e2c568-b121-8860-a6b0-274ace46d835@redhat.com>
-Date:   Mon, 1 Feb 2021 10:32:44 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S232790AbhBAJii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 04:38:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54210 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232623AbhBAJii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Feb 2021 04:38:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97F9F64EAB;
+        Mon,  1 Feb 2021 09:37:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612172277;
+        bh=Q3tWwyAgRUVK7tAtYTrgw3yQXMbg3rYN1vHD1xdk6iA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qsl5NZ6widTHlGNgNnBifG1pGRijjymBxBpCqQpDIVxqGb23doDTEhCBOG2bUNtjz
+         VdzEaLRW8mUPW+n+NalCoWQk1Q/FjxKPg57fzyPCrSGvJhlQiaZnYgpAG59eKmC3kz
+         eR87we6y6M/EkjOCH6jBsi5/jAqAQPW5GaekxgCQ=
+Date:   Mon, 1 Feb 2021 10:37:54 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chris Clayton <chris2553@googlemail.com>
+Cc:     Thomas Backlund <tmb@tmb.nu>, LKML <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, torvic9@mailbox.org,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: linux-5.10.11 build failure
+Message-ID: <YBfL8s138/HvX5Sb@kroah.com>
+References: <8b3e9d93-1381-b415-9ece-a10fb098b896@tmb.nu>
+ <9617db49-cf67-3b48-1b31-3bcd34cf3e1a@googlemail.com>
+ <20210128160015.phaovyou2m2fgcpi@treble>
+ <YBPfQXSrz+P3TOZf@kroah.com>
+ <f9f8e2c9-3690-52f3-8d96-4f2b735dd6bd@googlemail.com>
+ <YBPtAYK1Nj/WpiTo@kroah.com>
+ <20210129151423.rsyubljbrzxicleq@treble>
+ <064cf941-e7cb-e939-2bd1-f0dc2850cda7@googlemail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210130221035.4169-2-rppt@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <064cf941-e7cb-e939-2bd1-f0dc2850cda7@googlemail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.01.21 23:10, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
+On Mon, Feb 01, 2021 at 08:59:09AM +0000, Chris Clayton wrote:
+> Hi Greg,
 > 
-> The physical memory on an x86 system starts at address 0, but this is not
-> always reflected in e820 map. For example, the BIOS can have e820 entries
-> like
+> On 29/01/2021 15:14, Josh Poimboeuf wrote:
+> > On Fri, Jan 29, 2021 at 12:09:53PM +0100, Greg Kroah-Hartman wrote:
+> >> On Fri, Jan 29, 2021 at 11:03:26AM +0000, Chris Clayton wrote:
+> >>>
+> >>>
+> >>> On 29/01/2021 10:11, Greg Kroah-Hartman wrote:
+> >>>> On Thu, Jan 28, 2021 at 10:00:15AM -0600, Josh Poimboeuf wrote:
+> ...
+> >>>>
+> >>>> It is in Linus's tree now :)
+> >>>>
+> >>>> Now grabbed.
+> >>>>
+> >>>
+> >>> Are you sure, Greg? I don't see the patch in Linus' tree at
+> >>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git. Nor do is see it in your stable queue at
+> >>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/. For clarity, I've attached the patch which
+> >>> fixes problem I reported and is currently sat in https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git As I
+> >>> understand it, the patch is scheduled to be included in a pull request to Linus this weekend in time for -rc6.
+> >>>
+> >>> In fact, I did a pull from Linus' tree a few minutes ago and the build failed in the way I reported in this thread. I
+> >>> added the patch and the build now succeeds.
+> >>
+> >> Ok, sorry, no, I grabbed 1d489151e9f9 ("objtool: Don't fail on missing
+> >> symbol table") which is what Josh asked me to take.  I got that confused
+> >> here.
+> > 
+> > I'm probably responsible for that confusion, I got mixed up myself.
+> > It'll be a good idea to take both anyway.
+> > 
 > 
-> [    0.000000] BIOS-provided physical RAM map:
-> [    0.000000] BIOS-e820: [mem 0x0000000000001000-0x000000000009ffff] usable
-> 
-> or
-> 
-> [    0.000000] BIOS-provided physical RAM map:
-> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x0000000000000fff] reserved
-> [    0.000000] BIOS-e820: [mem 0x0000000000001000-0x0000000000057fff] usable
-> 
-> In either case, e820__memblock_setup() won't add the range 0x0000 - 0x1000
-> to memblock.memory and later during memory map initialization this range is
-> left outside any zone.
-> 
-> With SPARSEMEM=y there is always a struct page for pfn 0 and this struct
-> page will have it's zone link wrong no matter what value will be set there.
-> 
-> To avoid this inconsistency, add the beginning of RAM to memblock.memory.
-> Limit the added chunk size to match the reserved memory to avoid
-> registering memory that may be used by the firmware but never reserved at
-> e820__memblock_setup() time.
-> 
-> Fixes: bde9cfa3afe4 ("x86/setup: don't remove E820_TYPE_RAM for pfn 0")
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: stable@vger.kernel.org
-> ---
->   arch/x86/kernel/setup.c | 8 ++++++++
->   1 file changed, 8 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-> index 3412c4595efd..67c77ed6eef8 100644
-> --- a/arch/x86/kernel/setup.c
-> +++ b/arch/x86/kernel/setup.c
-> @@ -727,6 +727,14 @@ static void __init trim_low_memory_range(void)
->   	 * Kconfig help text for X86_RESERVE_LOW.
->   	 */
->   	memblock_reserve(0, ALIGN(reserve_low, PAGE_SIZE));
-> +
-> +	/*
-> +	 * Even if the firmware does not report the memory at address 0 as
-> +	 * usable, inform the generic memory management about its existence
-> +	 * to ensure it is a part of ZONE_DMA and the memory map for it is
-> +	 * properly initialized.
-> +	 */
-> +	memblock_add(0, ALIGN(reserve_low, PAGE_SIZE));
->   }
->   	
->   /*
-> 
+> The patch is now in Linus' tree at 5e6dca82bcaa49348f9e5fcb48df4881f6d6c4ae
 
-I think, to make that code more robust, and to not rely on archs to do 
-the right thing, we should do something like
+Thanks, now queued up.
 
-1) Make sure in free_area_init() that each PFN with a memmap (i.e., 
-falls into a partial present section) is spanned by a zone; that would 
-include PFN 0 in this case.
-
-2) In init_zone_unavailable_mem(), similar to round_up(max_pfn, 
-PAGES_PER_SECTION) handling, consider range
-	[round_down(min_pfn, PAGES_PER_SECTION), min_pfn - 1]
-which would handle in the x86-64 case [0..0] and, therefore, initialize 
-PFN 0.
-
-Also, I think the special-case of PFN 0 is analogous to the 
-round_up(max_pfn, PAGES_PER_SECTION) handling in 
-init_zone_unavailable_mem(): who guarantees that these PFN above the 
-highest present PFN are actually spanned by a zone?
-
-I'd suggest going through all zone ranges in free_area_init() first, 
-dealing with zones that have "not section aligned start/end", clamping 
-them up/down if required such that no holes within a section are left 
-uncovered by a zone.
-
--- 
-Thanks,
-
-David / dhildenb
-
+greg k-h
