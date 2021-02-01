@@ -2,84 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A87B30A47E
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 10:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F75C30A4D4
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 11:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232790AbhBAJii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 04:38:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54210 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232623AbhBAJii (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Feb 2021 04:38:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97F9F64EAB;
-        Mon,  1 Feb 2021 09:37:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612172277;
-        bh=Q3tWwyAgRUVK7tAtYTrgw3yQXMbg3rYN1vHD1xdk6iA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qsl5NZ6widTHlGNgNnBifG1pGRijjymBxBpCqQpDIVxqGb23doDTEhCBOG2bUNtjz
-         VdzEaLRW8mUPW+n+NalCoWQk1Q/FjxKPg57fzyPCrSGvJhlQiaZnYgpAG59eKmC3kz
-         eR87we6y6M/EkjOCH6jBsi5/jAqAQPW5GaekxgCQ=
-Date:   Mon, 1 Feb 2021 10:37:54 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Clayton <chris2553@googlemail.com>
-Cc:     Thomas Backlund <tmb@tmb.nu>, LKML <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, torvic9@mailbox.org,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: linux-5.10.11 build failure
-Message-ID: <YBfL8s138/HvX5Sb@kroah.com>
-References: <8b3e9d93-1381-b415-9ece-a10fb098b896@tmb.nu>
- <9617db49-cf67-3b48-1b31-3bcd34cf3e1a@googlemail.com>
- <20210128160015.phaovyou2m2fgcpi@treble>
- <YBPfQXSrz+P3TOZf@kroah.com>
- <f9f8e2c9-3690-52f3-8d96-4f2b735dd6bd@googlemail.com>
- <YBPtAYK1Nj/WpiTo@kroah.com>
- <20210129151423.rsyubljbrzxicleq@treble>
- <064cf941-e7cb-e939-2bd1-f0dc2850cda7@googlemail.com>
+        id S232363AbhBAKCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 05:02:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229558AbhBAKCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 05:02:50 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53896C061573
+        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 02:02:10 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id e15so12604641wme.0
+        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 02:02:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=satAsY03zW6R5YGnBLV3TjHl6zkThHDUsg1nDEtdP0Q=;
+        b=hd0ZryI0654awXJX1gRoPWtGzZfiH93IPwU3DM01nQBR/a/DnQnF0FydmxPuUfbdBE
+         +Nc62DUHNymaU82H6c6gQN4mcLYiKkLH6+1WMx8rAzOjMRZ/+oCOcf65vbGAQQkvvt7p
+         OxvK+yjykbrktKbvUH/T3IriBPdjW97hvRxYC+50NSvLYzUpDu+X4JrMHrI1dUrEOKbu
+         4X7tmXTLdu5qAN/NeLO4FDsmRif47l1vNm4EFwO93K7/IZrdhXzKC60tfix6awAwiIVr
+         OM3T6a0NiDlRfrIVv+op3nPMtUtZ07O1XYqqbATa04m9DmCWZDsdySeMuSr6QSgsEUB9
+         Rr8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=satAsY03zW6R5YGnBLV3TjHl6zkThHDUsg1nDEtdP0Q=;
+        b=tN53cVtWhBP5RmTvV1VH2lHZjWUUpUn3I3/nlVuqMwJmXbDkfNQjJS/8rrrYx2CA74
+         7xj3WRLiNvurMFdSbwYPb4sdkHclQEEyJwqdDz26StBe8lRqKMI7CkCyATIS25Vhy3I4
+         4QYQYj9BZFdGgDxFZasHbm1LJL6c09ApITtdZjIikFL3YIKsBC6TZOKbhAdwyLQf1H2G
+         CRz3ZCTkC0iw0DxbhT+cvF7+JIJnkMm5KIbK6HFca7Jc48FsLtwfwqpvUEUBvHFAN125
+         kwjZpufJ1/T4YMg9JkfmKjAzWLyzaWCnAT5bKCorVlF/1dimH0bGIPV7/RXgotk92bZT
+         Fb8w==
+X-Gm-Message-State: AOAM531WH5m962jNO2nKcvVdNRzDVd/zGluMNflvjRSK4H0jsAITvxN1
+        5Lg5IxRnaOcAS5ZrZ2LlPrHZyhE+CfBlxWfc
+X-Google-Smtp-Source: ABdhPJyLn4cbMpvoA6Q9T+BUbhf6xtRORukCcdBmLg6N39Dmso0fzX+203i0OyjppIEFHRrAI8qOag==
+X-Received: by 2002:a05:600c:4f50:: with SMTP id m16mr14034882wmq.175.1612173724577;
+        Mon, 01 Feb 2021 02:02:04 -0800 (PST)
+Received: from dell.default ([91.110.221.188])
+        by smtp.gmail.com with ESMTPSA id p15sm26151387wrt.15.2021.02.01.02.02.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Feb 2021 02:02:03 -0800 (PST)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 00/12] Futex back-port from v4.14 
+Date:   Mon,  1 Feb 2021 10:01:31 +0000
+Message-Id: <20210201100143.2028618-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <064cf941-e7cb-e939-2bd1-f0dc2850cda7@googlemail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 08:59:09AM +0000, Chris Clayton wrote:
-> Hi Greg,
-> 
-> On 29/01/2021 15:14, Josh Poimboeuf wrote:
-> > On Fri, Jan 29, 2021 at 12:09:53PM +0100, Greg Kroah-Hartman wrote:
-> >> On Fri, Jan 29, 2021 at 11:03:26AM +0000, Chris Clayton wrote:
-> >>>
-> >>>
-> >>> On 29/01/2021 10:11, Greg Kroah-Hartman wrote:
-> >>>> On Thu, Jan 28, 2021 at 10:00:15AM -0600, Josh Poimboeuf wrote:
-> ...
-> >>>>
-> >>>> It is in Linus's tree now :)
-> >>>>
-> >>>> Now grabbed.
-> >>>>
-> >>>
-> >>> Are you sure, Greg? I don't see the patch in Linus' tree at
-> >>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git. Nor do is see it in your stable queue at
-> >>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/. For clarity, I've attached the patch which
-> >>> fixes problem I reported and is currently sat in https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git As I
-> >>> understand it, the patch is scheduled to be included in a pull request to Linus this weekend in time for -rc6.
-> >>>
-> >>> In fact, I did a pull from Linus' tree a few minutes ago and the build failed in the way I reported in this thread. I
-> >>> added the patch and the build now succeeds.
-> >>
-> >> Ok, sorry, no, I grabbed 1d489151e9f9 ("objtool: Don't fail on missing
-> >> symbol table") which is what Josh asked me to take.  I got that confused
-> >> here.
-> > 
-> > I'm probably responsible for that confusion, I got mixed up myself.
-> > It'll be a good idea to take both anyway.
-> > 
-> 
-> The patch is now in Linus' tree at 5e6dca82bcaa49348f9e5fcb48df4881f6d6c4ae
+Ref: https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/pending/futex_issues.txt
 
-Thanks, now queued up.
+This set required 1 additional patch from v4.14 to avoid build errors.
 
-greg k-h
+Arnd Bergmann (1):
+  y2038: futex: Move compat implementation into futex.c
+
+Thomas Gleixner (11):
+  futex: Move futex exit handling into futex code
+  futex: Replace PF_EXITPIDONE with a state
+  exit/exec: Seperate mm_release()
+  futex: Split futex_mm_release() for exit/exec
+  futex: Set task::futex_state to DEAD right after handling futex exit
+  futex: Mark the begin of futex exit explicitly
+  futex: Sanitize exit state handling
+  futex: Provide state handling for exec() as well
+  futex: Add mutex around futex exit
+  futex: Provide distinct return value when owner is exiting
+  futex: Prevent exit livelock
+
+ fs/exec.c              |   2 +-
+ include/linux/compat.h |   2 -
+ include/linux/futex.h  |  44 ++--
+ include/linux/sched.h  |   9 +-
+ kernel/Makefile        |   3 -
+ kernel/exit.c          |  29 +--
+ kernel/fork.c          |  40 ++--
+ kernel/futex.c         | 446 ++++++++++++++++++++++++++++++++++++++---
+ kernel/futex_compat.c  | 201 -------------------
+ 9 files changed, 466 insertions(+), 310 deletions(-)
+ delete mode 100644 kernel/futex_compat.c
+
+Cc: Stable Team <stable@vger.kernel.org>
+-- 
+2.25.1
+
