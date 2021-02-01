@@ -2,89 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8C9312077
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 00:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E76312238
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 08:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbhBFXZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Feb 2021 18:25:53 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56442 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbhBFXZw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Feb 2021 18:25:52 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0B03E1C0B7C; Sun,  7 Feb 2021 00:25:09 +0100 (CET)
-Date:   Sun, 7 Feb 2021 00:25:08 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 16/17] kthread: Extract KTHREAD_IS_PER_CPU
-Message-ID: <20210206232508.GA27515@amd>
-References: <20210205140649.825180779@linuxfoundation.org>
- <20210205140650.464297049@linuxfoundation.org>
+        id S229445AbhBGH0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Feb 2021 02:26:09 -0500
+Received: from [20.39.40.203] ([20.39.40.203]:52755 "EHLO optinix.in"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S229601AbhBGH0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Feb 2021 02:26:07 -0500
+dkim-signature: v=1; a=rsa-sha256; d=digitalsol.in; s=dkim;
+        c=relaxed/relaxed; q=dns/txt; h=From:Reply-To:Subject:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding;
+        bh=wK2neTcOXNiSQ+RBxrnFed+mRrGUU/ndLGEgvo8IMCc=;
+        b=FVv4v+ccEAvvVreUElgWbMRFp69k5CNUm+rGN4i+U8NmCNPJgGzwxaudzDobmYNjjmnpf9k36zM9HbZwuwJthVZKHF6tW4cXWTlk9/g+sdrGWcLxnBcValj5fOV9EmfHu+cW/ahwZ8NgCOTUOFqXEeC6agO1ZCQJi3DV51N4Xz3fYVPMZD6WS6fkfdHXEnEKm0XdHJNS8Rhjhc+7RVhgckibpWA/sMtrO1OVmmSxMFCGl5yWJ1aSUuq12s
+        4Grhy3tF1GG2sKZ5KoLUTuXh5DORRy/039gmvvIdMJ50EFU+pG7Zk86aF/TveowHr5XX9EiA3U411jsDMgDeL+FH1FsA==
+Received: from User (Unknown [52.231.31.5])
+        by optinix.in with ESMTP
+        ; Mon, 1 Feb 2021 21:07:18 +0000
+Message-ID: <1DD6F409-3315-4814-BE7C-B25AE7763EDA@optinix.in>
+Reply-To: <ms.reem@yandex.com>
+From:   "Ms. Reem" <support@digitalsol.in>
+Subject: Re:read
+Date:   Mon, 1 Feb 2021 21:07:16 -0000
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-In-Reply-To: <20210205140650.464297049@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My name is Ms. Reem Ebrahim Al-Hashimi, I am the "Minister of state
+and Petroleum" also "Minister of State for International Cooperation"
+in UAE. I write to you on behalf of my other "three (3) colleagues"
+who has approved me to solicit for your "partnership in claiming of
+{us$47=Million}" from a Financial Home in Cambodia on their behalf and
+for our "Mutual Benefits".
 
-Hi!
+The Fund {us$47=Million} is our share from the (over-invoiced) Oil/Gas
+deal with Cambodian/Vietnam Government within 2013/2014, however, we
+don't want our government to know about the fund. If this proposal
+interests you, let me know, by sending me an email and I will send to
+you detailed information on how this business would be successfully
+transacted. Be informed that nobody knows about the secret of this
+fund except us, and we know how to carry out the entire transaction.
+So I am compelled to ask, that you will stand on our behalf and
+receive this fund into any account that is solely controlled by you.
 
-> From: Peter Zijlstra <peterz@infradead.org>
->=20
-> [ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
->=20
-> There is a need to distinguish geniune per-cpu kthreads from kthreads
-> that happen to have a single CPU affinity.
->=20
-> Geniune per-cpu kthreads are kthreads that are CPU affine for
-> correctness, these will obviously have PF_KTHREAD set, but must also
-> have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
-> ruins things.
->=20
-> However, these two things are not sufficient, PF_NO_SETAFFINITY is
-> also set on other tasks that have their affinities controlled through
-> other means, like for instance workqueues.
->=20
-> Therefore another bit is needed; it turns out kthread_create_per_cpu()
-> already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
-> kthread_park()/kthread_unpark() work correctly.
->=20
-> Expose this flag and remove the implicit setting of it from
-> kthread_create_on_cpu(); the io_uring usage of it seems dubious at
-> best.
+We will compensate you with 15% of the total amount involved as
+gratification for being our partner in this transaction. Reply to:
+ms.reem@yandex.com
 
-AFAIK this should not be in 4.19/5.10 as it does not fix anything w/o
-5ba2ffba13a1e. Nobody calls kthread_is_per_cpu() in those kernels.
+Regards,
+Ms. Reem.
 
-Best regards,
-								Pavel
-
---=20
-http://www.livejournal.com/~pavelmachek
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmAfJVQACgkQMOfwapXb+vKIbgCgwhgFHYtEbIGxwQEqO/Hz8Nej
-1QUAoIFCgZXOVP0o3W2xNOFMbJpI8S+q
-=T/1f
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
