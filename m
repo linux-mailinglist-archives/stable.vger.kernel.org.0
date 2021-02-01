@@ -2,61 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0C830A4E3
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 11:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA6530A4E6
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 11:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbhBAKDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 05:03:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56218 "EHLO
+        id S232937AbhBAKDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 05:03:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233011AbhBAKDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 05:03:42 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC22C0617A7
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 02:02:25 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id s7so12882436wru.5
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 02:02:25 -0800 (PST)
+        with ESMTP id S233011AbhBAKDq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 05:03:46 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140D1C0617A9
+        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 02:02:27 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id u14so12060011wml.4
+        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 02:02:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YvIosSfqayR6zcFHOY8c0x/JdWmP1VyW0c+N7TdenS0=;
-        b=dEO9JyacwmaNh722rkMqymWjpemauzfTZo9g6zy6O3h0+aVdJI0fT0egpN0lkOapR4
-         dEbSVoXXQLVegZrXuhI0JW/mzj/vGy1TE0lf9YVPfvApAkUO7AnULl3X0QkLmwnLgI5D
-         0QGKjd2uWNOTg5j3ll5of6xK00r5v3uEkqS1Ki3nN5VaaeHKL7Pr2UtiBvH1urnskihx
-         bu0lC9kBMyiVCMLtXel/iNjToeKnGtQmoDPpnBK8wtGKuOCrmnQPVekKCn2zvVcPwFhs
-         9V3tUg2xpFZq89ABmzrKo2ZTkbdbsod2B4ULRnyA7qFX6yEUcsGpiR6vckmzpMD7+NrI
-         4fsQ==
+        bh=GHgs52PMT6uUIxDpX89DS1Pb97XITDMq7XtRSlRACwM=;
+        b=tOY33Uyb2PVFfa0kO0YeTB0uYBJc6d9/9LzmUz64em3L5ie94qiF2iELRusmocEU6V
+         SS4kRAtLVeR2HiQzapjQBy4myVusJE5eC+DQ5MjkwTbU0SzHBYf4ii+Rk2+Mny1g4lT4
+         UN/nWM8GFtkm3or+9pp32CwhvFwe5ylVicIsBSWoHkVeHyRTSt7CX9Tng5rwtxH6ITGu
+         /Pz9LEKs38gRVbJQ0Tl4hD5AVqTLBIJXsN3fljbWcwu1G575CqMOvhMMSTTD+3CSVXsC
+         RwKanqssv5H3Irprfo35tfvAa4DAduqzpd+UtIAe2rJUTHZAteNaEbTiqKraE7JT+xq3
+         m7gA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YvIosSfqayR6zcFHOY8c0x/JdWmP1VyW0c+N7TdenS0=;
-        b=SR9E4uEZxOkVROZNfQsoANmhP+4K2f0Aa1dqGluGeOvl3g1yA0HovX+zWVdpZxXdyv
-         YxAY2GF9BLr+3u0xV7eNCn+R0vqSv2PF7y8lVHfPHCej3UzlokvIJYv7+Y0rfB3ly9Yb
-         yJrVANA+iYoEPFvIYIqz/ejLoOhDYj3NPArmUU/aiMJR0m5sC3qqk1ORLIRuRATkue1M
-         rWMCG6VyJDgXOwh46GhTb8KmL7TGu9ovWeFM7CID1PSpmR7+1Z5TJP2DIOTlOYGHfCoQ
-         hvW1PxbfL1agEqcs7LVsmNXV91FNNmWaB9O5uuffLfWJjD0YZmCx8UHJSlYt7sN+mQOs
-         gXiQ==
-X-Gm-Message-State: AOAM533icZ0gHSwb4BSbzATSAlnWXwOgx7c2JcV5mLZTr/gFQahoObpr
-        +ki8H3hQ2IMJ83MNiDf9MOiyQZ5IeDfglojF
-X-Google-Smtp-Source: ABdhPJwzvowiI3qyeyz/lbtbqz6dxmZmmHq7ifsGMafx3yBmXHCIr0/mrXl+RIgg4nZeBog2eB8xAw==
-X-Received: by 2002:a5d:4f84:: with SMTP id d4mr16951524wru.374.1612173743342;
-        Mon, 01 Feb 2021 02:02:23 -0800 (PST)
+        bh=GHgs52PMT6uUIxDpX89DS1Pb97XITDMq7XtRSlRACwM=;
+        b=XNBDVmefJQ4bIpvs1bCcBjdw+Vys843EMR9Vk01skfgbk18kftkvR1xKc0ESWp6ghs
+         AcjK6ZcKV3/Esx0lw/DeVgjLL35J+RiouUqjFIO8+Hkyj8LKw65a3f6Cur8/S77M4qVZ
+         LdygnPF0G90WAMeHlahh5bM/l0+QSIAMobx7mlVTLF9ljUzbGoOAvRGE5+qMgrgo2yWv
+         UJuGHFRlXaMidfCo2OixCDvlI8zKicCsRVXHqdqL1E/XgIU+zBA3tDETew9zy7t9H7sP
+         89RemL59oi8nV+FVssNRiqYdUYStXgq3KMb5pzw99fVipUPYKXbO/jUVYS6jbP8KkK8o
+         hMZA==
+X-Gm-Message-State: AOAM530/ISixXj4zcr3Er9l25jFC8ti0SyeAvtZOryAs2UGnDTpHyoEY
+        Jcpbup/+GeOVl1LdlDVUVkgQcCTGxbtOaHdV
+X-Google-Smtp-Source: ABdhPJxgShvN53sqCj5iiExLYVTMw8mo/jpktpjlbA63MPy6rh/XTLOn+uz/+wTiwSkl6JcKZkqxtw==
+X-Received: by 2002:a1c:32c4:: with SMTP id y187mr3044385wmy.120.1612173744903;
+        Mon, 01 Feb 2021 02:02:24 -0800 (PST)
 Received: from dell.default ([91.110.221.188])
-        by smtp.gmail.com with ESMTPSA id p15sm26151387wrt.15.2021.02.01.02.02.22
+        by smtp.gmail.com with ESMTPSA id p15sm26151387wrt.15.2021.02.01.02.02.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 02:02:22 -0800 (PST)
+        Mon, 01 Feb 2021 02:02:24 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
         Ingo Molnar <mingo@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 11/12] futex: Provide distinct return value when owner is exiting
-Date:   Mon,  1 Feb 2021 10:01:42 +0000
-Message-Id: <20210201100143.2028618-12-lee.jones@linaro.org>
+Subject: [PATCH 12/12] futex: Prevent exit livelock
+Date:   Mon,  1 Feb 2021 10:01:43 +0000
+Message-Id: <20210201100143.2028618-13-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210201100143.2028618-1-lee.jones@linaro.org>
 References: <20210201100143.2028618-1-lee.jones@linaro.org>
@@ -68,68 +69,342 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
+commit 3ef240eaff36b8119ac9e2ea17cbf41179c930ba upstream.
 
-attach_to_pi_owner() returns -EAGAIN for various cases:
+Oleg provided the following test case:
 
- - Owner task is exiting
- - Futex value has changed
+int main(void)
+{
+	struct sched_param sp = {};
 
-The caller drops the held locks (hash bucket, mmap_sem) and retries the
-operation. In case of the owner task exiting this can result in a live
-lock.
+	sp.sched_priority = 2;
+	assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
 
-As a preparatory step for seperating those cases, provide a distinct return
-value (EBUSY) for the owner exiting case.
+	int lock = vfork();
+	if (!lock) {
+		sp.sched_priority = 1;
+		assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
+		_exit(0);
+	}
 
-No functional change.
+	syscall(__NR_futex, &lock, FUTEX_LOCK_PI, 0,0,0);
+	return 0;
+}
 
+This creates an unkillable RT process spinning in futex_lock_pi() on a UP
+machine or if the process is affine to a single CPU. The reason is:
+
+ parent	    	    			child
+
+  set FIFO prio 2
+
+  vfork()			->	set FIFO prio 1
+   implies wait_for_child()	 	sched_setscheduler(...)
+ 			   		exit()
+					do_exit()
+ 					....
+					mm_release()
+					  tsk->futex_state = FUTEX_STATE_EXITING;
+					  exit_futex(); (NOOP in this case)
+					  complete() --> wakes parent
+  sys_futex()
+    loop infinite because
+    tsk->futex_state == FUTEX_STATE_EXITING
+
+The same problem can happen just by regular preemption as well:
+
+  task holds futex
+  ...
+  do_exit()
+    tsk->futex_state = FUTEX_STATE_EXITING;
+
+  --> preemption (unrelated wakeup of some other higher prio task, e.g. timer)
+
+  switch_to(other_task)
+
+  return to user
+  sys_futex()
+	loop infinite as above
+
+Just for the fun of it the futex exit cleanup could trigger the wakeup
+itself before the task sets its futex state to DEAD.
+
+To cure this, the handling of the exiting owner is changed so:
+
+   - A refcount is held on the task
+
+   - The task pointer is stored in a caller visible location
+
+   - The caller drops all locks (hash bucket, mmap_sem) and blocks
+     on task::futex_exit_mutex. When the mutex is acquired then
+     the exiting task has completed the cleanup and the state
+     is consistent and can be reevaluated.
+
+This is not a pretty solution, but there is no choice other than returning
+an error code to user space, which would break the state consistency
+guarantee and open another can of problems including regressions.
+
+For stable backports the preparatory commits ac31c7ff8624 .. ba31c1a48538
+are required as well, but for anything older than 5.3.y the backports are
+going to be provided when this hits mainline as the other dependencies for
+those kernels are definitely not stable material.
+
+Fixes: 778e9a9c3e71 ("pi-futex: fix exit races and locking problems")
+Reported-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Ingo Molnar <mingo@kernel.org>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.935606117@linutronix.de
+Cc: Stable Team <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20191106224557.041676471@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- kernel/futex.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/futex.c | 106 ++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 91 insertions(+), 15 deletions(-)
 
 diff --git a/kernel/futex.c b/kernel/futex.c
-index e7798ef3b4b71..cc4590d9fe645 100644
+index cc4590d9fe645..2ef8c5aef35d0 100644
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -1918,12 +1918,13 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
- 			if (!ret)
- 				goto retry;
- 			goto out;
-+		case -EBUSY:
- 		case -EAGAIN:
- 			/*
- 			 * Two reasons for this:
--			 * - Owner is exiting and we just wait for the
-+			 * - EBUSY: Owner is exiting and we just wait for the
- 			 *   exit to complete.
--			 * - The user space value changed.
-+			 * - EAGAIN: The user space value changed.
+@@ -1072,12 +1072,43 @@ static int attach_to_pi_state(u32 uval, struct futex_pi_state *pi_state,
+ 	return 0;
+ }
+ 
++/**
++ * wait_for_owner_exiting - Block until the owner has exited
++ * @exiting:	Pointer to the exiting task
++ *
++ * Caller must hold a refcount on @exiting.
++ */
++static void wait_for_owner_exiting(int ret, struct task_struct *exiting)
++{
++	if (ret != -EBUSY) {
++		WARN_ON_ONCE(exiting);
++		return;
++	}
++
++	if (WARN_ON_ONCE(ret == -EBUSY && !exiting))
++		return;
++
++	mutex_lock(&exiting->futex_exit_mutex);
++	/*
++	 * No point in doing state checking here. If the waiter got here
++	 * while the task was in exec()->exec_futex_release() then it can
++	 * have any FUTEX_STATE_* value when the waiter has acquired the
++	 * mutex. OK, if running, EXITING or DEAD if it reached exit()
++	 * already. Highly unlikely and not a problem. Just one more round
++	 * through the futex maze.
++	 */
++	mutex_unlock(&exiting->futex_exit_mutex);
++
++	put_task_struct(exiting);
++}
++
+ /*
+  * Lookup the task for the TID provided from user space and attach to
+  * it after doing proper sanity checks.
+  */
+ static int attach_to_pi_owner(u32 uval, union futex_key *key,
+-			      struct futex_pi_state **ps)
++			      struct futex_pi_state **ps,
++			      struct task_struct **exiting)
+ {
+ 	pid_t pid = uval & FUTEX_TID_MASK;
+ 	struct futex_pi_state *pi_state;
+@@ -1113,7 +1144,19 @@ static int attach_to_pi_owner(u32 uval, union futex_key *key,
+ 		int ret = (p->futex_state = FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
+ 
+ 		raw_spin_unlock_irq(&p->pi_lock);
+-		put_task_struct(p);
++		/*
++		 * If the owner task is between FUTEX_STATE_EXITING and
++		 * FUTEX_STATE_DEAD then store the task pointer and keep
++		 * the reference on the task struct. The calling code will
++		 * drop all locks, wait for the task to reach
++		 * FUTEX_STATE_DEAD and then drop the refcount. This is
++		 * required to prevent a live lock when the current task
++		 * preempted the exiting task between the two states.
++		 */
++		if (ret == -EBUSY)
++			*exiting = p;
++		else
++			put_task_struct(p);
+ 		return ret;
+ 	}
+ 
+@@ -1144,7 +1187,8 @@ static int attach_to_pi_owner(u32 uval, union futex_key *key,
+ }
+ 
+ static int lookup_pi_state(u32 uval, struct futex_hash_bucket *hb,
+-			   union futex_key *key, struct futex_pi_state **ps)
++			   union futex_key *key, struct futex_pi_state **ps,
++			   struct task_struct **exiting)
+ {
+ 	struct futex_q *match = futex_top_waiter(hb, key);
+ 
+@@ -1159,7 +1203,7 @@ static int lookup_pi_state(u32 uval, struct futex_hash_bucket *hb,
+ 	 * We are the first waiter - try to look up the owner based on
+ 	 * @uval and attach to it.
+ 	 */
+-	return attach_to_pi_owner(uval, key, ps);
++	return attach_to_pi_owner(uval, key, ps, exiting);
+ }
+ 
+ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+@@ -1185,6 +1229,8 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+  *			lookup
+  * @task:		the task to perform the atomic lock work for.  This will
+  *			be "current" except in the case of requeue pi.
++ * @exiting:		Pointer to store the task pointer of the owner task
++ *			which is in the middle of exiting
+  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
+  *
+  * Return:
+@@ -1193,11 +1239,17 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+  * <0 - error
+  *
+  * The hb->lock and futex_key refs shall be held by the caller.
++ *
++ * @exiting is only set when the return value is -EBUSY. If so, this holds
++ * a refcount on the exiting task on return and the caller needs to drop it
++ * after waiting for the exit to complete.
+  */
+ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
+ 				union futex_key *key,
+ 				struct futex_pi_state **ps,
+-				struct task_struct *task, int set_waiters)
++				struct task_struct *task,
++				struct task_struct **exiting,
++				int set_waiters)
+ {
+ 	u32 uval, newval, vpid = task_pid_vnr(task);
+ 	struct futex_q *match;
+@@ -1267,7 +1319,7 @@ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
+ 	 * attach to the owner. If that fails, no harm done, we only
+ 	 * set the FUTEX_WAITERS bit in the user space variable.
+ 	 */
+-	return attach_to_pi_owner(uval, key, ps);
++	return attach_to_pi_owner(uval, key, ps, exiting);
+ }
+ 
+ /**
+@@ -1693,6 +1745,8 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
+  * @key1:		the from futex key
+  * @key2:		the to futex key
+  * @ps:			address to store the pi_state pointer
++ * @exiting:		Pointer to store the task pointer of the owner task
++ *			which is in the middle of exiting
+  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
+  *
+  * Try and get the lock on behalf of the top waiter if we can do it atomically.
+@@ -1700,16 +1754,20 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
+  * then direct futex_lock_pi_atomic() to force setting the FUTEX_WAITERS bit.
+  * hb1 and hb2 must be held by the caller.
+  *
++ * @exiting is only set when the return value is -EBUSY. If so, this holds
++ * a refcount on the exiting task on return and the caller needs to drop it
++ * after waiting for the exit to complete.
++ *
+  * Return:
+  *  0 - failed to acquire the lock atomically;
+  * >0 - acquired the lock, return value is vpid of the top_waiter
+  * <0 - error
+  */
+-static int futex_proxy_trylock_atomic(u32 __user *pifutex,
+-				 struct futex_hash_bucket *hb1,
+-				 struct futex_hash_bucket *hb2,
+-				 union futex_key *key1, union futex_key *key2,
+-				 struct futex_pi_state **ps, int set_waiters)
++static int
++futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
++			   struct futex_hash_bucket *hb2, union futex_key *key1,
++			   union futex_key *key2, struct futex_pi_state **ps,
++			   struct task_struct **exiting, int set_waiters)
+ {
+ 	struct futex_q *top_waiter = NULL;
+ 	u32 curval;
+@@ -1746,7 +1804,7 @@ static int futex_proxy_trylock_atomic(u32 __user *pifutex,
+ 	 */
+ 	vpid = task_pid_vnr(top_waiter->task);
+ 	ret = futex_lock_pi_atomic(pifutex, hb2, key2, ps, top_waiter->task,
+-				   set_waiters);
++				   exiting, set_waiters);
+ 	if (ret == 1) {
+ 		requeue_pi_wake_futex(top_waiter, key2, hb2);
+ 		return vpid;
+@@ -1866,6 +1924,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
+ 	}
+ 
+ 	if (requeue_pi && (task_count - nr_wake < nr_requeue)) {
++		struct task_struct *exiting = NULL;
++
+ 		/*
+ 		 * Attempt to acquire uaddr2 and wake the top waiter. If we
+ 		 * intend to requeue waiters, force setting the FUTEX_WAITERS
+@@ -1873,7 +1933,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
+ 		 * faults rather in the requeue loop below.
+ 		 */
+ 		ret = futex_proxy_trylock_atomic(uaddr2, hb1, hb2, &key1,
+-						 &key2, &pi_state, nr_requeue);
++						 &key2, &pi_state,
++						 &exiting, nr_requeue);
+ 
+ 		/*
+ 		 * At this point the top_waiter has either taken uaddr2 or is
+@@ -1900,7 +1961,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
+ 			 * If that call succeeds then we have pi_state and an
+ 			 * initial refcount on it.
  			 */
- 			double_unlock_hb(hb1, hb2);
+-			ret = lookup_pi_state(ret, hb2, &key2, &pi_state);
++			ret = lookup_pi_state(ret, hb2, &key2,
++					      &pi_state, &exiting);
+ 		}
+ 
+ 		switch (ret) {
+@@ -1930,6 +1992,12 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
  			hb_waiters_dec(hb2);
-@@ -2615,12 +2616,13 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
- 			goto out_unlock_put_key;
- 		case -EFAULT:
- 			goto uaddr_faulted;
-+		case -EBUSY:
- 		case -EAGAIN:
- 			/*
- 			 * Two reasons for this:
--			 * - Task is exiting and we just wait for the
-+			 * - EBUSY: Task is exiting and we just wait for the
- 			 *   exit to complete.
--			 * - The user space value changed.
-+			 * - EAGAIN: The user space value changed.
+ 			put_futex_key(&key2);
+ 			put_futex_key(&key1);
++			/*
++			 * Handle the case where the owner is in the middle of
++			 * exiting. Wait for the exit to complete otherwise
++			 * this task might loop forever, aka. live lock.
++			 */
++			wait_for_owner_exiting(ret, exiting);
+ 			cond_resched();
+ 			goto retry;
+ 		default:
+@@ -2580,6 +2648,7 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
+ 			 ktime_t *time, int trylock)
+ {
+ 	struct hrtimer_sleeper timeout, *to = NULL;
++	struct task_struct *exiting = NULL;
+ 	struct futex_hash_bucket *hb;
+ 	struct futex_q q = futex_q_init;
+ 	int res, ret;
+@@ -2603,7 +2672,8 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
+ retry_private:
+ 	hb = queue_lock(&q);
+ 
+-	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current, 0);
++	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current,
++				   &exiting, 0);
+ 	if (unlikely(ret)) {
+ 		/*
+ 		 * Atomic work succeeded and we got the lock,
+@@ -2626,6 +2696,12 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
  			 */
  			queue_unlock(hb);
  			put_futex_key(&q.key);
++			/*
++			 * Handle the case where the owner is in the middle of
++			 * exiting. Wait for the exit to complete otherwise
++			 * this task might loop forever, aka. live lock.
++			 */
++			wait_for_owner_exiting(ret, exiting);
+ 			cond_resched();
+ 			goto retry;
+ 		default:
 -- 
 2.25.1
 
