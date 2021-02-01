@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C69AC30A7C8
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 13:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A27630A7DA
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 13:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230016AbhBAMjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 07:39:43 -0500
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:46049 "EHLO
+        id S230527AbhBAMml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 07:42:41 -0500
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:55465 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231419AbhBAMjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 07:39:41 -0500
+        by vger.kernel.org with ESMTP id S231378AbhBAMmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 07:42:39 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id DCB356B7;
-        Mon,  1 Feb 2021 07:38:33 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Feb 2021 07:38:34 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 71CCB30B;
+        Mon,  1 Feb 2021 07:41:33 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Feb 2021 07:41:33 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZL5cmb
-        2c6mD4nWBShTBucWM2EH0UPzFRhYTg70pKSsM=; b=GIdFpqgZux9n8OZCfUPn6+
-        uPxDTiXgFfyJikzp0fhRTvwwfADC5F2NcMmCRbZOCHQHg98BO7LDkEkpGNSuLpL5
-        QLVLD3P9xN66VrjBx7FCz4MVUzFly6O8qbyeHMw6O+grxLvwcI9060QUFDm1N8cC
-        RKanJGg3Hev+gZzMQ5ceZOvez2KrjjV4MuGjRJ3noVxNZuNJvlyaFv1JiTVY+ESx
-        HKxiTcLC53+23JWd1yoviYQT9LvFYfgIsvQjME27ACJ7QIW4TIM0b14BVwL5IopI
-        4Ri8e+HPVu9XqMT+HnXgoT2r6d2VAC09BzFpfjfsEoKVqAyFLfDT9D26upO6p0ZA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=10vbjE
+        Fu5Jfjd4rJPgLm4l6UIY3ioy1ikHg8FCmiBwc=; b=nB9tpLx/wGWVvg2bgj7Dzt
+        XEGqQchAik/Wa8qnrQsuU2pL/Ud5B7tPfURGM7jjQm6+l0kYduM0qPiA3Kp+3GCE
+        ytFPXV9GftBpeGJhoSTAQGz6NDIyKzYS5rx6HN+PyrVhtxZ7I+dA6A2cdW1mBQXY
+        WFGvS89VTJz7bZSxGvlwHWx2+WO7Xa/9PX7rm8rYQGO/04F1ayzotNjFpqGL/cII
+        80l7c4+TbNNZ5Ij38q+pS1wdqax/zjiSWQdzp8+erLwBQ+dXvETuTtuSlidPRc2i
+        1ZAcKzPrR5KR3QnbuYAx3ahmgorQdn0/cREZ5mn8gp8+BISvs/W23I9HeotZKu9Q
         ==
-X-ME-Sender: <xms:SfYXYH1r9JqmOJ9zcCJ1ihXVwgr_cleZagUgGDPSsaCXTCX6IvfWJg>
-    <xme:SfYXYGEu1ld5C2RY9El8FuLQQtF_HfxP11hTzlVYdTY9RXRJFZ1Ke87O8UooC9MOa
-    QQYMUpDitYAcg>
+X-ME-Sender: <xms:_PYXYLh27C7YbT7gfWNmmIAJvp8SGxH4cDYuV2_h7WWrZrX0XA6Kcw>
+    <xme:_PYXYID47baiNJCBVI4WhXNRNdA2dLMIGth7XpqlNjE_8SFp8m3iD9lbD_2YmccA-
+    G8jJkmQC2hVxA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeekgdegvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:SfYXYH49qar8FOFVSdpcBhB8Kj6_CZbOjwudabnILh-DzshFZoDXsw>
-    <xmx:SfYXYM3OWfAhZU0xFNKoTHhv0jf8rTRSWaBeD_5mowSt1IWeBchcSw>
-    <xmx:SfYXYKH_SK2ZvrU8tkPDgcnWwG1xzQ-nkOYHC2Oa-C_5QVKydmGOMw>
-    <xmx:SfYXYMMG_RRWgxZwzCBdEShHKDjDpNqnMW3UQ_eFtfwkkV52n3gn26KZ0GQ>
+X-ME-Proxy: <xmx:_PYXYLEm9r21-fN86fMgfKbAxNNPvDSfM6tpjbdNOXHGw6pCompK4Q>
+    <xmx:_PYXYITroHZtt_OfwqOVieK_zhLkVUzvl32tgdjVQ8c_M98EH0KszA>
+    <xmx:_PYXYIyjEOi53le6AJi3Q_w0u3cuFFHIaxXrPZX7aS8l7WhDC7ZM8w>
+    <xmx:_fYXYFpjcF45YI8TJnInOJZxrLOrg0YtvsEgDEzeL5d3R4jl8ZJZpYwhbz4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2D1D81080063;
-        Mon,  1 Feb 2021 07:38:33 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: fix possible free space tree corruption with online" failed to apply to 4.9-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5D391240062;
+        Mon,  1 Feb 2021 07:41:32 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: Forbid the use of tagged userspace addresses for" failed to apply to 5.4-stable tree
+To:     maz@kernel.org, catalin.marinas@arm.com, rick.p.edgecombe@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Feb 2021 13:38:23 +0100
-Message-ID: <1612183103119@kroah.com>
+Date:   Mon, 01 Feb 2021 13:41:29 +0100
+Message-ID: <16121832895919@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,107 +70,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2f96e40212d435b328459ba6b3956395eed8fa9f Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 15 Jan 2021 16:26:17 -0500
-Subject: [PATCH] btrfs: fix possible free space tree corruption with online
- conversion
+From 139bc8a6146d92822c866cf2fd410159c56b3648 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Thu, 21 Jan 2021 12:08:15 +0000
+Subject: [PATCH] KVM: Forbid the use of tagged userspace addresses for
+ memslots
 
-While running btrfs/011 in a loop I would often ASSERT() while trying to
-add a new free space entry that already existed, or get an EEXIST while
-adding a new block to the extent tree, which is another indication of
-double allocation.
+The use of a tagged address could be pretty confusing for the
+whole memslot infrastructure as well as the MMU notifiers.
 
-This occurs because when we do the free space tree population, we create
-the new root and then populate the tree and commit the transaction.
-The problem is when you create a new root, the root node and commit root
-node are the same.  During this initial transaction commit we will run
-all of the delayed refs that were paused during the free space tree
-generation, and thus begin to cache block groups.  While caching block
-groups the caching thread will be reading from the main root for the
-free space tree, so as we make allocations we'll be changing the free
-space tree, which can cause us to add the same range twice which results
-in either the ASSERT(ret != -EEXIST); in __btrfs_add_free_space, or in a
-variety of different errors when running delayed refs because of a
-double allocation.
+Forbid it altogether, as it never quite worked the first place.
 
-Fix this by marking the fs_info as unsafe to load the free space tree,
-and fall back on the old slow method.  We could be smarter than this,
-for example caching the block group while we're populating the free
-space tree, but since this is a serious problem I've opted for the
-simplest solution.
+Cc: stable@vger.kernel.org
+Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 
-CC: stable@vger.kernel.org # 4.9+
-Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 0886e81e5540..48ebc106a606 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -673,7 +673,15 @@ static noinline void caching_thread(struct btrfs_work *work)
- 		wake_up(&caching_ctl->wait);
- 	}
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 4e5316ed10e9..c347b7083abf 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -1269,6 +1269,9 @@ field userspace_addr, which must point at user addressable memory for
+ the entire memory slot size.  Any object may back this memory, including
+ anonymous memory, ordinary files, and hugetlbfs.
  
--	if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE))
-+	/*
-+	 * If we are in the transaction that populated the free space tree we
-+	 * can't actually cache from the free space tree as our commit root and
-+	 * real root are the same, so we could change the contents of the blocks
-+	 * while caching.  Instead do the slow caching in this case, and after
-+	 * the transaction has committed we will be safe.
-+	 */
-+	if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
-+	    !(test_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags)))
- 		ret = load_free_space_tree(caching_ctl);
- 	else
- 		ret = load_extent_tree_free(caching_ctl);
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 0225c5208f44..47ca8edafb5e 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -564,6 +564,9 @@ enum {
- 
- 	/* Indicate that we need to cleanup space cache v1 */
- 	BTRFS_FS_CLEANUP_SPACE_CACHE_V1,
++On architectures that support a form of address tagging, userspace_addr must
++be an untagged address.
 +
-+	/* Indicate that we can't trust the free space tree for caching yet */
-+	BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
- };
- 
- /*
-diff --git a/fs/btrfs/free-space-tree.c b/fs/btrfs/free-space-tree.c
-index e33a65bd9a0c..a33bca94d133 100644
---- a/fs/btrfs/free-space-tree.c
-+++ b/fs/btrfs/free-space-tree.c
-@@ -1150,6 +1150,7 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
- 		return PTR_ERR(trans);
- 
- 	set_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	set_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
- 	free_space_root = btrfs_create_tree(trans,
- 					    BTRFS_FREE_SPACE_TREE_OBJECTID);
- 	if (IS_ERR(free_space_root)) {
-@@ -1171,11 +1172,18 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
- 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE);
- 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
- 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	ret = btrfs_commit_transaction(trans);
- 
--	return btrfs_commit_transaction(trans);
-+	/*
-+	 * Now that we've committed the transaction any reading of our commit
-+	 * root will be safe, so we can cache from the free space tree now.
-+	 */
-+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
-+	return ret;
- 
- abort:
- 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
- 	btrfs_abort_transaction(trans, ret);
- 	btrfs_end_transaction(trans);
- 	return ret;
+ It is recommended that the lower 21 bits of guest_phys_addr and userspace_addr
+ be identical.  This allows large pages in the guest to be backed by large
+ pages in the host.
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2541a17ff1c4..a9abaf5f8e53 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1290,6 +1290,7 @@ int __kvm_set_memory_region(struct kvm *kvm,
+ 		return -EINVAL;
+ 	/* We can read the guest memory with __xxx_user() later on. */
+ 	if ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
++	    (mem->userspace_addr != untagged_addr(mem->userspace_addr)) ||
+ 	     !access_ok((void __user *)(unsigned long)mem->userspace_addr,
+ 			mem->memory_size))
+ 		return -EINVAL;
 
