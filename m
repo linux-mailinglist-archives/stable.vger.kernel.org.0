@@ -2,71 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D46E530A823
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 13:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3DF30A85F
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 14:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbhBAM45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 07:56:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231860AbhBAM4z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 07:56:55 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AC0C061756
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 04:56:14 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id s15so9925009plr.9
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 04:56:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=CseN3BiBpJYn6k+hUUx2TxuA3gS6VM1QHXLDLxQNUzc=;
-        b=FOIycfXMLY7O0W9UOJNSaj5i4oQZEwCEOp7Pv+d0oZ7T5/UamqgHJ1kG6G6MZQWVKb
-         HFTluL/DYjXszmyzkC/Ubdb5IwZ1fiZaDHZD6jnc104nSOd9apyXlerGGj57tyVfL4Ba
-         c3peRH0BC5TmkldOINi1fSLFccXIjn7QLipl3by+SkomGBASqtSGTyfZvvA42FA0esuw
-         rJNL3HE3yuGKwUpQ6uXe3S5a3sktQ9dMFiObWNh+HVxBjJ0rk81HiLWkVQZk8CYQsTrQ
-         C6wOpwRzpCCpZNCa/Ss4CTJjL4AApBlHqJnVTK1PDOU3VhL8Ff8CDP8y1mtW2YhIlnT7
-         WqiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=CseN3BiBpJYn6k+hUUx2TxuA3gS6VM1QHXLDLxQNUzc=;
-        b=nyfVt4TL5Dw47e3HXVgNOeWCZY4LZNkS83XRCcXgLIgmejUbZhAeUaQkyeQTkGEgE2
-         VgAYAgrmxIkdXNmJsvYDAnqeLA5XQ3RWvwD6rPn/byY09g30xEtQ8pOXAt2LMDOu3ww9
-         J3C0VrmHX1JbyDap7VWX+skceVvJgBDqc5m0fY/AFHVPuzAMuTUu8MVcNx4NOZBlLc8F
-         9PlBK7KgRad1ZNxV4zQwP8e4eNoetLTlEjfvoqBxne/oCGkio6LmOI+lMywvAefC9GSv
-         U6Rfo6SArH+OLd1g5l+smp4+/c0zQfUtQgimmv15Rwl7+3qSLYR0oCqa9dN48IkVf8Sz
-         PY1A==
-X-Gm-Message-State: AOAM533ljnggDVB77SGys9Mp3S+G48SEVfimrPA6co1WIcuv+UVCPZSy
-        5OO7pccafFB4sNi/PSX0q0OUzrNK/G+ksI3/Z1ch2iHFdyQ=
-X-Google-Smtp-Source: ABdhPJzctu9TTuCfccRTqCO28JaQEbrry8fLcCUxAACQ6aklgZTUmDU35n9+M5uaGRLRqyedtQUrxvcFzHCTo5MJJa4=
-X-Received: by 2002:a17:90a:5a86:: with SMTP id n6mr17776966pji.65.1612184174248;
- Mon, 01 Feb 2021 04:56:14 -0800 (PST)
+        id S231634AbhBANLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 08:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41480 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231493AbhBANLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Feb 2021 08:11:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAD7564E2A;
+        Mon,  1 Feb 2021 13:11:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612185063;
+        bh=SeRCWceqMEpV2k1XeIN7lrInw79gIgCXNXF7J99PbwM=;
+        h=Subject:To:From:Date:From;
+        b=srYbqlVKFsQ+VvNQxzQZ+y7z13m+jXQzwGvvNPPUlsFlut1E0cdcwh6LMEVFas41q
+         zEjWlhfDOd+75sE3ssN0/tu8WhXYKaYpGiOTwDWhsil/VNOmfl3xG58fhWhXnFod1V
+         OEbk3Oh14wnkGopf+x16bPqZFn/ps+TJCvAC8f8c=
+Subject: patch "usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()" added to usb-linus
+To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tho.vu.wh@renesas.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 01 Feb 2021 14:11:00 +0100
+Message-ID: <161218506023719@kroah.com>
 MIME-Version: 1.0
-Reply-To: paulwagne7@gmail.com
-Sender: ibrahimamed160@gmail.com
-Received: by 2002:a05:6a10:24cb:0:0:0:0 with HTTP; Mon, 1 Feb 2021 04:56:13
- -0800 (PST)
-From:   Paul Wagner <pw9076424@gmail.com>
-Date:   Mon, 1 Feb 2021 13:56:13 +0100
-X-Google-Sender-Auth: J7YUPZNtPBXGxMt-uD1h-KOrwR4
-Message-ID: <CA+g-cimanQOnM2_2TfkLigwiVPTf9xQCMx0NbaeNLVfcEbH8Ng@mail.gmail.com>
-Subject: =?UTF-8?B?U2Now7ZuZW4gVGFn?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo,
 
-Mein Name ist Paul Wagner, ein Familienanwalt des verstorbenen Herrn
-Thomas. Ich habe einen Vorschlag f=C3=BCr Sie bez=C3=BCglich meines verstor=
-benen
-Mandanten Thomas . Bitte schreiben Sie mir f=C3=BCr weitere Einzelheiten
-zur=C3=BCck.
+This is a note to let you know that I've just added the patch titled
 
-Gr=C3=BC=C3=9Fe
-Paul Wagner
+    usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 9917f0e3cdba7b9f1a23f70e3f70b1a106be54a8 Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Mon, 1 Feb 2021 21:47:20 +0900
+Subject: usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()
+
+Should clear the pipe running flag in usbhs_pkt_pop(). Otherwise,
+we cannot use this pipe after dequeue was called while the pipe was
+running.
+
+Fixes: 8355b2b3082d ("usb: renesas_usbhs: fix the behavior of some usbhs_pkt_handle")
+Reported-by: Tho Vu <tho.vu.wh@renesas.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1612183640-8898-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/renesas_usbhs/fifo.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/renesas_usbhs/fifo.c b/drivers/usb/renesas_usbhs/fifo.c
+index ac9a81ae8216..e6fa13701808 100644
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -126,6 +126,7 @@ struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
+ 		}
+ 
+ 		usbhs_pipe_clear_without_sequence(pipe, 0, 0);
++		usbhs_pipe_running(pipe, 0);
+ 
+ 		__usbhsf_pkt_del(pkt);
+ 	}
+-- 
+2.30.0
+
+
