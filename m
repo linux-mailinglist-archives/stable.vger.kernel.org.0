@@ -2,192 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8AC330A936
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 14:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F0130A959
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 15:08:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232431AbhBAN7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 08:59:03 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:56529 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232042AbhBAN7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 08:59:02 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 28F8972F;
-        Mon,  1 Feb 2021 08:57:55 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Feb 2021 08:57:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=LXmNda8rIzqHWjVV8O1/US9WzhM
-        iddP+KCPS75wqqRM=; b=mZZWY+M7ry2daYTemu8RwX+RQBCD8PEtp43R6TZcjw4
-        4/TuMFAQdRzBcIocXLNdqL/XTSdCw5y6TZKPu/6MaiZ+2NGj5c/LW4csgFwkGH/5
-        TV9jSRsvlOmpR3qhj2ka+Ts464XaNlHs8rRkgWuQ++xHQcLPeHrvH62gPJz5+D4Z
-        ZcxeXC/nysYQFdQTS0XuaEuI0S+uc8mJgO9+xg1mBT+B+Kxzmb4HjG9VDwlp2s9e
-        dci9bSkmBfCqEYXGBnc9eie711CZkzMQjsCdvtvWNIdgTlRKVxHO7lG/DyXie/y2
-        UHntKpjcVK0AGtlBu0GA23JM443TNxijrbVAcVgxgFQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=LXmNda
-        8rIzqHWjVV8O1/US9WzhMiddP+KCPS75wqqRM=; b=m59QPJk9a1Wks6OTK3BTYV
-        dXhoUj4nUMKNEzrTDhIjW0aVBrOiZC9wVnDpE76Tn3me+o5BFV+UynkdTKAPRFln
-        tgtI0rYo0Hvpxq73YMSLLv9q8fg/Ayy66CYKRa4kpx7ADhEqhtKDklqVC3ysqbTN
-        fhhe1Gw57ymGUcwDIhrVODFcwfFbqINCZqZJWL/hBIGrJwu35J23B8/uSRIgeA4g
-        j1voE+Tpwdh3s5we6P859XoGeUjnuKS4NlgL+E2NeL2eWJayWhxiqLsmMfiolZ+6
-        sZqbgIYweIRo+xJBD3fi5+cwv0dbNC555LYiEmbWGmHO7iq5hcHUVC+k6lOa/Qiw
-        ==
-X-ME-Sender: <xms:4QgYYJmQgViESo4Cz1XW6xdHcWuDNzdbijb57EMG1IpMIN_JPYgW2w>
-    <xme:4QgYYE0jFlpy9fbTodCKyPFayw3PwE9E_-t2mMDqYMydQGdUUlBEHQg7UtpXOto7d
-    pBK4vvHxmClKA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeekgdehkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnheplefhfeeuvd
-    eltdefgeetjeehtedvhfekleefveelhefhhfeigedtueevgfeiffdunecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghdprhgvughhrghtrdgtohhmnecukfhppeekfedrkeeirdejge
-    drieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:4QgYYPqNgIdscAPM5vlPS9Ha4ZYpnqQLYGYNe5R2BPwFQui1EKkzIQ>
-    <xmx:4QgYYJl7piScJDuwTM3kpEuziWYnJMu3RdaNi0JCAEMHhnV4_nWW2w>
-    <xmx:4QgYYH3aPQl2JhtuMvFo9fBxO-l_0mgt2Gsvdcol-UFIOfVPY416Sw>
-    <xmx:4ggYYMkaM92e6IJmKt_xT6jRKmMyUUHOZd7BRAHpAlcYmuHfMJtlxA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5B618240062;
-        Mon,  1 Feb 2021 08:57:53 -0500 (EST)
-Date:   Mon, 1 Feb 2021 14:57:43 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Erich Ritz <erich.public@protonmail.com>
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Michael Catanzaro <mcatanzaro@redhat.com>,
-        "N, Harshapriya" <harshapriya.n@intel.com>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kai.vehmanen@intel.com" <kai.vehmanen@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [REGRESSION] "ALSA: HDA: Early Forbid of runtime PM" broke my
- laptop's internal audio
-Message-ID: <YBgI13zSojWDp2Zr@kroah.com>
-References: <EM1ONQ.OL5CFJTBEBBW@redhat.com>
- <BY5PR11MB430713319F12454CF71A1E73FDB99@BY5PR11MB4307.namprd11.prod.outlook.com>
- <U3BPNQ.P8Q6LYEGXHB5@redhat.com>
- <s5hsg6jlr4q.wl-tiwai@suse.de>
- <9ACPNQ.AF32G3OJNPHA3@redhat.com>
- <IECPNQ.0TZXZXWOZX8L2@redhat.com>
- <8CEPNQ.GAG87LR8RI871@redhat.com>
- <s5hft2jlnt4.wl-tiwai@suse.de>
- <CJr5txskJyVLQIDd7L6WNNMBMJ3eQEltNH7Y_yJ_r2X8aflHnfGHT9_Mpuznx8iDgfAu03gs9aIqVO7gXbRp4WCL--tXZAUajwyo_Eet5Os=@protonmail.com>
+        id S231916AbhBAOHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 09:07:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231511AbhBAOHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Feb 2021 09:07:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ED6764EA1;
+        Mon,  1 Feb 2021 14:06:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612188377;
+        bh=tQ4WmAzlyE4k3CyxrsslSldFLnH7v9mWZ6r3RsrN92o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UL5SEVGET2SxXOjmGMFgkjoD6BYDZRygtnBjTNJu8V+/pemWyIGsJvG9bgE7KLyje
+         Lj0fREqDV8/aSZzmEAC740HLoqXoVG8YqsDmdtGjgNYIh4bifIIX4bgm9L2Vgn6Qf/
+         skfj+H8rithoJoc6YyhJjD5NsHlPBaL1DNXlpEOI3++atJAMJ/RAF4wjCfZWEiyizL
+         b3v4OtZj7m63wkIDoMx+H025TmfyvnDFwsqtqVWV8MWE793bhKAI75OWUW/xLAwoFI
+         +7e+KAO1E4+vH6oUMtql/UMjfj+ECQfyOhDT3uXO8MgZzW6B1/vWG//Ibrwenv7RS0
+         RycHCDmybViNw==
+Date:   Mon, 1 Feb 2021 16:06:05 +0200
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Hildenbrand <david@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>, stable <stable@vger.kernel.org>,
+        the arch/x86 maintainers <x86@kernel.org>
+Subject: Re: [PATCH v4 1/2] x86/setup: always add the beginning of RAM as
+ memblock.memory
+Message-ID: <20210201140605.GG242749@kernel.org>
+References: <20210130221035.4169-1-rppt@kernel.org>
+ <20210130221035.4169-2-rppt@kernel.org>
+ <CAHk-=wjJLdjqN2W_hwUmYCM8u=1tWnKsm46CYfdKPP__anGvJw@mail.gmail.com>
+ <20210131080356.GE242749@kernel.org>
+ <CAHk-=wg-qT41Q1WgPUZPC9UmCi6xquk1KE3_yvxORbmDV3os0g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CJr5txskJyVLQIDd7L6WNNMBMJ3eQEltNH7Y_yJ_r2X8aflHnfGHT9_Mpuznx8iDgfAu03gs9aIqVO7gXbRp4WCL--tXZAUajwyo_Eet5Os=@protonmail.com>
+In-Reply-To: <CAHk-=wg-qT41Q1WgPUZPC9UmCi6xquk1KE3_yvxORbmDV3os0g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 04:24:51AM +0000, Erich Ritz wrote:
-> On Friday, January 29, 2021 9:17 AM, Takashi Iwai <tiwai@suse.de> wrote:
-> 
-> > On Fri, 29 Jan 2021 17:12:08 +0100,
-> > Michael Catanzaro wrote:
+On Sun, Jan 31, 2021 at 01:49:27PM -0800, Linus Torvalds wrote:
+> On Sun, Jan 31, 2021 at 12:04 AM Mike Rapoport <rppt@kernel.org> wrote:
 > >
-> > > On Fri, Jan 29, 2021 at 9:30 am, Michael Catanzaro
-> > > mcatanzaro@redhat.com wrote:
 > > >
-> > > > OK, I found "ALSA: hda/via: Apply the workaround generically for
-> > > > Clevo machines" which was just merged yesterday. So I will test
-> > > > again to find out.
-> > >
-> > > Hi Takashi, hi Harsha,
-> > > I can confirm that the problem is fixed by this commit:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4961167bf7482944ca09a6f71263b9e47f949851
+> > > That's *particularly* true when the very line above it did a
+> > > "memblock_reserve()" of the exact same range that the memblock_add()
+> > > "adds".
 > >
-> > Thanks, good to hear.
+> > The most correct thing to do would have been to
 > >
-> > Then I think we can drop the entry from power_save_denylist in
-> > hda_intel.c. Could you try that it still works with the patch below?
+> >         memblock_add(0, end_of_first_memory_bank);
 > >
-> > thanks,
-> >
-> > Takashi
-> >
-> > --- a/sound/pci/hda/hda_intel.c
-> > +++ b/sound/pci/hda/hda_intel.c
-> > @@ -2217,8 +2217,6 @@ static const struct snd_pci_quirk power_save_denylist[] = {
-> > /* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 /
-> > SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
-> > / https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
-> >
-> > -   SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
-> > -   /* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 /
-> >     SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
-> >     / https://bugzilla.redhat.com/show_bug.cgi?id=1525104 /
-> >     / Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA dev */
+> > Somewhere at e820__memblock_setup().
 > 
-> For me applying patch 4961167bf7482944ca09a6f71263b9e47f949851 on top of 5.10.12 fixes audio, but the above quoted patch applied to 5.10.12 does NOT fix audio.  What I mean by fixes:
-> Audio works normally on 5.4.94, and on 5.10.12 with patch 4961167 applied.
-> I hear no audio from the laptop speakers on 5.10.12 and 5.10.12 with the above quoted patch applied.  Opening pavucontrol shows a graphical response in the meter, but no audio is heard from the speakers.  I did not test plugging in headphones and did not test audio over HDMI.
+> You miss my complaint.
 > 
-> I have a System76 Gazelle Pro 7 (gazp7).
+> Why does the memblock code care about this magical "memblock_add()",
+> when we just told it that the SAME REGION is reserved by doing a
+> "memblock_reserve()"?
 > 
-> # lspci -s "00:1b" -vv
-> 00:1b.0 Audio device: Intel Corporation 7 Series/C210 Series Chipset Family High Definition Audio Controller (rev 04)
->         Subsystem: CLEVO/KAPOK Computer 7 Series/C210 Series Chipset Family High Definition Audio Controller
->         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx+
->         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
->         Latency: 0, Cache Line Size: 64 bytes
->         Interrupt: pin A routed to IRQ 36
->         Region 0: Memory at f7e10000 (64-bit, non-prefetchable) [size=16K]
->         Capabilities: [50] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
->                 Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->         Capabilities: [60] MSI: Enable+ Count=1/1 Maskable- 64bit+
->                 Address: 00000000fee003b8  Data: 0000
->         Capabilities: [70] Express (v1) Root Complex Integrated Endpoint, MSI 00
->                 DevCap: MaxPayload 128 bytes, PhantFunc 0
->                         ExtTag- RBE-
->                 DevCtl: Report errors: Correctable- Non-Fatal- Fatal- Unsupported-
->                         RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
->                         MaxPayload 128 bytes, MaxReadReq 128 bytes
->                 DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+ TransPend-
->         Capabilities: [100 v1] Virtual Channel
->                 Caps:   LPEVC=0 RefClk=100ns PATEntryBits=1
->                 Arb:    Fixed- WRR32- WRR64- WRR128-
->                 Ctrl:   ArbSelect=Fixed
->                 Status: InProgress-
->                 VC0:    Caps:   PATOffset=00 MaxTimeSlots=1 RejSnoopTrans-
->                         Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
->                         Ctrl:   Enable+ ID=0 ArbSelect=Fixed TC/VC=01
->                         Status: NegoPending- InProgress-
->                 VC1:    Caps:   PATOffset=00 MaxTimeSlots=1 RejSnoopTrans-
->                         Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
->                         Ctrl:   Enable+ ID=1 ArbSelect=Fixed TC/VC=22
->                         Status: NegoPending- InProgress-
->         Capabilities: [130 v1] Root Complex Link
->                 Desc:   PortNumber=0f ComponentID=00 EltType=Config
->                 Link0:  Desc:   TargetPort=00 TargetComponent=00 AssocRCRB- LinkType=MemMapped LinkValid+
->                         Addr:   00000000fed1c000
->         Kernel driver in use: snd_hda_intel
->         Kernel modules: snd_hda_intel
+> IOW, I'm not interested in "the correct thing to do would have been
+> [another memblock_add()]". I'm saying that the memblock code itself is
+> being confused, and no additional thing should have been required at
+> all, because we already *did* that memblock_reserve().
 > 
-> And on kernel 5.4.94:
-> # dmesg | grep hda
-> [   21.307684] snd_hda_intel 0000:00:1b.0: bound 0000:00:02.0 (ops i915_audio_component_bind_ops [i915])
-> [   21.493303] snd_hda_codec_via hdaudioC0D0: autoconfig for VT1802: line_outs=1 (0x24/0x0/0x0/0x0/0x0) type:speaker
-> [   21.493306] snd_hda_codec_via hdaudioC0D0:    speaker_outs=0 (0x0/0x0/0x0/0x0/0x0)
-> [   21.493309] snd_hda_codec_via hdaudioC0D0:    hp_outs=1 (0x25/0x0/0x0/0x0/0x0)
-> [   21.493310] snd_hda_codec_via hdaudioC0D0:    mono: mono_out=0x0
-> [   21.493312] snd_hda_codec_via hdaudioC0D0:    inputs:
-> [   21.493315] snd_hda_codec_via hdaudioC0D0:      Mic=0x2b
-> [   21.493317] snd_hda_codec_via hdaudioC0D0:      Internal Mic=0x29
-> 
-> 
-> Apologies if this is noise.  I haven't been able to find if 4961167bf7482944ca09a6f71263b9e47f949851 is queued up for the next stable release of 5.10.
+> See?
 
-It will be in the next 5.10.y release.
+There is nothing magical about memblock_add().
 
-thanks,
+Memblock presumes that arch code uses memblock_add() to register populated
+physical memory ranges and memblock_reserve() to protect memory ranges that
+should not be touched. These ranges do not necessarily overlap, so there
+maybe reserved ranges that do not have the corresponding registered memory.
 
-greg k-h
+This lets architectures to say "here are the memory banks I have" and "this
+memory is in use" (or even "this memory _might_ be in use" ) independently
+of each other.
+
+The downside is that if there is a reserved range there is no way to tell
+whether it is backed by populated memory.
+
+We could change this semantics and enforce the overlap, e.g. by
+implicitly adding all the reserved ranges to the registered memory.
+I've already tried that and I've found out that there are systems that rely
+on memblock's ability to track reserved and available ranges independently.
+For example, arm systems I've mentioned in the previous mail always have a
+reserved chunk at 0xfe000000 in their DTS, but they may have only 2G of
+memory actually populated. 
+
+Now, on x86 there is a gap between e820 and memblock since 2.6 times. As of
+now, only E820_TYPE_RAM is added to memblock as memory, some of the
+E820_*_RESERVED are reserved and on top there are reservations of the
+memory that's known to be used by BIOS or kernel.
+
+I'm trying to close this gap with small steps and with changes that I
+believe will not break too many things at once so it'll become
+unmanageable.
+
+> Honestly, I'm not seeing it being a good thing to move further towards
+> memblock code as the primary model for memory initialization, when the
+> memblock code is so confused.
+
+I'm not sure I follow you here.
+If I'm not mistaken, memblock is used as the primary model for memmap and
+page allocator initialization for almost a decade now...
+ 
+>               Linus
+
+-- 
+Sincerely yours,
+Mike.
