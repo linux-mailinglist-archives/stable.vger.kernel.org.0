@@ -2,92 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F71A30ACD2
-	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 17:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 478E930ACF9
+	for <lists+stable@lfdr.de>; Mon,  1 Feb 2021 17:49:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231260AbhBAQjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Feb 2021 11:39:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56536 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231186AbhBAQjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Feb 2021 11:39:12 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26528C0613D6
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 08:38:32 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id t29so11941273pfg.11
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 08:38:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=o5OegAwYBP7PDdDVCaWSc0Mm4jxXMRKanjN+//S5os4=;
-        b=O3CWgP9TAyDK5LPmF4T2q9CV9B0Kz0SQv4SX26ugTFakH5Z7NpbgCSsX8NRm8CrRO1
-         nZVtaWJXHMdwPpQBBHDZWq1h4MI+QgroSUupDz+kfvxbDixmIZjpZrwCjeJQERAsZgKc
-         eZVg1It1HrEPukVaUWeHKV+099uzFegKWBAtRaNPQtOnvKxnNPDbyC7OPFBWYcxl2piC
-         F3WPln8n7tPDTroPasz6GQsr1XpZwdGoYhUWxQ5VQVR7jAYrDYPRbga7T6SCk7iqjF+I
-         JwzPb2ISY14r6kgkuY+Raw3hVmNX+3ew/iFVl+plRyFKBy8z0eBjKiI+PZjTfM70oHpc
-         FUbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=o5OegAwYBP7PDdDVCaWSc0Mm4jxXMRKanjN+//S5os4=;
-        b=V0J8mF+YbeoNpngUGBnMuxurfzKoZa03wEMQFM5vTPFeDfsqpTXGTl4UC1T6A912Mb
-         VgSYe/CJDIdydL3JdzaDDxv+zintlvyJ3Rp4ThWGWZGF0KSKV+lG2/sV85s+ISJjMiHo
-         48PngCbSD8/OTG83lO0jN4YANhcz/OVu/CUO93KR7cqmcIfUPoXBy8P9DI1sNRhKFS2W
-         D8H0LC8abhJvo+6WGhvXwcYbEXsk7aIlP/MfX4Y0+uZxT65sgmciRHNdH69FLSe6xL0D
-         5FhAm1Ne6JtW1bsQ44aU9z3/lOsIduviZ7OfaaYQBi7gfkJYdZs1qmUPzno/vaTewb6p
-         8Qgg==
-X-Gm-Message-State: AOAM530OgBMsfREwH/Y10gY+mREedPmeYkeC0pVqdunySeiEzuOd1MOv
-        7+MFBUa2uVT9u+bQ1KH1naxmjw==
-X-Google-Smtp-Source: ABdhPJyCTEYk3E/Io9fOnEjzLf2ujgaSewO5YsDaX6qy2kQ1ru/eTGxs2TRgjt4QlknJu5DaDj27tw==
-X-Received: by 2002:a63:2009:: with SMTP id g9mr17698369pgg.219.1612197511466;
-        Mon, 01 Feb 2021 08:38:31 -0800 (PST)
-Received: from google.com ([2620:15c:f:10:829:fccd:80d7:796f])
-        by smtp.gmail.com with ESMTPSA id e12sm19159714pga.13.2021.02.01.08.38.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Feb 2021 08:38:30 -0800 (PST)
-Date:   Mon, 1 Feb 2021 08:38:24 -0800
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        jmattson@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: x86: Allow guests to see MSR_IA32_TSX_CTRL even
- if tsx=off
-Message-ID: <YBgugM03fsEiOxz1@google.com>
-References: <20210129101912.1857809-1-pbonzini@redhat.com>
- <YBQ+peAEdX2h3tro@google.com>
- <37be5fb8-056f-8fba-3016-464634e069af@redhat.com>
- <618c5513-5092-f7cd-b47b-933936001180@redhat.com>
+        id S231603AbhBAQse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Feb 2021 11:48:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34264 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229567AbhBAQs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Feb 2021 11:48:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63AAE64EA4;
+        Mon,  1 Feb 2021 16:47:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612198065;
+        bh=CZeI2uMdSKtpN0SRrNo9xb71YONUgiAnGU2LY/NNQPM=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=Y5e3GDx4v1reTzZTfDxboTTMXlgDnVr260B7MFwsxh/z9IxzKHcfFuLp0fxEmVvhc
+         SphstRbgVGkRKtApThDg/e1Paorx+QdEuSkmETfw39wwwacIh3a32VwO2Rfxnc30ab
+         R4EtTnikzy5cXbp2X6PVghNqKkdjx7jVXPZ95AqTVojGBWhwY2pJ4LlPqV0htsrrP0
+         FNqBdJeTkBsLJSJ+pmtPIe+xXudKHGuyUb8nkTsvY6uzq4WsB5D78Ld3qYOiAA/eMw
+         bsfuMzQShErOfHqB+edFMSfAQZjnbGVZV5a2OG/f8isR4DJAXTP63Bc23xSnZG0eGH
+         +2dszkicu5ddg==
+From:   Mark Brown <broonie@kernel.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+In-Reply-To: <20210130143545.505613-1-rasmus.villemoes@prevas.dk>
+References: <20210130143545.505613-1-rasmus.villemoes@prevas.dk>
+Subject: Re: [PATCH] spi: fsl: invert spisel_boot signal on MPC8309
+Message-Id: <161219801882.46355.10875207480645821949.b4-ty@kernel.org>
+Date:   Mon, 01 Feb 2021 16:46:58 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <618c5513-5092-f7cd-b47b-933936001180@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021, Paolo Bonzini wrote:
-> On 01/02/21 09:46, Paolo Bonzini wrote:
-> > > 
-> > > This comment be updated to call out the new TSX_CTRL behavior.
-> > > 
-> > >     /*
-> > >      * On TAA affected systems:
-> > >      *      - nothing to do if TSX is disabled on the host.
-> > >      *      - we emulate TSX_CTRL if present on the host.
-> > >      *      This lets the guest use VERW to clear CPU buffers.
-> > >      */
-> > 
-> > Ok.
+On Sat, 30 Jan 2021 15:35:45 +0100, Rasmus Villemoes wrote:
+> Commit 7a2da5d7960a ("spi: fsl: Fix driver breakage when SPI_CS_HIGH
+> is not set in spi->mode") broke our MPC8309 board by effectively
+> inverting the boolean value passed to fsl_spi_cs_control. The
+> SPISEL_BOOT signal is used as chipselect, but it's not a gpio, so
+> we cannot rely on gpiolib handling the polarity.
 > 
-> Hmm, but the comment is even more accurate now than before, isn't it? It
-> said nothing about hiding TSX_CTRL, so now it matches the code below.
+> Adapt to the new world order by inverting the logic here. This does
+> assume that the slave sitting at the SPISEL_BOOT is active low, but
+> should that ever turn out not to be the case, one can create a stub
+> gpiochip driver controlling a single gpio (or rather, a single "spo",
+> special-purpose output).
 
-Ha, that is technically true.  But it says "nothing to do..." and then clears a
-flag.  The other interpretation of "nothing to do... at runtime" is also wrong
-as KVM emulates the MSR as a nop.
+Applied to
 
-I guess I just find the whole comment more confusing than the code itself.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
+
+Thanks!
+
+[1/1] spi: fsl: invert spisel_boot signal on MPC8309
+      commit: 9d2aa6dbf87af89c13cac2d1b4cccad83fb14a7e
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
