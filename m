@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED1F30C88C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B7A30CA24
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234664AbhBBRyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:54:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S238833AbhBBSjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:39:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233971AbhBBOJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:09:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E0A65033;
-        Tue,  2 Feb 2021 13:50:54 +0000 (UTC)
+        id S233770AbhBBOEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:04:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4A4664F05;
+        Tue,  2 Feb 2021 13:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273855;
-        bh=g5YkIKE9GXp/Fqzo85g17YkvQ8gmmPaEnZ2nlAf+Blg=;
+        s=korg; t=1612273711;
+        bh=QpPd2qsHv/OkvsF+JfonwJ9VGA9EyEEFRiKSNRinuEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJ4rWxUkF4vGTqKJD8ZcEUJNa+VAz2E7n8x1PH8YEBB6P0D59l6lpeL2sYqFqN6Hz
-         7ZjhH8QNezHybBOQmYt59Gk18zmd8xolxzh7ZwVLDVjJ3ynpZhHX7SIbkvvb03Fc29
-         +H/NXIQp8fWh2OsKA4sko3ocXV/6vLDtcBWhijLg=
+        b=Edml52JL8OVZl32BE0gDS3x7NcqWrDDy5NT4QfvyiLebGvLhYFHcu6TAu1cxn7qss
+         cijEV7pjYC4OmXvOnISNMekdcBig9K8cerZpL6R3WmzDRXfy3i1dU92q6klo8Hj6qv
+         nePSMYx0Z/oWFgapIPLR8Q+1JbOOOtqYaVf2zwy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 08/32] futex: Split futex_mm_release() for exit/exec
+        stable@vger.kernel.org, Danielle Ratson <danieller@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 53/61] selftests: forwarding: Specify interface when invoking mausezahn
 Date:   Tue,  2 Feb 2021 14:38:31 +0100
-Message-Id: <20210202132942.364447571@linuxfoundation.org>
+Message-Id: <20210202132948.725459248@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Danielle Ratson <danieller@nvidia.com>
 
-commit 150d71584b12809144b8145b817e83b81158ae5f upstream.
+[ Upstream commit 11df27f7fdf02cc2bb354358ad482e1fdd690589 ]
 
-To allow separate handling of the futex exit state in the futex exit code
-for exit and exec, split futex_mm_release() into two functions and invoke
-them from the corresponding exit/exec_mm_release() callsites.
+Specify the interface through which packets should be transmitted so
+that the test will pass regardless of the libnet version against which
+mausezahn is linked.
 
-Preparatory only, no functional change.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.332094221@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cab14d1087d9 ("selftests: Add version of router_multipath.sh using nexthop objects")
+Fixes: 3d578d879517 ("selftests: forwarding: Test IPv4 weighted nexthops")
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/futex.h |    6 ++++--
- kernel/fork.c         |    5 ++---
- kernel/futex.c        |    7 ++++++-
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ tools/testing/selftests/net/forwarding/router_mpath_nh.sh  |    2 +-
+ tools/testing/selftests/net/forwarding/router_multipath.sh |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -98,13 +98,15 @@ static inline void futex_exit_done(struc
- 	tsk->futex_state = FUTEX_STATE_DEAD;
- }
+--- a/tools/testing/selftests/net/forwarding/router_mpath_nh.sh
++++ b/tools/testing/selftests/net/forwarding/router_mpath_nh.sh
+@@ -197,7 +197,7 @@ multipath4_test()
+ 	t0_rp12=$(link_stats_tx_packets_get $rp12)
+ 	t0_rp13=$(link_stats_tx_packets_get $rp13)
  
--void futex_mm_release(struct task_struct *tsk);
-+void futex_exit_release(struct task_struct *tsk);
-+void futex_exec_release(struct task_struct *tsk);
+-	ip vrf exec vrf-h1 $MZ -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
++	ip vrf exec vrf-h1 $MZ $h1 -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
+ 		-d 1msec -t udp "sp=1024,dp=0-32768"
  
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 	      u32 __user *uaddr2, u32 val2, u32 val3);
- #else
- static inline void futex_init_task(struct task_struct *tsk) { }
--static inline void futex_mm_release(struct task_struct *tsk) { }
- static inline void futex_exit_done(struct task_struct *tsk) { }
-+static inline void futex_exit_release(struct task_struct *tsk) { }
-+static inline void futex_exec_release(struct task_struct *tsk) { }
- #endif
- #endif
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1084,9 +1084,6 @@ static int wait_for_vfork_done(struct ta
-  */
- static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
--	/* Get rid of any futexes when releasing the mm */
--	futex_mm_release(tsk);
--
- 	uprobe_free_utask(tsk);
+ 	t1_rp12=$(link_stats_tx_packets_get $rp12)
+--- a/tools/testing/selftests/net/forwarding/router_multipath.sh
++++ b/tools/testing/selftests/net/forwarding/router_multipath.sh
+@@ -178,7 +178,7 @@ multipath4_test()
+        t0_rp12=$(link_stats_tx_packets_get $rp12)
+        t0_rp13=$(link_stats_tx_packets_get $rp13)
  
- 	/* Get rid of any cached register state */
-@@ -1121,11 +1118,13 @@ static void mm_release(struct task_struc
+-       ip vrf exec vrf-h1 $MZ -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
++       ip vrf exec vrf-h1 $MZ $h1 -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
+ 	       -d 1msec -t udp "sp=1024,dp=0-32768"
  
- void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exit_release(tsk);
- 	mm_release(tsk, mm);
- }
- 
- void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exec_release(tsk);
- 	mm_release(tsk, mm);
- }
- 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3269,7 +3269,7 @@ static void exit_robust_list(struct task
- 				   curr, pip);
- }
- 
--void futex_mm_release(struct task_struct *tsk)
-+void futex_exec_release(struct task_struct *tsk)
- {
- 	if (unlikely(tsk->robust_list)) {
- 		exit_robust_list(tsk);
-@@ -3287,6 +3287,11 @@ void futex_mm_release(struct task_struct
- 		exit_pi_state_list(tsk);
- }
- 
-+void futex_exit_release(struct task_struct *tsk)
-+{
-+	futex_exec_release(tsk);
-+}
-+
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 		u32 __user *uaddr2, u32 val2, u32 val3)
- {
+        t1_rp12=$(link_stats_tx_packets_get $rp12)
 
 
