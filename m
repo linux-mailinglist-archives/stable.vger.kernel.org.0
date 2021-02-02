@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1DE30C282
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C5F30C276
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234113AbhBBOw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:52:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50236 "EHLO mail.kernel.org"
+        id S234049AbhBBOuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:50:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234074AbhBBOR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:17:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D3D64FC4;
-        Tue,  2 Feb 2021 13:54:35 +0000 (UTC)
+        id S234120AbhBBORe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07F2465064;
+        Tue,  2 Feb 2021 13:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274075;
-        bh=9z8sRYi4sOtok/CVTnuvpe7ZhNGC2JaRLD2raxxM3j8=;
+        s=korg; t=1612274078;
+        bh=ecQa8LHiurxs3y103kI0B0ZtaKy0+Ngq7af/JCuEj4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZiuDaXwHzVY2CiJc+B36HgKjMAegsLbn3zPSTwujCrnkG6bkKTBEu3XHnv8DuDFB
-         vkupLc6AgVwSHt2ZDtwYbafd8itP608zQIyH+kyJoKvUTvImjwvoUbeUMckYLsqW2q
-         3koiNKcKoI6M10sn46ZtyBpUThw2NpI7oYrD+MnA=
+        b=Mt+kdk91E/rSRP9YMc/iRMdVjicByze+oehVmhJVGVv1BxUlCLh+2/yRbXBIL+q3W
+         DKhtSswPEo7SiDeA4SG7n3Nc7CK3fQaFY8LeNo8PCa98JzMlzM4+Xt4YfEOjCfAu8H
+         He8R866BRuP/8hTcF8kCYhnPm8FqQY15buhQs6zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arthur Borsboom <arthurborsboom@gmail.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 19/37] xen-blkfront: allow discard-* nodes to be optional
-Date:   Tue,  2 Feb 2021 14:39:02 +0100
-Message-Id: <20210202132943.702085781@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 20/37] ARM: imx: build suspend-imx6.S with arm instruction set
+Date:   Tue,  2 Feb 2021 14:39:03 +0100
+Message-Id: <20210202132943.747204356@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -40,74 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Max Krummenacher <max.oss.09@gmail.com>
 
-commit 0549cd67b01016b579047bce045b386202a8bcfc upstream.
+commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
 
-This is inline with the specification described in blkif.h:
+When the kernel is configured to use the Thumb-2 instruction set
+"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
+(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
 
- * discard-granularity: should be set to the physical block size if
-   node is not present.
- * discard-alignment, discard-secure: should be set to 0 if node not
-   present.
+It looks like the CPU resumes unconditionally in ARM instruction mode
+and then chokes on the presented Thumb-2 code it should execute.
 
-This was detected as QEMU would only create the discard-granularity
-node but not discard-alignment, and thus the setup done in
-blkfront_setup_discard would fail.
+Fix this by using the arm instruction set for all code in
+suspend-imx6.S.
 
-Fix blkfront_setup_discard to not fail on missing nodes, and also fix
-blkif_set_queue_limits to set the discard granularity to the physical
-block size if none is specified in xenbus.
-
-Fixes: ed30bf317c5ce ('xen-blkfront: Handle discard requests.')
-Reported-by: Arthur Borsboom <arthurborsboom@gmail.com>
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Tested-By: Arthur Borsboom <arthurborsboom@gmail.com>
-Link: https://lore.kernel.org/r/20210119105727.95173-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
+Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkfront.c |   20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ arch/arm/mach-imx/suspend-imx6.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -936,7 +936,8 @@ static void blkif_set_queue_limits(struc
- 	if (info->feature_discard) {
- 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, rq);
- 		blk_queue_max_discard_sectors(rq, get_capacity(gd));
--		rq->limits.discard_granularity = info->discard_granularity;
-+		rq->limits.discard_granularity = info->discard_granularity ?:
-+						 info->physical_sector_size;
- 		rq->limits.discard_alignment = info->discard_alignment;
- 		if (info->feature_secdiscard)
- 			blk_queue_flag_set(QUEUE_FLAG_SECERASE, rq);
-@@ -2169,19 +2170,12 @@ static void blkfront_closing(struct blkf
+--- a/arch/arm/mach-imx/suspend-imx6.S
++++ b/arch/arm/mach-imx/suspend-imx6.S
+@@ -73,6 +73,7 @@
+ #define MX6Q_CCM_CCR	0x0
  
- static void blkfront_setup_discard(struct blkfront_info *info)
- {
--	int err;
--	unsigned int discard_granularity;
--	unsigned int discard_alignment;
--
- 	info->feature_discard = 1;
--	err = xenbus_gather(XBT_NIL, info->xbdev->otherend,
--		"discard-granularity", "%u", &discard_granularity,
--		"discard-alignment", "%u", &discard_alignment,
--		NULL);
--	if (!err) {
--		info->discard_granularity = discard_granularity;
--		info->discard_alignment = discard_alignment;
--	}
-+	info->discard_granularity = xenbus_read_unsigned(info->xbdev->otherend,
-+							 "discard-granularity",
-+							 0);
-+	info->discard_alignment = xenbus_read_unsigned(info->xbdev->otherend,
-+						       "discard-alignment", 0);
- 	info->feature_secdiscard =
- 		!!xenbus_read_unsigned(info->xbdev->otherend, "discard-secure",
- 				       0);
+ 	.align 3
++	.arm
+ 
+ 	.macro  sync_l2_cache
+ 
 
 
