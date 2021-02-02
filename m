@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F2030C00C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE1D30C00F
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbhBBNsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:48:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
+        id S232999AbhBBNsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:48:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232855AbhBBNqv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:46:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E51FF64EDA;
-        Tue,  2 Feb 2021 13:41:24 +0000 (UTC)
+        id S232909AbhBBNq5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:46:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B504964F05;
+        Tue,  2 Feb 2021 13:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273285;
-        bh=7scnNFO5hFWcnqyzKqanrtIP8GbkO1wM7n2d5m55wWs=;
+        s=korg; t=1612273288;
+        bh=ZRsifVflCkksgPiM9QLGJKUy7NfqP4BAT17EgzAHuSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpSIp2kRq+rN5tuNbLhNOzg1h/UCEgO+FAOOc0rnrfREdKGGPGhDlDDgFtSXL/14j
-         Bj7J7ZslYAYs2o62o9gN6HwIKHfjp82+WVwcALCl3lioX0WKXP+2o1yhMkZibbieMV
-         +pJyue3H790U8nTT2rNoI6DHp3PjcskTGUj4/5jM=
+        b=lOjw0jyW99wIOjsQ9SYX2jU2aekRm7jeN7hRTt/lZ3EIsy5XlRrsxGNenR+3I4gtc
+         lUYd8SIQjEKtsZrkMKC5rCPykqQ/D3Sjm1GueZNioAtzYtzvuLVZpGAE4RD3LcfFoA
+         zl6pM7uTqBO/f/VynQjigpPWiylCeaRLLqHgBIA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharat Gooty <bharat.gooty@broadcom.com>,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Arnd Bergmann <arnd@arndb.de>, Ray Jui <ray.jui@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.10 050/142] arm64: dts: broadcom: Fix USB DMA address translation for Stingray
-Date:   Tue,  2 Feb 2021 14:36:53 +0100
-Message-Id: <20210202132959.791090310@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jakub Kicinski <kubakici@wp.pl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.10 051/142] mt7601u: fix kernel crash unplugging the device
+Date:   Tue,  2 Feb 2021 14:36:54 +0100
+Message-Id: <20210202132959.832518832@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,44 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharat Gooty <bharat.gooty@broadcom.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit da8ee66f56071aef0b5b0de41d2c2a97fa30c8a1 upstream.
+commit 0acb20a5438c36e0cf2b8bf255f314b59fcca6ef upstream.
 
-Add a non-empty dma-ranges so that DMA address translation happens.
+The following crash log can occur unplugging the usb dongle since,
+after the urb poison in mt7601u_free_tx_queue(), usb_submit_urb() will
+always fail resulting in a skb kfree while the skb has been already
+queued.
 
-Fixes: 2013a4b684b6 ("arm64: dts: broadcom: clear the warnings caused by empty dma-ranges")
-Signed-off-by: Bharat Gooty <bharat.gooty@broadcom.com>
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fix the issue enqueuing the skb only if usb_submit_urb() succeed.
+
+Hardware name: Hewlett-Packard 500-539ng/2B2C, BIOS 80.06 04/01/2015
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:skb_trim+0x2c/0x30
+RSP: 0000:ffffb4c88005bba8 EFLAGS: 00010206
+RAX: 000000004ad483ee RBX: ffff9a236625dee0 RCX: 000000000000662f
+RDX: 000000000000000c RSI: 0000000000000000 RDI: ffff9a2343179300
+RBP: ffff9a2343179300 R08: 0000000000000001 R09: 0000000000000000
+R10: ffff9a23748f7840 R11: 0000000000000001 R12: ffff9a236625e4d4
+R13: ffff9a236625dee0 R14: 0000000000001080 R15: 0000000000000008
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fd410a34ef8 CR3: 00000001416ee001 CR4: 00000000001706f0
+Call Trace:
+ mt7601u_tx_status+0x3e/0xa0 [mt7601u]
+ mt7601u_dma_cleanup+0xca/0x110 [mt7601u]
+ mt7601u_cleanup+0x22/0x30 [mt7601u]
+ mt7601u_disconnect+0x22/0x60 [mt7601u]
+ usb_unbind_interface+0x8a/0x270
+ ? kernfs_find_ns+0x35/0xd0
+ __device_release_driver+0x17a/0x230
+ device_release_driver+0x24/0x30
+ bus_remove_device+0xdb/0x140
+ device_del+0x18b/0x430
+ ? kobject_put+0x98/0x1d0
+ usb_disable_device+0xc6/0x1f0
+ usb_disconnect.cold+0x7e/0x20a
+ hub_event+0xbf3/0x1870
+ process_one_work+0x1b6/0x350
+ worker_thread+0x53/0x3e0
+ ? process_one_work+0x350/0x350
+ kthread+0x11b/0x140
+ ? __kthread_bind_mask+0x60/0x60
+ ret_from_fork+0x22/0x30
+
+Fixes: 23377c200b2eb ("mt7601u: fix possible memory leak when the device is disconnected")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/3b85219f669a63a8ced1f43686de05915a580489.1610919247.git.lorenzo@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt7601u/dma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-@@ -4,11 +4,16 @@
-  */
- 	usb {
- 		compatible = "simple-bus";
--		dma-ranges;
- 		#address-cells = <2>;
- 		#size-cells = <2>;
- 		ranges = <0x0 0x0 0x0 0x68500000 0x0 0x00400000>;
+--- a/drivers/net/wireless/mediatek/mt7601u/dma.c
++++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
+@@ -310,7 +310,6 @@ static int mt7601u_dma_submit_tx(struct
+ 	}
  
-+		/*
-+		 * Internally, USB bus to the interconnect can only address up
-+		 * to 40-bit
-+		 */
-+		dma-ranges = <0 0 0 0 0x100 0x0>;
-+
- 		usbphy0: usb-phy@0 {
- 			compatible = "brcm,sr-usb-combo-phy";
- 			reg = <0x0 0x00000000 0x0 0x100>;
+ 	e = &q->e[q->end];
+-	e->skb = skb;
+ 	usb_fill_bulk_urb(e->urb, usb_dev, snd_pipe, skb->data, skb->len,
+ 			  mt7601u_complete_tx, q);
+ 	ret = usb_submit_urb(e->urb, GFP_ATOMIC);
+@@ -328,6 +327,7 @@ static int mt7601u_dma_submit_tx(struct
+ 
+ 	q->end = (q->end + 1) % q->entries;
+ 	q->used++;
++	e->skb = skb;
+ 
+ 	if (q->used >= q->entries)
+ 		ieee80211_stop_queue(dev->hw, skb_get_queue_mapping(skb));
 
 
