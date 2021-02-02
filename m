@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E669030C0AD
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C97B30C079
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbhBBOEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:04:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+        id S233197AbhBBN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:58:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233498AbhBBOC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:02:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D1B64F7E;
-        Tue,  2 Feb 2021 13:47:29 +0000 (UTC)
+        id S233324AbhBBN44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A01CB64F70;
+        Tue,  2 Feb 2021 13:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273650;
-        bh=RWMoZa4fN4HBzAdXKrJtp02hinEuBVW2tbGs7sLVtEU=;
+        s=korg; t=1612273519;
+        bh=eg5nSV8N4BnM0ipc96ORmLCq/o/UWuqc+M126ugyla0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTtHTReGLi0fQSdchkSdNdFER7WgFN+rLPikbItJwj8fFJnaQOZAu825EDHxwv3wt
-         ShriglqKhe6sjM4LLvDkxoVtPfH+bSqghr3N9Cczq1dBHL69Ozt3WI+2AKXpK8Qq7V
-         g/1V/+PSsSInGLegCpdaXuo1eG5HZIuRwAscHkls=
+        b=T7NpZmA/XDMFUnjRFW5EhplbXXXh94nM+laYXEsLg4T+3x5bCZpPuwSaANUlsKos0
+         y/Vs/IBW/7fFYE54Gv7XjUq9L1+tpiNih/cbDX8pHo/RM9BqHH2Dtdr9KuKS2FeVz0
+         j1jiTu8e2mNhyq0orZBNrHuNgwPJdlYJJvftGTpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/61] ASoC: Intel: Skylake: skl-topology: Fix OOPs ib skl_tplg_complete
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 136/142] ASoC: mediatek: mt8183-mt6358: ignore TDM DAI link by default
 Date:   Tue,  2 Feb 2021 14:38:19 +0100
-Message-Id: <20210202132948.202418701@linuxfoundation.org>
+Message-Id: <20210202133003.301095478@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit c1c3ba1f78354a20222d291ed6fedd17b7a74fd7 ]
+commit 5ac154443e686b06242aa49de30a12b74ea9ca98 upstream.
 
-If dobj->control is not initialized we end up in an OOPs during
-skl_tplg_complete:
+hdmi-codec is an optional property.  Ignore to bind TDM DAI link
+if the property isn't specified.
 
-[   26.553358] BUG: kernel NULL pointer dereference, address:
-0000000000000078
-[   26.561151] #PF: supervisor read access in kernel mode
-[   26.566897] #PF: error_code(0x0000) - not-present page
-[   26.572642] PGD 0 P4D 0
-[   26.575479] Oops: 0000 [#1] PREEMPT SMP PTI
-[   26.580158] CPU: 2 PID: 2082 Comm: udevd Tainted: G         C
-5.4.81 #4
-[   26.588232] Hardware name: HP Soraka/Soraka, BIOS
-Google_Soraka.10431.106.0 12/03/2019
-[   26.597082] RIP: 0010:skl_tplg_complete+0x70/0x144 [snd_soc_skl]
-
-Fixes: 2d744ecf2b98 ("ASoC: Intel: Skylake: Automatic DMIC format configuration according to information from NHL")
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210121171644.131059-1-ribalda@chromium.org
+Fixes: f2024dc55fcb ("ASoC: mediatek: mt8183: use hdmi-codec")
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20210120092237.1553938-2-tzungbi@google.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/intel/skylake/skl-topology.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
-index aa5833001fde5..2cb719893324a 100644
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -3619,15 +3619,16 @@ static void skl_tplg_complete(struct snd_soc_component *component)
+--- a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
+@@ -515,6 +515,7 @@ static struct snd_soc_dai_link mt8183_mt
+ 		.ignore_suspend = 1,
+ 		.be_hw_params_fixup = mt8183_i2s_hw_params_fixup,
+ 		.ops = &mt8183_mt6358_tdm_ops,
++		.ignore = 1,
+ 		.init = mt8183_mt6358_ts3a227_max98357_hdmi_init,
+ 		SND_SOC_DAILINK_REG(tdm),
+ 	},
+@@ -661,8 +662,10 @@ mt8183_mt6358_ts3a227_max98357_dev_probe
+ 						    SND_SOC_DAIFMT_CBM_CFM;
+ 		}
  
- 	list_for_each_entry(dobj, &component->dobj_list, list) {
- 		struct snd_kcontrol *kcontrol = dobj->control.kcontrol;
--		struct soc_enum *se =
--			(struct soc_enum *)kcontrol->private_value;
--		char **texts = dobj->control.dtexts;
-+		struct soc_enum *se;
-+		char **texts;
- 		char chan_text[4];
+-		if (hdmi_codec && strcmp(dai_link->name, "TDM") == 0)
++		if (hdmi_codec && strcmp(dai_link->name, "TDM") == 0) {
+ 			dai_link->codecs->of_node = hdmi_codec;
++			dai_link->ignore = 0;
++		}
  
--		if (dobj->type != SND_SOC_DOBJ_ENUM ||
--		    dobj->control.kcontrol->put !=
--		    skl_tplg_multi_config_set_dmic)
-+		if (dobj->type != SND_SOC_DOBJ_ENUM || !kcontrol ||
-+		    kcontrol->put != skl_tplg_multi_config_set_dmic)
- 			continue;
-+
-+		se = (struct soc_enum *)kcontrol->private_value;
-+		texts = dobj->control.dtexts;
- 		sprintf(chan_text, "c%d", mach->mach_params.dmic_num);
- 
- 		for (i = 0; i < se->items; i++) {
--- 
-2.27.0
-
+ 		if (!dai_link->platforms->name)
+ 			dai_link->platforms->of_node = platform_node;
 
 
