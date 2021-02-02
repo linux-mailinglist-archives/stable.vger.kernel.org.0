@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D04E30C9F5
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:35:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2CC30C83B
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238749AbhBBSeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:34:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47084 "EHLO mail.kernel.org"
+        id S237806AbhBBRpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:45:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233820AbhBBOFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A163E6501A;
-        Tue,  2 Feb 2021 13:49:00 +0000 (UTC)
+        id S233873AbhBBOKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:10:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC4464DDA;
+        Tue,  2 Feb 2021 13:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273741;
-        bh=ypl0/ehsGorvxma5qloOQBJPvaeBRdkgU16pJa8AD5g=;
+        s=korg; t=1612273880;
+        bh=9Lqk464xukr2bfLf3AFeqYXBXdNsIicfG2zMq5D0vSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xI/ozeglG7k7Rfx6Qr9SwnOcrWTgzL1RK5M7EkxiN+yYYod+FhyQk2Tgu81LUc/3j
-         g8qRqEgiEzuu7kkpOWQj2In35mWNyXhtC/oARLyuK1Aqbkku99fZ3OQ4F6/6D++hL+
-         KAdyr4lfcJxK1LChIn0pNDbvXOZXTOSUJXrFzKzA=
+        b=XZreQQhNuSXHv6YcpPh6gTcZBelCApc7vBXUPQjMdNefVSDM06LbNCzOMiUaNaR57
+         QbjakMiwXD5DpdA8TaShpm292OqWH+Ca2B5efh5zC6+5EgpFnuWVh5Wc3fcyoDrJQS
+         B0m6id8NqkrksLVeevjVVat9WspC8cqWUSqFw3lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 13/28] futex: Mark the begin of futex exit explicitly
+Subject: [PATCH 4.9 10/32] futex: Mark the begin of futex exit explicitly
 Date:   Tue,  2 Feb 2021 14:38:33 +0100
-Message-Id: <20210202132941.717771404@linuxfoundation.org>
+Message-Id: <20210202132942.431762308@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
+References: <20210202132942.035179752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,9 +63,9 @@ Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  include/linux/futex.h |   31 +++----------------------------
- kernel/exit.c         |    8 +-------
+ kernel/exit.c         |   12 +-----------
  kernel/futex.c        |   37 ++++++++++++++++++++++++++++++++++++-
- 3 files changed, 40 insertions(+), 36 deletions(-)
+ 3 files changed, 40 insertions(+), 40 deletions(-)
 
 --- a/include/linux/futex.h
 +++ b/include/linux/futex.h
@@ -123,7 +123,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
-@@ -695,18 +695,12 @@ void do_exit(long code)
+@@ -785,22 +785,12 @@ void __noreturn do_exit(long code)
  	 */
  	if (unlikely(tsk->flags & PF_EXITING)) {
  		pr_alert("Fixing recursive fault but reboot is needed!\n");
@@ -135,17 +135,21 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	exit_signals(tsk);  /* sets PF_EXITING */
 -	/*
--	 * tsk->flags are checked in the futex code to protect against
--	 * an exiting task cleaning up the robust pi futexes.
+-	 * Ensure that all new tsk->pi_lock acquisitions must observe
+-	 * PF_EXITING. Serializes against futex.c:attach_to_pi_owner().
 -	 */
 -	smp_mb();
+-	/*
+-	 * Ensure that we must observe the pi_state in exit_mm() ->
+-	 * mm_release() -> exit_pi_state_list().
+-	 */
 -	raw_spin_unlock_wait(&tsk->pi_lock);
  
- 	if (unlikely(in_atomic())) {
- 		pr_info("note: %s[%d] exited with preempt_count %d\n",
+ 	/* sync mm's RSS info before statistics gathering */
+ 	if (tsk->mm)
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -3252,10 +3252,45 @@ void futex_exec_release(struct task_stru
+@@ -3287,10 +3287,45 @@ void futex_exec_release(struct task_stru
  		exit_pi_state_list(tsk);
  }
  
