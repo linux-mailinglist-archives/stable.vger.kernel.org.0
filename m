@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 266AF30C89E
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE0830C134
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234148AbhBBR4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:56:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
+        id S234281AbhBBOPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:15:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233961AbhBBOJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:09:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A469765032;
-        Tue,  2 Feb 2021 13:50:41 +0000 (UTC)
+        id S233668AbhBBONl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:13:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F46C6504A;
+        Tue,  2 Feb 2021 13:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273842;
-        bh=ecQa8LHiurxs3y103kI0B0ZtaKy0+Ngq7af/JCuEj4E=;
+        s=korg; t=1612273995;
+        bh=GpN8qT98RVpJc8qD5Ha46R+uHPu6WMXFK8MHkJqvxd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njjnQPRdx5UwQmkEH87JN0X0m0dA8ivZx0KlUNrKcfkIurKObRd2gaStbQvXwJih8
-         CXazboaze0d4iexApFezAsG7SAe5788Rr45TfnzwdjDWFCHs1RDo2fdk055TFpZiyr
-         HYBQr9/dlAHF00/qwmoU1vrBMUGPdy2ld3j7hDCE=
+        b=yqUKcOgbm7KLuuMjMM+eFFJOABeyOfrIXZEcXuMIDDu9cIbBliaEh5vsr57/HONn9
+         SrjbUy7itnL1vnqwzWP1L+o/CdgGZYIrppnDNCiJOnv+y4+sFIjvNNhbMuebdauF6t
+         bVChaUUVFXPdFZTxV9T6FbdJPkz06EGIE391lRlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.9 21/32] ARM: imx: build suspend-imx6.S with arm instruction set
-Date:   Tue,  2 Feb 2021 14:38:44 +0100
-Message-Id: <20210202132942.865304949@linuxfoundation.org>
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 02/37] ACPI: sysfs: Prefer "compatible" modalias
+Date:   Tue,  2 Feb 2021 14:38:45 +0100
+Message-Id: <20210202132943.000935541@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Krummenacher <max.oss.09@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
+commit 36af2d5c4433fb40ee2af912c4ac0a30991aecfc upstream.
 
-When the kernel is configured to use the Thumb-2 instruction set
-"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
-(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
+Commit 8765c5ba1949 ("ACPI / scan: Rework modalias creation when
+"compatible" is present") may create two "MODALIAS=" in one uevent
+file if specific conditions are met.
 
-It looks like the CPU resumes unconditionally in ARM instruction mode
-and then chokes on the presented Thumb-2 code it should execute.
+This breaks systemd-udevd, which assumes each "key" in one uevent file
+to be unique. The internal implementation of systemd-udevd overwrites
+the first MODALIAS with the second one, so its kmod rule doesn't load
+the driver for the first MODALIAS.
 
-Fix this by using the arm instruction set for all code in
-suspend-imx6.S.
+So if both the ACPI modalias and the OF modalias are present, use the
+latter to ensure that there will be only one MODALIAS.
 
-Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
-Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
-Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://github.com/systemd/systemd/pull/18163
+Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 8765c5ba1949 ("ACPI / scan: Rework modalias creation when "compatible" is present")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: 4.1+ <stable@vger.kernel.org> # 4.1+
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/suspend-imx6.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/device_sysfs.c |   20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
---- a/arch/arm/mach-imx/suspend-imx6.S
-+++ b/arch/arm/mach-imx/suspend-imx6.S
-@@ -73,6 +73,7 @@
- #define MX6Q_CCM_CCR	0x0
+--- a/drivers/acpi/device_sysfs.c
++++ b/drivers/acpi/device_sysfs.c
+@@ -259,20 +259,12 @@ int __acpi_device_uevent_modalias(struct
+ 	if (add_uevent_var(env, "MODALIAS="))
+ 		return -ENOMEM;
  
- 	.align 3
-+	.arm
- 
- 	.macro  sync_l2_cache
+-	len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
+-				  sizeof(env->buf) - env->buflen);
+-	if (len < 0)
+-		return len;
+-
+-	env->buflen += len;
+-	if (!adev->data.of_compatible)
+-		return 0;
+-
+-	if (len > 0 && add_uevent_var(env, "MODALIAS="))
+-		return -ENOMEM;
+-
+-	len = create_of_modalias(adev, &env->buf[env->buflen - 1],
+-				 sizeof(env->buf) - env->buflen);
++	if (adev->data.of_compatible)
++		len = create_of_modalias(adev, &env->buf[env->buflen - 1],
++					 sizeof(env->buf) - env->buflen);
++	else
++		len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
++					  sizeof(env->buf) - env->buflen);
+ 	if (len < 0)
+ 		return len;
  
 
 
