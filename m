@@ -2,90 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6DC30CA79
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36BE330CA75
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:50:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239021AbhBBSuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:50:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234781AbhBBSr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 13:47:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18C3C64E11;
-        Tue,  2 Feb 2021 18:46:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612291603;
-        bh=ihdizbHbeWlHmUhQH5/JCu185esOrx4gXpKhw+fn3I8=;
-        h=Subject:To:From:Date:From;
-        b=EHnUFblVjzlhO+yRP+NUuwXwVgcvbNNFB+JDaZuVHGki7DEmMf4XmIkIgZZ3NHVCf
-         Sg5KgaxQzGkU/U5nnCMaX7sTr08+nddaEchGrbZyfxNCjkHP5PvZeaFpqUk5XXJi7Q
-         EXuo2DhftT+dyITR4f6fpwSZvXFeUnNc64T7+99w=
-Subject: patch "usb: xhci-mtk: break loop when find the endpoint to drop" added to usb-linus
-To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
-        ikjn@chromium.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Feb 2021 19:46:41 +0100
-Message-ID: <16122916014121@kroah.com>
+        id S238948AbhBBStv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:49:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238795AbhBBSs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 13:48:26 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDDBC06174A
+        for <stable@vger.kernel.org>; Tue,  2 Feb 2021 10:47:46 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id y10so8736213plk.7
+        for <stable@vger.kernel.org>; Tue, 02 Feb 2021 10:47:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=98DlJlB/9WyPABT6u4ngByJX+9LBT81NjKdjPVPBRv0=;
+        b=ZapPvpC4j3kMZV9HrOuxFrtrmp5TBYambcjvOYZaXgF43RXKUPxTqi/V4ShoXELKgc
+         wmnWinBcVgcF7Rditp3Pj/OgfLoRZiDMzbiPpEg8co7xL3vTLzFcXoElwXQGaRr5aLey
+         5+gvVSEl8kx2D1mQDEh1U+79HpiHNMkK2wgnh1FakAYcVKbO8BuYwpU28KhS3XcEnOvu
+         WnfkfAd46Wb+N2jD0IGFcqAfATTIsMScUT8rowNQtSoQ0VKi5Bdw6CAJIRbO4teq/f8k
+         bpIFgqkI98CcDTPjSh4fNdHItjRpUyvlHJTxUdsCpk78SB+e9Cnf1/5s/VHip2UGQAv6
+         Z0Eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=98DlJlB/9WyPABT6u4ngByJX+9LBT81NjKdjPVPBRv0=;
+        b=ERVVY9bdk145Yrfb2MfmJjunaVIcf1klgLYT5q6H9GSNWvq+PSYkpaarTCzQJ4pavx
+         XSzLrMsb+CYldYuiFHfnkis2jwFvyJCfa4XeGGC1uN4lqNUGzFMGjK08YH88fZASANxQ
+         SUFXMD++REIqmGFdts634VcuSMtfyEPoyoe7jG0MQ3PDCoCyJYIkBT4jUb/j6qlGUuZt
+         Vhjb5+QS6nEFJwp51Tzky4GTcWUxPiaR6UiqVQ5xKWoKVGJWbZrerKL/TMmE83NnjLI4
+         1pGrJtc6M0d5zvMTOLA1f6qXzE5V0FADg7kWUUZw7boE/5/m1UZEt5nV06ys7a6QILm4
+         qTjw==
+X-Gm-Message-State: AOAM533mdmKIBo+Qf9lhg+3RwNhga/WcoqVD0Dn0qvxbLOGLcxaiUHN3
+        RyogV5Mx7sXuuWVoL9vNxDxGM85l4plFNQ==
+X-Google-Smtp-Source: ABdhPJxWX076Fga9C3MnMhfliBO6xQ7xxeRPUOfNd5Omdlx0OQFfrOGazaxtQYQuavX6AfW4NpQGCQ==
+X-Received: by 2002:a17:902:b616:b029:e1:805d:b4a7 with SMTP id b22-20020a170902b616b02900e1805db4a7mr6393138pls.34.1612291665550;
+        Tue, 02 Feb 2021 10:47:45 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a31sm22776456pgb.93.2021.02.02.10.47.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Feb 2021 10:47:44 -0800 (PST)
+Message-ID: <60199e50.1c69fb81.f11c3.4ed5@mx.google.com>
+Date:   Tue, 02 Feb 2021 10:47:44 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.94-62-g339dd34feba5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 171 runs,
+ 4 regressions (v5.4.94-62-g339dd34feba5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.4.y baseline: 171 runs, 4 regressions (v5.4.94-62-g339dd3=
+4feba5)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    usb: xhci-mtk: break loop when find the endpoint to drop
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a50ea34d6dd00a12c9cd29cf7b0fa72816bffbcb Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Tue, 2 Feb 2021 16:38:24 +0800
-Subject: usb: xhci-mtk: break loop when find the endpoint to drop
-
-No need to check the following endpoints after finding the endpoint
-wanted to drop.
-
-Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Ikjoon Jang <ikjn@chromium.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1612255104-5363-1-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-mtk-sch.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index dee8a329076d..b45e5bf08997 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -689,8 +689,10 @@ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
- 	sch_bw = &sch_array[bw_index];
- 
- 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
--		if (sch_ep->ep == ep)
-+		if (sch_ep->ep == ep) {
- 			destroy_sch_ep(udev, sch_bw, sch_ep);
-+			break;
-+		}
- 	}
- }
- EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
--- 
-2.30.0
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.94-62-g339dd34feba5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.94-62-g339dd34feba5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      339dd34feba591544379ca9623fc350452e01be3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601968a58b33a7be283abe72
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601968a58b33a7be283ab=
+e73
+        failing since 79 days (last pass: v5.4.77-44-g28fe0e171c204, first =
+fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601969c15b8b3618e03abe8c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601969c15b8b3618e03ab=
+e8d
+        failing since 79 days (last pass: v5.4.77-44-g28fe0e171c204, first =
+fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601968b88b33a7be283abf0d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601968b88b33a7be283ab=
+f0e
+        failing since 79 days (last pass: v5.4.77-44-g28fe0e171c204, first =
+fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6019684902319674c63abe6c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.94-=
+62-g339dd34feba5/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6019684902319674c63ab=
+e6d
+        failing since 79 days (last pass: v5.4.77-44-g28fe0e171c204, first =
+fail: v5.4.77-46-ga3e34830d912) =
+
+ =20
