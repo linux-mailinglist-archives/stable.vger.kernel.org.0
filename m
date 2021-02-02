@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF4830CC77
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0F230CC6F
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbhBBT50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:57:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
+        id S232672AbhBBT41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:56:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232764AbhBBNuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:50:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5B264FB1;
-        Tue,  2 Feb 2021 13:42:58 +0000 (UTC)
+        id S233069AbhBBNuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:50:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B38EA64FB0;
+        Tue,  2 Feb 2021 13:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273378;
-        bh=cyYxp5wJ/tarTNqT8sbm3bDvNzAKxN3rFcebUfwjwX4=;
+        s=korg; t=1612273381;
+        bh=BXefi+xJfD6C11RkR6fJ0e575vaDfNCykpnYB3p2SfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMkpCj1sVMkI3UogHnItfVIOKAaiCo9KTzKfIs+52Dc21KO/m1YSK5kXTz3wOSX3w
-         F/oj6sNMUOEsHgPGS4lEW1IYmsepDC3wG60ztXzZQH1RWV2/WqEQbLw2ZvCrsjZelf
-         qwP+DTuXbvxTib6BHBHkj42ZpjyXdNsQf41xlChk=
+        b=asBIgWVjCX3Rf7+RkrswV22VLqvk4IXGpVv24IWVbnH5tPiTU/T0jl8fci50swbwa
+         YEDCjTbaxY3bNPufoUrC/jZjgiHDw/Leydt2gT9n6j4yGluvGoN3+CM9pJ1jbyHBZs
+         QGhFgFopECl6X6Kz56YaLIObZ7Rv6XopgW9UoeU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Mattheis <christoph.mattheis@arcor.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/142] ARM: dts: imx6qdl-sr-som: fix some cubox-i platforms
-Date:   Tue,  2 Feb 2021 14:37:28 +0100
-Message-Id: <20210202133001.222464537@linuxfoundation.org>
+Subject: [PATCH 5.10 086/142] arm64: dts: imx8mp: Correct the gpio ranges of gpio3
+Date:   Tue,  2 Feb 2021 14:37:29 +0100
+Message-Id: <20210202133001.257836008@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -42,65 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jacky Bai <ping.bai@nxp.com>
 
-[ Upstream commit 2cc0bfc9c12784188482a8f3d751d44af45b0d97 ]
+[ Upstream commit b764eb65e1c932f0500b30fcc06417cd9bc3e583 ]
 
-The PHY address bit 2 is configured by the LED pin. Attaching a LED
-to this pin is not sufficient to guarantee this configuration pin is
-correctly read. This leads to some platforms having their PHY at
-address 0 and others at address 4.
+On i.MX8MP, The GPIO3's secondary gpio-ranges's 'gpio controller offset'
+cell value should be 26, so correct it.
 
-If there is no phy-handle specified, the FEC driver will scan the PHY
-bus for a PHY and use that. Consequently, adding the DT configuration
-of the PHY and the phy properties to the FEC driver broke some boards.
-
-Fix this by removing the phy-handle property, and listing two PHY
-entries for both possible PHY addresses, so that the DT configuration
-for the PHY can be found by the PHY driver.
-
-Fixes: 86b08bd5b994 ("ARM: dts: imx6-sr-som: add ethernet PHY configuration")
-Reported-by: Christoph Mattheis <christoph.mattheis@arcor.de>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jacky Bai <ping.bai@nxp.com>
+Fixes: 6d9b8d20431f ("arm64: dts: freescale: Add i.MX8MP dtsi support")
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-sr-som.dtsi | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mp.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-index b06577808ff4e..7e4e5fd0143a1 100644
---- a/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sr-som.dtsi
-@@ -53,7 +53,6 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_microsom_enet_ar8035>;
--	phy-handle = <&phy>;
- 	phy-mode = "rgmii-id";
- 	phy-reset-duration = <2>;
- 	phy-reset-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
-@@ -63,10 +62,19 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+index 6038f66aefc10..03ef0e5f909e4 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+@@ -259,7 +259,7 @@
+ 				#gpio-cells = <2>;
+ 				interrupt-controller;
+ 				#interrupt-cells = <2>;
+-				gpio-ranges = <&iomuxc 0 56 26>, <&iomuxc 0 144 4>;
++				gpio-ranges = <&iomuxc 0 56 26>, <&iomuxc 26 144 4>;
+ 			};
  
--		phy: ethernet-phy@0 {
-+		/*
-+		 * The PHY can appear at either address 0 or 4 due to the
-+		 * configuration (LED) pin not being pulled sufficiently.
-+		 */
-+		ethernet-phy@0 {
- 			reg = <0>;
- 			qca,clk-out-frequency = <125000000>;
- 		};
-+
-+		ethernet-phy@4 {
-+			reg = <4>;
-+			qca,clk-out-frequency = <125000000>;
-+		};
- 	};
- };
- 
+ 			gpio4: gpio@30230000 {
 -- 
 2.27.0
 
