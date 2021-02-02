@@ -2,80 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4DA30B9FB
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 09:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E2330BA18
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 09:41:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbhBBIcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 03:32:42 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:41158 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbhBBIcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 03:32:32 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1128UA5f066622;
-        Tue, 2 Feb 2021 08:31:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=oIfbpz0xmZ7wQQosULePV3bybgc6voxs7fjFiYNNtzs=;
- b=xJSI4BdlrI/Fy3XPaq0piYgsRCS20+qsVX52irOIW17UvcxIIIhG98sIilU+usSstcyb
- X1gw5EHEZAsPvKtsJgLBDYLK3VwmyxFLk/9rRkBlKpLm+9AHozqBdHsDoKJxpAd9yCbH
- rArapHX1PoYKErqPn7xRqbHTh1sOdsFlBDR//C5VMKE7KtfPbYjKRMY9CWS+xBftvKoA
- 7FS0nxPWn57QsaF+dKRiIoIC0z6N23Bfi4X3bPSuIni2IQfRnn0SlEgdVaHYhIsyaMY9
- r+JYGvXKD2spcZmV9TwI/jgYwf79nGntS4lbxNuJCybWGG2L6W/5Vne/1v6qrsjMF2cd Zg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2130.oracle.com with ESMTP id 36cxvr1gv0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Feb 2021 08:31:29 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1128QX5P134406;
-        Tue, 2 Feb 2021 08:31:27 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 36dhcw9qdv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Feb 2021 08:31:27 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 1128VPg6024208;
-        Tue, 2 Feb 2021 08:31:26 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 02 Feb 2021 00:31:24 -0800
-Date:   Tue, 2 Feb 2021 11:31:17 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc:     devel@driverdev.osuosl.org,
+        id S232511AbhBBIjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 03:39:39 -0500
+Received: from mailgw02.mediatek.com ([1.203.163.81]:48355 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231538AbhBBIjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 03:39:37 -0500
+X-UUID: 8f11d486a71149cca7d168ee12aef293-20210202
+X-UUID: 8f11d486a71149cca7d168ee12aef293-20210202
+Received: from mtkcas32.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 435550767; Tue, 02 Feb 2021 16:38:43 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ MTKMBS31N2.mediatek.inc (172.27.4.87) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 2 Feb 2021 16:38:40 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 2 Feb 2021 16:38:40 +0800
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Mathias Nyman <mathias.nyman@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Masahiro Yamada <masahiroy@kernel.org>, stable@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH] staging/mt7621-dma: mtk-hsdma.c->hsdma-mt7621.c
-Message-ID: <20210202083117.GS2696@kadam>
-References: <20210130034507.2115280-1-ilya.lipnitskiy@gmail.com>
- <20210202065438.GO2696@kadam>
+        Ikjoon Jang <ikjn@chromium.org>
+CC:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Zhanyong Wang <zhanyong.wang@mediatek.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH next] usb: xhci-mtk: break loop when find the endpoint to drop
+Date:   Tue, 2 Feb 2021 16:38:24 +0800
+Message-ID: <1612255104-5363-1-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210202065438.GO2696@kadam>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9882 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 phishscore=0
- spamscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102020058
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9882 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
- mlxscore=0 priorityscore=1501 spamscore=0 impostorscore=0 clxscore=1015
- suspectscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102020058
+Content-Type: text/plain
+X-TM-SNTS-SMTP: E273454B680D21EEE534227D442FE4AE8A972EA8CF78BED64B96D2EEA019C50F2000:8
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Apparently this was already merged?  Never mind then.  Once it's merged
-it can't be changed.  No big stress...
+No need to check the following endpoints after finding the endpoint
+wanted to drop.
 
-regards,
-dan carpenter
+Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Ikjoon Jang <ikjn@chromium.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index dee8a329076d..b45e5bf08997 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -689,8 +689,10 @@ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 	sch_bw = &sch_array[bw_index];
+ 
+ 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
+-		if (sch_ep->ep == ep)
++		if (sch_ep->ep == ep) {
+ 			destroy_sch_ep(udev, sch_bw, sch_ep);
++			break;
++		}
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
+-- 
+2.18.0
 
