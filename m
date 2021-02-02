@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4123F30CBCD
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:36:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2DFE30CAAB
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239854AbhBBTgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:36:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45180 "EHLO mail.kernel.org"
+        id S239010AbhBBS4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:56:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233234AbhBBN4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:56:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BEC064F6B;
-        Tue,  2 Feb 2021 13:45:07 +0000 (UTC)
+        id S233551AbhBBOBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:01:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A834A64FFE;
+        Tue,  2 Feb 2021 13:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273507;
-        bh=77fH4ir+qYNGujIE/PKGs6HEIr3ObITTqjXTY6e108c=;
+        s=korg; t=1612273640;
+        bh=+sJ6+FE1dawmZ4XgYUZfhi4YFDDwlr9WNFJ+SMG0DKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQBlbi6bsJJigM7E1qnS/9BB9PkdCL6wYQKyY59hJtR4LGy6lyt6fCLu9j4VUCEao
-         iOcBqePRm9wt/iOzbN7i6Fg7G4wkr7opUEcUYCkGiLuN1FYIFhvtR3t+I4aI6VJZ15
-         382j6Yqy9VSbY7L2QRLZ69bf4kUaHVYrqkgiLtC4=
+        b=p8kVAHE02wcTZBeR1edF5t3jMoHbZKTz9J0NZ6K8+tdLNjkvjlndInuGeiZ9OR8mm
+         SAZd8+gldd7ivsUEjvEVw3uK2d4ean3sX9emJuvXIoyrQ0i+Wj+Rwyj5bthoEcomNW
+         PzfpYTHUvk1L8IsyuMraO7hsP7eQ9eu714D4yrRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 132/142] rxrpc: Fix memory leak in rxrpc_lookup_local
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 37/61] arm64: dts: ls1028a: fix the offset of the reset register
 Date:   Tue,  2 Feb 2021 14:38:15 +0100
-Message-Id: <20210202133003.139083187@linuxfoundation.org>
+Message-Id: <20210202132948.034285820@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-commit b8323f7288abd71794cd7b11a4c0a38b8637c8b5 upstream.
+[ Upstream commit 1653e3d470629d25c64cd8a2f84adb20a9348b0c ]
 
-Commit 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Then release ref in __rxrpc_put_peer and rxrpc_put_peer_locked.
+The offset of the reset request register is 0, the absolute address is
+0x1e60000. Boards without PSCI support will fail to perform a reset:
 
-	struct rxrpc_peer *rxrpc_alloc_peer(struct rxrpc_local *local, gfp_t gfp)
-	-               peer->local = local;
-	+               peer->local = rxrpc_get_local(local);
+[   26.734700] reboot: Restarting system
+[   27.743259] Unable to restart system
+[   27.746845] Reboot failed -- System halted
 
-rxrpc_discard_prealloc also need ref release in discarding.
-
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff8881080ddc00 (size 256):
-  comm "syz-executor339", pid 8462, jiffies 4294942238 (age 12.350s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 0a 00 00 00 00 c0 00 08 81 88 ff ff  ................
-  backtrace:
-    [<000000002b6e495f>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000002b6e495f>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000002b6e495f>] rxrpc_alloc_local net/rxrpc/local_object.c:79 [inline]
-    [<000000002b6e495f>] rxrpc_lookup_local+0x1c1/0x760 net/rxrpc/local_object.c:244
-    [<000000006b43a77b>] rxrpc_bind+0x174/0x240 net/rxrpc/af_rxrpc.c:149
-    [<00000000fd447a55>] afs_open_socket+0xdb/0x200 fs/afs/rxrpc.c:64
-    [<000000007fd8867c>] afs_net_init+0x2b4/0x340 fs/afs/main.c:126
-    [<0000000063d80ec1>] ops_init+0x4e/0x190 net/core/net_namespace.c:152
-    [<00000000073c5efa>] setup_net+0xde/0x2d0 net/core/net_namespace.c:342
-    [<00000000a6744d5b>] copy_net_ns+0x19f/0x3e0 net/core/net_namespace.c:483
-    [<0000000017d3aec3>] create_new_namespaces+0x199/0x4f0 kernel/nsproxy.c:110
-    [<00000000186271ef>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<000000002de7bac4>] ksys_unshare+0x2fe/0x5c0 kernel/fork.c:2957
-    [<00000000349b12ba>] __do_sys_unshare kernel/fork.c:3025 [inline]
-    [<00000000349b12ba>] __se_sys_unshare kernel/fork.c:3023 [inline]
-    [<00000000349b12ba>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3023
-    [<000000006d178ef7>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<00000000637076d4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Reported-and-tested-by: syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/161183091692.3506637.3206605651502458810.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_accept.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rxrpc/call_accept.c
-+++ b/net/rxrpc/call_accept.c
-@@ -197,6 +197,7 @@ void rxrpc_discard_prealloc(struct rxrpc
- 	tail = b->peer_backlog_tail;
- 	while (CIRC_CNT(head, tail, size) > 0) {
- 		struct rxrpc_peer *peer = b->peer_backlog[tail];
-+		rxrpc_put_local(peer->local);
- 		kfree(peer);
- 		tail = (tail + 1) & (size - 1);
- 	}
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index 795d6ca4bbd1f..bd99fa68b7630 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -103,7 +103,7 @@
+ 	reboot {
+ 		compatible ="syscon-reboot";
+ 		regmap = <&rst>;
+-		offset = <0xb0>;
++		offset = <0>;
+ 		mask = <0x02>;
+ 	};
+ 
+-- 
+2.27.0
+
 
 
