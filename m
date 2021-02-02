@@ -2,182 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD8D30B724
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 06:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9749B30B7A8
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 07:11:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229976AbhBBFfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 00:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbhBBFfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 00:35:06 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B29C0613ED
-        for <stable@vger.kernel.org>; Mon,  1 Feb 2021 21:34:25 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id f16so1218879wmq.5
-        for <stable@vger.kernel.org>; Mon, 01 Feb 2021 21:34:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lD+9VdFDDbbGKdh4Zlx/S6kSI7nJIlJMTXOt77nYf50=;
-        b=c6ADmGsDwHXz5pqsJbysFZOPf2sccXandZLMCxhV2SBY5AeEWS9MvAu3A1L3a1CjhL
-         NPCrbMA6t0stZ0Eq6KILOn6lTLJd6/Wparn+DKG1OEOl7DvoDnjdCBw3yGA2b/DkOxFj
-         bDCLUPdLOGT6qFlvKp4N/U8LR5N9kYRS8GlSn6HOoZsKSUBhyH3zg3zWYV6D2hSPkANy
-         sGFrnNBfW/cxZ9vseIaZXp2D8HnVZrLnqj9nGpSdeiw60EG1qr/XVwEcZgcoBSScv83v
-         r+F1d0el8pKgYroBTfOLfgDhOG7Hcutr8ToP92EmfFiSVg75RMkO4dr7oUpoGRoS3wRX
-         HTdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lD+9VdFDDbbGKdh4Zlx/S6kSI7nJIlJMTXOt77nYf50=;
-        b=lLjL2HGKn5uEXIPnNWl1ZPXIXLrjH4FfeiUwmef5olZe9zwv/ucIrwKSo4PnrT+ro8
-         1oQZFxAvIqPOpeGEuJOHOfj/it7hOBeLVGDITWGuY81G0/GdA/QGwHoGB//YxztHvFBE
-         v1EYWL+I8ULgeUDADt04sSoLthdLt/65Ki4CHbxqFfmX4drpwOx7oqBU3huQYmVaYzgN
-         MgrvjQdyNe3OpBDvZK8q0rVkRf822Lay35H1SyxkaowiPwoHglw55FDdzrHMtptx8x1G
-         aBvyu19K7msZyhWKpdb7xJC7yxy47jH6Fa0dQFvDWvRFomf/H55Q9Gd/Eijc0SJhb+s9
-         3tPw==
-X-Gm-Message-State: AOAM533YY2k8TMQW7D4OYB8uQ8m1jJt+7R/5P6p3h/WSxSJL/MfpF8p5
-        JXGQunp0pfl/nM7/LJQOasxt6HzSpsvjJMt/PVpBqg==
-X-Google-Smtp-Source: ABdhPJz6ttAxWJJKNXWH8Zat2eIPwUyJ+Sf7ECY2vlX2Nz9RgCcMqIkMT272RDNbBCLgqaqpUVLQC9YR8N97KTCll7k=
-X-Received: by 2002:a1c:acc9:: with SMTP id v192mr1888469wme.22.1612244064008;
- Mon, 01 Feb 2021 21:34:24 -0800 (PST)
-MIME-Version: 1.0
-References: <20210111170622.2613577-1-surenb@google.com> <20210112074629.GG22493@dhcp22.suse.cz>
- <20210112174507.GA23780@redhat.com> <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
- <20210113142202.GC22493@dhcp22.suse.cz> <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
- <20210126135254.GP827@dhcp22.suse.cz> <CAJuCfpEnMyo9XAnoF+q1j9EkC0okZfUxxdAFhzhPJi+adJYqjw@mail.gmail.com>
- <CAJuCfpF861zhp8yR_pYx8gb+WMrORAZ0tbzcKtKxaj7L=jzw+Q@mail.gmail.com>
-In-Reply-To: <CAJuCfpF861zhp8yR_pYx8gb+WMrORAZ0tbzcKtKxaj7L=jzw+Q@mail.gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Mon, 1 Feb 2021 21:34:12 -0800
-Message-ID: <CAJuCfpFzxiBXp1rdY=H=bX+eOAVGOe72_FxwC-NTWF4fhUO26g@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        David Rientjes <rientjes@google.com>,
-        =?UTF-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
+        id S231596AbhBBGKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 01:10:38 -0500
+Received: from Mailgw01.mediatek.com ([1.203.163.78]:57361 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231621AbhBBGKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 01:10:38 -0500
+X-UUID: 3282f37244c44a3e9fbb9cb580d25dc6-20210202
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=Ts8m8akIrVg+91beyBWSOTYxOCqFp6KNdG0km01xgtM=;
+        b=Tn01kXE39tF3rHwubc3PkZ34NN2PNTiXcnyhCDEDs/mqdcLB6smX9LaVjOikBP/tiG8ngU0V+cU0j51i5TstrBfdeoWfKCH0rkizUXe7X5gl0CJyTyx/5i8FBoGNHEknJaoqfDyIDxoVbqlTwnq4gtznKtzIMLl7Hdm0kUSIHik=;
+X-UUID: 3282f37244c44a3e9fbb9cb580d25dc6-20210202
+Received: from mtkcas35.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 671492651; Tue, 02 Feb 2021 14:08:28 +0800
+Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS31N1.mediatek.inc
+ (172.27.4.69) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 2 Feb
+ 2021 14:08:21 +0800
+Received: from [10.17.3.153] (10.17.3.153) by MTKCAS32.mediatek.inc
+ (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 2 Feb 2021 14:08:21 +0800
+Message-ID: <1612246101.25113.11.camel@mhfsdcap03>
+Subject: Re: [next PATCH] usb: xhci-mtk: skip dropping bandwidth of
+ unchecked endpoints
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Ikjoon Jang <ikjn@chromium.org>
+CC:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Zhanyong Wang <zhanyong.wang@mediatek.com>,
+        <linux-usb@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>
+Date:   Tue, 2 Feb 2021 14:08:21 +0800
+In-Reply-To: <CAATdQgCkLxU2ts_dUq5+MnaxQ6RD69zddVKxqPRRZAGG2iq2hA@mail.gmail.com>
+References: <1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com>
+         <CAATdQgCkLxU2ts_dUq5+MnaxQ6RD69zddVKxqPRRZAGG2iq2hA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
+MIME-Version: 1.0
+X-TM-SNTS-SMTP: 1F8851F34FEEB5FA0BE1BE46698C9D41F9DC20F3F1155939C75CDABE5000BFC12000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 11:08 PM Suren Baghdasaryan <surenb@google.com> wrote:
->
-> On Thu, Jan 28, 2021 at 11:51 AM Suren Baghdasaryan <surenb@google.com> wrote:
-> >
-> > On Tue, Jan 26, 2021 at 5:52 AM 'Michal Hocko' via kernel-team
-> > <kernel-team@android.com> wrote:
-> > >
-> > > On Wed 20-01-21 14:17:39, Jann Horn wrote:
-> > > > On Wed, Jan 13, 2021 at 3:22 PM Michal Hocko <mhocko@suse.com> wrote:
-> > > > > On Tue 12-01-21 09:51:24, Suren Baghdasaryan wrote:
-> > > > > > On Tue, Jan 12, 2021 at 9:45 AM Oleg Nesterov <oleg@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On 01/12, Michal Hocko wrote:
-> > > > > > > >
-> > > > > > > > On Mon 11-01-21 09:06:22, Suren Baghdasaryan wrote:
-> > > > > > > >
-> > > > > > > > > What we want is the ability for one process to influence another process
-> > > > > > > > > in order to optimize performance across the entire system while leaving
-> > > > > > > > > the security boundary intact.
-> > > > > > > > > Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ
-> > > > > > > > > and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metadata
-> > > > > > > > > and CAP_SYS_NICE for influencing process performance.
-> > > > > > > >
-> > > > > > > > I have to say that ptrace modes are rather obscure to me. So I cannot
-> > > > > > > > really judge whether MODE_READ is sufficient. My understanding has
-> > > > > > > > always been that this is requred to RO access to the address space. But
-> > > > > > > > this operation clearly has a visible side effect. Do we have any actual
-> > > > > > > > documentation for the existing modes?
-> > > > > > > >
-> > > > > > > > I would be really curious to hear from Jann and Oleg (now Cced).
-> > > > > > >
-> > > > > > > Can't comment, sorry. I never understood these security checks and never tried.
-> > > > > > > IIUC only selinux/etc can treat ATTACH/READ differently and I have no idea what
-> > > > > > > is the difference.
-> > > >
-> > > > Yama in particular only does its checks on ATTACH and ignores READ,
-> > > > that's the difference you're probably most likely to encounter on a
-> > > > normal desktop system, since some distros turn Yama on by default.
-> > > > Basically the idea there is that running "gdb -p $pid" or "strace -p
-> > > > $pid" as a normal user will usually fail, but reading /proc/$pid/maps
-> > > > still works; so you can see things like detailed memory usage
-> > > > information and such, but you're not supposed to be able to directly
-> > > > peek into a running SSH client and inject data into the existing SSH
-> > > > connection, or steal the cryptographic keys for the current
-> > > > connection, or something like that.
-> > > >
-> > > > > > I haven't seen a written explanation on ptrace modes but when I
-> > > > > > consulted Jann his explanation was:
-> > > > > >
-> > > > > > PTRACE_MODE_READ means you can inspect metadata about processes with
-> > > > > > the specified domain, across UID boundaries.
-> > > > > > PTRACE_MODE_ATTACH means you can fully impersonate processes with the
-> > > > > > specified domain, across UID boundaries.
-> > > > >
-> > > > > Maybe this would be a good start to document expectations. Some more
-> > > > > practical examples where the difference is visible would be great as
-> > > > > well.
-> > > >
-> > > > Before documenting the behavior, it would be a good idea to figure out
-> > > > what to do with perf_event_open(). That one's weird in that it only
-> > > > requires PTRACE_MODE_READ, but actually allows you to sample stuff
-> > > > like userspace stack and register contents (if perf_event_paranoid is
-> > > > 1 or 2). Maybe for SELinux things (and maybe also for Yama), there
-> > > > should be a level in between that allows fully inspecting the process
-> > > > (for purposes like profiling) but without the ability to corrupt its
-> > > > memory or registers or things like that. Or maybe perf_event_open()
-> > > > should just use the ATTACH mode.
-> > >
-> > > Thanks for the clarification. I still cannot say I would have a good
-> > > mental picture. Having something in Documentation/core-api/ sounds
-> > > really needed. Wrt to perf_event_open it sounds really odd it can do
-> > > more than other places restrict indeed. Something for the respective
-> > > maintainer but I strongly suspect people simply copy the pattern from
-> > > other places because the expected semantic is not really clear.
-> > >
-> >
-> > Sorry, back to the matters of this patch. Are there any actionable
-> > items for me to take care of before it can be accepted? The only
-> > request from Andrew to write a man page is being worked on at
-> > https://lore.kernel.org/linux-mm/20210120202337.1481402-1-surenb@google.com/
-> > and I'll follow up with the next version. I also CC'ed stable@ for
-> > this to be included into 5.10 per Andrew's request. That CC was lost
-> > at some point, so CC'ing again.
-> >
-> > I do not see anything else on this patch to fix. Please chime in if
-> > there are any more concerns, otherwise I would ask Andrew to take it
-> > into mm-tree and stable@ to apply it to 5.10.
-> > Thanks!
->
-> process_madvise man page V2 is posted at:
-> https://lore.kernel.org/linux-mm/20210129070340.566340-1-surenb@google.com/
+T24gTW9uLCAyMDIxLTAyLTAxIGF0IDE3OjIwICswODAwLCBJa2pvb24gSmFuZyB3cm90ZToNCj4g
+SEkgQ2h1bmZlbmcsDQo+IA0KPiBPbiBNb24sIEZlYiAxLCAyMDIxIGF0IDE6NTggUE0gQ2h1bmZl
+bmcgWXVuIDxjaHVuZmVuZy55dW5AbWVkaWF0ZWsuY29tPiB3cm90ZToNCj4gPg0KPiA+IEZvciB0
+aG9zZSB1bmNoZWNrZWQgZW5kcG9pbnRzLCB3ZSBkb24ndCBhbGxvY2F0ZSBiYW5kd2lkdGggZm9y
+DQo+ID4gdGhlbSwgc28gbm8gbmVlZCBmcmVlIHRoZSBiYW5kd2lkdGgsIG90aGVyd2lzZSB3aWxs
+IGRlY3JlYXNlDQo+ID4gdGhlIGFsbG9jYXRlZCBiYW5kd2lkdGguDQo+ID4gTWVhbndoaWxlIHVz
+ZSB4aGNpX2RiZygpIGluc3RlYWQgb2YgZGV2X2RiZygpIHRvIHByaW50IGxvZ3MgYW5kDQo+ID4g
+cmVuYW1lIGJ3X2VwX2xpc3RfbmV3IGFzIGJ3X2VwX2Noa19saXN0Lg0KPiA+DQo+ID4gRml4ZXM6
+IDFkNjlmOWQ5MDFlZiAoInVzYjogeGhjaS1tdGs6IGZpeCB1bnJlbGVhc2VkIGJhbmR3aWR0aCBk
+YXRhIikNCj4gPiBDYzogc3RhYmxlIDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPiA+IFNpZ25l
+ZC1vZmYtYnk6IENodW5mZW5nIFl1biA8Y2h1bmZlbmcueXVuQG1lZGlhdGVrLmNvbT4NCj4gDQo+
+IFJldmlld2VkLWFuZC10ZXN0ZWQtYnk6IElram9vbiBKYW5nIDxpa2puQGNocm9taXVtLm9yZz4N
+Cj4gDQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2NoLmMgfCA2MSAr
+KysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0NCj4gPiAgZHJpdmVycy91c2IvaG9zdC94
+aGNpLW10ay5oICAgICB8ICA0ICsrLQ0KPiA+ICAyIGZpbGVzIGNoYW5nZWQsIDM2IGluc2VydGlv
+bnMoKyksIDI5IGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNi
+L2hvc3QveGhjaS1tdGstc2NoLmMgYi9kcml2ZXJzL3VzYi9ob3N0L3hoY2ktbXRrLXNjaC5jDQo+
+ID4gaW5kZXggYTMxM2U3NWZmMWM2Li5kZWU4YTMyOTA3NmQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJp
+dmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYw0KPiA+ICsrKyBiL2RyaXZlcnMvdXNiL2hvc3Qv
+eGhjaS1tdGstc2NoLmMNCj4gPiBAQCAtMjAwLDYgKzIwMCw3IEBAIHN0YXRpYyBzdHJ1Y3QgbXUz
+aF9zY2hfZXBfaW5mbyAqY3JlYXRlX3NjaF9lcChzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4g
+Pg0KPiA+ICAgICAgICAgc2NoX2VwLT5zY2hfdHQgPSB0dDsNCj4gPiAgICAgICAgIHNjaF9lcC0+
+ZXAgPSBlcDsNCj4gPiArICAgICAgIElOSVRfTElTVF9IRUFEKCZzY2hfZXAtPmVuZHBvaW50KTsN
+Cj4gPiAgICAgICAgIElOSVRfTElTVF9IRUFEKCZzY2hfZXAtPnR0X2VuZHBvaW50KTsNCj4gPg0K
+PiA+ICAgICAgICAgcmV0dXJuIHNjaF9lcDsNCj4gPiBAQCAtMzc0LDYgKzM3NSw3IEBAIHN0YXRp
+YyB2b2lkIHVwZGF0ZV9idXNfYncoc3RydWN0IG11M2hfc2NoX2J3X2luZm8gKnNjaF9idywNCj4g
+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoX2VwLT5id19idWRn
+ZXRfdGFibGVbal07DQo+ID4gICAgICAgICAgICAgICAgIH0NCj4gPiAgICAgICAgIH0NCj4gPiAr
+ICAgICAgIHNjaF9lcC0+YWxsb2NhdGVkID0gdXNlZDsNCj4gDQo+IFllcywgdGhpcyBpcyByZWFs
+bHkgbmVlZGVkIQ0KPiANCj4gPiAgfQ0KPiA+DQo+ID4gIHN0YXRpYyBpbnQgY2hlY2tfc2NoX3R0
+KHN0cnVjdCB1c2JfZGV2aWNlICp1ZGV2LA0KPiA+IEBAIC01NDIsNiArNTQ0LDIyIEBAIHN0YXRp
+YyBpbnQgY2hlY2tfc2NoX2J3KHN0cnVjdCB1c2JfZGV2aWNlICp1ZGV2LA0KPiA+ICAgICAgICAg
+cmV0dXJuIDA7DQo+ID4gIH0NCj4gPg0KPiA+ICtzdGF0aWMgdm9pZCBkZXN0cm95X3NjaF9lcChz
+dHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiArICAgICAgIHN0cnVjdCBtdTNoX3NjaF9id19p
+bmZvICpzY2hfYncsIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXApDQo+ID4gK3sNCj4g
+PiArICAgICAgIC8qIG9ubHkgcmVsZWFzZSBlcCBidyBjaGVjayBwYXNzZWQgYnkgY2hlY2tfc2No
+X2J3KCkgKi8NCj4gPiArICAgICAgIGlmIChzY2hfZXAtPmFsbG9jYXRlZCkNCj4gPiArICAgICAg
+ICAgICAgICAgdXBkYXRlX2J1c19idyhzY2hfYncsIHNjaF9lcCwgMCk7DQo+IA0KPiBTbyBvbmx5
+IHRoZXNlIHR3byBsaW5lcyByZWFsbHkgbWF0dGVyLg0KPiANCj4gPiArDQo+ID4gKyAgICAgICBs
+aXN0X2RlbCgmc2NoX2VwLT5lbmRwb2ludCk7DQo+ID4gKw0KPiA+ICsgICAgICAgaWYgKHNjaF9l
+cC0+c2NoX3R0KSB7DQo+ID4gKyAgICAgICAgICAgICAgIGxpc3RfZGVsKCZzY2hfZXAtPnR0X2Vu
+ZHBvaW50KTsNCj4gPiArICAgICAgICAgICAgICAgZHJvcF90dCh1ZGV2KTsNCj4gPiArICAgICAg
+IH0NCj4gPiArICAgICAgIGtmcmVlKHNjaF9lcCk7DQo+ID4gK30NCj4gPiArDQo+ID4gIHN0YXRp
+YyBib29sIG5lZWRfYndfc2NoKHN0cnVjdCB1c2JfaG9zdF9lbmRwb2ludCAqZXAsDQo+ID4gICAg
+ICAgICBlbnVtIHVzYl9kZXZpY2Vfc3BlZWQgc3BlZWQsIGludCBoYXNfdHQpDQo+ID4gIHsNCj4g
+PiBAQCAtNTg0LDcgKzYwMiw3IEBAIGludCB4aGNpX210a19zY2hfaW5pdChzdHJ1Y3QgeGhjaV9o
+Y2RfbXRrICptdGspDQo+ID4NCj4gPiAgICAgICAgIG10ay0+c2NoX2FycmF5ID0gc2NoX2FycmF5
+Ow0KPiA+DQo+ID4gLSAgICAgICBJTklUX0xJU1RfSEVBRCgmbXRrLT5id19lcF9saXN0X25ldyk7
+DQo+ID4gKyAgICAgICBJTklUX0xJU1RfSEVBRCgmbXRrLT5id19lcF9jaGtfbGlzdCk7DQo+ID4N
+Cj4gPiAgICAgICAgIHJldHVybiAwOw0KPiA+ICB9DQo+ID4gQEAgLTYzNiwyOSArNjU0LDEyIEBA
+IGludCB4aGNpX210a19hZGRfZXBfcXVpcmsoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVz
+Yl9kZXZpY2UgKnVkZXYsDQo+ID4NCj4gPiAgICAgICAgIHNldHVwX3NjaF9pbmZvKHVkZXYsIGVw
+X2N0eCwgc2NoX2VwKTsNCj4gPg0KPiA+IC0gICAgICAgbGlzdF9hZGRfdGFpbCgmc2NoX2VwLT5l
+bmRwb2ludCwgJm10ay0+YndfZXBfbGlzdF9uZXcpOw0KPiA+ICsgICAgICAgbGlzdF9hZGRfdGFp
+bCgmc2NoX2VwLT5lbmRwb2ludCwgJm10ay0+YndfZXBfY2hrX2xpc3QpOw0KPiA+DQo+ID4gICAg
+ICAgICByZXR1cm4gMDsNCj4gPiAgfQ0KPiA+ICBFWFBPUlRfU1lNQk9MX0dQTCh4aGNpX210a19h
+ZGRfZXBfcXVpcmspOw0KPiA+DQo+ID4gLXN0YXRpYyB2b2lkIHhoY2lfbXRrX2Ryb3BfZXAoc3Ry
+dWN0IHhoY2lfaGNkX210ayAqbXRrLCBzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiAtICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXAp
+DQo+ID4gLXsNCj4gPiAtICAgICAgIHN0cnVjdCB4aGNpX2hjZCAqeGhjaSA9IGhjZF90b194aGNp
+KG10ay0+aGNkKTsNCj4gPiAtICAgICAgIGludCBid19pbmRleCA9IGdldF9id19pbmRleCh4aGNp
+LCB1ZGV2LCBzY2hfZXAtPmVwKTsNCj4gPiAtICAgICAgIHN0cnVjdCBtdTNoX3NjaF9id19pbmZv
+ICpzY2hfYncgPSAmbXRrLT5zY2hfYXJyYXlbYndfaW5kZXhdOw0KPiA+IC0NCj4gPiAtICAgICAg
+IHVwZGF0ZV9idXNfYncoc2NoX2J3LCBzY2hfZXAsIDApOw0KPiA+IC0gICAgICAgbGlzdF9kZWwo
+JnNjaF9lcC0+ZW5kcG9pbnQpOw0KPiA+IC0NCj4gPiAtICAgICAgIGlmIChzY2hfZXAtPnNjaF90
+dCkgew0KPiA+IC0gICAgICAgICAgICAgICBsaXN0X2RlbCgmc2NoX2VwLT50dF9lbmRwb2ludCk7
+DQo+ID4gLSAgICAgICAgICAgICAgIGRyb3BfdHQodWRldik7DQo+ID4gLSAgICAgICB9DQo+ID4g
+LSAgICAgICBrZnJlZShzY2hfZXApOw0KPiA+IC19DQo+ID4gLQ0KPiA+ICB2b2lkIHhoY2lfbXRr
+X2Ryb3BfZXBfcXVpcmsoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVk
+ZXYsDQo+ID4gICAgICAgICAgICAgICAgIHN0cnVjdCB1c2JfaG9zdF9lbmRwb2ludCAqZXApDQo+
+ID4gIHsNCj4gPiBAQCAtNjg4LDkgKzY4OSw4IEBAIHZvaWQgeGhjaV9tdGtfZHJvcF9lcF9xdWly
+ayhzdHJ1Y3QgdXNiX2hjZCAqaGNkLCBzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiAgICAg
+ICAgIHNjaF9idyA9ICZzY2hfYXJyYXlbYndfaW5kZXhdOw0KPiA+DQo+ID4gICAgICAgICBsaXN0
+X2Zvcl9lYWNoX2VudHJ5X3NhZmUoc2NoX2VwLCB0bXAsICZzY2hfYnctPmJ3X2VwX2xpc3QsIGVu
+ZHBvaW50KSB7DQo+ID4gLSAgICAgICAgICAgICAgIGlmIChzY2hfZXAtPmVwID09IGVwKSB7DQo+
+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgeGhjaV9tdGtfZHJvcF9lcChtdGssIHVkZXYsIHNj
+aF9lcCk7DQo+ID4gLSAgICAgICAgICAgICAgIH0NCj4gPiArICAgICAgICAgICAgICAgaWYgKHNj
+aF9lcC0+ZXAgPT0gZXApDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgZGVzdHJveV9zY2hf
+ZXAodWRldiwgc2NoX2J3LCBzY2hfZXApOw0KPiANCj4gbm90IHNvIGNyaXRpY2FsIGJ1dCBJJ3Zl
+IGFsc28gbWlzc2VkICdicmVhaycgaGVyZS4NCj4gQ2FuIHlvdSBwbGVhc2UgYWRkIGEgYnJlYWsg
+c3RhdGVtZW50IGhlcmU/DQpZZXMsIGl0J3MgYmV0dGVyIHRvIGFkZCAnYnJlYWsnIGhlcmUsIHRo
+YW5rcw0KDQo+IA0KPiA+ICAgICAgICAgfQ0KPiA+ICB9DQo+ID4gIEVYUE9SVF9TWU1CT0xfR1BM
+KHhoY2lfbXRrX2Ryb3BfZXBfcXVpcmspOw0KPiA+IEBAIC03MDQsOSArNzA0LDkgQEAgaW50IHho
+Y2lfbXRrX2NoZWNrX2JhbmR3aWR0aChzdHJ1Y3QgdXNiX2hjZCAqaGNkLCBzdHJ1Y3QgdXNiX2Rl
+dmljZSAqdWRldikNCj4gPiAgICAgICAgIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXAs
+ICp0bXA7DQo+ID4gICAgICAgICBpbnQgYndfaW5kZXgsIHJldDsNCj4gPg0KPiA+IC0gICAgICAg
+ZGV2X2RiZygmdWRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsNCj4gPiArICAgICAgIHhoY2lf
+ZGJnKHhoY2ksICIlcygpIHVkZXYgJXNcbiIsIF9fZnVuY19fLCBkZXZfbmFtZSgmdWRldi0+ZGV2
+KSk7DQo+ID4NCj4gPiAtICAgICAgIGxpc3RfZm9yX2VhY2hfZW50cnkoc2NoX2VwLCAmbXRrLT5i
+d19lcF9saXN0X25ldywgZW5kcG9pbnQpIHsNCj4gPiArICAgICAgIGxpc3RfZm9yX2VhY2hfZW50
+cnkoc2NoX2VwLCAmbXRrLT5id19lcF9jaGtfbGlzdCwgZW5kcG9pbnQpIHsNCj4gPiAgICAgICAg
+ICAgICAgICAgYndfaW5kZXggPSBnZXRfYndfaW5kZXgoeGhjaSwgdWRldiwgc2NoX2VwLT5lcCk7
+DQo+ID4gICAgICAgICAgICAgICAgIHNjaF9idyA9ICZtdGstPnNjaF9hcnJheVtid19pbmRleF07
+DQo+ID4NCj4gPiBAQCAtNzE3LDcgKzcxNyw3IEBAIGludCB4aGNpX210a19jaGVja19iYW5kd2lk
+dGgoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVkZXYpDQo+ID4gICAg
+ICAgICAgICAgICAgIH0NCj4gPiAgICAgICAgIH0NCj4gPg0KPiA+IC0gICAgICAgbGlzdF9mb3Jf
+ZWFjaF9lbnRyeV9zYWZlKHNjaF9lcCwgdG1wLCAmbXRrLT5id19lcF9saXN0X25ldywgZW5kcG9p
+bnQpIHsNCj4gPiArICAgICAgIGxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZShzY2hfZXAsIHRtcCwg
+Jm10ay0+YndfZXBfY2hrX2xpc3QsIGVuZHBvaW50KSB7DQo+ID4gICAgICAgICAgICAgICAgIHN0
+cnVjdCB4aGNpX2VwX2N0eCAqZXBfY3R4Ow0KPiA+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdXNi
+X2hvc3RfZW5kcG9pbnQgKmVwID0gc2NoX2VwLT5lcDsNCj4gPiAgICAgICAgICAgICAgICAgdW5z
+aWduZWQgaW50IGVwX2luZGV4ID0geGhjaV9nZXRfZW5kcG9pbnRfaW5kZXgoJmVwLT5kZXNjKTsN
+Cj4gPiBAQCAtNzQ2LDEyICs3NDYsMTcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoeGhjaV9tdGtfY2hl
+Y2tfYmFuZHdpZHRoKTsNCj4gPiAgdm9pZCB4aGNpX210a19yZXNldF9iYW5kd2lkdGgoc3RydWN0
+IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVkZXYpDQo+ID4gIHsNCj4gPiAgICAg
+ICAgIHN0cnVjdCB4aGNpX2hjZF9tdGsgKm10ayA9IGhjZF90b19tdGsoaGNkKTsNCj4gPiArICAg
+ICAgIHN0cnVjdCB4aGNpX2hjZCAqeGhjaSA9IGhjZF90b194aGNpKGhjZCk7DQo+ID4gKyAgICAg
+ICBzdHJ1Y3QgbXUzaF9zY2hfYndfaW5mbyAqc2NoX2J3Ow0KPiA+ICAgICAgICAgc3RydWN0IG11
+M2hfc2NoX2VwX2luZm8gKnNjaF9lcCwgKnRtcDsNCj4gPiArICAgICAgIGludCBid19pbmRleDsN
+Cj4gPg0KPiA+IC0gICAgICAgZGV2X2RiZygmdWRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsN
+Cj4gPiArICAgICAgIHhoY2lfZGJnKHhoY2ksICIlcygpIHVkZXYgJXNcbiIsIF9fZnVuY19fLCBk
+ZXZfbmFtZSgmdWRldi0+ZGV2KSk7DQo+ID4NCj4gPiAtICAgICAgIGxpc3RfZm9yX2VhY2hfZW50
+cnlfc2FmZShzY2hfZXAsIHRtcCwgJm10ay0+YndfZXBfbGlzdF9uZXcsIGVuZHBvaW50KSB7DQo+
+ID4gLSAgICAgICAgICAgICAgIHhoY2lfbXRrX2Ryb3BfZXAobXRrLCB1ZGV2LCBzY2hfZXApOw0K
+PiA+ICsgICAgICAgbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHNjaF9lcCwgdG1wLCAmbXRrLT5i
+d19lcF9jaGtfbGlzdCwgZW5kcG9pbnQpIHsNCj4gPiArICAgICAgICAgICAgICAgYndfaW5kZXgg
+PSBnZXRfYndfaW5kZXgoeGhjaSwgdWRldiwgc2NoX2VwLT5lcCk7DQo+ID4gKyAgICAgICAgICAg
+ICAgIHNjaF9idyA9ICZtdGstPnNjaF9hcnJheVtid19pbmRleF07DQo+ID4gKyAgICAgICAgICAg
+ICAgIGRlc3Ryb3lfc2NoX2VwKHVkZXYsIHNjaF9idywgc2NoX2VwKTsNCj4gPiAgICAgICAgIH0N
+Cj4gPg0KPiA+ICAgICAgICAgeGhjaV9yZXNldF9iYW5kd2lkdGgoaGNkLCB1ZGV2KTsNCj4gPiBk
+aWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay5oIGIvZHJpdmVycy91c2IvaG9z
+dC94aGNpLW10ay5oDQo+ID4gaW5kZXggNTc3ZjQzMWM1YzkzLi5jYmIwOWRmZWE2MmUgMTAwNjQ0
+DQo+ID4gLS0tIGEvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay5oDQo+ID4gKysrIGIvZHJpdmVy
+cy91c2IvaG9zdC94aGNpLW10ay5oDQo+ID4gQEAgLTU5LDYgKzU5LDcgQEAgc3RydWN0IG11M2hf
+c2NoX2J3X2luZm8gew0KPiA+ICAgKiBAZXBfdHlwZTogZW5kcG9pbnQgdHlwZQ0KPiA+ICAgKiBA
+bWF4cGt0OiBtYXggcGFja2V0IHNpemUgb2YgZW5kcG9pbnQNCj4gPiAgICogQGVwOiBhZGRyZXNz
+IG9mIHVzYl9ob3N0X2VuZHBvaW50IHN0cnVjdA0KPiA+ICsgKiBAYWxsb2NhdGVkOiB0aGUgYmFu
+ZHdpZHRoIGlzIGFyZWFkeSBhbGxvY2F0ZWQgZnJvbSBidXNfYncNCj4gPiAgICogQG9mZnNldDog
+d2hpY2ggdWZyYW1lIG9mIHRoZSBpbnRlcnZhbCB0aGF0IHRyYW5zZmVyIHNob3VsZCBiZQ0KPiA+
+ICAgKiAgICAgICAgICAgICBzY2hlZHVsZWQgZmlyc3QgdGltZSB3aXRoaW4gdGhlIGludGVydmFs
+DQo+ID4gICAqIEByZXBlYXQ6IHRoZSB0aW1lIGdhcCBiZXR3ZWVuIHR3byB1ZnJhbWVzIHRoYXQg
+dHJhbnNmZXJzIGFyZQ0KPiA+IEBAIC04Niw2ICs4Nyw3IEBAIHN0cnVjdCBtdTNoX3NjaF9lcF9p
+bmZvIHsNCj4gPiAgICAgICAgIHUzMiBlcF90eXBlOw0KPiA+ICAgICAgICAgdTMyIG1heHBrdDsN
+Cj4gPiAgICAgICAgIHZvaWQgKmVwOw0KPiA+ICsgICAgICAgYm9vbCBhbGxvY2F0ZWQ7DQo+ID4g
+ICAgICAgICAvKg0KPiA+ICAgICAgICAgICogbXRrIHhIQ0kgc2NoZWR1bGluZyBpbmZvcm1hdGlv
+biBwdXQgaW50byByZXNlcnZlZCBEV3MNCj4gPiAgICAgICAgICAqIGluIGVwIGNvbnRleHQNCj4g
+PiBAQCAtMTMwLDggKzEzMiw4IEBAIHN0cnVjdCBtdTNjX2lwcGNfcmVncyB7DQo+ID4gIHN0cnVj
+dCB4aGNpX2hjZF9tdGsgew0KPiA+ICAgICAgICAgc3RydWN0IGRldmljZSAqZGV2Ow0KPiA+ICAg
+ICAgICAgc3RydWN0IHVzYl9oY2QgKmhjZDsNCj4gPiAtICAgICAgIHN0cnVjdCBsaXN0X2hlYWQg
+YndfZXBfbGlzdF9uZXc7DQo+ID4gICAgICAgICBzdHJ1Y3QgbXUzaF9zY2hfYndfaW5mbyAqc2No
+X2FycmF5Ow0KPiA+ICsgICAgICAgc3RydWN0IGxpc3RfaGVhZCBid19lcF9jaGtfbGlzdDsNCj4g
+PiAgICAgICAgIHN0cnVjdCBtdTNjX2lwcGNfcmVncyBfX2lvbWVtICppcHBjX3JlZ3M7DQo+ID4g
+ICAgICAgICBib29sIGhhc19pcHBjOw0KPiA+ICAgICAgICAgaW50IG51bV91Ml9wb3J0czsNCj4g
+PiAtLQ0KPiA+IDIuMTguMA0KPiA+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fDQo+ID4gTGludXgtbWVkaWF0ZWsgbWFpbGluZyBsaXN0DQo+ID4gTGludXgt
+bWVkaWF0ZWtAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiA+IGh0dHA6Ly9saXN0cy5pbmZyYWRlYWQu
+b3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtbWVkaWF0ZWsNCg0K
 
-process_madvise man page V3 is posted at:
-https://lore.kernel.org/linux-mm/20210202053046.1653012-1-surenb@google.com/
-
->
-> >
-> >
-> > > --
-> > > Michal Hocko
-> > > SUSE Labs
-> > >
-> > > --
-> > > To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
-> > >
