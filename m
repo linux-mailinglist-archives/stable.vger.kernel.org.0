@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE86230BFE7
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 283CD30BFF6
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232800AbhBBNok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:44:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35040 "EHLO mail.kernel.org"
+        id S232556AbhBBNqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:46:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232810AbhBBNmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:42:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED40264F6D;
-        Tue,  2 Feb 2021 13:40:18 +0000 (UTC)
+        id S232897AbhBBNpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:45:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2240C64F7D;
+        Tue,  2 Feb 2021 13:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273219;
-        bh=+tJB88b5p7SLrL9F5pDskDXlY1mh5bRlHJeXb4B9xR4=;
+        s=korg; t=1612273247;
+        bh=Q1Un96wR1iagfGo+CoPWzh5Jo6V09DwWjVSrAUpXUHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQXyAce8ieJ2kaxSKVwIWvSurob8hn2prwrfjv/JAvYqc4GnyeeIHUn3tI4287leX
-         yqGygCFcveeIRXaTSwEr6vv/oaJ9ymjuZ0rvnzbbqdBgOuLAI6D6gz8wTIWkXeLyrO
-         NUCSXo1g6KCq1PPSwhRULH52elT56ZW6TUUfAgfY=
+        b=hdKFusDZVjf/EM6mwJa8dVGJx3XoSJXfb3SwpsRSYvXCjsIpCUO9Rh3SrBydiMJPE
+         hvptd7lNHHxCnJC4L6v3otiBybFF7tGriw3wUb4SWUKy3hi2Xw//WVDmgyfWpKXJN6
+         p2CVa4+Qlr60ZKYhC6+R8yH/UN42bByKIsNLw+mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 007/142] ALSA: hda/realtek: Enable headset of ASUS B1400CEPE with ALC256
-Date:   Tue,  2 Feb 2021 14:36:10 +0100
-Message-Id: <20210202132957.999181231@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 008/142] ALSA: hda/via: Apply the workaround generically for Clevo machines
+Date:   Tue,  2 Feb 2021 14:36:11 +0100
+Message-Id: <20210202132958.043113657@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -39,45 +38,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jhp@endlessos.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5de3b9430221b11a5e1fc2f5687af80777c8392a upstream.
+commit 4961167bf7482944ca09a6f71263b9e47f949851 upstream.
 
-ASUS B1400CEPE laptop's headset audio is not enabled until
-ALC256_FIXUP_ASUS_HPE quirk is applied.
+We've got another report indicating a similar problem wrt the
+power-saving behavior with VIA codec on Clevo machines.  Let's apply
+the existing workaround generically to all Clevo devices with VIA
+codecs to cover all in once.
 
-Here is the original pin node values:
-
-0x12 0x40000000
-0x13 0x411111f0
-0x14 0x90170110
-0x18 0x411111f0
-0x19 0x411111f0
-0x1a 0x411111f0
-0x1b 0x411111f0
-0x1d 0x40461b45
-0x1e 0x411111f0
-0x21 0x04211020
-
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1181330
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210122054705.48804-1-jhp@endlessos.org
+Link: https://lore.kernel.org/r/20210126165603.11683-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_via.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8006,6 +8006,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x194e, "ASUS UX563FD", ALC294_FIXUP_ASUS_HPE),
-+	SND_PCI_QUIRK(0x1043, 0x1982, "ASUS B1400CEPE", ALC256_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x19e1, "ASUS UX581LV", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1043,7 +1043,7 @@ static const struct hda_fixup via_fixups
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+-	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
++	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
+ 	{}
+ };
+ 
 
 
