@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC7330C76F
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BEE230C7D7
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234244AbhBBRVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:21:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49658 "EHLO mail.kernel.org"
+        id S237479AbhBBRct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:32:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233891AbhBBOOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:14:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2848B65051;
-        Tue,  2 Feb 2021 13:53:20 +0000 (UTC)
+        id S234171AbhBBOMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:12:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F106A64FAC;
+        Tue,  2 Feb 2021 13:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274001;
-        bh=qXRVGrwbDgWrFUpTXD//lIduNtq3Rn5MANWeTzIY4lg=;
+        s=korg; t=1612273929;
+        bh=f0rqqsDn9ZVAcUMNUuw8eTBZRMwS8ufs+LrEAllPbLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDzPbTfGavps/eUG6RQTEHdqjdRRzzB2wIl802mDip8ZjT1ClCfCJnJjeLlKvSOfb
-         0oKu4d/fvgVm6u3Vj+JP9wT9hYO2GxaR8ltMmP5sm/eGBj3Uv2BuWpqm9zmpZ4sCZg
-         +t6hi5HD9/oYzloqapk/2Svt/79/UuFggXwQQ/BM=
+        b=Ufcr13bFm+qUXww6JGvq+RfnsIrY6Jaf9cITiBWQJ9Mr91Usg6qFqBVbHgh5PAJjy
+         8HD2MqoCXaPid+jYZT32j4SBaHzNJkdcvh+fk54b92SNnaCQT1hb0Hho38aiqSFxiy
+         wI4YDLYU28Ofa2YhGU7OR+2yZJDcdCnYS5y2/oes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: [PATCH 4.19 04/37] xen/privcmd: allow fetching resource sizes
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 06/30] drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs
 Date:   Tue,  2 Feb 2021 14:38:47 +0100
-Message-Id: <20210202132943.076447076@linuxfoundation.org>
+Message-Id: <20210202132942.390970110@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
-References: <20210202132942.915040339@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit ef3a575baf53571dc405ee4028e26f50856898e7 upstream.
+commit caab13b4960416b9fee83169a758eb0f31e65109 upstream.
 
-Allow issuing an IOCTL_PRIVCMD_MMAP_RESOURCE ioctl with num = 0 and
-addr = 0 in order to fetch the size of a specific resource.
+Since at91_soc_init is called unconditionally from atmel_soc_device_init,
+we get the following warning on all non AT91 SoCs:
+	" AT91: Could not find identification node"
 
-Add a shortcut to the default map resource path, since fetching the
-size requires no address to be passed in, and thus no VMA to setup.
+Fix the same by filtering with allowed AT91 SoC list.
 
-This is missing from the initial implementation, and causes issues
-when mapping resources that don't have fixed or known sizes.
-
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Tested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: stable@vger.kernel.org # >= 4.18
-Link: https://lore.kernel.org/r/20210112115358.23346-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: stable@vger.kernel.org #4.12+
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201211135846.1334322-1-sudeep.holla@arm.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/privcmd.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/soc/atmel/soc.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -743,14 +743,15 @@ static int remap_pfn_fn(pte_t *ptep, pgt
- 	return 0;
+--- a/drivers/soc/atmel/soc.c
++++ b/drivers/soc/atmel/soc.c
+@@ -246,8 +246,20 @@ struct soc_device * __init at91_soc_init
+ 	return soc_dev;
  }
  
--static long privcmd_ioctl_mmap_resource(struct file *file, void __user *udata)
-+static long privcmd_ioctl_mmap_resource(struct file *file,
-+				struct privcmd_mmap_resource __user *udata)
++static const struct of_device_id at91_soc_allowed_list[] __initconst = {
++	{ .compatible = "atmel,at91rm9200", },
++	{ .compatible = "atmel,at91sam9", },
++	{ .compatible = "atmel,sama5", },
++	{ .compatible = "atmel,samv7", }
++};
++
+ static int __init atmel_soc_device_init(void)
  {
- 	struct privcmd_data *data = file->private_data;
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct privcmd_mmap_resource kdata;
- 	xen_pfn_t *pfns = NULL;
--	struct xen_mem_acquire_resource xdata;
-+	struct xen_mem_acquire_resource xdata = { };
- 	int rc;
- 
- 	if (copy_from_user(&kdata, udata, sizeof(kdata)))
-@@ -760,6 +761,22 @@ static long privcmd_ioctl_mmap_resource(
- 	if (data->domid != DOMID_INVALID && data->domid != kdata.dom)
- 		return -EPERM;
- 
-+	/* Both fields must be set or unset */
-+	if (!!kdata.addr != !!kdata.num)
-+		return -EINVAL;
++	struct device_node *np = of_find_node_by_path("/");
 +
-+	xdata.domid = kdata.dom;
-+	xdata.type = kdata.type;
-+	xdata.id = kdata.id;
++	if (!of_match_node(at91_soc_allowed_list, np))
++		return 0;
 +
-+	if (!kdata.addr && !kdata.num) {
-+		/* Query the size of the resource. */
-+		rc = HYPERVISOR_memory_op(XENMEM_acquire_resource, &xdata);
-+		if (rc)
-+			return rc;
-+		return __put_user(xdata.nr_frames, &udata->num);
-+	}
-+
- 	down_write(&mm->mmap_sem);
+ 	at91_soc_init(socs);
  
- 	vma = find_vma(mm, kdata.addr);
-@@ -793,10 +810,6 @@ static long privcmd_ioctl_mmap_resource(
- 	} else
- 		vma->vm_private_data = PRIV_VMA_LOCKED;
- 
--	memset(&xdata, 0, sizeof(xdata));
--	xdata.domid = kdata.dom;
--	xdata.type = kdata.type;
--	xdata.id = kdata.id;
- 	xdata.frame = kdata.idx;
- 	xdata.nr_frames = kdata.num;
- 	set_xen_guest_handle(xdata.frame_list, pfns);
+ 	return 0;
 
 
