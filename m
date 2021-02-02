@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C43130BFFE
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDC530BFFB
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbhBBNrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:47:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36460 "EHLO mail.kernel.org"
+        id S232789AbhBBNrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:47:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232902AbhBBNpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232904AbhBBNpS (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 08:45:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77EA964F81;
-        Tue,  2 Feb 2021 13:41:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E7D64F85;
+        Tue,  2 Feb 2021 13:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273267;
-        bh=YLzPPctyy4SyJqM/ItZUdmGJL549Q0u1dOVa0SLo4SA=;
+        s=korg; t=1612273269;
+        bh=6XzYNaFAg2Dv3QRnWNvsuF8NFhLJvOCLS8ni44TLn3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMdMrzBUnzooyQ4fd7Bw2b6Gn4HGp5jv23nkqGCkaUCuSf2rqPOD37KaE52EDUxN+
-         e4iYuvEXG+uX1DG77+uxIksfNVW+uN/29NCKSEwW6GB82ACqHPEFJ+evPTP3r1JLMw
-         tZT6jIYOCwnZMI9vVjxykW1GE5QS8LYyykxEx7ak=
+        b=ftsxwKH75HhaJtsb6THCZ/E4guXz22429k+Tmr42EUCQ1rlCjt8/lgkZDdHA+dbRv
+         TjUPj6ZKg/JQwjApax6XsMGI7BNF7LqKUIOXE/tOj6NfGICYtZwJwjwiQRppLPh/MV
+         8t8sKpko3m9glN8JaBv9Em8htq34rVQ3vWe0raqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Heider <a.heider@gmail.com>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 011/142] media: cedrus: Fix H264 decoding
-Date:   Tue,  2 Feb 2021 14:36:14 +0100
-Message-Id: <20210202132958.167593589@linuxfoundation.org>
+Subject: [PATCH 5.10 012/142] media: hantro: Fix reset_raw_fmt initialization
+Date:   Tue,  2 Feb 2021 14:36:15 +0100
+Message-Id: <20210202132958.208153459@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,42 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 73bc0b0c2a96b31199da0ce6c3d04be81ef73bb9 upstream.
+commit e081863ab48d9b2eee9e899cbd05752a2a30308d upstream.
 
-During H264 API overhaul subtle bug was introduced Cedrus driver.
-Progressive references have both, top and bottom reference flags set.
-Cedrus reference list expects only bottom reference flag and only when
-interlaced frames are decoded. However, due to a bug in Cedrus check,
-exclusivity is not tested and that flag is set also for progressive
-references. That causes "jumpy" background with many videos.
+raw_fmt->height in never initialized. But width in initialized twice.
 
-Fix that by checking that only bottom reference flag is set in control
-and nothing else.
-
-Tested-by: Andre Heider <a.heider@gmail.com>
-Fixes: cfc8c3ed533e ("media: cedrus: h264: Properly configure reference field")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: 88d06362d1d05 ("media: hantro: Refactor for V4L2 API spec compliancy")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h264.c |    2 +-
+ drivers/staging/media/hantro/hantro_v4l2.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h264.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h264.c
-@@ -203,7 +203,7 @@ static void _cedrus_write_ref_list(struc
- 		position = cedrus_buf->codec.h264.position;
+--- a/drivers/staging/media/hantro/hantro_v4l2.c
++++ b/drivers/staging/media/hantro/hantro_v4l2.c
+@@ -367,7 +367,7 @@ hantro_reset_raw_fmt(struct hantro_ctx *
  
- 		sram_array[i] |= position << 1;
--		if (ref_list[i].fields & V4L2_H264_BOTTOM_FIELD_REF)
-+		if (ref_list[i].fields == V4L2_H264_BOTTOM_FIELD_REF)
- 			sram_array[i] |= BIT(0);
- 	}
- 
+ 	hantro_reset_fmt(raw_fmt, raw_vpu_fmt);
+ 	raw_fmt->width = encoded_fmt->width;
+-	raw_fmt->width = encoded_fmt->width;
++	raw_fmt->height = encoded_fmt->height;
+ 	if (ctx->is_encoder)
+ 		hantro_set_fmt_out(ctx, raw_fmt);
+ 	else
 
 
