@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EC430C07C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD71230CA3E
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233464AbhBBN7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:59:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45012 "EHLO mail.kernel.org"
+        id S234068AbhBBSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:42:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233159AbhBBN5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:57:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED1CD64FEC;
-        Tue,  2 Feb 2021 13:45:48 +0000 (UTC)
+        id S233708AbhBBOCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:02:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DB376500A;
+        Tue,  2 Feb 2021 13:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273549;
-        bh=8YP2YwpCFgBGOYFrtNLvhwmNyCeJdnTSQVFVtIfDwGY=;
+        s=korg; t=1612273683;
+        bh=YiHowHmrBgRNazLfEjZaCE+j0aY+OGKvFe0ymrIUFRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mw/IfXNVgIJZzrZzZfdJwXxVRSNbtkLux8ckKMjxI2OqnitbkA62/v+3eQNHva1B6
-         N14Km4GYcpt/Dn23uZrwg2lXQx6+eFqr+7o2Kq0HmVhav8WcAmgZd4N02ANfwGcF9J
-         Kjh0soAXnItkbX3oZ1izUa40jvZNHA71jWM/fwIs=
+        b=IyuSSmiRPKcirMT7fnHbQQo9nQzyIbF6DDV2DJHVA276V4bH9Xurm2MsMoUkMJTQV
+         oD4A8P6j8EBe++qZkkxYFvlaTcVxfUjvRdiYuQ5HrMqsYQHo1mDjuk1xHHgFWP5kGP
+         L6Ji7sDRQhHp/Kln/2f7rtqBT/2kEGew3W/j/1EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 116/142] net/mlx5e: free page before return
+        stable@vger.kernel.org,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 21/61] KVM: Forbid the use of tagged userspace addresses for memslots
 Date:   Tue,  2 Feb 2021 14:37:59 +0100
-Message-Id: <20210202133002.495565077@linuxfoundation.org>
+Message-Id: <20210202132947.351505597@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 258ed19f075fbc834fe5d69d8b54983fc11e0d4a ]
+commit 139bc8a6146d92822c866cf2fd410159c56b3648 upstream.
 
-Instead of directly return, goto the error handling label to free
-allocated page.
+The use of a tagged address could be pretty confusing for the
+whole memslot infrastructure as well as the MMU notifiers.
 
-Fixes: 5f29458b77d5 ("net/mlx5e: Support dump callback in TX reporter")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Forbid it altogether, as it never quite worked the first place.
+
+Cc: stable@vger.kernel.org
+Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/health.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/virt/kvm/api.txt |    3 +++
+ virt/kvm/kvm_main.c            |    1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/health.c b/drivers/net/ethernet/mellanox/mlx5/core/en/health.c
-index 69a05da0e3e3d..e03e78a35df00 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/health.c
-@@ -275,7 +275,7 @@ int mlx5e_health_rsc_fmsg_dump(struct mlx5e_priv *priv, struct mlx5_rsc_key *key
+--- a/Documentation/virt/kvm/api.txt
++++ b/Documentation/virt/kvm/api.txt
+@@ -1132,6 +1132,9 @@ field userspace_addr, which must point a
+ the entire memory slot size.  Any object may back this memory, including
+ anonymous memory, ordinary files, and hugetlbfs.
  
- 	err = devlink_fmsg_binary_pair_nest_start(fmsg, "data");
- 	if (err)
--		return err;
-+		goto free_page;
- 
- 	cmd = mlx5_rsc_dump_cmd_create(mdev, key);
- 	if (IS_ERR(cmd)) {
--- 
-2.27.0
-
++On architectures that support a form of address tagging, userspace_addr must
++be an untagged address.
++
+ It is recommended that the lower 21 bits of guest_phys_addr and userspace_addr
+ be identical.  This allows large pages in the guest to be backed by large
+ pages in the host.
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1017,6 +1017,7 @@ int __kvm_set_memory_region(struct kvm *
+ 	/* We can read the guest memory with __xxx_user() later on. */
+ 	if ((id < KVM_USER_MEM_SLOTS) &&
+ 	    ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
++	     (mem->userspace_addr != untagged_addr(mem->userspace_addr)) ||
+ 	     !access_ok((void __user *)(unsigned long)mem->userspace_addr,
+ 			mem->memory_size)))
+ 		goto out;
 
 
