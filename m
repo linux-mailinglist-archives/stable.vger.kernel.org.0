@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DD630CC9B
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B568830CC85
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:01:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240238AbhBBUBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 15:01:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
+        id S240256AbhBBT6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:58:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232953AbhBBNrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:47:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3413064F94;
-        Tue,  2 Feb 2021 13:41:49 +0000 (UTC)
+        id S232743AbhBBNtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:49:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11B7564F9F;
+        Tue,  2 Feb 2021 13:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273309;
-        bh=WwJUMvfJcEuTYVj7En++z0rTVSt7vyOWTEyPOIwWW28=;
+        s=korg; t=1612273338;
+        bh=u+gyNyBEIWNgsF7KN7HrrHtIDyzveKBd0m/L8JWUnsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+B69C0bFlGFp6qpJUwDNl0cL1+qf3f9fTIbRszo9TTxaB1oq3vlwEhOoljxCz9IG
-         etNr6OiqlMLXzOC3BMz3lGMcO9VwktUsyEA74WmU8LgrafXCYV7mSGUlDGE6LrxLbi
-         0QKnzX+lEOudh6uUYemXUF7Btjc8IB3DEdK2cnNI=
+        b=pcrd/FOblA4V3ezWlMiBHwV7Mbca3xGN1ZJ17+TK6aO9nLkYGK0vAOQQjsKPKcHfm
+         dd8A/GcDne/sLgA8vRMM32vBr6HUtL3o1FnFREDrATuMD7q2zPHp8TIzYmpzGqbAk4
+         TXPpeXFeWms7ohAAEpd5jkm2PPSz6JJ1SqH57xBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 041/142] KVM: arm64: Filter out v8.1+ events on v8.0 HW
-Date:   Tue,  2 Feb 2021 14:36:44 +0100
-Message-Id: <20210202132959.413917011@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 042/142] KVM: nSVM: cancel KVM_REQ_GET_NESTED_STATE_PAGES on nested vmexit
+Date:   Tue,  2 Feb 2021 14:36:45 +0100
+Message-Id: <20210202132959.459866638@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -38,53 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 9529aaa056edc76b3a41df616c71117ebe11e049 upstream.
+commit f2c7ef3ba9556d62a7e2bb23b563c6510007d55c upstream.
 
-When running on v8.0 HW, make sure we don't try to advertise
-events in the 0x4000-0x403f range.
+It is possible to exit the nested guest mode, entered by
+svm_set_nested_state prior to first vm entry to it (e.g due to pending event)
+if the nested run was not pending during the migration.
 
-Cc: stable@vger.kernel.org
-Fixes: 88865beca9062 ("KVM: arm64: Mask out filtered events in PCMEID{0,1}_EL1")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210121105636.1478491-1-maz@kernel.org
+In this case we must not switch to the nested msr permission bitmap.
+Also add a warning to catch similar cases in the future.
+
+Fixes: a7d5c7ce41ac1 ("KVM: nSVM: delay MSR permission processing to first nested VM run")
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210107093854.882483-2-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kvm/pmu-emul.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/kvm/svm/nested.c |    3 +++
+ arch/x86/kvm/vmx/nested.c |    2 ++
+ arch/x86/kvm/x86.c        |    4 +++-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/pmu-emul.c
-+++ b/arch/arm64/kvm/pmu-emul.c
-@@ -788,7 +788,7 @@ u64 kvm_pmu_get_pmceid(struct kvm_vcpu *
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -199,6 +199,7 @@ static bool nested_svm_vmrun_msrpm(struc
+ static bool svm_get_nested_state_pages(struct kvm_vcpu *vcpu)
  {
- 	unsigned long *bmap = vcpu->kvm->arch.pmu_filter;
- 	u64 val, mask = 0;
--	int base, i;
-+	int base, i, nr_events;
- 
- 	if (!pmceid1) {
- 		val = read_sysreg(pmceid0_el0);
-@@ -801,13 +801,17 @@ u64 kvm_pmu_get_pmceid(struct kvm_vcpu *
- 	if (!bmap)
- 		return val;
- 
-+	nr_events = kvm_pmu_event_mask(vcpu->kvm) + 1;
+ 	struct vcpu_svm *svm = to_svm(vcpu);
 +
- 	for (i = 0; i < 32; i += 8) {
- 		u64 byte;
+ 	if (!nested_svm_vmrun_msrpm(svm)) {
+ 		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+ 		vcpu->run->internal.suberror =
+@@ -595,6 +596,8 @@ int nested_svm_vmexit(struct vcpu_svm *s
+ 	svm->nested.vmcb12_gpa = 0;
+ 	WARN_ON_ONCE(svm->nested.nested_run_pending);
  
- 		byte = bitmap_get_value8(bmap, base + i);
- 		mask |= byte << i;
--		byte = bitmap_get_value8(bmap, 0x4000 + base + i);
--		mask |= byte << (32 + i);
-+		if (nr_events >= (0x4000 + base + 32)) {
-+			byte = bitmap_get_value8(bmap, 0x4000 + base + i);
-+			mask |= byte << (32 + i);
-+		}
- 	}
++	kvm_clear_request(KVM_REQ_GET_NESTED_STATE_PAGES, &svm->vcpu);
++
+ 	/* in case we halted in L2 */
+ 	svm->vcpu.arch.mp_state = KVM_MP_STATE_RUNNABLE;
  
- 	return val & mask;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4416,6 +4416,8 @@ void nested_vmx_vmexit(struct kvm_vcpu *
+ 	/* trying to cancel vmlaunch/vmresume is a bug */
+ 	WARN_ON_ONCE(vmx->nested.nested_run_pending);
+ 
++	kvm_clear_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu);
++
+ 	/* Service the TLB flush request for L2 before switching to L1. */
+ 	if (kvm_check_request(KVM_REQ_TLB_FLUSH_CURRENT, vcpu))
+ 		kvm_vcpu_flush_tlb_current(vcpu);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8750,7 +8750,9 @@ static int vcpu_enter_guest(struct kvm_v
+ 
+ 	if (kvm_request_pending(vcpu)) {
+ 		if (kvm_check_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu)) {
+-			if (unlikely(!kvm_x86_ops.nested_ops->get_nested_state_pages(vcpu))) {
++			if (WARN_ON_ONCE(!is_guest_mode(vcpu)))
++				;
++			else if (unlikely(!kvm_x86_ops.nested_ops->get_nested_state_pages(vcpu))) {
+ 				r = 0;
+ 				goto out;
+ 			}
 
 
