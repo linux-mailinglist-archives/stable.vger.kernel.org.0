@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAF730C87B
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6379130C966
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237773AbhBBRvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:51:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
+        id S234716AbhBBSRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:17:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233974AbhBBOJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:09:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5021864FA0;
-        Tue,  2 Feb 2021 13:50:33 +0000 (UTC)
+        id S233666AbhBBOGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:06:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5416C64F93;
+        Tue,  2 Feb 2021 13:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273833;
-        bh=N2tYN1Fb+ixyPQzP/GzD6vO6iup7ZyoMYL/6kU9I7xA=;
+        s=korg; t=1612273765;
+        bh=d5j7SbnWRAJXpPB7+lw0l9poLZ38YRZwN8cr2At3V/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9woqvfcRdQ0OKg58YM5dt7XtnfjPqGSco3MjARJEtDHOMWRjZdRvXnSM6qEduDcT
-         OnTyLMPCRHgFtdpMMpKLGtvbUXQejkrjr2VCa73GHomEtCsYBcwfkI86a52PTYku7v
-         uGFKm1m3X2fnEQ3l2ZLWeUvalbG3ocf9rMqSTG88=
+        b=lkYrPKQuWGuQbvDmvVHswSUCP6KlzOiSoHpVvCFhk/0NQ3EeasxZKPFi8lH8Tt6Oh
+         O4hZ70O+xAlMjpaF8QLd6mCt8Gy9s3CrARNzopnWDBrC611trpAvtmP1AcWeQlaqnD
+         xk26xBn9I0m6GKhvpePbvX/JBK/N6NphILsTOjRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 4.9 18/32] leds: trigger: fix potential deadlock with libata
+        stable@vger.kernel.org,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 21/28] xfrm: Fix oops in xfrm_replay_advance_bmp
 Date:   Tue,  2 Feb 2021 14:38:41 +0100
-Message-Id: <20210202132942.753514333@linuxfoundation.org>
+Message-Id: <20210202132942.033211771@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,270 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Shmulik Ladkani <shmulik@metanetworks.com>
 
-commit 27af8e2c90fba242460b01fa020e6e19ed68c495 upstream.
+[ Upstream commit 56ce7c25ae1525d83cf80a880cf506ead1914250 ]
 
-We have the following potential deadlock condition:
+When setting xfrm replay_window to values higher than 32, a rare
+page-fault occurs in xfrm_replay_advance_bmp:
 
- ========================================================
- WARNING: possible irq lock inversion dependency detected
- 5.10.0-rc2+ #25 Not tainted
- --------------------------------------------------------
- swapper/3/0 just changed the state of lock:
- ffff8880063bd618 (&host->lock){-...}-{2:2}, at: ata_bmdma_interrupt+0x27/0x200
- but this lock took another, HARDIRQ-READ-unsafe lock in the past:
-  (&trig->leddev_list_lock){.+.?}-{2:2}
+  BUG: unable to handle page fault for address: ffff8af350ad7920
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0002) - not-present page
+  PGD ad001067 P4D ad001067 PUD 0
+  Oops: 0002 [#1] SMP PTI
+  CPU: 3 PID: 30 Comm: ksoftirqd/3 Kdump: loaded Not tainted 5.4.52-050452-generic #202007160732
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+  RIP: 0010:xfrm_replay_advance_bmp+0xbb/0x130
+  RSP: 0018:ffffa1304013ba40 EFLAGS: 00010206
+  RAX: 000000000000010d RBX: 0000000000000002 RCX: 00000000ffffff4b
+  RDX: 0000000000000018 RSI: 00000000004c234c RDI: 00000000ffb3dbff
+  RBP: ffffa1304013ba50 R08: ffff8af330ad7920 R09: 0000000007fffffa
+  R10: 0000000000000800 R11: 0000000000000010 R12: ffff8af29d6258c0
+  R13: ffff8af28b95c700 R14: 0000000000000000 R15: ffff8af29d6258fc
+  FS:  0000000000000000(0000) GS:ffff8af339ac0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff8af350ad7920 CR3: 0000000015ee4000 CR4: 00000000001406e0
+  Call Trace:
+   xfrm_input+0x4e5/0xa10
+   xfrm4_rcv_encap+0xb5/0xe0
+   xfrm4_udp_encap_rcv+0x140/0x1c0
 
- and interrupts could create inverse lock ordering between them.
+Analysis revealed offending code is when accessing:
 
- other info that might help us debug this:
-  Possible interrupt unsafe locking scenario:
+	replay_esn->bmp[nr] |= (1U << bitnr);
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&trig->leddev_list_lock);
-                                local_irq_disable();
-                                lock(&host->lock);
-                                lock(&trig->leddev_list_lock);
-   <Interrupt>
-     lock(&host->lock);
+with 'nr' being 0x07fffffa.
 
-  *** DEADLOCK ***
+This happened in an SMP system when reordering of packets was present;
+A packet arrived with a "too old" sequence number (outside the window,
+i.e 'diff > replay_window'), and therefore the following calculation:
 
- no locks held by swapper/3/0.
+			bitnr = replay_esn->replay_window - (diff - pos);
 
- the shortest dependencies between 2nd lock and 1st lock:
-  -> (&trig->leddev_list_lock){.+.?}-{2:2} ops: 46 {
-     HARDIRQ-ON-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       rfkill_global_led_trigger_worker+0x94/0xb0
-                       process_one_work+0x240/0x560
-                       worker_thread+0x58/0x3d0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     IN-SOFTIRQ-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       kbd_bh+0x9e/0xc0
-                       tasklet_action_common.constprop.0+0xe9/0x100
-                       tasklet_action+0x22/0x30
-                       __do_softirq+0xcc/0x46d
-                       run_ksoftirqd+0x3f/0x70
-                       smpboot_thread_fn+0x116/0x1f0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     SOFTIRQ-ON-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       rfkill_global_led_trigger_worker+0x94/0xb0
-                       process_one_work+0x240/0x560
-                       worker_thread+0x58/0x3d0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     INITIAL READ USE at:
-                           lock_acquire+0x15f/0x420
-                           _raw_read_lock+0x42/0x90
-                           led_trigger_event+0x2b/0x70
-                           rfkill_global_led_trigger_worker+0x94/0xb0
-                           process_one_work+0x240/0x560
-                           worker_thread+0x58/0x3d0
-                           kthread+0x151/0x170
-                           ret_from_fork+0x1f/0x30
-   }
-   ... key      at: [<ffffffff83da4c00>] __key.0+0x0/0x10
-   ... acquired at:
-    _raw_read_lock+0x42/0x90
-    led_trigger_blink_oneshot+0x3b/0x90
-    ledtrig_disk_activity+0x3c/0xa0
-    ata_qc_complete+0x26/0x450
-    ata_do_link_abort+0xa3/0xe0
-    ata_port_freeze+0x2e/0x40
-    ata_hsm_qc_complete+0x94/0xa0
-    ata_sff_hsm_move+0x177/0x7a0
-    ata_sff_pio_task+0xc7/0x1b0
-    process_one_work+0x240/0x560
-    worker_thread+0x58/0x3d0
-    kthread+0x151/0x170
-    ret_from_fork+0x1f/0x30
+yields a negative result, but since bitnr is u32 we get a large unsigned
+quantity (in crash dump above: 0xffffff4b seen in ecx).
 
- -> (&host->lock){-...}-{2:2} ops: 69 {
-    IN-HARDIRQ-W at:
-                     lock_acquire+0x15f/0x420
-                     _raw_spin_lock_irqsave+0x52/0xa0
-                     ata_bmdma_interrupt+0x27/0x200
-                     __handle_irq_event_percpu+0xd5/0x2b0
-                     handle_irq_event+0x57/0xb0
-                     handle_edge_irq+0x8c/0x230
-                     asm_call_irq_on_stack+0xf/0x20
-                     common_interrupt+0x100/0x1c0
-                     asm_common_interrupt+0x1e/0x40
-                     native_safe_halt+0xe/0x10
-                     arch_cpu_idle+0x15/0x20
-                     default_idle_call+0x59/0x1c0
-                     do_idle+0x22c/0x2c0
-                     cpu_startup_entry+0x20/0x30
-                     start_secondary+0x11d/0x150
-                     secondary_startup_64_no_verify+0xa6/0xab
-    INITIAL USE at:
-                    lock_acquire+0x15f/0x420
-                    _raw_spin_lock_irqsave+0x52/0xa0
-                    ata_dev_init+0x54/0xe0
-                    ata_link_init+0x8b/0xd0
-                    ata_port_alloc+0x1f1/0x210
-                    ata_host_alloc+0xf1/0x130
-                    ata_host_alloc_pinfo+0x14/0xb0
-                    ata_pci_sff_prepare_host+0x41/0xa0
-                    ata_pci_bmdma_prepare_host+0x14/0x30
-                    piix_init_one+0x21f/0x600
-                    local_pci_probe+0x48/0x80
-                    pci_device_probe+0x105/0x1c0
-                    really_probe+0x221/0x490
-                    driver_probe_device+0xe9/0x160
-                    device_driver_attach+0xb2/0xc0
-                    __driver_attach+0x91/0x150
-                    bus_for_each_dev+0x81/0xc0
-                    driver_attach+0x1e/0x20
-                    bus_add_driver+0x138/0x1f0
-                    driver_register+0x91/0xf0
-                    __pci_register_driver+0x73/0x80
-                    piix_init+0x1e/0x2e
-                    do_one_initcall+0x5f/0x2d0
-                    kernel_init_freeable+0x26f/0x2cf
-                    kernel_init+0xe/0x113
-                    ret_from_fork+0x1f/0x30
-  }
-  ... key      at: [<ffffffff83d9fdc0>] __key.6+0x0/0x10
-  ... acquired at:
-    __lock_acquire+0x9da/0x2370
-    lock_acquire+0x15f/0x420
-    _raw_spin_lock_irqsave+0x52/0xa0
-    ata_bmdma_interrupt+0x27/0x200
-    __handle_irq_event_percpu+0xd5/0x2b0
-    handle_irq_event+0x57/0xb0
-    handle_edge_irq+0x8c/0x230
-    asm_call_irq_on_stack+0xf/0x20
-    common_interrupt+0x100/0x1c0
-    asm_common_interrupt+0x1e/0x40
-    native_safe_halt+0xe/0x10
-    arch_cpu_idle+0x15/0x20
-    default_idle_call+0x59/0x1c0
-    do_idle+0x22c/0x2c0
-    cpu_startup_entry+0x20/0x30
-    start_secondary+0x11d/0x150
-    secondary_startup_64_no_verify+0xa6/0xab
+This was supposed to be protected by xfrm_input()'s former call to:
 
-This lockdep splat is reported after:
-commit e918188611f0 ("locking: More accurate annotations for read_lock()")
+		if (x->repl->check(x, skb, seq)) {
 
-To clarify:
- - read-locks are recursive only in interrupt context (when
-   in_interrupt() returns true)
- - after acquiring host->lock in CPU1, another cpu (i.e. CPU2) may call
-   write_lock(&trig->leddev_list_lock) that would be blocked by CPU0
-   that holds trig->leddev_list_lock in read-mode
- - when CPU1 (ata_ac_complete()) tries to read-lock
-   trig->leddev_list_lock, it would be blocked by the write-lock waiter
-   on CPU2 (because we are not in interrupt context, so the read-lock is
-   not recursive)
- - at this point if an interrupt happens on CPU0 and
-   ata_bmdma_interrupt() is executed it will try to acquire host->lock,
-   that is held by CPU1, that is currently blocked by CPU2, so:
+However, the state's spinlock x->lock is *released* after '->check()'
+is performed, and gets re-acquired before '->advance()' - which gives a
+chance for a different core to update the xfrm state, e.g. by advancing
+'replay_esn->seq' when it encounters more packets - leading to a
+'diff > replay_window' situation when original core continues to
+xfrm_replay_advance_bmp().
 
-   * CPU0 blocked by CPU1
-   * CPU1 blocked by CPU2
-   * CPU2 blocked by CPU0
+An attempt to fix this issue was suggested in commit bcf66bf54aab
+("xfrm: Perform a replay check after return from async codepaths"),
+by calling 'x->repl->recheck()' after lock is re-acquired, but fix
+applied only to asyncronous crypto algorithms.
 
-     *** DEADLOCK ***
+Augment the fix, by *always* calling 'recheck()' - irrespective if we're
+using async crypto.
 
-The deadlock scenario is better represented by the following schema
-(thanks to Boqun Feng <boqun.feng@gmail.com> for the schema and the
-detailed explanation of the deadlock condition):
-
- CPU 0:                          CPU 1:                        CPU 2:
- -----                           -----                         -----
- led_trigger_event():
-   read_lock(&trig->leddev_list_lock);
- 				<workqueue>
- 				ata_hsm_qc_complete():
- 				  spin_lock_irqsave(&host->lock);
- 								write_lock(&trig->leddev_list_lock);
- 				  ata_port_freeze():
- 				    ata_do_link_abort():
- 				      ata_qc_complete():
- 					ledtrig_disk_activity():
- 					  led_trigger_blink_oneshot():
- 					    read_lock(&trig->leddev_list_lock);
- 					    // ^ not in in_interrupt() context, so could get blocked by CPU 2
- <interrupt>
-   ata_bmdma_interrupt():
-     spin_lock_irqsave(&host->lock);
-
-Fix by using read_lock_irqsave/irqrestore() in led_trigger_event(), so
-that no interrupt can happen in between, preventing the deadlock
-condition.
-
-Apply the same change to led_trigger_blink_setup() as well, since the
-same deadlock scenario can also happen in power_supply_update_bat_leds()
--> led_trigger_blink() -> led_trigger_blink_setup() (workqueue context),
-and potentially prevent other similar usages.
-
-Link: https://lore.kernel.org/lkml/20201101092614.GB3989@xps-13-7390/
-Fixes: eb25cb9956cc ("leds: convert IDE trigger to common disk trigger")
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0ebea8ef3559 ("[IPSEC]: Move state lock into x->type->input")
+Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/led-triggers.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/xfrm/xfrm_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/leds/led-triggers.c
-+++ b/drivers/leds/led-triggers.c
-@@ -283,14 +283,15 @@ void led_trigger_event(struct led_trigge
- 			enum led_brightness brightness)
- {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
+diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
+index 1e87639f2c270..d613bf77cc0f9 100644
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -315,7 +315,7 @@ resume:
+ 		/* only the first xfrm gets the encap type */
+ 		encap_type = 0;
  
- 	if (!trig)
- 		return;
- 
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list)
- 		led_set_brightness(led_cdev, brightness);
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
- }
- EXPORT_SYMBOL_GPL(led_trigger_event);
- 
-@@ -301,11 +302,12 @@ static void led_trigger_blink_setup(stru
- 			     int invert)
- {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
- 
- 	if (!trig)
- 		return;
- 
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list) {
- 		if (oneshot)
- 			led_blink_set_oneshot(led_cdev, delay_on, delay_off,
-@@ -313,7 +315,7 @@ static void led_trigger_blink_setup(stru
- 		else
- 			led_blink_set(led_cdev, delay_on, delay_off);
- 	}
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
- }
- 
- void led_trigger_blink(struct led_trigger *trig,
+-		if (async && x->repl->recheck(x, skb, seq)) {
++		if (x->repl->recheck(x, skb, seq)) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINSTATESEQERROR);
+ 			goto drop_unlock;
+ 		}
+-- 
+2.27.0
+
 
 
