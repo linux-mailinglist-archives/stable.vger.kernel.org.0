@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2787030C126
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E145C30C550
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233993AbhBBOOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:14:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49660 "EHLO mail.kernel.org"
+        id S234851AbhBBQTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 11:19:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233887AbhBBOMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4CB65043;
-        Tue,  2 Feb 2021 13:52:33 +0000 (UTC)
+        id S230224AbhBBOQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:16:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3D5D6505B;
+        Tue,  2 Feb 2021 13:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273954;
-        bh=ag7Rln3xdz2wehpBX7M3kDZf5akHxKPQ0ORm6nQ4Rcw=;
+        s=korg; t=1612274034;
+        bh=v1N9oTk/0UTcpSNW0o3l3MhznrA2CRHQ7GsADeaDB2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEcMZgmAzjsvR9ruhVu2n/R/stRm3wGnc+cuW4UhTF7qI3aIvxIqKZHAuNbXlfc8k
-         SO7neT6tZhpeW0UsUabM3v/wjPebry5UqJKMgIrPaZq9smC24IkVhRMkOM8NPbioSk
-         /+vKPPoKVoV5uJiUA0LVQExn6H4J+P3vK9MCma0g=
+        b=rK5prnbAGK02eWR10WLrUk2w5rEbwCjjMxsLoR0tah8c1nLlkSXi4W7d6XRKu2FRB
+         /iSmt/YNNLdVkQBFvlam1c3cKJP0PlCZZkp+i8018uukVJV4jFKKnEGBUyWSeadIc4
+         xxX9TnRIJ9KdtkRc2UK/uJcngAMZjbvkVZs6vROc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeed@kernel.org>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 29/30] team: protect features update by RCU to avoid deadlock
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/37] iwlwifi: pcie: reschedule in long-running memory reads
 Date:   Tue,  2 Feb 2021 14:39:10 +0100
-Message-Id: <20210202132943.331242091@linuxfoundation.org>
+Message-Id: <20210202132944.059440795@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit f0947d0d21b219e03940b9be6628a43445c0de7a upstream.
+[ Upstream commit 3d372c4edfd4dffb7dea71c6b096fb414782b776 ]
 
-Function __team_compute_features() is protected by team->lock
-mutex when it is called from team_compute_features() used when
-features of an underlying device is changed. This causes
-a deadlock when NETDEV_FEAT_CHANGE notifier for underlying device
-is fired due to change propagated from team driver (e.g. MTU
-change). It's because callbacks like team_change_mtu() or
-team_vlan_rx_{add,del}_vid() protect their port list traversal
-by team->lock mutex.
+If we spin for a long time in memory reads that (for some reason in
+hardware) take a long time, then we'll eventually get messages such
+as
 
-Example (r8169 case where this driver disables TSO for certain MTU
-values):
-...
-[ 6391.348202]  __mutex_lock.isra.6+0x2d0/0x4a0
-[ 6391.358602]  team_device_event+0x9d/0x160 [team]
-[ 6391.363756]  notifier_call_chain+0x47/0x70
-[ 6391.368329]  netdev_update_features+0x56/0x60
-[ 6391.373207]  rtl8169_change_mtu+0x14/0x50 [r8169]
-[ 6391.378457]  dev_set_mtu_ext+0xe1/0x1d0
-[ 6391.387022]  dev_set_mtu+0x52/0x90
-[ 6391.390820]  team_change_mtu+0x64/0xf0 [team]
-[ 6391.395683]  dev_set_mtu_ext+0xe1/0x1d0
-[ 6391.399963]  do_setlink+0x231/0xf50
-...
+  watchdog: BUG: soft lockup - CPU#2 stuck for 24s! [kworker/2:2:272]
 
-In fact team_compute_features() called from team_device_event()
-does not need to be protected by team->lock mutex and rcu_read_lock()
-is sufficient there for port list traversal.
+This is because the reading really does take a very long time, and
+we don't schedule, so we're hogging the CPU with this task, at least
+if CONFIG_PREEMPT is not set, e.g. with CONFIG_PREEMPT_VOLUNTARY=y.
 
-Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
-Cc: Saeed Mahameed <saeed@kernel.org>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20210125074416.4056484-1-ivecera@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Previously I misinterpreted the situation and thought that this was
+only going to happen if we had interrupts disabled, and then fixed
+this (which is good anyway, however), but that didn't always help;
+looking at it again now I realized that the spin unlock will only
+reschedule if CONFIG_PREEMPT is used.
 
+In order to avoid this issue, change the code to cond_resched() if
+we've been spinning for too long here.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 04516706bb99 ("iwlwifi: pcie: limit memory read spin time")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130253.217a9d6a6a12.If964cb582ab0aaa94e81c4ff3b279eaafda0fd3f@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1002,7 +1002,8 @@ static void __team_compute_features(stru
- 	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
- 					IFF_XMIT_DST_RELEASE_PERM;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index fe772b716a8df..fcda33482887b 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -2127,6 +2127,7 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 	while (offs < dwords) {
+ 		/* limit the time we spin here under lock to 1/2s */
+ 		unsigned long end = jiffies + HZ / 2;
++		bool resched = false;
  
--	list_for_each_entry(port, &team->port_list, list) {
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(port, &team->port_list, list) {
- 		vlan_features = netdev_increment_features(vlan_features,
- 					port->dev->vlan_features,
- 					TEAM_VLAN_FEATURES);
-@@ -1016,6 +1017,7 @@ static void __team_compute_features(stru
- 		if (port->dev->hard_header_len > max_hard_header_len)
- 			max_hard_header_len = port->dev->hard_header_len;
- 	}
-+	rcu_read_unlock();
+ 		if (iwl_trans_grab_nic_access(trans, &flags)) {
+ 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
+@@ -2137,10 +2138,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 							HBUS_TARG_MEM_RDAT);
+ 				offs++;
  
- 	team->dev->vlan_features = vlan_features;
- 	team->dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
-@@ -1030,9 +1032,7 @@ static void __team_compute_features(stru
- 
- static void team_compute_features(struct team *team)
- {
--	mutex_lock(&team->lock);
- 	__team_compute_features(team);
--	mutex_unlock(&team->lock);
- 	netdev_change_features(team->dev);
- }
- 
+-				if (time_after(jiffies, end))
++				if (time_after(jiffies, end)) {
++					resched = true;
+ 					break;
++				}
+ 			}
+ 			iwl_trans_release_nic_access(trans, &flags);
++
++			if (resched)
++				cond_resched();
+ 		} else {
+ 			return -EBUSY;
+ 		}
+-- 
+2.27.0
+
 
 
