@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1784530CBD1
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A46630CAAC
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233174AbhBBTgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:36:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45178 "EHLO mail.kernel.org"
+        id S239065AbhBBS4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:56:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233215AbhBBN4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:56:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B8BC64F68;
-        Tue,  2 Feb 2021 13:45:04 +0000 (UTC)
+        id S233537AbhBBOBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:01:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1B4F64FFD;
+        Tue,  2 Feb 2021 13:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273504;
-        bh=ixivgIlh1IPA3J4TEhtPXAxoNvXYrtmJTO/IyMq+rPE=;
+        s=korg; t=1612273637;
+        bh=4SVKmwjqH7ZGQkrtA8K5tUcZDi/m0sGJKXYr67krFc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSvXa5k+Mct99xa7v10WGBKmlOJF0i12oCIIhyGE3BFNV8iw0Oz/X7lTFACwrGFd7
-         HBaeV0EaRqlZosUS6r4PO78/aCBn/EfIxzkH9z2wgsts2qERtFyGXb5xfYMY1hljl1
-         cIKb+QmlyHZAYrnMm8Hm4X2YgO34vaUMaq4weyc8=
+        b=Hkgd0kDe2ctxjiCTCaBzw5+ZvXm5U1zCuXyV4JblPdUr9fzofK0ATQ+Alugw+MiCb
+         k8yIkzge90LO4lUGy7rWQLalJFPj6UdWAmxo0zKGU58OaDhRQoMmfa5K8E+oLOaQtd
+         zyLtgduR6wibXslQCjJr73lDoPrV2/VHxjVrkorY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Visa Hankala <visa@hankala.org>,
+        Florian Westphal <fw@strlen.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/142] selftests: forwarding: Specify interface when invoking mausezahn
+Subject: [PATCH 5.4 36/61] xfrm: Fix wraparound in xfrm_policy_addr_delta()
 Date:   Tue,  2 Feb 2021 14:38:14 +0100
-Message-Id: <20210202133003.098725784@linuxfoundation.org>
+Message-Id: <20210202132947.992415183@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: Visa Hankala <visa@hankala.org>
 
-[ Upstream commit 11df27f7fdf02cc2bb354358ad482e1fdd690589 ]
+[ Upstream commit da64ae2d35d3673233f0403b035d4c6acbf71965 ]
 
-Specify the interface through which packets should be transmitted so
-that the test will pass regardless of the libnet version against which
-mausezahn is linked.
+Use three-way comparison for address components to avoid integer
+wraparound in the result of xfrm_policy_addr_delta(). This ensures
+that the search trees are built and traversed correctly.
 
-Fixes: cab14d1087d9 ("selftests: Add version of router_multipath.sh using nexthop objects")
-Fixes: 3d578d879517 ("selftests: forwarding: Test IPv4 weighted nexthops")
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Treat IPv4 and IPv6 similarly by returning 0 when prefixlen == 0.
+Prefix /0 has only one equivalence class.
+
+Fixes: 9cf545ebd591d ("xfrm: policy: store inexact policies in a tree ordered by destination address")
+Signed-off-by: Visa Hankala <visa@hankala.org>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/router_mpath_nh.sh  | 2 +-
- tools/testing/selftests/net/forwarding/router_multipath.sh | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_policy.c                     | 26 +++++++++----
+ tools/testing/selftests/net/xfrm_policy.sh | 43 ++++++++++++++++++++++
+ 2 files changed, 61 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/router_mpath_nh.sh b/tools/testing/selftests/net/forwarding/router_mpath_nh.sh
-index cf3d26c233e8e..7fcc42bc076fa 100755
---- a/tools/testing/selftests/net/forwarding/router_mpath_nh.sh
-+++ b/tools/testing/selftests/net/forwarding/router_mpath_nh.sh
-@@ -197,7 +197,7 @@ multipath4_test()
- 	t0_rp12=$(link_stats_tx_packets_get $rp12)
- 	t0_rp13=$(link_stats_tx_packets_get $rp13)
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 780e96f0708e2..32c8163427970 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -790,15 +790,22 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
+ 				  const xfrm_address_t *b,
+ 				  u8 prefixlen, u16 family)
+ {
++	u32 ma, mb, mask;
+ 	unsigned int pdw, pbi;
+ 	int delta = 0;
  
--	ip vrf exec vrf-h1 $MZ -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
-+	ip vrf exec vrf-h1 $MZ $h1 -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
- 		-d 1msec -t udp "sp=1024,dp=0-32768"
+ 	switch (family) {
+ 	case AF_INET:
+-		if (sizeof(long) == 4 && prefixlen == 0)
+-			return ntohl(a->a4) - ntohl(b->a4);
+-		return (ntohl(a->a4) & ((~0UL << (32 - prefixlen)))) -
+-		       (ntohl(b->a4) & ((~0UL << (32 - prefixlen))));
++		if (prefixlen == 0)
++			return 0;
++		mask = ~0U << (32 - prefixlen);
++		ma = ntohl(a->a4) & mask;
++		mb = ntohl(b->a4) & mask;
++		if (ma < mb)
++			delta = -1;
++		else if (ma > mb)
++			delta = 1;
++		break;
+ 	case AF_INET6:
+ 		pdw = prefixlen >> 5;
+ 		pbi = prefixlen & 0x1f;
+@@ -809,10 +816,13 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
+ 				return delta;
+ 		}
+ 		if (pbi) {
+-			u32 mask = ~0u << (32 - pbi);
+-
+-			delta = (ntohl(a->a6[pdw]) & mask) -
+-				(ntohl(b->a6[pdw]) & mask);
++			mask = ~0U << (32 - pbi);
++			ma = ntohl(a->a6[pdw]) & mask;
++			mb = ntohl(b->a6[pdw]) & mask;
++			if (ma < mb)
++				delta = -1;
++			else if (ma > mb)
++				delta = 1;
+ 		}
+ 		break;
+ 	default:
+diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
+index 5922941e70c6c..bdf450eaf60cf 100755
+--- a/tools/testing/selftests/net/xfrm_policy.sh
++++ b/tools/testing/selftests/net/xfrm_policy.sh
+@@ -287,6 +287,47 @@ check_hthresh_repeat()
+ 	return 0
+ }
  
- 	t1_rp12=$(link_stats_tx_packets_get $rp12)
-diff --git a/tools/testing/selftests/net/forwarding/router_multipath.sh b/tools/testing/selftests/net/forwarding/router_multipath.sh
-index 79a2099279621..464821c587a5e 100755
---- a/tools/testing/selftests/net/forwarding/router_multipath.sh
-+++ b/tools/testing/selftests/net/forwarding/router_multipath.sh
-@@ -178,7 +178,7 @@ multipath4_test()
-        t0_rp12=$(link_stats_tx_packets_get $rp12)
-        t0_rp13=$(link_stats_tx_packets_get $rp13)
++# insert non-overlapping policies in a random order and check that
++# all of them can be fetched using the traffic selectors.
++check_random_order()
++{
++	local ns=$1
++	local log=$2
++
++	for i in $(seq 100); do
++		ip -net $ns xfrm policy flush
++		for j in $(seq 0 16 255 | sort -R); do
++			ip -net $ns xfrm policy add dst $j.0.0.0/24 dir out priority 10 action allow
++		done
++		for j in $(seq 0 16 255); do
++			if ! ip -net $ns xfrm policy get dst $j.0.0.0/24 dir out > /dev/null; then
++				echo "FAIL: $log" 1>&2
++				return 1
++			fi
++		done
++	done
++
++	for i in $(seq 100); do
++		ip -net $ns xfrm policy flush
++		for j in $(seq 0 16 255 | sort -R); do
++			local addr=$(printf "e000:0000:%02x00::/56" $j)
++			ip -net $ns xfrm policy add dst $addr dir out priority 10 action allow
++		done
++		for j in $(seq 0 16 255); do
++			local addr=$(printf "e000:0000:%02x00::/56" $j)
++			if ! ip -net $ns xfrm policy get dst $addr dir out > /dev/null; then
++				echo "FAIL: $log" 1>&2
++				return 1
++			fi
++		done
++	done
++
++	ip -net $ns xfrm policy flush
++
++	echo "PASS: $log"
++	return 0
++}
++
+ #check for needed privileges
+ if [ "$(id -u)" -ne 0 ];then
+ 	echo "SKIP: Need root privileges"
+@@ -438,6 +479,8 @@ check_exceptions "exceptions and block policies after htresh change to normal"
  
--       ip vrf exec vrf-h1 $MZ -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
-+       ip vrf exec vrf-h1 $MZ $h1 -q -p 64 -A 192.0.2.2 -B 198.51.100.2 \
- 	       -d 1msec -t udp "sp=1024,dp=0-32768"
+ check_hthresh_repeat "policies with repeated htresh change"
  
-        t1_rp12=$(link_stats_tx_packets_get $rp12)
++check_random_order ns3 "policies inserted in random order"
++
+ for i in 1 2 3 4;do ip netns del ns$i;done
+ 
+ exit $ret
 -- 
 2.27.0
 
