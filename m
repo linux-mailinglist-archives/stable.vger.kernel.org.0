@@ -2,119 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D49F930CBA0
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7680130CC5A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbhBBTbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:31:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35756 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239793AbhBBT3M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 14:29:12 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73D9DC0613ED
-        for <stable@vger.kernel.org>; Tue,  2 Feb 2021 11:28:31 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id 8so7721618plc.10
-        for <stable@vger.kernel.org>; Tue, 02 Feb 2021 11:28:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Jb9fafr8UlBksV4GvogXW2zkziqvhIXcOHKkKQn6b2Q=;
-        b=NyQnu7SkmKOKCGK02Zc5nUQd7y983EQb2ohywvcNdQT0oy0yUtRBClJtxB3ntEiGKc
-         4X0hJnEtGzOj9fdwZwI3aHwxCFBxcvNVAGDA1ps35+EK7cMhYqltfCT0BF8Fkt+3OiBX
-         m3QSRncwKgJjpAtaptpO5tmH94DKWL8ceiE03HNdV3gB0ffzS3t1paveUi2R+fjzQ4NX
-         i8EDjvu9NjyGZ3sn/fprGQEATUlInP0P9G/lf0wgOLTZwop87uPJAj2OoDNgTT6RY853
-         Z+RWDDaouwTYWJylgVN6dGiHxCFJD6v3K+rDxYWRfoP4zVr6gMaDKBro94UZ/mXhSrak
-         +sUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Jb9fafr8UlBksV4GvogXW2zkziqvhIXcOHKkKQn6b2Q=;
-        b=W7K+v90K9zpBvYcVLwUE7UxKsIleAFpmtyFIt10cey4f9cri7vdViFFEFfTKfpT56G
-         37hPvIWKB54K3Ce+ZXOjUYdHVzxAJ8miEQg254/4ZmsbNvuTdjcyM3NwcAIxanko7P3U
-         cPwg5MZpraAFywVb9OIfihkdaz8REQXwEvGW9l5ydAtwZZ1XnakvCzLm6i0lfRQoCV0A
-         /7FZUuEJbA03JF9gYf7+T0Bx6kjzhsg13OZukIseJcr7P2nm/Ijp0SUEVSbrf39agfNu
-         g53eDzXGIM+4ypueBZIREOjMNZEkifwRzzGaMOpdR9DWINsL3N99bUfZAVHeVrW8KnPB
-         5pGQ==
-X-Gm-Message-State: AOAM531bZDtlKgjxVG8c+9LY9MC3V9ZW+raW8lqi+s7kCLcXctDip2o4
-        F15vNMKJ3sjrtqz+EbmoNT8XTzgE0dR/lg==
-X-Google-Smtp-Source: ABdhPJxuafUEx6ybXivD5eeGreoxDtQHIOMdmo3vctQ1Z6iU9ZH/8fQSU2iayRXUNDAPR+GmcErkFw==
-X-Received: by 2002:a17:90a:f0c1:: with SMTP id fa1mr5976751pjb.3.1612294110709;
-        Tue, 02 Feb 2021 11:28:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n128sm23831257pga.55.2021.02.02.11.28.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Feb 2021 11:28:30 -0800 (PST)
-Message-ID: <6019a7de.1c69fb81.6ebaa.7c88@mx.google.com>
-Date:   Tue, 02 Feb 2021 11:28:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S240183AbhBBTxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:53:01 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:33274 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240123AbhBBTwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 14:52:00 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112JnXCQ062055;
+        Tue, 2 Feb 2021 19:51:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=hUD94XtAq9TQ5xmSNjjuDRv6Kc5OZGNoLG59OnZOa6Y=;
+ b=tqsFOad/Em2voW8/al72tuFLvDoEzcuWf3+Ycnyx8MoXMk4Rv1D+P17dfPk+1bdWPwHJ
+ hVYzKIbRWmNBe8ik4zmgZvR08umhFx4T3h4hyyTxJlq+CHXR3cLdhrXvdusMkERGZzSM
+ Fbwse9fniaMQI45poQwa55AXpHsj0M/Mor0v2loR/Dm0yOVhSQHQdn9I43P47sp5ZpNp
+ HPNlWFfK8/nRWpj9ifR9QwKfktWVIM6kY4OvamRsvOOqXk8T3NMoH6otT1IcXmLCYDHp
+ 0K8xYvVTP1ETx5G20YKqqq+mjo+uyfq4CLjEipWCQgPtwcsDynHZ0DgYxdW9AWnk8TRo 7A== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 36cvyavtc9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Feb 2021 19:51:11 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112JnUXF054853;
+        Tue, 2 Feb 2021 19:51:10 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3030.oracle.com with ESMTP id 36dh1pk2v3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Feb 2021 19:51:10 +0000
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 112Jp8AZ012011;
+        Tue, 2 Feb 2021 19:51:08 GMT
+Received: from kadam (/102.36.221.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 02 Feb 2021 11:51:08 -0800
+Date:   Tue, 2 Feb 2021 22:51:01 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.4 24/28] can: dev: prevent potential information leak
+ in can_fill_info()
+Message-ID: <20210202195101.GF20820@kadam>
+References: <20210202132941.180062901@linuxfoundation.org>
+ <20210202132942.158736432@linuxfoundation.org>
+ <20210202185317.GB6964@duo.ucw.cz>
+ <20210202190539.GE20820@kadam>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.12-143-gb34e59747fbb
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 176 runs,
- 1 regressions (v5.10.12-143-gb34e59747fbb)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210202190539.GE20820@kadam>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-IMR: 1
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0 phishscore=0
+ suspectscore=0 mlxlogscore=999 bulkscore=0 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102020127
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1011 impostorscore=0
+ mlxscore=0 spamscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102020127
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 176 runs, 1 regressions (v5.10.12-143-gb34=
-e59747fbb)
+On Tue, Feb 02, 2021 at 10:05:39PM +0300, Dan Carpenter wrote:
+> On Tue, Feb 02, 2021 at 07:53:17PM +0100, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > From: Dan Carpenter <dan.carpenter@oracle.com>
+> > > 
+> > > [ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
+> > > 
+> > > The "bec" struct isn't necessarily always initialized. For example, the
+> > > mcp251xfd_get_berr_counter() function doesn't initialize anything if the
+> > > interface is down.
+> > 
+> > Well, yes... and = {} does not neccessarily initialize all of the
+> > structure... for example padding.
+> > 
+> > It is really simple
+> > 
+> > struct can_berr_counter {
+> > 	__u16 txerr;
+> > 	__u16 rxerr;
+> > };
+> > 
+> > but maybe something like alpha uses padding in such case, and memset
+> > would be better?
+> 
+> I'm pretty sure nothing uses padding in this situation.  If it does then
+> we need to re-work a bunch of code.
 
-Regressions Summary
--------------------
+Not necessarily related but in theory a "= {};" assignment is a GCC
+extension and it is supposed to zero out struct holes.  If the code
+does "= {0};" then that's standard C, and will not necessarily fill
+struct holes but I think GCC tries to.  The other complication is that
+some GCC versions have bugs related to this?  We had a long thread about
+this last August.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+https://lore.kernel.org/lkml/20200801144030.GM24045@ziepe.ca/
 
+Anyway, this code has no holes so it's not affected.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.12-143-gb34e59747fbb/plan/baseline/
+regards,
+dan carpenter
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.12-143-gb34e59747fbb
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b34e59747fbb2a46f329a8562d3fd5ec6e24b2a1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/601977394c69a0b4f83abe64
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-2-143-gb34e59747fbb/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-2-143-gb34e59747fbb/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601977394c69a0b4f83ab=
-e65
-        new failure (last pass: v5.10.12-78-g6ce52453eaf7) =
-
- =20
