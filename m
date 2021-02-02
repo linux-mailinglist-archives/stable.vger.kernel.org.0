@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E34830CB59
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E30D30CBDC
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239118AbhBBTVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:21:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46300 "EHLO mail.kernel.org"
+        id S239904AbhBBThR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:37:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233461AbhBBOBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:01:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DC764F85;
-        Tue,  2 Feb 2021 13:47:13 +0000 (UTC)
+        id S233187AbhBBN4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38BAA64F61;
+        Tue,  2 Feb 2021 13:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273634;
-        bh=Sa6tYb4IWmrl1JerSSQA4Px3w1Hsran4E+EIK/mwfYE=;
+        s=korg; t=1612273501;
+        bh=RBLoRNYKmCuVRi4nEg7h1pxqF3vcqxiTgYXtW3BA87I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEZgL40SUMRoIHT7QdAQz9vgo7QWGRNKKLzbB+bby4fQ9EHgLEY6LvVHBBBXdoz2A
-         T+Nt1C3nAplcKBL8GMvPitohVB4eiNijrf1VyaB+fBKXFoRM9qBWc1au/WblYBvD2K
-         rRmedA+i+9/m48hh/N5xaqp8q49TbP8IOqAOSd/o=
+        b=f2/z021IRV7VU/UmjFAp0Ypd/Te/Y5BaDUs+PbNl9i1jrtUWhs5LaufFVgN2owA3G
+         L0CTax614D8b9/hO5RQUhW1EOkt505EA6IcZ1+en77P8u0b+6HqbM8QrKz52TT7Y+w
+         jliqjtcqrc6yBGSW2N6GNDumDVZw5h6qXETxRl5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Florian Westphal <fw@strlen.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/61] selftests: xfrm: fix test return value override issue in xfrm_policy.sh
+Subject: [PATCH 5.10 130/142] nvme-multipath: Early exit if no path is available
 Date:   Tue,  2 Feb 2021 14:38:13 +0100
-Message-Id: <20210202132947.950891302@linuxfoundation.org>
+Message-Id: <20210202133003.057805779@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit f6e9ceb7a7fc321a31a9dde93a99b7b4b016a3b3 ]
+[ Upstream commit d1bcf006a9d3d63c1bcb65a993cb13756954cd9c ]
 
-When running this xfrm_policy.sh test script, even with some cases
-marked as FAIL, the overall test result will still be PASS:
+nvme_round_robin_path() should test if the return ns pointer is valid.
+nvme_next_ns() will return a NULL pointer if there is no path left.
 
-$ sudo ./xfrm_policy.sh
-PASS: policy before exception matches
-FAIL: expected ping to .254 to fail (exceptions)
-PASS: direct policy matches (exceptions)
-PASS: policy matches (exceptions)
-FAIL: expected ping to .254 to fail (exceptions and block policies)
-PASS: direct policy matches (exceptions and block policies)
-PASS: policy matches (exceptions and block policies)
-FAIL: expected ping to .254 to fail (exceptions and block policies after hresh changes)
-PASS: direct policy matches (exceptions and block policies after hresh changes)
-PASS: policy matches (exceptions and block policies after hresh changes)
-FAIL: expected ping to .254 to fail (exceptions and block policies after hthresh change in ns3)
-PASS: direct policy matches (exceptions and block policies after hthresh change in ns3)
-PASS: policy matches (exceptions and block policies after hthresh change in ns3)
-FAIL: expected ping to .254 to fail (exceptions and block policies after htresh change to normal)
-PASS: direct policy matches (exceptions and block policies after htresh change to normal)
-PASS: policy matches (exceptions and block policies after htresh change to normal)
-PASS: policies with repeated htresh change
-$ echo $?
-0
-
-This is because the $lret in check_xfrm() is not a local variable.
-Therefore when a test failed in check_exceptions(), the non-zero $lret
-will later get reset to 0 when the next test calls check_xfrm().
-
-With this fix, the final return value will be 1. Make it easier for
-testers to spot this failure.
-
-Fixes: 39aa6928d462d0 ("xfrm: policy: fix netlink/pf_key policy lookups")
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 75c10e732724 ("nvme-multipath: round-robin I/O policy")
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/xfrm_policy.sh | 2 +-
+ drivers/nvme/host/multipath.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
-index 7a1bf94c5bd38..5922941e70c6c 100755
---- a/tools/testing/selftests/net/xfrm_policy.sh
-+++ b/tools/testing/selftests/net/xfrm_policy.sh
-@@ -202,7 +202,7 @@ check_xfrm() {
- 	# 1: iptables -m policy rule count != 0
- 	rval=$1
- 	ip=$2
--	lret=0
-+	local lret=0
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 74896be40c176..292e535a385d4 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -221,7 +221,7 @@ static struct nvme_ns *nvme_round_robin_path(struct nvme_ns_head *head,
+ 	}
  
- 	ip netns exec ns1 ping -q -c 1 10.0.2.$ip > /dev/null
- 
+ 	for (ns = nvme_next_ns(head, old);
+-	     ns != old;
++	     ns && ns != old;
+ 	     ns = nvme_next_ns(head, ns)) {
+ 		if (nvme_path_is_disabled(ns))
+ 			continue;
 -- 
 2.27.0
 
