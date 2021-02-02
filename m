@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B7D30C4EC
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:08:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A817230C4FD
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235950AbhBBQGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 11:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38254 "EHLO mail.kernel.org"
+        id S236005AbhBBQHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 11:07:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235151AbhBBPJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235152AbhBBPJo (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 10:09:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 171CD64F68;
-        Tue,  2 Feb 2021 15:06:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5D6A64F61;
+        Tue,  2 Feb 2021 15:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612278392;
-        bh=PIvIrg/Ezj7k1jZbQ+Hy7tkM+UZcwVFygpMDtZgDeqY=;
+        s=k20201202; t=1612278393;
+        bh=H+McNijkMR/bhxDtYibNQd0KYp1YtnL9gfDDcwOMDNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5e23Hwee7UWw28pQdO5+dZt8OnUvrpx56kvR/ck7L3K8M9MFTlW27fS5aTlXI1Wj
-         ZlYtUfdfv4q8/Xa9r9tTOnUas3n3go0rFaVgWoCAMOvAbeePNr9iASkb9wT8UUOE2Q
-         3b71vYedFip9YQOz8qx4YAqewHtd/TaEEAM7iy260dpWVj7ttr05OVPvlN9AlHH+TT
-         L69VRl9BhfCYUNSORN9mn7vLtDHWaBCp2U4wmPcl9tdzVOLJztEqgeAYTz1BcniiFs
-         5H1keg2w3C0/+UF1t98hrEfHEcfT0xjHw6mRLp+pqh5SlHQQ6iQzkGO6fV+3CDGopt
-         A7Pdf5VsLfRPg==
+        b=WxYJg3fFDFV/+TGYoFDMc20aXJ8PbBcDtOST75fNlQ+z5EhqNVJSxoM1meTbRG5qZ
+         BKVYmhxW2ZBrLgA/M/YxGQPP1Fr5R0cydvlv1+EfZe1n7FLQ+xp7N5vgqARXRunUEI
+         eMZexZgzW02JxmXaY28LNAvyC3iE2wm3xg9qHQKVVaG2rhT2/zLGkANhUFDc/zSsXG
+         9UiQxZfNbmW86nDd+KM1Gn+OKsGVu44EWEzSGy8isVuscyzHfoXE9vra/eY5Wvc/bV
+         uF388cFNxOOh5VVY65Dah1eOgQDzMRHKvFDiO3Y82jex1sSRMkoHEBswANSeKcYXxJ
+         /OoNSzF42nkaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Libin Yang <libin.yang@intel.com>,
-        Hui Wang <hui.wang@canonical.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 12/25] ASoC: Intel: sof_sdw: set proper flags for Dell TGL-H SKU 0A5E
-Date:   Tue,  2 Feb 2021 10:06:02 -0500
-Message-Id: <20210202150615.1864175-12-sashal@kernel.org>
+Cc:     Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/25] iwlwifi: mvm: skip power command when unbinding vif during CSA
+Date:   Tue,  2 Feb 2021 10:06:03 -0500
+Message-Id: <20210202150615.1864175-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210202150615.1864175-1-sashal@kernel.org>
 References: <20210202150615.1864175-1-sashal@kernel.org>
@@ -46,47 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libin Yang <libin.yang@intel.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 9ad9bc59dde106e56dd59ce2bec7c1b08e1f0eb4 ]
+[ Upstream commit bf544e9aa570034e094a8a40d5f9e1e2c4916d18 ]
 
-Add flag "SOF_RT711_JD_SRC_JD2", flag "SOF_RT715_DAI_ID_FIX"
-and "SOF_SDW_FOUR_SPK" to the Dell TGL-H based SKU "0A5E".
+In the new CSA flow, we remain associated during CSA, but
+still do a unbind-bind to the vif. However, sending the power
+command right after when vif is unbound but still associated
+causes FW to assert (0x3400) since it cannot tell the LMAC id.
 
-Signed-off-by: Libin Yang <libin.yang@intel.com>
-Co-developed-by: Hui Wang <hui.wang@canonical.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210125081117.814488-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Just skip this command, we will send it again in a bit, when
+assigning the new context.
+
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130252.64a2254ac5c3.Iaa3a9050bf3d7c9cd5beaf561e932e6defc12ec3@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index b29946eb43551..a8d43c87cb5a2 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -57,6 +57,16 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
- 					SOF_RT715_DAI_ID_FIX),
- 	},
-+	{
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A5E")
-+		},
-+		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
-+					SOF_RT715_DAI_ID_FIX |
-+					SOF_SDW_FOUR_SPK),
-+	},
- 	{
- 		.callback = sof_sdw_quirk_cb,
- 		.matches = {
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index b627e7da7ac9d..d42165559df6e 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -4249,6 +4249,9 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
+ 	iwl_mvm_binding_remove_vif(mvm, vif);
+ 
+ out:
++	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD) &&
++	    switching_chanctx)
++		return;
+ 	mvmvif->phy_ctxt = NULL;
+ 	iwl_mvm_power_update_mac(mvm);
+ }
 -- 
 2.27.0
 
