@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EB230C08F
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E5630C046
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbhBBOBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:01:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+        id S233293AbhBBNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:53:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233150AbhBBN7Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:59:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5720B64DD5;
-        Tue,  2 Feb 2021 13:46:18 +0000 (UTC)
+        id S233126AbhBBNvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:51:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A0664FBB;
+        Tue,  2 Feb 2021 13:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273578;
-        bh=GSJkFq/em2yA7BwCWM8LJkhhE5WPg9OYPmmnvEewQ/g=;
+        s=korg; t=1612273418;
+        bh=JjyaAa0fvSRvaup4My50xq+W9CTjToQ9nFsyguBRguw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xF2SVVc6b1RVxmkHyF6ko3Camou/CpkqFbOCaT+b/alkgTlcup4nh4+aSBZSuV18Q
-         LZ926l98PT2JUy0tGWeFtr+QF5j0dmf9Pk/1JR0hZPNHJqXqE9WdRJ1Wa8D3G0c+mH
-         OjW1Gk2AY7xO+RATKSKprGJhuVrWAQXJ3IhIgx8g=
+        b=RpFtPBtuhbPn+hZgYdaBPkI6Xu+FTQDLgRc2jkZM5ZNeRlGJzWJXQfyPemrwkSmTb
+         zu8EBR+mFxeL9kRKywImbWJ2O8C+7NA9qkQ06sWOf48lIzv5nqXrHRKkLg6Wl+Apwt
+         DRklxkLMbqrqIAcjafIsfOoP4IuUfY2l+jME3GiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 04/61] ACPI: sysfs: Prefer "compatible" modalias
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 099/142] ASoC: qcom: lpass: Fix out-of-bounds DAI ID lookup
 Date:   Tue,  2 Feb 2021 14:37:42 +0100
-Message-Id: <20210202132946.668113402@linuxfoundation.org>
+Message-Id: <20210202133001.797749691@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 36af2d5c4433fb40ee2af912c4ac0a30991aecfc upstream.
+[ Upstream commit 70041000450d0a071bf9931d634c8e2820340236 ]
 
-Commit 8765c5ba1949 ("ACPI / scan: Rework modalias creation when
-"compatible" is present") may create two "MODALIAS=" in one uevent
-file if specific conditions are met.
+The "dai_id" given into LPAIF_INTFDMA_REG(...) is already the real
+DAI ID, not an index into v->dai_driver. Looking it up again seems
+entirely redundant.
 
-This breaks systemd-udevd, which assumes each "key" in one uevent file
-to be unique. The internal implementation of systemd-udevd overwrites
-the first MODALIAS with the second one, so its kmod rule doesn't load
-the driver for the first MODALIAS.
+For IPQ806x (and SC7180 since commit 09a4f6f5d21c
+("ASoC: dt-bindings: lpass: Fix and common up lpass dai ids") this is
+now often an out-of-bounds read because the indexes in the "dai_driver"
+array no longer match the actual DAI ID.
 
-So if both the ACPI modalias and the OF modalias are present, use the
-latter to ensure that there will be only one MODALIAS.
-
-Link: https://github.com/systemd/systemd/pull/18163
-Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Fixes: 8765c5ba1949 ("ACPI / scan: Rework modalias creation when "compatible" is present")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: 4.1+ <stable@vger.kernel.org> # 4.1+
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210125104442.135899-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/device_sysfs.c |   20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ sound/soc/qcom/lpass-lpaif-reg.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/device_sysfs.c
-+++ b/drivers/acpi/device_sysfs.c
-@@ -251,20 +251,12 @@ int __acpi_device_uevent_modalias(struct
- 	if (add_uevent_var(env, "MODALIAS="))
- 		return -ENOMEM;
+diff --git a/sound/soc/qcom/lpass-lpaif-reg.h b/sound/soc/qcom/lpass-lpaif-reg.h
+index 405542832e994..baf72f124ea9b 100644
+--- a/sound/soc/qcom/lpass-lpaif-reg.h
++++ b/sound/soc/qcom/lpass-lpaif-reg.h
+@@ -133,7 +133,7 @@
+ #define	LPAIF_WRDMAPERCNT_REG(v, chan)	LPAIF_WRDMA_REG_ADDR(v, 0x14, (chan))
  
--	len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
--				  sizeof(env->buf) - env->buflen);
--	if (len < 0)
--		return len;
--
--	env->buflen += len;
--	if (!adev->data.of_compatible)
--		return 0;
--
--	if (len > 0 && add_uevent_var(env, "MODALIAS="))
--		return -ENOMEM;
--
--	len = create_of_modalias(adev, &env->buf[env->buflen - 1],
--				 sizeof(env->buf) - env->buflen);
-+	if (adev->data.of_compatible)
-+		len = create_of_modalias(adev, &env->buf[env->buflen - 1],
-+					 sizeof(env->buf) - env->buflen);
-+	else
-+		len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
-+					  sizeof(env->buf) - env->buflen);
- 	if (len < 0)
- 		return len;
+ #define LPAIF_INTFDMA_REG(v, chan, reg, dai_id)  \
+-		((v->dai_driver[dai_id].id ==  LPASS_DP_RX) ? \
++	((dai_id ==  LPASS_DP_RX) ? \
+ 		LPAIF_HDMI_RDMA##reg##_REG(v, chan) : \
+ 		 LPAIF_RDMA##reg##_REG(v, chan))
  
+-- 
+2.27.0
+
 
 
