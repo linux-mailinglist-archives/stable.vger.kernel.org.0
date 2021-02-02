@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF37930C14C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13C2930C263
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232294AbhBBOTk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:19:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
+        id S234334AbhBBOtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234297AbhBBORg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234299AbhBBORg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 09:17:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 833136505F;
-        Tue,  2 Feb 2021 13:54:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 863D565060;
+        Tue,  2 Feb 2021 13:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274062;
-        bh=Tg62eITq84ldSXOGqM4bOyDvfi4mkDcd9C6cLZFumdM=;
+        s=korg; t=1612274065;
+        bh=JGDgF9MMKput11Atgdt1RtpXOn7atWLXnl5KUD7ATkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMdsJKvHK96SUyZPhQ8/PRilEWgHdJZA5cHQWEFDrrPzqE2u2cksQcAYBADawIhHs
-         WA2oPFI0Zrnc3U0jS0pbOP3ArFqi6pPO/PmeewNUVKXpHA9tmy/sf6b9Tc1a2HzIL3
-         hgMvmbojhUTuV2GkKQTqu0PJtjmwwzI3oaVXyIwo=
+        b=w96z3lAzMB2oyPZlkgH90WYaZVlXLCgXhwQrAcHPzuq6qfnR26taqr25Q9MkM3YjJ
+         G/KMT0k2iJZyayyvOrBOgiinD9K0AvSNiNw2OJb7W/2w2UDh0A3WoXK8schAwgXw3m
+         UafmEhKTLs2SX0ZABnwOhyCcFrye+iXF/6vn07Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeed@kernel.org>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 36/37] team: protect features update by RCU to avoid deadlock
-Date:   Tue,  2 Feb 2021 14:39:19 +0100
-Message-Id: <20210202132944.440388535@linuxfoundation.org>
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 37/37] tcp: fix TLP timer not set when CA_STATE changes from DISORDER to OPEN
+Date:   Tue,  2 Feb 2021 14:39:20 +0100
+Message-Id: <20210202132944.477906025@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -41,80 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-commit f0947d0d21b219e03940b9be6628a43445c0de7a upstream.
+commit 62d9f1a6945ba69c125e548e72a36d203b30596e upstream.
 
-Function __team_compute_features() is protected by team->lock
-mutex when it is called from team_compute_features() used when
-features of an underlying device is changed. This causes
-a deadlock when NETDEV_FEAT_CHANGE notifier for underlying device
-is fired due to change propagated from team driver (e.g. MTU
-change). It's because callbacks like team_change_mtu() or
-team_vlan_rx_{add,del}_vid() protect their port list traversal
-by team->lock mutex.
+Upon receiving a cumulative ACK that changes the congestion state from
+Disorder to Open, the TLP timer is not set. If the sender is app-limited,
+it can only wait for the RTO timer to expire and retransmit.
 
-Example (r8169 case where this driver disables TSO for certain MTU
-values):
-...
-[ 6391.348202]  __mutex_lock.isra.6+0x2d0/0x4a0
-[ 6391.358602]  team_device_event+0x9d/0x160 [team]
-[ 6391.363756]  notifier_call_chain+0x47/0x70
-[ 6391.368329]  netdev_update_features+0x56/0x60
-[ 6391.373207]  rtl8169_change_mtu+0x14/0x50 [r8169]
-[ 6391.378457]  dev_set_mtu_ext+0xe1/0x1d0
-[ 6391.387022]  dev_set_mtu+0x52/0x90
-[ 6391.390820]  team_change_mtu+0x64/0xf0 [team]
-[ 6391.395683]  dev_set_mtu_ext+0xe1/0x1d0
-[ 6391.399963]  do_setlink+0x231/0xf50
-...
+The reason for this is that the TLP timer is set before the congestion
+state changes in tcp_ack(), so we delay the time point of calling
+tcp_set_xmit_timer() until after tcp_fastretrans_alert() returns and
+remove the FLAG_SET_XMIT_TIMER from ack_flag when the RACK reorder timer
+is set.
 
-In fact team_compute_features() called from team_device_event()
-does not need to be protected by team->lock mutex and rcu_read_lock()
-is sufficient there for port list traversal.
+This commit has two additional benefits:
+1) Make sure to reset RTO according to RFC6298 when receiving ACK, to
+avoid spurious RTO caused by RTO timer early expires.
+2) Reduce the xmit timer reschedule once per ACK when the RACK reorder
+timer is set.
 
-Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
-Cc: Saeed Mahameed <saeed@kernel.org>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20210125074416.4056484-1-ivecera@redhat.com
+Fixes: df92c8394e6e ("tcp: fix xmit timer to only be reset if data ACKed/SACKed")
+Link: https://lore.kernel.org/netdev/1611311242-6675-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1611464834-23030-1-git-send-email-yangpc@wangsu.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/team/team.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/tcp.h       |    2 +-
+ net/ipv4/tcp_input.c    |   10 ++++++----
+ net/ipv4/tcp_recovery.c |    5 +++--
+ 3 files changed, 10 insertions(+), 7 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -998,7 +998,8 @@ static void __team_compute_features(stru
- 	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
- 					IFF_XMIT_DST_RELEASE_PERM;
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1961,7 +1961,7 @@ void tcp_mark_skb_lost(struct sock *sk,
+ void tcp_newreno_mark_lost(struct sock *sk, bool snd_una_advanced);
+ extern s32 tcp_rack_skb_timeout(struct tcp_sock *tp, struct sk_buff *skb,
+ 				u32 reo_wnd);
+-extern void tcp_rack_mark_lost(struct sock *sk);
++extern bool tcp_rack_mark_lost(struct sock *sk);
+ extern void tcp_rack_advance(struct tcp_sock *tp, u8 sacked, u32 end_seq,
+ 			     u64 xmit_time);
+ extern void tcp_rack_reo_timeout(struct sock *sk);
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2750,7 +2750,8 @@ static void tcp_identify_packet_loss(str
+ 	} else if (tcp_is_rack(sk)) {
+ 		u32 prior_retrans = tp->retrans_out;
  
--	list_for_each_entry(port, &team->port_list, list) {
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(port, &team->port_list, list) {
- 		vlan_features = netdev_increment_features(vlan_features,
- 					port->dev->vlan_features,
- 					TEAM_VLAN_FEATURES);
-@@ -1012,6 +1013,7 @@ static void __team_compute_features(stru
- 		if (port->dev->hard_header_len > max_hard_header_len)
- 			max_hard_header_len = port->dev->hard_header_len;
+-		tcp_rack_mark_lost(sk);
++		if (tcp_rack_mark_lost(sk))
++			*ack_flag &= ~FLAG_SET_XMIT_TIMER;
+ 		if (prior_retrans > tp->retrans_out)
+ 			*ack_flag |= FLAG_LOST_RETRANS;
  	}
-+	rcu_read_unlock();
+@@ -3693,9 +3694,6 @@ static int tcp_ack(struct sock *sk, cons
  
- 	team->dev->vlan_features = vlan_features;
- 	team->dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
-@@ -1027,9 +1029,7 @@ static void __team_compute_features(stru
+ 	if (tp->tlp_high_seq)
+ 		tcp_process_tlp_ack(sk, ack, flag);
+-	/* If needed, reset TLP/RTO timer; RACK may later override this. */
+-	if (flag & FLAG_SET_XMIT_TIMER)
+-		tcp_set_xmit_timer(sk);
  
- static void team_compute_features(struct team *team)
- {
--	mutex_lock(&team->lock);
- 	__team_compute_features(team);
--	mutex_unlock(&team->lock);
- 	netdev_change_features(team->dev);
+ 	if (tcp_ack_is_dubious(sk, flag)) {
+ 		is_dupack = !(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP));
+@@ -3703,6 +3701,10 @@ static int tcp_ack(struct sock *sk, cons
+ 				      &rexmit);
+ 	}
+ 
++	/* If needed, reset TLP/RTO timer when RACK doesn't set. */
++	if (flag & FLAG_SET_XMIT_TIMER)
++		tcp_set_xmit_timer(sk);
++
+ 	if ((flag & FLAG_FORWARD_PROGRESS) || !(flag & FLAG_NOT_DUP))
+ 		sk_dst_confirm(sk);
+ 
+--- a/net/ipv4/tcp_recovery.c
++++ b/net/ipv4/tcp_recovery.c
+@@ -109,13 +109,13 @@ static void tcp_rack_detect_loss(struct
+ 	}
  }
  
+-void tcp_rack_mark_lost(struct sock *sk)
++bool tcp_rack_mark_lost(struct sock *sk)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	u32 timeout;
+ 
+ 	if (!tp->rack.advanced)
+-		return;
++		return false;
+ 
+ 	/* Reset the advanced flag to avoid unnecessary queue scanning */
+ 	tp->rack.advanced = 0;
+@@ -125,6 +125,7 @@ void tcp_rack_mark_lost(struct sock *sk)
+ 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_REO_TIMEOUT,
+ 					  timeout, inet_csk(sk)->icsk_rto);
+ 	}
++	return !!timeout;
+ }
+ 
+ /* Record the most recently (re)sent time among the (s)acked packets
 
 
