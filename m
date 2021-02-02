@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318CF30C417
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD1030C411
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235002AbhBBPlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 10:41:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
+        id S235272AbhBBPkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 10:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235264AbhBBPOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 10:14:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D8C964FA1;
-        Tue,  2 Feb 2021 15:07:32 +0000 (UTC)
+        id S235269AbhBBPOv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 10:14:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A397364FA2;
+        Tue,  2 Feb 2021 15:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612278453;
-        bh=myC20GzG4yb86AWQuQJ/5AAA5IHzhNSyKhrgFITgzg4=;
+        s=k20201202; t=1612278454;
+        bh=joKYNFrfxTJaTY/td3Bgwgy7/4s/D9KzIQu/cAYX05w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bve5fbT/Eg2LSJFjOVXRcKCGjSn935TzFbHlA1Ry9fV7k5O0wm4OzFJJM1M6vur5r
-         O7QtW/EskrCIijBXsLNSUaldkuA4ldUfNptDJa9AUDdDTL2cOlFM0HpahI8O3AEEWx
-         PPXWdGrb7Bjx334MzR9hQNS2fXa4J5p4uMQe/lz0ZA1NeOwp7nNRG3dQdSRMPjcX9k
-         o0Tt/EcfKuEhT/JDhH/EjOO7LJwsXHSVWguUqgJADVk+TpSkZhO4pLMujyhqqg5cyR
-         j90RWydmW3ebHGE6mNcx/EH+H/UkkCy2qfq87rXlbI8NPT+I4Bt5E0pe+HIRDuF7Zb
-         E6mOeFOAnUKJQ==
+        b=Wry5aANPidZILEhKoxb2BIurX7TtgC+mXKW0UBJEuTXcX2Zx2AqEhM9+GsN64mxbt
+         oll8KCqE/aRc/j7QPpzreOJThoLjntpeepHDplBUTnObzBQ55RzVpszFfAh3xTYY4S
+         2TxVlR9hFG5dKL7Vp91cKD1EypE7oEPckbFs2EEBhqTe0PkKfdO4ssWLiB2yzpG2x8
+         GAusHBc52E8qFHVmgigVkExB5UG4wHHpXeiAbRFKqDN8rdTp5HdfvbbAwfv4PtUQI3
+         t5F8CJiWe3kQDiZ12WIU/g0beY4egL0zu8zEHCpjJG1eh7I6EtEdfN2iDG8kH1u51s
+         DsxxhvCYxz/fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/7] pNFS/NFSv4: Try to return invalid layout in pnfs_layout_process()
-Date:   Tue,  2 Feb 2021 10:07:24 -0500
-Message-Id: <20210202150730.1864745-2-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/7] iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
+Date:   Tue,  2 Feb 2021 10:07:25 -0500
+Message-Id: <20210202150730.1864745-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210202150730.1864745-1-sashal@kernel.org>
 References: <20210202150730.1864745-1-sashal@kernel.org>
@@ -41,40 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 08bd8dbe88825760e953759d7ec212903a026c75 ]
+[ Upstream commit 5c56d862c749669d45c256f581eac4244be00d4d ]
 
-If the server returns a new stateid that does not match the one in our
-cache, then try to return the one we hold instead of just invalidating
-it on the client side. This ensures that both client and server will
-agree that the stateid is invalid.
+We need to take the mutex to call iwl_mvm_get_sync_time(), do it.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130252.4bb5ccf881a6.I62973cbb081e80aa5b0447a5c3b9c3251a65cf6b@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 8e2e3d3b7b253..0737f193fc532 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1973,7 +1973,13 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
- 		 * We got an entirely new state ID.  Mark all segments for the
- 		 * inode invalid, and retry the layoutget
- 		 */
--		pnfs_mark_layout_stateid_invalid(lo, &free_me);
-+		struct pnfs_layout_range range = {
-+			.iomode = IOMODE_ANY,
-+			.length = NFS4_MAX_UINT64,
-+		};
-+		pnfs_set_plh_return_info(lo, IOMODE_ANY, 0);
-+		pnfs_mark_matching_lsegs_return(lo, &lo->plh_return_segs,
-+						&range, 0);
- 		goto out_forget;
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
+index 71a01df96f8b0..6db51abb8f4a3 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
+@@ -518,7 +518,10 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
+ 	const size_t bufsz = sizeof(buf);
+ 	int pos = 0;
  
++	mutex_lock(&mvm->mutex);
+ 	iwl_mvm_get_sync_time(mvm, &curr_gp2, &curr_os);
++	mutex_unlock(&mvm->mutex);
++
+ 	do_div(curr_os, NSEC_PER_USEC);
+ 	diff = curr_os - curr_gp2;
+ 	pos += scnprintf(buf + pos, bufsz - pos, "diff=%lld\n", diff);
 -- 
 2.27.0
 
