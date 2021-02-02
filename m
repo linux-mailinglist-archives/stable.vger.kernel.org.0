@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 742FD30C112
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D182130C8DC
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234193AbhBBONC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:13:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49686 "EHLO mail.kernel.org"
+        id S234455AbhBBSCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:02:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234040AbhBBOLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:11:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 655EB64E2B;
-        Tue,  2 Feb 2021 13:51:36 +0000 (UTC)
+        id S233641AbhBBOH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:07:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD4C65025;
+        Tue,  2 Feb 2021 13:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273896;
-        bh=Aptxk1tkYIY1snw2mi4RXtcEM96oqFIRYLK91zJatqM=;
+        s=korg; t=1612273803;
+        bh=LSITaNwtgM1abihFbKPkWeRvoj1UCKhI1qsjTKRTNu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPtL6GgpoAAWqqd6r2Ql1O5sYyoQ1yIvzeVYyCE5p/JQnYsm2ZXAi25/iQkpt+lEo
-         S/c0bZiLypDUGJwqdf2R3IWzdp6OcUf2fv+UAMY9/DdMS7FA/yrrxbLgsRVOhkwwiT
-         OYXdLhE8c2YeTEoQchcLJ+RC2zkcVVnd2ggepInY=
+        b=EOXiku6DFqnvdoIQVaw5wt0z82FECMTGX1UZ4uoswOrV1b5bs0cXIPoPlYbAcMujr
+         ZYHGyWe9A04aX8jWpZuwV4ZawG6WBMUyBKCZC+ek55t+800wMAxziivrgPMK1W0jaU
+         T1pIsmguA6BSemixWg18y2LjuVwHRmWLds7VrXsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 06/32] futex: Replace PF_EXITPIDONE with a state
+Subject: [PATCH 4.4 09/28] futex: Replace PF_EXITPIDONE with a state
 Date:   Tue,  2 Feb 2021 14:38:29 +0100
-Message-Id: <20210202132942.291252804@linuxfoundation.org>
+Message-Id: <20210202132941.567795524@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -128,7 +128,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -1815,6 +1815,7 @@ struct task_struct {
+@@ -1704,6 +1704,7 @@ struct task_struct {
  #endif
  	struct list_head pi_state_list;
  	struct futex_pi_state *pi_state_cache;
@@ -136,7 +136,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
  #ifdef CONFIG_PERF_EVENTS
  	struct perf_event_context *perf_event_ctxp[perf_nr_task_contexts];
-@@ -2276,7 +2277,6 @@ extern void thread_group_cputime_adjuste
+@@ -2099,7 +2100,6 @@ extern void thread_group_cputime_adjuste
   * Per process flags
   */
  #define PF_EXITING	0x00000004	/* getting shut down */
@@ -146,7 +146,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define PF_FORKNOEXEC	0x00000040	/* forked but didn't exec */
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
-@@ -785,16 +785,7 @@ void __noreturn do_exit(long code)
+@@ -695,16 +695,7 @@ void do_exit(long code)
  	 */
  	if (unlikely(tsk->flags & PF_EXITING)) {
  		pr_alert("Fixing recursive fault but reboot is needed!\n");
@@ -164,7 +164,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		set_current_state(TASK_UNINTERRUPTIBLE);
  		schedule();
  	}
-@@ -876,12 +867,7 @@ void __noreturn do_exit(long code)
+@@ -793,12 +784,7 @@ void do_exit(long code)
  	 * Make sure we are holding no locks:
  	 */
  	debug_check_no_locks_held();
@@ -180,7 +180,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		exit_io_context(tsk);
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -1099,19 +1099,18 @@ static int attach_to_pi_owner(u32 uval,
+@@ -1094,19 +1094,18 @@ static int attach_to_pi_owner(u32 uval,
  	}
  
  	/*
