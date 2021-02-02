@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3DF830C08A
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0F330CC38
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:50:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233602AbhBBOAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:00:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45180 "EHLO mail.kernel.org"
+        id S240038AbhBBTr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:47:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233506AbhBBN6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:58:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E49664FE8;
-        Tue,  2 Feb 2021 13:46:02 +0000 (UTC)
+        id S233249AbhBBNwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:52:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6232164FC6;
+        Tue,  2 Feb 2021 13:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273563;
-        bh=OwOgk+5l5C14L3DgTbWLuH1iGvXtOX8bUN7c/SbjFCU=;
+        s=korg; t=1612273436;
+        bh=AevGPiwEm7doZPMOnBMl1STziuyk8McrepJEazOcYHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWdOtxt94aXWacKgV7lVl+EVwrUDLUQnW4eDaXJA5b6aVJz4yKf8htUJDE/GHImCa
-         TKUtbBQqqB3x7QzrYPhzokc+hRMbZT+ms3+OiZUqvkxWMbA1Qn+Q3uaXfx5PfRkypj
-         8HF6/YyJZ3rrGkZp5M20Zu3jf76nFCPGMenOuwFk=
+        b=L5W8nqnIVptXmdmP8PXcnv4R04Yl0eoaGWI+O1scxL1u9dbf3VmhFDIEFFLsxZjL+
+         iazKTI3+M2q4zg42B7Q6SPaQ9HfoQSHISbbvR/BHGCkXNkWRbHib3B7tIUfKU3pP3n
+         pMT7GxLzvL6UFWLfC6znQNUa16Ne168KvsolF5/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com,
-        syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 10/61] wext: fix NULL-ptr-dereference with cfg80211s lack of commit()
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 105/142] iwlwifi: pcie: reschedule in long-running memory reads
 Date:   Tue,  2 Feb 2021 14:37:48 +0100
-Message-Id: <20210202132946.917656699@linuxfoundation.org>
+Message-Id: <20210202133002.041646325@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit 5122565188bae59d507d90a9a9fd2fd6107f4439 upstream.
+[ Upstream commit 3d372c4edfd4dffb7dea71c6b096fb414782b776 ]
 
-Since cfg80211 doesn't implement commit, we never really cared about
-that code there (and it's configured out w/o CONFIG_WIRELESS_EXT).
-After all, since it has no commit, it shouldn't return -EIWCOMMIT to
-indicate commit is needed.
+If we spin for a long time in memory reads that (for some reason in
+hardware) take a long time, then we'll eventually get messages such
+as
 
-However, EIWCOMMIT is actually an alias for EINPROGRESS, which _can_
-happen if e.g. we try to change the frequency but we're already in
-the process of connecting to some network, and drivers could return
-that value (or even cfg80211 itself might).
+  watchdog: BUG: soft lockup - CPU#2 stuck for 24s! [kworker/2:2:272]
 
-This then causes us to crash because dev->wireless_handlers is NULL
-but we try to check dev->wireless_handlers->standard[0].
+This is because the reading really does take a very long time, and
+we don't schedule, so we're hogging the CPU with this task, at least
+if CONFIG_PREEMPT is not set, e.g. with CONFIG_PREEMPT_VOLUNTARY=y.
 
-Fix this by also checking dev->wireless_handlers. Also simplify the
-code a little bit.
+Previously I misinterpreted the situation and thought that this was
+only going to happen if we had interrupts disabled, and then fixed
+this (which is good anyway, however), but that didn't always help;
+looking at it again now I realized that the spin unlock will only
+reschedule if CONFIG_PREEMPT is used.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com
-Reported-by: syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20210121171621.2076e4a37d5a.I5d9c72220fe7bb133fb718751da0180a57ecba4e@changeid
+In order to avoid this issue, change the code to cond_resched() if
+we've been spinning for too long here.
+
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 04516706bb99 ("iwlwifi: pcie: limit memory read spin time")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130253.217a9d6a6a12.If964cb582ab0aaa94e81c4ff3b279eaafda0fd3f@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/wext-core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -896,8 +896,9 @@ out:
- int call_commit_handler(struct net_device *dev)
- {
- #ifdef CONFIG_WIRELESS_EXT
--	if ((netif_running(dev)) &&
--	   (dev->wireless_handlers->standard[0] != NULL))
-+	if (netif_running(dev) &&
-+	    dev->wireless_handlers &&
-+	    dev->wireless_handlers->standard[0])
- 		/* Call the commit handler on the driver */
- 		return dev->wireless_handlers->standard[0](dev, NULL,
- 							   NULL, NULL);
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index c7161f121c0c2..1a222469b5b4e 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -2162,6 +2162,7 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 	while (offs < dwords) {
+ 		/* limit the time we spin here under lock to 1/2s */
+ 		unsigned long end = jiffies + HZ / 2;
++		bool resched = false;
+ 
+ 		if (iwl_trans_grab_nic_access(trans, &flags)) {
+ 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
+@@ -2172,10 +2173,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 							HBUS_TARG_MEM_RDAT);
+ 				offs++;
+ 
+-				if (time_after(jiffies, end))
++				if (time_after(jiffies, end)) {
++					resched = true;
+ 					break;
++				}
+ 			}
+ 			iwl_trans_release_nic_access(trans, &flags);
++
++			if (resched)
++				cond_resched();
+ 		} else {
+ 			return -EBUSY;
+ 		}
+-- 
+2.27.0
+
 
 
