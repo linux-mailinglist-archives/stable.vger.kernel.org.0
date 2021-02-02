@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFF930CA34
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50DBF30CBB7
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238763AbhBBSmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:42:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S239587AbhBBTdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:33:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233721AbhBBOC4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:02:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42C3A65008;
-        Tue,  2 Feb 2021 13:47:57 +0000 (UTC)
+        id S232954AbhBBN5Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:57:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64F8864FE3;
+        Tue,  2 Feb 2021 13:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273677;
-        bh=MrkmZidfHW18GhxPnXkeJyjmFyg34lvx+jCqcxPJU2o=;
+        s=korg; t=1612273544;
+        bh=GhORz0aQj3aHg5n2dkluzgIHDfVfsEpJGHbD5F2doCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpjOMb0aKflvM+0/EqW+K1+TUnJFKyGhnCMZ4EKJrWS1HLBP5T2wHwKyZnLNjjs+7
-         80GT1X9+mI9nCzl9JQa8/opuDeDUE6dC6VzkuSR7dQfMPUJ5Ep1XMfjicNh2vfAmcE
-         N3LdoaJp+BWl90E1EmVH5LW4F6tH87uD7zlTwpYE=
+        b=eODmOX57bYXaMNT70BgxumId5xLkkLvfGmJytPgOZPX9eZ6c2J9qsF8AaxUPNskv5
+         nmabEwheUsF0cgt8o3IXa3PQyOQpbgEM5h2sao+RADb5Ni76xKSHPkjRu2Ph/hv6GY
+         j8CpIeAzBgADhaRcyhtKbWFpA1i0i7F/6NmjVJEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 19/61] KVM: nVMX: Sync unsyncd vmcs02 state to vmcs12 on migration
+        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 114/142] net/mlx5: Fix memory leak on flow table creation error flow
 Date:   Tue,  2 Feb 2021 14:37:57 +0100
-Message-Id: <20210202132947.266938812@linuxfoundation.org>
+Message-Id: <20210202133002.412430716@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Roi Dayan <roid@nvidia.com>
 
-commit d51e1d3f6b4236e0352407d8a63f5c5f71ce193d upstream.
+[ Upstream commit 487c6ef81eb98d0a43cb08be91b1fcc9b4250626 ]
 
-Even when we are outside the nested guest, some vmcs02 fields
-may not be in sync vs vmcs12.  This is intentional, even across
-nested VM-exit, because the sync can be delayed until the nested
-hypervisor performs a VMCLEAR or a VMREAD/VMWRITE that affects those
-rarely accessed fields.
+When we create the ft object we also init rhltable in ft->fgs_hash.
+So in error flow before kfree of ft we need to destroy that rhltable.
 
-However, during KVM_GET_NESTED_STATE, the vmcs12 has to be up to date to
-be able to restore it.  To fix that, call copy_vmcs02_to_vmcs12_rare()
-before the vmcs12 contents are copied to userspace.
-
-Fixes: 7952d769c29ca ("KVM: nVMX: Sync rarely accessed guest fields only when needed")
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210114205449.8715-2-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 693c6883bbc4 ("net/mlx5: Add hash table for flow groups in flow table")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5579,11 +5579,14 @@ static int vmx_get_nested_state(struct k
- 	if (is_guest_mode(vcpu)) {
- 		sync_vmcs02_to_vmcs12(vcpu, vmcs12);
- 		sync_vmcs02_to_vmcs12_rare(vcpu, vmcs12);
--	} else if (!vmx->nested.need_vmcs12_to_shadow_sync) {
--		if (vmx->nested.hv_evmcs)
--			copy_enlightened_to_vmcs12(vmx);
--		else if (enable_shadow_vmcs)
--			copy_shadow_to_vmcs12(vmx);
-+	} else  {
-+		copy_vmcs02_to_vmcs12_rare(vcpu, get_vmcs12(vcpu));
-+		if (!vmx->nested.need_vmcs12_to_shadow_sync) {
-+			if (vmx->nested.hv_evmcs)
-+				copy_enlightened_to_vmcs12(vmx);
-+			else if (enable_shadow_vmcs)
-+				copy_shadow_to_vmcs12(vmx);
-+		}
- 	}
- 
- 	BUILD_BUG_ON(sizeof(user_vmx_nested_state->vmcs12) < VMCS12_SIZE);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+index 9fdd99272e310..634c2bfd25be1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1141,6 +1141,7 @@ static struct mlx5_flow_table *__mlx5_create_flow_table(struct mlx5_flow_namespa
+ destroy_ft:
+ 	root->cmds->destroy_flow_table(root, ft);
+ free_ft:
++	rhltable_destroy(&ft->fgs_hash);
+ 	kfree(ft);
+ unlock_root:
+ 	mutex_unlock(&root->chain_lock);
+-- 
+2.27.0
+
 
 
