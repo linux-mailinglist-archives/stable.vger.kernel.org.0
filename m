@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF4730C285
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C42130C283
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234088AbhBBOwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:52:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
+        id S234105AbhBBOw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:52:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234051AbhBBOR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234052AbhBBOR2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 09:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CFF764FBE;
-        Tue,  2 Feb 2021 13:54:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E88696505E;
+        Tue,  2 Feb 2021 13:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274053;
-        bh=FdoZx4dCOsfmUnEcG1cq9AZtIgevEp2qGgc1YiZ2Ab4=;
+        s=korg; t=1612274056;
+        bh=VO72xo3Ln8pM8nOw4InhlEiC5MpY0EvtYKsSSrbihHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=165JVRzW2WfKqnfFX6/mzGOAGeC0v8wD0AVcaEf+ycK2JKYBuJTpWmBl/U0llqW4O
-         68VslP7uGqSMb9X8+tIpbeXd5ENDunG3BXOgH+UBIZtH3hReN6hvcfFFf0/+q2tCZH
-         HrX1eMHGGshdb44/KIYiM83WfZh/v6ItXrEFSc/I=
+        b=ZRhB2+nQGwF5iWmCFlSks3T029GE1AwHbHHm69R1Q/ZB+MfJ6xHW7XjfNJ+DC3a2l
+         xFeU1L1WJYesTc/UD2Q8aiIihW2RjlP/Brc1G16y5jSUaQQBeA/aOChI+GhEjkj8gP
+         YH25ACbT2W+K/MgLdbpwkbMIrhxn0ipM0LCYnNC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 33/37] rxrpc: Fix memory leak in rxrpc_lookup_local
-Date:   Tue,  2 Feb 2021 14:39:16 +0100
-Message-Id: <20210202132944.315041162@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 34/37] NFC: fix resource leak when target index is invalid
+Date:   Tue,  2 Feb 2021 14:39:17 +0100
+Message-Id: <20210202132944.359460524@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -41,67 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Pan Bian <bianpan2016@163.com>
 
-commit b8323f7288abd71794cd7b11a4c0a38b8637c8b5 upstream.
+commit 3a30537cee233fb7da302491b28c832247d89bbe upstream.
 
-Commit 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Then release ref in __rxrpc_put_peer and rxrpc_put_peer_locked.
+Goto to the label put_dev instead of the label error to fix potential
+resource leak on path that the target index is invalid.
 
-	struct rxrpc_peer *rxrpc_alloc_peer(struct rxrpc_local *local, gfp_t gfp)
-	-               peer->local = local;
-	+               peer->local = rxrpc_get_local(local);
-
-rxrpc_discard_prealloc also need ref release in discarding.
-
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff8881080ddc00 (size 256):
-  comm "syz-executor339", pid 8462, jiffies 4294942238 (age 12.350s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 0a 00 00 00 00 c0 00 08 81 88 ff ff  ................
-  backtrace:
-    [<000000002b6e495f>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000002b6e495f>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000002b6e495f>] rxrpc_alloc_local net/rxrpc/local_object.c:79 [inline]
-    [<000000002b6e495f>] rxrpc_lookup_local+0x1c1/0x760 net/rxrpc/local_object.c:244
-    [<000000006b43a77b>] rxrpc_bind+0x174/0x240 net/rxrpc/af_rxrpc.c:149
-    [<00000000fd447a55>] afs_open_socket+0xdb/0x200 fs/afs/rxrpc.c:64
-    [<000000007fd8867c>] afs_net_init+0x2b4/0x340 fs/afs/main.c:126
-    [<0000000063d80ec1>] ops_init+0x4e/0x190 net/core/net_namespace.c:152
-    [<00000000073c5efa>] setup_net+0xde/0x2d0 net/core/net_namespace.c:342
-    [<00000000a6744d5b>] copy_net_ns+0x19f/0x3e0 net/core/net_namespace.c:483
-    [<0000000017d3aec3>] create_new_namespaces+0x199/0x4f0 kernel/nsproxy.c:110
-    [<00000000186271ef>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<000000002de7bac4>] ksys_unshare+0x2fe/0x5c0 kernel/fork.c:2957
-    [<00000000349b12ba>] __do_sys_unshare kernel/fork.c:3025 [inline]
-    [<00000000349b12ba>] __se_sys_unshare kernel/fork.c:3023 [inline]
-    [<00000000349b12ba>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3023
-    [<000000006d178ef7>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<00000000637076d4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Reported-and-tested-by: syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/161183091692.3506637.3206605651502458810.stgit@warthog.procyon.org.uk
+Fixes: c4fbb6515a4d ("NFC: The core part should generate the target index")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121152748.98409-1-bianpan2016@163.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/call_accept.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/rawsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rxrpc/call_accept.c
-+++ b/net/rxrpc/call_accept.c
-@@ -211,6 +211,7 @@ void rxrpc_discard_prealloc(struct rxrpc
- 	tail = b->peer_backlog_tail;
- 	while (CIRC_CNT(head, tail, size) > 0) {
- 		struct rxrpc_peer *peer = b->peer_backlog[tail];
-+		rxrpc_put_local(peer->local);
- 		kfree(peer);
- 		tail = (tail + 1) & (size - 1);
+--- a/net/nfc/rawsock.c
++++ b/net/nfc/rawsock.c
+@@ -117,7 +117,7 @@ static int rawsock_connect(struct socket
+ 	if (addr->target_idx > dev->target_next_idx - 1 ||
+ 	    addr->target_idx < dev->target_next_idx - dev->n_targets) {
+ 		rc = -EINVAL;
+-		goto error;
++		goto put_dev;
  	}
+ 
+ 	rc = nfc_activate_target(dev, addr->target_idx, addr->nfc_protocol);
 
 
