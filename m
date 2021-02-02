@@ -2,71 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF28330BC73
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 12:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4309030BCAE
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 12:11:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbhBBK5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 05:57:51 -0500
-Received: from rtits2.realtek.com ([211.75.126.72]:34436 "EHLO
-        rtits2.realtek.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbhBBK5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 05:57:51 -0500
-Authenticated-By: 
-X-SpamFilter-By: ArmorX SpamTrap 5.73 with qID 112Aul8eB020239, This message is accepted by code: ctloc85258
-Received: from mail.realtek.com (rtexmbs01.realtek.com.tw[172.21.6.94])
-        by rtits2.realtek.com.tw (8.15.2/2.70/5.88) with ESMTPS id 112Aul8eB020239
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Tue, 2 Feb 2021 18:56:47 +0800
-Received: from localhost (172.22.88.222) by RTEXMBS01.realtek.com.tw
- (172.21.6.94) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Tue, 2 Feb 2021
- 18:56:47 +0800
-From:   <ricky_wu@realtek.com>
-To:     <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
-        <ricky_wu@realtek.com>, <yuehaibing@huawei.com>,
-        <ulf.hansson@linaro.org>, <bhelgaas@google.com>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>
-Subject: [PATCH] misc: rtsx: modify rts522a init flow
-Date:   Tue, 2 Feb 2021 18:56:41 +0800
-Message-ID: <20210202105641.29330-1-ricky_wu@realtek.com>
-X-Mailer: git-send-email 2.17.1
+        id S229808AbhBBLLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 06:11:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229483AbhBBLKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 06:10:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B4D64DBA;
+        Tue,  2 Feb 2021 11:09:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612264183;
+        bh=vFq7NeMfV2przweTzpyrmikuLaJJ1nfz6/jdCK3tvEY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GX2Qcv4WYw5IZEx26CjLWvUiGDL/karsEKhSceYQZLLruY6Ewbzels1ZEvisjawhZ
+         D3qzytq1cwpJMnQYocZ4IcppouH+1Wz/3j4vgxnWqxGrIUtJJy4W/d3gEeFF7iZ3li
+         kb1nfedYhgalG/kXAJqES4bf/+V2ZQ8jhpyKFUWQ=
+Date:   Tue, 2 Feb 2021 12:09:38 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        devel@driverdev.osuosl.org, Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: Re: [PATCH] staging/mt7621-dma: mtk-hsdma.c->hsdma-mt7621.c
+Message-ID: <YBky8lfQ1DmuKtRL@kroah.com>
+References: <20210130034507.2115280-1-ilya.lipnitskiy@gmail.com>
+ <20210202065438.GO2696@kadam>
+ <20210202083117.GS2696@kadam>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [172.22.88.222]
-X-ClientProxiedBy: RTEXMBS02.realtek.com.tw (172.21.6.95) To
- RTEXMBS01.realtek.com.tw (172.21.6.94)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210202083117.GS2696@kadam>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricky Wu <ricky_wu@realtek.com>
+On Tue, Feb 02, 2021 at 11:31:17AM +0300, Dan Carpenter wrote:
+> Apparently this was already merged?  Never mind then.  Once it's merged
+> it can't be changed.  No big stress...
 
-Power down OCP for power consumption
-when card is not exist at init_hw()
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Ricky Wu <ricky_wu@realtek.com>
----
- drivers/misc/cardreader/rts5227.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/misc/cardreader/rts5227.c b/drivers/misc/cardreader/rts5227.c
-index 8859011672cb..8200af22b529 100644
---- a/drivers/misc/cardreader/rts5227.c
-+++ b/drivers/misc/cardreader/rts5227.c
-@@ -398,6 +398,11 @@ static int rts522a_extra_init_hw(struct rtsx_pcr *pcr)
- {
- 	rts5227_extra_init_hw(pcr);
- 
-+	/* Power down OCP for power consumption */
-+	if (!pcr->card_exist)
-+		rtsx_pci_write_register(pcr, FPDCTL, OC_POWER_DOWN,
-+				OC_POWER_DOWN);
-+
- 	rtsx_pci_write_register(pcr, FUNC_FORCE_CTL, FUNC_FORCE_UPME_XMT_DBG,
- 		FUNC_FORCE_UPME_XMT_DBG);
- 	rtsx_pci_write_register(pcr, PCLK_CTL, 0x04, 0x04);
--- 
-2.17.1
-
+Sorry, yes, already in my tree...
