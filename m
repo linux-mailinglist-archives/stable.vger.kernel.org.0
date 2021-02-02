@@ -2,105 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE2830CB0E
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD89730CB4C
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238485AbhBBTLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:11:54 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:51688 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239455AbhBBTGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 14:06:51 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112J5pbf165687;
-        Tue, 2 Feb 2021 19:05:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=lTXFyLWT518NKXvm0c3fg2WFTQkpwhdndPk47PQMG5c=;
- b=nl/wjwXdpNl342uuaqCmTi9xd2tEOyAM+BWsnbse2PqQAtf9P9KRzOj7qx5vb3no7FTP
- OJpyaNIm3XE6hZNEyksO2IOYM37UQoIc+xMQMmZLYBLyN79LgdnW+Y7cIoS0ikOZkEic
- ZVTXdnXSCLKaxz+6DR+ZjzOtQlsR4VmhbvwNj7UdwTxh1lmWfyC7IjxqnxYig7pa8LlE
- odx1r5ydfrH9pINFJBZs+TKyWDVv5sK0tN/H2UUwC0R3oGi7ckabePRxvyvNCsWTwPWR
- ZQGWWcDWacvAN1h/XbhjXIeLZYmExCKNYai20LnDbpU3wg20sGfZXltbfBS4eGZrF258 mw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2130.oracle.com with ESMTP id 36cvyavm8w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Feb 2021 19:05:51 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112IGaFb104648;
-        Tue, 2 Feb 2021 19:05:49 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 36dhcx7k20-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Feb 2021 19:05:49 +0000
-Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 112J5kln002703;
-        Tue, 2 Feb 2021 19:05:47 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 02 Feb 2021 11:05:46 -0800
-Date:   Tue, 2 Feb 2021 22:05:39 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 24/28] can: dev: prevent potential information leak
- in can_fill_info()
-Message-ID: <20210202190539.GE20820@kadam>
-References: <20210202132941.180062901@linuxfoundation.org>
- <20210202132942.158736432@linuxfoundation.org>
- <20210202185317.GB6964@duo.ucw.cz>
+        id S239217AbhBBTUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:20:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239244AbhBBTSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 14:18:16 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C13C0613D6
+        for <stable@vger.kernel.org>; Tue,  2 Feb 2021 11:18:00 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id y9so10108314ejp.10
+        for <stable@vger.kernel.org>; Tue, 02 Feb 2021 11:18:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=O6mbSid8DG/krngsJpARJLgL5TfeT5sESB8CiUqcaD8=;
+        b=XOJ7w+kXmn01l31cSkFYp8G20rFN5lXyl6nB3h+qLHyOazaNCfPJks0FU2sOS6Pe4E
+         8ALnBedbAG15tKvB3+H2ccEiqPlBJHbugnM+cmxwUN5+prnPw2mO/dX1XbeoZMjfY8u7
+         JBHTNpKjjnjrWGduHW9Sz9Y74e9eVPdghnq99WfbcKhrPezP3OcGWC/2CHbFwJYDBfZQ
+         R55ui9UW3NILs0mFcGjW+vSLINRfIPiVmJBA5oefSTLMfIMWsBKGAK8tB6W+hqM8NE3J
+         w/5lowc5cLZtzv4Zy0kVrHrUraJdvwSVZhzMnnAs2Mdf+pm+K3BagNWEZUr23/CANXgL
+         S4sQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=O6mbSid8DG/krngsJpARJLgL5TfeT5sESB8CiUqcaD8=;
+        b=ib8E9LHclDqj18JjJVW1N0lTU1s9mWx0Dy6tsO6HugjW8JjTi1UcjUowHmGVXbuRhv
+         cYJ8WaIcU//sq9WT6BupMP4CLXuDwX/nyi9xrnrvSOnywU3hgXZAxj+vpe0Kimy60Dn/
+         9NHsZAnUtO02GDsQ9i2C0laqHPw0f8R4jgLA6y9Qh+tidaq518Hlfef0PYbAliQB0nxQ
+         4eKmE3BwwAorPEZBS3WPbZG/eyVOaYxgw9dE7XdDS03a2FJWF63Ss/7cvVOycaFbCTKE
+         alApU0FdVgG9Li9mAkuXDBKnCnOhIFpeFa0eZgIh4g8wN45VId/5EySVB8B54fsT5LhR
+         uqsQ==
+X-Gm-Message-State: AOAM530v2tMQe0MftGKiF7EKZcGVvixSJYNDfR9vsao0FU7VlWa1RX3T
+        dhuix3kfl8rBG4hs9WBJojokRUk5u96MZWx4RnE=
+X-Google-Smtp-Source: ABdhPJzwmDfO4L/uKDrYto1wQ8l3ykndZS1Y6Im4KY2ZEsWTk3+ViYT3cZcOg6ejTfe/xc4AQVoi7G4Nqd3SwVy67tw=
+X-Received: by 2002:a17:907:7252:: with SMTP id ds18mr24044366ejc.239.1612293479255;
+ Tue, 02 Feb 2021 11:17:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210202185317.GB6964@duo.ucw.cz>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 phishscore=0
- spamscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102020120
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1011 impostorscore=0
- mlxscore=0 spamscore=0 bulkscore=0 priorityscore=1501 adultscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102020121
+Received: by 2002:ab4:a44a:0:0:0:0:0 with HTTP; Tue, 2 Feb 2021 11:17:58 -0800 (PST)
+Reply-To: westernumtransferagent1@gmail.com
+From:   "Mrs.Susan Leo" <gloriaedy11@gmail.com>
+Date:   Tue, 2 Feb 2021 20:17:58 +0100
+Message-ID: <CAKvGSkOUMy5jVUf94hSPrSFCanPU8joO991QZXuYQMO82Hx2SQ@mail.gmail.com>
+Subject: Zahlungsaktualisierung von der MoneyGram-Zentrale.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 02, 2021 at 07:53:17PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Dan Carpenter <dan.carpenter@oracle.com>
-> > 
-> > [ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
-> > 
-> > The "bec" struct isn't necessarily always initialized. For example, the
-> > mcp251xfd_get_berr_counter() function doesn't initialize anything if the
-> > interface is down.
-> 
-> Well, yes... and = {} does not neccessarily initialize all of the
-> structure... for example padding.
-> 
-> It is really simple
-> 
-> struct can_berr_counter {
-> 	__u16 txerr;
-> 	__u16 rxerr;
-> };
-> 
-> but maybe something like alpha uses padding in such case, and memset
-> would be better?
+GUTE NACHRICHTEN
 
-I'm pretty sure nothing uses padding in this situation.  If it does then
-we need to re-work a bunch of code.
+Der Respekt dieser Nachricht kommt vom Manager des Geld-Gramm-B=C3=BCros, i=
+ch
+Ich m=C3=B6chte Sie dar=C3=BCber informieren, dass die Regierung der Republ=
+ik
+Benin geliefert hat
+Ihre Ausgleichszahlung in H=C3=B6he von 3,7 Mio. USD an unser B=C3=BCro
+Morgen. Und diese Mittel sind eine Entsch=C3=A4digung f=C3=BCr alle Opfer, =
+die
+im Jahr betrogen wurden
+2015 bis 2021 mit sofortiger Wirkung kontaktieren Sie unsere
+Kontakt-E-Mail-Adresse unten:
 
-regards,
-dan carpenter
+E-Mail: m.gramheadoffice1@gmail.com
+Tel. 0022964439832
 
+Ich m=C3=B6chte, dass Sie sich bei mir melden, damit wir dar=C3=BCber sprec=
+hen
+k=C3=B6nnen, wie Sie empfangen k=C3=B6nnen
+Ihre Entsch=C3=A4digungsfonds.
+
+Mit bestem Gru=C3=9F
+Frau Gloria Edward
