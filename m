@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E1F30C0AA
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:06:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50F1A30CBA5
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233315AbhBBOD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:03:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46502 "EHLO mail.kernel.org"
+        id S239716AbhBBTbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:31:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233313AbhBBOCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:02:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C4CA65002;
-        Tue,  2 Feb 2021 13:47:43 +0000 (UTC)
+        id S233343AbhBBN5j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:57:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14FC964FDF;
+        Tue,  2 Feb 2021 13:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273664;
-        bh=ejDMvqEQbt6cY7Eq4brpllxGg5aS0kJ2jR8GyZmoZxo=;
+        s=korg; t=1612273535;
+        bh=ye+etvKTKQ5h668bAnqmG0SQ7nMqI4tfMOolffiWWR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mTgdbd+Xaox8AHPujRBCzHhDHYRnQzyk07D/0NAZZvJx/xVERpc3X8/EJ2MMte/C
-         VZkiGc90i7YPO3RkmRzJSD3OR1DH/3PiL/wWbOmlmyw7EfivGZ2d17tJU5Yf+S42bO
-         BQKRxjpOr/CChBngQNuud9GMaslLoQYsWaebr0qY=
+        b=e7YTNNw2cvjnr2/RjGAc944m0Q8QUUioBNZH+tIwtdxqcDEBvShSWHPMIsl/bcSx9
+         bjkdyWaMU1HOly+R7F3e03/fzcTu/mTAeLzNMRW9CSKztefbCFWEb9v9J63PZ6y4FA
+         Uu9qqqCcRb4LqkmqG/do2pqA1uzj8TYOX6R0P5OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 45/61] mac80211: pause TX while changing interface type
-Date:   Tue,  2 Feb 2021 14:38:23 +0100
-Message-Id: <20210202132948.376312125@linuxfoundation.org>
+        stable@vger.kernel.org, Enke Chen <enchen@paloaltonetworks.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 141/142] tcp: make TCP_USER_TIMEOUT accurate for zero window probes
+Date:   Tue,  2 Feb 2021 14:38:24 +0100
+Message-Id: <20210202133003.510204095@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Enke Chen <enchen@paloaltonetworks.com>
 
-[ Upstream commit 054c9939b4800a91475d8d89905827bf9e1ad97a ]
+commit 344db93ae3ee69fc137bd6ed89a8ff1bf5b0db08 upstream.
 
-syzbot reported a crash that happened when changing the interface
-type around a lot, and while it might have been easy to fix just
-the symptom there, a little deeper investigation found that really
-the reason is that we allowed packets to be transmitted while in
-the middle of changing the interface type.
+The TCP_USER_TIMEOUT is checked by the 0-window probe timer. As the
+timer has backoff with a max interval of about two minutes, the
+actual timeout for TCP_USER_TIMEOUT can be off by up to two minutes.
 
-Disallow TX by stopping the queues while changing the type.
+In this patch the TCP_USER_TIMEOUT is made more accurate by taking it
+into account when computing the timer value for the 0-window probes.
 
-Fixes: 34d4bc4d41d2 ("mac80211: support runtime interface type changes")
-Reported-by: syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20210122171115.b321f98f4d4f.I6997841933c17b093535c31d29355be3c0c39628@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is similar to and builds on top of the one that made
+TCP_USER_TIMEOUT accurate for RTOs in commit b701a99e431d ("tcp: Add
+tcp_clamp_rto_to_user_timeout() helper to improve accuracy").
+
+Fixes: 9721e709fa68 ("tcp: simplify window probe aborting on USER_TIMEOUT")
+Signed-off-by: Enke Chen <enchen@paloaltonetworks.com>
+Reviewed-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210122191306.GA99540@localhost.localdomain
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/mac80211/ieee80211_i.h | 1 +
- net/mac80211/iface.c       | 6 ++++++
- 2 files changed, 7 insertions(+)
+ include/net/tcp.h     |    1 +
+ net/ipv4/tcp_input.c  |    4 ++--
+ net/ipv4/tcp_output.c |    2 ++
+ net/ipv4/tcp_timer.c  |   18 ++++++++++++++++++
+ 4 files changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 05406e9c05b32..268f1d8f440ba 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1061,6 +1061,7 @@ enum queue_stop_reason {
- 	IEEE80211_QUEUE_STOP_REASON_FLUSH,
- 	IEEE80211_QUEUE_STOP_REASON_TDLS_TEARDOWN,
- 	IEEE80211_QUEUE_STOP_REASON_RESERVE_TID,
-+	IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE,
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -625,6 +625,7 @@ static inline void tcp_clear_xmit_timers
  
- 	IEEE80211_QUEUE_STOP_REASONS,
- };
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index af8b09214786d..6089b09ec13b6 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1537,6 +1537,10 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	if (ret)
- 		return ret;
+ unsigned int tcp_sync_mss(struct sock *sk, u32 pmtu);
+ unsigned int tcp_current_mss(struct sock *sk);
++u32 tcp_clamp_probe0_to_user_timeout(const struct sock *sk, u32 when);
  
-+	ieee80211_stop_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
-+	synchronize_net();
-+
- 	ieee80211_do_stop(sdata, false);
+ /* Bound MSS / TSO packet size with the half of the window */
+ static inline int tcp_bound_to_half_wnd(struct tcp_sock *tp, int pktsize)
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3378,8 +3378,8 @@ static void tcp_ack_probe(struct sock *s
+ 	} else {
+ 		unsigned long when = tcp_probe0_when(sk, TCP_RTO_MAX);
  
- 	ieee80211_teardown_sdata(sdata);
-@@ -1557,6 +1561,8 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	err = ieee80211_do_open(&sdata->wdev, false);
- 	WARN(err, "type change: do_open returned %d", err);
- 
-+	ieee80211_wake_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
- 	return ret;
+-		tcp_reset_xmit_timer(sk, ICSK_TIME_PROBE0,
+-				     when, TCP_RTO_MAX);
++		when = tcp_clamp_probe0_to_user_timeout(sk, when);
++		tcp_reset_xmit_timer(sk, ICSK_TIME_PROBE0, when, TCP_RTO_MAX);
+ 	}
  }
  
--- 
-2.27.0
-
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -4095,6 +4095,8 @@ void tcp_send_probe0(struct sock *sk)
+ 		 */
+ 		timeout = TCP_RESOURCE_PROBE_INTERVAL;
+ 	}
++
++	timeout = tcp_clamp_probe0_to_user_timeout(sk, timeout);
+ 	tcp_reset_xmit_timer(sk, ICSK_TIME_PROBE0, timeout, TCP_RTO_MAX);
+ }
+ 
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -40,6 +40,24 @@ static u32 tcp_clamp_rto_to_user_timeout
+ 	return min_t(u32, icsk->icsk_rto, msecs_to_jiffies(remaining));
+ }
+ 
++u32 tcp_clamp_probe0_to_user_timeout(const struct sock *sk, u32 when)
++{
++	struct inet_connection_sock *icsk = inet_csk(sk);
++	u32 remaining;
++	s32 elapsed;
++
++	if (!icsk->icsk_user_timeout || !icsk->icsk_probes_tstamp)
++		return when;
++
++	elapsed = tcp_jiffies32 - icsk->icsk_probes_tstamp;
++	if (unlikely(elapsed < 0))
++		elapsed = 0;
++	remaining = msecs_to_jiffies(icsk->icsk_user_timeout) - elapsed;
++	remaining = max_t(u32, remaining, TCP_TIMEOUT_MIN);
++
++	return min_t(u32, remaining, when);
++}
++
+ /**
+  *  tcp_write_err() - close socket and save error info
+  *  @sk:  The socket the error has appeared on.
 
 
