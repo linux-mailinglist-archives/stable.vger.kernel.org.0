@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5AD30C0C1
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:08:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D485B30C9B4
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbhBBOGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:06:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+        id S233507AbhBBS0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:26:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233779AbhBBOER (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:04:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA20464EBF;
-        Tue,  2 Feb 2021 13:48:38 +0000 (UTC)
+        id S233639AbhBBOGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:06:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EE0864F89;
+        Tue,  2 Feb 2021 13:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273719;
-        bh=hcorJadeg1bRi00OGkPZ9qS9jXCgE3d0h5rW8AMZO9M=;
+        s=korg; t=1612273746;
+        bh=j+xZwxu3KrOGfnOrUx8aKqFaLLUXF/iAgHe03ZnFEvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ov+n1OmQ0zNLcSLd0845xvUaOBRqfRMVVnLyKO6Oo6EYSF04KM2rRCdnpjAvZ4i4A
-         tt2DcwJgHOEOxmgbGyFYf2Y6+WgvcpyKZpjHCS6gZvf1BpYmV/CXfaW/ZJVNp4HEZ5
-         +mezfo4/vIxrQd5wNs/75wd1N+L4H0GSGYHHmGr0=
+        b=ir/CM/0AwQ93MDARXvk7uFV4jNRATy+lxy2YNsFnM24IhaRIuRKJEedb5QQdrIWhE
+         ym46MA1wPeNU3k0nRPel2wmSie3c+o0hRLHgiaiAHDZjh/ZsTX9SY6tQZ1h7H2DDWZ
+         IYjAB1BpYMVwrXk9CabneLnb2EfWBNjyCJO8iUL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 56/61] rxrpc: Fix memory leak in rxrpc_lookup_local
-Date:   Tue,  2 Feb 2021 14:38:34 +0100
-Message-Id: <20210202132948.849409396@linuxfoundation.org>
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 15/28] futex: Provide state handling for exec() as well
+Date:   Tue,  2 Feb 2021 14:38:35 +0100
+Message-Id: <20210202132941.800726495@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit b8323f7288abd71794cd7b11a4c0a38b8637c8b5 upstream.
+commit af8cbda2cfcaa5515d61ec500498d46e9a8247e2 upstream.
 
-Commit 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Then release ref in __rxrpc_put_peer and rxrpc_put_peer_locked.
+exec() attempts to handle potentially held futexes gracefully by running
+the futex exit handling code like exit() does.
 
-	struct rxrpc_peer *rxrpc_alloc_peer(struct rxrpc_local *local, gfp_t gfp)
-	-               peer->local = local;
-	+               peer->local = rxrpc_get_local(local);
+The current implementation has no protection against concurrent incoming
+waiters. The reason is that the futex state cannot be set to
+FUTEX_STATE_DEAD after the cleanup because the task struct is still active
+and just about to execute the new binary.
 
-rxrpc_discard_prealloc also need ref release in discarding.
+While its arguably buggy when a task holds a futex over exec(), for
+consistency sake the state handling can at least cover the actual futex
+exit cleanup section. This provides state consistency protection accross
+the cleanup. As the futex state of the task becomes FUTEX_STATE_OK after the
+cleanup has been finished, this cannot prevent subsequent attempts to
+attach to the task in case that the cleanup was not successfull in mopping
+up all leftovers.
 
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff8881080ddc00 (size 256):
-  comm "syz-executor339", pid 8462, jiffies 4294942238 (age 12.350s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 0a 00 00 00 00 c0 00 08 81 88 ff ff  ................
-  backtrace:
-    [<000000002b6e495f>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000002b6e495f>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000002b6e495f>] rxrpc_alloc_local net/rxrpc/local_object.c:79 [inline]
-    [<000000002b6e495f>] rxrpc_lookup_local+0x1c1/0x760 net/rxrpc/local_object.c:244
-    [<000000006b43a77b>] rxrpc_bind+0x174/0x240 net/rxrpc/af_rxrpc.c:149
-    [<00000000fd447a55>] afs_open_socket+0xdb/0x200 fs/afs/rxrpc.c:64
-    [<000000007fd8867c>] afs_net_init+0x2b4/0x340 fs/afs/main.c:126
-    [<0000000063d80ec1>] ops_init+0x4e/0x190 net/core/net_namespace.c:152
-    [<00000000073c5efa>] setup_net+0xde/0x2d0 net/core/net_namespace.c:342
-    [<00000000a6744d5b>] copy_net_ns+0x19f/0x3e0 net/core/net_namespace.c:483
-    [<0000000017d3aec3>] create_new_namespaces+0x199/0x4f0 kernel/nsproxy.c:110
-    [<00000000186271ef>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<000000002de7bac4>] ksys_unshare+0x2fe/0x5c0 kernel/fork.c:2957
-    [<00000000349b12ba>] __do_sys_unshare kernel/fork.c:3025 [inline]
-    [<00000000349b12ba>] __se_sys_unshare kernel/fork.c:3023 [inline]
-    [<00000000349b12ba>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3023
-    [<000000006d178ef7>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<00000000637076d4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Reported-and-tested-by: syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/161183091692.3506637.3206605651502458810.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20191106224556.753355618@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/call_accept.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/futex.c |   38 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 34 insertions(+), 4 deletions(-)
 
---- a/net/rxrpc/call_accept.c
-+++ b/net/rxrpc/call_accept.c
-@@ -207,6 +207,7 @@ void rxrpc_discard_prealloc(struct rxrpc
- 	tail = b->peer_backlog_tail;
- 	while (CIRC_CNT(head, tail, size) > 0) {
- 		struct rxrpc_peer *peer = b->peer_backlog[tail];
-+		rxrpc_put_local(peer->local);
- 		kfree(peer);
- 		tail = (tail + 1) & (size - 1);
- 	}
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3234,7 +3234,7 @@ static void exit_robust_list(struct task
+ 				   curr, pip);
+ }
+ 
+-void futex_exec_release(struct task_struct *tsk)
++static void futex_cleanup(struct task_struct *tsk)
+ {
+ 	if (unlikely(tsk->robust_list)) {
+ 		exit_robust_list(tsk);
+@@ -3274,7 +3274,7 @@ void futex_exit_recursive(struct task_st
+ 	tsk->futex_state = FUTEX_STATE_DEAD;
+ }
+ 
+-void futex_exit_release(struct task_struct *tsk)
++static void futex_cleanup_begin(struct task_struct *tsk)
+ {
+ 	/*
+ 	 * Switch the state to FUTEX_STATE_EXITING under tsk->pi_lock.
+@@ -3290,10 +3290,40 @@ void futex_exit_release(struct task_stru
+ 	raw_spin_lock_irq(&tsk->pi_lock);
+ 	tsk->futex_state = FUTEX_STATE_EXITING;
+ 	raw_spin_unlock_irq(&tsk->pi_lock);
++}
+ 
+-	futex_exec_release(tsk);
++static void futex_cleanup_end(struct task_struct *tsk, int state)
++{
++	/*
++	 * Lockless store. The only side effect is that an observer might
++	 * take another loop until it becomes visible.
++	 */
++	tsk->futex_state = state;
++}
+ 
+-	tsk->futex_state = FUTEX_STATE_DEAD;
++void futex_exec_release(struct task_struct *tsk)
++{
++	/*
++	 * The state handling is done for consistency, but in the case of
++	 * exec() there is no way to prevent futher damage as the PID stays
++	 * the same. But for the unlikely and arguably buggy case that a
++	 * futex is held on exec(), this provides at least as much state
++	 * consistency protection which is possible.
++	 */
++	futex_cleanup_begin(tsk);
++	futex_cleanup(tsk);
++	/*
++	 * Reset the state to FUTEX_STATE_OK. The task is alive and about
++	 * exec a new binary.
++	 */
++	futex_cleanup_end(tsk, FUTEX_STATE_OK);
++}
++
++void futex_exit_release(struct task_struct *tsk)
++{
++	futex_cleanup_begin(tsk);
++	futex_cleanup(tsk);
++	futex_cleanup_end(tsk, FUTEX_STATE_DEAD);
+ }
+ 
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 
 
