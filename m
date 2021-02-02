@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAD530CBDD
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C2430CB5F
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239908AbhBBThT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:37:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43136 "EHLO mail.kernel.org"
+        id S233335AbhBBTV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:21:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233345AbhBBNzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:55:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6669B64FD9;
-        Tue,  2 Feb 2021 13:44:47 +0000 (UTC)
+        id S233403AbhBBOBD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:01:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51C0764FFB;
+        Tue,  2 Feb 2021 13:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273488;
-        bh=go4SPvgeIuHW/8Lu/BFVhDHVezjnaaH4IC5azLhxwIc=;
+        s=korg; t=1612273620;
+        bh=gI51k9d9SiKr8vQwrXcNwrN8V9AwpkdttioFwXxF9OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ss0HJKx6Kqr9oHCSYsNDm8f3fGSGctEQTFv44g9w6HQv0gFYl709Va6IzvGd5xv85
-         VxmFyAgMOpe50jMEOmA0l9nxBtp0DcQR7SbK+/CFjIVXd/bUhhAclxevZ+9Je4O/kn
-         KjM8Ql4tqahuMBAnOPzgCy7BnB3c4BQJ/l9Id1cQ=
+        b=DBlO5WxOIFS1Sdf6OeVtF8gGQrCxJCPT191Idl7/do+ds4Mmh7CTV9MbBjjkeA+VK
+         3xncxE7E5PO7OGI7Awry+ittaBKFKMaTXb9nPynvlErTkZVZgDDckwiCkzc3NFj0uf
+         ZWjTlwoHyoyXu+QsgZ1vjxzpLBdsakriakAZdFZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moritz Fischer <mdf@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/142] ACPI/IORT: Do not blindly trust DMA masks from firmware
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 31/61] ARM: imx: build suspend-imx6.S with arm instruction set
 Date:   Tue,  2 Feb 2021 14:38:09 +0100
-Message-Id: <20210202133002.896592479@linuxfoundation.org>
+Message-Id: <20210202132947.784810701@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moritz Fischer <mdf@kernel.org>
+From: Max Krummenacher <max.oss.09@gmail.com>
 
-[ Upstream commit a1df829ead5877d4a1061e976a50e2e665a16f24 ]
+commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
 
-Address issue observed on real world system with suboptimal IORT table
-where DMA masks of PCI devices would get set to 0 as result.
+When the kernel is configured to use the Thumb-2 instruction set
+"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
+(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
 
-iort_dma_setup() would query the root complex'/named component IORT
-entry for a DMA mask, and use that over the one the device has been
-configured with earlier.
+It looks like the CPU resumes unconditionally in ARM instruction mode
+and then chokes on the presented Thumb-2 code it should execute.
 
-Ideally we want to use the minimum mask of what the IORT contains for
-the root complex and what the device was configured with.
+Fix this by using the arm instruction set for all code in
+suspend-imx6.S.
 
-Fixes: 5ac65e8c8941 ("ACPI/IORT: Support address size limit for root complexes")
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/20210122012419.95010-1-mdf@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
+Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/acpi/arm64/iort.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/arm/mach-imx/suspend-imx6.S |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-index 770d84071a328..94f34109695c9 100644
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1107,6 +1107,11 @@ static int nc_dma_get_range(struct device *dev, u64 *size)
+--- a/arch/arm/mach-imx/suspend-imx6.S
++++ b/arch/arm/mach-imx/suspend-imx6.S
+@@ -67,6 +67,7 @@
+ #define MX6Q_CCM_CCR	0x0
  
- 	ncomp = (struct acpi_iort_named_component *)node->node_data;
+ 	.align 3
++	.arm
  
-+	if (!ncomp->memory_address_limit) {
-+		pr_warn(FW_BUG "Named component missing memory address limit\n");
-+		return -EINVAL;
-+	}
-+
- 	*size = ncomp->memory_address_limit >= 64 ? U64_MAX :
- 			1ULL<<ncomp->memory_address_limit;
+ 	.macro  sync_l2_cache
  
-@@ -1126,6 +1131,11 @@ static int rc_dma_get_range(struct device *dev, u64 *size)
- 
- 	rc = (struct acpi_iort_root_complex *)node->node_data;
- 
-+	if (!rc->memory_address_limit) {
-+		pr_warn(FW_BUG "Root complex missing memory address limit\n");
-+		return -EINVAL;
-+	}
-+
- 	*size = rc->memory_address_limit >= 64 ? U64_MAX :
- 			1ULL<<rc->memory_address_limit;
- 
-@@ -1173,8 +1183,8 @@ void iort_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size)
- 		end = dmaaddr + size - 1;
- 		mask = DMA_BIT_MASK(ilog2(end) + 1);
- 		dev->bus_dma_limit = end;
--		dev->coherent_dma_mask = mask;
--		*dev->dma_mask = mask;
-+		dev->coherent_dma_mask = min(dev->coherent_dma_mask, mask);
-+		*dev->dma_mask = min(*dev->dma_mask, mask);
- 	}
- 
- 	*dma_addr = dmaaddr;
--- 
-2.27.0
-
 
 
