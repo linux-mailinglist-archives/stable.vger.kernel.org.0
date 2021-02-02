@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BE730CA31
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD70130C05E
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237805AbhBBSlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:41:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+        id S233201AbhBBN4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:56:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233519AbhBBODT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:03:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3878A6500D;
-        Tue,  2 Feb 2021 13:48:08 +0000 (UTC)
+        id S233303AbhBBNyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:54:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C97AA64FCA;
+        Tue,  2 Feb 2021 13:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273688;
-        bh=x4TBlAWe7D0+pzJCsJHDCOND3Ffe9WaeWFh0xrO2An4=;
+        s=korg; t=1612273466;
+        bh=9QO3HAl5UzbunPjjIeZWjmefY4swh79TeXMZvM736GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iu4Iw0HIveUtiNzJnQr/Y2VzbEWMd2ogdjvZFHMz2Pfy2Etyd9MxbesI0JKvn9oob
-         jU/VuOlqgIvua92UYQG6DrUYWkIEzJfhvdcJOvNJmrCc4zBnkur+GqLgQoGB/Ykyed
-         phnpRguIzCGcdtvjzpgz7e7VtZ42zpQbvh0T5zwQ=
+        b=tUppybkdzmgaHZZqRK9AAOjwb+WvsMWXodOftZnPvYrtyt5KGHuS20VUSJUvo1TjH
+         flu8OZlaEqwrt6CHEY0GEiwok53c6qmTPW8pOeuhpvH8Si1HcCkIwak6Z6KQjD9d2Y
+         E0uwFSDq+mgL0Q5VYIMvDAXZv4kL9ugYUxJkqKK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 5.4 23/61] leds: trigger: fix potential deadlock with libata
+        stable@vger.kernel.org, Daniel Jurgens <danielj@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 118/142] net/mlx5: Maintain separate page trees for ECPF and PF functions
 Date:   Tue,  2 Feb 2021 14:38:01 +0100
-Message-Id: <20210202132947.439146623@linuxfoundation.org>
+Message-Id: <20210202133002.577295730@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,270 +40,261 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Daniel Jurgens <danielj@nvidia.com>
 
-commit 27af8e2c90fba242460b01fa020e6e19ed68c495 upstream.
+[ Upstream commit 0aa128475d33d2d0095947eeab6b3e4d22dbd578 ]
 
-We have the following potential deadlock condition:
+Pages for the host PF and ECPF were stored in the same tree, so the ECPF
+pages were being freed along with the host PF's when the host driver
+unloaded.
 
- ========================================================
- WARNING: possible irq lock inversion dependency detected
- 5.10.0-rc2+ #25 Not tainted
- --------------------------------------------------------
- swapper/3/0 just changed the state of lock:
- ffff8880063bd618 (&host->lock){-...}-{2:2}, at: ata_bmdma_interrupt+0x27/0x200
- but this lock took another, HARDIRQ-READ-unsafe lock in the past:
-  (&trig->leddev_list_lock){.+.?}-{2:2}
+Combine the function ID and ECPF flag to use as an index into the
+x-array containing the trees to get a different tree for the host PF and
+ECPF.
 
- and interrupts could create inverse lock ordering between them.
-
- other info that might help us debug this:
-  Possible interrupt unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&trig->leddev_list_lock);
-                                local_irq_disable();
-                                lock(&host->lock);
-                                lock(&trig->leddev_list_lock);
-   <Interrupt>
-     lock(&host->lock);
-
-  *** DEADLOCK ***
-
- no locks held by swapper/3/0.
-
- the shortest dependencies between 2nd lock and 1st lock:
-  -> (&trig->leddev_list_lock){.+.?}-{2:2} ops: 46 {
-     HARDIRQ-ON-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       rfkill_global_led_trigger_worker+0x94/0xb0
-                       process_one_work+0x240/0x560
-                       worker_thread+0x58/0x3d0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     IN-SOFTIRQ-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       kbd_bh+0x9e/0xc0
-                       tasklet_action_common.constprop.0+0xe9/0x100
-                       tasklet_action+0x22/0x30
-                       __do_softirq+0xcc/0x46d
-                       run_ksoftirqd+0x3f/0x70
-                       smpboot_thread_fn+0x116/0x1f0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     SOFTIRQ-ON-R at:
-                       lock_acquire+0x15f/0x420
-                       _raw_read_lock+0x42/0x90
-                       led_trigger_event+0x2b/0x70
-                       rfkill_global_led_trigger_worker+0x94/0xb0
-                       process_one_work+0x240/0x560
-                       worker_thread+0x58/0x3d0
-                       kthread+0x151/0x170
-                       ret_from_fork+0x1f/0x30
-     INITIAL READ USE at:
-                           lock_acquire+0x15f/0x420
-                           _raw_read_lock+0x42/0x90
-                           led_trigger_event+0x2b/0x70
-                           rfkill_global_led_trigger_worker+0x94/0xb0
-                           process_one_work+0x240/0x560
-                           worker_thread+0x58/0x3d0
-                           kthread+0x151/0x170
-                           ret_from_fork+0x1f/0x30
-   }
-   ... key      at: [<ffffffff83da4c00>] __key.0+0x0/0x10
-   ... acquired at:
-    _raw_read_lock+0x42/0x90
-    led_trigger_blink_oneshot+0x3b/0x90
-    ledtrig_disk_activity+0x3c/0xa0
-    ata_qc_complete+0x26/0x450
-    ata_do_link_abort+0xa3/0xe0
-    ata_port_freeze+0x2e/0x40
-    ata_hsm_qc_complete+0x94/0xa0
-    ata_sff_hsm_move+0x177/0x7a0
-    ata_sff_pio_task+0xc7/0x1b0
-    process_one_work+0x240/0x560
-    worker_thread+0x58/0x3d0
-    kthread+0x151/0x170
-    ret_from_fork+0x1f/0x30
-
- -> (&host->lock){-...}-{2:2} ops: 69 {
-    IN-HARDIRQ-W at:
-                     lock_acquire+0x15f/0x420
-                     _raw_spin_lock_irqsave+0x52/0xa0
-                     ata_bmdma_interrupt+0x27/0x200
-                     __handle_irq_event_percpu+0xd5/0x2b0
-                     handle_irq_event+0x57/0xb0
-                     handle_edge_irq+0x8c/0x230
-                     asm_call_irq_on_stack+0xf/0x20
-                     common_interrupt+0x100/0x1c0
-                     asm_common_interrupt+0x1e/0x40
-                     native_safe_halt+0xe/0x10
-                     arch_cpu_idle+0x15/0x20
-                     default_idle_call+0x59/0x1c0
-                     do_idle+0x22c/0x2c0
-                     cpu_startup_entry+0x20/0x30
-                     start_secondary+0x11d/0x150
-                     secondary_startup_64_no_verify+0xa6/0xab
-    INITIAL USE at:
-                    lock_acquire+0x15f/0x420
-                    _raw_spin_lock_irqsave+0x52/0xa0
-                    ata_dev_init+0x54/0xe0
-                    ata_link_init+0x8b/0xd0
-                    ata_port_alloc+0x1f1/0x210
-                    ata_host_alloc+0xf1/0x130
-                    ata_host_alloc_pinfo+0x14/0xb0
-                    ata_pci_sff_prepare_host+0x41/0xa0
-                    ata_pci_bmdma_prepare_host+0x14/0x30
-                    piix_init_one+0x21f/0x600
-                    local_pci_probe+0x48/0x80
-                    pci_device_probe+0x105/0x1c0
-                    really_probe+0x221/0x490
-                    driver_probe_device+0xe9/0x160
-                    device_driver_attach+0xb2/0xc0
-                    __driver_attach+0x91/0x150
-                    bus_for_each_dev+0x81/0xc0
-                    driver_attach+0x1e/0x20
-                    bus_add_driver+0x138/0x1f0
-                    driver_register+0x91/0xf0
-                    __pci_register_driver+0x73/0x80
-                    piix_init+0x1e/0x2e
-                    do_one_initcall+0x5f/0x2d0
-                    kernel_init_freeable+0x26f/0x2cf
-                    kernel_init+0xe/0x113
-                    ret_from_fork+0x1f/0x30
-  }
-  ... key      at: [<ffffffff83d9fdc0>] __key.6+0x0/0x10
-  ... acquired at:
-    __lock_acquire+0x9da/0x2370
-    lock_acquire+0x15f/0x420
-    _raw_spin_lock_irqsave+0x52/0xa0
-    ata_bmdma_interrupt+0x27/0x200
-    __handle_irq_event_percpu+0xd5/0x2b0
-    handle_irq_event+0x57/0xb0
-    handle_edge_irq+0x8c/0x230
-    asm_call_irq_on_stack+0xf/0x20
-    common_interrupt+0x100/0x1c0
-    asm_common_interrupt+0x1e/0x40
-    native_safe_halt+0xe/0x10
-    arch_cpu_idle+0x15/0x20
-    default_idle_call+0x59/0x1c0
-    do_idle+0x22c/0x2c0
-    cpu_startup_entry+0x20/0x30
-    start_secondary+0x11d/0x150
-    secondary_startup_64_no_verify+0xa6/0xab
-
-This lockdep splat is reported after:
-commit e918188611f0 ("locking: More accurate annotations for read_lock()")
-
-To clarify:
- - read-locks are recursive only in interrupt context (when
-   in_interrupt() returns true)
- - after acquiring host->lock in CPU1, another cpu (i.e. CPU2) may call
-   write_lock(&trig->leddev_list_lock) that would be blocked by CPU0
-   that holds trig->leddev_list_lock in read-mode
- - when CPU1 (ata_ac_complete()) tries to read-lock
-   trig->leddev_list_lock, it would be blocked by the write-lock waiter
-   on CPU2 (because we are not in interrupt context, so the read-lock is
-   not recursive)
- - at this point if an interrupt happens on CPU0 and
-   ata_bmdma_interrupt() is executed it will try to acquire host->lock,
-   that is held by CPU1, that is currently blocked by CPU2, so:
-
-   * CPU0 blocked by CPU1
-   * CPU1 blocked by CPU2
-   * CPU2 blocked by CPU0
-
-     *** DEADLOCK ***
-
-The deadlock scenario is better represented by the following schema
-(thanks to Boqun Feng <boqun.feng@gmail.com> for the schema and the
-detailed explanation of the deadlock condition):
-
- CPU 0:                          CPU 1:                        CPU 2:
- -----                           -----                         -----
- led_trigger_event():
-   read_lock(&trig->leddev_list_lock);
- 				<workqueue>
- 				ata_hsm_qc_complete():
- 				  spin_lock_irqsave(&host->lock);
- 								write_lock(&trig->leddev_list_lock);
- 				  ata_port_freeze():
- 				    ata_do_link_abort():
- 				      ata_qc_complete():
- 					ledtrig_disk_activity():
- 					  led_trigger_blink_oneshot():
- 					    read_lock(&trig->leddev_list_lock);
- 					    // ^ not in in_interrupt() context, so could get blocked by CPU 2
- <interrupt>
-   ata_bmdma_interrupt():
-     spin_lock_irqsave(&host->lock);
-
-Fix by using read_lock_irqsave/irqrestore() in led_trigger_event(), so
-that no interrupt can happen in between, preventing the deadlock
-condition.
-
-Apply the same change to led_trigger_blink_setup() as well, since the
-same deadlock scenario can also happen in power_supply_update_bat_leds()
--> led_trigger_blink() -> led_trigger_blink_setup() (workqueue context),
-and potentially prevent other similar usages.
-
-Link: https://lore.kernel.org/lkml/20201101092614.GB3989@xps-13-7390/
-Fixes: eb25cb9956cc ("leds: convert IDE trigger to common disk trigger")
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c6168161f693 ("net/mlx5: Add support for release all pages event")
+Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/led-triggers.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ .../ethernet/mellanox/mlx5/core/pagealloc.c   | 58 +++++++++++--------
+ 1 file changed, 34 insertions(+), 24 deletions(-)
 
---- a/drivers/leds/led-triggers.c
-+++ b/drivers/leds/led-triggers.c
-@@ -318,14 +318,15 @@ void led_trigger_event(struct led_trigge
- 			enum led_brightness brightness)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+index 4d7f8a357df76..a3e0c71831928 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+@@ -58,7 +58,7 @@ struct fw_page {
+ 	struct rb_node		rb_node;
+ 	u64			addr;
+ 	struct page	       *page;
+-	u16			func_id;
++	u32			function;
+ 	unsigned long		bitmask;
+ 	struct list_head	list;
+ 	unsigned		free_count;
+@@ -74,12 +74,17 @@ enum {
+ 	MLX5_NUM_4K_IN_PAGE		= PAGE_SIZE / MLX5_ADAPTER_PAGE_SIZE,
+ };
+ 
+-static struct rb_root *page_root_per_func_id(struct mlx5_core_dev *dev, u16 func_id)
++static u32 get_function(u16 func_id, bool ec_function)
++{
++	return func_id & (ec_function << 16);
++}
++
++static struct rb_root *page_root_per_function(struct mlx5_core_dev *dev, u32 function)
  {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
+ 	struct rb_root *root;
+ 	int err;
  
- 	if (!trig)
- 		return;
+-	root = xa_load(&dev->priv.page_root_xa, func_id);
++	root = xa_load(&dev->priv.page_root_xa, function);
+ 	if (root)
+ 		return root;
  
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list)
- 		led_set_brightness(led_cdev, brightness);
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+@@ -87,7 +92,7 @@ static struct rb_root *page_root_per_func_id(struct mlx5_core_dev *dev, u16 func
+ 	if (!root)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	err = xa_insert(&dev->priv.page_root_xa, func_id, root, GFP_KERNEL);
++	err = xa_insert(&dev->priv.page_root_xa, function, root, GFP_KERNEL);
+ 	if (err) {
+ 		kfree(root);
+ 		return ERR_PTR(err);
+@@ -98,7 +103,7 @@ static struct rb_root *page_root_per_func_id(struct mlx5_core_dev *dev, u16 func
+ 	return root;
  }
- EXPORT_SYMBOL_GPL(led_trigger_event);
  
-@@ -336,11 +337,12 @@ static void led_trigger_blink_setup(stru
- 			     int invert)
+-static int insert_page(struct mlx5_core_dev *dev, u64 addr, struct page *page, u16 func_id)
++static int insert_page(struct mlx5_core_dev *dev, u64 addr, struct page *page, u32 function)
  {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
+ 	struct rb_node *parent = NULL;
+ 	struct rb_root *root;
+@@ -107,7 +112,7 @@ static int insert_page(struct mlx5_core_dev *dev, u64 addr, struct page *page, u
+ 	struct fw_page *tfp;
+ 	int i;
  
- 	if (!trig)
- 		return;
+-	root = page_root_per_func_id(dev, func_id);
++	root = page_root_per_function(dev, function);
+ 	if (IS_ERR(root))
+ 		return PTR_ERR(root);
  
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list) {
- 		if (oneshot)
- 			led_blink_set_oneshot(led_cdev, delay_on, delay_off,
-@@ -348,7 +350,7 @@ static void led_trigger_blink_setup(stru
- 		else
- 			led_blink_set(led_cdev, delay_on, delay_off);
+@@ -130,7 +135,7 @@ static int insert_page(struct mlx5_core_dev *dev, u64 addr, struct page *page, u
+ 
+ 	nfp->addr = addr;
+ 	nfp->page = page;
+-	nfp->func_id = func_id;
++	nfp->function = function;
+ 	nfp->free_count = MLX5_NUM_4K_IN_PAGE;
+ 	for (i = 0; i < MLX5_NUM_4K_IN_PAGE; i++)
+ 		set_bit(i, &nfp->bitmask);
+@@ -143,14 +148,14 @@ static int insert_page(struct mlx5_core_dev *dev, u64 addr, struct page *page, u
+ }
+ 
+ static struct fw_page *find_fw_page(struct mlx5_core_dev *dev, u64 addr,
+-				    u32 func_id)
++				    u32 function)
+ {
+ 	struct fw_page *result = NULL;
+ 	struct rb_root *root;
+ 	struct rb_node *tmp;
+ 	struct fw_page *tfp;
+ 
+-	root = xa_load(&dev->priv.page_root_xa, func_id);
++	root = xa_load(&dev->priv.page_root_xa, function);
+ 	if (WARN_ON_ONCE(!root))
+ 		return NULL;
+ 
+@@ -194,14 +199,14 @@ static int mlx5_cmd_query_pages(struct mlx5_core_dev *dev, u16 *func_id,
+ 	return err;
+ }
+ 
+-static int alloc_4k(struct mlx5_core_dev *dev, u64 *addr, u16 func_id)
++static int alloc_4k(struct mlx5_core_dev *dev, u64 *addr, u32 function)
+ {
+ 	struct fw_page *fp = NULL;
+ 	struct fw_page *iter;
+ 	unsigned n;
+ 
+ 	list_for_each_entry(iter, &dev->priv.free_list, list) {
+-		if (iter->func_id != func_id)
++		if (iter->function != function)
+ 			continue;
+ 		fp = iter;
  	}
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+@@ -231,7 +236,7 @@ static void free_fwp(struct mlx5_core_dev *dev, struct fw_page *fwp,
+ {
+ 	struct rb_root *root;
+ 
+-	root = xa_load(&dev->priv.page_root_xa, fwp->func_id);
++	root = xa_load(&dev->priv.page_root_xa, fwp->function);
+ 	if (WARN_ON_ONCE(!root))
+ 		return;
+ 
+@@ -244,12 +249,12 @@ static void free_fwp(struct mlx5_core_dev *dev, struct fw_page *fwp,
+ 	kfree(fwp);
  }
  
- void led_trigger_blink(struct led_trigger *trig,
+-static void free_4k(struct mlx5_core_dev *dev, u64 addr, u32 func_id)
++static void free_4k(struct mlx5_core_dev *dev, u64 addr, u32 function)
+ {
+ 	struct fw_page *fwp;
+ 	int n;
+ 
+-	fwp = find_fw_page(dev, addr & MLX5_U64_4K_PAGE_MASK, func_id);
++	fwp = find_fw_page(dev, addr & MLX5_U64_4K_PAGE_MASK, function);
+ 	if (!fwp) {
+ 		mlx5_core_warn_rl(dev, "page not found\n");
+ 		return;
+@@ -263,7 +268,7 @@ static void free_4k(struct mlx5_core_dev *dev, u64 addr, u32 func_id)
+ 		list_add(&fwp->list, &dev->priv.free_list);
+ }
+ 
+-static int alloc_system_page(struct mlx5_core_dev *dev, u16 func_id)
++static int alloc_system_page(struct mlx5_core_dev *dev, u32 function)
+ {
+ 	struct device *device = mlx5_core_dma_dev(dev);
+ 	int nid = dev_to_node(device);
+@@ -291,7 +296,7 @@ map:
+ 		goto map;
+ 	}
+ 
+-	err = insert_page(dev, addr, page, func_id);
++	err = insert_page(dev, addr, page, function);
+ 	if (err) {
+ 		mlx5_core_err(dev, "failed to track allocated page\n");
+ 		dma_unmap_page(device, addr, PAGE_SIZE, DMA_BIDIRECTIONAL);
+@@ -328,6 +333,7 @@ static void page_notify_fail(struct mlx5_core_dev *dev, u16 func_id,
+ static int give_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 		      int notify_fail, bool ec_function)
+ {
++	u32 function = get_function(func_id, ec_function);
+ 	u32 out[MLX5_ST_SZ_DW(manage_pages_out)] = {0};
+ 	int inlen = MLX5_ST_SZ_BYTES(manage_pages_in);
+ 	u64 addr;
+@@ -345,10 +351,10 @@ static int give_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 
+ 	for (i = 0; i < npages; i++) {
+ retry:
+-		err = alloc_4k(dev, &addr, func_id);
++		err = alloc_4k(dev, &addr, function);
+ 		if (err) {
+ 			if (err == -ENOMEM)
+-				err = alloc_system_page(dev, func_id);
++				err = alloc_system_page(dev, function);
+ 			if (err)
+ 				goto out_4k;
+ 
+@@ -384,7 +390,7 @@ retry:
+ 
+ out_4k:
+ 	for (i--; i >= 0; i--)
+-		free_4k(dev, MLX5_GET64(manage_pages_in, in, pas[i]), func_id);
++		free_4k(dev, MLX5_GET64(manage_pages_in, in, pas[i]), function);
+ out_free:
+ 	kvfree(in);
+ 	if (notify_fail)
+@@ -392,14 +398,15 @@ out_free:
+ 	return err;
+ }
+ 
+-static void release_all_pages(struct mlx5_core_dev *dev, u32 func_id,
++static void release_all_pages(struct mlx5_core_dev *dev, u16 func_id,
+ 			      bool ec_function)
+ {
++	u32 function = get_function(func_id, ec_function);
+ 	struct rb_root *root;
+ 	struct rb_node *p;
+ 	int npages = 0;
+ 
+-	root = xa_load(&dev->priv.page_root_xa, func_id);
++	root = xa_load(&dev->priv.page_root_xa, function);
+ 	if (WARN_ON_ONCE(!root))
+ 		return;
+ 
+@@ -446,6 +453,7 @@ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 	struct rb_root *root;
+ 	struct fw_page *fwp;
+ 	struct rb_node *p;
++	bool ec_function;
+ 	u32 func_id;
+ 	u32 npages;
+ 	u32 i = 0;
+@@ -456,8 +464,9 @@ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 	/* No hard feelings, we want our pages back! */
+ 	npages = MLX5_GET(manage_pages_in, in, input_num_entries);
+ 	func_id = MLX5_GET(manage_pages_in, in, function_id);
++	ec_function = MLX5_GET(manage_pages_in, in, embedded_cpu_function);
+ 
+-	root = xa_load(&dev->priv.page_root_xa, func_id);
++	root = xa_load(&dev->priv.page_root_xa, get_function(func_id, ec_function));
+ 	if (WARN_ON_ONCE(!root))
+ 		return -EEXIST;
+ 
+@@ -473,9 +482,10 @@ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 	return 0;
+ }
+ 
+-static int reclaim_pages(struct mlx5_core_dev *dev, u32 func_id, int npages,
++static int reclaim_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 			 int *nclaimed, bool ec_function)
+ {
++	u32 function = get_function(func_id, ec_function);
+ 	int outlen = MLX5_ST_SZ_BYTES(manage_pages_out);
+ 	u32 in[MLX5_ST_SZ_DW(manage_pages_in)] = {};
+ 	int num_claimed;
+@@ -514,7 +524,7 @@ static int reclaim_pages(struct mlx5_core_dev *dev, u32 func_id, int npages,
+ 	}
+ 
+ 	for (i = 0; i < num_claimed; i++)
+-		free_4k(dev, MLX5_GET64(manage_pages_out, out, pas[i]), func_id);
++		free_4k(dev, MLX5_GET64(manage_pages_out, out, pas[i]), function);
+ 
+ 	if (nclaimed)
+ 		*nclaimed = num_claimed;
+-- 
+2.27.0
+
 
 
