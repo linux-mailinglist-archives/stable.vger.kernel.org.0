@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50DBF30CBB7
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:36:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9E530C081
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239587AbhBBTdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:33:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S233289AbhBBN7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:59:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232954AbhBBN5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:57:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64F8864FE3;
-        Tue,  2 Feb 2021 13:45:43 +0000 (UTC)
+        id S233361AbhBBN5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:57:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3210C64FEA;
+        Tue,  2 Feb 2021 13:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273544;
-        bh=GhORz0aQj3aHg5n2dkluzgIHDfVfsEpJGHbD5F2doCA=;
+        s=korg; t=1612273546;
+        bh=NSrbssA9N5mouLo0H74iiWH8EjvtzwTJ54NEysIocvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eODmOX57bYXaMNT70BgxumId5xLkkLvfGmJytPgOZPX9eZ6c2J9qsF8AaxUPNskv5
-         nmabEwheUsF0cgt8o3IXa3PQyOQpbgEM5h2sao+RADb5Ni76xKSHPkjRu2Ph/hv6GY
-         j8CpIeAzBgADhaRcyhtKbWFpA1i0i7F/6NmjVJEQ=
+        b=SYGc47s4jDEzrusJjZof2GEB2PKDVE3/vl68ASsBgAI+O32/bFVlt4Z/FuYQFcz3t
+         dULdkzMFQz3zQfLZqRk1to1Jk5Kit2LgSAIwXt50Xqsf9k/CSEkp8KEgC/eaZL2mhB
+         sijcSk93PXsoQ20klOUfkH2LlZZSbrgtVFDqBw1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/142] net/mlx5: Fix memory leak on flow table creation error flow
-Date:   Tue,  2 Feb 2021 14:37:57 +0100
-Message-Id: <20210202133002.412430716@linuxfoundation.org>
+Subject: [PATCH 5.10 115/142] net/mlx5e: E-switch, Fix rate calculation for overflow
+Date:   Tue,  2 Feb 2021 14:37:58 +0100
+Message-Id: <20210202133002.454474982@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,34 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 487c6ef81eb98d0a43cb08be91b1fcc9b4250626 ]
+[ Upstream commit 1fe3e3166b35240615ab7f8276af2bbf2e51f559 ]
 
-When we create the ft object we also init rhltable in ft->fgs_hash.
-So in error flow before kfree of ft we need to destroy that rhltable.
+rate_bytes_ps is a 64-bit field. It passed as 32-bit field to
+apply_police_params(). Due to this when police rate is higher
+than 4Gbps, 32-bit calculation ignores the carry. This results
+in incorrect rate configurationn the device.
 
-Fixes: 693c6883bbc4 ("net/mlx5: Add hash table for flow groups in flow table")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
+Fix it by performing 64-bit calculation.
+
+Fixes: fcb64c0f5640 ("net/mlx5: E-Switch, add ingress rate support")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index 9fdd99272e310..634c2bfd25be1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -1141,6 +1141,7 @@ static struct mlx5_flow_table *__mlx5_create_flow_table(struct mlx5_flow_namespa
- destroy_ft:
- 	root->cmds->destroy_flow_table(root, ft);
- free_ft:
-+	rhltable_destroy(&ft->fgs_hash);
- 	kfree(ft);
- unlock_root:
- 	mutex_unlock(&root->chain_lock);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index ce710f22b1fff..98cd5d8b0cd8b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -67,6 +67,7 @@
+ #include "lib/geneve.h"
+ #include "lib/fs_chains.h"
+ #include "diag/en_tc_tracepoint.h"
++#include <asm/div64.h>
+ 
+ #define nic_chains(priv) ((priv)->fs.tc.chains)
+ #define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)
+@@ -5009,13 +5010,13 @@ errout:
+ 	return err;
+ }
+ 
+-static int apply_police_params(struct mlx5e_priv *priv, u32 rate,
++static int apply_police_params(struct mlx5e_priv *priv, u64 rate,
+ 			       struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
+ 	struct mlx5_eswitch *esw;
++	u32 rate_mbps = 0;
+ 	u16 vport_num;
+-	u32 rate_mbps;
+ 	int err;
+ 
+ 	vport_num = rpriv->rep->vport;
+@@ -5032,7 +5033,11 @@ static int apply_police_params(struct mlx5e_priv *priv, u32 rate,
+ 	 * Moreover, if rate is non zero we choose to configure to a minimum of
+ 	 * 1 mbit/sec.
+ 	 */
+-	rate_mbps = rate ? max_t(u32, (rate * 8 + 500000) / 1000000, 1) : 0;
++	if (rate) {
++		rate = (rate * BITS_PER_BYTE) + 500000;
++		rate_mbps = max_t(u32, do_div(rate, 1000000), 1);
++	}
++
+ 	err = mlx5_esw_modify_vport_rate(esw, vport_num, rate_mbps);
+ 	if (err)
+ 		NL_SET_ERR_MSG_MOD(extack, "failed applying action to hardware");
 -- 
 2.27.0
 
