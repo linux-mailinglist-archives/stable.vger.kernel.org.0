@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3924C30C8D9
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 332EC30C90D
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:10:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237388AbhBBSCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:02:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47582 "EHLO mail.kernel.org"
+        id S233910AbhBBSId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:08:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233931AbhBBOIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:08:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B4E6502C;
-        Tue,  2 Feb 2021 13:50:18 +0000 (UTC)
+        id S233497AbhBBOHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:07:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1955A65027;
+        Tue,  2 Feb 2021 13:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273819;
-        bh=0bZso9ozzYebTs7H/oXmtDZHr5CG1Y8XYZU4iIaFh6Y=;
+        s=korg; t=1612273800;
+        bh=hyfK2C2DOKKNf8b/N+uiLkGuL7trXedvqwNNhcElq9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thQPeU6BALCdZSZhGLhoDeT+CUxhkxfmZRRM+qzVFbMKN947woRmhveTmw6OBsgoV
-         U1epZGyXhJNo820WkY7i4Y6yS1IzTpJcRCNObdRS6Gm/+Uv/39g4Pka0FCkRQM67ZL
-         hlZ7LJITYxXVm5YGwGrDEO9IMbaVF8TF5zfKop/I=
+        b=SFnkOkSJ9nkHIQEJQV/MKNLM3fa7tm8Ni4RZ8gM9Ze8fHKVO3cnHz7uVG/2tfX4KK
+         ev9O4ONNx6EzY46rTBQ+cUZtb6+PBBqSt32br1A83zkOuT0VF9lP4OT03nOXyirp2l
+         P6SF7xMjz93giklD4ey/AW5GT0TE/a3kJAqjKLh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 05/32] futex: Move futex exit handling into futex code
+Subject: [PATCH 4.4 08/28] futex: Move futex exit handling into futex code
 Date:   Tue,  2 Feb 2021 14:38:28 +0100
-Message-Id: <20210202132942.249450957@linuxfoundation.org>
+Message-Id: <20210202132941.528485192@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/linux/compat.h
 +++ b/include/linux/compat.h
-@@ -311,8 +311,6 @@ struct compat_kexec_segment;
+@@ -306,8 +306,6 @@ struct compat_kexec_segment;
  struct compat_mq_attr;
  struct compat_msgbuf;
  
@@ -124,7 +124,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -1085,20 +1085,7 @@ static int wait_for_vfork_done(struct ta
+@@ -890,20 +890,7 @@ static int wait_for_vfork_done(struct ta
  void mm_release(struct task_struct *tsk, struct mm_struct *mm)
  {
  	/* Get rid of any futexes when releasing the mm */
@@ -146,7 +146,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	uprobe_free_utask(tsk);
  
-@@ -1706,14 +1693,8 @@ static __latent_entropy struct task_stru
+@@ -1511,14 +1498,8 @@ static struct task_struct *copy_process(
  #ifdef CONFIG_BLOCK
  	p->plug = NULL;
  #endif
@@ -165,7 +165,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	 */
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -339,6 +339,12 @@ static inline bool should_fail_futex(boo
+@@ -331,6 +331,12 @@ static inline bool should_fail_futex(boo
  }
  #endif /* CONFIG_FAIL_FUTEX */
  
@@ -178,7 +178,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static inline void futex_get_mm(union futex_key *key)
  {
  	atomic_inc(&key->private.mm->mm_count);
-@@ -894,7 +900,7 @@ static struct task_struct * futex_find_g
+@@ -889,7 +895,7 @@ static struct task_struct * futex_find_g
   * Kernel cleans up PI-state, but userspace is likely hosed.
   * (Robust-futex cleanup is separate and might save the day for userspace.)
   */
@@ -187,7 +187,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct list_head *next, *head = &curr->pi_state_list;
  	struct futex_pi_state *pi_state;
-@@ -3201,7 +3207,7 @@ static inline int fetch_robust_entry(str
+@@ -3166,7 +3172,7 @@ static inline int fetch_robust_entry(str
   *
   * We silently return on any sign of list-walking problem.
   */
@@ -196,7 +196,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct robust_list_head __user *head = curr->robust_list;
  	struct robust_list __user *entry, *next_entry, *pending;
-@@ -3264,6 +3270,24 @@ void exit_robust_list(struct task_struct
+@@ -3229,6 +3235,24 @@ void exit_robust_list(struct task_struct
  				   curr, pip);
  }
  
