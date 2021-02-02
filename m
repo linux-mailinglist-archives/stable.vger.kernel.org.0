@@ -2,204 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2471830C8DB
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:03:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B3B30CBBE
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238085AbhBBSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:02:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S233126AbhBBTd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233934AbhBBOIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:08:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 021526502D;
-        Tue,  2 Feb 2021 13:50:21 +0000 (UTC)
+        id S233251AbhBBN4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B8B864FE2;
+        Tue,  2 Feb 2021 13:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273822;
-        bh=IpDvbHeP4tmjOwgowyLGmsAwrATmNBJt3kLhn14+kzc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qLJW5GPhjh5iNgIqx7pTNaDPToTpPypSkAauPIBLsBcUw0h8cef7zrOF+c2Gk7dVp
-         NqCGdWV1Lmo/rfdUoCdcK5zgYSq5pAXQop9/2LTPPhngWkYKNLwzEBY4lgf8D9MYLp
-         11urGq2qZeeLBfndQaj6D3cIg4uGOwseGdRbNM5Y=
+        s=korg; t=1612273532;
+        bh=kbJxtOjn4Z6L1J5YkTSukPXznYzMC0E9oCCCHaaCVFg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XwT57QEtGxzz5bNdwMxyTBFe5Rv6eBOMbOAqyQkKZDgd/KC14yGXYjJNaQhU+DcbP
+         1o07u9M0mrukeprj8ZqdmU2k9Hhwl4nLrsG24FFuILQMy8tY8Pi/JcLP5+znxHd+vP
+         kl7ILZqDs2Fsy7kuVKoVL74xz5mwncfuqPJLR8x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 00/32] 4.9.255-rc1 review
+        stable@vger.kernel.org, Saeed Mahameed <saeed@kernel.org>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 140/142] team: protect features update by RCU to avoid deadlock
 Date:   Tue,  2 Feb 2021 14:38:23 +0100
-Message-Id: <20210202132942.035179752@linuxfoundation.org>
+Message-Id: <20210202133003.468601405@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.255-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.255-rc1
-X-KernelTest-Deadline: 2021-02-04T13:29+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.255 release.
-There are 32 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ivan Vecera <ivecera@redhat.com>
 
-Responses should be made by Thu, 04 Feb 2021 13:29:33 +0000.
-Anything received after that time might be too late.
+commit f0947d0d21b219e03940b9be6628a43445c0de7a upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.255-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+Function __team_compute_features() is protected by team->lock
+mutex when it is called from team_compute_features() used when
+features of an underlying device is changed. This causes
+a deadlock when NETDEV_FEAT_CHANGE notifier for underlying device
+is fired due to change propagated from team driver (e.g. MTU
+change). It's because callbacks like team_change_mtu() or
+team_vlan_rx_{add,del}_vid() protect their port list traversal
+by team->lock mutex.
 
-thanks,
+Example (r8169 case where this driver disables TSO for certain MTU
+values):
+...
+[ 6391.348202]  __mutex_lock.isra.6+0x2d0/0x4a0
+[ 6391.358602]  team_device_event+0x9d/0x160 [team]
+[ 6391.363756]  notifier_call_chain+0x47/0x70
+[ 6391.368329]  netdev_update_features+0x56/0x60
+[ 6391.373207]  rtl8169_change_mtu+0x14/0x50 [r8169]
+[ 6391.378457]  dev_set_mtu_ext+0xe1/0x1d0
+[ 6391.387022]  dev_set_mtu+0x52/0x90
+[ 6391.390820]  team_change_mtu+0x64/0xf0 [team]
+[ 6391.395683]  dev_set_mtu_ext+0xe1/0x1d0
+[ 6391.399963]  do_setlink+0x231/0xf50
+...
 
-greg k-h
+In fact team_compute_features() called from team_device_event()
+does not need to be protected by team->lock mutex and rcu_read_lock()
+is sufficient there for port list traversal.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
+Cc: Saeed Mahameed <saeed@kernel.org>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20210125074416.4056484-1-ivecera@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.255-rc1
+---
+ drivers/net/team/team.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Pan Bian <bianpan2016@163.com>
-    NFC: fix possible resource leak
-
-Pan Bian <bianpan2016@163.com>
-    NFC: fix resource leak when target index is invalid
-
-Bartosz Golaszewski <bgolaszewski@baylibre.com>
-    iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built
-
-David Woodhouse <dwmw@amazon.co.uk>
-    iommu/vt-d: Gracefully handle DMAR units with no supported address widths
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    can: dev: prevent potential information leak in can_fill_info()
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: pause TX while changing interface type
-
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: pcie: reschedule in long-running memory reads
-
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: pcie: use jiffies for memory read spin time limit
-
-Kamal Heib <kamalheib1@gmail.com>
-    RDMA/cxgb4: Fix the reported max_recv_sge value
-
-Shmulik Ladkani <shmulik@metanetworks.com>
-    xfrm: Fix oops in xfrm_replay_advance_bmp
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nft_dynset: add timeout extension to template
-
-Max Krummenacher <max.oss.09@gmail.com>
-    ARM: imx: build suspend-imx6.S with arm instruction set
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mt7601u: fix rx buffer refcounting
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mt7601u: fix kernel crash unplugging the device
-
-Andrea Righi <andrea.righi@canonical.com>
-    leds: trigger: fix potential deadlock with libata
-
-Jay Zhou <jianjay.zhou@huawei.com>
-    KVM: x86: get smi pending status correctly
-
-Like Xu <like.xu@linux.intel.com>
-    KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Prevent exit livelock
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Provide distinct return value when owner is exiting
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Add mutex around futex exit
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Provide state handling for exec() as well
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Sanitize exit state handling
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Mark the begin of futex exit explicitly
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Set task::futex_state to DEAD right after handling futex exit
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Split futex_mm_release() for exit/exec
-
-Thomas Gleixner <tglx@linutronix.de>
-    exit/exec: Seperate mm_release()
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Replace PF_EXITPIDONE with a state
-
-Thomas Gleixner <tglx@linutronix.de>
-    futex: Move futex exit handling into futex code
-
-Arnd Bergmann <arnd@arndb.de>
-    y2038: futex: Move compat implementation into futex.c
-
-Giacinto Cifelli <gciofono@gmail.com>
-    net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
-
-Johannes Berg <johannes.berg@intel.com>
-    wext: fix NULL-ptr-dereference with cfg80211's lack of commit()
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ACPI: sysfs: Prefer "compatible" modalias
-
-
--------------
-
-Diffstat:
-
- Makefile                                        |   4 +-
- arch/arm/mach-imx/suspend-imx6.S                |   1 +
- arch/x86/kvm/pmu_intel.c                        |   2 +-
- arch/x86/kvm/x86.c                              |   5 +
- drivers/acpi/device_sysfs.c                     |  20 +-
- drivers/infiniband/hw/cxgb4/qp.c                |   2 +-
- drivers/iommu/dmar.c                            |  41 ++-
- drivers/leds/led-triggers.c                     |  10 +-
- drivers/net/can/dev.c                           |   2 +-
- drivers/net/usb/qmi_wwan.c                      |   1 +
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c |  14 +-
- drivers/net/wireless/mediatek/mt7601u/dma.c     |   5 +-
- fs/exec.c                                       |   2 +-
- include/linux/compat.h                          |   2 -
- include/linux/futex.h                           |  44 ++-
- include/linux/intel-iommu.h                     |   2 +
- include/linux/sched.h                           |   9 +-
- kernel/Makefile                                 |   3 -
- kernel/exit.c                                   |  29 +-
- kernel/fork.c                                   |  40 +--
- kernel/futex.c                                  | 446 ++++++++++++++++++++++--
- kernel/futex_compat.c                           | 201 -----------
- net/mac80211/ieee80211_i.h                      |   1 +
- net/mac80211/iface.c                            |   6 +
- net/netfilter/nft_dynset.c                      |   4 +-
- net/nfc/netlink.c                               |   1 +
- net/nfc/rawsock.c                               |   2 +-
- net/wireless/wext-core.c                        |   5 +-
- net/xfrm/xfrm_input.c                           |   2 +-
- 29 files changed, 545 insertions(+), 361 deletions(-)
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -991,7 +991,8 @@ static void __team_compute_features(stru
+ 	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
+ 					IFF_XMIT_DST_RELEASE_PERM;
+ 
+-	list_for_each_entry(port, &team->port_list, list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(port, &team->port_list, list) {
+ 		vlan_features = netdev_increment_features(vlan_features,
+ 					port->dev->vlan_features,
+ 					TEAM_VLAN_FEATURES);
+@@ -1005,6 +1006,7 @@ static void __team_compute_features(stru
+ 		if (port->dev->hard_header_len > max_hard_header_len)
+ 			max_hard_header_len = port->dev->hard_header_len;
+ 	}
++	rcu_read_unlock();
+ 
+ 	team->dev->vlan_features = vlan_features;
+ 	team->dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
+@@ -1020,9 +1022,7 @@ static void __team_compute_features(stru
+ 
+ static void team_compute_features(struct team *team)
+ {
+-	mutex_lock(&team->lock);
+ 	__team_compute_features(team);
+-	mutex_unlock(&team->lock);
+ 	netdev_change_features(team->dev);
+ }
+ 
 
 
