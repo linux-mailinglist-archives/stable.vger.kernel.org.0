@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2377E30C0B3
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B6B30CBD7
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233825AbhBBOFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:05:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46344 "EHLO mail.kernel.org"
+        id S233193AbhBBThP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:37:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233538AbhBBODU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:03:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 033EB6500B;
-        Tue,  2 Feb 2021 13:48:10 +0000 (UTC)
+        id S233145AbhBBN4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E802664FDD;
+        Tue,  2 Feb 2021 13:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273691;
-        bh=CJYqW0knAVr85WZdAYp8WiCBHY74LJYj+o+ipSz1bJs=;
+        s=korg; t=1612273493;
+        bh=vOrXlJ665sSTzXw1XzdGP8/BLO/d4qmAH2S50hlFtSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtWa3WJlYM6LHr6MhPwn1VgHKySJsBgGQqvCJTVnIo1bjqsmxSuuXN56F5XK6uNZ7
-         yG6JUqPXwRGOmRdcJwuw6hX/HqzxTXgfeuwzwqBI1PdQZTetU1sqeUne2TVNO7U/24
-         grAGJNATrOQO3A9CWGN72XEfcpCI5Y73eQApIoHk=
+        b=TCdGsOZ+tNJtAv/0KyukrgPg8Rk/e99yTdIJuduQs6Sg+Tgl0R5Ts7FEZiAaQpPjg
+         7jS6WOGaHAdfNz88FZ/ay43lMTXzigmkzupN5ZjG6fRmdVPCXYshJaWHJm1dmNLO/T
+         LMn2Q05mYycIMOVxXq0eNZzyMMBisKZztXFHyjN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4 14/61] drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs
-Date:   Tue,  2 Feb 2021 14:37:52 +0100
-Message-Id: <20210202132947.072957616@linuxfoundation.org>
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 110/142] ice: Dont allow more channels than LAN MSI-X available
+Date:   Tue,  2 Feb 2021 14:37:53 +0100
+Message-Id: <20210202133002.244305055@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-commit caab13b4960416b9fee83169a758eb0f31e65109 upstream.
+[ Upstream commit 943b881e35829403da638fcb34a959125deafef3 ]
 
-Since at91_soc_init is called unconditionally from atmel_soc_device_init,
-we get the following warning on all non AT91 SoCs:
-	" AT91: Could not find identification node"
+Currently users could create more channels than LAN MSI-X available.
+This is happening because there is no check against pf->num_lan_msix
+when checking the max allowed channels and will cause performance issues
+if multiple Tx and Rx queues are tied to a single MSI-X. Fix this by not
+allowing more channels than LAN MSI-X available in pf->num_lan_msix.
 
-Fix the same by filtering with allowed AT91 SoC list.
-
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: stable@vger.kernel.org #4.12+
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20201211135846.1334322-1-sudeep.holla@arm.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 87324e747fde ("ice: Implement ethtool ops for channels")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/atmel/soc.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/soc/atmel/soc.c
-+++ b/drivers/soc/atmel/soc.c
-@@ -264,8 +264,20 @@ struct soc_device * __init at91_soc_init
- 	return soc_dev;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 9e8e9531cd871..69c113a4de7e6 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -3258,8 +3258,8 @@ ice_set_rxfh(struct net_device *netdev, const u32 *indir, const u8 *key,
+  */
+ static int ice_get_max_txq(struct ice_pf *pf)
+ {
+-	return min_t(int, num_online_cpus(),
+-		     pf->hw.func_caps.common_cap.num_txq);
++	return min3(pf->num_lan_msix, (u16)num_online_cpus(),
++		    (u16)pf->hw.func_caps.common_cap.num_txq);
  }
  
-+static const struct of_device_id at91_soc_allowed_list[] __initconst = {
-+	{ .compatible = "atmel,at91rm9200", },
-+	{ .compatible = "atmel,at91sam9", },
-+	{ .compatible = "atmel,sama5", },
-+	{ .compatible = "atmel,samv7", }
-+};
-+
- static int __init atmel_soc_device_init(void)
+ /**
+@@ -3268,8 +3268,8 @@ static int ice_get_max_txq(struct ice_pf *pf)
+  */
+ static int ice_get_max_rxq(struct ice_pf *pf)
  {
-+	struct device_node *np = of_find_node_by_path("/");
-+
-+	if (!of_match_node(at91_soc_allowed_list, np))
-+		return 0;
-+
- 	at91_soc_init(socs);
+-	return min_t(int, num_online_cpus(),
+-		     pf->hw.func_caps.common_cap.num_rxq);
++	return min3(pf->num_lan_msix, (u16)num_online_cpus(),
++		    (u16)pf->hw.func_caps.common_cap.num_rxq);
+ }
  
- 	return 0;
+ /**
+-- 
+2.27.0
+
 
 
