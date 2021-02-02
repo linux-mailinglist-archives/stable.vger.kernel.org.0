@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC99530C010
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E91EC30C014
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbhBBNsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:48:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37906 "EHLO mail.kernel.org"
+        id S232882AbhBBNs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:48:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232910AbhBBNq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:46:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5971364F87;
-        Tue,  2 Feb 2021 13:41:30 +0000 (UTC)
+        id S232911AbhBBNrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:47:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1076664F4A;
+        Tue,  2 Feb 2021 13:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273290;
-        bh=V3XM6lEt8E5jdw7TOOgP+we7qy/6CB6wYWYu8djUeQ4=;
+        s=korg; t=1612273293;
+        bh=YKH0auUMBPIWywJvMCOnYI8QioRVdCmRwpt4jprkYSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lm29kpXhD22pBmIloW5fyU4OnpSpqLFhkpIFkFZuUixoGExNnhecN8McYjQPCbT1b
-         9xLOt7yHHFu1NmicJ77WVqPJvaCiIwLRXEMv948biFqBvsUpP/RjWAk4Z8BXbAtFWN
-         FzPiDLRms9P+6817EaqhCRCt4vQ15jr/luz2Oyy8=
+        b=ZNQpY6Y6mlBXXVjLgJnhMf9rSbt2htv5GoI3qENwjRaohxMYs/U9r/uoQnGTlxbwd
+         hXo2m9aDyidH5GIGMQ0NYS26Pqxw4ZP1hR1ultixmNNhFF9ZmGlIEVPRkd/H61+ABS
+         3pf/FCsTzizAEvxnCCajLiu5jyjT+fk5spMfK90o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jakub Kicinski <kubakici@wp.pl>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 052/142] mt76: mt7663s: fix rx buffer refcounting
-Date:   Tue,  2 Feb 2021 14:36:55 +0100
-Message-Id: <20210202132959.873461128@linuxfoundation.org>
+Subject: [PATCH 5.10 053/142] mt7601u: fix rx buffer refcounting
+Date:   Tue,  2 Feb 2021 14:36:56 +0100
+Message-Id: <20210202132959.909722510@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,58 +43,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 952de419b6179ad1424f512d52ec7122662fdf63 upstream.
+commit d24c790577ef01bfa01da2b131313a38c843a634 upstream.
 
-Similar to mt7601u driver, fix erroneous rx page refcounting
+Fix the following crash due to erroneous page refcounting:
 
-Fixes: a66cbdd6573d ("mt76: mt7615: introduce mt7663s support")
+[   32.445919] BUG: Bad page state in process swapper/1  pfn:11f65a
+[   32.447409] page:00000000938f0632 refcount:0 mapcount:-128 mapping:0000000000000000 index:0x0 pfn:0x11f65a
+[   32.449605] flags: 0x8000000000000000()
+[   32.450421] raw: 8000000000000000 ffffffff825b0148 ffffea00045ae988 0000000000000000
+[   32.451795] raw: 0000000000000000 0000000000000001 00000000ffffff7f 0000000000000000
+[   32.452999] page dumped because: nonzero mapcount
+[   32.453888] Modules linked in:
+[   32.454492] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.11.0-rc2+ #1976
+[   32.455695] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-1.fc33 04/01/2014
+[   32.457157] Call Trace:
+[   32.457636]  <IRQ>
+[   32.457993]  dump_stack+0x77/0x97
+[   32.458576]  bad_page.cold+0x65/0x96
+[   32.459198]  get_page_from_freelist+0x46a/0x11f0
+[   32.460008]  __alloc_pages_nodemask+0x10a/0x2b0
+[   32.460794]  mt7601u_rx_tasklet+0x651/0x720
+[   32.461505]  tasklet_action_common.constprop.0+0x6b/0xd0
+[   32.462343]  __do_softirq+0x152/0x46c
+[   32.462928]  asm_call_irq_on_stack+0x12/0x20
+[   32.463610]  </IRQ>
+[   32.463953]  do_softirq_own_stack+0x5b/0x70
+[   32.464582]  irq_exit_rcu+0x9f/0xe0
+[   32.465028]  common_interrupt+0xae/0x1a0
+[   32.465536]  asm_common_interrupt+0x1e/0x40
+[   32.466071] RIP: 0010:default_idle+0x18/0x20
+[   32.468981] RSP: 0018:ffffc90000077f00 EFLAGS: 00000246
+[   32.469648] RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000000
+[   32.470550] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff81aac3dd
+[   32.471463] RBP: ffff88810022ab00 R08: 0000000000000001 R09: 0000000000000001
+[   32.472335] R10: 0000000000000046 R11: 0000000000005aa0 R12: 0000000000000000
+[   32.473235] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[   32.474139]  ? default_idle_call+0x4d/0x200
+[   32.474681]  default_idle_call+0x74/0x200
+[   32.475192]  do_idle+0x1d5/0x250
+[   32.475612]  cpu_startup_entry+0x19/0x20
+[   32.476114]  secondary_startup_64_no_verify+0xb0/0xbb
+[   32.476765] Disabling lock debugging due to kernel taint
+
+Fixes: c869f77d6abb ("add mt7601u driver")
+Co-developed-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Jakub Kicinski <kubakici@wp.pl>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/dca19c9d445156201bc41f7cbb6e894bbc9a678c.1610644945.git.lorenzo@kernel.org
+Link: https://lore.kernel.org/r/62b2380c8c2091834cfad05e1059b55f945bd114.1610643952.git.lorenzo@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/wireless/mediatek/mt7601u/dma.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-@@ -85,7 +85,7 @@ static int mt7663s_rx_run_queue(struct m
- {
- 	struct mt76_queue *q = &dev->q_rx[qid];
- 	struct mt76_sdio *sdio = &dev->sdio;
--	int len = 0, err, i, order;
-+	int len = 0, err, i;
- 	struct page *page;
- 	u8 *buf;
+--- a/drivers/net/wireless/mediatek/mt7601u/dma.c
++++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
+@@ -152,8 +152,7 @@ mt7601u_rx_process_entry(struct mt7601u_
  
-@@ -98,8 +98,7 @@ static int mt7663s_rx_run_queue(struct m
- 	if (len > sdio->func->cur_blksize)
- 		len = roundup(len, sdio->func->cur_blksize);
- 
--	order = get_order(len);
--	page = __dev_alloc_pages(GFP_KERNEL, order);
-+	page = __dev_alloc_pages(GFP_KERNEL, get_order(len));
- 	if (!page)
- 		return -ENOMEM;
- 
-@@ -111,7 +110,7 @@ static int mt7663s_rx_run_queue(struct m
- 
- 	if (err < 0) {
- 		dev_err(dev->dev, "sdio read data failed:%d\n", err);
--		__free_pages(page, order);
-+		put_page(page);
- 		return err;
+ 	if (new_p) {
+ 		/* we have one extra ref from the allocator */
+-		__free_pages(e->p, MT_RX_ORDER);
+-
++		put_page(e->p);
+ 		e->p = new_p;
  	}
- 
-@@ -128,7 +127,7 @@ static int mt7663s_rx_run_queue(struct m
- 		if (q->queued + i + 1 == q->ndesc)
- 			break;
- 	}
--	__free_pages(page, order);
-+	put_page(page);
- 
- 	spin_lock_bh(&q->lock);
- 	q->head = (q->head + i) % q->ndesc;
+ }
 
 
