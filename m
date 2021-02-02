@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE96F30BFF9
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9168F30CCC3
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbhBBNrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:47:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
+        id S240334AbhBBUHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 15:07:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232860AbhBBNpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:45:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39DE964F84;
-        Tue,  2 Feb 2021 13:41:14 +0000 (UTC)
+        id S232818AbhBBNmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:42:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 449B364EC5;
+        Tue,  2 Feb 2021 13:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273274;
-        bh=287o8lMaMnF2uQOEMzuc3rIck8XODejiSOvh+ikc0kw=;
+        s=korg; t=1612273191;
+        bh=R/JNgvcx5++pHtaSHCV/Ib7M1brnwIVRgTiQHU/uw9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Naoh2068/jNm95aA1a6KYN0Vap20f6clWVYS8o6cs99IVi3qNiY0dONuuVCQYG7F2
-         oiz2mQJkSXVshTK7eKHa7+mNExye3JRwBJxvcbHT3p5hVIm1q3wpbjxntrtkyNnB/Z
-         4aVg7sNzE/RA1Hf5qh1rBVpFTqpik8IR+wIlg7Rs=
+        b=yjuF1o8WwO77k+7PmpjoSofoGiCKCZhK35RnRBs3/MOGhE3Al4ECxwummtZOZvDLz
+         cMwidjQJfhsy/NuFjEMtsFDOayXrJSbP8lWdiG3vhgvtefZeNRjIKRDAm3DWpFb9RE
+         f0+/xKYcRwbEIhxRF6PMRIsDKW8YR39Z/+bLhOac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Reichl <hias@horus.com>,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 014/142] media: rc: ite-cir: fix min_timeout calculation
-Date:   Tue,  2 Feb 2021 14:36:17 +0100
-Message-Id: <20210202132958.293070012@linuxfoundation.org>
+Subject: [PATCH 5.10 015/142] media: rc: ensure that uevent can be read directly after rc device register
+Date:   Tue,  2 Feb 2021 14:36:18 +0100
+Message-Id: <20210202132958.334957819@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,38 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Reichl <hias@horus.com>
+From: Sean Young <sean@mess.org>
 
-commit e1def45b5291278590bc3033cc518bf5c964a18d upstream.
+commit 896111dc4bcf887b835b3ef54f48b450d4692a1d upstream.
 
-Commit 528222d853f92 ("media: rc: harmonize infrared durations to
-microseconds") missed to switch the min_timeout calculation from ns
-to us. This resulted in a minimum timeout of 1.2 seconds instead of 1.2ms,
-leading to large delays and long key repeats.
+There is a race condition where if the /sys/class/rc0/uevent file is read
+before rc_dev->registered is set to true, -ENODEV will be returned.
 
-Fix this by applying proper ns->us conversion.
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1901089
 
 Cc: stable@vger.kernel.org
-Fixes: 528222d853f92 ("media: rc: harmonize infrared durations to microseconds")
-Signed-off-by: Matthias Reichl <hias@horus.com>
+Fixes: a2e2d73fa281 ("media: rc: do not access device via sysfs after rc_unregister_device()")
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/ite-cir.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/rc-main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/media/rc/ite-cir.c
-+++ b/drivers/media/rc/ite-cir.c
-@@ -1551,7 +1551,7 @@ static int ite_probe(struct pnp_dev *pde
- 	rdev->s_rx_carrier_range = ite_set_rx_carrier_range;
- 	/* FIFO threshold is 17 bytes, so 17 * 8 samples minimum */
- 	rdev->min_timeout = 17 * 8 * ITE_BAUDRATE_DIVISOR *
--			    itdev->params.sample_period;
-+			    itdev->params.sample_period / 1000;
- 	rdev->timeout = IR_DEFAULT_TIMEOUT;
- 	rdev->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
- 	rdev->rx_resolution = ITE_BAUDRATE_DIVISOR *
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -1928,6 +1928,8 @@ int rc_register_device(struct rc_dev *de
+ 			goto out_raw;
+ 	}
+ 
++	dev->registered = true;
++
+ 	rc = device_add(&dev->dev);
+ 	if (rc)
+ 		goto out_rx_free;
+@@ -1937,8 +1939,6 @@ int rc_register_device(struct rc_dev *de
+ 		 dev->device_name ?: "Unspecified device", path ?: "N/A");
+ 	kfree(path);
+ 
+-	dev->registered = true;
+-
+ 	/*
+ 	 * once the the input device is registered in rc_setup_rx_device,
+ 	 * userspace can open the input device and rc_open() will be called
 
 
