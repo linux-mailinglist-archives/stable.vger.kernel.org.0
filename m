@@ -2,114 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0339230C8CE
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E4430C8F4
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237984AbhBBSAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:00:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238107AbhBBR7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 12:59:07 -0500
-Received: from bedivere.hansenpartnership.com (bedivere.hansenpartnership.com [IPv6:2607:fcd0:100:8a00::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3996C06174A;
-        Tue,  2 Feb 2021 09:58:27 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id A10091280937;
-        Tue,  2 Feb 2021 09:58:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1612288705;
-        bh=dK/nfEvcp1DZ2YDpk8Iwhpvh9P38HcxpmJGB3AEtAeg=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=Xze+8Q1KzzaF8OCwoc9aZL2ZaMPSb5DkcI8/tfAshH2SbHo3HnZL0XF3egk06omgw
-         5cqce8ld9y6JeO7G4MZl1YyVPjSsjYJIKYf1wXTnWvyZcMHhxxr9j6hdp9rBIFv216
-         DL3u/E6JG5gUq9a1C+ITH1LnMV3wb/3R+Fqchm1s=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id XeuJiCPzkeTs; Tue,  2 Feb 2021 09:58:25 -0800 (PST)
-Received: from jarvis.int.hansenpartnership.com (unknown [IPv6:2601:600:8280:66d1::c447])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 17DB41280936;
-        Tue,  2 Feb 2021 09:58:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1612288705;
-        bh=dK/nfEvcp1DZ2YDpk8Iwhpvh9P38HcxpmJGB3AEtAeg=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=Xze+8Q1KzzaF8OCwoc9aZL2ZaMPSb5DkcI8/tfAshH2SbHo3HnZL0XF3egk06omgw
-         5cqce8ld9y6JeO7G4MZl1YyVPjSsjYJIKYf1wXTnWvyZcMHhxxr9j6hdp9rBIFv216
-         DL3u/E6JG5gUq9a1C+ITH1LnMV3wb/3R+Fqchm1s=
-Message-ID: <1d661a6bdf2d7a9a31b3357ef4170a1309cf2aa4.camel@HansenPartnership.com>
-Subject: Re: [PATCH] tpm: WARN_ONCE() -> pr_warn_once() in tpm_tis_status()
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     "Serge E. Hallyn" <serge@hallyn.com>, jarkko@kernel.org
-Cc:     linux-integrity@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Wang Hai <wanghai38@huawei.com>
-Date:   Tue, 02 Feb 2021 09:58:24 -0800
-In-Reply-To: <20210202172651.GA2821@mail.hallyn.com>
-References: <20210202153317.57749-1-jarkko@kernel.org>
-         <20210202172651.GA2821@mail.hallyn.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+        id S238193AbhBBSFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:05:39 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40296 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237969AbhBBSBR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 13:01:17 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 112HVsq7128781;
+        Tue, 2 Feb 2021 13:00:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=6eYRpj6gXCEngng6QMC0olHv2Awkx5YS4LdkWIcESyQ=;
+ b=hg22eWiTkPiqAUIcmeTB/acAQ7RZrS7h6MkRMdFFsTNWO0583lO0S3Bd2Ic1hZU3Gdkv
+ YV1EvuS9KGFqlaqWSR65nZlHyzNC2dqEXEcrcTeOutOJdjTdLF14glaRQkzUahC/+BU0
+ CxnXnlnzeD2WNoySf+cNBUSR9H4bzKp4luDWXEXry0JpTLKAqDqcGd54+pRJ4AEYMRaO
+ eI4zY/x2DRR/j8pPW02ht8FDYNX5p+6qkraCe9KRCrt3g5q13vUqgNjG2sagdIizpeIc
+ ERmEa08LA8HaSMXozYwYhJhQaXmI3PJ1ylM3IRumGPj7hc0Oi0Nl3+4lcUufgyo3ehKm GQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36fb5f8xkp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Feb 2021 13:00:35 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 112HW5mQ129935;
+        Tue, 2 Feb 2021 13:00:35 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36fb5f8xjb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Feb 2021 13:00:35 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 112Hqivb018502;
+        Tue, 2 Feb 2021 18:00:32 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 36evvf0rde-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Feb 2021 18:00:32 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 112I0LYg32047614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 2 Feb 2021 18:00:21 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D06C8AE053;
+        Tue,  2 Feb 2021 18:00:29 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 73114AE05A;
+        Tue,  2 Feb 2021 18:00:29 +0000 (GMT)
+Received: from ibm-vm.ibmuc.com (unknown [9.145.15.83])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  2 Feb 2021 18:00:29 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] s390/kvm: extend kvm_s390_shadow_fault to return entry pointer
+Date:   Tue,  2 Feb 2021 19:00:27 +0100
+Message-Id: <20210202180028.876888-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210202180028.876888-1-imbrenda@linux.ibm.com>
+References: <20210202180028.876888-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-02_08:2021-02-02,2021-02-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ impostorscore=0 suspectscore=0 priorityscore=1501 lowpriorityscore=0
+ phishscore=0 mlxscore=0 mlxlogscore=999 spamscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102020112
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-02-02 at 11:26 -0600, Serge E. Hallyn wrote:
-> On Tue, Feb 02, 2021 at 05:33:17PM +0200, jarkko@kernel.org wrote:
-> > From: Jarkko Sakkinen <jarkko@kernel.org>
-> > 
-> > An unexpected status from TPM chip is not irrecovable failure of
-> > the
-> > kernel. It's only undesirable situation. Thus, change the WARN_ONCE
-> > instance inside tpm_tis_status() to pr_warn_once().
-> > 
-> > In addition: print the status in the log message because it is
-> > actually
-> > useful information lacking from the existing log message.
-> > 
-> > Suggested-by:  Guenter Roeck <linux@roeck-us.net>
-> > Cc: stable@vger.kernel.org
-> > Fixes: 6f4f57f0b909 ("tpm: ibmvtpm: fix error return code in
-> > tpm_ibmvtpm_probe()")
-> > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-> > ---
-> >  drivers/char/tpm/tpm_tis_core.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/char/tpm/tpm_tis_core.c
-> > b/drivers/char/tpm/tpm_tis_core.c
-> > index 431919d5f48a..21f67c6366cb 100644
-> > --- a/drivers/char/tpm/tpm_tis_core.c
-> > +++ b/drivers/char/tpm/tpm_tis_core.c
-> > @@ -202,7 +202,7 @@ static u8 tpm_tis_status(struct tpm_chip *chip)
-> >  		 * acquired.  Usually because tpm_try_get_ops() hasn't
-> >  		 * been called before doing a TPM operation.
-> >  		 */
-> > -		WARN_ONCE(1, "TPM returned invalid status\n");
-> > +		pr_warn_once("TPM returned invalid status: 0x%x\n",
-> > status);
-> >  		return 0;
-> >  	}
-> 
-> Actually in this case I don't understand why _once, especially based
-> on the comment.  Would ratelimited not be better?  So we can see if
-> it happens repeatedly?  Even better would be if we could see when it
-> next gave a valid status after an invalid one.
+Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+DAT table entry, or to the invalid entry.
 
-The reason was that we're trying to catch and kill paths to the status
-where the locality is incorrect.  If you do some operation that finds
-an incorrect path the likelihood is you'll exercise it more than once,
-but all we need to identify it is the call trace from a single access. 
-The symptom the user space process sees is a TPM timeout, but we still
-have the in-kernel trace to tell us why.
+Also return some flags in the lower bits of the address:
+DAT_PROT: indicates that DAT protection applies because of the
+          protection bit in the segment (or, if EDAT, region) tables
+NOT_PTE: indicates that the address of the DAT table entry returned
+         does not refer to a PTE, but to a segment or region table.
 
-James
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: stable@vger.kernel.org
+---
+ arch/s390/kvm/gaccess.c | 26 ++++++++++++++++++++++----
+ arch/s390/kvm/gaccess.h |  5 ++++-
+ arch/s390/kvm/vsie.c    |  8 ++++----
+ 3 files changed, 30 insertions(+), 9 deletions(-)
 
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 6d6b57059493..2d7bcbfb185e 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1034,6 +1034,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rfte.val = ptr;
+ 			goto shadow_r2t;
+ 		}
++		*pgt = ptr + vaddr.rfx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1060,6 +1061,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rste.val = ptr;
+ 			goto shadow_r3t;
+ 		}
++		*pgt = ptr + vaddr.rsx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1087,6 +1089,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rtte.val = ptr;
+ 			goto shadow_sgt;
+ 		}
++		*pgt = ptr + vaddr.rtx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1123,6 +1126,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			ste.val = ptr;
+ 			goto shadow_pgt;
+ 		}
++		*pgt = ptr + vaddr.sx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1157,6 +1161,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  * @vcpu: virtual cpu
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
++ * @pteptr: will contain the address of the faulting DAT table entry, or of
++ *          the valid leaf, plus some flags
+  *
+  * Returns: - 0 if the shadow fault was successfully resolved
+  *	    - > 0 (pgm exception code) on exceptions while faulting
+@@ -1165,11 +1171,11 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  *	    - -ENOMEM if out of memory
+  */
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+-			  unsigned long saddr)
++			  unsigned long saddr, unsigned long *pteptr)
+ {
+ 	union vaddress vaddr;
+ 	union page_table_entry pte;
+-	unsigned long pgt;
++	unsigned long pgt = 0;
+ 	int dat_protection, fake;
+ 	int rc;
+ 
+@@ -1191,8 +1197,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 		pte.val = pgt + vaddr.px * PAGE_SIZE;
+ 		goto shadow_page;
+ 	}
+-	if (!rc)
+-		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
++
++	switch (rc) {
++	case PGM_SEGMENT_TRANSLATION:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_FIRST_TRANS:
++		pgt |= NOT_PTE;
++		break;
++	case 0:
++		pgt += vaddr.px * 8;
++		rc = gmap_read_table(sg->parent, pgt, &pte.val);
++	}
++	if (*pteptr)
++		*pteptr = pgt | dat_protection * DAT_PROT;
+ 	if (!rc && pte.i)
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && pte.z)
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index f4c51756c462..66a6e2cec97a 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+ 
++#define DAT_PROT 2
++#define NOT_PTE 4
++
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+-			  unsigned long saddr);
++			  unsigned long saddr, unsigned long *pteptr);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index c5d0a58b2c29..7db022141db3 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -619,10 +619,10 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	/* with mso/msl, the prefix lies at offset *mso* */
+ 	prefix += scb_s->mso;
+ 
+-	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
++	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+ 	if (!rc && (scb_s->ecb & ECB_TE))
+ 		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-					   prefix + PAGE_SIZE);
++					   prefix + PAGE_SIZE, NULL);
+ 	/*
+ 	 * We don't have to mprotect, we will be called for all unshadows.
+ 	 * SIE will detect if protection applies and trigger a validity.
+@@ -913,7 +913,7 @@ static int handle_fault(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 				    current->thread.gmap_addr, 1);
+ 
+ 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				   current->thread.gmap_addr);
++				   current->thread.gmap_addr, NULL);
+ 	if (rc > 0) {
+ 		rc = inject_fault(vcpu, rc,
+ 				  current->thread.gmap_addr,
+@@ -935,7 +935,7 @@ static void handle_last_fault(struct kvm_vcpu *vcpu,
+ {
+ 	if (vsie_page->fault_addr)
+ 		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				      vsie_page->fault_addr);
++				      vsie_page->fault_addr, NULL);
+ 	vsie_page->fault_addr = 0;
+ }
+ 
+-- 
+2.26.2
 
