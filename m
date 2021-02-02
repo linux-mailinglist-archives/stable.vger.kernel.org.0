@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC08830CCA8
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A81530CC9F
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240349AbhBBUDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 15:03:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
+        id S232973AbhBBUCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 15:02:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232371AbhBBNnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:43:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E3B64F70;
-        Tue,  2 Feb 2021 13:40:21 +0000 (UTC)
+        id S232736AbhBBNoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:44:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B48264F6F;
+        Tue,  2 Feb 2021 13:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273222;
-        bh=l6D115tAnUcADOdU7I7PmsLHAnuCKBGlaNAlrBXia8Y=;
+        s=korg; t=1612273224;
+        bh=WZAX6xb/MG6Cuh3DT7zUEAnMLWUeVRVdLWKn39TkcWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlFnz2g5W/8NasdurP/Mo4mwJlFyOxBQ8kU1G7UaB2zVVP8SQMIwFTd2iB4n8nXTc
-         y6Zpt4h9QjUHhN/CCGPO8ian0fS5XXZe0tRhJFM/fpC0AQm1SrTumk6hZnvjFTvZr4
-         23He5BvKqeBIqglPhQlb34m6rZr15zCpkRKOFZz8=
+        b=HFQsW7JZzAWN6eVtGoa/CBVefh9Q7mIT0t1i7p17/uxaHEw8DtSnlrMkgv8o0bF3n
+         gXxWnRsSBfmIcxiavvaQ5ZXX928lzZId2NrgMZrsIdhUFx6wBmyaDKi6g093wzIHCm
+         V69+W1TR2FR2R05FcswFDnFE9q8byrv9px1NGgBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 025/142] drm/i915/gt: Always try to reserve GGTT address 0x0
-Date:   Tue,  2 Feb 2021 14:36:28 +0100
-Message-Id: <20210202132958.749710625@linuxfoundation.org>
+        stable@vger.kernel.org, James Jones <jajones@nvidia.com>,
+        Martin Peres <martin.peres@free.fr>,
+        Jeremy Cline <jcline@redhat.com>,
+        Simon Ser <contact@emersion.fr>, Lyude Paul <lyude@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>
+Subject: [PATCH 5.10 026/142] drivers/nouveau/kms/nv50-: Reject format modifiers for cursor planes
+Date:   Tue,  2 Feb 2021 14:36:29 +0100
+Message-Id: <20210202132958.790713871@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,88 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 489140b5ba2e7cc4b853c29e0591895ddb462a82 upstream.
+commit 7c6d659868c77da9b518f32348160340dcdfa008 upstream.
 
-Since writing to address 0 is a very common mistake, let's try to avoid
-putting anything sensitive there.
+Nvidia hardware doesn't actually support using tiling formats with the
+cursor plane, only linear is allowed. In the future, we should write a
+testcase for this.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210125125033.23656-1-chris@chris-wilson.co.uk
-Cc: stable@vger.kernel.org
-(cherry picked from commit 56b429cc584c6ed8b895d8d8540959655db1ff73)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: c586f30bf74c ("drm/nouveau/kms: Add format mod prop to base/ovly/nvdisp")
+Cc: James Jones <jajones@nvidia.com>
+Cc: Martin Peres <martin.peres@free.fr>
+Cc: Jeremy Cline <jcline@redhat.com>
+Cc: Simon Ser <contact@emersion.fr>
+Cc: <stable@vger.kernel.org> # v5.8+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Simon Ser <contact@emersion.fr>
+Reviewed-by: James Jones <jajones@nvidia.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_ggtt.c |   47 ++++++++++++++++++++++++++---------
- 1 file changed, 35 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv50/wndw.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_ggtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt.c
-@@ -526,16 +526,39 @@ static int init_ggtt(struct i915_ggtt *g
+--- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
+@@ -702,6 +702,11 @@ nv50_wndw_init(struct nv50_wndw *wndw)
+ 	nvif_notify_get(&wndw->notify);
+ }
  
- 	mutex_init(&ggtt->error_mutex);
- 	if (ggtt->mappable_end) {
--		/* Reserve a mappable slot for our lockless error capture */
--		ret = drm_mm_insert_node_in_range(&ggtt->vm.mm,
--						  &ggtt->error_capture,
--						  PAGE_SIZE, 0,
--						  I915_COLOR_UNEVICTABLE,
--						  0, ggtt->mappable_end,
--						  DRM_MM_INSERT_LOW);
--		if (ret)
--			return ret;
-+		/*
-+		 * Reserve a mappable slot for our lockless error capture.
-+		 *
-+		 * We strongly prefer taking address 0x0 in order to protect
-+		 * other critical buffers against accidental overwrites,
-+		 * as writing to address 0 is a very common mistake.
-+		 *
-+		 * Since 0 may already be in use by the system (e.g. the BIOS
-+		 * framebuffer), we let the reservation fail quietly and hope
-+		 * 0 remains reserved always.
-+		 *
-+		 * If we fail to reserve 0, and then fail to find any space
-+		 * for an error-capture, remain silent. We can afford not
-+		 * to reserve an error_capture node as we have fallback
-+		 * paths, and we trust that 0 will remain reserved. However,
-+		 * the only likely reason for failure to insert is a driver
-+		 * bug, which we expect to cause other failures...
-+		 */
-+		ggtt->error_capture.size = I915_GTT_PAGE_SIZE;
-+		ggtt->error_capture.color = I915_COLOR_UNEVICTABLE;
-+		if (drm_mm_reserve_node(&ggtt->vm.mm, &ggtt->error_capture))
-+			drm_mm_insert_node_in_range(&ggtt->vm.mm,
-+						    &ggtt->error_capture,
-+						    ggtt->error_capture.size, 0,
-+						    ggtt->error_capture.color,
-+						    0, ggtt->mappable_end,
-+						    DRM_MM_INSERT_LOW);
- 	}
-+	if (drm_mm_node_allocated(&ggtt->error_capture))
-+		drm_dbg(&ggtt->vm.i915->drm,
-+			"Reserved GGTT:[%llx, %llx] for use by error capture\n",
-+			ggtt->error_capture.start,
-+			ggtt->error_capture.start + ggtt->error_capture.size);
++static const u64 nv50_cursor_format_modifiers[] = {
++	DRM_FORMAT_MOD_LINEAR,
++	DRM_FORMAT_MOD_INVALID,
++};
++
+ int
+ nv50_wndw_new_(const struct nv50_wndw_func *func, struct drm_device *dev,
+ 	       enum drm_plane_type type, const char *name, int index,
+@@ -713,6 +718,7 @@ nv50_wndw_new_(const struct nv50_wndw_fu
+ 	struct nvif_mmu *mmu = &drm->client.mmu;
+ 	struct nv50_disp *disp = nv50_disp(dev);
+ 	struct nv50_wndw *wndw;
++	const u64 *format_modifiers;
+ 	int nformat;
+ 	int ret;
  
- 	/*
- 	 * The upper portion of the GuC address space has a sizeable hole
-@@ -548,9 +571,9 @@ static int init_ggtt(struct i915_ggtt *g
+@@ -728,10 +734,13 @@ nv50_wndw_new_(const struct nv50_wndw_fu
  
- 	/* Clear any non-preallocated blocks */
- 	drm_mm_for_each_hole(entry, &ggtt->vm.mm, hole_start, hole_end) {
--		drm_dbg_kms(&ggtt->vm.i915->drm,
--			    "clearing unused GTT space: [%lx, %lx]\n",
--			    hole_start, hole_end);
-+		drm_dbg(&ggtt->vm.i915->drm,
-+			"clearing unused GTT space: [%lx, %lx]\n",
-+			hole_start, hole_end);
- 		ggtt->vm.clear_range(&ggtt->vm, hole_start,
- 				     hole_end - hole_start);
- 	}
+ 	for (nformat = 0; format[nformat]; nformat++);
+ 
+-	ret = drm_universal_plane_init(dev, &wndw->plane, heads, &nv50_wndw,
+-				       format, nformat,
+-				       nouveau_display(dev)->format_modifiers,
+-				       type, "%s-%d", name, index);
++	if (type == DRM_PLANE_TYPE_CURSOR)
++		format_modifiers = nv50_cursor_format_modifiers;
++	else
++		format_modifiers = nouveau_display(dev)->format_modifiers;
++
++	ret = drm_universal_plane_init(dev, &wndw->plane, heads, &nv50_wndw, format, nformat,
++				       format_modifiers, type, "%s-%d", name, index);
+ 	if (ret) {
+ 		kfree(*pwndw);
+ 		*pwndw = NULL;
 
 
