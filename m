@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D4130C131
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE91D30C104
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234278AbhBBOPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:15:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
+        id S234011AbhBBOMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:12:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234214AbhBBONe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:13:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAE8E64FB6;
-        Tue,  2 Feb 2021 13:53:09 +0000 (UTC)
+        id S233866AbhBBOKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:10:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12D5F65037;
+        Tue,  2 Feb 2021 13:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273990;
-        bh=zK05Tq0SZZx1iULK5kSKcLKe+ebFP28CGCjKv3kH2w8=;
+        s=korg; t=1612273872;
+        bh=VO72xo3Ln8pM8nOw4InhlEiC5MpY0EvtYKsSSrbihHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8F34kWzGn7A1UhKAN/qxlwwn/6+j4szBPp7bOhzALB/M5I0XilFLTRSvni+LjF1p
-         aO8Hz2A1SjegKBa1RABDDHYsKeTU2dK1m0iYS0ZEoc8FyciZTcaP64qOi0CQpW7um3
-         x/5JeRaJzBm/NFTuAl7j/9bRs20QSTIvQxvRKdvY=
+        b=Tb2+yOQNYIED6om8QVrQnH5QKHADSgCstHpQMtLTBvQF0WCfSdIEWlRPB2WM5/qbV
+         /UOJXDqeh2aBKJ4KPC0lzO4o5mcfyKxB9w0wYp448HcpV11z11/cBimlWiQvf50TcK
+         wIqqlQY4c1gHjGCWrx8ke3UOqj/2XK7OEPyC8phU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.19 11/37] drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 31/32] NFC: fix resource leak when target index is invalid
 Date:   Tue,  2 Feb 2021 14:38:54 +0100
-Message-Id: <20210202132943.364970829@linuxfoundation.org>
+Message-Id: <20210202132943.261191142@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
-References: <20210202132942.915040339@linuxfoundation.org>
+In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
+References: <20210202132942.035179752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Pan Bian <bianpan2016@163.com>
 
-commit caab13b4960416b9fee83169a758eb0f31e65109 upstream.
+commit 3a30537cee233fb7da302491b28c832247d89bbe upstream.
 
-Since at91_soc_init is called unconditionally from atmel_soc_device_init,
-we get the following warning on all non AT91 SoCs:
-	" AT91: Could not find identification node"
+Goto to the label put_dev instead of the label error to fix potential
+resource leak on path that the target index is invalid.
 
-Fix the same by filtering with allowed AT91 SoC list.
-
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: stable@vger.kernel.org #4.12+
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20201211135846.1334322-1-sudeep.holla@arm.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: c4fbb6515a4d ("NFC: The core part should generate the target index")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121152748.98409-1-bianpan2016@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/atmel/soc.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/nfc/rawsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/atmel/soc.c
-+++ b/drivers/soc/atmel/soc.c
-@@ -254,8 +254,20 @@ struct soc_device * __init at91_soc_init
- 	return soc_dev;
- }
+--- a/net/nfc/rawsock.c
++++ b/net/nfc/rawsock.c
+@@ -117,7 +117,7 @@ static int rawsock_connect(struct socket
+ 	if (addr->target_idx > dev->target_next_idx - 1 ||
+ 	    addr->target_idx < dev->target_next_idx - dev->n_targets) {
+ 		rc = -EINVAL;
+-		goto error;
++		goto put_dev;
+ 	}
  
-+static const struct of_device_id at91_soc_allowed_list[] __initconst = {
-+	{ .compatible = "atmel,at91rm9200", },
-+	{ .compatible = "atmel,at91sam9", },
-+	{ .compatible = "atmel,sama5", },
-+	{ .compatible = "atmel,samv7", }
-+};
-+
- static int __init atmel_soc_device_init(void)
- {
-+	struct device_node *np = of_find_node_by_path("/");
-+
-+	if (!of_match_node(at91_soc_allowed_list, np))
-+		return 0;
-+
- 	at91_soc_init(socs);
- 
- 	return 0;
+ 	rc = nfc_activate_target(dev, addr->target_idx, addr->nfc_protocol);
 
 
