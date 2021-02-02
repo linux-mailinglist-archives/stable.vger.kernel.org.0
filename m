@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2117730CB84
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31FF330CC35
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:50:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233392AbhBBT13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:27:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45374 "EHLO mail.kernel.org"
+        id S232777AbhBBTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:47:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233526AbhBBN67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:58:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7DB864FF3;
-        Tue,  2 Feb 2021 13:46:15 +0000 (UTC)
+        id S233204AbhBBNwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:52:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B634764FC0;
+        Tue,  2 Feb 2021 13:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273576;
-        bh=w2Mhr1+ky3Xvd8O+nwqMTrZvWrIJK5OnoWJO9/Dw+Mw=;
+        s=korg; t=1612273416;
+        bh=5BGQtXVUbXXaAD7nhktL8PbbZLzI4cPQ/RgcupTBFB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1oQR3HctJuj02i7HzwAit+FBgUt93iCuCQDUutyPrgFs8jbLrUNNS304BBrosUKu
-         DTDF1UrWSSnJ0csUtcoInFzW+QkeIcG22iEjQA+v2A2Fcv+LD+HwFq+MVZAOltgB5r
-         jt3eA/9nwLirpUVNAPva/jnBrpYx4aLOS8BdWmt4=
+        b=y5XimHxH8qxI6ZtUIirKzXB04323tvmQmGD6WyhOqwm5M816+yFsLhZScN7GsQvlz
+         xLCSlg4+CkmG7m3qWg5tk0eJXPCFMR5dslkiTGMJZJUY4yn0k1O74v0mMsnQu3qfhJ
+         Cj9aPHwsSBCWFEOUOnQP+abUaLDvcT5S7xOlLdU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 03/61] nbd: freeze the queue while were adding connections
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 098/142] ASoC: SOF: Intel: soundwire: fix select/depend unmet dependencies
 Date:   Tue,  2 Feb 2021 14:37:41 +0100
-Message-Id: <20210202132946.628048427@linuxfoundation.org>
+Message-Id: <20210202133001.756498989@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit b98e762e3d71e893b221f871825dc64694cfb258 upstream.
+[ Upstream commit bd9038faa9d7f162b47e1577e35ec5eac39f9d90 ]
 
-When setting up a device, we can krealloc the config->socks array to add
-new sockets to the configuration.  However if we happen to get a IO
-request in at this point even though we aren't setup we could hit a UAF,
-as we deref config->socks without any locking, assuming that the
-configuration was setup already and that ->socks is safe to access it as
-we have a reference on the configuration.
+The LKP bot reports the following issue:
 
-But there's nothing really preventing IO from occurring at this point of
-the device setup, we don't want to incur the overhead of a lock to
-access ->socks when it will never change while the device is running.
-To fix this UAF scenario simply freeze the queue if we are adding
-sockets.  This will protect us from this particular case without adding
-any additional overhead for the normal running case.
+WARNING: unmet direct dependencies detected for SOUNDWIRE_INTEL
+  Depends on [m]: SOUNDWIRE [=m] && ACPI [=y] && SND_SOC [=y]
+  Selected by [y]:
+  - SND_SOC_SOF_INTEL_SOUNDWIRE [=y] && SOUND [=y] && !UML &&
+  SND [=y] && SND_SOC [=y] && SND_SOC_SOF_TOPLEVEL [=y] &&
+  SND_SOC_SOF_INTEL_TOPLEVEL [=y] && SND_SOC_SOF_INTEL_PCI [=y]
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This comes from having tristates being configured independently, when
+in practice the CONFIG_SOUNDWIRE needs to be aligned with the SOF
+choices: when the SOF code is compiled as built-in, the
+CONFIG_SOUNDWIRE also needs to be 'y'.
 
+The easiest fix is to replace the 'depends' with a 'select' and have a
+single user selection to activate SoundWire on Intel platforms. This
+still allows regmap to be compiled independently as a module.
+
+This is just a temporary fix, the select/depend usage will be
+revisited and the SOF Kconfig re-organized, as suggested by Arnd
+Bergman.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: a115ab9b8b93e ('ASoC: SOF: Intel: add build support for SoundWire')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210122005725.94163-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/sof/intel/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1014,6 +1014,12 @@ static int nbd_add_socket(struct nbd_dev
- 	if (!sock)
- 		return err;
+diff --git a/sound/soc/sof/intel/Kconfig b/sound/soc/sof/intel/Kconfig
+index 5bfc2f8b13b90..de7ff2d097ab9 100644
+--- a/sound/soc/sof/intel/Kconfig
++++ b/sound/soc/sof/intel/Kconfig
+@@ -337,7 +337,7 @@ config SND_SOC_SOF_HDA
  
-+	/*
-+	 * We need to make sure we don't get any errant requests while we're
-+	 * reallocating the ->socks array.
-+	 */
-+	blk_mq_freeze_queue(nbd->disk->queue);
-+
- 	if (!netlink && !nbd->task_setup &&
- 	    !test_bit(NBD_RT_BOUND, &config->runtime_flags))
- 		nbd->task_setup = current;
-@@ -1052,10 +1058,12 @@ static int nbd_add_socket(struct nbd_dev
- 	nsock->cookie = 0;
- 	socks[config->num_connections++] = nsock;
- 	atomic_inc(&config->live_connections);
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
+ config SND_SOC_SOF_INTEL_SOUNDWIRE_LINK
+ 	bool "SOF support for SoundWire"
+-	depends on SOUNDWIRE && ACPI
++	depends on ACPI
+ 	help
+ 	  This adds support for SoundWire with Sound Open Firmware
+ 		  for Intel(R) platforms.
+@@ -353,6 +353,7 @@ config SND_SOC_SOF_INTEL_SOUNDWIRE_LINK_BASELINE
  
- 	return 0;
- 
- put_socket:
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
- 	sockfd_put(sock);
- 	return err;
- }
+ config SND_SOC_SOF_INTEL_SOUNDWIRE
+ 	tristate
++	select SOUNDWIRE
+ 	select SOUNDWIRE_INTEL
+ 	help
+ 	  This option is not user-selectable but automagically handled by
+-- 
+2.27.0
+
 
 
