@@ -2,200 +2,307 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C4A30C7F6
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:37:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAAF730C87B
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:54:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237652AbhBBRg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
+        id S237773AbhBBRvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:51:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234136AbhBBOMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F29476503F;
-        Tue,  2 Feb 2021 13:52:19 +0000 (UTC)
+        id S233974AbhBBOJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:09:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5021864FA0;
+        Tue,  2 Feb 2021 13:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273940;
-        bh=7e/aVsahmQoNFB8Pe/h7Yc+dRm8tI1iNWsH2VTPfrDc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=iMzBSgsokxYK17IUbccV7pK0zgsFtf7yeX+BcBJ2SQkwnf4xZ8N1Z4RBmZq0Qv59q
-         xTB/hPSKmRr+oalSGUTfyqevoxTtAdRI9h2VzggpPAp0TTouWYlcrTeRiUkcdPKvPf
-         pl4T4czJL6bKZbhCxUTcfqw1Gu7F0ST63mh4bHMg=
+        s=korg; t=1612273833;
+        bh=N2tYN1Fb+ixyPQzP/GzD6vO6iup7ZyoMYL/6kU9I7xA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Q9woqvfcRdQ0OKg58YM5dt7XtnfjPqGSco3MjARJEtDHOMWRjZdRvXnSM6qEduDcT
+         OnTyLMPCRHgFtdpMMpKLGtvbUXQejkrjr2VCa73GHomEtCsYBcwfkI86a52PTYku7v
+         uGFKm1m3X2fnEQ3l2ZLWeUvalbG3ocf9rMqSTG88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/30] 4.14.219-rc1 review
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 4.9 18/32] leds: trigger: fix potential deadlock with libata
 Date:   Tue,  2 Feb 2021 14:38:41 +0100
-Message-Id: <20210202132942.138623851@linuxfoundation.org>
+Message-Id: <20210202132942.753514333@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
+References: <20210202132942.035179752@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.219-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.219-rc1
-X-KernelTest-Deadline: 2021-02-04T13:29+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.219 release.
-There are 30 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Andrea Righi <andrea.righi@canonical.com>
 
-Responses should be made by Thu, 04 Feb 2021 13:29:33 +0000.
-Anything received after that time might be too late.
+commit 27af8e2c90fba242460b01fa020e6e19ed68c495 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.219-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+We have the following potential deadlock condition:
 
-thanks,
+ ========================================================
+ WARNING: possible irq lock inversion dependency detected
+ 5.10.0-rc2+ #25 Not tainted
+ --------------------------------------------------------
+ swapper/3/0 just changed the state of lock:
+ ffff8880063bd618 (&host->lock){-...}-{2:2}, at: ata_bmdma_interrupt+0x27/0x200
+ but this lock took another, HARDIRQ-READ-unsafe lock in the past:
+  (&trig->leddev_list_lock){.+.?}-{2:2}
 
-greg k-h
+ and interrupts could create inverse lock ordering between them.
 
--------------
-Pseudo-Shortlog of commits:
+ other info that might help us debug this:
+  Possible interrupt unsafe locking scenario:
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.219-rc1
+        CPU0                    CPU1
+        ----                    ----
+   lock(&trig->leddev_list_lock);
+                                local_irq_disable();
+                                lock(&host->lock);
+                                lock(&trig->leddev_list_lock);
+   <Interrupt>
+     lock(&host->lock);
 
-Pengcheng Yang <yangpc@wangsu.com>
-    tcp: fix TLP timer not set when CA_STATE changes from DISORDER to OPEN
+  *** DEADLOCK ***
 
-Ivan Vecera <ivecera@redhat.com>
-    team: protect features update by RCU to avoid deadlock
+ no locks held by swapper/3/0.
 
-Pan Bian <bianpan2016@163.com>
-    NFC: fix possible resource leak
+ the shortest dependencies between 2nd lock and 1st lock:
+  -> (&trig->leddev_list_lock){.+.?}-{2:2} ops: 46 {
+     HARDIRQ-ON-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       rfkill_global_led_trigger_worker+0x94/0xb0
+                       process_one_work+0x240/0x560
+                       worker_thread+0x58/0x3d0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     IN-SOFTIRQ-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       kbd_bh+0x9e/0xc0
+                       tasklet_action_common.constprop.0+0xe9/0x100
+                       tasklet_action+0x22/0x30
+                       __do_softirq+0xcc/0x46d
+                       run_ksoftirqd+0x3f/0x70
+                       smpboot_thread_fn+0x116/0x1f0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     SOFTIRQ-ON-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       rfkill_global_led_trigger_worker+0x94/0xb0
+                       process_one_work+0x240/0x560
+                       worker_thread+0x58/0x3d0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     INITIAL READ USE at:
+                           lock_acquire+0x15f/0x420
+                           _raw_read_lock+0x42/0x90
+                           led_trigger_event+0x2b/0x70
+                           rfkill_global_led_trigger_worker+0x94/0xb0
+                           process_one_work+0x240/0x560
+                           worker_thread+0x58/0x3d0
+                           kthread+0x151/0x170
+                           ret_from_fork+0x1f/0x30
+   }
+   ... key      at: [<ffffffff83da4c00>] __key.0+0x0/0x10
+   ... acquired at:
+    _raw_read_lock+0x42/0x90
+    led_trigger_blink_oneshot+0x3b/0x90
+    ledtrig_disk_activity+0x3c/0xa0
+    ata_qc_complete+0x26/0x450
+    ata_do_link_abort+0xa3/0xe0
+    ata_port_freeze+0x2e/0x40
+    ata_hsm_qc_complete+0x94/0xa0
+    ata_sff_hsm_move+0x177/0x7a0
+    ata_sff_pio_task+0xc7/0x1b0
+    process_one_work+0x240/0x560
+    worker_thread+0x58/0x3d0
+    kthread+0x151/0x170
+    ret_from_fork+0x1f/0x30
 
-Pan Bian <bianpan2016@163.com>
-    NFC: fix resource leak when target index is invalid
+ -> (&host->lock){-...}-{2:2} ops: 69 {
+    IN-HARDIRQ-W at:
+                     lock_acquire+0x15f/0x420
+                     _raw_spin_lock_irqsave+0x52/0xa0
+                     ata_bmdma_interrupt+0x27/0x200
+                     __handle_irq_event_percpu+0xd5/0x2b0
+                     handle_irq_event+0x57/0xb0
+                     handle_edge_irq+0x8c/0x230
+                     asm_call_irq_on_stack+0xf/0x20
+                     common_interrupt+0x100/0x1c0
+                     asm_common_interrupt+0x1e/0x40
+                     native_safe_halt+0xe/0x10
+                     arch_cpu_idle+0x15/0x20
+                     default_idle_call+0x59/0x1c0
+                     do_idle+0x22c/0x2c0
+                     cpu_startup_entry+0x20/0x30
+                     start_secondary+0x11d/0x150
+                     secondary_startup_64_no_verify+0xa6/0xab
+    INITIAL USE at:
+                    lock_acquire+0x15f/0x420
+                    _raw_spin_lock_irqsave+0x52/0xa0
+                    ata_dev_init+0x54/0xe0
+                    ata_link_init+0x8b/0xd0
+                    ata_port_alloc+0x1f1/0x210
+                    ata_host_alloc+0xf1/0x130
+                    ata_host_alloc_pinfo+0x14/0xb0
+                    ata_pci_sff_prepare_host+0x41/0xa0
+                    ata_pci_bmdma_prepare_host+0x14/0x30
+                    piix_init_one+0x21f/0x600
+                    local_pci_probe+0x48/0x80
+                    pci_device_probe+0x105/0x1c0
+                    really_probe+0x221/0x490
+                    driver_probe_device+0xe9/0x160
+                    device_driver_attach+0xb2/0xc0
+                    __driver_attach+0x91/0x150
+                    bus_for_each_dev+0x81/0xc0
+                    driver_attach+0x1e/0x20
+                    bus_add_driver+0x138/0x1f0
+                    driver_register+0x91/0xf0
+                    __pci_register_driver+0x73/0x80
+                    piix_init+0x1e/0x2e
+                    do_one_initcall+0x5f/0x2d0
+                    kernel_init_freeable+0x26f/0x2cf
+                    kernel_init+0xe/0x113
+                    ret_from_fork+0x1f/0x30
+  }
+  ... key      at: [<ffffffff83d9fdc0>] __key.6+0x0/0x10
+  ... acquired at:
+    __lock_acquire+0x9da/0x2370
+    lock_acquire+0x15f/0x420
+    _raw_spin_lock_irqsave+0x52/0xa0
+    ata_bmdma_interrupt+0x27/0x200
+    __handle_irq_event_percpu+0xd5/0x2b0
+    handle_irq_event+0x57/0xb0
+    handle_edge_irq+0x8c/0x230
+    asm_call_irq_on_stack+0xf/0x20
+    common_interrupt+0x100/0x1c0
+    asm_common_interrupt+0x1e/0x40
+    native_safe_halt+0xe/0x10
+    arch_cpu_idle+0x15/0x20
+    default_idle_call+0x59/0x1c0
+    do_idle+0x22c/0x2c0
+    cpu_startup_entry+0x20/0x30
+    start_secondary+0x11d/0x150
+    secondary_startup_64_no_verify+0xa6/0xab
 
-Bartosz Golaszewski <bgolaszewski@baylibre.com>
-    iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built
+This lockdep splat is reported after:
+commit e918188611f0 ("locking: More accurate annotations for read_lock()")
 
-David Woodhouse <dwmw@amazon.co.uk>
-    iommu/vt-d: Gracefully handle DMAR units with no supported address widths
+To clarify:
+ - read-locks are recursive only in interrupt context (when
+   in_interrupt() returns true)
+ - after acquiring host->lock in CPU1, another cpu (i.e. CPU2) may call
+   write_lock(&trig->leddev_list_lock) that would be blocked by CPU0
+   that holds trig->leddev_list_lock in read-mode
+ - when CPU1 (ata_ac_complete()) tries to read-lock
+   trig->leddev_list_lock, it would be blocked by the write-lock waiter
+   on CPU2 (because we are not in interrupt context, so the read-lock is
+   not recursive)
+ - at this point if an interrupt happens on CPU0 and
+   ata_bmdma_interrupt() is executed it will try to acquire host->lock,
+   that is held by CPU1, that is currently blocked by CPU2, so:
 
-Andy Lutomirski <luto@kernel.org>
-    x86/entry/64/compat: Fix "x86/entry/64/compat: Preserve r8-r11 in int $0x80"
+   * CPU0 blocked by CPU1
+   * CPU1 blocked by CPU2
+   * CPU2 blocked by CPU0
 
-Andy Lutomirski <luto@kernel.org>
-    x86/entry/64/compat: Preserve r8-r11 in int $0x80
+     *** DEADLOCK ***
 
-Dan Carpenter <dan.carpenter@oracle.com>
-    can: dev: prevent potential information leak in can_fill_info()
+The deadlock scenario is better represented by the following schema
+(thanks to Boqun Feng <boqun.feng@gmail.com> for the schema and the
+detailed explanation of the deadlock condition):
 
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: pause TX while changing interface type
+ CPU 0:                          CPU 1:                        CPU 2:
+ -----                           -----                         -----
+ led_trigger_event():
+   read_lock(&trig->leddev_list_lock);
+ 				<workqueue>
+ 				ata_hsm_qc_complete():
+ 				  spin_lock_irqsave(&host->lock);
+ 								write_lock(&trig->leddev_list_lock);
+ 				  ata_port_freeze():
+ 				    ata_do_link_abort():
+ 				      ata_qc_complete():
+ 					ledtrig_disk_activity():
+ 					  led_trigger_blink_oneshot():
+ 					    read_lock(&trig->leddev_list_lock);
+ 					    // ^ not in in_interrupt() context, so could get blocked by CPU 2
+ <interrupt>
+   ata_bmdma_interrupt():
+     spin_lock_irqsave(&host->lock);
 
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: pcie: reschedule in long-running memory reads
+Fix by using read_lock_irqsave/irqrestore() in led_trigger_event(), so
+that no interrupt can happen in between, preventing the deadlock
+condition.
 
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: pcie: use jiffies for memory read spin time limit
+Apply the same change to led_trigger_blink_setup() as well, since the
+same deadlock scenario can also happen in power_supply_update_bat_leds()
+-> led_trigger_blink() -> led_trigger_blink_setup() (workqueue context),
+and potentially prevent other similar usages.
 
-Kamal Heib <kamalheib1@gmail.com>
-    RDMA/cxgb4: Fix the reported max_recv_sge value
+Link: https://lore.kernel.org/lkml/20201101092614.GB3989@xps-13-7390/
+Fixes: eb25cb9956cc ("leds: convert IDE trigger to common disk trigger")
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Shmulik Ladkani <shmulik@metanetworks.com>
-    xfrm: Fix oops in xfrm_replay_advance_bmp
+---
+ drivers/leds/led-triggers.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nft_dynset: add timeout extension to template
-
-Max Krummenacher <max.oss.09@gmail.com>
-    ARM: imx: build suspend-imx6.S with arm instruction set
-
-Roger Pau Monne <roger.pau@citrix.com>
-    xen-blkfront: allow discard-* nodes to be optional
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mt7601u: fix rx buffer refcounting
-
-Lorenzo Bianconi <lorenzo@kernel.org>
-    mt7601u: fix kernel crash unplugging the device
-
-Andrea Righi <andrea.righi@canonical.com>
-    leds: trigger: fix potential deadlock with libata
-
-David Woodhouse <dwmw@amazon.co.uk>
-    xen: Fix XenStore initialisation for XS_LOCAL
-
-Jay Zhou <jianjay.zhou@huawei.com>
-    KVM: x86: get smi pending status correctly
-
-Like Xu <like.xu@linux.intel.com>
-    KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
-
-Claudiu Beznea <claudiu.beznea@microchip.com>
-    drivers: soc: atmel: add null entry at the end of at91_soc_allowed_list[]
-
-Sudeep Holla <sudeep.holla@arm.com>
-    drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs
-
-Giacinto Cifelli <gciofono@gmail.com>
-    net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
-
-Johannes Berg <johannes.berg@intel.com>
-    wext: fix NULL-ptr-dereference with cfg80211's lack of commit()
-
-Koen Vandeputte <koen.vandeputte@citymesh.com>
-    ARM: dts: imx6qdl-gw52xx: fix duplicate regulator naming
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ACPI: sysfs: Prefer "compatible" modalias
-
-Josef Bacik <josef@toxicpanda.com>
-    nbd: freeze the queue while we're adding connections
-
-
--------------
-
-Diffstat:
-
- Makefile                                        |  4 +--
- arch/arm/boot/dts/imx6qdl-gw52xx.dtsi           |  2 +-
- arch/arm/mach-imx/suspend-imx6.S                |  1 +
- arch/x86/entry/entry_64_compat.S                |  8 ++---
- arch/x86/kvm/pmu_intel.c                        |  2 +-
- arch/x86/kvm/x86.c                              |  5 +++
- drivers/acpi/device_sysfs.c                     | 20 ++++-------
- drivers/block/nbd.c                             |  8 +++++
- drivers/block/xen-blkfront.c                    | 20 ++++-------
- drivers/infiniband/hw/cxgb4/qp.c                |  2 +-
- drivers/iommu/dmar.c                            | 45 +++++++++++++++++--------
- drivers/leds/led-triggers.c                     | 10 +++---
- drivers/net/can/dev.c                           |  2 +-
- drivers/net/team/team.c                         |  6 ++--
- drivers/net/usb/qmi_wwan.c                      |  1 +
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 14 ++++----
- drivers/net/wireless/mediatek/mt7601u/dma.c     |  5 ++-
- drivers/soc/atmel/soc.c                         | 13 +++++++
- drivers/xen/xenbus/xenbus_probe.c               | 31 +++++++++++++++++
- include/linux/intel-iommu.h                     |  2 ++
- include/net/tcp.h                               |  2 +-
- net/ipv4/tcp_input.c                            | 10 +++---
- net/ipv4/tcp_recovery.c                         |  5 +--
- net/mac80211/ieee80211_i.h                      |  1 +
- net/mac80211/iface.c                            |  6 ++++
- net/netfilter/nft_dynset.c                      |  4 ++-
- net/nfc/netlink.c                               |  1 +
- net/nfc/rawsock.c                               |  2 +-
- net/wireless/wext-core.c                        |  5 +--
- net/xfrm/xfrm_input.c                           |  2 +-
- tools/testing/selftests/x86/test_syscall_vdso.c | 35 +++++++++++--------
- 31 files changed, 181 insertions(+), 93 deletions(-)
+--- a/drivers/leds/led-triggers.c
++++ b/drivers/leds/led-triggers.c
+@@ -283,14 +283,15 @@ void led_trigger_event(struct led_trigge
+ 			enum led_brightness brightness)
+ {
+ 	struct led_classdev *led_cdev;
++	unsigned long flags;
+ 
+ 	if (!trig)
+ 		return;
+ 
+-	read_lock(&trig->leddev_list_lock);
++	read_lock_irqsave(&trig->leddev_list_lock, flags);
+ 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list)
+ 		led_set_brightness(led_cdev, brightness);
+-	read_unlock(&trig->leddev_list_lock);
++	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(led_trigger_event);
+ 
+@@ -301,11 +302,12 @@ static void led_trigger_blink_setup(stru
+ 			     int invert)
+ {
+ 	struct led_classdev *led_cdev;
++	unsigned long flags;
+ 
+ 	if (!trig)
+ 		return;
+ 
+-	read_lock(&trig->leddev_list_lock);
++	read_lock_irqsave(&trig->leddev_list_lock, flags);
+ 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list) {
+ 		if (oneshot)
+ 			led_blink_set_oneshot(led_cdev, delay_on, delay_off,
+@@ -313,7 +315,7 @@ static void led_trigger_blink_setup(stru
+ 		else
+ 			led_blink_set(led_cdev, delay_on, delay_off);
+ 	}
+-	read_unlock(&trig->leddev_list_lock);
++	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+ }
+ 
+ void led_trigger_blink(struct led_trigger *trig,
 
 
