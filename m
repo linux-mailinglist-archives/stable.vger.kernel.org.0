@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A0330C846
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A1430C107
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237553AbhBBRqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:46:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48736 "EHLO mail.kernel.org"
+        id S234157AbhBBOMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:12:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233998AbhBBOKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:10:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE77E65036;
-        Tue,  2 Feb 2021 13:51:03 +0000 (UTC)
+        id S234020AbhBBOLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:11:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C8E764F64;
+        Tue,  2 Feb 2021 13:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273864;
-        bh=aLBL23LaxH9P3pVYWkKwhr4kiH82NIFBDEh00Ysp4Ao=;
+        s=korg; t=1612273902;
+        bh=InmTPRoLIYuOQe6ku7j+sG3duzIbJRa9apb8B52qNoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSIpiqx120ECp3pFdtawStbn4AQ7jiUmF2FrzI39LRhanflq4CdaTHbP2uxE/H7iI
-         fBJjMEgxJHBsnBaA4kZ2Fd/AiOhbQnvLArL9d3VXWloTf3Epkcup+QBoHfUtDPEiir
-         TGpt9bcDrCBoK+E95yYJ2qQ3oBCh14i1IAb2IsHQ=
+        b=y6CB22EwSDHISnCgy4GO+t1X+6PpAtDk9X9bHptF7MjQHPi8UC5gqb+QnLVW08PmB
+         ioozWaw1P3tfSBmOkXmuJO5xOAcDMfQ0EZYpQm06gEqCqwm3PZFcx3nunkDkd0oSJA
+         Ck24VzgJtFQqxGBm2N/6z8b9HcokO/Em8UEFzyqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/32] can: dev: prevent potential information leak in can_fill_info()
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Jason Andryuk <jandryuk@gmail.com>
+Subject: [PATCH 4.14 10/30] xen: Fix XenStore initialisation for XS_LOCAL
 Date:   Tue,  2 Feb 2021 14:38:51 +0100
-Message-Id: <20210202132943.134421993@linuxfoundation.org>
+Message-Id: <20210202132942.559697405@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
+commit 5f46400f7a6a4fad635d5a79e2aa5a04a30ffea1 upstream.
 
-The "bec" struct isn't necessarily always initialized. For example, the
-mcp251xfd_get_berr_counter() function doesn't initialize anything if the
-interface is down.
+In commit 3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")
+I reworked the triggering of xenbus_probe().
 
-Fixes: 52c793f24054 ("can: netlink support for bus-error reporting and counters")
-Link: https://lore.kernel.org/r/YAkaRdRJncsJO8Ve@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I tried to simplify things by taking out the workqueue based startup
+triggered from wake_waiting(); the somewhat poorly named xenbus IRQ
+handler.
+
+I missed the fact that in the XS_LOCAL case (Dom0 starting its own
+xenstored or xenstore-stubdom, which happens after the kernel is booted
+completely), that IRQ-based trigger is still actually needed.
+
+So... put it back, except more cleanly. By just spawning a xenbus_probe
+thread which waits on xb_waitq and runs the probe the first time it
+gets woken, just as the workqueue-based hack did.
+
+This is actually a nicer approach for *all* the back ends with different
+interrupt methods, and we can switch them all over to that without the
+complex conditions for when to trigger it. But not in -rc6. This is
+the minimal fix for the regression, although it's a step in the right
+direction instead of doing a partial revert and actually putting the
+workqueue back. It's also simpler than the workqueue.
+
+Fixes: 3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")
+Reported-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/4c9af052a6e0f6485d1de43f2c38b1461996db99.camel@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Salvatore Bonaccorso <carnil@debian.org>
+Cc: Jason Andryuk <jandryuk@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/can/dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/xenbus/xenbus_probe.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1017,7 +1017,7 @@ static int can_fill_info(struct sk_buff
- {
- 	struct can_priv *priv = netdev_priv(dev);
- 	struct can_ctrlmode cm = {.flags = priv->ctrlmode};
--	struct can_berr_counter bec;
-+	struct can_berr_counter bec = { };
- 	enum can_state state = priv->state;
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -705,6 +705,23 @@ static bool xs_hvm_defer_init_for_callba
+ #endif
+ }
  
- 	if (priv->do_get_state)
++static int xenbus_probe_thread(void *unused)
++{
++	DEFINE_WAIT(w);
++
++	/*
++	 * We actually just want to wait for *any* trigger of xb_waitq,
++	 * and run xenbus_probe() the moment it occurs.
++	 */
++	prepare_to_wait(&xb_waitq, &w, TASK_INTERRUPTIBLE);
++	schedule();
++	finish_wait(&xb_waitq, &w);
++
++	DPRINTK("probing");
++	xenbus_probe();
++	return 0;
++}
++
+ static int __init xenbus_probe_initcall(void)
+ {
+ 	/*
+@@ -716,6 +733,20 @@ static int __init xenbus_probe_initcall(
+ 	     !xs_hvm_defer_init_for_callback()))
+ 		xenbus_probe();
+ 
++	/*
++	 * For XS_LOCAL, spawn a thread which will wait for xenstored
++	 * or a xenstore-stubdom to be started, then probe. It will be
++	 * triggered when communication starts happening, by waiting
++	 * on xb_waitq.
++	 */
++	if (xen_store_domain_type == XS_LOCAL) {
++		struct task_struct *probe_task;
++
++		probe_task = kthread_run(xenbus_probe_thread, NULL,
++					 "xenbus_probe");
++		if (IS_ERR(probe_task))
++			return PTR_ERR(probe_task);
++	}
+ 	return 0;
+ }
+ device_initcall(xenbus_probe_initcall);
 
 
