@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 283CD30BFF6
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0BD30C003
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:48:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232556AbhBBNqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:46:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36408 "EHLO mail.kernel.org"
+        id S232959AbhBBNrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:47:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232897AbhBBNpP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:45:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2240C64F7D;
-        Tue,  2 Feb 2021 13:40:46 +0000 (UTC)
+        id S232901AbhBBNpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:45:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 356DF64F82;
+        Tue,  2 Feb 2021 13:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273247;
-        bh=Q1Un96wR1iagfGo+CoPWzh5Jo6V09DwWjVSrAUpXUHA=;
+        s=korg; t=1612273261;
+        bh=Dvsl/32IFynrdpNXOB9tFdLLblMnLI4/AWVR4cM7Ojk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdKFusDZVjf/EM6mwJa8dVGJx3XoSJXfb3SwpsRSYvXCjsIpCUO9Rh3SrBydiMJPE
-         hvptd7lNHHxCnJC4L6v3otiBybFF7tGriw3wUb4SWUKy3hi2Xw//WVDmgyfWpKXJN6
-         p2CVa4+Qlr60ZKYhC6+R8yH/UN42bByKIsNLw+mo=
+        b=gMFQucVgYpV8mTeGxhiVYqRe11Xx3nOkxhFl/Umu4QsCV52jxU6wj/LOOdd1LIiYX
+         ipgYMsdSgPlqIY/smS0szOYiC1+4ytmOSbCdyXW9Pnub5Dlc4+5rp/YpZWjj/8AnU1
+         DqC2Tj+kXk+tQJqviJAKhNc9c8NCs0Ro19w/P2X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 008/142] ALSA: hda/via: Apply the workaround generically for Clevo machines
-Date:   Tue,  2 Feb 2021 14:36:11 +0100
-Message-Id: <20210202132958.043113657@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.10 009/142] parisc: Enable -mlong-calls gcc option by default when !CONFIG_MODULES
+Date:   Tue,  2 Feb 2021 14:36:12 +0100
+Message-Id: <20210202132958.084717417@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -38,35 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Helge Deller <deller@gmx.de>
 
-commit 4961167bf7482944ca09a6f71263b9e47f949851 upstream.
+commit 00e35f2b0e8acb88d4e1aa96ff0490e3bfe46580 upstream.
 
-We've got another report indicating a similar problem wrt the
-power-saving behavior with VIA codec on Clevo machines.  Let's apply
-the existing workaround generically to all Clevo devices with VIA
-codecs to cover all in once.
+When building a kernel without module support, the CONFIG_MLONGCALL option
+needs to be enabled in order to reach symbols which are outside of a 22-bit
+branch.
 
-BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1181330
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210126165603.11683-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This patch changes the autodetection in the Kconfig script to always enable
+CONFIG_MLONGCALL when modules are disabled and uses a far call to
+preempt_schedule_irq() in intr_do_preempt() to reach the symbol in all cases.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org # v5.6+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_via.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/Kconfig        |    5 ++---
+ arch/parisc/kernel/entry.S |   13 ++++++++++---
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_via.c
-+++ b/sound/pci/hda/patch_via.c
-@@ -1043,7 +1043,7 @@ static const struct hda_fixup via_fixups
- static const struct snd_pci_quirk vt2002p_fixups[] = {
- 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
- 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
--	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
-+	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
- 	{}
- };
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -202,9 +202,8 @@ config PREFETCH
+ 	depends on PA8X00 || PA7200
  
+ config MLONGCALLS
+-	bool "Enable the -mlong-calls compiler option for big kernels"
+-	default y if !MODULES || UBSAN || FTRACE
+-	default n
++	def_bool y if !MODULES || UBSAN || FTRACE
++	bool "Enable the -mlong-calls compiler option for big kernels" if MODULES && !UBSAN && !FTRACE
+ 	depends on PA8X00
+ 	help
+ 	  If you configure the kernel to include many drivers built-in instead
+--- a/arch/parisc/kernel/entry.S
++++ b/arch/parisc/kernel/entry.S
+@@ -997,10 +997,17 @@ intr_do_preempt:
+ 	bb,<,n	%r20, 31 - PSW_SM_I, intr_restore
+ 	nop
+ 
++	/* ssm PSW_SM_I done later in intr_restore */
++#ifdef CONFIG_MLONGCALLS
++	ldil	L%intr_restore, %r2
++	load32	preempt_schedule_irq, %r1
++	bv	%r0(%r1)
++	ldo	R%intr_restore(%r2), %r2
++#else
++	ldil	L%intr_restore, %r1
+ 	BL	preempt_schedule_irq, %r2
+-	nop
+-
+-	b,n	intr_restore		/* ssm PSW_SM_I done by intr_restore */
++	ldo	R%intr_restore(%r1), %r2
++#endif
+ #endif /* CONFIG_PREEMPTION */
+ 
+ 	/*
 
 
