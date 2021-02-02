@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD71230CA3E
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CF730CA3A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbhBBSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:42:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46300 "EHLO mail.kernel.org"
+        id S233713AbhBBSmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:42:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233708AbhBBOCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:02:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DB376500A;
-        Tue,  2 Feb 2021 13:48:02 +0000 (UTC)
+        id S233717AbhBBOCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:02:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A5FA6500C;
+        Tue,  2 Feb 2021 13:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273683;
-        bh=YiHowHmrBgRNazLfEjZaCE+j0aY+OGKvFe0ymrIUFRM=;
+        s=korg; t=1612273686;
+        bh=TpZbbwr9wlvVCQwnktn8RnArixjRDNYTuiSMPBhjGlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyuSSmiRPKcirMT7fnHbQQo9nQzyIbF6DDV2DJHVA276V4bH9Xurm2MsMoUkMJTQV
-         oD4A8P6j8EBe++qZkkxYFvlaTcVxfUjvRdiYuQ5HrMqsYQHo1mDjuk1xHHgFWP5kGP
-         L6Ji7sDRQhHp/Kln/2f7rtqBT/2kEGew3W/j/1EI=
+        b=W1hufQ0JW6bMyoxeyN0G0+pcSwRay0aB5jvSe8MUzgYE5vtb4uwakTg6cVBHI7WRk
+         xNhDTN1QHTvoH47nDuMKonL4Fky8GvXI/PUkwR3Q0ieYoMmnqI7sSZ6tF1YAsjv+MV
+         TIeKThsDHfsWvrUnjs46QRenDzgwSQ0aQVLEo22g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 21/61] KVM: Forbid the use of tagged userspace addresses for memslots
-Date:   Tue,  2 Feb 2021 14:37:59 +0100
-Message-Id: <20210202132947.351505597@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Jason Andryuk <jandryuk@gmail.com>
+Subject: [PATCH 5.4 22/61] xen: Fix XenStore initialisation for XS_LOCAL
+Date:   Tue,  2 Feb 2021 14:38:00 +0100
+Message-Id: <20210202132947.395417514@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
 References: <20210202132946.480479453@linuxfoundation.org>
@@ -42,49 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-commit 139bc8a6146d92822c866cf2fd410159c56b3648 upstream.
+commit 5f46400f7a6a4fad635d5a79e2aa5a04a30ffea1 upstream.
 
-The use of a tagged address could be pretty confusing for the
-whole memslot infrastructure as well as the MMU notifiers.
+In commit 3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")
+I reworked the triggering of xenbus_probe().
 
-Forbid it altogether, as it never quite worked the first place.
+I tried to simplify things by taking out the workqueue based startup
+triggered from wake_waiting(); the somewhat poorly named xenbus IRQ
+handler.
 
-Cc: stable@vger.kernel.org
-Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+I missed the fact that in the XS_LOCAL case (Dom0 starting its own
+xenstored or xenstore-stubdom, which happens after the kernel is booted
+completely), that IRQ-based trigger is still actually needed.
+
+So... put it back, except more cleanly. By just spawning a xenbus_probe
+thread which waits on xb_waitq and runs the probe the first time it
+gets woken, just as the workqueue-based hack did.
+
+This is actually a nicer approach for *all* the back ends with different
+interrupt methods, and we can switch them all over to that without the
+complex conditions for when to trigger it. But not in -rc6. This is
+the minimal fix for the regression, although it's a step in the right
+direction instead of doing a partial revert and actually putting the
+workqueue back. It's also simpler than the workqueue.
+
+Fixes: 3499ba8198ca ("xen: Fix event channel callback via INTX/GSI")
+Reported-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/4c9af052a6e0f6485d1de43f2c38b1461996db99.camel@infradead.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: Salvatore Bonaccorso <carnil@debian.org>
+Cc: Jason Andryuk <jandryuk@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- Documentation/virt/kvm/api.txt |    3 +++
- virt/kvm/kvm_main.c            |    1 +
- 2 files changed, 4 insertions(+)
+ drivers/xen/xenbus/xenbus_probe.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -1132,6 +1132,9 @@ field userspace_addr, which must point a
- the entire memory slot size.  Any object may back this memory, including
- anonymous memory, ordinary files, and hugetlbfs.
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -714,6 +714,23 @@ static bool xs_hvm_defer_init_for_callba
+ #endif
+ }
  
-+On architectures that support a form of address tagging, userspace_addr must
-+be an untagged address.
++static int xenbus_probe_thread(void *unused)
++{
++	DEFINE_WAIT(w);
 +
- It is recommended that the lower 21 bits of guest_phys_addr and userspace_addr
- be identical.  This allows large pages in the guest to be backed by large
- pages in the host.
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1017,6 +1017,7 @@ int __kvm_set_memory_region(struct kvm *
- 	/* We can read the guest memory with __xxx_user() later on. */
- 	if ((id < KVM_USER_MEM_SLOTS) &&
- 	    ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
-+	     (mem->userspace_addr != untagged_addr(mem->userspace_addr)) ||
- 	     !access_ok((void __user *)(unsigned long)mem->userspace_addr,
- 			mem->memory_size)))
- 		goto out;
++	/*
++	 * We actually just want to wait for *any* trigger of xb_waitq,
++	 * and run xenbus_probe() the moment it occurs.
++	 */
++	prepare_to_wait(&xb_waitq, &w, TASK_INTERRUPTIBLE);
++	schedule();
++	finish_wait(&xb_waitq, &w);
++
++	DPRINTK("probing");
++	xenbus_probe();
++	return 0;
++}
++
+ static int __init xenbus_probe_initcall(void)
+ {
+ 	/*
+@@ -725,6 +742,20 @@ static int __init xenbus_probe_initcall(
+ 	     !xs_hvm_defer_init_for_callback()))
+ 		xenbus_probe();
+ 
++	/*
++	 * For XS_LOCAL, spawn a thread which will wait for xenstored
++	 * or a xenstore-stubdom to be started, then probe. It will be
++	 * triggered when communication starts happening, by waiting
++	 * on xb_waitq.
++	 */
++	if (xen_store_domain_type == XS_LOCAL) {
++		struct task_struct *probe_task;
++
++		probe_task = kthread_run(xenbus_probe_thread, NULL,
++					 "xenbus_probe");
++		if (IS_ERR(probe_task))
++			return PTR_ERR(probe_task);
++	}
+ 	return 0;
+ }
+ device_initcall(xenbus_probe_initcall);
 
 
