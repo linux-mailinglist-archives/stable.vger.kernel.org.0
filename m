@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF4130BFCC
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:43:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA1930BFCD
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhBBNmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:42:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34890 "EHLO mail.kernel.org"
+        id S232632AbhBBNm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:42:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232643AbhBBNkP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:40:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D84B64ECF;
-        Tue,  2 Feb 2021 13:39:34 +0000 (UTC)
+        id S232654AbhBBNkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:40:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3FC464F51;
+        Tue,  2 Feb 2021 13:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273174;
-        bh=G1vWfuPLtO+6mrl0E/X5FPQ2dhucrqI1x+BbgCjv2MQ=;
+        s=korg; t=1612273177;
+        bh=L1+JYUoKAgNua14sI2jrgxgg5JrqSalLKC6I1rdikLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qo9nlJZQW+DvEPW3CzNumCa63oUd+oMRssgo1gY6je5WMIj/NX7D/61BheoaH/sjQ
-         Icd3is9AKa/q9w/j5cf7+bQHnvijQZ9mh68U4+Scmh7v1WJER6lFiZyWrJR878NhrU
-         ySqVY15MrxoaCzJqwIiQV4mW7B9YE4d1zn65cze8=
+        b=IPnnFMvh62VidyCOgFB/BUF2u9MXwWCAGpGPxb0lUlBu0cSkKA3K95+jmPVtVv4sK
+         sp4/GiV/0o+Oj9br0q3hYm10a5FL/hEztBgHBV3FMT5U+qWznVkie4nnTJi75H/ad2
+         RKJtuvpNi26bTV+OBhyfyR1qMlVeTQ9YbjsMKgSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Ben Greear <greearb@candelatech.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Robert Hancock <hancockrwd@gmail.com>
-Subject: [PATCH 5.10 001/142] iwlwifi: provide gso_type to GSO packets
-Date:   Tue,  2 Feb 2021 14:36:04 +0100
-Message-Id: <20210202132957.752590365@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 002/142] nbd: freeze the queue while were adding connections
+Date:   Tue,  2 Feb 2021 14:36:05 +0100
+Message-Id: <20210202132957.792200554@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,49 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 81a86e1bd8e7060ebba1718b284d54f1238e9bf9 upstream.
+commit b98e762e3d71e893b221f871825dc64694cfb258 upstream.
 
-net/core/tso.c got recent support for USO, and this broke iwlfifi
-because the driver implemented a limited form of GSO.
+When setting up a device, we can krealloc the config->socks array to add
+new sockets to the configuration.  However if we happen to get a IO
+request in at this point even though we aren't setup we could hit a UAF,
+as we deref config->socks without any locking, assuming that the
+configuration was setup already and that ->socks is safe to access it as
+we have a reference on the configuration.
 
-Providing ->gso_type allows for skb_is_gso_tcp() to provide
-a correct result.
+But there's nothing really preventing IO from occurring at this point of
+the device setup, we don't want to incur the overhead of a lock to
+access ->socks when it will never change while the device is running.
+To fix this UAF scenario simply freeze the queue if we are adding
+sockets.  This will protect us from this particular case without adding
+any additional overhead for the normal running case.
 
-Fixes: 3d5b459ba0e3 ("net: tso: add UDP segmentation support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Ben Greear <greearb@candelatech.com>
-Tested-by: Ben Greear <greearb@candelatech.com>
-Cc: Luca Coelho <luciano.coelho@intel.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209913
-Link: https://lore.kernel.org/r/20210125150949.619309-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Robert Hancock <hancockrwd@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -833,6 +833,7 @@ iwl_mvm_tx_tso_segment(struct sk_buff *s
+---
+ drivers/block/nbd.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1029,6 +1029,12 @@ static int nbd_add_socket(struct nbd_dev
+ 	if (!sock)
+ 		return err;
  
- 	next = skb_gso_segment(skb, netdev_flags);
- 	skb_shinfo(skb)->gso_size = mss;
-+	skb_shinfo(skb)->gso_type = ipv4 ? SKB_GSO_TCPV4 : SKB_GSO_TCPV6;
- 	if (WARN_ON_ONCE(IS_ERR(next)))
- 		return -EINVAL;
- 	else if (next)
-@@ -855,6 +856,8 @@ iwl_mvm_tx_tso_segment(struct sk_buff *s
++	/*
++	 * We need to make sure we don't get any errant requests while we're
++	 * reallocating the ->socks array.
++	 */
++	blk_mq_freeze_queue(nbd->disk->queue);
++
+ 	if (!netlink && !nbd->task_setup &&
+ 	    !test_bit(NBD_RT_BOUND, &config->runtime_flags))
+ 		nbd->task_setup = current;
+@@ -1067,10 +1073,12 @@ static int nbd_add_socket(struct nbd_dev
+ 	nsock->cookie = 0;
+ 	socks[config->num_connections++] = nsock;
+ 	atomic_inc(&config->live_connections);
++	blk_mq_unfreeze_queue(nbd->disk->queue);
  
- 		if (tcp_payload_len > mss) {
- 			skb_shinfo(tmp)->gso_size = mss;
-+			skb_shinfo(tmp)->gso_type = ipv4 ? SKB_GSO_TCPV4 :
-+							   SKB_GSO_TCPV6;
- 		} else {
- 			if (qos) {
- 				u8 *qc;
+ 	return 0;
+ 
+ put_socket:
++	blk_mq_unfreeze_queue(nbd->disk->queue);
+ 	sockfd_put(sock);
+ 	return err;
+ }
 
 
