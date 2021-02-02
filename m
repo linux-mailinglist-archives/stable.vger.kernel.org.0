@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1380A30C7DE
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1DE30C282
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237629AbhBBRda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:33:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49686 "EHLO mail.kernel.org"
+        id S234113AbhBBOw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:52:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234062AbhBBOMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A576665048;
-        Tue,  2 Feb 2021 13:52:47 +0000 (UTC)
+        id S234074AbhBBOR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D3D64FC4;
+        Tue,  2 Feb 2021 13:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273968;
-        bh=u5+SVb4jKMMRYppbYEVPTy26a85mU/Njb4W2GRVbxYI=;
+        s=korg; t=1612274075;
+        bh=9z8sRYi4sOtok/CVTnuvpe7ZhNGC2JaRLD2raxxM3j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z48vKsfo7kuABmXg+3fH2hZTHxmGr62mb8C5srDDU8Wedmgg6LYWXGBX1S+dcqad2
-         mfq+2tHhhw19qSgHW8DZ5uWAdtKiEkYu6p07yv6CPySX9evj5ZcvrkkYRxMbaf8GAQ
-         mvuX+bFrdIy2wSWuubC46RhWcuSKwExLaDnXMycs=
+        b=LZiuDaXwHzVY2CiJc+B36HgKjMAegsLbn3zPSTwujCrnkG6bkKTBEu3XHnv8DuDFB
+         vkupLc6AgVwSHt2ZDtwYbafd8itP608zQIyH+kyJoKvUTvImjwvoUbeUMckYLsqW2q
+         3koiNKcKoI6M10sn46ZtyBpUThw2NpI7oYrD+MnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/30] mac80211: pause TX while changing interface type
+        stable@vger.kernel.org, Arthur Borsboom <arthurborsboom@gmail.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 19/37] xen-blkfront: allow discard-* nodes to be optional
 Date:   Tue,  2 Feb 2021 14:39:02 +0100
-Message-Id: <20210202132943.012153860@linuxfoundation.org>
+Message-Id: <20210202132943.702085781@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-[ Upstream commit 054c9939b4800a91475d8d89905827bf9e1ad97a ]
+commit 0549cd67b01016b579047bce045b386202a8bcfc upstream.
 
-syzbot reported a crash that happened when changing the interface
-type around a lot, and while it might have been easy to fix just
-the symptom there, a little deeper investigation found that really
-the reason is that we allowed packets to be transmitted while in
-the middle of changing the interface type.
+This is inline with the specification described in blkif.h:
 
-Disallow TX by stopping the queues while changing the type.
+ * discard-granularity: should be set to the physical block size if
+   node is not present.
+ * discard-alignment, discard-secure: should be set to 0 if node not
+   present.
 
-Fixes: 34d4bc4d41d2 ("mac80211: support runtime interface type changes")
-Reported-by: syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20210122171115.b321f98f4d4f.I6997841933c17b093535c31d29355be3c0c39628@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was detected as QEMU would only create the discard-granularity
+node but not discard-alignment, and thus the setup done in
+blkfront_setup_discard would fail.
+
+Fix blkfront_setup_discard to not fail on missing nodes, and also fix
+blkif_set_queue_limits to set the discard granularity to the physical
+block size if none is specified in xenbus.
+
+Fixes: ed30bf317c5ce ('xen-blkfront: Handle discard requests.')
+Reported-by: Arthur Borsboom <arthurborsboom@gmail.com>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Tested-By: Arthur Borsboom <arthurborsboom@gmail.com>
+Link: https://lore.kernel.org/r/20210119105727.95173-1-roger.pau@citrix.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/mac80211/ieee80211_i.h | 1 +
- net/mac80211/iface.c       | 6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/block/xen-blkfront.c |   20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 0e209a88d88a7..651705565dfb9 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1047,6 +1047,7 @@ enum queue_stop_reason {
- 	IEEE80211_QUEUE_STOP_REASON_FLUSH,
- 	IEEE80211_QUEUE_STOP_REASON_TDLS_TEARDOWN,
- 	IEEE80211_QUEUE_STOP_REASON_RESERVE_TID,
-+	IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE,
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -936,7 +936,8 @@ static void blkif_set_queue_limits(struc
+ 	if (info->feature_discard) {
+ 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, rq);
+ 		blk_queue_max_discard_sectors(rq, get_capacity(gd));
+-		rq->limits.discard_granularity = info->discard_granularity;
++		rq->limits.discard_granularity = info->discard_granularity ?:
++						 info->physical_sector_size;
+ 		rq->limits.discard_alignment = info->discard_alignment;
+ 		if (info->feature_secdiscard)
+ 			blk_queue_flag_set(QUEUE_FLAG_SECERASE, rq);
+@@ -2169,19 +2170,12 @@ static void blkfront_closing(struct blkf
  
- 	IEEE80211_QUEUE_STOP_REASONS,
- };
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 6ce13e976b7a2..dc398a1816788 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1559,6 +1559,10 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	if (ret)
- 		return ret;
- 
-+	ieee80211_stop_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
-+	synchronize_net();
-+
- 	ieee80211_do_stop(sdata, false);
- 
- 	ieee80211_teardown_sdata(sdata);
-@@ -1579,6 +1583,8 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	err = ieee80211_do_open(&sdata->wdev, false);
- 	WARN(err, "type change: do_open returned %d", err);
- 
-+	ieee80211_wake_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
- 	return ret;
- }
- 
--- 
-2.27.0
-
+ static void blkfront_setup_discard(struct blkfront_info *info)
+ {
+-	int err;
+-	unsigned int discard_granularity;
+-	unsigned int discard_alignment;
+-
+ 	info->feature_discard = 1;
+-	err = xenbus_gather(XBT_NIL, info->xbdev->otherend,
+-		"discard-granularity", "%u", &discard_granularity,
+-		"discard-alignment", "%u", &discard_alignment,
+-		NULL);
+-	if (!err) {
+-		info->discard_granularity = discard_granularity;
+-		info->discard_alignment = discard_alignment;
+-	}
++	info->discard_granularity = xenbus_read_unsigned(info->xbdev->otherend,
++							 "discard-granularity",
++							 0);
++	info->discard_alignment = xenbus_read_unsigned(info->xbdev->otherend,
++						       "discard-alignment", 0);
+ 	info->feature_secdiscard =
+ 		!!xenbus_read_unsigned(info->xbdev->otherend, "discard-secure",
+ 				       0);
 
 
