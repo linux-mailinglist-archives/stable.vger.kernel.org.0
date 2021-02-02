@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF0330C95C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766DB30C87E
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238258AbhBBSQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S237780AbhBBRvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:51:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233688AbhBBOGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:06:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7646F6501D;
-        Tue,  2 Feb 2021 13:49:17 +0000 (UTC)
+        id S233972AbhBBOJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:09:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89DE56503B;
+        Tue,  2 Feb 2021 13:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273758;
-        bh=ecQa8LHiurxs3y103kI0B0ZtaKy0+Ngq7af/JCuEj4E=;
+        s=korg; t=1612273831;
+        bh=yGyz2xjtcIhzcMx2wl3FUVaQGrBfGbphDwVDkdXw6Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLaTUhdUBpIHnK5P7XDqEnMhV+EGoVFJ5pKhm2g1I4EEANQmkTKFnDeuaAVXVWf3C
-         a2Kl4N0cc+yg09lzShQ8vrQop2ThEkuWzWBBUEmmuAhA6oNdRO7xtLb/xWf5RcMIOr
-         8suRbMpeXgaFGeQKx25AvGTXXzXKwWIzFbyVOS+0=
+        b=ljE+vBXqux8jJHD15Ll21gLtgyZBOf9+/EfraU8QF8DE9iH6AZVjW6ba4hARtEKdy
+         ZZnWhZhPoFiYGobOfMyPOd2/he0nLWY4OQ7JPYUXD63ecqHCHyt90jtr/uhGMwNiaX
+         yBSzRqp2Ct7ap6aNLCA6/iZkjPo1JbL4fXV36waI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.4 19/28] ARM: imx: build suspend-imx6.S with arm instruction set
-Date:   Tue,  2 Feb 2021 14:38:39 +0100
-Message-Id: <20210202132941.954448448@linuxfoundation.org>
+        stable@vger.kernel.org, Jay Zhou <jianjay.zhou@huawei.com>,
+        Shengen Zhuang <zhuangshengen@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 17/32] KVM: x86: get smi pending status correctly
+Date:   Tue,  2 Feb 2021 14:38:40 +0100
+Message-Id: <20210202132942.708400898@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
+References: <20210202132942.035179752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Krummenacher <max.oss.09@gmail.com>
+From: Jay Zhou <jianjay.zhou@huawei.com>
 
-commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
+commit 1f7becf1b7e21794fc9d460765fe09679bc9b9e0 upstream.
 
-When the kernel is configured to use the Thumb-2 instruction set
-"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
-(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
+The injection process of smi has two steps:
 
-It looks like the CPU resumes unconditionally in ARM instruction mode
-and then chokes on the presented Thumb-2 code it should execute.
+    Qemu                        KVM
+Step1:
+    cpu->interrupt_request &= \
+        ~CPU_INTERRUPT_SMI;
+    kvm_vcpu_ioctl(cpu, KVM_SMI)
 
-Fix this by using the arm instruction set for all code in
-suspend-imx6.S.
+                                call kvm_vcpu_ioctl_smi() and
+                                kvm_make_request(KVM_REQ_SMI, vcpu);
 
-Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
-Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
-Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Step2:
+    kvm_vcpu_ioctl(cpu, KVM_RUN, 0)
+
+                                call process_smi() if
+                                kvm_check_request(KVM_REQ_SMI, vcpu) is
+                                true, mark vcpu->arch.smi_pending = true;
+
+The vcpu->arch.smi_pending will be set true in step2, unfortunately if
+vcpu paused between step1 and step2, the kvm_run->immediate_exit will be
+set and vcpu has to exit to Qemu immediately during step2 before mark
+vcpu->arch.smi_pending true.
+During VM migration, Qemu will get the smi pending status from KVM using
+KVM_GET_VCPU_EVENTS ioctl at the downtime, then the smi pending status
+will be lost.
+
+Signed-off-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Shengen Zhuang <zhuangshengen@huawei.com>
+Message-Id: <20210118084720.1585-1-jianjay.zhou@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/suspend-imx6.S |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/x86.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/arm/mach-imx/suspend-imx6.S
-+++ b/arch/arm/mach-imx/suspend-imx6.S
-@@ -73,6 +73,7 @@
- #define MX6Q_CCM_CCR	0x0
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -97,6 +97,7 @@ static u64 __read_mostly efer_reserved_b
  
- 	.align 3
-+	.arm
+ static void update_cr8_intercept(struct kvm_vcpu *vcpu);
+ static void process_nmi(struct kvm_vcpu *vcpu);
++static void process_smi(struct kvm_vcpu *vcpu);
+ static void enter_smm(struct kvm_vcpu *vcpu);
+ static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
  
- 	.macro  sync_l2_cache
- 
+@@ -3199,6 +3200,10 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_
+ 					       struct kvm_vcpu_events *events)
+ {
+ 	process_nmi(vcpu);
++
++	if (kvm_check_request(KVM_REQ_SMI, vcpu))
++		process_smi(vcpu);
++
+ 	events->exception.injected =
+ 		vcpu->arch.exception.pending &&
+ 		!kvm_exception_is_soft(vcpu->arch.exception.nr);
 
 
