@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A46630CAAC
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4123F30CBCD
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239065AbhBBS4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:56:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46314 "EHLO mail.kernel.org"
+        id S239854AbhBBTgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233537AbhBBOBi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:01:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1B4F64FFD;
-        Tue,  2 Feb 2021 13:47:16 +0000 (UTC)
+        id S233234AbhBBN4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BEC064F6B;
+        Tue,  2 Feb 2021 13:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273637;
-        bh=4SVKmwjqH7ZGQkrtA8K5tUcZDi/m0sGJKXYr67krFc8=;
+        s=korg; t=1612273507;
+        bh=77fH4ir+qYNGujIE/PKGs6HEIr3ObITTqjXTY6e108c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hkgd0kDe2ctxjiCTCaBzw5+ZvXm5U1zCuXyV4JblPdUr9fzofK0ATQ+Alugw+MiCb
-         k8yIkzge90LO4lUGy7rWQLalJFPj6UdWAmxo0zKGU58OaDhRQoMmfa5K8E+oLOaQtd
-         zyLtgduR6wibXslQCjJr73lDoPrV2/VHxjVrkorY=
+        b=XQBlbi6bsJJigM7E1qnS/9BB9PkdCL6wYQKyY59hJtR4LGy6lyt6fCLu9j4VUCEao
+         iOcBqePRm9wt/iOzbN7i6Fg7G4wkr7opUEcUYCkGiLuN1FYIFhvtR3t+I4aI6VJZ15
+         382j6Yqy9VSbY7L2QRLZ69bf4kUaHVYrqkgiLtC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Visa Hankala <visa@hankala.org>,
-        Florian Westphal <fw@strlen.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/61] xfrm: Fix wraparound in xfrm_policy_addr_delta()
-Date:   Tue,  2 Feb 2021 14:38:14 +0100
-Message-Id: <20210202132947.992415183@linuxfoundation.org>
+        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 132/142] rxrpc: Fix memory leak in rxrpc_lookup_local
+Date:   Tue,  2 Feb 2021 14:38:15 +0100
+Message-Id: <20210202133003.139083187@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,139 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Visa Hankala <visa@hankala.org>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-[ Upstream commit da64ae2d35d3673233f0403b035d4c6acbf71965 ]
+commit b8323f7288abd71794cd7b11a4c0a38b8637c8b5 upstream.
 
-Use three-way comparison for address components to avoid integer
-wraparound in the result of xfrm_policy_addr_delta(). This ensures
-that the search trees are built and traversed correctly.
+Commit 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
+Then release ref in __rxrpc_put_peer and rxrpc_put_peer_locked.
 
-Treat IPv4 and IPv6 similarly by returning 0 when prefixlen == 0.
-Prefix /0 has only one equivalence class.
+	struct rxrpc_peer *rxrpc_alloc_peer(struct rxrpc_local *local, gfp_t gfp)
+	-               peer->local = local;
+	+               peer->local = rxrpc_get_local(local);
 
-Fixes: 9cf545ebd591d ("xfrm: policy: store inexact policies in a tree ordered by destination address")
-Signed-off-by: Visa Hankala <visa@hankala.org>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+rxrpc_discard_prealloc also need ref release in discarding.
+
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff8881080ddc00 (size 256):
+  comm "syz-executor339", pid 8462, jiffies 4294942238 (age 12.350s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 0a 00 00 00 00 c0 00 08 81 88 ff ff  ................
+  backtrace:
+    [<000000002b6e495f>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000002b6e495f>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000002b6e495f>] rxrpc_alloc_local net/rxrpc/local_object.c:79 [inline]
+    [<000000002b6e495f>] rxrpc_lookup_local+0x1c1/0x760 net/rxrpc/local_object.c:244
+    [<000000006b43a77b>] rxrpc_bind+0x174/0x240 net/rxrpc/af_rxrpc.c:149
+    [<00000000fd447a55>] afs_open_socket+0xdb/0x200 fs/afs/rxrpc.c:64
+    [<000000007fd8867c>] afs_net_init+0x2b4/0x340 fs/afs/main.c:126
+    [<0000000063d80ec1>] ops_init+0x4e/0x190 net/core/net_namespace.c:152
+    [<00000000073c5efa>] setup_net+0xde/0x2d0 net/core/net_namespace.c:342
+    [<00000000a6744d5b>] copy_net_ns+0x19f/0x3e0 net/core/net_namespace.c:483
+    [<0000000017d3aec3>] create_new_namespaces+0x199/0x4f0 kernel/nsproxy.c:110
+    [<00000000186271ef>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<000000002de7bac4>] ksys_unshare+0x2fe/0x5c0 kernel/fork.c:2957
+    [<00000000349b12ba>] __do_sys_unshare kernel/fork.c:3025 [inline]
+    [<00000000349b12ba>] __se_sys_unshare kernel/fork.c:3023 [inline]
+    [<00000000349b12ba>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3023
+    [<000000006d178ef7>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+    [<00000000637076d4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Reported-and-tested-by: syzbot+305326672fed51b205f7@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/r/161183091692.3506637.3206605651502458810.stgit@warthog.procyon.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/xfrm/xfrm_policy.c                     | 26 +++++++++----
- tools/testing/selftests/net/xfrm_policy.sh | 43 ++++++++++++++++++++++
- 2 files changed, 61 insertions(+), 8 deletions(-)
+ net/rxrpc/call_accept.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 780e96f0708e2..32c8163427970 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -790,15 +790,22 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
- 				  const xfrm_address_t *b,
- 				  u8 prefixlen, u16 family)
- {
-+	u32 ma, mb, mask;
- 	unsigned int pdw, pbi;
- 	int delta = 0;
- 
- 	switch (family) {
- 	case AF_INET:
--		if (sizeof(long) == 4 && prefixlen == 0)
--			return ntohl(a->a4) - ntohl(b->a4);
--		return (ntohl(a->a4) & ((~0UL << (32 - prefixlen)))) -
--		       (ntohl(b->a4) & ((~0UL << (32 - prefixlen))));
-+		if (prefixlen == 0)
-+			return 0;
-+		mask = ~0U << (32 - prefixlen);
-+		ma = ntohl(a->a4) & mask;
-+		mb = ntohl(b->a4) & mask;
-+		if (ma < mb)
-+			delta = -1;
-+		else if (ma > mb)
-+			delta = 1;
-+		break;
- 	case AF_INET6:
- 		pdw = prefixlen >> 5;
- 		pbi = prefixlen & 0x1f;
-@@ -809,10 +816,13 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
- 				return delta;
- 		}
- 		if (pbi) {
--			u32 mask = ~0u << (32 - pbi);
--
--			delta = (ntohl(a->a6[pdw]) & mask) -
--				(ntohl(b->a6[pdw]) & mask);
-+			mask = ~0U << (32 - pbi);
-+			ma = ntohl(a->a6[pdw]) & mask;
-+			mb = ntohl(b->a6[pdw]) & mask;
-+			if (ma < mb)
-+				delta = -1;
-+			else if (ma > mb)
-+				delta = 1;
- 		}
- 		break;
- 	default:
-diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
-index 5922941e70c6c..bdf450eaf60cf 100755
---- a/tools/testing/selftests/net/xfrm_policy.sh
-+++ b/tools/testing/selftests/net/xfrm_policy.sh
-@@ -287,6 +287,47 @@ check_hthresh_repeat()
- 	return 0
- }
- 
-+# insert non-overlapping policies in a random order and check that
-+# all of them can be fetched using the traffic selectors.
-+check_random_order()
-+{
-+	local ns=$1
-+	local log=$2
-+
-+	for i in $(seq 100); do
-+		ip -net $ns xfrm policy flush
-+		for j in $(seq 0 16 255 | sort -R); do
-+			ip -net $ns xfrm policy add dst $j.0.0.0/24 dir out priority 10 action allow
-+		done
-+		for j in $(seq 0 16 255); do
-+			if ! ip -net $ns xfrm policy get dst $j.0.0.0/24 dir out > /dev/null; then
-+				echo "FAIL: $log" 1>&2
-+				return 1
-+			fi
-+		done
-+	done
-+
-+	for i in $(seq 100); do
-+		ip -net $ns xfrm policy flush
-+		for j in $(seq 0 16 255 | sort -R); do
-+			local addr=$(printf "e000:0000:%02x00::/56" $j)
-+			ip -net $ns xfrm policy add dst $addr dir out priority 10 action allow
-+		done
-+		for j in $(seq 0 16 255); do
-+			local addr=$(printf "e000:0000:%02x00::/56" $j)
-+			if ! ip -net $ns xfrm policy get dst $addr dir out > /dev/null; then
-+				echo "FAIL: $log" 1>&2
-+				return 1
-+			fi
-+		done
-+	done
-+
-+	ip -net $ns xfrm policy flush
-+
-+	echo "PASS: $log"
-+	return 0
-+}
-+
- #check for needed privileges
- if [ "$(id -u)" -ne 0 ];then
- 	echo "SKIP: Need root privileges"
-@@ -438,6 +479,8 @@ check_exceptions "exceptions and block policies after htresh change to normal"
- 
- check_hthresh_repeat "policies with repeated htresh change"
- 
-+check_random_order ns3 "policies inserted in random order"
-+
- for i in 1 2 3 4;do ip netns del ns$i;done
- 
- exit $ret
--- 
-2.27.0
-
+--- a/net/rxrpc/call_accept.c
++++ b/net/rxrpc/call_accept.c
+@@ -197,6 +197,7 @@ void rxrpc_discard_prealloc(struct rxrpc
+ 	tail = b->peer_backlog_tail;
+ 	while (CIRC_CNT(head, tail, size) > 0) {
+ 		struct rxrpc_peer *peer = b->peer_backlog[tail];
++		rxrpc_put_local(peer->local);
+ 		kfree(peer);
+ 		tail = (tail + 1) & (size - 1);
+ 	}
 
 
