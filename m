@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B5EA30C879
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 019CA30C80D
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237758AbhBBRvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:51:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
+        id S234011AbhBBRj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:39:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233754AbhBBOJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:09:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3444164F99;
-        Tue,  2 Feb 2021 13:50:58 +0000 (UTC)
+        id S234024AbhBBOM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:12:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 328C564FB3;
+        Tue,  2 Feb 2021 13:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273858;
-        bh=2ZQdflJ0IRcFyn4Mg7yQRUPkfdekW4o3Inms5uQK7QY=;
+        s=korg; t=1612273937;
+        bh=ap8D5h2Uoo5QL65hGFaPloFqwO29iOjT17jgglPdjHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFdCzzslt4x6fdcXeL1S30qzRGRGPjwBVGSAS0+ol7H/DZ7pOB34Mq8R2K7v5apSn
-         xV/vOcmvFJpUSXBcko91drEQd4/07Hkx0/CrtwZy7m0g9kT6xO3F4k3GHEwRbqx8aR
-         xEE9S5uKLLBq6tYlkqO9CMQNv0WPMH3F0V2LzwpY=
+        b=xw5ORjEzf2rNx97yqKRfGX3TmanO5pnhtq9PZAKxKIB7Z2VhUH4bZ4GBpaet5BNyQ
+         3rHjXnKuaQvvHC+32BD3G7R4dqWTxHnp/ztthFoJXAMJ5nWXJe+KYXTWHSDtKVi81S
+         5c4q2iP30eKowb83QlXzq2e36dOrjQXljmIdCreA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/32] iwlwifi: pcie: reschedule in long-running memory reads
-Date:   Tue,  2 Feb 2021 14:38:49 +0100
-Message-Id: <20210202132943.060104477@linuxfoundation.org>
+        stable@vger.kernel.org, Jay Zhou <jianjay.zhou@huawei.com>,
+        Shengen Zhuang <zhuangshengen@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 09/30] KVM: x86: get smi pending status correctly
+Date:   Tue,  2 Feb 2021 14:38:50 +0100
+Message-Id: <20210202132942.516085515@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jay Zhou <jianjay.zhou@huawei.com>
 
-[ Upstream commit 3d372c4edfd4dffb7dea71c6b096fb414782b776 ]
+commit 1f7becf1b7e21794fc9d460765fe09679bc9b9e0 upstream.
 
-If we spin for a long time in memory reads that (for some reason in
-hardware) take a long time, then we'll eventually get messages such
-as
+The injection process of smi has two steps:
 
-  watchdog: BUG: soft lockup - CPU#2 stuck for 24s! [kworker/2:2:272]
+    Qemu                        KVM
+Step1:
+    cpu->interrupt_request &= \
+        ~CPU_INTERRUPT_SMI;
+    kvm_vcpu_ioctl(cpu, KVM_SMI)
 
-This is because the reading really does take a very long time, and
-we don't schedule, so we're hogging the CPU with this task, at least
-if CONFIG_PREEMPT is not set, e.g. with CONFIG_PREEMPT_VOLUNTARY=y.
+                                call kvm_vcpu_ioctl_smi() and
+                                kvm_make_request(KVM_REQ_SMI, vcpu);
 
-Previously I misinterpreted the situation and thought that this was
-only going to happen if we had interrupts disabled, and then fixed
-this (which is good anyway, however), but that didn't always help;
-looking at it again now I realized that the spin unlock will only
-reschedule if CONFIG_PREEMPT is used.
+Step2:
+    kvm_vcpu_ioctl(cpu, KVM_RUN, 0)
 
-In order to avoid this issue, change the code to cond_resched() if
-we've been spinning for too long here.
+                                call process_smi() if
+                                kvm_check_request(KVM_REQ_SMI, vcpu) is
+                                true, mark vcpu->arch.smi_pending = true;
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 04516706bb99 ("iwlwifi: pcie: limit memory read spin time")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130253.217a9d6a6a12.If964cb582ab0aaa94e81c4ff3b279eaafda0fd3f@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The vcpu->arch.smi_pending will be set true in step2, unfortunately if
+vcpu paused between step1 and step2, the kvm_run->immediate_exit will be
+set and vcpu has to exit to Qemu immediately during step2 before mark
+vcpu->arch.smi_pending true.
+During VM migration, Qemu will get the smi pending status from KVM using
+KVM_GET_VCPU_EVENTS ioctl at the downtime, then the smi pending status
+will be lost.
+
+Signed-off-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Shengen Zhuang <zhuangshengen@huawei.com>
+Message-Id: <20210118084720.1585-1-jianjay.zhou@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index ed90f46626e7d..71edbf7a42ed4 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -1910,6 +1910,7 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 	while (offs < dwords) {
- 		/* limit the time we spin here under lock to 1/2s */
- 		unsigned long end = jiffies + HZ / 2;
-+		bool resched = false;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -98,6 +98,7 @@ static u64 __read_mostly efer_reserved_b
  
- 		if (iwl_trans_grab_nic_access(trans, &flags)) {
- 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
-@@ -1920,10 +1921,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 							HBUS_TARG_MEM_RDAT);
- 				offs++;
+ static void update_cr8_intercept(struct kvm_vcpu *vcpu);
+ static void process_nmi(struct kvm_vcpu *vcpu);
++static void process_smi(struct kvm_vcpu *vcpu);
+ static void enter_smm(struct kvm_vcpu *vcpu);
+ static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
  
--				if (time_after(jiffies, end))
-+				if (time_after(jiffies, end)) {
-+					resched = true;
- 					break;
-+				}
- 			}
- 			iwl_trans_release_nic_access(trans, &flags);
+@@ -3290,6 +3291,10 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_
+ 					       struct kvm_vcpu_events *events)
+ {
+ 	process_nmi(vcpu);
 +
-+			if (resched)
-+				cond_resched();
- 		} else {
- 			return -EBUSY;
- 		}
--- 
-2.27.0
-
++	if (kvm_check_request(KVM_REQ_SMI, vcpu))
++		process_smi(vcpu);
++
+ 	/*
+ 	 * FIXME: pass injected and pending separately.  This is only
+ 	 * needed for nested virtualization, whose state cannot be
 
 
