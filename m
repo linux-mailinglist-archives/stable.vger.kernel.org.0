@@ -2,66 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F21030B853
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 08:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC1430B86A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 08:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbhBBHFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 02:05:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51138 "EHLO mail.kernel.org"
+        id S231395AbhBBHKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 02:10:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58388 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232222AbhBBHCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 02:02:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46E8264EDF;
-        Tue,  2 Feb 2021 07:00:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612249256;
-        bh=Sx91zXS5CZ2NCFm3joeQvkrfBaSq7Dz4/hhWtEtu4R4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PcVPk7bd6st8hJE1dMfrGQttc63UAXOr22gtcYkwt3I59ZNfBh1Br43xIUol7TVYX
-         aqRGj85hYZKxuPp6cc5EMXLVOHCnn2JR7+fIfx6lhKzs0oN890SINZpTXlMK++Xna8
-         FMi7Nsqp7GFyTYkbDj9LL01UTUibTBYoalIZprgM=
-Date:   Tue, 2 Feb 2021 08:00:53 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc:     Mathias Nyman <mathias.nyman@intel.com>,
-        Ikjoon Jang <ikjn@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Zhanyong Wang <zhanyong.wang@mediatek.com>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [next v2 PATCH] usb: xhci-mtk: skip dropping bandwidth of
- unchecked endpoints
-Message-ID: <YBj4pfN7iq+U4zW2@kroah.com>
-References: <1612247298-4654-1-git-send-email-chunfeng.yun@mediatek.com>
+        id S231158AbhBBHK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 02:10:28 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1612249781; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=1tpaqvOitmoTdUOKCltTkXQMrQMduhfR/V/K0TJ91jk=;
+        b=pbaIptIDBcZvfobat6HNoXje6mR3kf8+MuWpibPjXaHBmoQvt3LBZ1S4k+WfN+6v3yXqqG
+        CnLh7G8uXWy5d/2yQhTslehE4QmbeheYR1UmRM7pfxMgd1ZiuvafUH6s9i4k7bnpbVZHHm
+        wGiaWxu3itzFTHNe0z01xg0UqKte3eQ=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 46D2EACB7;
+        Tue,  2 Feb 2021 07:09:41 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Igor Druzhinin <igor.druzhinin@citrix.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] xen/netback: avoid race in xenvif_rx_ring_slots_available()
+Date:   Tue,  2 Feb 2021 08:09:38 +0100
+Message-Id: <20210202070938.7863-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1612247298-4654-1-git-send-email-chunfeng.yun@mediatek.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 02, 2021 at 02:28:18PM +0800, Chunfeng Yun wrote:
-> For those unchecked endpoints, we don't allocate bandwidth for
-> them, so no need free the bandwidth, otherwise will decrease
-> the allocated bandwidth.
-> Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
-> rename bw_ep_list_new as bw_ep_chk_list.
-> 
-> Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-> Tested-by: Ikjoon Jang <ikjn@chromium.org>
-> Reviewed-by: Ikjoon Jang <ikjn@chromium.org>
-> ---
-> v2: add 'break' when find the ep that will be dropped suggested by Ikjoon
->     add Tested-by and Reviewed-by Ikjoon
+Since commit 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
+xenvif_rx_ring_slots_available() is no longer called only from the rx
+queue kernel thread, so it needs to access the rx queue with the
+associated queue held.
 
-As v1 is already in my public tree, please send a follow-on patch that
-fixes it instead.
+Reported-by: Igor Druzhinin <igor.druzhinin@citrix.com>
+Fixes: 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/net/xen-netback/rx.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-thanks,
+diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
+index b8febe1d1bfd..accc991d153f 100644
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -38,10 +38,15 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	RING_IDX prod, cons;
+ 	struct sk_buff *skb;
+ 	int needed;
++	unsigned long flags;
++
++	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
+ 	skb = skb_peek(&queue->rx_queue);
+-	if (!skb)
++	if (!skb) {
++		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+ 		return false;
++	}
+ 
+ 	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
+ 	if (skb_is_gso(skb))
+@@ -49,6 +54,8 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	if (skb->sw_hash)
+ 		needed++;
+ 
++	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++
+ 	do {
+ 		prod = queue->rx.sring->req_prod;
+ 		cons = queue->rx.req_cons;
+-- 
+2.26.2
 
-greg k-h
