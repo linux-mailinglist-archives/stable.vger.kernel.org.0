@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 332EC30C90D
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1A430C0C3
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233910AbhBBSId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:08:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
+        id S233663AbhBBOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233497AbhBBOHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:07:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1955A65027;
-        Tue,  2 Feb 2021 13:49:59 +0000 (UTC)
+        id S233782AbhBBOEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04DDE6500E;
+        Tue,  2 Feb 2021 13:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273800;
-        bh=hyfK2C2DOKKNf8b/N+uiLkGuL7trXedvqwNNhcElq9g=;
+        s=korg; t=1612273705;
+        bh=tehAe5XJq8eq5n3BX1EeZBJNG/mUtRjfEKRDFZvSac0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFnkOkSJ9nkHIQEJQV/MKNLM3fa7tm8Ni4RZ8gM9Ze8fHKVO3cnHz7uVG/2tfX4KK
-         ev9O4ONNx6EzY46rTBQ+cUZtb6+PBBqSt32br1A83zkOuT0VF9lP4OT03nOXyirp2l
-         P6SF7xMjz93giklD4ey/AW5GT0TE/a3kJAqjKLh4=
+        b=qeTN1jOTa1j8f8W4Qjdy6WPtkzD7lIJlWRCJgM+9UMlC5AUU0/wryLRqlF3Np9bjk
+         7k31Amruj/t7i1EuigXCoq4PhRHA0v8JKG88ouZLXqABcLhNh7EQtexSzvcUAQO1tA
+         /Uyoa3Vmjs+KpDxENMWZRrdctu0GjiLeG68ok7H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 08/28] futex: Move futex exit handling into futex code
-Date:   Tue,  2 Feb 2021 14:38:28 +0100
-Message-Id: <20210202132941.528485192@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 51/61] can: dev: prevent potential information leak in can_fill_info()
+Date:   Tue,  2 Feb 2021 14:38:29 +0100
+Message-Id: <20210202132948.642122281@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,185 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit ba31c1a48538992316cc71ce94fa9cd3e7b427c0 upstream.
+[ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
 
-The futex exit handling is #ifdeffed into mm_release() which is not pretty
-to begin with. But upcoming changes to address futex exit races need to add
-more functionality to this exit code.
+The "bec" struct isn't necessarily always initialized. For example, the
+mcp251xfd_get_berr_counter() function doesn't initialize anything if the
+interface is down.
 
-Split it out into a function, move it into futex code and make the various
-futex exit functions static.
-
-Preparatory only and no functional change.
-
-Folded build fix from Borislav.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.049705556@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 52c793f24054 ("can: netlink support for bus-error reporting and counters")
+Link: https://lore.kernel.org/r/YAkaRdRJncsJO8Ve@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compat.h |    2 --
- include/linux/futex.h  |   24 +++++++++++++++++-------
- kernel/fork.c          |   25 +++----------------------
- kernel/futex.c         |   28 ++++++++++++++++++++++++++--
- 4 files changed, 46 insertions(+), 33 deletions(-)
+ drivers/net/can/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -306,8 +306,6 @@ struct compat_kexec_segment;
- struct compat_mq_attr;
- struct compat_msgbuf;
- 
--extern void compat_exit_robust_list(struct task_struct *curr);
--
- asmlinkage long
- compat_sys_set_robust_list(struct compat_robust_list_head __user *head,
- 			   compat_size_t len);
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -1,6 +1,8 @@
- #ifndef _LINUX_FUTEX_H
- #define _LINUX_FUTEX_H
- 
-+#include <linux/sched.h>
-+
- #include <uapi/linux/futex.h>
- 
- struct inode;
-@@ -53,14 +55,22 @@ union futex_key {
- #define FUTEX_KEY_INIT (union futex_key) { .both = { .ptr = 0ULL } }
- 
- #ifdef CONFIG_FUTEX
--extern void exit_robust_list(struct task_struct *curr);
--extern void exit_pi_state_list(struct task_struct *curr);
--#else
--static inline void exit_robust_list(struct task_struct *curr)
--{
--}
--static inline void exit_pi_state_list(struct task_struct *curr)
-+static inline void futex_init_task(struct task_struct *tsk)
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 247aeacb3a440..2ae9feb99a07d 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -1134,7 +1134,7 @@ static int can_fill_info(struct sk_buff *skb, const struct net_device *dev)
  {
-+	tsk->robust_list = NULL;
-+#ifdef CONFIG_COMPAT
-+	tsk->compat_robust_list = NULL;
-+#endif
-+	INIT_LIST_HEAD(&tsk->pi_state_list);
-+	tsk->pi_state_cache = NULL;
- }
-+
-+void futex_mm_release(struct task_struct *tsk);
-+
-+long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
-+	      u32 __user *uaddr2, u32 val2, u32 val3);
-+#else
-+static inline void futex_init_task(struct task_struct *tsk) { }
-+static inline void futex_mm_release(struct task_struct *tsk) { }
- #endif
- #endif
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -890,20 +890,7 @@ static int wait_for_vfork_done(struct ta
- void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
- 	/* Get rid of any futexes when releasing the mm */
--#ifdef CONFIG_FUTEX
--	if (unlikely(tsk->robust_list)) {
--		exit_robust_list(tsk);
--		tsk->robust_list = NULL;
--	}
--#ifdef CONFIG_COMPAT
--	if (unlikely(tsk->compat_robust_list)) {
--		compat_exit_robust_list(tsk);
--		tsk->compat_robust_list = NULL;
--	}
--#endif
--	if (unlikely(!list_empty(&tsk->pi_state_list)))
--		exit_pi_state_list(tsk);
--#endif
-+	futex_mm_release(tsk);
+ 	struct can_priv *priv = netdev_priv(dev);
+ 	struct can_ctrlmode cm = {.flags = priv->ctrlmode};
+-	struct can_berr_counter bec;
++	struct can_berr_counter bec = { };
+ 	enum can_state state = priv->state;
  
- 	uprobe_free_utask(tsk);
- 
-@@ -1511,14 +1498,8 @@ static struct task_struct *copy_process(
- #ifdef CONFIG_BLOCK
- 	p->plug = NULL;
- #endif
--#ifdef CONFIG_FUTEX
--	p->robust_list = NULL;
--#ifdef CONFIG_COMPAT
--	p->compat_robust_list = NULL;
--#endif
--	INIT_LIST_HEAD(&p->pi_state_list);
--	p->pi_state_cache = NULL;
--#endif
-+	futex_init_task(p);
-+
- 	/*
- 	 * sigaltstack should be cleared when sharing the same VM
- 	 */
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -331,6 +331,12 @@ static inline bool should_fail_futex(boo
- }
- #endif /* CONFIG_FAIL_FUTEX */
- 
-+#ifdef CONFIG_COMPAT
-+static void compat_exit_robust_list(struct task_struct *curr);
-+#else
-+static inline void compat_exit_robust_list(struct task_struct *curr) { }
-+#endif
-+
- static inline void futex_get_mm(union futex_key *key)
- {
- 	atomic_inc(&key->private.mm->mm_count);
-@@ -889,7 +895,7 @@ static struct task_struct * futex_find_g
-  * Kernel cleans up PI-state, but userspace is likely hosed.
-  * (Robust-futex cleanup is separate and might save the day for userspace.)
-  */
--void exit_pi_state_list(struct task_struct *curr)
-+static void exit_pi_state_list(struct task_struct *curr)
- {
- 	struct list_head *next, *head = &curr->pi_state_list;
- 	struct futex_pi_state *pi_state;
-@@ -3166,7 +3172,7 @@ static inline int fetch_robust_entry(str
-  *
-  * We silently return on any sign of list-walking problem.
-  */
--void exit_robust_list(struct task_struct *curr)
-+static void exit_robust_list(struct task_struct *curr)
- {
- 	struct robust_list_head __user *head = curr->robust_list;
- 	struct robust_list __user *entry, *next_entry, *pending;
-@@ -3229,6 +3235,24 @@ void exit_robust_list(struct task_struct
- 				   curr, pip);
- }
- 
-+void futex_mm_release(struct task_struct *tsk)
-+{
-+	if (unlikely(tsk->robust_list)) {
-+		exit_robust_list(tsk);
-+		tsk->robust_list = NULL;
-+	}
-+
-+#ifdef CONFIG_COMPAT
-+	if (unlikely(tsk->compat_robust_list)) {
-+		compat_exit_robust_list(tsk);
-+		tsk->compat_robust_list = NULL;
-+	}
-+#endif
-+
-+	if (unlikely(!list_empty(&tsk->pi_state_list)))
-+		exit_pi_state_list(tsk);
-+}
-+
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 		u32 __user *uaddr2, u32 val2, u32 val3)
- {
+ 	if (priv->do_get_state)
+-- 
+2.27.0
+
 
 
