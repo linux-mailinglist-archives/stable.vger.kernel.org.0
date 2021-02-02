@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A799E30C7E4
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:36:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D100E30C302
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237572AbhBBRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:33:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
+        id S231209AbhBBPHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 10:07:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234143AbhBBOMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A7965047;
-        Tue,  2 Feb 2021 13:52:36 +0000 (UTC)
+        id S230389AbhBBOQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:16:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CC216505A;
+        Tue,  2 Feb 2021 13:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273957;
-        bh=V+ry1t2waJ9OXv0A91qjdVjPt3/RK96wIRnxkznOGGo=;
+        s=korg; t=1612274037;
+        bh=j/DjIv88Ue3WliPJEw3uq8ulHomT7y/AVV/PQCiF24k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3IdS96aBg2js/7GPNh7ybScgeaZ2Ff3Igat9W5d242ts7/nHM8yQpOyxAMpRXsxp
-         k+1Yjgvl2zu2ptr+GGH6S4rCFLLWAanOF6NFtY948G14eHJYXRgQFxScPaHzj+xjad
-         lEMqWBPnllyy9vOjYZ2xcNPMVf4fwB9nbcEoEJgE=
+        b=GftCEuB1YA9zs9SLAnt+mrrdQzlXfbDtHQRDq+8pwHZDW2NFyHT5ZxNnq0sIwrdnk
+         h5/e1jJtnSyUj18uK17n0q/HB1ohB3oZk81VukGxnflE9HKnN/a3OiYKQ988pBb/Qv
+         Ae8wQp7Mq0sSGHOi0Ep1VT2jT3Vj4Z9XRMeflBEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 30/30] tcp: fix TLP timer not set when CA_STATE changes from DISORDER to OPEN
+        stable@vger.kernel.org,
+        syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/37] mac80211: pause TX while changing interface type
 Date:   Tue,  2 Feb 2021 14:39:11 +0100
-Message-Id: <20210202132943.369155667@linuxfoundation.org>
+Message-Id: <20210202132944.095977935@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,110 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 62d9f1a6945ba69c125e548e72a36d203b30596e upstream.
+[ Upstream commit 054c9939b4800a91475d8d89905827bf9e1ad97a ]
 
-Upon receiving a cumulative ACK that changes the congestion state from
-Disorder to Open, the TLP timer is not set. If the sender is app-limited,
-it can only wait for the RTO timer to expire and retransmit.
+syzbot reported a crash that happened when changing the interface
+type around a lot, and while it might have been easy to fix just
+the symptom there, a little deeper investigation found that really
+the reason is that we allowed packets to be transmitted while in
+the middle of changing the interface type.
 
-The reason for this is that the TLP timer is set before the congestion
-state changes in tcp_ack(), so we delay the time point of calling
-tcp_set_xmit_timer() until after tcp_fastretrans_alert() returns and
-remove the FLAG_SET_XMIT_TIMER from ack_flag when the RACK reorder timer
-is set.
+Disallow TX by stopping the queues while changing the type.
 
-This commit has two additional benefits:
-1) Make sure to reset RTO according to RFC6298 when receiving ACK, to
-avoid spurious RTO caused by RTO timer early expires.
-2) Reduce the xmit timer reschedule once per ACK when the RACK reorder
-timer is set.
-
-Fixes: df92c8394e6e ("tcp: fix xmit timer to only be reset if data ACKed/SACKed")
-Link: https://lore.kernel.org/netdev/1611311242-6675-1-git-send-email-yangpc@wangsu.com
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1611464834-23030-1-git-send-email-yangpc@wangsu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 34d4bc4d41d2 ("mac80211: support runtime interface type changes")
+Reported-by: syzbot+d7a3b15976bf7de2238a@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20210122171115.b321f98f4d4f.I6997841933c17b093535c31d29355be3c0c39628@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h       |    2 +-
- net/ipv4/tcp_input.c    |   10 ++++++----
- net/ipv4/tcp_recovery.c |    5 +++--
- 3 files changed, 10 insertions(+), 7 deletions(-)
+ net/mac80211/ieee80211_i.h | 1 +
+ net/mac80211/iface.c       | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1969,7 +1969,7 @@ void tcp_v4_init(void);
- void tcp_init(void);
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index a879d8071712b..fc715bba59146 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1051,6 +1051,7 @@ enum queue_stop_reason {
+ 	IEEE80211_QUEUE_STOP_REASON_FLUSH,
+ 	IEEE80211_QUEUE_STOP_REASON_TDLS_TEARDOWN,
+ 	IEEE80211_QUEUE_STOP_REASON_RESERVE_TID,
++	IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE,
  
- /* tcp_recovery.c */
--extern void tcp_rack_mark_lost(struct sock *sk);
-+extern bool tcp_rack_mark_lost(struct sock *sk);
- extern void tcp_rack_advance(struct tcp_sock *tp, u8 sacked, u32 end_seq,
- 			     u64 xmit_time);
- extern void tcp_rack_reo_timeout(struct sock *sk);
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2803,7 +2803,8 @@ static void tcp_rack_identify_loss(struc
- 	if (sysctl_tcp_recovery & TCP_RACK_LOSS_DETECTION) {
- 		u32 prior_retrans = tp->retrans_out;
+ 	IEEE80211_QUEUE_STOP_REASONS,
+ };
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 152d4365f9616..511ca6f74239d 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -1542,6 +1542,10 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
+ 	if (ret)
+ 		return ret;
  
--		tcp_rack_mark_lost(sk);
-+		if (tcp_rack_mark_lost(sk))
-+			*ack_flag &= ~FLAG_SET_XMIT_TIMER;
- 		if (prior_retrans > tp->retrans_out)
- 			*ack_flag |= FLAG_LOST_RETRANS;
- 	}
-@@ -3688,15 +3689,16 @@ static int tcp_ack(struct sock *sk, cons
- 
- 	if (tp->tlp_high_seq)
- 		tcp_process_tlp_ack(sk, ack, flag);
--	/* If needed, reset TLP/RTO timer; RACK may later override this. */
--	if (flag & FLAG_SET_XMIT_TIMER)
--		tcp_set_xmit_timer(sk);
- 
- 	if (tcp_ack_is_dubious(sk, flag)) {
- 		is_dupack = !(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP));
- 		tcp_fastretrans_alert(sk, acked, is_dupack, &flag, &rexmit);
- 	}
- 
-+	/* If needed, reset TLP/RTO timer when RACK doesn't set. */
-+	if (flag & FLAG_SET_XMIT_TIMER)
-+		tcp_set_xmit_timer(sk);
++	ieee80211_stop_vif_queues(local, sdata,
++				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
++	synchronize_net();
 +
- 	if ((flag & FLAG_FORWARD_PROGRESS) || !(flag & FLAG_NOT_DUP))
- 		sk_dst_confirm(sk);
+ 	ieee80211_do_stop(sdata, false);
  
---- a/net/ipv4/tcp_recovery.c
-+++ b/net/ipv4/tcp_recovery.c
-@@ -102,13 +102,13 @@ static void tcp_rack_detect_loss(struct
- 	}
+ 	ieee80211_teardown_sdata(sdata);
+@@ -1562,6 +1566,8 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
+ 	err = ieee80211_do_open(&sdata->wdev, false);
+ 	WARN(err, "type change: do_open returned %d", err);
+ 
++	ieee80211_wake_vif_queues(local, sdata,
++				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
+ 	return ret;
  }
  
--void tcp_rack_mark_lost(struct sock *sk)
-+bool tcp_rack_mark_lost(struct sock *sk)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	u32 timeout;
- 
- 	if (!tp->rack.advanced)
--		return;
-+		return false;
- 
- 	/* Reset the advanced flag to avoid unnecessary queue scanning */
- 	tp->rack.advanced = 0;
-@@ -118,6 +118,7 @@ void tcp_rack_mark_lost(struct sock *sk)
- 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_REO_TIMEOUT,
- 					  timeout, inet_csk(sk)->icsk_rto);
- 	}
-+	return !!timeout;
- }
- 
- /* Record the most recently (re)sent time among the (s)acked packets
+-- 
+2.27.0
+
 
 
