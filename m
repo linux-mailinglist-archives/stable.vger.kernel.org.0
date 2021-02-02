@@ -2,109 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A21F30CA98
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:56:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2471830C8DB
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233680AbhBBSyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:54:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46494 "EHLO mail.kernel.org"
+        id S238085AbhBBSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:02:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233689AbhBBOCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:02:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C029065003;
-        Tue,  2 Feb 2021 13:47:40 +0000 (UTC)
+        id S233934AbhBBOIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:08:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 021526502D;
+        Tue,  2 Feb 2021 13:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273661;
-        bh=NZLzufu96XX1xC0tldQ0nYLHC18eDCiMdXazW5FzoYw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plMcAjdqQfXNq0MbtXVJ/cBzi/t+xmbQrECRTbVc4ML2gwiEEIalgBgM5wqf/HNr8
-         sJHb8J0CYq9lHz4UHLiUydxzvaZ/QcGXY+dF1t0RqjZ0o9hjvnlAHQvw6ST2Qkr7xc
-         Zk2WC2xxJ90W8Um6u/RanNHoDTSqwVsbUvw+4UFk=
+        s=korg; t=1612273822;
+        bh=IpDvbHeP4tmjOwgowyLGmsAwrATmNBJt3kLhn14+kzc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qLJW5GPhjh5iNgIqx7pTNaDPToTpPypSkAauPIBLsBcUw0h8cef7zrOF+c2Gk7dVp
+         NqCGdWV1Lmo/rfdUoCdcK5zgYSq5pAXQop9/2LTPPhngWkYKNLwzEBY4lgf8D9MYLp
+         11urGq2qZeeLBfndQaj6D3cIg4uGOwseGdRbNM5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/61] iwlwifi: pcie: reschedule in long-running memory reads
-Date:   Tue,  2 Feb 2021 14:38:22 +0100
-Message-Id: <20210202132948.334733085@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/32] 4.9.255-rc1 review
+Date:   Tue,  2 Feb 2021 14:38:23 +0100
+Message-Id: <20210202132942.035179752@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.255-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.255-rc1
+X-KernelTest-Deadline: 2021-02-04T13:29+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+This is the start of the stable review cycle for the 4.9.255 release.
+There are 32 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 3d372c4edfd4dffb7dea71c6b096fb414782b776 ]
+Responses should be made by Thu, 04 Feb 2021 13:29:33 +0000.
+Anything received after that time might be too late.
 
-If we spin for a long time in memory reads that (for some reason in
-hardware) take a long time, then we'll eventually get messages such
-as
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.255-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-  watchdog: BUG: soft lockup - CPU#2 stuck for 24s! [kworker/2:2:272]
+thanks,
 
-This is because the reading really does take a very long time, and
-we don't schedule, so we're hogging the CPU with this task, at least
-if CONFIG_PREEMPT is not set, e.g. with CONFIG_PREEMPT_VOLUNTARY=y.
+greg k-h
 
-Previously I misinterpreted the situation and thought that this was
-only going to happen if we had interrupts disabled, and then fixed
-this (which is good anyway, however), but that didn't always help;
-looking at it again now I realized that the spin unlock will only
-reschedule if CONFIG_PREEMPT is used.
+-------------
+Pseudo-Shortlog of commits:
 
-In order to avoid this issue, change the code to cond_resched() if
-we've been spinning for too long here.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.255-rc1
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 04516706bb99 ("iwlwifi: pcie: limit memory read spin time")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130253.217a9d6a6a12.If964cb582ab0aaa94e81c4ff3b279eaafda0fd3f@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Pan Bian <bianpan2016@163.com>
+    NFC: fix possible resource leak
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index d2ed9e0239cb9..0581f082301e0 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -2184,6 +2184,7 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 	while (offs < dwords) {
- 		/* limit the time we spin here under lock to 1/2s */
- 		unsigned long end = jiffies + HZ / 2;
-+		bool resched = false;
- 
- 		if (iwl_trans_grab_nic_access(trans, &flags)) {
- 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
-@@ -2194,10 +2195,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 							HBUS_TARG_MEM_RDAT);
- 				offs++;
- 
--				if (time_after(jiffies, end))
-+				if (time_after(jiffies, end)) {
-+					resched = true;
- 					break;
-+				}
- 			}
- 			iwl_trans_release_nic_access(trans, &flags);
-+
-+			if (resched)
-+				cond_resched();
- 		} else {
- 			return -EBUSY;
- 		}
--- 
-2.27.0
+Pan Bian <bianpan2016@163.com>
+    NFC: fix resource leak when target index is invalid
 
+Bartosz Golaszewski <bgolaszewski@baylibre.com>
+    iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built
+
+David Woodhouse <dwmw@amazon.co.uk>
+    iommu/vt-d: Gracefully handle DMAR units with no supported address widths
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    can: dev: prevent potential information leak in can_fill_info()
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: pause TX while changing interface type
+
+Johannes Berg <johannes.berg@intel.com>
+    iwlwifi: pcie: reschedule in long-running memory reads
+
+Johannes Berg <johannes.berg@intel.com>
+    iwlwifi: pcie: use jiffies for memory read spin time limit
+
+Kamal Heib <kamalheib1@gmail.com>
+    RDMA/cxgb4: Fix the reported max_recv_sge value
+
+Shmulik Ladkani <shmulik@metanetworks.com>
+    xfrm: Fix oops in xfrm_replay_advance_bmp
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_dynset: add timeout extension to template
+
+Max Krummenacher <max.oss.09@gmail.com>
+    ARM: imx: build suspend-imx6.S with arm instruction set
+
+Lorenzo Bianconi <lorenzo@kernel.org>
+    mt7601u: fix rx buffer refcounting
+
+Lorenzo Bianconi <lorenzo@kernel.org>
+    mt7601u: fix kernel crash unplugging the device
+
+Andrea Righi <andrea.righi@canonical.com>
+    leds: trigger: fix potential deadlock with libata
+
+Jay Zhou <jianjay.zhou@huawei.com>
+    KVM: x86: get smi pending status correctly
+
+Like Xu <like.xu@linux.intel.com>
+    KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Prevent exit livelock
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Provide distinct return value when owner is exiting
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Add mutex around futex exit
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Provide state handling for exec() as well
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Sanitize exit state handling
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Mark the begin of futex exit explicitly
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Set task::futex_state to DEAD right after handling futex exit
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Split futex_mm_release() for exit/exec
+
+Thomas Gleixner <tglx@linutronix.de>
+    exit/exec: Seperate mm_release()
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Replace PF_EXITPIDONE with a state
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Move futex exit handling into futex code
+
+Arnd Bergmann <arnd@arndb.de>
+    y2038: futex: Move compat implementation into futex.c
+
+Giacinto Cifelli <gciofono@gmail.com>
+    net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
+
+Johannes Berg <johannes.berg@intel.com>
+    wext: fix NULL-ptr-dereference with cfg80211's lack of commit()
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    ACPI: sysfs: Prefer "compatible" modalias
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                        |   4 +-
+ arch/arm/mach-imx/suspend-imx6.S                |   1 +
+ arch/x86/kvm/pmu_intel.c                        |   2 +-
+ arch/x86/kvm/x86.c                              |   5 +
+ drivers/acpi/device_sysfs.c                     |  20 +-
+ drivers/infiniband/hw/cxgb4/qp.c                |   2 +-
+ drivers/iommu/dmar.c                            |  41 ++-
+ drivers/leds/led-triggers.c                     |  10 +-
+ drivers/net/can/dev.c                           |   2 +-
+ drivers/net/usb/qmi_wwan.c                      |   1 +
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c |  14 +-
+ drivers/net/wireless/mediatek/mt7601u/dma.c     |   5 +-
+ fs/exec.c                                       |   2 +-
+ include/linux/compat.h                          |   2 -
+ include/linux/futex.h                           |  44 ++-
+ include/linux/intel-iommu.h                     |   2 +
+ include/linux/sched.h                           |   9 +-
+ kernel/Makefile                                 |   3 -
+ kernel/exit.c                                   |  29 +-
+ kernel/fork.c                                   |  40 +--
+ kernel/futex.c                                  | 446 ++++++++++++++++++++++--
+ kernel/futex_compat.c                           | 201 -----------
+ net/mac80211/ieee80211_i.h                      |   1 +
+ net/mac80211/iface.c                            |   6 +
+ net/netfilter/nft_dynset.c                      |   4 +-
+ net/nfc/netlink.c                               |   1 +
+ net/nfc/rawsock.c                               |   2 +-
+ net/wireless/wext-core.c                        |   5 +-
+ net/xfrm/xfrm_input.c                           |   2 +-
+ 29 files changed, 545 insertions(+), 361 deletions(-)
 
 
