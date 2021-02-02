@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C894830C95B
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C7330C7D8
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:33:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232819AbhBBSQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:16:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47580 "EHLO mail.kernel.org"
+        id S237559AbhBBRc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:32:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233692AbhBBOGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:06:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99AB56501F;
-        Tue,  2 Feb 2021 13:49:33 +0000 (UTC)
+        id S233766AbhBBOMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:12:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAE6864FAB;
+        Tue,  2 Feb 2021 13:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273774;
-        bh=mUM0mgXCHkJNejNNkl1ETLUcnYyoPBasVulZeXoBvXQ=;
+        s=korg; t=1612273921;
+        bh=VT9864amgPm6B+652CMMjWffrGev7GaloBDzsAtCWsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJvD03npeoL6hdmhBGEQBTL1sBgJF+V9g4fw3+ykVgFvRakBysdnAvt+h/QF+SX00
-         8QVD8nqMHUbmrcK9IVgFSG2qSWJSLwfPUqWmUvJrAmz59EIO/w+Y3OlnoFtDfYaTW0
-         qHKijKoMsQp7qSa+zrD90Y9PDw0yAXI6sydNstLM=
+        b=X1o8ZzWn47V4vjQfiLdjJwl3aKykxfIzjEyOJGgL3icTRmvp/Bo2erPrk1X/xvV24
+         nm04J0eTdBwdFAFOPRrBPEJSYHDAGz/IucjLbzuOyh3JbIcMeogk5lS2gxj+KoByYG
+         959r/+K9ozXCRa8M2dsbsRMOGZbaI1/xeZScvcN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/28] can: dev: prevent potential information leak in can_fill_info()
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Koen Vandeputte <koen.vandeputte@ncentric.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.14 03/30] ARM: dts: imx6qdl-gw52xx: fix duplicate regulator naming
 Date:   Tue,  2 Feb 2021 14:38:44 +0100
-Message-Id: <20210202132942.158736432@linuxfoundation.org>
+Message-Id: <20210202132942.279351032@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Koen Vandeputte <koen.vandeputte@citymesh.com>
 
-[ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
+commit 5a22747b76ca2384057d8e783265404439d31d7f upstream.
 
-The "bec" struct isn't necessarily always initialized. For example, the
-mcp251xfd_get_berr_counter() function doesn't initialize anything if the
-interface is down.
+2 regulator descriptions carry identical naming.
 
-Fixes: 52c793f24054 ("can: netlink support for bus-error reporting and counters")
-Link: https://lore.kernel.org/r/YAkaRdRJncsJO8Ve@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This leads to following boot warning:
+[    0.173138] debugfs: Directory 'vdd1p8' with parent 'regulator' already present!
+
+Fix this by renaming the one used for audio.
+
+Fixes: 5051bff33102 ("ARM: dts: imx: ventana: add LTC3676 PMIC support")
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
+Cc: stable@vger.kernel.org # v4.11
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/can/dev.c | 2 +-
+ arch/arm/boot/dts/imx6qdl-gw52xx.dtsi |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 45f15ac6b1015..1a79118b008b1 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -987,7 +987,7 @@ static int can_fill_info(struct sk_buff *skb, const struct net_device *dev)
- {
- 	struct can_priv *priv = netdev_priv(dev);
- 	struct can_ctrlmode cm = {.flags = priv->ctrlmode};
--	struct can_berr_counter bec;
-+	struct can_berr_counter bec = { };
- 	enum can_state state = priv->state;
+--- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
+@@ -278,7 +278,7 @@
  
- 	if (priv->do_get_state)
--- 
-2.27.0
-
+ 			/* VDD_AUD_1P8: Audio codec */
+ 			reg_aud_1p8v: ldo3 {
+-				regulator-name = "vdd1p8";
++				regulator-name = "vdd1p8a";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+ 				regulator-boot-on;
 
 
