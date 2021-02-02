@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E145C30C550
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A799E30C7E4
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234851AbhBBQTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 11:19:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S237572AbhBBRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:33:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230224AbhBBOQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:16:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3D5D6505B;
-        Tue,  2 Feb 2021 13:53:53 +0000 (UTC)
+        id S234143AbhBBOMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:12:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A7965047;
+        Tue,  2 Feb 2021 13:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274034;
-        bh=v1N9oTk/0UTcpSNW0o3l3MhznrA2CRHQ7GsADeaDB2I=;
+        s=korg; t=1612273957;
+        bh=V+ry1t2waJ9OXv0A91qjdVjPt3/RK96wIRnxkznOGGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rK5prnbAGK02eWR10WLrUk2w5rEbwCjjMxsLoR0tah8c1nLlkSXi4W7d6XRKu2FRB
-         /iSmt/YNNLdVkQBFvlam1c3cKJP0PlCZZkp+i8018uukVJV4jFKKnEGBUyWSeadIc4
-         xxX9TnRIJ9KdtkRc2UK/uJcngAMZjbvkVZs6vROc=
+        b=j3IdS96aBg2js/7GPNh7ybScgeaZ2Ff3Igat9W5d242ts7/nHM8yQpOyxAMpRXsxp
+         k+1Yjgvl2zu2ptr+GGH6S4rCFLLWAanOF6NFtY948G14eHJYXRgQFxScPaHzj+xjad
+         lEMqWBPnllyy9vOjYZ2xcNPMVf4fwB9nbcEoEJgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/37] iwlwifi: pcie: reschedule in long-running memory reads
-Date:   Tue,  2 Feb 2021 14:39:10 +0100
-Message-Id: <20210202132944.059440795@linuxfoundation.org>
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 30/30] tcp: fix TLP timer not set when CA_STATE changes from DISORDER to OPEN
+Date:   Tue,  2 Feb 2021 14:39:11 +0100
+Message-Id: <20210202132943.369155667@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
-References: <20210202132942.915040339@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit 3d372c4edfd4dffb7dea71c6b096fb414782b776 ]
+commit 62d9f1a6945ba69c125e548e72a36d203b30596e upstream.
 
-If we spin for a long time in memory reads that (for some reason in
-hardware) take a long time, then we'll eventually get messages such
-as
+Upon receiving a cumulative ACK that changes the congestion state from
+Disorder to Open, the TLP timer is not set. If the sender is app-limited,
+it can only wait for the RTO timer to expire and retransmit.
 
-  watchdog: BUG: soft lockup - CPU#2 stuck for 24s! [kworker/2:2:272]
+The reason for this is that the TLP timer is set before the congestion
+state changes in tcp_ack(), so we delay the time point of calling
+tcp_set_xmit_timer() until after tcp_fastretrans_alert() returns and
+remove the FLAG_SET_XMIT_TIMER from ack_flag when the RACK reorder timer
+is set.
 
-This is because the reading really does take a very long time, and
-we don't schedule, so we're hogging the CPU with this task, at least
-if CONFIG_PREEMPT is not set, e.g. with CONFIG_PREEMPT_VOLUNTARY=y.
+This commit has two additional benefits:
+1) Make sure to reset RTO according to RFC6298 when receiving ACK, to
+avoid spurious RTO caused by RTO timer early expires.
+2) Reduce the xmit timer reschedule once per ACK when the RACK reorder
+timer is set.
 
-Previously I misinterpreted the situation and thought that this was
-only going to happen if we had interrupts disabled, and then fixed
-this (which is good anyway, however), but that didn't always help;
-looking at it again now I realized that the spin unlock will only
-reschedule if CONFIG_PREEMPT is used.
+Fixes: df92c8394e6e ("tcp: fix xmit timer to only be reset if data ACKed/SACKed")
+Link: https://lore.kernel.org/netdev/1611311242-6675-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1611464834-23030-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-In order to avoid this issue, change the code to cond_resched() if
-we've been spinning for too long here.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 04516706bb99 ("iwlwifi: pcie: limit memory read spin time")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130253.217a9d6a6a12.If964cb582ab0aaa94e81c4ff3b279eaafda0fd3f@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/net/tcp.h       |    2 +-
+ net/ipv4/tcp_input.c    |   10 ++++++----
+ net/ipv4/tcp_recovery.c |    5 +++--
+ 3 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index fe772b716a8df..fcda33482887b 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -2127,6 +2127,7 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 	while (offs < dwords) {
- 		/* limit the time we spin here under lock to 1/2s */
- 		unsigned long end = jiffies + HZ / 2;
-+		bool resched = false;
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1969,7 +1969,7 @@ void tcp_v4_init(void);
+ void tcp_init(void);
  
- 		if (iwl_trans_grab_nic_access(trans, &flags)) {
- 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
-@@ -2137,10 +2138,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 							HBUS_TARG_MEM_RDAT);
- 				offs++;
+ /* tcp_recovery.c */
+-extern void tcp_rack_mark_lost(struct sock *sk);
++extern bool tcp_rack_mark_lost(struct sock *sk);
+ extern void tcp_rack_advance(struct tcp_sock *tp, u8 sacked, u32 end_seq,
+ 			     u64 xmit_time);
+ extern void tcp_rack_reo_timeout(struct sock *sk);
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2803,7 +2803,8 @@ static void tcp_rack_identify_loss(struc
+ 	if (sysctl_tcp_recovery & TCP_RACK_LOSS_DETECTION) {
+ 		u32 prior_retrans = tp->retrans_out;
  
--				if (time_after(jiffies, end))
-+				if (time_after(jiffies, end)) {
-+					resched = true;
- 					break;
-+				}
- 			}
- 			iwl_trans_release_nic_access(trans, &flags);
+-		tcp_rack_mark_lost(sk);
++		if (tcp_rack_mark_lost(sk))
++			*ack_flag &= ~FLAG_SET_XMIT_TIMER;
+ 		if (prior_retrans > tp->retrans_out)
+ 			*ack_flag |= FLAG_LOST_RETRANS;
+ 	}
+@@ -3688,15 +3689,16 @@ static int tcp_ack(struct sock *sk, cons
+ 
+ 	if (tp->tlp_high_seq)
+ 		tcp_process_tlp_ack(sk, ack, flag);
+-	/* If needed, reset TLP/RTO timer; RACK may later override this. */
+-	if (flag & FLAG_SET_XMIT_TIMER)
+-		tcp_set_xmit_timer(sk);
+ 
+ 	if (tcp_ack_is_dubious(sk, flag)) {
+ 		is_dupack = !(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP));
+ 		tcp_fastretrans_alert(sk, acked, is_dupack, &flag, &rexmit);
+ 	}
+ 
++	/* If needed, reset TLP/RTO timer when RACK doesn't set. */
++	if (flag & FLAG_SET_XMIT_TIMER)
++		tcp_set_xmit_timer(sk);
 +
-+			if (resched)
-+				cond_resched();
- 		} else {
- 			return -EBUSY;
- 		}
--- 
-2.27.0
-
+ 	if ((flag & FLAG_FORWARD_PROGRESS) || !(flag & FLAG_NOT_DUP))
+ 		sk_dst_confirm(sk);
+ 
+--- a/net/ipv4/tcp_recovery.c
++++ b/net/ipv4/tcp_recovery.c
+@@ -102,13 +102,13 @@ static void tcp_rack_detect_loss(struct
+ 	}
+ }
+ 
+-void tcp_rack_mark_lost(struct sock *sk)
++bool tcp_rack_mark_lost(struct sock *sk)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	u32 timeout;
+ 
+ 	if (!tp->rack.advanced)
+-		return;
++		return false;
+ 
+ 	/* Reset the advanced flag to avoid unnecessary queue scanning */
+ 	tp->rack.advanced = 0;
+@@ -118,6 +118,7 @@ void tcp_rack_mark_lost(struct sock *sk)
+ 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_REO_TIMEOUT,
+ 					  timeout, inet_csk(sk)->icsk_rto);
+ 	}
++	return !!timeout;
+ }
+ 
+ /* Record the most recently (re)sent time among the (s)acked packets
 
 
