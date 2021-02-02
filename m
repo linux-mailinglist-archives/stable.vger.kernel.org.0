@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 824C830CA02
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE20230CA20
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233819AbhBBSf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:35:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S234634AbhBBSjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:39:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233821AbhBBOFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C42BD65018;
-        Tue,  2 Feb 2021 13:48:57 +0000 (UTC)
+        id S233780AbhBBOER (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:04:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B2865010;
+        Tue,  2 Feb 2021 13:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273738;
-        bh=HStRNDTcPxRrCu+MkU2+DNqIoIO9Qom7WUpPOTv8c1s=;
+        s=korg; t=1612273716;
+        bh=JfAZl8KhloGd83x+TRCK0G2qlw7GGGdjntHNfTITRcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqt77Tfmj4JqDmaLbVs7KKYxZcfPHk6o6/Yux1ydkcC4J+jNQKI2ksx4wxPI+mqpt
-         rdLzMun5vs2gGeCwmnmeR+hTcRosF09hBlt5QwGPtmPlOuaZq6JfQ/z4XTJe1pSHlA
-         GJlkZcFLzYJQivv0C94b46o8wXZGPQaiAVh+VKbY=
+        b=W3ThEuh+10w/DXJ5GF0TslpBTt240Hiy2ZXnJQ3cU6TP/W/pM9CDMYmqhC6hClpo9
+         KWv7d9WL6VqbUsSpfF99umLJ3/+FXXHkDA8XS9htDoz0f5SYLJr37W5MOYUR57KOZ5
+         xQx3Dr3YoB4uXKrpbMNFxetzNBkUzRa9UWy42Uco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 12/28] futex: Set task::futex_state to DEAD right after handling futex exit
-Date:   Tue,  2 Feb 2021 14:38:32 +0100
-Message-Id: <20210202132941.679288914@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Joerg Roedel <jroedel@suse.de>,
+        Filippo Sironi <sironi@amazon.de>
+Subject: [PATCH 5.4 55/61] iommu/vt-d: Dont dereference iommu_device if IOMMU_API is not built
+Date:   Tue,  2 Feb 2021 14:38:33 +0100
+Message-Id: <20210202132948.811636459@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-commit f24f22435dcc11389acc87e5586239c1819d217c upstream.
+commit 9def3b1a07c41e21c68a0eb353e3e569fdd1d2b1 upstream.
 
-Setting task::futex_state in do_exit() is rather arbitrarily placed for no
-reason. Move it into the futex code.
+Since commit c40aaaac1018 ("iommu/vt-d: Gracefully handle DMAR units
+with no supported address widths") dmar.c needs struct iommu_device to
+be selected. We can drop this dependency by not dereferencing struct
+iommu_device if IOMMU_API is not selected and by reusing the information
+stored in iommu->drhd->ignored instead.
 
-Note, this is only done for the exit cleanup as the exec cleanup cannot set
-the state to FUTEX_STATE_DEAD because the task struct is still in active
-use.
+This fixes the following build error when IOMMU_API is not selected:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.439511191@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+drivers/iommu/dmar.c: In function ‘free_iommu’:
+drivers/iommu/dmar.c:1139:41: error: ‘struct iommu_device’ has no member named ‘ops’
+ 1139 |  if (intel_iommu_enabled && iommu->iommu.ops) {
+                                                ^
+
+Fixes: c40aaaac1018 ("iommu/vt-d: Gracefully handle DMAR units with no supported address widths")
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Acked-by: David Woodhouse <dwmw@amazon.co.uk>
+Link: https://lore.kernel.org/r/20201013073055.11262-1-brgl@bgdev.pl
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+[ - context change due to moving drivers/iommu/dmar.c to
+    drivers/iommu/intel/dmar.c
+  - set the drhr in the iommu like in upstream commit b1012ca8dc4f
+    ("iommu/vt-d: Skip TE disabling on quirky gfx dedicated iommu") ]
+Signed-off-by: Filippo Sironi <sironi@amazon.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/exit.c  |    1 -
- kernel/futex.c |    1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/dmar.c        |    3 ++-
+ include/linux/intel-iommu.h |    2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -784,7 +784,6 @@ void do_exit(long code)
- 	 * Make sure we are holding no locks:
- 	 */
- 	debug_check_no_locks_held();
--	futex_exit_done(tsk);
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -1114,6 +1114,7 @@ static int alloc_iommu(struct dmar_drhd_
+ 	}
  
- 	if (tsk->io_context)
- 		exit_io_context(tsk);
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3255,6 +3255,7 @@ void futex_exec_release(struct task_stru
- void futex_exit_release(struct task_struct *tsk)
+ 	drhd->iommu = iommu;
++	iommu->drhd = drhd;
+ 
+ 	return 0;
+ 
+@@ -1128,7 +1129,7 @@ error:
+ 
+ static void free_iommu(struct intel_iommu *iommu)
  {
- 	futex_exec_release(tsk);
-+	futex_exit_done(tsk);
- }
+-	if (intel_iommu_enabled && iommu->iommu.ops) {
++	if (intel_iommu_enabled && !iommu->drhd->ignored) {
+ 		iommu_device_unregister(&iommu->iommu);
+ 		iommu_device_sysfs_remove(&iommu->iommu);
+ 	}
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -556,6 +556,8 @@ struct intel_iommu {
+ 	struct iommu_device iommu;  /* IOMMU core code handle */
+ 	int		node;
+ 	u32		flags;      /* Software defined flags */
++
++	struct dmar_drhd_unit *drhd;
+ };
  
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ /* PCI domain-device relationship */
 
 
