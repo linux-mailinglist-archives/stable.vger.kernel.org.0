@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B74B530C822
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:44:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2660030C771
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:25:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234084AbhBBRm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:42:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
+        id S234249AbhBBRVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:21:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234126AbhBBOMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 823A464FB1;
-        Tue,  2 Feb 2021 13:52:11 +0000 (UTC)
+        id S234230AbhBBOOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:14:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E425364FAD;
+        Tue,  2 Feb 2021 13:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273932;
-        bh=AfAtCAdUTLCzHvef04qEg8pRnvR1WbD+PEiA/0jNdxk=;
+        s=korg; t=1612274004;
+        bh=IlZtFPYsyDOrrMcoH8Djsi1UeGPViV8qeUcCW6Xft2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNLbYmqt3AHnUsoU3ekaWoqV6NjrPgrFShLd92llpQ8P1a8jnYYIpDLnuaIZEBcYz
-         B/kk7YSHmZrglnpPV+65VQY7m1onS2KP6gBFNRCO6KotW5Pw/qOkjZ8GLlcmniBDGt
-         I546wvguucioFbt3tI9acUvjtvjsnxadPJqDDisY=
+        b=HrdZ0YW8tcrrfADhj5N91zUPKIzfVDJsAz8VVV225FLGacttqitRBRtzCrFdwAmYj
+         dnIo7no53/XBNNp7ExwLh1nkX956ttJ9vK3s088qGz5MI6HG5xzwWWIe/cqaRFEy8m
+         j446qcaVs0EG35xDS8eX43YHefjN7dgZlv4Y9iOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 07/30] drivers: soc: atmel: add null entry at the end of at91_soc_allowed_list[]
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 05/37] ALSA: hda/via: Apply the workaround generically for Clevo machines
 Date:   Tue,  2 Feb 2021 14:38:48 +0100
-Message-Id: <20210202132942.430407251@linuxfoundation.org>
+Message-Id: <20210202132943.121587900@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +38,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 680896556805d3ad3fa47f6002b87b3041a45ac2 upstream.
+commit 4961167bf7482944ca09a6f71263b9e47f949851 upstream.
 
-of_match_node() calls __of_match_node() which loops though the entries of
-matches array. It stops when condition:
-(matches->name[0] || matches->type[0] || matches->compatible[0]) is
-false. Thus, add a null entry at the end of at91_soc_allowed_list[]
-array.
+We've got another report indicating a similar problem wrt the
+power-saving behavior with VIA codec on Clevo machines.  Let's apply
+the existing workaround generically to all Clevo devices with VIA
+codecs to cover all in once.
 
-Fixes: caab13b49604 ("drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs")
-Cc: stable@vger.kernel.org #4.12+
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1181330
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210126165603.11683-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/atmel/soc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_via.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/atmel/soc.c
-+++ b/drivers/soc/atmel/soc.c
-@@ -250,7 +250,8 @@ static const struct of_device_id at91_so
- 	{ .compatible = "atmel,at91rm9200", },
- 	{ .compatible = "atmel,at91sam9", },
- 	{ .compatible = "atmel,sama5", },
--	{ .compatible = "atmel,samv7", }
-+	{ .compatible = "atmel,samv7", },
-+	{ }
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1056,7 +1056,7 @@ static const struct hda_fixup via_fixups
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+-	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
++	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
+ 	{}
  };
  
- static int __init atmel_soc_device_init(void)
 
 
