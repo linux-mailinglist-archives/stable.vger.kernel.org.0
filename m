@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A028B30C037
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:53:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F6F30C03A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:53:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233118AbhBBNvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:51:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41120 "EHLO mail.kernel.org"
+        id S233130AbhBBNv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:51:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232944AbhBBNuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:50:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D3C64FAA;
-        Tue,  2 Feb 2021 13:42:38 +0000 (UTC)
+        id S232948AbhBBNuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:50:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7368264FA8;
+        Tue,  2 Feb 2021 13:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273359;
-        bh=gUgc0r8bk0KNca2XaqGTfkET84c0c5MGJDlemNb8X/Q=;
+        s=korg; t=1612273361;
+        bh=/yZ5ukdPQ4qFx3f9JFWACvXo73LQzZAXJ7pGgjDewPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFu0dvun52MZRdSsuWom1+pTXDgaR0TJbTcodczDbeVuEoY8q5x50sUmkbhPS9ogX
-         eJJ62K0V8TLXU0/NlGAPgsm+hHR2Sbvx6A398OM27zCDsKOxMQxO8HmHzVxWp012hD
-         t7ZNRUDnrGO0touxTinYOTxSc/zVr4fl4uehrf5U=
+        b=AAOu8uW8aGBMNw7PaI2/0hkpNCo5kCexCX7eNWPCjbm4W74dOlbAmy5O6JJanDNk9
+         DeUziR3oHJCqISm5D9uabUgLgOfmbhdiYkiAZdnc8iVrDWCVQ1NZrI4HK6wnC/2ka4
+         wWNOCX9XOdWjbF9DqlM+5TqW3ecWHTMUY5lM3s8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 046/142] KVM: Forbid the use of tagged userspace addresses for memslots
-Date:   Tue,  2 Feb 2021 14:36:49 +0100
-Message-Id: <20210202132959.627719612@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 047/142] io_uring: fix wqe->lock/completion_lock deadlock
+Date:   Tue,  2 Feb 2021 14:36:50 +0100
+Message-Id: <20210202132959.668196463@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,47 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 139bc8a6146d92822c866cf2fd410159c56b3648 upstream.
+commit 907d1df30a51cc1a1d25414a00cde0494b83df7b upstream.
 
-The use of a tagged address could be pretty confusing for the
-whole memslot infrastructure as well as the MMU notifiers.
+Joseph reports following deadlock:
 
-Forbid it altogether, as it never quite worked the first place.
+CPU0:
+...
+io_kill_linked_timeout  // &ctx->completion_lock
+io_commit_cqring
+__io_queue_deferred
+__io_queue_async_work
+io_wq_enqueue
+io_wqe_enqueue  // &wqe->lock
 
-Cc: stable@vger.kernel.org
-Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+CPU1:
+...
+__io_uring_files_cancel
+io_wq_cancel_cb
+io_wqe_cancel_pending_work  // &wqe->lock
+io_cancel_task_cb  // &ctx->completion_lock
+
+Only __io_queue_deferred() calls queue_async_work() while holding
+ctx->completion_lock, enqueue drained requests via io_req_task_queue()
+instead.
+
+Cc: stable@vger.kernel.org # 5.9+
+Reported-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Tested-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/virt/kvm/api.rst |    3 +++
- virt/kvm/kvm_main.c            |    1 +
- 2 files changed, 4 insertions(+)
+ fs/io_uring.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -1264,6 +1264,9 @@ field userspace_addr, which must point a
- the entire memory slot size.  Any object may back this memory, including
- anonymous memory, ordinary files, and hugetlbfs.
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -972,6 +972,7 @@ static int io_setup_async_rw(struct io_k
+ 			     const struct iovec *fast_iov,
+ 			     struct iov_iter *iter, bool force);
+ static void io_req_drop_files(struct io_kiocb *req);
++static void io_req_task_queue(struct io_kiocb *req);
  
-+On architectures that support a form of address tagging, userspace_addr must
-+be an untagged address.
-+
- It is recommended that the lower 21 bits of guest_phys_addr and userspace_addr
- be identical.  This allows large pages in the guest to be backed by large
- pages in the host.
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1289,6 +1289,7 @@ int __kvm_set_memory_region(struct kvm *
- 		return -EINVAL;
- 	/* We can read the guest memory with __xxx_user() later on. */
- 	if ((mem->userspace_addr & (PAGE_SIZE - 1)) ||
-+	    (mem->userspace_addr != untagged_addr(mem->userspace_addr)) ||
- 	     !access_ok((void __user *)(unsigned long)mem->userspace_addr,
- 			mem->memory_size))
- 		return -EINVAL;
+ static struct kmem_cache *req_cachep;
+ 
+@@ -1502,18 +1503,11 @@ static void __io_queue_deferred(struct i
+ 	do {
+ 		struct io_defer_entry *de = list_first_entry(&ctx->defer_list,
+ 						struct io_defer_entry, list);
+-		struct io_kiocb *link;
+ 
+ 		if (req_need_defer(de->req, de->seq))
+ 			break;
+ 		list_del_init(&de->list);
+-		/* punt-init is done before queueing for defer */
+-		link = __io_queue_async_work(de->req);
+-		if (link) {
+-			__io_queue_linked_timeout(link);
+-			/* drop submission reference */
+-			io_put_req_deferred(link, 1);
+-		}
++		io_req_task_queue(de->req);
+ 		kfree(de);
+ 	} while (!list_empty(&ctx->defer_list));
+ }
 
 
