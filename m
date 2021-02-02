@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F94B30BFEB
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E497330BFE5
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbhBBNpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:45:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
+        id S232688AbhBBNo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:44:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232846AbhBBNnC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:43:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 784F764F6B;
-        Tue,  2 Feb 2021 13:40:10 +0000 (UTC)
+        id S232806AbhBBNms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:42:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9389364F6C;
+        Tue,  2 Feb 2021 13:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273211;
-        bh=vDgI0KISKsQpwYAOn5Nnpa0DlPBe8ruIWp/pmp29/k8=;
+        s=korg; t=1612273214;
+        bh=0cc0C+ESJgLTR5Nx83f8VhA64RykTwwolse4CCSrHjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4G7o7kjhkiuSYIxrMWJq3SDaXV4pLMmRaxE6QN23TChJSnSsIa3hvgA4QiGBNpA6
-         Xy/xaeb7qZWYy44rUE33k9CHooTSUg/W0KqCl+5UoDnMfRWHSBTkToSVAGzzcjzbxg
-         4m5ULDX669jlHSlz3EE/g01OSvI4vgQS8MLl5kuk=
+        b=vvsxz9B5dR7vBe1cRKjJvQksiXWCNNpN17ea1X0RLGvwHwdPkyltSLIzbitN1NYB6
+         +JG0m0iKiaPoQF5kB5wuXAMS+g6lXAZGenMgtjA93nPI7/11bf3Ss+rtgUUw+B5ZVF
+         CgMdXeXCl1AyMK4w9Hozcvb8X+sZqlyxacpScS6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 022/142] Revert "drm/amdgpu/swsmu: drop set_fan_speed_percent (v2)"
-Date:   Tue,  2 Feb 2021 14:36:25 +0100
-Message-Id: <20210202132958.627180725@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Peres <martin.peres@free.fr>,
+        Jeremy Cline <jcline@redhat.com>,
+        Simon Ser <contact@emersion.fr>, Lyude Paul <lyude@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>
+Subject: [PATCH 5.10 023/142] drm/nouveau/kms/gk104-gp1xx: Fix > 64x64 cursors
+Date:   Tue,  2 Feb 2021 14:36:26 +0100
+Message-Id: <20210202132958.670163001@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -38,154 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit a119f87b86bcdf14a18ce39a899e97a1e9160f7f upstream.
+commit ba839b7598440a5d78550a115bac21b08d57cc32 upstream.
 
-On some boards the rpm interface apparently does not work at all
-leading to the fan not spinning or spinning at strange speeds.
-Revert this for now to fix 5.10, 5.11.  The follow on patch
-fixes this properly for 5.12.
+While we do handle the additional cursor sizes introduced in NVE4, it looks
+like we accidentally broke this when converting over to use Nvidia's
+display headers. Since we now use NVVAL in dispnv50/head907d.c in order to
+format the value for the cursor layout and NVD9 only had one byte reserved
+vs. the 2 bytes reserved in later generations, we end up accidentally
+stripping the second bit in the cursor layout format parameter - causing us
+to set the wrong cursor size.
 
-This reverts commit 8d6e65adc25e23fabbc5293b6cd320195c708dca.
+This fixes that by adding our own curs_set hook for 917d which uses the
+NV917D headers.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1408
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: Martin Peres <martin.peres@free.fr>
+Cc: Jeremy Cline <jcline@redhat.com>
+Cc: Simon Ser <contact@emersion.fr>
+Cc: <stable@vger.kernel.org> # v5.9+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: ed0b86a90bf9 ("drm/nouveau/kms/nv50-: use NVIDIA's headers for core head_curs_set()")
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/gpu/drm/amd/pm/inc/amdgpu_smu.h                 |    1 
- drivers/gpu/drm/amd/pm/inc/smu_v11_0.h                  |    3 +
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c               |    9 +---
- drivers/gpu/drm/amd/pm/swsmu/smu11/arcturus_ppt.c       |    1 
- drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c         |    1 
- drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c |    1 
- drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c          |   31 +++++++++++++++-
- 7 files changed, 39 insertions(+), 8 deletions(-)
-
---- a/drivers/gpu/drm/amd/pm/inc/amdgpu_smu.h
-+++ b/drivers/gpu/drm/amd/pm/inc/amdgpu_smu.h
-@@ -575,6 +575,7 @@ struct pptable_funcs {
- 	int (*conv_power_profile_to_pplib_workload)(int power_profile);
- 	uint32_t (*get_fan_control_mode)(struct smu_context *smu);
- 	int (*set_fan_control_mode)(struct smu_context *smu, uint32_t mode);
-+	int (*set_fan_speed_percent)(struct smu_context *smu, uint32_t speed);
- 	int (*set_fan_speed_rpm)(struct smu_context *smu, uint32_t speed);
- 	int (*set_xgmi_pstate)(struct smu_context *smu, uint32_t pstate);
- 	int (*gfx_off_control)(struct smu_context *smu, bool enable);
---- a/drivers/gpu/drm/amd/pm/inc/smu_v11_0.h
-+++ b/drivers/gpu/drm/amd/pm/inc/smu_v11_0.h
-@@ -200,6 +200,9 @@ int
- smu_v11_0_set_fan_control_mode(struct smu_context *smu,
- 			       uint32_t mode);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head917d.c b/drivers/gpu/drm/nouveau/dispnv50/head917d.c
+index a5d827403660..ea9f8667305e 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head917d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head917d.c
+@@ -22,6 +22,7 @@
+ #include "head.h"
+ #include "core.h"
  
-+int
-+smu_v11_0_set_fan_speed_percent(struct smu_context *smu, uint32_t speed);
-+
- int smu_v11_0_set_fan_speed_rpm(struct smu_context *smu,
- 				       uint32_t speed);
++#include "nvif/push.h"
+ #include <nvif/push507c.h>
  
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -2255,19 +2255,14 @@ int smu_get_fan_speed_percent(struct smu
- int smu_set_fan_speed_percent(struct smu_context *smu, uint32_t speed)
- {
- 	int ret = 0;
--	uint32_t rpm;
- 
- 	if (!smu->pm_enabled || !smu->adev->pm.dpm_enabled)
- 		return -EOPNOTSUPP;
- 
- 	mutex_lock(&smu->mutex);
- 
--	if (smu->ppt_funcs->set_fan_speed_rpm) {
--		if (speed > 100)
--			speed = 100;
--		rpm = speed * smu->fan_max_rpm / 100;
--		ret = smu->ppt_funcs->set_fan_speed_rpm(smu, rpm);
--	}
-+	if (smu->ppt_funcs->set_fan_speed_percent)
-+		ret = smu->ppt_funcs->set_fan_speed_percent(smu, speed);
- 
- 	mutex_unlock(&smu->mutex);
- 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/arcturus_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/arcturus_ppt.c
-@@ -2366,6 +2366,7 @@ static const struct pptable_funcs arctur
- 	.display_clock_voltage_request = smu_v11_0_display_clock_voltage_request,
- 	.get_fan_control_mode = smu_v11_0_get_fan_control_mode,
- 	.set_fan_control_mode = smu_v11_0_set_fan_control_mode,
-+	.set_fan_speed_percent = smu_v11_0_set_fan_speed_percent,
- 	.set_fan_speed_rpm = smu_v11_0_set_fan_speed_rpm,
- 	.set_xgmi_pstate = smu_v11_0_set_xgmi_pstate,
- 	.gfx_off_control = smu_v11_0_gfx_off_control,
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-@@ -2710,6 +2710,7 @@ static const struct pptable_funcs navi10
- 	.display_clock_voltage_request = smu_v11_0_display_clock_voltage_request,
- 	.get_fan_control_mode = smu_v11_0_get_fan_control_mode,
- 	.set_fan_control_mode = smu_v11_0_set_fan_control_mode,
-+	.set_fan_speed_percent = smu_v11_0_set_fan_speed_percent,
- 	.set_fan_speed_rpm = smu_v11_0_set_fan_speed_rpm,
- 	.set_xgmi_pstate = smu_v11_0_set_xgmi_pstate,
- 	.gfx_off_control = smu_v11_0_gfx_off_control,
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -2776,6 +2776,7 @@ static const struct pptable_funcs sienna
- 	.display_clock_voltage_request = smu_v11_0_display_clock_voltage_request,
- 	.get_fan_control_mode = smu_v11_0_get_fan_control_mode,
- 	.set_fan_control_mode = smu_v11_0_set_fan_control_mode,
-+	.set_fan_speed_percent = smu_v11_0_set_fan_speed_percent,
- 	.set_fan_speed_rpm = smu_v11_0_set_fan_speed_rpm,
- 	.set_xgmi_pstate = smu_v11_0_set_xgmi_pstate,
- 	.gfx_off_control = smu_v11_0_gfx_off_control,
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-@@ -1123,6 +1123,35 @@ smu_v11_0_set_fan_static_mode(struct smu
+ #include <nvhw/class/cl917d.h>
+@@ -73,6 +74,31 @@ head917d_base(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	return 0;
  }
  
- int
-+smu_v11_0_set_fan_speed_percent(struct smu_context *smu, uint32_t speed)
++static int
++head917d_curs_set(struct nv50_head *head, struct nv50_head_atom *asyh)
 +{
-+	struct amdgpu_device *adev = smu->adev;
-+	uint32_t duty100, duty;
-+	uint64_t tmp64;
++	struct nvif_push *push = nv50_disp(head->base.base.dev)->core->chan.push;
++	const int i = head->base.index;
++	int ret;
 +
-+	if (speed > 100)
-+		speed = 100;
++	ret = PUSH_WAIT(push, 5);
++	if (ret)
++		return ret;
 +
-+	if (smu_v11_0_auto_fan_control(smu, 0))
-+		return -EINVAL;
++	PUSH_MTHD(push, NV917D, HEAD_SET_CONTROL_CURSOR(i),
++		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, ENABLE, ENABLE) |
++		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, FORMAT, asyh->curs.format) |
++		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, SIZE, asyh->curs.layout) |
++		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_X, 0) |
++		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_Y, 0) |
++		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, COMPOSITION, ALPHA_BLEND),
 +
-+	duty100 = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_FDO_CTRL1),
-+				CG_FDO_CTRL1, FMAX_DUTY100);
-+	if (!duty100)
-+		return -EINVAL;
++				HEAD_SET_OFFSET_CURSOR(i), asyh->curs.offset >> 8);
 +
-+	tmp64 = (uint64_t)speed * duty100;
-+	do_div(tmp64, 100);
-+	duty = (uint32_t)tmp64;
-+
-+	WREG32_SOC15(THM, 0, mmCG_FDO_CTRL0,
-+		     REG_SET_FIELD(RREG32_SOC15(THM, 0, mmCG_FDO_CTRL0),
-+				   CG_FDO_CTRL0, FDO_STATIC_DUTY, duty));
-+
-+	return smu_v11_0_set_fan_static_mode(smu, FDO_PWM_MODE_STATIC);
++	PUSH_MTHD(push, NV917D, HEAD_SET_CONTEXT_DMA_CURSOR(i), asyh->curs.handle);
++	return 0;
 +}
 +
-+int
- smu_v11_0_set_fan_control_mode(struct smu_context *smu,
- 			       uint32_t mode)
- {
-@@ -1130,7 +1159,7 @@ smu_v11_0_set_fan_control_mode(struct sm
- 
- 	switch (mode) {
- 	case AMD_FAN_CTRL_NONE:
--		ret = smu_v11_0_set_fan_speed_rpm(smu, smu->fan_max_rpm);
-+		ret = smu_v11_0_set_fan_speed_percent(smu, 100);
- 		break;
- 	case AMD_FAN_CTRL_MANUAL:
- 		ret = smu_v11_0_auto_fan_control(smu, 0);
+ int
+ head917d_curs_layout(struct nv50_head *head, struct nv50_wndw_atom *asyw,
+ 		     struct nv50_head_atom *asyh)
+@@ -101,7 +127,7 @@ head917d = {
+ 	.core_clr = head907d_core_clr,
+ 	.curs_layout = head917d_curs_layout,
+ 	.curs_format = head507d_curs_format,
+-	.curs_set = head907d_curs_set,
++	.curs_set = head917d_curs_set,
+ 	.curs_clr = head907d_curs_clr,
+ 	.base = head917d_base,
+ 	.ovly = head907d_ovly,
+diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
+index 2a2612d6e1e0..fb223723a38a 100644
+--- a/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
++++ b/drivers/gpu/drm/nouveau/include/nvhw/class/cl917d.h
+@@ -66,6 +66,10 @@
+ #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_ALPHA_BLEND                  (0x00000000)
+ #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_PREMULT_ALPHA_BLEND          (0x00000001)
+ #define NV917D_HEAD_SET_CONTROL_CURSOR_COMPOSITION_XOR                          (0x00000002)
++#define NV917D_HEAD_SET_OFFSET_CURSOR(a)                                        (0x00000484 + (a)*0x00000300)
++#define NV917D_HEAD_SET_OFFSET_CURSOR_ORIGIN                                    31:0
++#define NV917D_HEAD_SET_CONTEXT_DMA_CURSOR(a)                                   (0x0000048C + (a)*0x00000300)
++#define NV917D_HEAD_SET_CONTEXT_DMA_CURSOR_HANDLE                               31:0
+ #define NV917D_HEAD_SET_DITHER_CONTROL(a)                                       (0x000004A0 + (a)*0x00000300)
+ #define NV917D_HEAD_SET_DITHER_CONTROL_ENABLE                                   0:0
+ #define NV917D_HEAD_SET_DITHER_CONTROL_ENABLE_DISABLE                           (0x00000000)
 
 
