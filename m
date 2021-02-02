@@ -2,206 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9749B30B7A8
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 07:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B08430B7D9
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 07:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231596AbhBBGKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 01:10:38 -0500
-Received: from Mailgw01.mediatek.com ([1.203.163.78]:57361 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S231621AbhBBGKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 01:10:38 -0500
-X-UUID: 3282f37244c44a3e9fbb9cb580d25dc6-20210202
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=Ts8m8akIrVg+91beyBWSOTYxOCqFp6KNdG0km01xgtM=;
-        b=Tn01kXE39tF3rHwubc3PkZ34NN2PNTiXcnyhCDEDs/mqdcLB6smX9LaVjOikBP/tiG8ngU0V+cU0j51i5TstrBfdeoWfKCH0rkizUXe7X5gl0CJyTyx/5i8FBoGNHEknJaoqfDyIDxoVbqlTwnq4gtznKtzIMLl7Hdm0kUSIHik=;
-X-UUID: 3282f37244c44a3e9fbb9cb580d25dc6-20210202
-Received: from mtkcas35.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
+        id S232066AbhBBG3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 01:29:54 -0500
+Received: from mailgw02.mediatek.com ([1.203.163.81]:41989 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231952AbhBBG3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 01:29:52 -0500
+X-UUID: 6c8a7d8511dd4e28a27000d42d405fc9-20210202
+X-UUID: 6c8a7d8511dd4e28a27000d42d405fc9-20210202
+Received: from mtkcas36.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
         (envelope-from <chunfeng.yun@mediatek.com>)
         (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 671492651; Tue, 02 Feb 2021 14:08:28 +0800
-Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS31N1.mediatek.inc
- (172.27.4.69) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 2 Feb
- 2021 14:08:21 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS32.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 2 Feb 2021 14:08:21 +0800
-Message-ID: <1612246101.25113.11.camel@mhfsdcap03>
-Subject: Re: [next PATCH] usb: xhci-mtk: skip dropping bandwidth of
- unchecked endpoints
+        with ESMTP id 1507493788; Tue, 02 Feb 2021 14:28:36 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ MTKMBS31N1.mediatek.inc (172.27.4.69) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 2 Feb 2021 14:28:28 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 2 Feb 2021 14:28:27 +0800
 From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Ikjoon Jang <ikjn@chromium.org>
-CC:     Mathias Nyman <mathias.nyman@intel.com>,
+To:     Mathias Nyman <mathias.nyman@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Zhanyong Wang <zhanyong.wang@mediatek.com>,
+        Ikjoon Jang <ikjn@chromium.org>
+CC:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
         <linux-usb@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
         <linux-mediatek@lists.infradead.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>
-Date:   Tue, 2 Feb 2021 14:08:21 +0800
-In-Reply-To: <CAATdQgCkLxU2ts_dUq5+MnaxQ6RD69zddVKxqPRRZAGG2iq2hA@mail.gmail.com>
-References: <1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com>
-         <CAATdQgCkLxU2ts_dUq5+MnaxQ6RD69zddVKxqPRRZAGG2iq2hA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        <linux-kernel@vger.kernel.org>,
+        Zhanyong Wang <zhanyong.wang@mediatek.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        stable <stable@vger.kernel.org>
+Subject: [next v2 PATCH] usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints
+Date:   Tue, 2 Feb 2021 14:28:18 +0800
+Message-ID: <1612247298-4654-1-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 1F8851F34FEEB5FA0BE1BE46698C9D41F9DC20F3F1155939C75CDABE5000BFC12000:8
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 34469E8ADEB93BE70103A71D898FDDBC2A64BDA9A3D8F3654D9CCF20D038F0372000:8
 X-MTK:  N
-Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIxLTAyLTAxIGF0IDE3OjIwICswODAwLCBJa2pvb24gSmFuZyB3cm90ZToNCj4g
-SEkgQ2h1bmZlbmcsDQo+IA0KPiBPbiBNb24sIEZlYiAxLCAyMDIxIGF0IDE6NTggUE0gQ2h1bmZl
-bmcgWXVuIDxjaHVuZmVuZy55dW5AbWVkaWF0ZWsuY29tPiB3cm90ZToNCj4gPg0KPiA+IEZvciB0
-aG9zZSB1bmNoZWNrZWQgZW5kcG9pbnRzLCB3ZSBkb24ndCBhbGxvY2F0ZSBiYW5kd2lkdGggZm9y
-DQo+ID4gdGhlbSwgc28gbm8gbmVlZCBmcmVlIHRoZSBiYW5kd2lkdGgsIG90aGVyd2lzZSB3aWxs
-IGRlY3JlYXNlDQo+ID4gdGhlIGFsbG9jYXRlZCBiYW5kd2lkdGguDQo+ID4gTWVhbndoaWxlIHVz
-ZSB4aGNpX2RiZygpIGluc3RlYWQgb2YgZGV2X2RiZygpIHRvIHByaW50IGxvZ3MgYW5kDQo+ID4g
-cmVuYW1lIGJ3X2VwX2xpc3RfbmV3IGFzIGJ3X2VwX2Noa19saXN0Lg0KPiA+DQo+ID4gRml4ZXM6
-IDFkNjlmOWQ5MDFlZiAoInVzYjogeGhjaS1tdGs6IGZpeCB1bnJlbGVhc2VkIGJhbmR3aWR0aCBk
-YXRhIikNCj4gPiBDYzogc3RhYmxlIDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPiA+IFNpZ25l
-ZC1vZmYtYnk6IENodW5mZW5nIFl1biA8Y2h1bmZlbmcueXVuQG1lZGlhdGVrLmNvbT4NCj4gDQo+
-IFJldmlld2VkLWFuZC10ZXN0ZWQtYnk6IElram9vbiBKYW5nIDxpa2puQGNocm9taXVtLm9yZz4N
-Cj4gDQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvdXNiL2hvc3QveGhjaS1tdGstc2NoLmMgfCA2MSAr
-KysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0NCj4gPiAgZHJpdmVycy91c2IvaG9zdC94
-aGNpLW10ay5oICAgICB8ICA0ICsrLQ0KPiA+ICAyIGZpbGVzIGNoYW5nZWQsIDM2IGluc2VydGlv
-bnMoKyksIDI5IGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNi
-L2hvc3QveGhjaS1tdGstc2NoLmMgYi9kcml2ZXJzL3VzYi9ob3N0L3hoY2ktbXRrLXNjaC5jDQo+
-ID4gaW5kZXggYTMxM2U3NWZmMWM2Li5kZWU4YTMyOTA3NmQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJp
-dmVycy91c2IvaG9zdC94aGNpLW10ay1zY2guYw0KPiA+ICsrKyBiL2RyaXZlcnMvdXNiL2hvc3Qv
-eGhjaS1tdGstc2NoLmMNCj4gPiBAQCAtMjAwLDYgKzIwMCw3IEBAIHN0YXRpYyBzdHJ1Y3QgbXUz
-aF9zY2hfZXBfaW5mbyAqY3JlYXRlX3NjaF9lcChzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4g
-Pg0KPiA+ICAgICAgICAgc2NoX2VwLT5zY2hfdHQgPSB0dDsNCj4gPiAgICAgICAgIHNjaF9lcC0+
-ZXAgPSBlcDsNCj4gPiArICAgICAgIElOSVRfTElTVF9IRUFEKCZzY2hfZXAtPmVuZHBvaW50KTsN
-Cj4gPiAgICAgICAgIElOSVRfTElTVF9IRUFEKCZzY2hfZXAtPnR0X2VuZHBvaW50KTsNCj4gPg0K
-PiA+ICAgICAgICAgcmV0dXJuIHNjaF9lcDsNCj4gPiBAQCAtMzc0LDYgKzM3NSw3IEBAIHN0YXRp
-YyB2b2lkIHVwZGF0ZV9idXNfYncoc3RydWN0IG11M2hfc2NoX2J3X2luZm8gKnNjaF9idywNCj4g
-PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoX2VwLT5id19idWRn
-ZXRfdGFibGVbal07DQo+ID4gICAgICAgICAgICAgICAgIH0NCj4gPiAgICAgICAgIH0NCj4gPiAr
-ICAgICAgIHNjaF9lcC0+YWxsb2NhdGVkID0gdXNlZDsNCj4gDQo+IFllcywgdGhpcyBpcyByZWFs
-bHkgbmVlZGVkIQ0KPiANCj4gPiAgfQ0KPiA+DQo+ID4gIHN0YXRpYyBpbnQgY2hlY2tfc2NoX3R0
-KHN0cnVjdCB1c2JfZGV2aWNlICp1ZGV2LA0KPiA+IEBAIC01NDIsNiArNTQ0LDIyIEBAIHN0YXRp
-YyBpbnQgY2hlY2tfc2NoX2J3KHN0cnVjdCB1c2JfZGV2aWNlICp1ZGV2LA0KPiA+ICAgICAgICAg
-cmV0dXJuIDA7DQo+ID4gIH0NCj4gPg0KPiA+ICtzdGF0aWMgdm9pZCBkZXN0cm95X3NjaF9lcChz
-dHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiArICAgICAgIHN0cnVjdCBtdTNoX3NjaF9id19p
-bmZvICpzY2hfYncsIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXApDQo+ID4gK3sNCj4g
-PiArICAgICAgIC8qIG9ubHkgcmVsZWFzZSBlcCBidyBjaGVjayBwYXNzZWQgYnkgY2hlY2tfc2No
-X2J3KCkgKi8NCj4gPiArICAgICAgIGlmIChzY2hfZXAtPmFsbG9jYXRlZCkNCj4gPiArICAgICAg
-ICAgICAgICAgdXBkYXRlX2J1c19idyhzY2hfYncsIHNjaF9lcCwgMCk7DQo+IA0KPiBTbyBvbmx5
-IHRoZXNlIHR3byBsaW5lcyByZWFsbHkgbWF0dGVyLg0KPiANCj4gPiArDQo+ID4gKyAgICAgICBs
-aXN0X2RlbCgmc2NoX2VwLT5lbmRwb2ludCk7DQo+ID4gKw0KPiA+ICsgICAgICAgaWYgKHNjaF9l
-cC0+c2NoX3R0KSB7DQo+ID4gKyAgICAgICAgICAgICAgIGxpc3RfZGVsKCZzY2hfZXAtPnR0X2Vu
-ZHBvaW50KTsNCj4gPiArICAgICAgICAgICAgICAgZHJvcF90dCh1ZGV2KTsNCj4gPiArICAgICAg
-IH0NCj4gPiArICAgICAgIGtmcmVlKHNjaF9lcCk7DQo+ID4gK30NCj4gPiArDQo+ID4gIHN0YXRp
-YyBib29sIG5lZWRfYndfc2NoKHN0cnVjdCB1c2JfaG9zdF9lbmRwb2ludCAqZXAsDQo+ID4gICAg
-ICAgICBlbnVtIHVzYl9kZXZpY2Vfc3BlZWQgc3BlZWQsIGludCBoYXNfdHQpDQo+ID4gIHsNCj4g
-PiBAQCAtNTg0LDcgKzYwMiw3IEBAIGludCB4aGNpX210a19zY2hfaW5pdChzdHJ1Y3QgeGhjaV9o
-Y2RfbXRrICptdGspDQo+ID4NCj4gPiAgICAgICAgIG10ay0+c2NoX2FycmF5ID0gc2NoX2FycmF5
-Ow0KPiA+DQo+ID4gLSAgICAgICBJTklUX0xJU1RfSEVBRCgmbXRrLT5id19lcF9saXN0X25ldyk7
-DQo+ID4gKyAgICAgICBJTklUX0xJU1RfSEVBRCgmbXRrLT5id19lcF9jaGtfbGlzdCk7DQo+ID4N
-Cj4gPiAgICAgICAgIHJldHVybiAwOw0KPiA+ICB9DQo+ID4gQEAgLTYzNiwyOSArNjU0LDEyIEBA
-IGludCB4aGNpX210a19hZGRfZXBfcXVpcmsoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVz
-Yl9kZXZpY2UgKnVkZXYsDQo+ID4NCj4gPiAgICAgICAgIHNldHVwX3NjaF9pbmZvKHVkZXYsIGVw
-X2N0eCwgc2NoX2VwKTsNCj4gPg0KPiA+IC0gICAgICAgbGlzdF9hZGRfdGFpbCgmc2NoX2VwLT5l
-bmRwb2ludCwgJm10ay0+YndfZXBfbGlzdF9uZXcpOw0KPiA+ICsgICAgICAgbGlzdF9hZGRfdGFp
-bCgmc2NoX2VwLT5lbmRwb2ludCwgJm10ay0+YndfZXBfY2hrX2xpc3QpOw0KPiA+DQo+ID4gICAg
-ICAgICByZXR1cm4gMDsNCj4gPiAgfQ0KPiA+ICBFWFBPUlRfU1lNQk9MX0dQTCh4aGNpX210a19h
-ZGRfZXBfcXVpcmspOw0KPiA+DQo+ID4gLXN0YXRpYyB2b2lkIHhoY2lfbXRrX2Ryb3BfZXAoc3Ry
-dWN0IHhoY2lfaGNkX210ayAqbXRrLCBzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiAtICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXAp
-DQo+ID4gLXsNCj4gPiAtICAgICAgIHN0cnVjdCB4aGNpX2hjZCAqeGhjaSA9IGhjZF90b194aGNp
-KG10ay0+aGNkKTsNCj4gPiAtICAgICAgIGludCBid19pbmRleCA9IGdldF9id19pbmRleCh4aGNp
-LCB1ZGV2LCBzY2hfZXAtPmVwKTsNCj4gPiAtICAgICAgIHN0cnVjdCBtdTNoX3NjaF9id19pbmZv
-ICpzY2hfYncgPSAmbXRrLT5zY2hfYXJyYXlbYndfaW5kZXhdOw0KPiA+IC0NCj4gPiAtICAgICAg
-IHVwZGF0ZV9idXNfYncoc2NoX2J3LCBzY2hfZXAsIDApOw0KPiA+IC0gICAgICAgbGlzdF9kZWwo
-JnNjaF9lcC0+ZW5kcG9pbnQpOw0KPiA+IC0NCj4gPiAtICAgICAgIGlmIChzY2hfZXAtPnNjaF90
-dCkgew0KPiA+IC0gICAgICAgICAgICAgICBsaXN0X2RlbCgmc2NoX2VwLT50dF9lbmRwb2ludCk7
-DQo+ID4gLSAgICAgICAgICAgICAgIGRyb3BfdHQodWRldik7DQo+ID4gLSAgICAgICB9DQo+ID4g
-LSAgICAgICBrZnJlZShzY2hfZXApOw0KPiA+IC19DQo+ID4gLQ0KPiA+ICB2b2lkIHhoY2lfbXRr
-X2Ryb3BfZXBfcXVpcmsoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVk
-ZXYsDQo+ID4gICAgICAgICAgICAgICAgIHN0cnVjdCB1c2JfaG9zdF9lbmRwb2ludCAqZXApDQo+
-ID4gIHsNCj4gPiBAQCAtNjg4LDkgKzY4OSw4IEBAIHZvaWQgeGhjaV9tdGtfZHJvcF9lcF9xdWly
-ayhzdHJ1Y3QgdXNiX2hjZCAqaGNkLCBzdHJ1Y3QgdXNiX2RldmljZSAqdWRldiwNCj4gPiAgICAg
-ICAgIHNjaF9idyA9ICZzY2hfYXJyYXlbYndfaW5kZXhdOw0KPiA+DQo+ID4gICAgICAgICBsaXN0
-X2Zvcl9lYWNoX2VudHJ5X3NhZmUoc2NoX2VwLCB0bXAsICZzY2hfYnctPmJ3X2VwX2xpc3QsIGVu
-ZHBvaW50KSB7DQo+ID4gLSAgICAgICAgICAgICAgIGlmIChzY2hfZXAtPmVwID09IGVwKSB7DQo+
-ID4gLSAgICAgICAgICAgICAgICAgICAgICAgeGhjaV9tdGtfZHJvcF9lcChtdGssIHVkZXYsIHNj
-aF9lcCk7DQo+ID4gLSAgICAgICAgICAgICAgIH0NCj4gPiArICAgICAgICAgICAgICAgaWYgKHNj
-aF9lcC0+ZXAgPT0gZXApDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgZGVzdHJveV9zY2hf
-ZXAodWRldiwgc2NoX2J3LCBzY2hfZXApOw0KPiANCj4gbm90IHNvIGNyaXRpY2FsIGJ1dCBJJ3Zl
-IGFsc28gbWlzc2VkICdicmVhaycgaGVyZS4NCj4gQ2FuIHlvdSBwbGVhc2UgYWRkIGEgYnJlYWsg
-c3RhdGVtZW50IGhlcmU/DQpZZXMsIGl0J3MgYmV0dGVyIHRvIGFkZCAnYnJlYWsnIGhlcmUsIHRo
-YW5rcw0KDQo+IA0KPiA+ICAgICAgICAgfQ0KPiA+ICB9DQo+ID4gIEVYUE9SVF9TWU1CT0xfR1BM
-KHhoY2lfbXRrX2Ryb3BfZXBfcXVpcmspOw0KPiA+IEBAIC03MDQsOSArNzA0LDkgQEAgaW50IHho
-Y2lfbXRrX2NoZWNrX2JhbmR3aWR0aChzdHJ1Y3QgdXNiX2hjZCAqaGNkLCBzdHJ1Y3QgdXNiX2Rl
-dmljZSAqdWRldikNCj4gPiAgICAgICAgIHN0cnVjdCBtdTNoX3NjaF9lcF9pbmZvICpzY2hfZXAs
-ICp0bXA7DQo+ID4gICAgICAgICBpbnQgYndfaW5kZXgsIHJldDsNCj4gPg0KPiA+IC0gICAgICAg
-ZGV2X2RiZygmdWRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsNCj4gPiArICAgICAgIHhoY2lf
-ZGJnKHhoY2ksICIlcygpIHVkZXYgJXNcbiIsIF9fZnVuY19fLCBkZXZfbmFtZSgmdWRldi0+ZGV2
-KSk7DQo+ID4NCj4gPiAtICAgICAgIGxpc3RfZm9yX2VhY2hfZW50cnkoc2NoX2VwLCAmbXRrLT5i
-d19lcF9saXN0X25ldywgZW5kcG9pbnQpIHsNCj4gPiArICAgICAgIGxpc3RfZm9yX2VhY2hfZW50
-cnkoc2NoX2VwLCAmbXRrLT5id19lcF9jaGtfbGlzdCwgZW5kcG9pbnQpIHsNCj4gPiAgICAgICAg
-ICAgICAgICAgYndfaW5kZXggPSBnZXRfYndfaW5kZXgoeGhjaSwgdWRldiwgc2NoX2VwLT5lcCk7
-DQo+ID4gICAgICAgICAgICAgICAgIHNjaF9idyA9ICZtdGstPnNjaF9hcnJheVtid19pbmRleF07
-DQo+ID4NCj4gPiBAQCAtNzE3LDcgKzcxNyw3IEBAIGludCB4aGNpX210a19jaGVja19iYW5kd2lk
-dGgoc3RydWN0IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVkZXYpDQo+ID4gICAg
-ICAgICAgICAgICAgIH0NCj4gPiAgICAgICAgIH0NCj4gPg0KPiA+IC0gICAgICAgbGlzdF9mb3Jf
-ZWFjaF9lbnRyeV9zYWZlKHNjaF9lcCwgdG1wLCAmbXRrLT5id19lcF9saXN0X25ldywgZW5kcG9p
-bnQpIHsNCj4gPiArICAgICAgIGxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZShzY2hfZXAsIHRtcCwg
-Jm10ay0+YndfZXBfY2hrX2xpc3QsIGVuZHBvaW50KSB7DQo+ID4gICAgICAgICAgICAgICAgIHN0
-cnVjdCB4aGNpX2VwX2N0eCAqZXBfY3R4Ow0KPiA+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdXNi
-X2hvc3RfZW5kcG9pbnQgKmVwID0gc2NoX2VwLT5lcDsNCj4gPiAgICAgICAgICAgICAgICAgdW5z
-aWduZWQgaW50IGVwX2luZGV4ID0geGhjaV9nZXRfZW5kcG9pbnRfaW5kZXgoJmVwLT5kZXNjKTsN
-Cj4gPiBAQCAtNzQ2LDEyICs3NDYsMTcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoeGhjaV9tdGtfY2hl
-Y2tfYmFuZHdpZHRoKTsNCj4gPiAgdm9pZCB4aGNpX210a19yZXNldF9iYW5kd2lkdGgoc3RydWN0
-IHVzYl9oY2QgKmhjZCwgc3RydWN0IHVzYl9kZXZpY2UgKnVkZXYpDQo+ID4gIHsNCj4gPiAgICAg
-ICAgIHN0cnVjdCB4aGNpX2hjZF9tdGsgKm10ayA9IGhjZF90b19tdGsoaGNkKTsNCj4gPiArICAg
-ICAgIHN0cnVjdCB4aGNpX2hjZCAqeGhjaSA9IGhjZF90b194aGNpKGhjZCk7DQo+ID4gKyAgICAg
-ICBzdHJ1Y3QgbXUzaF9zY2hfYndfaW5mbyAqc2NoX2J3Ow0KPiA+ICAgICAgICAgc3RydWN0IG11
-M2hfc2NoX2VwX2luZm8gKnNjaF9lcCwgKnRtcDsNCj4gPiArICAgICAgIGludCBid19pbmRleDsN
-Cj4gPg0KPiA+IC0gICAgICAgZGV2X2RiZygmdWRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsN
-Cj4gPiArICAgICAgIHhoY2lfZGJnKHhoY2ksICIlcygpIHVkZXYgJXNcbiIsIF9fZnVuY19fLCBk
-ZXZfbmFtZSgmdWRldi0+ZGV2KSk7DQo+ID4NCj4gPiAtICAgICAgIGxpc3RfZm9yX2VhY2hfZW50
-cnlfc2FmZShzY2hfZXAsIHRtcCwgJm10ay0+YndfZXBfbGlzdF9uZXcsIGVuZHBvaW50KSB7DQo+
-ID4gLSAgICAgICAgICAgICAgIHhoY2lfbXRrX2Ryb3BfZXAobXRrLCB1ZGV2LCBzY2hfZXApOw0K
-PiA+ICsgICAgICAgbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHNjaF9lcCwgdG1wLCAmbXRrLT5i
-d19lcF9jaGtfbGlzdCwgZW5kcG9pbnQpIHsNCj4gPiArICAgICAgICAgICAgICAgYndfaW5kZXgg
-PSBnZXRfYndfaW5kZXgoeGhjaSwgdWRldiwgc2NoX2VwLT5lcCk7DQo+ID4gKyAgICAgICAgICAg
-ICAgIHNjaF9idyA9ICZtdGstPnNjaF9hcnJheVtid19pbmRleF07DQo+ID4gKyAgICAgICAgICAg
-ICAgIGRlc3Ryb3lfc2NoX2VwKHVkZXYsIHNjaF9idywgc2NoX2VwKTsNCj4gPiAgICAgICAgIH0N
-Cj4gPg0KPiA+ICAgICAgICAgeGhjaV9yZXNldF9iYW5kd2lkdGgoaGNkLCB1ZGV2KTsNCj4gPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay5oIGIvZHJpdmVycy91c2IvaG9z
-dC94aGNpLW10ay5oDQo+ID4gaW5kZXggNTc3ZjQzMWM1YzkzLi5jYmIwOWRmZWE2MmUgMTAwNjQ0
-DQo+ID4gLS0tIGEvZHJpdmVycy91c2IvaG9zdC94aGNpLW10ay5oDQo+ID4gKysrIGIvZHJpdmVy
-cy91c2IvaG9zdC94aGNpLW10ay5oDQo+ID4gQEAgLTU5LDYgKzU5LDcgQEAgc3RydWN0IG11M2hf
-c2NoX2J3X2luZm8gew0KPiA+ICAgKiBAZXBfdHlwZTogZW5kcG9pbnQgdHlwZQ0KPiA+ICAgKiBA
-bWF4cGt0OiBtYXggcGFja2V0IHNpemUgb2YgZW5kcG9pbnQNCj4gPiAgICogQGVwOiBhZGRyZXNz
-IG9mIHVzYl9ob3N0X2VuZHBvaW50IHN0cnVjdA0KPiA+ICsgKiBAYWxsb2NhdGVkOiB0aGUgYmFu
-ZHdpZHRoIGlzIGFyZWFkeSBhbGxvY2F0ZWQgZnJvbSBidXNfYncNCj4gPiAgICogQG9mZnNldDog
-d2hpY2ggdWZyYW1lIG9mIHRoZSBpbnRlcnZhbCB0aGF0IHRyYW5zZmVyIHNob3VsZCBiZQ0KPiA+
-ICAgKiAgICAgICAgICAgICBzY2hlZHVsZWQgZmlyc3QgdGltZSB3aXRoaW4gdGhlIGludGVydmFs
-DQo+ID4gICAqIEByZXBlYXQ6IHRoZSB0aW1lIGdhcCBiZXR3ZWVuIHR3byB1ZnJhbWVzIHRoYXQg
-dHJhbnNmZXJzIGFyZQ0KPiA+IEBAIC04Niw2ICs4Nyw3IEBAIHN0cnVjdCBtdTNoX3NjaF9lcF9p
-bmZvIHsNCj4gPiAgICAgICAgIHUzMiBlcF90eXBlOw0KPiA+ICAgICAgICAgdTMyIG1heHBrdDsN
-Cj4gPiAgICAgICAgIHZvaWQgKmVwOw0KPiA+ICsgICAgICAgYm9vbCBhbGxvY2F0ZWQ7DQo+ID4g
-ICAgICAgICAvKg0KPiA+ICAgICAgICAgICogbXRrIHhIQ0kgc2NoZWR1bGluZyBpbmZvcm1hdGlv
-biBwdXQgaW50byByZXNlcnZlZCBEV3MNCj4gPiAgICAgICAgICAqIGluIGVwIGNvbnRleHQNCj4g
-PiBAQCAtMTMwLDggKzEzMiw4IEBAIHN0cnVjdCBtdTNjX2lwcGNfcmVncyB7DQo+ID4gIHN0cnVj
-dCB4aGNpX2hjZF9tdGsgew0KPiA+ICAgICAgICAgc3RydWN0IGRldmljZSAqZGV2Ow0KPiA+ICAg
-ICAgICAgc3RydWN0IHVzYl9oY2QgKmhjZDsNCj4gPiAtICAgICAgIHN0cnVjdCBsaXN0X2hlYWQg
-YndfZXBfbGlzdF9uZXc7DQo+ID4gICAgICAgICBzdHJ1Y3QgbXUzaF9zY2hfYndfaW5mbyAqc2No
-X2FycmF5Ow0KPiA+ICsgICAgICAgc3RydWN0IGxpc3RfaGVhZCBid19lcF9jaGtfbGlzdDsNCj4g
-PiAgICAgICAgIHN0cnVjdCBtdTNjX2lwcGNfcmVncyBfX2lvbWVtICppcHBjX3JlZ3M7DQo+ID4g
-ICAgICAgICBib29sIGhhc19pcHBjOw0KPiA+ICAgICAgICAgaW50IG51bV91Ml9wb3J0czsNCj4g
-PiAtLQ0KPiA+IDIuMTguMA0KPiA+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fDQo+ID4gTGludXgtbWVkaWF0ZWsgbWFpbGluZyBsaXN0DQo+ID4gTGludXgt
-bWVkaWF0ZWtAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiA+IGh0dHA6Ly9saXN0cy5pbmZyYWRlYWQu
-b3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtbWVkaWF0ZWsNCg0K
+For those unchecked endpoints, we don't allocate bandwidth for
+them, so no need free the bandwidth, otherwise will decrease
+the allocated bandwidth.
+Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
+rename bw_ep_list_new as bw_ep_chk_list.
+
+Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Tested-by: Ikjoon Jang <ikjn@chromium.org>
+Reviewed-by: Ikjoon Jang <ikjn@chromium.org>
+---
+v2: add 'break' when find the ep that will be dropped suggested by Ikjoon
+    add Tested-by and Reviewed-by Ikjoon
+---
+ drivers/usb/host/xhci-mtk-sch.c | 59 ++++++++++++++++++---------------
+ drivers/usb/host/xhci-mtk.h     |  4 ++-
+ 2 files changed, 36 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index a313e75ff1c6..b45e5bf08997 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -200,6 +200,7 @@ static struct mu3h_sch_ep_info *create_sch_ep(struct usb_device *udev,
+ 
+ 	sch_ep->sch_tt = tt;
+ 	sch_ep->ep = ep;
++	INIT_LIST_HEAD(&sch_ep->endpoint);
+ 	INIT_LIST_HEAD(&sch_ep->tt_endpoint);
+ 
+ 	return sch_ep;
+@@ -374,6 +375,7 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
+ 					sch_ep->bw_budget_table[j];
+ 		}
+ 	}
++	sch_ep->allocated = used;
+ }
+ 
+ static int check_sch_tt(struct usb_device *udev,
+@@ -542,6 +544,22 @@ static int check_sch_bw(struct usb_device *udev,
+ 	return 0;
+ }
+ 
++static void destroy_sch_ep(struct usb_device *udev,
++	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
++{
++	/* only release ep bw check passed by check_sch_bw() */
++	if (sch_ep->allocated)
++		update_bus_bw(sch_bw, sch_ep, 0);
++
++	list_del(&sch_ep->endpoint);
++
++	if (sch_ep->sch_tt) {
++		list_del(&sch_ep->tt_endpoint);
++		drop_tt(udev);
++	}
++	kfree(sch_ep);
++}
++
+ static bool need_bw_sch(struct usb_host_endpoint *ep,
+ 	enum usb_device_speed speed, int has_tt)
+ {
+@@ -584,7 +602,7 @@ int xhci_mtk_sch_init(struct xhci_hcd_mtk *mtk)
+ 
+ 	mtk->sch_array = sch_array;
+ 
+-	INIT_LIST_HEAD(&mtk->bw_ep_list_new);
++	INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+@@ -636,29 +654,12 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 
+ 	setup_sch_info(udev, ep_ctx, sch_ep);
+ 
+-	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_list_new);
++	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_add_ep_quirk);
+ 
+-static void xhci_mtk_drop_ep(struct xhci_hcd_mtk *mtk, struct usb_device *udev,
+-			     struct mu3h_sch_ep_info *sch_ep)
+-{
+-	struct xhci_hcd *xhci = hcd_to_xhci(mtk->hcd);
+-	int bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+-	struct mu3h_sch_bw_info *sch_bw = &mtk->sch_array[bw_index];
+-
+-	update_bus_bw(sch_bw, sch_ep, 0);
+-	list_del(&sch_ep->endpoint);
+-
+-	if (sch_ep->sch_tt) {
+-		list_del(&sch_ep->tt_endpoint);
+-		drop_tt(udev);
+-	}
+-	kfree(sch_ep);
+-}
+-
+ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 		struct usb_host_endpoint *ep)
+ {
+@@ -689,7 +690,8 @@ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 
+ 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
+ 		if (sch_ep->ep == ep) {
+-			xhci_mtk_drop_ep(mtk, udev, sch_ep);
++			destroy_sch_ep(udev, sch_bw, sch_ep);
++			break;
+ 		}
+ 	}
+ }
+@@ -704,9 +706,9 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
+ 	int bw_index, ret;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry(sch_ep, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry(sch_ep, &mtk->bw_ep_chk_list, endpoint) {
+ 		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+ 		sch_bw = &mtk->sch_array[bw_index];
+ 
+@@ -717,7 +719,7 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 		}
+ 	}
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
+ 		struct xhci_ep_ctx *ep_ctx;
+ 		struct usb_host_endpoint *ep = sch_ep->ep;
+ 		unsigned int ep_index = xhci_get_endpoint_index(&ep->desc);
+@@ -746,12 +748,17 @@ EXPORT_SYMBOL_GPL(xhci_mtk_check_bandwidth);
+ void xhci_mtk_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ {
+ 	struct xhci_hcd_mtk *mtk = hcd_to_mtk(hcd);
++	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	struct mu3h_sch_bw_info *sch_bw;
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
++	int bw_index;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
+-		xhci_mtk_drop_ep(mtk, udev, sch_ep);
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
++		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
++		sch_bw = &mtk->sch_array[bw_index];
++		destroy_sch_ep(udev, sch_bw, sch_ep);
+ 	}
+ 
+ 	xhci_reset_bandwidth(hcd, udev);
+diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
+index 577f431c5c93..cbb09dfea62e 100644
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -59,6 +59,7 @@ struct mu3h_sch_bw_info {
+  * @ep_type: endpoint type
+  * @maxpkt: max packet size of endpoint
+  * @ep: address of usb_host_endpoint struct
++ * @allocated: the bandwidth is aready allocated from bus_bw
+  * @offset: which uframe of the interval that transfer should be
+  *		scheduled first time within the interval
+  * @repeat: the time gap between two uframes that transfers are
+@@ -86,6 +87,7 @@ struct mu3h_sch_ep_info {
+ 	u32 ep_type;
+ 	u32 maxpkt;
+ 	void *ep;
++	bool allocated;
+ 	/*
+ 	 * mtk xHCI scheduling information put into reserved DWs
+ 	 * in ep context
+@@ -130,8 +132,8 @@ struct mu3c_ippc_regs {
+ struct xhci_hcd_mtk {
+ 	struct device *dev;
+ 	struct usb_hcd *hcd;
+-	struct list_head bw_ep_list_new;
+ 	struct mu3h_sch_bw_info *sch_array;
++	struct list_head bw_ep_chk_list;
+ 	struct mu3c_ippc_regs __iomem *ippc_regs;
+ 	bool has_ippc;
+ 	int num_u2_ports;
+-- 
+2.18.0
 
