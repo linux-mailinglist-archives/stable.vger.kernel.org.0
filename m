@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3204E30C839
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:48:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C12B130C9B6
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237796AbhBBRp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:45:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
+        id S238428AbhBBS0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:26:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233879AbhBBOKo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:10:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A7CE64E27;
-        Tue,  2 Feb 2021 13:51:22 +0000 (UTC)
+        id S233631AbhBBOFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:05:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 801B06501B;
+        Tue,  2 Feb 2021 13:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273883;
-        bh=lR5tlSgT3+DAQJaRZP2PFsOH+BWTnlkqEhCNd8uIH/M=;
+        s=korg; t=1612273744;
+        bh=pLmKFZTcxLOU4xQtZ4hkVgIgfzlM+qFqfenDMYaOsXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FHGk+/eNMkfBX0kbgPYOOt+Zcims0FdC/Zdouuah8EsLlLR7AoKB9K77WJEsDbaOe
-         C/8tTxHbPPzBSSTURd6JxNsC5HxNxg2lKbZUnb6MM7t4PPzpFACukSujHPFhRGojq9
-         s/AlOBRSgpcS2v+/ZPxAZ0rDdO7m22IM8y8AFvaE=
+        b=UpWOUSs432Ecnpdwz9b5FZ9aOUpP2BVFUcDh3FkY1fZcfc+BkB18JCmHVMVYrsX7n
+         brNC3Zh7yt1RfWzMYP81NRRBjK1m0q9Bw6Xc0ISnoa/NUtMJ/YGVXkqwAz2saf9OAe
+         H9o5ahOjnlIYqtbMSJgj5w8U/Jhoq0LA2Oqv0lkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 11/32] futex: Sanitize exit state handling
+Subject: [PATCH 4.4 14/28] futex: Sanitize exit state handling
 Date:   Tue,  2 Feb 2021 14:38:34 +0100
-Message-Id: <20210202132942.465820022@linuxfoundation.org>
+Message-Id: <20210202132941.759808490@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,7 +61,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -3311,16 +3311,19 @@ void futex_exit_recursive(struct task_st
+@@ -3276,16 +3276,19 @@ void futex_exit_recursive(struct task_st
  
  void futex_exit_release(struct task_struct *tsk)
  {
