@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0925130C123
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9919A30C127
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234221AbhBBOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:14:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
+        id S234234AbhBBOOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:14:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234141AbhBBOMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233829AbhBBOMf (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 09:12:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6970765040;
-        Tue,  2 Feb 2021 13:52:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47F1F64FB0;
+        Tue,  2 Feb 2021 13:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273949;
-        bh=VO72xo3Ln8pM8nOw4InhlEiC5MpY0EvtYKsSSrbihHE=;
+        s=korg; t=1612273951;
+        bh=7zJJntLKaEfHwAfyaVTTHXnrnswbDbeif0bIJQpPAVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgvM2rN8Q/LbX4wGBCalpop0h4PdjiM4FUfN0dlT1ib/cGZzzdHLL6HD+JInfIhmt
-         8NZE3OcuP1bN/WM70YsGPW0nLIkD7JAWt2rJmNa37h4qlC8SfPZ6GzMlqbe7tZ9AU1
-         gJLMDIaUdaj68JaTZhob7G7NRumM36dY3GtQgtZ0=
+        b=g/mB2aMoITqns6gxxZGvUncupENCR0Z9lA0v3Barl1DGGDZupq7mmwgOfTLl3j04z
+         EjgSAn/K2cOydDzEgCyn5yrmILVT4QPnTp9Ep0MPm9yfkz3O1v1iFSY6g+mhXs+0JA
+         1qIsxbWO26hsV5qicbRaRhalRRMR6NwOHbi6VGTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 27/30] NFC: fix resource leak when target index is invalid
-Date:   Tue,  2 Feb 2021 14:39:08 +0100
-Message-Id: <20210202132943.244973502@linuxfoundation.org>
+Subject: [PATCH 4.14 28/30] NFC: fix possible resource leak
+Date:   Tue,  2 Feb 2021 14:39:09 +0100
+Message-Id: <20210202132943.279721069@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
 References: <20210202132942.138623851@linuxfoundation.org>
@@ -41,31 +41,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pan Bian <bianpan2016@163.com>
 
-commit 3a30537cee233fb7da302491b28c832247d89bbe upstream.
+commit d8f923c3ab96dbbb4e3c22d1afc1dc1d3b195cd8 upstream.
 
-Goto to the label put_dev instead of the label error to fix potential
-resource leak on path that the target index is invalid.
+Put the device to avoid resource leak on path that the polling flag is
+invalid.
 
-Fixes: c4fbb6515a4d ("NFC: The core part should generate the target index")
+Fixes: a831b9132065 ("NFC: Do not return EBUSY when stopping a poll that's already stopped")
 Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121152748.98409-1-bianpan2016@163.com
+Link: https://lore.kernel.org/r/20210121153745.122184-1-bianpan2016@163.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/nfc/rawsock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/netlink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -117,7 +117,7 @@ static int rawsock_connect(struct socket
- 	if (addr->target_idx > dev->target_next_idx - 1 ||
- 	    addr->target_idx < dev->target_next_idx - dev->n_targets) {
- 		rc = -EINVAL;
--		goto error;
-+		goto put_dev;
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -884,6 +884,7 @@ static int nfc_genl_stop_poll(struct sk_
+ 
+ 	if (!dev->polling) {
+ 		device_unlock(&dev->dev);
++		nfc_put_device(dev);
+ 		return -EINVAL;
  	}
  
- 	rc = nfc_activate_target(dev, addr->target_idx, addr->nfc_protocol);
 
 
