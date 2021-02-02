@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BCDF30CC79
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B937D30C03B
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:53:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232988AbhBBT5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:57:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S233132AbhBBNv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:51:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232940AbhBBNuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232941AbhBBNuB (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 08:50:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FFCB64FA1;
-        Tue,  2 Feb 2021 13:42:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1D7964FA7;
+        Tue,  2 Feb 2021 13:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273354;
-        bh=eR1JmH0TvrXwgf4kwoQSnDl0DgSldxgKUcc90l88V0I=;
+        s=korg; t=1612273357;
+        bh=upgIoolR7CBvZMgvSIlaQyvFFVTd8IlzYLKkf2D8H+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9tVjt2y7k4iPnEZOcdAeXnnXcE8isGpm1zCM+/v/v7NUNsOjIaQhJP8IVWkud0Ee
-         KPTXm+zSJal6ZmKl0PsBCQWkMSQ1WW09ffYcwh3TEMb/Zg0lM7tBVE8i3VKGcTDRI9
-         +7clEBCgw8Zhmcm2zrRGcFUz/k9q2D4IyeIr8mUU=
+        b=Ki/dP5jQ3GXj+y1fUZz/37FyV3jvtlmK2PUZMjETCJDEFuE6R2mhBbFJiAIJKh/ST
+         c2R9qjfsGL9vVFiiIC8m6HR2bSq8KJ4BQRjAt/J79CQBSPqa+oR8y3NHW8/EDIP1si
+         yvqDl73z2/9BaA8TkLjtwYtuN3FsPdjnDylpiFR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
+        stable@vger.kernel.org, Jay Zhou <jianjay.zhou@huawei.com>,
+        Shengen Zhuang <zhuangshengen@huawei.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 044/142] KVM: nVMX: Sync unsyncd vmcs02 state to vmcs12 on migration
-Date:   Tue,  2 Feb 2021 14:36:47 +0100
-Message-Id: <20210202132959.545200167@linuxfoundation.org>
+Subject: [PATCH 5.10 045/142] KVM: x86: get smi pending status correctly
+Date:   Tue,  2 Feb 2021 14:36:48 +0100
+Message-Id: <20210202132959.584466110@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,53 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Jay Zhou <jianjay.zhou@huawei.com>
 
-commit d51e1d3f6b4236e0352407d8a63f5c5f71ce193d upstream.
+commit 1f7becf1b7e21794fc9d460765fe09679bc9b9e0 upstream.
 
-Even when we are outside the nested guest, some vmcs02 fields
-may not be in sync vs vmcs12.  This is intentional, even across
-nested VM-exit, because the sync can be delayed until the nested
-hypervisor performs a VMCLEAR or a VMREAD/VMWRITE that affects those
-rarely accessed fields.
+The injection process of smi has two steps:
 
-However, during KVM_GET_NESTED_STATE, the vmcs12 has to be up to date to
-be able to restore it.  To fix that, call copy_vmcs02_to_vmcs12_rare()
-before the vmcs12 contents are copied to userspace.
+    Qemu                        KVM
+Step1:
+    cpu->interrupt_request &= \
+        ~CPU_INTERRUPT_SMI;
+    kvm_vcpu_ioctl(cpu, KVM_SMI)
 
-Fixes: 7952d769c29ca ("KVM: nVMX: Sync rarely accessed guest fields only when needed")
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210114205449.8715-2-mlevitsk@redhat.com>
+                                call kvm_vcpu_ioctl_smi() and
+                                kvm_make_request(KVM_REQ_SMI, vcpu);
+
+Step2:
+    kvm_vcpu_ioctl(cpu, KVM_RUN, 0)
+
+                                call process_smi() if
+                                kvm_check_request(KVM_REQ_SMI, vcpu) is
+                                true, mark vcpu->arch.smi_pending = true;
+
+The vcpu->arch.smi_pending will be set true in step2, unfortunately if
+vcpu paused between step1 and step2, the kvm_run->immediate_exit will be
+set and vcpu has to exit to Qemu immediately during step2 before mark
+vcpu->arch.smi_pending true.
+During VM migration, Qemu will get the smi pending status from KVM using
+KVM_GET_VCPU_EVENTS ioctl at the downtime, then the smi pending status
+will be lost.
+
+Signed-off-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Shengen Zhuang <zhuangshengen@huawei.com>
+Message-Id: <20210118084720.1585-1-jianjay.zhou@huawei.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/vmx/nested.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/kvm/x86.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -6070,11 +6070,14 @@ static int vmx_get_nested_state(struct k
- 	if (is_guest_mode(vcpu)) {
- 		sync_vmcs02_to_vmcs12(vcpu, vmcs12);
- 		sync_vmcs02_to_vmcs12_rare(vcpu, vmcs12);
--	} else if (!vmx->nested.need_vmcs12_to_shadow_sync) {
--		if (vmx->nested.hv_evmcs)
--			copy_enlightened_to_vmcs12(vmx);
--		else if (enable_shadow_vmcs)
--			copy_shadow_to_vmcs12(vmx);
-+	} else  {
-+		copy_vmcs02_to_vmcs12_rare(vcpu, get_vmcs12(vcpu));
-+		if (!vmx->nested.need_vmcs12_to_shadow_sync) {
-+			if (vmx->nested.hv_evmcs)
-+				copy_enlightened_to_vmcs12(vmx);
-+			else if (enable_shadow_vmcs)
-+				copy_shadow_to_vmcs12(vmx);
-+		}
- 	}
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -105,6 +105,7 @@ static u64 __read_mostly cr4_reserved_bi
  
- 	BUILD_BUG_ON(sizeof(user_vmx_nested_state->vmcs12) < VMCS12_SIZE);
+ static void update_cr8_intercept(struct kvm_vcpu *vcpu);
+ static void process_nmi(struct kvm_vcpu *vcpu);
++static void process_smi(struct kvm_vcpu *vcpu);
+ static void enter_smm(struct kvm_vcpu *vcpu);
+ static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
+ static void store_regs(struct kvm_vcpu *vcpu);
+@@ -4199,6 +4200,9 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_
+ {
+ 	process_nmi(vcpu);
+ 
++	if (kvm_check_request(KVM_REQ_SMI, vcpu))
++		process_smi(vcpu);
++
+ 	/*
+ 	 * In guest mode, payload delivery should be deferred,
+ 	 * so that the L1 hypervisor can intercept #PF before
 
 
