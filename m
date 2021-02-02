@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E6F30C05A
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0225330C05B
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233202AbhBBNzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:55:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        id S233363AbhBBNzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:55:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233289AbhBBNxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233103AbhBBNxr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Feb 2021 08:53:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFA3064FCD;
-        Tue,  2 Feb 2021 13:44:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8704564FCF;
+        Tue,  2 Feb 2021 13:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273452;
-        bh=Sa6tYb4IWmrl1JerSSQA4Px3w1Hsran4E+EIK/mwfYE=;
+        s=korg; t=1612273455;
+        bh=fYfoRWgdk+jUSFkQRvrTYCziREB34YC+M46Ggdj/hiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tz9/8gNZaDHQ2pGOh7A7PuN0yirxNDVNoiuFevih3ev5DbBCqiyTvoBsbAO2tfu+9
-         CG7ETyESahkC9ioCZpqTq29QbjRSChoeZSfh5eb+zU7jf+s6zA3QTDwiuJDCDXA78E
-         WGzPSVndju9j21IY9OaKwKsuZL+p0K1oo6QxhXEE=
+        b=I0RnwmJpsr65AXhAtgGFKgHKXaH26FjBJ44XU4+7qfh3mf8NssOqGofitm/CbPRFB
+         CO4Jb68/HTD0XwNiJlk74KHIDGwTqPAKTnhOhxz8tCCrqqvpY2JdEOL8ii66qrs2z+
+         GP9YPrk0LkR6RRB9yPDWV3AJMn/7yVBBPJw9MS1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        stable@vger.kernel.org, Visa Hankala <visa@hankala.org>,
         Florian Westphal <fw@strlen.de>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 080/142] selftests: xfrm: fix test return value override issue in xfrm_policy.sh
-Date:   Tue,  2 Feb 2021 14:37:23 +0100
-Message-Id: <20210202133001.004840935@linuxfoundation.org>
+Subject: [PATCH 5.10 081/142] xfrm: Fix wraparound in xfrm_policy_addr_delta()
+Date:   Tue,  2 Feb 2021 14:37:24 +0100
+Message-Id: <20210202133001.049782711@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,63 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Visa Hankala <visa@hankala.org>
 
-[ Upstream commit f6e9ceb7a7fc321a31a9dde93a99b7b4b016a3b3 ]
+[ Upstream commit da64ae2d35d3673233f0403b035d4c6acbf71965 ]
 
-When running this xfrm_policy.sh test script, even with some cases
-marked as FAIL, the overall test result will still be PASS:
+Use three-way comparison for address components to avoid integer
+wraparound in the result of xfrm_policy_addr_delta(). This ensures
+that the search trees are built and traversed correctly.
 
-$ sudo ./xfrm_policy.sh
-PASS: policy before exception matches
-FAIL: expected ping to .254 to fail (exceptions)
-PASS: direct policy matches (exceptions)
-PASS: policy matches (exceptions)
-FAIL: expected ping to .254 to fail (exceptions and block policies)
-PASS: direct policy matches (exceptions and block policies)
-PASS: policy matches (exceptions and block policies)
-FAIL: expected ping to .254 to fail (exceptions and block policies after hresh changes)
-PASS: direct policy matches (exceptions and block policies after hresh changes)
-PASS: policy matches (exceptions and block policies after hresh changes)
-FAIL: expected ping to .254 to fail (exceptions and block policies after hthresh change in ns3)
-PASS: direct policy matches (exceptions and block policies after hthresh change in ns3)
-PASS: policy matches (exceptions and block policies after hthresh change in ns3)
-FAIL: expected ping to .254 to fail (exceptions and block policies after htresh change to normal)
-PASS: direct policy matches (exceptions and block policies after htresh change to normal)
-PASS: policy matches (exceptions and block policies after htresh change to normal)
-PASS: policies with repeated htresh change
-$ echo $?
-0
+Treat IPv4 and IPv6 similarly by returning 0 when prefixlen == 0.
+Prefix /0 has only one equivalence class.
 
-This is because the $lret in check_xfrm() is not a local variable.
-Therefore when a test failed in check_exceptions(), the non-zero $lret
-will later get reset to 0 when the next test calls check_xfrm().
-
-With this fix, the final return value will be 1. Make it easier for
-testers to spot this failure.
-
-Fixes: 39aa6928d462d0 ("xfrm: policy: fix netlink/pf_key policy lookups")
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Fixes: 9cf545ebd591d ("xfrm: policy: store inexact policies in a tree ordered by destination address")
+Signed-off-by: Visa Hankala <visa@hankala.org>
 Acked-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/xfrm_policy.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_policy.c                     | 26 +++++++++----
+ tools/testing/selftests/net/xfrm_policy.sh | 43 ++++++++++++++++++++++
+ 2 files changed, 61 insertions(+), 8 deletions(-)
 
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 2f84136af48ab..b74f28cabe24f 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -793,15 +793,22 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
+ 				  const xfrm_address_t *b,
+ 				  u8 prefixlen, u16 family)
+ {
++	u32 ma, mb, mask;
+ 	unsigned int pdw, pbi;
+ 	int delta = 0;
+ 
+ 	switch (family) {
+ 	case AF_INET:
+-		if (sizeof(long) == 4 && prefixlen == 0)
+-			return ntohl(a->a4) - ntohl(b->a4);
+-		return (ntohl(a->a4) & ((~0UL << (32 - prefixlen)))) -
+-		       (ntohl(b->a4) & ((~0UL << (32 - prefixlen))));
++		if (prefixlen == 0)
++			return 0;
++		mask = ~0U << (32 - prefixlen);
++		ma = ntohl(a->a4) & mask;
++		mb = ntohl(b->a4) & mask;
++		if (ma < mb)
++			delta = -1;
++		else if (ma > mb)
++			delta = 1;
++		break;
+ 	case AF_INET6:
+ 		pdw = prefixlen >> 5;
+ 		pbi = prefixlen & 0x1f;
+@@ -812,10 +819,13 @@ static int xfrm_policy_addr_delta(const xfrm_address_t *a,
+ 				return delta;
+ 		}
+ 		if (pbi) {
+-			u32 mask = ~0u << (32 - pbi);
+-
+-			delta = (ntohl(a->a6[pdw]) & mask) -
+-				(ntohl(b->a6[pdw]) & mask);
++			mask = ~0U << (32 - pbi);
++			ma = ntohl(a->a6[pdw]) & mask;
++			mb = ntohl(b->a6[pdw]) & mask;
++			if (ma < mb)
++				delta = -1;
++			else if (ma > mb)
++				delta = 1;
+ 		}
+ 		break;
+ 	default:
 diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
-index 7a1bf94c5bd38..5922941e70c6c 100755
+index 5922941e70c6c..bdf450eaf60cf 100755
 --- a/tools/testing/selftests/net/xfrm_policy.sh
 +++ b/tools/testing/selftests/net/xfrm_policy.sh
-@@ -202,7 +202,7 @@ check_xfrm() {
- 	# 1: iptables -m policy rule count != 0
- 	rval=$1
- 	ip=$2
--	lret=0
-+	local lret=0
+@@ -287,6 +287,47 @@ check_hthresh_repeat()
+ 	return 0
+ }
  
- 	ip netns exec ns1 ping -q -c 1 10.0.2.$ip > /dev/null
++# insert non-overlapping policies in a random order and check that
++# all of them can be fetched using the traffic selectors.
++check_random_order()
++{
++	local ns=$1
++	local log=$2
++
++	for i in $(seq 100); do
++		ip -net $ns xfrm policy flush
++		for j in $(seq 0 16 255 | sort -R); do
++			ip -net $ns xfrm policy add dst $j.0.0.0/24 dir out priority 10 action allow
++		done
++		for j in $(seq 0 16 255); do
++			if ! ip -net $ns xfrm policy get dst $j.0.0.0/24 dir out > /dev/null; then
++				echo "FAIL: $log" 1>&2
++				return 1
++			fi
++		done
++	done
++
++	for i in $(seq 100); do
++		ip -net $ns xfrm policy flush
++		for j in $(seq 0 16 255 | sort -R); do
++			local addr=$(printf "e000:0000:%02x00::/56" $j)
++			ip -net $ns xfrm policy add dst $addr dir out priority 10 action allow
++		done
++		for j in $(seq 0 16 255); do
++			local addr=$(printf "e000:0000:%02x00::/56" $j)
++			if ! ip -net $ns xfrm policy get dst $addr dir out > /dev/null; then
++				echo "FAIL: $log" 1>&2
++				return 1
++			fi
++		done
++	done
++
++	ip -net $ns xfrm policy flush
++
++	echo "PASS: $log"
++	return 0
++}
++
+ #check for needed privileges
+ if [ "$(id -u)" -ne 0 ];then
+ 	echo "SKIP: Need root privileges"
+@@ -438,6 +479,8 @@ check_exceptions "exceptions and block policies after htresh change to normal"
  
+ check_hthresh_repeat "policies with repeated htresh change"
+ 
++check_random_order ns3 "policies inserted in random order"
++
+ for i in 1 2 3 4;do ip netns del ns$i;done
+ 
+ exit $ret
 -- 
 2.27.0
 
