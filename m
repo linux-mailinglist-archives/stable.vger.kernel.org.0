@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D171930C138
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A4830C76D
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbhBBORB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:17:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49708 "EHLO mail.kernel.org"
+        id S236274AbhBBRVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:21:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234010AbhBBOOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:14:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8925E65054;
-        Tue,  2 Feb 2021 13:53:29 +0000 (UTC)
+        id S234252AbhBBOOy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:14:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A65A64FBD;
+        Tue,  2 Feb 2021 13:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274010;
-        bh=VT9864amgPm6B+652CMMjWffrGev7GaloBDzsAtCWsk=;
+        s=korg; t=1612274013;
+        bh=OwOgk+5l5C14L3DgTbWLuH1iGvXtOX8bUN7c/SbjFCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1PjKus99F7X2DKtFgtZ3+i+7Vv4ZxjxG8u+OXaUvA9JemJZbDxBeJXL6HXDSk142
-         zVrOyhsubIAG/M+nfdfvismJE1JcpAx5hquNYVYnziqfy/3PtGwU+tGIOWA70U6fLV
-         sswqNQQN4PPYUe8kN6U8X6FnPtvtMH6JCHG7g+JA=
+        b=zhg82GoYU6W4TWx1Ta+d2XqZ/maKRrn4PW/i+gxHpIs4tWs5w3x78o6xX5dmB92FY
+         9e8MK34r1orisCnoNXJf+XZehu0XMr56OPLAiPuxvBcdP2m2jpz1hKm25cBk/6dObZ
+         Tbic8Ao5atgvcPEr+gWGgZoPud+Co4tcvjzME0VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Koen Vandeputte <koen.vandeputte@ncentric.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.19 07/37] ARM: dts: imx6qdl-gw52xx: fix duplicate regulator naming
-Date:   Tue,  2 Feb 2021 14:38:50 +0100
-Message-Id: <20210202132943.205133696@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com,
+        syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 08/37] wext: fix NULL-ptr-dereference with cfg80211s lack of commit()
+Date:   Tue,  2 Feb 2021 14:38:51 +0100
+Message-Id: <20210202132943.241948392@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -40,38 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koen Vandeputte <koen.vandeputte@citymesh.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 5a22747b76ca2384057d8e783265404439d31d7f upstream.
+commit 5122565188bae59d507d90a9a9fd2fd6107f4439 upstream.
 
-2 regulator descriptions carry identical naming.
+Since cfg80211 doesn't implement commit, we never really cared about
+that code there (and it's configured out w/o CONFIG_WIRELESS_EXT).
+After all, since it has no commit, it shouldn't return -EIWCOMMIT to
+indicate commit is needed.
 
-This leads to following boot warning:
-[    0.173138] debugfs: Directory 'vdd1p8' with parent 'regulator' already present!
+However, EIWCOMMIT is actually an alias for EINPROGRESS, which _can_
+happen if e.g. we try to change the frequency but we're already in
+the process of connecting to some network, and drivers could return
+that value (or even cfg80211 itself might).
 
-Fix this by renaming the one used for audio.
+This then causes us to crash because dev->wireless_handlers is NULL
+but we try to check dev->wireless_handlers->standard[0].
 
-Fixes: 5051bff33102 ("ARM: dts: imx: ventana: add LTC3676 PMIC support")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
-Cc: stable@vger.kernel.org # v4.11
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fix this by also checking dev->wireless_handlers. Also simplify the
+code a little bit.
+
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com
+Reported-by: syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20210121171621.2076e4a37d5a.I5d9c72220fe7bb133fb718751da0180a57ecba4e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6qdl-gw52xx.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/wext-core.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-@@ -278,7 +278,7 @@
- 
- 			/* VDD_AUD_1P8: Audio codec */
- 			reg_aud_1p8v: ldo3 {
--				regulator-name = "vdd1p8";
-+				regulator-name = "vdd1p8a";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
- 				regulator-boot-on;
+--- a/net/wireless/wext-core.c
++++ b/net/wireless/wext-core.c
+@@ -896,8 +896,9 @@ out:
+ int call_commit_handler(struct net_device *dev)
+ {
+ #ifdef CONFIG_WIRELESS_EXT
+-	if ((netif_running(dev)) &&
+-	   (dev->wireless_handlers->standard[0] != NULL))
++	if (netif_running(dev) &&
++	    dev->wireless_handlers &&
++	    dev->wireless_handlers->standard[0])
+ 		/* Call the commit handler on the driver */
+ 		return dev->wireless_handlers->standard[0](dev, NULL,
+ 							   NULL, NULL);
 
 
