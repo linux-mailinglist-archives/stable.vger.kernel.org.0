@@ -2,59 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3A930B939
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 09:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4DA30B9FB
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 09:34:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232165AbhBBIGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 03:06:46 -0500
-Received: from mailgw02.mediatek.com ([1.203.163.81]:48667 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S231509AbhBBIGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 03:06:44 -0500
-X-UUID: 82750cbdde014d07889be2407e07b253-20210202
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=9toMsDCOSf/q6lPmUSHIfDg7TrnfClK1zuFPSy0VQpg=;
-        b=OwFwVbP3m8iVDmjhBVS3qSu25OOmhBLAYkn8BmgdkJPNEu9VdpHf18NhKXhVj824xPRkcow3/90OLttAG2KRjJilNo8FuLR/ESTsHk2SuujbJr+KYGL5NRLKLIrnc1xwZGC/paYuavVITB8zywxXsiXnJsZxObku/HjiX1u2d8g=;
-X-UUID: 82750cbdde014d07889be2407e07b253-20210202
-Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 517422257; Tue, 02 Feb 2021 16:05:56 +0800
-Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS32N1.mediatek.inc
- (172.27.4.71) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 2 Feb
- 2021 16:05:53 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS32.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 2 Feb 2021 16:05:53 +0800
-Message-ID: <1612253153.5147.0.camel@mhfsdcap03>
-Subject: Re: patch "usb: xhci-mtk: skip dropping bandwidth of unchecked
- endpoints" added to usb-linus
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <ikjn@chromium.org>, <stable@vger.kernel.org>
-Date:   Tue, 2 Feb 2021 16:05:53 +0800
-In-Reply-To: <YBj4gcIuj1oTo4Xh@kroah.com>
-References: <1612185061176212@kroah.com>
-         <1612247694.25113.15.camel@mhfsdcap03> <YBj4gcIuj1oTo4Xh@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        id S232727AbhBBIcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 03:32:42 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:41158 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232200AbhBBIcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 03:32:32 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1128UA5f066622;
+        Tue, 2 Feb 2021 08:31:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=oIfbpz0xmZ7wQQosULePV3bybgc6voxs7fjFiYNNtzs=;
+ b=xJSI4BdlrI/Fy3XPaq0piYgsRCS20+qsVX52irOIW17UvcxIIIhG98sIilU+usSstcyb
+ X1gw5EHEZAsPvKtsJgLBDYLK3VwmyxFLk/9rRkBlKpLm+9AHozqBdHsDoKJxpAd9yCbH
+ rArapHX1PoYKErqPn7xRqbHTh1sOdsFlBDR//C5VMKE7KtfPbYjKRMY9CWS+xBftvKoA
+ 7FS0nxPWn57QsaF+dKRiIoIC0z6N23Bfi4X3bPSuIni2IQfRnn0SlEgdVaHYhIsyaMY9
+ r+JYGvXKD2spcZmV9TwI/jgYwf79nGntS4lbxNuJCybWGG2L6W/5Vne/1v6qrsjMF2cd Zg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2130.oracle.com with ESMTP id 36cxvr1gv0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Feb 2021 08:31:29 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1128QX5P134406;
+        Tue, 2 Feb 2021 08:31:27 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 36dhcw9qdv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Feb 2021 08:31:27 +0000
+Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 1128VPg6024208;
+        Tue, 2 Feb 2021 08:31:26 GMT
+Received: from kadam (/102.36.221.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 02 Feb 2021 00:31:24 -0800
+Date:   Tue, 2 Feb 2021 11:31:17 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc:     devel@driverdev.osuosl.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Masahiro Yamada <masahiroy@kernel.org>, stable@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: Re: [PATCH] staging/mt7621-dma: mtk-hsdma.c->hsdma-mt7621.c
+Message-ID: <20210202083117.GS2696@kadam>
+References: <20210130034507.2115280-1-ilya.lipnitskiy@gmail.com>
+ <20210202065438.GO2696@kadam>
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: FC5AE1AD740DF40A9AE89B35E543753021CD5790192D74E3CF0DE898085B5B4A2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210202065438.GO2696@kadam>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-IMR: 1
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9882 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 phishscore=0
+ spamscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102020058
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9882 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
+ mlxscore=0 priorityscore=1501 spamscore=0 impostorscore=0 clxscore=1015
+ suspectscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102020058
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIxLTAyLTAyIGF0IDA4OjAwICswMTAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBU
-dWUsIEZlYiAwMiwgMjAyMSBhdCAwMjozNDo1NFBNICswODAwLCBDaHVuZmVuZyBZdW4gd3JvdGU6
-DQo+ID4gSGkgR3JlZywNCj4gPiANCj4gPiAgICBJIHNlbnQgb3V0IHYyLCBhZGQgJ2JyZWFrJyB3
-aGVuIGZpbmQgdGhlIGVwIGluDQo+ID4geGhjaV9tdGtfZHJvcF9lcF9xdWlyaygpLCBidXQgbm8g
-ZWZmZWN0IHdpdGggdGhlIGZ1bmN0aW9uLg0KPiA+IFBsZWFzZSBwaWNrIHVwIHYyIGlmIHBvc3Np
-YmxlLCBzb3JyeSBmb3IgaW5jb252ZW5pZW5jZQ0KPiANCj4gSSBjYW4gbm90IGRvIHRoYXQsIGFz
-IGl0IGlzIGFscmVhZHkgaW4gbXkgcHVibGljIHRyZWUuDQo+IA0KPiBJIGNhbiBlaXRoZXIgcmV2
-ZXJ0IHRoZSBleGlzdGluZyBvbmUsIGFuZCB0YWtlIHRoaXMsIG9yIGp1c3QgYWNjZXB0IGENCj4g
-Zm9sbG93LW9uIHBhdGNoLiAgSSBwcmVmZXIgYSBmb2xsb3ctb24gb25lLCBwbGVhc2Ugc2VuZCB0
-aGF0Lg0KSSdsbCBwcmVwYXJlIGEgZm9sbG93LW9uIHBhdGNoLCB0aGFua3MNCg0KPiANCj4gdGhh
-bmtzLA0KPiANCj4gZ3JlZyBrLWgNCg0K
+Apparently this was already merged?  Never mind then.  Once it's merged
+it can't be changed.  No big stress...
+
+regards,
+dan carpenter
 
