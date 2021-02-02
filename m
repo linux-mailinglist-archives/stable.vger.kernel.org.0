@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9E530C081
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BEAD30CA41
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233289AbhBBN7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:59:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
+        id S237837AbhBBSnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:43:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233361AbhBBN5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:57:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3210C64FEA;
-        Tue,  2 Feb 2021 13:45:46 +0000 (UTC)
+        id S233701AbhBBOCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:02:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6BDD65009;
+        Tue,  2 Feb 2021 13:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273546;
-        bh=NSrbssA9N5mouLo0H74iiWH8EjvtzwTJ54NEysIocvg=;
+        s=korg; t=1612273680;
+        bh=9jlpwl0vd1nEsyhkgt2MrOrRk54Wj74gwVYnyNkU3jE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYGc47s4jDEzrusJjZof2GEB2PKDVE3/vl68ASsBgAI+O32/bFVlt4Z/FuYQFcz3t
-         dULdkzMFQz3zQfLZqRk1to1Jk5Kit2LgSAIwXt50Xqsf9k/CSEkp8KEgC/eaZL2mhB
-         sijcSk93PXsoQ20klOUfkH2LlZZSbrgtVFDqBw1k=
+        b=sTdt9SmhR35kONyf99DHefsqKWmGrmSucq3UXxV0kUm3t0bT6elrPO/L4aETob56Z
+         Q+e6OBgj4ITb+1FcpgA1bsVrVWjBBDGJnzmcax9Ujxhw7jEN+h19Aqp3Ip9UhF1/zX
+         u2dBXFVkiHGyGWIYxx+0eo1QPbY9ffcBMLmCcklw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Eli Cohen <elic@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/142] net/mlx5e: E-switch, Fix rate calculation for overflow
+        stable@vger.kernel.org, Jay Zhou <jianjay.zhou@huawei.com>,
+        Shengen Zhuang <zhuangshengen@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 20/61] KVM: x86: get smi pending status correctly
 Date:   Tue,  2 Feb 2021 14:37:58 +0100
-Message-Id: <20210202133002.454474982@linuxfoundation.org>
+Message-Id: <20210202132947.306956316@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Jay Zhou <jianjay.zhou@huawei.com>
 
-[ Upstream commit 1fe3e3166b35240615ab7f8276af2bbf2e51f559 ]
+commit 1f7becf1b7e21794fc9d460765fe09679bc9b9e0 upstream.
 
-rate_bytes_ps is a 64-bit field. It passed as 32-bit field to
-apply_police_params(). Due to this when police rate is higher
-than 4Gbps, 32-bit calculation ignores the carry. This results
-in incorrect rate configurationn the device.
+The injection process of smi has two steps:
 
-Fix it by performing 64-bit calculation.
+    Qemu                        KVM
+Step1:
+    cpu->interrupt_request &= \
+        ~CPU_INTERRUPT_SMI;
+    kvm_vcpu_ioctl(cpu, KVM_SMI)
 
-Fixes: fcb64c0f5640 ("net/mlx5: E-Switch, add ingress rate support")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Eli Cohen <elic@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+                                call kvm_vcpu_ioctl_smi() and
+                                kvm_make_request(KVM_REQ_SMI, vcpu);
+
+Step2:
+    kvm_vcpu_ioctl(cpu, KVM_RUN, 0)
+
+                                call process_smi() if
+                                kvm_check_request(KVM_REQ_SMI, vcpu) is
+                                true, mark vcpu->arch.smi_pending = true;
+
+The vcpu->arch.smi_pending will be set true in step2, unfortunately if
+vcpu paused between step1 and step2, the kvm_run->immediate_exit will be
+set and vcpu has to exit to Qemu immediately during step2 before mark
+vcpu->arch.smi_pending true.
+During VM migration, Qemu will get the smi pending status from KVM using
+KVM_GET_VCPU_EVENTS ioctl at the downtime, then the smi pending status
+will be lost.
+
+Signed-off-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Shengen Zhuang <zhuangshengen@huawei.com>
+Message-Id: <20210118084720.1585-1-jianjay.zhou@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index ce710f22b1fff..98cd5d8b0cd8b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -67,6 +67,7 @@
- #include "lib/geneve.h"
- #include "lib/fs_chains.h"
- #include "diag/en_tc_tracepoint.h"
-+#include <asm/div64.h>
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -102,6 +102,7 @@ static u64 __read_mostly cr4_reserved_bi
  
- #define nic_chains(priv) ((priv)->fs.tc.chains)
- #define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)
-@@ -5009,13 +5010,13 @@ errout:
- 	return err;
- }
- 
--static int apply_police_params(struct mlx5e_priv *priv, u32 rate,
-+static int apply_police_params(struct mlx5e_priv *priv, u64 rate,
- 			       struct netlink_ext_ack *extack)
+ static void update_cr8_intercept(struct kvm_vcpu *vcpu);
+ static void process_nmi(struct kvm_vcpu *vcpu);
++static void process_smi(struct kvm_vcpu *vcpu);
+ static void enter_smm(struct kvm_vcpu *vcpu);
+ static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
+ static void store_regs(struct kvm_vcpu *vcpu);
+@@ -3772,6 +3773,10 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_
  {
- 	struct mlx5e_rep_priv *rpriv = priv->ppriv;
- 	struct mlx5_eswitch *esw;
-+	u32 rate_mbps = 0;
- 	u16 vport_num;
--	u32 rate_mbps;
- 	int err;
+ 	process_nmi(vcpu);
  
- 	vport_num = rpriv->rep->vport;
-@@ -5032,7 +5033,11 @@ static int apply_police_params(struct mlx5e_priv *priv, u32 rate,
- 	 * Moreover, if rate is non zero we choose to configure to a minimum of
- 	 * 1 mbit/sec.
- 	 */
--	rate_mbps = rate ? max_t(u32, (rate * 8 + 500000) / 1000000, 1) : 0;
-+	if (rate) {
-+		rate = (rate * BITS_PER_BYTE) + 500000;
-+		rate_mbps = max_t(u32, do_div(rate, 1000000), 1);
-+	}
 +
- 	err = mlx5_esw_modify_vport_rate(esw, vport_num, rate_mbps);
- 	if (err)
- 		NL_SET_ERR_MSG_MOD(extack, "failed applying action to hardware");
--- 
-2.27.0
-
++	if (kvm_check_request(KVM_REQ_SMI, vcpu))
++		process_smi(vcpu);
++
+ 	/*
+ 	 * The API doesn't provide the instruction length for software
+ 	 * exceptions, so don't report them. As long as the guest RIP
 
 
