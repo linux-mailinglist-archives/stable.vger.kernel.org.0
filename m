@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A93630C10F
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640CE30C9B3
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234177AbhBBOMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:12:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
+        id S238549AbhBBS0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 13:26:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233337AbhBBOLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:11:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E952B64F5E;
-        Tue,  2 Feb 2021 13:51:33 +0000 (UTC)
+        id S233420AbhBBOFy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:05:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80FD665019;
+        Tue,  2 Feb 2021 13:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273894;
-        bh=qb5yY3vwL+z9/Nxa9RcFT4VsdkT8ch1I5fCrgb8wXJ8=;
+        s=korg; t=1612273755;
+        bh=l7DSdfusXlYapBrtokuenIdrnitA1unSjwUaeriQS+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxYkvbw5CPSDPSYbb6FjWxh3aVg/tJlS8GaImF/6TAUyRIbXFDyXmm8Hr7f4UaJzE
-         HUjnFTSPw62FSUJizFoHu/4Pr8l6TqFEeEllxm0Opsp6FIVncZ/a6BRsc1YxdT3WMI
-         ciyYYNZGsOxbn6MBQRhLZ0mQxNWcK6kbwbaEEd48=
+        b=WM+4JPG9McZ5PszgbVUrjvNH88E2msn3irEra1LK/ZdkD4jn6GxFStfs6jZD3m7We
+         C+Y2f4QRq3J1Xc1Q+cdJN4gm01UeG9dht7S3MVy0Xpr9C7Yi7eDNIwYf1Q3FEBLDHk
+         yk1ypHtmyfMecL+G31lLoFgywaPsKjKQztP/40s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ingo Molnar <mingo@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 15/32] futex: Prevent exit livelock
+Subject: [PATCH 4.4 18/28] futex: Prevent exit livelock
 Date:   Tue,  2 Feb 2021 14:38:38 +0100
-Message-Id: <20210202132942.624364758@linuxfoundation.org>
+Message-Id: <20210202132941.918691910@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -140,7 +140,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -1072,12 +1072,43 @@ out_state:
+@@ -1067,12 +1067,43 @@ out_state:
  	return 0;
  }
  
@@ -185,7 +185,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	pid_t pid = uval & FUTEX_TID_MASK;
  	struct futex_pi_state *pi_state;
-@@ -1113,7 +1144,19 @@ static int attach_to_pi_owner(u32 uval,
+@@ -1108,7 +1139,19 @@ static int attach_to_pi_owner(u32 uval,
  		int ret = (p->futex_state = FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
  
  		raw_spin_unlock_irq(&p->pi_lock);
@@ -206,7 +206,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		return ret;
  	}
  
-@@ -1144,7 +1187,8 @@ static int attach_to_pi_owner(u32 uval,
+@@ -1139,7 +1182,8 @@ static int attach_to_pi_owner(u32 uval,
  }
  
  static int lookup_pi_state(u32 uval, struct futex_hash_bucket *hb,
@@ -216,7 +216,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct futex_q *match = futex_top_waiter(hb, key);
  
-@@ -1159,7 +1203,7 @@ static int lookup_pi_state(u32 uval, str
+@@ -1154,7 +1198,7 @@ static int lookup_pi_state(u32 uval, str
  	 * We are the first waiter - try to look up the owner based on
  	 * @uval and attach to it.
  	 */
@@ -225,7 +225,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
-@@ -1185,6 +1229,8 @@ static int lock_pi_update_atomic(u32 __u
+@@ -1180,6 +1224,8 @@ static int lock_pi_update_atomic(u32 __u
   *			lookup
   * @task:		the task to perform the atomic lock work for.  This will
   *			be "current" except in the case of requeue pi.
@@ -234,7 +234,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
   *
   * Return:
-@@ -1193,11 +1239,17 @@ static int lock_pi_update_atomic(u32 __u
+@@ -1188,11 +1234,17 @@ static int lock_pi_update_atomic(u32 __u
   * <0 - error
   *
   * The hb->lock and futex_key refs shall be held by the caller.
@@ -253,7 +253,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	u32 uval, newval, vpid = task_pid_vnr(task);
  	struct futex_q *match;
-@@ -1267,7 +1319,7 @@ static int futex_lock_pi_atomic(u32 __us
+@@ -1262,7 +1314,7 @@ static int futex_lock_pi_atomic(u32 __us
  	 * attach to the owner. If that fails, no harm done, we only
  	 * set the FUTEX_WAITERS bit in the user space variable.
  	 */
@@ -262,7 +262,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  /**
-@@ -1693,6 +1745,8 @@ void requeue_pi_wake_futex(struct futex_
+@@ -1688,6 +1740,8 @@ void requeue_pi_wake_futex(struct futex_
   * @key1:		the from futex key
   * @key2:		the to futex key
   * @ps:			address to store the pi_state pointer
@@ -271,7 +271,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
   *
   * Try and get the lock on behalf of the top waiter if we can do it atomically.
-@@ -1700,16 +1754,20 @@ void requeue_pi_wake_futex(struct futex_
+@@ -1695,16 +1749,20 @@ void requeue_pi_wake_futex(struct futex_
   * then direct futex_lock_pi_atomic() to force setting the FUTEX_WAITERS bit.
   * hb1 and hb2 must be held by the caller.
   *
@@ -297,7 +297,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct futex_q *top_waiter = NULL;
  	u32 curval;
-@@ -1746,7 +1804,7 @@ static int futex_proxy_trylock_atomic(u3
+@@ -1741,7 +1799,7 @@ static int futex_proxy_trylock_atomic(u3
  	 */
  	vpid = task_pid_vnr(top_waiter->task);
  	ret = futex_lock_pi_atomic(pifutex, hb2, key2, ps, top_waiter->task,
@@ -306,7 +306,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (ret == 1) {
  		requeue_pi_wake_futex(top_waiter, key2, hb2);
  		return vpid;
-@@ -1866,6 +1924,8 @@ retry_private:
+@@ -1861,6 +1919,8 @@ retry_private:
  	}
  
  	if (requeue_pi && (task_count - nr_wake < nr_requeue)) {
@@ -315,7 +315,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		/*
  		 * Attempt to acquire uaddr2 and wake the top waiter. If we
  		 * intend to requeue waiters, force setting the FUTEX_WAITERS
-@@ -1873,7 +1933,8 @@ retry_private:
+@@ -1868,7 +1928,8 @@ retry_private:
  		 * faults rather in the requeue loop below.
  		 */
  		ret = futex_proxy_trylock_atomic(uaddr2, hb1, hb2, &key1,
@@ -325,9 +325,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		/*
  		 * At this point the top_waiter has either taken uaddr2 or is
-@@ -1900,7 +1961,8 @@ retry_private:
- 			 * If that call succeeds then we have pi_state and an
- 			 * initial refcount on it.
+@@ -1892,7 +1953,8 @@ retry_private:
+ 			 * rereading and handing potential crap to
+ 			 * lookup_pi_state.
  			 */
 -			ret = lookup_pi_state(ret, hb2, &key2, &pi_state);
 +			ret = lookup_pi_state(ret, hb2, &key2,
@@ -335,7 +335,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  
  		switch (ret) {
-@@ -1930,6 +1992,12 @@ retry_private:
+@@ -1923,6 +1985,12 @@ retry_private:
  			hb_waiters_dec(hb2);
  			put_futex_key(&key2);
  			put_futex_key(&key1);
@@ -348,7 +348,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			cond_resched();
  			goto retry;
  		default:
-@@ -2580,6 +2648,7 @@ static int futex_lock_pi(u32 __user *uad
+@@ -2545,6 +2613,7 @@ static int futex_lock_pi(u32 __user *uad
  			 ktime_t *time, int trylock)
  {
  	struct hrtimer_sleeper timeout, *to = NULL;
@@ -356,7 +356,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct futex_hash_bucket *hb;
  	struct futex_q q = futex_q_init;
  	int res, ret;
-@@ -2603,7 +2672,8 @@ retry:
+@@ -2568,7 +2637,8 @@ retry:
  retry_private:
  	hb = queue_lock(&q);
  
@@ -366,7 +366,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (unlikely(ret)) {
  		/*
  		 * Atomic work succeeded and we got the lock,
-@@ -2626,6 +2696,12 @@ retry_private:
+@@ -2591,6 +2661,12 @@ retry_private:
  			 */
  			queue_unlock(hb);
  			put_futex_key(&q.key);
