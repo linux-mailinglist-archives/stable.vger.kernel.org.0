@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3B830C129
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E93EE30C262
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234257AbhBBOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:14:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S231787AbhBBOtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:49:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234172AbhBBOMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BBDC65049;
-        Tue,  2 Feb 2021 13:52:53 +0000 (UTC)
+        id S234331AbhBBORl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E479565067;
+        Tue,  2 Feb 2021 13:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273973;
-        bh=GpeAo1wwtd9mPJxDxqjR/ptVlKYLDNaeENjlxu1fy7k=;
+        s=korg; t=1612274081;
+        bh=pFP5tV2rdcax46dv3psF73UyTrW4ah+yRHZzeaCEGFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DwB9UkpZSovz1zmNDCDpn8OzxuE9S6KVpmlye8v2B0+pvJEeuy5m1Cv4/uRs6poxa
-         Beq7gilJmpjQeWgXFdZLEbbSEAablmi5s9459JrbPfSitFs9sWhpfXknBLTxq3076E
-         JHopCJm4mFOX9MkaoCsZJt64zzyiiaqw/fTD415Y=
+        b=jLXS+ixZQSPwAac8sYByXo4VsMY0k22k1wclaREazmKCyKBuH9iaTWeOazYq82rLo
+         +zn5feQPmJjkva+mPbHA/4ZdE60P7Ly7Ve1TArrwO8pwnTEV7YSXwQ8iUnCP93MLx6
+         wvi72e5yj5BXwCITTd5QjU/uVi4KLHPWNsuU6rXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denys Vlasenko <dvlasenk@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Alistair Delva <adelva@google.com>
-Subject: [PATCH 4.14 23/30] x86/entry/64/compat: Preserve r8-r11 in int $0x80
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 21/37] netfilter: nft_dynset: add timeout extension to template
 Date:   Tue,  2 Feb 2021 14:39:04 +0100
-Message-Id: <20210202132943.093740424@linuxfoundation.org>
+Message-Id: <20210202132943.788941845@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 8bb2610bc4967f19672444a7b0407367f1540028 upstream.
+commit 0c5b7a501e7400869ee905b4f7af3d6717802bcb upstream.
 
-32-bit user code that uses int $80 doesn't care about r8-r11.  There is,
-however, some 64-bit user code that intentionally uses int $0x80 to invoke
-32-bit system calls.  From what I've seen, basically all such code assumes
-that r8-r15 are all preserved, but the kernel clobbers r8-r11.  Since I
-doubt that there's any code that depends on int $0x80 zeroing r8-r11,
-change the kernel to preserve them.
+Otherwise, the newly create element shows no timeout when listing the
+ruleset. If the set definition does not specify a default timeout, then
+the set element only shows the expiration time, but not the timeout.
+This is a problem when restoring a stateful ruleset listing since it
+skips the timeout policy entirely.
 
-I suspect that very little user code is broken by the old clobber, since
-r8-r11 are only rarely allocated by gcc, and they're clobbered by function
-calls, so they only way we'd see a problem is if the same function that
-invokes int $0x80 also spills something important to one of these
-registers.
-
-The current behavior seems to date back to the historical commit
-"[PATCH] x86-64 merge for 2.6.4".  Before that, all regs were
-preserved.  I can't find any explanation of why this change was made.
-
-Update the test_syscall_vdso_32 testcase as well to verify the new
-behavior, and it strengthens the test to make sure that the kernel doesn't
-accidentally permute r8..r15.
-
-Suggested-by: Denys Vlasenko <dvlasenk@redhat.com>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Link: https://lkml.kernel.org/r/d4c4d9985fbe64f8c9e19291886453914b48caee.1523975710.git.luto@kernel.org
-Signed-off-by: Alistair Delva <adelva@google.com>
+Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/entry/entry_64_compat.S                |    8 ++---
- tools/testing/selftests/x86/test_syscall_vdso.c |   35 ++++++++++++++----------
- 2 files changed, 25 insertions(+), 18 deletions(-)
 
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -84,13 +84,13 @@ ENTRY(entry_SYSENTER_compat)
- 	pushq	%rdx			/* pt_regs->dx */
- 	pushq	%rcx			/* pt_regs->cx */
- 	pushq	$-ENOSYS		/* pt_regs->ax */
--	pushq   $0			/* pt_regs->r8  = 0 */
-+	pushq   %r8			/* pt_regs->r8 */
- 	xorl	%r8d, %r8d		/* nospec   r8 */
--	pushq   $0			/* pt_regs->r9  = 0 */
-+	pushq   %r9			/* pt_regs->r9 */
- 	xorl	%r9d, %r9d		/* nospec   r9 */
--	pushq   $0			/* pt_regs->r10 = 0 */
-+	pushq   %r10			/* pt_regs->r10 */
- 	xorl	%r10d, %r10d		/* nospec   r10 */
--	pushq   $0			/* pt_regs->r11 = 0 */
-+	pushq   %r11			/* pt_regs->r11 */
- 	xorl	%r11d, %r11d		/* nospec   r11 */
- 	pushq   %rbx                    /* pt_regs->rbx */
- 	xorl	%ebx, %ebx		/* nospec   rbx */
---- a/tools/testing/selftests/x86/test_syscall_vdso.c
-+++ b/tools/testing/selftests/x86/test_syscall_vdso.c
-@@ -100,12 +100,19 @@ asm (
- 	"	shl	$32, %r8\n"
- 	"	orq	$0x7f7f7f7f, %r8\n"
- 	"	movq	%r8, %r9\n"
--	"	movq	%r8, %r10\n"
--	"	movq	%r8, %r11\n"
--	"	movq	%r8, %r12\n"
--	"	movq	%r8, %r13\n"
--	"	movq	%r8, %r14\n"
--	"	movq	%r8, %r15\n"
-+	"	incq	%r9\n"
-+	"	movq	%r9, %r10\n"
-+	"	incq	%r10\n"
-+	"	movq	%r10, %r11\n"
-+	"	incq	%r11\n"
-+	"	movq	%r11, %r12\n"
-+	"	incq	%r12\n"
-+	"	movq	%r12, %r13\n"
-+	"	incq	%r13\n"
-+	"	movq	%r13, %r14\n"
-+	"	incq	%r14\n"
-+	"	movq	%r14, %r15\n"
-+	"	incq	%r15\n"
- 	"	ret\n"
- 	"	.code32\n"
- 	"	.popsection\n"
-@@ -128,12 +135,13 @@ int check_regs64(void)
- 	int err = 0;
- 	int num = 8;
- 	uint64_t *r64 = &regs64.r8;
-+	uint64_t expected = 0x7f7f7f7f7f7f7f7fULL;
+---
+ net/netfilter/nft_dynset.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -213,8 +213,10 @@ static int nft_dynset_init(const struct
+ 		nft_set_ext_add_length(&priv->tmpl, NFT_SET_EXT_EXPR,
+ 				       priv->expr->ops->size);
+ 	if (set->flags & NFT_SET_TIMEOUT) {
+-		if (timeout || set->timeout)
++		if (timeout || set->timeout) {
++			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_TIMEOUT);
+ 			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_EXPIRATION);
++		}
+ 	}
  
- 	if (!kernel_is_64bit)
- 		return 0;
- 
- 	do {
--		if (*r64 == 0x7f7f7f7f7f7f7f7fULL)
-+		if (*r64 == expected++)
- 			continue; /* register did not change */
- 		if (syscall_addr != (long)&int80) {
- 			/*
-@@ -147,18 +155,17 @@ int check_regs64(void)
- 				continue;
- 			}
- 		} else {
--			/* INT80 syscall entrypoint can be used by
-+			/*
-+			 * INT80 syscall entrypoint can be used by
- 			 * 64-bit programs too, unlike SYSCALL/SYSENTER.
- 			 * Therefore it must preserve R12+
- 			 * (they are callee-saved registers in 64-bit C ABI).
- 			 *
--			 * This was probably historically not intended,
--			 * but R8..11 are clobbered (cleared to 0).
--			 * IOW: they are the only registers which aren't
--			 * preserved across INT80 syscall.
-+			 * Starting in Linux 4.17 (and any kernel that
-+			 * backports the change), R8..11 are preserved.
-+			 * Historically (and probably unintentionally), they
-+			 * were clobbered or zeroed.
- 			 */
--			if (*r64 == 0 && num <= 11)
--				continue;
- 		}
- 		printf("[FAIL]\tR%d has changed:%016llx\n", num, *r64);
- 		err++;
+ 	priv->timeout = timeout;
 
 
