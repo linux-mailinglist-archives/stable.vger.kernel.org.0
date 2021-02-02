@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0705930C260
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:49:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8B530C7D6
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232040AbhBBOs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:48:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
+        id S237465AbhBBRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:32:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234334AbhBBORp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:17:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84D9E65068;
-        Tue,  2 Feb 2021 13:54:43 +0000 (UTC)
+        id S234173AbhBBOMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:12:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D61FC6504B;
+        Tue,  2 Feb 2021 13:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274084;
-        bh=710TVuKVs8rSVan/Z+xVsQPbNezQVzOP/+3QZYYXN6k=;
+        s=korg; t=1612273976;
+        bh=c+qTeRHMe1EPvovcvQf69siH95zbSNHGz3mybK9UL0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MriJ/xpHwYXqYCCPnMQGkUCXN8ZQpDb9GrrHzqyUfvyNRepqovkZztjFvbek/ihic
-         XeFwkfFnctmdvVqgpdpnl/QvrEIPAelJJnXj1q//ditjCxded7cssc72Ce0QKCfMEk
-         0gZd3rWDrnarOvoAEND8iBWk8ajOH7fFQ51RzbLw=
+        b=nXV+dm28mW3mZm6f23u6S0afPKBL0iFAPoU3xySmJtyWpwrmuXtRJNEMaXjUwzxV+
+         3r6NavdP0HKylDeKsrTavPCQPWtpFy9Co41vRTZ+wcP+jYvVwweQzj9jI7doyhfbNB
+         fGeE/lv8i3zearB4tRbOynz0JEHxpT+H6vdyXhZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/37] xfrm: Fix oops in xfrm_replay_advance_bmp
+        stable@vger.kernel.org, zhijianx.li@intel.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Alistair Delva <adelva@google.com>
+Subject: [PATCH 4.14 24/30] x86/entry/64/compat: Fix "x86/entry/64/compat: Preserve r8-r11 in int $0x80"
 Date:   Tue,  2 Feb 2021 14:39:05 +0100
-Message-Id: <20210202132943.834015659@linuxfoundation.org>
+Message-Id: <20210202132943.127113115@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
-References: <20210202132942.915040339@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shmulik Ladkani <shmulik@metanetworks.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 56ce7c25ae1525d83cf80a880cf506ead1914250 ]
+commit 22cd978e598618e82c3c3348d2069184f6884182 upstream.
 
-When setting xfrm replay_window to values higher than 32, a rare
-page-fault occurs in xfrm_replay_advance_bmp:
+Commit:
 
-  BUG: unable to handle page fault for address: ffff8af350ad7920
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0002) - not-present page
-  PGD ad001067 P4D ad001067 PUD 0
-  Oops: 0002 [#1] SMP PTI
-  CPU: 3 PID: 30 Comm: ksoftirqd/3 Kdump: loaded Not tainted 5.4.52-050452-generic #202007160732
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
-  RIP: 0010:xfrm_replay_advance_bmp+0xbb/0x130
-  RSP: 0018:ffffa1304013ba40 EFLAGS: 00010206
-  RAX: 000000000000010d RBX: 0000000000000002 RCX: 00000000ffffff4b
-  RDX: 0000000000000018 RSI: 00000000004c234c RDI: 00000000ffb3dbff
-  RBP: ffffa1304013ba50 R08: ffff8af330ad7920 R09: 0000000007fffffa
-  R10: 0000000000000800 R11: 0000000000000010 R12: ffff8af29d6258c0
-  R13: ffff8af28b95c700 R14: 0000000000000000 R15: ffff8af29d6258fc
-  FS:  0000000000000000(0000) GS:ffff8af339ac0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff8af350ad7920 CR3: 0000000015ee4000 CR4: 00000000001406e0
-  Call Trace:
-   xfrm_input+0x4e5/0xa10
-   xfrm4_rcv_encap+0xb5/0xe0
-   xfrm4_udp_encap_rcv+0x140/0x1c0
+  8bb2610bc496 ("x86/entry/64/compat: Preserve r8-r11 in int $0x80")
 
-Analysis revealed offending code is when accessing:
+was busted: my original patch had a minor conflict with
+some of the nospec changes, but "git apply" is very clever
+and silently accepted the patch by making the same changes
+to a different function in the same file.  There was obviously
+a huge offset, but "git apply" for some reason doesn't feel
+any need to say so.
 
-	replay_esn->bmp[nr] |= (1U << bitnr);
+Move the changes to the correct function.  Now the
+test_syscall_vdso_32 selftests passes.
 
-with 'nr' being 0x07fffffa.
+If anyone cares to observe the original problem, try applying the
+patch at:
 
-This happened in an SMP system when reordering of packets was present;
-A packet arrived with a "too old" sequence number (outside the window,
-i.e 'diff > replay_window'), and therefore the following calculation:
+  https://lore.kernel.org/lkml/d4c4d9985fbe64f8c9e19291886453914b48caee.1523975710.git.luto@kernel.org/raw
 
-			bitnr = replay_esn->replay_window - (diff - pos);
+to the kernel at 316d097c4cd4e7f2ef50c40cff2db266593c4ec4:
 
-yields a negative result, but since bitnr is u32 we get a large unsigned
-quantity (in crash dump above: 0xffffff4b seen in ecx).
+ - "git am" and "git apply" accept the patch without any complaints at all
+ - "patch -p1" at least prints out a message about the huge offset.
 
-This was supposed to be protected by xfrm_input()'s former call to:
+Reported-by: zhijianx.li@intel.com
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org #v4.17+
+Fixes: 8bb2610bc496 ("x86/entry/64/compat: Preserve r8-r11 in int $0x80")
+Link: http://lkml.kernel.org/r/6012b922485401bc42676e804171ded262fc2ef2.1530078306.git.luto@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Alistair Delva <adelva@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-		if (x->repl->check(x, skb, seq)) {
-
-However, the state's spinlock x->lock is *released* after '->check()'
-is performed, and gets re-acquired before '->advance()' - which gives a
-chance for a different core to update the xfrm state, e.g. by advancing
-'replay_esn->seq' when it encounters more packets - leading to a
-'diff > replay_window' situation when original core continues to
-xfrm_replay_advance_bmp().
-
-An attempt to fix this issue was suggested in commit bcf66bf54aab
-("xfrm: Perform a replay check after return from async codepaths"),
-by calling 'x->repl->recheck()' after lock is re-acquired, but fix
-applied only to asyncronous crypto algorithms.
-
-Augment the fix, by *always* calling 'recheck()' - irrespective if we're
-using async crypto.
-
-Fixes: 0ebea8ef3559 ("[IPSEC]: Move state lock into x->type->input")
-Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/entry/entry_64_compat.S |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 0ee13d12782fb..fcba8a139f61e 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -420,7 +420,7 @@ resume:
- 		/* only the first xfrm gets the encap type */
- 		encap_type = 0;
- 
--		if (async && x->repl->recheck(x, skb, seq)) {
-+		if (x->repl->recheck(x, skb, seq)) {
- 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINSTATESEQERROR);
- 			goto drop_unlock;
- 		}
--- 
-2.27.0
-
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -84,13 +84,13 @@ ENTRY(entry_SYSENTER_compat)
+ 	pushq	%rdx			/* pt_regs->dx */
+ 	pushq	%rcx			/* pt_regs->cx */
+ 	pushq	$-ENOSYS		/* pt_regs->ax */
+-	pushq   %r8			/* pt_regs->r8 */
++	pushq   $0			/* pt_regs->r8  = 0 */
+ 	xorl	%r8d, %r8d		/* nospec   r8 */
+-	pushq   %r9			/* pt_regs->r9 */
++	pushq   $0			/* pt_regs->r9  = 0 */
+ 	xorl	%r9d, %r9d		/* nospec   r9 */
+-	pushq   %r10			/* pt_regs->r10 */
++	pushq   $0			/* pt_regs->r10 = 0 */
+ 	xorl	%r10d, %r10d		/* nospec   r10 */
+-	pushq   %r11			/* pt_regs->r11 */
++	pushq   $0			/* pt_regs->r11 = 0 */
+ 	xorl	%r11d, %r11d		/* nospec   r11 */
+ 	pushq   %rbx                    /* pt_regs->rbx */
+ 	xorl	%ebx, %ebx		/* nospec   rbx */
+@@ -357,13 +357,13 @@ ENTRY(entry_INT80_compat)
+ 	pushq	%rdx			/* pt_regs->dx */
+ 	pushq	%rcx			/* pt_regs->cx */
+ 	pushq	$-ENOSYS		/* pt_regs->ax */
+-	pushq   $0			/* pt_regs->r8  = 0 */
++	pushq   %r8			/* pt_regs->r8 */
+ 	xorl	%r8d, %r8d		/* nospec   r8 */
+-	pushq   $0			/* pt_regs->r9  = 0 */
++	pushq   %r9			/* pt_regs->r9 */
+ 	xorl	%r9d, %r9d		/* nospec   r9 */
+-	pushq   $0			/* pt_regs->r10 = 0 */
++	pushq   %r10			/* pt_regs->r10*/
+ 	xorl	%r10d, %r10d		/* nospec   r10 */
+-	pushq   $0			/* pt_regs->r11 = 0 */
++	pushq   %r11			/* pt_regs->r11 */
+ 	xorl	%r11d, %r11d		/* nospec   r11 */
+ 	pushq   %rbx                    /* pt_regs->rbx */
+ 	xorl	%ebx, %ebx		/* nospec   rbx */
 
 
