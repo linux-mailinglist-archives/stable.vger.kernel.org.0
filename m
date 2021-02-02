@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF4230C01C
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE87630CC95
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbhBBNtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:49:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
+        id S240316AbhBBUBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 15:01:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232957AbhBBNrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:47:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AA2A64F97;
-        Tue,  2 Feb 2021 13:41:54 +0000 (UTC)
+        id S232973AbhBBNrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:47:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22D5764F96;
+        Tue,  2 Feb 2021 13:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273315;
-        bh=Kt3W7cA1hg+sePDqblda2yarj6vgGtie9dE1Zw3Hj5k=;
+        s=korg; t=1612273317;
+        bh=OWmR0l17VkuTpG1boEUDui324OJ8eiyzTFWVA7OsreA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fib7qLc2QehfZp9yKA43uML8adp2dGevT2c/c5v2gcTzZuCcuxZgG5OVGYRMKFIaq
-         UZ/z1E+/mSlwE8P/8102AxeeRnEuFz1mVmbUPQVVDH9UMcKXhU0N/Aixw8pYz58NeI
-         y7xO1JW6/uLptAGF3VWQYLsFoY85DR+GnrA5tcX8=
+        b=x84SKQuK2rX2l4LnVPctE4hOGP8/RXmuJuZwr0X20FIcSa53lssc31YdikYvS5thb
+         W1N56IYOgYj3bxSCWDwbWNDjcwJ5smcoHKNIhy2KJXTpu9LQEmMcgl7SZPzhlUA3ly
+         F0RMlgeVnNPtXntQaQ9VEKYp3knniwNP63imA1tU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Lucas Nussbaum <lucas@debian.org>,
         Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>
-Subject: [PATCH 5.10 060/142] drm/vc4: Correct lbm size and calculation
-Date:   Tue,  2 Feb 2021 14:37:03 +0100
-Message-Id: <20210202133000.198376282@linuxfoundation.org>
+Subject: [PATCH 5.10 061/142] drm/vc4: Correct POS1_SCL for hvs5
+Date:   Tue,  2 Feb 2021 14:37:04 +0100
+Message-Id: <20210202133000.238967002@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -44,21 +44,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dom Cobley <popcornmix@gmail.com>
 
-commit 78e5330329ee206d6aa4593a90320fd837f7966e upstream.
+commit f6b57101a6b31277a4bde1d8028c46e898bd2ff2 upstream.
 
-LBM base address is measured in units of pixels per cycle.
-That is 4 for 2711 (hvs5) and 2 for 2708.
+Fixes failure with 4096x1080 resolutions
 
-We are wasting 75% of lbm by indexing without the scaling.
-But we were also using too high a size for the lbm resulting
-in partial corruption (right hand side) of vertically
-scaled images, usually at 4K or lower resolutions with more layers.
-
-The physical RAM of LBM on 2711 is 8 * 1920 * 16 * 12-bit
-(pixels are stored 12-bits per component regardless of format).
-
-The LBM address indexes work in units of pixels per clock,
-so for 4 pixels per clock that means we have 32 * 1920 = 60K
+[  284.315379] WARNING: CPU: 1 PID: 901 at drivers/gpu/drm/vc4/vc4_plane.c:981 vc4_plane_mode_set+0x1374/0x13c4
+[  284.315385] Modules linked in: ir_rc5_decoder rpivid_hevc(C) bcm2835_codec(C) bcm2835_isp(C) bcm2835_mmal_vchiq(C) bcm2835_gpiomem v4l2_mem2mem videobuf2_dma_contig videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc cdc_acm xpad ir_rc6_decoder rc_rc6_mce gpio_ir_recv fuse
+[  284.315509] CPU: 1 PID: 901 Comm: kodi.bin Tainted: G         C        5.10.7 #1
+[  284.315514] Hardware name: BCM2711
+[  284.315518] Backtrace:
+[  284.315533] [<c0cc5ca0>] (dump_backtrace) from [<c0cc6014>] (show_stack+0x20/0x24)
+[  284.315540]  r7:ffffffff r6:00000000 r5:68000013 r4:c18ecf1c
+[  284.315549] [<c0cc5ff4>] (show_stack) from [<c0cca638>] (dump_stack+0xc4/0xf0)
+[  284.315558] [<c0cca574>] (dump_stack) from [<c022314c>] (__warn+0xfc/0x158)
+[  284.315564]  r9:00000000 r8:00000009 r7:000003d5 r6:00000009 r5:c08cc7dc r4:c0fd09b8
+[  284.315572] [<c0223050>] (__warn) from [<c0cc67ec>] (warn_slowpath_fmt+0x74/0xe4)
+[  284.315577]  r7:c08cc7dc r6:000003d5 r5:c0fd09b8 r4:00000000
+[  284.315584] [<c0cc677c>] (warn_slowpath_fmt) from [<c08cc7dc>] (vc4_plane_mode_set+0x1374/0x13c4)
+[  284.315589]  r8:00000000 r7:00000000 r6:00001000 r5:c404c600 r4:c2e34600
+[  284.315596] [<c08cb468>] (vc4_plane_mode_set) from [<c08cc984>] (vc4_plane_atomic_check+0x40/0x1c0)
+[  284.315601]  r10:00000001 r9:c2e34600 r8:c0e67068 r7:c0fc44e0 r6:c2ce3640 r5:c3d636c0
+[  284.315605]  r4:c2e34600
+[  284.315614] [<c08cc944>] (vc4_plane_atomic_check) from [<c0860504>] (drm_atomic_helper_check_planes+0xec/0x1ec)
+[  284.315620]  r9:c2e34600 r8:c0e67068 r7:c0fc44e0 r6:c2ce3640 r5:c3d636c0 r4:00000006
+[  284.315627] [<c0860418>] (drm_atomic_helper_check_planes) from [<c0860658>] (drm_atomic_helper_check+0x54/0x9c)
+[  284.315633]  r9:c2e35400 r8:00000006 r7:00000000 r6:c2ba7800 r5:c3d636c0 r4:00000000
+[  284.315641] [<c0860604>] (drm_atomic_helper_check) from [<c08b7ca8>] (vc4_atomic_check+0x25c/0x454)
+[  284.315645]  r7:00000000 r6:c2ba7800 r5:00000001 r4:c3d636c0
+[  284.315652] [<c08b7a4c>] (vc4_atomic_check) from [<c0881278>] (drm_atomic_check_only+0x5cc/0x7e0)
+[  284.315658]  r10:c404c6c8 r9:ffffffff r8:c472c480 r7:00000003 r6:c3d636c0 r5:00000000
+[  284.315662]  r4:0000003c r3:c08b7a4c
+[  284.315670] [<c0880cac>] (drm_atomic_check_only) from [<c089ba60>] (drm_mode_atomic_ioctl+0x758/0xa7c)
+[  284.315675]  r10:c3d46000 r9:c3d636c0 r8:c2ce8a70 r7:027e3a54 r6:00000043 r5:c1fbb800
+[  284.315679]  r4:0281a858
+[  284.315688] [<c089b308>] (drm_mode_atomic_ioctl) from [<c086e9f8>] (drm_ioctl_kernel+0xc4/0x108)
+[  284.315693]  r10:c03864bc r9:c1fbb800 r8:c3d47e64 r7:c089b308 r6:00000002 r5:c2ba7800
+[  284.315697]  r4:00000000
+[  284.315705] [<c086e934>] (drm_ioctl_kernel) from [<c086ee28>] (drm_ioctl+0x1e8/0x3a0)
+[  284.315711]  r9:c1fbb800 r8:000000bc r7:c3d47e64 r6:00000038 r5:c0e59570 r4:00000038
+[  284.315719] [<c086ec40>] (drm_ioctl) from [<c041f354>] (sys_ioctl+0x35c/0x914)
+[  284.315724]  r10:c2d08200 r9:00000000 r8:c36fa300 r7:befdd870 r6:c03864bc r5:c36fa301
+[  284.315728]  r4:c03864bc
+[  284.315735] [<c041eff8>] (sys_ioctl) from [<c0200040>] (ret_fast_syscall+0x0/0x28)
+[  284.315739] Exception stack(0xc3d47fa8 to 0xc3d47ff0)
+[  284.315745] 7fa0:                   027eb750 befdd870 00000000 c03864bc befdd870 00000000
+[  284.315750] 7fc0: 027eb750 befdd870 c03864bc 00000036 027e3948 0281a640 0281a850 027e3a50
+[  284.315756] 7fe0: b4b64100 befdd844 b4b5ba2c b49c994c
+[  284.315762]  r10:00000036 r9:c3d46000 r8:c0200204 r7:00000036 r6:c03864bc r5:befdd870
+[  284.315765]  r4:027eb750
 
 Fixes: c54619b0bfb3 ("drm/vc4: Add support for the BCM2711 HVS5")
 Signed-off-by: Dom Cobley <popcornmix@gmail.com>
@@ -66,54 +99,26 @@ Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Tested-By: Lucas Nussbaum <lucas@debian.org>
 Tested-By: Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210121105759.1262699-1-maxime@cerno.tech
+Link: https://patchwork.freedesktop.org/patch/msgid/20210121105759.1262699-2-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vc4/vc4_hvs.c   |    8 ++++----
- drivers/gpu/drm/vc4/vc4_plane.c |    7 ++++++-
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/vc4/vc4_plane.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_hvs.c
-+++ b/drivers/gpu/drm/vc4/vc4_hvs.c
-@@ -618,11 +618,11 @@ static int vc4_hvs_bind(struct device *d
- 	 * for now we just allocate globally.
- 	 */
- 	if (!hvs->hvs5)
--		/* 96kB */
--		drm_mm_init(&hvs->lbm_mm, 0, 96 * 1024);
-+		/* 48k words of 2x12-bit pixels */
-+		drm_mm_init(&hvs->lbm_mm, 0, 48 * 1024);
- 	else
--		/* 70k words */
--		drm_mm_init(&hvs->lbm_mm, 0, 70 * 2 * 1024);
-+		/* 60k words of 4x12-bit pixels */
-+		drm_mm_init(&hvs->lbm_mm, 0, 60 * 1024);
- 
- 	/* Upload filter kernels.  We only have the one for now, so we
- 	 * keep it around for the lifetime of the driver.
 --- a/drivers/gpu/drm/vc4/vc4_plane.c
 +++ b/drivers/gpu/drm/vc4/vc4_plane.c
-@@ -437,6 +437,7 @@ static void vc4_write_ppf(struct vc4_pla
- static u32 vc4_lbm_size(struct drm_plane_state *state)
- {
- 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
-+	struct vc4_dev *vc4 = to_vc4_dev(state->plane->dev);
- 	u32 pix_per_line;
- 	u32 lbm;
+@@ -917,9 +917,9 @@ static int vc4_plane_mode_set(struct drm
+ 		if (!vc4_state->is_unity) {
+ 			vc4_dlist_write(vc4_state,
+ 					VC4_SET_FIELD(vc4_state->crtc_w,
+-						      SCALER_POS1_SCL_WIDTH) |
++						      SCALER5_POS1_SCL_WIDTH) |
+ 					VC4_SET_FIELD(vc4_state->crtc_h,
+-						      SCALER_POS1_SCL_HEIGHT));
++						      SCALER5_POS1_SCL_HEIGHT));
+ 		}
  
-@@ -472,7 +473,11 @@ static u32 vc4_lbm_size(struct drm_plane
- 		lbm = pix_per_line * 16;
- 	}
- 
--	lbm = roundup(lbm, 32);
-+	/* Align it to 64 or 128 (hvs5) bytes */
-+	lbm = roundup(lbm, vc4->hvs->hvs5 ? 128 : 64);
-+
-+	/* Each "word" of the LBM memory contains 2 or 4 (hvs5) pixels */
-+	lbm /= vc4->hvs->hvs5 ? 4 : 2;
- 
- 	return lbm;
- }
+ 		/* Position Word 2: Source Image Size */
 
 
