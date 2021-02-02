@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D925630CC7B
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCDF30CC79
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235289AbhBBT5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:57:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        id S232988AbhBBT5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:57:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232359AbhBBNt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:49:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AA7664FA6;
-        Tue,  2 Feb 2021 13:42:31 +0000 (UTC)
+        id S232940AbhBBNuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:50:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FFCB64FA1;
+        Tue,  2 Feb 2021 13:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273352;
-        bh=hfO1gJckeNJ5MJjPmbNI9FztksTcpkDKp5MpNDJcyLQ=;
+        s=korg; t=1612273354;
+        bh=eR1JmH0TvrXwgf4kwoQSnDl0DgSldxgKUcc90l88V0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WE2fSloHxPrCn8ejWeAALxdUiwgO4e/XOcppGa3pLR3Z0gUOgxKKSuJBbgNAB4/CP
-         GWtW+ts/fp+WR4SHHSgcpglPN5dlIKdjUBQbcsumWGC+ef7V/5FTnvJLVqc00URJUw
-         0qrqsAn21DlmB7kgqtsXQk7og2vZU86K/wv/KLNA=
+        b=q9tVjt2y7k4iPnEZOcdAeXnnXcE8isGpm1zCM+/v/v7NUNsOjIaQhJP8IVWkud0Ee
+         KPTXm+zSJal6ZmKl0PsBCQWkMSQ1WW09ffYcwh3TEMb/Zg0lM7tBVE8i3VKGcTDRI9
+         +7clEBCgw8Zhmcm2zrRGcFUz/k9q2D4IyeIr8mUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 043/142] KVM: x86: allow KVM_REQ_GET_NESTED_STATE_PAGES outside guest mode for VMX
-Date:   Tue,  2 Feb 2021 14:36:46 +0100
-Message-Id: <20210202132959.501506338@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 044/142] KVM: nVMX: Sync unsyncd vmcs02 state to vmcs12 on migration
+Date:   Tue,  2 Feb 2021 14:36:47 +0100
+Message-Id: <20210202132959.545200167@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -38,117 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 9a78e15802a87de2b08dfd1bd88e855201d2c8fa upstream.
+commit d51e1d3f6b4236e0352407d8a63f5c5f71ce193d upstream.
 
-VMX also uses KVM_REQ_GET_NESTED_STATE_PAGES for the Hyper-V eVMCS,
-which may need to be loaded outside guest mode.  Therefore we cannot
-WARN in that case.
+Even when we are outside the nested guest, some vmcs02 fields
+may not be in sync vs vmcs12.  This is intentional, even across
+nested VM-exit, because the sync can be delayed until the nested
+hypervisor performs a VMCLEAR or a VMREAD/VMWRITE that affects those
+rarely accessed fields.
 
-However, that part of nested_get_vmcs12_pages is _not_ needed at
-vmentry time.  Split it out of KVM_REQ_GET_NESTED_STATE_PAGES handling,
-so that both vmentry and migration (and in the latter case, independent
-of is_guest_mode) do the parts that are needed.
+However, during KVM_GET_NESTED_STATE, the vmcs12 has to be up to date to
+be able to restore it.  To fix that, call copy_vmcs02_to_vmcs12_rare()
+before the vmcs12 contents are copied to userspace.
 
-Cc: <stable@vger.kernel.org> # 5.10.x: f2c7ef3ba: KVM: nSVM: cancel KVM_REQ_GET_NESTED_STATE_PAGES
-Cc: <stable@vger.kernel.org> # 5.10.x
+Fixes: 7952d769c29ca ("KVM: nVMX: Sync rarely accessed guest fields only when needed")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210114205449.8715-2-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/svm/nested.c |    3 +++
- arch/x86/kvm/vmx/nested.c |   31 +++++++++++++++++++++++++------
- arch/x86/kvm/x86.c        |    4 +---
- 3 files changed, 29 insertions(+), 9 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -200,6 +200,9 @@ static bool svm_get_nested_state_pages(s
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
- 
-+	if (WARN_ON(!is_guest_mode(vcpu)))
-+		return true;
-+
- 	if (!nested_svm_vmrun_msrpm(svm)) {
- 		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
- 		vcpu->run->internal.suberror =
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -3123,13 +3123,9 @@ static int nested_vmx_check_vmentry_hw(s
- 	return 0;
- }
- 
--static bool nested_get_vmcs12_pages(struct kvm_vcpu *vcpu)
-+static bool nested_get_evmcs_page(struct kvm_vcpu *vcpu)
- {
--	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
--	struct kvm_host_map *map;
--	struct page *page;
--	u64 hpa;
- 
- 	/*
- 	 * hv_evmcs may end up being not mapped after migration (when
-@@ -3152,6 +3148,17 @@ static bool nested_get_vmcs12_pages(stru
- 		}
+@@ -6070,11 +6070,14 @@ static int vmx_get_nested_state(struct k
+ 	if (is_guest_mode(vcpu)) {
+ 		sync_vmcs02_to_vmcs12(vcpu, vmcs12);
+ 		sync_vmcs02_to_vmcs12_rare(vcpu, vmcs12);
+-	} else if (!vmx->nested.need_vmcs12_to_shadow_sync) {
+-		if (vmx->nested.hv_evmcs)
+-			copy_enlightened_to_vmcs12(vmx);
+-		else if (enable_shadow_vmcs)
+-			copy_shadow_to_vmcs12(vmx);
++	} else  {
++		copy_vmcs02_to_vmcs12_rare(vcpu, get_vmcs12(vcpu));
++		if (!vmx->nested.need_vmcs12_to_shadow_sync) {
++			if (vmx->nested.hv_evmcs)
++				copy_enlightened_to_vmcs12(vmx);
++			else if (enable_shadow_vmcs)
++				copy_shadow_to_vmcs12(vmx);
++		}
  	}
  
-+	return true;
-+}
-+
-+static bool nested_get_vmcs12_pages(struct kvm_vcpu *vcpu)
-+{
-+	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
-+	struct vcpu_vmx *vmx = to_vmx(vcpu);
-+	struct kvm_host_map *map;
-+	struct page *page;
-+	u64 hpa;
-+
- 	if (nested_cpu_has2(vmcs12, SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES)) {
- 		/*
- 		 * Translate L1 physical address to host physical
-@@ -3220,6 +3227,18 @@ static bool nested_get_vmcs12_pages(stru
- 		exec_controls_setbit(vmx, CPU_BASED_USE_MSR_BITMAPS);
- 	else
- 		exec_controls_clearbit(vmx, CPU_BASED_USE_MSR_BITMAPS);
-+
-+	return true;
-+}
-+
-+static bool vmx_get_nested_state_pages(struct kvm_vcpu *vcpu)
-+{
-+	if (!nested_get_evmcs_page(vcpu))
-+		return false;
-+
-+	if (is_guest_mode(vcpu) && !nested_get_vmcs12_pages(vcpu))
-+		return false;
-+
- 	return true;
- }
- 
-@@ -6575,7 +6594,7 @@ struct kvm_x86_nested_ops vmx_nested_ops
- 	.hv_timer_pending = nested_vmx_preemption_timer_pending,
- 	.get_state = vmx_get_nested_state,
- 	.set_state = vmx_set_nested_state,
--	.get_nested_state_pages = nested_get_vmcs12_pages,
-+	.get_nested_state_pages = vmx_get_nested_state_pages,
- 	.write_log_dirty = nested_vmx_write_pml_buffer,
- 	.enable_evmcs = nested_enable_evmcs,
- 	.get_evmcs_version = nested_get_evmcs_version,
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8750,9 +8750,7 @@ static int vcpu_enter_guest(struct kvm_v
- 
- 	if (kvm_request_pending(vcpu)) {
- 		if (kvm_check_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu)) {
--			if (WARN_ON_ONCE(!is_guest_mode(vcpu)))
--				;
--			else if (unlikely(!kvm_x86_ops.nested_ops->get_nested_state_pages(vcpu))) {
-+			if (unlikely(!kvm_x86_ops.nested_ops->get_nested_state_pages(vcpu))) {
- 				r = 0;
- 				goto out;
- 			}
+ 	BUILD_BUG_ON(sizeof(user_vmx_nested_state->vmcs12) < VMCS12_SIZE);
 
 
