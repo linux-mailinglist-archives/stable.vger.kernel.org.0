@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5DB30C281
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF37930C14C
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234387AbhBBOwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:52:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51728 "EHLO mail.kernel.org"
+        id S232294AbhBBOTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:19:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234077AbhBBORa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:17:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFD9D64FC0;
-        Tue,  2 Feb 2021 13:54:18 +0000 (UTC)
+        id S234297AbhBBORg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 833136505F;
+        Tue,  2 Feb 2021 13:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274059;
-        bh=xMpNe8u19KTa+zL1UFe6iZdH9o3CME4+Iey3sX64zS8=;
+        s=korg; t=1612274062;
+        bh=Tg62eITq84ldSXOGqM4bOyDvfi4mkDcd9C6cLZFumdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b96cyt3HCt7JQXT8TBNSNTLlKzunq5ORIqOU38ECORLQPG86o9IagxuCv5/pY2KA+
-         uzA5hh20arzx0nyD2aUvRtiEjNqXUe2apcNUZJ/1MR0qmHt2GmqxHsCMu+AD/TRFiW
-         H2Bm8ru8rSx5C/Jo425prqfSZExQ2hLYTt9GC8T0=
+        b=LMdsJKvHK96SUyZPhQ8/PRilEWgHdJZA5cHQWEFDrrPzqE2u2cksQcAYBADawIhHs
+         WA2oPFI0Zrnc3U0jS0pbOP3ArFqi6pPO/PmeewNUVKXpHA9tmy/sf6b9Tc1a2HzIL3
+         hgMvmbojhUTuV2GkKQTqu0PJtjmwwzI3oaVXyIwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 35/37] NFC: fix possible resource leak
-Date:   Tue,  2 Feb 2021 14:39:18 +0100
-Message-Id: <20210202132944.399594518@linuxfoundation.org>
+        stable@vger.kernel.org, Saeed Mahameed <saeed@kernel.org>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 36/37] team: protect features update by RCU to avoid deadlock
+Date:   Tue,  2 Feb 2021 14:39:19 +0100
+Message-Id: <20210202132944.440388535@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -39,32 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Ivan Vecera <ivecera@redhat.com>
 
-commit d8f923c3ab96dbbb4e3c22d1afc1dc1d3b195cd8 upstream.
+commit f0947d0d21b219e03940b9be6628a43445c0de7a upstream.
 
-Put the device to avoid resource leak on path that the polling flag is
-invalid.
+Function __team_compute_features() is protected by team->lock
+mutex when it is called from team_compute_features() used when
+features of an underlying device is changed. This causes
+a deadlock when NETDEV_FEAT_CHANGE notifier for underlying device
+is fired due to change propagated from team driver (e.g. MTU
+change). It's because callbacks like team_change_mtu() or
+team_vlan_rx_{add,del}_vid() protect their port list traversal
+by team->lock mutex.
 
-Fixes: a831b9132065 ("NFC: Do not return EBUSY when stopping a poll that's already stopped")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121153745.122184-1-bianpan2016@163.com
+Example (r8169 case where this driver disables TSO for certain MTU
+values):
+...
+[ 6391.348202]  __mutex_lock.isra.6+0x2d0/0x4a0
+[ 6391.358602]  team_device_event+0x9d/0x160 [team]
+[ 6391.363756]  notifier_call_chain+0x47/0x70
+[ 6391.368329]  netdev_update_features+0x56/0x60
+[ 6391.373207]  rtl8169_change_mtu+0x14/0x50 [r8169]
+[ 6391.378457]  dev_set_mtu_ext+0xe1/0x1d0
+[ 6391.387022]  dev_set_mtu+0x52/0x90
+[ 6391.390820]  team_change_mtu+0x64/0xf0 [team]
+[ 6391.395683]  dev_set_mtu_ext+0xe1/0x1d0
+[ 6391.399963]  do_setlink+0x231/0xf50
+...
+
+In fact team_compute_features() called from team_device_event()
+does not need to be protected by team->lock mutex and rcu_read_lock()
+is sufficient there for port list traversal.
+
+Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
+Cc: Saeed Mahameed <saeed@kernel.org>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20210125074416.4056484-1-ivecera@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/nfc/netlink.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/team/team.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -871,6 +871,7 @@ static int nfc_genl_stop_poll(struct sk_
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -998,7 +998,8 @@ static void __team_compute_features(stru
+ 	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
+ 					IFF_XMIT_DST_RELEASE_PERM;
  
- 	if (!dev->polling) {
- 		device_unlock(&dev->dev);
-+		nfc_put_device(dev);
- 		return -EINVAL;
+-	list_for_each_entry(port, &team->port_list, list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(port, &team->port_list, list) {
+ 		vlan_features = netdev_increment_features(vlan_features,
+ 					port->dev->vlan_features,
+ 					TEAM_VLAN_FEATURES);
+@@ -1012,6 +1013,7 @@ static void __team_compute_features(stru
+ 		if (port->dev->hard_header_len > max_hard_header_len)
+ 			max_hard_header_len = port->dev->hard_header_len;
  	}
++	rcu_read_unlock();
+ 
+ 	team->dev->vlan_features = vlan_features;
+ 	team->dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
+@@ -1027,9 +1029,7 @@ static void __team_compute_features(stru
+ 
+ static void team_compute_features(struct team *team)
+ {
+-	mutex_lock(&team->lock);
+ 	__team_compute_features(team);
+-	mutex_unlock(&team->lock);
+ 	netdev_change_features(team->dev);
+ }
  
 
 
