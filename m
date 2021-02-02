@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED0D30C303
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D58E30C305
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232455AbhBBPHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 10:07:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51384 "EHLO mail.kernel.org"
+        id S234626AbhBBPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 10:07:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231345AbhBBOQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:16:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 057DA6505C;
-        Tue,  2 Feb 2021 13:54:01 +0000 (UTC)
+        id S233984AbhBBOQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:16:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC0D64FBF;
+        Tue,  2 Feb 2021 13:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612274042;
-        bh=PP+b+SN5HbUHvG3NlN3tBVOnVM/7sGfWX6boRihdWQ8=;
+        s=korg; t=1612274045;
+        bh=dwKH/4TDRzTRZs7MRU1yY+nTS5jNZIVwmaNcs2vNzAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7FamX+4KWOA1kcHEA6Y3vKHx7pM1VvBh0KaL1sDiO/2rXN7O2Jh+Da0Zi/mrZJTc
-         dBnEBH3XkPIzvdARh+e2T+MwlihNzLPibgG98BOxzuDy4b654h+B+lk2evi/g64sgs
-         lLo/RUDadF3H2Wz/41Chnei7ulmNZBRDKmuKADGo=
+        b=KY9P+RYgSM255Fu+kaw9bQ6n8W+xziCF5t47Dj0WM+m1eHfeFoMknc08SBvS5jUSy
+         WJ6GgVkDCeDWpGrmkaJpBUlxrTuYPp7B9eyYCx4JfeegQhIhHYkSyg90s/teKK6Q3K
+         tOYqlx4qKHyTnfzQvS9pPRkBlczrKvZKWr3QR8Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/37] can: dev: prevent potential information leak in can_fill_info()
-Date:   Tue,  2 Feb 2021 14:39:13 +0100
-Message-Id: <20210202132944.182495560@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Filippo Sironi <sironi@amazon.de>
+Subject: [PATCH 4.19 31/37] iommu/vt-d: Gracefully handle DMAR units with no supported address widths
+Date:   Tue,  2 Feb 2021 14:39:14 +0100
+Message-Id: <20210202132944.227111350@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
 References: <20210202132942.915040339@linuxfoundation.org>
@@ -40,38 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit b552766c872f5b0d90323b24e4c9e8fa67486dd5 ]
+commit c40aaaac1018ff1382f2d35df5129a6bcea3df6b upstream.
 
-The "bec" struct isn't necessarily always initialized. For example, the
-mcp251xfd_get_berr_counter() function doesn't initialize anything if the
-interface is down.
+Instead of bailing out completely, such a unit can still be used for
+interrupt remapping.
 
-Fixes: 52c793f24054 ("can: netlink support for bus-error reporting and counters")
-Link: https://lore.kernel.org/r/YAkaRdRJncsJO8Ve@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/linux-iommu/549928db2de6532117f36c9c810373c14cf76f51.camel@infradead.org/
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+[ context change due to moving drivers/iommu/dmar.c to
+  drivers/iommu/intel/dmar.c ]
+Signed-off-by: Filippo Sironi <sironi@amazon.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/dmar.c |   46 +++++++++++++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 953c6fdc75cc4..1bd181b33c24f 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1142,7 +1142,7 @@ static int can_fill_info(struct sk_buff *skb, const struct net_device *dev)
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -1029,8 +1029,8 @@ static int alloc_iommu(struct dmar_drhd_
  {
- 	struct can_priv *priv = netdev_priv(dev);
- 	struct can_ctrlmode cm = {.flags = priv->ctrlmode};
--	struct can_berr_counter bec;
-+	struct can_berr_counter bec = { };
- 	enum can_state state = priv->state;
+ 	struct intel_iommu *iommu;
+ 	u32 ver, sts;
+-	int agaw = 0;
+-	int msagaw = 0;
++	int agaw = -1;
++	int msagaw = -1;
+ 	int err;
  
- 	if (priv->do_get_state)
--- 
-2.27.0
-
+ 	if (!drhd->reg_base_addr) {
+@@ -1055,17 +1055,28 @@ static int alloc_iommu(struct dmar_drhd_
+ 	}
+ 
+ 	err = -EINVAL;
+-	agaw = iommu_calculate_agaw(iommu);
+-	if (agaw < 0) {
+-		pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
+-			iommu->seq_id);
+-		goto err_unmap;
+-	}
+-	msagaw = iommu_calculate_max_sagaw(iommu);
+-	if (msagaw < 0) {
+-		pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
+-			iommu->seq_id);
+-		goto err_unmap;
++	if (cap_sagaw(iommu->cap) == 0) {
++		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
++			iommu->name);
++		drhd->ignored = 1;
++	}
++
++	if (!drhd->ignored) {
++		agaw = iommu_calculate_agaw(iommu);
++		if (agaw < 0) {
++			pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
++			       iommu->seq_id);
++			drhd->ignored = 1;
++		}
++	}
++	if (!drhd->ignored) {
++		msagaw = iommu_calculate_max_sagaw(iommu);
++		if (msagaw < 0) {
++			pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
++			       iommu->seq_id);
++			drhd->ignored = 1;
++			agaw = -1;
++		}
+ 	}
+ 	iommu->agaw = agaw;
+ 	iommu->msagaw = msagaw;
+@@ -1092,7 +1103,12 @@ static int alloc_iommu(struct dmar_drhd_
+ 
+ 	raw_spin_lock_init(&iommu->register_lock);
+ 
+-	if (intel_iommu_enabled) {
++	/*
++	 * This is only for hotplug; at boot time intel_iommu_enabled won't
++	 * be set yet. When intel_iommu_init() runs, it registers the units
++	 * present at boot time, then sets intel_iommu_enabled.
++	 */
++	if (intel_iommu_enabled && !drhd->ignored) {
+ 		err = iommu_device_sysfs_add(&iommu->iommu, NULL,
+ 					     intel_iommu_groups,
+ 					     "%s", iommu->name);
+@@ -1121,7 +1137,7 @@ error:
+ 
+ static void free_iommu(struct intel_iommu *iommu)
+ {
+-	if (intel_iommu_enabled) {
++	if (intel_iommu_enabled && iommu->iommu.ops) {
+ 		iommu_device_unregister(&iommu->iommu);
+ 		iommu_device_sysfs_remove(&iommu->iommu);
+ 	}
 
 
