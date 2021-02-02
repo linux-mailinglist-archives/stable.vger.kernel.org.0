@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D31930C0E2
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A45630C0DD
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:10:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233978AbhBBOJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:09:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
+        id S233889AbhBBOJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:09:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233921AbhBBOHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:07:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CF8F65029;
-        Tue,  2 Feb 2021 13:50:08 +0000 (UTC)
+        id S233710AbhBBOHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:07:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ED9964F98;
+        Tue,  2 Feb 2021 13:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273809;
-        bh=GpN8qT98RVpJc8qD5Ha46R+uHPu6WMXFK8MHkJqvxd8=;
+        s=korg; t=1612273790;
+        bh=bKbMna5GuS4eLGTnZRrVFBvIizzKzHKr+gzPRS1GmlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlfIiuM8Sj3+pK4+XahmjVsmDt7A7CNcCjp8JWUGUq+KHBgASeWIHEyhY8zmcr+nw
-         zfdYc4euf5PdEIBUGOkmoVTZ8PKTEtvRqErVDdjH4J4w1C0YY5Em+VjBZmu4o74pup
-         1mFo80eXbkiWh6d9mMzlALiaIQA8DFHbX4Ue4j6M=
+        b=Hi9nM1nAb1JRFCB+P1nuvbECkmI/DoiZXAxKowOPUpl3V2dT3zRSZEKniQx48bPjq
+         lfuDVksSEoAGgsm+dVmSz+fAkTO9il1QUUC1/oPrqZAVRl+dT072RuUm8cqTtYya/d
+         8CddF+WVNYrBHatTnVQc9B/tNdH70uClFs+beht4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 01/32] ACPI: sysfs: Prefer "compatible" modalias
+        stable@vger.kernel.org, Like Xu <like.xu@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 04/28] KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
 Date:   Tue,  2 Feb 2021 14:38:24 +0100
-Message-Id: <20210202132942.092128089@linuxfoundation.org>
+Message-Id: <20210202132941.369389122@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
+References: <20210202132941.180062901@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,65 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Like Xu <like.xu@linux.intel.com>
 
-commit 36af2d5c4433fb40ee2af912c4ac0a30991aecfc upstream.
+commit 98dd2f108e448988d91e296173e773b06fb978b8 upstream.
 
-Commit 8765c5ba1949 ("ACPI / scan: Rework modalias creation when
-"compatible" is present") may create two "MODALIAS=" in one uevent
-file if specific conditions are met.
+The HW_REF_CPU_CYCLES event on the fixed counter 2 is pseudo-encoded as
+0x0300 in the intel_perfmon_event_map[]. Correct its usage.
 
-This breaks systemd-udevd, which assumes each "key" in one uevent file
-to be unique. The internal implementation of systemd-udevd overwrites
-the first MODALIAS with the second one, so its kmod rule doesn't load
-the driver for the first MODALIAS.
-
-So if both the ACPI modalias and the OF modalias are present, use the
-latter to ensure that there will be only one MODALIAS.
-
-Link: https://github.com/systemd/systemd/pull/18163
-Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Fixes: 8765c5ba1949 ("ACPI / scan: Rework modalias creation when "compatible" is present")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: 4.1+ <stable@vger.kernel.org> # 4.1+
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 62079d8a4312 ("KVM: PMU: add proper support for fixed counter 2")
+Signed-off-by: Like Xu <like.xu@linux.intel.com>
+Message-Id: <20201230081916.63417-1-like.xu@linux.intel.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_sysfs.c |   20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ arch/x86/kvm/pmu_intel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/device_sysfs.c
-+++ b/drivers/acpi/device_sysfs.c
-@@ -259,20 +259,12 @@ int __acpi_device_uevent_modalias(struct
- 	if (add_uevent_var(env, "MODALIAS="))
- 		return -ENOMEM;
+--- a/arch/x86/kvm/pmu_intel.c
++++ b/arch/x86/kvm/pmu_intel.c
+@@ -29,7 +29,7 @@ static struct kvm_event_hw_type_mapping
+ 	[4] = { 0x2e, 0x41, PERF_COUNT_HW_CACHE_MISSES },
+ 	[5] = { 0xc4, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
+ 	[6] = { 0xc5, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
+-	[7] = { 0x00, 0x30, PERF_COUNT_HW_REF_CPU_CYCLES },
++	[7] = { 0x00, 0x03, PERF_COUNT_HW_REF_CPU_CYCLES },
+ };
  
--	len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
--				  sizeof(env->buf) - env->buflen);
--	if (len < 0)
--		return len;
--
--	env->buflen += len;
--	if (!adev->data.of_compatible)
--		return 0;
--
--	if (len > 0 && add_uevent_var(env, "MODALIAS="))
--		return -ENOMEM;
--
--	len = create_of_modalias(adev, &env->buf[env->buflen - 1],
--				 sizeof(env->buf) - env->buflen);
-+	if (adev->data.of_compatible)
-+		len = create_of_modalias(adev, &env->buf[env->buflen - 1],
-+					 sizeof(env->buf) - env->buflen);
-+	else
-+		len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
-+					  sizeof(env->buf) - env->buflen);
- 	if (len < 0)
- 		return len;
- 
+ /* mapping between fixed pmc index and intel_arch_events array */
 
 
