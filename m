@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6D930CC76
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5258230CC68
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240153AbhBBT5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:57:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
+        id S240206AbhBBTzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:55:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233049AbhBBNun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:50:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C673C64FB3;
-        Tue,  2 Feb 2021 13:43:05 +0000 (UTC)
+        id S233097AbhBBNva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:51:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C59364FB4;
+        Tue,  2 Feb 2021 13:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273386;
-        bh=qFJWL4SW8VLmDS29+mCApETfCjzki6GttBb9RIFmqS4=;
+        s=korg; t=1612273389;
+        bh=/oxlEIfmU57N6kcLOcmTfCQxXgj9arOTSSj3O7Lvp5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YP28ahaWFyv44/4n7eSDf+3+UR+fmT9Il2Cxqu0TMnPaLUkZXT6NHLVWWzE4vPYsM
-         tJSinKrNbxZV14nbN5DBrXunMyk5tPghDFdzLjmABWTAEBM+o32jziymJHFFAbWRHd
-         wK9EnQyYfboPmfnxqB8wSSunWV5eiIA+VParZiQY=
+        b=NXLm166vEdm2kvD2G2NKstDzjCOqpxF5kXP3q21YBwENQ/qzee1mikyknm0FxtYig
+         i/QojHdJbsPqqrpP6b1Q06EYB3CQyce0d7gXZa/4Zyy9HkGlgRvk0RD8bKX2DG+kgn
+         ECzqHq2evz/evzMwqoboHlrQVEkh6BanWLTsCuLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Srinivasa Rao <srivasam@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/142] RDMA/cxgb4: Fix the reported max_recv_sge value
-Date:   Tue,  2 Feb 2021 14:37:31 +0100
-Message-Id: <20210202133001.334429433@linuxfoundation.org>
+Subject: [PATCH 5.10 089/142] ASoC: dt-bindings: lpass: Fix and common up lpass dai ids
+Date:   Tue,  2 Feb 2021 14:37:32 +0100
+Message-Id: <20210202133001.375135742@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -41,37 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit a372173bf314d374da4dd1155549d8ca7fc44709 ]
+[ Upstream commit 09a4f6f5d21cb1f2633f4e8b893336b60eee9a01 ]
 
-The max_recv_sge value is wrongly reported when calling query_qp, This is
-happening due to a typo when assigning the max_recv_sge value, the value
-of sq_max_sges was assigned instead of rq_max_sges.
+Existing header file design of having separate SoC specific header files
+for the common lpass driver has mutiple issues.
+This design is prone to break as an when new SoC header is added
+as the common DAI ids of other SoCs will be overwritten by the
+new ones.
 
-Fixes: 3e5c02c9ef9a ("iw_cxgb4: Support query_qp() verb")
-Link: https://lore.kernel.org/r/20210114191423.423529-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+One of them surfaced by recent patch that adds support to sc7180, this
+one totally broke LPASS drivers on other Qualcomm SoCs.
+
+Before this gets worst, fix this by having a common header qcom,lpass.h.
+This should fix the issue and any new DAI ids should be added to the
+common header. This will be more sustainable then the existing design!
+
+Fixes: 12fbfc4cabec6595 ("ASoC: Add sc7180-lpass binding header hdmi define")
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Reported-by: Stephan Gerhold <stephan@gerhold.net>
+Tested-by: Srinivasa Rao <srivasam@codeaurora.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210119171527.32145-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/qp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/dt-bindings/sound/apq8016-lpass.h |  7 +++----
+ include/dt-bindings/sound/qcom,lpass.h    | 15 +++++++++++++++
+ include/dt-bindings/sound/sc7180-lpass.h  |  6 ++----
+ 3 files changed, 20 insertions(+), 8 deletions(-)
+ create mode 100644 include/dt-bindings/sound/qcom,lpass.h
 
-diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
-index f20379e4e2ec2..5df4bb52bb10f 100644
---- a/drivers/infiniband/hw/cxgb4/qp.c
-+++ b/drivers/infiniband/hw/cxgb4/qp.c
-@@ -2471,7 +2471,7 @@ int c4iw_ib_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 	init_attr->cap.max_send_wr = qhp->attr.sq_num_entries;
- 	init_attr->cap.max_recv_wr = qhp->attr.rq_num_entries;
- 	init_attr->cap.max_send_sge = qhp->attr.sq_max_sges;
--	init_attr->cap.max_recv_sge = qhp->attr.sq_max_sges;
-+	init_attr->cap.max_recv_sge = qhp->attr.rq_max_sges;
- 	init_attr->cap.max_inline_data = T4_MAX_SEND_INLINE;
- 	init_attr->sq_sig_type = qhp->sq_sig_all ? IB_SIGNAL_ALL_WR : 0;
- 	return 0;
+diff --git a/include/dt-bindings/sound/apq8016-lpass.h b/include/dt-bindings/sound/apq8016-lpass.h
+index 3c3e16c0aadbf..dc605c4bc2249 100644
+--- a/include/dt-bindings/sound/apq8016-lpass.h
++++ b/include/dt-bindings/sound/apq8016-lpass.h
+@@ -2,9 +2,8 @@
+ #ifndef __DT_APQ8016_LPASS_H
+ #define __DT_APQ8016_LPASS_H
+ 
+-#define MI2S_PRIMARY	0
+-#define MI2S_SECONDARY	1
+-#define MI2S_TERTIARY	2
+-#define MI2S_QUATERNARY	3
++#include <dt-bindings/sound/qcom,lpass.h>
++
++/* NOTE: Use qcom,lpass.h to define any AIF ID's for LPASS */
+ 
+ #endif /* __DT_APQ8016_LPASS_H */
+diff --git a/include/dt-bindings/sound/qcom,lpass.h b/include/dt-bindings/sound/qcom,lpass.h
+new file mode 100644
+index 0000000000000..7b0b80b38699e
+--- /dev/null
++++ b/include/dt-bindings/sound/qcom,lpass.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __DT_QCOM_LPASS_H
++#define __DT_QCOM_LPASS_H
++
++#define MI2S_PRIMARY	0
++#define MI2S_SECONDARY	1
++#define MI2S_TERTIARY	2
++#define MI2S_QUATERNARY	3
++#define MI2S_QUINARY	4
++
++#define LPASS_DP_RX	5
++
++#define LPASS_MCLK0	0
++
++#endif /* __DT_QCOM_LPASS_H */
+diff --git a/include/dt-bindings/sound/sc7180-lpass.h b/include/dt-bindings/sound/sc7180-lpass.h
+index 56ecaafd2dc68..5c1ee8b36b197 100644
+--- a/include/dt-bindings/sound/sc7180-lpass.h
++++ b/include/dt-bindings/sound/sc7180-lpass.h
+@@ -2,10 +2,8 @@
+ #ifndef __DT_SC7180_LPASS_H
+ #define __DT_SC7180_LPASS_H
+ 
+-#define MI2S_PRIMARY	0
+-#define MI2S_SECONDARY	1
+-#define LPASS_DP_RX	2
++#include <dt-bindings/sound/qcom,lpass.h>
+ 
+-#define LPASS_MCLK0	0
++/* NOTE: Use qcom,lpass.h to define any AIF ID's for LPASS */
+ 
+ #endif /* __DT_APQ8016_LPASS_H */
 -- 
 2.27.0
 
