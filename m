@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC03830C7D3
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8F530C561
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234187AbhBBRcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:32:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
+        id S236087AbhBBQVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 11:21:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234181AbhBBOMy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 828FA6504C;
-        Tue,  2 Feb 2021 13:52:58 +0000 (UTC)
+        id S234271AbhBBOP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:15:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B42AE65058;
+        Tue,  2 Feb 2021 13:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273979;
-        bh=0AM94Ii/H/GZK8UwKi9UQTQW2fx5jlfjqYgylomNMZI=;
+        s=korg; t=1612274026;
+        bh=GoJ1HDyCi3HdVKG2i6AtZ5s6keR6oLhU5iBhV8Zripg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLBN1EWoUZD8RdR3zOG2KhBBKMzYXNH0pqYZ/cwip3Y2HGW7vXofUeFl2n7Bg+flK
-         dmENPnvQHRjISbpp+53AokrU+bvYnx8lQ35QpMopvE6iBTit/0JKdZdXcPlPE3x4G5
-         lRFJHPE8+Od0YrExphQ4a+xaMjSJCHvr4bKPIndE=
+        b=uKXTHFI+wNC0Gt9sDrJp+Glw2veijdvc+Nx1f+phfUu/ZFuQoYTONw89N0hqI8Acw
+         OIWuwaBAdMnWCVqHuBegUA4NkYci4YJ2Yj1YNrmAbQYKF+UjeSn/BFNe9zMMo+QML2
+         2hpqTX6LWVbZ/v6XoGnrGMfYsRSTNWbtoD/JQj+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Filippo Sironi <sironi@amazon.de>
-Subject: [PATCH 4.14 25/30] iommu/vt-d: Gracefully handle DMAR units with no supported address widths
-Date:   Tue,  2 Feb 2021 14:39:06 +0100
-Message-Id: <20210202132943.171461158@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/37] RDMA/cxgb4: Fix the reported max_recv_sge value
+Date:   Tue,  2 Feb 2021 14:39:07 +0100
+Message-Id: <20210202132943.926953502@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit c40aaaac1018ff1382f2d35df5129a6bcea3df6b upstream.
+[ Upstream commit a372173bf314d374da4dd1155549d8ca7fc44709 ]
 
-Instead of bailing out completely, such a unit can still be used for
-interrupt remapping.
+The max_recv_sge value is wrongly reported when calling query_qp, This is
+happening due to a typo when assigning the max_recv_sge value, the value
+of sq_max_sges was assigned instead of rq_max_sges.
 
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/linux-iommu/549928db2de6532117f36c9c810373c14cf76f51.camel@infradead.org/
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-[ context change due to moving drivers/iommu/dmar.c to
-  drivers/iommu/intel/dmar.c ]
-Signed-off-by: Filippo Sironi <sironi@amazon.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3e5c02c9ef9a ("iw_cxgb4: Support query_qp() verb")
+Link: https://lore.kernel.org/r/20210114191423.423529-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dmar.c |   46 +++++++++++++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 15 deletions(-)
+ drivers/infiniband/hw/cxgb4/qp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -1026,8 +1026,8 @@ static int alloc_iommu(struct dmar_drhd_
- {
- 	struct intel_iommu *iommu;
- 	u32 ver, sts;
--	int agaw = 0;
--	int msagaw = 0;
-+	int agaw = -1;
-+	int msagaw = -1;
- 	int err;
- 
- 	if (!drhd->reg_base_addr) {
-@@ -1052,17 +1052,28 @@ static int alloc_iommu(struct dmar_drhd_
- 	}
- 
- 	err = -EINVAL;
--	agaw = iommu_calculate_agaw(iommu);
--	if (agaw < 0) {
--		pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
--			iommu->seq_id);
--		goto err_unmap;
--	}
--	msagaw = iommu_calculate_max_sagaw(iommu);
--	if (msagaw < 0) {
--		pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
--			iommu->seq_id);
--		goto err_unmap;
-+	if (cap_sagaw(iommu->cap) == 0) {
-+		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
-+			iommu->name);
-+		drhd->ignored = 1;
-+	}
-+
-+	if (!drhd->ignored) {
-+		agaw = iommu_calculate_agaw(iommu);
-+		if (agaw < 0) {
-+			pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
-+			       iommu->seq_id);
-+			drhd->ignored = 1;
-+		}
-+	}
-+	if (!drhd->ignored) {
-+		msagaw = iommu_calculate_max_sagaw(iommu);
-+		if (msagaw < 0) {
-+			pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
-+			       iommu->seq_id);
-+			drhd->ignored = 1;
-+			agaw = -1;
-+		}
- 	}
- 	iommu->agaw = agaw;
- 	iommu->msagaw = msagaw;
-@@ -1089,7 +1100,12 @@ static int alloc_iommu(struct dmar_drhd_
- 
- 	raw_spin_lock_init(&iommu->register_lock);
- 
--	if (intel_iommu_enabled) {
-+	/*
-+	 * This is only for hotplug; at boot time intel_iommu_enabled won't
-+	 * be set yet. When intel_iommu_init() runs, it registers the units
-+	 * present at boot time, then sets intel_iommu_enabled.
-+	 */
-+	if (intel_iommu_enabled && !drhd->ignored) {
- 		err = iommu_device_sysfs_add(&iommu->iommu, NULL,
- 					     intel_iommu_groups,
- 					     "%s", iommu->name);
-@@ -1118,7 +1134,7 @@ error:
- 
- static void free_iommu(struct intel_iommu *iommu)
- {
--	if (intel_iommu_enabled) {
-+	if (intel_iommu_enabled && iommu->iommu.ops) {
- 		iommu_device_unregister(&iommu->iommu);
- 		iommu_device_sysfs_remove(&iommu->iommu);
- 	}
+diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
+index a9e3a11bea54a..caa6a502c37e2 100644
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -2485,7 +2485,7 @@ int c4iw_ib_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 	init_attr->cap.max_send_wr = qhp->attr.sq_num_entries;
+ 	init_attr->cap.max_recv_wr = qhp->attr.rq_num_entries;
+ 	init_attr->cap.max_send_sge = qhp->attr.sq_max_sges;
+-	init_attr->cap.max_recv_sge = qhp->attr.sq_max_sges;
++	init_attr->cap.max_recv_sge = qhp->attr.rq_max_sges;
+ 	init_attr->cap.max_inline_data = T4_MAX_SEND_INLINE;
+ 	init_attr->sq_sig_type = qhp->sq_sig_all ? IB_SIGNAL_ALL_WR : 0;
+ 	return 0;
+-- 
+2.27.0
+
 
 
