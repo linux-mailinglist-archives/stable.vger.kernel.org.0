@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C35A30C061
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C00A230CB7A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233286AbhBBN40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:56:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42400 "EHLO mail.kernel.org"
+        id S239635AbhBBT0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 14:26:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233313AbhBBNyU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:54:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A61AD64FD3;
-        Tue,  2 Feb 2021 13:44:28 +0000 (UTC)
+        id S233300AbhBBN7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:59:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B5F64F76;
+        Tue,  2 Feb 2021 13:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273469;
-        bh=U7HNZD5zZ1flbnrXuaGM5OWWHu/vOy1T3smhO+6FDnA=;
+        s=korg; t=1612273603;
+        bh=ZRsifVflCkksgPiM9QLGJKUy7NfqP4BAT17EgzAHuSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FVYoSvCBQRoRpwIaYvnIBHZIi7axcDpBybjkGrG0M6/04MKnjiEX1O8jgCrs3Eqv
-         Gk5s8r4ogczYZy4nR5C/km2FNg2zCL+iWz03RW7yHw8L8WnTC7p6cwdB/EZVZHNH6w
-         Q9hcgaxjM4IIdqjCCWqYB8Oi+Vqi/24bhfjNU3+c=
+        b=dWxt4kbf8w5moE7BVqy6+RRxSySvpK0CbbIoyljNuVqnAQahDEGIBhzMBawSG2ywB
+         1pMBO65FJtmyVp0439Bf3WdsS+VWHZfRzpMkXtx/GqGFBcg9j9nPjBhF1TVD0sIsDG
+         ksLSzTJyl9JFp8YlbbAXyfnLRhCLAzkTYboJgKdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/142] net/mlx5e: Disable hw-tc-offload when MLX5_CLS_ACT config is disabled
-Date:   Tue,  2 Feb 2021 14:38:02 +0100
-Message-Id: <20210202133002.617653572@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jakub Kicinski <kubakici@wp.pl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 25/61] mt7601u: fix kernel crash unplugging the device
+Date:   Tue,  2 Feb 2021 14:38:03 +0100
+Message-Id: <20210202132947.524668558@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
-References: <20210202132957.692094111@linuxfoundation.org>
+In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
+References: <20210202132946.480479453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 156878d0e697187c7d207ee6c22afe50b7f3678c ]
+commit 0acb20a5438c36e0cf2b8bf255f314b59fcca6ef upstream.
 
-The cited commit introduce new CONFIG_MLX5_CLS_ACT kconfig variable
-to control compilation of TC hardware offloads implementation.
-When this configuration is disabled the driver is still wrongly
-reports in ethtool that hw-tc-offload is supported.
+The following crash log can occur unplugging the usb dongle since,
+after the urb poison in mt7601u_free_tx_queue(), usb_submit_urb() will
+always fail resulting in a skb kfree while the skb has been already
+queued.
 
-Fixed by reporting hw-tc-offload is supported only when
-CONFIG_MLX5_CLS_ACT is enabled.
+Fix the issue enqueuing the skb only if usb_submit_urb() succeed.
 
-Fixes: d956873f908c ("net/mlx5e: Introduce kconfig var for TC support")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hardware name: Hewlett-Packard 500-539ng/2B2C, BIOS 80.06 04/01/2015
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:skb_trim+0x2c/0x30
+RSP: 0000:ffffb4c88005bba8 EFLAGS: 00010206
+RAX: 000000004ad483ee RBX: ffff9a236625dee0 RCX: 000000000000662f
+RDX: 000000000000000c RSI: 0000000000000000 RDI: ffff9a2343179300
+RBP: ffff9a2343179300 R08: 0000000000000001 R09: 0000000000000000
+R10: ffff9a23748f7840 R11: 0000000000000001 R12: ffff9a236625e4d4
+R13: ffff9a236625dee0 R14: 0000000000001080 R15: 0000000000000008
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fd410a34ef8 CR3: 00000001416ee001 CR4: 00000000001706f0
+Call Trace:
+ mt7601u_tx_status+0x3e/0xa0 [mt7601u]
+ mt7601u_dma_cleanup+0xca/0x110 [mt7601u]
+ mt7601u_cleanup+0x22/0x30 [mt7601u]
+ mt7601u_disconnect+0x22/0x60 [mt7601u]
+ usb_unbind_interface+0x8a/0x270
+ ? kernfs_find_ns+0x35/0xd0
+ __device_release_driver+0x17a/0x230
+ device_release_driver+0x24/0x30
+ bus_remove_device+0xdb/0x140
+ device_del+0x18b/0x430
+ ? kobject_put+0x98/0x1d0
+ usb_disable_device+0xc6/0x1f0
+ usb_disconnect.cold+0x7e/0x20a
+ hub_event+0xbf3/0x1870
+ process_one_work+0x1b6/0x350
+ worker_thread+0x53/0x3e0
+ ? process_one_work+0x350/0x350
+ kthread+0x11b/0x140
+ ? __kthread_bind_mask+0x60/0x60
+ ret_from_fork+0x22/0x30
+
+Fixes: 23377c200b2eb ("mt7601u: fix possible memory leak when the device is disconnected")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/3b85219f669a63a8ced1f43686de05915a580489.1610919247.git.lorenzo@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c  | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt7601u/dma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index ebce97921e03c..ba6c75618a710 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4990,7 +4990,7 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
- 	    FT_CAP(modify_root) &&
- 	    FT_CAP(identified_miss_table_mode) &&
- 	    FT_CAP(flow_table_modify)) {
--#ifdef CONFIG_MLX5_ESWITCH
-+#if IS_ENABLED(CONFIG_MLX5_CLS_ACT)
- 		netdev->hw_features      |= NETIF_F_HW_TC;
- #endif
- #ifdef CONFIG_MLX5_EN_ARFS
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index 67247c33b9fd6..304435e561170 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -738,7 +738,9 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+--- a/drivers/net/wireless/mediatek/mt7601u/dma.c
++++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
+@@ -310,7 +310,6 @@ static int mt7601u_dma_submit_tx(struct
+ 	}
  
- 	netdev->features       |= NETIF_F_NETNS_LOCAL;
+ 	e = &q->e[q->end];
+-	e->skb = skb;
+ 	usb_fill_bulk_urb(e->urb, usb_dev, snd_pipe, skb->data, skb->len,
+ 			  mt7601u_complete_tx, q);
+ 	ret = usb_submit_urb(e->urb, GFP_ATOMIC);
+@@ -328,6 +327,7 @@ static int mt7601u_dma_submit_tx(struct
  
-+#if IS_ENABLED(CONFIG_MLX5_CLS_ACT)
- 	netdev->hw_features    |= NETIF_F_HW_TC;
-+#endif
- 	netdev->hw_features    |= NETIF_F_SG;
- 	netdev->hw_features    |= NETIF_F_IP_CSUM;
- 	netdev->hw_features    |= NETIF_F_IPV6_CSUM;
--- 
-2.27.0
-
+ 	q->end = (q->end + 1) % q->entries;
+ 	q->used++;
++	e->skb = skb;
+ 
+ 	if (q->used >= q->entries)
+ 		ieee80211_stop_queue(dev->hw, skb_get_queue_mapping(skb));
 
 
