@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6648A30C015
+	by mail.lfdr.de (Postfix) with ESMTP id D7F5030C016
 	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:50:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232913AbhBBNtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:49:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36410 "EHLO mail.kernel.org"
+        id S233028AbhBBNtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:49:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232916AbhBBNrB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:47:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CF664F89;
-        Tue,  2 Feb 2021 13:41:35 +0000 (UTC)
+        id S232933AbhBBNrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:47:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3281F64F8F;
+        Tue,  2 Feb 2021 13:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273296;
-        bh=iZpyMwa3C4bNTPhLDUU5Cs6F4VC/MxuvXIOE00AKwNk=;
+        s=korg; t=1612273298;
+        bh=rIGhx9RV0NM5CnYpvOuwXFg43rqk9ofNndTN5YDJgTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNU8YPL71Qo/61W62UZEZhtoyb3y1+6v13ktr2EdUIeWc36J46D+pbZskf6DsB/at
-         tyEL+q1Ryfa3OsdpYev/SJjxjICRTun1MJpYG5bpxLsmqFrjYXSXduXKwWF9wP25Jl
-         o2aNjJCJIB+781wdLbbBSVwoI8qcS3OrIm+Q0Pk4=
+        b=qqtSnkwlB9TH/JdSNfKmqFqX7TCFIVlCZXzG2C8eC7Eued5FtjjyElFR/Et4FrLly
+         kEHhxO6Y4aI4gq8xyUgM/5kWXnnIU4UWR4N73/ZI5Ul3akDHGAdwphC3QSV6l8jmzy
+         4CH6XBne1ffGGd6P4vdL581I+BfhMMBW/vlLvBYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matti Gottlieb <matti.gottlieb@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 054/142] iwlwifi: Fix IWL_SUBDEVICE_NO_160 macro to use the correct bit.
-Date:   Tue,  2 Feb 2021 14:36:57 +0100
-Message-Id: <20210202132959.946912163@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.10 055/142] drm/i915/gt: Clear CACHE_MODE prior to clearing residuals
+Date:   Tue,  2 Feb 2021 14:36:58 +0100
+Message-Id: <20210202132959.988068617@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,36 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Gottlieb <matti.gottlieb@intel.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 4886460c4d1576e85b12601b8b328278a483df86 upstream.
+commit ef99a60ffd9b918354e038bc5e61f007ff7e901d upstream.
 
-The bit that indicates if the device supports 160MHZ
-is bit #9. The macro checks bit #8.
+Since we do a bare context switch with no restore, the clear residual
+kernel runs on dirty state, and we must be careful to avoid executing
+with bad state from context registers inherited from a malicious client.
 
-Fix IWL_SUBDEVICE_NO_160 macro to use the correct bit.
-
-Signed-off-by: Matti Gottlieb <matti.gottlieb@intel.com>
-Fixes: d6f2134a3831 ("iwlwifi: add mac/rf types and 160MHz to the device tables")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210122144849.bddbf9b57a75.I16e09e2b1404b16bfff70852a5a654aa468579e2@changeid
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2955
+Fixes: 09aa9e45863e ("drm/i915/gt: Restore clear-residual mitigations for Ivybridge, Baytrail")
+Testcase: igt/gem_ctx_isolation # ivb,vlv
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Reviewed-by: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210117093015.29143-1-chris@chris-wilson.co.uk
+(cherry picked from commit ace44e13e577c2ae59980e9a6ff5ca253b1cf831)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-config.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gt/gen7_renderclear.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -498,7 +498,7 @@ struct iwl_cfg {
- #define IWL_CFG_CORES_BT_GNSS		0x5
+--- a/drivers/gpu/drm/i915/gt/gen7_renderclear.c
++++ b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
+@@ -390,6 +390,16 @@ static void emit_batch(struct i915_vma *
+ 						     &cb_kernel_ivb,
+ 						     desc_count);
  
- #define IWL_SUBDEVICE_RF_ID(subdevice)	((u16)((subdevice) & 0x00F0) >> 4)
--#define IWL_SUBDEVICE_NO_160(subdevice)	((u16)((subdevice) & 0x0100) >> 9)
-+#define IWL_SUBDEVICE_NO_160(subdevice)	((u16)((subdevice) & 0x0200) >> 9)
- #define IWL_SUBDEVICE_CORES(subdevice)	((u16)((subdevice) & 0x1C00) >> 10)
++	/* Reset inherited context registers */
++	gen7_emit_pipeline_invalidate(&cmds);
++	batch_add(&cmds, MI_LOAD_REGISTER_IMM(2));
++	batch_add(&cmds, i915_mmio_reg_offset(CACHE_MODE_0_GEN7));
++	batch_add(&cmds, 0xffff0000);
++	batch_add(&cmds, i915_mmio_reg_offset(CACHE_MODE_1));
++	batch_add(&cmds, 0xffff0000 | PIXEL_SUBSPAN_COLLECT_OPT_DISABLE);
++	gen7_emit_pipeline_flush(&cmds);
++
++	/* Switch to the media pipeline and our base address */
+ 	gen7_emit_pipeline_invalidate(&cmds);
+ 	batch_add(&cmds, PIPELINE_SELECT | PIPELINE_SELECT_MEDIA);
+ 	batch_add(&cmds, MI_NOOP);
+@@ -399,9 +409,11 @@ static void emit_batch(struct i915_vma *
+ 	gen7_emit_state_base_address(&cmds, descriptors);
+ 	gen7_emit_pipeline_invalidate(&cmds);
  
- struct iwl_dev_info {
++	/* Set the clear-residual kernel state */
+ 	gen7_emit_vfe_state(&cmds, bv, urb_size - 1, 0, 0);
+ 	gen7_emit_interface_descriptor_load(&cmds, descriptors, desc_count);
+ 
++	/* Execute the kernel on all HW threads */
+ 	for (i = 0; i < num_primitives(bv); i++)
+ 		gen7_emit_media_object(&cmds, i);
+ 
 
 
