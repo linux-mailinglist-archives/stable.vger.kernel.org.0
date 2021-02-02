@@ -2,52 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9DD30B889
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 08:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3A930B939
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 09:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbhBBHUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 02:20:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229614AbhBBHUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 02:20:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8225B64ED9;
-        Tue,  2 Feb 2021 07:19:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612250366;
-        bh=2Y/vqLKHVS6caxliklOtYKJGF7UsazuC5RtVqDVH+Go=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=biMagxr5xcyutxx/t7P98Qr1ghIYppYYTjXxphPHX7DufIE/XCBMVS/LzrZ2hHMOq
-         rKfpH0jaOM0SSDTIiKXM+lHavb+mSXFoPjyjkO2JTYDxmyxTfyFwhtflUitzTNlBR9
-         mG5a0m7tYruOs919sYDyehmrW3Hn+wmvk0D11Sew=
-Date:   Tue, 2 Feb 2021 08:19:23 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Moritz Fischer <mdf@kernel.org>
-Cc:     stable@vger.kernel.org, moritzf@google.com
-Subject: Re: Backport of a1df829ead587 ("ACPI/IORT: Do not blindly trust DMA
- masks from firmware")
-Message-ID: <YBj8+wINK9LWLYXc@kroah.com>
-References: <YBhajBbI3J3+O9CP@epycbox.lan>
+        id S232165AbhBBIGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 03:06:46 -0500
+Received: from mailgw02.mediatek.com ([1.203.163.81]:48667 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231509AbhBBIGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Feb 2021 03:06:44 -0500
+X-UUID: 82750cbdde014d07889be2407e07b253-20210202
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=9toMsDCOSf/q6lPmUSHIfDg7TrnfClK1zuFPSy0VQpg=;
+        b=OwFwVbP3m8iVDmjhBVS3qSu25OOmhBLAYkn8BmgdkJPNEu9VdpHf18NhKXhVj824xPRkcow3/90OLttAG2KRjJilNo8FuLR/ESTsHk2SuujbJr+KYGL5NRLKLIrnc1xwZGC/paYuavVITB8zywxXsiXnJsZxObku/HjiX1u2d8g=;
+X-UUID: 82750cbdde014d07889be2407e07b253-20210202
+Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 517422257; Tue, 02 Feb 2021 16:05:56 +0800
+Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS32N1.mediatek.inc
+ (172.27.4.71) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 2 Feb
+ 2021 16:05:53 +0800
+Received: from [10.17.3.153] (10.17.3.153) by MTKCAS32.mediatek.inc
+ (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 2 Feb 2021 16:05:53 +0800
+Message-ID: <1612253153.5147.0.camel@mhfsdcap03>
+Subject: Re: patch "usb: xhci-mtk: skip dropping bandwidth of unchecked
+ endpoints" added to usb-linus
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <ikjn@chromium.org>, <stable@vger.kernel.org>
+Date:   Tue, 2 Feb 2021 16:05:53 +0800
+In-Reply-To: <YBj4gcIuj1oTo4Xh@kroah.com>
+References: <1612185061176212@kroah.com>
+         <1612247694.25113.15.camel@mhfsdcap03> <YBj4gcIuj1oTo4Xh@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YBhajBbI3J3+O9CP@epycbox.lan>
+X-TM-SNTS-SMTP: FC5AE1AD740DF40A9AE89B35E543753021CD5790192D74E3CF0DE898085B5B4A2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 11:46:20AM -0800, Moritz Fischer wrote:
-> Hi Greg, Sasha,
-> 
-> Please consider backporting a1df829ead5877d4a1061e976a50e2e665a16f24
-> ("ACPI/IORT: Do not blindly trust DMA masks from firmware").
-> 
-> It should apply all the way back to 5.5 and addresses an issue that
-> affects one of my machines with broken firmware.
+T24gVHVlLCAyMDIxLTAyLTAyIGF0IDA4OjAwICswMTAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBU
+dWUsIEZlYiAwMiwgMjAyMSBhdCAwMjozNDo1NFBNICswODAwLCBDaHVuZmVuZyBZdW4gd3JvdGU6
+DQo+ID4gSGkgR3JlZywNCj4gPiANCj4gPiAgICBJIHNlbnQgb3V0IHYyLCBhZGQgJ2JyZWFrJyB3
+aGVuIGZpbmQgdGhlIGVwIGluDQo+ID4geGhjaV9tdGtfZHJvcF9lcF9xdWlyaygpLCBidXQgbm8g
+ZWZmZWN0IHdpdGggdGhlIGZ1bmN0aW9uLg0KPiA+IFBsZWFzZSBwaWNrIHVwIHYyIGlmIHBvc3Np
+YmxlLCBzb3JyeSBmb3IgaW5jb252ZW5pZW5jZQ0KPiANCj4gSSBjYW4gbm90IGRvIHRoYXQsIGFz
+IGl0IGlzIGFscmVhZHkgaW4gbXkgcHVibGljIHRyZWUuDQo+IA0KPiBJIGNhbiBlaXRoZXIgcmV2
+ZXJ0IHRoZSBleGlzdGluZyBvbmUsIGFuZCB0YWtlIHRoaXMsIG9yIGp1c3QgYWNjZXB0IGENCj4g
+Zm9sbG93LW9uIHBhdGNoLiAgSSBwcmVmZXIgYSBmb2xsb3ctb24gb25lLCBwbGVhc2Ugc2VuZCB0
+aGF0Lg0KSSdsbCBwcmVwYXJlIGEgZm9sbG93LW9uIHBhdGNoLCB0aGFua3MNCg0KPiANCj4gdGhh
+bmtzLA0KPiANCj4gZ3JlZyBrLWgNCg0K
 
-There are no "active" kernel trees from 5.5-5.9 at the moment, so 5.10
-is the only one to apply it to, which Sasha already did!
-
-thanks,
-
-greg k-h
