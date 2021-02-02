@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B9530C130
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA9830C565
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 17:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234273AbhBBOP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:15:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
+        id S234258AbhBBQVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 11:21:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234205AbhBBONT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 499976504D;
-        Tue,  2 Feb 2021 13:53:01 +0000 (UTC)
+        id S234178AbhBBOPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:15:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6569064FBB;
+        Tue,  2 Feb 2021 13:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273981;
-        bh=8oi1mpFpsOw42xplA3CvH24+pQaKUpDAZzrPxY7wiRA=;
+        s=korg; t=1612274021;
+        bh=kejds45soybbT+YAag3T2KzRuU5WybjaRQFpoek0fI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKiGlpeUQ7s8I0d01SJdNk1E0oMwYCZaSu4AI5nI6mrwu6SENTJRd/IlByYshTd0c
-         Ts6QbIHE08RDD5HoNLavZsNOL8JzyOsjSMBU5RmFA13dDIbv7e6w25Hm7mKf1yFoVf
-         OXajlZG5xuoFmltZV4TarjS0JSV5/Z5PHkhfJ5lU=
+        b=PNX2FduPLIwYJj5MNQZ5Nhbi57mBEX2k7lPgy9MIBJkCoUVY38cGpi73JTg0O7L6Z
+         gubrzpRgX8qGjn6hEbN/WkuZHLHe9gFa9LBQgGkwEh+EDxe5+Y0ZCsKE8uqxOrs+pu
+         XLyEuvHlns8E2sMNkZz0Io1SlQh/OtvTFgmHnAxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 16/30] netfilter: nft_dynset: add timeout extension to template
+        stable@vger.kernel.org, Jay Zhou <jianjay.zhou@huawei.com>,
+        Shengen Zhuang <zhuangshengen@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 14/37] KVM: x86: get smi pending status correctly
 Date:   Tue,  2 Feb 2021 14:38:57 +0100
-Message-Id: <20210202132942.808449070@linuxfoundation.org>
+Message-Id: <20210202132943.491593209@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,37 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Jay Zhou <jianjay.zhou@huawei.com>
 
-commit 0c5b7a501e7400869ee905b4f7af3d6717802bcb upstream.
+commit 1f7becf1b7e21794fc9d460765fe09679bc9b9e0 upstream.
 
-Otherwise, the newly create element shows no timeout when listing the
-ruleset. If the set definition does not specify a default timeout, then
-the set element only shows the expiration time, but not the timeout.
-This is a problem when restoring a stateful ruleset listing since it
-skips the timeout policy entirely.
+The injection process of smi has two steps:
 
-Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+    Qemu                        KVM
+Step1:
+    cpu->interrupt_request &= \
+        ~CPU_INTERRUPT_SMI;
+    kvm_vcpu_ioctl(cpu, KVM_SMI)
+
+                                call kvm_vcpu_ioctl_smi() and
+                                kvm_make_request(KVM_REQ_SMI, vcpu);
+
+Step2:
+    kvm_vcpu_ioctl(cpu, KVM_RUN, 0)
+
+                                call process_smi() if
+                                kvm_check_request(KVM_REQ_SMI, vcpu) is
+                                true, mark vcpu->arch.smi_pending = true;
+
+The vcpu->arch.smi_pending will be set true in step2, unfortunately if
+vcpu paused between step1 and step2, the kvm_run->immediate_exit will be
+set and vcpu has to exit to Qemu immediately during step2 before mark
+vcpu->arch.smi_pending true.
+During VM migration, Qemu will get the smi pending status from KVM using
+KVM_GET_VCPU_EVENTS ioctl at the downtime, then the smi pending status
+will be lost.
+
+Signed-off-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Shengen Zhuang <zhuangshengen@huawei.com>
+Message-Id: <20210118084720.1585-1-jianjay.zhou@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_dynset.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -205,8 +205,10 @@ static int nft_dynset_init(const struct
- 		nft_set_ext_add_length(&priv->tmpl, NFT_SET_EXT_EXPR,
- 				       priv->expr->ops->size);
- 	if (set->flags & NFT_SET_TIMEOUT) {
--		if (timeout || set->timeout)
-+		if (timeout || set->timeout) {
-+			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_TIMEOUT);
- 			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_EXPIRATION);
-+		}
- 	}
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -102,6 +102,7 @@ static u64 __read_mostly cr4_reserved_bi
  
- 	priv->timeout = timeout;
+ static void update_cr8_intercept(struct kvm_vcpu *vcpu);
+ static void process_nmi(struct kvm_vcpu *vcpu);
++static void process_smi(struct kvm_vcpu *vcpu);
+ static void enter_smm(struct kvm_vcpu *vcpu);
+ static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
+ static void store_regs(struct kvm_vcpu *vcpu);
+@@ -3499,6 +3500,10 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_
+ 					       struct kvm_vcpu_events *events)
+ {
+ 	process_nmi(vcpu);
++
++	if (kvm_check_request(KVM_REQ_SMI, vcpu))
++		process_smi(vcpu);
++
+ 	/*
+ 	 * FIXME: pass injected and pending separately.  This is only
+ 	 * needed for nested virtualization, whose state cannot be
 
 
