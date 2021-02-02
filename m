@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8755230C12F
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 266AF30C89E
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:57:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbhBBOP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:15:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
+        id S234148AbhBBR4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:56:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234208AbhBBON0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:13:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 020C964FB5;
-        Tue,  2 Feb 2021 13:53:03 +0000 (UTC)
+        id S233961AbhBBOJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:09:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A469765032;
+        Tue,  2 Feb 2021 13:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273984;
-        bh=w6g19S2WBt4INR8oiK1ZUQ1ESqkWehgIWisRg4kEjOA=;
+        s=korg; t=1612273842;
+        bh=ecQa8LHiurxs3y103kI0B0ZtaKy0+Ngq7af/JCuEj4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lpr6ubEzc9AJ7a8BV5luZjIu+3a6K5xOKkr5AuphXNDUjveiU2soDh3n9HfqnFY55
-         kHl+Aalp4z0Ye6XOZDov3nYYaRM6MOFtOEiBRI15oc9NKQsLBYV0R79I2cvKg4YnAt
-         YyQCKvl3cRohALQP0E+uZkhKM3L5fSMDkTBFnk+s=
+        b=njjnQPRdx5UwQmkEH87JN0X0m0dA8ivZx0KlUNrKcfkIurKObRd2gaStbQvXwJih8
+         CXazboaze0d4iexApFezAsG7SAe5788Rr45TfnzwdjDWFCHs1RDo2fdk055TFpZiyr
+         HYBQr9/dlAHF00/qwmoU1vrBMUGPdy2ld3j7hDCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 01/37] nbd: freeze the queue while were adding connections
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.9 21/32] ARM: imx: build suspend-imx6.S with arm instruction set
 Date:   Tue,  2 Feb 2021 14:38:44 +0100
-Message-Id: <20210202132942.964803997@linuxfoundation.org>
+Message-Id: <20210202132942.865304949@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
-References: <20210202132942.915040339@linuxfoundation.org>
+In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
+References: <20210202132942.035179752@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,60 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Max Krummenacher <max.oss.09@gmail.com>
 
-commit b98e762e3d71e893b221f871825dc64694cfb258 upstream.
+commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
 
-When setting up a device, we can krealloc the config->socks array to add
-new sockets to the configuration.  However if we happen to get a IO
-request in at this point even though we aren't setup we could hit a UAF,
-as we deref config->socks without any locking, assuming that the
-configuration was setup already and that ->socks is safe to access it as
-we have a reference on the configuration.
+When the kernel is configured to use the Thumb-2 instruction set
+"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
+(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
 
-But there's nothing really preventing IO from occurring at this point of
-the device setup, we don't want to incur the overhead of a lock to
-access ->socks when it will never change while the device is running.
-To fix this UAF scenario simply freeze the queue if we are adding
-sockets.  This will protect us from this particular case without adding
-any additional overhead for the normal running case.
+It looks like the CPU resumes unconditionally in ARM instruction mode
+and then chokes on the presented Thumb-2 code it should execute.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this by using the arm instruction set for all code in
+suspend-imx6.S.
+
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
+Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/nbd.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/mach-imx/suspend-imx6.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -966,6 +966,12 @@ static int nbd_add_socket(struct nbd_dev
- 	if (!sock)
- 		return err;
+--- a/arch/arm/mach-imx/suspend-imx6.S
++++ b/arch/arm/mach-imx/suspend-imx6.S
+@@ -73,6 +73,7 @@
+ #define MX6Q_CCM_CCR	0x0
  
-+	/*
-+	 * We need to make sure we don't get any errant requests while we're
-+	 * reallocating the ->socks array.
-+	 */
-+	blk_mq_freeze_queue(nbd->disk->queue);
-+
- 	if (!netlink && !nbd->task_setup &&
- 	    !test_bit(NBD_BOUND, &config->runtime_flags))
- 		nbd->task_setup = current;
-@@ -1004,10 +1010,12 @@ static int nbd_add_socket(struct nbd_dev
- 	nsock->cookie = 0;
- 	socks[config->num_connections++] = nsock;
- 	atomic_inc(&config->live_connections);
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
+ 	.align 3
++	.arm
  
- 	return 0;
+ 	.macro  sync_l2_cache
  
- put_socket:
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
- 	sockfd_put(sock);
- 	return err;
- }
 
 
