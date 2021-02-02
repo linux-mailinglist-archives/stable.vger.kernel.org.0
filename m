@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3588830C02F
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A30B430C032
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 14:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbhBBNvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 08:51:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37906 "EHLO mail.kernel.org"
+        id S232759AbhBBNvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:51:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232879AbhBBNst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:48:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4B064FA2;
-        Tue,  2 Feb 2021 13:42:20 +0000 (UTC)
+        id S232773AbhBBNtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:49:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D0CA64DBD;
+        Tue,  2 Feb 2021 13:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273341;
-        bh=ActQgV3OQ5VJ/hCb9T67xDjl9gG3cIAZxibIxThTSpk=;
+        s=korg; t=1612273343;
+        bh=dHIRzyTYQEdyjil9r2cQCzCqNZ++DVuy/9go6Ju0c88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5n5NS6KpjsHZ9uqXYBw035QAPrCgVlxmPtY6DYKeW/thViRmzneOuusQQ5QDI+wx
-         2OEubBdgm7FJ4JrjvPgQq4zeZe6tXaL600cneracNSHbfWuwWmK7VD/3unFGJFNQTv
-         U9IfzDG9ZiLJOgAWwPwAv2xbu2aFVJTwk5FKDS8Q=
+        b=g4iLpdaO8qmGrv3p43mSlXzNliFzrHFPwVkK+WQS6Z/xOppVY5Ng4n2/i5aroswLG
+         dbz0sl3Bmvn0V5wKZdWzuwszb0L3e4SHsuoH5tBCin82lCEjk6sVzFMNGCEPDmNNwn
+         QQdUz4eCGhNofb/Anoa4IgP9O41++Cx9kQSZ6I/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Kashyap Desai <kashyap.desai@broadcom.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 069/142] blk-mq: test QUEUE_FLAG_HCTX_ACTIVE for sbitmap_shared in hctx_may_queue
-Date:   Tue,  2 Feb 2021 14:37:12 +0100
-Message-Id: <20210202133000.570728868@linuxfoundation.org>
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.10 070/142] clk: imx: fix Kconfig warning for i.MX SCU clk
+Date:   Tue,  2 Feb 2021 14:37:13 +0100
+Message-Id: <20210202133000.613194739@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,37 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2569063c7140c65a0d0ad075e95ddfbcda9ba3c0 upstream.
+commit 73f6b7ed9835ad9f953aebd60dd720aabc487b81 upstream.
 
-In case of blk_mq_is_sbitmap_shared(), we should test QUEUE_FLAG_HCTX_ACTIVE against
-q->queue_flags instead of BLK_MQ_S_TAG_ACTIVE.
+A previous patch introduced a harmless randconfig warning:
 
-So fix it.
+WARNING: unmet direct dependencies detected for MXC_CLK_SCU
+  Depends on [n]: COMMON_CLK [=y] && ARCH_MXC [=n] && IMX_SCU [=y] && HAVE_ARM_SMCCC [=y]
+  Selected by [m]:
+  - CLK_IMX8QXP [=m] && COMMON_CLK [=y] && (ARCH_MXC [=n] && ARM64 [=y] || COMPILE_TEST [=y]) && IMX_SCU [=y] && HAVE_ARM_SMCCC [=y]
 
-Cc: John Garry <john.garry@huawei.com>
-Cc: Kashyap Desai <kashyap.desai@broadcom.com>
-Fixes: f1b49fdc1c64 ("blk-mq: Record active_queues_shared_sbitmap per tag_set for when using shared sbitmap")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since the symbol is now hidden and only selected by other symbols,
+just remove the dependencies and require the other drivers to
+get it right.
+
+Fixes: 6247e31b7530 ("clk: imx: scu: fix MXC_CLK_SCU module build break")
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201230155244.981757-1-arnd@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/imx/Kconfig |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -303,7 +303,7 @@ static inline bool hctx_may_queue(struct
- 		struct request_queue *q = hctx->queue;
- 		struct blk_mq_tag_set *set = q->tag_set;
+--- a/drivers/clk/imx/Kconfig
++++ b/drivers/clk/imx/Kconfig
+@@ -6,8 +6,6 @@ config MXC_CLK
  
--		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &q->queue_flags))
-+		if (!test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags))
- 			return true;
- 		users = atomic_read(&set->active_queues_shared_sbitmap);
- 	} else {
+ config MXC_CLK_SCU
+ 	tristate
+-	depends on ARCH_MXC
+-	depends on IMX_SCU && HAVE_ARM_SMCCC
+ 
+ config CLK_IMX1
+ 	def_bool SOC_IMX1
 
 
