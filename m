@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7193930C496
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6962930C494
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 16:58:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235904AbhBBP40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 10:56:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39394 "EHLO mail.kernel.org"
+        id S235902AbhBBP4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 10:56:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235253AbhBBPMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 10:12:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0EC64F70;
-        Tue,  2 Feb 2021 15:06:46 +0000 (UTC)
+        id S235252AbhBBPMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 10:12:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4396B64F7E;
+        Tue,  2 Feb 2021 15:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612278407;
-        bh=QEaEtUdgOwqKhjqXpL8Ve8WrJNYFJPvtx5Ol4GMzAww=;
+        s=k20201202; t=1612278409;
+        bh=y6VZLk8zLqmib1CZS2K7UGdPbpx6dCtj2tVUJ0W9ZpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdGb6c1ZlHQtvYng7x2dxV7szjJuFWD/KcwQA1IYWwDWatxZpIYFDH/d9a5i/aYs2
-         8r1tioxFvikMP6ebK1BLUXBLjkMQUXI3dQXVHWHMfUoFMYgw0OAApsxs0yV4NuUYXI
-         uIxzg8VB+c9jVr4logmaUK71FUyS028vS1cXP9Z8AxYcC2d6gz/uidxI1sIesncGF8
-         XfPvhigP4NaUb8tz6lrxkOIgOqeB/g0UNmnD8s1CzmoIM/+ZBXCsc+l1N9OG1vA8Kl
-         lA1XBGOP4vLqE9zZQl8rlJhHUVtNzFcWiNo/EpuGHWKFzR7uTY1Kj3EyeTYaNMk06+
-         rWxKsfPPzLXAw==
+        b=F2RbEnI4+pC5ZUgEbW7RQWIujVErILwfFnAan1aRoZfQga5SI7VQGNevdo6UP1AdI
+         eOs+IRBDqTWUT1WhDbBDKbNr52pf6X4txpSV4KIAMvPIsIHUKO2KfYdnn9al2kb8aH
+         Ft5KqqBahsViwPfV1+d59bNRApzonJIyJgTbvJ33iUeyJXt22dn5mj+PBSxHCwCcPK
+         bK0DxblluUUCKoakqTGUKKTY9i/rQII8DwYmnkzPEF1/VnmGc8q4EACspOHTvaM7Yj
+         6yf8ztr6ljD9BbAPGoblMOh7gD951ASV/LPapIFgj7IN4dzAdQTJr9a/xG630Ug6Ty
+         wWpry4njoP46w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 24/25] blk-cgroup: Use cond_resched() when destroy blkgs
-Date:   Tue,  2 Feb 2021 10:06:14 -0500
-Message-Id: <20210202150615.1864175-24-sashal@kernel.org>
+Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Bradley Chapman <chapman6235@comcast.net>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 25/25] nvme-pci: add the DISABLE_WRITE_ZEROES quirk for a SPCC device
+Date:   Tue,  2 Feb 2021 10:06:15 -0500
+Message-Id: <20210202150615.1864175-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210202150615.1864175-1-sashal@kernel.org>
 References: <20210202150615.1864175-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,74 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit 6c635caef410aa757befbd8857c1eadde5cc22ed ]
+[ Upstream commit 899199292b14b7c735808a37517de4dd2160c300 ]
 
-On !PREEMPT kernel, we can get below softlockup when doing stress
-testing with creating and destroying block cgroup repeatly. The
-reason is it may take a long time to acquire the queue's lock in
-the loop of blkcg_destroy_blkgs(), or the system can accumulate a
-huge number of blkgs in pathological cases. We can add a need_resched()
-check on each loop and release locks and do cond_resched() if true
-to avoid this issue, since the blkcg_destroy_blkgs() is not called
-from atomic contexts.
+This adds a quirk for SPCC 256GB NVMe 1.3 drive which fixes timeouts and
+I/O errors due to the fact that the controller does not properly
+handle the Write Zeroes command:
 
-[ 4757.010308] watchdog: BUG: soft lockup - CPU#11 stuck for 94s!
-[ 4757.010698] Call trace:
-[ 4757.010700]  blkcg_destroy_blkgs+0x68/0x150
-[ 4757.010701]  cgwb_release_workfn+0x104/0x158
-[ 4757.010702]  process_one_work+0x1bc/0x3f0
-[ 4757.010704]  worker_thread+0x164/0x468
-[ 4757.010705]  kthread+0x108/0x138
+[ 2745.659527] CPU: 2 PID: 0 Comm: swapper/2 Tainted: G            E 5.10.6-BET #1
+[ 2745.659528] Hardware name: System manufacturer System Product Name/PRIME X570-P, BIOS 3001 12/04/2020
+[ 2776.138874] nvme nvme1: I/O 414 QID 3 timeout, aborting
+[ 2776.138886] nvme nvme1: I/O 415 QID 3 timeout, aborting
+[ 2776.138891] nvme nvme1: I/O 416 QID 3 timeout, aborting
+[ 2776.138895] nvme nvme1: I/O 417 QID 3 timeout, aborting
+[ 2776.138912] nvme nvme1: Abort status: 0x0
+[ 2776.138921] nvme nvme1: I/O 428 QID 3 timeout, aborting
+[ 2776.138922] nvme nvme1: Abort status: 0x0
+[ 2776.138925] nvme nvme1: Abort status: 0x0
+[ 2776.138974] nvme nvme1: Abort status: 0x0
+[ 2776.138977] nvme nvme1: Abort status: 0x0
+[ 2806.346792] nvme nvme1: I/O 414 QID 3 timeout, reset controller
+[ 2806.363566] nvme nvme1: 15/0/0 default/read/poll queues
+[ 2836.554298] nvme nvme1: I/O 415 QID 3 timeout, disable controller
+[ 2836.672064] blk_update_request: I/O error, dev nvme1n1, sector 16350 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672072] blk_update_request: I/O error, dev nvme1n1, sector 16093 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672074] blk_update_request: I/O error, dev nvme1n1, sector 15836 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672076] blk_update_request: I/O error, dev nvme1n1, sector 15579 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672078] blk_update_request: I/O error, dev nvme1n1, sector 15322 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672080] blk_update_request: I/O error, dev nvme1n1, sector 15065 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672082] blk_update_request: I/O error, dev nvme1n1, sector 14808 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672083] blk_update_request: I/O error, dev nvme1n1, sector 14551 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672085] blk_update_request: I/O error, dev nvme1n1, sector 14294 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672087] blk_update_request: I/O error, dev nvme1n1, sector 14037 op 0x9:(WRITE_ZEROES) flags 0x0 phys_seg 0 prio class 0
+[ 2836.672121] nvme nvme1: failed to mark controller live state
+[ 2836.672123] nvme nvme1: Removing after probe failure status: -19
+[ 2836.689016] Aborting journal on device dm-0-8.
+[ 2836.689024] Buffer I/O error on dev dm-0, logical block 25198592, lost sync page write
+[ 2836.689027] JBD2: Error -5 detected when updating journal superblock for dm-0-8.
 
-Suggested-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Bradley Chapman <chapman6235@comcast.net>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Tested-by: Bradley Chapman <chapman6235@comcast.net>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 54fbe1e80cc41..f13688c4b9317 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1017,6 +1017,8 @@ static void blkcg_css_offline(struct cgroup_subsys_state *css)
-  */
- void blkcg_destroy_blkgs(struct blkcg *blkcg)
- {
-+	might_sleep();
-+
- 	spin_lock_irq(&blkcg->lock);
- 
- 	while (!hlist_empty(&blkcg->blkg_list)) {
-@@ -1024,14 +1026,20 @@ void blkcg_destroy_blkgs(struct blkcg *blkcg)
- 						struct blkcg_gq, blkcg_node);
- 		struct request_queue *q = blkg->q;
- 
--		if (spin_trylock(&q->queue_lock)) {
--			blkg_destroy(blkg);
--			spin_unlock(&q->queue_lock);
--		} else {
-+		if (need_resched() || !spin_trylock(&q->queue_lock)) {
-+			/*
-+			 * Given that the system can accumulate a huge number
-+			 * of blkgs in pathological cases, check to see if we
-+			 * need to rescheduling to avoid softlockup.
-+			 */
- 			spin_unlock_irq(&blkcg->lock);
--			cpu_relax();
-+			cond_resched();
- 			spin_lock_irq(&blkcg->lock);
-+			continue;
- 		}
-+
-+		blkg_destroy(blkg);
-+		spin_unlock(&q->queue_lock);
- 	}
- 
- 	spin_unlock_irq(&blkcg->lock);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 77f615568194d..a4b169408bbf0 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3248,6 +3248,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x1d97, 0x2263),   /* SPCC */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
 -- 
 2.27.0
 
