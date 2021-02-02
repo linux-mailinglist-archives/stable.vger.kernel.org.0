@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA4A30CB5D
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 20:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7943C30C07A
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhBBTVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 14:21:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46252 "EHLO mail.kernel.org"
+        id S233439AbhBBN7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:59:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233435AbhBBOBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:01:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBF9264F78;
-        Tue,  2 Feb 2021 13:47:08 +0000 (UTC)
+        id S233445AbhBBN5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:57:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C40BE64FE6;
+        Tue,  2 Feb 2021 13:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273629;
-        bh=tubeConhCOzJMdFTwAnZjA3AHyOElseoHkRq/3k2on8=;
+        s=korg; t=1612273538;
+        bh=/lLlyxXowQpB/M6WztW+zCZJBN6fW1vr/XvfWBHPnww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CK62rygu/7+2rceeBUg3yEofZn22pgS5BNwkAUfAL5fpGnYIO4cwGwzQpBUF0wnTB
-         SSqmLSV6lOiJyEKCE/CSVeBV3x9Ja0EvmdQyJncqhYk1Ir73jWNnpZ6y/2D/e6mT4v
-         Gj8l6FbJlVepcn78PgQcXM3WmUYUpWBTTeFDcrr4=
+        b=nl4voCFWEpxdw0UyK+JjcB09yKra2zKAo0tr2v+5dA7ZDks6qnU18Ish+jvxJTjZK
+         ccddMFfD6CVuRzJce21YIR+az/Z4y+duhCy/0IVJOQiOQhf7Bwcd8y1Mx2m0jtTd/a
+         jGQE7qSW4JPWwB3slgc3n8d9B6epcTalcHKMjUHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 16/61] btrfs: fix possible free space tree corruption with online conversion
-Date:   Tue,  2 Feb 2021 14:37:54 +0100
-Message-Id: <20210202132947.155342102@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 112/142] i40e: acquire VSI pointer only after VF is initialized
+Date:   Tue,  2 Feb 2021 14:37:55 +0100
+Message-Id: <20210202133002.326802141@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132946.480479453@linuxfoundation.org>
-References: <20210202132946.480479453@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,107 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-commit 2f96e40212d435b328459ba6b3956395eed8fa9f upstream.
+[ Upstream commit 67a3c6b3cc40bb217c3ff947a55053151a00fea0 ]
 
-While running btrfs/011 in a loop I would often ASSERT() while trying to
-add a new free space entry that already existed, or get an EEXIST while
-adding a new block to the extent tree, which is another indication of
-double allocation.
+This change simplifies the VF initialization check and also minimizes
+the delay between acquiring the VSI pointer and using it. As known by
+the commit being fixed, there is a risk of the VSI pointer getting
+changed. Therefore minimize the delay between getting and using the
+pointer.
 
-This occurs because when we do the free space tree population, we create
-the new root and then populate the tree and commit the transaction.
-The problem is when you create a new root, the root node and commit root
-node are the same.  During this initial transaction commit we will run
-all of the delayed refs that were paused during the free space tree
-generation, and thus begin to cache block groups.  While caching block
-groups the caching thread will be reading from the main root for the
-free space tree, so as we make allocations we'll be changing the free
-space tree, which can cause us to add the same range twice which results
-in either the ASSERT(ret != -EEXIST); in __btrfs_add_free_space, or in a
-variety of different errors when running delayed refs because of a
-double allocation.
-
-Fix this by marking the fs_info as unsafe to load the free space tree,
-and fall back on the old slow method.  We could be smarter than this,
-for example caching the block group while we're populating the free
-space tree, but since this is a serious problem I've opted for the
-simplest solution.
-
-CC: stable@vger.kernel.org # 4.9+
-Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 9889707b06ac ("i40e: Fix crash caused by stress setting of VF MAC addresses")
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c     |   10 +++++++++-
- fs/btrfs/ctree.h           |    3 +++
- fs/btrfs/free-space-tree.c |   10 +++++++++-
- 3 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -640,7 +640,15 @@ static noinline void caching_thread(stru
- 	mutex_lock(&caching_ctl->mutex);
- 	down_read(&fs_info->commit_root_sem);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 61968e9174dab..2872c4dc77f07 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -4046,20 +4046,16 @@ int i40e_ndo_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 		goto error_param;
  
--	if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE))
-+	/*
-+	 * If we are in the transaction that populated the free space tree we
-+	 * can't actually cache from the free space tree as our commit root and
-+	 * real root are the same, so we could change the contents of the blocks
-+	 * while caching.  Instead do the slow caching in this case, and after
-+	 * the transaction has committed we will be safe.
-+	 */
-+	if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
-+	    !(test_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags)))
- 		ret = load_free_space_tree(caching_ctl);
- 	else
- 		ret = load_extent_tree_free(caching_ctl);
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -136,6 +136,9 @@ enum {
- 	BTRFS_FS_STATE_DEV_REPLACING,
- 	/* The btrfs_fs_info created for self-tests */
- 	BTRFS_FS_STATE_DUMMY_FS_INFO,
-+
-+	/* Indicate that we can't trust the free space tree for caching yet */
-+	BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
- };
+ 	vf = &pf->vf[vf_id];
+-	vsi = pf->vsi[vf->lan_vsi_idx];
  
- #define BTRFS_BACKREF_REV_MAX		256
---- a/fs/btrfs/free-space-tree.c
-+++ b/fs/btrfs/free-space-tree.c
-@@ -1149,6 +1149,7 @@ int btrfs_create_free_space_tree(struct
- 		return PTR_ERR(trans);
+ 	/* When the VF is resetting wait until it is done.
+ 	 * It can take up to 200 milliseconds,
+ 	 * but wait for up to 300 milliseconds to be safe.
+-	 * If the VF is indeed in reset, the vsi pointer has
+-	 * to show on the newly loaded vsi under pf->vsi[id].
++	 * Acquire the VSI pointer only after the VF has been
++	 * properly initialized.
+ 	 */
+ 	for (i = 0; i < 15; i++) {
+-		if (test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {
+-			if (i > 0)
+-				vsi = pf->vsi[vf->lan_vsi_idx];
++		if (test_bit(I40E_VF_STATE_INIT, &vf->vf_states))
+ 			break;
+-		}
+ 		msleep(20);
+ 	}
+ 	if (!test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {
+@@ -4068,6 +4064,7 @@ int i40e_ndo_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 		ret = -EAGAIN;
+ 		goto error_param;
+ 	}
++	vsi = pf->vsi[vf->lan_vsi_idx];
  
- 	set_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	set_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
- 	free_space_root = btrfs_create_tree(trans,
- 					    BTRFS_FREE_SPACE_TREE_OBJECTID);
- 	if (IS_ERR(free_space_root)) {
-@@ -1170,11 +1171,18 @@ int btrfs_create_free_space_tree(struct
- 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE);
- 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
- 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	ret = btrfs_commit_transaction(trans);
- 
--	return btrfs_commit_transaction(trans);
-+	/*
-+	 * Now that we've committed the transaction any reading of our commit
-+	 * root will be safe, so we can cache from the free space tree now.
-+	 */
-+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
-+	return ret;
- 
- abort:
- 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
- 	btrfs_abort_transaction(trans, ret);
- 	btrfs_end_transaction(trans);
- 	return ret;
+ 	if (is_multicast_ether_addr(mac)) {
+ 		dev_err(&pf->pdev->dev,
+-- 
+2.27.0
+
 
 
