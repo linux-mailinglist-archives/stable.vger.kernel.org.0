@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5499E30CA1D
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 19:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE92330C076
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233812AbhBBSit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 13:38:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47076 "EHLO mail.kernel.org"
+        id S233513AbhBBN6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 08:58:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233810AbhBBOFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:05:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB4BD65017;
-        Tue,  2 Feb 2021 13:48:49 +0000 (UTC)
+        id S233368AbhBBN4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:56:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8091364FE5;
+        Tue,  2 Feb 2021 13:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273730;
-        bh=GpN8qT98RVpJc8qD5Ha46R+uHPu6WMXFK8MHkJqvxd8=;
+        s=korg; t=1612273530;
+        bh=XG70ap1PzUXWKpNAJMjQldDPvbk0TB8cWNORfcFrqzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnHWLwbE3f2gpGpnfJcJNdefE8FrEPP7xQFdz25T74GzUo9c/z1smw9I8ZZH85ruN
-         Xp32GVIwMSEsuxZuNPFB68aqExTzgL7bLKIryxePqJBRDG77XccfC0Hzh5+FxYPW5P
-         glsgDeIMlpXQGJGrZ7lRpQSQTNoz3wFO0gUnf7Zs=
+        b=gTVRoijdzHAMoMOSBwGyvtMkmAa/vTcC/T7GBgK1qSPCbxSXt/WSWR1un+r4lhy17
+         ddiHAPlPNmYxWG1BoOEs4p55OgFEheo57Rq14EkehKOUufOxHwL3SY6bcdyXD2wTLC
+         WmyNVQR9gZyb630dHUr7IAz9m/m/R7pUWCL8f084=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.4 01/28] ACPI: sysfs: Prefer "compatible" modalias
-Date:   Tue,  2 Feb 2021 14:38:21 +0100
-Message-Id: <20210202132941.247101839@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 139/142] scsi: qla2xxx: Fix description for parameter ql2xenforce_iocb_limit
+Date:   Tue,  2 Feb 2021 14:38:22 +0100
+Message-Id: <20210202133003.427602741@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132941.180062901@linuxfoundation.org>
-References: <20210202132941.180062901@linuxfoundation.org>
+In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
+References: <20210202132957.692094111@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,65 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-commit 36af2d5c4433fb40ee2af912c4ac0a30991aecfc upstream.
+commit aa2c24e7f415e9c13635cee22ff4e15a80215551 upstream.
 
-Commit 8765c5ba1949 ("ACPI / scan: Rework modalias creation when
-"compatible" is present") may create two "MODALIAS=" in one uevent
-file if specific conditions are met.
+Parameter ql2xenforce_iocb_limit is enabled by default.
 
-This breaks systemd-udevd, which assumes each "key" in one uevent file
-to be unique. The internal implementation of systemd-udevd overwrites
-the first MODALIAS with the second one, so its kmod rule doesn't load
-the driver for the first MODALIAS.
-
-So if both the ACPI modalias and the OF modalias are present, use the
-latter to ensure that there will be only one MODALIAS.
-
-Link: https://github.com/systemd/systemd/pull/18163
-Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Fixes: 8765c5ba1949 ("ACPI / scan: Rework modalias creation when "compatible" is present")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: 4.1+ <stable@vger.kernel.org> # 4.1+
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20210118184922.23793-1-ematsumiya@suse.de
+Fixes: 89c72f4245a8 ("scsi: qla2xxx: Add IOCB resource tracking")
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_sysfs.c |   20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/device_sysfs.c
-+++ b/drivers/acpi/device_sysfs.c
-@@ -259,20 +259,12 @@ int __acpi_device_uevent_modalias(struct
- 	if (add_uevent_var(env, "MODALIAS="))
- 		return -ENOMEM;
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -42,7 +42,7 @@ MODULE_PARM_DESC(ql2xfulldump_on_mpifail
+ int ql2xenforce_iocb_limit = 1;
+ module_param(ql2xenforce_iocb_limit, int, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(ql2xenforce_iocb_limit,
+-		 "Enforce IOCB throttling, to avoid FW congestion. (default: 0)");
++		 "Enforce IOCB throttling, to avoid FW congestion. (default: 1)");
  
--	len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
--				  sizeof(env->buf) - env->buflen);
--	if (len < 0)
--		return len;
--
--	env->buflen += len;
--	if (!adev->data.of_compatible)
--		return 0;
--
--	if (len > 0 && add_uevent_var(env, "MODALIAS="))
--		return -ENOMEM;
--
--	len = create_of_modalias(adev, &env->buf[env->buflen - 1],
--				 sizeof(env->buf) - env->buflen);
-+	if (adev->data.of_compatible)
-+		len = create_of_modalias(adev, &env->buf[env->buflen - 1],
-+					 sizeof(env->buf) - env->buflen);
-+	else
-+		len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
-+					  sizeof(env->buf) - env->buflen);
- 	if (len < 0)
- 		return len;
- 
+ /*
+  * CT6 CTX allocation cache
 
 
