@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BADD30CCC7
+	by mail.lfdr.de (Postfix) with ESMTP id 0F87D30CCC6
 	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 21:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240341AbhBBUHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 15:07:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36410 "EHLO mail.kernel.org"
+        id S240399AbhBBUHl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 15:07:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232833AbhBBNm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 08:42:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59D6A64F61;
-        Tue,  2 Feb 2021 13:39:59 +0000 (UTC)
+        id S232842AbhBBNnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 08:43:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD3264F68;
+        Tue,  2 Feb 2021 13:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273200;
-        bh=eMP9C/EfxUUjxAHJuM320qVXZLBNmRffCAUxYgTkjUA=;
+        s=korg; t=1612273202;
+        bh=OwOgk+5l5C14L3DgTbWLuH1iGvXtOX8bUN7c/SbjFCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxIpodMq7gyqVX2wKAw/btuvKPPTRN/qLk16pDEdMZoNL4zmUDJL6jOtViitN24IB
-         H+K8AYlU0c7SiOGElAFKKS5DhJakyOxQ9qCE8PwTe857vUYPJ+760llcTipofaJK33
-         4OZdtCTmbVG2WEE4/5bKniw3+FN6VEG2hKbG6sSA=
+        b=FqhxxoMoPF9StwCnNGq74csCqwzbc09c8PrSjCgAATJuRAYg1OEYlhbHkpGHC1PGv
+         qdNmQjKSsNWw+tk2iaRSSJv+zTMTcSR5YkWkrvpJknLzu4MyUMFNxdM2k5dz6ttVQq
+         DkakBRGvSkIyI8mMvLjBAV6DLumODBft35BN9dtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Koen Vandeputte <koen.vandeputte@ncentric.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.10 018/142] ARM: dts: imx6qdl-gw52xx: fix duplicate regulator naming
-Date:   Tue,  2 Feb 2021 14:36:21 +0100
-Message-Id: <20210202132958.461344711@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com,
+        syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 019/142] wext: fix NULL-ptr-dereference with cfg80211s lack of commit()
+Date:   Tue,  2 Feb 2021 14:36:22 +0100
+Message-Id: <20210202132958.504186629@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132957.692094111@linuxfoundation.org>
 References: <20210202132957.692094111@linuxfoundation.org>
@@ -40,38 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koen Vandeputte <koen.vandeputte@citymesh.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 5a22747b76ca2384057d8e783265404439d31d7f upstream.
+commit 5122565188bae59d507d90a9a9fd2fd6107f4439 upstream.
 
-2 regulator descriptions carry identical naming.
+Since cfg80211 doesn't implement commit, we never really cared about
+that code there (and it's configured out w/o CONFIG_WIRELESS_EXT).
+After all, since it has no commit, it shouldn't return -EIWCOMMIT to
+indicate commit is needed.
 
-This leads to following boot warning:
-[    0.173138] debugfs: Directory 'vdd1p8' with parent 'regulator' already present!
+However, EIWCOMMIT is actually an alias for EINPROGRESS, which _can_
+happen if e.g. we try to change the frequency but we're already in
+the process of connecting to some network, and drivers could return
+that value (or even cfg80211 itself might).
 
-Fix this by renaming the one used for audio.
+This then causes us to crash because dev->wireless_handlers is NULL
+but we try to check dev->wireless_handlers->standard[0].
 
-Fixes: 5051bff33102 ("ARM: dts: imx: ventana: add LTC3676 PMIC support")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
-Cc: stable@vger.kernel.org # v4.11
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fix this by also checking dev->wireless_handlers. Also simplify the
+code a little bit.
+
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+444248c79e117bc99f46@syzkaller.appspotmail.com
+Reported-by: syzbot+8b2a88a09653d4084179@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20210121171621.2076e4a37d5a.I5d9c72220fe7bb133fb718751da0180a57ecba4e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6qdl-gw52xx.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/wext-core.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-@@ -418,7 +418,7 @@
- 
- 			/* VDD_AUD_1P8: Audio codec */
- 			reg_aud_1p8v: ldo3 {
--				regulator-name = "vdd1p8";
-+				regulator-name = "vdd1p8a";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
- 				regulator-boot-on;
+--- a/net/wireless/wext-core.c
++++ b/net/wireless/wext-core.c
+@@ -896,8 +896,9 @@ out:
+ int call_commit_handler(struct net_device *dev)
+ {
+ #ifdef CONFIG_WIRELESS_EXT
+-	if ((netif_running(dev)) &&
+-	   (dev->wireless_handlers->standard[0] != NULL))
++	if (netif_running(dev) &&
++	    dev->wireless_handlers &&
++	    dev->wireless_handlers->standard[0])
+ 		/* Call the commit handler on the driver */
+ 		return dev->wireless_handlers->standard[0](dev, NULL,
+ 							   NULL, NULL);
 
 
