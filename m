@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0341930C8B0
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DE530C0E8
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238060AbhBBR53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:57:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
+        id S233807AbhBBOKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:10:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233949AbhBBOId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:08:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12F9C64F9E;
-        Tue,  2 Feb 2021 13:50:13 +0000 (UTC)
+        id S233951AbhBBOIe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:08:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80DB66502A;
+        Tue,  2 Feb 2021 13:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273814;
-        bh=2aebiXZbFRc8KLAFOwLOu3X4TRVu3OrWydAx+BL33nM=;
+        s=korg; t=1612273817;
+        bh=s03BhVqrOox6nd+uSEz+3DvdL02rQBQgyotoO2izrWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2pd1KNvIxUgpWh9Fp1G/wzdMEnnAaU6AliEL5hAht+NpS0mi1IQZiljIXJDTbzd8
-         dZZiUzFV1CmUzSsKMd2L/D4MpLj0bA2S5UVAuIMvB2hseEI9n8Ci48zrzy7zsJrmXH
-         pr1lMVQ+PVVP6m9FlRGrgsAjR3YhS7kwI6vXlMjE=
+        b=aRkdFtKaQiQ0njhz0kBPgYPt68+xfls+ua6eSCpCn3H+HdqlPh2TPAa/AU1rwgJNR
+         lsUBL76ZbSMnlZqkZl8Wa3y4hj4HBMwm/Afr6NVAX4WslZPfB/4OGAYY1KLEXcHUdH
+         82hYZfkpX/5yzk5TMyZesWvrm6nuoYk/lXMmqe4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giacinto Cifelli <gciofono@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 03/32] net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
-Date:   Tue,  2 Feb 2021 14:38:26 +0100
-Message-Id: <20210202132942.176970173@linuxfoundation.org>
+        Arnd Bergmann <arnd@arndb.de>, Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 04/32] y2038: futex: Move compat implementation into futex.c
+Date:   Tue,  2 Feb 2021 14:38:27 +0100
+Message-Id: <20210202132942.213518411@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
 References: <20210202132942.035179752@linuxfoundation.org>
@@ -40,397 +38,503 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giacinto Cifelli <gciofono@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 7e0e63d09516e96994c879f07c5a3c3269d7015e upstream.
+commit 04e7712f4460585e5eed5b853fd8b82a9943958f upstream.
 
-Bus 003 Device 009: ID 1e2d:006f
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass          239 Miscellaneous Device
-  bDeviceSubClass         2 ?
-  bDeviceProtocol         1 Interface Association
-  bMaxPacketSize0        64
-  idVendor           0x1e2d
-  idProduct          0x006f
-  bcdDevice            0.00
-  iManufacturer           3 Cinterion Wireless Modules
-  iProduct                2 PLSx3
-  iSerial                 4 fa3c1419
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength          303
-    bNumInterfaces          9
-    bConfigurationValue     1
-    iConfiguration          1 Cinterion Configuration
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower              500mA
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         0
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          1
-      CDC Union:
-        bMasterInterface        0
-        bSlaveInterface         1
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         2
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          3
-      CDC Union:
-        bMasterInterface        2
-        bSlaveInterface         3
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        3
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x84  EP 4 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         4
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        4
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          5
-      CDC Union:
-        bMasterInterface        4
-        bSlaveInterface         5
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x85  EP 5 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        5
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x86  EP 6 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         6
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        6
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          7
-      CDC Union:
-        bMasterInterface        6
-        bSlaveInterface         7
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x87  EP 7 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        7
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x88  EP 8 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x04  EP 4 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        8
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x89  EP 9 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x8a  EP 10 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x05  EP 5 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-Device Qualifier (for other device speed):
-  bLength                10
-  bDescriptorType         6
-  bcdUSB               2.00
-  bDeviceClass          239 Miscellaneous Device
-  bDeviceSubClass         2 ?
-  bDeviceProtocol         1 Interface Association
-  bMaxPacketSize0        64
-  bNumConfigurations      1
-Device Status:     0x0000
-  (Bus Powered)
+We are going to share the compat_sys_futex() handler between 64-bit
+architectures and 32-bit architectures that need to deal with both 32-bit
+and 64-bit time_t, and this is easier if both entry points are in the
+same file.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Giacinto Cifelli <gciofono@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20210120045650.10855-1-gciofono@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In fact, most other system call handlers do the same thing these days, so
+let's follow the trend here and merge all of futex_compat.c into futex.c.
+
+In the process, a few minor changes have to be done to make sure everything
+still makes sense: handle_futex_death() and futex_cmpxchg_enabled() become
+local symbol, and the compat version of the fetch_robust_entry() function
+gets renamed to compat_fetch_robust_entry() to avoid a symbol clash.
+
+This is intended as a purely cosmetic patch, no behavior should
+change.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[Lee: Back-ported to satisfy a build dependency]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/futex.h |    8 -
+ kernel/Makefile       |    3 
+ kernel/futex.c        |  195 +++++++++++++++++++++++++++++++++++++++++++++++-
+ kernel/futex_compat.c |  201 --------------------------------------------------
+ 4 files changed, 192 insertions(+), 215 deletions(-)
+ delete mode 100644 kernel/futex_compat.c
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -942,6 +942,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x0b3c, 0xc00a, 6)},	/* Olivetti Olicard 160 */
- 	{QMI_FIXED_INTF(0x0b3c, 0xc00b, 4)},	/* Olivetti Olicard 500 */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0060, 4)},	/* Cinterion PLxx */
-+	{QMI_QUIRK_SET_DTR(0x1e2d, 0x006f, 8)}, /* Cinterion PLS83/PLS63 */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0053, 4)},	/* Cinterion PHxx,PXxx */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0063, 10)},	/* Cinterion ALASxx (1 RmNet) */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},	/* Cinterion PHxx,PXxx (2 RmNet) */
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -11,9 +11,6 @@ union ktime;
+ long do_futex(u32 __user *uaddr, int op, u32 val, union ktime *timeout,
+ 	      u32 __user *uaddr2, u32 val2, u32 val3);
+ 
+-extern int
+-handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi);
+-
+ /*
+  * Futexes are matched on equal values of this key.
+  * The key type depends on whether it's a shared or private mapping.
+@@ -58,11 +55,6 @@ union futex_key {
+ #ifdef CONFIG_FUTEX
+ extern void exit_robust_list(struct task_struct *curr);
+ extern void exit_pi_state_list(struct task_struct *curr);
+-#ifdef CONFIG_HAVE_FUTEX_CMPXCHG
+-#define futex_cmpxchg_enabled 1
+-#else
+-extern int futex_cmpxchg_enabled;
+-#endif
+ #else
+ static inline void exit_robust_list(struct task_struct *curr)
+ {
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -47,9 +47,6 @@ obj-$(CONFIG_PROFILING) += profile.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+ obj-y += time/
+ obj-$(CONFIG_FUTEX) += futex.o
+-ifeq ($(CONFIG_COMPAT),y)
+-obj-$(CONFIG_FUTEX) += futex_compat.o
+-endif
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += smp.o
+ ifneq ($(CONFIG_SMP),y)
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -44,6 +44,7 @@
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
++#include <linux/compat.h>
+ #include <linux/slab.h>
+ #include <linux/poll.h>
+ #include <linux/fs.h>
+@@ -171,8 +172,10 @@
+  * double_lock_hb() and double_unlock_hb(), respectively.
+  */
+ 
+-#ifndef CONFIG_HAVE_FUTEX_CMPXCHG
+-int __read_mostly futex_cmpxchg_enabled;
++#ifdef CONFIG_HAVE_FUTEX_CMPXCHG
++#define futex_cmpxchg_enabled 1
++#else
++static int  __read_mostly futex_cmpxchg_enabled;
+ #endif
+ 
+ /*
+@@ -3123,7 +3126,7 @@ err_unlock:
+  * Process a futex-list entry, check whether it's owned by the
+  * dying task, and do notification if so:
+  */
+-int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi)
++static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi)
+ {
+ 	u32 uval, uninitialized_var(nval), mval;
+ 
+@@ -3354,6 +3357,192 @@ SYSCALL_DEFINE6(futex, u32 __user *, uad
+ 	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+ }
+ 
++#ifdef CONFIG_COMPAT
++/*
++ * Fetch a robust-list pointer. Bit 0 signals PI futexes:
++ */
++static inline int
++compat_fetch_robust_entry(compat_uptr_t *uentry, struct robust_list __user **entry,
++		   compat_uptr_t __user *head, unsigned int *pi)
++{
++	if (get_user(*uentry, head))
++		return -EFAULT;
++
++	*entry = compat_ptr((*uentry) & ~1);
++	*pi = (unsigned int)(*uentry) & 1;
++
++	return 0;
++}
++
++static void __user *futex_uaddr(struct robust_list __user *entry,
++				compat_long_t futex_offset)
++{
++	compat_uptr_t base = ptr_to_compat(entry);
++	void __user *uaddr = compat_ptr(base + futex_offset);
++
++	return uaddr;
++}
++
++/*
++ * Walk curr->robust_list (very carefully, it's a userspace list!)
++ * and mark any locks found there dead, and notify any waiters.
++ *
++ * We silently return on any sign of list-walking problem.
++ */
++void compat_exit_robust_list(struct task_struct *curr)
++{
++	struct compat_robust_list_head __user *head = curr->compat_robust_list;
++	struct robust_list __user *entry, *next_entry, *pending;
++	unsigned int limit = ROBUST_LIST_LIMIT, pi, pip;
++	unsigned int uninitialized_var(next_pi);
++	compat_uptr_t uentry, next_uentry, upending;
++	compat_long_t futex_offset;
++	int rc;
++
++	if (!futex_cmpxchg_enabled)
++		return;
++
++	/*
++	 * Fetch the list head (which was registered earlier, via
++	 * sys_set_robust_list()):
++	 */
++	if (compat_fetch_robust_entry(&uentry, &entry, &head->list.next, &pi))
++		return;
++	/*
++	 * Fetch the relative futex offset:
++	 */
++	if (get_user(futex_offset, &head->futex_offset))
++		return;
++	/*
++	 * Fetch any possibly pending lock-add first, and handle it
++	 * if it exists:
++	 */
++	if (compat_fetch_robust_entry(&upending, &pending,
++			       &head->list_op_pending, &pip))
++		return;
++
++	next_entry = NULL;	/* avoid warning with gcc */
++	while (entry != (struct robust_list __user *) &head->list) {
++		/*
++		 * Fetch the next entry in the list before calling
++		 * handle_futex_death:
++		 */
++		rc = compat_fetch_robust_entry(&next_uentry, &next_entry,
++			(compat_uptr_t __user *)&entry->next, &next_pi);
++		/*
++		 * A pending lock might already be on the list, so
++		 * dont process it twice:
++		 */
++		if (entry != pending) {
++			void __user *uaddr = futex_uaddr(entry, futex_offset);
++
++			if (handle_futex_death(uaddr, curr, pi))
++				return;
++		}
++		if (rc)
++			return;
++		uentry = next_uentry;
++		entry = next_entry;
++		pi = next_pi;
++		/*
++		 * Avoid excessively long or circular lists:
++		 */
++		if (!--limit)
++			break;
++
++		cond_resched();
++	}
++	if (pending) {
++		void __user *uaddr = futex_uaddr(pending, futex_offset);
++
++		handle_futex_death(uaddr, curr, pip);
++	}
++}
++
++COMPAT_SYSCALL_DEFINE2(set_robust_list,
++		struct compat_robust_list_head __user *, head,
++		compat_size_t, len)
++{
++	if (!futex_cmpxchg_enabled)
++		return -ENOSYS;
++
++	if (unlikely(len != sizeof(*head)))
++		return -EINVAL;
++
++	current->compat_robust_list = head;
++
++	return 0;
++}
++
++COMPAT_SYSCALL_DEFINE3(get_robust_list, int, pid,
++			compat_uptr_t __user *, head_ptr,
++			compat_size_t __user *, len_ptr)
++{
++	struct compat_robust_list_head __user *head;
++	unsigned long ret;
++	struct task_struct *p;
++
++	if (!futex_cmpxchg_enabled)
++		return -ENOSYS;
++
++	rcu_read_lock();
++
++	ret = -ESRCH;
++	if (!pid)
++		p = current;
++	else {
++		p = find_task_by_vpid(pid);
++		if (!p)
++			goto err_unlock;
++	}
++
++	ret = -EPERM;
++	if (!ptrace_may_access(p, PTRACE_MODE_READ_REALCREDS))
++		goto err_unlock;
++
++	head = p->compat_robust_list;
++	rcu_read_unlock();
++
++	if (put_user(sizeof(*head), len_ptr))
++		return -EFAULT;
++	return put_user(ptr_to_compat(head), head_ptr);
++
++err_unlock:
++	rcu_read_unlock();
++
++	return ret;
++}
++
++COMPAT_SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
++		struct compat_timespec __user *, utime, u32 __user *, uaddr2,
++		u32, val3)
++{
++	struct timespec ts;
++	ktime_t t, *tp = NULL;
++	int val2 = 0;
++	int cmd = op & FUTEX_CMD_MASK;
++
++	if (utime && (cmd == FUTEX_WAIT || cmd == FUTEX_LOCK_PI ||
++		      cmd == FUTEX_WAIT_BITSET ||
++		      cmd == FUTEX_WAIT_REQUEUE_PI)) {
++		if (compat_get_timespec(&ts, utime))
++			return -EFAULT;
++		if (!timespec_valid(&ts))
++			return -EINVAL;
++
++		t = timespec_to_ktime(ts);
++		if (cmd == FUTEX_WAIT)
++			t = ktime_add_safe(ktime_get(), t);
++		tp = &t;
++	}
++	if (cmd == FUTEX_REQUEUE || cmd == FUTEX_CMP_REQUEUE ||
++	    cmd == FUTEX_CMP_REQUEUE_PI || cmd == FUTEX_WAKE_OP)
++		val2 = (int) (unsigned long) utime;
++
++	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
++}
++#endif /* CONFIG_COMPAT */
++
+ static void __init futex_detect_cmpxchg(void)
+ {
+ #ifndef CONFIG_HAVE_FUTEX_CMPXCHG
+--- a/kernel/futex_compat.c
++++ /dev/null
+@@ -1,201 +0,0 @@
+-/*
+- * linux/kernel/futex_compat.c
+- *
+- * Futex compatibililty routines.
+- *
+- * Copyright 2006, Red Hat, Inc., Ingo Molnar
+- */
+-
+-#include <linux/linkage.h>
+-#include <linux/compat.h>
+-#include <linux/nsproxy.h>
+-#include <linux/futex.h>
+-#include <linux/ptrace.h>
+-#include <linux/syscalls.h>
+-
+-#include <asm/uaccess.h>
+-
+-
+-/*
+- * Fetch a robust-list pointer. Bit 0 signals PI futexes:
+- */
+-static inline int
+-fetch_robust_entry(compat_uptr_t *uentry, struct robust_list __user **entry,
+-		   compat_uptr_t __user *head, unsigned int *pi)
+-{
+-	if (get_user(*uentry, head))
+-		return -EFAULT;
+-
+-	*entry = compat_ptr((*uentry) & ~1);
+-	*pi = (unsigned int)(*uentry) & 1;
+-
+-	return 0;
+-}
+-
+-static void __user *futex_uaddr(struct robust_list __user *entry,
+-				compat_long_t futex_offset)
+-{
+-	compat_uptr_t base = ptr_to_compat(entry);
+-	void __user *uaddr = compat_ptr(base + futex_offset);
+-
+-	return uaddr;
+-}
+-
+-/*
+- * Walk curr->robust_list (very carefully, it's a userspace list!)
+- * and mark any locks found there dead, and notify any waiters.
+- *
+- * We silently return on any sign of list-walking problem.
+- */
+-void compat_exit_robust_list(struct task_struct *curr)
+-{
+-	struct compat_robust_list_head __user *head = curr->compat_robust_list;
+-	struct robust_list __user *entry, *next_entry, *pending;
+-	unsigned int limit = ROBUST_LIST_LIMIT, pi, pip;
+-	unsigned int uninitialized_var(next_pi);
+-	compat_uptr_t uentry, next_uentry, upending;
+-	compat_long_t futex_offset;
+-	int rc;
+-
+-	if (!futex_cmpxchg_enabled)
+-		return;
+-
+-	/*
+-	 * Fetch the list head (which was registered earlier, via
+-	 * sys_set_robust_list()):
+-	 */
+-	if (fetch_robust_entry(&uentry, &entry, &head->list.next, &pi))
+-		return;
+-	/*
+-	 * Fetch the relative futex offset:
+-	 */
+-	if (get_user(futex_offset, &head->futex_offset))
+-		return;
+-	/*
+-	 * Fetch any possibly pending lock-add first, and handle it
+-	 * if it exists:
+-	 */
+-	if (fetch_robust_entry(&upending, &pending,
+-			       &head->list_op_pending, &pip))
+-		return;
+-
+-	next_entry = NULL;	/* avoid warning with gcc */
+-	while (entry != (struct robust_list __user *) &head->list) {
+-		/*
+-		 * Fetch the next entry in the list before calling
+-		 * handle_futex_death:
+-		 */
+-		rc = fetch_robust_entry(&next_uentry, &next_entry,
+-			(compat_uptr_t __user *)&entry->next, &next_pi);
+-		/*
+-		 * A pending lock might already be on the list, so
+-		 * dont process it twice:
+-		 */
+-		if (entry != pending) {
+-			void __user *uaddr = futex_uaddr(entry, futex_offset);
+-
+-			if (handle_futex_death(uaddr, curr, pi))
+-				return;
+-		}
+-		if (rc)
+-			return;
+-		uentry = next_uentry;
+-		entry = next_entry;
+-		pi = next_pi;
+-		/*
+-		 * Avoid excessively long or circular lists:
+-		 */
+-		if (!--limit)
+-			break;
+-
+-		cond_resched();
+-	}
+-	if (pending) {
+-		void __user *uaddr = futex_uaddr(pending, futex_offset);
+-
+-		handle_futex_death(uaddr, curr, pip);
+-	}
+-}
+-
+-COMPAT_SYSCALL_DEFINE2(set_robust_list,
+-		struct compat_robust_list_head __user *, head,
+-		compat_size_t, len)
+-{
+-	if (!futex_cmpxchg_enabled)
+-		return -ENOSYS;
+-
+-	if (unlikely(len != sizeof(*head)))
+-		return -EINVAL;
+-
+-	current->compat_robust_list = head;
+-
+-	return 0;
+-}
+-
+-COMPAT_SYSCALL_DEFINE3(get_robust_list, int, pid,
+-			compat_uptr_t __user *, head_ptr,
+-			compat_size_t __user *, len_ptr)
+-{
+-	struct compat_robust_list_head __user *head;
+-	unsigned long ret;
+-	struct task_struct *p;
+-
+-	if (!futex_cmpxchg_enabled)
+-		return -ENOSYS;
+-
+-	rcu_read_lock();
+-
+-	ret = -ESRCH;
+-	if (!pid)
+-		p = current;
+-	else {
+-		p = find_task_by_vpid(pid);
+-		if (!p)
+-			goto err_unlock;
+-	}
+-
+-	ret = -EPERM;
+-	if (!ptrace_may_access(p, PTRACE_MODE_READ_REALCREDS))
+-		goto err_unlock;
+-
+-	head = p->compat_robust_list;
+-	rcu_read_unlock();
+-
+-	if (put_user(sizeof(*head), len_ptr))
+-		return -EFAULT;
+-	return put_user(ptr_to_compat(head), head_ptr);
+-
+-err_unlock:
+-	rcu_read_unlock();
+-
+-	return ret;
+-}
+-
+-COMPAT_SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
+-		struct compat_timespec __user *, utime, u32 __user *, uaddr2,
+-		u32, val3)
+-{
+-	struct timespec ts;
+-	ktime_t t, *tp = NULL;
+-	int val2 = 0;
+-	int cmd = op & FUTEX_CMD_MASK;
+-
+-	if (utime && (cmd == FUTEX_WAIT || cmd == FUTEX_LOCK_PI ||
+-		      cmd == FUTEX_WAIT_BITSET ||
+-		      cmd == FUTEX_WAIT_REQUEUE_PI)) {
+-		if (compat_get_timespec(&ts, utime))
+-			return -EFAULT;
+-		if (!timespec_valid(&ts))
+-			return -EINVAL;
+-
+-		t = timespec_to_ktime(ts);
+-		if (cmd == FUTEX_WAIT)
+-			t = ktime_add_safe(ktime_get(), t);
+-		tp = &t;
+-	}
+-	if (cmd == FUTEX_REQUEUE || cmd == FUTEX_CMP_REQUEUE ||
+-	    cmd == FUTEX_CMP_REQUEUE_PI || cmd == FUTEX_WAKE_OP)
+-		val2 = (int) (unsigned long) utime;
+-
+-	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+-}
 
 
