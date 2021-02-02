@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B87730C841
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C04130C110
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237861AbhBBRqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:46:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S234183AbhBBOMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:12:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233682AbhBBOKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:10:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6B526503D;
-        Tue,  2 Feb 2021 13:51:14 +0000 (UTC)
+        id S234033AbhBBOLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:11:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F01864FA9;
+        Tue,  2 Feb 2021 13:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273875;
-        bh=Co5qTz3j+kM+L+4KifKZPZo7aVOMuumGsmbfabtcpuY=;
+        s=korg; t=1612273915;
+        bh=ecQa8LHiurxs3y103kI0B0ZtaKy0+Ngq7af/JCuEj4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKBevhJOZ4I6rHvTcbokNHx1wD5H9FdhnJdTlfwvVgiQGQarytAIxuk9v1UDxB+Wr
-         Nx0Ye+hqLpUk44MdZsYgDgu1dE56Ecl5FaWzwo4OTdGowzuc15FAlLNgDhz8xt2Tn9
-         gZPDAx5/Hpinirl+Ocbzq7LnU3AvWkwHzjGlKXqU=
+        b=joTGJ+rhmIyfm6XBlni5jM6sowUJb0jeLaXadbZ5e8AlIaKDMrTyyNR3hU5kNH4Jv
+         4o1PczD09Dpk+0L8uX9ttCKmvbyCaIu/fGvLYc5fErbrF8IxSLHTq8R5oOyhl3pkGs
+         0Yzwktlfv96yBjitJXD6hX9s9351IeyD0e3A/yDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 32/32] NFC: fix possible resource leak
-Date:   Tue,  2 Feb 2021 14:38:55 +0100
-Message-Id: <20210202132943.304393716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.14 15/30] ARM: imx: build suspend-imx6.S with arm instruction set
+Date:   Tue,  2 Feb 2021 14:38:56 +0100
+Message-Id: <20210202132942.764751292@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
-References: <20210202132942.035179752@linuxfoundation.org>
+In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
+References: <20210202132942.138623851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Max Krummenacher <max.oss.09@gmail.com>
 
-commit d8f923c3ab96dbbb4e3c22d1afc1dc1d3b195cd8 upstream.
+commit a88afa46b86ff461c89cc33fc3a45267fff053e8 upstream.
 
-Put the device to avoid resource leak on path that the polling flag is
-invalid.
+When the kernel is configured to use the Thumb-2 instruction set
+"suspend-to-memory" fails to resume. Observed on a Colibri iMX6ULL
+(i.MX 6ULL) and Apalis iMX6 (i.MX 6Q).
 
-Fixes: a831b9132065 ("NFC: Do not return EBUSY when stopping a poll that's already stopped")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121153745.122184-1-bianpan2016@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+It looks like the CPU resumes unconditionally in ARM instruction mode
+and then chokes on the presented Thumb-2 code it should execute.
+
+Fix this by using the arm instruction set for all code in
+suspend-imx6.S.
+
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Fixes: df595746fa69 ("ARM: imx: add suspend in ocram support for i.mx6q")
+Acked-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/nfc/netlink.c |    1 +
+ arch/arm/mach-imx/suspend-imx6.S |    1 +
  1 file changed, 1 insertion(+)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -887,6 +887,7 @@ static int nfc_genl_stop_poll(struct sk_
+--- a/arch/arm/mach-imx/suspend-imx6.S
++++ b/arch/arm/mach-imx/suspend-imx6.S
+@@ -73,6 +73,7 @@
+ #define MX6Q_CCM_CCR	0x0
  
- 	if (!dev->polling) {
- 		device_unlock(&dev->dev);
-+		nfc_put_device(dev);
- 		return -EINVAL;
- 	}
+ 	.align 3
++	.arm
+ 
+ 	.macro  sync_l2_cache
  
 
 
