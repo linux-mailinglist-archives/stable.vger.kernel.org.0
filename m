@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F15E30C125
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A1630C264
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 15:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbhBBOOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 09:14:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
+        id S234312AbhBBOtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 09:49:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234144AbhBBOMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:12:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 463DD65045;
-        Tue,  2 Feb 2021 13:52:39 +0000 (UTC)
+        id S234298AbhBBORh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3315F65061;
+        Tue,  2 Feb 2021 13:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273959;
-        bh=VmwMrn6qBYgCytNDJxQMp7IWnFct/deAyIS44iGM7mI=;
+        s=korg; t=1612274067;
+        bh=rnqSExK1C2hLPhU+0Wd4EAos24jv4sQwU2b8dhepFiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqf4a8Xt2JHDWN97cxOhuNzG2Y3z0P0B1MzHDIDlKWe0aIK5N9rNpi7skrNSC+1nO
-         KSVWy6iQnTz6TBE5vm3zinZd2jTKuPuykP0CW9/tTfGJW/9stNIpdaTxXvPDM5hfJT
-         4WTCumzVLWEZl6PFrl55y9PoxIJmjb606SvKVWCg=
+        b=ZTKPMs/RIzVpmdw4/TMgGzHeiDYAzxV26T+UrVCrE88iqMWdgI9xd6ky6p0G09TAz
+         xNA8mmgg/gg/I1crvqiTIVcIDaM41bHaFxze5JKdNMeCGuBfEDiaycCndHEROBgn9J
+         VbnAq69HPSOFP2xrtM0zrZIn57BE0CrwLRuNS9yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/30] RDMA/cxgb4: Fix the reported max_recv_sge value
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH 4.19 16/37] leds: trigger: fix potential deadlock with libata
 Date:   Tue,  2 Feb 2021 14:38:59 +0100
-Message-Id: <20210202132942.888828877@linuxfoundation.org>
+Message-Id: <20210202132943.578879547@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210202132942.138623851@linuxfoundation.org>
-References: <20210202132942.138623851@linuxfoundation.org>
+In-Reply-To: <20210202132942.915040339@linuxfoundation.org>
+References: <20210202132942.915040339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,270 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-[ Upstream commit a372173bf314d374da4dd1155549d8ca7fc44709 ]
+commit 27af8e2c90fba242460b01fa020e6e19ed68c495 upstream.
 
-The max_recv_sge value is wrongly reported when calling query_qp, This is
-happening due to a typo when assigning the max_recv_sge value, the value
-of sq_max_sges was assigned instead of rq_max_sges.
+We have the following potential deadlock condition:
 
-Fixes: 3e5c02c9ef9a ("iw_cxgb4: Support query_qp() verb")
-Link: https://lore.kernel.org/r/20210114191423.423529-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ ========================================================
+ WARNING: possible irq lock inversion dependency detected
+ 5.10.0-rc2+ #25 Not tainted
+ --------------------------------------------------------
+ swapper/3/0 just changed the state of lock:
+ ffff8880063bd618 (&host->lock){-...}-{2:2}, at: ata_bmdma_interrupt+0x27/0x200
+ but this lock took another, HARDIRQ-READ-unsafe lock in the past:
+  (&trig->leddev_list_lock){.+.?}-{2:2}
+
+ and interrupts could create inverse lock ordering between them.
+
+ other info that might help us debug this:
+  Possible interrupt unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&trig->leddev_list_lock);
+                                local_irq_disable();
+                                lock(&host->lock);
+                                lock(&trig->leddev_list_lock);
+   <Interrupt>
+     lock(&host->lock);
+
+  *** DEADLOCK ***
+
+ no locks held by swapper/3/0.
+
+ the shortest dependencies between 2nd lock and 1st lock:
+  -> (&trig->leddev_list_lock){.+.?}-{2:2} ops: 46 {
+     HARDIRQ-ON-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       rfkill_global_led_trigger_worker+0x94/0xb0
+                       process_one_work+0x240/0x560
+                       worker_thread+0x58/0x3d0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     IN-SOFTIRQ-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       kbd_bh+0x9e/0xc0
+                       tasklet_action_common.constprop.0+0xe9/0x100
+                       tasklet_action+0x22/0x30
+                       __do_softirq+0xcc/0x46d
+                       run_ksoftirqd+0x3f/0x70
+                       smpboot_thread_fn+0x116/0x1f0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     SOFTIRQ-ON-R at:
+                       lock_acquire+0x15f/0x420
+                       _raw_read_lock+0x42/0x90
+                       led_trigger_event+0x2b/0x70
+                       rfkill_global_led_trigger_worker+0x94/0xb0
+                       process_one_work+0x240/0x560
+                       worker_thread+0x58/0x3d0
+                       kthread+0x151/0x170
+                       ret_from_fork+0x1f/0x30
+     INITIAL READ USE at:
+                           lock_acquire+0x15f/0x420
+                           _raw_read_lock+0x42/0x90
+                           led_trigger_event+0x2b/0x70
+                           rfkill_global_led_trigger_worker+0x94/0xb0
+                           process_one_work+0x240/0x560
+                           worker_thread+0x58/0x3d0
+                           kthread+0x151/0x170
+                           ret_from_fork+0x1f/0x30
+   }
+   ... key      at: [<ffffffff83da4c00>] __key.0+0x0/0x10
+   ... acquired at:
+    _raw_read_lock+0x42/0x90
+    led_trigger_blink_oneshot+0x3b/0x90
+    ledtrig_disk_activity+0x3c/0xa0
+    ata_qc_complete+0x26/0x450
+    ata_do_link_abort+0xa3/0xe0
+    ata_port_freeze+0x2e/0x40
+    ata_hsm_qc_complete+0x94/0xa0
+    ata_sff_hsm_move+0x177/0x7a0
+    ata_sff_pio_task+0xc7/0x1b0
+    process_one_work+0x240/0x560
+    worker_thread+0x58/0x3d0
+    kthread+0x151/0x170
+    ret_from_fork+0x1f/0x30
+
+ -> (&host->lock){-...}-{2:2} ops: 69 {
+    IN-HARDIRQ-W at:
+                     lock_acquire+0x15f/0x420
+                     _raw_spin_lock_irqsave+0x52/0xa0
+                     ata_bmdma_interrupt+0x27/0x200
+                     __handle_irq_event_percpu+0xd5/0x2b0
+                     handle_irq_event+0x57/0xb0
+                     handle_edge_irq+0x8c/0x230
+                     asm_call_irq_on_stack+0xf/0x20
+                     common_interrupt+0x100/0x1c0
+                     asm_common_interrupt+0x1e/0x40
+                     native_safe_halt+0xe/0x10
+                     arch_cpu_idle+0x15/0x20
+                     default_idle_call+0x59/0x1c0
+                     do_idle+0x22c/0x2c0
+                     cpu_startup_entry+0x20/0x30
+                     start_secondary+0x11d/0x150
+                     secondary_startup_64_no_verify+0xa6/0xab
+    INITIAL USE at:
+                    lock_acquire+0x15f/0x420
+                    _raw_spin_lock_irqsave+0x52/0xa0
+                    ata_dev_init+0x54/0xe0
+                    ata_link_init+0x8b/0xd0
+                    ata_port_alloc+0x1f1/0x210
+                    ata_host_alloc+0xf1/0x130
+                    ata_host_alloc_pinfo+0x14/0xb0
+                    ata_pci_sff_prepare_host+0x41/0xa0
+                    ata_pci_bmdma_prepare_host+0x14/0x30
+                    piix_init_one+0x21f/0x600
+                    local_pci_probe+0x48/0x80
+                    pci_device_probe+0x105/0x1c0
+                    really_probe+0x221/0x490
+                    driver_probe_device+0xe9/0x160
+                    device_driver_attach+0xb2/0xc0
+                    __driver_attach+0x91/0x150
+                    bus_for_each_dev+0x81/0xc0
+                    driver_attach+0x1e/0x20
+                    bus_add_driver+0x138/0x1f0
+                    driver_register+0x91/0xf0
+                    __pci_register_driver+0x73/0x80
+                    piix_init+0x1e/0x2e
+                    do_one_initcall+0x5f/0x2d0
+                    kernel_init_freeable+0x26f/0x2cf
+                    kernel_init+0xe/0x113
+                    ret_from_fork+0x1f/0x30
+  }
+  ... key      at: [<ffffffff83d9fdc0>] __key.6+0x0/0x10
+  ... acquired at:
+    __lock_acquire+0x9da/0x2370
+    lock_acquire+0x15f/0x420
+    _raw_spin_lock_irqsave+0x52/0xa0
+    ata_bmdma_interrupt+0x27/0x200
+    __handle_irq_event_percpu+0xd5/0x2b0
+    handle_irq_event+0x57/0xb0
+    handle_edge_irq+0x8c/0x230
+    asm_call_irq_on_stack+0xf/0x20
+    common_interrupt+0x100/0x1c0
+    asm_common_interrupt+0x1e/0x40
+    native_safe_halt+0xe/0x10
+    arch_cpu_idle+0x15/0x20
+    default_idle_call+0x59/0x1c0
+    do_idle+0x22c/0x2c0
+    cpu_startup_entry+0x20/0x30
+    start_secondary+0x11d/0x150
+    secondary_startup_64_no_verify+0xa6/0xab
+
+This lockdep splat is reported after:
+commit e918188611f0 ("locking: More accurate annotations for read_lock()")
+
+To clarify:
+ - read-locks are recursive only in interrupt context (when
+   in_interrupt() returns true)
+ - after acquiring host->lock in CPU1, another cpu (i.e. CPU2) may call
+   write_lock(&trig->leddev_list_lock) that would be blocked by CPU0
+   that holds trig->leddev_list_lock in read-mode
+ - when CPU1 (ata_ac_complete()) tries to read-lock
+   trig->leddev_list_lock, it would be blocked by the write-lock waiter
+   on CPU2 (because we are not in interrupt context, so the read-lock is
+   not recursive)
+ - at this point if an interrupt happens on CPU0 and
+   ata_bmdma_interrupt() is executed it will try to acquire host->lock,
+   that is held by CPU1, that is currently blocked by CPU2, so:
+
+   * CPU0 blocked by CPU1
+   * CPU1 blocked by CPU2
+   * CPU2 blocked by CPU0
+
+     *** DEADLOCK ***
+
+The deadlock scenario is better represented by the following schema
+(thanks to Boqun Feng <boqun.feng@gmail.com> for the schema and the
+detailed explanation of the deadlock condition):
+
+ CPU 0:                          CPU 1:                        CPU 2:
+ -----                           -----                         -----
+ led_trigger_event():
+   read_lock(&trig->leddev_list_lock);
+ 				<workqueue>
+ 				ata_hsm_qc_complete():
+ 				  spin_lock_irqsave(&host->lock);
+ 								write_lock(&trig->leddev_list_lock);
+ 				  ata_port_freeze():
+ 				    ata_do_link_abort():
+ 				      ata_qc_complete():
+ 					ledtrig_disk_activity():
+ 					  led_trigger_blink_oneshot():
+ 					    read_lock(&trig->leddev_list_lock);
+ 					    // ^ not in in_interrupt() context, so could get blocked by CPU 2
+ <interrupt>
+   ata_bmdma_interrupt():
+     spin_lock_irqsave(&host->lock);
+
+Fix by using read_lock_irqsave/irqrestore() in led_trigger_event(), so
+that no interrupt can happen in between, preventing the deadlock
+condition.
+
+Apply the same change to led_trigger_blink_setup() as well, since the
+same deadlock scenario can also happen in power_supply_update_bat_leds()
+-> led_trigger_blink() -> led_trigger_blink_setup() (workqueue context),
+and potentially prevent other similar usages.
+
+Link: https://lore.kernel.org/lkml/20201101092614.GB3989@xps-13-7390/
+Fixes: eb25cb9956cc ("leds: convert IDE trigger to common disk trigger")
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/cxgb4/qp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/led-triggers.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
-index 24952af51a546..15a867d62d025 100644
---- a/drivers/infiniband/hw/cxgb4/qp.c
-+++ b/drivers/infiniband/hw/cxgb4/qp.c
-@@ -2117,7 +2117,7 @@ int c4iw_ib_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 	init_attr->cap.max_send_wr = qhp->attr.sq_num_entries;
- 	init_attr->cap.max_recv_wr = qhp->attr.rq_num_entries;
- 	init_attr->cap.max_send_sge = qhp->attr.sq_max_sges;
--	init_attr->cap.max_recv_sge = qhp->attr.sq_max_sges;
-+	init_attr->cap.max_recv_sge = qhp->attr.rq_max_sges;
- 	init_attr->cap.max_inline_data = T4_MAX_SEND_INLINE;
- 	init_attr->sq_sig_type = qhp->sq_sig_all ? IB_SIGNAL_ALL_WR : 0;
- 	return 0;
--- 
-2.27.0
-
+--- a/drivers/leds/led-triggers.c
++++ b/drivers/leds/led-triggers.c
+@@ -317,14 +317,15 @@ void led_trigger_event(struct led_trigge
+ 			enum led_brightness brightness)
+ {
+ 	struct led_classdev *led_cdev;
++	unsigned long flags;
+ 
+ 	if (!trig)
+ 		return;
+ 
+-	read_lock(&trig->leddev_list_lock);
++	read_lock_irqsave(&trig->leddev_list_lock, flags);
+ 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list)
+ 		led_set_brightness(led_cdev, brightness);
+-	read_unlock(&trig->leddev_list_lock);
++	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(led_trigger_event);
+ 
+@@ -335,11 +336,12 @@ static void led_trigger_blink_setup(stru
+ 			     int invert)
+ {
+ 	struct led_classdev *led_cdev;
++	unsigned long flags;
+ 
+ 	if (!trig)
+ 		return;
+ 
+-	read_lock(&trig->leddev_list_lock);
++	read_lock_irqsave(&trig->leddev_list_lock, flags);
+ 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list) {
+ 		if (oneshot)
+ 			led_blink_set_oneshot(led_cdev, delay_on, delay_off,
+@@ -347,7 +349,7 @@ static void led_trigger_blink_setup(stru
+ 		else
+ 			led_blink_set(led_cdev, delay_on, delay_off);
+ 	}
+-	read_unlock(&trig->leddev_list_lock);
++	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
+ }
+ 
+ void led_trigger_blink(struct led_trigger *trig,
 
 
