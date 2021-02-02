@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0B730C87A
-	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A45E630C898
+	for <lists+stable@lfdr.de>; Tue,  2 Feb 2021 18:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237766AbhBBRvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 12:51:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
+        id S238018AbhBBRzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 12:55:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233981AbhBBOJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 09:09:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E02165031;
-        Tue,  2 Feb 2021 13:50:43 +0000 (UTC)
+        id S231672AbhBBOJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:09:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B578F65030;
+        Tue,  2 Feb 2021 13:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612273844;
-        bh=Y5BFwjLVG8kcJgA01NSeCoCKb9oeogaK/Z9HJ4DEvuA=;
+        s=korg; t=1612273847;
+        bh=d5j7SbnWRAJXpPB7+lw0l9poLZ38YRZwN8cr2At3V/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baxt3etJFiv6esRBX05sWeNGAkWQrryzPl/zsbvKZOgbuCvzCd4HYLM1bicr0bnzJ
-         L9p5IvCU1uu/BgwqqLSLm9leyyZNCccYGDaF+p1HujuQrb1JZrOl7kyoT5/JfWYcOS
-         xkEKYISNrahp3MMhkBE1+I8JAMniI3+SAuog3NYs=
+        b=p/Ez+yDHqkeVMZ2kCaRIC+ZBEX9cbF4jRWVm51lY/SQPg27/i8jGZPJghejtRynv2
+         dIokN26YNzLX5mB4DnzSa95qZG5YVDdLmZs5u4TVSHkDDHzvFfRmnv2T9egEx7kOBb
+         VHICgN52I1vSWcJbsLR574xu7h1xoeJi7gqnKCQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 22/32] netfilter: nft_dynset: add timeout extension to template
-Date:   Tue,  2 Feb 2021 14:38:45 +0100
-Message-Id: <20210202132942.903858869@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 23/32] xfrm: Fix oops in xfrm_replay_advance_bmp
+Date:   Tue,  2 Feb 2021 14:38:46 +0100
+Message-Id: <20210202132942.939197229@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210202132942.035179752@linuxfoundation.org>
 References: <20210202132942.035179752@linuxfoundation.org>
@@ -38,37 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Shmulik Ladkani <shmulik@metanetworks.com>
 
-commit 0c5b7a501e7400869ee905b4f7af3d6717802bcb upstream.
+[ Upstream commit 56ce7c25ae1525d83cf80a880cf506ead1914250 ]
 
-Otherwise, the newly create element shows no timeout when listing the
-ruleset. If the set definition does not specify a default timeout, then
-the set element only shows the expiration time, but not the timeout.
-This is a problem when restoring a stateful ruleset listing since it
-skips the timeout policy entirely.
+When setting xfrm replay_window to values higher than 32, a rare
+page-fault occurs in xfrm_replay_advance_bmp:
 
-Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BUG: unable to handle page fault for address: ffff8af350ad7920
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0002) - not-present page
+  PGD ad001067 P4D ad001067 PUD 0
+  Oops: 0002 [#1] SMP PTI
+  CPU: 3 PID: 30 Comm: ksoftirqd/3 Kdump: loaded Not tainted 5.4.52-050452-generic #202007160732
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+  RIP: 0010:xfrm_replay_advance_bmp+0xbb/0x130
+  RSP: 0018:ffffa1304013ba40 EFLAGS: 00010206
+  RAX: 000000000000010d RBX: 0000000000000002 RCX: 00000000ffffff4b
+  RDX: 0000000000000018 RSI: 00000000004c234c RDI: 00000000ffb3dbff
+  RBP: ffffa1304013ba50 R08: ffff8af330ad7920 R09: 0000000007fffffa
+  R10: 0000000000000800 R11: 0000000000000010 R12: ffff8af29d6258c0
+  R13: ffff8af28b95c700 R14: 0000000000000000 R15: ffff8af29d6258fc
+  FS:  0000000000000000(0000) GS:ffff8af339ac0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff8af350ad7920 CR3: 0000000015ee4000 CR4: 00000000001406e0
+  Call Trace:
+   xfrm_input+0x4e5/0xa10
+   xfrm4_rcv_encap+0xb5/0xe0
+   xfrm4_udp_encap_rcv+0x140/0x1c0
 
+Analysis revealed offending code is when accessing:
+
+	replay_esn->bmp[nr] |= (1U << bitnr);
+
+with 'nr' being 0x07fffffa.
+
+This happened in an SMP system when reordering of packets was present;
+A packet arrived with a "too old" sequence number (outside the window,
+i.e 'diff > replay_window'), and therefore the following calculation:
+
+			bitnr = replay_esn->replay_window - (diff - pos);
+
+yields a negative result, but since bitnr is u32 we get a large unsigned
+quantity (in crash dump above: 0xffffff4b seen in ecx).
+
+This was supposed to be protected by xfrm_input()'s former call to:
+
+		if (x->repl->check(x, skb, seq)) {
+
+However, the state's spinlock x->lock is *released* after '->check()'
+is performed, and gets re-acquired before '->advance()' - which gives a
+chance for a different core to update the xfrm state, e.g. by advancing
+'replay_esn->seq' when it encounters more packets - leading to a
+'diff > replay_window' situation when original core continues to
+xfrm_replay_advance_bmp().
+
+An attempt to fix this issue was suggested in commit bcf66bf54aab
+("xfrm: Perform a replay check after return from async codepaths"),
+by calling 'x->repl->recheck()' after lock is re-acquired, but fix
+applied only to asyncronous crypto algorithms.
+
+Augment the fix, by *always* calling 'recheck()' - irrespective if we're
+using async crypto.
+
+Fixes: 0ebea8ef3559 ("[IPSEC]: Move state lock into x->type->input")
+Signed-off-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_dynset.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/xfrm/xfrm_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -210,8 +210,10 @@ static int nft_dynset_init(const struct
- 		nft_set_ext_add_length(&priv->tmpl, NFT_SET_EXT_EXPR,
- 				       priv->expr->ops->size);
- 	if (set->flags & NFT_SET_TIMEOUT) {
--		if (timeout || set->timeout)
-+		if (timeout || set->timeout) {
-+			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_TIMEOUT);
- 			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_EXPIRATION);
-+		}
- 	}
+diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
+index 1e87639f2c270..d613bf77cc0f9 100644
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -315,7 +315,7 @@ resume:
+ 		/* only the first xfrm gets the encap type */
+ 		encap_type = 0;
  
- 	priv->timeout = timeout;
+-		if (async && x->repl->recheck(x, skb, seq)) {
++		if (x->repl->recheck(x, skb, seq)) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINSTATESEQERROR);
+ 			goto drop_unlock;
+ 		}
+-- 
+2.27.0
+
 
 
