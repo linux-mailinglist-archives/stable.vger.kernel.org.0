@@ -2,109 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3789130DEF9
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 17:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4334130DFB4
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 17:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234567AbhBCP5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 10:57:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234699AbhBCP5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 10:57:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2ABE64D90;
-        Wed,  3 Feb 2021 15:56:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612367782;
-        bh=iqZEmEMfQVbGhNOvrmiywegPN/XO5IkB/s/O37rDgDo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oQETclcCklKxjatzOTdvcf3oRfofVwOL5h4ZheCcP+bELF9XrnlVJ++fAqoPOVEuO
-         +2xhvJca3GOKM6xsNhgd02eWrhOP1Aj22g0QNFMEk1mzzWzvZd40THn9me/dnvivr+
-         pe+pbO3dEst/Tt/twV4HR0NjE19LX4WwCiPPcXaU/3Gclz7KC0YFeZuOG656WzWIpF
-         LG40diET7n3y1TnWXqOzdvTQWP83x92ZqKnaFDw66H9wBvNYQO8zYAmQgoiQ7aFzv+
-         ILP/1EpGhRi+9HbsHGEv49NjTalEofGHLoO2Q2zd25qlnekUPxoLOOkb8CHKMsjzS+
-         2LCb84mj9D8fg==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1l7KWB-000363-CJ; Wed, 03 Feb 2021 16:56:36 +0100
-Date:   Wed, 3 Feb 2021 16:56:35 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jens Frederich <jfrederich@gmail.com>,
-        Jon Nettleton <jon.nettleton@gmail.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] x86/apic/of: Fix CPU devicetree-node lookups
-Message-ID: <YBrHs7UJNkkLpagx@hovoldconsulting.com>
-References: <20201210133910.4229-1-johan@kernel.org>
+        id S233982AbhBCQ1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 11:27:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233269AbhBCQ1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 11:27:03 -0500
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5875FC0613ED
+        for <stable@vger.kernel.org>; Wed,  3 Feb 2021 08:26:23 -0800 (PST)
+Received: by mail-io1-xd2a.google.com with SMTP id s24so14314188iob.6
+        for <stable@vger.kernel.org>; Wed, 03 Feb 2021 08:26:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=qJmDXP0T0QBFomkJKbzYjLhMxrZ1Ffl75JL5NokD5fA=;
+        b=ZNMtuP7SCc2EemZ5fZDDOkR4Psd1e6M8kNd55F4wiOdw7TUuy5YrGGn4jJXzCHe7Sj
+         vj39qjLzZACb0+qBSUr4XDZ/Izkwn4x64RrWI4xHEiK4XLqy8UKtYMjiQk+70N2X6AF4
+         u6dJxMdMNHhFzOYvbYEEkQG0dk1c/8FXCB9a6mRnlddsaDO767fsTGC5GKHgg75c5aEr
+         UYdrTQLWM5eBzs0HX4NzhVMB9gYNkooee21jNlqWE2CaQPP0r8EYgVzxy08FGynrVPyb
+         PjL7hi2qkQcniZc27PBZ+7Rw+eO0UC0ajqQKVcYzAUTVS7B9ce9V4+NsvN8CFfxdGaKK
+         x0QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=qJmDXP0T0QBFomkJKbzYjLhMxrZ1Ffl75JL5NokD5fA=;
+        b=iJ1qBeDSz+by0AKpV7tUOM8UcZJM/MkiqqZIstGC3Qk2tTcMd5BIo39NMb6zkwgWKY
+         zPFTDCb94lSBzMyY2BZyPL7kRfWS+3gInQpeXjV5JEU79su9xAbqp3my6OLMdyBfXRdB
+         FjTtcOb+BdyROBUcGJZsKecfXWFZhD0goIehyFcAw5e9mriaA7IMU1DSZKO4rGO5XoIH
+         h3xhwBEjlF8Jc6aZmUfw0eOp+bya2tivjKZyY4MI/uaC/U2zNv7iTAADpb6lou61L5+0
+         LLfcykmWXKGsyEAx7qLcjqM6rcQd5txTSKfFG8JKWtZDfuuJhjySYoFaiBsUV+Pq09Wi
+         n3eg==
+X-Gm-Message-State: AOAM533N8KNE4GyG9Nt9Ifu9WuL+1/GaQHvqZoZ7nqf3B1LvpJvJw/nm
+        K4wxKCihdqUDiIf8CAPOsRNdIiXKO0kaESmuOuY=
+X-Google-Smtp-Source: ABdhPJwi8T46GKV+dkpt42s/tmGUGJDOyIfZso+gfvvKwBlzFvZTGr6ksGIXozgltrU8Efyqcj1sWOzgedtkEpFxd2g=
+X-Received: by 2002:a6b:fb09:: with SMTP id h9mr3061912iog.32.1612369582632;
+ Wed, 03 Feb 2021 08:26:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201210133910.4229-1-johan@kernel.org>
+Received: by 2002:a5d:9148:0:0:0:0:0 with HTTP; Wed, 3 Feb 2021 08:26:22 -0800 (PST)
+Reply-To: lionellawson52@gmail.com
+From:   richard clerk <richardclerk522@gmail.com>
+Date:   Wed, 3 Feb 2021 16:26:22 +0000
+Message-ID: <CAHbkSoA_oM1HGB8FwrDijAitvjxSU1o6E4RJ76DPnj+HEeUD9A@mail.gmail.com>
+Subject: Guter Tag
+To:     richardclerk411@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 02:39:10PM +0100, Johan Hovold wrote:
-> Architectures that describe the CPU topology in devicetree and that do
-> not have an identity mapping between physical and logical CPU ids need
-> to override the default implementation of arch_match_cpu_phys_id().
-> 
-> Failing to do so breaks CPU devicetree-node lookups using
-> of_get_cpu_node() and of_cpu_device_node_get() which several drivers
-> rely on. It also causes the CPU struct devices exported through sysfs to
-> point to the wrong devicetree nodes.
-> 
-> On x86, CPUs are described in devicetree using their APIC ids and those
-> do not generally coincide with the logical ids, even if CPU0 typically
-> uses APIC id 0. Add the missing implementation of
-> arch_match_cpu_phys_id() so that CPU-node lookups work also with SMP.
-> 
-> Apart from fixing the broken sysfs devicetree-node links this likely do
-> not affect users of mainline kernels as the above mentioned drivers are
-> currently not used on x86 as far as I know.
-> 
-> Fixes: 4e07db9c8db8 ("x86/devicetree: Use CPU description from Device Tree")
-> Cc: stable <stable@vger.kernel.org>     # 4.17
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
-> 
-> Thomas,
-> 
-> Hope this looks better to you.
-> 
-> My use case for this is still out-of-tree, but since CPU-node lookup is
-> generic functionality and with observable impact also for mainline users
-> (sysfs) I added a stable tag.
+--=20
+Irgendwann in der letzten Woche wurde Ihnen eine E-Mail gesendet
+mit der Erwartung, eine E-Mail von Ihnen zu erhalten, aber
+Zu meiner =C3=9Cberraschung machte er sich nie die M=C3=BChe zu antworten.
+Antworten, um zu bekommen
+Weitere Erkl=C3=A4rungen.
 
-Did you have a chance to look at this one yet?
-
-Johan
-
-> Changes in v2
->  - rewrite commit message
->  - add Fixes tag
->  - add stable tag for the benefit of out-of-tree users
-> 
-> 
->  arch/x86/kernel/apic/apic.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-> index b3eef1d5c903..19c0119892dd 100644
-> --- a/arch/x86/kernel/apic/apic.c
-> +++ b/arch/x86/kernel/apic/apic.c
-> @@ -2311,6 +2311,11 @@ static int cpuid_to_apicid[] = {
->  	[0 ... NR_CPUS - 1] = -1,
->  };
->  
-> +bool arch_match_cpu_phys_id(int cpu, u64 phys_id)
-> +{
-> +	return phys_id == cpuid_to_apicid[cpu];
-> +}
-> +
->  #ifdef CONFIG_SMP
->  /**
->   * apic_id_is_primary_thread - Check whether APIC ID belongs to a primary thread
+Hochachtungsvoll,
+Lionel Lawson
