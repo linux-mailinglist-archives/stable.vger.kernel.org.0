@@ -2,71 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0633F30E4B4
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 22:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E01C030E4CB
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 22:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbhBCVJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 16:09:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36020 "EHLO mail.kernel.org"
+        id S231519AbhBCVP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 16:15:56 -0500
+Received: from mga14.intel.com ([192.55.52.115]:19696 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232222AbhBCVJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 16:09:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CED764F5F;
-        Wed,  3 Feb 2021 21:09:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612386548;
-        bh=vMN2ZwN3DmW+Bfkh7W+rkJVdTFGNkh40nq5AITVU4P8=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-        b=tQqrVbRzFt9pT18LzgvEPe6/P5CE8Ae0Z3ACEOW8TKlqzfPBNTcgyLtUVPf9k/ykL
-         NE4HhaBzOFVwlaF59ns7/AsvJjTrn8/u3+GyLHLvW5l5zovHrnVM010fCEYgcOVoBm
-         U5GhjijUkrWD1GwDHv/pyTqgTeTtaboPctvkItJT6chPDNOXIfGclCFhS8Oerhf3Sj
-         0cgncTmkbb/6LG4hjq17lSuTZNh+LXvkfiQ6lGurifDMiQon/bp1rqq2sSOx4oQrsP
-         oFRidxjMM9hriCcTcrRM0od+qtHis+vH3Z/bPn5Cr1u6KKlDV7GpS9bLkU4MTv/KK7
-         Oe3A0SFkEwbAA==
-From:   Mark Brown <broonie@kernel.org>
-To:     linux-spi@vger.kernel.org, jassisinghbrar@gmail.com
-Cc:     Masahisa Kojima <masahisa.kojima@linaro.org>,
-        stable@vger.kernel.org, Jassi Brar <jaswinder.singh@linaro.org>
-In-Reply-To: <20210201073109.9036-1-jassisinghbrar@gmail.com>
-References: <20210201073109.9036-1-jassisinghbrar@gmail.com>
-Subject: Re: [PATCH] spi: spi-synquacer: fix set_cs handling
-Message-Id: <161238649945.34568.2886009579298697252.b4-ty@kernel.org>
-Date:   Wed, 03 Feb 2021 21:08:19 +0000
+        id S231592AbhBCVP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 16:15:56 -0500
+IronPort-SDR: upwcxqDRPBPvYtDO6UlbfvW4dc7AkJ6Kmn35sK+SWgGD25RLbq8kPv4Rk1waBvwZoS7OH/8XsS
+ Sayx6kA18Qbg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9884"; a="180346764"
+X-IronPort-AV: E=Sophos;i="5.79,399,1602572400"; 
+   d="scan'208";a="180346764"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 13:15:15 -0800
+IronPort-SDR: 73OLoKlVIQ9idFotB583rxlu4y8+B/3Dy0UVHEkyzOwwNF3IlSufmgdnHFyuac8DEA3R9Km0DK
+ HkM9pC72Ruyg==
+X-IronPort-AV: E=Sophos;i="5.79,399,1602572400"; 
+   d="scan'208";a="371687075"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 13:15:13 -0800
+Date:   Wed, 3 Feb 2021 23:15:09 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     dri-devel@lists.freedesktop.org, Lyude Paul <lyude@redhat.com>,
+        Thiago Macieira <gitlab@gitlab.freedesktop.org>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Wayne Lin <Wayne.Lin@amd.com>
+Subject: Re: [Intel-gfx] [PATCH 1/4] drm/dp_mst: Don't report ports connected
+ if nothing is attached to them
+Message-ID: <20210203211509.GA601130@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20210201120145.350258-1-imre.deak@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210201120145.350258-1-imre.deak@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 1 Feb 2021 01:31:09 -0600, jassisinghbrar@gmail.com wrote:
-> When the slave chip select is deasserted, DMSTOP bit
-> must be set.
+On Mon, Feb 01, 2021 at 02:01:42PM +0200, Imre Deak wrote:
+> Reporting a port as connected if nothing is attached to them leads to
+> any i2c transactions on this port trying to use an uninitialized i2c
+> adapter, fix this.
+> 
+> Let's account for this case even if branch devices have no good reason
+> to report a port as unplugged with their peer device type set to 'none'.
+> 
+> Fixes: db1a07956968 ("drm/dp_mst: Handle SST-only branch device case")
+> References: https://gitlab.freedesktop.org/drm/intel/-/issues/2987
+> References: https://gitlab.freedesktop.org/drm/intel/-/issues/1963
+> Cc: Wayne Lin <Wayne.Lin@amd.com>
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
+> Cc: intel-gfx@lists.freedesktop.org
+> Signed-off-by: Imre Deak <imre.deak@intel.com>
 
-Applied to
+Thanks for the report and review, I pushed this one patch to
+drm-misc-fixes.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
+I fixed a typo in the commit message.
 
-Thanks!
-
-[1/1] spi: spi-synquacer: fix set_cs handling
-      commit: 1c9f1750f0305bf605ff22686fc0ac89c06deb28
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
+> ---
+>  drivers/gpu/drm/drm_dp_mst_topology.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+> index e82b596d646c..deb7995f42fa 100644
+> --- a/drivers/gpu/drm/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+> @@ -4224,6 +4224,7 @@ drm_dp_mst_detect_port(struct drm_connector *connector,
+>  
+>  	switch (port->pdt) {
+>  	case DP_PEER_DEVICE_NONE:
+> +		break;
+>  	case DP_PEER_DEVICE_MST_BRANCHING:
+>  		if (!port->mcs)
+>  			ret = connector_status_connected;
+> -- 
+> 2.25.1
+> 
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
