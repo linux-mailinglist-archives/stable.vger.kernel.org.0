@@ -2,89 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01C030E4CB
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 22:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C2130E4F1
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 22:29:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231519AbhBCVP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 16:15:56 -0500
-Received: from mga14.intel.com ([192.55.52.115]:19696 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231592AbhBCVP4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 16:15:56 -0500
-IronPort-SDR: upwcxqDRPBPvYtDO6UlbfvW4dc7AkJ6Kmn35sK+SWgGD25RLbq8kPv4Rk1waBvwZoS7OH/8XsS
- Sayx6kA18Qbg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9884"; a="180346764"
-X-IronPort-AV: E=Sophos;i="5.79,399,1602572400"; 
-   d="scan'208";a="180346764"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 13:15:15 -0800
-IronPort-SDR: 73OLoKlVIQ9idFotB583rxlu4y8+B/3Dy0UVHEkyzOwwNF3IlSufmgdnHFyuac8DEA3R9Km0DK
- HkM9pC72Ruyg==
-X-IronPort-AV: E=Sophos;i="5.79,399,1602572400"; 
-   d="scan'208";a="371687075"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 13:15:13 -0800
-Date:   Wed, 3 Feb 2021 23:15:09 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     dri-devel@lists.freedesktop.org, Lyude Paul <lyude@redhat.com>,
-        Thiago Macieira <gitlab@gitlab.freedesktop.org>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Wayne Lin <Wayne.Lin@amd.com>
-Subject: Re: [Intel-gfx] [PATCH 1/4] drm/dp_mst: Don't report ports connected
- if nothing is attached to them
-Message-ID: <20210203211509.GA601130@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20210201120145.350258-1-imre.deak@intel.com>
+        id S229934AbhBCV3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 16:29:36 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:45435 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229783AbhBCV3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 16:29:35 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7DDC55C0170;
+        Wed,  3 Feb 2021 16:28:28 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 03 Feb 2021 16:28:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=keB1j2Pbis/s0ZGb1uliJTRuloa
+        beMV3aFkUmRHTx6I=; b=f9sJHLTQsvYdKWVXToj0/4RbrlCNlra42qMMoQGbImb
+        /pMV/GHoME07sfmCfT0to1vig9gwUMoq5EtREO7waxbzCu2E1i3QlupXf5qJdfds
+        shoPCppiLIR4cprJYxpVO9z1AbGmiFd+L6VH/Za4P8e/hqjcPbX0kciujezVS1iy
+        SkigiqGH9yAV7LheErB50n4H4AvrQA+PP5qd4iW63sImx0Nw2SRBW8ZnTMkCDTe5
+        UnmNNYVdYwvw8YPMGRiyZ9Ojir61kjCahwRWklOBJXBG7nKtFlrAbi+zyCLbuhXF
+        Igc+nAQMdMFzm5DcF2XJ+ZvAySZMogt2sJ2DeWuBVwA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=keB1j2
+        Pbis/s0ZGb1uliJTRuloabeMV3aFkUmRHTx6I=; b=PdBsJtD7quXtnpYdrPDudq
+        IUOhI+cNC2JzLcHjVWY/gNH/J5fFz1SMv3f/Ens7mpor7NkZLFL2Esu88gFcSk1+
+        UcRqwgdROl2/fKirMdm/VrBEqIb13keqiw6hb2jJLceeexQRRb9h3/TMH9pCyzj4
+        L1YqVcHrZtBnnm4rewwIgG147lm7wr5VdWvEsnn5vnZ2vPgeyFygZmbYA1z6Pp0a
+        7yAcP1lcLW2IanKAMeZdVIMlSzEOsK9fUgV9FGCvA9YSm6ELpx+08OwSalcNcVBT
+        MzfYa0a2LOQYwODDQkQ8trtaadbG+6J0Fi2oPTERAIoIngnMGD647jKWuchdWDTA
+        ==
+X-ME-Sender: <xms:fBUbYDEjFOtmzKB4oZhDRPBBHGMG63H4WEj12w5Z0QtbmtFa76CZgQ>
+    <xme:fBUbYAUeU2ZTOEg9yNgYMhTfk94bs7zX45A3sm3TgRROmNMmyzUwiO36zeTaGnj3s
+    2IfGIa4FBSAc41PrQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgedvgddugeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetnhgurhgv
+    shcuhfhrvghunhguuceorghnughrvghssegrnhgrrhgriigvlhdruggvqeenucggtffrrg
+    htthgvrhhnpedukefhkeelueegveetheelffffjeegleeuudelfeefuedtleffueejfffh
+    ueffudenucfkphepieejrdduiedtrddvudejrddvhedtnecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomheprghnughrvghssegrnhgrrhgriigvlhdr
+    uggv
+X-ME-Proxy: <xmx:fBUbYFKeWDh_LxpmEP8u4Us0nIn8LMtYfcljBIJRKR0QdBe9xByS5Q>
+    <xmx:fBUbYBGBdPC65r-UlCMIIovs1eju-g3WLGy1C5YfDyOUS6PAbvKLzw>
+    <xmx:fBUbYJX-fwMq8cw67Ha1wXsfd1ac1y9eKG740-EN-r0Ak3cg0vhnnw>
+    <xmx:fBUbYMRayb0GZX8G_i40U8sjmfbJIiFCmUW-RX84n6AKYHuzIikDCw>
+Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E450C108005C;
+        Wed,  3 Feb 2021 16:28:27 -0500 (EST)
+Date:   Wed, 3 Feb 2021 13:28:26 -0800
+From:   Andres Freund <andres@anarazel.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4 103/142] Revert "block: end bio with BLK_STS_AGAIN in
+ case of non-mq devs and REQ_NOWAIT"
+Message-ID: <20210203212826.6esa5orgnworwel6@alap3.anarazel.de>
+References: <20200601174037.904070960@linuxfoundation.org>
+ <20200601174048.647302799@linuxfoundation.org>
+ <20210203123729.3pfsakawrkoh6qpu@alap3.anarazel.de>
+ <YBqfDdVaPurYzZM2@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210201120145.350258-1-imre.deak@intel.com>
+In-Reply-To: <YBqfDdVaPurYzZM2@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 02:01:42PM +0200, Imre Deak wrote:
-> Reporting a port as connected if nothing is attached to them leads to
-> any i2c transactions on this port trying to use an uninitialized i2c
-> adapter, fix this.
-> 
-> Let's account for this case even if branch devices have no good reason
-> to report a port as unplugged with their peer device type set to 'none'.
-> 
-> Fixes: db1a07956968 ("drm/dp_mst: Handle SST-only branch device case")
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/2987
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/1963
-> Cc: Wayne Lin <Wayne.Lin@amd.com>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> Cc: intel-gfx@lists.freedesktop.org
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
+Hi,
 
-Thanks for the report and review, I pushed this one patch to
-drm-misc-fixes.
+On 2021-02-03 14:03:09 +0100, Greg Kroah-Hartman wrote:
+> > On v5.4.43-101-gbba91cdba612 this fails with
+> > fio: io_u error on file /mnt/t2/test.0.0: Input/output error: write offset=0, buflen=4096
+> > fio: pid=734, err=5/file:io_u.c:1834, func=io_u error, error=Input/output error
+> >
+> > whereas previously it worked. libaio still works...
+> >
+> > I haven't checked which major kernel version fixed this again, but I did
+> > verify that it's still broken in 5.4.94 and that 5.10.9 works.
+> >
+> > I would suspect it's
+> >
+> > commit 4503b7676a2e0abe69c2f2c0d8b03aec53f2f048
+> > Author: Jens Axboe <axboe@kernel.dk>
+> > Date:   2020-06-01 10:00:27 -0600
+> >
+> >     io_uring: catch -EIO from buffered issue request failure
+> >
+> >     -EIO bubbles up like -EAGAIN if we fail to allocate a request at the
+> >     lower level. Play it safe and treat it like -EAGAIN in terms of sync
+> >     retry, to avoid passing back an errant -EIO.
+> >
+> >     Catch some of these early for block based file, as non-mq devices
+> >     generally do not support NOWAIT. That saves us some overhead by
+> >     not first trying, then retrying from async context. We can go straight
+> >     to async punt instead.
+> >
+> >     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> >
+> >
+> > which isn't in stable/linux-5.4.y
+>
+> Can you test that if the above commit is added, all works well again?
 
-I fixed a typo in the commit message.
+It doesn't apply cleanly, I'll try to resolve the conflict. However, I
+assume that the revert was for a concrete reason - but I can't quite
+figure out what b0beb28097fa04177b3769f4bb7a0d0d9c4ae76e was concretely
+solving, and whether reverting the revert in 5.4 would re-introduce a
+different problem.
 
-> ---
->  drivers/gpu/drm/drm_dp_mst_topology.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-> index e82b596d646c..deb7995f42fa 100644
-> --- a/drivers/gpu/drm/drm_dp_mst_topology.c
-> +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-> @@ -4224,6 +4224,7 @@ drm_dp_mst_detect_port(struct drm_connector *connector,
->  
->  	switch (port->pdt) {
->  	case DP_PEER_DEVICE_NONE:
-> +		break;
->  	case DP_PEER_DEVICE_MST_BRANCHING:
->  		if (!port->mcs)
->  			ret = connector_status_connected;
-> -- 
-> 2.25.1
-> 
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+commit b0beb28097fa04177b3769f4bb7a0d0d9c4ae76e (tag: block-5.7-2020-05-29, linux-block/block-5.7)
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   2020-05-28 13:19:29 -0600
+
+    Revert "block: end bio with BLK_STS_AGAIN in case of non-mq devs and REQ_NOWAIT"
+
+    This reverts commit c58c1f83436b501d45d4050fd1296d71a9760bcb.
+
+    io_uring does do the right thing for this case, and we're still returning
+    -EAGAIN to userspace for the cases we don't support. Revert this change
+    to avoid doing endless spins of resubmits.
+
+    Cc: stable@vger.kernel.org # v5.6
+    Reported-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+I suspect it just wasn't aimed at 5.4, and that's that, but I'm not
+sure. In which case presumably reverting
+bba91cdba612fbce4f8575c5d94d2b146fb83ea3 would be the right fix, not
+backporting 4503b7676a2e0abe69c2f2c0d8b03aec53f2f048 et al.
+
+Greetings,
+
+Andres Freund
