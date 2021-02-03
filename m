@@ -2,838 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3576830E6AC
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996ED30E6B3
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233627AbhBCXFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 18:05:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45916 "EHLO mail.kernel.org"
+        id S233657AbhBCXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 18:05:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233591AbhBCXFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 18:05:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC85A64F6D;
-        Wed,  3 Feb 2021 23:04:22 +0000 (UTC)
+        id S233386AbhBCXFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 18:05:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E969F64F70;
+        Wed,  3 Feb 2021 23:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612393463;
-        bh=mGMUKGOp57E/E46ts1QaxEfbEXNM/1ROGlxehpgJ6QQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUlfwe4eIAQ8V1+OyL0860pDcLyPkMf8B5/IIQKACZSeV1Cw1yf1EBHTEDVBslzYU
-         B59p9jzAYKZSZmG3MpQZqp3nDwVqXXeCzvtC90cxhzSw+MRApDiVNru9cuWexGLRxG
-         MDLRAtMRlQR66KgepQTH7sJeMX8U4xPd0mO4PpA0=
+        s=korg; t=1612393468;
+        bh=hqbmX3rO+Go0xr6+BIYTfKyEEPOAGT2wb6rbTAQ6INY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vcRQrBnKs/V8wchKssGxUqyu8zL6Fpy6JTutRjIpfBMQCHM40p7Ff2J8dZoKpwXOH
+         Zg/2EJmqiOZlPr9nJGUD6wjvv+QJHKb3cknrR8EvQ7UZ/J96YCdueRkscYYqrNnpS9
+         h315+m7VK1MwfGhJVfI1X4PmMnm2o+pkS5EyhESQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.14.219
-Date:   Thu,  4 Feb 2021 00:04:16 +0100
-Message-Id: <161239345513944@kroah.com>
+Subject: Linux 4.19.173
+Date:   Thu,  4 Feb 2021 00:04:19 +0100
+Message-Id: <1612393460178139@kroah.com>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <161239345513961@kroah.com>
-References: <161239345513961@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 494420ad33a1..f7f11304776b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 218
-+SUBLEVEL = 219
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-index 115d706228ef..95aa680e9256 100644
---- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-@@ -278,7 +278,7 @@
- 
- 			/* VDD_AUD_1P8: Audio codec */
- 			reg_aud_1p8v: ldo3 {
--				regulator-name = "vdd1p8";
-+				regulator-name = "vdd1p8a";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
- 				regulator-boot-on;
-diff --git a/arch/arm/mach-imx/suspend-imx6.S b/arch/arm/mach-imx/suspend-imx6.S
-index 7d84b617af48..99d2e296082c 100644
---- a/arch/arm/mach-imx/suspend-imx6.S
-+++ b/arch/arm/mach-imx/suspend-imx6.S
-@@ -73,6 +73,7 @@
- #define MX6Q_CCM_CCR	0x0
- 
- 	.align 3
-+	.arm
- 
- 	.macro  sync_l2_cache
- 
-diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
-index 364ea4a207be..304e3daf82dd 100644
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -357,13 +357,13 @@ ENTRY(entry_INT80_compat)
- 	pushq	%rdx			/* pt_regs->dx */
- 	pushq	%rcx			/* pt_regs->cx */
- 	pushq	$-ENOSYS		/* pt_regs->ax */
--	pushq   $0			/* pt_regs->r8  = 0 */
-+	pushq   %r8			/* pt_regs->r8 */
- 	xorl	%r8d, %r8d		/* nospec   r8 */
--	pushq   $0			/* pt_regs->r9  = 0 */
-+	pushq   %r9			/* pt_regs->r9 */
- 	xorl	%r9d, %r9d		/* nospec   r9 */
--	pushq   $0			/* pt_regs->r10 = 0 */
-+	pushq   %r10			/* pt_regs->r10*/
- 	xorl	%r10d, %r10d		/* nospec   r10 */
--	pushq   $0			/* pt_regs->r11 = 0 */
-+	pushq   %r11			/* pt_regs->r11 */
- 	xorl	%r11d, %r11d		/* nospec   r11 */
- 	pushq   %rbx                    /* pt_regs->rbx */
- 	xorl	%ebx, %ebx		/* nospec   rbx */
-diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
-index 84ae4dd261ca..cafdaabf062f 100644
---- a/arch/x86/kvm/pmu_intel.c
-+++ b/arch/x86/kvm/pmu_intel.c
-@@ -29,7 +29,7 @@ static struct kvm_event_hw_type_mapping intel_arch_events[] = {
- 	[4] = { 0x2e, 0x41, PERF_COUNT_HW_CACHE_MISSES },
- 	[5] = { 0xc4, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
- 	[6] = { 0xc5, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
--	[7] = { 0x00, 0x30, PERF_COUNT_HW_REF_CPU_CYCLES },
-+	[7] = { 0x00, 0x03, PERF_COUNT_HW_REF_CPU_CYCLES },
- };
- 
- /* mapping between fixed pmc index and intel_arch_events array */
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 79fa55de635c..d7ed1fd36eba 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -98,6 +98,7 @@ static u64 __read_mostly efer_reserved_bits = ~((u64)EFER_SCE);
- 
- static void update_cr8_intercept(struct kvm_vcpu *vcpu);
- static void process_nmi(struct kvm_vcpu *vcpu);
-+static void process_smi(struct kvm_vcpu *vcpu);
- static void enter_smm(struct kvm_vcpu *vcpu);
- static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
- 
-@@ -3290,6 +3291,10 @@ static void kvm_vcpu_ioctl_x86_get_vcpu_events(struct kvm_vcpu *vcpu,
- 					       struct kvm_vcpu_events *events)
- {
- 	process_nmi(vcpu);
-+
-+	if (kvm_check_request(KVM_REQ_SMI, vcpu))
-+		process_smi(vcpu);
-+
- 	/*
- 	 * FIXME: pass injected and pending separately.  This is only
- 	 * needed for nested virtualization, whose state cannot be
-diff --git a/drivers/acpi/device_sysfs.c b/drivers/acpi/device_sysfs.c
-index 012aa86d4b16..6d7ff5ef702c 100644
---- a/drivers/acpi/device_sysfs.c
-+++ b/drivers/acpi/device_sysfs.c
-@@ -259,20 +259,12 @@ int __acpi_device_uevent_modalias(struct acpi_device *adev,
- 	if (add_uevent_var(env, "MODALIAS="))
- 		return -ENOMEM;
- 
--	len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
--				  sizeof(env->buf) - env->buflen);
--	if (len < 0)
--		return len;
--
--	env->buflen += len;
--	if (!adev->data.of_compatible)
--		return 0;
--
--	if (len > 0 && add_uevent_var(env, "MODALIAS="))
--		return -ENOMEM;
--
--	len = create_of_modalias(adev, &env->buf[env->buflen - 1],
--				 sizeof(env->buf) - env->buflen);
-+	if (adev->data.of_compatible)
-+		len = create_of_modalias(adev, &env->buf[env->buflen - 1],
-+					 sizeof(env->buf) - env->buflen);
-+	else
-+		len = create_pnp_modalias(adev, &env->buf[env->buflen - 1],
-+					  sizeof(env->buf) - env->buflen);
- 	if (len < 0)
- 		return len;
- 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 70ef826af7f8..826b3877a157 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -952,6 +952,12 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	if (!sock)
- 		return err;
- 
-+	/*
-+	 * We need to make sure we don't get any errant requests while we're
-+	 * reallocating the ->socks array.
-+	 */
-+	blk_mq_freeze_queue(nbd->disk->queue);
-+
- 	if (!netlink && !nbd->task_setup &&
- 	    !test_bit(NBD_BOUND, &config->runtime_flags))
- 		nbd->task_setup = current;
-@@ -990,10 +996,12 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
- 	nsock->cookie = 0;
- 	socks[config->num_connections++] = nsock;
- 	atomic_inc(&config->live_connections);
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
- 
- 	return 0;
- 
- put_socket:
-+	blk_mq_unfreeze_queue(nbd->disk->queue);
- 	sockfd_put(sock);
- 	return err;
- }
-diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-index e6887714fe0a..7ba58c39146f 100644
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -937,7 +937,8 @@ static void blkif_set_queue_limits(struct blkfront_info *info)
- 	if (info->feature_discard) {
- 		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, rq);
- 		blk_queue_max_discard_sectors(rq, get_capacity(gd));
--		rq->limits.discard_granularity = info->discard_granularity;
-+		rq->limits.discard_granularity = info->discard_granularity ?:
-+						 info->physical_sector_size;
- 		rq->limits.discard_alignment = info->discard_alignment;
- 		if (info->feature_secdiscard)
- 			queue_flag_set_unlocked(QUEUE_FLAG_SECERASE, rq);
-@@ -2155,19 +2156,12 @@ static void blkfront_closing(struct blkfront_info *info)
- 
- static void blkfront_setup_discard(struct blkfront_info *info)
- {
--	int err;
--	unsigned int discard_granularity;
--	unsigned int discard_alignment;
--
- 	info->feature_discard = 1;
--	err = xenbus_gather(XBT_NIL, info->xbdev->otherend,
--		"discard-granularity", "%u", &discard_granularity,
--		"discard-alignment", "%u", &discard_alignment,
--		NULL);
--	if (!err) {
--		info->discard_granularity = discard_granularity;
--		info->discard_alignment = discard_alignment;
--	}
-+	info->discard_granularity = xenbus_read_unsigned(info->xbdev->otherend,
-+							 "discard-granularity",
-+							 0);
-+	info->discard_alignment = xenbus_read_unsigned(info->xbdev->otherend,
-+						       "discard-alignment", 0);
- 	info->feature_secdiscard =
- 		!!xenbus_read_unsigned(info->xbdev->otherend, "discard-secure",
- 				       0);
-diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
-index 24952af51a54..15a867d62d02 100644
---- a/drivers/infiniband/hw/cxgb4/qp.c
-+++ b/drivers/infiniband/hw/cxgb4/qp.c
-@@ -2117,7 +2117,7 @@ int c4iw_ib_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 	init_attr->cap.max_send_wr = qhp->attr.sq_num_entries;
- 	init_attr->cap.max_recv_wr = qhp->attr.rq_num_entries;
- 	init_attr->cap.max_send_sge = qhp->attr.sq_max_sges;
--	init_attr->cap.max_recv_sge = qhp->attr.sq_max_sges;
-+	init_attr->cap.max_recv_sge = qhp->attr.rq_max_sges;
- 	init_attr->cap.max_inline_data = T4_MAX_SEND_INLINE;
- 	init_attr->sq_sig_type = qhp->sq_sig_all ? IB_SIGNAL_ALL_WR : 0;
- 	return 0;
-diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
-index 1f527ca60955..ef41579897cb 100644
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -1026,8 +1026,8 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
- {
- 	struct intel_iommu *iommu;
- 	u32 ver, sts;
--	int agaw = 0;
--	int msagaw = 0;
-+	int agaw = -1;
-+	int msagaw = -1;
- 	int err;
- 
- 	if (!drhd->reg_base_addr) {
-@@ -1052,17 +1052,28 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
- 	}
- 
- 	err = -EINVAL;
--	agaw = iommu_calculate_agaw(iommu);
--	if (agaw < 0) {
--		pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
--			iommu->seq_id);
--		goto err_unmap;
-+	if (cap_sagaw(iommu->cap) == 0) {
-+		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
-+			iommu->name);
-+		drhd->ignored = 1;
- 	}
--	msagaw = iommu_calculate_max_sagaw(iommu);
--	if (msagaw < 0) {
--		pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
--			iommu->seq_id);
--		goto err_unmap;
-+
-+	if (!drhd->ignored) {
-+		agaw = iommu_calculate_agaw(iommu);
-+		if (agaw < 0) {
-+			pr_err("Cannot get a valid agaw for iommu (seq_id = %d)\n",
-+			       iommu->seq_id);
-+			drhd->ignored = 1;
-+		}
-+	}
-+	if (!drhd->ignored) {
-+		msagaw = iommu_calculate_max_sagaw(iommu);
-+		if (msagaw < 0) {
-+			pr_err("Cannot get a valid max agaw for iommu (seq_id = %d)\n",
-+			       iommu->seq_id);
-+			drhd->ignored = 1;
-+			agaw = -1;
-+		}
- 	}
- 	iommu->agaw = agaw;
- 	iommu->msagaw = msagaw;
-@@ -1089,7 +1100,12 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
- 
- 	raw_spin_lock_init(&iommu->register_lock);
- 
--	if (intel_iommu_enabled) {
-+	/*
-+	 * This is only for hotplug; at boot time intel_iommu_enabled won't
-+	 * be set yet. When intel_iommu_init() runs, it registers the units
-+	 * present at boot time, then sets intel_iommu_enabled.
-+	 */
-+	if (intel_iommu_enabled && !drhd->ignored) {
- 		err = iommu_device_sysfs_add(&iommu->iommu, NULL,
- 					     intel_iommu_groups,
- 					     "%s", iommu->name);
-@@ -1104,6 +1120,7 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
- 	}
- 
- 	drhd->iommu = iommu;
-+	iommu->drhd = drhd;
- 
- 	return 0;
- 
-@@ -1118,7 +1135,7 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
- 
- static void free_iommu(struct intel_iommu *iommu)
- {
--	if (intel_iommu_enabled) {
-+	if (intel_iommu_enabled && !iommu->drhd->ignored) {
- 		iommu_device_unregister(&iommu->iommu);
- 		iommu_device_sysfs_remove(&iommu->iommu);
- 	}
-diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
-index 431123b048a2..573a5a80b23c 100644
---- a/drivers/leds/led-triggers.c
-+++ b/drivers/leds/led-triggers.c
-@@ -283,14 +283,15 @@ void led_trigger_event(struct led_trigger *trig,
- 			enum led_brightness brightness)
- {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
- 
- 	if (!trig)
- 		return;
- 
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list)
- 		led_set_brightness(led_cdev, brightness);
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
- }
- EXPORT_SYMBOL_GPL(led_trigger_event);
- 
-@@ -301,11 +302,12 @@ static void led_trigger_blink_setup(struct led_trigger *trig,
- 			     int invert)
- {
- 	struct led_classdev *led_cdev;
-+	unsigned long flags;
- 
- 	if (!trig)
- 		return;
- 
--	read_lock(&trig->leddev_list_lock);
-+	read_lock_irqsave(&trig->leddev_list_lock, flags);
- 	list_for_each_entry(led_cdev, &trig->led_cdevs, trig_list) {
- 		if (oneshot)
- 			led_blink_set_oneshot(led_cdev, delay_on, delay_off,
-@@ -313,7 +315,7 @@ static void led_trigger_blink_setup(struct led_trigger *trig,
- 		else
- 			led_blink_set(led_cdev, delay_on, delay_off);
- 	}
--	read_unlock(&trig->leddev_list_lock);
-+	read_unlock_irqrestore(&trig->leddev_list_lock, flags);
- }
- 
- void led_trigger_blink(struct led_trigger *trig,
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 1025cfd463ec..0ebee99a3e85 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -1102,7 +1102,7 @@ static int can_fill_info(struct sk_buff *skb, const struct net_device *dev)
- {
- 	struct can_priv *priv = netdev_priv(dev);
- 	struct can_ctrlmode cm = {.flags = priv->ctrlmode};
--	struct can_berr_counter bec;
-+	struct can_berr_counter bec = { };
- 	enum can_state state = priv->state;
- 
- 	if (priv->do_get_state)
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index d36d0882874b..eb2360b64aad 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1002,7 +1002,8 @@ static void __team_compute_features(struct team *team)
- 	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
- 					IFF_XMIT_DST_RELEASE_PERM;
- 
--	list_for_each_entry(port, &team->port_list, list) {
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(port, &team->port_list, list) {
- 		vlan_features = netdev_increment_features(vlan_features,
- 					port->dev->vlan_features,
- 					TEAM_VLAN_FEATURES);
-@@ -1016,6 +1017,7 @@ static void __team_compute_features(struct team *team)
- 		if (port->dev->hard_header_len > max_hard_header_len)
- 			max_hard_header_len = port->dev->hard_header_len;
- 	}
-+	rcu_read_unlock();
- 
- 	team->dev->vlan_features = vlan_features;
- 	team->dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
-@@ -1030,9 +1032,7 @@ static void __team_compute_features(struct team *team)
- 
- static void team_compute_features(struct team *team)
- {
--	mutex_lock(&team->lock);
- 	__team_compute_features(team);
--	mutex_unlock(&team->lock);
- 	netdev_change_features(team->dev);
- }
- 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 6fed2fc4565b..f205ccba27c4 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1273,6 +1273,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x0b3c, 0xc00a, 6)},	/* Olivetti Olicard 160 */
- 	{QMI_FIXED_INTF(0x0b3c, 0xc00b, 4)},	/* Olivetti Olicard 500 */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0060, 4)},	/* Cinterion PLxx */
-+	{QMI_QUIRK_SET_DTR(0x1e2d, 0x006f, 8)}, /* Cinterion PLS83/PLS63 */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0053, 4)},	/* Cinterion PHxx,PXxx */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0063, 10)},	/* Cinterion ALASxx (1 RmNet) */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},	/* Cinterion PHxx,PXxx (2 RmNet) */
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 910edd034fe3..7bfddce582ad 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -1932,7 +1932,8 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 
- 	while (offs < dwords) {
- 		/* limit the time we spin here under lock to 1/2s */
--		ktime_t timeout = ktime_add_us(ktime_get(), 500 * USEC_PER_MSEC);
-+		unsigned long end = jiffies + HZ / 2;
-+		bool resched = false;
- 
- 		if (iwl_trans_grab_nic_access(trans, &flags)) {
- 			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
-@@ -1943,14 +1944,15 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
- 							HBUS_TARG_MEM_RDAT);
- 				offs++;
- 
--				/* calling ktime_get is expensive so
--				 * do it once in 128 reads
--				 */
--				if (offs % 128 == 0 && ktime_after(ktime_get(),
--								   timeout))
-+				if (time_after(jiffies, end)) {
-+					resched = true;
- 					break;
-+				}
- 			}
- 			iwl_trans_release_nic_access(trans, &flags);
-+
-+			if (resched)
-+				cond_resched();
- 		} else {
- 			return -EBUSY;
- 		}
-diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
-index 47cebb2ec05c..5aacabd32923 100644
---- a/drivers/net/wireless/mediatek/mt7601u/dma.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
-@@ -160,8 +160,7 @@ mt7601u_rx_process_entry(struct mt7601u_dev *dev, struct mt7601u_dma_buf_rx *e)
- 
- 	if (new_p) {
- 		/* we have one extra ref from the allocator */
--		__free_pages(e->p, MT_RX_ORDER);
--
-+		put_page(e->p);
- 		e->p = new_p;
- 	}
- }
-@@ -318,7 +317,6 @@ static int mt7601u_dma_submit_tx(struct mt7601u_dev *dev,
- 	}
- 
- 	e = &q->e[q->end];
--	e->skb = skb;
- 	usb_fill_bulk_urb(e->urb, usb_dev, snd_pipe, skb->data, skb->len,
- 			  mt7601u_complete_tx, q);
- 	ret = usb_submit_urb(e->urb, GFP_ATOMIC);
-@@ -336,6 +334,7 @@ static int mt7601u_dma_submit_tx(struct mt7601u_dev *dev,
- 
- 	q->end = (q->end + 1) % q->entries;
- 	q->used++;
-+	e->skb = skb;
- 
- 	if (q->used >= q->entries)
- 		ieee80211_stop_queue(dev->hw, skb_get_queue_mapping(skb));
-diff --git a/drivers/soc/atmel/soc.c b/drivers/soc/atmel/soc.c
-index c1363c83c352..c5e713dd1016 100644
---- a/drivers/soc/atmel/soc.c
-+++ b/drivers/soc/atmel/soc.c
-@@ -246,8 +246,21 @@ struct soc_device * __init at91_soc_init(const struct at91_soc *socs)
- 	return soc_dev;
- }
- 
-+static const struct of_device_id at91_soc_allowed_list[] __initconst = {
-+	{ .compatible = "atmel,at91rm9200", },
-+	{ .compatible = "atmel,at91sam9", },
-+	{ .compatible = "atmel,sama5", },
-+	{ .compatible = "atmel,samv7", },
-+	{ }
-+};
-+
- static int __init atmel_soc_device_init(void)
- {
-+	struct device_node *np = of_find_node_by_path("/");
-+
-+	if (!of_match_node(at91_soc_allowed_list, np))
-+		return 0;
-+
- 	at91_soc_init(socs);
- 
- 	return 0;
-diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
-index fe24e8dcb2b8..9cac938361a0 100644
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -705,6 +705,23 @@ static bool xs_hvm_defer_init_for_callback(void)
- #endif
- }
- 
-+static int xenbus_probe_thread(void *unused)
-+{
-+	DEFINE_WAIT(w);
-+
-+	/*
-+	 * We actually just want to wait for *any* trigger of xb_waitq,
-+	 * and run xenbus_probe() the moment it occurs.
-+	 */
-+	prepare_to_wait(&xb_waitq, &w, TASK_INTERRUPTIBLE);
-+	schedule();
-+	finish_wait(&xb_waitq, &w);
-+
-+	DPRINTK("probing");
-+	xenbus_probe();
-+	return 0;
-+}
-+
- static int __init xenbus_probe_initcall(void)
- {
- 	/*
-@@ -716,6 +733,20 @@ static int __init xenbus_probe_initcall(void)
- 	     !xs_hvm_defer_init_for_callback()))
- 		xenbus_probe();
- 
-+	/*
-+	 * For XS_LOCAL, spawn a thread which will wait for xenstored
-+	 * or a xenstore-stubdom to be started, then probe. It will be
-+	 * triggered when communication starts happening, by waiting
-+	 * on xb_waitq.
-+	 */
-+	if (xen_store_domain_type == XS_LOCAL) {
-+		struct task_struct *probe_task;
-+
-+		probe_task = kthread_run(xenbus_probe_thread, NULL,
-+					 "xenbus_probe");
-+		if (IS_ERR(probe_task))
-+			return PTR_ERR(probe_task);
-+	}
- 	return 0;
- }
- device_initcall(xenbus_probe_initcall);
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index d2364ba99f6c..f121b4bc8b14 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -434,6 +434,8 @@ struct intel_iommu {
- 	struct iommu_device iommu;  /* IOMMU core code handle */
- 	int		node;
- 	u32		flags;      /* Software defined flags */
-+
-+	struct dmar_drhd_unit *drhd;
- };
- 
- static inline void __iommu_flush_cache(
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 58e8e57787cf..4602959b58a1 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1969,7 +1969,7 @@ void tcp_v4_init(void);
- void tcp_init(void);
- 
- /* tcp_recovery.c */
--extern void tcp_rack_mark_lost(struct sock *sk);
-+extern bool tcp_rack_mark_lost(struct sock *sk);
- extern void tcp_rack_advance(struct tcp_sock *tp, u8 sacked, u32 end_seq,
- 			     u64 xmit_time);
- extern void tcp_rack_reo_timeout(struct sock *sk);
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index ec12a52edce2..eb062fab6257 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2803,7 +2803,8 @@ static void tcp_rack_identify_loss(struct sock *sk, int *ack_flag)
- 	if (sysctl_tcp_recovery & TCP_RACK_LOSS_DETECTION) {
- 		u32 prior_retrans = tp->retrans_out;
- 
--		tcp_rack_mark_lost(sk);
-+		if (tcp_rack_mark_lost(sk))
-+			*ack_flag &= ~FLAG_SET_XMIT_TIMER;
- 		if (prior_retrans > tp->retrans_out)
- 			*ack_flag |= FLAG_LOST_RETRANS;
- 	}
-@@ -3688,15 +3689,16 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
- 
- 	if (tp->tlp_high_seq)
- 		tcp_process_tlp_ack(sk, ack, flag);
--	/* If needed, reset TLP/RTO timer; RACK may later override this. */
--	if (flag & FLAG_SET_XMIT_TIMER)
--		tcp_set_xmit_timer(sk);
- 
- 	if (tcp_ack_is_dubious(sk, flag)) {
- 		is_dupack = !(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP));
- 		tcp_fastretrans_alert(sk, acked, is_dupack, &flag, &rexmit);
- 	}
- 
-+	/* If needed, reset TLP/RTO timer when RACK doesn't set. */
-+	if (flag & FLAG_SET_XMIT_TIMER)
-+		tcp_set_xmit_timer(sk);
-+
- 	if ((flag & FLAG_FORWARD_PROGRESS) || !(flag & FLAG_NOT_DUP))
- 		sk_dst_confirm(sk);
- 
-diff --git a/net/ipv4/tcp_recovery.c b/net/ipv4/tcp_recovery.c
-index be8ef1e5dfef..0409cd2c4918 100644
---- a/net/ipv4/tcp_recovery.c
-+++ b/net/ipv4/tcp_recovery.c
-@@ -102,13 +102,13 @@ static void tcp_rack_detect_loss(struct sock *sk, u32 *reo_timeout)
- 	}
- }
- 
--void tcp_rack_mark_lost(struct sock *sk)
-+bool tcp_rack_mark_lost(struct sock *sk)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	u32 timeout;
- 
- 	if (!tp->rack.advanced)
--		return;
-+		return false;
- 
- 	/* Reset the advanced flag to avoid unnecessary queue scanning */
- 	tp->rack.advanced = 0;
-@@ -118,6 +118,7 @@ void tcp_rack_mark_lost(struct sock *sk)
- 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_REO_TIMEOUT,
- 					  timeout, inet_csk(sk)->icsk_rto);
- 	}
-+	return !!timeout;
- }
- 
- /* Record the most recently (re)sent time among the (s)acked packets
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 0e209a88d88a..651705565dfb 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1047,6 +1047,7 @@ enum queue_stop_reason {
- 	IEEE80211_QUEUE_STOP_REASON_FLUSH,
- 	IEEE80211_QUEUE_STOP_REASON_TDLS_TEARDOWN,
- 	IEEE80211_QUEUE_STOP_REASON_RESERVE_TID,
-+	IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE,
- 
- 	IEEE80211_QUEUE_STOP_REASONS,
- };
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 6ce13e976b7a..dc398a181678 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1559,6 +1559,10 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	if (ret)
- 		return ret;
- 
-+	ieee80211_stop_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
-+	synchronize_net();
-+
- 	ieee80211_do_stop(sdata, false);
- 
- 	ieee80211_teardown_sdata(sdata);
-@@ -1579,6 +1583,8 @@ static int ieee80211_runtime_change_iftype(struct ieee80211_sub_if_data *sdata,
- 	err = ieee80211_do_open(&sdata->wdev, false);
- 	WARN(err, "type change: do_open returned %d", err);
- 
-+	ieee80211_wake_vif_queues(local, sdata,
-+				  IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE);
- 	return ret;
- }
- 
-diff --git a/net/netfilter/nft_dynset.c b/net/netfilter/nft_dynset.c
-index 66221ad891a9..278d76566348 100644
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -205,8 +205,10 @@ static int nft_dynset_init(const struct nft_ctx *ctx,
- 		nft_set_ext_add_length(&priv->tmpl, NFT_SET_EXT_EXPR,
- 				       priv->expr->ops->size);
- 	if (set->flags & NFT_SET_TIMEOUT) {
--		if (timeout || set->timeout)
-+		if (timeout || set->timeout) {
-+			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_TIMEOUT);
- 			nft_set_ext_add(&priv->tmpl, NFT_SET_EXT_EXPIRATION);
-+		}
- 	}
- 
- 	priv->timeout = timeout;
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 2d642baeafbb..18957fbf37ff 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -884,6 +884,7 @@ static int nfc_genl_stop_poll(struct sk_buff *skb, struct genl_info *info)
- 
- 	if (!dev->polling) {
- 		device_unlock(&dev->dev);
-+		nfc_put_device(dev);
- 		return -EINVAL;
- 	}
- 
-diff --git a/net/nfc/rawsock.c b/net/nfc/rawsock.c
-index b927730d9ab0..57a07ab80d92 100644
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -117,7 +117,7 @@ static int rawsock_connect(struct socket *sock, struct sockaddr *_addr,
- 	if (addr->target_idx > dev->target_next_idx - 1 ||
- 	    addr->target_idx < dev->target_next_idx - dev->n_targets) {
- 		rc = -EINVAL;
--		goto error;
-+		goto put_dev;
- 	}
- 
- 	rc = nfc_activate_target(dev, addr->target_idx, addr->nfc_protocol);
-diff --git a/net/wireless/wext-core.c b/net/wireless/wext-core.c
-index 5236a3c2c0cc..b6414c7bef55 100644
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -898,8 +898,9 @@ static int ioctl_standard_iw_point(struct iw_point *iwp, unsigned int cmd,
- int call_commit_handler(struct net_device *dev)
- {
- #ifdef CONFIG_WIRELESS_EXT
--	if ((netif_running(dev)) &&
--	   (dev->wireless_handlers->standard[0] != NULL))
-+	if (netif_running(dev) &&
-+	    dev->wireless_handlers &&
-+	    dev->wireless_handlers->standard[0])
- 		/* Call the commit handler on the driver */
- 		return dev->wireless_handlers->standard[0](dev, NULL,
- 							   NULL, NULL);
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 874735742152..594b8b2c32c8 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -415,7 +415,7 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
- 		/* only the first xfrm gets the encap type */
- 		encap_type = 0;
- 
--		if (async && x->repl->recheck(x, skb, seq)) {
-+		if (x->repl->recheck(x, skb, seq)) {
- 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINSTATESEQERROR);
- 			goto drop_unlock;
- 		}
-diff --git a/tools/testing/selftests/x86/test_syscall_vdso.c b/tools/testing/selftests/x86/test_syscall_vdso.c
-index 40370354d4c1..c9c3281077bc 100644
---- a/tools/testing/selftests/x86/test_syscall_vdso.c
-+++ b/tools/testing/selftests/x86/test_syscall_vdso.c
-@@ -100,12 +100,19 @@ asm (
- 	"	shl	$32, %r8\n"
- 	"	orq	$0x7f7f7f7f, %r8\n"
- 	"	movq	%r8, %r9\n"
--	"	movq	%r8, %r10\n"
--	"	movq	%r8, %r11\n"
--	"	movq	%r8, %r12\n"
--	"	movq	%r8, %r13\n"
--	"	movq	%r8, %r14\n"
--	"	movq	%r8, %r15\n"
-+	"	incq	%r9\n"
-+	"	movq	%r9, %r10\n"
-+	"	incq	%r10\n"
-+	"	movq	%r10, %r11\n"
-+	"	incq	%r11\n"
-+	"	movq	%r11, %r12\n"
-+	"	incq	%r12\n"
-+	"	movq	%r12, %r13\n"
-+	"	incq	%r13\n"
-+	"	movq	%r13, %r14\n"
-+	"	incq	%r14\n"
-+	"	movq	%r14, %r15\n"
-+	"	incq	%r15\n"
- 	"	ret\n"
- 	"	.code32\n"
- 	"	.popsection\n"
-@@ -128,12 +135,13 @@ int check_regs64(void)
- 	int err = 0;
- 	int num = 8;
- 	uint64_t *r64 = &regs64.r8;
-+	uint64_t expected = 0x7f7f7f7f7f7f7f7fULL;
- 
- 	if (!kernel_is_64bit)
- 		return 0;
- 
- 	do {
--		if (*r64 == 0x7f7f7f7f7f7f7f7fULL)
-+		if (*r64 == expected++)
- 			continue; /* register did not change */
- 		if (syscall_addr != (long)&int80) {
- 			/*
-@@ -147,18 +155,17 @@ int check_regs64(void)
- 				continue;
- 			}
- 		} else {
--			/* INT80 syscall entrypoint can be used by
-+			/*
-+			 * INT80 syscall entrypoint can be used by
- 			 * 64-bit programs too, unlike SYSCALL/SYSENTER.
- 			 * Therefore it must preserve R12+
- 			 * (they are callee-saved registers in 64-bit C ABI).
- 			 *
--			 * This was probably historically not intended,
--			 * but R8..11 are clobbered (cleared to 0).
--			 * IOW: they are the only registers which aren't
--			 * preserved across INT80 syscall.
-+			 * Starting in Linux 4.17 (and any kernel that
-+			 * backports the change), R8..11 are preserved.
-+			 * Historically (and probably unintentionally), they
-+			 * were clobbered or zeroed.
- 			 */
--			if (*r64 == 0 && num <= 11)
--				continue;
- 		}
- 		printf("[FAIL]\tR%d has changed:%016llx\n", num, *r64);
- 		err++;
+I'm announcing the release of the 4.19.173 kernel.
+
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2 
+ arch/arm/boot/dts/imx6qdl-gw52xx.dtsi             |    2 
+ arch/arm/mach-imx/suspend-imx6.S                  |    1 
+ arch/x86/kvm/pmu_intel.c                          |    2 
+ arch/x86/kvm/x86.c                                |    5 ++
+ drivers/acpi/device_sysfs.c                       |   20 ++-------
+ drivers/block/nbd.c                               |    8 +++
+ drivers/block/xen-blkfront.c                      |   20 +++------
+ drivers/infiniband/hw/cxgb4/qp.c                  |    2 
+ drivers/iommu/dmar.c                              |   45 +++++++++++++++-------
+ drivers/leds/led-triggers.c                       |   10 ++--
+ drivers/media/rc/rc-main.c                        |    4 -
+ drivers/net/can/dev.c                             |    2 
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    1 
+ drivers/net/team/team.c                           |    6 +-
+ drivers/net/usb/qmi_wwan.c                        |    1 
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c   |   14 +++---
+ drivers/net/wireless/mediatek/mt7601u/dma.c       |    5 --
+ drivers/soc/atmel/soc.c                           |   13 ++++++
+ drivers/xen/privcmd.c                             |   25 +++++++++---
+ drivers/xen/xenbus/xenbus_probe.c                 |   31 +++++++++++++++
+ fs/nfs/pnfs.c                                     |    1 
+ include/linux/intel-iommu.h                       |    2 
+ include/net/tcp.h                                 |    2 
+ kernel/kexec_core.c                               |    2 
+ kernel/power/swap.c                               |    2 
+ net/ipv4/tcp_input.c                              |   10 ++--
+ net/ipv4/tcp_recovery.c                           |    5 +-
+ net/mac80211/ieee80211_i.h                        |    1 
+ net/mac80211/iface.c                              |    6 ++
+ net/netfilter/nft_dynset.c                        |    4 +
+ net/nfc/netlink.c                                 |    1 
+ net/nfc/rawsock.c                                 |    2 
+ net/rxrpc/call_accept.c                           |    1 
+ net/wireless/wext-core.c                          |    5 +-
+ net/xfrm/xfrm_input.c                             |    2 
+ net/xfrm/xfrm_policy.c                            |    4 -
+ sound/pci/hda/patch_via.c                         |    2 
+ 38 files changed, 183 insertions(+), 88 deletions(-)
+
+Andrea Righi (1):
+      leds: trigger: fix potential deadlock with libata
+
+Baoquan He (1):
+      kernel: kexec: remove the lock operation of system_transition_mutex
+
+Bartosz Golaszewski (1):
+      iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built
+
+Claudiu Beznea (1):
+      drivers: soc: atmel: add null entry at the end of at91_soc_allowed_list[]
+
+Dan Carpenter (1):
+      can: dev: prevent potential information leak in can_fill_info()
+
+David Woodhouse (2):
+      xen: Fix XenStore initialisation for XS_LOCAL
+      iommu/vt-d: Gracefully handle DMAR units with no supported address widths
+
+Eyal Birger (1):
+      xfrm: fix disable_xfrm sysctl when used on xfrm interfaces
+
+Giacinto Cifelli (1):
+      net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.173
+
+Ivan Vecera (1):
+      team: protect features update by RCU to avoid deadlock
+
+Jay Zhou (1):
+      KVM: x86: get smi pending status correctly
+
+Johannes Berg (4):
+      wext: fix NULL-ptr-dereference with cfg80211's lack of commit()
+      iwlwifi: pcie: use jiffies for memory read spin time limit
+      iwlwifi: pcie: reschedule in long-running memory reads
+      mac80211: pause TX while changing interface type
+
+Josef Bacik (1):
+      nbd: freeze the queue while we're adding connections
+
+Kai-Heng Feng (1):
+      ACPI: sysfs: Prefer "compatible" modalias
+
+Kamal Heib (1):
+      RDMA/cxgb4: Fix the reported max_recv_sge value
+
+Koen Vandeputte (1):
+      ARM: dts: imx6qdl-gw52xx: fix duplicate regulator naming
+
+Laurent Badel (1):
+      PM: hibernate: flush swap writer after marking
+
+Like Xu (1):
+      KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
+
+Lorenzo Bianconi (2):
+      mt7601u: fix kernel crash unplugging the device
+      mt7601u: fix rx buffer refcounting
+
+Max Krummenacher (1):
+      ARM: imx: build suspend-imx6.S with arm instruction set
+
+Pablo Neira Ayuso (1):
+      netfilter: nft_dynset: add timeout extension to template
+
+Pan Bian (2):
+      NFC: fix resource leak when target index is invalid
+      NFC: fix possible resource leak
+
+Pengcheng Yang (1):
+      tcp: fix TLP timer not set when CA_STATE changes from DISORDER to OPEN
+
+Roger Pau Monne (2):
+      xen/privcmd: allow fetching resource sizes
+      xen-blkfront: allow discard-* nodes to be optional
+
+Roi Dayan (1):
+      net/mlx5: Fix memory leak on flow table creation error flow
+
+Sean Young (1):
+      media: rc: ensure that uevent can be read directly after rc device register
+
+Shmulik Ladkani (1):
+      xfrm: Fix oops in xfrm_replay_advance_bmp
+
+Sudeep Holla (1):
+      drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs
+
+Takashi Iwai (1):
+      ALSA: hda/via: Apply the workaround generically for Clevo machines
+
+Takeshi Misawa (1):
+      rxrpc: Fix memory leak in rxrpc_lookup_local
+
+Trond Myklebust (1):
+      pNFS/NFSv4: Fix a layout segment leak in pnfs_layout_process()
+
