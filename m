@@ -2,97 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52A6930D637
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 10:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D98F930D661
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 10:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233155AbhBCJYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 04:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233449AbhBCJWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 04:22:23 -0500
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42818C0613D6
-        for <stable@vger.kernel.org>; Wed,  3 Feb 2021 01:22:08 -0800 (PST)
-Received: by mail-il1-x130.google.com with SMTP id m20so14257308ilj.13
-        for <stable@vger.kernel.org>; Wed, 03 Feb 2021 01:22:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=bV/3Iy33Mu/vmQh1erBMuoZAsO1B/cuqnlyDi9fAN4c=;
-        b=Wz0r3sVHvXzSEclqSl5wB2uYtoYH93PG9dktmb7yD89WgANTIgWSb3y4uscxDO2eqV
-         tMgIqOVPsRY3HYlFn/C5KInxBLKRV9ggHSlMjfIn4RDQvzbcY72+n1/TuqKaQU1X/Q4v
-         /Q/qa7rtLDPzrallTfuGzJUFrnegUYKDzx/SpbqDo5se8AgEezNILOOimGrpslcMETZJ
-         c9YU5ZDkxT0ahlYUZvEzt2g4M7Bp56oOUVX4gmQ0R5jj3ZKLbku2af/M1noAp6+Qpgv5
-         WHpta8uFuL6qVnSmj4dFEtssgn5EDkFce1Jp/dMRGvsqHlTHBdz0iesq7I/44vF0w3TF
-         7kMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=bV/3Iy33Mu/vmQh1erBMuoZAsO1B/cuqnlyDi9fAN4c=;
-        b=UbKShIXoaX6G5t4pRrI/H3XB/tiZriMWOldl7kcXxc0CeduM5eX2qIAG2XbkIodyMZ
-         hlgimiJwvtzg6ZTyiiV9m7IsGV0GDcOjsw/WJ5G0L/+1/U7qeApyaBq3sTc0pbdrK25h
-         a0j4vK4AJLSqVCXF67S62gTVYUJbeymzWjblmG+5ZWSXxtL0mY1Xle6MK/WkFNkXZhwT
-         NHV2GzyOdQ31bMBU6M3fXn31SfyPu/I6Wrp6yMVY2Jtst6j+T8xHdA3DmUpJhl78/TYe
-         A4wTI8IF4k97/iyKj5sZ8lbCgx3V5i/bumXxZfIrLjNuDgA0mN64I6TmMrDlE57av462
-         S3xA==
-X-Gm-Message-State: AOAM533EzxM918iMhN0MWvipmDcECiwcwYovf4/45XBvfGvV1biErvE9
-        cDAmop62QB3XTYhQw2dEyEM8sK524pgpaVyK0Ew=
-X-Google-Smtp-Source: ABdhPJzMb8iBQ5zHw5sLx4Vg0N3uL4Ew/7M30ps5RZtkpZIccvLEvc4ChZgj4kBGOBUm1tDIBeLw7bfFolxtJBmdHMI=
-X-Received: by 2002:a92:c5c8:: with SMTP id s8mr1875401ilt.186.1612344127755;
- Wed, 03 Feb 2021 01:22:07 -0800 (PST)
+        id S229681AbhBCJc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 04:32:57 -0500
+Received: from mga05.intel.com ([192.55.52.43]:4633 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233461AbhBCJcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 04:32:33 -0500
+IronPort-SDR: AKehEQr8PAiuntzstccfnn7RuzpR4Y8XHk0/TGjv7oK+JJXQomUFvMyjECqdWaFYJpR/rjbVfT
+ fEnRQYggU7TQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9883"; a="265845235"
+X-IronPort-AV: E=Sophos;i="5.79,398,1602572400"; 
+   d="scan'208";a="265845235"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 01:30:47 -0800
+IronPort-SDR: plsLEjxuFOe/ml+vJEWuRTD7G7oyTdaNNALy0AWh/4s2aI4Lh0Su04fD6MPjVL08IKma5fSx/o
+ Tujov3rMr43A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,398,1602572400"; 
+   d="scan'208";a="372313456"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
+  by orsmga002.jf.intel.com with SMTP; 03 Feb 2021 01:30:44 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Wed, 03 Feb 2021 11:30:44 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Reject 446-480MHz HDMI clock on GLK
+Date:   Wed,  3 Feb 2021 11:30:44 +0200
+Message-Id: <20210203093044.30532-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <CA+icZUVysDKMQxw4Fxp5SzBxau1Rpy7rra-a09TY-nzwgh54SQ@mail.gmail.com>
- <YBlONpmGoM0/qG7R@kroah.com>
-In-Reply-To: <YBlONpmGoM0/qG7R@kroah.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Wed, 3 Feb 2021 10:21:56 +0100
-Message-ID: <CA+icZUXeK4_5A8YzkuQUcP9jhZKvYrCtWbcgToV-FDE+VY=BvQ@mail.gmail.com>
-Subject: Re: [stable-5.10.y] Pick up "x86/entry: Remove put_ret_addr_in_rdi
- THUNK macro argument"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 2, 2021 at 2:06 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Feb 01, 2021 at 08:50:52PM +0100, Sedat Dilek wrote:
-> > Hi,
-> >
-> > you have in Linux 5.10.13-rc1:
-> >
-> > "x86/entry: Emit a symbol for register restoring thunk"
-> >
-> > While that discussion Boris and Peter recommended to remove unused code via:
-> >
-> > "x86/entry: Remove put_ret_addr_in_rdi THUNK macro argument"
-> > ( upstream commit 0bab9cb2d980d7c075cffb9216155f7835237f98 )
-> >
-> > OK, this has no CC:stable but I have both as a series in my local Git
-> > and both were git-pulled from [1].
-> > What do you think?
->
-> What bug is this fixing that requires this in 5.10?
->
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Commit 0bab9cb2d980d7c075cffb9216155f7835237f98 removed unused logic.
+The BXT/GLK DPLL can't generate certain frequencies. We already
+reject the 233-240MHz range on both. But on GLK the DPLL max
+frequency was bumped from 300MHz to 594MHz, so now we get to
+also worry about the 446-480MHz range (double the original
+problem range). Reject any frequency within the higher
+problematic range as well.
 
-So-to-say:
-Fixes: 320100a5ffe5 ("x86/entry: Remove the TRACE_IRQS cruft")
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3000
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_hdmi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-The commit was first introduced with Linux v5.8-rc1:
+diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
+index 66e1ac3887c6..b593a71e6517 100644
+--- a/drivers/gpu/drm/i915/display/intel_hdmi.c
++++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
+@@ -2218,7 +2218,11 @@ hdmi_port_clock_valid(struct intel_hdmi *hdmi,
+ 					  has_hdmi_sink))
+ 		return MODE_CLOCK_HIGH;
+ 
+-	/* BXT DPLL can't generate 223-240 MHz */
++	/* GLK DPLL can't generate 446-480 MHz */
++	if (IS_GEMINILAKE(dev_priv) && clock > 446666 && clock < 480000)
++		return MODE_CLOCK_RANGE;
++
++	/* BXT/GLK DPLL can't generate 223-240 MHz */
+ 	if (IS_GEN9_LP(dev_priv) && clock > 223333 && clock < 240000)
+ 		return MODE_CLOCK_RANGE;
+ 
+-- 
+2.26.2
 
-$ git describe --contains 320100a5ffe5
-v5.8-rc1~21^2~28
-
-As Linux v5.10.y is an LTS IMHO I hoped it is worth removing unused code.
-You better know the rules for stable-linux, so I leave it to you, Greg.
-
-- Sedat -
