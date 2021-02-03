@@ -2,80 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E9730D3FD
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 08:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8906930DE57
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 16:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbhBCHVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 02:21:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36000 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230193AbhBCHVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 02:21:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5340364F61;
-        Wed,  3 Feb 2021 07:20:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612336858;
-        bh=TpgXwgnQr+jX+xbM5MDKMswVgu0xwvcRdjla+jPf3N0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ijUJ/rAWbhlk+n8TQoUnPF1kznhHe2vwchiCjXGo/ROV2o87f5ZOb+jDGfyn+XzmB
-         1zwl5GI2yz5X7ux1q20U0T2tRMwdT8XAQWwzZU0TR6/0/dnBAEyn+KIF48srnOuHFq
-         pOYQzCVoNou+Ucu5cdtzKV+Y9j12XOO4QegD5hHg=
-Date:   Wed, 3 Feb 2021 08:20:54 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Quentin Perret <qperret@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5.10 066/142] KVM: Documentation: Fix spec for
- KVM_CAP_ENABLE_CAP_VM
-Message-ID: <YBpO1vKngzl+8WNy@kroah.com>
-References: <20210202132957.692094111@linuxfoundation.org>
- <20210202133000.449940320@linuxfoundation.org>
- <20210203010506.GU4035784@sasha-vm>
+        id S234594AbhBCPhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 10:37:45 -0500
+Received: from 198-20-226-115.unifiedlayer.com ([198.20.226.115]:56722 "EHLO
+        198-20-226-115.unifiedlayer.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234512AbhBCPgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 10:36:17 -0500
+X-Greylist: delayed 29383 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Feb 2021 10:35:24 EST
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=carnivalassure.com.bd; s=default; h=Content-Transfer-Encoding:Content-Type:
+        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Sender:Cc:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=miRpAdBSO5eDo01VDX+EK9bqGCmqMjXHS3kO16T6iWw=; b=BeRp52iTZNZnIj6Yk4q4qmVg1o
+        TGW3OyQQDqdIygbFzrOvnb1VFlTwDZeYzPg7x0gcAhNqpY+RPOU8XZPJCHVzHp7N6NMkd40+DlrAZ
+        BxMd0S46HbScvjeaenOH3+S94exP2AbS+FzziGjhE87mUv7G1Yf3DGvnuFRQOMF8rB7m0VxjRMPDd
+        55/dxUiSnVbBa0JImuQYYXUpRt83SOvMPmEy3tm7HhC6eVNF+f6Wxow3WBSbpKE+vZC1jXRKKl9C1
+        bK6OQxLWFq7P4uMl6BygkP9QC4QklVZQU7qWYFjfzBfV8UP2ROnwJjNJGJIyClrEEjRpgcDNFfVIx
+        4EKHpC7g==;
+Received: from [127.0.0.1] (port=46990 helo=dot.dotlines.com.sg)
+        by dot.dotlines.com.sg with esmtpa (Exim 4.93)
+        (envelope-from <noreply@carnivalassure.com.bd>)
+        id 1l7CVy-0005dS-7D; Wed, 03 Feb 2021 01:23:50 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210203010506.GU4035784@sasha-vm>
+Date:   Wed, 03 Feb 2021 01:23:49 -0600
+From:   Francois Pinault <noreply@carnivalassure.com.bd>
+To:     undisclosed-recipients:;
+Subject: Hello/Hallo
+Organization: Donation
+Reply-To: francoispinault1936@outlook.com
+Mail-Reply-To: francoispinault1936@outlook.com
+Message-ID: <6b70d71c493b5c027dd3ef878f38d028@carnivalassure.com.bd>
+X-Sender: noreply@carnivalassure.com.bd
+User-Agent: Roundcube Webmail/1.3.15
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - dot.dotlines.com.sg
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - carnivalassure.com.bd
+X-Get-Message-Sender-Via: dot.dotlines.com.sg: authenticated_id: noreply@carnivalassure.com.bd
+X-Authenticated-Sender: dot.dotlines.com.sg: noreply@carnivalassure.com.bd
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 02, 2021 at 08:05:06PM -0500, Sasha Levin wrote:
-> On Tue, Feb 02, 2021 at 02:37:09PM +0100, Greg Kroah-Hartman wrote:
-> > From: Quentin Perret <qperret@google.com>
-> > 
-> > commit a10f373ad3c760dd40b41e2f69a800ee7b8da15e upstream.
-> > 
-> > The documentation classifies KVM_ENABLE_CAP with KVM_CAP_ENABLE_CAP_VM
-> > as a vcpu ioctl, which is incorrect. Fix it by specifying it as a VM
-> > ioctl.
-> > 
-> > Fixes: e5d83c74a580 ("kvm: make KVM_CAP_ENABLE_CAP_VM architecture agnostic")
-> > Signed-off-by: Quentin Perret <qperret@google.com>
-> > Message-Id: <20210108165349.747359-1-qperret@google.com>
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > ---
-> > Documentation/virt/kvm/api.rst |    2 +-
-> > 1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > --- a/Documentation/virt/kvm/api.rst
-> > +++ b/Documentation/virt/kvm/api.rst
-> > @@ -1319,7 +1319,7 @@ documentation when it pops into existenc
-> > 
-> > :Capability: KVM_CAP_ENABLE_CAP_VM
-> > :Architectures: all
-> > -:Type: vcpu ioctl
-> > +:Type: vm ioctl
-> > :Parameters: struct kvm_enable_cap (in)
-> > :Returns: 0 on success; -1 on error
-> 
-> Um, how did this patch made it in?
 
-It came from my scripts, keeping documentation correct seems to be
-something it wanted to do :)
 
-thanks,
+-- 
+Hallo, ich bin Herr Francois Pinault, ich habe Ihnen gespendet. Sie 
+können mein Profil auf Wikipedia, Google oder Forbes überprüfen.
 
-greg k-h
+Für Ihren Spendenanspruch und weitere Informationen kontaktieren Sie 
+mich umgehend unter francoispinault1936@outlook.com
+
+Mit freundlichen Grüßen,
+Herr Francois Pinault
