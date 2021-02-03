@@ -2,256 +2,242 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879B430D782
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 11:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F017130D7AF
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 11:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbhBCK2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 05:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232865AbhBCK1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 05:27:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3049D64DF2;
-        Wed,  3 Feb 2021 10:27:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612348020;
-        bh=nDRLnup0AgcvxtU2rONuO+yoJCywP2fgQMZYlePmiHA=;
-        h=Subject:To:From:Date:From;
-        b=EtyrLQoK+sAK5LVE+cBdRCTABQVMcTALXstBoIaYLBN4eva5gfjDbQzi+fNXyT31x
-         eR5gEwvO7cblQ1ab11gi3NafPAPMXcP94q4ZZ09W66D0O1ZocLwtTwOzSiT4QI1Ea2
-         NsQ5ES2wa+JY9jPmYJ5TLb8v+RKrWyRizZBgLzFg=
-Subject: patch "usb: host: xhci: mvebu: make USB 3.0 PHY optional for Armada 3720" added to usb-linus
-To:     pali@kernel.org, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org,
-        tmn505@gmail.com, yoshihiro.shimoda.uh@renesas.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 03 Feb 2021 11:26:58 +0100
-Message-ID: <161234801824679@kroah.com>
+        id S233972AbhBCKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 05:37:08 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27116 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233935AbhBCKhE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 05:37:04 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 113AXoWJ132330;
+        Wed, 3 Feb 2021 05:36:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=k9RcrWqEMmIu4JJrx0dP6V+HBB+m20FBfTWZA+92L0E=;
+ b=Gj1e0+JXBtXIt9TrlMbUjs+VNwmyEJpkvOjOOZhouOW7qRACOXpEKxu0n19nwsppV32P
+ eV8nMGTKlwjBalCIOmEzBc+pkrzjRSJ3UKVUkpTQRZ7qv15o9kq7RYhWdG2mkUSCTOwn
+ zERwYUsIK+k2pQbRzA2AAaK5ID5/ZzRw4cMjZoJMNMDdcGu8BbdYB8Oyii3LWpxGmlui
+ 8Zp2tzo+QG5e2Xk+niGs1ro+hcLp51jOaK7TUIX1dL2MzVPzxzAxsaU3zDe4jID+jCZ4
+ N8OsIFvzon+WMEEBNsXBm6M8nQIrWdorcFXFx7GpzZoACjVOA1n6et4Ot7rFl75Z9Gcl Mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36fs6hj3kk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Feb 2021 05:36:23 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 113AaNZH144730;
+        Wed, 3 Feb 2021 05:36:23 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36fs6hj3j7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Feb 2021 05:36:22 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 113AWDhu003575;
+        Wed, 3 Feb 2021 10:36:20 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 36er8y9k5y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Feb 2021 10:36:20 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 113AaH4337159302
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 3 Feb 2021 10:36:17 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 394164C04E;
+        Wed,  3 Feb 2021 10:36:17 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D90894C046;
+        Wed,  3 Feb 2021 10:36:16 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.15.83])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  3 Feb 2021 10:36:16 +0000 (GMT)
+Date:   Wed, 3 Feb 2021 11:36:13 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] s390/kvm: VSIE: correctly handle MVPG when in
+ VSIE
+Message-ID: <20210203113613.75274ae0@ibm-vm>
+In-Reply-To: <20210202180028.876888-3-imbrenda@linux.ibm.com>
+References: <20210202180028.876888-1-imbrenda@linux.ibm.com>
+        <20210202180028.876888-3-imbrenda@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-03_04:2021-02-03,2021-02-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ clxscore=1015 spamscore=0 phishscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102030061
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue,  2 Feb 2021 19:00:28 +0100
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-This is a note to let you know that I've just added the patch titled
+> Correctly handle the MVPG instruction when issued by a VSIE guest.
+> 
+> Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested
+> virtualization") Cc: stable@vger.kernel.org
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kvm/vsie.c | 94
+> +++++++++++++++++++++++++++++++++++++++++--- 1 file changed, 89
+> insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 7db022141db3..2db49749e27b 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu *vcpu,
+> struct vsie_page *vsie_page) memcpy((void *)((u64)scb_o + 0xc0),
+>  		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
+>  		break;
+> -	case ICPT_PARTEXEC:
+> -		/* MVPG only */
+> -		memcpy((void *)((u64)scb_o + 0xc0),
+> -		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
+> -		break;
+>  	}
+>  
+>  	if (scb_s->ihcpu != 0xffffU)
+> @@ -982,6 +977,91 @@ static int handle_stfle(struct kvm_vcpu *vcpu,
+> struct vsie_page *vsie_page) return 0;
+>  }
+>  
+> +static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page
+> *vsie_page, u8 reg) +{
+> +	reg &= 0xf;
+> +	switch (reg) {
+> +	case 15:
+> +		return vsie_page->scb_s.gg15;
+> +	case 14:
+> +		return vsie_page->scb_s.gg14;
+> +	default:
+> +		return vcpu->run->s.regs.gprs[reg];
+> +	}
+> +}
+> +
+> +static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page
+> *vsie_page) +{
+> +	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+> +	unsigned long pei1, pei2, src, dest, mask = PAGE_MASK;
+> +	u64 *pei_block = &vsie_page->scb_o->mcic;
+> +	int edat, rc1, rc2;
+> +	union ctlreg0 cr0;
+> +
+> +	cr0.val = vcpu->arch.sie_block->gcr[0];
+> +	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+> +	if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_24BIT)
+> +		mask = 0xfff000;
+> +	else if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_31BIT)
+> +		mask = 0x7ffff000;
+> +
+> +	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16)
+> & mask;
+> +	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) &
+> mask; +
+> +	rc1 = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest,
+> &pei1);
+> +	rc2 = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src,
+> &pei2);
+> +	/*
+> +	 * Either everything went well, or something non-critical
+> went wrong
+> +	 * e.g. beause of a race. In either case, simply retry.
+> +	 */
+> +	if (rc1 == -EAGAIN || rc2 == -EAGAIN || (!rc1 && !rc2)) {
+> +		retry_vsie_icpt(vsie_page);
+> +		return -EAGAIN;
+> +	}
+> +	/* Something more serious went wrong, propagate the error */
+> +	if (rc1 < 0)
+> +		return rc1;
+> +	if (rc2 < 0)
+> +		return rc2;
+> +
+> +	/* The only possible suppressing exception: just deliver it
+> */
+> +	if (rc1 == PGM_TRANSLATION_SPEC || rc2 ==
+> PGM_TRANSLATION_SPEC) {
+> +		clear_vsie_icpt(vsie_page);
+> +		rc1 = kvm_s390_inject_program_int(vcpu,
+> PGM_TRANSLATION_SPEC);
+> +		WARN_ON_ONCE(rc1);
+> +		return 1;
+> +	}
+> +
+> +	/*
+> +	 * Forward the PEI intercept to the guest if it was a page
+> fault, or
+> +	 * also for segment and region table faults if EDAT applies.
+> +	 */
+> +	if (edat) {
+> +		rc1 = rc1 == PGM_ASCE_TYPE ? rc1 : 0;
+> +		rc2 = rc2 == PGM_ASCE_TYPE ? rc2 : 0;
+> +	}
 
-    usb: host: xhci: mvebu: make USB 3.0 PHY optional for Armada 3720
+I just noticed, this should actually be:
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+        if (edat) {
+                rc1 = rc1 == PGM_ASCE_TYPE ? rc1 : 0;
+                rc2 = rc2 == PGM_ASCE_TYPE ? rc2 : 0;
+        } else {
+                rc1 = rc1 != PGM_PAGE_TRANSLATION ? rc1 : 0;
+                rc2 = rc2 != PGM_PAGE_TRANSLATION ? rc2 : 0;
+        }
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+I'll fix it in the next version
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 3241929b67d28c83945d3191c6816a3271fd6b85 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Mon, 1 Feb 2021 16:08:03 +0100
-Subject: usb: host: xhci: mvebu: make USB 3.0 PHY optional for Armada 3720
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Older ATF does not provide SMC call for USB 3.0 phy power on functionality
-and therefore initialization of xhci-hcd is failing when older version of
-ATF is used. In this case phy_power_on() function returns -EOPNOTSUPP.
-
-[    3.108467] mvebu-a3700-comphy d0018300.phy: unsupported SMC call, try updating your firmware
-[    3.117250] phy phy-d0018300.phy.0: phy poweron failed --> -95
-[    3.123465] xhci-hcd: probe of d0058000.usb failed with error -95
-
-This patch introduces a new plat_setup callback for xhci platform drivers
-which is called prior calling usb_add_hcd() function. This function at its
-beginning skips PHY init if hcd->skip_phy_initialization is set.
-
-Current init_quirk callback for xhci platform drivers is called from
-xhci_plat_setup() function which is called after chip reset completes.
-It happens in the middle of the usb_add_hcd() function and therefore this
-callback cannot be used for setting if PHY init should be skipped or not.
-
-For Armada 3720 this patch introduce a new xhci_mvebu_a3700_plat_setup()
-function configured as a xhci platform plat_setup callback. This new
-function calls phy_power_on() and in case it returns -EOPNOTSUPP then
-XHCI_SKIP_PHY_INIT quirk is set to instruct xhci-plat to skip PHY
-initialization.
-
-This patch fixes above failure by ignoring 'not supported' error in
-xhci-hcd driver. In this case it is expected that phy is already power on.
-
-It fixes initialization of xhci-hcd on Espressobin boards where is older
-Marvell's Arm Trusted Firmware without SMC call for USB 3.0 phy power.
-
-This is regression introduced in commit bd3d25b07342 ("arm64: dts: marvell:
-armada-37xx: link USB hosts with their PHYs") where USB 3.0 phy was defined
-and therefore xhci-hcd on Espressobin with older ATF started failing.
-
-Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
-Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
-Cc: <stable@vger.kernel.org> # 5.1+: f768e718911e: usb: host: xhci-plat: add priv quirk for skip PHY initialization
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com> # On R-Car
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com> # xhci-plat
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20210201150803.7305-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-mvebu.c | 42 +++++++++++++++++++++++++++++++++++
- drivers/usb/host/xhci-mvebu.h |  6 +++++
- drivers/usb/host/xhci-plat.c  | 20 ++++++++++++++++-
- drivers/usb/host/xhci-plat.h  |  1 +
- 4 files changed, 68 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-mvebu.c b/drivers/usb/host/xhci-mvebu.c
-index 60651a50770f..8ca1a235d164 100644
---- a/drivers/usb/host/xhci-mvebu.c
-+++ b/drivers/usb/host/xhci-mvebu.c
-@@ -8,6 +8,7 @@
- #include <linux/mbus.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/phy/phy.h>
- 
- #include <linux/usb.h>
- #include <linux/usb/hcd.h>
-@@ -74,6 +75,47 @@ int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
- 	return 0;
- }
- 
-+int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd)
-+{
-+	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-+	struct device *dev = hcd->self.controller;
-+	struct phy *phy;
-+	int ret;
-+
-+	/* Old bindings miss the PHY handle */
-+	phy = of_phy_get(dev->of_node, "usb3-phy");
-+	if (IS_ERR(phy) && PTR_ERR(phy) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+	else if (IS_ERR(phy))
-+		goto phy_out;
-+
-+	ret = phy_init(phy);
-+	if (ret)
-+		goto phy_put;
-+
-+	ret = phy_set_mode(phy, PHY_MODE_USB_HOST_SS);
-+	if (ret)
-+		goto phy_exit;
-+
-+	ret = phy_power_on(phy);
-+	if (ret == -EOPNOTSUPP) {
-+		/* Skip initializatin of XHCI PHY when it is unsupported by firmware */
-+		dev_warn(dev, "PHY unsupported by firmware\n");
-+		xhci->quirks |= XHCI_SKIP_PHY_INIT;
-+	}
-+	if (ret)
-+		goto phy_exit;
-+
-+	phy_power_off(phy);
-+phy_exit:
-+	phy_exit(phy);
-+phy_put:
-+	of_phy_put(phy);
-+phy_out:
-+
-+	return 0;
-+}
-+
- int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd)
- {
- 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
-diff --git a/drivers/usb/host/xhci-mvebu.h b/drivers/usb/host/xhci-mvebu.h
-index 3be021793cc8..01bf3fcb3eca 100644
---- a/drivers/usb/host/xhci-mvebu.h
-+++ b/drivers/usb/host/xhci-mvebu.h
-@@ -12,6 +12,7 @@ struct usb_hcd;
- 
- #if IS_ENABLED(CONFIG_USB_XHCI_MVEBU)
- int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd);
-+int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd);
- int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd);
- #else
- static inline int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
-@@ -19,6 +20,11 @@ static inline int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
- 	return 0;
- }
- 
-+static inline int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd)
-+{
-+	return 0;
-+}
-+
- static inline int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd)
- {
- 	return 0;
-diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index 4d34f6005381..c1edcc9b13ce 100644
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -44,6 +44,16 @@ static void xhci_priv_plat_start(struct usb_hcd *hcd)
- 		priv->plat_start(hcd);
- }
- 
-+static int xhci_priv_plat_setup(struct usb_hcd *hcd)
-+{
-+	struct xhci_plat_priv *priv = hcd_to_xhci_priv(hcd);
-+
-+	if (!priv->plat_setup)
-+		return 0;
-+
-+	return priv->plat_setup(hcd);
-+}
-+
- static int xhci_priv_init_quirk(struct usb_hcd *hcd)
- {
- 	struct xhci_plat_priv *priv = hcd_to_xhci_priv(hcd);
-@@ -111,6 +121,7 @@ static const struct xhci_plat_priv xhci_plat_marvell_armada = {
- };
- 
- static const struct xhci_plat_priv xhci_plat_marvell_armada3700 = {
-+	.plat_setup = xhci_mvebu_a3700_plat_setup,
- 	.init_quirk = xhci_mvebu_a3700_init_quirk,
- };
- 
-@@ -330,7 +341,14 @@ static int xhci_plat_probe(struct platform_device *pdev)
- 
- 	hcd->tpl_support = of_usb_host_tpl_support(sysdev->of_node);
- 	xhci->shared_hcd->tpl_support = hcd->tpl_support;
--	if (priv && (priv->quirks & XHCI_SKIP_PHY_INIT))
-+
-+	if (priv) {
-+		ret = xhci_priv_plat_setup(hcd);
-+		if (ret)
-+			goto disable_usb_phy;
-+	}
-+
-+	if ((xhci->quirks & XHCI_SKIP_PHY_INIT) || (priv && (priv->quirks & XHCI_SKIP_PHY_INIT)))
- 		hcd->skip_phy_initialization = 1;
- 
- 	if (priv && (priv->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK))
-diff --git a/drivers/usb/host/xhci-plat.h b/drivers/usb/host/xhci-plat.h
-index 1fb149d1fbce..561d0b7bce09 100644
---- a/drivers/usb/host/xhci-plat.h
-+++ b/drivers/usb/host/xhci-plat.h
-@@ -13,6 +13,7 @@
- struct xhci_plat_priv {
- 	const char *firmware_name;
- 	unsigned long long quirks;
-+	int (*plat_setup)(struct usb_hcd *);
- 	void (*plat_start)(struct usb_hcd *);
- 	int (*init_quirk)(struct usb_hcd *);
- 	int (*suspend_quirk)(struct usb_hcd *);
--- 
-2.30.0
-
+> +	if ((!rc1 || rc1 == PGM_PAGE_TRANSLATION) && (!rc2 || rc2 ==
+> PGM_PAGE_TRANSLATION)) {
+> +		pei_block[0] = pei1;
+> +		pei_block[1] = pei2;
+> +		return 1;
+> +	}
+> +
+> +	retry_vsie_icpt(vsie_page);
+> +
+> +	/*
+> +	 * The host has edat, and the guest does not, or it was an
+> ASCE type
+> +	 * exception. The host needs to inject the appropriate DAT
+> interrupts
+> +	 * into the guest.
+> +	 */
+> +	if (rc1)
+> +		return inject_fault(vcpu, rc1, dest, 1);
+> +	if (rc2)
+> +		return inject_fault(vcpu, rc2, src, 0);
+> +
+> +	/* This should never be reached */
+> +	return 0;
+> +}
+> +
+>  /*
+>   * Run the vsie on a shadow scb and a shadow gmap, without any
+> further
+>   * sanity checks, handling SIE faults.
+> @@ -1068,6 +1148,10 @@ static int do_vsie_run(struct kvm_vcpu *vcpu,
+> struct vsie_page *vsie_page) if ((scb_s->ipa & 0xf000) != 0xf000)
+>  			scb_s->ipa += 0x1000;
+>  		break;
+> +	case ICPT_PARTEXEC:
+> +		if (scb_s->ipa == 0xb254)
+> +			rc = vsie_handle_mvpg(vcpu, vsie_page);
+> +		break;
+>  	}
+>  	return rc;
+>  }
 
