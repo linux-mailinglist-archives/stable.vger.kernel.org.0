@@ -2,120 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D621730D9D4
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 13:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24D730D9DF
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 13:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234395AbhBCMbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 07:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234508AbhBCMbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 07:31:42 -0500
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1351C061573
-        for <stable@vger.kernel.org>; Wed,  3 Feb 2021 04:31:01 -0800 (PST)
-Received: by mail-io1-xd35.google.com with SMTP id u20so10899644iot.9
-        for <stable@vger.kernel.org>; Wed, 03 Feb 2021 04:31:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=7YYFHaimUN1BMIpwAYU2USpJeCCQFRuO4lnSFSGgXbc=;
-        b=A2NyX2LtJn0HGC3nJHq4smoRlbLRkSl+v1NOjAf+TDVm8tHB9EqiIsC4Kw0kHNeLWx
-         ID1fobeSs5nrWTMtgXLJkG/MrTfWUB896tW5jfldtBspWQY0m6MBvfh2jZ1zzmiD8jzc
-         UvorfJS0BC74uZjv3LLS3Zs7gfKkMQG+ioNayi34lsS1NY6o54Sae8FDHO64sE4zYTdK
-         qEReYeUzTgMRYvDWLLRkLzkUQNtZvPq5ruo/dLPuzlNbMuFNPySqr1dvoGqBftPs1EmZ
-         Lu0prJAOufaGYVwzwns55NrcNOjjBrOiD8Sv0edFbuFmbJZ4rqd5praG51gkV0bnpldD
-         HNFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=7YYFHaimUN1BMIpwAYU2USpJeCCQFRuO4lnSFSGgXbc=;
-        b=ViEhPQW7KqB6Fdf8SS5CfGmeQsgwizvEZAfVvURHKBttwEOI7lNY3Ps2TQ+gVPtFtP
-         +Vj+W9aSh879cXK13/ACDV+5Ayz83XVdMazjIZqml2qEyUgwtLM2EC0FrTPnDENVJ7g+
-         YP9wyG+Gm+9plnjOi3NVWoT7pw4wq+bqAnCHsBkQUe6Np1N7IRNG6FOESBmcggbUKTyW
-         6gvwj1y6W69mbGwyjaDbcrCGzSJ1vsERwygDRjrrdOqhmQHLR1NLLd7w35/RgMOMgCoE
-         l0Qpb7/lpYlN6sO3cLpSdt2CInXdMHtWY4J+wkdkn6zrCe2Dhuc71qRN6osr9JQAIat2
-         Q+4w==
-X-Gm-Message-State: AOAM531ONxfZ2a2iFijcw2W1cr9RSApFKwTc4DIe9PCmR60Xa+eDfYvT
-        Kbi/+etsyhhqnakdBS0VS//V9htqVA0POPesc7w=
-X-Google-Smtp-Source: ABdhPJx6sW/xng+7dc2TRua77l7RAeSBmADLEW1xzL4dgUlhpxlmlSY2ZivQwrrpI0owX+QR02PWuVaA/BPVVe3i1vc=
-X-Received: by 2002:a05:6638:251:: with SMTP id w17mr2665978jaq.138.1612355461352;
- Wed, 03 Feb 2021 04:31:01 -0800 (PST)
+        id S229564AbhBCMij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 07:38:39 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:56555 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229519AbhBCMii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Feb 2021 07:38:38 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 149BB5C0234;
+        Wed,  3 Feb 2021 07:37:32 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 03 Feb 2021 07:37:32 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=2w+xN5vmdVOc7H4T1+khVBxtC+C
+        fGd9RIlIVm7qydsQ=; b=qH9D+Jj3CGre/ska8pG8g88D/DMtyz7VBNnAx1t4EU6
+        /aM0H1YxFXMytoQxRxllESUqwE03NOlwtvlyCfRD1cck3qnTc2TLWTRS95ZYfC9s
+        8YFmJkQrLr8StnkeCTMj9d5+FlAA+3jC/8+nKE1x/YKLxR9UJT0Rj0SLM4DIRhW8
+        oxKY7bdJ7U7ZycZbvzrUXyWFTwuVzGqnZ6awQriOcPhX3ZNsR5qr0d+P4wEGGO9H
+        qvQyI+hp8uyUzDCFOauzmEdBYZTDEsWRDS5ohT0QVT3hDbhNOHpqyyF0m86wMzWu
+        q4VOnlS4r9X7whVn8i5JE460WogeiHCas6D0vJkC5+g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2w+xN5
+        vmdVOc7H4T1+khVBxtC+CfGd9RIlIVm7qydsQ=; b=afIUouhbKq+OP/iOmkXJ8M
+        ZIleQxbogIiz+CeWDqe/pNEfBbU1k8TLv4WefNxcKF+gajSk+Rqhu6cqqOX8USxv
+        uDpUB7oKa4R+ic+cLVXaUKrt/Ix9APeHFiJx41D0seuDslwcd4EgOdm70jJOT0gn
+        TSFLVaSSXY42ZWrA5l3arWXx7RKqzmemryVmnWrrbpQpjbTiH1q4pcvGJwGynTaQ
+        0jz00urOjNhBDJR/1qeW8khJf+6AeBEHyBz4A6DHZoEc4TdbrdgVNVJe0a/7hJbh
+        ds9sVcZuD02+SBtSPfkwBLuQE2Tz1yayrLinHrLlD+iL85tVIJDQVfmxFTU6TB6Q
+        ==
+X-ME-Sender: <xms:C5kaYG9_w19K5IZJvOTRUSjS2xHvdzW3BRcUOhz_cQ3XWGyCMYs8Pw>
+    <xme:C5kaYGsYBW9JvewQOU1BSXHJ19_0SgsgYl2D56Ta2tGSMRuY4a3g8gwO1NNjeVfMA
+    RUolwbALEkvU-0-sA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgedvgdegudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomheptehnughrvghs
+    ucfhrhgvuhhnugcuoegrnhgurhgvshesrghnrghrrgiivghlrdguvgeqnecuggftrfgrth
+    htvghrnhepudekhfekleeugeevteehleffffejgeelueduleeffeeutdelffeujeffhfeu
+    ffdunecukfhppeeijedrudeitddrvddujedrvdehtdenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhgurhgvshesrghnrghrrgiivghlrdgu
+    vg
+X-ME-Proxy: <xmx:C5kaYMDfHx1dbO7MUuHfP_kVM4uz9X0EAvNOsLOlIdVJ4aX3QkxV4A>
+    <xmx:C5kaYOcwfBPUb5hjmXbZ-A-2gCTOwARKLS8iCG6Au1EZwk3kVGkrtg>
+    <xmx:C5kaYLMgCINsEnzVUayOMFUeE_p33j83GfQpT4aLFxgLiJTkrauczQ>
+    <xmx:DJkaYEoonRmoM1bolNQPjOmpgCyUok-6WgdpTvuSZpPQP8drbbemzA>
+Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 30004240062;
+        Wed,  3 Feb 2021 07:37:31 -0500 (EST)
+Date:   Wed, 3 Feb 2021 04:37:29 -0800
+From:   Andres Freund <andres@anarazel.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        io-uring@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4 103/142] Revert "block: end bio with BLK_STS_AGAIN in
+ case of non-mq devs and REQ_NOWAIT"
+Message-ID: <20210203123729.3pfsakawrkoh6qpu@alap3.anarazel.de>
+References: <20200601174037.904070960@linuxfoundation.org>
+ <20200601174048.647302799@linuxfoundation.org>
 MIME-Version: 1.0
-References: <CA+icZUVysDKMQxw4Fxp5SzBxau1Rpy7rra-a09TY-nzwgh54SQ@mail.gmail.com>
- <YBlONpmGoM0/qG7R@kroah.com> <CA+icZUXeK4_5A8YzkuQUcP9jhZKvYrCtWbcgToV-FDE+VY=BvQ@mail.gmail.com>
- <YBp1QM3HFjV4kTwM@kroah.com>
-In-Reply-To: <YBp1QM3HFjV4kTwM@kroah.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Wed, 3 Feb 2021 13:30:50 +0100
-Message-ID: <CA+icZUVKG8YnFfwBYmkKtvsf5zK6yPty2g_0wk2-h6XqRF=otA@mail.gmail.com>
-Subject: Re: [stable-5.10.y] Pick up "x86/entry: Remove put_ret_addr_in_rdi
- THUNK macro argument"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200601174048.647302799@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 3, 2021 at 11:04 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Hi,
+
+On 2020-06-01 19:54:21 +0200, Greg Kroah-Hartman wrote:
+> From: Jens Axboe <axboe@kernel.dk>
 >
-> On Wed, Feb 03, 2021 at 10:21:56AM +0100, Sedat Dilek wrote:
-> > On Tue, Feb 2, 2021 at 2:06 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Mon, Feb 01, 2021 at 08:50:52PM +0100, Sedat Dilek wrote:
-> > > > Hi,
-> > > >
-> > > > you have in Linux 5.10.13-rc1:
-> > > >
-> > > > "x86/entry: Emit a symbol for register restoring thunk"
-> > > >
-> > > > While that discussion Boris and Peter recommended to remove unused code via:
-> > > >
-> > > > "x86/entry: Remove put_ret_addr_in_rdi THUNK macro argument"
-> > > > ( upstream commit 0bab9cb2d980d7c075cffb9216155f7835237f98 )
-> > > >
-> > > > OK, this has no CC:stable but I have both as a series in my local Git
-> > > > and both were git-pulled from [1].
-> > > > What do you think?
-> > >
-> > > What bug is this fixing that requires this in 5.10?
-> > >
-> >
-> > Commit 0bab9cb2d980d7c075cffb9216155f7835237f98 removed unused logic.
-> >
-> > So-to-say:
-> > Fixes: 320100a5ffe5 ("x86/entry: Remove the TRACE_IRQS cruft")
-> >
-> > The commit was first introduced with Linux v5.8-rc1:
-> >
-> > $ git describe --contains 320100a5ffe5
-> > v5.8-rc1~21^2~28
-> >
-> > As Linux v5.10.y is an LTS IMHO I hoped it is worth removing unused code.
-> > You better know the rules for stable-linux, so I leave it to you, Greg.
+> [ Upstream commit b0beb28097fa04177b3769f4bb7a0d0d9c4ae76e ]
 >
-> The rules are listed here:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> This reverts commit c58c1f83436b501d45d4050fd1296d71a9760bcb.
 >
-> So please let me know what this patch fixes based on that and I will be
-> glad to merge it.
+> io_uring does do the right thing for this case, and we're still returning
+> -EAGAIN to userspace for the cases we don't support. Revert this change
+> to avoid doing endless spins of resubmits.
+>
+> Cc: stable@vger.kernel.org # v5.6
+> Reported-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  block/blk-core.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
 >
 
-[ CC Boris Peter & Nick ]
+This broke io_uring direct-io on ext4 over md.
 
-I looked at the rules.
-The mentioned patch looks like a nice "cleanup" to me.
-If you are strict with the rules... Let's hear the CCed folks.
+fallocate -l $((1024*1024*1024)) /srv/part1
+fallocate -l $((1024*1024*1024)) /srv/part2
+losetup -f /srv/part1
+losetup -f /srv/part2
+losetup -a # assuming these were loop0/1
+mdadm --create -n2 -l stripe  -N fast-striped /dev/md/fast-striped /dev/loop0 /dev/loop1
+mkfs.ext4 /dev/md/fast-striped
+mount /dev/md/fast-striped /mnt/t2
+fio --directory=/mnt/t2 --ioengine io_uring --rw write --filesize 1MB --overwrite=1 --name=test --direct=1 --bs=4k
 
-Thanks for your/the feedback (in advance).
+On v5.4.43-101-gbba91cdba612 this fails with
+fio: io_u error on file /mnt/t2/test.0.0: Input/output error: write offset=0, buflen=4096
+fio: pid=734, err=5/file:io_u.c:1834, func=io_u error, error=Input/output error
 
-- Sedat -
+whereas previously it worked. libaio still works...
+
+I haven't checked which major kernel version fixed this again, but I did
+verify that it's still broken in 5.4.94 and that 5.10.9 works.
+
+I would suspect it's
+
+commit 4503b7676a2e0abe69c2f2c0d8b03aec53f2f048
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   2020-06-01 10:00:27 -0600
+
+    io_uring: catch -EIO from buffered issue request failure
+
+    -EIO bubbles up like -EAGAIN if we fail to allocate a request at the
+    lower level. Play it safe and treat it like -EAGAIN in terms of sync
+    retry, to avoid passing back an errant -EIO.
+
+    Catch some of these early for block based file, as non-mq devices
+    generally do not support NOWAIT. That saves us some overhead by
+    not first trying, then retrying from async context. We can go straight
+    to async punt instead.
+
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+
+which isn't in stable/linux-5.4.y
+
+Greetings,
+
+Andres Freund
