@@ -2,66 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A6830E6A4
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5FE30E6A1
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:04:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbhBCXEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 18:04:30 -0500
-Received: from foss.arm.com ([217.140.110.172]:48370 "EHLO foss.arm.com"
+        id S233395AbhBCXED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 18:04:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233450AbhBCXE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 18:04:29 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 181B0D6E;
-        Wed,  3 Feb 2021 15:03:43 -0800 (PST)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 0CD643F694;
-        Wed,  3 Feb 2021 15:03:41 -0800 (PST)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     will@kernel.org, catalin.marinas@arm.com,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Subject: [PATCH] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
-Date:   Wed,  3 Feb 2021 23:00:57 +0000
-Message-Id: <20210203230057.3961239-1-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.24.1
+        id S232591AbhBCXD7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 18:03:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9796D64E3D;
+        Wed,  3 Feb 2021 23:03:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612393399;
+        bh=shTAkBeqUGEaf+SDn8KLZSZGHXYMRayYpnt99lxbqWo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=A2DlYp7Q1Bn2uRkG8lj1nA9Frnn8Qy+0wtNeG7o2XRjTp635CLhpcTE++z1dXeEPL
+         aqrzC1MkybQDpxWMIM2auv4De4RvSwn2YAAnj+e95BxAstKSM005SlUhPIZajvotcm
+         lk/A6OvZt/i15k653TgBvJpOMBDOVtrJb6HbbdXM=
+Date:   Thu, 4 Feb 2021 00:03:16 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/142] 5.10.13-rc1 review
+Message-ID: <YBsrtBMiCQuMdaOd@kroah.com>
+References: <20210202132957.692094111@linuxfoundation.org>
+ <20210202171844.GA7807@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210202171844.GA7807@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-we apply the work around for r0p0 - r1p0. Unfortunately this
-won't be fixed for the future revisions for the CPU. Thus
-extend the work around for all versions of A55, to cover
-for r2p0 and any future revisions.
+On Tue, Feb 02, 2021 at 06:18:44PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > This is the start of the stable review cycle for the 5.10.13 release.
+> > There are 142 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> CIP testing did not find any problems here:
+> 
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-5.10.y
+> 
+> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-Cc: stable@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
- arch/arm64/kernel/cpufeature.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for testing some of these and letting me know.
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index e99eddec0a46..db400ca77427 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1455,7 +1455,7 @@ static bool cpu_has_broken_dbm(void)
- 	/* List of CPUs which have broken DBM support. */
- 	static const struct midr_range cpus[] = {
- #ifdef CONFIG_ARM64_ERRATUM_1024718
--		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
- 		/* Kryo4xx Silver (rdpe => r1p0) */
- 		MIDR_REV(MIDR_QCOM_KRYO_4XX_SILVER, 0xd, 0xe),
- #endif
--- 
-2.24.1
-
+greg k-h
