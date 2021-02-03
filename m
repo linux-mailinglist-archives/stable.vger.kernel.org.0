@@ -2,60 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2243030D09A
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 02:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FB1530D09C
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 02:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229973AbhBCBFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Feb 2021 20:05:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33644 "EHLO mail.kernel.org"
+        id S229525AbhBCBFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Feb 2021 20:05:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229729AbhBCBFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Feb 2021 20:05:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B99B64F41;
-        Wed,  3 Feb 2021 01:04:22 +0000 (UTC)
+        id S229441AbhBCBFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Feb 2021 20:05:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA6564F50;
+        Wed,  3 Feb 2021 01:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612314262;
-        bh=fgFFuKT0AwsUtthU1lpDAzZcl66T+TN2PJgx6lqpLr0=;
+        s=k20201202; t=1612314307;
+        bh=bIDmI39SbvxywPKQvKWpiiXDWwvHe9jBvk1F6iVP8oY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pYE+zLib9EAgBh5g2gVEhrHWHsbB8Zot5kRQn2Ang9xEIjMs0vsXTScEx4Ed5ZhuR
-         kTYC3CahOfoidLHVGOnLYh/j1eXPn0PXRLSp852cmkMGF50FHup94A+wCqStvd+p2v
-         JICu4i+LYJxMnDeQhPG3PysRTMfTgwT0kM3BoSBCPUaT6RbuEkNaX4diozLnKWoOwb
-         ErMtBZFTdbhVvYdZan5q+HBeXecOdVXYjnZUazojPxPaQ5O0Ye22epKvjkysUcoSYA
-         LlOBKKAS8BileSjGWfKHDRfEhzfrNoZKWSK4TwCKWxnytB4HbxETHMcO+GaifHJTTB
-         KrMF7WzNqaENg==
-Date:   Tue, 2 Feb 2021 20:04:21 -0500
+        b=egAjbNvxrrcA5o6tlQgVqkkRJVZ/ixpjM8aNqywORp99it74OZX6f/P/yY1qk4MLn
+         bJrARjSMJrhE7tgrxXZ6FIUTkm79w/PV1BZaXx9/TBMq43MraIwgRjy0GH3DBbVLzl
+         NDNPY8WHU5DjeVTQnZ8L7OUjH5mARsQLuuRZ20ky5sw6xoulyylvhgZ4uZEbHHlyZx
+         i94xCwpteORA2rxy+b9ZotIrQr1A3IGmYat7yFb2dDQCJA6A8vH4s/uk2olB5ZNNfY
+         1R7Pmz6stVaJ86brV4UR2/JeHlAZ72T/04Rj0Is2zvHzQ9fD60WHDjNhXL88LXw8qL
+         5GZV7M7VZ06BA==
+Date:   Tue, 2 Feb 2021 20:05:06 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Collins <collinsd@codeaurora.org>
-Subject: Re: [PATCH AUTOSEL 5.10 02/25] regulator: core: avoid
- regulator_resolve_supply() race condition
-Message-ID: <20210203010421.GT4035784@sasha-vm>
-References: <20210202150615.1864175-1-sashal@kernel.org>
- <20210202150615.1864175-2-sashal@kernel.org>
- <20210202161243.GD5154@sirena.org.uk>
+        Quentin Perret <qperret@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 5.10 066/142] KVM: Documentation: Fix spec for
+ KVM_CAP_ENABLE_CAP_VM
+Message-ID: <20210203010506.GU4035784@sasha-vm>
+References: <20210202132957.692094111@linuxfoundation.org>
+ <20210202133000.449940320@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210202161243.GD5154@sirena.org.uk>
+In-Reply-To: <20210202133000.449940320@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 02, 2021 at 04:12:43PM +0000, Mark Brown wrote:
->On Tue, Feb 02, 2021 at 10:05:52AM -0500, Sasha Levin wrote:
->> From: David Collins <collinsd@codeaurora.org>
->>
->> [ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
->>
->> The final step in regulator_register() is to call
->> regulator_resolve_supply() for each registered regulator
->> (including the one in the process of being registered).  The
+On Tue, Feb 02, 2021 at 02:37:09PM +0100, Greg Kroah-Hartman wrote:
+>From: Quentin Perret <qperret@google.com>
 >
->This introduces a lockdep warning, there's a follow up commit if you
->want to backport it or it should be fine to just not backport either.
+>commit a10f373ad3c760dd40b41e2f69a800ee7b8da15e upstream.
+>
+>The documentation classifies KVM_ENABLE_CAP with KVM_CAP_ENABLE_CAP_VM
+>as a vcpu ioctl, which is incorrect. Fix it by specifying it as a VM
+>ioctl.
+>
+>Fixes: e5d83c74a580 ("kvm: make KVM_CAP_ENABLE_CAP_VM architecture agnostic")
+>Signed-off-by: Quentin Perret <qperret@google.com>
+>Message-Id: <20210108165349.747359-1-qperret@google.com>
+>Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+>---
+> Documentation/virt/kvm/api.rst |    2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>--- a/Documentation/virt/kvm/api.rst
+>+++ b/Documentation/virt/kvm/api.rst
+>@@ -1319,7 +1319,7 @@ documentation when it pops into existenc
+>
+> :Capability: KVM_CAP_ENABLE_CAP_VM
+> :Architectures: all
+>-:Type: vcpu ioctl
+>+:Type: vm ioctl
+> :Parameters: struct kvm_enable_cap (in)
+> :Returns: 0 on success; -1 on error
 
-Okay, I'll see if it made it next week before I queue it up. Thanks!
+Um, how did this patch made it in?
 
 -- 
 Thanks,
