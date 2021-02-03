@@ -2,119 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2693E30D8D1
-	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 12:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E3630D995
+	for <lists+stable@lfdr.de>; Wed,  3 Feb 2021 13:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234355AbhBCLha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 06:37:30 -0500
-Received: from mga11.intel.com ([192.55.52.93]:43917 "EHLO mga11.intel.com"
+        id S234478AbhBCMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 07:12:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234281AbhBCLh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 06:37:28 -0500
-IronPort-SDR: FYhC0aW4g8Ve07LaJERJQylAzfvM6ilTgsX8jQ3TUKALwXlwm3T1FuF00jGv5kOu5SYkJdjanA
- rEVxVsbKJ/Yw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9883"; a="177518915"
-X-IronPort-AV: E=Sophos;i="5.79,398,1602572400"; 
-   d="scan'208";a="177518915"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2021 03:35:42 -0800
-IronPort-SDR: z/8O5vonvBeFY2co8BN/lvOUHOqMjwf/ZXUBp0TWW7vU2v6scESPZduy1QiKwTmaP/G0XJsAqP
- hFYOvog8m7Dw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,398,1602572400"; 
-   d="scan'208";a="575866571"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga005.jf.intel.com with ESMTP; 03 Feb 2021 03:35:41 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org,
-        Andreas Hartmann <andihartmann@01019freenet.de>
-Subject: [PATCH 1/1] xhci: fix bounce buffer usage for non-sg list case
-Date:   Wed,  3 Feb 2021 13:37:02 +0200
-Message-Id: <20210203113702.436762-2-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210203113702.436762-1-mathias.nyman@linux.intel.com>
-References: <20210203113702.436762-1-mathias.nyman@linux.intel.com>
+        id S234394AbhBCMMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 07:12:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85D0F64F74;
+        Wed,  3 Feb 2021 12:11:58 +0000 (UTC)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     <stable@vger.kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH stable 5.4.x] arm64: Fix kernel address detection of __is_lm_address()
+Date:   Wed,  3 Feb 2021 12:11:56 +0000
+Message-Id: <20210203121156.29684-1-catalin.marinas@arm.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xhci driver may in some special cases need to copy small amounts
-of payload data to a bounce buffer in order to meet the boundary
-and alignment restrictions set by the xHCI specification.
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-In the majority of these cases the data is in a sg list, and
-driver incorrectly assumed data is always in urb->sg when using
-the bounce buffer.
+commit 519ea6f1c82fcdc9842908155ae379de47818778 upstream.
 
-If data instead is contiguous, and in urb->transfer_buffer, we may still
-need to bounce buffer a small part if data starts very close (less than
-packet size) to a 64k boundary.
+Currently, the __is_lm_address() check just masks out the top 12 bits
+of the address, but if they are 0, it still yields a true result.
+This has as a side effect that virt_addr_valid() returns true even for
+invalid virtual addresses (e.g. 0x0).
 
-Check if sg list is used before copying data to/from it.
+Fix the detection checking that it's actually a kernel address starting
+at PAGE_OFFSET.
 
-Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
-Cc: stable@vger.kernel.org
-Reported-by: Andreas Hartmann <andihartmann@01019freenet.de>
-Tested-by: Andreas Hartmann <andihartmann@01019freenet.de>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 68dd8ef32162 ("arm64: memory: Fix virt_addr_valid() using __is_lm_address()")
+Cc: <stable@vger.kernel.org> # 5.4.x
+Cc: Will Deacon <will@kernel.org>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://lore.kernel.org/r/20210126134056.45747-1-vincenzo.frascino@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
- drivers/usb/host/xhci-ring.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/memory.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index cf0c93a90200..89c3be9917f6 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -699,11 +699,16 @@ static void xhci_unmap_td_bounce_buffer(struct xhci_hcd *xhci,
- 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
- 			 DMA_FROM_DEVICE);
- 	/* for in tranfers we need to copy the data from bounce to sg */
--	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
--			     seg->bounce_len, seg->bounce_offs);
--	if (len != seg->bounce_len)
--		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %zu != %d\n",
--				len, seg->bounce_len);
-+	if (urb->num_sgs) {
-+		len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
-+					   seg->bounce_len, seg->bounce_offs);
-+		if (len != seg->bounce_len)
-+			xhci_warn(xhci, "WARN Wrong bounce buffer read length: %zu != %d\n",
-+				  len, seg->bounce_len);
-+	} else {
-+		memcpy(urb->transfer_buffer + seg->bounce_offs, seg->bounce_buf,
-+		       seg->bounce_len);
-+	}
- 	seg->bounce_len = 0;
- 	seg->bounce_offs = 0;
- }
-@@ -3277,12 +3282,16 @@ static int xhci_align_td(struct xhci_hcd *xhci, struct urb *urb, u32 enqd_len,
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index 51d867cf146c..a77a2ae864e3 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -247,11 +247,11 @@ static inline const void *__tag_set(const void *addr, u8 tag)
  
- 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
- 	if (usb_urb_dir_out(urb)) {
--		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
--				   seg->bounce_buf, new_buff_len, enqd_len);
--		if (len != new_buff_len)
--			xhci_warn(xhci,
--				"WARN Wrong bounce buffer write length: %zu != %d\n",
--				len, new_buff_len);
-+		if (urb->num_sgs) {
-+			len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
-+						 seg->bounce_buf, new_buff_len, enqd_len);
-+			if (len != new_buff_len)
-+				xhci_warn(xhci, "WARN Wrong bounce buffer write length: %zu != %d\n",
-+					  len, new_buff_len);
-+		} else {
-+			memcpy(seg->bounce_buf, urb->transfer_buffer + enqd_len, new_buff_len);
-+		}
-+
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
- 	} else {
--- 
-2.25.1
-
+ 
+ /*
+- * The linear kernel range starts at the bottom of the virtual address
+- * space. Testing the top bit for the start of the region is a
+- * sufficient check and avoids having to worry about the tag.
++ * Check whether an arbitrary address is within the linear map, which
++ * lives in the [PAGE_OFFSET, PAGE_END) interval at the bottom of the
++ * kernel's TTBR1 address range.
+  */
+-#define __is_lm_address(addr)	(!(((u64)addr) & BIT(vabits_actual - 1)))
++#define __is_lm_address(addr)	(((u64)(addr) ^ PAGE_OFFSET) < (PAGE_END - PAGE_OFFSET))
+ 
+ #define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
+ #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
