@@ -2,61 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A614A30E6A7
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2243130E6A8
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 00:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbhBCXEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Feb 2021 18:04:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
+        id S233342AbhBCXE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Feb 2021 18:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233541AbhBCXEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Feb 2021 18:04:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FE1B64E38;
-        Wed,  3 Feb 2021 23:03:58 +0000 (UTC)
+        id S233560AbhBCXEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Feb 2021 18:04:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6478464F68;
+        Wed,  3 Feb 2021 23:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612393439;
-        bh=+j96CcnNPqtxUEz9+6D2M/LizfXJWiujKz3lb2cnFY4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vGWBlVlIJNdhu1Ju9CdYY44qdcQs+NK84CWQejv58SfyU9aqIxwgOSVtB6raA/yKa
-         lRk/2wWg/vZ9O06eGJTCRVAoXkKWq+NAiODI8yVlkXx70U2X64Eyxa8VnO/dX5DgaY
-         xiiLqKVVEVHTQUU5FFx97XT+y4wmUb+BxDC2t+f4=
-Date:   Thu, 4 Feb 2021 00:03:56 +0100
+        s=korg; t=1612393447;
+        bh=WWjPeDoLHDAwjBsF3TnG/dNgeH5SxM2raGGml5uUtsc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lwaJrqqLzQKSgxRvrQ8wEEgYAR3AWoYVAEHuTg/ssSvnuRBrrPsr3allQ9sZ7C2cF
+         hJvI7R8y7OSvz1r7LLAdoH0bZ0nOHFOZONy/ru4Pjg0GB2fWxSmBhWTojZZ2d4bsEz
+         eF5pb6lNh1S/Oqhmsp2iISyhlblRoA2cM8B+1j+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/142] 5.10.13-rc1 review
-Message-ID: <YBsr3Dtk1HXNWpuX@kroah.com>
-References: <20210202132957.692094111@linuxfoundation.org>
- <20210203204258.GF106766@roeck-us.net>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.255
+Date:   Thu,  4 Feb 2021 00:04:04 +0100
+Message-Id: <1612393445215192@kroah.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210203204258.GF106766@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 03, 2021 at 12:42:58PM -0800, Guenter Roeck wrote:
-> On Tue, Feb 02, 2021 at 02:36:03PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.13 release.
-> > There are 142 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 04 Feb 2021 13:29:33 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 154 pass: 154 fail: 0
-> Qemu test results:
-> 	total: 427 pass: 427 fail: 0
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+I'm announcing the release of the 4.4.255 kernel.
 
-Thanks for testing them all and letting me know.
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
 
 greg k-h
+
+------------
+
+ Makefile                                    |    2 
+ arch/arm/mach-imx/suspend-imx6.S            |    1 
+ arch/x86/kvm/pmu_intel.c                    |    2 
+ drivers/acpi/device_sysfs.c                 |   20 -
+ drivers/infiniband/hw/cxgb4/qp.c            |    2 
+ drivers/iommu/dmar.c                        |   43 +-
+ drivers/net/can/dev.c                       |    2 
+ drivers/net/usb/qmi_wwan.c                  |    1 
+ drivers/net/wireless/mediatek/mt7601u/dma.c |    5 
+ fs/exec.c                                   |    2 
+ include/linux/compat.h                      |    2 
+ include/linux/futex.h                       |   44 +-
+ include/linux/intel-iommu.h                 |    2 
+ include/linux/sched.h                       |    9 
+ kernel/Makefile                             |    3 
+ kernel/exit.c                               |   25 -
+ kernel/fork.c                               |   40 --
+ kernel/futex.c                              |  446 +++++++++++++++++++++++++---
+ kernel/futex_compat.c                       |  201 ------------
+ net/mac80211/ieee80211_i.h                  |    1 
+ net/mac80211/iface.c                        |    6 
+ net/netfilter/nft_dynset.c                  |    4 
+ net/nfc/netlink.c                           |    1 
+ net/nfc/rawsock.c                           |    2 
+ net/wireless/wext-core.c                    |    5 
+ net/xfrm/xfrm_input.c                       |    2 
+ 26 files changed, 525 insertions(+), 348 deletions(-)
+
+Arnd Bergmann (1):
+      y2038: futex: Move compat implementation into futex.c
+
+Bartosz Golaszewski (1):
+      iommu/vt-d: Don't dereference iommu_device if IOMMU_API is not built
+
+Dan Carpenter (1):
+      can: dev: prevent potential information leak in can_fill_info()
+
+David Woodhouse (1):
+      iommu/vt-d: Gracefully handle DMAR units with no supported address widths
+
+Giacinto Cifelli (1):
+      net: usb: qmi_wwan: added support for Thales Cinterion PLSx3 modem family
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.255
+
+Johannes Berg (2):
+      wext: fix NULL-ptr-dereference with cfg80211's lack of commit()
+      mac80211: pause TX while changing interface type
+
+Kai-Heng Feng (1):
+      ACPI: sysfs: Prefer "compatible" modalias
+
+Kamal Heib (1):
+      RDMA/cxgb4: Fix the reported max_recv_sge value
+
+Like Xu (1):
+      KVM: x86/pmu: Fix HW_REF_CPU_CYCLES event pseudo-encoding in intel_arch_events[]
+
+Lorenzo Bianconi (2):
+      mt7601u: fix kernel crash unplugging the device
+      mt7601u: fix rx buffer refcounting
+
+Max Krummenacher (1):
+      ARM: imx: build suspend-imx6.S with arm instruction set
+
+Pablo Neira Ayuso (1):
+      netfilter: nft_dynset: add timeout extension to template
+
+Pan Bian (2):
+      NFC: fix resource leak when target index is invalid
+      NFC: fix possible resource leak
+
+Shmulik Ladkani (1):
+      xfrm: Fix oops in xfrm_replay_advance_bmp
+
+Thomas Gleixner (11):
+      futex: Move futex exit handling into futex code
+      futex: Replace PF_EXITPIDONE with a state
+      exit/exec: Seperate mm_release()
+      futex: Split futex_mm_release() for exit/exec
+      futex: Set task::futex_state to DEAD right after handling futex exit
+      futex: Mark the begin of futex exit explicitly
+      futex: Sanitize exit state handling
+      futex: Provide state handling for exec() as well
+      futex: Add mutex around futex exit
+      futex: Provide distinct return value when owner is exiting
+      futex: Prevent exit livelock
+
