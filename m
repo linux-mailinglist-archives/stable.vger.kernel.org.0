@@ -2,87 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B218B30FCC5
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 20:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F9A30FCCE
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 20:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237780AbhBDT2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 14:28:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33684 "EHLO
+        id S238253AbhBDT3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 14:29:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238268AbhBDT1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 14:27:20 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A2FC061786;
-        Thu,  4 Feb 2021 11:26:39 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id v15so4916485wrx.4;
-        Thu, 04 Feb 2021 11:26:39 -0800 (PST)
+        with ESMTP id S239794AbhBDT3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 14:29:03 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3771DC0613D6
+        for <stable@vger.kernel.org>; Thu,  4 Feb 2021 11:28:23 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id m12so2275158pjs.4
+        for <stable@vger.kernel.org>; Thu, 04 Feb 2021 11:28:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cx8Y4404roqqwEi7dq7r+CFsuSQ5L0MERlxrc4PpSAA=;
-        b=sj8BdzQeB3oe91efyDV7V4O3vqfmDsmd5TbdcPUhUCYC5FaKe6IWXfniSgaWDxlL24
-         PU8ppoCX8yR5ArJMbu6oUhg3trpSVnCJjikodrgKSPmeWinLpJweNd7Yy5t9FEJu+CQH
-         SeWn+RJFmTxyR28PO0xbjGMqFZIGvA46p+W23OypluW4v7tnphMxdhDC84vkR8E+Nbd5
-         1zI2ETnx9pRk4tSZnJaAxT9gzLlq1PB35R9JQSpjEL1uJej09Tv4kbggcXS/Jdd9dfUH
-         Uw21U5zCUSYi3Wre2UuVZDsoL/y980F0tqURpZsni68wJvYPQgow1oE4PNRK7g3AGhDw
-         MXXg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DdblqR/W0h/xLbgU2rNu2jM1CutYey8064JLhF8Ho3k=;
+        b=i+5h9GouCDrqeeUUACwWURR8OpkJBqKhEln7QSBVOoiMT6A5aSnnD5eeJ2EdJcNLoN
+         7gFoE0d0kONRjHbPoUlcX+wgXCjmDbMMkspcQqBF8nL+MxOVn//eEsAy46sGPtdCWW9E
+         4mBmQrAQanGMNjGmJI9/aotRfamSb8/ISzcfhzkVVct40KU1hFWbcHpS+ePRIvwb/6by
+         NOndMtnab0jjMlqF8DAqBLjhWhwUQnNQUJo2vzOulbyA73bpnwSTgUSuOdP+H4PWvJ3w
+         8bMJIDbpPql8U5mRp+COnid80ULy5VR1vbhn9AkW/XsAnkTi57zrzjJSnKOoo9M8IRlQ
+         bKBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cx8Y4404roqqwEi7dq7r+CFsuSQ5L0MERlxrc4PpSAA=;
-        b=RUoXWCmSCVdp174HPvNRtMjWtg5bDIJ2eKgR8c4VKa99DLqx4whqeewMxVevpw6DxG
-         209EYYYSsLu4VGEWw6wc2uRZaRWBgId/i5ZDO9JA5EW+Klm0VZX2Jo98Ig35ket21kUC
-         2KGKGAcG4wGDMh0ZOGLFL8XnX2Dvq8TKgx4RcUVGfARxWO8Bo4DO7yBxep0tRXJoW9pM
-         Xyf79K/Dxsv6gASKyAkL/GxPKoVHuzHMMYQNVYHhuwdLZGY8IgdmPgW8n6SO2jWX3oxW
-         Jf7NBU6CpErzWMFHrpT7OxQSJZBA8TCYekZTL1BkWLUUBPusRijFCXyneBh878TVupAI
-         BfwA==
-X-Gm-Message-State: AOAM530aQpEjGzRB4If3WjX8UKy8HX9UhT5Sq5tKVOGpuieKnoiDkwSm
-        OsagKjBQUZ6cfAhR9tZG6kY=
-X-Google-Smtp-Source: ABdhPJyj5Rfttx/XuqmhSV37Qj3ARSb8HEM23yKbZNxwvyhv9YeE7Ab8Z1vjkv769t9d2ajb/BxtoA==
-X-Received: by 2002:adf:d085:: with SMTP id y5mr991575wrh.41.1612466798258;
-        Thu, 04 Feb 2021 11:26:38 -0800 (PST)
-Received: from localhost.localdomain ([148.252.133.145])
-        by smtp.gmail.com with ESMTPSA id r15sm9547175wrj.61.2021.02.04.11.26.36
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DdblqR/W0h/xLbgU2rNu2jM1CutYey8064JLhF8Ho3k=;
+        b=eC0P88xD5TiRUxfi7NOdv7YETZoyuhORFNgVHd97AWURCxA/4oZFEg5raiILNv7/Pe
+         rIvdrOHWzRo4qwa+FlExoOiU0cJWHkQo+aWHhGFDzGmSbVoemI/AlfHET2aFaoIJK2D2
+         ObJ50Q2Tb8dnWqSGC3XTnQWcF+DU2mmBDtvYiJzkin2wtlxBc1SzuJ/RCzWbK4FdmxP1
+         VM3z+8e4cwJ0Ygjgyf0evl0NixMR/v7jihIg9sKRcnXaNjhPSJ1zs48YqI6Dn6m8Rek6
+         F9UdPgmKjU5nLYXmKuhJwbd0KC/gyc3v6ZWCHeLJgeKQ1lzLKsHRRMFvjZ4+q1+pyAl7
+         ESoQ==
+X-Gm-Message-State: AOAM533aejIXYMSZWiBQf+N0LBKi1gizt7SdR3BIiUaUIzmNRnYpPu20
+        gHQxV2MymO4rww+vs2Vw77a8ZOBox45Pfaqd
+X-Google-Smtp-Source: ABdhPJyHEwt9TOX80TxFPOCkhAjsDW0RHZPk4Pd9Nd7Kmmqf8cQIji/icDH1WiAneNTeDtFDS4cCuA==
+X-Received: by 2002:a17:90a:fa2:: with SMTP id 31mr471751pjz.57.1612466902456;
+        Thu, 04 Feb 2021 11:28:22 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f3sm6231189pfe.25.2021.02.04.11.28.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Feb 2021 11:26:37 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] io_uring: drop mm/files between task_work_submit
-Date:   Thu,  4 Feb 2021 19:22:46 +0000
-Message-Id: <741fe19ee895393f54d01b8f7d25242e7fa27120.1612466514.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        Thu, 04 Feb 2021 11:28:21 -0800 (PST)
+Message-ID: <601c4ad5.1c69fb81.e5306.d943@mx.google.com>
+Date:   Thu, 04 Feb 2021 11:28:21 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.255
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y baseline: 64 runs, 2 regressions (v4.4.255)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since SQPOLL task can be shared and so task_work entries can be a mix of
-them, we need to drop mm and files before trying to issue next request.
+stable-rc/linux-4.4.y baseline: 64 runs, 2 regressions (v4.4.255)
 
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 +++
- 1 file changed, 3 insertions(+)
+Regressions Summary
+-------------------
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5d3348d66f06..1f68105a41ed 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2205,6 +2205,9 @@ static void __io_req_task_submit(struct io_kiocb *req)
- 	else
- 		__io_req_task_cancel(req, -EFAULT);
- 	mutex_unlock(&ctx->uring_lock);
-+
-+	if (ctx->flags & IORING_SETUP_SQPOLL)
-+		io_sq_thread_drop_mm_files();
- }
- 
- static void io_req_task_submit(struct callback_head *cb)
--- 
-2.24.0
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
 
+qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.255/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.255
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2f9c581dbde4e48aa0c002ddf3892d6bcd89c1a2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/601b5d1e0d806f83e93abe6d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.255=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.255=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601b5d1e0d806f83e93ab=
+e6e
+        new failure (last pass: v4.4.254-29-g9c98a187325d) =
+
+ =
+
+
+
+platform         | arch   | lab          | compiler | defconfig        | re=
+gressions
+-----------------+--------+--------------+----------+------------------+---=
+---------
+qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/601b5d08e3da5d83d53abe67
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.255=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.255=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601b5d08e3da5d83d53ab=
+e68
+        failing since 1 day (last pass: v4.4.254-21-ga0b92ce8371e, first fa=
+il: v4.4.254-29-g9c98a187325d) =
+
+ =20
