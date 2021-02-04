@@ -2,96 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6F730F87E
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 17:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 952B030F882
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 17:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238135AbhBDQuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 11:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238118AbhBDQsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Feb 2021 11:48:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFECC64DA3;
-        Thu,  4 Feb 2021 16:48:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612457293;
-        bh=XFs0VAuDxw0PgpvNH4+/XNKhcukc6dJkT0donvjsDTU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dvEQU7mD+yC4zlV1QyQpO5Xfg/BZT8mIXuk35br3aM/07obutBF6xlhhreIOcOsbg
-         DxooHzE7Wl3KjQNCA6/bUMUfwJ9JTP/bHOkOc28izycBGDNVto+Qdbl9qzVyblD4bZ
-         wuq+av0rOpALgXYkrhGZTETw/EJXSVplEYLyFuXE=
-Date:   Thu, 4 Feb 2021 17:48:10 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     'Jiri Slaby' <jirislaby@kernel.org>,
-        Jari Ruusu <jariruusu@protonmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "masahiroy@kernel.org" <masahiroy@kernel.org>
-Subject: Re: Kernel version numbers after 4.9.255 and 4.4.255
-Message-ID: <YBwlSi85/IA5HytP@kroah.com>
-References: <7pR0YCctzN9phpuEChlL7_SS6auHOM80bZBcGBTZPuMkc6XjKw7HUXf9vZUPi-IaV2gTtsRVXgywQbja8xpzjGRDGWJsVYSGQN5sNuX1yaQ=@protonmail.com>
- <YBuSJqIG+AeqDuMl@kroah.com>
- <78ada91b-21ee-563f-9f75-3cbaeffafad4@kernel.org>
- <YBu1d0+nfbWGfMtj@kroah.com>
- <a85b7749-38b2-8ce9-c15a-8acb9a54c5b5@kernel.org>
- <b17b4c3b2e4b45f9b10206b276b7d831@AcuMS.aculab.com>
+        id S237425AbhBDQu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 11:50:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56176 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237852AbhBDQuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 11:50:35 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FB7C0613D6
+        for <stable@vger.kernel.org>; Thu,  4 Feb 2021 08:49:55 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id c4so4285476wru.9
+        for <stable@vger.kernel.org>; Thu, 04 Feb 2021 08:49:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=19AJMKszImxESo3RQ6pat0tNPa9/UwGG5RZlLeu6jsc=;
+        b=hE9WgxQySzRdzFHTn3xWtAHlx3FtJXWdDveKQTHQjVRWKpG7g5pIm0snPNgjrMPgRw
+         q7BYFO1XdHyZKjsAu6RCy1acKAkQCEZRlu5Q6fe5dMABogpt06ZPy7uFYpCbmK8l9qym
+         iavJ0tuRHgetImk8cTOBh7i0+6XeFNB8QzP7iFI7uNmDrp9MSFOOcgmoxcVAAkoXlKQe
+         w3qhSQSDW3IQKomZsPGEWNDt6IL/+yiyICRcISiVcb/2qw5DP1auIuPSt0lLxN7Vp060
+         U+Vo44N+vWCTMX66FgZXDKHq1pKb5bOOWF7HGRrPzxJpadOBfFqTU9gWBVEeqOdbTgzx
+         hksQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=19AJMKszImxESo3RQ6pat0tNPa9/UwGG5RZlLeu6jsc=;
+        b=JIP9PP95hGI5F5X5P7x1ANL2atoEkdqQ+QFkQUdjJheJs9+lC/XuOwWpDtXoqog7qR
+         uxRBT7xRo5Zj9OkQK5+akHBKeoPAxIFADIvtXyS/4bdB/SPEEzIQbu8OxfNGO2EEUx7t
+         A6wFVCKOti1nTF1Br4HEyoy1ZRNnNzL+oD45T8Id+S/WnWXVvEt2NFmmwJAbucNnSz3C
+         96NASjSQsV7aW6H14Z91tfVvscaoWJ0rYFbeD/msMFK+UAiatBFTypNFMCekqYm6ExVp
+         K/QeGfk1ND2OCmW6Zki+wXcla7ZJ0+li4QhowL/A6XUS3UbQiRHecU2+v/GLyQYCYUN2
+         Afxw==
+X-Gm-Message-State: AOAM5300BVg4N8xto+DYugqqNgWh2xd/NLkc6l7hLQyZcKaEFTGpatyu
+        zQCoABP1NMXAm+qR/PLp6qyaCgPpnAJJ/g==
+X-Google-Smtp-Source: ABdhPJwdPpinzsv8Khp9LM5TsAZcnIUuKSKjve05+3yQiu5cvUayS0VTvJlnQaASKXlWwKpdACkWQw==
+X-Received: by 2002:a5d:6c66:: with SMTP id r6mr271274wrz.86.1612457394282;
+        Thu, 04 Feb 2021 08:49:54 -0800 (PST)
+Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
+        by smtp.gmail.com with ESMTPSA id k4sm9570869wrm.53.2021.02.04.08.49.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Feb 2021 08:49:53 -0800 (PST)
+Date:   Thu, 4 Feb 2021 16:49:52 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     Thinh.Nguyen@synopsys.com, balbi@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] usb: udc: core: Use lock when write to
+ soft_connect" failed to apply to 4.4-stable tree
+Message-ID: <YBwlsCtNI9Nyuwq6@debian>
+References: <1611584391127172@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="aLeQ47nG7p8wRn2V"
 Content-Disposition: inline
-In-Reply-To: <b17b4c3b2e4b45f9b10206b276b7d831@AcuMS.aculab.com>
+In-Reply-To: <1611584391127172@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 04, 2021 at 04:28:19PM +0000, David Laight wrote:
-> From: Jiri Slaby
-> > Sent: 04 February 2021 11:01
-> > 
-> > On 04. 02. 21, 9:51, Greg Kroah-Hartman wrote:
-> > >> It might work somewhere, but there are a lot of (X * 65536 + Y * 256 + Z)
-> > >> assumptions all around the world. So this doesn't look like a good idea.
-> > >
-> > > Ok, so what happens if we "wrap"?  What will break with that?  At first
-> > > glance, I can't see anything as we keep the padding the same, and our
-> > > build scripts seem to pick the number up from the Makefile and treat it
-> > > like a string.
-> > >
-> > > It's only the crazy out-of-tree kernel stuff that wants to do minor
-> > > version checks that might go boom.  And frankly, I'm not all that
-> > > concerned if they have problems :)
-> > 
-> > Agreed. But currently, sublevel won't "wrap", it will "overflow" to
-> > patchlevel. And that might be a problem. So we might need to update the
-> > header generation using e.g. "sublevel & 0xff" (wrap around) or
-> > "sublevel > 255 : 255 : sublevel" (be monotonic and get stuck at 255).
-> > 
-> > In both LINUX_VERSION_CODE generation and KERNEL_VERSION proper.
+
+--aLeQ47nG7p8wRn2V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Mon, Jan 25, 2021 at 03:19:51PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> A full wrap might catch checks for less than (say) 4.4.2 which
-> might be present to avoid very early versions.
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Who does that?
+Here is the backport.
 
-> So sticking at 255 or wrapping onto (say) 128 to 255 might be better.
+--
+Regards
+Sudip
 
-Better how?
+--aLeQ47nG7p8wRn2V
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-usb-udc-core-Use-lock-when-write-to-soft_connect.patch"
 
-> I'm actually intrigued about how often you expect people to update
-> systems running these LTS kernels.
+From a2a1a8f2013e91b11f3db55d65b6c1ce3d51bf98 Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 14 Jan 2021 00:09:51 -0800
+Subject: [PATCH] usb: udc: core: Use lock when write to soft_connect
 
-Whenever they can, and should.
+commit c28095bc99073ddda65e4f31f6ae0d908d4d5cd8 upstream
 
-> At a release every week it takes 5 years to run out of sublevels.
-> No one is going to reboot a server anywhere near that often.
+Use lock to guard against concurrent access for soft-connect/disconnect
+operations when writing to soft_connect sysfs.
 
-Why not?
+Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
+Cc: stable@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: manual backporting to old file]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/gadget/udc/udc-core.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-Usually kernels this old are stuck in legacy embedded systems, like last
-year's new phone models :)
+diff --git a/drivers/usb/gadget/udc/udc-core.c b/drivers/usb/gadget/udc/udc-core.c
+index a6a1678cb927..c6859fdd74bc 100644
+--- a/drivers/usb/gadget/udc/udc-core.c
++++ b/drivers/usb/gadget/udc/udc-core.c
+@@ -612,10 +612,13 @@ static ssize_t usb_udc_softconn_store(struct device *dev,
+ 		struct device_attribute *attr, const char *buf, size_t n)
+ {
+ 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
++	ssize_t			ret;
+ 
++	mutex_lock(&udc_lock);
+ 	if (!udc->driver) {
+ 		dev_err(dev, "soft-connect without a gadget driver\n");
+-		return -EOPNOTSUPP;
++		ret = -EOPNOTSUPP;
++		goto out;
+ 	}
+ 
+ 	if (sysfs_streq(buf, "connect")) {
+@@ -627,10 +630,14 @@ static ssize_t usb_udc_softconn_store(struct device *dev,
+ 		usb_gadget_udc_stop(udc);
+ 	} else {
+ 		dev_err(dev, "unsupported command '%s'\n", buf);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 
+-	return n;
++	ret = n;
++out:
++	mutex_unlock(&udc_lock);
++	return ret;
+ }
+ static DEVICE_ATTR(soft_connect, S_IWUSR, NULL, usb_udc_softconn_store);
+ 
+-- 
+2.29.2
 
-thanks,
 
-greg k-h
+--aLeQ47nG7p8wRn2V--
