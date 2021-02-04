@@ -2,181 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21F930F24B
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 12:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA6D30F333
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 13:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235890AbhBDLeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 06:34:22 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9862 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235884AbhBDLcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 06:32:13 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 114B67Ol026397;
-        Thu, 4 Feb 2021 06:31:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : date : message-id : mime-version : content-type :
- content-transfer-encoding; s=pp1;
- bh=iw3r13OE9yJxvplZfDM3/nYSRoGUFrYF6yJBrHnpjOc=;
- b=aSmSdG40k5AfQO99BiBnFaXr6FTeCKwNn+6hj41z9wUl+I4ij/MhkZHO2HsVZJQT+auT
- V4bKYTHBl9pLTFojKbTvYO8+coeNthBwwdvWZEUGYtlrC8b5EIkygB5et0FZ55Zatkzk
- K9blpCMAbWwRBEbENrV7zwq4a3l05JljTREhlvHIKPUuxX+Q4q5d/abKgo2M7RdX5QPk
- xSJzyPwCX1UJlEJS6zJ5/xNP1qPwnCJbJ2tcX0IMP9wh6wNL35BdW/NKpAChqlICb5tf
- Tf4YXsRiA9yu/DnKoZXxL5+7yS9dsTvBRggmG+Ub3NUVN+VWJY7a7eJ2wQXAM222kQAA 4g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36gfdjs72c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Feb 2021 06:31:27 -0500
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 114B6NMu028115;
-        Thu, 4 Feb 2021 06:31:27 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36gfdjs71q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Feb 2021 06:31:27 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 114BQnqK011541;
-        Thu, 4 Feb 2021 11:31:24 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 36evvf2ex6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Feb 2021 11:31:24 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 114BVMiF42598788
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 4 Feb 2021 11:31:22 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 09240A4040;
-        Thu,  4 Feb 2021 11:31:22 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 170DAA4053;
-        Thu,  4 Feb 2021 11:31:18 +0000 (GMT)
-Received: from [192.168.0.9] (unknown [9.211.144.177])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  4 Feb 2021 11:31:17 +0000 (GMT)
-Subject: [PATCH] powerpc/kexec_file: fix FDT size estimation for kdump kernel
-From:   Hari Bathini <hbathini@linux.ibm.com>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     stable@vger.kernel.org, linuxppc-dev <linuxppc-dev@ozlabs.org>,
-        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
-        Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Dave Young <dyoung@redhat.com>,
-        Petr Tesarik <ptesarik@suse.cz>, Pingfan Liu <piliu@redhat.com>
-Date:   Thu, 04 Feb 2021 17:01:10 +0530
-Message-ID: <161243826811.119001.14083048209224609814.stgit@hbathini>
-User-Agent: StGit/0.21
+        id S235819AbhBDMdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 07:33:03 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40672 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235804AbhBDMdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 07:33:02 -0500
+Date:   Thu, 4 Feb 2021 13:32:18 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1612441940;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=cKrlLs3ADovv4nz5prka1e97beuHdhfAomQxlFw7gyE=;
+        b=tQf79ZOmQKiXTIAge7IuppeoObp9xzF64TZw+IkMMnCVteRL9kXaqABzx5i+eDFBHnYvDr
+        WuQRwvNPUGvw3lbC4maWgBdE9y+oOwbivf4HR5HuUzxGfOXhipmK3lmcDWbLYlUaNMCzF7
+        SPmF1oU2pIloKox9PHmSAdfRdjMpxtUZbpD3CNYlvHR/s3F5Oqo7fWzyrHxFXYU5g7sO2u
+        irM9mOtMR+TOTPYkBL3ydZ1ShnljylHDckcJ4ehFNGk/SHkQCLGvUENGtdbvXj0EmqOqnI
+        YQzhdNPGfkCppyPvYe4A23ctOMFUg62Q/SZ/EPmBiCazhgfMN0BsnF1xcYzrRw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1612441940;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=cKrlLs3ADovv4nz5prka1e97beuHdhfAomQxlFw7gyE=;
+        b=bHEJVyxFR716hENMWV3fUX83V/eqo2sH8Bkd9q5/0e2fx1uIEItPHOgMwvTomVpfizlFDA
+        Ohafp0EddoDWsaAQ==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     stable@vger.kernel.org
+Cc:     rafael.j.wysocki@intel.com, stephen.berman@gmx.net
+Subject: [PATCH] ACPI: thermal: Do not call  acpi_thermal_check() directly
+Message-ID: <20210204123218.xrmfwekiacgzpirj@linutronix.de>
+References: <161202010810462@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-04_05:2021-02-04,2021-02-04 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- mlxscore=0 spamscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102040065
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <161202010810462@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On systems with large amount of memory, loading kdump kernel through
-kexec_file_load syscall may fail with the below error:
+Upstream commit 81b704d3e4674e09781d331df73d76675d5ad8cb
 
-    "Failed to update fdt with linux,drconf-usable-memory property"
+Applies to 5.4-stable tree                     
+Applies to 4.19-stable tree
+Applies to 4.14-stable tree
 
-This happens because the size estimation for kdump kernel's FDT does
-not account for the additional space needed to setup usable memory
-properties. Fix it by accounting for the space needed to include
-linux,usable-memory & linux,drconf-usable-memory properties while
-estimating kdump kernel's FDT size.
+----------->8---------------
 
-Fixes: 6ecd0163d360 ("powerpc/kexec_file: Add appropriate regions for memory reserve map")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Thu, 14 Jan 2021 19:34:22 +0100
+Subject: [PATCH] ACPI: thermal: Do not call acpi_thermal_check() directly
+
+Calling acpi_thermal_check() from acpi_thermal_notify() directly
+is problematic if _TMP triggers Notify () on the thermal zone for
+which it has been evaluated (which happens on some systems), because
+it causes a new acpi_thermal_notify() invocation to be queued up
+every time and if that takes place too often, an indefinite number of
+pending work items may accumulate in kacpi_notify_wq over time.
+
+Besides, it is not really useful to queue up a new invocation of
+acpi_thermal_check() if one of them is pending already.
+
+For these reasons, rework acpi_thermal_notify() to queue up a thermal
+check instead of calling acpi_thermal_check() directly and only allow
+one thermal check to be pending at a time.  Moreover, only allow one
+acpi_thermal_check_fn() instance at a time to run
+thermal_zone_device_update() for one thermal zone and make it return
+early if it sees other instances running for the same thermal zone.
+
+While at it, fold acpi_thermal_check() into acpi_thermal_check_fn(),
+as it is only called from there after the other changes made here.
+
+[This issue appears to have been exposed by commit 6d25be5782e4
+ ("sched/core, workqueues: Distangle worker accounting from rq
+ lock"), but it is unclear why it was not visible earlier.]
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208877
+Reported-by: Stephen Berman <stephen.berman@gmx.net>
+Diagnosed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Tested-by: Stephen Berman <stephen.berman@gmx.net>
+Cc: All applicable <stable@vger.kernel.org>
+[bigeasy: Backported to v5.4.y]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- arch/powerpc/include/asm/kexec.h  |    1 +
- arch/powerpc/kexec/elf_64.c       |    2 +-
- arch/powerpc/kexec/file_load_64.c |   34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 36 insertions(+), 1 deletion(-)
+ drivers/acpi/thermal.c | 55 +++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 17 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/kexec.h b/arch/powerpc/include/asm/kexec.h
-index 55d6ede30c19..9ab344d29a54 100644
---- a/arch/powerpc/include/asm/kexec.h
-+++ b/arch/powerpc/include/asm/kexec.h
-@@ -136,6 +136,7 @@ int load_crashdump_segments_ppc64(struct kimage *image,
- int setup_purgatory_ppc64(struct kimage *image, const void *slave_code,
- 			  const void *fdt, unsigned long kernel_load_addr,
- 			  unsigned long fdt_load_addr);
-+unsigned int kexec_fdt_totalsize_ppc64(struct kimage *image);
- int setup_new_fdt_ppc64(const struct kimage *image, void *fdt,
- 			unsigned long initrd_load_addr,
- 			unsigned long initrd_len, const char *cmdline);
-diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-index d0e459bb2f05..9842e33533df 100644
---- a/arch/powerpc/kexec/elf_64.c
-+++ b/arch/powerpc/kexec/elf_64.c
-@@ -102,7 +102,7 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
- 		pr_debug("Loaded initrd at 0x%lx\n", initrd_load_addr);
- 	}
+diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+index d831a61e0010e..383c7029d3cee 100644
+--- a/drivers/acpi/thermal.c
++++ b/drivers/acpi/thermal.c
+@@ -174,6 +174,8 @@ struct acpi_thermal {
+ 	int tz_enabled;
+ 	int kelvin_offset;
+ 	struct work_struct thermal_check_work;
++	struct mutex thermal_check_lock;
++	refcount_t thermal_check_count;
+ };
  
--	fdt_size = fdt_totalsize(initial_boot_params) * 2;
-+	fdt_size = kexec_fdt_totalsize_ppc64(image);
- 	fdt = kmalloc(fdt_size, GFP_KERNEL);
- 	if (!fdt) {
- 		pr_err("Not enough memory for the device tree.\n");
-diff --git a/arch/powerpc/kexec/file_load_64.c b/arch/powerpc/kexec/file_load_64.c
-index c69bcf9b547a..67fa7bfcfa30 100644
---- a/arch/powerpc/kexec/file_load_64.c
-+++ b/arch/powerpc/kexec/file_load_64.c
-@@ -21,6 +21,7 @@
- #include <linux/memblock.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
-+#include <asm/setup.h>
- #include <asm/drmem.h>
- #include <asm/kexec_ranges.h>
- #include <asm/crashdump-ppc64.h>
-@@ -925,6 +926,39 @@ int setup_purgatory_ppc64(struct kimage *image, const void *slave_code,
- 	return ret;
+ /* --------------------------------------------------------------------------
+@@ -494,17 +496,6 @@ static int acpi_thermal_get_trip_points(struct acpi_thermal *tz)
+ 	return 0;
  }
  
-+/**
-+ * kexec_fdt_totalsize_ppc64 - Return the estimated size needed to setup FDT
-+ *                             for kexec/kdump kernel.
-+ * @image:                     kexec image being loaded.
-+ *
-+ * Returns the estimated size needed for kexec/kdump kernel FDT.
-+ */
-+unsigned int kexec_fdt_totalsize_ppc64(struct kimage *image)
+-static void acpi_thermal_check(void *data)
+-{
+-	struct acpi_thermal *tz = data;
+-
+-	if (!tz->tz_enabled)
+-		return;
+-
+-	thermal_zone_device_update(tz->thermal_zone,
+-				   THERMAL_EVENT_UNSPECIFIED);
+-}
+-
+ /* sys I/F for generic thermal sysfs support */
+ 
+ static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
+@@ -538,6 +529,8 @@ static int thermal_get_mode(struct thermal_zone_device *thermal,
+ 	return 0;
+ }
+ 
++static void acpi_thermal_check_fn(struct work_struct *work);
++
+ static int thermal_set_mode(struct thermal_zone_device *thermal,
+ 				enum thermal_device_mode mode)
+ {
+@@ -563,7 +556,7 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+ 			"%s kernel ACPI thermal control\n",
+ 			tz->tz_enabled ? "Enable" : "Disable"));
+-		acpi_thermal_check(tz);
++		acpi_thermal_check_fn(&tz->thermal_check_work);
+ 	}
+ 	return 0;
+ }
+@@ -932,6 +925,12 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
+                                  Driver Interface
+    -------------------------------------------------------------------------- */
+ 
++static void acpi_queue_thermal_check(struct acpi_thermal *tz)
 +{
-+	unsigned int fdt_size;
-+	uint64_t usm_entries;
-+
-+	/*
-+	 * The below estimate more than accounts for a typical kexec case where
-+	 * the additional space is to accommodate things like kexec cmdline,
-+	 * chosen node with properties for initrd start & end addresses and
-+	 * a property to indicate kexec boot..
-+	 */
-+	fdt_size = fdt_totalsize(initial_boot_params) + (2 * COMMAND_LINE_SIZE);
-+	if (image->type != KEXEC_TYPE_CRASH)
-+		return fdt_size;
-+
-+	/*
-+	 * For kdump kernel, also account for linux,usable-memory and
-+	 * linux,drconf-usable-memory properties. Get an approximate on the
-+	 * number of usable memory entries and use for FDT size estimation.
-+	 */
-+	usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
-+		       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
-+	fdt_size += (unsigned int)(usm_entries * sizeof(uint64_t));
-+	return fdt_size;
++	if (!work_pending(&tz->thermal_check_work))
++		queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
 +}
 +
- /**
-  * setup_new_fdt_ppc64 - Update the flattend device-tree of the kernel
-  *                       being loaded.
-
+ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
+ {
+ 	struct acpi_thermal *tz = acpi_driver_data(device);
+@@ -942,17 +941,17 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
+ 
+ 	switch (event) {
+ 	case ACPI_THERMAL_NOTIFY_TEMPERATURE:
+-		acpi_thermal_check(tz);
++		acpi_queue_thermal_check(tz);
+ 		break;
+ 	case ACPI_THERMAL_NOTIFY_THRESHOLDS:
+ 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_THRESHOLDS);
+-		acpi_thermal_check(tz);
++		acpi_queue_thermal_check(tz);
+ 		acpi_bus_generate_netlink_event(device->pnp.device_class,
+ 						  dev_name(&device->dev), event, 0);
+ 		break;
+ 	case ACPI_THERMAL_NOTIFY_DEVICES:
+ 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_DEVICES);
+-		acpi_thermal_check(tz);
++		acpi_queue_thermal_check(tz);
+ 		acpi_bus_generate_netlink_event(device->pnp.device_class,
+ 						  dev_name(&device->dev), event, 0);
+ 		break;
+@@ -1052,7 +1051,27 @@ static void acpi_thermal_check_fn(struct work_struct *work)
+ {
+ 	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
+ 					       thermal_check_work);
+-	acpi_thermal_check(tz);
++
++	if (!tz->tz_enabled)
++		return;
++	/*
++	 * In general, it is not sufficient to check the pending bit, because
++	 * subsequent instances of this function may be queued after one of them
++	 * has started running (e.g. if _TMP sleeps).  Avoid bailing out if just
++	 * one of them is running, though, because it may have done the actual
++	 * check some time ago, so allow at least one of them to block on the
++	 * mutex while another one is running the update.
++	 */
++	if (!refcount_dec_not_one(&tz->thermal_check_count))
++		return;
++
++	mutex_lock(&tz->thermal_check_lock);
++
++	thermal_zone_device_update(tz->thermal_zone, THERMAL_EVENT_UNSPECIFIED);
++
++	refcount_inc(&tz->thermal_check_count);
++
++	mutex_unlock(&tz->thermal_check_lock);
+ }
+ 
+ static int acpi_thermal_add(struct acpi_device *device)
+@@ -1084,6 +1103,8 @@ static int acpi_thermal_add(struct acpi_device *device)
+ 	if (result)
+ 		goto free_memory;
+ 
++	refcount_set(&tz->thermal_check_count, 3);
++	mutex_init(&tz->thermal_check_lock);
+ 	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
+ 
+ 	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
+@@ -1149,7 +1170,7 @@ static int acpi_thermal_resume(struct device *dev)
+ 		tz->state.active |= tz->trips.active[i].flags.enabled;
+ 	}
+ 
+-	queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
++	acpi_queue_thermal_check(tz);
+ 
+ 	return AE_OK;
+ }
+-- 
+2.30.0
 
