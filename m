@@ -2,84 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E5930F77A
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 17:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6867530F7F9
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 17:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237785AbhBDQQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 11:16:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43118 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237697AbhBDQQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Feb 2021 11:16:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B814664E2C;
-        Thu,  4 Feb 2021 16:15:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612455352;
-        bh=5ub1dljYTGXTzkV+xCM5ew6PHCCj48LH1JkFGnK01No=;
-        h=Subject:To:From:Date:From;
-        b=YkcUMhHrXhhn3/USOie/fGBtuzB+wef+dA97KVre7mQePV55g1IbCjVivBiocWz+N
-         y2GzAKuZBDDKJCSFa9hLu+o02VeZLGsA3kefnrVLOePpjPqQUOC72V5CnMUzc2Dg6c
-         5+EaOWQYG/72qxOk5Yr8z5LQpSH0PTYEx1FsKSFc=
-Subject: patch "staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table" added to staging-testing
-To:     martin@kaiser.cx, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Feb 2021 17:15:41 +0100
-Message-ID: <1612455341212202@kroah.com>
+        id S238083AbhBDQao convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 4 Feb 2021 11:30:44 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:39417 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237958AbhBDQaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 11:30:07 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-194-TSeX4CFXOvyRP8G_g9_k_g-1; Thu, 04 Feb 2021 16:28:21 +0000
+X-MC-Unique: TSeX4CFXOvyRP8G_g9_k_g-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 4 Feb 2021 16:28:19 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 4 Feb 2021 16:28:19 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Jiri Slaby' <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Jari Ruusu <jariruusu@protonmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "masahiroy@kernel.org" <masahiroy@kernel.org>
+Subject: RE: Kernel version numbers after 4.9.255 and 4.4.255
+Thread-Topic: Kernel version numbers after 4.9.255 and 4.4.255
+Thread-Index: AQHW+uViVyzcoeH5bki3CmwTgHKEKKpIK/bQ
+Date:   Thu, 4 Feb 2021 16:28:19 +0000
+Message-ID: <b17b4c3b2e4b45f9b10206b276b7d831@AcuMS.aculab.com>
+References: <7pR0YCctzN9phpuEChlL7_SS6auHOM80bZBcGBTZPuMkc6XjKw7HUXf9vZUPi-IaV2gTtsRVXgywQbja8xpzjGRDGWJsVYSGQN5sNuX1yaQ=@protonmail.com>
+ <YBuSJqIG+AeqDuMl@kroah.com>
+ <78ada91b-21ee-563f-9f75-3cbaeffafad4@kernel.org>
+ <YBu1d0+nfbWGfMtj@kroah.com>
+ <a85b7749-38b2-8ce9-c15a-8acb9a54c5b5@kernel.org>
+In-Reply-To: <a85b7749-38b2-8ce9-c15a-8acb9a54c5b5@kernel.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jiri Slaby
+> Sent: 04 February 2021 11:01
+> 
+> On 04. 02. 21, 9:51, Greg Kroah-Hartman wrote:
+> >> It might work somewhere, but there are a lot of (X * 65536 + Y * 256 + Z)
+> >> assumptions all around the world. So this doesn't look like a good idea.
+> >
+> > Ok, so what happens if we "wrap"?  What will break with that?  At first
+> > glance, I can't see anything as we keep the padding the same, and our
+> > build scripts seem to pick the number up from the Makefile and treat it
+> > like a string.
+> >
+> > It's only the crazy out-of-tree kernel stuff that wants to do minor
+> > version checks that might go boom.  And frankly, I'm not all that
+> > concerned if they have problems :)
+> 
+> Agreed. But currently, sublevel won't "wrap", it will "overflow" to
+> patchlevel. And that might be a problem. So we might need to update the
+> header generation using e.g. "sublevel & 0xff" (wrap around) or
+> "sublevel > 255 : 255 : sublevel" (be monotonic and get stuck at 255).
+> 
+> In both LINUX_VERSION_CODE generation and KERNEL_VERSION proper.
 
-This is a note to let you know that I've just added the patch titled
+A full wrap might catch checks for less than (say) 4.4.2 which
+might be present to avoid very early versions.
+So sticking at 255 or wrapping onto (say) 128 to 255 might be better.
 
-    staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
+I'm actually intrigued about how often you expect people to update
+systems running these LTS kernels.
+At a release every week it takes 5 years to run out of sublevels.
+No one is going to reboot a server anywhere near that often.
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-testing branch.
+	David
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the staging-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 7a8d2f1908a59003e55ef8691d09efb7fbc51625 Mon Sep 17 00:00:00 2001
-From: Martin Kaiser <martin@kaiser.cx>
-Date: Thu, 4 Feb 2021 09:52:17 +0100
-Subject: staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
-
-The Edimax EW-7811UN V2 uses an RTL8188EU chipset and works with this
-driver.
-
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210204085217.9743-1-martin@kaiser.cx
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/rtl8188eu/os_dep/usb_intf.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-index 43ebd11b53fe..efad43d8e465 100644
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -41,6 +41,7 @@ static const struct usb_device_id rtw_usb_id_tbl[] = {
- 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
- 	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
- 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
-+	{USB_DEVICE(0x7392, 0xb811)}, /* Edimax EW-7811UN V2 */
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
- 	{}	/* Terminating entry */
- };
--- 
-2.30.0
-
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
