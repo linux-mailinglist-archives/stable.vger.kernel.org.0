@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C71D030F5AE
-	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 16:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECD130F5B9
+	for <lists+stable@lfdr.de>; Thu,  4 Feb 2021 16:04:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237070AbhBDO6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 09:58:35 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34039 "EHLO
+        id S236863AbhBDPCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 10:02:40 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52949 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236954AbhBDO6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 09:58:11 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E528E19402C8;
-        Thu,  4 Feb 2021 09:57:22 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 04 Feb 2021 09:57:22 -0500
+        by vger.kernel.org with ESMTP id S237048AbhBDPAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 10:00:40 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id EE8C21940CEB;
+        Thu,  4 Feb 2021 09:59:49 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Thu, 04 Feb 2021 09:59:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ReKqu5
-        ho9ZdBDMXVRzZvmlh5o8ZEmbCcX/99Q/SQMKM=; b=e/jBIPeW33ot0Gox4soV5a
-        DGL5VQVZ4Pp8l56KoO5jHGwj2oVy8kHBSmG1HjnXkjyWiJmltUjdYiunNCOHPb6I
-        TbFi7A4rzpTN6IpPVWQ4hXwmN41wiXZ8mjSTcDSXcFTfAN3u0v9Q0yFopLoUP2CK
-        5fFf7zVsYVzPPkSglsXbz0wwjTJdKVD7rJ6iaa5PU2v1DKOgeDQ2Mq6NhxoqvyUY
-        dHc91Qdeh2iAeIOyC02/5kxc5A3ut4rWewJ99gs2WF2dxdWpQ4cJNr6uAvuoUyf5
-        YCjBsZT5qlnE8hvZMLizrk58DjEOJ6G0Od3A46gQN3yw6htgEpBiuPf4LvtJe1yw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iswPlI
+        6ppdEAB2TMqWZpQhUQK3AW0tGphEGBOc6ZVeU=; b=ABxDxZkHobsNPlOhLd2AtU
+        SZe0R3/nDRcava1k4UbaSXRJQnIIRZS9BtAmhSM5DuO/cNKr/+Inx6o/5z0jI5v9
+        UpnpGYgerdt955SmGttOmJsSbILvZpny1lVA9TGT65idGtqZzWcufZl1zicoGX6/
+        W/kcdbcO9WqTjGXzF4m72fNfn2jTWPd1ldKJ9hfs/vZOQUoNjzjzzs64pHTb+foO
+        +L7aZCnmO2QtSo3HXTCNpXUOgF0VBmIMt3j3lflrIUX4eZqa1LZK0MzF5SPwmTFe
+        1IPqD8HwX8ftd7l4JGPa7M6spJIzOzyh3rzjORXmWOpzkIyThgucXOp3OkY7JwAA
         ==
-X-ME-Sender: <xms:UgscYI7vbVIp4b3v-JHmLS5dHgbktmEB_1jqdgoOtVVJWOSyOPumMQ>
-    <xme:UgscYJ6v5iAHshn0G5Rlt59PCAEjaLhA8h-LFF898a6mtZaSFPzs5OtYDPOZMOOP9
-    AsAhMA1nxtWfA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgeeggdeivdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:5QscYDm_bRYG6lBmEmQ1v7X12Qf4EKtsjETsa8k7ThU8XWrraMKptw>
+    <xme:5QscYIbewQ8rwI1rtCXqjzFrUdgkPQILilf8sUUUNprJQwxDzXPOb7zoBt1yUytCi
+    b5dMtEw5qK5Wg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgeeggdeifecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgeeggdeivdcutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:UgscYHcSCSX6X7XK2iv0st101wpLmsKsNXZX7e-snr7QYPqSCzK-pQ>
-    <xmx:UgscYNIyC2iUqSPNN3rhHkVZ122pFphT2nw5Zeko3y-Y1--cQxUBCQ>
-    <xmx:UgscYMITSY6ciH63GAc_zVMHUO768vZ1mV1HltlakyNkwCO-YlAUnw>
-    <xmx:UgscYGgGsz_DVpGiZjlKKMn0ljqc0H7J5GEcGePrkWSl9Gj3Nzqc_A>
+X-ME-Proxy: <xmx:5QscYI65ioEFosmvPSQeAIhsf9wqS0Un_6P22yIj1iPoGfeMea0Arw>
+    <xmx:5QscYCBnrSj21XjqfzgKPGV5Ai9d6nKFnNSciqhLnBBTizsoXnjeIA>
+    <xmx:5QscYG-2lLdWbJgiUGnK0tox84m-OvCq2JaFdqCIqzXAQDKBbgBiyw>
+    <xmx:5QscYC_oFMO-3EM_svld8ePmUAwmHd-9J7aKB4SWvaVUY1BwWxHfkA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 688AA1080057;
-        Thu,  4 Feb 2021 09:57:22 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iwlwifi: mvm: fix the return type for DSM functions 1 and 2" failed to apply to 5.10-stable tree
-To:     matt.chen@intel.com, kvalo@codeaurora.org, luciano.coelho@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 582C1240064;
+        Thu,  4 Feb 2021 09:59:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net: lapb: Add locking to the lapb module" failed to apply to 5.10-stable tree
+To:     xie.he.0141@gmail.com, kuba@kernel.org, ms@dev.tdt.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Feb 2021 15:57:20 +0100
-Message-ID: <1612450640220130@kroah.com>
+Date:   Thu, 04 Feb 2021 15:59:47 +0100
+Message-ID: <161245078761138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,214 +70,375 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aefbe5c445c7e2f0e082b086ba1e45502dac4b0e Mon Sep 17 00:00:00 2001
-From: Matt Chen <matt.chen@intel.com>
-Date: Fri, 22 Jan 2021 14:52:36 +0200
-Subject: [PATCH] iwlwifi: mvm: fix the return type for DSM functions 1 and 2
+From b491e6a7391e3ecdebdd7a097550195cc878924a Mon Sep 17 00:00:00 2001
+From: Xie He <xie.he.0141@gmail.com>
+Date: Mon, 25 Jan 2021 20:09:39 -0800
+Subject: [PATCH] net: lapb: Add locking to the lapb module
 
-The return type value of functions 1 and 2 were considered to be an
-integer inside a buffer, but they can also be only an integer, without
-the buffer.  Fix the code in iwl_acpi_get_dsm_u8() to handle it as a
-single integer value, as well as packed inside a buffer.
+In the lapb module, the timers may run concurrently with other code in
+this module, and there is currently no locking to prevent the code from
+racing on "struct lapb_cb". This patch adds locking to prevent racing.
 
-Signed-off-by: Matt Chen <matt.chen@intel.com>
-Fixes: 9db93491f29e ("iwlwifi: acpi: support device specific method (DSM)")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210122144849.5757092adcd6.Ic24524627b899c9a01af38107a62a626bdf5ae3a@changeid
+1. Add "spinlock_t lock" to "struct lapb_cb"; Add "spin_lock_bh" and
+"spin_unlock_bh" to APIs, timer functions and notifier functions.
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-index 15248b064380..d8b7776a8dde 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-@@ -80,19 +80,45 @@ static void *iwl_acpi_get_dsm_object(struct device *dev, int rev, int func,
- }
+2. Add "bool t1timer_stop, t2timer_stop" to "struct lapb_cb" to make us
+able to ask running timers to abort; Modify "lapb_stop_t1timer" and
+"lapb_stop_t2timer" to make them able to abort running timers;
+Modify "lapb_t2timer_expiry" and "lapb_t1timer_expiry" to make them
+abort after they are stopped by "lapb_stop_t1timer", "lapb_stop_t2timer",
+and "lapb_start_t1timer", "lapb_start_t2timer".
+
+3. Let lapb_unregister wait for other API functions and running timers
+to stop.
+
+4. The lapb_device_event function calls lapb_disconnect_request. In
+order to avoid trying to hold the lock twice, add a new function named
+"__lapb_disconnect_request" which assumes the lock is held, and make
+it called by lapb_disconnect_request and lapb_device_event.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20210126040939.69995-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/include/net/lapb.h b/include/net/lapb.h
+index ccc3d1f020b0..eee73442a1ba 100644
+--- a/include/net/lapb.h
++++ b/include/net/lapb.h
+@@ -92,6 +92,7 @@ struct lapb_cb {
+ 	unsigned short		n2, n2count;
+ 	unsigned short		t1, t2;
+ 	struct timer_list	t1timer, t2timer;
++	bool			t1timer_stop, t2timer_stop;
  
- /*
-- * Evaluate a DSM with no arguments and a single u8 return value (inside a
-- * buffer object), verify and return that value.
-+ * Generic function to evaluate a DSM with no arguments
-+ * and an integer return value,
-+ * (as an integer object or inside a buffer object),
-+ * verify and assign the value in the "value" parameter.
-+ * return 0 in success and the appropriate errno otherwise.
-  */
--int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func)
-+static int iwl_acpi_get_dsm_integer(struct device *dev, int rev, int func,
-+				    u64 *value, size_t expected_size)
- {
- 	union acpi_object *obj;
--	int ret;
-+	int ret = 0;
+ 	/* Internal control information */
+ 	struct sk_buff_head	write_queue;
+@@ -103,6 +104,7 @@ struct lapb_cb {
+ 	struct lapb_frame	frmr_data;
+ 	unsigned char		frmr_type;
  
- 	obj = iwl_acpi_get_dsm_object(dev, rev, func, NULL);
--	if (IS_ERR(obj))
-+	if (IS_ERR(obj)) {
-+		IWL_DEBUG_DEV_RADIO(dev,
-+				    "Failed to get  DSM object. func= %d\n",
-+				    func);
- 		return -ENOENT;
-+	}
-+
-+	if (obj->type == ACPI_TYPE_INTEGER) {
-+		*value = obj->integer.value;
-+	} else if (obj->type == ACPI_TYPE_BUFFER) {
-+		__le64 le_value = 0;
++	spinlock_t		lock;
+ 	refcount_t		refcnt;
+ };
  
--	if (obj->type != ACPI_TYPE_BUFFER) {
-+		if (WARN_ON_ONCE(expected_size > sizeof(le_value)))
-+			return -EINVAL;
+diff --git a/net/lapb/lapb_iface.c b/net/lapb/lapb_iface.c
+index 40961889e9c0..0511bbe4af7b 100644
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -122,6 +122,8 @@ static struct lapb_cb *lapb_create_cb(void)
+ 
+ 	timer_setup(&lapb->t1timer, NULL, 0);
+ 	timer_setup(&lapb->t2timer, NULL, 0);
++	lapb->t1timer_stop = true;
++	lapb->t2timer_stop = true;
+ 
+ 	lapb->t1      = LAPB_DEFAULT_T1;
+ 	lapb->t2      = LAPB_DEFAULT_T2;
+@@ -129,6 +131,8 @@ static struct lapb_cb *lapb_create_cb(void)
+ 	lapb->mode    = LAPB_DEFAULT_MODE;
+ 	lapb->window  = LAPB_DEFAULT_WINDOW;
+ 	lapb->state   = LAPB_STATE_0;
 +
-+		/* if the buffer size doesn't match the expected size */
-+		if (obj->buffer.length != expected_size)
-+			IWL_DEBUG_DEV_RADIO(dev,
-+					    "ACPI: DSM invalid buffer size, padding or truncating (%d)\n",
-+					    obj->buffer.length);
-+
-+		 /* assuming LE from Intel BIOS spec */
-+		memcpy(&le_value, obj->buffer.pointer,
-+		       min_t(size_t, expected_size, (size_t)obj->buffer.length));
-+		*value = le64_to_cpu(le_value);
-+	} else {
- 		IWL_DEBUG_DEV_RADIO(dev,
- 				    "ACPI: DSM method did not return a valid object, type=%d\n",
- 				    obj->type);
-@@ -100,15 +126,6 @@ int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func)
++	spin_lock_init(&lapb->lock);
+ 	refcount_set(&lapb->refcnt, 1);
+ out:
+ 	return lapb;
+@@ -178,11 +182,23 @@ int lapb_unregister(struct net_device *dev)
  		goto out;
+ 	lapb_put(lapb);
+ 
++	/* Wait for other refs to "lapb" to drop */
++	while (refcount_read(&lapb->refcnt) > 2)
++		usleep_range(1, 10);
++
++	spin_lock_bh(&lapb->lock);
++
+ 	lapb_stop_t1timer(lapb);
+ 	lapb_stop_t2timer(lapb);
+ 
+ 	lapb_clear_queues(lapb);
+ 
++	spin_unlock_bh(&lapb->lock);
++
++	/* Wait for running timers to stop */
++	del_timer_sync(&lapb->t1timer);
++	del_timer_sync(&lapb->t2timer);
++
+ 	__lapb_remove_cb(lapb);
+ 
+ 	lapb_put(lapb);
+@@ -201,6 +217,8 @@ int lapb_getparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ 	if (!lapb)
+ 		goto out;
+ 
++	spin_lock_bh(&lapb->lock);
++
+ 	parms->t1      = lapb->t1 / HZ;
+ 	parms->t2      = lapb->t2 / HZ;
+ 	parms->n2      = lapb->n2;
+@@ -219,6 +237,7 @@ int lapb_getparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ 	else
+ 		parms->t2timer = (lapb->t2timer.expires - jiffies) / HZ;
+ 
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ 	rc = LAPB_OK;
+ out:
+@@ -234,6 +253,8 @@ int lapb_setparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ 	if (!lapb)
+ 		goto out;
+ 
++	spin_lock_bh(&lapb->lock);
++
+ 	rc = LAPB_INVALUE;
+ 	if (parms->t1 < 1 || parms->t2 < 1 || parms->n2 < 1)
+ 		goto out_put;
+@@ -256,6 +277,7 @@ int lapb_setparms(struct net_device *dev, struct lapb_parms_struct *parms)
+ 
+ 	rc = LAPB_OK;
+ out_put:
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ out:
+ 	return rc;
+@@ -270,6 +292,8 @@ int lapb_connect_request(struct net_device *dev)
+ 	if (!lapb)
+ 		goto out;
+ 
++	spin_lock_bh(&lapb->lock);
++
+ 	rc = LAPB_OK;
+ 	if (lapb->state == LAPB_STATE_1)
+ 		goto out_put;
+@@ -285,24 +309,18 @@ int lapb_connect_request(struct net_device *dev)
+ 
+ 	rc = LAPB_OK;
+ out_put:
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ out:
+ 	return rc;
+ }
+ EXPORT_SYMBOL(lapb_connect_request);
+ 
+-int lapb_disconnect_request(struct net_device *dev)
++static int __lapb_disconnect_request(struct lapb_cb *lapb)
+ {
+-	struct lapb_cb *lapb = lapb_devtostruct(dev);
+-	int rc = LAPB_BADTOKEN;
+-
+-	if (!lapb)
+-		goto out;
+-
+ 	switch (lapb->state) {
+ 	case LAPB_STATE_0:
+-		rc = LAPB_NOTCONNECTED;
+-		goto out_put;
++		return LAPB_NOTCONNECTED;
+ 
+ 	case LAPB_STATE_1:
+ 		lapb_dbg(1, "(%p) S1 TX DISC(1)\n", lapb->dev);
+@@ -310,12 +328,10 @@ int lapb_disconnect_request(struct net_device *dev)
+ 		lapb_send_control(lapb, LAPB_DISC, LAPB_POLLON, LAPB_COMMAND);
+ 		lapb->state = LAPB_STATE_0;
+ 		lapb_start_t1timer(lapb);
+-		rc = LAPB_NOTCONNECTED;
+-		goto out_put;
++		return LAPB_NOTCONNECTED;
+ 
+ 	case LAPB_STATE_2:
+-		rc = LAPB_OK;
+-		goto out_put;
++		return LAPB_OK;
  	}
  
--	if (obj->buffer.length != sizeof(u8)) {
--		IWL_DEBUG_DEV_RADIO(dev,
--				    "ACPI: DSM method returned invalid buffer, length=%d\n",
--				    obj->buffer.length);
--		ret = -EINVAL;
--		goto out;
--	}
--
--	ret = obj->buffer.pointer[0];
- 	IWL_DEBUG_DEV_RADIO(dev,
- 			    "ACPI: DSM method evaluated: func=%d, ret=%d\n",
- 			    func, ret);
-@@ -116,6 +133,24 @@ int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func)
- 	ACPI_FREE(obj);
- 	return ret;
- }
-+
-+/*
-+ * Evaluate a DSM with no arguments and a u8 return value,
-+ */
-+int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func, u8 *value)
-+{
-+	int ret;
-+	u64 val;
-+
-+	ret = iwl_acpi_get_dsm_integer(dev, rev, func, &val, sizeof(u8));
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	/* cast val (u64) to be u8 */
-+	*value = (u8)val;
-+	return 0;
+ 	lapb_clear_queues(lapb);
+@@ -328,8 +344,22 @@ int lapb_disconnect_request(struct net_device *dev)
+ 	lapb_dbg(1, "(%p) S3 DISC(1)\n", lapb->dev);
+ 	lapb_dbg(0, "(%p) S3 -> S2\n", lapb->dev);
+ 
+-	rc = LAPB_OK;
+-out_put:
++	return LAPB_OK;
 +}
- IWL_EXPORT_SYMBOL(iwl_acpi_get_dsm_u8);
- 
- union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.h b/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
-index 042dd247d387..1cce30d1ef55 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
- /*
-  * Copyright (C) 2017 Intel Deutschland GmbH
-- * Copyright (C) 2018-2020 Intel Corporation
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
- #ifndef __iwl_fw_acpi__
- #define __iwl_fw_acpi__
-@@ -99,7 +99,7 @@ struct iwl_fw_runtime;
- 
- void *iwl_acpi_get_object(struct device *dev, acpi_string method);
- 
--int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func);
-+int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func, u8 *value);
- 
- union acpi_object *iwl_acpi_get_wifi_pkg(struct device *dev,
- 					 union acpi_object *data,
-@@ -159,7 +159,8 @@ static inline void *iwl_acpi_get_dsm_object(struct device *dev, int rev,
- 	return ERR_PTR(-ENOENT);
- }
- 
--static inline int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func)
-+static inline
-+int iwl_acpi_get_dsm_u8(struct device *dev, int rev, int func, u8 *value)
- {
- 	return -ENOENT;
- }
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 0637eb1cff4e..313e9f106f46 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1090,20 +1090,22 @@ static void iwl_mvm_tas_init(struct iwl_mvm *mvm)
- 
- static u8 iwl_mvm_eval_dsm_indonesia_5g2(struct iwl_mvm *mvm)
- {
-+	u8 value;
 +
- 	int ret = iwl_acpi_get_dsm_u8((&mvm->fwrt)->dev, 0,
--				      DSM_FUNC_ENABLE_INDONESIA_5G2);
-+				      DSM_FUNC_ENABLE_INDONESIA_5G2, &value);
++int lapb_disconnect_request(struct net_device *dev)
++{
++	struct lapb_cb *lapb = lapb_devtostruct(dev);
++	int rc = LAPB_BADTOKEN;
++
++	if (!lapb)
++		goto out;
++
++	spin_lock_bh(&lapb->lock);
++
++	rc = __lapb_disconnect_request(lapb);
++
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ out:
+ 	return rc;
+@@ -344,6 +374,8 @@ int lapb_data_request(struct net_device *dev, struct sk_buff *skb)
+ 	if (!lapb)
+ 		goto out;
  
- 	if (ret < 0)
- 		IWL_DEBUG_RADIO(mvm,
- 				"Failed to evaluate DSM function ENABLE_INDONESIA_5G2, ret=%d\n",
- 				ret);
++	spin_lock_bh(&lapb->lock);
++
+ 	rc = LAPB_NOTCONNECTED;
+ 	if (lapb->state != LAPB_STATE_3 && lapb->state != LAPB_STATE_4)
+ 		goto out_put;
+@@ -352,6 +384,7 @@ int lapb_data_request(struct net_device *dev, struct sk_buff *skb)
+ 	lapb_kick(lapb);
+ 	rc = LAPB_OK;
+ out_put:
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ out:
+ 	return rc;
+@@ -364,7 +397,9 @@ int lapb_data_received(struct net_device *dev, struct sk_buff *skb)
+ 	int rc = LAPB_BADTOKEN;
  
--	else if (ret >= DSM_VALUE_INDONESIA_MAX)
-+	else if (value >= DSM_VALUE_INDONESIA_MAX)
- 		IWL_DEBUG_RADIO(mvm,
--				"DSM function ENABLE_INDONESIA_5G2 return invalid value, ret=%d\n",
--				ret);
-+				"DSM function ENABLE_INDONESIA_5G2 return invalid value, value=%d\n",
-+				value);
+ 	if (lapb) {
++		spin_lock_bh(&lapb->lock);
+ 		lapb_data_input(lapb, skb);
++		spin_unlock_bh(&lapb->lock);
+ 		lapb_put(lapb);
+ 		rc = LAPB_OK;
+ 	}
+@@ -435,6 +470,8 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
+ 	if (!lapb)
+ 		return NOTIFY_DONE;
  
--	else if (ret == DSM_VALUE_INDONESIA_ENABLE) {
-+	else if (value == DSM_VALUE_INDONESIA_ENABLE) {
- 		IWL_DEBUG_RADIO(mvm,
- 				"Evaluated DSM function ENABLE_INDONESIA_5G2: Enabling 5g2\n");
- 		return DSM_VALUE_INDONESIA_ENABLE;
-@@ -1114,25 +1116,26 @@ static u8 iwl_mvm_eval_dsm_indonesia_5g2(struct iwl_mvm *mvm)
++	spin_lock_bh(&lapb->lock);
++
+ 	switch (event) {
+ 	case NETDEV_UP:
+ 		lapb_dbg(0, "(%p) Interface up: %s\n", dev, dev->name);
+@@ -454,7 +491,7 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
+ 		break;
+ 	case NETDEV_GOING_DOWN:
+ 		if (netif_carrier_ok(dev))
+-			lapb_disconnect_request(dev);
++			__lapb_disconnect_request(lapb);
+ 		break;
+ 	case NETDEV_DOWN:
+ 		lapb_dbg(0, "(%p) Interface down: %s\n", dev, dev->name);
+@@ -489,6 +526,7 @@ static int lapb_device_event(struct notifier_block *this, unsigned long event,
+ 		break;
+ 	}
  
- static u8 iwl_mvm_eval_dsm_disable_srd(struct iwl_mvm *mvm)
++	spin_unlock_bh(&lapb->lock);
+ 	lapb_put(lapb);
+ 	return NOTIFY_DONE;
+ }
+diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
+index baa247fe4ed0..0230b272b7d1 100644
+--- a/net/lapb/lapb_timer.c
++++ b/net/lapb/lapb_timer.c
+@@ -40,6 +40,7 @@ void lapb_start_t1timer(struct lapb_cb *lapb)
+ 	lapb->t1timer.function = lapb_t1timer_expiry;
+ 	lapb->t1timer.expires  = jiffies + lapb->t1;
+ 
++	lapb->t1timer_stop = false;
+ 	add_timer(&lapb->t1timer);
+ }
+ 
+@@ -50,16 +51,19 @@ void lapb_start_t2timer(struct lapb_cb *lapb)
+ 	lapb->t2timer.function = lapb_t2timer_expiry;
+ 	lapb->t2timer.expires  = jiffies + lapb->t2;
+ 
++	lapb->t2timer_stop = false;
+ 	add_timer(&lapb->t2timer);
+ }
+ 
+ void lapb_stop_t1timer(struct lapb_cb *lapb)
  {
-+	u8 value;
- 	int ret = iwl_acpi_get_dsm_u8((&mvm->fwrt)->dev, 0,
--				      DSM_FUNC_DISABLE_SRD);
-+				      DSM_FUNC_DISABLE_SRD, &value);
++	lapb->t1timer_stop = true;
+ 	del_timer(&lapb->t1timer);
+ }
  
- 	if (ret < 0)
- 		IWL_DEBUG_RADIO(mvm,
- 				"Failed to evaluate DSM function DISABLE_SRD, ret=%d\n",
- 				ret);
+ void lapb_stop_t2timer(struct lapb_cb *lapb)
+ {
++	lapb->t2timer_stop = true;
+ 	del_timer(&lapb->t2timer);
+ }
  
--	else if (ret >= DSM_VALUE_SRD_MAX)
-+	else if (value >= DSM_VALUE_SRD_MAX)
- 		IWL_DEBUG_RADIO(mvm,
--				"DSM function DISABLE_SRD return invalid value, ret=%d\n",
--				ret);
-+				"DSM function DISABLE_SRD return invalid value, value=%d\n",
-+				value);
+@@ -72,16 +76,31 @@ static void lapb_t2timer_expiry(struct timer_list *t)
+ {
+ 	struct lapb_cb *lapb = from_timer(lapb, t, t2timer);
  
--	else if (ret == DSM_VALUE_SRD_PASSIVE) {
-+	else if (value == DSM_VALUE_SRD_PASSIVE) {
- 		IWL_DEBUG_RADIO(mvm,
- 				"Evaluated DSM function DISABLE_SRD: setting SRD to passive\n");
- 		return DSM_VALUE_SRD_PASSIVE;
++	spin_lock_bh(&lapb->lock);
++	if (timer_pending(&lapb->t2timer)) /* A new timer has been set up */
++		goto out;
++	if (lapb->t2timer_stop) /* The timer has been stopped */
++		goto out;
++
+ 	if (lapb->condition & LAPB_ACK_PENDING_CONDITION) {
+ 		lapb->condition &= ~LAPB_ACK_PENDING_CONDITION;
+ 		lapb_timeout_response(lapb);
+ 	}
++
++out:
++	spin_unlock_bh(&lapb->lock);
+ }
  
--	} else if (ret == DSM_VALUE_SRD_DISABLE) {
-+	} else if (value == DSM_VALUE_SRD_DISABLE) {
- 		IWL_DEBUG_RADIO(mvm,
- 				"Evaluated DSM function DISABLE_SRD: disabling SRD\n");
- 		return DSM_VALUE_SRD_DISABLE;
+ static void lapb_t1timer_expiry(struct timer_list *t)
+ {
+ 	struct lapb_cb *lapb = from_timer(lapb, t, t1timer);
+ 
++	spin_lock_bh(&lapb->lock);
++	if (timer_pending(&lapb->t1timer)) /* A new timer has been set up */
++		goto out;
++	if (lapb->t1timer_stop) /* The timer has been stopped */
++		goto out;
++
+ 	switch (lapb->state) {
+ 
+ 		/*
+@@ -108,7 +127,7 @@ static void lapb_t1timer_expiry(struct timer_list *t)
+ 				lapb->state = LAPB_STATE_0;
+ 				lapb_disconnect_indication(lapb, LAPB_TIMEDOUT);
+ 				lapb_dbg(0, "(%p) S1 -> S0\n", lapb->dev);
+-				return;
++				goto out;
+ 			} else {
+ 				lapb->n2count++;
+ 				if (lapb->mode & LAPB_EXTENDED) {
+@@ -132,7 +151,7 @@ static void lapb_t1timer_expiry(struct timer_list *t)
+ 				lapb->state = LAPB_STATE_0;
+ 				lapb_disconnect_confirmation(lapb, LAPB_TIMEDOUT);
+ 				lapb_dbg(0, "(%p) S2 -> S0\n", lapb->dev);
+-				return;
++				goto out;
+ 			} else {
+ 				lapb->n2count++;
+ 				lapb_dbg(1, "(%p) S2 TX DISC(1)\n", lapb->dev);
+@@ -150,7 +169,7 @@ static void lapb_t1timer_expiry(struct timer_list *t)
+ 				lapb_stop_t2timer(lapb);
+ 				lapb_disconnect_indication(lapb, LAPB_TIMEDOUT);
+ 				lapb_dbg(0, "(%p) S3 -> S0\n", lapb->dev);
+-				return;
++				goto out;
+ 			} else {
+ 				lapb->n2count++;
+ 				lapb_requeue_frames(lapb);
+@@ -167,7 +186,7 @@ static void lapb_t1timer_expiry(struct timer_list *t)
+ 				lapb->state = LAPB_STATE_0;
+ 				lapb_disconnect_indication(lapb, LAPB_TIMEDOUT);
+ 				lapb_dbg(0, "(%p) S4 -> S0\n", lapb->dev);
+-				return;
++				goto out;
+ 			} else {
+ 				lapb->n2count++;
+ 				lapb_transmit_frmr(lapb);
+@@ -176,4 +195,7 @@ static void lapb_t1timer_expiry(struct timer_list *t)
+ 	}
+ 
+ 	lapb_start_t1timer(lapb);
++
++out:
++	spin_unlock_bh(&lapb->lock);
+ }
 
