@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2DF311401
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E41E311407
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233017AbhBEVzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:55:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45248 "EHLO mail.kernel.org"
+        id S233033AbhBEVzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:55:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233008AbhBEO7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233007AbhBEO7i (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:59:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6135650BF;
-        Fri,  5 Feb 2021 14:14:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68817650B5;
+        Fri,  5 Feb 2021 14:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534487;
-        bh=e1prSTddSkWw/ilWFplrlJELLFrEZbDwcFhS0hiXMZk=;
+        s=korg; t=1612534473;
+        bh=YRUUqm23s/ETZbX9vU/encIPO1XYTTBMD0pNKS+yxzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HND2+G0cTpzRjzffmy43+3EOflH5jaJDSc2E0x1BqGrdgn157Kr/GAetP10FoiDOG
-         qm4YCKqtQn8O+aIDwq02yNMl1XWosgQK1IgWX11+MLIIr88RcX+nshQMvGhC6KX8ij
-         4m2+69yeenMon9Z6BGKqIlp1ByF4YIEsnv8qaMGM=
+        b=IYvl0zBfSxOvmlzC0K2fqiLlTc8Fiax8D4pxfzkD+69KBwpvYpkx9IADJMCsHGOkf
+         +jYZoMGHD9Yk4NPSsqO0lxW0Lo+apc1SygKBCEE42i81PMpH/BwNpllWGqw5AwGe9H
+         r+lyQZPtkWUuP0DeC8Rs/RK+IpHHZW5whiDOLovM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 04/15] net_sched: reject silly cell_log in qdisc_get_rtab()
-Date:   Fri,  5 Feb 2021 15:08:49 +0100
-Message-Id: <20210205140649.905338362@linuxfoundation.org>
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/15] scsi: ibmvfc: Set default timeout to avoid crash during migration
+Date:   Fri,  5 Feb 2021 15:08:58 +0100
+Message-Id: <20210205140650.268544540@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
 References: <20210205140649.733510103@linuxfoundation.org>
@@ -42,65 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-commit e4bedf48aaa5552bc1f49703abd17606e7e6e82a upstream
+[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
 
-iproute2 probably never goes beyond 8 for the cell exponent,
-but stick to the max shift exponent for signed 32bit.
+While testing live partition mobility, we have observed occasional crashes
+of the Linux partition. What we've seen is that during the live migration,
+for specific configurations with large amounts of memory, slow network
+links, and workloads that are changing memory a lot, the partition can end
+up being suspended for 30 seconds or longer. This resulted in the following
+scenario:
 
-UBSAN reported:
-UBSAN: shift-out-of-bounds in net/sched/sch_api.c:389:22
-shift exponent 130 is too large for 32-bit type 'int'
-CPU: 1 PID: 8450 Comm: syz-executor586 Not tainted 5.11.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x183/0x22e lib/dump_stack.c:120
- ubsan_epilogue lib/ubsan.c:148 [inline]
- __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
- __detect_linklayer+0x2a9/0x330 net/sched/sch_api.c:389
- qdisc_get_rtab+0x2b5/0x410 net/sched/sch_api.c:435
- cbq_init+0x28f/0x12c0 net/sched/sch_cbq.c:1180
- qdisc_create+0x801/0x1470 net/sched/sch_api.c:1246
- tc_modify_qdisc+0x9e3/0x1fc0 net/sched/sch_api.c:1662
- rtnetlink_rcv_msg+0xb1d/0xe60 net/core/rtnetlink.c:5564
- netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x5a2/0x900 net/socket.c:2345
- ___sys_sendmsg net/socket.c:2399 [inline]
- __sys_sendmsg+0x319/0x400 net/socket.c:2432
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+CPU 0                          CPU 1
+-------------------------------  ----------------------------------
+scsi_queue_rq                    migration_store
+ -> blk_mq_start_request          -> rtas_ibm_suspend_me
+  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
+              _______________________________________V
+             |
+             V
+    -> IPI from CPU 1
+     -> rtas_percpu_suspend_me
+                                     -> __rtas_suspend_last_cpu
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20210114160637.1660597-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-- Linux partition suspended for > 30 seconds --
+                                      -> for_each_online_cpu(cpu)
+                                           plpar_hcall_norets(H_PROD
+ -> scsi_dispatch_cmd
+                                      -> scsi_times_out
+                                       -> scsi_abort_command
+                                        -> queue_delayed_work
+  -> ibmvfc_queuecommand_lck
+   -> ibmvfc_send_event
+    -> ibmvfc_send_crq
+     - returns H_CLOSED
+   <- returns SCSI_MLQUEUE_HOST_BUSY
+-> __blk_mq_requeue_request
+
+                                      -> scmd_eh_abort_handler
+                                       -> scsi_try_to_abort_cmd
+                                         - returns SUCCESS
+                                       -> scsi_queue_insert
+
+Normally, the SCMD_STATE_COMPLETE bit would protect against the command
+completion and the timeout, but that doesn't work here, since we don't
+check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
+
+In this case we end up calling scsi_queue_insert on a request that has
+already been queued, or possibly even freed, and we crash.
+
+The patch below simply increases the default I/O timeout to avoid this race
+condition. This is also the timeout value that nearly all IBM SAN storage
+recommends setting as the default value.
+
+Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_api.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -397,7 +397,8 @@ struct qdisc_rate_table *qdisc_get_rtab(
- {
- 	struct qdisc_rate_table *rtab;
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index dbacd9830d3df..460014ded14de 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -2891,8 +2891,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
+ 	unsigned long flags = 0;
  
--	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
-+	if (tab == NULL || r->rate == 0 ||
-+	    r->cell_log == 0 || r->cell_log >= 32 ||
- 	    nla_len(tab) != TC_RTAB_SIZE)
- 		return NULL;
- 
+ 	spin_lock_irqsave(shost->host_lock, flags);
+-	if (sdev->type == TYPE_DISK)
++	if (sdev->type == TYPE_DISK) {
+ 		sdev->allow_restart = 1;
++		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
++	}
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+ 	return 0;
+ }
+-- 
+2.27.0
+
 
 
