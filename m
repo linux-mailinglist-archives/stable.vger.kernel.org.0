@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B11BB311467
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AD631144F
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233099AbhBEWFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:05:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
+        id S233059AbhBEWDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:03:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232951AbhBEO5X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA68B65056;
-        Fri,  5 Feb 2021 14:12:23 +0000 (UTC)
+        id S230170AbhBEOyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:54:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D51D6505A;
+        Fri,  5 Feb 2021 14:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534344;
-        bh=0TCr50uaJ/Er9v0M1Rd47FXEfjx301MaEuqIpGUAO5c=;
+        s=korg; t=1612534349;
+        bh=JDTuSXzEilPQorvKVII5BkHu2GyI2daOiBcGSTjm18Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nHPoqjt/wHtQ1qF3dhmXsoARC2ZKpmWwVH4dnhhNAgxgBGWuP1aMD0fsEhZO77dcs
-         O0Llk9iEnC+R0BMdfC004HAjreUA+1Q9tzJqP6ZNKKMsimFtzpvKZdqYuX2sbG+QRR
-         CL5TtzuIPqKDnxGC6FV9reXyv0Nyrm4a5V8yPPVk=
+        b=hJKNk9bKoali/bpdvV1CatnDnYJ4kD9Y+VkWwp7/muVksRyIukhBgkM1frzcQvvwA
+         +aRgAykPY9t7R4QL/mEUFhiW3bqleI4Kv34ruD5V0TXZHIX6Iz3EzYq6x6bCefU98T
+         x0NNe84Kp+NgV8TTEh4z2droTyGfQcY5jQoqwZm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/32] Revert "Revert "block: end bio with BLK_STS_AGAIN in case of non-mq devs and REQ_NOWAIT""
-Date:   Fri,  5 Feb 2021 15:07:19 +0100
-Message-Id: <20210205140652.538665933@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>
+Subject: [PATCH 5.4 06/32] arm64: Fix kernel address detection of __is_lm_address()
+Date:   Fri,  5 Feb 2021 15:07:21 +0100
+Message-Id: <20210205140652.618550818@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
 References: <20210205140652.348864025@linuxfoundation.org>
@@ -40,42 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-This reverts commit bba91cdba612fbce4f8575c5d94d2b146fb83ea3 which is
-commit b0beb28097fa04177b3769f4bb7a0d0d9c4ae76e upstream.
+commit 519ea6f1c82fcdc9842908155ae379de47818778 upstream.
 
-It breaks things in 5.4.y, so let's drop it.
+Currently, the __is_lm_address() check just masks out the top 12 bits
+of the address, but if they are 0, it still yields a true result.
+This has as a side effect that virt_addr_valid() returns true even for
+invalid virtual addresses (e.g. 0x0).
 
-Reported-by: Andres Freund <andres@anarazel.de>
-Cc: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-CC: Jens Axboe <axboe@kernel.dk>
-Cc: Sasha Levin <sashal@kernel.org>
+Fix the detection checking that it's actually a kernel address starting
+at PAGE_OFFSET.
+
+Fixes: 68dd8ef32162 ("arm64: memory: Fix virt_addr_valid() using __is_lm_address()")
+Cc: <stable@vger.kernel.org> # 5.4.x
+Cc: Will Deacon <will@kernel.org>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://lore.kernel.org/r/20210126134056.45747-1-vincenzo.frascino@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-core.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/memory.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -886,11 +886,14 @@ generic_make_request_checks(struct bio *
- 	}
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -247,11 +247,11 @@ static inline const void *__tag_set(cons
  
- 	/*
--	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
--	 * if queue is not a request based queue.
-+	 * Non-mq queues do not honor REQ_NOWAIT, so complete a bio
-+	 * with BLK_STS_AGAIN status in order to catch -EAGAIN and
-+	 * to give a chance to the caller to repeat request gracefully.
- 	 */
--	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q))
--		goto not_supported;
-+	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q)) {
-+		status = BLK_STS_AGAIN;
-+		goto end_io;
-+	}
  
- 	if (should_fail_bio(bio))
- 		goto end_io;
+ /*
+- * The linear kernel range starts at the bottom of the virtual address
+- * space. Testing the top bit for the start of the region is a
+- * sufficient check and avoids having to worry about the tag.
++ * Check whether an arbitrary address is within the linear map, which
++ * lives in the [PAGE_OFFSET, PAGE_END) interval at the bottom of the
++ * kernel's TTBR1 address range.
+  */
+-#define __is_lm_address(addr)	(!(((u64)addr) & BIT(vabits_actual - 1)))
++#define __is_lm_address(addr)	(((u64)(addr) ^ PAGE_OFFSET) < (PAGE_END - PAGE_OFFSET))
+ 
+ #define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
+ #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
 
 
