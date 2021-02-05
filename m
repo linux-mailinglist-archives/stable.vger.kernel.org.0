@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0AA31147C
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8AB311481
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbhBEWG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
+        id S230383AbhBEWHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:07:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232876AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232836AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0A9665070;
-        Fri,  5 Feb 2021 14:12:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D123C65085;
+        Fri,  5 Feb 2021 14:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534380;
-        bh=pTxpyCFqUKZ3YRONb+u0vMa8oBSPHdGX8W0v+HTaRJM=;
+        s=korg; t=1612534411;
+        bh=8OdlNxrunJG6LU7uUfHdslNzgyN+w9PSYl2FoMzH2pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Kr89kBov0aJaSegZYuNTi66aZrKiC2jgSZlFefvFh8OawLoQcHgzQwS4cAAXUJYQ
-         Gtqj8WcBCYGpCvpBcOc4Z87/oYSyRI7SVtLLLPvL7SMua7tUc4NWS1R7OBoCiSkqGH
-         jtD24RO0LOoui3XYWyuIN25DOVBfPuE+DNSl7yzk=
+        b=LCAc45vAkjoa+yikgbs7PRpDpkqibHIG681S4E9I8qbnJEjDYlBh+v7UVay0tob7b
+         VBk3Lo2rCeci9GPMpDBScL8FhaQyyHXnjzF/l0P3BHxZX4M1SKJbyDBkPbXhyNCZQh
+         NSPgfSVhy6IH1wLyDgk3AOmc/SzECn4AfNBQxcCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/32] kthread: Extract KTHREAD_IS_PER_CPU
-Date:   Fri,  5 Feb 2021 15:07:46 +0100
-Message-Id: <20210205140653.666133800@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 01/17] net: dsa: bcm_sf2: put device node before return
+Date:   Fri,  5 Feb 2021 15:07:55 +0100
+Message-Id: <20210205140649.879838644@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
-References: <20210205140652.348864025@linuxfoundation.org>
+In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
+References: <20210205140649.825180779@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,111 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
+commit cf3c46631e1637582f517a574c77cd6c05793817 upstream.
 
-There is a need to distinguish geniune per-cpu kthreads from kthreads
-that happen to have a single CPU affinity.
+Put the device node dn before return error code on failure path.
 
-Geniune per-cpu kthreads are kthreads that are CPU affine for
-correctness, these will obviously have PF_KTHREAD set, but must also
-have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
-ruins things.
-
-However, these two things are not sufficient, PF_NO_SETAFFINITY is
-also set on other tasks that have their affinities controlled through
-other means, like for instance workqueues.
-
-Therefore another bit is needed; it turns out kthread_create_per_cpu()
-already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
-kthread_park()/kthread_unpark() work correctly.
-
-Expose this flag and remove the implicit setting of it from
-kthread_create_on_cpu(); the io_uring usage of it seems dubious at
-best.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20210121103506.557620262@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 461cd1b03e32 ("net: dsa: bcm_sf2: Register our slave MDIO bus")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121123343.26330-1-bianpan2016@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kthread.h |  3 +++
- kernel/kthread.c        | 27 ++++++++++++++++++++++++++-
- kernel/smpboot.c        |  1 +
- 3 files changed, 30 insertions(+), 1 deletion(-)
+ drivers/net/dsa/bcm_sf2.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 0f9da966934e2..c7108ce5a051c 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -31,6 +31,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu);
-+bool kthread_is_per_cpu(struct task_struct *k);
-+
- /**
-  * kthread_run - create and wake a thread.
-  * @threadfn: the function to run until signal_pending(current).
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index e51f0006057df..1d4c98a19043f 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -469,11 +469,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 		return p;
- 	kthread_bind(p, cpu);
- 	/* CPU hotplug need to bind once again when unparking the thread. */
--	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
- 	to_kthread(p)->cpu = cpu;
- 	return p;
- }
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return;
-+
-+	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
-+
-+	if (cpu < 0) {
-+		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+		return;
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -423,15 +423,19 @@ static int bcm_sf2_mdio_register(struct
+ 	/* Find our integrated MDIO bus node */
+ 	dn = of_find_compatible_node(NULL, NULL, "brcm,unimac-mdio");
+ 	priv->master_mii_bus = of_mdio_find_bus(dn);
+-	if (!priv->master_mii_bus)
++	if (!priv->master_mii_bus) {
++		of_node_put(dn);
+ 		return -EPROBE_DEFER;
 +	}
-+
-+	kthread->cpu = cpu;
-+	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
-+bool kthread_is_per_cpu(struct task_struct *k)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return false;
-+
-+	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
- /**
-  * kthread_unpark - unpark a thread created by kthread_create().
-  * @k:		thread created by kthread_create().
-diff --git a/kernel/smpboot.c b/kernel/smpboot.c
-index 2efe1e206167c..f25208e8df836 100644
---- a/kernel/smpboot.c
-+++ b/kernel/smpboot.c
-@@ -188,6 +188,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
- 		kfree(td);
- 		return PTR_ERR(tsk);
- 	}
-+	kthread_set_per_cpu(tsk, cpu);
- 	/*
- 	 * Park the thread so that it could start right on the CPU
- 	 * when it is available.
--- 
-2.27.0
-
+ 
+ 	get_device(&priv->master_mii_bus->dev);
+ 	priv->master_mii_dn = dn;
+ 
+ 	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
+-	if (!priv->slave_mii_bus)
++	if (!priv->slave_mii_bus) {
++		of_node_put(dn);
+ 		return -ENOMEM;
++	}
+ 
+ 	priv->slave_mii_bus->priv = priv;
+ 	priv->slave_mii_bus->name = "sf2 slave mii";
 
 
