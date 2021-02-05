@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC260310220
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 02:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4017E31021B
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 02:12:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232412AbhBEBQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 20:16:50 -0500
+        id S232525AbhBEBM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 20:12:27 -0500
 Received: from avas10dua.indosat.net.id ([219.83.54.102]:27582 "EHLO
         avas10dua.indosat.net.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbhBEBQt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 20:16:49 -0500
-IronPort-SDR: 9D7V7YkuLY928VpfQbfbz8ufbNACiVgOA7DudylW5WLVY4toQhqicnoKuNIeZTYT3pVwTKxF/z
- h1jptxVyfxgdpfNbahTddh2ab/awFhv/viLKhdGUg6ln5dByMDrMtrPvgTWomPw1bXsnPgayQh
- ytN6FV6mHq1eJd/9WqwTczqrx9rxaZGOA1rpWhNAg9uPE/wfTve9MIS8t2MMtzmA7feYGmd7e8
- nvzyOxELn66R4EUGX9IUTXO8FxpYdut/cVpAelOQk+WbZFM808SNjUISRWskOCWFaAjhZVs2VO
- xRo=
+        with ESMTP id S230037AbhBEBMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Feb 2021 20:12:25 -0500
+IronPort-SDR: 2mz0T1rGADG2ebwBqEYXpI/+aX60AzxFThejkpzf3coFMUb35WnNwJDH3j7nARXZRqmo4qvlAK
+ 15dM7WuftqpapMGWCg0xW4p1doE25si3/6ut8QieOM5AlPDt1oLxQcBT6E7RbY+b7UKkjvlca5
+ 7AuxoQ8XNUP2XHLsAe4vUbjWyKOEs7JxM/5bg2rnyQO0LIooBDBO9jhKTIpjyHt3t6oNupdAN0
+ 7+T9ncO8aC2gSYkkn1epsSWzZO+LLMzLzY7SYZ9jhYeWpuktmpJM0XGio6ryntJAb+0bliXBGN
+ qrU=
 X-IronPort-AV: E=Sophos;i="5.81,153,1610384400"; 
-   d="pdf'?jpg'145?scan'145,208,145";a="167156889"
+   d="pdf'?jpg'145?scan'145,208,145";a="167156888"
 Received: from im2mailps01.indosat.net.id ([202.155.50.151])
   by avas11dua.indosat.net.id with ESMTP; 05 Feb 2021 08:05:23 +0700
 Received: from (180.254.254.154) by webmail.indosat.net.id;  Fri, 5 Feb 2021 08:07:21 +0700
-Message-ID: <3363995.1931612487241678.JavaMail.defaultUser@defaultHost>
+Message-ID: <7963209.1911612487241678.JavaMail.defaultUser@defaultHost>
 Date:   Fri, 5 Feb 2021 08:07:21 +0700 (WIT)
 From:   NRA FINANCIAL SERVICE 
         <noreply_dateofficeOnHgTd1DgA@indosat.net.id>
@@ -29,13 +29,13 @@ Reply-To: nrafinancialservices@orthodontist.net
 Subject: COVID-19 support loan at 3%
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
-        boundary="----=_Part_108_28014118.1612487241570"
+        boundary="----=_Part_109_30181678.1612487241641"
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-------=_Part_108_28014118.1612487241570
+------=_Part_109_30181678.1612487241641
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -66,7 +66,7 @@ kindly view attached document for more details
 
 
 
-------=_Part_108_28014118.1612487241570
+------=_Part_109_30181678.1612487241641
 Content-Type: IMAGE/JPEG; 
 	name="Introducing_NRA Financial Services_3%_Special_Loan_Offer.jpg"
 Content-Transfer-Encoding: base64
@@ -3079,7 +3079,7 @@ UUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABR
 RRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFF
 FABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUU
 AFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH/2Q==
-------=_Part_108_28014118.1612487241570
+------=_Part_109_30181678.1612487241641
 Content-Type: APPLICATION/PDF; 
 	name="Introducing_NRA Financial Services_3%_Special_Loan_Offer.pdf"
 Content-Transfer-Encoding: base64
@@ -15983,5 +15983,5 @@ NkYwMT5dID4+DQpzdGFydHhyZWYNCjcyMzI0MQ0KJSVFT0YNCnhyZWYNCjAgMA0KdHJhaWxlcg0K
 PDwvU2l6ZSA1NzQvUm9vdCAxIDAgUi9JbmZvIDk5IDAgUi9JRFs8NTdGRkUwOEFEQTk4RTE0RTgw
 RkMzODZCMzUzMzZGMDE+PDU3RkZFMDhBREE5OEUxNEU4MEZDMzg2QjM1MzM2RjAxPl0gL1ByZXYg
 NzIzMjQxL1hSZWZTdG0gNzIxODMyPj4NCnN0YXJ0eHJlZg0KNzM0ODgxDQolJUVPRg==
-------=_Part_108_28014118.1612487241570--
+------=_Part_109_30181678.1612487241641--
 
