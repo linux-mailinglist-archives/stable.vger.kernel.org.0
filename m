@@ -2,119 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C75F6310EFB
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 18:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B300E310F0D
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 18:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233423AbhBEQBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 11:01:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53904 "EHLO mail.kernel.org"
+        id S233240AbhBEQEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 11:04:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233459AbhBEP7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:59:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F31864FC6;
-        Fri,  5 Feb 2021 14:14:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534498;
-        bh=IPu/KnhQuYij1Yo+UXNFmK41pPvNUgBHdzHHXXO6HsM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEKwfE8mLy8M/nuTXRjQCvT435qcaFvX+ClkJgLsYkRnY8R+MXcLDfqtFIhqImNfl
-         go0V9plGIpvAT5hAs8b9zNtZ5G/Gc/eEwceXmkU5b7wh4ZHHkcL5lOzepwul3pHI8p
-         O8hvQsrPnEAP2LXABKIQPIfCVuLj+SG6rlnApltY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/15] phy: cpcap-usb: Fix warning for missing regulator_disable
-Date:   Fri,  5 Feb 2021 15:08:53 +0100
-Message-Id: <20210205140650.065860947@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
-References: <20210205140649.733510103@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S233540AbhBEQC0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 11:02:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC1EC650CD;
+        Fri,  5 Feb 2021 14:19:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612534742;
+        bh=IsqTu5U4jAeaoIgHjiiLYMtjGgreQQGXa+ZI9MgTDPQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WN1xbVFDXQBWBmHuFJJvxgzEHk6Pi9fuqm+bMdljHoy/24H1PjdnWkKOKe77q+APf
+         VDUynbay+Pmo3z/x9Q9ZDFbEBGPw7zc7QRyuavce7aYxKwY30dGWXLa5h6QO9SeCuJ
+         TqgWWq6NWz0sKzfs3klc4Y5hoJoPvnZFgn5E+Q4in2GKIFCM31huRv2denjq46qRNX
+         aKJsW2MD+Hin2+yhLF1VZ2/cLRY+ZvAA+e821c1Gz9QCNt3LmiLCJHvK+5SPrcDMEu
+         eTrSvp4Is7i/xpWdN2IP0V3vtcNPuhtgZD3D6kcKnXLUmgA841oPmsrL4qKr7N/8rE
+         w/TgIGAjF6A8w==
+From:   Peter Chen <peter.chen@kernel.org>
+To:     mahongwei@zeku.com
+Cc:     wangqinyuan@zeku.com, chengwei@zeku.com,
+        Hongwei Ma <mahongwei_123@126.com>, stable@vger.kernel.org,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 1/1] mmc: core: sdio_bus: call sdio_free_func_cis only for standard SDIO card
+Date:   Fri,  5 Feb 2021 22:18:45 +0800
+Message-Id: <20210205141845.21701-1-peter.chen@kernel.org>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Hongwei Ma <mahongwei_123@126.com>
 
-[ Upstream commit 764257d9069a9c19758b626cc1ba4ae079335d9e ]
+tuple is only allcated for standard SDIO card, especially it causes memory
+corruption issue when the non-standard SDIO card has removed since the card
+device's reference counter does not increase for it at sdio_init_func, but
+all SDIO card device reference counter has decreased at sdio_release_func.
 
-On deferred probe, we will get the following splat:
-
-cpcap-usb-phy cpcap-usb-phy.0: could not initialize VBUS or ID IIO: -517
-WARNING: CPU: 0 PID: 21 at drivers/regulator/core.c:2123 regulator_put+0x68/0x78
-...
-(regulator_put) from [<c068ebf0>] (release_nodes+0x1b4/0x1fc)
-(release_nodes) from [<c068a9a4>] (really_probe+0x104/0x4a0)
-(really_probe) from [<c068b034>] (driver_probe_device+0x58/0xb4)
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20201230102105.11826-1-tony@atomide.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> #v5.4+
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 ---
- drivers/phy/motorola/phy-cpcap-usb.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/mmc/core/sdio_bus.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
-index 593c77dbde2eb..106f53f333242 100644
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -623,35 +623,42 @@ static int cpcap_usb_phy_probe(struct platform_device *pdev)
- 	generic_phy = devm_phy_create(ddata->dev, NULL, &ops);
- 	if (IS_ERR(generic_phy)) {
- 		error = PTR_ERR(generic_phy);
--		return PTR_ERR(generic_phy);
-+		goto out_reg_disable;
- 	}
+diff --git a/drivers/mmc/core/sdio_bus.c b/drivers/mmc/core/sdio_bus.c
+index 3d709029e07c..50279f805a53 100644
+--- a/drivers/mmc/core/sdio_bus.c
++++ b/drivers/mmc/core/sdio_bus.c
+@@ -292,7 +292,8 @@ static void sdio_release_func(struct device *dev)
+ {
+ 	struct sdio_func *func = dev_to_sdio_func(dev);
  
- 	phy_set_drvdata(generic_phy, ddata);
+-	sdio_free_func_cis(func);
++	if (!(card->quirks & MMC_QUIRK_NONSTD_SDIO))
++		sdio_free_func_cis(func);
  
- 	phy_provider = devm_of_phy_provider_register(ddata->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto out_reg_disable;
-+	}
- 
- 	error = cpcap_usb_init_optional_pins(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	cpcap_usb_init_optional_gpios(ddata);
- 
- 	error = cpcap_usb_init_iio(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	error = cpcap_usb_init_interrupts(pdev, ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	usb_add_phy_dev(&ddata->phy);
- 	atomic_set(&ddata->active, 1);
- 	schedule_delayed_work(&ddata->detect_work, msecs_to_jiffies(1));
- 
- 	return 0;
-+
-+out_reg_disable:
-+	regulator_disable(ddata->vusb);
-+
-+	return error;
- }
- 
- static int cpcap_usb_phy_remove(struct platform_device *pdev)
+ 	kfree(func->info);
+ 	kfree(func->tmpbuf);
 -- 
-2.27.0
-
-
+2.17.1
 
