@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDF8311480
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C6F311484
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233051AbhBEWHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:07:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44172 "EHLO mail.kernel.org"
+        id S231252AbhBEWHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:07:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232868AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232672AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AB2164FE1;
-        Fri,  5 Feb 2021 14:10:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7F1D64FE4;
+        Fri,  5 Feb 2021 14:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534210;
-        bh=0UYKa7TtmgGnAboBeb2IjcyL5KigOdu25IKMQmsRG9c=;
+        s=korg; t=1612534213;
+        bh=W7Vpy83IOBxnKH/43Ksz8+uME4R/QTSbwanOW1c2S1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtPdoZy4GcKYrIODKDYaT98R4WkunkKY6LWF+zpUfE+EgjutDXMRPbTsBudUJVZWN
-         7zYOEBsvOD8reZaB/WkTuuPZLE+d9Za8V2vlZ6ZJgREhKUrLTzGNyOJ/QFQ9ilEEOD
-         0C6QpjY3Ja4NO3I9MvGoEvMz4TGHD2/95YBhG218=
+        b=oxYze5t/vuK9ygGUAXVLa006CfwroiT16Oq76IeF+YYvhM10A0drV5fHlO1TF/YDf
+         2vc0eFotntsrMw7hRk5Hh8n76KxWdaQOXYvZ8vDc9TVGmUIPNAlRcWtbEgufO9NpX+
+         WfIuknq1lpVJMpCL/cbE0eNU08mH0MSdPdekqX/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Kevin Hao <haokexin@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 03/57] net: fec: put child node on error path
-Date:   Fri,  5 Feb 2021 15:06:29 +0100
-Message-Id: <20210205140656.129493848@linuxfoundation.org>
+Subject: [PATCH 5.10 04/57] net: octeontx2: Make sure the buffer is 128 byte aligned
+Date:   Fri,  5 Feb 2021 15:06:30 +0100
+Message-Id: <20210205140656.168305608@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -39,46 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 0607a2cddb60f4548b55e28ac56a8d73493a45bb upstream.
+commit db2805150a0f27c00ad286a29109397a7723adad upstream.
 
-Also decrement the reference count of child device on error path.
+The octeontx2 hardware needs the buffer to be 128 byte aligned.
+But in the current implementation of napi_alloc_frag(), it can't
+guarantee the return address is 128 byte aligned even the request size
+is a multiple of 128 bytes, so we have to request an extra 128 bytes and
+use the PTR_ALIGN() to make sure that the buffer is aligned correctly.
 
-Fixes: 3e782985cb3c ("net: ethernet: fec: Allow configuration of MDIO bus speed")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210120122037.83897-1-bianpan2016@163.com
+Fixes: 7a36e4918e30 ("octeontx2-pf: Use the napi_alloc_frag() to alloc the pool buffers")
+Reported-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Tested-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Link: https://lore.kernel.org/r/20210121070906.25380-1-haokexin@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 3 ++-
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 04f24c66cf36..55c28fbc5f9e 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2165,9 +2165,9 @@ static int fec_enet_mii_init(struct platform_device *pdev)
- 	fep->mii_bus->parent = &pdev->dev;
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -473,10 +473,11 @@ dma_addr_t __otx2_alloc_rbuf(struct otx2
+ 	dma_addr_t iova;
+ 	u8 *buf;
  
- 	err = of_mdiobus_register(fep->mii_bus, node);
--	of_node_put(node);
- 	if (err)
- 		goto err_out_free_mdiobus;
-+	of_node_put(node);
+-	buf = napi_alloc_frag(pool->rbsize);
++	buf = napi_alloc_frag(pool->rbsize + OTX2_ALIGN);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
  
- 	mii_cnt++;
- 
-@@ -2180,6 +2180,7 @@ static int fec_enet_mii_init(struct platform_device *pdev)
- err_out_free_mdiobus:
- 	mdiobus_free(fep->mii_bus);
- err_out:
-+	of_node_put(node);
- 	return err;
- }
- 
--- 
-2.30.0
-
++	buf = PTR_ALIGN(buf, OTX2_ALIGN);
+ 	iova = dma_map_single_attrs(pfvf->dev, buf, pool->rbsize,
+ 				    DMA_FROM_DEVICE, DMA_ATTR_SKIP_CPU_SYNC);
+ 	if (unlikely(dma_mapping_error(pfvf->dev, iova))) {
 
 
