@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F52C311412
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:00:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F35DE31139C
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232878AbhBEV6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:58:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44982 "EHLO mail.kernel.org"
+        id S232250AbhBEVdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:33:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232882AbhBEO71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:59:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B4186501C;
-        Fri,  5 Feb 2021 14:11:01 +0000 (UTC)
+        id S233019AbhBEPAA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:00:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4024F65052;
+        Fri,  5 Feb 2021 14:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534261;
-        bh=hvCJgtiskHqwsFaSnJ8nJEeTGp3QERMQ4m5jFCX8rKw=;
+        s=korg; t=1612534338;
+        bh=OCMQnjJPCi1dx8063Pqa+B+Pdskt7p/0dDR+1YtO/bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTy5cbxwOxNQJGBqcx64vLwGRwNv/55Yj1UVRhKEOXmQLcoXjTq16/ifRKhi+ENON
-         riW9WzOJ7O3Vz4COcc1Hfd1LFW5Rm+rkk8Et7sOhwcwfXbgbn0ii+o5Xx4+2w2mBav
-         BP4iop5qu5kFUVpjuVRZpHFE8n2SejqbREDM64Uw=
+        b=1eayAgjLpRfth3mB8RHOikfw9Qr+X0QUHQklUgw5m8ewqqXpPE0SKZQ2AmouTpysF
+         8tdZMvYlaquY7OVGFUwm9d7JA+4dfvekuHo/xM16wE3JTfv0xhGLYygAE3wAakkSro
+         MEJO3eBzb3mz3/a8laE17FpFVgu+3fxuutv7oXLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Aric Cyr <aric.cyr@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Anson Jacob <anson.jacob@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/57] drm/amd/display: Allow PSTATE chnage when no displays are enabled
-Date:   Fri,  5 Feb 2021 15:07:13 +0100
-Message-Id: <20210205140657.994940469@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 02/32] net: switchdev: dont set port_obj_info->handled true when -EOPNOTSUPP
+Date:   Fri,  5 Feb 2021 15:07:17 +0100
+Message-Id: <20210205140652.456963490@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
-References: <20210205140655.982616732@linuxfoundation.org>
+In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
+References: <20210205140652.348864025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-[ Upstream commit 8bc3d461d0a95bbcc2a0a908bbadc87e198a86a8 ]
+commit 20776b465c0c249f5e5b5b4fe077cd24ef1cda86 upstream.
 
-[Why]
-When no displays are currently enabled, display driver should not
-disallow PSTATE switching.
+It's not true that switchdev_port_obj_notify() only inspects the
+->handled field of "struct switchdev_notifier_port_obj_info" if
+call_switchdev_blocking_notifiers() returns 0 - there's a WARN_ON()
+triggering for a non-zero return combined with ->handled not being
+true. But the real problem here is that -EOPNOTSUPP is not being
+properly handled.
 
-[How]
-Allow PSTATE switching if either the active configuration supports it,
-or there are no active displays.
+The wrapper functions switchdev_handle_port_obj_add() et al change a
+return value of -EOPNOTSUPP to 0, and the treatment of ->handled in
+switchdev_port_obj_notify() seems to be designed to change that back
+to -EOPNOTSUPP in case nobody actually acted on the notifier (i.e.,
+everybody returned -EOPNOTSUPP).
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Anson Jacob <anson.jacob@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, as soon as some device down the stack passes the check_cb()
+check, ->handled gets set to true, which means that
+switchdev_port_obj_notify() cannot actually ever return -EOPNOTSUPP.
+
+This, for example, means that the detection of hardware offload
+support in the MRP code is broken: switchdev_port_obj_add() used by
+br_mrp_switchdev_send_ring_test() always returns 0, so since the MRP
+code thinks the generation of MRP test frames has been offloaded, no
+such frames are actually put on the wire. Similarly,
+br_mrp_switchdev_set_ring_role() also always returns 0, causing
+mrp->ring_role_offloaded to be set to 1.
+
+To fix this, continue to set ->handled true if any callback returns
+success or any error distinct from -EOPNOTSUPP. But if all the
+callbacks return -EOPNOTSUPP, make sure that ->handled stays false, so
+the logic in switchdev_port_obj_notify() can propagate that
+information.
+
+Fixes: 9a9f26e8f7ea ("bridge: mrp: Connect MRP API with the switchdev API")
+Fixes: f30f0601eb93 ("switchdev: Add helpers to aid traversal through lower devices")
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Link: https://lore.kernel.org/r/20210125124116.102928-1-rasmus.villemoes@prevas.dk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c    | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/switchdev/switchdev.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-index b0e9b0509568c..95d883482227e 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-@@ -239,6 +239,7 @@ static void dcn3_update_clocks(struct clk_mgr *clk_mgr_base,
- 	struct dmcu *dmcu = clk_mgr_base->ctx->dc->res_pool->dmcu;
- 	bool force_reset = false;
- 	bool update_uclk = false;
-+	bool p_state_change_support;
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -461,10 +461,11 @@ static int __switchdev_handle_port_obj_a
+ 	extack = switchdev_notifier_info_to_extack(&port_obj_info->info);
  
- 	if (dc->work_arounds.skip_clock_update || !clk_mgr->smu_present)
- 		return;
-@@ -279,8 +280,9 @@ static void dcn3_update_clocks(struct clk_mgr *clk_mgr_base,
- 		clk_mgr_base->clks.socclk_khz = new_clocks->socclk_khz;
+ 	if (check_cb(dev)) {
+-		/* This flag is only checked if the return value is success. */
+-		port_obj_info->handled = true;
+-		return add_cb(dev, port_obj_info->obj, port_obj_info->trans,
+-			      extack);
++		err = add_cb(dev, port_obj_info->obj, port_obj_info->trans,
++			     extack);
++		if (err != -EOPNOTSUPP)
++			port_obj_info->handled = true;
++		return err;
+ 	}
  
- 	clk_mgr_base->clks.prev_p_state_change_support = clk_mgr_base->clks.p_state_change_support;
--	if (should_update_pstate_support(safe_to_lower, new_clocks->p_state_change_support, clk_mgr_base->clks.p_state_change_support)) {
--		clk_mgr_base->clks.p_state_change_support = new_clocks->p_state_change_support;
-+	p_state_change_support = new_clocks->p_state_change_support || (display_count == 0);
-+	if (should_update_pstate_support(safe_to_lower, p_state_change_support, clk_mgr_base->clks.p_state_change_support)) {
-+		clk_mgr_base->clks.p_state_change_support = p_state_change_support;
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
+@@ -513,9 +514,10 @@ static int __switchdev_handle_port_obj_d
+ 	int err = -EOPNOTSUPP;
  
- 		/* to disable P-State switching, set UCLK min = max */
- 		if (!clk_mgr_base->clks.p_state_change_support)
--- 
-2.27.0
-
+ 	if (check_cb(dev)) {
+-		/* This flag is only checked if the return value is success. */
+-		port_obj_info->handled = true;
+-		return del_cb(dev, port_obj_info->obj);
++		err = del_cb(dev, port_obj_info->obj);
++		if (err != -EOPNOTSUPP)
++			port_obj_info->handled = true;
++		return err;
+ 	}
+ 
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
+@@ -563,9 +565,10 @@ static int __switchdev_handle_port_attr_
+ 	int err = -EOPNOTSUPP;
+ 
+ 	if (check_cb(dev)) {
+-		port_attr_info->handled = true;
+-		return set_cb(dev, port_attr_info->attr,
+-			      port_attr_info->trans);
++		err = set_cb(dev, port_attr_info->attr, port_attr_info->trans);
++		if (err != -EOPNOTSUPP)
++			port_attr_info->handled = true;
++		return err;
+ 	}
+ 
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
 
 
