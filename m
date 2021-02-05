@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2369C311459
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD3E6311433
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229537AbhBEWEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:04:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S232637AbhBEWBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232937AbhBEO5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C836B64FDE;
-        Fri,  5 Feb 2021 14:09:55 +0000 (UTC)
+        id S232838AbhBEOyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:54:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33ED764FD8;
+        Fri,  5 Feb 2021 14:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534196;
-        bh=f8H6f5ryS0R55IIGx+krgZyIAR/f6vQiAqxDJbIVdYg=;
+        s=korg; t=1612534204;
+        bh=Ei+H++JWsxsFhwx8F/JPvXtBIKGu1bdr15/qIkBKhKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1rHChooxDiGNlJDdowdiI7vpr5pGWvXzvrpKxt9wB95DdWaz8lWWVLDfb1MKkxzo
-         QrEO7GTf1zYxBQyJKKOpIxrbboLR0VAH2kE0SHwUX86CkvBAMhIpkLorsK0pHh+yA6
-         EDzHRWjE8vhRIIzjj5ZahY4B+ipgIwAU1ER/rbeI=
+        b=cUFjxNXuQqxyX50D1UaQXu+7EVHGAlhl4LIOk3EJvTJEUUkAnVEKPLBThvJOozPFq
+         m9QM5cbljbwmgboHnWbS3LLNtP0Nz3AKPm/MZeL76DRfocPjpYGTRr5CIfUaoceqav
+         3eCw32mBtWt+v1UeyU+qCbiK+8LauRfiMdhXRGd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Martin Wilck <mwilck@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 23/57] habanalabs: fix dma_addr passed to dma_mmap_coherent
-Date:   Fri,  5 Feb 2021 15:06:49 +0100
-Message-Id: <20210205140656.968808985@linuxfoundation.org>
+Subject: [PATCH 5.10 26/57] scsi: scsi_transport_srp: Dont block target in failfast state
+Date:   Fri,  5 Feb 2021 15:06:52 +0100
+Message-Id: <20210205140657.095615015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -39,54 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit a9d4ef643430d638de1910377f50e0d492d85a43 ]
+[ Upstream commit 72eeb7c7151302ef007f1acd018cbf6f30e50321 ]
 
-When doing dma_alloc_coherent in the driver, we add a certain hard-coded
-offset to the DMA address before returning to the callee function. This
-offset is needed when our device use this DMA address to perform
-outbound transactions to the host.
+If the port is in SRP_RPORT_FAIL_FAST state when srp_reconnect_rport() is
+entered, a transition to SDEV_BLOCK would be illegal, and a kernel WARNING
+would be triggered. Skip scsi_target_block() in this case.
 
-However, if we want to map the DMA'able memory to the user via
-dma_mmap_coherent(), we need to pass the original dma address, without
-this offset. Otherwise, we will get erronouos mapping.
-
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Link: https://lore.kernel.org/r/20210111142541.21534-1-mwilck@suse.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 3 ++-
- drivers/misc/habanalabs/goya/goya.c   | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_srp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index ed1bd41262ecd..68f661aca3ff2 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -3119,7 +3119,8 @@ static int gaudi_cb_mmap(struct hl_device *hdev, struct vm_area_struct *vma,
- 	vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP |
- 			VM_DONTCOPY | VM_NORESERVE;
- 
--	rc = dma_mmap_coherent(hdev->dev, vma, cpu_addr, dma_addr, size);
-+	rc = dma_mmap_coherent(hdev->dev, vma, cpu_addr,
-+				(dma_addr - HOST_PHYS_BASE), size);
- 	if (rc)
- 		dev_err(hdev->dev, "dma_mmap_coherent error %d", rc);
- 
-diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
-index 235d47b2420f5..986ed3c072088 100644
---- a/drivers/misc/habanalabs/goya/goya.c
-+++ b/drivers/misc/habanalabs/goya/goya.c
-@@ -2675,7 +2675,8 @@ static int goya_cb_mmap(struct hl_device *hdev, struct vm_area_struct *vma,
- 	vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP |
- 			VM_DONTCOPY | VM_NORESERVE;
- 
--	rc = dma_mmap_coherent(hdev->dev, vma, cpu_addr, dma_addr, size);
-+	rc = dma_mmap_coherent(hdev->dev, vma, cpu_addr,
-+				(dma_addr - HOST_PHYS_BASE), size);
- 	if (rc)
- 		dev_err(hdev->dev, "dma_mmap_coherent error %d", rc);
- 
+diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
+index cba1cf6a1c12d..1e939a2a387f3 100644
+--- a/drivers/scsi/scsi_transport_srp.c
++++ b/drivers/scsi/scsi_transport_srp.c
+@@ -541,7 +541,14 @@ int srp_reconnect_rport(struct srp_rport *rport)
+ 	res = mutex_lock_interruptible(&rport->mutex);
+ 	if (res)
+ 		goto out;
+-	scsi_target_block(&shost->shost_gendev);
++	if (rport->state != SRP_RPORT_FAIL_FAST)
++		/*
++		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
++		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
++		 * later is ok though, scsi_internal_device_unblock_nowait()
++		 * treats SDEV_TRANSPORT_OFFLINE like SDEV_BLOCK.
++		 */
++		scsi_target_block(&shost->shost_gendev);
+ 	res = rport->state != SRP_RPORT_LOST ? i->f->reconnect(rport) : -ENODEV;
+ 	pr_debug("%s (state %d): transport.reconnect() returned %d\n",
+ 		 dev_name(&shost->shost_gendev), rport->state, res);
 -- 
 2.27.0
 
