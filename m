@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7440311458
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB60B31145F
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbhBEWE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:04:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44974 "EHLO mail.kernel.org"
+        id S233010AbhBEWFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:05:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232927AbhBEO5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6614865094;
-        Fri,  5 Feb 2021 14:13:50 +0000 (UTC)
+        id S232939AbhBEO5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:57:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC1FD650C2;
+        Fri,  5 Feb 2021 14:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534431;
-        bh=CV+N50vR0wXZUYWyuvQ9Ue+mTRaVX7Jh7HwUsT/Z5q4=;
+        s=korg; t=1612534490;
+        bh=tl6keZasIZ9WS7JDVz0bg5JBs9ZZu9ZqJ3FJaEyrbRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNe+/toGw/KvN4gjny33+HcXPUpAJBb3Y9M+Tr1eJKokwsWlABrtczBRXfeRVsV6x
-         W2XQWFiEGH0+1ielUtPrXcoCGqpysKnFDGIitf/jCe/eOvxJE8RYTbgFLPyJtXJ65L
-         ct6//0HAjmeVzoznrpJh2edrHAXxHGzq3nq1HNZs=
+        b=s5HGmJe8j0goonw/B0il0FPlk+G+quXASQ8a7dsokZa1gIyJzhS5e7bgS0WYyFaG4
+         6O+voC08T+29CoDlflqD1XO/yS4TQF8pQdAuHmhgp8bVtuwHmhuwnc66quWzlFxmdA
+         w/yNmf3gcc2Wbce6extbsvQKo9ASAUqGHExzrGDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/17] kthread: Extract KTHREAD_IS_PER_CPU
-Date:   Fri,  5 Feb 2021 15:08:10 +0100
-Message-Id: <20210205140650.464297049@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 05/15] net_sched: gen_estimator: support large ewma log
+Date:   Fri,  5 Feb 2021 15:08:50 +0100
+Message-Id: <20210205140649.942435794@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
-References: <20210205140649.825180779@linuxfoundation.org>
+In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
+References: <20210205140649.733510103@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
+commit dd5e073381f2ada3630f36be42833c6e9c78b75e upstream
 
-There is a need to distinguish geniune per-cpu kthreads from kthreads
-that happen to have a single CPU affinity.
+syzbot report reminded us that very big ewma_log were supported in the past,
+even if they made litle sense.
 
-Geniune per-cpu kthreads are kthreads that are CPU affine for
-correctness, these will obviously have PF_KTHREAD set, but must also
-have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
-ruins things.
+tc qdisc replace dev xxx root est 1sec 131072sec ...
 
-However, these two things are not sufficient, PF_NO_SETAFFINITY is
-also set on other tasks that have their affinities controlled through
-other means, like for instance workqueues.
+While fixing the bug, also add boundary checks for ewma_log, in line
+with range supported by iproute2.
 
-Therefore another bit is needed; it turns out kthread_create_per_cpu()
-already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
-kthread_park()/kthread_unpark() work correctly.
+UBSAN: shift-out-of-bounds in net/core/gen_estimator.c:83:38
+shift exponent -1 is negative
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
+ est_timer.cold+0xbb/0x12d net/core/gen_estimator.c:83
+ call_timer_fn+0x1a5/0x710 kernel/time/timer.c:1417
+ expire_timers kernel/time/timer.c:1462 [inline]
+ __run_timers.part.0+0x692/0xa80 kernel/time/timer.c:1731
+ __run_timers kernel/time/timer.c:1712 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1744
+ __do_softirq+0x2bc/0xa77 kernel/softirq.c:343
+ asm_call_irq_on_stack+0xf/0x20
+ </IRQ>
+ __run_on_irqstack arch/x86/include/asm/irq_stack.h:26 [inline]
+ run_on_irqstack_cond arch/x86/include/asm/irq_stack.h:77 [inline]
+ do_softirq_own_stack+0xaa/0xd0 arch/x86/kernel/irq_64.c:77
+ invoke_softirq kernel/softirq.c:226 [inline]
+ __irq_exit_rcu+0x17f/0x200 kernel/softirq.c:420
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:432
+ sysvec_apic_timer_interrupt+0x4d/0x100 arch/x86/kernel/apic/apic.c:1096
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:628
+RIP: 0010:native_save_fl arch/x86/include/asm/irqflags.h:29 [inline]
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/irqflags.h:79 [inline]
+RIP: 0010:arch_irqs_disabled arch/x86/include/asm/irqflags.h:169 [inline]
+RIP: 0010:acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+RIP: 0010:acpi_idle_do_entry+0x1c9/0x250 drivers/acpi/processor_idle.c:516
 
-Expose this flag and remove the implicit setting of it from
-kthread_create_on_cpu(); the io_uring usage of it seems dubious at
-best.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20210121103506.557620262@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1c0d32fde5bd ("net_sched: gen_estimator: complete rewrite of rate estimators")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20210114181929.1717985-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kthread.h |  3 +++
- kernel/kthread.c        | 27 ++++++++++++++++++++++++++-
- kernel/smpboot.c        |  1 +
- 3 files changed, 30 insertions(+), 1 deletion(-)
+ net/core/gen_estimator.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index c1961761311db..72308c38e06c4 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -32,6 +32,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
+--- a/net/core/gen_estimator.c
++++ b/net/core/gen_estimator.c
+@@ -84,11 +84,11 @@ static void est_timer(unsigned long arg)
+ 	u64 rate, brate;
  
-+void kthread_set_per_cpu(struct task_struct *k, int cpu);
-+bool kthread_is_per_cpu(struct task_struct *k);
-+
- /**
-  * kthread_run - create and wake a thread.
-  * @threadfn: the function to run until signal_pending(current).
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 2eed853ab9cc5..81abfac351272 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -460,11 +460,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 		return p;
- 	kthread_bind(p, cpu);
- 	/* CPU hotplug need to bind once again when unparking the thread. */
--	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
- 	to_kthread(p)->cpu = cpu;
- 	return p;
- }
+ 	est_fetch_counters(est, &b);
+-	brate = (b.bytes - est->last_bytes) << (10 - est->ewma_log - est->intvl_log);
+-	brate -= (est->avbps >> est->ewma_log);
++	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
++	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
  
-+void kthread_set_per_cpu(struct task_struct *k, int cpu)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return;
+-	rate = (u64)(b.packets - est->last_packets) << (10 - est->ewma_log - est->intvl_log);
+-	rate -= (est->avpps >> est->ewma_log);
++	rate = (u64)(b.packets - est->last_packets) << (10 - est->intvl_log);
++	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
+ 
+ 	write_seqcount_begin(&est->seq);
+ 	est->avbps += brate;
+@@ -147,6 +147,9 @@ int gen_new_estimator(struct gnet_stats_
+ 	if (parm->interval < -2 || parm->interval > 3)
+ 		return -EINVAL;
+ 
++	if (parm->ewma_log == 0 || parm->ewma_log >= 31)
++		return -EINVAL;
 +
-+	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
-+
-+	if (cpu < 0) {
-+		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+		return;
-+	}
-+
-+	kthread->cpu = cpu;
-+	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
-+bool kthread_is_per_cpu(struct task_struct *k)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return false;
-+
-+	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
- /**
-  * kthread_unpark - unpark a thread created by kthread_create().
-  * @k:		thread created by kthread_create().
-diff --git a/kernel/smpboot.c b/kernel/smpboot.c
-index c230c2dd48e19..84c16654d8598 100644
---- a/kernel/smpboot.c
-+++ b/kernel/smpboot.c
-@@ -187,6 +187,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
- 		kfree(td);
- 		return PTR_ERR(tsk);
- 	}
-+	kthread_set_per_cpu(tsk, cpu);
- 	/*
- 	 * Park the thread so that it could start right on the CPU
- 	 * when it is available.
--- 
-2.27.0
-
+ 	est = kzalloc(sizeof(*est), GFP_KERNEL);
+ 	if (!est)
+ 		return -ENOBUFS;
 
 
