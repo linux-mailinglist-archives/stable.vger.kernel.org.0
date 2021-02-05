@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DAD311101
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FAF311105
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:23:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231656AbhBERjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:39:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54096 "EHLO mail.kernel.org"
+        id S233666AbhBERjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:39:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233272AbhBEP51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:57:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F6365083;
-        Fri,  5 Feb 2021 14:13:27 +0000 (UTC)
+        id S233446AbhBEP5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:57:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F26966507A;
+        Fri,  5 Feb 2021 14:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534408;
-        bh=byT5am75vna2ySvWbxeD5qPVxeMMVYztJNDFDpLwQJQ=;
+        s=korg; t=1612534391;
+        bh=Y+ixUP1Ec25lKYwt/7pjnJG/ADSoVOxNvnDCOXgwmNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4oSAJk4Pk0R8lUCUKCQ+SP0IZoNm5lWY31V/qT7cmcaCbl19VdiFYqQV/rDj5kyw
-         ygT2/3ecpIjomMKASyliqScMTF9nLERUiRxmb5thRkJ6bpfiE9ph3EGk80rdqSMwgJ
-         AdSG/FUHMVYXAahCj5XI9sVbK1HASTVS7NzIWQfg=
+        b=teZ/P5gKoV6brzr6osbe1olqLYo7IYlOmMf1qfk3NU0Lznzqaxj+HULVU0SO7QCUh
+         s1Wk1VFb3V7rLUd2z/QvF3WbhYmIT8AflmqMcpP1cef8xbMfAiaTUY6yP86hflTJa2
+         P9Be7tKGevH4VcUZ+Fr2pQoC7i06SMuiYMiFg3Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnold Gozum <arngozum@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Karan Tilak Kumar <kartilak@cisco.com>,
+        Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/32] platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
-Date:   Fri,  5 Feb 2021 15:07:31 +0100
-Message-Id: <20210205140653.032402575@linuxfoundation.org>
+Subject: [PATCH 5.4 20/32] scsi: fnic: Fix memleak in vnic_dev_init_devcmd2
+Date:   Fri,  5 Feb 2021 15:07:35 +0100
+Message-Id: <20210205140653.212222311@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
 References: <20210205140652.348864025@linuxfoundation.org>
@@ -40,38 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnold Gozum <arngozum@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit fcd38f178b785623c0325958225744f0d8a075c0 ]
+[ Upstream commit d6e3ae76728ccde49271d9f5acfebbea0c5625a3 ]
 
-The Dell Inspiron 7352 is a 2-in-1 model that has chassis-type "Notebook".
-Add this model to the dmi_switches_allow_list.
+When ioread32() returns 0xFFFFFFFF, we should execute cleanup functions
+like other error handling paths before returning.
 
-Signed-off-by: Arnold Gozum <arngozum@gmail.com>
-Link: https://lore.kernel.org/r/20201226205307.249659-1-arngozum@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201225083520.22015-1-dinghao.liu@zju.edu.cn
+Acked-by: Karan Tilak Kumar <kartilak@cisco.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/fnic/vnic_dev.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 37035dca469cf..d4fc2cbf78703 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -203,6 +203,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 7352"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
+diff --git a/drivers/scsi/fnic/vnic_dev.c b/drivers/scsi/fnic/vnic_dev.c
+index 522636e946282..c8bf8c7ada6a7 100644
+--- a/drivers/scsi/fnic/vnic_dev.c
++++ b/drivers/scsi/fnic/vnic_dev.c
+@@ -444,7 +444,8 @@ int vnic_dev_init_devcmd2(struct vnic_dev *vdev)
+ 	fetch_index = ioread32(&vdev->devcmd2->wq.ctrl->fetch_index);
+ 	if (fetch_index == 0xFFFFFFFF) { /* check for hardware gone  */
+ 		pr_err("error in devcmd2 init");
+-		return -ENODEV;
++		err = -ENODEV;
++		goto err_free_wq;
+ 	}
  
+ 	/*
+@@ -460,7 +461,7 @@ int vnic_dev_init_devcmd2(struct vnic_dev *vdev)
+ 	err = vnic_dev_alloc_desc_ring(vdev, &vdev->devcmd2->results_ring,
+ 			DEVCMD2_RING_SIZE, DEVCMD2_DESC_SIZE);
+ 	if (err)
+-		goto err_free_wq;
++		goto err_disable_wq;
+ 
+ 	vdev->devcmd2->result =
+ 		(struct devcmd2_result *) vdev->devcmd2->results_ring.descs;
+@@ -481,8 +482,9 @@ int vnic_dev_init_devcmd2(struct vnic_dev *vdev)
+ 
+ err_free_desc_ring:
+ 	vnic_dev_free_desc_ring(vdev, &vdev->devcmd2->results_ring);
+-err_free_wq:
++err_disable_wq:
+ 	vnic_wq_disable(&vdev->devcmd2->wq);
++err_free_wq:
+ 	vnic_wq_free(&vdev->devcmd2->wq);
+ err_free_devcmd2:
+ 	kfree(vdev->devcmd2);
 -- 
 2.27.0
 
