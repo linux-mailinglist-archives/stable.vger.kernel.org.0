@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C6F311484
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B05F5311477
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231252AbhBEWHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:07:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44672 "EHLO mail.kernel.org"
+        id S232643AbhBEWGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:06:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232672AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232844AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7F1D64FE4;
-        Fri,  5 Feb 2021 14:10:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F01064FE8;
+        Fri,  5 Feb 2021 14:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534213;
-        bh=W7Vpy83IOBxnKH/43Ksz8+uME4R/QTSbwanOW1c2S1g=;
+        s=korg; t=1612534219;
+        bh=LQFCfDTp9Mj36CDWD8S4ls7p/ay7TOVrvFHNGQczXJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxYze5t/vuK9ygGUAXVLa006CfwroiT16Oq76IeF+YYvhM10A0drV5fHlO1TF/YDf
-         2vc0eFotntsrMw7hRk5Hh8n76KxWdaQOXYvZ8vDc9TVGmUIPNAlRcWtbEgufO9NpX+
-         WfIuknq1lpVJMpCL/cbE0eNU08mH0MSdPdekqX/s=
+        b=uCQFhVYnpWv2HnHCSYngK3f1Qj+Ci/e+F2p0o5wrHIRfF7ruTZD154DoXuADSfO2J
+         3DyAfs6uPkh5vtrHo4Qn8980DMLnDaclVNLJB+CMucDjAghVeVCqRFHIQSg1nqVWau
+         1n4R8cDFAZKR+oR8g/Bjt1cDdTrc8RfhRStWv7nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Kevin Hao <haokexin@gmail.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 04/57] net: octeontx2: Make sure the buffer is 128 byte aligned
-Date:   Fri,  5 Feb 2021 15:06:30 +0100
-Message-Id: <20210205140656.168305608@linuxfoundation.org>
+Subject: [PATCH 5.10 06/57] mlxsw: spectrum_span: Do not overwrite policer configuration
+Date:   Fri,  5 Feb 2021 15:06:32 +0100
+Message-Id: <20210205140656.250429388@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -40,41 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit db2805150a0f27c00ad286a29109397a7723adad upstream.
+commit b6f6881aaf2344bf35a4221810737abe5fd210af upstream.
 
-The octeontx2 hardware needs the buffer to be 128 byte aligned.
-But in the current implementation of napi_alloc_frag(), it can't
-guarantee the return address is 128 byte aligned even the request size
-is a multiple of 128 bytes, so we have to request an extra 128 bytes and
-use the PTR_ALIGN() to make sure that the buffer is aligned correctly.
+The purpose of the delayed work in the SPAN module is to potentially
+update the destination port and various encapsulation parameters of SPAN
+agents that point to a VLAN device or a GRE tap. The destination port
+can change following the insertion of a new route, for example.
 
-Fixes: 7a36e4918e30 ("octeontx2-pf: Use the napi_alloc_frag() to alloc the pool buffers")
-Reported-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Tested-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Link: https://lore.kernel.org/r/20210121070906.25380-1-haokexin@gmail.com
+SPAN agents that point to a physical port or the CPU port are static and
+never change throughout the lifetime of the SPAN agent. Therefore, skip
+over them in the delayed work.
+
+This fixes an issue where the delayed work overwrites the policer
+that was set on a SPAN agent pointing to the CPU. Modifying the delayed
+work to inherit the original policer configuration is error-prone, as
+the same will be needed for any new parameter.
+
+Fixes: 4039504e6a0c ("mlxsw: spectrum_span: Allow setting policer on a SPAN agent")
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c | 6 ++++++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h | 1 +
+ 2 files changed, 7 insertions(+)
 
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -473,10 +473,11 @@ dma_addr_t __otx2_alloc_rbuf(struct otx2
- 	dma_addr_t iova;
- 	u8 *buf;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+index c6c5826aba41..1892cea05ee7 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+@@ -157,6 +157,7 @@ mlxsw_sp1_span_entry_cpu_deconfigure(struct mlxsw_sp_span_entry *span_entry)
  
--	buf = napi_alloc_frag(pool->rbsize);
-+	buf = napi_alloc_frag(pool->rbsize + OTX2_ALIGN);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
+ static const
+ struct mlxsw_sp_span_entry_ops mlxsw_sp1_span_entry_ops_cpu = {
++	.is_static = true,
+ 	.can_handle = mlxsw_sp1_span_cpu_can_handle,
+ 	.parms_set = mlxsw_sp1_span_entry_cpu_parms,
+ 	.configure = mlxsw_sp1_span_entry_cpu_configure,
+@@ -214,6 +215,7 @@ mlxsw_sp_span_entry_phys_deconfigure(struct mlxsw_sp_span_entry *span_entry)
  
-+	buf = PTR_ALIGN(buf, OTX2_ALIGN);
- 	iova = dma_map_single_attrs(pfvf->dev, buf, pool->rbsize,
- 				    DMA_FROM_DEVICE, DMA_ATTR_SKIP_CPU_SYNC);
- 	if (unlikely(dma_mapping_error(pfvf->dev, iova))) {
+ static const
+ struct mlxsw_sp_span_entry_ops mlxsw_sp_span_entry_ops_phys = {
++	.is_static = true,
+ 	.can_handle = mlxsw_sp_port_dev_check,
+ 	.parms_set = mlxsw_sp_span_entry_phys_parms,
+ 	.configure = mlxsw_sp_span_entry_phys_configure,
+@@ -721,6 +723,7 @@ mlxsw_sp2_span_entry_cpu_deconfigure(struct mlxsw_sp_span_entry *span_entry)
+ 
+ static const
+ struct mlxsw_sp_span_entry_ops mlxsw_sp2_span_entry_ops_cpu = {
++	.is_static = true,
+ 	.can_handle = mlxsw_sp2_span_cpu_can_handle,
+ 	.parms_set = mlxsw_sp2_span_entry_cpu_parms,
+ 	.configure = mlxsw_sp2_span_entry_cpu_configure,
+@@ -1036,6 +1039,9 @@ static void mlxsw_sp_span_respin_work(struct work_struct *work)
+ 		if (!refcount_read(&curr->ref_count))
+ 			continue;
+ 
++		if (curr->ops->is_static)
++			continue;
++
+ 		err = curr->ops->parms_set(mlxsw_sp, curr->to_dev, &sparms);
+ 		if (err)
+ 			continue;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
+index d907718bc8c5..aa1cd409c0e2 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
+@@ -60,6 +60,7 @@ struct mlxsw_sp_span_entry {
+ };
+ 
+ struct mlxsw_sp_span_entry_ops {
++	bool is_static;
+ 	bool (*can_handle)(const struct net_device *to_dev);
+ 	int (*parms_set)(struct mlxsw_sp *mlxsw_sp,
+ 			 const struct net_device *to_dev,
+-- 
+2.30.0
+
 
 
