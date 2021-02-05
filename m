@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBBF3110D0
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 434C6311103
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233556AbhBER3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:29:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54094 "EHLO mail.kernel.org"
+        id S233499AbhBERjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:39:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233472AbhBEP7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:59:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 940BB650A6;
-        Fri,  5 Feb 2021 14:14:12 +0000 (UTC)
+        id S233443AbhBEP5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:57:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF51265090;
+        Fri,  5 Feb 2021 14:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534453;
-        bh=f9HnJlx8Ydx0o3nuPmJvAbSPMqI+d07aH4Z9ucNyuqQ=;
+        s=korg; t=1612534425;
+        bh=8eU1kZakRpD69eguGY0XAU41DgXoTE2EH38U74TnHSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEsFiBv34pCgZPyH+QoXHXHSNQ8zBZpFig5ctIZXF0+gJAH2WISegRFYDrY+3KAJW
-         CMRW6rpC7E3eoZ/l/tj4PucGcQ1H6QZu7zgoq09Qk3EFGbzGPM0FWIilSO3WfeGL2Y
-         F57uFyZdX4Bg1s8ehVN4/vUXL+r4af7KA3sVUxS8=
+        b=TYkff4pvXYOyVbCkENnw4nOlbJF2O629Gw4HvLORzofXyTJmomxxnB6uDYnrUGS/H
+         TgTXru9iOEIhWrX/R2h/l8Ugm494LCY9gVJHUAKjIe8WnegnFRBrPKIQUGWQwmGan5
+         Hh2gImgcXtiO5e00jCcHS5z64HMpvLR5p6t0EXpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnold Gozum <arngozum@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/17] platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
-Date:   Fri,  5 Feb 2021 15:08:02 +0100
-Message-Id: <20210205140650.154725961@linuxfoundation.org>
+Subject: [PATCH 4.19 14/17] selftests/powerpc: Only test lwm/stmw on big endian
+Date:   Fri,  5 Feb 2021 15:08:08 +0100
+Message-Id: <20210205140650.385701195@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
 References: <20210205140649.825180779@linuxfoundation.org>
@@ -40,38 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnold Gozum <arngozum@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit fcd38f178b785623c0325958225744f0d8a075c0 ]
+[ Upstream commit dd3a44c06f7b4f14e90065bf05d62c255b20005f ]
 
-The Dell Inspiron 7352 is a 2-in-1 model that has chassis-type "Notebook".
-Add this model to the dmi_switches_allow_list.
+Newer binutils (>= 2.36) refuse to assemble lmw/stmw when building in
+little endian mode. That breaks compilation of our alignment handler
+test:
 
-Signed-off-by: Arnold Gozum <arngozum@gmail.com>
-Link: https://lore.kernel.org/r/20201226205307.249659-1-arngozum@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+  /tmp/cco4l14N.s: Assembler messages:
+  /tmp/cco4l14N.s:1440: Error: `lmw' invalid when little-endian
+  /tmp/cco4l14N.s:1814: Error: `stmw' invalid when little-endian
+  make[2]: *** [../../lib.mk:139: /output/kselftest/powerpc/alignment/alignment_handler] Error 1
+
+These tests do pass on little endian machines, as the kernel will
+still emulate those instructions even when running little
+endian (which is arguably a kernel bug).
+
+But we don't really need to test that case, so ifdef those
+instructions out to get the alignment test building again.
+
+Reported-by: Libor Pechacek <lpechacek@suse.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Tested-by: Libor Pechacek <lpechacek@suse.com>
+Link: https://lore.kernel.org/r/20210119041800.3093047-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../testing/selftests/powerpc/alignment/alignment_handler.c  | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index f5774372c3871..cf8587f96fc45 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -203,6 +203,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 7352"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
+diff --git a/tools/testing/selftests/powerpc/alignment/alignment_handler.c b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
+index 169a8b9719fb9..4f8335e0c9858 100644
+--- a/tools/testing/selftests/powerpc/alignment/alignment_handler.c
++++ b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
+@@ -384,7 +384,6 @@ int test_alignment_handler_integer(void)
+ 	LOAD_DFORM_TEST(ldu);
+ 	LOAD_XFORM_TEST(ldx);
+ 	LOAD_XFORM_TEST(ldux);
+-	LOAD_DFORM_TEST(lmw);
+ 	STORE_DFORM_TEST(stb);
+ 	STORE_XFORM_TEST(stbx);
+ 	STORE_DFORM_TEST(stbu);
+@@ -403,7 +402,11 @@ int test_alignment_handler_integer(void)
+ 	STORE_XFORM_TEST(stdx);
+ 	STORE_DFORM_TEST(stdu);
+ 	STORE_XFORM_TEST(stdux);
++
++#ifdef __BIG_ENDIAN__
++	LOAD_DFORM_TEST(lmw);
+ 	STORE_DFORM_TEST(stmw);
++#endif
  
+ 	return rc;
+ }
 -- 
 2.27.0
 
