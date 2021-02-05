@@ -2,288 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEF031160F
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E728311612
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:55:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230043AbhBEWuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:50:02 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23242 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232402AbhBEM5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 07:57:47 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 115ChbGs184882;
-        Fri, 5 Feb 2021 07:56:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=GuKnSk6zgz6x3RRwM1PuFt1p4xUh+BgE7xXxBuGDMwo=;
- b=a64uTI5+QrU6b3uY/JRa5eO8Im6Ol/27palTJjlZD5Xpyh0bz7JZZxCps0eG/TgKlomu
- i0v4ktKiMw5hXdjAIwHGQsWWIS/xWKXMFlalMZ6KIyXF+LCvIYXXjehWibsj6YmbLlSb
- Kujo0A1utvK8QjsNgzuk+yDcrjq8Vo/I8Z6dBfADOxA4QiAFS4iURm0f/jaItxgx8SWW
- X1GJcZ0s+G0axMeNFn24lPTdIj8TO5+ciIevyMGM+WcZfLf8AeTYw2Nnjdp6vaXyvaQf
- azxGi9Bl9GQ2TylV4vOnY6EdmwKffH6sHxWTSHM1IT1f2vDJrgl4AmtKTruoeDhCRkUA 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36h6998b1x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Feb 2021 07:56:59 -0500
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 115ChtEa186171;
-        Fri, 5 Feb 2021 07:56:58 -0500
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36h6998b14-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Feb 2021 07:56:58 -0500
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 115CWqU6019693;
-        Fri, 5 Feb 2021 12:56:56 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 36cy38nx2s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Feb 2021 12:56:56 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 115Cusos41026016
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 5 Feb 2021 12:56:54 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EDBA1AE053;
-        Fri,  5 Feb 2021 12:56:53 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BD83AE051;
-        Fri,  5 Feb 2021 12:56:53 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.52.212])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  5 Feb 2021 12:56:53 +0000 (GMT)
-Subject: Re: [PATCH v2 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
- entry pointer
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        david@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210202180028.876888-1-imbrenda@linux.ibm.com>
- <20210202180028.876888-2-imbrenda@linux.ibm.com>
- <16522b25-a590-fbc4-0eb6-3537d8032577@linux.ibm.com>
- <20210205131555.0b4f32d1@ibm-vm>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <9eb63005-a11f-a56a-d7e1-c65dd9e8d9a2@linux.ibm.com>
-Date:   Fri, 5 Feb 2021 13:56:53 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S230360AbhBEWuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:50:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35212 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232476AbhBENGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 08:06:07 -0500
+Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FA0C061786
+        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 05:05:14 -0800 (PST)
+Received: by mail-qt1-x829.google.com with SMTP id r20so4870482qtm.3
+        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 05:05:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=KoL6M6l9RNM0EewcRBWafbibsTr1Ax1UE+SarTxAsR8=;
+        b=n50KaEWl+Syw5ubG+Z6GsS620BPX3hwGK3sN1D08MwSLO2q/9bhljMmAGMUvS7p9yE
+         6SShdGHOWe9d2sb9xCdcL2rJyMj7d54EwHokStdaAEUOagNV6R40ZVjvR0SbskXfXf/t
+         r3UQFXB9s1TUasODXM7G9gty3ZLZmV7HswQyTbDFTP9RPL34cXZJ5qQQGDKLrkdlG3ys
+         hJdGM9ZFefNM1W5R89HEX97qsZV3VrztTISiQJNYETK0zP8kjvvI/kceil6UE+pWZWHA
+         EjgaovnDf1ggNbbOez53uyb+ztC2seQBCLyWxVgYRSiwUWu7664xkk7r59LIvVhisONZ
+         p7sQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=KoL6M6l9RNM0EewcRBWafbibsTr1Ax1UE+SarTxAsR8=;
+        b=SnwzRj9TMzn19Mi8+2shnHY7wj0GccRTv7v9GAxVfc7LBa/b+iVOOffsY/OIWu1BWY
+         v2m518msnaNiwh0/TMxONPaXUYu70MFItelRQVtRKqqx0ThqDK1Qk5J/jLRihqUTTD8v
+         20wVwQrBFyWkNiTKLs2K75YsVIcxQEP0Zc/wM4bqPCq+jOunVlYW/GWdpGE1dY26yMtF
+         JvFj67kw4tdBbHFEkdZh/idmh4VtfjSOBnLSy02V3zV6xmPtCih1vBb1Lou9JYgXWm0E
+         AFNOkvJshwzvQfYqNzCDaLExU+1gCNI26c9rjFd4V4z19piYtWnvTS2FDfn9BdpUU+KM
+         gT+w==
+X-Gm-Message-State: AOAM532vD4ITuDYhMH+Mb8nAkEMwCrb88dyWfVZN3Xksb2cHSbbV3Pyq
+        ttRr+NfUmB/80FuVKi4VuTroh9DvK875aTJb
+X-Google-Smtp-Source: ABdhPJyrPaatnEF3EQoyj/Wy2PZ1KQ7pMnWbi0KMDU4EU41/Go77mUQxNQU85CDc37SPJ/Q6Bs9lIw==
+X-Received: by 2002:aed:3145:: with SMTP id 63mr4062664qtg.189.1612530312637;
+        Fri, 05 Feb 2021 05:05:12 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
+        by smtp.gmail.com with ESMTPSA id e7sm7783668qtj.48.2021.02.05.05.05.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Feb 2021 05:05:12 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1l80nP-003pgK-Ip; Fri, 05 Feb 2021 09:05:11 -0400
+Date:   Fri, 5 Feb 2021 09:05:11 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Cc:     peterhuewe@gmx.de, jarkko@kernel.org, stefanb@linux.vnet.ibm.com,
+        James.Bottomley@hansenpartnership.com, stable@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <l.sanfilippo@kunbus.com>
+Subject: Re: [PATCH v3 1/2] tpm: fix reference counting for struct tpm_chip
+Message-ID: <20210205130511.GI4718@ziepe.ca>
+References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20210205131555.0b4f32d1@ibm-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-05_07:2021-02-05,2021-02-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- mlxlogscore=999 adultscore=0 lowpriorityscore=0 impostorscore=0
- phishscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102050083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/5/21 1:15 PM, Claudio Imbrenda wrote:
-> On Thu, 4 Feb 2021 17:34:00 +0100
-> Janosch Frank <frankja@linux.ibm.com> wrote:
+On Fri, Feb 05, 2021 at 12:50:42AM +0100, Lino Sanfilippo wrote:
+> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
 > 
->> On 2/2/21 7:00 PM, Claudio Imbrenda wrote:
->>> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
->>> DAT table entry, or to the invalid entry.
->>>
->>> Also return some flags in the lower bits of the address:
->>> DAT_PROT: indicates that DAT protection applies because of the
->>>           protection bit in the segment (or, if EDAT, region) tables
->>> NOT_PTE: indicates that the address of the DAT table entry returned
->>>          does not refer to a PTE, but to a segment or region table.
->>>
->>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> Cc: stable@vger.kernel.org
->>> ---
->>>  arch/s390/kvm/gaccess.c | 26 ++++++++++++++++++++++----
->>>  arch/s390/kvm/gaccess.h |  5 ++++-
->>>  arch/s390/kvm/vsie.c    |  8 ++++----
->>>  3 files changed, 30 insertions(+), 9 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
->>> index 6d6b57059493..2d7bcbfb185e 100644
->>> --- a/arch/s390/kvm/gaccess.c
->>> +++ b/arch/s390/kvm/gaccess.c
->>> @@ -1034,6 +1034,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, rfte.val = ptr;
->>>  			goto shadow_r2t;
->>>  		}
->>> +		*pgt = ptr + vaddr.rfx * 8;  
->>
->> So pgt either is a table entry if rc > 0 or a pointer to the first pte
->> on rc == 0 after this change?
+> The following sequence of operations results in a refcount warning:
 > 
-> yes
+> 1. Open device /dev/tpmrm
+> 2. Remove module tpm_tis_spi
+> 3. Write a TPM command to the file descriptor opened at step 1.
 > 
->> Hrm, if it is really based on RCs than I might be able to come to
->> terms with having two things in a ptr with the name pgt. But it needs
->> a comment change.
+> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
+> refcount_t: addition on 0; use-after-free.
+> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
+> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
+> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
+> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
+> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
+> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
+> Hardware name: BCM2711
+> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
+> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
+> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
+> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
+> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
+> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
+> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
+> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
+> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
+> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
+> Exception stack(0xc226bfa8 to 0xc226bff0)
+> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
+> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
+> bfe0: 0000006c beafe648 0001056c b6eb6944
 > 
-> will do.
-> 
->>>  		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8,
->>> &rfte.val); if (rc)
->>>  			return rc;
->>> @@ -1060,6 +1061,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, rste.val = ptr;
->>>  			goto shadow_r3t;
->>>  		}
->>> +		*pgt = ptr + vaddr.rsx * 8;
->>>  		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8,
->>> &rste.val); if (rc)
->>>  			return rc;
->>> @@ -1087,6 +1089,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, rtte.val = ptr;
->>>  			goto shadow_sgt;
->>>  		}
->>> +		*pgt = ptr + vaddr.rtx * 8;
->>>  		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8,
->>> &rtte.val); if (rc)
->>>  			return rc;
->>> @@ -1123,6 +1126,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, ste.val = ptr;
->>>  			goto shadow_pgt;
->>>  		}
->>> +		*pgt = ptr + vaddr.sx * 8;
->>>  		rc = gmap_read_table(parent, ptr + vaddr.sx * 8,
->>> &ste.val); if (rc)
->>>  			return rc;
->>> @@ -1157,6 +1161,8 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr,
->>>   * @vcpu: virtual cpu
->>>   * @sg: pointer to the shadow guest address space structure
->>>   * @saddr: faulting address in the shadow gmap
->>> + * @pteptr: will contain the address of the faulting DAT table
->>> entry, or of
->>> + *          the valid leaf, plus some flags  
->>
->> pteptr is not the right name if it can be two things
-> 
-> it cannot be two things there, kvm_s390_shadow_fault always returns a
-> DAT _entry_ (pte, segment, region).
-
-And that's exactly what I meant, it's not a pteptr i.e. not a (pte_t *)
-as the name would suggest.
+> The reason for this warning is the attempt to get the chip->dev reference
+> in tpm_common_write() although the reference counter is already zero.
 
 
+> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
+> extra reference used to prevent a premature zero counter is never taken,
+> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
 > 
->>>   *
->>>   * Returns: - 0 if the shadow fault was successfully resolved
->>>   *	    - > 0 (pgm exception code) on exceptions while
->>> faulting @@ -1165,11 +1171,11 @@ static int
->>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->>>   *	    - -ENOMEM if out of memory
->>>   */
->>>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
->>> -			  unsigned long saddr)
->>> +			  unsigned long saddr, unsigned long
->>> *pteptr) {
->>>  	union vaddress vaddr;
->>>  	union page_table_entry pte;
->>> -	unsigned long pgt;
->>> +	unsigned long pgt = 0;
->>>  	int dat_protection, fake;
->>>  	int rc;
->>>  
->>> @@ -1191,8 +1197,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu
->>> *vcpu, struct gmap *sg, pte.val = pgt + vaddr.px * PAGE_SIZE;
->>>  		goto shadow_page;
->>>  	}
->>> -	if (!rc)
->>> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px *
->>> 8, &pte.val); +
->>> +	switch (rc) {
->>> +	case PGM_SEGMENT_TRANSLATION:
->>> +	case PGM_REGION_THIRD_TRANS:
->>> +	case PGM_REGION_SECOND_TRANS:
->>> +	case PGM_REGION_FIRST_TRANS:
->>> +		pgt |= NOT_PTE;  
->>
->> GACC_TRANSL_ENTRY_INV ?
+> Fix this by removing the flag condition.
 > 
-> no, this is only for non-pte entries
-> 
->>> +		break;
->>> +	case 0:
->>> +		pgt += vaddr.px * 8;
->>> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
->>> +	}
->>> +	if (*pteptr)
->>> +		*pteptr = pgt | dat_protection * DAT_PROT;
->>>  	if (!rc && pte.i)
->>>  		rc = PGM_PAGE_TRANSLATION;
->>>  	if (!rc && pte.z)
->>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
->>> index f4c51756c462..66a6e2cec97a 100644
->>> --- a/arch/s390/kvm/gaccess.h
->>> +++ b/arch/s390/kvm/gaccess.h
->>> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
->>>  int ipte_lock_held(struct kvm_vcpu *vcpu);
->>>  int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu,
->>> unsigned long gra); 
->>> +#define DAT_PROT 2  
->>
->> GACC_TRANSL_ENTRY_PROT
-> 
-> this is also only for non-pte entries
-> 
->>> +#define NOT_PTE 4
->>> +
->>>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap
->>> *shadow,
->>> -			  unsigned long saddr);
->>> +			  unsigned long saddr, unsigned long
->>> *pteptr); 
->>>  #endif /* __KVM_S390_GACCESS_H */
->>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>> index c5d0a58b2c29..7db022141db3 100644
->>> --- a/arch/s390/kvm/vsie.c
->>> +++ b/arch/s390/kvm/vsie.c
->>> @@ -619,10 +619,10 @@ static int map_prefix(struct kvm_vcpu *vcpu,
->>> struct vsie_page *vsie_page) /* with mso/msl, the prefix lies at
->>> offset *mso* */ prefix += scb_s->mso;
->>>  
->>> -	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
->>> +	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix,
->>> NULL); if (!rc && (scb_s->ecb & ECB_TE))
->>>  		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
->>> -					   prefix + PAGE_SIZE);
->>> +					   prefix + PAGE_SIZE,
->>> NULL); /*
->>>  	 * We don't have to mprotect, we will be called for all
->>> unshadows.
->>>  	 * SIE will detect if protection applies and trigger a
->>> validity. @@ -913,7 +913,7 @@ static int handle_fault(struct
->>> kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>> current->thread.gmap_addr, 1); 
->>>  	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
->>> -				   current->thread.gmap_addr);
->>> +				   current->thread.gmap_addr,
->>> NULL); if (rc > 0) {
->>>  		rc = inject_fault(vcpu, rc,
->>>  				  current->thread.gmap_addr,
->>> @@ -935,7 +935,7 @@ static void handle_last_fault(struct kvm_vcpu
->>> *vcpu, {
->>>  	if (vsie_page->fault_addr)
->>>  		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
->>> -				      vsie_page->fault_addr);
->>> +				      vsie_page->fault_addr,
->>> NULL);  
->>
->> Ok
->>
->>>  	vsie_page->fault_addr = 0;
->>>  }
->>>  
->>>   
->>
-> 
+> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> already introduced function tpm_devs_release() to release the extra
+> reference but did not implement the required put on chip->devs that results
+> in the call of this function.
 
+Seems wonky, the devs is just supposed to be a side thing, nothing
+should be using it as a primary reference count for a tpm.
+
+The bug here is only that tpm_common_open() did not get a kref on the
+chip before putting it in priv and linking it to the fd. See the
+comment before tpm_try_get_ops() indicating the caller must already
+have taken care to ensure the chip is valid.
+
+This should be all you need to fix the oops:
+
+diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
+index 1784530b8387bb..1b738dca7fffb5 100644
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -105,6 +105,7 @@ static void tpm_timeout_work(struct work_struct *work)
+ void tpm_common_open(struct file *file, struct tpm_chip *chip,
+                     struct file_priv *priv, struct tpm_space *space)
+ {
++       get_device(&priv->chip.dev);
+        priv->chip = chip;
+        priv->space = space;
+        priv->response_read = true;
+@@ -261,6 +262,7 @@ void tpm_common_release(struct file *file, struct file_priv *priv)
+        flush_work(&priv->timeout_work);
+        file->private_data = NULL;
+        priv->response_length = 0;
++       put_device(&chip->dev);
+ }
+ 
+ int __init tpm_dev_common_init(void)
+
+> Fix this also by installing an action handler that puts chip->devs as soon
+> as the chip is unregistered.
+> 
+> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
+> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+>  drivers/char/tpm/tpm-chip.c       | 18 +++++++++++++++---
+>  drivers/char/tpm/tpm_ftpm_tee.c   |  2 ++
+>  drivers/char/tpm/tpm_vtpm_proxy.c |  1 +
+>  3 files changed, 18 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> index ddaeceb..3ace199 100644
+> +++ b/drivers/char/tpm/tpm-chip.c
+> @@ -360,8 +360,7 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+>  	 * while cdevs is in use.  The corresponding put
+>  	 * is in the tpm_devs_release (TPM2 only)
+>  	 */
+> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
+> -		get_device(&chip->dev);
+> +	get_device(&chip->dev);
+>  
+>  	if (chip->dev_num == 0)
+>  		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
+> @@ -422,8 +421,21 @@ struct tpm_chip *tpmm_chip_alloc(struct device *pdev,
+>  	rc = devm_add_action_or_reset(pdev,
+>  				      (void (*)(void *)) put_device,
+>  				      &chip->dev);
+> -	if (rc)
+> +	if (rc) {
+> +		put_device(&chip->devs);
+>  		return ERR_PTR(rc);
+
+This isn't right read what 'or_reset' does
+
+Jason
