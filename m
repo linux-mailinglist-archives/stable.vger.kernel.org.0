@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB92311115
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0489B3110D6
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbhBERmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:42:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54084 "EHLO mail.kernel.org"
+        id S233505AbhBERaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:30:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233444AbhBEP5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:57:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8081665027;
-        Fri,  5 Feb 2021 14:11:21 +0000 (UTC)
+        id S233468AbhBEP7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:59:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AA2C6502A;
+        Fri,  5 Feb 2021 14:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534282;
-        bh=2br25Ef6eA7dJw7oic9Ws2obV6HGNWmieqwjTzbnod4=;
+        s=korg; t=1612534285;
+        bh=7tNhC8ulhDtwMtSaZXJRxLWlcNzh4K3Z0fdcmoEtpOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2l4jtzoj9MJPK5cv95lICJh2rlje2ZcJaUuFxTDEjRff3+UF6M2ElHXrIil/rTlH
-         +oqEJpUKI2UDm8pOY00Pc6DgPAspqoq5dnoMrbPu4YKgTKBqJc9AoEfkxkpgMId+ST
-         o6XAHL1/YFkGIv5H+UlB35V9TINwSaOmugCJ7rhA=
+        b=BHjEas38vVqojxjAbWA7WLloHEtJ7ECjDkTfc51NxDB0SwlCh+PuG0Jv29vFnTLB3
+         tN8aCnQbsSAmg+LFJd6ddaNPkVF3f2CKG0vXCiIJpmMnUPLuZ9cMlyr7c7wTgrBGCR
+         Dm790fIQ8hVjQUWO9wRpPlr6oOV6+sotaXRdqnTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/57] habanalabs: disable FW events on device removal
-Date:   Fri,  5 Feb 2021 15:07:19 +0100
-Message-Id: <20210205140658.260965687@linuxfoundation.org>
+Subject: [PATCH 5.10 54/57] objtool: Dont fail the kernel build on fatal errors
+Date:   Fri,  5 Feb 2021 15:07:20 +0100
+Message-Id: <20210205140658.306208184@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -39,40 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 2dc4a6d79168e7e426e8ddf8e7219c9ffd13b2b1 ]
+[ Upstream commit 655cf86548a3938538642a6df27dd359e13c86bd ]
 
-When device is removed, we need to make sure the F/W won't send us
-any more events because during the remove process we disable the
-interrupts.
+This is basically a revert of commit 644592d32837 ("objtool: Fail the
+kernel build on fatal errors").
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+That change turned out to be more trouble than it's worth.  Failing the
+build is an extreme measure which sometimes gets too much attention and
+blocks CI build testing.
+
+These fatal-type warnings aren't yet as rare as we'd hope, due to the
+ever-increasing matrix of supported toolchains/plugins and their
+fast-changing nature as of late.
+
+Also, there are more people (and bots) looking for objtool warnings than
+ever before, so even non-fatal warnings aren't likely to be ignored for
+long.
+
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ tools/objtool/check.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index 09c328ee65da8..71b3a4d5adc65 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -1425,6 +1425,15 @@ void hl_device_fini(struct hl_device *hdev)
- 		}
- 	}
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index c6ab44543c92a..956383d5fa62e 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -2921,14 +2921,10 @@ int check(struct objtool_file *file)
+ 	warnings += ret;
  
-+	/* Disable PCI access from device F/W so it won't send us additional
-+	 * interrupts. We disable MSI/MSI-X at the halt_engines function and we
-+	 * can't have the F/W sending us interrupts after that. We need to
-+	 * disable the access here because if the device is marked disable, the
-+	 * message won't be send. Also, in case of heartbeat, the device CPU is
-+	 * marked as disable so this message won't be sent
+ out:
+-	if (ret < 0) {
+-		/*
+-		 *  Fatal error.  The binary is corrupt or otherwise broken in
+-		 *  some way, or objtool itself is broken.  Fail the kernel
+-		 *  build.
+-		 */
+-		return ret;
+-	}
+-
++	/*
++	 *  For now, don't fail the kernel build on fatal warnings.  These
++	 *  errors are still fairly common due to the growing matrix of
++	 *  supported toolchains and their recent pace of change.
 +	 */
-+	hl_fw_send_pci_access_msg(hdev,	CPUCP_PACKET_DISABLE_PCI_ACCESS);
-+
- 	/* Mark device as disabled */
- 	hdev->disabled = true;
- 
+ 	return 0;
+ }
 -- 
 2.27.0
 
