@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6CB131135B
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3DD311391
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbhBEVUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:20:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
+        id S233209AbhBEV32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:29:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233065AbhBEPCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:02:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E8A65074;
-        Fri,  5 Feb 2021 14:13:05 +0000 (UTC)
+        id S233022AbhBEPAA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:00:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 980ED65088;
+        Fri,  5 Feb 2021 14:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534386;
-        bh=bfsyji7DedJHGfGCvnof8We/7zg6zZ/EXeV5V/r3SC4=;
+        s=korg; t=1612534414;
+        bh=4mAGzt8SMD3xxAtecVsAfDHrwVvoKRI1L4dboU5xSFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0naG4fV+oAe4qhTOV5EMVpHsYLgYbmfqrUUrSKABcA/x5Z/pV+Sbtk6J8oGejM0B
-         /aJZddG6rvFypmAxtNNfj9pSa//UVgEyV0C5z3d6YkmPNjFsWd+5QYhyv6HrNwyOmE
-         BHxjPuMNiXFLjazemSf7yxHFiol5I9ndq8esmiHU=
+        b=EFNBI1/phDFiCuVXH1fPBKjRgXzlIDh2hhrVElCzzi5LEo4c06y++z8F9U1d3uP8r
+         21zYTc+Rs6TGaIDkKeljdZ5wIrtESMT8kqkvPdJNZNX5C0Lsg+DZbPj/VLnS0NwS6M
+         7Gm0gG0k/waZ4FNRo8wlGiEXEuli0ePTkgUmE1mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Martin Wilck <mwilck@suse.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/32] scsi: scsi_transport_srp: Dont block target in failfast state
-Date:   Fri,  5 Feb 2021 15:07:33 +0100
-Message-Id: <20210205140653.119183435@linuxfoundation.org>
+Subject: [PATCH 4.19 10/17] scsi: scsi_transport_srp: Dont block target in failfast state
+Date:   Fri,  5 Feb 2021 15:08:04 +0100
+Message-Id: <20210205140650.226664240@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
-References: <20210205140652.348864025@linuxfoundation.org>
+In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
+References: <20210205140649.825180779@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index d4d1104fac991..8cd0a87764dfd 100644
+index 4e46fdb2d7c99..2aaf1b7103981 100644
 --- a/drivers/scsi/scsi_transport_srp.c
 +++ b/drivers/scsi/scsi_transport_srp.c
-@@ -541,7 +541,14 @@ int srp_reconnect_rport(struct srp_rport *rport)
+@@ -555,7 +555,14 @@ int srp_reconnect_rport(struct srp_rport *rport)
  	res = mutex_lock_interruptible(&rport->mutex);
  	if (res)
  		goto out;
