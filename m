@@ -2,210 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE827310DFF
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 17:39:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AAE8310E16
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 17:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230111AbhBEO7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 09:59:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
+        id S233099AbhBEPEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 10:04:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232948AbhBEO5X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2981965060;
-        Fri,  5 Feb 2021 14:12:39 +0000 (UTC)
+        id S233069AbhBEPCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:02:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FC3C65042;
+        Fri,  5 Feb 2021 14:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534360;
-        bh=AFRu770qxT4dJB284AhaaMOLr7QZypYgV+N4yR/3l0E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=k55Is1pS1Rjn9IfhzxeZDy/yuwQQSct7yBWrITnCijxJtSKXTooAR9v1YQwkhyd4P
-         oCMx6DG+JDTVrL1QU5yNyUIFSARsbNrEE2hQQSosl+77L1vN0yPLigQnX1RlIBdwcT
-         83bTDQpzNV5Bx486/CeHt/pK0nc3mQMJvaKuhUvQ=
+        s=korg; t=1612534321;
+        bh=RC4wRZDrZA0fZbK+UMQHFykRCWnDFMVXhScHL7ahyvw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=g2Xc8UniRzTJ00cNICnVeU0+GAkh9mn6KpqOvL/bSHaNz+jqm95EG4LdLuBuGzq44
+         rOglSDhV8d8VdZIvOQchoFyl1wii2ZzoLo1U/mZ313uWq+GFRmXMW6Ppbdd82VpOrS
+         GDwiSK3JMt3jADZB8E226QeixdwVzdQ+aXfhdyzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 00/32] 5.4.96-rc1 review
-Date:   Fri,  5 Feb 2021 15:07:15 +0100
-Message-Id: <20210205140652.348864025@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        ethanwu <ethanwu@synology.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 10/32] btrfs: backref, dont add refs from shared block when resolving normal backref
+Date:   Fri,  5 Feb 2021 15:07:25 +0100
+Message-Id: <20210205140652.781147189@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
+References: <20210205140652.348864025@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.96-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.96-rc1
-X-KernelTest-Deadline: 2021-02-07T14:06+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.96 release.
-There are 32 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: ethanwu <ethanwu@synology.com>
 
-Responses should be made by Sun, 07 Feb 2021 14:06:42 +0000.
-Anything received after that time might be too late.
+commit ed58f2e66e849c34826083e5a6c1b506ee8a4d8e upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.96-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+All references from the block of SHARED_DATA_REF belong to that shared
+block backref.
 
-thanks,
+For example:
 
-greg k-h
+  item 11 key (40831553536 EXTENT_ITEM 4194304) itemoff 15460 itemsize 95
+      extent refs 24 gen 7302 flags DATA
+      extent data backref root 257 objectid 260 offset 65536 count 5
+      extent data backref root 258 objectid 265 offset 0 count 9
+      shared data backref parent 394985472 count 10
 
--------------
-Pseudo-Shortlog of commits:
+Block 394985472 might be leaf from root 257, and the item obejctid and
+(file_pos - file_extent_item::offset) in that leaf just happens to be
+260 and 65536 which is equal to the first extent data backref entry.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.96-rc1
+Before this patch, when we resolve backref:
 
-Peter Zijlstra <peterz@infradead.org>
-    workqueue: Restrict affinity change to rescuer
+  root 257 objectid 260 offset 65536
 
-Peter Zijlstra <peterz@infradead.org>
-    kthread: Extract KTHREAD_IS_PER_CPU
+we will add those refs in block 394985472 and wrongly treat those as the
+refs we want.
 
-Josh Poimboeuf <jpoimboe@redhat.com>
-    objtool: Don't fail on missing symbol table
+Fix this by checking if the leaf we are processing is shared data
+backref, if so, just skip this leaf.
 
-Bing Guo <bing.guo@amd.com>
-    drm/amd/display: Change function decide_dp_link_settings to avoid infinite looping
+Shared data refs added into preftrees.direct have all entry value = 0
+(root_id = 0, key = NULL, level = 0) except parent entry.
 
-Jake Wang <haonan.wang2@amd.com>
-    drm/amd/display: Update dram_clock_change_latency for DCN2.1
+Other refs from indirect tree will have key value and root id != 0, and
+these values won't be changed when their parent is resolved and added to
+preftrees.direct. Therefore, we could reuse the preftrees.direct and
+search ref with all values = 0 except parent is set to avoid getting
+those resolved refs block.
 
-Michael Ellerman <mpe@ellerman.id.au>
-    selftests/powerpc: Only test lwm/stmw on big endian
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: ethanwu <ethanwu@synology.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/btrfs/backref.c |   61 +++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 52 insertions(+), 9 deletions(-)
 
-Revanth Rajashekar <revanth.rajashekar@intel.com>
-    nvme: check the PRINFO bit before deciding the host buffer length
-
-lianzhi chang <changlianzhi@uniontech.com>
-    udf: fix the problem that the disc content is not displayed
-
-Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>
-    ALSA: hda: Add Cometlake-R PCI ID
-
-Brian King <brking@linux.vnet.ibm.com>
-    scsi: ibmvfc: Set default timeout to avoid crash during migration
-
-Felix Fietkau <nbd@nbd.name>
-    mac80211: fix fast-rx encryption check
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ASoC: SOF: Intel: hda: Resume codec to do jack detection
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    scsi: fnic: Fix memleak in vnic_dev_init_devcmd2
-
-Javed Hasan <jhasan@marvell.com>
-    scsi: libfc: Avoid invoking response handler twice if ep is already completed
-
-Martin Wilck <mwilck@suse.com>
-    scsi: scsi_transport_srp: Don't block target in failfast state
-
-Peter Zijlstra <peterz@infradead.org>
-    x86: __always_inline __{rd,wr}msr()
-
-Arnold Gozum <arngozum@gmail.com>
-    platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: touchscreen_dmi: Add swap-x-y quirk for Goodix touchscreen on Estar Beauty HD tablet
-
-Tony Lindgren <tony@atomide.com>
-    phy: cpcap-usb: Fix warning for missing regulator_disable
-
-Eric Dumazet <edumazet@google.com>
-    net_sched: gen_estimator: support large ewma log
-
-ethanwu <ethanwu@synology.com>
-    btrfs: backref, use correct count to resolve normal data refs
-
-ethanwu <ethanwu@synology.com>
-    btrfs: backref, only search backref entries from leaves of the same root
-
-ethanwu <ethanwu@synology.com>
-    btrfs: backref, don't add refs from shared block when resolving normal backref
-
-ethanwu <ethanwu@synology.com>
-    btrfs: backref, only collect file extent items matching backref offset
-
-Enke Chen <enchen@paloaltonetworks.com>
-    tcp: make TCP_USER_TIMEOUT accurate for zero window probes
-
-Catalin Marinas <catalin.marinas@arm.com>
-    arm64: Do not pass tagged addresses to __is_lm_address()
-
-Vincenzo Frascino <vincenzo.frascino@arm.com>
-    arm64: Fix kernel address detection of __is_lm_address()
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    ACPI: thermal: Do not call acpi_thermal_check() directly
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "Revert "block: end bio with BLK_STS_AGAIN in case of non-mq devs and REQ_NOWAIT""
-
-Lijun Pan <ljp@linux.ibm.com>
-    ibmvnic: Ensure that CRQ entry read are correctly ordered
-
-Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-    net: switchdev: don't set port_obj_info->handled true when -EOPNOTSUPP
-
-Pan Bian <bianpan2016@163.com>
-    net: dsa: bcm_sf2: put device node before return
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm64/include/asm/memory.h                    |  10 +-
- arch/arm64/mm/physaddr.c                           |   2 +-
- arch/x86/include/asm/msr.h                         |   4 +-
- block/blk-core.c                                   |  11 +-
- drivers/acpi/thermal.c                             |  55 +++++---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |   3 +
- .../gpu/drm/amd/display/dc/dcn21/dcn21_resource.c  |   2 +-
- drivers/net/dsa/bcm_sf2.c                          |   8 +-
- drivers/net/ethernet/ibm/ibmvnic.c                 |   6 +
- drivers/nvme/host/core.c                           |  17 ++-
- drivers/phy/motorola/phy-cpcap-usb.c               |  19 ++-
- drivers/platform/x86/intel-vbtn.c                  |   6 +
- drivers/platform/x86/touchscreen_dmi.c             |  18 +++
- drivers/scsi/fnic/vnic_dev.c                       |   8 +-
- drivers/scsi/ibmvscsi/ibmvfc.c                     |   4 +-
- drivers/scsi/libfc/fc_exch.c                       |  16 ++-
- drivers/scsi/scsi_transport_srp.c                  |   9 +-
- fs/btrfs/backref.c                                 | 157 +++++++++++++--------
- fs/udf/super.c                                     |   7 +-
- include/linux/kthread.h                            |   3 +
- include/net/tcp.h                                  |   1 +
- kernel/kthread.c                                   |  27 +++-
- kernel/smpboot.c                                   |   1 +
- kernel/workqueue.c                                 |   9 +-
- net/core/gen_estimator.c                           |  11 +-
- net/ipv4/tcp_input.c                               |   1 +
- net/ipv4/tcp_output.c                              |   2 +
- net/ipv4/tcp_timer.c                               |  18 +++
- net/mac80211/rx.c                                  |   2 +
- net/switchdev/switchdev.c                          |  23 +--
- sound/pci/hda/hda_intel.c                          |   3 +
- sound/soc/sof/intel/hda-codec.c                    |   3 +-
- tools/objtool/elf.c                                |   7 +-
- .../powerpc/alignment/alignment_handler.c          |   5 +-
- 35 files changed, 348 insertions(+), 134 deletions(-)
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -386,8 +386,34 @@ static int add_indirect_ref(const struct
+ 			      wanted_disk_byte, count, sc, gfp_mask);
+ }
+ 
++static int is_shared_data_backref(struct preftrees *preftrees, u64 bytenr)
++{
++	struct rb_node **p = &preftrees->direct.root.rb_root.rb_node;
++	struct rb_node *parent = NULL;
++	struct prelim_ref *ref = NULL;
++	struct prelim_ref target = {0};
++	int result;
++
++	target.parent = bytenr;
++
++	while (*p) {
++		parent = *p;
++		ref = rb_entry(parent, struct prelim_ref, rbnode);
++		result = prelim_ref_compare(ref, &target);
++
++		if (result < 0)
++			p = &(*p)->rb_left;
++		else if (result > 0)
++			p = &(*p)->rb_right;
++		else
++			return 1;
++	}
++	return 0;
++}
++
+ static int add_all_parents(struct btrfs_root *root, struct btrfs_path *path,
+-			   struct ulist *parents, struct prelim_ref *ref,
++			   struct ulist *parents,
++			   struct preftrees *preftrees, struct prelim_ref *ref,
+ 			   int level, u64 time_seq, const u64 *extent_item_pos,
+ 			   u64 total_refs, bool ignore_offset)
+ {
+@@ -412,11 +438,16 @@ static int add_all_parents(struct btrfs_
+ 	}
+ 
+ 	/*
+-	 * We normally enter this function with the path already pointing to
+-	 * the first item to check. But sometimes, we may enter it with
+-	 * slot==nritems. In that case, go to the next leaf before we continue.
++	 * 1. We normally enter this function with the path already pointing to
++	 *    the first item to check. But sometimes, we may enter it with
++	 *    slot == nritems.
++	 * 2. We are searching for normal backref but bytenr of this leaf
++	 *    matches shared data backref
++	 * For these cases, go to the next leaf before we continue.
+ 	 */
+-	if (path->slots[0] >= btrfs_header_nritems(path->nodes[0])) {
++	eb = path->nodes[0];
++	if (path->slots[0] >= btrfs_header_nritems(eb) ||
++	    is_shared_data_backref(preftrees, eb->start)) {
+ 		if (time_seq == SEQ_LAST)
+ 			ret = btrfs_next_leaf(root, path);
+ 		else
+@@ -433,6 +464,17 @@ static int add_all_parents(struct btrfs_
+ 		    key.type != BTRFS_EXTENT_DATA_KEY)
+ 			break;
+ 
++		/*
++		 * We are searching for normal backref but bytenr of this leaf
++		 * matches shared data backref.
++		 */
++		if (slot == 0 && is_shared_data_backref(preftrees, eb->start)) {
++			if (time_seq == SEQ_LAST)
++				ret = btrfs_next_leaf(root, path);
++			else
++				ret = btrfs_next_old_leaf(root, path, time_seq);
++			continue;
++		}
+ 		fi = btrfs_item_ptr(eb, slot, struct btrfs_file_extent_item);
+ 		disk_byte = btrfs_file_extent_disk_bytenr(eb, fi);
+ 		data_offset = btrfs_file_extent_offset(eb, fi);
+@@ -484,6 +526,7 @@ next:
+  */
+ static int resolve_indirect_ref(struct btrfs_fs_info *fs_info,
+ 				struct btrfs_path *path, u64 time_seq,
++				struct preftrees *preftrees,
+ 				struct prelim_ref *ref, struct ulist *parents,
+ 				const u64 *extent_item_pos, u64 total_refs,
+ 				bool ignore_offset)
+@@ -577,8 +620,8 @@ static int resolve_indirect_ref(struct b
+ 		eb = path->nodes[level];
+ 	}
+ 
+-	ret = add_all_parents(root, path, parents, ref, level, time_seq,
+-			      extent_item_pos, total_refs, ignore_offset);
++	ret = add_all_parents(root, path, parents, preftrees, ref, level,
++			      time_seq, extent_item_pos, total_refs, ignore_offset);
+ out:
+ 	path->lowest_level = 0;
+ 	btrfs_release_path(path);
+@@ -656,8 +699,8 @@ static int resolve_indirect_refs(struct
+ 			ret = BACKREF_FOUND_SHARED;
+ 			goto out;
+ 		}
+-		err = resolve_indirect_ref(fs_info, path, time_seq, ref,
+-					   parents, extent_item_pos,
++		err = resolve_indirect_ref(fs_info, path, time_seq, preftrees,
++					   ref, parents, extent_item_pos,
+ 					   total_refs, ignore_offset);
+ 		/*
+ 		 * we can only tolerate ENOENT,otherwise,we should catch error
 
 
