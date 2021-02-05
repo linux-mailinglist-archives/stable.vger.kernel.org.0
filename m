@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B05F5311477
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE5231146B
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232643AbhBEWGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:06:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
+        id S233119AbhBEWFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:05:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232844AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F01064FE8;
-        Fri,  5 Feb 2021 14:10:18 +0000 (UTC)
+        id S229808AbhBEO5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:57:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32BFE64FEA;
+        Fri,  5 Feb 2021 14:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534219;
-        bh=LQFCfDTp9Mj36CDWD8S4ls7p/ay7TOVrvFHNGQczXJM=;
+        s=korg; t=1612534224;
+        bh=Cj/B1VP4Nq9rLzQuLhmLU1FGWwvS+ujJdZzf7lCA0VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCQFhVYnpWv2HnHCSYngK3f1Qj+Ci/e+F2p0o5wrHIRfF7ruTZD154DoXuADSfO2J
-         3DyAfs6uPkh5vtrHo4Qn8980DMLnDaclVNLJB+CMucDjAghVeVCqRFHIQSg1nqVWau
-         1n4R8cDFAZKR+oR8g/Bjt1cDdTrc8RfhRStWv7nk=
+        b=sUkVVOmGPGwyU1gddlOO4GfZf1EcjO3v/RkOukN2hMImX3GFB7T7vER/cP1MWvhab
+         Q6eOCK2VmWtDecLEb0sZaY8FemTv778XH8Ne2w7AIaD9F3qQ/VdKBy/atAqTjLMSH0
+         6mX/sByozjsj8vjMG/weYJJ3zehVwEqhdnFh4KZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 06/57] mlxsw: spectrum_span: Do not overwrite policer configuration
-Date:   Fri,  5 Feb 2021 15:06:32 +0100
-Message-Id: <20210205140656.250429388@linuxfoundation.org>
+Subject: [PATCH 5.10 08/57] net: switchdev: dont set port_obj_info->handled true when -EOPNOTSUPP
+Date:   Fri,  5 Feb 2021 15:06:34 +0100
+Message-Id: <20210205140656.336002214@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -40,86 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-commit b6f6881aaf2344bf35a4221810737abe5fd210af upstream.
+commit 20776b465c0c249f5e5b5b4fe077cd24ef1cda86 upstream.
 
-The purpose of the delayed work in the SPAN module is to potentially
-update the destination port and various encapsulation parameters of SPAN
-agents that point to a VLAN device or a GRE tap. The destination port
-can change following the insertion of a new route, for example.
+It's not true that switchdev_port_obj_notify() only inspects the
+->handled field of "struct switchdev_notifier_port_obj_info" if
+call_switchdev_blocking_notifiers() returns 0 - there's a WARN_ON()
+triggering for a non-zero return combined with ->handled not being
+true. But the real problem here is that -EOPNOTSUPP is not being
+properly handled.
 
-SPAN agents that point to a physical port or the CPU port are static and
-never change throughout the lifetime of the SPAN agent. Therefore, skip
-over them in the delayed work.
+The wrapper functions switchdev_handle_port_obj_add() et al change a
+return value of -EOPNOTSUPP to 0, and the treatment of ->handled in
+switchdev_port_obj_notify() seems to be designed to change that back
+to -EOPNOTSUPP in case nobody actually acted on the notifier (i.e.,
+everybody returned -EOPNOTSUPP).
 
-This fixes an issue where the delayed work overwrites the policer
-that was set on a SPAN agent pointing to the CPU. Modifying the delayed
-work to inherit the original policer configuration is error-prone, as
-the same will be needed for any new parameter.
+Currently, as soon as some device down the stack passes the check_cb()
+check, ->handled gets set to true, which means that
+switchdev_port_obj_notify() cannot actually ever return -EOPNOTSUPP.
 
-Fixes: 4039504e6a0c ("mlxsw: spectrum_span: Allow setting policer on a SPAN agent")
+This, for example, means that the detection of hardware offload
+support in the MRP code is broken: switchdev_port_obj_add() used by
+br_mrp_switchdev_send_ring_test() always returns 0, so since the MRP
+code thinks the generation of MRP test frames has been offloaded, no
+such frames are actually put on the wire. Similarly,
+br_mrp_switchdev_set_ring_role() also always returns 0, causing
+mrp->ring_role_offloaded to be set to 1.
+
+To fix this, continue to set ->handled true if any callback returns
+success or any error distinct from -EOPNOTSUPP. But if all the
+callbacks return -EOPNOTSUPP, make sure that ->handled stays false, so
+the logic in switchdev_port_obj_notify() can propagate that
+information.
+
+Fixes: 9a9f26e8f7ea ("bridge: mrp: Connect MRP API with the switchdev API")
+Fixes: f30f0601eb93 ("switchdev: Add helpers to aid traversal through lower devices")
 Reviewed-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Link: https://lore.kernel.org/r/20210125124116.102928-1-rasmus.villemoes@prevas.dk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c | 6 ++++++
- drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h | 1 +
- 2 files changed, 7 insertions(+)
+ net/switchdev/switchdev.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-index c6c5826aba41..1892cea05ee7 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-@@ -157,6 +157,7 @@ mlxsw_sp1_span_entry_cpu_deconfigure(struct mlxsw_sp_span_entry *span_entry)
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -460,10 +460,11 @@ static int __switchdev_handle_port_obj_a
+ 	extack = switchdev_notifier_info_to_extack(&port_obj_info->info);
  
- static const
- struct mlxsw_sp_span_entry_ops mlxsw_sp1_span_entry_ops_cpu = {
-+	.is_static = true,
- 	.can_handle = mlxsw_sp1_span_cpu_can_handle,
- 	.parms_set = mlxsw_sp1_span_entry_cpu_parms,
- 	.configure = mlxsw_sp1_span_entry_cpu_configure,
-@@ -214,6 +215,7 @@ mlxsw_sp_span_entry_phys_deconfigure(struct mlxsw_sp_span_entry *span_entry)
+ 	if (check_cb(dev)) {
+-		/* This flag is only checked if the return value is success. */
+-		port_obj_info->handled = true;
+-		return add_cb(dev, port_obj_info->obj, port_obj_info->trans,
+-			      extack);
++		err = add_cb(dev, port_obj_info->obj, port_obj_info->trans,
++			     extack);
++		if (err != -EOPNOTSUPP)
++			port_obj_info->handled = true;
++		return err;
+ 	}
  
- static const
- struct mlxsw_sp_span_entry_ops mlxsw_sp_span_entry_ops_phys = {
-+	.is_static = true,
- 	.can_handle = mlxsw_sp_port_dev_check,
- 	.parms_set = mlxsw_sp_span_entry_phys_parms,
- 	.configure = mlxsw_sp_span_entry_phys_configure,
-@@ -721,6 +723,7 @@ mlxsw_sp2_span_entry_cpu_deconfigure(struct mlxsw_sp_span_entry *span_entry)
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
+@@ -515,9 +516,10 @@ static int __switchdev_handle_port_obj_d
+ 	int err = -EOPNOTSUPP;
  
- static const
- struct mlxsw_sp_span_entry_ops mlxsw_sp2_span_entry_ops_cpu = {
-+	.is_static = true,
- 	.can_handle = mlxsw_sp2_span_cpu_can_handle,
- 	.parms_set = mlxsw_sp2_span_entry_cpu_parms,
- 	.configure = mlxsw_sp2_span_entry_cpu_configure,
-@@ -1036,6 +1039,9 @@ static void mlxsw_sp_span_respin_work(struct work_struct *work)
- 		if (!refcount_read(&curr->ref_count))
- 			continue;
+ 	if (check_cb(dev)) {
+-		/* This flag is only checked if the return value is success. */
+-		port_obj_info->handled = true;
+-		return del_cb(dev, port_obj_info->obj);
++		err = del_cb(dev, port_obj_info->obj);
++		if (err != -EOPNOTSUPP)
++			port_obj_info->handled = true;
++		return err;
+ 	}
  
-+		if (curr->ops->is_static)
-+			continue;
-+
- 		err = curr->ops->parms_set(mlxsw_sp, curr->to_dev, &sparms);
- 		if (err)
- 			continue;
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-index d907718bc8c5..aa1cd409c0e2 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-@@ -60,6 +60,7 @@ struct mlxsw_sp_span_entry {
- };
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
+@@ -568,9 +570,10 @@ static int __switchdev_handle_port_attr_
+ 	int err = -EOPNOTSUPP;
  
- struct mlxsw_sp_span_entry_ops {
-+	bool is_static;
- 	bool (*can_handle)(const struct net_device *to_dev);
- 	int (*parms_set)(struct mlxsw_sp *mlxsw_sp,
- 			 const struct net_device *to_dev,
--- 
-2.30.0
-
+ 	if (check_cb(dev)) {
+-		port_attr_info->handled = true;
+-		return set_cb(dev, port_attr_info->attr,
+-			      port_attr_info->trans);
++		err = set_cb(dev, port_attr_info->attr, port_attr_info->trans);
++		if (err != -EOPNOTSUPP)
++			port_attr_info->handled = true;
++		return err;
+ 	}
+ 
+ 	/* Switch ports might be stacked under e.g. a LAG. Ignore the
 
 
