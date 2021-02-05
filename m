@@ -2,95 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8CC3104FA
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 07:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 317E4310533
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 07:52:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhBEGaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 01:30:09 -0500
-Received: from mga17.intel.com ([192.55.52.151]:49392 "EHLO mga17.intel.com"
+        id S231301AbhBEGwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 01:52:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230161AbhBEGaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 01:30:02 -0500
-IronPort-SDR: UQzEv8TO6HNzIlgR+hyxs/m4IJfmJ2PqCxJFIxQ0zBU2R0tjkkO1NPHhdxU4/UWG6e9ssSDb4x
- BQ2aes8bxA3g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9885"; a="161140189"
-X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
-   d="scan'208";a="161140189"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2021 22:29:12 -0800
-IronPort-SDR: hVRtrQ9aUZYcFE9DAT18m1WVRS2k62Nkcuqhb4e9JSJEJ686yS0BFNmtLSDGZOAb4Xy0V/mQ8a
- u+GRXb8L9jPA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
-   d="scan'208";a="393719114"
-Received: from irsmsx605.ger.corp.intel.com ([163.33.146.138])
-  by orsmga008.jf.intel.com with ESMTP; 04 Feb 2021 22:29:12 -0800
-Received: from irsmsx605.ger.corp.intel.com (163.33.146.138) by
- IRSMSX605.ger.corp.intel.com (163.33.146.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Fri, 5 Feb 2021 06:29:11 +0000
-Received: from irsmsx605.ger.corp.intel.com ([163.33.146.138]) by
- IRSMSX605.ger.corp.intel.com ([163.33.146.138]) with mapi id 15.01.1713.004;
- Fri, 5 Feb 2021 06:29:11 +0000
-From:   "Kahola, Mika" <mika.kahola@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [Intel-gfx] [PATCH] drm/i915: Reject 446-480MHz HDMI clock on GLK
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915: Reject 446-480MHz HDMI clock on
- GLK
-Thread-Index: AQHW+g9Kly3g348hI0ioRMgIYXo5IqpJHCAw
-Date:   Fri, 5 Feb 2021 06:29:11 +0000
-Message-ID: <daf4a8d667b048b5800b433b01791387@intel.com>
-References: <20210203093044.30532-1-ville.syrjala@linux.intel.com>
-In-Reply-To: <20210203093044.30532-1-ville.syrjala@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-version: 11.6.0.76
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-x-originating-ip: [163.33.253.164]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S230483AbhBEGvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 01:51:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4001564F9C;
+        Fri,  5 Feb 2021 06:50:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612507856;
+        bh=941AkqL1nii7c/B1BmKXvFA4vyQEem3CqwJZMXTjS/U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Vge0txLvFe19JT7T9lI/ExzG2SxjlRjRPGpgidOS9ldJFIZ/Z5LgQtn445V11NVrJ
+         MTR6Cqk6lFYHaUWCNDcn1amOouaiDQqtgJfV1X3apgjnE1QhLffvQhD0Pp1/qFr1UJ
+         YZVYf9f3lwc9sxOdzDA9nL5i5pEeL9azUiSmjy+k=
+Date:   Fri, 5 Feb 2021 07:50:54 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Cc:     peterhuewe@gmx.de, jarkko@kernel.org, jgg@ziepe.ca,
+        stefanb@linux.vnet.ibm.com, James.Bottomley@hansenpartnership.com,
+        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <l.sanfilippo@kunbus.com>
+Subject: Re: [PATCH v3 1/2] tpm: fix reference counting for struct tpm_chip
+Message-ID: <YBzqzsDpRbhEYR2Y@kroah.com>
+References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBJbnRlbC1nZnggPGludGVsLWdm
-eC1ib3VuY2VzQGxpc3RzLmZyZWVkZXNrdG9wLm9yZz4gT24gQmVoYWxmIE9mIFZpbGxlDQo+IFN5
-cmphbGENCj4gU2VudDogV2VkbmVzZGF5LCBGZWJydWFyeSAzLCAyMDIxIDExOjMxIEFNDQo+IFRv
-OiBpbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnDQo+IENjOiBzdGFibGVAdmdlci5rZXJu
-ZWwub3JnDQo+IFN1YmplY3Q6IFtJbnRlbC1nZnhdIFtQQVRDSF0gZHJtL2k5MTU6IFJlamVjdCA0
-NDYtNDgwTUh6IEhETUkgY2xvY2sgb24gR0xLDQo+IA0KPiBGcm9tOiBWaWxsZSBTeXJqw6Rsw6Qg
-PHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPg0KPiANCj4gVGhlIEJYVC9HTEsgRFBMTCBj
-YW4ndCBnZW5lcmF0ZSBjZXJ0YWluIGZyZXF1ZW5jaWVzLiBXZSBhbHJlYWR5IHJlamVjdCB0aGUN
-Cj4gMjMzLTI0ME1IeiByYW5nZSBvbiBib3RoLiBCdXQgb24gR0xLIHRoZSBEUExMIG1heCBmcmVx
-dWVuY3kgd2FzDQo+IGJ1bXBlZCBmcm9tIDMwME1IeiB0byA1OTRNSHosIHNvIG5vdyB3ZSBnZXQg
-dG8gYWxzbyB3b3JyeSBhYm91dCB0aGUNCj4gNDQ2LTQ4ME1IeiByYW5nZSAoZG91YmxlIHRoZSBv
-cmlnaW5hbCBwcm9ibGVtIHJhbmdlKS4gUmVqZWN0IGFueSBmcmVxdWVuY3kNCj4gd2l0aGluIHRo
-ZSBoaWdoZXIgcHJvYmxlbWF0aWMgcmFuZ2UgYXMgd2VsbC4NCj4gDQo+IENjOiBzdGFibGVAdmdl
-ci5rZXJuZWwub3JnDQo+IENsb3NlczogaHR0cHM6Ly9naXRsYWIuZnJlZWRlc2t0b3Aub3JnL2Ry
-bS9pbnRlbC8tL2lzc3Vlcy8zMDAwDQo+IFNpZ25lZC1vZmYtYnk6IFZpbGxlIFN5cmrDpGzDpCA8
-dmlsbGUuc3lyamFsYUBsaW51eC5pbnRlbC5jb20+DQoNClJldmlld2VkLWJ5OiBNaWthIEthaG9s
-YSA8bWlrYS5rYWhvbGFAaW50ZWwuY29tPg0KDQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUvZHJtL2k5
-MTUvZGlzcGxheS9pbnRlbF9oZG1pLmMgfCA2ICsrKysrLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDUg
-aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Z3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfaGRtaS5jDQo+IGIvZHJpdmVycy9ncHUvZHJtL2k5
-MTUvZGlzcGxheS9pbnRlbF9oZG1pLmMNCj4gaW5kZXggNjZlMWFjMzg4N2M2Li5iNTkzYTcxZTY1
-MTcgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfaGRt
-aS5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfaGRtaS5jDQo+
-IEBAIC0yMjE4LDcgKzIyMTgsMTEgQEAgaGRtaV9wb3J0X2Nsb2NrX3ZhbGlkKHN0cnVjdCBpbnRl
-bF9oZG1pICpoZG1pLA0KPiAgCQkJCQkgIGhhc19oZG1pX3NpbmspKQ0KPiAgCQlyZXR1cm4gTU9E
-RV9DTE9DS19ISUdIOw0KPiANCj4gLQkvKiBCWFQgRFBMTCBjYW4ndCBnZW5lcmF0ZSAyMjMtMjQw
-IE1IeiAqLw0KPiArCS8qIEdMSyBEUExMIGNhbid0IGdlbmVyYXRlIDQ0Ni00ODAgTUh6ICovDQo+
-ICsJaWYgKElTX0dFTUlOSUxBS0UoZGV2X3ByaXYpICYmIGNsb2NrID4gNDQ2NjY2ICYmIGNsb2Nr
-IDwgNDgwMDAwKQ0KPiArCQlyZXR1cm4gTU9ERV9DTE9DS19SQU5HRTsNCj4gKw0KPiArCS8qIEJY
-VC9HTEsgRFBMTCBjYW4ndCBnZW5lcmF0ZSAyMjMtMjQwIE1IeiAqLw0KPiAgCWlmIChJU19HRU45
-X0xQKGRldl9wcml2KSAmJiBjbG9jayA+IDIyMzMzMyAmJiBjbG9jayA8IDI0MDAwMCkNCj4gIAkJ
-cmV0dXJuIE1PREVfQ0xPQ0tfUkFOR0U7DQo+IA0KPiAtLQ0KPiAyLjI2LjINCj4gDQo+IF9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQo+IEludGVsLWdmeCBt
-YWlsaW5nIGxpc3QNCj4gSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZw0KPiBodHRwczov
-L2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeA0K
+On Fri, Feb 05, 2021 at 12:50:42AM +0100, Lino Sanfilippo wrote:
+> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+> 
+> The following sequence of operations results in a refcount warning:
+> 
+> 1. Open device /dev/tpmrm
+> 2. Remove module tpm_tis_spi
+> 3. Write a TPM command to the file descriptor opened at step 1.
+> 
+> ------------[ cut here ]------------
+> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
+> refcount_t: addition on 0; use-after-free.
+> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
+> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
+> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
+> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
+> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
+> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
+> Hardware name: BCM2711
+> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
+> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
+> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
+> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
+> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
+> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
+> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
+> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
+> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
+> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
+> Exception stack(0xc226bfa8 to 0xc226bff0)
+> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
+> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
+> bfe0: 0000006c beafe648 0001056c b6eb6944
+> ---[ end trace d4b8409def9b8b1f ]---
+> 
+> The reason for this warning is the attempt to get the chip->dev reference
+> in tpm_common_write() although the reference counter is already zero.
+> 
+> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
+> extra reference used to prevent a premature zero counter is never taken,
+> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
+> 
+> Fix this by removing the flag condition.
+> 
+> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> already introduced function tpm_devs_release() to release the extra
+> reference but did not implement the required put on chip->devs that results
+> in the call of this function.
+> 
+> Fix this also by installing an action handler that puts chip->devs as soon
+> as the chip is unregistered.
+> 
+> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
+> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+> ---
+>  drivers/char/tpm/tpm-chip.c       | 18 +++++++++++++++---
+>  drivers/char/tpm/tpm_ftpm_tee.c   |  2 ++
+>  drivers/char/tpm/tpm_vtpm_proxy.c |  1 +
+>  3 files changed, 18 insertions(+), 3 deletions(-)
+
+<formletter>
+
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
