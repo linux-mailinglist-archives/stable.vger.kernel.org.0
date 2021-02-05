@@ -2,160 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3AA311188
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2390F311195
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:57:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbhBESKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 13:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
+        id S233242AbhBESOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 13:14:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbhBESHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 13:07:06 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D7BC06174A
-        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 11:48:49 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id f63so5004936pfa.13
-        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 11:48:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pwW9z1O2rxcHslFvui/svyJEKXrQdPHKzk5UcWEOuCk=;
-        b=OAySrovI32AjeJWqok/hmq2CCxVQocL57La7bp1+YWADxAnw3Ds4O/3eoPH8BkMwKl
-         Dkx49AB+Mp4f0mzDgsW8q93XxhSaqoyP5IR8lMhV0OvD9j0cKwmHs0ZxHRAbBei4S5P/
-         O04xLxvV7AxTSHCvnh/oEOvb/Bn0gcV0QHPKyO+qW6ldYEL+p4I46nfiRz97JH4XT15c
-         TfKhISGY3scIroAoZZF3QjefK9nk1uMPB2ug67TZXAX8mcQNvodLubrVZk5sT4elWvLu
-         KWHHkK6B3xA7v33go937pvwERyr4O4ue88Vew7I5JeNRKxap8UKP/ZJBAvb5ZMHV2+zv
-         3Taw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pwW9z1O2rxcHslFvui/svyJEKXrQdPHKzk5UcWEOuCk=;
-        b=dwj5vcHQZGjus+kcJ7u22La+jMCqfHpFHVLsvdDGo8pACETaYO6K2mkjZHymRpgNEo
-         JXIv6in9kdSmnXa6uSRzzx2fecQ+qqImzDHyuMjPCfY0DMd1+05evvoHpik2H2cu38vN
-         6s1ODRJ0QcbOzFQprdiWV1yyncGaRxfT30bgZPpBizd9iX+p0w0LEztnHSl7S7d7b68Y
-         ZZWjzn7oNG29K8qkXcnvpuhANURFteBjzIv52IvgA9QVOnuz4qwqMyJA0UAk0S9+EnOg
-         VE6GZbfm6NkU91EyMsksr5Px2kenvVZuktbRD1DYlHfd7+BwcDdsorfpJL7L0TguPDGD
-         Vqsg==
-X-Gm-Message-State: AOAM531msmtWoOsh9Ey/he9E5yqXXEq+uk4WGo+t25rxUzciOcKPj/Fy
-        45XzN/r9qc6QuwZguY49hIIgktm2bV2uyQ==
-X-Google-Smtp-Source: ABdhPJxduEbzaNF1PGMPbAsX5XHxqnBBVnJDlocVVtuppn0Ru8C6Mm4RMrq0AtClOvy0GcE+bju8kA==
-X-Received: by 2002:a63:4644:: with SMTP id v4mr5904359pgk.440.1612554529084;
-        Fri, 05 Feb 2021 11:48:49 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a37sm11373631pgm.79.2021.02.05.11.48.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Feb 2021 11:48:48 -0800 (PST)
-Message-ID: <601da120.1c69fb81.8c092.825b@mx.google.com>
-Date:   Fri, 05 Feb 2021 11:48:48 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232098AbhBESNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 13:13:22 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADECC06174A;
+        Fri,  5 Feb 2021 11:55:05 -0800 (PST)
+Date:   Fri, 05 Feb 2021 19:55:01 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1612554902;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=60UK+BRAgNDrSuMPNEtATYvdu08y1VykIANnMVc0sR4=;
+        b=VnlHOjM/5qE4oE187BCCni3DZ+R4TFjxdC+rJA+9b0pyIMnSPcJSljjxdX7DSQmMyeJcK8
+        eHV1RUOcf7LAHYXx5X3h+9PpELhTPr8l2aw7W0Sm14/DNnKL2o/eCV8gFL536QzJrUMqZY
+        fyeOFKo8MTE90kg3JslkeF6qhxEETEbRc+9hB7p0Za7XiQ18KS9KCZ/omiaqT4bpl0PQWj
+        QUhgrSaJaa5OX3LrhNik+H9zuElzqDhopXoUW7uliLTUA1hTw0vw1hOuaZ/MTeealsMvdO
+        P/LjFZc1eg/ESfCSysYbzDkaZ/l8IjWCUCSKZakiv9Y44YKrbDlKj9Drc14O6w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1612554902;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=60UK+BRAgNDrSuMPNEtATYvdu08y1VykIANnMVc0sR4=;
+        b=mRU0LC6zf7KNT4n+R66RjplHopgfkXa+XuyTrQKxZPOZNTDBOl6tkRvppYF/0EWarPFGOd
+        btQDdA7IlUB5ELAw==
+From:   "tip-bot2 for Hans de Goede" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq: Prevent [devm_]irq_alloc_desc from returning irq 0
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
+In-Reply-To: <20201221185647.226146-1-hdegoede@redhat.com>
+References: <20201221185647.226146-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.13-58-g58d18d6d116a
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 161 runs,
- 2 regressions (v5.10.13-58-g58d18d6d116a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <161255490170.23325.127304907450199511.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 161 runs, 2 regressions (v5.10.13-58-g58d1=
-8d6d116a)
+The following commit has been merged into the irq/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     4c7bcb51ae25f79e3733982e5d0cd8ce8640ddfc
+Gitweb:        https://git.kernel.org/tip/4c7bcb51ae25f79e3733982e5d0cd8ce8640ddfc
+Author:        Hans de Goede <hdegoede@redhat.com>
+AuthorDate:    Mon, 21 Dec 2020 19:56:47 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 05 Feb 2021 20:48:28 +01:00
 
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-imx8mp-evk          | arm64 | lab-nxp      | gcc-8    | defconfig | 1      =
-    =
+genirq: Prevent [devm_]irq_alloc_desc from returning irq 0
 
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1      =
-    =
+Since commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0
+is invalid"), having a linux-irq with number 0 will trigger a WARN()
+when calling platform_get_irq*() to retrieve that linux-irq.
 
+Since [devm_]irq_alloc_desc allocs a single irq and since irq 0 is not used
+on some systems, it can return 0, triggering that WARN(). This happens
+e.g. on Intel Bay Trail and Cherry Trail devices using the LPE audio engine
+for HDMI audio:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.13-58-g58d18d6d116a/plan/baseline/
+ 0 is an invalid IRQ number
+ WARNING: CPU: 3 PID: 472 at drivers/base/platform.c:238 platform_get_irq_optional+0x108/0x180
+ Modules linked in: snd_hdmi_lpe_audio(+) ...
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.13-58-g58d18d6d116a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      58d18d6d116af323f12152b2e84a9e859a6d52dd =
+ Call Trace:
+  platform_get_irq+0x17/0x30
+  hdmi_lpe_audio_probe+0x4a/0x6c0 [snd_hdmi_lpe_audio]
 
+ ---[ end trace ceece38854223a0b ]---
 
+Change the 'from' parameter passed to __[devm_]irq_alloc_descs() by the
+[devm_]irq_alloc_desc macros from 0 to 1, so that these macros will no
+longer return 0.
 
-Test Regressions
----------------- =
+Fixes: a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201221185647.226146-1-hdegoede@redhat.com
+---
+ include/linux/irq.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-imx8mp-evk          | arm64 | lab-nxp      | gcc-8    | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/601d7006c3004d513a3abe87
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-3-58-g58d18d6d116a/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-3-58-g58d18d6d116a/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601d7006c3004d513a3ab=
-e88
-        new failure (last pass: v5.10.13-15-g62496af78642) =
-
- =
-
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/601d706725e5d9d9233abe6c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-3-58-g58d18d6d116a/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-sal=
-vator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-3-58-g58d18d6d116a/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-sal=
-vator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/601d706725e5d9d9233ab=
-e6d
-        new failure (last pass: v5.10.13-15-g62496af78642) =
-
- =20
+diff --git a/include/linux/irq.h b/include/linux/irq.h
+index 4aeb1c4..2efde6a 100644
+--- a/include/linux/irq.h
++++ b/include/linux/irq.h
+@@ -928,7 +928,7 @@ int __devm_irq_alloc_descs(struct device *dev, int irq, unsigned int from,
+ 	__irq_alloc_descs(irq, from, cnt, node, THIS_MODULE, NULL)
+ 
+ #define irq_alloc_desc(node)			\
+-	irq_alloc_descs(-1, 0, 1, node)
++	irq_alloc_descs(-1, 1, 1, node)
+ 
+ #define irq_alloc_desc_at(at, node)		\
+ 	irq_alloc_descs(at, at, 1, node)
+@@ -943,7 +943,7 @@ int __devm_irq_alloc_descs(struct device *dev, int irq, unsigned int from,
+ 	__devm_irq_alloc_descs(dev, irq, from, cnt, node, THIS_MODULE, NULL)
+ 
+ #define devm_irq_alloc_desc(dev, node)				\
+-	devm_irq_alloc_descs(dev, -1, 0, 1, node)
++	devm_irq_alloc_descs(dev, -1, 1, 1, node)
+ 
+ #define devm_irq_alloc_desc_at(dev, at, node)			\
+ 	devm_irq_alloc_descs(dev, at, at, 1, node)
