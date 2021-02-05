@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE0E3112B5
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5353112B6
 	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233158AbhBES7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 13:59:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45944 "EHLO mail.kernel.org"
+        id S233134AbhBES7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 13:59:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233059AbhBEPCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233062AbhBEPCT (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 10:02:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F8364FE5;
-        Fri,  5 Feb 2021 14:10:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F276364FDC;
+        Fri,  5 Feb 2021 14:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534216;
-        bh=dy+xEfO5zhXvTU1c4kByMfmZn4lJ0B0NlVU2Vuu/KS0=;
+        s=korg; t=1612534187;
+        bh=49FKmkDTfT6OGAk1xDakZIzVmRL+oyoYE2jNTGqDvD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBtwH+sPIqORrMvVhaj8n5v6bl5v4rT9asL98/AE4ZylmXtnWfh7NOAffSHWIoqLQ
-         wC68Y4MUeAMrY889lhexPhTucU+z6MvJO7ktfuapuVLZiEsiDdXgXn53ey7OPDVTaZ
-         BfBEGd8PKq8W9Hb549d+cMfHcBdENMZqLLzCN1Ls=
+        b=OUC3EJ+n6rWgBO4iuqURmyTmM4aUT1hIb6K7ULfx0hZF+lFK6X3niKzWXp4kHCZTt
+         KVQfGafuGIVhHZ+L5m7pLflIFqVx1S7UvBRHLLflJ3+u4CD9i43E+KQaUDIvqZ5MNr
+         mIcle52IN3WgWAhWgktas2+qQj6Ny2fLlvdaB4lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 05/57] stmmac: intel: Configure EHL PSE0 GbE and PSE1 GbE to 32 bits DMA addressing
-Date:   Fri,  5 Feb 2021 15:06:31 +0100
-Message-Id: <20210205140656.211325680@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 20/57] tools/power/x86/intel-speed-select: Set higher of cpuinfo_max_freq or base_frequency
+Date:   Fri,  5 Feb 2021 15:06:46 +0100
+Message-Id: <20210205140656.842112693@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -40,95 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit 7cfc4486e7ea25bd405df162d9c131ee5d4c6c93 upstream.
+[ Upstream commit bbaa2e95e23e74791dd75b90d5ad9aad535acc6e ]
 
-Fix an issue where dump stack is printed and Reset Adapter occurs when
-PSE0 GbE or/and PSE1 GbE is/are enabled. EHL PSE0 GbE and PSE1 GbE use
-32 bits DMA addressing whereas EHL PCH GbE uses 64 bits DMA addressing.
+In some case when BIOS disabled turbo, cpufreq cpuinfo_max_freq can be
+lower than base_frequency at higher config level. So, in that case set
+scaling_min_freq to base_frequency.
 
-[   25.535095] ------------[ cut here ]------------
-[   25.540276] NETDEV WATCHDOG: enp0s29f2 (intel-eth-pci): transmit queue 2 timed out
-[   25.548749] WARNING: CPU: 2 PID: 0 at net/sched/sch_generic.c:443 dev_watchdog+0x259/0x260
-[   25.558004] Modules linked in: 8021q bnep bluetooth ecryptfs snd_hda_codec_hdmi intel_gpy marvell intel_ishtp_loader intel_ishtp_hid iTCO_wdt mei_hdcp iTCO_vendor_support x86_pkg_temp_thermal kvm_intel dwmac_intel stmmac kvm igb pcs_xpcs irqbypass phylink snd_hda_intel intel_rapl_msr pcspkr dca snd_hda_codec i915 i2c_i801 i2c_smbus libphy intel_ish_ipc snd_hda_core mei_me intel_ishtp mei spi_dw_pci 8250_lpss spi_dw thermal dw_dmac_core parport_pc tpm_crb tpm_tis parport tpm_tis_core tpm intel_pmc_core sch_fq_codel uhid fuse configfs snd_sof_pci snd_sof_intel_byt snd_sof_intel_ipc snd_sof_intel_hda_common snd_sof_xtensa_dsp snd_sof snd_soc_acpi_intel_match snd_soc_acpi snd_intel_dspcfg ledtrig_audio snd_soc_core snd_compress ac97_bus snd_pcm snd_timer snd soundcore
-[   25.633795] CPU: 2 PID: 0 Comm: swapper/2 Tainted: G     U            5.11.0-rc4-intel-lts-MISMAIL5+ #5
-[   25.644306] Hardware name: Intel Corporation Elkhart Lake Embedded Platform/ElkhartLake LPDDR4x T4 RVP1, BIOS EHLSFWI1.R00.2434.A00.2010231402 10/23/2020
-[   25.659674] RIP: 0010:dev_watchdog+0x259/0x260
-[   25.664650] Code: e8 3b 6b 60 ff eb 98 4c 89 ef c6 05 ec e7 bf 00 01 e8 fb e5 fa ff 89 d9 4c 89 ee 48 c7 c7 78 31 d2 9e 48 89 c2 e8 79 1b 18 00 <0f> 0b e9 77 ff ff ff 0f 1f 44 00 00 48 c7 47 08 00 00 00 00 48 c7
-[   25.685647] RSP: 0018:ffffb7ca80160eb8 EFLAGS: 00010286
-[   25.691498] RAX: 0000000000000000 RBX: 0000000000000002 RCX: 0000000000000103
-[   25.699483] RDX: 0000000080000103 RSI: 00000000000000f6 RDI: 00000000ffffffff
-[   25.707465] RBP: ffff985709ce0440 R08: 0000000000000000 R09: c0000000ffffefff
-[   25.715455] R10: ffffb7ca80160cf0 R11: ffffb7ca80160ce8 R12: ffff985709ce039c
-[   25.723438] R13: ffff985709ce0000 R14: 0000000000000008 R15: ffff9857068af940
-[   25.731425] FS:  0000000000000000(0000) GS:ffff985864300000(0000) knlGS:0000000000000000
-[   25.740481] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   25.746913] CR2: 00005567f8bb76b8 CR3: 00000001f8e0a000 CR4: 0000000000350ee0
-[   25.754900] Call Trace:
-[   25.757631]  <IRQ>
-[   25.759891]  ? qdisc_put_unlocked+0x30/0x30
-[   25.764565]  ? qdisc_put_unlocked+0x30/0x30
-[   25.769245]  call_timer_fn+0x2e/0x140
-[   25.773346]  run_timer_softirq+0x1f3/0x430
-[   25.777932]  ? __hrtimer_run_queues+0x12c/0x2c0
-[   25.783005]  ? ktime_get+0x3e/0xa0
-[   25.786812]  __do_softirq+0xa6/0x2ef
-[   25.790816]  asm_call_irq_on_stack+0xf/0x20
-[   25.795501]  </IRQ>
-[   25.797852]  do_softirq_own_stack+0x5d/0x80
-[   25.802538]  irq_exit_rcu+0x94/0xb0
-[   25.806475]  sysvec_apic_timer_interrupt+0x42/0xc0
-[   25.811836]  asm_sysvec_apic_timer_interrupt+0x12/0x20
-[   25.817586] RIP: 0010:cpuidle_enter_state+0xd9/0x370
-[   25.823142] Code: 85 c0 0f 8f 0a 02 00 00 31 ff e8 22 d5 7e ff 45 84 ff 74 12 9c 58 f6 c4 02 0f 85 47 02 00 00 31 ff e8 7b a0 84 ff fb 45 85 f6 <0f> 88 ab 00 00 00 49 63 ce 48 2b 2c 24 48 89 c8 48 6b d1 68 48 c1
-[   25.844140] RSP: 0018:ffffb7ca800f7e80 EFLAGS: 00000206
-[   25.849996] RAX: ffff985864300000 RBX: 0000000000000003 RCX: 000000000000001f
-[   25.857975] RDX: 00000005f2028ea8 RSI: ffffffff9ec5907f RDI: ffffffff9ec62a5d
-[   25.865961] RBP: 00000005f2028ea8 R08: 0000000000000000 R09: 0000000000029d00
-[   25.873947] R10: 000000137b0e0508 R11: ffff9858643294e4 R12: ffff9858643336d0
-[   25.881935] R13: ffffffff9ef74b00 R14: 0000000000000003 R15: 0000000000000000
-[   25.889918]  cpuidle_enter+0x29/0x40
-[   25.893922]  do_idle+0x24a/0x290
-[   25.897536]  cpu_startup_entry+0x19/0x20
-[   25.901930]  start_secondary+0x128/0x160
-[   25.906326]  secondary_startup_64_no_verify+0xb0/0xbb
-[   25.911983] ---[ end trace b4c0c8195d0ba61f ]---
-[   25.917193] intel-eth-pci 0000:00:1d.2 enp0s29f2: Reset adapter.
-
-Fixes: 67c08ac4140a ("net: stmmac: add EHL PSE0 & PSE1 1Gbps PCI info and PCI ID")
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Co-developed-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Link: https://lore.kernel.org/r/20210126100844.30326-1-mohammad.athari.ismail@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20201221071859.2783957-3-srinivas.pandruvada@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/power/x86/intel-speed-select/isst-config.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-index 9a6a519426a0..103d2448e9e0 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -375,6 +375,7 @@ static int ehl_pse0_common_data(struct pci_dev *pdev,
- 				struct plat_stmmacenet_data *plat)
- {
- 	plat->bus_id = 2;
-+	plat->addr64 = 32;
- 	return ehl_common_data(pdev, plat);
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index 97755f35d9910..ead9e51f75ada 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -1457,6 +1457,16 @@ static void adjust_scaling_max_from_base_freq(int cpu)
+ 		set_cpufreq_scaling_min_max(cpu, 1, base_freq);
  }
  
-@@ -406,6 +407,7 @@ static int ehl_pse1_common_data(struct pci_dev *pdev,
- 				struct plat_stmmacenet_data *plat)
++static void adjust_scaling_min_from_base_freq(int cpu)
++{
++	int base_freq, scaling_min_freq;
++
++	scaling_min_freq = parse_int_file(0, "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq", cpu);
++	base_freq = get_cpufreq_base_freq(cpu);
++	if (scaling_min_freq < base_freq)
++		set_cpufreq_scaling_min_max(cpu, 0, base_freq);
++}
++
+ static int set_clx_pbf_cpufreq_scaling_min_max(int cpu)
  {
- 	plat->bus_id = 3;
-+	plat->addr64 = 32;
- 	return ehl_common_data(pdev, plat);
+ 	struct isst_pkg_ctdp_level_info *ctdp_level;
+@@ -1554,6 +1564,7 @@ static void set_scaling_min_to_cpuinfo_max(int cpu)
+ 			continue;
+ 
+ 		set_cpufreq_scaling_min_max_from_cpuinfo(i, 1, 0);
++		adjust_scaling_min_from_base_freq(i);
+ 	}
  }
  
 -- 
-2.30.0
+2.27.0
 
 
 
