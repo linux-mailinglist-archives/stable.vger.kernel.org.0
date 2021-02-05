@@ -2,103 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCC831053A
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 07:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D14E310548
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 07:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230516AbhBEGzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 01:55:52 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:41473 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230415AbhBEGzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 01:55:45 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 24A7F4E0;
-        Fri,  5 Feb 2021 01:54:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Fri, 05 Feb 2021 01:54:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=cpdqHFAP/ZgCSsQGHyNAf+SemKK
-        m+IyMVPQ2A6yHkbk=; b=EErDkAVCLuZqZ/qCluF3af0UxCkTF5hH+hMzODbPuQB
-        qVsrcwJt6X3eUjezWZijSNUSGUfdSk/RHn8laCJDbO9gt48Z6IbLV7IzwH9W++wY
-        K94YcTwhcobKjlYoG1OiWad9+ic+zmLKcrwIIcB0tiXz5lnmfCZXMAk6Yi8MKfWU
-        6kI45VjScrKH+sVizKsVKLHereoOT1NcxnSqwLnCZyOe6uQ9JcZs1iU0EY1yuzQP
-        POCBp4OcyETb9q/F34Wo8IygTylVdNjJDHeX48uVyBriv0nMV3zb1hxlcLOwFKj3
-        FubdGFVj2B7q7vNP84UTtm1Qk13Ss4Z8n1+WHWyQmlw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cpdqHF
-        AP/ZgCSsQGHyNAf+SemKKm+IyMVPQ2A6yHkbk=; b=mEkbWSolboWDaYEf8UvyoN
-        SU2BTWTCk0Pyx4KRgk2c6XIUCaOckqpWBp8e7/HjYjyOjT8RXK7nxU8HU+GtCikC
-        QoainnswER4Zcp3R3QJznTGrnH8X0B6RP2WxhYY3qy6UFRiz7ahrOTyCLuz+15uC
-        NOeB10YvrQzlVz6D8xe1meGxQMx6Cxjc9LetQgEnoogdPgSBU1bkz9EUVTaNAc/Y
-        QNM8ZTcSn7L3WvnciY289fLWBa2ZZGlNNjHAD9qDlNwFMlUyDa0YDqGrNmOa63Q9
-        K/c0XlM9Glne5ghau58hyC8sThw/Rd3WMQFxOr15s2sSEheQFfY/eU9XJNGPFQwg
-        ==
-X-ME-Sender: <xms:wuscYNUdgd92jxzpuGkourSla-HtqJ3Y24rDX4X5Sv9DyTPs71wxuQ>
-    <xme:wuscYPl8Rd1vumbxgQwa-OpwIu040g48qMUs4eelKMRvsgOg2rHcr2R4v4_Ov_dL3
-    LpFqnh2r5feXw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrgeehgddutddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:wuscYCxt3zBPnVROctmjg8dhVwMk_iZg6iQz8z8HAtlXkecAcJqqdA>
-    <xmx:wuscYCj56_jVpTt8mOfv_6QoT9wS5ifYLvPlX1FBtu5AwV-leCEc9A>
-    <xmx:wuscYPXy3SAy7TOteqI1INxLTTkFlZG_USaNpjMQEftT81CPdMIBWA>
-    <xmx:wuscYGwguyGrC-hV2o2V5DgohMAR4SHvyQylpSfK0rxDAHuKcruUJg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D852524005B;
-        Fri,  5 Feb 2021 01:54:57 -0500 (EST)
-Date:   Fri, 5 Feb 2021 07:54:55 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: Linux 5.11-rc5
-Message-ID: <YBzrv1U2SjMZTwnB@kroah.com>
-References: <CAHk-=wgmJ0q1URHrOb-2iCOdZ8gYybiH6LY2Gq7cosXu6kxAnA@mail.gmail.com>
- <161160687463.28991.354987542182281928@build.alporthouse.com>
- <CAHk-=wh23BXwBwBgPmt9h2EJztnzKKf=qr5r=B0Hr6BGgZ-QDA@mail.gmail.com>
- <20210204181925.GL299309@linux.ibm.com>
- <CAHk-=wg49zd_Z2V7+djV-sCVia0=Gv3GNWz6MYsa7vG16Ya5Sg@mail.gmail.com>
+        id S231344AbhBEG6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 01:58:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40858 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231328AbhBEG6M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 01:58:12 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E2DC0613D6
+        for <stable@vger.kernel.org>; Thu,  4 Feb 2021 22:57:31 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id l12so7560889edt.3
+        for <stable@vger.kernel.org>; Thu, 04 Feb 2021 22:57:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloud.ionos.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IPIIOrxlUFnyuGn9q7w4ROYFiJXPl+h3A3KkYxKrnx4=;
+        b=Uqz363feZGjjPs3GuP633cm1qHWGRVNVYsbPq/tdP+OU+rHdgmou6zXbbcklkGuENQ
+         f7guWFjs5GAcd3YTVCPTqtzDTCIhkqvaKvveRyOtrGZxbGDW1hhBNBRX5/5lYIsB9PVp
+         3OFq+lxoU3dMGsb21fWyUvswp6jHt8K8W5nClKiKGnx+79ERpdyoeOpsLzxj22BkT95J
+         kIuuxVWJbynP4jdLBMTmLjLVQarzjc/3ZqHO8v3+yADtLSMD6AZBCgl9izoUuQOFvPvi
+         YrKtd+a5LNi5Qjia753JEUjd8Q2SizZlkOY7Gomsenu/TQZwswCi59h5Uwp+4um6QoWM
+         EJ/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IPIIOrxlUFnyuGn9q7w4ROYFiJXPl+h3A3KkYxKrnx4=;
+        b=Rs8ysbW+cQBT+KXGRa9WQRcbvHNYC/49JuUOkxnVltQ7mF3g04QzKDzLR7TltW/HgF
+         qy/VeggFcb2w++BkaSUiYweg66O/FOhT0DwvSYACG/Pf921zemRUIV7ZhoMbctr3WDmt
+         o9FBoimIDOEH0rNJ3FlWUssysKcq3gpX2T1S0MsWVSCRPwnoTzPz35N1Yvw9rQcIFoxt
+         /jV0oUwJ6nX+2qsoqNJeidJdqbf+FV2sOL1fAfmzElvdpQZYz5Mm1M4CpG01HR8I8wr1
+         ddtL8XG07cEAPKkjdgiuKet2HCPEjbcPEYze9EWfk3bqa75LmF1Wp+uElO6eSpPfn9Vu
+         +Kig==
+X-Gm-Message-State: AOAM531t8Hwtzc52JaO6jz/eSSVeHh6tZeTkf1nymWWkSlNLfauZ4lOZ
+        MYFa4xI3nWAzCbfGfKLqebBP/kynzZ/MhXP0XmAC9vF9sZ0=
+X-Google-Smtp-Source: ABdhPJwB46XyqTBV1WbbCZ0M5wa5D2QQxhD5WYyeo9pCssi9uUGTV1cgQrNbqlOOogz4TEDN6HIpAtDroYD+rzv7+OU=
+X-Received: by 2002:a05:6402:3514:: with SMTP id b20mr2160025edd.100.1612508250264;
+ Thu, 04 Feb 2021 22:57:30 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wg49zd_Z2V7+djV-sCVia0=Gv3GNWz6MYsa7vG16Ya5Sg@mail.gmail.com>
+References: <20210203132022.92406-1-jinpu.wang@cloud.ionos.com>
+ <20210203132022.92406-9-jinpu.wang@cloud.ionos.com> <YBwO7EsBfljWNliY@kroah.com>
+In-Reply-To: <YBwO7EsBfljWNliY@kroah.com>
+From:   Jinpu Wang <jinpu.wang@cloud.ionos.com>
+Date:   Fri, 5 Feb 2021 07:57:19 +0100
+Message-ID: <CAMGffEmTLeOSD+0WZ_Ayg_cqYFO=UswKR_EnxYqLsR5bVBZQew@mail.gmail.com>
+Subject: Re: [stable-4.19 8/8] md: Set prev_flush_start and flush_bio in an
+ atomic way
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
+        Xiao Ni <xni@redhat.com>, David Jeffery <djeffery@redhat.com>,
+        Song Liu <songliubraving@fb.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 04, 2021 at 10:32:56AM -0800, Linus Torvalds wrote:
-> On Thu, Feb 4, 2021 at 10:19 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
+On Thu, Feb 4, 2021 at 4:12 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Feb 03, 2021 at 02:20:22PM +0100, Jack Wang wrote:
+> > From: Xiao Ni <xni@redhat.com>
 > >
-> > On Mon, Jan 25, 2021 at 12:49:39PM -0800, Linus Torvalds wrote:
-> > >
-> > > Mike: should we perhaps revert the first patch too (commit
-> > > bde9cfa3afe4: "x86/setup: don't remove E820_TYPE_RAM for pfn 0")?
+> > One customer reports a crash problem which causes by flush request. It
+> > triggers a warning before crash.
 > >
-> > Unfortunately, I was too optimistic and didn't take into account that this
-> > commit changes the way /dev/mem sees the first page of memory.
+> >         /* new request after previous flush is completed */
+> >         if (ktime_after(req_start, mddev->prev_flush_start)) {
+> >                 WARN_ON(mddev->flush_bio);
+> >                 mddev->flush_bio = bio;
+> >                 bio = NULL;
+> >         }
 > >
-> > There were reports of slackware users about issues with lilo after upgrade
-> > from 5.10.11 to 5.10.12
-> 
-> Ok, applied to mainline.
-> 
-> Greg & stable people - this is now commit 5c279c4cf206 ("Revert
-> "x86/setup: don't remove E820_TYPE_RAM for pfn 0"") in my tree.
-> Although maybe you just want to revert the commit in stable, rather
-> than take it from upstream? Same difference.
+> > The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
+> > flush_bio in md_flush_request. But there is no lock protection in
+> > md_submit_flush_data. It can set flush_bio to NULL first because of
+> > compiler reordering write instructions.
+> >
+> > For example, flush bio1 sets flush bio to NULL first in
+> > md_submit_flush_data. An interrupt or vmware causing an extended stall
+> > happen between updating flush_bio and prev_flush_start. Because flush_bio
+> > is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
+> > flush bio1 updates prev_flush_start after the interrupt or extended stall.
+> >
+> > Then flush bio3 enters in md_flush_request. The start time req_start is
+> > behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
+> > finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
+> > again. INIT_WORK() will re-initialize the list pointers in the
+> > work_struct, which then can result in a corrupted work list and the
+> > work_struct queued a second time. With the work list corrupted, it can
+> > lead in invalid work items being used and cause a crash in
+> > process_one_work.
+> >
+> > We need to make sure only one flush bio can be handled at one same time.
+> > So add spin lock in md_submit_flush_data to protect prev_flush_start and
+> > flush_bio in an atomic way.
+> >
+> > Reviewed-by: David Jeffery <djeffery@redhat.com>
+> > Signed-off-by: Xiao Ni <xni@redhat.com>
+> > Signed-off-by: Song Liu <songliubraving@fb.com>
+> > [jwang: backport dc5d17a3c39b06aef866afca19245a9cfb533a79 to 4.19]
+>
+> I can not take patches backported to older kernels that "skip" kernel
+> releases.
+>
+> For example, if I take this into 4.19.y, and then someone moves to 5.4
+> or 5.10, they will hit the same issue.
+>
+> So please provide a backported series for all affected releases, back as
+> far as you want, but never skip releases.
+>
+> I can't take this series, I'll drop it for now and wait for an updated
+> set of patches.
+>
+> thanks,
+>
+> greg k-h
+Hi Greg,
 
-Taking it from upstream makes it easier to track over time what happend.
-I've queued it up now, thanks!
+Thanks for reply, only this patch should be backported also to
+5.4/5.10, this backport can be applied cleanly to stable/linux-5.4.y
+and stable/linux-5.10.y,
 
-greg k-h
+I will send the backport for them later today!
+
+Thanks!
+
+J
