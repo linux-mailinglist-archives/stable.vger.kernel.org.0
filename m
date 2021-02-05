@@ -2,193 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86ED8311A22
-	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 04:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21227311A13
+	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 04:32:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229705AbhBFDcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 22:32:12 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:55437 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230366AbhBFD2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 22:28:39 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.69.177;
-Received: from build.alporthouse.com (unverified [78.156.69.177]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23803184-1500050 
-        for multiple; Fri, 05 Feb 2021 22:00:14 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     linux-kernel@vger.kernel.org
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dave Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Cyrill Gorcunov <gorcunov@gmail.com>, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3] kcmp: Support selection of SYS_kcmp without CHECKPOINT_RESTORE
-Date:   Fri,  5 Feb 2021 22:00:12 +0000
-Message-Id: <20210205220012.1983-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210205163752.11932-1-chris@chris-wilson.co.uk>
-References: <20210205163752.11932-1-chris@chris-wilson.co.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S231391AbhBFD3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 22:29:30 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:48684 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229736AbhBFDW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 22:22:27 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1l89zc-00E4Z2-Tv; Fri, 05 Feb 2021 22:54:24 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Fri, 05 Feb 2021 22:41:25 +0000
+Subject: [git:media_tree/master] media: smipcie: fix interrupt handling and IR timeout
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sean Young <sean@mess.org>, Laz Lev <lazlev@web.de>,
+        stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1l89zc-00E4Z2-Tv@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Userspace has discovered the functionality offered by SYS_kcmp and has
-started to depend upon it. In particular, Mesa uses SYS_kcmp for
-os_same_file_description() in order to identify when two fd (e.g. device
-or dmabuf) point to the same struct file. Since they depend on it for
-core functionality, lift SYS_kcmp out of the non-default
-CONFIG_CHECKPOINT_RESTORE into the selectable syscall category.
+This is an automatic generated email to let you know that the following patch were queued:
 
-Rasmus Villemoes also pointed out that systemd uses SYS_kcmp to
-deduplicate the per-service file descriptor store.
+Subject: media: smipcie: fix interrupt handling and IR timeout
+Author:  Sean Young <sean@mess.org>
+Date:    Fri Jan 29 11:54:53 2021 +0100
 
-Note that some distributions such as Ubuntu are already enabling
-CHECKPOINT_RESTORE in their configs and so, by extension, SYS_kcmp.
+After the first IR message, interrupts are no longer received. In addition,
+the code generates a timeout IR message of 10ms but sets the timeout value
+to 100ms, so no timeout was ever generated.
 
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/3046
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Will Drewry <wad@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dave Airlie <airlied@gmail.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Cyrill Gorcunov <gorcunov@gmail.com>
-Cc: stable@vger.kernel.org
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> # DRM depends on kcmp
-Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk> # systemd uses kcmp
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204317
+
+Fixes: a49a7a4635de ("media: smipcie: add universal ir capability")
+Tested-by: Laz Lev <lazlev@web.de>
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/pci/smipcie/smipcie-ir.c | 46 +++++++++++++++++++---------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
 ---
-v2:
-  - Default n.
-  - Borrrow help message from man kcmp.
-  - Export get_epoll_tfile_raw_ptr() for CONFIG_KCMP
-v3:
-  - Select KCMP for CONFIG_DRM
----
- drivers/gpu/drm/Kconfig                       |  3 +++
- fs/eventpoll.c                                |  4 ++--
- include/linux/eventpoll.h                     |  2 +-
- init/Kconfig                                  | 11 +++++++++++
- kernel/Makefile                               |  2 +-
- tools/testing/selftests/seccomp/seccomp_bpf.c |  2 +-
- 6 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index 0973f408d75f..af6c6d214d91 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -15,6 +15,9 @@ menuconfig DRM
- 	select I2C_ALGOBIT
- 	select DMA_SHARED_BUFFER
- 	select SYNC_FILE
-+# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
-+# device and dmabuf fd. Let's make sure that is available for our userspace.
-+	select KCMP
- 	help
- 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
- 	  introduced in XFree86 4.0. If you say Y here, you need to select
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index a829af074eb5..3196474cbe24 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -979,7 +979,7 @@ static struct epitem *ep_find(struct eventpoll *ep, struct file *file, int fd)
- 	return epir;
- }
- 
--#ifdef CONFIG_CHECKPOINT_RESTORE
-+#ifdef CONFIG_KCMP
- static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
+diff --git a/drivers/media/pci/smipcie/smipcie-ir.c b/drivers/media/pci/smipcie/smipcie-ir.c
+index e6b74e161a05..c0604d9c7011 100644
+--- a/drivers/media/pci/smipcie/smipcie-ir.c
++++ b/drivers/media/pci/smipcie/smipcie-ir.c
+@@ -60,38 +60,44 @@ static void smi_ir_decode(struct smi_rc *ir)
  {
- 	struct rb_node *rbp;
-@@ -1021,7 +1021,7 @@ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd,
+ 	struct smi_dev *dev = ir->dev;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+-	u32 dwIRControl, dwIRData;
+-	u8 index, ucIRCount, readLoop;
++	u32 control, data;
++	u8 index, ir_count, read_loop;
  
- 	return file_raw;
- }
--#endif /* CONFIG_CHECKPOINT_RESTORE */
-+#endif /* CONFIG_KCMP */
+-	dwIRControl = smi_read(IR_Init_Reg);
++	control = smi_read(IR_Init_Reg);
  
- /**
-  * Adds a new entry to the tail of the list in a lockless way, i.e.
-diff --git a/include/linux/eventpoll.h b/include/linux/eventpoll.h
-index 0350393465d4..593322c946e6 100644
---- a/include/linux/eventpoll.h
-+++ b/include/linux/eventpoll.h
-@@ -18,7 +18,7 @@ struct file;
+-	if (dwIRControl & rbIRVld) {
+-		ucIRCount = (u8) smi_read(IR_Data_Cnt);
++	dev_dbg(&rc_dev->dev, "ircontrol: 0x%08x\n", control);
  
- #ifdef CONFIG_EPOLL
+-		readLoop = ucIRCount/4;
+-		if (ucIRCount % 4)
+-			readLoop += 1;
+-		for (index = 0; index < readLoop; index++) {
+-			dwIRData = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++	if (control & rbIRVld) {
++		ir_count = (u8)smi_read(IR_Data_Cnt);
  
--#ifdef CONFIG_CHECKPOINT_RESTORE
-+#ifdef CONFIG_KCMP
- struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd, unsigned long toff);
- #endif
- 
-diff --git a/init/Kconfig b/init/Kconfig
-index b77c60f8b963..9cc7436b2f73 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1194,6 +1194,7 @@ endif # NAMESPACES
- config CHECKPOINT_RESTORE
- 	bool "Checkpoint/restore support"
- 	select PROC_CHILDREN
-+	select KCMP
- 	default n
- 	help
- 	  Enables additional kernel features in a sake of checkpoint/restore.
-@@ -1737,6 +1738,16 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
- config ARCH_HAS_MEMBARRIER_SYNC_CORE
- 	bool
- 
-+config KCMP
-+	bool "Enable kcmp() system call" if EXPERT
-+	help
-+	  Enable the kernel resource comparison system call. It provides
-+	  user-space with the ability to compare two processes to see if they
-+	  share a common resource, such as a file descriptor or even virtual
-+	  memory space.
+-			ir->irData[index*4 + 0] = (u8)(dwIRData);
+-			ir->irData[index*4 + 1] = (u8)(dwIRData >> 8);
+-			ir->irData[index*4 + 2] = (u8)(dwIRData >> 16);
+-			ir->irData[index*4 + 3] = (u8)(dwIRData >> 24);
++		dev_dbg(&rc_dev->dev, "ircount %d\n", ir_count);
 +
-+	  If unsure, say N.
++		read_loop = ir_count / 4;
++		if (ir_count % 4)
++			read_loop += 1;
++		for (index = 0; index < read_loop; index++) {
++			data = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++			dev_dbg(&rc_dev->dev, "IRData 0x%08x\n", data);
 +
- config RSEQ
- 	bool "Enable rseq() system call" if EXPERT
- 	default y
-diff --git a/kernel/Makefile b/kernel/Makefile
-index aa7368c7eabf..320f1f3941b7 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -51,7 +51,7 @@ obj-y += livepatch/
- obj-y += dma/
- obj-y += entry/
++			ir->irData[index * 4 + 0] = (u8)(data);
++			ir->irData[index * 4 + 1] = (u8)(data >> 8);
++			ir->irData[index * 4 + 2] = (u8)(data >> 16);
++			ir->irData[index * 4 + 3] = (u8)(data >> 24);
+ 		}
+-		smi_raw_process(rc_dev, ir->irData, ucIRCount);
+-		smi_set(IR_Init_Reg, rbIRVld);
++		smi_raw_process(rc_dev, ir->irData, ir_count);
+ 	}
  
--obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
-+obj-$(CONFIG_KCMP) += kcmp.o
- obj-$(CONFIG_FREEZER) += freezer.o
- obj-$(CONFIG_PROFILING) += profile.o
- obj-$(CONFIG_STACKTRACE) += stacktrace.o
-diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
-index 26c72f2b61b1..1b6c7d33c4ff 100644
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -315,7 +315,7 @@ TEST(kcmp)
- 	ret = __filecmp(getpid(), getpid(), 1, 1);
- 	EXPECT_EQ(ret, 0);
- 	if (ret != 0 && errno == ENOSYS)
--		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_CHECKPOINT_RESTORE?)");
-+		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_KCMP?)");
+-	if (dwIRControl & rbIRhighidle) {
++	if (control & rbIRhighidle) {
+ 		struct ir_raw_event rawir = {};
+ 
++		dev_dbg(&rc_dev->dev, "high idle\n");
++
+ 		rawir.pulse = 0;
+ 		rawir.duration = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
+ 		ir_raw_event_store_with_filter(rc_dev, &rawir);
+-		smi_set(IR_Init_Reg, rbIRhighidle);
+ 	}
+ 
++	smi_set(IR_Init_Reg, rbIRVld);
+ 	ir_raw_event_handle(rc_dev);
  }
  
- TEST(mode_strict_support)
--- 
-2.20.1
-
+@@ -150,7 +156,7 @@ int smi_ir_init(struct smi_dev *dev)
+ 	rc_dev->dev.parent = &dev->pci_dev->dev;
+ 
+ 	rc_dev->map_name = dev->info->rc_map;
+-	rc_dev->timeout = MS_TO_US(100);
++	rc_dev->timeout = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
+ 	rc_dev->rx_resolution = SMI_SAMPLE_PERIOD;
+ 
+ 	ir->rc_dev = rc_dev;
+@@ -173,7 +179,7 @@ void smi_ir_exit(struct smi_dev *dev)
+ 	struct smi_rc *ir = &dev->ir;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+ 
+-	smi_ir_stop(ir);
+ 	rc_unregister_device(rc_dev);
++	smi_ir_stop(ir);
+ 	ir->rc_dev = NULL;
+ }
