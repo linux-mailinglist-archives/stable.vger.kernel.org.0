@@ -2,331 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C0F31197D
-	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 04:08:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86ED8311A22
+	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 04:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbhBFDIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 22:08:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31071 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231816AbhBFDC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 22:02:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1612580491;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=L4E4CDYBy60A6rd71h9hPmcNYhY8EnpLIy1TTvD0sUA=;
-        b=WhePY9xDmmbT2Ed51uqmURR0mflL/roi0tE+R7eySl6Ua8yn9TILsy6SttOAh5+/e8/RUv
-        uxFOdOAnE1TCvF8xL7SfNYMj6LCif1evpF6ATOUVROMoNCYqTtZkHoTLakiCLaBAyu1o4X
-        h5WjipJ3aCMVPjfuiP9RTp1sQBoWQic=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-140-5F83qhm1OA2MvKMreDy8KQ-1; Fri, 05 Feb 2021 19:47:55 -0500
-X-MC-Unique: 5F83qhm1OA2MvKMreDy8KQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1847CE757
-        for <stable@vger.kernel.org>; Sat,  6 Feb 2021 00:47:55 +0000 (UTC)
-Received: from [172.20.6.99] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9D2C619727;
-        Sat,  6 Feb 2021 00:47:51 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S229705AbhBFDcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 22:32:12 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:55437 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230366AbhBFD2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 22:28:39 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.69.177;
+Received: from build.alporthouse.com (unverified [78.156.69.177]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23803184-1500050 
+        for multiple; Fri, 05 Feb 2021 22:00:14 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     linux-kernel@vger.kernel.org
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Cyrill Gorcunov <gorcunov@gmail.com>, stable@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v3] kcmp: Support selection of SYS_kcmp without CHECKPOINT_RESTORE
+Date:   Fri,  5 Feb 2021 22:00:12 +0000
+Message-Id: <20210205220012.1983-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210205163752.11932-1-chris@chris-wilson.co.uk>
+References: <20210205163752.11932-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.10.13 (stable)
-Date:   Sat, 06 Feb 2021 00:47:51 -0000
-CC:     Rachel Sibley <rasibley@redhat.com>,
-        David Arcari <darcari@redhat.com>
-Message-ID: <cki.DC9FBF27FA.5X3UGB566D@redhat.com>
-X-Gitlab-Pipeline-ID: 623198
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/623198
-X-DataWarehouse-Revision-IID: 9686
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Userspace has discovered the functionality offered by SYS_kcmp and has
+started to depend upon it. In particular, Mesa uses SYS_kcmp for
+os_same_file_description() in order to identify when two fd (e.g. device
+or dmabuf) point to the same struct file. Since they depend on it for
+core functionality, lift SYS_kcmp out of the non-default
+CONFIG_CHECKPOINT_RESTORE into the selectable syscall category.
 
-Hello,
+Rasmus Villemoes also pointed out that systemd uses SYS_kcmp to
+deduplicate the per-service file descriptor store.
 
-We ran automated tests on a recent commit from this kernel tree:
+Note that some distributions such as Ubuntu are already enabling
+CHECKPOINT_RESTORE in their configs and so, by extension, SYS_kcmp.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 0c245c5fe93f - Linux 5.10.13
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3046
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dave Airlie <airlied@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> # DRM depends on kcmp
+Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk> # systemd uses kcmp
 
-The results of these automated tests are provided below.
+---
+v2:
+  - Default n.
+  - Borrrow help message from man kcmp.
+  - Export get_epoll_tfile_raw_ptr() for CONFIG_KCMP
+v3:
+  - Select KCMP for CONFIG_DRM
+---
+ drivers/gpu/drm/Kconfig                       |  3 +++
+ fs/eventpoll.c                                |  4 ++--
+ include/linux/eventpoll.h                     |  2 +-
+ init/Kconfig                                  | 11 +++++++++++
+ kernel/Makefile                               |  2 +-
+ tools/testing/selftests/seccomp/seccomp_bpf.c |  2 +-
+ 6 files changed, 19 insertions(+), 5 deletions(-)
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/02/05/623198
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 0973f408d75f..af6c6d214d91 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -15,6 +15,9 @@ menuconfig DRM
+ 	select I2C_ALGOBIT
+ 	select DMA_SHARED_BUFFER
+ 	select SYNC_FILE
++# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
++# device and dmabuf fd. Let's make sure that is available for our userspace.
++	select KCMP
+ 	help
+ 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+ 	  introduced in XFree86 4.0. If you say Y here, you need to select
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index a829af074eb5..3196474cbe24 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -979,7 +979,7 @@ static struct epitem *ep_find(struct eventpoll *ep, struct file *file, int fd)
+ 	return epir;
+ }
+ 
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
+ {
+ 	struct rb_node *rbp;
+@@ -1021,7 +1021,7 @@ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd,
+ 
+ 	return file_raw;
+ }
+-#endif /* CONFIG_CHECKPOINT_RESTORE */
++#endif /* CONFIG_KCMP */
+ 
+ /**
+  * Adds a new entry to the tail of the list in a lockless way, i.e.
+diff --git a/include/linux/eventpoll.h b/include/linux/eventpoll.h
+index 0350393465d4..593322c946e6 100644
+--- a/include/linux/eventpoll.h
++++ b/include/linux/eventpoll.h
+@@ -18,7 +18,7 @@ struct file;
+ 
+ #ifdef CONFIG_EPOLL
+ 
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd, unsigned long toff);
+ #endif
+ 
+diff --git a/init/Kconfig b/init/Kconfig
+index b77c60f8b963..9cc7436b2f73 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1194,6 +1194,7 @@ endif # NAMESPACES
+ config CHECKPOINT_RESTORE
+ 	bool "Checkpoint/restore support"
+ 	select PROC_CHILDREN
++	select KCMP
+ 	default n
+ 	help
+ 	  Enables additional kernel features in a sake of checkpoint/restore.
+@@ -1737,6 +1738,16 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
+ config ARCH_HAS_MEMBARRIER_SYNC_CORE
+ 	bool
+ 
++config KCMP
++	bool "Enable kcmp() system call" if EXPERT
++	help
++	  Enable the kernel resource comparison system call. It provides
++	  user-space with the ability to compare two processes to see if they
++	  share a common resource, such as a file descriptor or even virtual
++	  memory space.
++
++	  If unsure, say N.
++
+ config RSEQ
+ 	bool "Enable rseq() system call" if EXPERT
+ 	default y
+diff --git a/kernel/Makefile b/kernel/Makefile
+index aa7368c7eabf..320f1f3941b7 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -51,7 +51,7 @@ obj-y += livepatch/
+ obj-y += dma/
+ obj-y += entry/
+ 
+-obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
++obj-$(CONFIG_KCMP) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 26c72f2b61b1..1b6c7d33c4ff 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -315,7 +315,7 @@ TEST(kcmp)
+ 	ret = __filecmp(getpid(), getpid(), 1, 1);
+ 	EXPECT_EQ(ret, 0);
+ 	if (ret != 0 && errno == ENOSYS)
+-		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_CHECKPOINT_RESTORE?)");
++		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_KCMP?)");
+ }
+ 
+ TEST(mode_strict_support)
+-- 
+2.20.1
 
