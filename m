@@ -2,167 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4C9311077
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 19:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55DA6311051
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 19:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbhBEROJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53904 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233494AbhBEQBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 11:01:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33BC46509B;
-        Fri,  5 Feb 2021 14:14:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534441;
-        bh=xhEBF5950Wxomp4nlv6r/gQ21RaGS0+9JtqvkNBSfTI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDqmk973hQplUgGpNPnqEP+MQpLFaObN4WQvnw/7D6sIivyhlkcAKhRIjUq32Hy6P
-         EN5rV0m+x0F9HhHkah4gJUnyB7SvY8jTHVGvc2x9GaWjQxVE1UbhoQjeH7W7qh5hWU
-         miLPHeCujhjbRMbVaA6Iyl6KT2iQ9LZ5joOf2mCs=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Brauner <christian@brauner.io>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Joerg Vehlow <lkml@jv-coder.de>
-Subject: [PATCH 4.19 04/17] sysctl: handle overflow in proc_get_long
-Date:   Fri,  5 Feb 2021 15:07:58 +0100
-Message-Id: <20210205140649.997401406@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
-References: <20210205140649.825180779@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S233289AbhBERGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:06:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233585AbhBEQqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 11:46:09 -0500
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F99C0617A7
+        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 10:27:35 -0800 (PST)
+Received: by mail-lf1-x130.google.com with SMTP id f1so11254813lfu.3
+        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 10:27:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mhfCHagI1sqqpf6f51+Hwn9ljjzG7Pktd2A52iAON7E=;
+        b=a43ocwMCwZeo+3MGlYdg1zDoiFF7DJJOFXNomaVtcvC8cInQQD1hj2yMwIl4iNZLUD
+         EJ8zjjoyTQONpuBCXbKs+ADXfo7RaoOqx0WZ/sggeC66H6qVljAubJzJu8yFWNZDl/Cn
+         cArQYXLJCHtQnELcmBMDI9yUOfs0zb3ulbXyI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mhfCHagI1sqqpf6f51+Hwn9ljjzG7Pktd2A52iAON7E=;
+        b=GTk1eK1ejZY5mZVyvWUPOpYENThPd5fFwvulV5TwMtUXLObhNObOeJldFazUebDz7s
+         QOwDhKDnVrF2DGPXrLo6SZshTuGpscz4btzy73B88r5dGWrk3Gw/gh/FSzevYjSAU2xX
+         e7vOXSpMX8buXiU//VhEa17aELMyYYOFJGF5QBvQySFHVfbFFVefrxUqJrmWh+BWCvKS
+         NaCXYvd4c5nTZDVMRwcC0Dwo8MeFNAJTw5P74vR6eDfuuZuLonSMOBWlMduwSI2Y/0/D
+         gAS/9gNJ3J5sTbq6w2UV0ac4vVcib1O+38fRhZoQGd2a4Q14Cq0NuWWKsptMW3nl/xVJ
+         foRQ==
+X-Gm-Message-State: AOAM531o25HFhWlZTGl4zEnHRubqzFOAg3LuSjVxnFdhX2q7ET+20AWv
+        +XjakQHauOeEdivEEDiT+CQr/RsRNNjBNqqyVNy3HQ==
+X-Google-Smtp-Source: ABdhPJyTYL9fMonnT8BhMIeFUlj9I+74ycMzbMV4QGm4w4YUVnU4ryM8D0bpDxgeFjGgDtTPf8nLKFJp+ICwr092XOM=
+X-Received: by 2002:a19:750b:: with SMTP id y11mr3261168lfe.479.1612549653814;
+ Fri, 05 Feb 2021 10:27:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <cover.1612534649.git.jpoimboe@redhat.com> <9583327904ebbbeda399eca9c56d6c7085ac20fe.1612534649.git.jpoimboe@redhat.com>
+In-Reply-To: <9583327904ebbbeda399eca9c56d6c7085ac20fe.1612534649.git.jpoimboe@redhat.com>
+From:   Ivan Babrou <ivan@cloudflare.com>
+Date:   Fri, 5 Feb 2021 10:27:22 -0800
+Message-ID: <CABWYdi0Dh7DJZGHX+1P-Huu=dBCwCxaf_WuyXmMLueVg9eomcA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] x86/unwind/orc: Disable KASAN checking in the ORC
+ unwinder, part 2
+To:     Josh Poimboeuf <jpoimboe@redhat.com>
+Cc:     x86@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>, stable@vger.kernel.org,
+        kernel-team <kernel-team@cloudflare.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian@brauner.io>
+On Fri, Feb 5, 2021 at 6:24 AM Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>
+> KASAN reserves "redzone" areas between stack frames in order to detect
+> stack overruns.  A read or write to such an area triggers a KASAN
+> "stack-out-of-bounds" BUG.
+>
+> Normally, the ORC unwinder stays in-bounds and doesn't access the
+> redzone.  But sometimes it can't find ORC metadata for a given
+> instruction.  This can happen for code which is missing ORC metadata, or
+> for generated code.  In such cases, the unwinder attempts to fall back
+> to frame pointers, as a best-effort type thing.
+>
+> This fallback often works, but when it doesn't, the unwinder can get
+> confused and go off into the weeds into the KASAN redzone, triggering
+> the aforementioned KASAN BUG.
+>
+> But in this case, the unwinder's confusion is actually harmless and
+> working as designed.  It already has checks in place to prevent
+> off-stack accesses, but those checks get short-circuited by the KASAN
+> BUG.  And a BUG is a lot more disruptive than a harmless unwinder
+> warning.
+>
+> Disable the KASAN checks by using READ_ONCE_NOCHECK() for all stack
+> accesses.  This finishes the job started by commit 881125bfe65b
+> ("x86/unwind: Disable KASAN checking in the ORC unwinder"), which only
+> partially fixed the issue.
+>
+> Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+> Reported-by: Ivan Babrou <ivan@cloudflare.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 7f2923c4f73f21cfd714d12a2d48de8c21f11cfe upstream.
+I haven't seen any previously observed issues with this after a day of uptime.
 
-proc_get_long() is a funny function.  It uses simple_strtoul() and for a
-good reason.  proc_get_long() wants to always succeed the parse and
-return the maybe incorrect value and the trailing characters to check
-against a pre-defined list of acceptable trailing values.  However,
-simple_strtoul() explicitly ignores overflows which can cause funny
-things like the following to happen:
-
-  echo 18446744073709551616 > /proc/sys/fs/file-max
-  cat /proc/sys/fs/file-max
-  0
-
-(Which will cause your system to silently die behind your back.)
-
-On the other hand kstrtoul() does do overflow detection but does not
-return the trailing characters, and also fails the parse when anything
-other than '\n' is a trailing character whereas proc_get_long() wants to
-be more lenient.
-
-Now, before adding another kstrtoul() function let's simply add a static
-parse strtoul_lenient() which:
- - fails on overflow with -ERANGE
- - returns the trailing characters to the caller
-
-The reason why we should fail on ERANGE is that we already do a partial
-fail on overflow right now.  Namely, when the TMPBUFLEN is exceeded.  So
-we already reject values such as 184467440737095516160 (21 chars) but
-accept values such as 18446744073709551616 (20 chars) but both are
-overflows.  So we should just always reject 64bit overflows and not
-special-case this based on the number of chars.
-
-Link: http://lkml.kernel.org/r/20190107222700.15954-2-christian@brauner.io
-Signed-off-by: Christian Brauner <christian@brauner.io>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Joerg Vehlow <lkml@jv-coder.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/sysctl.c |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
-
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -68,6 +68,8 @@
- #include <linux/mount.h>
- #include <linux/pipe_fs_i.h>
- 
-+#include "../lib/kstrtox.h"
-+
- #include <linux/uaccess.h>
- #include <asm/processor.h>
- 
-@@ -2069,6 +2071,41 @@ static void proc_skip_char(char **buf, s
- 	}
- }
- 
-+/**
-+ * strtoul_lenient - parse an ASCII formatted integer from a buffer and only
-+ *                   fail on overflow
-+ *
-+ * @cp: kernel buffer containing the string to parse
-+ * @endp: pointer to store the trailing characters
-+ * @base: the base to use
-+ * @res: where the parsed integer will be stored
-+ *
-+ * In case of success 0 is returned and @res will contain the parsed integer,
-+ * @endp will hold any trailing characters.
-+ * This function will fail the parse on overflow. If there wasn't an overflow
-+ * the function will defer the decision what characters count as invalid to the
-+ * caller.
-+ */
-+static int strtoul_lenient(const char *cp, char **endp, unsigned int base,
-+			   unsigned long *res)
-+{
-+	unsigned long long result;
-+	unsigned int rv;
-+
-+	cp = _parse_integer_fixup_radix(cp, &base);
-+	rv = _parse_integer(cp, base, &result);
-+	if ((rv & KSTRTOX_OVERFLOW) || (result != (unsigned long)result))
-+		return -ERANGE;
-+
-+	cp += rv;
-+
-+	if (endp)
-+		*endp = (char *)cp;
-+
-+	*res = (unsigned long)result;
-+	return 0;
-+}
-+
- #define TMPBUFLEN 22
- /**
-  * proc_get_long - reads an ASCII formatted integer from a user buffer
-@@ -2112,7 +2149,8 @@ static int proc_get_long(char **buf, siz
- 	if (!isdigit(*p))
- 		return -EINVAL;
- 
--	*val = simple_strtoul(p, &p, 0);
-+	if (strtoul_lenient(p, &p, 0, val))
-+		return -EINVAL;
- 
- 	len = p - tmp;
- 
-
-
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
