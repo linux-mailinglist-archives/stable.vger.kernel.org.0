@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34401311434
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:06:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B6931148F
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbhBEWB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:01:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
+        id S231283AbhBEWH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:07:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232829AbhBEOyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:54:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 909DF6507C;
-        Fri,  5 Feb 2021 14:13:19 +0000 (UTC)
+        id S232847AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:52:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 317D46506C;
+        Fri,  5 Feb 2021 14:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534400;
-        bh=WLCOk0yKmp1Fxy9rZNxmYOR/Idxo7Q1TOjFo7D7uzTc=;
+        s=korg; t=1612534374;
+        bh=uwFvfc6L4wpnKmbVy14n1pGZETZp9bDsqif3aF84e58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeYSg8rAzvflb1yPYGzBAnlyskE1+OwaNbRAFxca0uJoNQYuzkAbLCaRaVCjOpxWk
-         QFn0PmrpahvFzfNr5pRCjPP2gC8zajMLjClV9ZVLR8dwjj13ZZ22mXi+pV8NB1bwLB
-         Df0PkBlnLWCNvB9/EN5QWFLb7yCvt+ShQCtX3GEA=
+        b=b977jaWgUz0ek9I20QieC5A0NmM7dJEo+HtCez2Y3v5iysueVRTupKrd2ltKQSsBq
+         JoRlDoT3It4E41t+Y+Jh4JhZno6hn5hOnunU6n/dUWyl/XAvTuy8vQuqLTAnVOfd1V
+         yYaLN7PAc6GTd7FQqEfk4sHg1FtZyhgqtH1DWOyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Bing Guo <bing.guo@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Anson Jacob <anson.jacob@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/32] scsi: ibmvfc: Set default timeout to avoid crash during migration
-Date:   Fri,  5 Feb 2021 15:07:38 +0100
-Message-Id: <20210205140653.334716730@linuxfoundation.org>
+Subject: [PATCH 5.4 29/32] drm/amd/display: Change function decide_dp_link_settings to avoid infinite looping
+Date:   Fri,  5 Feb 2021 15:07:44 +0100
+Message-Id: <20210205140653.578210069@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
 References: <20210205140652.348864025@linuxfoundation.org>
@@ -40,83 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Bing Guo <bing.guo@amd.com>
 
-[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
+[ Upstream commit 4716a7c50c5c66d6ddc42401e1e0ba13b492e105 ]
 
-While testing live partition mobility, we have observed occasional crashes
-of the Linux partition. What we've seen is that during the live migration,
-for specific configurations with large amounts of memory, slow network
-links, and workloads that are changing memory a lot, the partition can end
-up being suspended for 30 seconds or longer. This resulted in the following
-scenario:
+Why:
+Function decide_dp_link_settings() loops infinitely when required bandwidth
+can't be supported.
 
-CPU 0                          CPU 1
--------------------------------  ----------------------------------
-scsi_queue_rq                    migration_store
- -> blk_mq_start_request          -> rtas_ibm_suspend_me
-  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
-              _______________________________________V
-             |
-             V
-    -> IPI from CPU 1
-     -> rtas_percpu_suspend_me
-                                     -> __rtas_suspend_last_cpu
+How:
+Check the required bandwidth against verified_link_cap before trying to
+find a link setting for it.
 
--- Linux partition suspended for > 30 seconds --
-                                      -> for_each_online_cpu(cpu)
-                                           plpar_hcall_norets(H_PROD
- -> scsi_dispatch_cmd
-                                      -> scsi_times_out
-                                       -> scsi_abort_command
-                                        -> queue_delayed_work
-  -> ibmvfc_queuecommand_lck
-   -> ibmvfc_send_event
-    -> ibmvfc_send_crq
-     - returns H_CLOSED
-   <- returns SCSI_MLQUEUE_HOST_BUSY
--> __blk_mq_requeue_request
-
-                                      -> scmd_eh_abort_handler
-                                       -> scsi_try_to_abort_cmd
-                                         - returns SUCCESS
-                                       -> scsi_queue_insert
-
-Normally, the SCMD_STATE_COMPLETE bit would protect against the command
-completion and the timeout, but that doesn't work here, since we don't
-check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
-
-In this case we end up calling scsi_queue_insert on a request that has
-already been queued, or possibly even freed, and we crash.
-
-The patch below simply increases the default I/O timeout to avoid this race
-condition. This is also the timeout value that nearly all IBM SAN storage
-recommends setting as the default value.
-
-Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Bing Guo <bing.guo@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Anson Jacob <anson.jacob@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 8a76284b59b08..523809a8a2323 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -2881,8 +2881,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
- 	unsigned long flags = 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 959eb075d11ed..c18f39271b034 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1914,6 +1914,9 @@ static bool decide_dp_link_settings(struct dc_link *link, struct dc_link_setting
+ 			initial_link_setting;
+ 	uint32_t link_bw;
  
- 	spin_lock_irqsave(shost->host_lock, flags);
--	if (sdev->type == TYPE_DISK)
-+	if (sdev->type == TYPE_DISK) {
- 		sdev->allow_restart = 1;
-+		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
-+	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- 	return 0;
- }
++	if (req_bw > dc_link_bandwidth_kbps(link, &link->verified_link_cap))
++		return false;
++
+ 	/* search for the minimum link setting that:
+ 	 * 1. is supported according to the link training result
+ 	 * 2. could support the b/w requested by the timing
 -- 
 2.27.0
 
