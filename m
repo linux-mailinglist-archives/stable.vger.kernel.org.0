@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D6431143E
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7440311458
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232976AbhBEWCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:02:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S229752AbhBEWE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:04:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232827AbhBEOye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:54:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CD8E65092;
-        Fri,  5 Feb 2021 14:13:47 +0000 (UTC)
+        id S232927AbhBEO5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:57:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6614865094;
+        Fri,  5 Feb 2021 14:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534428;
-        bh=3mxxP0en6Os9zEB1LwKk063zfFdcPS04gqtTpvScRNM=;
+        s=korg; t=1612534431;
+        bh=CV+N50vR0wXZUYWyuvQ9Ue+mTRaVX7Jh7HwUsT/Z5q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMlIqlELuCv2jhWjeV+dyMUgSw6xJqlyD9X85BNLRtB0z6ZhozQ7sPvX7AMqQlPNv
-         N0GeMRIAJ95odHIuMf607Uz074NDEwNdYoXCZHDUPfFdUgt2GCkpEB+92JwO02Tm1O
-         i5oQ896Szn/LJq53AqU+OluNrfv+247IHyZ702ZU=
+        b=KNe+/toGw/KvN4gjny33+HcXPUpAJBb3Y9M+Tr1eJKokwsWlABrtczBRXfeRVsV6x
+         W2XQWFiEGH0+1ielUtPrXcoCGqpysKnFDGIitf/jCe/eOvxJE8RYTbgFLPyJtXJ65L
+         ct6//0HAjmeVzoznrpJh2edrHAXxHGzq3nq1HNZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/17] objtool: Dont fail on missing symbol table
-Date:   Fri,  5 Feb 2021 15:08:09 +0100
-Message-Id: <20210205140650.427844663@linuxfoundation.org>
+Subject: [PATCH 4.19 16/17] kthread: Extract KTHREAD_IS_PER_CPU
+Date:   Fri,  5 Feb 2021 15:08:10 +0100
+Message-Id: <20210205140650.464297049@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
 References: <20210205140649.825180779@linuxfoundation.org>
@@ -42,49 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 1d489151e9f9d1647110277ff77282fe4d96d09b ]
+[ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
 
-Thanks to a recent binutils change which doesn't generate unused
-symbols, it's now possible for thunk_64.o be completely empty without
-CONFIG_PREEMPTION: no text, no data, no symbols.
+There is a need to distinguish geniune per-cpu kthreads from kthreads
+that happen to have a single CPU affinity.
 
-We could edit the Makefile to only build that file when
-CONFIG_PREEMPTION is enabled, but that will likely create confusion
-if/when the thunks end up getting used by some other code again.
+Geniune per-cpu kthreads are kthreads that are CPU affine for
+correctness, these will obviously have PF_KTHREAD set, but must also
+have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
+ruins things.
 
-Just ignore it and move on.
+However, these two things are not sufficient, PF_NO_SETAFFINITY is
+also set on other tasks that have their affinities controlled through
+other means, like for instance workqueues.
 
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1254
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Therefore another bit is needed; it turns out kthread_create_per_cpu()
+already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
+kthread_park()/kthread_unpark() work correctly.
+
+Expose this flag and remove the implicit setting of it from
+kthread_create_on_cpu(); the io_uring usage of it seems dubious at
+best.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210121103506.557620262@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/elf.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/linux/kthread.h |  3 +++
+ kernel/kthread.c        | 27 ++++++++++++++++++++++++++-
+ kernel/smpboot.c        |  1 +
+ 3 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index b8f3cca8e58b4..264d49fea8142 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -226,8 +226,11 @@ static int read_symbols(struct elf *elf)
+diff --git a/include/linux/kthread.h b/include/linux/kthread.h
+index c1961761311db..72308c38e06c4 100644
+--- a/include/linux/kthread.h
++++ b/include/linux/kthread.h
+@@ -32,6 +32,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 					  unsigned int cpu,
+ 					  const char *namefmt);
  
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (!symtab) {
--		WARN("missing symbol table");
--		return -1;
-+		/*
-+		 * A missing symbol table is actually possible if it's an empty
-+		 * .o file.  This can happen for thunk_64.o.
-+		 */
-+		return 0;
++void kthread_set_per_cpu(struct task_struct *k, int cpu);
++bool kthread_is_per_cpu(struct task_struct *k);
++
+ /**
+  * kthread_run - create and wake a thread.
+  * @threadfn: the function to run until signal_pending(current).
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 2eed853ab9cc5..81abfac351272 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -460,11 +460,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 		return p;
+ 	kthread_bind(p, cpu);
+ 	/* CPU hotplug need to bind once again when unparking the thread. */
+-	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
+ 	to_kthread(p)->cpu = cpu;
+ 	return p;
+ }
+ 
++void kthread_set_per_cpu(struct task_struct *k, int cpu)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return;
++
++	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
++
++	if (cpu < 0) {
++		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++		return;
++	}
++
++	kthread->cpu = cpu;
++	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
++bool kthread_is_per_cpu(struct task_struct *k)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return false;
++
++	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
+ /**
+  * kthread_unpark - unpark a thread created by kthread_create().
+  * @k:		thread created by kthread_create().
+diff --git a/kernel/smpboot.c b/kernel/smpboot.c
+index c230c2dd48e19..84c16654d8598 100644
+--- a/kernel/smpboot.c
++++ b/kernel/smpboot.c
+@@ -187,6 +187,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
+ 		kfree(td);
+ 		return PTR_ERR(tsk);
  	}
- 
- 	symbols_nr = symtab->sh.sh_size / symtab->sh.sh_entsize;
++	kthread_set_per_cpu(tsk, cpu);
+ 	/*
+ 	 * Park the thread so that it could start right on the CPU
+ 	 * when it is available.
 -- 
 2.27.0
 
