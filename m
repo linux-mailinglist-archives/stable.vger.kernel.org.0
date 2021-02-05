@@ -2,97 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFBD3110CE
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A853110A4
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbhBER3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:29:43 -0500
-Received: from foss.arm.com ([217.140.110.172]:37826 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233476AbhBEP7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:59:45 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1A46731B;
-        Fri,  5 Feb 2021 09:41:21 -0800 (PST)
-Received: from [10.57.60.124] (unknown [10.57.60.124])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E32173F718;
-        Fri,  5 Feb 2021 09:41:18 -0800 (PST)
-Subject: Re: [PATCH] arm64: Extend workaround for erratum 1024718 to all
- versions of Cortex-A55
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-References: <20210203230057.3961239-1-suzuki.poulose@arm.com>
- <20210204095457.GA20361@willie-the-truck>
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <5a8ea892-98bb-e02e-cced-9ffa7e0bbda9@arm.com>
-Date:   Fri, 5 Feb 2021 17:41:05 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S229988AbhBERUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:20:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233653AbhBERQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 12:16:57 -0500
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46575C0613D6
+        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 10:58:40 -0800 (PST)
+Received: by mail-pl1-x632.google.com with SMTP id j11so4029069plt.11
+        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 10:58:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HDjOhka7CjoBq+eaRDsLDoj0Qe/MKRJDGAbItisSlsE=;
+        b=QgM/Hzxq9yXNIRFckP0cE4/ikSjlhrJvHAre8+FQfJm6mFmmvXWA8Gnk4pDV8A49k2
+         CZSEQ7b8dKwnXx6ia3RdB0iQMpapxYR3GpM7K00KTfAsxvHa4GFaim2v4mJLyvtKgRY2
+         OUp+ai/BucZ3Gv9SdOSAgumRonk1LGeG6imVjBmDpXBM8tfyj3rUZoRQIkgcZk8CXuzR
+         +4upGPsNfou5BC39jXZQ6hvvQaJG7dQmtVaIOhgpAr8MYYA/nGW1tYW1xpLNW5etDhpn
+         mbPFcmh2voFdU97Zrk54iwreHLx7+MxI4Weq8MakUzEq/tXkaBIwTn77xNW2OgRk6X/6
+         6+xQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HDjOhka7CjoBq+eaRDsLDoj0Qe/MKRJDGAbItisSlsE=;
+        b=c89O69A+HgjjwDil0zRtfEbAXUi2KEdOsUZnC4xNPcWIn7tg0Sx3fBTlQlf1zXBjdo
+         NDFhMoeXUagtQeDA2vvWwlbjeiWAdnAi+iP433gefVjQNheiQY6Cf/whZiJwvg8fv1Y2
+         wgd2WRokS7/ZSEWir+1GWWeEn2G8xOL6fnpgxIuWpkxfTPTedo3swS599g1PJV4S6lsB
+         ++SM75ahVgH1r4RoY6NgkhyXYMdONeVoVjoBI+suwhX6p+byMMZCRjA6aQBQvf0yFWtJ
+         tVpUFhSxPoXa1XoR0ci1B7Ry1xgC5LFSibaBcTJo2b4Rvs030Yal8qAHJdTiVAsXyzQP
+         SQsw==
+X-Gm-Message-State: AOAM533ye37pH49MlMp0Iw6rJ4NkKXKE/ZcJxJzS8dVlQMbOjgbNMpdx
+        OAd5bu8YCCgbZTm/rryVL7RXp9hU8jbpfg==
+X-Google-Smtp-Source: ABdhPJwpFqnXLZtMc0QVflATn7uNcQB2Z7/OAUrXpMHYltWmucbEYoItuvYm1jvyykRCsBE9crzT5Q==
+X-Received: by 2002:a17:90a:6a0e:: with SMTP id t14mr2300183pjj.216.1612551519553;
+        Fri, 05 Feb 2021 10:58:39 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o190sm11312296pgo.50.2021.02.05.10.58.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Feb 2021 10:58:38 -0800 (PST)
+Message-ID: <601d955e.1c69fb81.722ce.7efa@mx.google.com>
+Date:   Fri, 05 Feb 2021 10:58:38 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210204095457.GA20361@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.256-18-g9a90abe4b6d7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 100 runs,
+ 5 regressions (v4.9.256-18-g9a90abe4b6d7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Will
+stable-rc/linux-4.9.y baseline: 100 runs, 5 regressions (v4.9.256-18-g9a90a=
+be4b6d7)
 
-On 2/4/21 9:54 AM, Will Deacon wrote:
-> Hi Suzuki,
-> 
-> On Wed, Feb 03, 2021 at 11:00:57PM +0000, Suzuki K Poulose wrote:
->> The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
->> we apply the work around for r0p0 - r1p0. Unfortunately this
->> won't be fixed for the future revisions for the CPU. Thus
->> extend the work around for all versions of A55, to cover
->> for r2p0 and any future revisions.
->>
->> Cc: stable@vger.kernel.org
->> Cc: Catalin Marinas <catalin.marinas@arm.com>
->> Cc: Will Deacon <will@kernel.org>
->> Cc: James Morse <james.morse@arm.com>
->> Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
->> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
->> ---
->>   arch/arm64/kernel/cpufeature.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
->> index e99eddec0a46..db400ca77427 100644
->> --- a/arch/arm64/kernel/cpufeature.c
->> +++ b/arch/arm64/kernel/cpufeature.c
->> @@ -1455,7 +1455,7 @@ static bool cpu_has_broken_dbm(void)
->>   	/* List of CPUs which have broken DBM support. */
->>   	static const struct midr_range cpus[] = {
->>   #ifdef CONFIG_ARM64_ERRATUM_1024718
->> -		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
->> +		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
-> 
-> I think we have bigger problems with this erratum, since cpu_has_hw_af()
-> doesn't taken this erratum into account at all, meaning that
-> arch_faults_on_old_pte() will return the wrong value on any system with an
-> A55.
+Regressions Summary
+-------------------
 
-Please note that we enable HW_AF on these CPUs even with this erratum as
-they are not affected. It is only the DBM that we selectively disable. Thus
-the AF flag checks are still valid (See __cpu_setup in arch/arm64/mm/proc.S).
-Or am I miss something ?
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
-Kind regards
-Suzuki
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
 
-> 
-> Please can you fix that along with this patch? You'll need to pay extra
-> attention to the stuff I've queued on for-next/faultaround, where we will
-> actually want arch_wants_old_prefaulted_pte() to return 'true' if any of the
-> CPUs have DBM, since it's a pure performance thing.
-> 
-> Cheers,
-> 
-> Will
-> 
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
 
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.256-18-g9a90abe4b6d7/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.256-18-g9a90abe4b6d7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9a90abe4b6d7ffe084575ce067f9871dc8f7a245 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601d6111006140e4833abe83
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601d6111006140e4833ab=
+e84
+        failing since 82 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601d62ecb95299c52f3abe7f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601d62ecb95299c52f3ab=
+e80
+        failing since 82 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601d61185b2680d2603abe7a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601d61185b2680d2603ab=
+e7b
+        failing since 82 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601d60d07b0a684b653abe86
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601d60d07b0a684b653ab=
+e87
+        failing since 82 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/601d63f16e0daf21113abe6c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.256=
+-18-g9a90abe4b6d7/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/601d63f16e0daf21113ab=
+e6d
+        failing since 79 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
