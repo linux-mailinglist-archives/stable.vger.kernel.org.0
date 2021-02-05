@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2789E31147E
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B11BB311467
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233045AbhBEWHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:07:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44452 "EHLO mail.kernel.org"
+        id S233099AbhBEWFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:05:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232834AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2AE565023;
-        Fri,  5 Feb 2021 14:11:18 +0000 (UTC)
+        id S232951AbhBEO5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:57:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA68B65056;
+        Fri,  5 Feb 2021 14:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534279;
-        bh=FKVHPlqgWZf6FB0yq4aTtFJ9KHS1p/HLMiToBk7OHlw=;
+        s=korg; t=1612534344;
+        bh=0TCr50uaJ/Er9v0M1Rd47FXEfjx301MaEuqIpGUAO5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aa/y1+JYuFiKfivfmjtQlG0FF7GWSyZynqQns+bHpQdIiAoiieicVEwh0PVNQX+Eb
-         i5hxUIRDKBGAZVt8N5Utz6ikf6L2vPXC8+KK65yJrHy/5C+1YjB6IzZzMM2f6hB/hX
-         xNsCMUxIoetpMyG2Ax/FsIUB1RP1TSCjfqKpVGWE=
+        b=nHPoqjt/wHtQ1qF3dhmXsoARC2ZKpmWwVH4dnhhNAgxgBGWuP1aMD0fsEhZO77dcs
+         O0Llk9iEnC+R0BMdfC004HAjreUA+1Q9tzJqP6ZNKKMsimFtzpvKZdqYuX2sbG+QRR
+         CL5TtzuIPqKDnxGC6FV9reXyv0Nyrm4a5V8yPPVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/57] habanalabs: fix backward compatibility of idle check
-Date:   Fri,  5 Feb 2021 15:07:18 +0100
-Message-Id: <20210205140658.214219970@linuxfoundation.org>
+        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/32] Revert "Revert "block: end bio with BLK_STS_AGAIN in case of non-mq devs and REQ_NOWAIT""
+Date:   Fri,  5 Feb 2021 15:07:19 +0100
+Message-Id: <20210205140652.538665933@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
-References: <20210205140655.982616732@linuxfoundation.org>
+In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
+References: <20210205140652.348864025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit f8abaf379bfe19600f96ae79a6759eb37039ae05 ]
+This reverts commit bba91cdba612fbce4f8575c5d94d2b146fb83ea3 which is
+commit b0beb28097fa04177b3769f4bb7a0d0d9c4ae76e upstream.
 
-Need to take the lower 32 bits of the driver's 64-bit idle mask and put
-it in the legacy 32-bit variable that the userspace reads to know the
-idle mask.
+It breaks things in 5.4.y, so let's drop it.
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Andres Freund <andres@anarazel.de>
+Cc: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+CC: Jens Axboe <axboe@kernel.dk>
+Cc: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/habanalabs/common/habanalabs_ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/blk-core.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/habanalabs_ioctl.c b/drivers/misc/habanalabs/common/habanalabs_ioctl.c
-index 07317ea491295..35401148969f5 100644
---- a/drivers/misc/habanalabs/common/habanalabs_ioctl.c
-+++ b/drivers/misc/habanalabs/common/habanalabs_ioctl.c
-@@ -133,6 +133,8 @@ static int hw_idle(struct hl_device *hdev, struct hl_info_args *args)
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -886,11 +886,14 @@ generic_make_request_checks(struct bio *
+ 	}
  
- 	hw_idle.is_idle = hdev->asic_funcs->is_device_idle(hdev,
- 					&hw_idle.busy_engines_mask_ext, NULL);
-+	hw_idle.busy_engines_mask =
-+			lower_32_bits(hw_idle.busy_engines_mask_ext);
+ 	/*
+-	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
+-	 * if queue is not a request based queue.
++	 * Non-mq queues do not honor REQ_NOWAIT, so complete a bio
++	 * with BLK_STS_AGAIN status in order to catch -EAGAIN and
++	 * to give a chance to the caller to repeat request gracefully.
+ 	 */
+-	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q))
+-		goto not_supported;
++	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_mq(q)) {
++		status = BLK_STS_AGAIN;
++		goto end_io;
++	}
  
- 	return copy_to_user(out, &hw_idle,
- 		min((size_t) max_size, sizeof(hw_idle))) ? -EFAULT : 0;
--- 
-2.27.0
-
+ 	if (should_fail_bio(bio))
+ 		goto end_io;
 
 
