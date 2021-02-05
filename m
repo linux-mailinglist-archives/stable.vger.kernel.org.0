@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 066EB311470
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8901A31148E
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:14:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbhBEWGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:06:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
+        id S229590AbhBEWHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:07:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232817AbhBEOwO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:52:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C912B65018;
-        Fri,  5 Feb 2021 14:10:55 +0000 (UTC)
+        id S232845AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:52:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8EE65017;
+        Fri,  5 Feb 2021 14:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534256;
-        bh=mfiiNN2iZPRQejpl2BGTt2sEn3eQDVkN/A1SY07Oq/M=;
+        s=korg; t=1612534259;
+        bh=oN+BjilV+IP08eYlsu3JkzNWAmIGUjZmGP4JJFAvjSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCpM0PpVwxtZ2CGsenE8drxWFFNLDSu+ViKxeMKlIxyJZYSQkVbbOFxEjPM4ajjb+
-         1FfeAeRO+axY90raabrxEFrkW75gg8n//b/NmB2biyt9hnzk0GgUTROOeBOvUN3XTq
-         U4s9ixdLbtMbbwvMpjVvJS3zqwpIrS7MSjz43lww=
+        b=SY5pvg0x0eaatmLM/N8RTii4we93S6O/GhO4uwelylVNN3pyidzm89o0Kjb3VEAWc
+         s2dx+E4YCZihPpwhcUNqIju8RwtMU0lFrhWn0K9JpMOooUxdI/kpCJUfdvee7DmGg+
+         0XfK+pWagSNvAiRvrRF/97qfaO9WsljvMiyoAcXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/57] selftests/powerpc: Only test lwm/stmw on big endian
-Date:   Fri,  5 Feb 2021 15:07:11 +0100
-Message-Id: <20210205140657.911974385@linuxfoundation.org>
+Subject: [PATCH 5.10 46/57] drm/amd/display: Update dram_clock_change_latency for DCN2.1
+Date:   Fri,  5 Feb 2021 15:07:12 +0100
+Message-Id: <20210205140657.955300906@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -40,59 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jake Wang <haonan.wang2@amd.com>
 
-[ Upstream commit dd3a44c06f7b4f14e90065bf05d62c255b20005f ]
+[ Upstream commit 901c1ec05ef277ce9d43cb806a225b28b3efe89a ]
 
-Newer binutils (>= 2.36) refuse to assemble lmw/stmw when building in
-little endian mode. That breaks compilation of our alignment handler
-test:
+[WHY]
+dram clock change latencies get updated using ddr4 latency table, but
+does that update does not happen before validation. This value
+should not be the default and should be number received from
+df for better mode support.
+This may cause a PState hang on high refresh panels with short vblanks
+such as on 1080p 360hz or 300hz panels.
 
-  /tmp/cco4l14N.s: Assembler messages:
-  /tmp/cco4l14N.s:1440: Error: `lmw' invalid when little-endian
-  /tmp/cco4l14N.s:1814: Error: `stmw' invalid when little-endian
-  make[2]: *** [../../lib.mk:139: /output/kselftest/powerpc/alignment/alignment_handler] Error 1
+[HOW]
+Update latency from 23.84 to 11.72.
 
-These tests do pass on little endian machines, as the kernel will
-still emulate those instructions even when running little
-endian (which is arguably a kernel bug).
-
-But we don't really need to test that case, so ifdef those
-instructions out to get the alignment test building again.
-
-Reported-by: Libor Pechacek <lpechacek@suse.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Libor Pechacek <lpechacek@suse.com>
-Link: https://lore.kernel.org/r/20210119041800.3093047-1-mpe@ellerman.id.au
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/powerpc/alignment/alignment_handler.c  | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/alignment/alignment_handler.c b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-index cb53a8b777e68..c25cf7cd45e9f 100644
---- a/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-+++ b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-@@ -443,7 +443,6 @@ int test_alignment_handler_integer(void)
- 	LOAD_DFORM_TEST(ldu);
- 	LOAD_XFORM_TEST(ldx);
- 	LOAD_XFORM_TEST(ldux);
--	LOAD_DFORM_TEST(lmw);
- 	STORE_DFORM_TEST(stb);
- 	STORE_XFORM_TEST(stbx);
- 	STORE_DFORM_TEST(stbu);
-@@ -462,7 +461,11 @@ int test_alignment_handler_integer(void)
- 	STORE_XFORM_TEST(stdx);
- 	STORE_DFORM_TEST(stdu);
- 	STORE_XFORM_TEST(stdux);
-+
-+#ifdef __BIG_ENDIAN__
-+	LOAD_DFORM_TEST(lmw);
- 	STORE_DFORM_TEST(stmw);
-+#endif
- 
- 	return rc;
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index e73785e74cba8..20441127783ba 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -295,7 +295,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
+ 	.num_banks = 8,
+ 	.num_chans = 4,
+ 	.vmm_page_size_bytes = 4096,
+-	.dram_clock_change_latency_us = 23.84,
++	.dram_clock_change_latency_us = 11.72,
+ 	.return_bus_width_bytes = 64,
+ 	.dispclk_dppclk_vco_speed_mhz = 3600,
+ 	.xfc_bus_transport_time_us = 4,
 -- 
 2.27.0
 
