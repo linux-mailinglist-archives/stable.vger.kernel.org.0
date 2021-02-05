@@ -2,141 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3F4311404
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:00:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73013311410
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbhBEVzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:55:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45256 "EHLO mail.kernel.org"
+        id S231612AbhBEV5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:57:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232890AbhBEO7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233009AbhBEO7i (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:59:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30584650CB;
-        Fri,  5 Feb 2021 14:15:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23A62650BA;
+        Fri,  5 Feb 2021 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534504;
-        bh=ma7bm9ZgW1IrQyoW1e1cUXWVly+7HZreq5h5N71EoK8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kMrj/rYALbqW5H2+1pmIqBU9KCbSQv1Qssx207vEYMDEb+/JW7hZpEQmKMTOf3JG6
-         lxQxOxkeKrvCDlv8d6bAzkNuo0GjqtERkp1ZlktnQM7Yqyj7/4W9XhAuBqrJLZqfGT
-         xDbbaYYXBlklqQNFK266LNXdw8A8Wc77EQxSUYEE=
+        s=korg; t=1612534481;
+        bh=ut4olQmbGlf4tg7N7FeTWCWaT4+2MeoCpLBjJ5EZ5WU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RT3oKnLPctwF7+hEnWitLD8kyH1vaP28Cwj44BaTiI7aTDimohENs3h8MStXKEtTp
+         lxP/4rIE6+3sy4dz6deRblfnf5B/khXgLEtICIO8gWDTKu/+YldRuLLLVPXB5UU56s
+         zumS/1rnYOx4Zfoy1D5/nuf7N53wzIgRHL8ektyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/15] 4.14.220-rc1 review
-Date:   Fri,  5 Feb 2021 15:08:45 +0100
-Message-Id: <20210205140649.733510103@linuxfoundation.org>
+        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 02/15] ibmvnic: Ensure that CRQ entry read are correctly ordered
+Date:   Fri,  5 Feb 2021 15:08:47 +0100
+Message-Id: <20210205140649.836887071@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
+References: <20210205140649.733510103@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.220-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.220-rc1
-X-KernelTest-Deadline: 2021-02-07T14:06+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.220 release.
-There are 15 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Lijun Pan <ljp@linux.ibm.com>
 
-Responses should be made by Sun, 07 Feb 2021 14:06:42 +0000.
-Anything received after that time might be too late.
+commit e41aec79e62fa50f940cf222d1e9577f14e149dc upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.220-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Ensure that received Command-Response Queue (CRQ) entries are
+properly read in order by the driver. dma_rmb barrier has
+been added before accessing the CRQ descriptor to ensure
+the entire descriptor is read before processing.
 
-thanks,
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210128013442.88319-1-ljp@linux.ibm.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/ethernet/ibm/ibmvnic.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.220-rc1
-
-Peter Zijlstra <peterz@infradead.org>
-    kthread: Extract KTHREAD_IS_PER_CPU
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    objtool: Don't fail on missing symbol table
-
-Brian King <brking@linux.vnet.ibm.com>
-    scsi: ibmvfc: Set default timeout to avoid crash during migration
-
-Felix Fietkau <nbd@nbd.name>
-    mac80211: fix fast-rx encryption check
-
-Javed Hasan <jhasan@marvell.com>
-    scsi: libfc: Avoid invoking response handler twice if ep is already completed
-
-Martin Wilck <mwilck@suse.com>
-    scsi: scsi_transport_srp: Don't block target in failfast state
-
-Peter Zijlstra <peterz@infradead.org>
-    x86: __always_inline __{rd,wr}msr()
-
-Tony Lindgren <tony@atomide.com>
-    phy: cpcap-usb: Fix warning for missing regulator_disable
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    driver core: Extend device_is_dependent()
-
-Benjamin Gaignard <benjamin.gaignard@linaro.org>
-    base: core: Remove WARN_ON from link dependencies check
-
-Eric Dumazet <edumazet@google.com>
-    net_sched: gen_estimator: support large ewma log
-
-Eric Dumazet <edumazet@google.com>
-    net_sched: reject silly cell_log in qdisc_get_rtab()
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    ACPI: thermal: Do not call acpi_thermal_check() directly
-
-Lijun Pan <ljp@linux.ibm.com>
-    ibmvnic: Ensure that CRQ entry read are correctly ordered
-
-Pan Bian <bianpan2016@163.com>
-    net: dsa: bcm_sf2: put device node before return
-
-
--------------
-
-Diffstat:
-
- Makefile                             |  4 +--
- arch/x86/include/asm/msr.h           |  4 +--
- drivers/acpi/thermal.c               | 55 +++++++++++++++++++++++++-----------
- drivers/base/core.c                  | 19 +++++++++++--
- drivers/net/dsa/bcm_sf2.c            |  8 ++++--
- drivers/net/ethernet/ibm/ibmvnic.c   |  6 ++++
- drivers/phy/motorola/phy-cpcap-usb.c | 19 +++++++++----
- drivers/scsi/ibmvscsi/ibmvfc.c       |  4 ++-
- drivers/scsi/libfc/fc_exch.c         | 16 +++++++++--
- drivers/scsi/scsi_transport_srp.c    |  9 +++++-
- include/linux/kthread.h              |  3 ++
- kernel/kthread.c                     | 27 +++++++++++++++++-
- kernel/smpboot.c                     |  1 +
- net/core/gen_estimator.c             | 11 +++++---
- net/mac80211/rx.c                    |  2 ++
- net/sched/sch_api.c                  |  3 +-
- tools/objtool/elf.c                  |  7 +++--
- 17 files changed, 155 insertions(+), 43 deletions(-)
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -3682,6 +3682,12 @@ static void ibmvnic_tasklet(void *data)
+ 	while (!done) {
+ 		/* Pull all the valid messages off the CRQ */
+ 		while ((crq = ibmvnic_next_crq(adapter)) != NULL) {
++			/* This barrier makes sure ibmvnic_next_crq()'s
++			 * crq->generic.first & IBMVNIC_CRQ_CMD_RSP is loaded
++			 * before ibmvnic_handle_crq()'s
++			 * switch(gen_crq->first) and switch(gen_crq->cmd).
++			 */
++			dma_rmb();
+ 			ibmvnic_handle_crq(crq, adapter);
+ 			crq->generic.first = 0;
+ 		}
 
 
