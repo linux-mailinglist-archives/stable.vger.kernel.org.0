@@ -2,129 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE77D311390
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9147A311385
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233189AbhBEV30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:29:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45340 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231701AbhBEPAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:00:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A9B650B1;
-        Fri,  5 Feb 2021 14:14:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534467;
-        bh=jQ5g/mPKswFOhl93N86AioJj0vO88F8hbPM7rsVHYqc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tPPnekNtOJIbP2+WLN+R0OAPJyjYHeaCF5QkxNr5Vd6aNFUnpfRBfMg4FEa2aGMc
-         n5CFB+nxJsoOhUa6Etr3/EMJWK+j58hHuCBM8s4glsekqUxXO9iCoDU7DDyfZEla/e
-         XdMc6Gr7GKUcTNTCbq/4IEHj0pitKFZcgeIro8MU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/15] scsi: libfc: Avoid invoking response handler twice if ep is already completed
-Date:   Fri,  5 Feb 2021 15:08:56 +0100
-Message-Id: <20210205140650.185885343@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
-References: <20210205140649.733510103@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S233325AbhBEV1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:27:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49810 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231303AbhBEPAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 10:00:32 -0500
+Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C59C061786;
+        Fri,  5 Feb 2021 08:38:37 -0800 (PST)
+Received: by mail-ua1-x933.google.com with SMTP id p19so2310934uad.7;
+        Fri, 05 Feb 2021 08:38:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=I57FiQkDQ+xhVoz0anMGzaM3+FzzYkjie2v/Yi2uB3w=;
+        b=dd6MYgRnwCqIWamtBY8PPs1TbchkdtCoTsmd3cmxscyyn9EKnkOiC6d0o2f+8VPORq
+         I3/A5Rnpi9KTV5mQqw9wPkf0DTJSqUudQ0fPlStPLcI2qjK6Mkdv80h6MAoskuQd8Bmw
+         iXAfBHzFn9gh6oHFDKv1ketOdUKnTY5fp6syB8Of8WZUR/o6SgsihZvTLVdyydgsXWAQ
+         c6dtuT7JzeRwK6h0pDY3UYP38tclR3i2Kvs7FDB8xqes0xMBtTq5kGJh4XIeP72L6jOb
+         CIxKy8TiNk8o03Rw7sf6hCE/ew3YMwx3YSmALaHQgzct9hT9AwSbVn/HQbCFkzoa6698
+         mtvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=I57FiQkDQ+xhVoz0anMGzaM3+FzzYkjie2v/Yi2uB3w=;
+        b=WpD15HDL2Dc7kpOzFg63BHuMzkXN8YqRRbk92OwgN6MZ37SA+/S0K0uTNDr0CO160s
+         heAMRp0o1vUFgRjxcqcFYuFqwuSj1D4+fCDplDCvHr7hUY2IGeXhqwe0VzdB5iaQW96n
+         +M1/0fkUdCwwzX+/b7wkHm4KtRcm6+duhvb/8/q0UrNNeOpkaz1lPa0Y5tDDJsyx3lsk
+         rCJXgOmfgk5SQnjt+M+RPLNuiX7O+FRDRJ4lmA7YPwXKDWLlKfKBj4f+pI8YKQBBeUn4
+         kMEfxZ6Y4akBy6y6xIX/OuytyO/Q8uesOs3U9BBTWtniayq6Otw/6sHydNsDNm/oRr1N
+         W2jw==
+X-Gm-Message-State: AOAM531pzNZGjaQvQzXYrfpLm0AXTgPGEZJO8vnPCbUvPGwnf0i/xf6j
+        zY14L83MJA/r2z8x+eW9oITzDox2dofKzAA7ww4RVaCDNbl1gA==
+X-Google-Smtp-Source: ABdhPJxXSn+EpSOusnsHf6NXEqgBAY2zdEq25/ycqgSkeVmZ7ME1vWs7sB+tCZM8qIKXe1d6nho1dSJyWVQDu2bt06w=
+X-Received: by 2002:a25:7706:: with SMTP id s6mr6758693ybc.3.1612536734191;
+ Fri, 05 Feb 2021 06:52:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CANT5p=o4b9RfQ5omd911pLH3WFbiC1-ghF43kRZ5-4SV+PeS=g@mail.gmail.com>
+ <20210205144248.13508-1-aaptel@suse.com>
+In-Reply-To: <20210205144248.13508-1-aaptel@suse.com>
+From:   Shyam Prasad N <nspmangalore@gmail.com>
+Date:   Fri, 5 Feb 2021 06:52:03 -0800
+Message-ID: <CANT5p=p7Ah_yFsmpj7VCzuoszpf6WiU+G8jws24njXgM_gv_mQ@mail.gmail.com>
+Subject: Re: [PATCH v4] cifs: report error instead of invalid when
+ revalidating a dentry fails
+To:     =?UTF-8?Q?Aur=C3=A9lien_Aptel?= <aaptel@suse.com>
+Cc:     CIFS <linux-cifs@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
+        Steve French <smfrench@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+Looks good to me.
+Maybe change the FYI in the cifs_dbg line above to VFS?
 
-[ Upstream commit b2b0f16fa65e910a3ec8771206bb49ee87a54ac5 ]
-
-A race condition exists between the response handler getting called because
-of exchange_mgr_reset() (which clears out all the active XIDs) and the
-response we get via an interrupt.
-
-Sequence of events:
-
-	 rport ba0200: Port timeout, state PLOGI
-	 rport ba0200: Port entered PLOGI state from PLOGI state
-	 xid 1052: Exchange timer armed : 20000 msecs      xid timer armed here
-	 rport ba0200: Received LOGO request while in state PLOGI
-	 rport ba0200: Delete port
-	 rport ba0200: work event 3
-	 rport ba0200: lld callback ev 3
-	 bnx2fc: rport_event_hdlr: event = 3, port_id = 0xba0200
-	 bnx2fc: ba0200 - rport not created Yet!!
-	 /* Here we reset any outstanding exchanges before
-	 freeing rport using the exch_mgr_reset() */
-	 xid 1052: Exchange timer canceled
-	 /* Here we got two responses for one xid */
-	 xid 1052: invoking resp(), esb 20000000 state 3
-	 xid 1052: invoking resp(), esb 20000000 state 3
-	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
-	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
-
-Skip the response if the exchange is already completed.
-
-Link: https://lore.kernel.org/r/20201215194731.2326-1-jhasan@marvell.com
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/libfc/fc_exch.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
-index 6ba257cbc6d94..384458d1f73c3 100644
---- a/drivers/scsi/libfc/fc_exch.c
-+++ b/drivers/scsi/libfc/fc_exch.c
-@@ -1631,8 +1631,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 		rc = fc_exch_done_locked(ep);
- 		WARN_ON(fc_seq_exch(sp) != ep);
- 		spin_unlock_bh(&ep->ex_lock);
--		if (!rc)
-+		if (!rc) {
- 			fc_exch_delete(ep);
-+		} else {
-+			FC_EXCH_DBG(ep, "ep is completed already,"
-+					"hence skip calling the resp\n");
-+			goto skip_resp;
-+		}
- 	}
- 
- 	/*
-@@ -1651,6 +1656,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 	if (!fc_invoke_resp(ep, sp, fp))
- 		fc_frame_free(fp);
- 
-+skip_resp:
- 	fc_exch_release(ep);
- 	return;
- rel:
-@@ -1907,10 +1913,16 @@ static void fc_exch_reset(struct fc_exch *ep)
- 
- 	fc_exch_hold(ep);
- 
--	if (!rc)
-+	if (!rc) {
- 		fc_exch_delete(ep);
-+	} else {
-+		FC_EXCH_DBG(ep, "ep is completed already,"
-+				"hence skip calling the resp\n");
-+		goto skip_resp;
-+	}
- 
- 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
-+skip_resp:
- 	fc_seq_set_resp(sp, NULL, ep->arg);
- 	fc_exch_release(ep);
- }
--- 
-2.27.0
+On Fri, Feb 5, 2021 at 6:42 AM Aur=C3=A9lien Aptel <aaptel@suse.com> wrote:
+>
+> From: Aurelien Aptel <aaptel@suse.com>
+>
+> Assuming
+> - //HOST/a is mounted on /mnt
+> - //HOST/b is mounted on /mnt/b
+>
+> On a slow connection, running 'df' and killing it while it's
+> processing /mnt/b can make cifs_get_inode_info() returns -ERESTARTSYS.
+>
+> This triggers the following chain of events:
+> =3D> the dentry revalidation fail
+> =3D> dentry is put and released
+> =3D> superblock associated with the dentry is put
+> =3D> /mnt/b is unmounted
+>
+> This patch makes cifs_d_revalidate() return the error instead of 0
+> (invalid) when cifs_revalidate_dentry() fails, except for ENOENT (file
+> deleted) and ESTALE (file recreated).
+>
+> Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+> Suggested-by: Shyam Prasad N <nspmangalore@gmail.com>
+> CC: stable@vger.kernel.org
+>
+> ---
+>  fs/cifs/dir.c | 22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
+>
+> diff --git a/fs/cifs/dir.c b/fs/cifs/dir.c
+> index 68900f1629bff..97ac363b5df16 100644
+> --- a/fs/cifs/dir.c
+> +++ b/fs/cifs/dir.c
+> @@ -737,6 +737,7 @@ static int
+>  cifs_d_revalidate(struct dentry *direntry, unsigned int flags)
+>  {
+>         struct inode *inode;
+> +       int rc;
+>
+>         if (flags & LOOKUP_RCU)
+>                 return -ECHILD;
+> @@ -746,8 +747,25 @@ cifs_d_revalidate(struct dentry *direntry, unsigned =
+int flags)
+>                 if ((flags & LOOKUP_REVAL) && !CIFS_CACHE_READ(CIFS_I(ino=
+de)))
+>                         CIFS_I(inode)->time =3D 0; /* force reval */
+>
+> -               if (cifs_revalidate_dentry(direntry))
+> -                       return 0;
+> +               rc =3D cifs_revalidate_dentry(direntry);
+> +               if (rc) {
+> +                       cifs_dbg(FYI, "cifs_revalidate_dentry failed with=
+ rc=3D%d", rc);
+> +                       switch (rc) {
+> +                       case -ENOENT:
+> +                       case -ESTALE:
+> +                               /*
+> +                                * Those errors mean the dentry is invali=
+d
+> +                                * (file was deleted or recreated)
+> +                                */
+> +                               return 0;
+> +                       default:
+> +                               /*
+> +                                * Otherwise some unexpected error happen=
+ed
+> +                                * report it as-is to VFS layer
+> +                                */
+> +                               return rc;
+> +                       }
+> +               }
+>                 else {
+>                         /*
+>                          * If the inode wasn't known to be a dfs entry wh=
+en
+> --
+> 2.29.2
+>
 
 
-
+--=20
+Regards,
+Shyam
