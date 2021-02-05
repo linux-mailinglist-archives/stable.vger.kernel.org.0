@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B768D310E11
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 17:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38809310E15
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 17:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232956AbhBEPFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 10:05:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
+        id S233102AbhBEPFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 10:05:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233070AbhBEPCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:02:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF5976508E;
-        Fri,  5 Feb 2021 14:13:41 +0000 (UTC)
+        id S233071AbhBEPC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:02:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F17650B9;
+        Fri,  5 Feb 2021 14:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534422;
-        bh=uU8GzEoI26MawmMmTxJY79nXqStuQdKpJNSWPkntov4=;
+        s=korg; t=1612534478;
+        bh=Odyxa63MXuG7WjkuLwF8TZAevmechkqZY24cr0WpRMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFGZiTNZuZsJaJdN3FiJRBPTcpEsU0sT4ht0pwCei8tfGH10DjjbmtkpUTAZvKmvi
-         i3mb2JPBRzwI2l8Lh+Ndzes4+afSq1zbNdfVZiKKmfsvmTK/xAqKoxsyozJH3J+QL8
-         7U48r1GPqXcnSRYxbojMST4FZs47wJbZtFApkCkc=
+        b=usv4cYtfCi8Ckj+zN/5VvcrOxtYrFPCITKWbmYcAYHBP+zbh5yGQO0I0dZb+RRNmq
+         cWxYQ8Z+crnDo1GJCWU9IQcoqvJ6ArUkaRE0xZceSsVc3sRy5+Vp/F5sXXGZcsht/Z
+         +i+mW0R9Iko4fvkFfUcz+3+r1feFWdyChhOyvQGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/17] scsi: ibmvfc: Set default timeout to avoid crash during migration
-Date:   Fri,  5 Feb 2021 15:08:07 +0100
-Message-Id: <20210205140650.348317315@linuxfoundation.org>
+Subject: [PATCH 4.14 15/15] kthread: Extract KTHREAD_IS_PER_CPU
+Date:   Fri,  5 Feb 2021 15:09:00 +0100
+Message-Id: <20210205140650.351126636@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140649.825180779@linuxfoundation.org>
-References: <20210205140649.825180779@linuxfoundation.org>
+In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
+References: <20210205140649.733510103@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
+[ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
 
-While testing live partition mobility, we have observed occasional crashes
-of the Linux partition. What we've seen is that during the live migration,
-for specific configurations with large amounts of memory, slow network
-links, and workloads that are changing memory a lot, the partition can end
-up being suspended for 30 seconds or longer. This resulted in the following
-scenario:
+There is a need to distinguish geniune per-cpu kthreads from kthreads
+that happen to have a single CPU affinity.
 
-CPU 0                          CPU 1
--------------------------------  ----------------------------------
-scsi_queue_rq                    migration_store
- -> blk_mq_start_request          -> rtas_ibm_suspend_me
-  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
-              _______________________________________V
-             |
-             V
-    -> IPI from CPU 1
-     -> rtas_percpu_suspend_me
-                                     -> __rtas_suspend_last_cpu
+Geniune per-cpu kthreads are kthreads that are CPU affine for
+correctness, these will obviously have PF_KTHREAD set, but must also
+have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
+ruins things.
 
--- Linux partition suspended for > 30 seconds --
-                                      -> for_each_online_cpu(cpu)
-                                           plpar_hcall_norets(H_PROD
- -> scsi_dispatch_cmd
-                                      -> scsi_times_out
-                                       -> scsi_abort_command
-                                        -> queue_delayed_work
-  -> ibmvfc_queuecommand_lck
-   -> ibmvfc_send_event
-    -> ibmvfc_send_crq
-     - returns H_CLOSED
-   <- returns SCSI_MLQUEUE_HOST_BUSY
--> __blk_mq_requeue_request
+However, these two things are not sufficient, PF_NO_SETAFFINITY is
+also set on other tasks that have their affinities controlled through
+other means, like for instance workqueues.
 
-                                      -> scmd_eh_abort_handler
-                                       -> scsi_try_to_abort_cmd
-                                         - returns SUCCESS
-                                       -> scsi_queue_insert
+Therefore another bit is needed; it turns out kthread_create_per_cpu()
+already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
+kthread_park()/kthread_unpark() work correctly.
 
-Normally, the SCMD_STATE_COMPLETE bit would protect against the command
-completion and the timeout, but that doesn't work here, since we don't
-check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
+Expose this flag and remove the implicit setting of it from
+kthread_create_on_cpu(); the io_uring usage of it seems dubious at
+best.
 
-In this case we end up calling scsi_queue_insert on a request that has
-already been queued, or possibly even freed, and we crash.
-
-The patch below simply increases the default I/O timeout to avoid this race
-condition. This is also the timeout value that nearly all IBM SAN storage
-recommends setting as the default value.
-
-Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210121103506.557620262@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/kthread.h |  3 +++
+ kernel/kthread.c        | 27 ++++++++++++++++++++++++++-
+ kernel/smpboot.c        |  1 +
+ 3 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 090ab377f65e5..50078a199fea0 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -2890,8 +2890,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
- 	unsigned long flags = 0;
+diff --git a/include/linux/kthread.h b/include/linux/kthread.h
+index 4e26609c77d41..eb305353f20fa 100644
+--- a/include/linux/kthread.h
++++ b/include/linux/kthread.h
+@@ -31,6 +31,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 					  unsigned int cpu,
+ 					  const char *namefmt);
  
- 	spin_lock_irqsave(shost->host_lock, flags);
--	if (sdev->type == TYPE_DISK)
-+	if (sdev->type == TYPE_DISK) {
- 		sdev->allow_restart = 1;
-+		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
-+	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- 	return 0;
++void kthread_set_per_cpu(struct task_struct *k, int cpu);
++bool kthread_is_per_cpu(struct task_struct *k);
++
+ /**
+  * kthread_run - create and wake a thread.
+  * @threadfn: the function to run until signal_pending(current).
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index bd58765d75e76..fd6f9322312aa 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -433,11 +433,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 		return p;
+ 	kthread_bind(p, cpu);
+ 	/* CPU hotplug need to bind once again when unparking the thread. */
+-	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
+ 	to_kthread(p)->cpu = cpu;
+ 	return p;
  }
+ 
++void kthread_set_per_cpu(struct task_struct *k, int cpu)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return;
++
++	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
++
++	if (cpu < 0) {
++		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++		return;
++	}
++
++	kthread->cpu = cpu;
++	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
++bool kthread_is_per_cpu(struct task_struct *k)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return false;
++
++	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
+ /**
+  * kthread_unpark - unpark a thread created by kthread_create().
+  * @k:		thread created by kthread_create().
+diff --git a/kernel/smpboot.c b/kernel/smpboot.c
+index 5043e7433f4b1..eeb7f8e9cce37 100644
+--- a/kernel/smpboot.c
++++ b/kernel/smpboot.c
+@@ -187,6 +187,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
+ 		kfree(td);
+ 		return PTR_ERR(tsk);
+ 	}
++	kthread_set_per_cpu(tsk, cpu);
+ 	/*
+ 	 * Park the thread so that it could start right on the CPU
+ 	 * when it is available.
 -- 
 2.27.0
 
