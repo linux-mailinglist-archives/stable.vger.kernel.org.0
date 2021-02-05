@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E99431145C
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE0D31148C
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231703AbhBEWE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:04:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44984 "EHLO mail.kernel.org"
+        id S232954AbhBEWHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:07:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232931AbhBEO5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E047765058;
-        Fri,  5 Feb 2021 14:12:31 +0000 (UTC)
+        id S232846AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:52:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F38F665030;
+        Fri,  5 Feb 2021 14:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534352;
-        bh=sUCSMGgYb319zNRdR6buytA8eu3g59oCfCt50woq2ZA=;
+        s=korg; t=1612534293;
+        bh=CJzhquXinqJ4mwJA43A2q4mP/ri/sWG3gbVv80b/q+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qH+8jweQmF1ScmxlAY4XyZibgZvFvh6Za8CmaxDY5m5k53GVqtyo6hJkgGTwYtb4r
-         Hef/+W1mygKMbcaihiaiWNQblNLbMfYBlX0IPwq6oDDano03VzgmgGirO1G5Bt9jtX
-         jb4uDWegSlyytFViOghKDY/V7JpfX9GTbYhnYGrM=
+        b=NVefQ4iUx70ot9d6QQMtJpP7BwpCRHU4MPG2lkr8fW6hQlbWhvSiZ6eH7rgWizSuA
+         xnTTOQcieX1/2qwiAvCQWyQK2k12EkLKLKv8hbMDxaoJcHe0Ef8IfR96pXPN9B4nHF
+         GPpfJa8w5eQJiwuNuKy0k3I0XFgrLR2+CUl/gdng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 5.4 07/32] arm64: Do not pass tagged addresses to __is_lm_address()
-Date:   Fri,  5 Feb 2021 15:07:22 +0100
-Message-Id: <20210205140652.662436384@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 57/57] workqueue: Restrict affinity change to rescuer
+Date:   Fri,  5 Feb 2021 15:07:23 +0100
+Message-Id: <20210205140658.433231033@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
-References: <20210205140652.348864025@linuxfoundation.org>
+In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
+References: <20210205140655.982616732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 91cb2c8b072e00632adf463b78b44f123d46a0fa upstream.
+[ Upstream commit 640f17c82460e9724fd256f0a1f5d99e7ff0bda4 ]
 
-Commit 519ea6f1c82f ("arm64: Fix kernel address detection of
-__is_lm_address()") fixed the incorrect validation of addresses below
-PAGE_OFFSET. However, it no longer allowed tagged addresses to be passed
-to virt_addr_valid().
+create_worker() will already set the right affinity using
+kthread_bind_mask(), this means only the rescuer will need to change
+it's affinity.
 
-Fix this by explicitly resetting the pointer tag prior to invoking
-__is_lm_address(). This is consistent with the __lm_to_phys() macro.
+Howveer, while in cpu-hot-unplug a regular task is not allowed to run
+on online&&!active as it would be pushed away quite agressively. We
+need KTHREAD_IS_PER_CPU to survive in that environment.
 
-Fixes: 519ea6f1c82f ("arm64: Fix kernel address detection of __is_lm_address()")
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Cc: Will Deacon <will@kernel.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20210201190634.22942-2-catalin.marinas@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Therefore set the affinity after getting that magic flag.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210121103506.826629830@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/memory.h |    2 +-
- arch/arm64/mm/physaddr.c        |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/workqueue.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -332,7 +332,7 @@ static inline void *phys_to_virt(phys_ad
- #endif /* !CONFIG_SPARSEMEM_VMEMMAP || CONFIG_DEBUG_VIRTUAL */
- 
- #define virt_addr_valid(addr)	({					\
--	__typeof__(addr) __addr = addr;					\
-+	__typeof__(addr) __addr = __tag_reset(addr);			\
- 	__is_lm_address(__addr) && pfn_valid(virt_to_pfn(__addr));	\
- })
- 
---- a/arch/arm64/mm/physaddr.c
-+++ b/arch/arm64/mm/physaddr.c
-@@ -9,7 +9,7 @@
- 
- phys_addr_t __virt_to_phys(unsigned long x)
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 0695c7895c892..1d99c52cc99a6 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -1845,12 +1845,6 @@ static void worker_attach_to_pool(struct worker *worker,
  {
--	WARN(!__is_lm_address(x),
-+	WARN(!__is_lm_address(__tag_reset(x)),
- 	     "virt_to_phys used for non-linear address: %pK (%pS)\n",
- 	      (void *)x,
- 	      (void *)x);
+ 	mutex_lock(&wq_pool_attach_mutex);
+ 
+-	/*
+-	 * set_cpus_allowed_ptr() will fail if the cpumask doesn't have any
+-	 * online CPUs.  It'll be re-applied when any of the CPUs come up.
+-	 */
+-	set_cpus_allowed_ptr(worker->task, pool->attrs->cpumask);
+-
+ 	/*
+ 	 * The wq_pool_attach_mutex ensures %POOL_DISASSOCIATED remains
+ 	 * stable across this function.  See the comments above the flag
+@@ -1859,6 +1853,9 @@ static void worker_attach_to_pool(struct worker *worker,
+ 	if (pool->flags & POOL_DISASSOCIATED)
+ 		worker->flags |= WORKER_UNBOUND;
+ 
++	if (worker->rescue_wq)
++		set_cpus_allowed_ptr(worker->task, pool->attrs->cpumask);
++
+ 	list_add_tail(&worker->node, &pool->workers);
+ 	worker->pool = pool;
+ 
+-- 
+2.27.0
+
 
 
