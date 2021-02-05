@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0489B3110D6
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 848B23110D4
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbhBERaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:30:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54092 "EHLO mail.kernel.org"
+        id S233492AbhBERav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:30:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233468AbhBEP7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:59:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AA2C6502A;
-        Fri,  5 Feb 2021 14:11:24 +0000 (UTC)
+        id S233467AbhBEP7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:59:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F2786502E;
+        Fri,  5 Feb 2021 14:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534285;
-        bh=7tNhC8ulhDtwMtSaZXJRxLWlcNzh4K3Z0fdcmoEtpOU=;
+        s=korg; t=1612534290;
+        bh=g9hHEd9p4S2lFSq1V/Bux5mX5+DYlhSY7IJqI+gmCvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHjEas38vVqojxjAbWA7WLloHEtJ7ECjDkTfc51NxDB0SwlCh+PuG0Jv29vFnTLB3
-         tN8aCnQbsSAmg+LFJd6ddaNPkVF3f2CKG0vXCiIJpmMnUPLuZ9cMlyr7c7wTgrBGCR
-         Dm790fIQ8hVjQUWO9wRpPlr6oOV6+sotaXRdqnTA=
+        b=bbsy4N5YnMO6G6dDnYjqxvu9gHzut2DyZkm/ouhcONUmV6EWmjpMiNNL/sMn8T2Mx
+         29SEF0QPMs4lbxYwnjrKF14945j0br2BWzGBVx2AveO7WyizsMrLbl+GlM3ON4aPPK
+         bGPuhQNGEdYuNiG4Gjnk+KIMpVr3b1RMaKTmOviI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 54/57] objtool: Dont fail the kernel build on fatal errors
-Date:   Fri,  5 Feb 2021 15:07:20 +0100
-Message-Id: <20210205140658.306208184@linuxfoundation.org>
+Subject: [PATCH 5.10 56/57] kthread: Extract KTHREAD_IS_PER_CPU
+Date:   Fri,  5 Feb 2021 15:07:22 +0100
+Message-Id: <20210205140658.388157614@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -42,59 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 655cf86548a3938538642a6df27dd359e13c86bd ]
+[ Upstream commit ac687e6e8c26181a33270efd1a2e2241377924b0 ]
 
-This is basically a revert of commit 644592d32837 ("objtool: Fail the
-kernel build on fatal errors").
+There is a need to distinguish geniune per-cpu kthreads from kthreads
+that happen to have a single CPU affinity.
 
-That change turned out to be more trouble than it's worth.  Failing the
-build is an extreme measure which sometimes gets too much attention and
-blocks CI build testing.
+Geniune per-cpu kthreads are kthreads that are CPU affine for
+correctness, these will obviously have PF_KTHREAD set, but must also
+have PF_NO_SETAFFINITY set, lest userspace modify their affinity and
+ruins things.
 
-These fatal-type warnings aren't yet as rare as we'd hope, due to the
-ever-increasing matrix of supported toolchains/plugins and their
-fast-changing nature as of late.
+However, these two things are not sufficient, PF_NO_SETAFFINITY is
+also set on other tasks that have their affinities controlled through
+other means, like for instance workqueues.
 
-Also, there are more people (and bots) looking for objtool warnings than
-ever before, so even non-fatal warnings aren't likely to be ignored for
-long.
+Therefore another bit is needed; it turns out kthread_create_per_cpu()
+already has such a bit: KTHREAD_IS_PER_CPU, which is used to make
+kthread_park()/kthread_unpark() work correctly.
 
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Expose this flag and remove the implicit setting of it from
+kthread_create_on_cpu(); the io_uring usage of it seems dubious at
+best.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210121103506.557620262@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ include/linux/kthread.h |  3 +++
+ kernel/kthread.c        | 27 ++++++++++++++++++++++++++-
+ kernel/smpboot.c        |  1 +
+ 3 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index c6ab44543c92a..956383d5fa62e 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2921,14 +2921,10 @@ int check(struct objtool_file *file)
- 	warnings += ret;
+diff --git a/include/linux/kthread.h b/include/linux/kthread.h
+index 65b81e0c494d2..2484ed97e72f5 100644
+--- a/include/linux/kthread.h
++++ b/include/linux/kthread.h
+@@ -33,6 +33,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 					  unsigned int cpu,
+ 					  const char *namefmt);
  
- out:
--	if (ret < 0) {
--		/*
--		 *  Fatal error.  The binary is corrupt or otherwise broken in
--		 *  some way, or objtool itself is broken.  Fail the kernel
--		 *  build.
--		 */
--		return ret;
--	}
--
-+	/*
-+	 *  For now, don't fail the kernel build on fatal warnings.  These
-+	 *  errors are still fairly common due to the growing matrix of
-+	 *  supported toolchains and their recent pace of change.
-+	 */
- 	return 0;
++void kthread_set_per_cpu(struct task_struct *k, int cpu);
++bool kthread_is_per_cpu(struct task_struct *k);
++
+ /**
+  * kthread_run - create and wake a thread.
+  * @threadfn: the function to run until signal_pending(current).
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 933a625621b8d..5edf7e19ab262 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -493,11 +493,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
+ 		return p;
+ 	kthread_bind(p, cpu);
+ 	/* CPU hotplug need to bind once again when unparking the thread. */
+-	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
+ 	to_kthread(p)->cpu = cpu;
+ 	return p;
  }
+ 
++void kthread_set_per_cpu(struct task_struct *k, int cpu)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return;
++
++	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
++
++	if (cpu < 0) {
++		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++		return;
++	}
++
++	kthread->cpu = cpu;
++	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
++bool kthread_is_per_cpu(struct task_struct *k)
++{
++	struct kthread *kthread = to_kthread(k);
++	if (!kthread)
++		return false;
++
++	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
++}
++
+ /**
+  * kthread_unpark - unpark a thread created by kthread_create().
+  * @k:		thread created by kthread_create().
+diff --git a/kernel/smpboot.c b/kernel/smpboot.c
+index 2efe1e206167c..f25208e8df836 100644
+--- a/kernel/smpboot.c
++++ b/kernel/smpboot.c
+@@ -188,6 +188,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
+ 		kfree(td);
+ 		return PTR_ERR(tsk);
+ 	}
++	kthread_set_per_cpu(tsk, cpu);
+ 	/*
+ 	 * Park the thread so that it could start right on the CPU
+ 	 * when it is available.
 -- 
 2.27.0
 
