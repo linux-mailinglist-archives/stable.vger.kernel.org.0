@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5353112B6
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:44:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0153112AF
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:41:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbhBES7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 13:59:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45946 "EHLO mail.kernel.org"
+        id S233095AbhBES7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 13:59:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233062AbhBEPCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:02:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F276364FDC;
-        Fri,  5 Feb 2021 14:09:46 +0000 (UTC)
+        id S230111AbhBEPCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:02:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41CDE65065;
+        Fri,  5 Feb 2021 14:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534187;
-        bh=49FKmkDTfT6OGAk1xDakZIzVmRL+oyoYE2jNTGqDvD8=;
+        s=korg; t=1612534371;
+        bh=3eSuLmnkEQxyn1kIi6VU+yURhO7h3WPw6ZW8154zkAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUC3EJ+n6rWgBO4iuqURmyTmM4aUT1hIb6K7ULfx0hZF+lFK6X3niKzWXp4kHCZTt
-         KVQfGafuGIVhHZ+L5m7pLflIFqVx1S7UvBRHLLflJ3+u4CD9i43E+KQaUDIvqZ5MNr
-         mIcle52IN3WgWAhWgktas2+qQj6Ny2fLlvdaB4lg=
+        b=Ha5yvuZPvf48/Duq+o7A1gJbuTvzVtAO8N94NIr7lIvJsQghJTDWXGybE34uNMASr
+         ZmWV/zsUP1VyzByPK5EQOwwSPWuJ/4e01XHNFtsWazHc3JAlfGGoHm5ThJOGGOtwN0
+         d22Ov10A+po3VJyMxAK8yRWFjsPxGkAUFoaHhrLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/57] tools/power/x86/intel-speed-select: Set higher of cpuinfo_max_freq or base_frequency
-Date:   Fri,  5 Feb 2021 15:06:46 +0100
-Message-Id: <20210205140656.842112693@linuxfoundation.org>
+Subject: [PATCH 5.4 28/32] drm/amd/display: Update dram_clock_change_latency for DCN2.1
+Date:   Fri,  5 Feb 2021 15:07:43 +0100
+Message-Id: <20210205140653.533882006@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
-References: <20210205140655.982616732@linuxfoundation.org>
+In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
+References: <20210205140652.348864025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Jake Wang <haonan.wang2@amd.com>
 
-[ Upstream commit bbaa2e95e23e74791dd75b90d5ad9aad535acc6e ]
+[ Upstream commit 901c1ec05ef277ce9d43cb806a225b28b3efe89a ]
 
-In some case when BIOS disabled turbo, cpufreq cpuinfo_max_freq can be
-lower than base_frequency at higher config level. So, in that case set
-scaling_min_freq to base_frequency.
+[WHY]
+dram clock change latencies get updated using ddr4 latency table, but
+does that update does not happen before validation. This value
+should not be the default and should be number received from
+df for better mode support.
+This may cause a PState hang on high refresh panels with short vblanks
+such as on 1080p 360hz or 300hz panels.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20201221071859.2783957-3-srinivas.pandruvada@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+[HOW]
+Update latency from 23.84 to 11.72.
+
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-config.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
-index 97755f35d9910..ead9e51f75ada 100644
---- a/tools/power/x86/intel-speed-select/isst-config.c
-+++ b/tools/power/x86/intel-speed-select/isst-config.c
-@@ -1457,6 +1457,16 @@ static void adjust_scaling_max_from_base_freq(int cpu)
- 		set_cpufreq_scaling_min_max(cpu, 1, base_freq);
- }
- 
-+static void adjust_scaling_min_from_base_freq(int cpu)
-+{
-+	int base_freq, scaling_min_freq;
-+
-+	scaling_min_freq = parse_int_file(0, "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq", cpu);
-+	base_freq = get_cpufreq_base_freq(cpu);
-+	if (scaling_min_freq < base_freq)
-+		set_cpufreq_scaling_min_max(cpu, 0, base_freq);
-+}
-+
- static int set_clx_pbf_cpufreq_scaling_min_max(int cpu)
- {
- 	struct isst_pkg_ctdp_level_info *ctdp_level;
-@@ -1554,6 +1564,7 @@ static void set_scaling_min_to_cpuinfo_max(int cpu)
- 			continue;
- 
- 		set_cpufreq_scaling_min_max_from_cpuinfo(i, 1, 0);
-+		adjust_scaling_min_from_base_freq(i);
- 	}
- }
- 
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index bb7add5ea2273..a6d5beada6634 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -257,7 +257,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
+ 	.num_banks = 8,
+ 	.num_chans = 4,
+ 	.vmm_page_size_bytes = 4096,
+-	.dram_clock_change_latency_us = 23.84,
++	.dram_clock_change_latency_us = 11.72,
+ 	.return_bus_width_bytes = 64,
+ 	.dispclk_dppclk_vco_speed_mhz = 3600,
+ 	.xfc_bus_transport_time_us = 4,
 -- 
 2.27.0
 
