@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8E4310EE1
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 18:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0885310EFE
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 18:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbhBEP4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 10:56:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53428 "EHLO mail.kernel.org"
+        id S231991AbhBEQBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 11:01:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233386AbhBEPyh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:54:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41C5E6504C;
-        Fri,  5 Feb 2021 14:12:15 +0000 (UTC)
+        id S233461AbhBEP7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:59:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FDA065071;
+        Fri,  5 Feb 2021 14:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534335;
-        bh=Erx14mbGkChC7+4iB61+/EZf131CLbBj9OQzFV2gYgM=;
+        s=korg; t=1612534388;
+        bh=Bmz+88J6KbyvxEg5Rr1e3c7ZoiMhZVsQRiznE0tpD5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sZ3ONCJM0Q6NDlgdqBcE2EHuLNYSYsZVJtwQu4Dab0EDUxqBtGyBXdz0Xim5HrwT
-         2fpwe9bxMDm+tQ/6/AKbMbjc7ndKzVkI6+k+hib79ZC242Sdxzr9jyuaoqUkhC1Us4
-         PWUSWwsYqYtJH3XbXtLo3+HHajORdVN1oOW/BAsU=
+        b=E+YAy6fMnLKyEHZ6+r+uKMNfpP0qWvaZMjHB1ppSpoRXcAAAB670+Z9pojTZ6yURt
+         OCJhVBKH76CyYocmO81ek0r6TNrjS18w+Ajozj0bYCyAI+J+unhl6TZVUWIq3dN2Ya
+         hYnq+YPQMfZ2PU3gPiVZeENFT9mEmzzSC4iUbNIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/32] platform/x86: touchscreen_dmi: Add swap-x-y quirk for Goodix touchscreen on Estar Beauty HD tablet
-Date:   Fri,  5 Feb 2021 15:07:30 +0100
-Message-Id: <20210205140652.990546266@linuxfoundation.org>
+Subject: [PATCH 5.4 19/32] scsi: libfc: Avoid invoking response handler twice if ep is already completed
+Date:   Fri,  5 Feb 2021 15:07:34 +0100
+Message-Id: <20210205140653.164018254@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140652.348864025@linuxfoundation.org>
 References: <20210205140652.348864025@linuxfoundation.org>
@@ -41,82 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 46c54cf2706122c37497896d56d67b0c0aca2ede ]
+[ Upstream commit b2b0f16fa65e910a3ec8771206bb49ee87a54ac5 ]
 
-The Estar Beauty HD (MID 7316R) tablet uses a Goodix touchscreen,
-with the X and Y coordinates swapped compared to the LCD panel.
+A race condition exists between the response handler getting called because
+of exchange_mgr_reset() (which clears out all the active XIDs) and the
+response we get via an interrupt.
 
-Add a touchscreen_dmi entry for this adding a "touchscreen-swapped-x-y"
-device-property to the i2c-client instantiated for this device before
-the driver binds.
+Sequence of events:
 
-This is the first entry of a Goodix touchscreen to touchscreen_dmi.c,
-so far DMI quirks for Goodix touchscreen's have been added directly
-to drivers/input/touchscreen/goodix.c. Currently there are 3
-DMI tables in goodix.c:
-1. rotated_screen[] for devices where the touchscreen is rotated
-   180 degrees vs the LCD panel
-2. inverted_x_screen[] for devices where the X axis is inverted
-3. nine_bytes_report[] for devices which use a non standard touch
-   report size
+	 rport ba0200: Port timeout, state PLOGI
+	 rport ba0200: Port entered PLOGI state from PLOGI state
+	 xid 1052: Exchange timer armed : 20000 msecs      xid timer armed here
+	 rport ba0200: Received LOGO request while in state PLOGI
+	 rport ba0200: Delete port
+	 rport ba0200: work event 3
+	 rport ba0200: lld callback ev 3
+	 bnx2fc: rport_event_hdlr: event = 3, port_id = 0xba0200
+	 bnx2fc: ba0200 - rport not created Yet!!
+	 /* Here we reset any outstanding exchanges before
+	 freeing rport using the exch_mgr_reset() */
+	 xid 1052: Exchange timer canceled
+	 /* Here we got two responses for one xid */
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
 
-Arguably only 3. really needs to be inside the driver and the other
-2 cases are better handled through the generic touchscreen DMI quirk
-mechanism from touchscreen_dmi.c, which allows adding device-props to
-any i2c-client. Esp. now that goodix.c is using the generic
-touchscreen_properties code.
+Skip the response if the exchange is already completed.
 
-Alternative to the approach from this patch we could add a 4th
-dmi_system_id table for devices with swapped-x-y axis to goodix.c,
-but that seems undesirable.
-
-Cc: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201224135158.10976-1-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20201215194731.2326-1-jhasan@marvell.com
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/scsi/libfc/fc_exch.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 1e072dbba30d6..7ed1189a7200c 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -231,6 +231,16 @@ static const struct ts_dmi_data digma_citi_e200_data = {
- 	.properties	= digma_citi_e200_props,
- };
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 52e8666598531..e5b18e5d46dac 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1619,8 +1619,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 		rc = fc_exch_done_locked(ep);
+ 		WARN_ON(fc_seq_exch(sp) != ep);
+ 		spin_unlock_bh(&ep->ex_lock);
+-		if (!rc)
++		if (!rc) {
+ 			fc_exch_delete(ep);
++		} else {
++			FC_EXCH_DBG(ep, "ep is completed already,"
++					"hence skip calling the resp\n");
++			goto skip_resp;
++		}
+ 	}
  
-+static const struct property_entry estar_beauty_hd_props[] = {
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data estar_beauty_hd_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= estar_beauty_hd_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -747,6 +757,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
- 		},
- 	},
-+	{
-+		/* Estar Beauty HD (MID 7316R) */
-+		.driver_data = (void *)&estar_beauty_hd_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Estar"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
-+		},
-+	},
- 	{
- 		/* GP-electronic T701 */
- 		.driver_data = (void *)&gp_electronic_t701_data,
+ 	/*
+@@ -1639,6 +1644,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 	if (!fc_invoke_resp(ep, sp, fp))
+ 		fc_frame_free(fp);
+ 
++skip_resp:
+ 	fc_exch_release(ep);
+ 	return;
+ rel:
+@@ -1895,10 +1901,16 @@ static void fc_exch_reset(struct fc_exch *ep)
+ 
+ 	fc_exch_hold(ep);
+ 
+-	if (!rc)
++	if (!rc) {
+ 		fc_exch_delete(ep);
++	} else {
++		FC_EXCH_DBG(ep, "ep is completed already,"
++				"hence skip calling the resp\n");
++		goto skip_resp;
++	}
+ 
+ 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
++skip_resp:
+ 	fc_seq_set_resp(sp, NULL, ep->arg);
+ 	fc_exch_release(ep);
+ }
 -- 
 2.27.0
 
