@@ -2,80 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A902D311291
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:36:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F98C3112A1
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233094AbhBESw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 13:52:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45888 "EHLO mail.kernel.org"
+        id S233186AbhBESzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 13:55:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233073AbhBEPEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233032AbhBEPEk (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 10:04:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 119C7650D2;
-        Fri,  5 Feb 2021 14:28:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95FE664DB1;
+        Fri,  5 Feb 2021 16:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612535320;
-        bh=d7NHusXustUM3ugqt86+TlsodGohZmsDn6SZJsVJO3Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JGG1v5LzYumjqRLZzg8Sdh8FTRtynRHJhEkyZvnSchv0xDdZlUEKy9ntTbYLunsI7
-         QfGKxcUgSqfKVY7nEWZgB6SsmcUcl1QtpGS8WIXqJsuphs21tLID+ThXHwiYkoI35k
-         oU2fXEsv3LgCaslFDOieYcFDWzKXqbZg1yuI0324=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.256
-Date:   Fri,  5 Feb 2021 15:26:18 +0100
-Message-Id: <1612535085125226@kroah.com>
-X-Mailer: git-send-email 2.30.0
+        s=korg; t=1612542197;
+        bh=XHjz83QTMmG8sZm/oQBplgJUikTv4NcoOWAzNTl/O9Y=;
+        h=Subject:To:From:Date:From;
+        b=IDv6CIUZRqQ0npHHyr5QPeeQppks5zvGNx/aCITxvQLpSr+XGCEUpGpcCmwVBfKyN
+         zm3mlrwokEYZZeFeEHa9ZRqK+gg0EZbzWg2y/s+sbb2yhn4jW0k45zrkJ3ZeR3pB2U
+         f0FDC7U/a4/QGxyn3khc8oHWyMRdwBFckBp6qJSU=
+Subject: patch "staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table" added to staging-next
+To:     martin@kaiser.cx, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 05 Feb 2021 17:23:02 +0100
+Message-ID: <1612542182236209@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.256 kernel.
 
-This, and the 4.4.256 release are a little bit "different" than normal.
+This is a note to let you know that I've just added the patch titled
 
-This contains only 1 patch, just the version bump from .255 to .256 which ends
-up causing the userspace-visable LINUX_VERSION_CODE to behave a bit differently
-than normal due to the "overflow".
+    staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
 
-With this release, KERNEL_VERSION(4, 9, 256) is the same as KERNEL_VERSION(4, 10, 0).
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
-Nothing in the kernel build itself breaks with this change, but given that this
-is a userspace visible change, and some crazy tools (like glibc and gcc) have
-logic that checks the kernel version for different reasons, I wanted to do this
-release as an "empty" release to ensure that everything still works properly.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-So, this is a YOU MUST UPGRADE requirement of a release.  If you rely on the
-4.9.y kernel, please throw this release into your test builds and rebuild the
-world and let us know if anything breaks, or if all is well.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-Go forth and do full system rebuilds!  Yocto and Gentoo are great for this, as
-will systems that use buildroot.
+If you have any questions about this process, please let me know.
 
-I'll try to hold off on doing a "real" 4.9.y release for a 9eek to give
-everyone a chance to test this out and get back to me.  The pending patches in
-the 4.9.y queue are pretty serious, so I am loath to wait longer than that,
-consider yourself warned...
 
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+From 7a8d2f1908a59003e55ef8691d09efb7fbc51625 Mon Sep 17 00:00:00 2001
+From: Martin Kaiser <martin@kaiser.cx>
+Date: Thu, 4 Feb 2021 09:52:17 +0100
+Subject: staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
 
-thanks,
+The Edimax EW-7811UN V2 uses an RTL8188EU chipset and works with this
+driver.
 
-greg k-h
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210204085217.9743-1-martin@kaiser.cx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-------------
+diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+index 43ebd11b53fe..efad43d8e465 100644
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -41,6 +41,7 @@ static const struct usb_device_id rtw_usb_id_tbl[] = {
+ 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
+ 	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
++	{USB_DEVICE(0x7392, 0xb811)}, /* Edimax EW-7811UN V2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
+ };
+-- 
+2.30.0
 
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.256
 
