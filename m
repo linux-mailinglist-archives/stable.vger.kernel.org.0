@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 413A7311117
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 880A83110D5
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbhBERml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:42:41 -0500
+        id S233331AbhBERax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:30:53 -0500
 Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233442AbhBEP5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:57:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A3964FD4;
-        Fri,  5 Feb 2021 14:09:27 +0000 (UTC)
+        id S233466AbhBEP7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:59:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75F1C64FDF;
+        Fri,  5 Feb 2021 14:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534168;
-        bh=Aj+QZYVZsisjWj5TgF7rY1GnwJISHm0czR4ViQreQTo=;
+        s=korg; t=1612534199;
+        bh=dTmxHkv9WYnVWXiZjTLOW6cKnVIyFzHtOUC/e2Ik0fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZNNjyh8A6f3Ykg2g6UhNrCaKu2UrY0YZlD985xtTvCdhX1tSRGoqMJWDtYeJQnww
-         3g/6HMLAk2hjfx37qFCQmqrueQaAGEZCzzBpK7SENBl+KStEKYP7RR1JlHsbU3kMDo
-         J0eHGWs8vr7eQdUj91r7miE4+QSVcvIX8QbA0Olo=
+        b=y/o1Iy1wHayq0KL1wkb8DUWKqPxNjLEVsgoBu+poZoVDJAjKyuYY5u6OX3AyyZmoW
+         V3jIDFiS330oUwRcSsE5wTg7RPuBRXwEC+3Z6W1yyq/K+sNWW44I9bjqhY+PrPcY1U
+         qUlI8NNBM9SdNVF0bQitYBTKWuADOyeekjkB1LI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 5.10 14/57] arm64: Do not pass tagged addresses to __is_lm_address()
-Date:   Fri,  5 Feb 2021 15:06:40 +0100
-Message-Id: <20210205140656.592654124@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 24/57] locking/lockdep: Avoid noinstr warning for DEBUG_LOCKDEP
+Date:   Fri,  5 Feb 2021 15:06:50 +0100
+Message-Id: <20210205140657.011942306@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -42,53 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 91cb2c8b072e00632adf463b78b44f123d46a0fa upstream.
+[ Upstream commit 77ca93a6b1223e210e58e1000c09d8d420403c94 ]
 
-Commit 519ea6f1c82f ("arm64: Fix kernel address detection of
-__is_lm_address()") fixed the incorrect validation of addresses below
-PAGE_OFFSET. However, it no longer allowed tagged addresses to be passed
-to virt_addr_valid().
+  vmlinux.o: warning: objtool: lock_is_held_type()+0x60: call to check_flags.part.0() leaves .noinstr.text section
 
-Fix this by explicitly resetting the pointer tag prior to invoking
-__is_lm_address(). This is consistent with the __lm_to_phys() macro.
-
-Fixes: 519ea6f1c82f ("arm64: Fix kernel address detection of __is_lm_address()")
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Cc: Will Deacon <will@kernel.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20210201190634.22942-2-catalin.marinas@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210106144017.652218215@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/memory.h |    2 +-
- arch/arm64/mm/physaddr.c        |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/locking/lockdep.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -323,7 +323,7 @@ static inline void *phys_to_virt(phys_ad
- #endif /* !CONFIG_SPARSEMEM_VMEMMAP || CONFIG_DEBUG_VIRTUAL */
- 
- #define virt_addr_valid(addr)	({					\
--	__typeof__(addr) __addr = addr;					\
-+	__typeof__(addr) __addr = __tag_reset(addr);			\
- 	__is_lm_address(__addr) && pfn_valid(virt_to_pfn(__addr));	\
- })
- 
---- a/arch/arm64/mm/physaddr.c
-+++ b/arch/arm64/mm/physaddr.c
-@@ -9,7 +9,7 @@
- 
- phys_addr_t __virt_to_phys(unsigned long x)
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 02bc5b8f1eb27..bdaf4829098c0 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -5271,12 +5271,15 @@ static void __lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie cookie
+ /*
+  * Check whether we follow the irq-flags state precisely:
+  */
+-static void check_flags(unsigned long flags)
++static noinstr void check_flags(unsigned long flags)
  {
--	WARN(!__is_lm_address(x),
-+	WARN(!__is_lm_address(__tag_reset(x)),
- 	     "virt_to_phys used for non-linear address: %pK (%pS)\n",
- 	      (void *)x,
- 	      (void *)x);
+ #if defined(CONFIG_PROVE_LOCKING) && defined(CONFIG_DEBUG_LOCKDEP)
+ 	if (!debug_locks)
+ 		return;
+ 
++	/* Get the warning out..  */
++	instrumentation_begin();
++
+ 	if (irqs_disabled_flags(flags)) {
+ 		if (DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled())) {
+ 			printk("possible reason: unannotated irqs-off.\n");
+@@ -5304,6 +5307,8 @@ static void check_flags(unsigned long flags)
+ 
+ 	if (!debug_locks)
+ 		print_irqtrace_events(current);
++
++	instrumentation_end();
+ #endif
+ }
+ 
+-- 
+2.27.0
+
 
 
