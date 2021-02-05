@@ -2,88 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE6E3102D5
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 03:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3EB3102D8
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 03:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbhBECdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Feb 2021 21:33:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45980 "EHLO mail.kernel.org"
+        id S230252AbhBECdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Feb 2021 21:33:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230249AbhBECda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Feb 2021 21:33:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C4E664FBD;
-        Fri,  5 Feb 2021 02:32:25 +0000 (UTC)
+        id S230224AbhBECdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Feb 2021 21:33:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F55964FB8;
+        Fri,  5 Feb 2021 02:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1612492346;
-        bh=y/WGAdGk3Verfgb7u8hcLd8MBjjWSYD0nWpFTyoT/oc=;
+        s=korg; t=1612492353;
+        bh=Ej+wJlFyaECsFAWWUxNTxpzUQNone8iCdAcIp4GZvpQ=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=HzTcfrRH8VTyok4APLpdcCQjEav0YjzjpmHs7qi8ZwtnKkJ6rGdHx9hq0u039Dy2W
-         vDUtMPnNl29+41FBPpLMZJpHBcqo18BOoW6V4LXDpHD8lITT9UOKNYAq0jRfrU38Mq
-         2gBMHBerBXTAVY82B8xRoCCOhq3WNtxG0terW2fE=
-Date:   Thu, 04 Feb 2021 18:32:24 -0800
+        b=lI5V8mJqUYZZpQ9q2kiiElRnSPGzLp01BujQRXt3DBAOl+/bJipzo1wGrpTNIjPdS
+         ZZXSE7hjXHa6MgQ35CE4mtOFSvpf6XPi3n124i31oMtV8IX8UHCLnPKA9FJY/Nk3Kd
+         mD3bp1yRSd2ccxzHWFm/DRWz2tVWecsWvRJgisFw=
+Date:   Thu, 04 Feb 2021 18:32:31 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, dja@axtens.net, hch@lst.de,
-        linmiaohe@huawei.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, rick.p.edgecombe@intel.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        willy@infradead.org
-Subject:  [patch 07/18] mm/vmalloc: separate put pages and flush VM
- flags
-Message-ID: <20210205023224.fy2bx0YLU%akpm@linux-foundation.org>
+To:     aarcange@redhat.com, akpm@linux-foundation.org, hughd@google.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 09/18] mm: thp: fix MADV_REMOVE deadlock on shmem
+ THP
+Message-ID: <20210205023231.ne7UDbPxT%akpm@linux-foundation.org>
 In-Reply-To: <20210204183135.e123f0d6027529f2cf500cf2@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Subject: mm/vmalloc: separate put pages and flush VM flags
+From: Hugh Dickins <hughd@google.com>
+Subject: mm: thp: fix MADV_REMOVE deadlock on shmem THP
 
-When VM_MAP_PUT_PAGES was added, it was defined with the same value as
-VM_FLUSH_RESET_PERMS.  This doesn't seem like it will cause any big
-functional problems other than some excess flushing for VM_MAP_PUT_PAGES
-allocations.
+Sergey reported deadlock between kswapd correctly doing its usual
+lock_page(page) followed by down_read(page->mapping->i_mmap_rwsem), and
+madvise(MADV_REMOVE) on an madvise(MADV_HUGEPAGE) area doing
+down_write(page->mapping->i_mmap_rwsem) followed by lock_page(page).
 
-Redefine VM_MAP_PUT_PAGES to have its own value.  Also, rearrange things
-so flags are less likely to be missed in the future.
+This happened when shmem_fallocate(punch hole)'s unmap_mapping_range()
+reaches zap_pmd_range()'s call to __split_huge_pmd().  The same deadlock
+could occur when partially truncating a mapped huge tmpfs file, or using
+fallocate(FALLOC_FL_PUNCH_HOLE) on it.
 
-Link: https://lkml.kernel.org/r/20210122233706.9304-1-rick.p.edgecombe@intel.com
-Fixes: b944afc9d64d ("mm: add a VM_MAP_PUT_PAGES flag for vmap")
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Daniel Axtens <dja@axtens.net>
+__split_huge_pmd()'s page lock was added in 5.8, to make sure that any
+concurrent use of reuse_swap_page() (holding page lock) could not catch
+the anon THP's mapcounts and swapcounts while they were being split.
+
+Fortunately, reuse_swap_page() is never applied to a shmem or file THP
+(not even by khugepaged, which checks PageSwapCache before calling), and
+anonymous THPs are never created in shmem or file areas: so that
+__split_huge_pmd()'s page lock can only be necessary for anonymous THPs,
+on which there is no risk of deadlock with i_mmap_rwsem.
+
+Link: https://lkml.kernel.org/r/alpine.LSU.2.11.2101161409470.2022@eggly.anvils
+Fixes: c444eb564fb1 ("mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/vmalloc.h |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ mm/huge_memory.c |   37 +++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
---- a/include/linux/vmalloc.h~mm-vmalloc-separate-put-pages-and-flush-vm-flags
-+++ a/include/linux/vmalloc.h
-@@ -24,7 +24,8 @@ struct notifier_block;		/* in notifier.h
- #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
- #define VM_NO_GUARD		0x00000040      /* don't add guard page */
- #define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
--#define VM_MAP_PUT_PAGES	0x00000100	/* put pages and free array in vfree */
-+#define VM_FLUSH_RESET_PERMS	0x00000100	/* reset direct map and flush TLB on unmap, can't be freed in atomic context */
-+#define VM_MAP_PUT_PAGES	0x00000200	/* put pages and free array in vfree */
+--- a/mm/huge_memory.c~mm-thp-fix-madv_remove-deadlock-on-shmem-thp
++++ a/mm/huge_memory.c
+@@ -2202,7 +2202,7 @@ void __split_huge_pmd(struct vm_area_str
+ {
+ 	spinlock_t *ptl;
+ 	struct mmu_notifier_range range;
+-	bool was_locked = false;
++	bool do_unlock_page = false;
+ 	pmd_t _pmd;
  
- /*
-  * VM_KASAN is used slighly differently depending on CONFIG_KASAN_VMALLOC.
-@@ -37,12 +38,6 @@ struct notifier_block;		/* in notifier.h
-  * determine which allocations need the module shadow freed.
-  */
- 
--/*
-- * Memory with VM_FLUSH_RESET_PERMS cannot be freed in an interrupt or with
-- * vfree_atomic().
-- */
--#define VM_FLUSH_RESET_PERMS	0x00000100      /* Reset direct map and flush TLB on unmap */
--
- /* bits [20..32] reserved for arch specific ioremap internals */
- 
- /*
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+@@ -2218,7 +2218,6 @@ void __split_huge_pmd(struct vm_area_str
+ 	VM_BUG_ON(freeze && !page);
+ 	if (page) {
+ 		VM_WARN_ON_ONCE(!PageLocked(page));
+-		was_locked = true;
+ 		if (page != pmd_page(*pmd))
+ 			goto out;
+ 	}
+@@ -2227,19 +2226,29 @@ repeat:
+ 	if (pmd_trans_huge(*pmd)) {
+ 		if (!page) {
+ 			page = pmd_page(*pmd);
+-			if (unlikely(!trylock_page(page))) {
+-				get_page(page);
+-				_pmd = *pmd;
+-				spin_unlock(ptl);
+-				lock_page(page);
+-				spin_lock(ptl);
+-				if (unlikely(!pmd_same(*pmd, _pmd))) {
+-					unlock_page(page);
++			/*
++			 * An anonymous page must be locked, to ensure that a
++			 * concurrent reuse_swap_page() sees stable mapcount;
++			 * but reuse_swap_page() is not used on shmem or file,
++			 * and page lock must not be taken when zap_pmd_range()
++			 * calls __split_huge_pmd() while i_mmap_lock is held.
++			 */
++			if (PageAnon(page)) {
++				if (unlikely(!trylock_page(page))) {
++					get_page(page);
++					_pmd = *pmd;
++					spin_unlock(ptl);
++					lock_page(page);
++					spin_lock(ptl);
++					if (unlikely(!pmd_same(*pmd, _pmd))) {
++						unlock_page(page);
++						put_page(page);
++						page = NULL;
++						goto repeat;
++					}
+ 					put_page(page);
+-					page = NULL;
+-					goto repeat;
+ 				}
+-				put_page(page);
++				do_unlock_page = true;
+ 			}
+ 		}
+ 		if (PageMlocked(page))
+@@ -2249,7 +2258,7 @@ repeat:
+ 	__split_huge_pmd_locked(vma, pmd, range.start, freeze);
+ out:
+ 	spin_unlock(ptl);
+-	if (!was_locked && page)
++	if (do_unlock_page)
+ 		unlock_page(page);
+ 	/*
+ 	 * No need to double call mmu_notifier->invalidate_range() callback.
 _
