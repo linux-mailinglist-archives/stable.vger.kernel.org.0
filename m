@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD04C31145B
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A04311490
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbhBEWEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:04:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44988 "EHLO mail.kernel.org"
+        id S232873AbhBEWIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:08:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232936AbhBEO5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 09:57:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ED6065038;
-        Fri,  5 Feb 2021 14:11:44 +0000 (UTC)
+        id S232874AbhBEOwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 09:52:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 070B66503C;
+        Fri,  5 Feb 2021 14:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534304;
-        bh=WFkbVPtm1HOMJAXeFh3+vHxFl0eQWhWtUVW+kV4Z2x0=;
+        s=korg; t=1612534307;
+        bh=t/pRD0D2VtWuFJI/OCF5Ez6vMZ52nRnx6eXiedynaR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0p+DyCjRVnlwXsmEbZQRGa9ktDsC9Gejp8RJOeU4pepk17JARE3u8EgQHGUOfnQDb
-         xRRvj+2AFbRBWsuJUm3qT4TpuGEC5wDGyUu1+++XQA9WfgWoFOF+6icc3wUMjLJQva
-         MfWZlXa5NgVdc1xk2ZZIASq/GXtRVV5FpFbmNpgk=
+        b=f5msCzELyEDgCcUEXLLE2w13JUNMMD9KWN49JcogXlGwqOgzKe0PflBVwJJZKtQUQ
+         UAJeR+D/4Yf8TLAMjOe+yE7CaHaT4i9NvpFICmznXAkjoa3UwFNkezlZhG2Swk+OnG
+         sQCCEcnWhYDNLY5ZgnSA/OZDgeb1M5RjtQaYe5cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/57] mac80211: fix encryption key selection for 802.3 xmit
-Date:   Fri,  5 Feb 2021 15:07:00 +0100
-Message-Id: <20210205140657.425541985@linuxfoundation.org>
+Subject: [PATCH 5.10 35/57] scsi: ibmvfc: Set default timeout to avoid crash during migration
+Date:   Fri,  5 Feb 2021 15:07:01 +0100
+Message-Id: <20210205140657.471837264@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -40,67 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-[ Upstream commit b101dd2d22f45d203010b40c739df346a0cbebef ]
+[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
 
-When using WEP, the default unicast key needs to be selected, instead of
-the STA PTK.
+While testing live partition mobility, we have observed occasional crashes
+of the Linux partition. What we've seen is that during the live migration,
+for specific configurations with large amounts of memory, slow network
+links, and workloads that are changing memory a lot, the partition can end
+up being suspended for 30 seconds or longer. This resulted in the following
+scenario:
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20201218184718.93650-4-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+CPU 0                          CPU 1
+-------------------------------  ----------------------------------
+scsi_queue_rq                    migration_store
+ -> blk_mq_start_request          -> rtas_ibm_suspend_me
+  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
+              _______________________________________V
+             |
+             V
+    -> IPI from CPU 1
+     -> rtas_percpu_suspend_me
+                                     -> __rtas_suspend_last_cpu
+
+-- Linux partition suspended for > 30 seconds --
+                                      -> for_each_online_cpu(cpu)
+                                           plpar_hcall_norets(H_PROD
+ -> scsi_dispatch_cmd
+                                      -> scsi_times_out
+                                       -> scsi_abort_command
+                                        -> queue_delayed_work
+  -> ibmvfc_queuecommand_lck
+   -> ibmvfc_send_event
+    -> ibmvfc_send_crq
+     - returns H_CLOSED
+   <- returns SCSI_MLQUEUE_HOST_BUSY
+-> __blk_mq_requeue_request
+
+                                      -> scmd_eh_abort_handler
+                                       -> scsi_try_to_abort_cmd
+                                         - returns SUCCESS
+                                       -> scsi_queue_insert
+
+Normally, the SCMD_STATE_COMPLETE bit would protect against the command
+completion and the timeout, but that doesn't work here, since we don't
+check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
+
+In this case we end up calling scsi_queue_insert on a request that has
+already been queued, or possibly even freed, and we crash.
+
+The patch below simply increases the default I/O timeout to avoid this race
+condition. This is also the timeout value that nearly all IBM SAN storage
+recommends setting as the default value.
+
+Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index ca1e9de388910..88868bf300513 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -4278,7 +4278,6 @@ netdev_tx_t ieee80211_subif_start_xmit_8023(struct sk_buff *skb,
- 	struct ethhdr *ehdr = (struct ethhdr *)skb->data;
- 	struct ieee80211_key *key;
- 	struct sta_info *sta;
--	bool offload = true;
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index 070cf516b98fe..57c9a71fa33a7 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -2957,8 +2957,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
+ 	unsigned long flags = 0;
  
- 	if (unlikely(skb->len < ETH_HLEN)) {
- 		kfree_skb(skb);
-@@ -4294,18 +4293,22 @@ netdev_tx_t ieee80211_subif_start_xmit_8023(struct sk_buff *skb,
- 
- 	if (unlikely(IS_ERR_OR_NULL(sta) || !sta->uploaded ||
- 	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED) ||
--		sdata->control_port_protocol == ehdr->h_proto))
--		offload = false;
--	else if ((key = rcu_dereference(sta->ptk[sta->ptk_idx])) &&
--		 (!(key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE) ||
--		  key->conf.cipher == WLAN_CIPHER_SUITE_TKIP))
--		offload = false;
--
--	if (offload)
--		ieee80211_8023_xmit(sdata, dev, sta, key, skb);
--	else
--		ieee80211_subif_start_xmit(skb, dev);
-+	    sdata->control_port_protocol == ehdr->h_proto))
-+		goto skip_offload;
-+
-+	key = rcu_dereference(sta->ptk[sta->ptk_idx]);
-+	if (!key)
-+		key = rcu_dereference(sdata->default_unicast_key);
-+
-+	if (key && (!(key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE) ||
-+		    key->conf.cipher == WLAN_CIPHER_SUITE_TKIP))
-+		goto skip_offload;
-+
-+	ieee80211_8023_xmit(sdata, dev, sta, key, skb);
-+	goto out;
- 
-+skip_offload:
-+	ieee80211_subif_start_xmit(skb, dev);
- out:
- 	rcu_read_unlock();
- 
+ 	spin_lock_irqsave(shost->host_lock, flags);
+-	if (sdev->type == TYPE_DISK)
++	if (sdev->type == TYPE_DISK) {
+ 		sdev->allow_restart = 1;
++		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
++	}
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+ 	return 0;
+ }
 -- 
 2.27.0
 
