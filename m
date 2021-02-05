@@ -2,114 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FC1310804
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 10:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F044B3108BF
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 11:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230486AbhBEJgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 04:36:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230192AbhBEJeB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 04:34:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D735564F87;
-        Fri,  5 Feb 2021 09:33:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612517600;
-        bh=sEJ206tK8tfWovLmF9zh6XZG7atL05JuXezYQtriNBw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UPzAb0GvJ+zfqZaRj+jnoizNb7fyyDlHpsNPEyn87lqK9Yzg56Qdt8ERu14vUT4xt
-         71e2cstB2jH2l5z7jdgZShNvmjIsjb46wxu6uNXubOd+/AyaOHJzZ756dTJer3vymL
-         2/Czw/RFBS5uzL/govTHnuUBrsxKVgVN1mggYBl4=
-Date:   Fri, 5 Feb 2021 10:33:17 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        Jari Ruusu <jariruusu@protonmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        masahiroy@kernel.org
-Subject: Re: Kernel version numbers after 4.9.255 and 4.4.255
-Message-ID: <YB0Q3UUzTUmgvH7V@kroah.com>
-References: <7pR0YCctzN9phpuEChlL7_SS6auHOM80bZBcGBTZPuMkc6XjKw7HUXf9vZUPi-IaV2gTtsRVXgywQbja8xpzjGRDGWJsVYSGQN5sNuX1yaQ=@protonmail.com>
- <YBuSJqIG+AeqDuMl@kroah.com>
- <78ada91b-21ee-563f-9f75-3cbaeffafad4@kernel.org>
- <YBu1d0+nfbWGfMtj@kroah.com>
- <20210205090659.GA22517@amd>
+        id S229835AbhBEKMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 05:12:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53836 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231177AbhBEKJx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 05:09:53 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48457C061793
+        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 02:09:08 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id u14so7033086wri.3
+        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 02:09:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=nJ1w5c/RrMimr7BCaOj2WL8JgUYIM2DtTX9HaqhWiMg=;
+        b=ylwqKq1LgP9nIdabrg5licnGPNXBHbCP3H0BUEAVzVjJ/2cz1HAinKX6NTwpB05888
+         ZE2KJT4UiQ5eAl8boRKQl9oRn21VcUuFb+P1ZgtslilHj+9FIdBYFWFVTcvCAzbQjZBc
+         vu7iz9LmOKR1HEoZsdc8wsp/qg9YtH2OgE7y0UG+zFOlEJ0TA7wJuf1/8Uz1myGWmtxX
+         2LFEXbJes2HOq5F9u8AuzH7p/sLmGDYbni3UIg4JJWtt80ObYEZaAkyhJFc2d0RMo7Oh
+         AKp1Qljc94euDgtBPn3AHYJR0/uPqn2RKOUgAK+9TXeq9iatcxIBWDeGBrXvwKqohEnW
+         a2tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nJ1w5c/RrMimr7BCaOj2WL8JgUYIM2DtTX9HaqhWiMg=;
+        b=n69zV16qJZlW4FwObPHvV0YTurUER+AQlMoTwE02SZLOoIjOEcS4sIYydWmkj3HB/b
+         FPXvhKSYpI7uwnBiYWVum2/ax1T4VVs1+8BqqWWrKTZzSLz0/brQ0T6DNOKGNt2FWFod
+         vnUrs1OfwLnpszD3lA4Th2LK77oZqhZAhHzRgGzlNf8/q7VFjpFw+MAu7vOQtnxSpMDF
+         ZiswLcorak4yPhZc0I0xfMOyVeSbQN626LoFhpHKIYquPeeDna+Zk0RJU+9ETFwYWlA6
+         aHWf7EAM25YFmMD+1gfucHKt5vOhYYjBlGrXR2sPk/0IN/DCnjq7sEEhGo0vMobSdPkS
+         ZV7A==
+X-Gm-Message-State: AOAM530WSmuWdhakL+PsFOeoSlsRAchWXfBrcUm6opJ28ZJl+mfg2Srz
+        Ssus6f/SNPehO7TfdGh9eg18n1f9WcLhOw==
+X-Google-Smtp-Source: ABdhPJwQtMX0+tbhvpTGKBui1lTpBZ91wTj9ZJ18zmZrJ6T9uozsUchZJtLUoSE4D8xmkgHlMIIZeQ==
+X-Received: by 2002:a5d:4a4e:: with SMTP id v14mr4189572wrs.80.1612519747073;
+        Fri, 05 Feb 2021 02:09:07 -0800 (PST)
+Received: from srini-hackbox.lan (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
+        by smtp.gmail.com with ESMTPSA id g16sm8067738wmi.30.2021.02.05.02.09.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Feb 2021 02:09:06 -0800 (PST)
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org,
+        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 2/2] nvmem: qcom-spmi-sdam: Fix uninitialized pdev pointer
+Date:   Fri,  5 Feb 2021 10:08:53 +0000
+Message-Id: <20210205100853.32372-3-srinivas.kandagatla@linaro.org>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20210205100853.32372-1-srinivas.kandagatla@linaro.org>
+References: <20210205100853.32372-1-srinivas.kandagatla@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210205090659.GA22517@amd>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 05, 2021 at 10:06:59AM +0100, Pavel Machek wrote:
-> On Thu 2021-02-04 09:51:03, Greg Kroah-Hartman wrote:
-> > On Thu, Feb 04, 2021 at 08:26:04AM +0100, Jiri Slaby wrote:
-> > > On 04. 02. 21, 7:20, Greg Kroah-Hartman wrote:
-> > > > On Thu, Feb 04, 2021 at 05:59:42AM +0000, Jari Ruusu wrote:
-> > > > > Greg,
-> > > > > I hope that your linux kernel release scripts are
-> > > > > implemented in a way that understands that PATCHLEVEL= and
-> > > > > SUBLEVEL= numbers in top-level linux Makefile are encoded
-> > > > > as 8-bit numbers for LINUX_VERSION_CODE and
-> > > > > KERNEL_VERSION() macros, and must stay in range 0...255.
-> > > > > These 8-bit limits are hardcoded in both kernel source and
-> > > > > userspace ABI.
-> > > > > 
-> > > > > After 4.9.255 and 4.4.255, your scripts should be
-> > > > > incrementing a number in EXTRAVERSION= in top-level
-> > > > > linux Makefile.
-> > > > 
-> > > > Should already be fixed in linux-next, right?
-> > > 
-> > > I assume you mean:
-> > > commit 537896fabed11f8d9788886d1aacdb977213c7b3
-> > > Author: Sasha Levin <sashal@kernel.org>
-> > > Date:   Mon Jan 18 14:54:53 2021 -0500
-> > > 
-> > >     kbuild: give the SUBLEVEL more room in KERNEL_VERSION
-> > > 
-> > > That would IMO break userspace as definition of kernel version has changed.
-> > > And that one is UAPI/ABI (see include/generated/uapi/linux/version.h) as
-> > > Jari writes. For example will glibc still work:
-> > > http://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/configure.ac;h=13abda0a51484c5951ffc6d718aa36b72f3a9429;hb=HEAD#l14
-> > > 
-> > > ? Or gcc 10 (11 will have this differently):
-> > > https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/config/bpf/bpf.c;hb=ee5c3db6c5b2c3332912fb4c9cfa2864569ebd9a#l165
-> > > 
-> > > and
-> > > 
-> > > https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/config/bpf/bpf-helpers.h;hb=ee5c3db6c5b2c3332912fb4c9cfa2864569ebd9a#l53
-> > 
-> > Ugh, I thought this was an internal representation, not an external one
-> > :(
-> > 
-> > > It might work somewhere, but there are a lot of (X * 65536 + Y * 256 + Z)
-> > > assumptions all around the world. So this doesn't look like a good idea.
-> > 
-> > Ok, so what happens if we "wrap"?  What will break with that?  At first
-> > glance, I can't see anything as we keep the padding the same, and our
-> > build scripts seem to pick the number up from the Makefile and treat it
-> > like a string.
-> > 
-> > It's only the crazy out-of-tree kernel stuff that wants to do minor
-> > version checks that might go boom.  And frankly, I'm not all that
-> > concerned if they have problems :)
-> > 
-> > So, let's leave it alone and just see what happens!
-> 
-> Yeah, stable is a great place to do the experiments. Not that this is
-> the first time :-(.
+From: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
 
-How else can we "test this out"?
+"sdam->pdev" is uninitialized and it is used to print error logs.
+Fix it. Since device pointer can be used from sdam_config, use it
+directly thereby removing pdev pointer.
 
-Should I do an "empty" release of 4.4.256 and see if anyone complains?
+Fixes: 40ce9798794f ("nvmem: add QTI SDAM driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+---
+ drivers/nvmem/qcom-spmi-sdam.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-Any other ideas are gladly welcome...
+diff --git a/drivers/nvmem/qcom-spmi-sdam.c b/drivers/nvmem/qcom-spmi-sdam.c
+index a72704cd0468..f6e9f96933ca 100644
+--- a/drivers/nvmem/qcom-spmi-sdam.c
++++ b/drivers/nvmem/qcom-spmi-sdam.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2017, 2020 The Linux Foundation. All rights reserved.
++ * Copyright (c) 2017, 2020-2021, The Linux Foundation. All rights reserved.
+  */
+ 
+ #include <linux/device.h>
+@@ -18,7 +18,6 @@
+ #define SDAM_PBS_TRIG_CLR		0xE6
+ 
+ struct sdam_chip {
+-	struct platform_device		*pdev;
+ 	struct regmap			*regmap;
+ 	struct nvmem_config		sdam_config;
+ 	unsigned int			base;
+@@ -65,7 +64,7 @@ static int sdam_read(void *priv, unsigned int offset, void *val,
+ 				size_t bytes)
+ {
+ 	struct sdam_chip *sdam = priv;
+-	struct device *dev = &sdam->pdev->dev;
++	struct device *dev = sdam->sdam_config.dev;
+ 	int rc;
+ 
+ 	if (!sdam_is_valid(sdam, offset, bytes)) {
+@@ -86,7 +85,7 @@ static int sdam_write(void *priv, unsigned int offset, void *val,
+ 				size_t bytes)
+ {
+ 	struct sdam_chip *sdam = priv;
+-	struct device *dev = &sdam->pdev->dev;
++	struct device *dev = sdam->sdam_config.dev;
+ 	int rc;
+ 
+ 	if (!sdam_is_valid(sdam, offset, bytes)) {
+-- 
+2.21.0
 
-thanks,
-
-greg k-h
