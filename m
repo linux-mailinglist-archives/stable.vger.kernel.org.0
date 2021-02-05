@@ -2,175 +2,332 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FF431120F
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C23363111DF
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:06:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233142AbhBEScz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 13:32:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233132AbhBEPLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 10:11:04 -0500
-Received: from bedivere.hansenpartnership.com (bedivere.hansenpartnership.com [IPv6:2607:fcd0:100:8a00::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB6BC06178B;
-        Fri,  5 Feb 2021 08:48:13 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 6B8A4128054D;
-        Fri,  5 Feb 2021 08:48:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1612543692;
-        bh=Qk86HJsAGCaa5VEyh7ydTPuNgosuMGRMD3HFh6dLzss=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=Hxz21Tao/GbJoa/uOmu/9DH68/NGSLP2NwsU2Y49tdfoL1mfzQazA44sPgDjAe6kZ
-         vtX72RHRZHPaf603yKX8ODOWHTIulSgIKAphGt1ho+yoU3Up3nwCer8qMmLGA270rX
-         174B/CE8xdehPct3Ta64JFxIiKxmnqFBy2W7Toko=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id RqzctNyNHdIN; Fri,  5 Feb 2021 08:48:12 -0800 (PST)
-Received: from jarvis.int.hansenpartnership.com (unknown [IPv6:2601:600:8280:66d1::c447])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S233267AbhBESWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 13:22:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46524 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233393AbhBESVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 13:21:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1612555318;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=imy+B5Hb1u8YNKUAG2K7VabSYKtCJB90XmTWetc+zzs=;
+        b=eSGA6Qs5YqDsEzzsoZAygUKDh8Dq9+Yi+1mYKc9ZwtcQnwM78F3yvtRe6I8lOI48yGA3jB
+        dhNt2Djr4dvj6dVDtxHuzBMunbvv4DGnmAvAHQ7MatPoDGpSsHlDg0OMOWetMBaPlx+Gba
+        /yzj2nq8wAf3wDpFfdt68ad4Ak7ICdU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-551-3Q46H0ZuNcSupWBUpAM04w-1; Fri, 05 Feb 2021 15:01:51 -0500
+X-MC-Unique: 3Q46H0ZuNcSupWBUpAM04w-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id D1B091280542;
-        Fri,  5 Feb 2021 08:48:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1612543692;
-        bh=Qk86HJsAGCaa5VEyh7ydTPuNgosuMGRMD3HFh6dLzss=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=Hxz21Tao/GbJoa/uOmu/9DH68/NGSLP2NwsU2Y49tdfoL1mfzQazA44sPgDjAe6kZ
-         vtX72RHRZHPaf603yKX8ODOWHTIulSgIKAphGt1ho+yoU3Up3nwCer8qMmLGA270rX
-         174B/CE8xdehPct3Ta64JFxIiKxmnqFBy2W7Toko=
-Message-ID: <ee4adfbb99273e1bdceca210bc1fa5f16a50c415.camel@HansenPartnership.com>
-Subject: Re: [PATCH v3 2/2] tpm: in tpm2_del_space check if ops pointer is
- still valid
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
-        jgg@ziepe.ca, stefanb@linux.vnet.ibm.com, stable@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>
-Date:   Fri, 05 Feb 2021 08:48:11 -0800
-In-Reply-To: <YByrCnswkIlz1w1t@kernel.org>
-References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
-         <1612482643-11796-3-git-send-email-LinoSanfilippo@gmx.de>
-         <7308e5e9f51501bd92cced8f28ff6130c976b3ed.camel@HansenPartnership.com>
-         <YByrCnswkIlz1w1t@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2BD31801962
+        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 20:01:50 +0000 (UTC)
+Received: from [172.20.6.99] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B07B35D9CC;
+        Fri,  5 Feb 2021 20:01:46 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.10.14-rc1 (stable)
+Date:   Fri, 05 Feb 2021 20:01:46 -0000
+CC:     Rachel Sibley <rasibley@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.001BFE5838.P3HD61HMM2@redhat.com>
+X-Gitlab-Pipeline-ID: 623193
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/623193
+X-DataWarehouse-Revision-IID: 9765
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2021-02-05 at 04:18 +0200, Jarkko Sakkinen wrote:
-> On Thu, Feb 04, 2021 at 04:34:11PM -0800, James Bottomley wrote:
-> > On Fri, 2021-02-05 at 00:50 +0100, Lino Sanfilippo wrote:
-> > > From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
-> > > 
-> > > In tpm2_del_space() chip->ops is used for flushing the sessions.
-> > > However
-> > > this function may be called after tpm_chip_unregister() which
-> > > sets
-> > > the chip->ops pointer to NULL.
-> > > Avoid a possible NULL pointer dereference by checking if chip-
-> > > >ops is
-> > > still
-> > > valid before accessing it.
-> > > 
-> > > Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of
-> > > tpm_transmit()")
-> > > Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
-> > > ---
-> > >  drivers/char/tpm/tpm2-space.c | 15 ++++++++++-----
-> > >  1 file changed, 10 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/drivers/char/tpm/tpm2-space.c
-> > > b/drivers/char/tpm/tpm2-
-> > > space.c
-> > > index 784b8b3..9a29a40 100644
-> > > --- a/drivers/char/tpm/tpm2-space.c
-> > > +++ b/drivers/char/tpm/tpm2-space.c
-> > > @@ -58,12 +58,17 @@ int tpm2_init_space(struct tpm_space *space,
-> > > unsigned int buf_size)
-> > >  
-> > >  void tpm2_del_space(struct tpm_chip *chip, struct tpm_space
-> > > *space)
-> > >  {
-> > > -	mutex_lock(&chip->tpm_mutex);
-> > > -	if (!tpm_chip_start(chip)) {
-> > > -		tpm2_flush_sessions(chip, space);
-> > > -		tpm_chip_stop(chip);
-> > > +	down_read(&chip->ops_sem);
-> > > +	if (chip->ops) {
-> > > +		mutex_lock(&chip->tpm_mutex);
-> > > +		if (!tpm_chip_start(chip)) {
-> > > +			tpm2_flush_sessions(chip, space);
-> > > +			tpm_chip_stop(chip);
-> > > +		}
-> > > +		mutex_unlock(&chip->tpm_mutex);
-> > >  	}
-> > > -	mutex_unlock(&chip->tpm_mutex);
-> > > +	up_read(&chip->ops_sem);
-> > > +
-> > >  	kfree(space->context_buf);
-> > >  	kfree(space->session_buf);
-> > >  }
-> > 
-> > Actually, this still isn't right.  As I said to the last person who
-> > reported this, we should be doing a get/put on the ops, not rolling
-> > our
-> > own here:
-> > 
-> > https://lore.kernel.org/linux-integrity/e7566e1e48f5be9dca034b4bfb67683b5d3cb88f.camel@HansenPartnership.com/
-> > 
-> > The reporter went silent before we could get this tested, but could
-> > you
-> > try, please, because your patch is still hand rolling the ops
-> > get/put,
-> > just slightly better than it had been done previously.
-> > 
-> > James
-> 
-> Thanks for pointing this out. I'd strongly support Jason's proposal:
-> 
-> https://lore.kernel.org/linux-integrity/20201215175624.GG5487@ziepe.ca/
-> 
-> It's the best long-term way to fix this.
 
-Really, no it's not.  It introduces extra mechanism we don't need.
+Hello,
 
-To recap the issue: character devices already have an automatic
-mechanism which holds a reference to the struct device while the
-character node is open so the default is to release resources on final
-put of the struct device.
+We ran automated tests on a recent commit from this kernel tree:
 
-tpm 2 is special because we have two character device nodes: /dev/tpm0
-and /dev/tpmrm0.  The way we make this work is that tpm0 is the master
-and tpmrm0 the slave, so the slave holds an extra reference on the
-master which is put when the slave final put happens.  This means that
-our resources aren't freed until the final puts of both devices, which
-is the model we're using.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: e610c0eafc4a - Linux 5.10.14-rc1
 
-The practical consequence of this model is that if you allocate a chip
-structure with tpm_chip_alloc() you have to release it again by doing a
-put of *both* devices.
+The results of these automated tests are provided below.
 
-However, patch fdc915f7f719 ("tpm: expose spaces via a device link
-/dev/tpmrm<n>") contains two bugs: firstly it didn't add a devm action
-release for devs and secondly it didn't update the only non-devm user
-ibm vtpm to do the double put.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Stefan noticed the latter, so we got the bogus patch 8979b02aaf1d
-("tpm: Fix reference count to main device") applied which simply breaks
-the master/slave model by not taking a reference on the master for the
-slave.  I'm not sure why I didn't notice the problem with this fix at
-the time, but attention must have been elsewhere.
+All kernel binaries, config files, and logs are available for download here:
 
-Subsequently we got ftpm added which copied the ibm vtpm put bug.
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/02/05/623193
 
-So I think 1/2 is the correct fix for all three bugs.  I just need to
-find a way to verify it.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-James
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make  -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
