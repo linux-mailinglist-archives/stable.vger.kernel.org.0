@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A57311370
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:25:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0256311371
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbhBEVYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:24:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45594 "EHLO mail.kernel.org"
+        id S233774AbhBEVYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:24:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233045AbhBEPCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:02:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E9F64FD3;
-        Fri,  5 Feb 2021 14:09:25 +0000 (UTC)
+        id S233040AbhBEPCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:02:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1D0764FD6;
+        Fri,  5 Feb 2021 14:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534165;
-        bh=QZKkyRFyQyc5Crta/nJbyJUZDzbImuaHz7VxJhZUWw8=;
+        s=korg; t=1612534171;
+        bh=Q0YJMTrTR/l+F4HaZBDwWoGPnUXN9co/CyBgHBWXlyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixH/GduNOWIcOSNLlHz+XfHsSBbQWx+PbBX1h0968dnMShwvwQRRVB70bb3i0tGaP
-         MdNpalOQbpdS4bnBIY/Mz2fwghStRpNr4kLqEW7Uye4MdT2vRsDymmC4KsYwMbleHa
-         oHXQIDTFKJh0r2t36VVGvTRZ85sa7yyjcwRp9+z8=
+        b=B8BVJbLte3r+DbYmqEYPSZLq3e/WLv0GVsILJXPqrHWQA/kWnhQdyKp5PGX7c7Qsq
+         ALEuqdmJGjeqOqbpUCBhL0a/QLIUM+wTNqKpE/lMsqOY15vo6ADz5b03RunBzD/NzJ
+         N0xUpMdWXhI+WFBl8xbNHcfLuvfJdhyUVoAT0SsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 5.10 13/57] arm64: Fix kernel address detection of __is_lm_address()
-Date:   Fri,  5 Feb 2021 15:06:39 +0100
-Message-Id: <20210205140656.544438617@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
+        stable@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 15/57] Revert "x86/setup: dont remove E820_TYPE_RAM for pfn 0"
+Date:   Fri,  5 Feb 2021 15:06:41 +0100
+Message-Id: <20210205140656.632810535@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -41,49 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit 519ea6f1c82fcdc9842908155ae379de47818778 upstream.
+commit 5c279c4cf206e03995e04fd3404fa95ffd243a97 upstream.
 
-Currently, the __is_lm_address() check just masks out the top 12 bits
-of the address, but if they are 0, it still yields a true result.
-This has as a side effect that virt_addr_valid() returns true even for
-invalid virtual addresses (e.g. 0x0).
+This reverts commit bde9cfa3afe4324ec251e4af80ebf9b7afaf7afe.
 
-Fix the detection checking that it's actually a kernel address starting
-at PAGE_OFFSET.
+Changing the first memory page type from E820_TYPE_RESERVED to
+E820_TYPE_RAM makes it a part of "System RAM" resource rather than a
+reserved resource and this in turn causes devmem_is_allowed() to treat
+is as area that can be accessed but it is filled with zeroes instead of
+the actual data as previously.
 
-Fixes: 68dd8ef32162 ("arm64: memory: Fix virt_addr_valid() using __is_lm_address()")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Cc: Will Deacon <will@kernel.org>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://lore.kernel.org/r/20210126134056.45747-1-vincenzo.frascino@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+The change in /dev/mem output causes lilo to fail as was reported at
+slakware users forum, and probably other legacy applications will
+experience similar problems.
+
+Link: https://www.linuxquestions.org/questions/slackware-14/slackware-current-lilo-vesa-warnings-after-recent-updates-4175689617/#post6214439
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/memory.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/setup.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -238,11 +238,11 @@ static inline const void *__tag_set(cons
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -666,6 +666,17 @@ static void __init trim_platform_memory_
+ static void __init trim_bios_range(void)
+ {
+ 	/*
++	 * A special case is the first 4Kb of memory;
++	 * This is a BIOS owned area, not kernel ram, but generally
++	 * not listed as such in the E820 table.
++	 *
++	 * This typically reserves additional memory (64KiB by default)
++	 * since some BIOSes are known to corrupt low memory.  See the
++	 * Kconfig help text for X86_RESERVE_LOW.
++	 */
++	e820__range_update(0, PAGE_SIZE, E820_TYPE_RAM, E820_TYPE_RESERVED);
++
++	/*
+ 	 * special case: Some BIOSes report the PC BIOS
+ 	 * area (640Kb -> 1Mb) as RAM even though it is not.
+ 	 * take them out.
+@@ -722,15 +733,6 @@ early_param("reservelow", parse_reservel
  
- 
- /*
-- * The linear kernel range starts at the bottom of the virtual address
-- * space. Testing the top bit for the start of the region is a
-- * sufficient check and avoids having to worry about the tag.
-+ * Check whether an arbitrary address is within the linear map, which
-+ * lives in the [PAGE_OFFSET, PAGE_END) interval at the bottom of the
-+ * kernel's TTBR1 address range.
-  */
--#define __is_lm_address(addr)	(!(((u64)addr) & BIT(vabits_actual - 1)))
-+#define __is_lm_address(addr)	(((u64)(addr) ^ PAGE_OFFSET) < (PAGE_END - PAGE_OFFSET))
- 
- #define __lm_to_phys(addr)	(((addr) & ~PAGE_OFFSET) + PHYS_OFFSET)
- #define __kimg_to_phys(addr)	((addr) - kimage_voffset)
+ static void __init trim_low_memory_range(void)
+ {
+-	/*
+-	 * A special case is the first 4Kb of memory;
+-	 * This is a BIOS owned area, not kernel ram, but generally
+-	 * not listed as such in the E820 table.
+-	 *
+-	 * This typically reserves additional memory (64KiB by default)
+-	 * since some BIOSes are known to corrupt low memory.  See the
+-	 * Kconfig help text for X86_RESERVE_LOW.
+-	 */
+ 	memblock_reserve(0, ALIGN(reserve_low, PAGE_SIZE));
+ }
+ 	
 
 
