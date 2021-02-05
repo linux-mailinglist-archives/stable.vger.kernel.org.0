@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A8331143D
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:06:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E0C311436
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:06:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232923AbhBEWCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:02:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S232890AbhBEWB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:01:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232839AbhBEOyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232072AbhBEOyd (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 5 Feb 2021 09:54:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C5C64F38;
-        Fri,  5 Feb 2021 14:10:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C161D6500B;
+        Fri,  5 Feb 2021 14:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534236;
-        bh=Q4OvAdboO6WGJc4QftulHDtVha3jGqAblQWnE4WApzM=;
+        s=korg; t=1612534239;
+        bh=gH0/SydLCp5UUqUHkOONSasTZq/pbxF7IpgE89cUa0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iP4XwZ8PkMuiA9oXlZlKLFm+PJrGWSIv10a4NAZtyadmU9dirvvC4KiXLqGNCOweC
-         h3QuyewpaaaCvfEoDTknrGG9cMTvU+5JDzkOdp8RYrxXOA0XmZT+BgoPNOuBa3+02G
-         iFTFkgUPWG6RlEMR9duFJ9w68gjBHNPrX06T40RQ=
+        b=HmhII6f5BAO5XhKV6xH90UShGMfT0VMl6ygYfiJpKTDxrDuY8mhoDUH99di8cikfy
+         vSXKW1Q8iiU7aUZOb+PwHQFa04l0DgwCLKyC3DhvpZ8CcHN7OASZ9gZg99W2A/LAw8
+         /VKqOD3mLpdqYlwMTnlSymOW0ylr97sMaDWmI/18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lianzhi chang <changlianzhi@uniontech.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/57] udf: fix the problem that the disc content is not displayed
-Date:   Fri,  5 Feb 2021 15:07:04 +0100
-Message-Id: <20210205140657.604397857@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Revanth Rajashekar <revanth.rajashekar@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 39/57] nvme: check the PRINFO bit before deciding the host buffer length
+Date:   Fri,  5 Feb 2021 15:07:05 +0100
+Message-Id: <20210205140657.649424015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -39,72 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lianzhi chang <changlianzhi@uniontech.com>
+From: Revanth Rajashekar <revanth.rajashekar@intel.com>
 
-[ Upstream commit 5cdc4a6950a883594e9640b1decb3fcf6222a594 ]
+[ Upstream commit 4d6b1c95b974761c01cbad92321b82232b66d2a2 ]
 
-When the capacity of the disc is too large (assuming the 4.7G
-specification), the disc (UDF file system) will be burned
-multiple times in the windows (Multisession Usage). When the
-remaining capacity of the CD is less than 300M (estimated
-value, for reference only), open the CD in the Linux system,
-the content of the CD is displayed as blank (the kernel will
-say "No VRS found"). Windows can display the contents of the
-CD normally.
-Through analysis, in the "fs/udf/super.c": udf_check_vsd
-function, the actual value of VSD_MAX_SECTOR_OFFSET may
-be much larger than 0x800000. According to the current code
-logic, it is found that the type of sbi->s_session is "__s32",
- when the remaining capacity of the disc is less than 300M
-(take a set of test values: sector=3154903040,
-sbi->s_session=1540464, sb->s_blocksize_bits=11 ), the
-calculation result of "sbi->s_session << sb->s_blocksize_bits"
- will overflow. Therefore, it is necessary to convert the
-type of s_session to "loff_t" (when udf_check_vsd starts,
-assign a value to _sector, which is also converted in this
-way), so that the result will not overflow, and then the
-content of the disc can be displayed normally.
+According to NVMe spec v1.4, section 8.3.1, the PRINFO bit and
+the metadata size play a vital role in deteriming the host buffer size.
 
-Link: https://lore.kernel.org/r/20210114075741.30448-1-changlianzhi@uniontech.com
-Signed-off-by: lianzhi chang <changlianzhi@uniontech.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+If PRIFNO bit is set and MS==8, the host doesn't add the metadata buffer,
+instead the controller adds it.
+
+Signed-off-by: Revanth Rajashekar <revanth.rajashekar@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 5bef3a68395d8..d0df217f4712a 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -705,6 +705,7 @@ static int udf_check_vsd(struct super_block *sb)
- 	struct buffer_head *bh = NULL;
- 	int nsr = 0;
- 	struct udf_sb_info *sbi;
-+	loff_t session_offset;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 34cb59b2fcd67..4ec5f05dabe1d 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1489,8 +1489,21 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+ 	}
  
- 	sbi = UDF_SB(sb);
- 	if (sb->s_blocksize < sizeof(struct volStructDesc))
-@@ -712,7 +713,8 @@ static int udf_check_vsd(struct super_block *sb)
- 	else
- 		sectorsize = sb->s_blocksize;
+ 	length = (io.nblocks + 1) << ns->lba_shift;
+-	meta_len = (io.nblocks + 1) * ns->ms;
+-	metadata = nvme_to_user_ptr(io.metadata);
++
++	if ((io.control & NVME_RW_PRINFO_PRACT) &&
++	    ns->ms == sizeof(struct t10_pi_tuple)) {
++		/*
++		 * Protection information is stripped/inserted by the
++		 * controller.
++		 */
++		if (nvme_to_user_ptr(io.metadata))
++			return -EINVAL;
++		meta_len = 0;
++		metadata = NULL;
++	} else {
++		meta_len = (io.nblocks + 1) * ns->ms;
++		metadata = nvme_to_user_ptr(io.metadata);
++	}
  
--	sector += (((loff_t)sbi->s_session) << sb->s_blocksize_bits);
-+	session_offset = (loff_t)sbi->s_session << sb->s_blocksize_bits;
-+	sector += session_offset;
- 
- 	udf_debug("Starting at sector %u (%lu byte sectors)\n",
- 		  (unsigned int)(sector >> sb->s_blocksize_bits),
-@@ -757,8 +759,7 @@ static int udf_check_vsd(struct super_block *sb)
- 
- 	if (nsr > 0)
- 		return 1;
--	else if (!bh && sector - (sbi->s_session << sb->s_blocksize_bits) ==
--			VSD_FIRST_SECTOR_OFFSET)
-+	else if (!bh && sector - session_offset == VSD_FIRST_SECTOR_OFFSET)
- 		return -1;
- 	else
- 		return 0;
+ 	if (ns->features & NVME_NS_EXT_LBAS) {
+ 		length += meta_len;
 -- 
 2.27.0
 
