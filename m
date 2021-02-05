@@ -2,185 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E728311612
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 750E43115B0
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 23:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230360AbhBEWuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 17:50:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232476AbhBENGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 08:06:07 -0500
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FA0C061786
-        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 05:05:14 -0800 (PST)
-Received: by mail-qt1-x829.google.com with SMTP id r20so4870482qtm.3
-        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 05:05:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=KoL6M6l9RNM0EewcRBWafbibsTr1Ax1UE+SarTxAsR8=;
-        b=n50KaEWl+Syw5ubG+Z6GsS620BPX3hwGK3sN1D08MwSLO2q/9bhljMmAGMUvS7p9yE
-         6SShdGHOWe9d2sb9xCdcL2rJyMj7d54EwHokStdaAEUOagNV6R40ZVjvR0SbskXfXf/t
-         r3UQFXB9s1TUasODXM7G9gty3ZLZmV7HswQyTbDFTP9RPL34cXZJ5qQQGDKLrkdlG3ys
-         hJdGM9ZFefNM1W5R89HEX97qsZV3VrztTISiQJNYETK0zP8kjvvI/kceil6UE+pWZWHA
-         EjgaovnDf1ggNbbOez53uyb+ztC2seQBCLyWxVgYRSiwUWu7664xkk7r59LIvVhisONZ
-         p7sQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KoL6M6l9RNM0EewcRBWafbibsTr1Ax1UE+SarTxAsR8=;
-        b=SnwzRj9TMzn19Mi8+2shnHY7wj0GccRTv7v9GAxVfc7LBa/b+iVOOffsY/OIWu1BWY
-         v2m518msnaNiwh0/TMxONPaXUYu70MFItelRQVtRKqqx0ThqDK1Qk5J/jLRihqUTTD8v
-         20wVwQrBFyWkNiTKLs2K75YsVIcxQEP0Zc/wM4bqPCq+jOunVlYW/GWdpGE1dY26yMtF
-         JvFj67kw4tdBbHFEkdZh/idmh4VtfjSOBnLSy02V3zV6xmPtCih1vBb1Lou9JYgXWm0E
-         AFNOkvJshwzvQfYqNzCDaLExU+1gCNI26c9rjFd4V4z19piYtWnvTS2FDfn9BdpUU+KM
-         gT+w==
-X-Gm-Message-State: AOAM532vD4ITuDYhMH+Mb8nAkEMwCrb88dyWfVZN3Xksb2cHSbbV3Pyq
-        ttRr+NfUmB/80FuVKi4VuTroh9DvK875aTJb
-X-Google-Smtp-Source: ABdhPJyrPaatnEF3EQoyj/Wy2PZ1KQ7pMnWbi0KMDU4EU41/Go77mUQxNQU85CDc37SPJ/Q6Bs9lIw==
-X-Received: by 2002:aed:3145:: with SMTP id 63mr4062664qtg.189.1612530312637;
-        Fri, 05 Feb 2021 05:05:12 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
-        by smtp.gmail.com with ESMTPSA id e7sm7783668qtj.48.2021.02.05.05.05.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Feb 2021 05:05:12 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1l80nP-003pgK-Ip; Fri, 05 Feb 2021 09:05:11 -0400
-Date:   Fri, 5 Feb 2021 09:05:11 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     peterhuewe@gmx.de, jarkko@kernel.org, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com, stable@vger.kernel.org,
+        id S229816AbhBEWjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 17:39:00 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48238 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229492AbhBEN3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 08:29:53 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 115D6PKp074327;
+        Fri, 5 Feb 2021 08:29:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ds+uLYaHve6zEahUCo8fIlAL1PPupRZhe0r78y3kncc=;
+ b=lswSdBWx9NxY2gYbUsarGcZeyAeaDj2IeNwgSqzuclw/mBS8A3idQT5Tf1br4WmDqBO9
+ 0s+iylhgYY7HEUH2WPSmr8rh8lmnlvjSO3T3wCQ0pZhd0K3oljttdF2s4OBNIfZk1E20
+ HjQXJdfXk4mwDQlwm5+TnzablQOhi2+pnVWfGfDsU9pUVdQXgeK6L1g/r4qDgwJ0JEKx
+ 1Wtb/AWAAVB3YGNGbHkEH7rXzQH6UiP0fpHdFaIparh4QoqtRpzxSRPD3BAd2b0u7aG9
+ MS3nnDbS+KITSc7ErBG5xts5+3jU5ZrbsBQ+A9RbNeg2EaS6PXW2WnAYotME6UkqguJK vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36h69998j9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Feb 2021 08:29:05 -0500
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 115DKjPf140394;
+        Fri, 5 Feb 2021 08:29:05 -0500
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36h69998hx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Feb 2021 08:29:04 -0500
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 115DMCVs006503;
+        Fri, 5 Feb 2021 13:29:04 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma03dal.us.ibm.com with ESMTP id 36f3kw06d7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Feb 2021 13:29:04 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 115DT3st30146980
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 5 Feb 2021 13:29:03 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E9A6124053;
+        Fri,  5 Feb 2021 13:29:03 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6AD92124052;
+        Fri,  5 Feb 2021 13:29:03 +0000 (GMT)
+Received: from sbct-3.pok.ibm.com (unknown [9.47.158.153])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Feb 2021 13:29:03 +0000 (GMT)
+Subject: Re: [PATCH v3 1/2] tpm: fix reference counting for struct tpm_chip
+To:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
+        jarkko@kernel.org
+Cc:     jgg@ziepe.ca, stefanb@linux.vnet.ibm.com, stable@vger.kernel.org,
         linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
         Lino Sanfilippo <l.sanfilippo@kunbus.com>
-Subject: Re: [PATCH v3 1/2] tpm: fix reference counting for struct tpm_chip
-Message-ID: <20210205130511.GI4718@ziepe.ca>
 References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
  <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
+ <b36db793-9b40-92a8-19ef-4853ea10f775@linux.ibm.com>
+ <f5ad4381-773d-b994-51e5-a335ca4b44c3@linux.ibm.com>
+ <78f6bc5799c744dc3fdb2f508549cedf76ac1c1d.camel@HansenPartnership.com>
+From:   Stefan Berger <stefanb@linux.ibm.com>
+Message-ID: <db1bb1ab-b2d6-cd4b-9908-b471b8cc7df5@linux.ibm.com>
+Date:   Fri, 5 Feb 2021 08:29:03 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1612482643-11796-2-git-send-email-LinoSanfilippo@gmx.de>
+In-Reply-To: <78f6bc5799c744dc3fdb2f508549cedf76ac1c1d.camel@HansenPartnership.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-05_07:2021-02-05,2021-02-05 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ mlxlogscore=840 adultscore=0 lowpriorityscore=0 impostorscore=0
+ phishscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102050084
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 05, 2021 at 12:50:42AM +0100, Lino Sanfilippo wrote:
-> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
-> 
-> The following sequence of operations results in a refcount warning:
-> 
-> 1. Open device /dev/tpmrm
-> 2. Remove module tpm_tis_spi
-> 3. Write a TPM command to the file descriptor opened at step 1.
-> 
-> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
-> refcount_t: addition on 0; use-after-free.
-> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
-> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
-> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
-> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
-> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
-> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
-> Hardware name: BCM2711
-> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
-> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
-> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
-> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
-> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
-> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
-> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
-> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
-> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
-> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
-> Exception stack(0xc226bfa8 to 0xc226bff0)
-> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
-> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
-> bfe0: 0000006c beafe648 0001056c b6eb6944
-> 
-> The reason for this warning is the attempt to get the chip->dev reference
-> in tpm_common_write() although the reference counter is already zero.
+On 2/4/21 9:01 PM, James Bottomley wrote:
+> On Thu, 2021-02-04 at 20:44 -0500, Stefan Berger wrote:
+>> To clarify: When I tested this I had *both* patches applied. Without
+>> the patches I got the null pointer exception in tpm2_del_space(). The
+>> 2nd patch alone solves that issue when using the steps above.
+>
+> Yes, I can't confirm the bug either.  I only have lpc tis devices, so
+> it could be something to do with spi, but when I do
 
 
-> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
-> extra reference used to prevent a premature zero counter is never taken,
-> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
-> 
-> Fix this by removing the flag condition.
-> 
-> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> already introduced function tpm_devs_release() to release the extra
-> reference but did not implement the required put on chip->devs that results
-> in the call of this function.
+I can confirm this bug:
 
-Seems wonky, the devs is just supposed to be a side thing, nothing
-should be using it as a primary reference count for a tpm.
+insmod /usr/lib/modules/5.10.0+/extra/tpm.ko ; insmod 
+/usr/lib/modules/5.10.0+/extra/tpm_vtpm_proxy.ko
 
-The bug here is only that tpm_common_open() did not get a kref on the
-chip before putting it in priv and linking it to the fd. See the
-comment before tpm_try_get_ops() indicating the caller must already
-have taken care to ensure the chip is valid.
+swtpm chardev --vtpm-proxy --tpm2 --tpmstate dir=./ &
 
-This should be all you need to fix the oops:
+exec 100<>/dev/tpmrm0
 
-diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index 1784530b8387bb..1b738dca7fffb5 100644
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -105,6 +105,7 @@ static void tpm_timeout_work(struct work_struct *work)
- void tpm_common_open(struct file *file, struct tpm_chip *chip,
-                     struct file_priv *priv, struct tpm_space *space)
- {
-+       get_device(&priv->chip.dev);
-        priv->chip = chip;
-        priv->space = space;
-        priv->response_read = true;
-@@ -261,6 +262,7 @@ void tpm_common_release(struct file *file, struct file_priv *priv)
-        flush_work(&priv->timeout_work);
-        file->private_data = NULL;
-        priv->response_length = 0;
-+       put_device(&chip->dev);
- }
- 
- int __init tpm_dev_common_init(void)
+kill -9 <swtpm pid>
 
-> Fix this also by installing an action handler that puts chip->devs as soon
-> as the chip is unregistered.
-> 
-> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
-> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
->  drivers/char/tpm/tpm-chip.c       | 18 +++++++++++++++---
->  drivers/char/tpm/tpm_ftpm_tee.c   |  2 ++
->  drivers/char/tpm/tpm_vtpm_proxy.c |  1 +
->  3 files changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index ddaeceb..3ace199 100644
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -360,8 +360,7 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	 * while cdevs is in use.  The corresponding put
->  	 * is in the tpm_devs_release (TPM2 only)
->  	 */
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> -		get_device(&chip->dev);
-> +	get_device(&chip->dev);
->  
->  	if (chip->dev_num == 0)
->  		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
-> @@ -422,8 +421,21 @@ struct tpm_chip *tpmm_chip_alloc(struct device *pdev,
->  	rc = devm_add_action_or_reset(pdev,
->  				      (void (*)(void *)) put_device,
->  				      &chip->dev);
-> -	if (rc)
-> +	if (rc) {
-> +		put_device(&chip->devs);
->  		return ERR_PTR(rc);
+rmmod tpm_vtpm_proxy
 
-This isn't right read what 'or_reset' does
+echo -en '\x80\x01\x00\x00\x00\x0c\x00\x00\x01\x44\x00\x00' >&100
 
-Jason
+
+[  167.289390] [c000000015d6fb60] [c0000000007d3ac0] 
+refcount_warn_saturate+0x210/0x230 (unreliable)
+[  167.290392] [c000000015d6fbc0] [c000000000831328] kobject_put+0x1b8/0x2e0
+[  167.291398] [c000000015d6fc50] [c000000000955548] put_device+0x28/0x40
+[  167.292409] [c000000015d6fc70] [c0080000008609a8] 
+tpm_try_get_ops+0xb0/0x100 [tpm]
+[  167.293417] [c000000015d6fcb0] [c008000000861864] 
+tpm_common_write+0x15c/0x250 [tpm]
+[  167.294429] [c000000015d6fd20] [c0000000004be190] vfs_write+0xf0/0x380
+[  167.295437] [c000000015d6fd70] [c0000000004be6c8] ksys_write+0x78/0x130
+[  167.296450] [c000000015d6fdc0] [c00000000003377c] 
+system_call_exception+0x15c/0x270
+[  167.297461] [c000000015d6fe20] [c00000000000d960] 
+system_call_common+0xf0/0x27c
+
+With this patch applied this error here is gone. Just have make sure to 
+replace tpm.ko and tpm_vtpm_proxy.ko, not just the latter.
+
+So my Tested-By is good for both patches.
+
+
+    Stefan
+
