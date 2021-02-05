@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 880A83110D5
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1A93110C6
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 20:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233331AbhBERax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 12:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
+        id S233597AbhBER16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 12:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233466AbhBEP7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:59:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75F1C64FDF;
-        Fri,  5 Feb 2021 14:09:58 +0000 (UTC)
+        id S233480AbhBEQAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 11:00:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13D9964FE2;
+        Fri,  5 Feb 2021 14:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534199;
-        bh=dTmxHkv9WYnVWXiZjTLOW6cKnVIyFzHtOUC/e2Ik0fI=;
+        s=korg; t=1612534207;
+        bh=LNGWqYpA7l/BONierlFYpiJfrjAGTnboreHJTsYSzyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/o1Iy1wHayq0KL1wkb8DUWKqPxNjLEVsgoBu+poZoVDJAjKyuYY5u6OX3AyyZmoW
-         V3jIDFiS330oUwRcSsE5wTg7RPuBRXwEC+3Z6W1yyq/K+sNWW44I9bjqhY+PrPcY1U
-         qUlI8NNBM9SdNVF0bQitYBTKWuADOyeekjkB1LI4=
+        b=jFNS+unxfHBJrlMyMeCMB+5VxgFqBK4o7lfDtotPF+mvy3J2mEk4CHj9074M/P0fl
+         nVHzRDUOD1x7ZJZYZSjhS4stbA0MrXh+AloXPsNS0fIE3Mlx8EyTu/jFiypYK7XKjq
+         vevDa9GddW+oDgsczckMj4hz4rVWJ1u1YxZNUlVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/57] locking/lockdep: Avoid noinstr warning for DEBUG_LOCKDEP
-Date:   Fri,  5 Feb 2021 15:06:50 +0100
-Message-Id: <20210205140657.011942306@linuxfoundation.org>
+Subject: [PATCH 5.10 27/57] scsi: libfc: Avoid invoking response handler twice if ep is already completed
+Date:   Fri,  5 Feb 2021 15:06:53 +0100
+Message-Id: <20210205140657.137294776@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
 References: <20210205140655.982616732@linuxfoundation.org>
@@ -41,50 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 77ca93a6b1223e210e58e1000c09d8d420403c94 ]
+[ Upstream commit b2b0f16fa65e910a3ec8771206bb49ee87a54ac5 ]
 
-  vmlinux.o: warning: objtool: lock_is_held_type()+0x60: call to check_flags.part.0() leaves .noinstr.text section
+A race condition exists between the response handler getting called because
+of exchange_mgr_reset() (which clears out all the active XIDs) and the
+response we get via an interrupt.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210106144017.652218215@infradead.org
+Sequence of events:
+
+	 rport ba0200: Port timeout, state PLOGI
+	 rport ba0200: Port entered PLOGI state from PLOGI state
+	 xid 1052: Exchange timer armed : 20000 msecs      xid timer armed here
+	 rport ba0200: Received LOGO request while in state PLOGI
+	 rport ba0200: Delete port
+	 rport ba0200: work event 3
+	 rport ba0200: lld callback ev 3
+	 bnx2fc: rport_event_hdlr: event = 3, port_id = 0xba0200
+	 bnx2fc: ba0200 - rport not created Yet!!
+	 /* Here we reset any outstanding exchanges before
+	 freeing rport using the exch_mgr_reset() */
+	 xid 1052: Exchange timer canceled
+	 /* Here we got two responses for one xid */
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
+
+Skip the response if the exchange is already completed.
+
+Link: https://lore.kernel.org/r/20201215194731.2326-1-jhasan@marvell.com
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/libfc/fc_exch.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 02bc5b8f1eb27..bdaf4829098c0 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -5271,12 +5271,15 @@ static void __lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie cookie
- /*
-  * Check whether we follow the irq-flags state precisely:
-  */
--static void check_flags(unsigned long flags)
-+static noinstr void check_flags(unsigned long flags)
- {
- #if defined(CONFIG_PROVE_LOCKING) && defined(CONFIG_DEBUG_LOCKDEP)
- 	if (!debug_locks)
- 		return;
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 96a2952cf626b..a50f1eef0e0cd 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1624,8 +1624,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 		rc = fc_exch_done_locked(ep);
+ 		WARN_ON(fc_seq_exch(sp) != ep);
+ 		spin_unlock_bh(&ep->ex_lock);
+-		if (!rc)
++		if (!rc) {
+ 			fc_exch_delete(ep);
++		} else {
++			FC_EXCH_DBG(ep, "ep is completed already,"
++					"hence skip calling the resp\n");
++			goto skip_resp;
++		}
+ 	}
  
-+	/* Get the warning out..  */
-+	instrumentation_begin();
-+
- 	if (irqs_disabled_flags(flags)) {
- 		if (DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled())) {
- 			printk("possible reason: unannotated irqs-off.\n");
-@@ -5304,6 +5307,8 @@ static void check_flags(unsigned long flags)
+ 	/*
+@@ -1644,6 +1649,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 	if (!fc_invoke_resp(ep, sp, fp))
+ 		fc_frame_free(fp);
  
- 	if (!debug_locks)
- 		print_irqtrace_events(current);
-+
-+	instrumentation_end();
- #endif
++skip_resp:
+ 	fc_exch_release(ep);
+ 	return;
+ rel:
+@@ -1900,10 +1906,16 @@ static void fc_exch_reset(struct fc_exch *ep)
+ 
+ 	fc_exch_hold(ep);
+ 
+-	if (!rc)
++	if (!rc) {
+ 		fc_exch_delete(ep);
++	} else {
++		FC_EXCH_DBG(ep, "ep is completed already,"
++				"hence skip calling the resp\n");
++		goto skip_resp;
++	}
+ 
+ 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
++skip_resp:
+ 	fc_seq_set_resp(sp, NULL, ep->arg);
+ 	fc_exch_release(ep);
  }
- 
 -- 
 2.27.0
 
