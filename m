@@ -2,279 +2,315 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E317A3112CF
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 21:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D2F311372
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbhBETJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 14:09:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47532 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233489AbhBETIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Feb 2021 14:08:52 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0E8C061794
-        for <stable@vger.kernel.org>; Fri,  5 Feb 2021 12:49:55 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id cl8so4293651pjb.0
-        for <stable@vger.kernel.org>; Fri, 05 Feb 2021 12:49:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BZa3x2D+BqLs69ptCLtc0iXTq35NydrhOqGkEosW3GE=;
-        b=odgHuSAQeRjnRaN3tOAbBB9G9Q+M9Av5WRn1XT5hujOmxMWwKbfYDlt/NUearhi6C+
-         4li9eqxdE82IJgPZ0Pog57Ssi6UgTpCma9EIJKvwCGrNjs2g/vnzXSUx/wPCLfmUoxKm
-         5+/NfdEBFFY/Sa+A/9F7gMGUo7mtvVGjrYXdMEpNjdT8Aia4CxEPfG6uPWC0jZ/5zXmh
-         swkh5rBQnYqJpyRz1+G2x1iPjvsMq/0jdWPvKAB+xjJtasn0vicUyL/Hgz3AxDsxvZy1
-         Zd24u6DOOITnBAl5h04cPo8Qckddo6A4FYGn+5C+hXYWlzoFTveh8Jzbllw1ZP6I+JDI
-         JIUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BZa3x2D+BqLs69ptCLtc0iXTq35NydrhOqGkEosW3GE=;
-        b=eOR0Agh+lRqph+XSbM03ZwRplDlUrZjCXzxL9pLsM9Sjaw5HYdmvs5w21z8BkysluC
-         kyRYwjQh08s4ufreZ9Rh1a9sug73PK8owio33sW2t6Z0PRS23qACsNGOpehMvNAf6LB/
-         xbVlnO5jNEXl7RGi3W2lXNd+h6rL9o6w2sKupOWrb8CZ4Bi66m8za+vlqBSFMY4h8U7R
-         wNX2x+E4SKuCk/F8yfJAhdR2EgJdg5yBNDaENUNGTluyibMqjE0/GEOQAh5vsi2iR/hy
-         XKXeUjWwg/tCJ92MPIYJ94ChL5G46DxLqn3H/PPayNe1hgT9hoQdymzSk6n46rz6uuMG
-         Cc3Q==
-X-Gm-Message-State: AOAM5324vWiBEEzW9JVtekmhdx/loPZ/NHmGqtEbY8uctXl/FCnkOnQ4
-        qyA8TSU7Ty32tihf+QJnhcAnKp1c0Mk+oQ==
-X-Google-Smtp-Source: ABdhPJzTW72GiMiH4Q39GF/fRsT3QIrGINx47KP1EP5osQXBWH7hYO8YXZSWSKlak/Rb9xxMePQxiQ==
-X-Received: by 2002:a17:903:228a:b029:da:d645:ab58 with SMTP id b10-20020a170903228ab02900dad645ab58mr5816416plh.25.1612558194305;
-        Fri, 05 Feb 2021 12:49:54 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e3sm10705767pgs.60.2021.02.05.12.49.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Feb 2021 12:49:53 -0800 (PST)
-Message-ID: <601daf71.1c69fb81.71551.7649@mx.google.com>
-Date:   Fri, 05 Feb 2021 12:49:53 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233779AbhBEVYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:24:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45876 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232954AbhBEPCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:02:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C1565006;
+        Fri,  5 Feb 2021 14:10:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612534231;
+        bh=qinzSEomoLqOYngZ3E/HjaeNS2mwpgTcYDaCIBDnO6M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=sGhnX89HmvF0Lu320cA8BTMO39MYkdkc5V+pcAFD49LBudASN2rxpe8TMBNi9cglU
+         BD2WivVwfA4JEP2tLqzIq0GCiEUJpDv5ylihqsZ3VshvB3vXrJmRjOVMbSFyD8z1dh
+         LMa4to8cf5teKakVvl4JdxUmdWzNO80N8/EOMLp4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+Subject: [PATCH 5.10 00/57] 5.10.14-rc1 review
+Date:   Fri,  5 Feb 2021 15:06:26 +0100
+Message-Id: <20210205140655.982616732@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.256-17-g135b2ff75c04
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 98 runs,
- 5 regressions (v4.9.256-17-g135b2ff75c04)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.10.14-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.14-rc1
+X-KernelTest-Deadline: 2021-02-07T14:06+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 98 runs, 5 regressions (v4.9.256-17-g135b2ff7=
-5c04)
+This is the start of the stable review cycle for the 5.10.14 release.
+There are 57 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Regressions Summary
--------------------
+Responses should be made by Sun, 07 Feb 2021 14:06:42 +0000.
+Anything received after that time might be too late.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
-g | 1          =
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.14-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+-------------
+Pseudo-Shortlog of commits:
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.14-rc1
 
+Peter Zijlstra <peterz@infradead.org>
+    workqueue: Restrict affinity change to rescuer
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.256-17-g135b2ff75c04/plan/baseline/
+Peter Zijlstra <peterz@infradead.org>
+    kthread: Extract KTHREAD_IS_PER_CPU
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.256-17-g135b2ff75c04
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      135b2ff75c046c9f2fb5b40b0b8277bf757ae6b2 =
+Gayatri Kammela <gayatri.kammela@intel.com>
+    x86/cpu: Add another Alder Lake CPU to the Intel family
 
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Don't fail the kernel build on fatal errors
 
+Oded Gabbay <ogabbay@kernel.org>
+    habanalabs: disable FW events on device removal
 
-Test Regressions
----------------- =
+Oded Gabbay <ogabbay@kernel.org>
+    habanalabs: fix backward compatibility of idle check
 
+Ofir Bitton <obitton@habana.ai>
+    habanalabs: zero pci counters packet before submit to FW
 
+Vladimir Stempen <vladimir.stempen@amd.com>
+    drm/amd/display: Fixed corruptions on HPDRX link loss restore
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
-g | 1          =
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Use hardware sequencer functions for PG control
 
+Bing Guo <bing.guo@amd.com>
+    drm/amd/display: Change function decide_dp_link_settings to avoid infinite looping
 
-  Details:     https://kernelci.org/test/plan/id/601d7e7397a48463023abebd
+Aric Cyr <aric.cyr@amd.com>
+    drm/amd/display: Allow PSTATE chnage when no displays are enabled
 
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Jake Wang <haonan.wang2@amd.com>
+    drm/amd/display: Update dram_clock_change_latency for DCN2.1
 
+Michael Ellerman <mpe@ellerman.id.au>
+    selftests/powerpc: Only test lwm/stmw on big endian
 
+Jeannie Stevenson <jeanniestevenson@protonmail.com>
+    platform/x86: thinkpad_acpi: Add P53/73 firmware to fan_quirk_table for dual fan control
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/601d7e7397a4846=
-3023abec4
-        new failure (last pass: v4.9.255-17-gd2af09dda691)
-        2 lines
+Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+    nvmet: set right status on error in id-ns handler
 
-    2021-02-05 17:20:47.688000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/116
-    2021-02-05 17:20:47.698000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-02-05 17:20:47.713000+00:00  [   20.626098] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+Klaus Jensen <k.jensen@samsung.com>
+    nvme-pci: allow use of cmb on v1.4 controllers
 
- =
+Chao Leng <lengchao@huawei.com>
+    nvme-tcp: avoid request double completion for concurrent nvme_tcp_timeout
 
+Chao Leng <lengchao@huawei.com>
+    nvme-rdma: avoid request double completion for concurrent nvme_rdma_timeout
 
+Revanth Rajashekar <revanth.rajashekar@intel.com>
+    nvme: check the PRINFO bit before deciding the host buffer length
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+lianzhi chang <changlianzhi@uniontech.com>
+    udf: fix the problem that the disc content is not displayed
 
+Sowjanya Komatineni <skomatineni@nvidia.com>
+    i2c: tegra: Create i2c_writesl_vi() to use with VI I2C for filling TX FIFO
 
-  Details:     https://kernelci.org/test/plan/id/601d7b8c6f304266863abe67
+Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>
+    ALSA: hda: Add Cometlake-R PCI ID
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Brian King <brking@linux.vnet.ibm.com>
+    scsi: ibmvfc: Set default timeout to avoid crash during migration
 
+Felix Fietkau <nbd@nbd.name>
+    mac80211: fix encryption key selection for 802.3 xmit
 
+Felix Fietkau <nbd@nbd.name>
+    mac80211: fix fast-rx encryption check
 
-  * baseline.login: https://kernelci.org/test/case/id/601d7b8c6f304266863ab=
-e68
-        failing since 83 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
+Shayne Chen <shayne.chen@mediatek.com>
+    mac80211: fix incorrect strlen of .write in debugfs
 
- =
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Don't add empty symbols to the rbtree
 
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda: Add AlderLake-P PCI ID and HDMI codec vid
 
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    ASoC: SOF: Intel: hda: Resume codec to do jack detection
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    scsi: fnic: Fix memleak in vnic_dev_init_devcmd2
 
+Javed Hasan <jhasan@marvell.com>
+    scsi: libfc: Avoid invoking response handler twice if ep is already completed
 
-  Details:     https://kernelci.org/test/plan/id/601d7dfd3b13b6934c3abe7b
+Martin Wilck <mwilck@suse.com>
+    scsi: scsi_transport_srp: Don't block target in failfast state
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Peter Zijlstra <peterz@infradead.org>
+    x86: __always_inline __{rd,wr}msr()
 
+Peter Zijlstra <peterz@infradead.org>
+    locking/lockdep: Avoid noinstr warning for DEBUG_LOCKDEP
 
+Oded Gabbay <ogabbay@kernel.org>
+    habanalabs: fix dma_addr passed to dma_mmap_coherent
 
-  * baseline.login: https://kernelci.org/test/case/id/601d7dfd3b13b6934c3ab=
-e7c
-        failing since 83 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
+Arnold Gozum <arngozum@gmail.com>
+    platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
 
- =
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: touchscreen_dmi: Add swap-x-y quirk for Goodix touchscreen on Estar Beauty HD tablet
 
+Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+    tools/power/x86/intel-speed-select: Set higher of cpuinfo_max_freq or base_frequency
 
+Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+    tools/power/x86/intel-speed-select: Set scaling_max_freq to base_frequency
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+Tony Lindgren <tony@atomide.com>
+    phy: cpcap-usb: Fix warning for missing regulator_disable
 
+Nadav Amit <namit@vmware.com>
+    iommu/vt-d: Do not use flush-queue when caching-mode is on
 
-  Details:     https://kernelci.org/test/plan/id/601d7b9f364c6da5423abe7b
+Nick Desaulniers <ndesaulniers@google.com>
+    ARM: 9025/1: Kconfig: CPU_BIG_ENDIAN depends on !LD_IS_LLD
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Mike Rapoport <rppt@kernel.org>
+    Revert "x86/setup: don't remove E820_TYPE_RAM for pfn 0"
 
+Catalin Marinas <catalin.marinas@arm.com>
+    arm64: Do not pass tagged addresses to __is_lm_address()
 
+Vincenzo Frascino <vincenzo.frascino@arm.com>
+    arm64: Fix kernel address detection of __is_lm_address()
 
-  * baseline.login: https://kernelci.org/test/case/id/601d7b9f364c6da5423ab=
-e7c
-        failing since 83 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
+Robin Murphy <robin.murphy@arm.com>
+    arm64: dts: meson: Describe G12b GPU as coherent
 
- =
+Robin Murphy <robin.murphy@arm.com>
+    drm/panfrost: Support cache-coherent integrations
 
+Robin Murphy <robin.murphy@arm.com>
+    iommu/io-pgtable-arm: Support coherency for Mali LPAE
 
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: Ensure that CRQ entry read are correctly ordered
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    net: switchdev: don't set port_obj_info->handled true when -EOPNOTSUPP
 
+Pan Bian <bianpan2016@163.com>
+    net: dsa: bcm_sf2: put device node before return
 
-  Details:     https://kernelci.org/test/plan/id/601d7b324ec4bf829e3abe71
+Ido Schimmel <idosch@nvidia.com>
+    mlxsw: spectrum_span: Do not overwrite policer configuration
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-1=
-7-g135b2ff75c04/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Voon Weifeng <weifeng.voon@intel.com>
+    stmmac: intel: Configure EHL PSE0 GbE and PSE1 GbE to 32 bits DMA addressing
+
+Kevin Hao <haokexin@gmail.com>
+    net: octeontx2: Make sure the buffer is 128 byte aligned
+
+Pan Bian <bianpan2016@163.com>
+    net: fec: put child node on error path
+
+Pan Bian <bianpan2016@163.com>
+    net: stmmac: dwmac-intel-plat: remove config data on error
+
+Marek Vasut <marex@denx.de>
+    net: dsa: microchip: Adjust reset release timing to match reference reset circuit
 
 
+-------------
 
-  * baseline.login: https://kernelci.org/test/case/id/601d7b324ec4bf829e3ab=
-e72
-        failing since 83 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
+Diffstat:
 
- =20
+ Makefile                                           |  4 +-
+ arch/arm/mm/Kconfig                                |  1 +
+ arch/arm64/boot/dts/amlogic/meson-g12b.dtsi        |  4 ++
+ arch/arm64/include/asm/memory.h                    | 10 ++---
+ arch/arm64/mm/physaddr.c                           |  2 +-
+ arch/x86/include/asm/intel-family.h                |  1 +
+ arch/x86/include/asm/msr.h                         |  4 +-
+ arch/x86/kernel/setup.c                            | 20 +++++-----
+ .../amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c   |  6 ++-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |  7 +++-
+ .../drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c  | 18 +++++++--
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c |  9 ++++-
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_resource.c  |  2 +-
+ drivers/gpu/drm/panfrost/panfrost_device.h         |  1 +
+ drivers/gpu/drm/panfrost/panfrost_drv.c            |  2 +
+ drivers/gpu/drm/panfrost/panfrost_gem.c            |  2 +
+ drivers/gpu/drm/panfrost/panfrost_mmu.c            |  1 +
+ drivers/i2c/busses/i2c-tegra.c                     | 22 ++++++++++-
+ drivers/iommu/intel/iommu.c                        |  5 +++
+ drivers/iommu/io-pgtable-arm.c                     | 11 +++++-
+ drivers/misc/habanalabs/common/device.c            |  9 +++++
+ drivers/misc/habanalabs/common/firmware_if.c       |  5 +++
+ drivers/misc/habanalabs/common/habanalabs_ioctl.c  |  2 +
+ drivers/misc/habanalabs/gaudi/gaudi.c              |  3 +-
+ drivers/misc/habanalabs/goya/goya.c                |  3 +-
+ drivers/net/dsa/bcm_sf2.c                          |  8 +++-
+ drivers/net/dsa/microchip/ksz_common.c             |  2 +-
+ drivers/net/ethernet/freescale/fec_main.c          |  3 +-
+ drivers/net/ethernet/ibm/ibmvnic.c                 |  6 +++
+ .../ethernet/marvell/octeontx2/nic/otx2_common.c   |  3 +-
+ .../net/ethernet/mellanox/mlxsw/spectrum_span.c    |  6 +++
+ .../net/ethernet/mellanox/mlxsw/spectrum_span.h    |  1 +
+ .../net/ethernet/stmicro/stmmac/dwmac-intel-plat.c |  4 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c  |  2 +
+ drivers/nvme/host/core.c                           | 17 ++++++++-
+ drivers/nvme/host/pci.c                            | 14 +++++++
+ drivers/nvme/host/rdma.c                           | 15 ++++++--
+ drivers/nvme/host/tcp.c                            | 14 +++++--
+ drivers/nvme/target/admin-cmd.c                    |  8 +++-
+ drivers/phy/motorola/phy-cpcap-usb.c               | 19 +++++++---
+ drivers/platform/x86/intel-vbtn.c                  |  6 +++
+ drivers/platform/x86/thinkpad_acpi.c               |  1 +
+ drivers/platform/x86/touchscreen_dmi.c             | 18 +++++++++
+ drivers/scsi/fnic/vnic_dev.c                       |  8 ++--
+ drivers/scsi/ibmvscsi/ibmvfc.c                     |  4 +-
+ drivers/scsi/libfc/fc_exch.c                       | 16 +++++++-
+ drivers/scsi/scsi_transport_srp.c                  |  9 ++++-
+ fs/udf/super.c                                     |  7 ++--
+ include/linux/kthread.h                            |  3 ++
+ include/linux/nvme.h                               |  6 +++
+ kernel/kthread.c                                   | 27 ++++++++++++-
+ kernel/locking/lockdep.c                           |  7 +++-
+ kernel/smpboot.c                                   |  1 +
+ kernel/workqueue.c                                 |  9 ++---
+ net/mac80211/debugfs.c                             | 44 ++++++++++------------
+ net/mac80211/rx.c                                  |  2 +
+ net/mac80211/tx.c                                  | 27 +++++++------
+ net/switchdev/switchdev.c                          | 23 ++++++-----
+ sound/pci/hda/hda_intel.c                          |  6 +++
+ sound/pci/hda/patch_hdmi.c                         |  1 +
+ sound/soc/sof/intel/hda-codec.c                    |  3 +-
+ tools/objtool/check.c                              | 14 +++----
+ tools/objtool/elf.c                                |  7 ++++
+ tools/power/x86/intel-speed-select/isst-config.c   | 32 ++++++++++++++++
+ .../powerpc/alignment/alignment_handler.c          |  5 ++-
+ 65 files changed, 427 insertions(+), 135 deletions(-)
+
+
