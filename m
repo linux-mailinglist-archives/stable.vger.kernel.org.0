@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE7931135C
-	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE77D311390
+	for <lists+stable@lfdr.de>; Fri,  5 Feb 2021 22:30:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233714AbhBEVUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Feb 2021 16:20:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
+        id S233189AbhBEV30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Feb 2021 16:29:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233058AbhBEPCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Feb 2021 10:02:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08EFF650AC;
-        Fri,  5 Feb 2021 14:14:20 +0000 (UTC)
+        id S231701AbhBEPAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Feb 2021 10:00:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A9B650B1;
+        Fri,  5 Feb 2021 14:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612534461;
-        bh=X1c/URf2oBR01gT2rRnkHPsIYqhI6tRofyEIU7Db3jY=;
+        s=korg; t=1612534467;
+        bh=jQ5g/mPKswFOhl93N86AioJj0vO88F8hbPM7rsVHYqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdRStlrHpzz0hwnouNhTF4VhVn97fqM/cWF6dygneOOxkY/qMzqNl36AXJeVnoGLg
-         aHRGUEziSjI+2ukbqwpTc/b4QgPsdX5AiiQ+3VWndQNkWQWo2qrAiRYckQ/+hloyrE
-         VFjcLPL+8P3aTBsrWDbEztfWZGjhWNjuTQIbZkzU=
+        b=2tPPnekNtOJIbP2+WLN+R0OAPJyjYHeaCF5QkxNr5Vd6aNFUnpfRBfMg4FEa2aGMc
+         n5CFB+nxJsoOhUa6Etr3/EMJWK+j58hHuCBM8s4glsekqUxXO9iCoDU7DDyfZEla/e
+         XdMc6Gr7GKUcTNTCbq/4IEHj0pitKFZcgeIro8MU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 01/15] net: dsa: bcm_sf2: put device node before return
-Date:   Fri,  5 Feb 2021 15:08:46 +0100
-Message-Id: <20210205140649.793203004@linuxfoundation.org>
+        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/15] scsi: libfc: Avoid invoking response handler twice if ep is already completed
+Date:   Fri,  5 Feb 2021 15:08:56 +0100
+Message-Id: <20210205140650.185885343@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210205140649.733510103@linuxfoundation.org>
 References: <20210205140649.733510103@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,44 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-commit cf3c46631e1637582f517a574c77cd6c05793817 upstream.
+[ Upstream commit b2b0f16fa65e910a3ec8771206bb49ee87a54ac5 ]
 
-Put the device node dn before return error code on failure path.
+A race condition exists between the response handler getting called because
+of exchange_mgr_reset() (which clears out all the active XIDs) and the
+response we get via an interrupt.
 
-Fixes: 461cd1b03e32 ("net: dsa: bcm_sf2: Register our slave MDIO bus")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121123343.26330-1-bianpan2016@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Sequence of events:
+
+	 rport ba0200: Port timeout, state PLOGI
+	 rport ba0200: Port entered PLOGI state from PLOGI state
+	 xid 1052: Exchange timer armed : 20000 msecs      xid timer armed here
+	 rport ba0200: Received LOGO request while in state PLOGI
+	 rport ba0200: Delete port
+	 rport ba0200: work event 3
+	 rport ba0200: lld callback ev 3
+	 bnx2fc: rport_event_hdlr: event = 3, port_id = 0xba0200
+	 bnx2fc: ba0200 - rport not created Yet!!
+	 /* Here we reset any outstanding exchanges before
+	 freeing rport using the exch_mgr_reset() */
+	 xid 1052: Exchange timer canceled
+	 /* Here we got two responses for one xid */
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: invoking resp(), esb 20000000 state 3
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
+	 xid 1052: fc_rport_plogi_resp() : ep->resp_active 2
+
+Skip the response if the exchange is already completed.
+
+Link: https://lore.kernel.org/r/20201215194731.2326-1-jhasan@marvell.com
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/libfc/fc_exch.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -540,15 +540,19 @@ static int bcm_sf2_mdio_register(struct
- 	/* Find our integrated MDIO bus node */
- 	dn = of_find_compatible_node(NULL, NULL, "brcm,unimac-mdio");
- 	priv->master_mii_bus = of_mdio_find_bus(dn);
--	if (!priv->master_mii_bus)
-+	if (!priv->master_mii_bus) {
-+		of_node_put(dn);
- 		return -EPROBE_DEFER;
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 6ba257cbc6d94..384458d1f73c3 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1631,8 +1631,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 		rc = fc_exch_done_locked(ep);
+ 		WARN_ON(fc_seq_exch(sp) != ep);
+ 		spin_unlock_bh(&ep->ex_lock);
+-		if (!rc)
++		if (!rc) {
+ 			fc_exch_delete(ep);
++		} else {
++			FC_EXCH_DBG(ep, "ep is completed already,"
++					"hence skip calling the resp\n");
++			goto skip_resp;
++		}
+ 	}
+ 
+ 	/*
+@@ -1651,6 +1656,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
+ 	if (!fc_invoke_resp(ep, sp, fp))
+ 		fc_frame_free(fp);
+ 
++skip_resp:
+ 	fc_exch_release(ep);
+ 	return;
+ rel:
+@@ -1907,10 +1913,16 @@ static void fc_exch_reset(struct fc_exch *ep)
+ 
+ 	fc_exch_hold(ep);
+ 
+-	if (!rc)
++	if (!rc) {
+ 		fc_exch_delete(ep);
++	} else {
++		FC_EXCH_DBG(ep, "ep is completed already,"
++				"hence skip calling the resp\n");
++		goto skip_resp;
 +	}
  
- 	get_device(&priv->master_mii_bus->dev);
- 	priv->master_mii_dn = dn;
- 
- 	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
--	if (!priv->slave_mii_bus)
-+	if (!priv->slave_mii_bus) {
-+		of_node_put(dn);
- 		return -ENOMEM;
-+	}
- 
- 	priv->slave_mii_bus->priv = priv;
- 	priv->slave_mii_bus->name = "sf2 slave mii";
+ 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
++skip_resp:
+ 	fc_seq_set_resp(sp, NULL, ep->arg);
+ 	fc_exch_release(ep);
+ }
+-- 
+2.27.0
+
 
 
