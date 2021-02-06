@@ -2,34 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC667311D71
-	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 14:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC20311D74
+	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 14:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230127AbhBFNUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Feb 2021 08:20:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
+        id S229522AbhBFNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Feb 2021 08:23:49 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:49662 "EHLO 1wt.eu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230126AbhBFNUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Feb 2021 08:20:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA5264EBC;
-        Sat,  6 Feb 2021 13:19:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612617600;
-        bh=m3attUaLPE9Ru+kOwqRvJP4eo6QUeyvo9aYOsKMlySA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JXQvmaYnAU8P3vwCI/SUUrv9vXtAgV1Bvg6RQRAkazGT1ZW5U48XryjlElF51WDg4
-         GhKDTfV/MAypDNXBlIBDPsj7NEJQ+hhusLXwutbsGk8sOJMo3WY/ud9CDP6vWe1Y3H
-         m7q31sOCcFza0UeTJvSWeE66FwBy4ITg0CYNu3Jw=
-Date:   Sat, 6 Feb 2021 14:19:57 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Willy Tarreau <w@1wt.eu>
+        id S229506AbhBFNXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Feb 2021 08:23:49 -0500
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 116DMdTx022974;
+        Sat, 6 Feb 2021 14:22:39 +0100
+Date:   Sat, 6 Feb 2021 14:22:39 +0100
+From:   Willy Tarreau <w@1wt.eu>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
         akpm@linux-foundation.org, torvalds@linux-foundation.org,
         stable@vger.kernel.org, lwn@lwn.net, jslaby@suse.cz,
         shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com
 Subject: Re: Linux 4.4.256
-Message-ID: <YB6XfR5YDz8IjZHu@kroah.com>
+Message-ID: <20210206132239.GC7312@1wt.eu>
 References: <1612534196241236@kroah.com>
  <20210205205658.GA136925@roeck-us.net>
  <YB6S612pwLbQJf4u@kroah.com>
@@ -38,32 +32,32 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20210206131113.GB7312@1wt.eu>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Sat, Feb 06, 2021 at 02:11:13PM +0100, Willy Tarreau wrote:
-> On Sat, Feb 06, 2021 at 02:00:27PM +0100, Greg Kroah-Hartman wrote:
-> > I think Sasha's patch here:
-> > 	https://lore.kernel.org/r/20210205174702.1904681-1-sashal@kernel.org
-> > is looking like the solution.
-> 
-> It might cause trouble to those forcing SUBLEVEL to a given version such
-> as .0 to avoid exposing the exact stable version. I guess we should
-> instead try to integrate a test on the value itself and cap it at 255.
-
-That's the main goal of the upstream submission that checks the value
-before capping it:
-	https://lore.kernel.org/r/20210206035033.2036180-2-sashal@kernel.org
-
 > Something like this looks more robust to me, it will use SUBLEVEL for
 > values 0 to 255 and 255 for any larger value:
 > 
 > -	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
 > +	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255 \* (0$(SUBLEVEL) > 255) + 0$(SUBLEVEL) * (0$(SUBLEVEL \<= 255)); \
 
-I think you just rewrote the above linked patch :)
+Bah, I obviously missed a backslash above and forgot spaces around parens.
+Here's a tested version:
 
-thanks,
-
-greg k-h
+diff --git a/Makefile b/Makefile
+index 7d86ad6ad36c..9b91b8815b40 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1252,7 +1252,7 @@ endef
+ 
+ define filechk_version.h
+ 	echo \#define LINUX_VERSION_CODE $(shell                         \
+-	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
++	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255 \* \( 0$(SUBLEVEL) \> 255 \) + 0$(SUBLEVEL) \* \( 0$(SUBLEVEL) \<= 255 \) ); \
+ 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'
+ endef
+ 
+Willy
