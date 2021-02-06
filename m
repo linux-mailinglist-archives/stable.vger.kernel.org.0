@@ -2,49 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB98311C60
-	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 10:30:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 460DD311CBC
+	for <lists+stable@lfdr.de>; Sat,  6 Feb 2021 11:51:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbhBFJ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Feb 2021 04:29:00 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:49626 "EHLO 1wt.eu"
+        id S229760AbhBFKu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Feb 2021 05:50:59 -0500
+Received: from mx2.suse.de ([195.135.220.15]:52460 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229581AbhBFJ26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Feb 2021 04:28:58 -0500
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 1169SFMU005029;
-        Sat, 6 Feb 2021 10:28:15 +0100
-Date:   Sat, 6 Feb 2021 10:28:15 +0100
-From:   Willy Tarreau <w@1wt.eu>
-To:     Dave Pawson <dave.pawson@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
-Subject: Re: How to help with new kernel?
-Message-ID: <20210206092815.GA5024@1wt.eu>
-References: <CAEncD4esY38Z-Z9t=KOXriZczry7htCYfCh7+B=eC_kUds5miQ@mail.gmail.com>
- <YB4/ESyrjZJ1uMQK@kroah.com>
- <CAEncD4f6pceioDQghmwReRhmHPPMjFMmfJj_Xi_NBzsum17PYQ@mail.gmail.com>
- <YB5VcQTUbpe6lSVQ@kroah.com>
- <CAEncD4due+HgyOTiyDqz2JtAda=jeFkzLyuFU+H1OksiS8_PbA@mail.gmail.com>
+        id S229570AbhBFKul (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Feb 2021 05:50:41 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1612608587; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=dE46dgUQjvo/vJLSEaUtAdX4bEkarOQCB+4cTFCnP1M=;
+        b=QrCfkhZ9kH6dd3p0kbDY5etXQLR7YA6fF7S4sBCvIYn3HsEhD8zDi8/nrJAkjr+5OiuNsO
+        qR+sdnPHE3sVhc6pMZV3asmTaXx7t2OGH0pSGgLCV/LVP9RbwfgXXcjXrnMW/fO54ZX1ek
+        UhKlmhgCima7ddr5rYrpiYWaVy5Ib8M=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id DD5BDAD29;
+        Sat,  6 Feb 2021 10:49:46 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        linux-block@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Jens Axboe <axboe@kernel.dk>, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 0/7] xen/events: bug fixes and some diagnostic aids
+Date:   Sat,  6 Feb 2021 11:49:25 +0100
+Message-Id: <20210206104932.29064-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAEncD4due+HgyOTiyDqz2JtAda=jeFkzLyuFU+H1OksiS8_PbA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 06, 2021 at 09:07:05AM +0000, Dave Pawson wrote:
-> And I thought I was old fashioned <grin/>
-> <guess>
->   top posting is more common than inline
-> </guess>
+The first three patches are fixes for XSA-332. The avoid WARN splats
+and a performance issue with interdomain events.
 
-More common doesn't mean less annoying. If you're in the middle of
-plenty of impolite and annoying people, you might feel very uneasy
-and that doesn't necessarily make you wrong. Top posting is
-irrespectful of the time of those who have to read you and respond
-to you and you're really lucky to find people accepting to respond
-to such painful messages.
+Patches 4 and 5 are some additions to event handling in order to add
+some per pv-device statistics to sysfs and the ability to have a per
+backend device spurious event delay control.
 
-Willy
+Patches 6 and 7 are minor fixes I had lying around.
+
+Juergen Gross (7):
+  xen/events: reset affinity of 2-level event initially
+  xen/events: don't unmask an event channel when an eoi is pending
+  xen/events: fix lateeoi irq acknowledgement
+  xen/events: link interdomain events to associated xenbus device
+  xen/events: add per-xenbus device event statistics and settings
+  xen/evtch: use smp barriers for user event ring
+  xen/evtchn: read producer index only once
+
+ drivers/block/xen-blkback/xenbus.c  |   2 +-
+ drivers/net/xen-netback/interface.c |  16 ++--
+ drivers/xen/events/events_2l.c      |  20 +++++
+ drivers/xen/events/events_base.c    | 133 ++++++++++++++++++++++------
+ drivers/xen/evtchn.c                |   6 +-
+ drivers/xen/pvcalls-back.c          |   4 +-
+ drivers/xen/xen-pciback/xenbus.c    |   2 +-
+ drivers/xen/xen-scsiback.c          |   2 +-
+ drivers/xen/xenbus/xenbus_probe.c   |  66 ++++++++++++++
+ include/xen/events.h                |   7 +-
+ include/xen/xenbus.h                |   7 ++
+ 11 files changed, 217 insertions(+), 48 deletions(-)
+
+-- 
+2.26.2
+
