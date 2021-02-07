@@ -2,87 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1838B31248B
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 14:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6B13124A7
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 15:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbhBGN1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Feb 2021 08:27:01 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:18746 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbhBGN1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Feb 2021 08:27:01 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B601fea7c0000>; Sun, 07 Feb 2021 05:26:20 -0800
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sun, 7 Feb
- 2021 13:26:20 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Sun, 7 Feb 2021 13:26:20 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <stable@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.10 00/57] 5.10.14-rc1 review
-In-Reply-To: <20210205140655.982616732@linuxfoundation.org>
-References: <20210205140655.982616732@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S229715AbhBGOVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Feb 2021 09:21:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229756AbhBGOUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Feb 2021 09:20:55 -0500
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473A5C06174A;
+        Sun,  7 Feb 2021 06:19:20 -0800 (PST)
+Received: by mail-lj1-x229.google.com with SMTP id f19so13481933ljn.5;
+        Sun, 07 Feb 2021 06:19:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=GdYfZzI0RqvLsVW43Ou8obsCgck5qqeRRlxTAKg2xMc=;
+        b=KlNzayDX9vXh/4qkSlxwOgzMYkp7c+BMw6N4ALpt3QVDPk6UHzjqeQTTVDsRWnSAS2
+         ywo7nD2MuikHoFpZ25NDoxJZGvt/wxJODeV34s7focW50kR0N0hrNr4cS1+MiicI1Pe9
+         hCzGwQj9KG5nN7ovkpslqIMe0rzHvtI7Xk6qlsPxqOA85OHN1LMW508WrVZSVP6v9J9m
+         uEOb3fBbrjOtAOiV0ApCZQwKKETigbBn4NtDQfN8Qer77bo0Xg8cX2RKPfXcCODqyOv/
+         YOV72qctE/dymJepLkMEBMB//aiqyt3eDFyCcMUNmbcRqNT3nE/icykSLU274wbMZg+H
+         i0qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=GdYfZzI0RqvLsVW43Ou8obsCgck5qqeRRlxTAKg2xMc=;
+        b=Aby8laNByBlIyqhPNbE4btSX/civ6gILlLlVNgun8/vW8OAgfjLI8+ZxTXkP6oQ9ix
+         J7Z4VFs4G6XBEU/nAkpo81MmenNyxSoJylJPPvTjvBsm/oDBrVTc67+Ulfj5Tdu7/9w8
+         i1LF03hbXio+75gSn2o7sQi5CPaZZ433Bi+lhthDYyZ7WYALcjR3jNrY+KYJP/OEYwQM
+         wyJRbzXwG3cX6GaungX7ahAyLh5YqVJFeWluNyCrzrMJMMYjaOH0TW4zajVL12vbAIoa
+         aIuDtB9nqTkOmisevA7wd1E+MJ56cYAMj18LUEW61maMfMhCbnJaIkTePjK4RGoaz0q7
+         nMZg==
+X-Gm-Message-State: AOAM530tE3UV3/PSJyqcLYo8ogZ2231ATbS05tMMSSxte+dv4bPfPVX1
+        iehtW7I2i0K2n0+xdJFgFnTvh815iEHaTIu9R+eP/kVWeCw=
+X-Google-Smtp-Source: ABdhPJzrdrBBnJoJXwkHK2B06W93vmuBteUBCk143EmH95LQ6HQZxzMbUmkS4oW6SebmNZsF/YyXIhAl26pp1yLxlJw=
+X-Received: by 2002:a2e:89cd:: with SMTP id c13mr8199614ljk.285.1612707558527;
+ Sun, 07 Feb 2021 06:19:18 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <361dc1da83e64a4d89e5c81487890f4e@HQMAIL101.nvidia.com>
-Date:   Sun, 7 Feb 2021 13:26:20 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1612704380; bh=6MUwDLKCsEN1i4ToRiMCkpX/XBE9PZvoJ46gRlvgzDc=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=OBbeWtzqJtJ6ztuWiJw9wj1UwSb8wfGNji3OekK2HLAzLj5RxUziWFCiy56Z0Mk55
-         iKy2mT09lgVVqVjpV0aKGXY2oy/XyEkz9k/Ta8FM5VPmm+2AxfzlsJ7bG9OXYUHDm+
-         75FxZ/0SdtUdvrBZ42yscF0YD+1C4WcnkZDT98RtKCr2Bsu9qNuVBMCd9Zj1P+EnBg
-         9PipH71bkLTKeZi0N8kYr23oGqtCKnhosPva8JCtyZHX3E0+XZmlLGhJRmPK2MaL6y
-         ns0okWd5kskxctrDPOOQkXReo1dx6AsF3FOq7MBSVarw7/93Ilk9KBPL/d9t70VfNA
-         N/q5MGPFv2HTA==
+From:   Jason Andryuk <jandryuk@gmail.com>
+Date:   Sun, 7 Feb 2021 09:19:07 -0500
+Message-ID: <CAKf6xpueeG-c+XV6gYu_H_DXNkR11+_v54hgv=vukuy+Tcb+LQ@mail.gmail.com>
+Subject: Stable request: iwlwifi: mvm: don't send RFH_QUEUE_CONFIG_CMD with no queues
+To:     stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Cc:     netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 05 Feb 2021 15:06:26 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.14 release.
-> There are 57 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 07 Feb 2021 14:06:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.14-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hi,
 
-All tests passing for Tegra ...
+commit 64f55156f7adedb1ac5bb9cdbcbc9ac05ff5a724 upstream
 
-Test results for stable-v5.10:
-    12 builds:	12 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    65 tests:	65 pass, 0 fail
+The requested patch allows the iwlwifi driver to work with newer AX200
+wifi cards when MSI-X interrupts are not available.  Without it,
+bringing an interface "up" fails with a Microcode SW error.  Xen PCI
+passthrough with a linux stubdom doesn't enable MSI-X which triggers
+this condition.
 
-Linux version:	5.10.14-rc1-g58d18d6d116a
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+I think it's only applicable to 5.4 because it's in 5.10 and earlier
+kernels don't have AX200 support.
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+I'm making this request to stable and CC-ing netdev since I saw a
+message [1] on netdev saying:
+"""
+We're actually experimenting with letting Greg take networking patches
+into stable like he does for every other tree. If the patch doesn't
+appear in the next stable release please poke stable@ directly.
+"""
 
-Jon
+Thanks,
+Jason
+
+[1] https://lore.kernel.org/netdev/20210129193030.46ef3b17@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/
