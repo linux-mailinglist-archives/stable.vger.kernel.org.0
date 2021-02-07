@@ -2,79 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2BD31241F
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 12:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E10A931242E
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 13:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbhBGLxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Feb 2021 06:53:51 -0500
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:58380 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229980AbhBGLxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Feb 2021 06:53:43 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UO3wGOl_1612698777;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UO3wGOl_1612698777)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 07 Feb 2021 19:52:58 +0800
-Subject: Re: [PATCH 0/3] close udev startup race condition for several devices
-To:     gregkh@linuxfoundation.org, sashal@kernel.org
-Cc:     stable@vger.kernel.org, joseph.qi@linux.alibaba.com,
-        caspar@linux.alibaba.com
+        id S229843AbhBGL5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Feb 2021 06:57:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229650AbhBGL5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Feb 2021 06:57:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08FA360230;
+        Sun,  7 Feb 2021 11:56:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612699012;
+        bh=JiqG1IrlgA+mzgVZR03m4oYvhTXQ9B4bZmzaB4hGMUA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Sld+97zzjeOa7RC1NKdXX8UupGsMY69Vf0t08+UWF7So/DXdZCHTEzQLY6TMHC8YX
+         GbNtQ1s9fRDvNxriP6YrcA0TxVuSKka2l9ZeqpAkbgrXpTUD2JwvG39IK3l/qmiiDA
+         fHw91URK+Zw+pvbnoNHYvMwLkDLljdyDfnapC+CM=
+Date:   Sun, 7 Feb 2021 12:56:49 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org,
+        joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com,
+        Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 1/3] virtio-blk: close udev startup race condition as
+ default groups
+Message-ID: <YB/Vgb4y4Dts0Y2G@kroah.com>
 References: <20210207114656.32141-1-jefflexu@linux.alibaba.com>
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <211e2814-363b-5a4a-572f-431076ecc089@linux.alibaba.com>
-Date:   Sun, 7 Feb 2021 19:52:57 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
+ <20210207114656.32141-2-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20210207114656.32141-1-jefflexu@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210207114656.32141-2-jefflexu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Forgot to mention that this patch set shall be directly applied to 4.19
-stable, though this issue should be fixed for all currently maintained
-stable trees, from stable #4.4+.
+On Sun, Feb 07, 2021 at 07:46:54PM +0800, Jeffle Xu wrote:
+> commit fef912bf860e8e7e48a2bfb978a356bba743a8b7 upstream.
+> commit e982c4d0a29b1d61fbe7716a8dcf8984936d6730 upstream.
+> 
+> Similar to commit 9e07f4e24379 ("zram: close udev startup race condition
+> as default groups"), this is a merge of [1, 2], since [1] may be too
+> large size to be merged into -stable tree.
 
--- 
-Thanks,
-Jeffle
+Why is it too big?
 
-On 2/7/21 7:46 PM, Jeffle Xu wrote:
-> The upstream commit fef912bf860e8e7e48a2bfb978a356bba743a8b7 ("block:
-> genhd: add 'groups' argument to device_add_disk") and the following
-> patches fix a race condition of udev for several devices, including
-> nvme, aoe, zram and virtio.
+> This issue has been introduced since v2.6.36 by [3].
 > 
-> The stable tree commit 9e07f4e243791e00a4086ad86e573705cf7b2c65("zram:
-> close udev startup race condition as default groups") only fixes zram,
-> leaving other devices unfixed.
-> 
-> This udev race issue indeed makes trouble. We recently found that this
-> issue can cause missing '/dev/disk/by-id/XXXX' symlink of virtio-blk
-> devices on 4.19.
-> 
-> Be noted that this patch set follows the idea of stable commit
-> 9e07f4e243791e00a4086ad86e573705cf7b2c65 ("zram: close udev startup race
-> condition as default groups") of merging the preparation patch (commit
-> fef912bf860e) and the fixing patch (commit 98af4d4df889).
-> 
-> Jeffle Xu (3):
->   virtio-blk: close udev startup race condition as default groups
->   aoe: close udev startup race condition as default groups
->   nvme: close udev startup race condition as default groups
-> 
->  drivers/block/aoe/aoe.h       |   1 -
->  drivers/block/aoe/aoeblk.c    |  20 +++----
->  drivers/block/aoe/aoedev.c    |   1 -
->  drivers/block/virtio_blk.c    |  67 +++++++++++++---------
->  drivers/nvme/host/core.c      |  20 +++----
->  drivers/nvme/host/lightnvm.c  | 105 ++++++++++++++--------------------
->  drivers/nvme/host/multipath.c |  10 +---
->  drivers/nvme/host/nvme.h      |  10 +---
->  8 files changed, 103 insertions(+), 131 deletions(-)
-> 
+> [1] fef912bf860e, block: genhd: add 'groups' argument to device_add_disk
+> [2] e982c4d0a29b, virtio-blk: modernize sysfs attribute creation
+> [3] a5eb9e4ff18a, virtio_blk: Add 'serial' attribute to virtio-blk devices (v2)
 
+What userspace tools are now hitting this issue?  If it's a real
+problem, let's take the real commits, right?
 
+Same for the other patches in this series.
+
+thanks,
+
+greg k-h
