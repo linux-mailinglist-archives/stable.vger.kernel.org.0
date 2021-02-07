@@ -2,678 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21C03124EE
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 16:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE66B3124F2
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 16:10:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbhBGPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Feb 2021 10:06:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54496 "EHLO mail.kernel.org"
+        id S229983AbhBGPH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Feb 2021 10:07:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229839AbhBGPGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Feb 2021 10:06:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95CDE64E51;
-        Sun,  7 Feb 2021 15:05:50 +0000 (UTC)
+        id S229851AbhBGPHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Feb 2021 10:07:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01AD164E43;
+        Sun,  7 Feb 2021 15:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612710351;
-        bh=ucLKNOiXC0XjlBr6DHQANi4dR94mXP44y+lf+InUOHk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2qcTUDHt9Vs6F6bUqQyE4Pc2GmKSpsfpN1SzVVXrr+XEzTKkzz2zmTKcFiS5m4s5
-         3WLpkXxgpr9ZVqPBJfu09Bdb29RBAZ0ICrWCKtgiQQw/LuBA/13fTBAS/iMzqPhWot
-         5OvFCAsi4vGfpgsNhK67pouUA5R96UkgjYnMY1G8=
+        s=korg; t=1612710356;
+        bh=hvdVPmFXtz1yYugMS32Sniazh5RrmlltUwfZ/GdKW2g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tT3kf29yuHQovCKcBf5HjfjQHR5aNhvGeT0YdWLFpCiQobHto4D9pYq9Puu7pAHlA
+         rf5alihOd4EtRf78hS/mmbvVEnwfEzgNotfntSqSdf1jt0Tc+gfR53ZPgHKvJyy+2V
+         UNLMTf8l1X8sbpVsFQzPJUIkXpjZM0WhHz3Wxe3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.174
-Date:   Sun,  7 Feb 2021 16:05:40 +0100
-Message-Id: <1612710339726@kroah.com>
+Subject: Linux 5.4.96
+Date:   Sun,  7 Feb 2021 16:05:43 +0100
+Message-Id: <16127103446824@kroah.com>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <161271033911825@kroah.com>
-References: <161271033911825@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 5770b9d8026b..8f326d0652a7 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 173
-+SUBLEVEL = 174
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 04addd6e0a4a..2571e2017a8b 100644
---- a/arch/x86/include/asm/msr.h
-+++ b/arch/x86/include/asm/msr.h
-@@ -88,7 +88,7 @@ static inline void do_trace_rdpmc(unsigned int msr, u64 val, int failed) {}
-  * think of extending them - you will be slapped with a stinking trout or a frozen
-  * shark will reach you, wherever you are! You've been warned.
-  */
--static inline unsigned long long notrace __rdmsr(unsigned int msr)
-+static __always_inline unsigned long long __rdmsr(unsigned int msr)
- {
- 	DECLARE_ARGS(val, low, high);
- 
-@@ -100,7 +100,7 @@ static inline unsigned long long notrace __rdmsr(unsigned int msr)
- 	return EAX_EDX_VAL(val, low, high);
- }
- 
--static inline void notrace __wrmsr(unsigned int msr, u32 low, u32 high)
-+static __always_inline void __wrmsr(unsigned int msr, u32 low, u32 high)
- {
- 	asm volatile("1: wrmsr\n"
- 		     "2:\n"
-diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
-index 551b71a24b85..3bdab6eb33bf 100644
---- a/drivers/acpi/thermal.c
-+++ b/drivers/acpi/thermal.c
-@@ -188,6 +188,8 @@ struct acpi_thermal {
- 	int tz_enabled;
- 	int kelvin_offset;
- 	struct work_struct thermal_check_work;
-+	struct mutex thermal_check_lock;
-+	refcount_t thermal_check_count;
- };
- 
- /* --------------------------------------------------------------------------
-@@ -513,17 +515,6 @@ static int acpi_thermal_get_trip_points(struct acpi_thermal *tz)
- 	return 0;
- }
- 
--static void acpi_thermal_check(void *data)
--{
--	struct acpi_thermal *tz = data;
--
--	if (!tz->tz_enabled)
--		return;
--
--	thermal_zone_device_update(tz->thermal_zone,
--				   THERMAL_EVENT_UNSPECIFIED);
--}
--
- /* sys I/F for generic thermal sysfs support */
- 
- static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
-@@ -557,6 +548,8 @@ static int thermal_get_mode(struct thermal_zone_device *thermal,
- 	return 0;
- }
- 
-+static void acpi_thermal_check_fn(struct work_struct *work);
-+
- static int thermal_set_mode(struct thermal_zone_device *thermal,
- 				enum thermal_device_mode mode)
- {
-@@ -582,7 +575,7 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
- 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
- 			"%s kernel ACPI thermal control\n",
- 			tz->tz_enabled ? "Enable" : "Disable"));
--		acpi_thermal_check(tz);
-+		acpi_thermal_check_fn(&tz->thermal_check_work);
- 	}
- 	return 0;
- }
-@@ -951,6 +944,12 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
-                                  Driver Interface
-    -------------------------------------------------------------------------- */
- 
-+static void acpi_queue_thermal_check(struct acpi_thermal *tz)
-+{
-+	if (!work_pending(&tz->thermal_check_work))
-+		queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+}
-+
- static void acpi_thermal_notify(struct acpi_device *device, u32 event)
- {
- 	struct acpi_thermal *tz = acpi_driver_data(device);
-@@ -961,17 +960,17 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
- 
- 	switch (event) {
- 	case ACPI_THERMAL_NOTIFY_TEMPERATURE:
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_THRESHOLDS:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_THRESHOLDS);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_DEVICES:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_DEVICES);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
-@@ -1071,7 +1070,27 @@ static void acpi_thermal_check_fn(struct work_struct *work)
- {
- 	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
- 					       thermal_check_work);
--	acpi_thermal_check(tz);
-+
-+	if (!tz->tz_enabled)
-+		return;
-+	/*
-+	 * In general, it is not sufficient to check the pending bit, because
-+	 * subsequent instances of this function may be queued after one of them
-+	 * has started running (e.g. if _TMP sleeps).  Avoid bailing out if just
-+	 * one of them is running, though, because it may have done the actual
-+	 * check some time ago, so allow at least one of them to block on the
-+	 * mutex while another one is running the update.
-+	 */
-+	if (!refcount_dec_not_one(&tz->thermal_check_count))
-+		return;
-+
-+	mutex_lock(&tz->thermal_check_lock);
-+
-+	thermal_zone_device_update(tz->thermal_zone, THERMAL_EVENT_UNSPECIFIED);
-+
-+	refcount_inc(&tz->thermal_check_count);
-+
-+	mutex_unlock(&tz->thermal_check_lock);
- }
- 
- static int acpi_thermal_add(struct acpi_device *device)
-@@ -1103,6 +1122,8 @@ static int acpi_thermal_add(struct acpi_device *device)
- 	if (result)
- 		goto free_memory;
- 
-+	refcount_set(&tz->thermal_check_count, 3);
-+	mutex_init(&tz->thermal_check_lock);
- 	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
- 
- 	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
-@@ -1168,7 +1189,7 @@ static int acpi_thermal_resume(struct device *dev)
- 		tz->state.active |= tz->trips.active[i].flags.enabled;
- 	}
- 
--	queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+	acpi_queue_thermal_check(tz);
- 
- 	return AE_OK;
- }
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index c0bba680d4a8..613f03f9d9ec 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -423,15 +423,19 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	/* Find our integrated MDIO bus node */
- 	dn = of_find_compatible_node(NULL, NULL, "brcm,unimac-mdio");
- 	priv->master_mii_bus = of_mdio_find_bus(dn);
--	if (!priv->master_mii_bus)
-+	if (!priv->master_mii_bus) {
-+		of_node_put(dn);
- 		return -EPROBE_DEFER;
-+	}
- 
- 	get_device(&priv->master_mii_bus->dev);
- 	priv->master_mii_dn = dn;
- 
- 	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
--	if (!priv->slave_mii_bus)
-+	if (!priv->slave_mii_bus) {
-+		of_node_put(dn);
- 		return -ENOMEM;
-+	}
- 
- 	priv->slave_mii_bus->priv = priv;
- 	priv->slave_mii_bus->name = "sf2 slave mii";
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index d762eb491a7c..68d5971c200a 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4434,6 +4434,12 @@ static void ibmvnic_tasklet(void *data)
- 	while (!done) {
- 		/* Pull all the valid messages off the CRQ */
- 		while ((crq = ibmvnic_next_crq(adapter)) != NULL) {
-+			/* This barrier makes sure ibmvnic_next_crq()'s
-+			 * crq->generic.first & IBMVNIC_CRQ_CMD_RSP is loaded
-+			 * before ibmvnic_handle_crq()'s
-+			 * switch(gen_crq->first) and switch(gen_crq->cmd).
-+			 */
-+			dma_rmb();
- 			ibmvnic_handle_crq(crq, adapter);
- 			crq->generic.first = 0;
- 		}
-diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
-index 593c77dbde2e..106f53f33324 100644
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -623,35 +623,42 @@ static int cpcap_usb_phy_probe(struct platform_device *pdev)
- 	generic_phy = devm_phy_create(ddata->dev, NULL, &ops);
- 	if (IS_ERR(generic_phy)) {
- 		error = PTR_ERR(generic_phy);
--		return PTR_ERR(generic_phy);
-+		goto out_reg_disable;
- 	}
- 
- 	phy_set_drvdata(generic_phy, ddata);
- 
- 	phy_provider = devm_of_phy_provider_register(ddata->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto out_reg_disable;
-+	}
- 
- 	error = cpcap_usb_init_optional_pins(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	cpcap_usb_init_optional_gpios(ddata);
- 
- 	error = cpcap_usb_init_iio(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	error = cpcap_usb_init_interrupts(pdev, ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	usb_add_phy_dev(&ddata->phy);
- 	atomic_set(&ddata->active, 1);
- 	schedule_delayed_work(&ddata->detect_work, msecs_to_jiffies(1));
- 
- 	return 0;
-+
-+out_reg_disable:
-+	regulator_disable(ddata->vusb);
-+
-+	return error;
- }
- 
- static int cpcap_usb_phy_remove(struct platform_device *pdev)
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index f5774372c387..cf8587f96fc4 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -203,6 +203,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 7352"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
- 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index cb204f973491..f122a0263a1b 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -163,6 +163,16 @@ static const struct ts_dmi_data digma_citi_e200_data = {
- 	.properties	= digma_citi_e200_props,
- };
- 
-+static const struct property_entry estar_beauty_hd_props[] = {
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data estar_beauty_hd_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= estar_beauty_hd_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -501,6 +511,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
- 		},
- 	},
-+	{
-+		/* Estar Beauty HD (MID 7316R) */
-+		.driver_data = (void *)&estar_beauty_hd_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Estar"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
-+		},
-+	},
- 	{
- 		/* GP-electronic T701 */
- 		.driver_data = (void *)&gp_electronic_t701_data,
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 090ab377f65e..50078a199fea 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -2890,8 +2890,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
- 	unsigned long flags = 0;
- 
- 	spin_lock_irqsave(shost->host_lock, flags);
--	if (sdev->type == TYPE_DISK)
-+	if (sdev->type == TYPE_DISK) {
- 		sdev->allow_restart = 1;
-+		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
-+	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- 	return 0;
- }
-diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
-index 6ba257cbc6d9..384458d1f73c 100644
---- a/drivers/scsi/libfc/fc_exch.c
-+++ b/drivers/scsi/libfc/fc_exch.c
-@@ -1631,8 +1631,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 		rc = fc_exch_done_locked(ep);
- 		WARN_ON(fc_seq_exch(sp) != ep);
- 		spin_unlock_bh(&ep->ex_lock);
--		if (!rc)
-+		if (!rc) {
- 			fc_exch_delete(ep);
-+		} else {
-+			FC_EXCH_DBG(ep, "ep is completed already,"
-+					"hence skip calling the resp\n");
-+			goto skip_resp;
-+		}
- 	}
- 
- 	/*
-@@ -1651,6 +1656,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 	if (!fc_invoke_resp(ep, sp, fp))
- 		fc_frame_free(fp);
- 
-+skip_resp:
- 	fc_exch_release(ep);
- 	return;
- rel:
-@@ -1907,10 +1913,16 @@ static void fc_exch_reset(struct fc_exch *ep)
- 
- 	fc_exch_hold(ep);
- 
--	if (!rc)
-+	if (!rc) {
- 		fc_exch_delete(ep);
-+	} else {
-+		FC_EXCH_DBG(ep, "ep is completed already,"
-+				"hence skip calling the resp\n");
-+		goto skip_resp;
-+	}
- 
- 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
-+skip_resp:
- 	fc_seq_set_resp(sp, NULL, ep->arg);
- 	fc_exch_release(ep);
- }
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index 4e46fdb2d7c9..2aaf1b710398 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -555,7 +555,14 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	scsi_target_block(&shost->shost_gendev);
-+	if (rport->state != SRP_RPORT_FAIL_FAST)
-+		/*
-+		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
-+		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
-+		 * later is ok though, scsi_internal_device_unblock_nowait()
-+		 * treats SDEV_TRANSPORT_OFFLINE like SDEV_BLOCK.
-+		 */
-+		scsi_target_block(&shost->shost_gendev);
- 	res = rport->state != SRP_RPORT_LOST ? i->f->reconnect(rport) : -ENODEV;
- 	pr_debug("%s (state %d): transport.reconnect() returned %d\n",
- 		 dev_name(&shost->shost_gendev), rport->state, res);
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index c1961761311d..72308c38e06c 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -32,6 +32,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu);
-+bool kthread_is_per_cpu(struct task_struct *k);
-+
- /**
-  * kthread_run - create and wake a thread.
-  * @threadfn: the function to run until signal_pending(current).
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 2eed853ab9cc..81abfac35127 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -460,11 +460,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 		return p;
- 	kthread_bind(p, cpu);
- 	/* CPU hotplug need to bind once again when unparking the thread. */
--	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
- 	to_kthread(p)->cpu = cpu;
- 	return p;
- }
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return;
-+
-+	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
-+
-+	if (cpu < 0) {
-+		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+		return;
-+	}
-+
-+	kthread->cpu = cpu;
-+	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
-+bool kthread_is_per_cpu(struct task_struct *k)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return false;
-+
-+	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
- /**
-  * kthread_unpark - unpark a thread created by kthread_create().
-  * @k:		thread created by kthread_create().
-diff --git a/kernel/smpboot.c b/kernel/smpboot.c
-index c230c2dd48e1..84c16654d859 100644
---- a/kernel/smpboot.c
-+++ b/kernel/smpboot.c
-@@ -187,6 +187,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
- 		kfree(td);
- 		return PTR_ERR(tsk);
- 	}
-+	kthread_set_per_cpu(tsk, cpu);
- 	/*
- 	 * Park the thread so that it could start right on the CPU
- 	 * when it is available.
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 4c4fd4339d33..a5d75bc38eea 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -68,6 +68,8 @@
- #include <linux/mount.h>
- #include <linux/pipe_fs_i.h>
- 
-+#include "../lib/kstrtox.h"
-+
- #include <linux/uaccess.h>
- #include <asm/processor.h>
- 
-@@ -2069,6 +2071,41 @@ static void proc_skip_char(char **buf, size_t *size, const char v)
- 	}
- }
- 
-+/**
-+ * strtoul_lenient - parse an ASCII formatted integer from a buffer and only
-+ *                   fail on overflow
-+ *
-+ * @cp: kernel buffer containing the string to parse
-+ * @endp: pointer to store the trailing characters
-+ * @base: the base to use
-+ * @res: where the parsed integer will be stored
-+ *
-+ * In case of success 0 is returned and @res will contain the parsed integer,
-+ * @endp will hold any trailing characters.
-+ * This function will fail the parse on overflow. If there wasn't an overflow
-+ * the function will defer the decision what characters count as invalid to the
-+ * caller.
-+ */
-+static int strtoul_lenient(const char *cp, char **endp, unsigned int base,
-+			   unsigned long *res)
-+{
-+	unsigned long long result;
-+	unsigned int rv;
-+
-+	cp = _parse_integer_fixup_radix(cp, &base);
-+	rv = _parse_integer(cp, base, &result);
-+	if ((rv & KSTRTOX_OVERFLOW) || (result != (unsigned long)result))
-+		return -ERANGE;
-+
-+	cp += rv;
-+
-+	if (endp)
-+		*endp = (char *)cp;
-+
-+	*res = (unsigned long)result;
-+	return 0;
-+}
-+
- #define TMPBUFLEN 22
- /**
-  * proc_get_long - reads an ASCII formatted integer from a user buffer
-@@ -2112,7 +2149,8 @@ static int proc_get_long(char **buf, size_t *size,
- 	if (!isdigit(*p))
- 		return -EINVAL;
- 
--	*val = simple_strtoul(p, &p, 0);
-+	if (strtoul_lenient(p, &p, 0, val))
-+		return -EINVAL;
- 
- 	len = p - tmp;
- 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index cd98ef48345e..78600f97ffa7 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -1728,12 +1728,6 @@ static void worker_attach_to_pool(struct worker *worker,
- {
- 	mutex_lock(&wq_pool_attach_mutex);
- 
--	/*
--	 * set_cpus_allowed_ptr() will fail if the cpumask doesn't have any
--	 * online CPUs.  It'll be re-applied when any of the CPUs come up.
--	 */
--	set_cpus_allowed_ptr(worker->task, pool->attrs->cpumask);
--
- 	/*
- 	 * The wq_pool_attach_mutex ensures %POOL_DISASSOCIATED remains
- 	 * stable across this function.  See the comments above the flag
-@@ -1742,6 +1736,9 @@ static void worker_attach_to_pool(struct worker *worker,
- 	if (pool->flags & POOL_DISASSOCIATED)
- 		worker->flags |= WORKER_UNBOUND;
- 
-+	if (worker->rescue_wq)
-+		set_cpus_allowed_ptr(worker->task, pool->attrs->cpumask);
-+
- 	list_add_tail(&worker->node, &pool->workers);
- 	worker->pool = pool;
- 
-diff --git a/net/core/gen_estimator.c b/net/core/gen_estimator.c
-index e4e442d70c2d..752744db11ff 100644
---- a/net/core/gen_estimator.c
-+++ b/net/core/gen_estimator.c
-@@ -84,11 +84,11 @@ static void est_timer(struct timer_list *t)
- 	u64 rate, brate;
- 
- 	est_fetch_counters(est, &b);
--	brate = (b.bytes - est->last_bytes) << (10 - est->ewma_log - est->intvl_log);
--	brate -= (est->avbps >> est->ewma_log);
-+	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
-+	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
- 
--	rate = (u64)(b.packets - est->last_packets) << (10 - est->ewma_log - est->intvl_log);
--	rate -= (est->avpps >> est->ewma_log);
-+	rate = (u64)(b.packets - est->last_packets) << (10 - est->intvl_log);
-+	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
- 
- 	write_seqcount_begin(&est->seq);
- 	est->avbps += brate;
-@@ -147,6 +147,9 @@ int gen_new_estimator(struct gnet_stats_basic_packed *bstats,
- 	if (parm->interval < -2 || parm->interval > 3)
- 		return -EINVAL;
- 
-+	if (parm->ewma_log == 0 || parm->ewma_log >= 31)
-+		return -EINVAL;
-+
- 	est = kzalloc(sizeof(*est), GFP_KERNEL);
- 	if (!est)
- 		return -ENOBUFS;
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 5e56719f999c..9e92e5e2336b 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4003,6 +4003,8 @@ void ieee80211_check_fast_rx(struct sta_info *sta)
- 
- 	rcu_read_lock();
- 	key = rcu_dereference(sta->ptk[sta->ptk_idx]);
-+	if (!key)
-+		key = rcu_dereference(sdata->default_unicast_key);
- 	if (key) {
- 		switch (key->conf.cipher) {
- 		case WLAN_CIPHER_SUITE_TKIP:
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index b8f3cca8e58b..264d49fea814 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -226,8 +226,11 @@ static int read_symbols(struct elf *elf)
- 
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (!symtab) {
--		WARN("missing symbol table");
--		return -1;
-+		/*
-+		 * A missing symbol table is actually possible if it's an empty
-+		 * .o file.  This can happen for thunk_64.o.
-+		 */
-+		return 0;
- 	}
- 
- 	symbols_nr = symtab->sh.sh_size / symtab->sh.sh_entsize;
-diff --git a/tools/testing/selftests/powerpc/alignment/alignment_handler.c b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-index 169a8b9719fb..4f8335e0c985 100644
---- a/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-+++ b/tools/testing/selftests/powerpc/alignment/alignment_handler.c
-@@ -384,7 +384,6 @@ int test_alignment_handler_integer(void)
- 	LOAD_DFORM_TEST(ldu);
- 	LOAD_XFORM_TEST(ldx);
- 	LOAD_XFORM_TEST(ldux);
--	LOAD_DFORM_TEST(lmw);
- 	STORE_DFORM_TEST(stb);
- 	STORE_XFORM_TEST(stbx);
- 	STORE_DFORM_TEST(stbu);
-@@ -403,7 +402,11 @@ int test_alignment_handler_integer(void)
- 	STORE_XFORM_TEST(stdx);
- 	STORE_DFORM_TEST(stdu);
- 	STORE_XFORM_TEST(stdux);
-+
-+#ifdef __BIG_ENDIAN__
-+	LOAD_DFORM_TEST(lmw);
- 	STORE_DFORM_TEST(stmw);
-+#endif
- 
- 	return rc;
- }
+I'm announcing the release of the 5.4.96 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                      |    2 
+ arch/arm64/include/asm/memory.h                               |   10 
+ arch/arm64/mm/physaddr.c                                      |    2 
+ arch/x86/include/asm/msr.h                                    |    4 
+ block/blk-core.c                                              |   11 
+ drivers/acpi/thermal.c                                        |   55 ++-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c              |    3 
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c         |    2 
+ drivers/net/dsa/bcm_sf2.c                                     |    8 
+ drivers/net/ethernet/ibm/ibmvnic.c                            |    6 
+ drivers/nvme/host/core.c                                      |   17 -
+ drivers/phy/motorola/phy-cpcap-usb.c                          |   19 -
+ drivers/platform/x86/intel-vbtn.c                             |    6 
+ drivers/platform/x86/touchscreen_dmi.c                        |   18 +
+ drivers/scsi/fnic/vnic_dev.c                                  |    8 
+ drivers/scsi/ibmvscsi/ibmvfc.c                                |    4 
+ drivers/scsi/libfc/fc_exch.c                                  |   16 -
+ drivers/scsi/scsi_transport_srp.c                             |    9 
+ fs/btrfs/backref.c                                            |  157 ++++++----
+ fs/udf/super.c                                                |    7 
+ include/linux/kthread.h                                       |    3 
+ include/net/tcp.h                                             |    1 
+ kernel/kthread.c                                              |   27 +
+ kernel/smpboot.c                                              |    1 
+ kernel/workqueue.c                                            |    9 
+ net/core/gen_estimator.c                                      |   11 
+ net/ipv4/tcp_input.c                                          |    1 
+ net/ipv4/tcp_output.c                                         |    2 
+ net/ipv4/tcp_timer.c                                          |   18 +
+ net/mac80211/rx.c                                             |    2 
+ net/switchdev/switchdev.c                                     |   23 -
+ sound/pci/hda/hda_intel.c                                     |    3 
+ sound/soc/sof/intel/hda-codec.c                               |    3 
+ tools/objtool/elf.c                                           |    7 
+ tools/testing/selftests/powerpc/alignment/alignment_handler.c |    5 
+ 35 files changed, 347 insertions(+), 133 deletions(-)
+
+Arnold Gozum (1):
+      platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
+
+Bing Guo (1):
+      drm/amd/display: Change function decide_dp_link_settings to avoid infinite looping
+
+Brian King (1):
+      scsi: ibmvfc: Set default timeout to avoid crash during migration
+
+Catalin Marinas (1):
+      arm64: Do not pass tagged addresses to __is_lm_address()
+
+Dinghao Liu (1):
+      scsi: fnic: Fix memleak in vnic_dev_init_devcmd2
+
+Enke Chen (1):
+      tcp: make TCP_USER_TIMEOUT accurate for zero window probes
+
+Eric Dumazet (1):
+      net_sched: gen_estimator: support large ewma log
+
+Felix Fietkau (1):
+      mac80211: fix fast-rx encryption check
+
+Greg Kroah-Hartman (2):
+      Revert "Revert "block: end bio with BLK_STS_AGAIN in case of non-mq devs and REQ_NOWAIT""
+      Linux 5.4.96
+
+Hans de Goede (1):
+      platform/x86: touchscreen_dmi: Add swap-x-y quirk for Goodix touchscreen on Estar Beauty HD tablet
+
+Jake Wang (1):
+      drm/amd/display: Update dram_clock_change_latency for DCN2.1
+
+Javed Hasan (1):
+      scsi: libfc: Avoid invoking response handler twice if ep is already completed
+
+Josh Poimboeuf (1):
+      objtool: Don't fail on missing symbol table
+
+Kai-Chuan Hsieh (1):
+      ALSA: hda: Add Cometlake-R PCI ID
+
+Kai-Heng Feng (1):
+      ASoC: SOF: Intel: hda: Resume codec to do jack detection
+
+Lijun Pan (1):
+      ibmvnic: Ensure that CRQ entry read are correctly ordered
+
+Martin Wilck (1):
+      scsi: scsi_transport_srp: Don't block target in failfast state
+
+Michael Ellerman (1):
+      selftests/powerpc: Only test lwm/stmw on big endian
+
+Pan Bian (1):
+      net: dsa: bcm_sf2: put device node before return
+
+Peter Zijlstra (3):
+      x86: __always_inline __{rd,wr}msr()
+      kthread: Extract KTHREAD_IS_PER_CPU
+      workqueue: Restrict affinity change to rescuer
+
+Rafael J. Wysocki (1):
+      ACPI: thermal: Do not call acpi_thermal_check() directly
+
+Rasmus Villemoes (1):
+      net: switchdev: don't set port_obj_info->handled true when -EOPNOTSUPP
+
+Revanth Rajashekar (1):
+      nvme: check the PRINFO bit before deciding the host buffer length
+
+Tony Lindgren (1):
+      phy: cpcap-usb: Fix warning for missing regulator_disable
+
+Vincenzo Frascino (1):
+      arm64: Fix kernel address detection of __is_lm_address()
+
+ethanwu (4):
+      btrfs: backref, only collect file extent items matching backref offset
+      btrfs: backref, don't add refs from shared block when resolving normal backref
+      btrfs: backref, only search backref entries from leaves of the same root
+      btrfs: backref, use correct count to resolve normal data refs
+
+lianzhi chang (1):
+      udf: fix the problem that the disc content is not displayed
+
