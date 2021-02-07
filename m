@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A92D6312777
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 22:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1DA312778
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 22:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbhBGVHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Feb 2021 16:07:07 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:60568 "EHLO
+        id S229510AbhBGVHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Feb 2021 16:07:19 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:60576 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbhBGVHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Feb 2021 16:07:06 -0500
-Date:   Sun, 7 Feb 2021 22:06:21 +0100
+        with ESMTP id S229445AbhBGVHS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Feb 2021 16:07:18 -0500
+Date:   Sun, 7 Feb 2021 22:06:34 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1612731982;
+        s=2020; t=1612731996;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=oPMCEMee+kXY0ZmK6Xmn9/u7/B1EqFLi/pC18M9VQBE=;
-        b=Imj0pMSNIXPYMZd6rQAPZUtEeYPZi1IyAsFy9vUOenEXVKT4QM9QRLy+bOgpfwTbvfbIA1
-        LrGspnnVrHD60G/EL4OUq7klR1S2T0FRl8q48eJa3CkBlyobpvBo5i3lMAONKlcxfTAiIJ
-        mEXcnt12fVBduRkAfVJFFMdmGXcSscMcS4GZwHaYiigNbK32XyoSsXKmGCqNwqesKPsf3s
-        oaM7eUPd7q9GoOTp7Ee3BUCsR+QR305T4GKjmmYdjKvP7on3B0tiIRNYU0cDQ4PAJxWgTD
-        xzQVR5vO4C5cyTjk/+9Ng1E2GzdMJhE7Q+KU70xDvuZ09uS7cc9LZUZh8j3Cjg==
+        bh=5dANY9EDzidvAnqhTvIwSv5WP1m+YnI8TZLSfWZcH0A=;
+        b=e7SksAPbmpsu/nX5uzZdPofUZw4ly1vT+ul3Vkd2/bGzbB/GgdFJprgH9sdj0uMFc45vE8
+        bDXYIfY+vyYEw7/vnU/A63SZmlJI8OpmeLZHQDl+PB3niwYReYIMHrEoVPU0mLqlFAHwbw
+        MSsulgoQtC0pDkiyGuY+WZ3KK+TnqZQLETeq4ugY3ehBlzn+qfki3ixzvis15DOmzKOtbh
+        x+S5D6Xmz4IFA/N+V93U0rk1p/PLV1Jl1b2zcmUu+GbO7Gr4G5NfoKAVkIhymCtpW9j1L/
+        0AoUtXX9IhzsdWdnkA45L2eUP02lc50laFXitvjmP8vTLjtN2slomhErZQ41+w==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1612731982;
+        s=2020e; t=1612731996;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=oPMCEMee+kXY0ZmK6Xmn9/u7/B1EqFLi/pC18M9VQBE=;
-        b=w8iLvl9C6+7la0pgc4pvZsP3CGCQAD2ILWCc8ur7HijEqMKSvcshzPqtUZSFQpDMqQQiGp
-        eoGdcux1BSQqJNDg==
+        bh=5dANY9EDzidvAnqhTvIwSv5WP1m+YnI8TZLSfWZcH0A=;
+        b=UBkjQYzGnaq6Lp3Mk8VUHMus4EThGYxN7FTYJiKj05rPWKVVp4TkHfXXVMYVW0Zgr3dBVz
+        sJet51NybKL/3WDQ==
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 To:     stable@vger.kernel.org
 Cc:     rafael.j.wysocki@intel.com, stephen.berman@gmx.net
 Subject: [PATCH] ACPI: thermal: Do not call acpi_thermal_check() directly
-Message-ID: <20210207210621.uequtwjv2dfqdewe@linutronix.de>
+Message-ID: <20210207210634.iaufnwzlibmpabos@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -43,7 +43,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Upstream commit 81b704d3e4674e09781d331df73d76675d5ad8cb
 
-Applies to 4.9-stable tree
+Applies to 4.4-stable tree
 
 ----------->8---------------
 
@@ -82,14 +82,14 @@ Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Tested-by: Stephen Berman <stephen.berman@gmx.net>
 Cc: All applicable <stable@vger.kernel.org>
-[bigeasy: Backported to v4.9.y, use atomic_t instead of refcount_t]
+[bigeasy: Backported to v4.4.y, use atomic_t instead of refcount_t]
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/acpi/thermal.c | 55 +++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 17 deletions(-)
+ drivers/acpi/thermal.c | 54 +++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
-index 35e8fbca10ad5..c53c88b531639 100644
+index 82707f9824cae..b4826335ad0b3 100644
 --- a/drivers/acpi/thermal.c
 +++ b/drivers/acpi/thermal.c
 @@ -188,6 +188,8 @@ struct acpi_thermal {
@@ -101,7 +101,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  };
  
  /* --------------------------------------------------------------------------
-@@ -513,17 +515,6 @@ static int acpi_thermal_get_trip_points(struct acpi_thermal *tz)
+@@ -513,16 +515,6 @@ static int acpi_thermal_get_trip_points(struct acpi_thermal *tz)
  	return 0;
  }
  
@@ -112,14 +112,13 @@ index 35e8fbca10ad5..c53c88b531639 100644
 -	if (!tz->tz_enabled)
 -		return;
 -
--	thermal_zone_device_update(tz->thermal_zone,
--				   THERMAL_EVENT_UNSPECIFIED);
+-	thermal_zone_device_update(tz->thermal_zone);
 -}
 -
  /* sys I/F for generic thermal sysfs support */
  
  static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
-@@ -557,6 +548,8 @@ static int thermal_get_mode(struct thermal_zone_device *thermal,
+@@ -556,6 +548,8 @@ static int thermal_get_mode(struct thermal_zone_device *thermal,
  	return 0;
  }
  
@@ -128,7 +127,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  static int thermal_set_mode(struct thermal_zone_device *thermal,
  				enum thermal_device_mode mode)
  {
-@@ -582,7 +575,7 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
+@@ -581,7 +575,7 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
  		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
  			"%s kernel ACPI thermal control\n",
  			tz->tz_enabled ? "Enable" : "Disable"));
@@ -137,7 +136,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  	}
  	return 0;
  }
-@@ -951,6 +944,12 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
+@@ -950,6 +944,12 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
                                   Driver Interface
     -------------------------------------------------------------------------- */
  
@@ -150,7 +149,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  static void acpi_thermal_notify(struct acpi_device *device, u32 event)
  {
  	struct acpi_thermal *tz = acpi_driver_data(device);
-@@ -961,17 +960,17 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
+@@ -960,17 +960,17 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
  
  	switch (event) {
  	case ACPI_THERMAL_NOTIFY_TEMPERATURE:
@@ -171,7 +170,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  		acpi_bus_generate_netlink_event(device->pnp.device_class,
  						  dev_name(&device->dev), event, 0);
  		break;
-@@ -1071,7 +1070,27 @@ static void acpi_thermal_check_fn(struct work_struct *work)
+@@ -1070,7 +1070,27 @@ static void acpi_thermal_check_fn(struct work_struct *work)
  {
  	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
  					       thermal_check_work);
@@ -192,7 +191,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
 +
 +	mutex_lock(&tz->thermal_check_lock);
 +
-+	thermal_zone_device_update(tz->thermal_zone, THERMAL_EVENT_UNSPECIFIED);
++	thermal_zone_device_update(tz->thermal_zone);
 +
 +	atomic_inc(&tz->thermal_check_count);
 +
@@ -200,7 +199,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  }
  
  static int acpi_thermal_add(struct acpi_device *device)
-@@ -1103,6 +1122,8 @@ static int acpi_thermal_add(struct acpi_device *device)
+@@ -1102,6 +1122,8 @@ static int acpi_thermal_add(struct acpi_device *device)
  	if (result)
  		goto free_memory;
  
@@ -209,7 +208,7 @@ index 35e8fbca10ad5..c53c88b531639 100644
  	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
  
  	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
-@@ -1168,7 +1189,7 @@ static int acpi_thermal_resume(struct device *dev)
+@@ -1167,7 +1189,7 @@ static int acpi_thermal_resume(struct device *dev)
  		tz->state.active |= tz->trips.active[i].flags.enabled;
  	}
  
