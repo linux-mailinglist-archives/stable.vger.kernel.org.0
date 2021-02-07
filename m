@@ -2,567 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B77653124E9
-	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 16:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598B23124EA
+	for <lists+stable@lfdr.de>; Sun,  7 Feb 2021 16:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229760AbhBGPG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229785AbhBGPG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Feb 2021 10:06:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229522AbhBGPGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Feb 2021 10:06:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DA8C64E4E;
-        Sun,  7 Feb 2021 15:05:42 +0000 (UTC)
+        id S229562AbhBGPGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Feb 2021 10:06:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6D4764E50;
+        Sun,  7 Feb 2021 15:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612710342;
-        bh=CAew/3lKugAvPtC3qPZxbgwkPS4fpp9I3eCzp+TLQDI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuDWPFK+ojZA0yByfrZEPamLvrHyO3EOvDXYaST1MLge300VvC9QYafo0SeBBKPzo
-         iq2cyn2lEIbEVwuuL7G/2odO0kCWqPLcMNZgQNlNdVZCXozCHHC6/JNG6Zp8LOjQwt
-         1PF7OLhSb6yGxyyIx8Owz6fW6wrpFOopbERSHmeI=
+        s=korg; t=1612710345;
+        bh=HLv8wIbLu5JU70rse9lQmZAUlbV66UkkxadVo3+lbIw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=maYLY4hNPy5RFo6j3Bnedq2ZSFFawD6VuFhjoGpfW3z28EuXjs0ibn0jRQhqEgbq3
+         AVjP57UlB2J2UvVQLA9FwPoD7cGRmuZoL5+kV5g5t3U5gNY/jAj+TMf0iX83GPT2Vs
+         N0NIXirBbf2rVmfZmytXywwn6XkfcqHOIUh2m/co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.14.220
-Date:   Sun,  7 Feb 2021 16:05:35 +0100
-Message-Id: <16127103346845@kroah.com>
+Subject: Linux 4.19.174
+Date:   Sun,  7 Feb 2021 16:05:39 +0100
+Message-Id: <161271033911825@kroah.com>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <161271033418137@kroah.com>
-References: <161271033418137@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f7f11304776b..088dc5383dcf 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 219
-+SUBLEVEL = 220
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 30df295f6d94..18f9a9b7280b 100644
---- a/arch/x86/include/asm/msr.h
-+++ b/arch/x86/include/asm/msr.h
-@@ -88,7 +88,7 @@ static inline void do_trace_rdpmc(unsigned int msr, u64 val, int failed) {}
-  * think of extending them - you will be slapped with a stinking trout or a frozen
-  * shark will reach you, wherever you are! You've been warned.
-  */
--static inline unsigned long long notrace __rdmsr(unsigned int msr)
-+static __always_inline unsigned long long __rdmsr(unsigned int msr)
- {
- 	DECLARE_ARGS(val, low, high);
- 
-@@ -100,7 +100,7 @@ static inline unsigned long long notrace __rdmsr(unsigned int msr)
- 	return EAX_EDX_VAL(val, low, high);
- }
- 
--static inline void notrace __wrmsr(unsigned int msr, u32 low, u32 high)
-+static __always_inline void __wrmsr(unsigned int msr, u32 low, u32 high)
- {
- 	asm volatile("1: wrmsr\n"
- 		     "2:\n"
-diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
-index 551b71a24b85..3bdab6eb33bf 100644
---- a/drivers/acpi/thermal.c
-+++ b/drivers/acpi/thermal.c
-@@ -188,6 +188,8 @@ struct acpi_thermal {
- 	int tz_enabled;
- 	int kelvin_offset;
- 	struct work_struct thermal_check_work;
-+	struct mutex thermal_check_lock;
-+	refcount_t thermal_check_count;
- };
- 
- /* --------------------------------------------------------------------------
-@@ -513,17 +515,6 @@ static int acpi_thermal_get_trip_points(struct acpi_thermal *tz)
- 	return 0;
- }
- 
--static void acpi_thermal_check(void *data)
--{
--	struct acpi_thermal *tz = data;
--
--	if (!tz->tz_enabled)
--		return;
--
--	thermal_zone_device_update(tz->thermal_zone,
--				   THERMAL_EVENT_UNSPECIFIED);
--}
--
- /* sys I/F for generic thermal sysfs support */
- 
- static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
-@@ -557,6 +548,8 @@ static int thermal_get_mode(struct thermal_zone_device *thermal,
- 	return 0;
- }
- 
-+static void acpi_thermal_check_fn(struct work_struct *work);
-+
- static int thermal_set_mode(struct thermal_zone_device *thermal,
- 				enum thermal_device_mode mode)
- {
-@@ -582,7 +575,7 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
- 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
- 			"%s kernel ACPI thermal control\n",
- 			tz->tz_enabled ? "Enable" : "Disable"));
--		acpi_thermal_check(tz);
-+		acpi_thermal_check_fn(&tz->thermal_check_work);
- 	}
- 	return 0;
- }
-@@ -951,6 +944,12 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
-                                  Driver Interface
-    -------------------------------------------------------------------------- */
- 
-+static void acpi_queue_thermal_check(struct acpi_thermal *tz)
-+{
-+	if (!work_pending(&tz->thermal_check_work))
-+		queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+}
-+
- static void acpi_thermal_notify(struct acpi_device *device, u32 event)
- {
- 	struct acpi_thermal *tz = acpi_driver_data(device);
-@@ -961,17 +960,17 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
- 
- 	switch (event) {
- 	case ACPI_THERMAL_NOTIFY_TEMPERATURE:
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_THRESHOLDS:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_THRESHOLDS);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_DEVICES:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_DEVICES);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
-@@ -1071,7 +1070,27 @@ static void acpi_thermal_check_fn(struct work_struct *work)
- {
- 	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
- 					       thermal_check_work);
--	acpi_thermal_check(tz);
-+
-+	if (!tz->tz_enabled)
-+		return;
-+	/*
-+	 * In general, it is not sufficient to check the pending bit, because
-+	 * subsequent instances of this function may be queued after one of them
-+	 * has started running (e.g. if _TMP sleeps).  Avoid bailing out if just
-+	 * one of them is running, though, because it may have done the actual
-+	 * check some time ago, so allow at least one of them to block on the
-+	 * mutex while another one is running the update.
-+	 */
-+	if (!refcount_dec_not_one(&tz->thermal_check_count))
-+		return;
-+
-+	mutex_lock(&tz->thermal_check_lock);
-+
-+	thermal_zone_device_update(tz->thermal_zone, THERMAL_EVENT_UNSPECIFIED);
-+
-+	refcount_inc(&tz->thermal_check_count);
-+
-+	mutex_unlock(&tz->thermal_check_lock);
- }
- 
- static int acpi_thermal_add(struct acpi_device *device)
-@@ -1103,6 +1122,8 @@ static int acpi_thermal_add(struct acpi_device *device)
- 	if (result)
- 		goto free_memory;
- 
-+	refcount_set(&tz->thermal_check_count, 3);
-+	mutex_init(&tz->thermal_check_lock);
- 	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
- 
- 	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
-@@ -1168,7 +1189,7 @@ static int acpi_thermal_resume(struct device *dev)
- 		tz->state.active |= tz->trips.active[i].flags.enabled;
- 	}
- 
--	queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+	acpi_queue_thermal_check(tz);
- 
- 	return AE_OK;
- }
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index a11652d77c7f..92415a748ad2 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -96,6 +96,16 @@ void device_links_read_unlock(int not_used)
- }
- #endif /* !CONFIG_SRCU */
- 
-+static bool device_is_ancestor(struct device *dev, struct device *target)
-+{
-+	while (target->parent) {
-+		target = target->parent;
-+		if (dev == target)
-+			return true;
-+	}
-+	return false;
-+}
-+
- /**
-  * device_is_dependent - Check if one device depends on another one
-  * @dev: Device to check dependencies for.
-@@ -109,7 +119,12 @@ static int device_is_dependent(struct device *dev, void *target)
- 	struct device_link *link;
- 	int ret;
- 
--	if (WARN_ON(dev == target))
-+	/*
-+	 * The "ancestors" check is needed to catch the case when the target
-+	 * device has not been completely initialized yet and it is still
-+	 * missing from the list of children of its parent device.
-+	 */
-+	if (dev == target || device_is_ancestor(dev, target))
- 		return 1;
- 
- 	ret = device_for_each_child(dev, target, device_is_dependent);
-@@ -117,7 +132,7 @@ static int device_is_dependent(struct device *dev, void *target)
- 		return ret;
- 
- 	list_for_each_entry(link, &dev->links.consumers, s_node) {
--		if (WARN_ON(link->consumer == target))
-+		if (link->consumer == target)
- 			return 1;
- 
- 		ret = device_is_dependent(link->consumer, target);
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 9f355673f630..91c8405e515f 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -540,15 +540,19 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	/* Find our integrated MDIO bus node */
- 	dn = of_find_compatible_node(NULL, NULL, "brcm,unimac-mdio");
- 	priv->master_mii_bus = of_mdio_find_bus(dn);
--	if (!priv->master_mii_bus)
-+	if (!priv->master_mii_bus) {
-+		of_node_put(dn);
- 		return -EPROBE_DEFER;
-+	}
- 
- 	get_device(&priv->master_mii_bus->dev);
- 	priv->master_mii_dn = dn;
- 
- 	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
--	if (!priv->slave_mii_bus)
-+	if (!priv->slave_mii_bus) {
-+		of_node_put(dn);
- 		return -ENOMEM;
-+	}
- 
- 	priv->slave_mii_bus->priv = priv;
- 	priv->slave_mii_bus->name = "sf2 slave mii";
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 058b4d0c5a71..ec2dce057395 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -3682,6 +3682,12 @@ static void ibmvnic_tasklet(void *data)
- 	while (!done) {
- 		/* Pull all the valid messages off the CRQ */
- 		while ((crq = ibmvnic_next_crq(adapter)) != NULL) {
-+			/* This barrier makes sure ibmvnic_next_crq()'s
-+			 * crq->generic.first & IBMVNIC_CRQ_CMD_RSP is loaded
-+			 * before ibmvnic_handle_crq()'s
-+			 * switch(gen_crq->first) and switch(gen_crq->cmd).
-+			 */
-+			dma_rmb();
- 			ibmvnic_handle_crq(crq, adapter);
- 			crq->generic.first = 0;
- 		}
-diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
-index 593c77dbde2e..106f53f33324 100644
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -623,35 +623,42 @@ static int cpcap_usb_phy_probe(struct platform_device *pdev)
- 	generic_phy = devm_phy_create(ddata->dev, NULL, &ops);
- 	if (IS_ERR(generic_phy)) {
- 		error = PTR_ERR(generic_phy);
--		return PTR_ERR(generic_phy);
-+		goto out_reg_disable;
- 	}
- 
- 	phy_set_drvdata(generic_phy, ddata);
- 
- 	phy_provider = devm_of_phy_provider_register(ddata->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto out_reg_disable;
-+	}
- 
- 	error = cpcap_usb_init_optional_pins(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	cpcap_usb_init_optional_gpios(ddata);
- 
- 	error = cpcap_usb_init_iio(ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	error = cpcap_usb_init_interrupts(pdev, ddata);
- 	if (error)
--		return error;
-+		goto out_reg_disable;
- 
- 	usb_add_phy_dev(&ddata->phy);
- 	atomic_set(&ddata->active, 1);
- 	schedule_delayed_work(&ddata->detect_work, msecs_to_jiffies(1));
- 
- 	return 0;
-+
-+out_reg_disable:
-+	regulator_disable(ddata->vusb);
-+
-+	return error;
- }
- 
- static int cpcap_usb_phy_remove(struct platform_device *pdev)
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index dbacd9830d3d..460014ded14d 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -2891,8 +2891,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
- 	unsigned long flags = 0;
- 
- 	spin_lock_irqsave(shost->host_lock, flags);
--	if (sdev->type == TYPE_DISK)
-+	if (sdev->type == TYPE_DISK) {
- 		sdev->allow_restart = 1;
-+		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
-+	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- 	return 0;
- }
-diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
-index 6ba257cbc6d9..384458d1f73c 100644
---- a/drivers/scsi/libfc/fc_exch.c
-+++ b/drivers/scsi/libfc/fc_exch.c
-@@ -1631,8 +1631,13 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 		rc = fc_exch_done_locked(ep);
- 		WARN_ON(fc_seq_exch(sp) != ep);
- 		spin_unlock_bh(&ep->ex_lock);
--		if (!rc)
-+		if (!rc) {
- 			fc_exch_delete(ep);
-+		} else {
-+			FC_EXCH_DBG(ep, "ep is completed already,"
-+					"hence skip calling the resp\n");
-+			goto skip_resp;
-+		}
- 	}
- 
- 	/*
-@@ -1651,6 +1656,7 @@ static void fc_exch_recv_seq_resp(struct fc_exch_mgr *mp, struct fc_frame *fp)
- 	if (!fc_invoke_resp(ep, sp, fp))
- 		fc_frame_free(fp);
- 
-+skip_resp:
- 	fc_exch_release(ep);
- 	return;
- rel:
-@@ -1907,10 +1913,16 @@ static void fc_exch_reset(struct fc_exch *ep)
- 
- 	fc_exch_hold(ep);
- 
--	if (!rc)
-+	if (!rc) {
- 		fc_exch_delete(ep);
-+	} else {
-+		FC_EXCH_DBG(ep, "ep is completed already,"
-+				"hence skip calling the resp\n");
-+		goto skip_resp;
-+	}
- 
- 	fc_invoke_resp(ep, sp, ERR_PTR(-FC_EX_CLOSED));
-+skip_resp:
- 	fc_seq_set_resp(sp, NULL, ep->arg);
- 	fc_exch_release(ep);
- }
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index 456ce9f19569..a0e35028ebda 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -555,7 +555,14 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	scsi_target_block(&shost->shost_gendev);
-+	if (rport->state != SRP_RPORT_FAIL_FAST)
-+		/*
-+		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
-+		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
-+		 * later is ok though, scsi_internal_device_unblock_nowait()
-+		 * treats SDEV_TRANSPORT_OFFLINE like SDEV_BLOCK.
-+		 */
-+		scsi_target_block(&shost->shost_gendev);
- 	res = rport->state != SRP_RPORT_LOST ? i->f->reconnect(rport) : -ENODEV;
- 	pr_debug("%s (state %d): transport.reconnect() returned %d\n",
- 		 dev_name(&shost->shost_gendev), rport->state, res);
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 4e26609c77d4..eb305353f20f 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -31,6 +31,9 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu);
-+bool kthread_is_per_cpu(struct task_struct *k);
-+
- /**
-  * kthread_run - create and wake a thread.
-  * @threadfn: the function to run until signal_pending(current).
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index bd58765d75e7..fd6f9322312a 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -433,11 +433,36 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 		return p;
- 	kthread_bind(p, cpu);
- 	/* CPU hotplug need to bind once again when unparking the thread. */
--	set_bit(KTHREAD_IS_PER_CPU, &to_kthread(p)->flags);
- 	to_kthread(p)->cpu = cpu;
- 	return p;
- }
- 
-+void kthread_set_per_cpu(struct task_struct *k, int cpu)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return;
-+
-+	WARN_ON_ONCE(!(k->flags & PF_NO_SETAFFINITY));
-+
-+	if (cpu < 0) {
-+		clear_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+		return;
-+	}
-+
-+	kthread->cpu = cpu;
-+	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
-+bool kthread_is_per_cpu(struct task_struct *k)
-+{
-+	struct kthread *kthread = to_kthread(k);
-+	if (!kthread)
-+		return false;
-+
-+	return test_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
-+}
-+
- /**
-  * kthread_unpark - unpark a thread created by kthread_create().
-  * @k:		thread created by kthread_create().
-diff --git a/kernel/smpboot.c b/kernel/smpboot.c
-index 5043e7433f4b..eeb7f8e9cce3 100644
---- a/kernel/smpboot.c
-+++ b/kernel/smpboot.c
-@@ -187,6 +187,7 @@ __smpboot_create_thread(struct smp_hotplug_thread *ht, unsigned int cpu)
- 		kfree(td);
- 		return PTR_ERR(tsk);
- 	}
-+	kthread_set_per_cpu(tsk, cpu);
- 	/*
- 	 * Park the thread so that it could start right on the CPU
- 	 * when it is available.
-diff --git a/net/core/gen_estimator.c b/net/core/gen_estimator.c
-index 7f980bd7426e..9990db258f9d 100644
---- a/net/core/gen_estimator.c
-+++ b/net/core/gen_estimator.c
-@@ -84,11 +84,11 @@ static void est_timer(unsigned long arg)
- 	u64 rate, brate;
- 
- 	est_fetch_counters(est, &b);
--	brate = (b.bytes - est->last_bytes) << (10 - est->ewma_log - est->intvl_log);
--	brate -= (est->avbps >> est->ewma_log);
-+	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
-+	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
- 
--	rate = (u64)(b.packets - est->last_packets) << (10 - est->ewma_log - est->intvl_log);
--	rate -= (est->avpps >> est->ewma_log);
-+	rate = (u64)(b.packets - est->last_packets) << (10 - est->intvl_log);
-+	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
- 
- 	write_seqcount_begin(&est->seq);
- 	est->avbps += brate;
-@@ -147,6 +147,9 @@ int gen_new_estimator(struct gnet_stats_basic_packed *bstats,
- 	if (parm->interval < -2 || parm->interval > 3)
- 		return -EINVAL;
- 
-+	if (parm->ewma_log == 0 || parm->ewma_log >= 31)
-+		return -EINVAL;
-+
- 	est = kzalloc(sizeof(*est), GFP_KERNEL);
- 	if (!est)
- 		return -ENOBUFS;
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 04ae9de55d74..48c6aa337c92 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -3823,6 +3823,8 @@ void ieee80211_check_fast_rx(struct sta_info *sta)
- 
- 	rcu_read_lock();
- 	key = rcu_dereference(sta->ptk[sta->ptk_idx]);
-+	if (!key)
-+		key = rcu_dereference(sdata->default_unicast_key);
- 	if (key) {
- 		switch (key->conf.cipher) {
- 		case WLAN_CIPHER_SUITE_TKIP:
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 296e95f72eb1..acdcc7d98da0 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -397,7 +397,8 @@ struct qdisc_rate_table *qdisc_get_rtab(struct tc_ratespec *r,
- {
- 	struct qdisc_rate_table *rtab;
- 
--	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
-+	if (tab == NULL || r->rate == 0 ||
-+	    r->cell_log == 0 || r->cell_log >= 32 ||
- 	    nla_len(tab) != TC_RTAB_SIZE)
- 		return NULL;
- 
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index d089c711355a..fa269622a974 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -226,8 +226,11 @@ static int read_symbols(struct elf *elf)
- 
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (!symtab) {
--		WARN("missing symbol table");
--		return -1;
-+		/*
-+		 * A missing symbol table is actually possible if it's an empty
-+		 * .o file.  This can happen for thunk_64.o.
-+		 */
-+		return 0;
- 	}
- 
- 	symbols_nr = symtab->sh.sh_size / symtab->sh.sh_entsize;
+I'm announcing the release of the 4.19.174 kernel.
+
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                      |    2 
+ arch/x86/include/asm/msr.h                                    |    4 
+ drivers/acpi/thermal.c                                        |   55 ++++++----
+ drivers/net/dsa/bcm_sf2.c                                     |    8 +
+ drivers/net/ethernet/ibm/ibmvnic.c                            |    6 +
+ drivers/phy/motorola/phy-cpcap-usb.c                          |   19 ++-
+ drivers/platform/x86/intel-vbtn.c                             |    6 +
+ drivers/platform/x86/touchscreen_dmi.c                        |   18 +++
+ drivers/scsi/ibmvscsi/ibmvfc.c                                |    4 
+ drivers/scsi/libfc/fc_exch.c                                  |   16 ++
+ drivers/scsi/scsi_transport_srp.c                             |    9 +
+ include/linux/kthread.h                                       |    3 
+ kernel/kthread.c                                              |   27 ++++
+ kernel/smpboot.c                                              |    1 
+ kernel/sysctl.c                                               |   40 +++++++
+ kernel/workqueue.c                                            |    9 -
+ net/core/gen_estimator.c                                      |   11 +-
+ net/mac80211/rx.c                                             |    2 
+ tools/objtool/elf.c                                           |    7 -
+ tools/testing/selftests/powerpc/alignment/alignment_handler.c |    5 
+ 20 files changed, 205 insertions(+), 47 deletions(-)
+
+Arnold Gozum (1):
+      platform/x86: intel-vbtn: Support for tablet mode on Dell Inspiron 7352
+
+Brian King (1):
+      scsi: ibmvfc: Set default timeout to avoid crash during migration
+
+Christian Brauner (1):
+      sysctl: handle overflow in proc_get_long
+
+Eric Dumazet (1):
+      net_sched: gen_estimator: support large ewma log
+
+Felix Fietkau (1):
+      mac80211: fix fast-rx encryption check
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.174
+
+Hans de Goede (1):
+      platform/x86: touchscreen_dmi: Add swap-x-y quirk for Goodix touchscreen on Estar Beauty HD tablet
+
+Javed Hasan (1):
+      scsi: libfc: Avoid invoking response handler twice if ep is already completed
+
+Josh Poimboeuf (1):
+      objtool: Don't fail on missing symbol table
+
+Lijun Pan (1):
+      ibmvnic: Ensure that CRQ entry read are correctly ordered
+
+Martin Wilck (1):
+      scsi: scsi_transport_srp: Don't block target in failfast state
+
+Michael Ellerman (1):
+      selftests/powerpc: Only test lwm/stmw on big endian
+
+Pan Bian (1):
+      net: dsa: bcm_sf2: put device node before return
+
+Peter Zijlstra (3):
+      x86: __always_inline __{rd,wr}msr()
+      kthread: Extract KTHREAD_IS_PER_CPU
+      workqueue: Restrict affinity change to rescuer
+
+Rafael J. Wysocki (1):
+      ACPI: thermal: Do not call acpi_thermal_check() directly
+
+Tony Lindgren (1):
+      phy: cpcap-usb: Fix warning for missing regulator_disable
+
