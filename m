@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC3031382C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C167313815
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233998AbhBHPhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
+        id S233895AbhBHPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:36:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233969AbhBHPct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:32:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C98364F46;
-        Mon,  8 Feb 2021 15:18:05 +0000 (UTC)
+        id S233407AbhBHPRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:17:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA79564EC4;
+        Mon,  8 Feb 2021 15:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797486;
-        bh=iDI0YLuR5E4aCwbcunmmVQtRUV+qgMzfWK7MPyhvdZk=;
+        s=korg; t=1612797100;
+        bh=wpP4i7BQ4WKIsO17uvTj70lFGzob/jQLcJhFFcwLSYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgsZ1BOqj4cBatolaKWPn3EYQykYZLQQaVuBm6QkNDd+zGU35xEmIomNb/NsmzHOS
-         iPBRNw7PKDOPBBL0ZH1s++Yf6ZgiYdQ/e5wgM+WGjn4Y8xv3mZoxnGPNvVWjnVR8NU
-         JfLUZ5+Sa7Dv3q8zv0L71rJaJ6GwyyMSRfBaBopo=
+        b=ZKQImTk4r/Dex5qu/Ew4V09WS6+dTxfZh4QmMuDSEU6MA6a+mNLHK30o4zgEz89dW
+         fP6uojhTZOT7Dj6j4U2NUDOTYBnpkm/1T+DvuUPirpyc+AWCMlKa2axs9kmGoAtarS
+         4D0tug2TEyWivGLbfBYFZqTwgA3DRtRs/hz60SSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 103/120] mm/vmalloc: separate put pages and flush VM flags
-Date:   Mon,  8 Feb 2021 16:01:30 +0100
-Message-Id: <20210208145822.482826186@linuxfoundation.org>
+        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [PATCH 5.4 59/65] md: Set prev_flush_start and flush_bio in an atomic way
+Date:   Mon,  8 Feb 2021 16:01:31 +0100
+Message-Id: <20210208145812.514171243@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit 4f6ec8602341e97b364e4e0d41a1ed08148f5e98 upstream.
+commit dc5d17a3c39b06aef866afca19245a9cfb533a79 upstream.
 
-When VM_MAP_PUT_PAGES was added, it was defined with the same value as
-VM_FLUSH_RESET_PERMS.  This doesn't seem like it will cause any big
-functional problems other than some excess flushing for VM_MAP_PUT_PAGES
-allocations.
+One customer reports a crash problem which causes by flush request. It
+triggers a warning before crash.
 
-Redefine VM_MAP_PUT_PAGES to have its own value.  Also, rearrange things
-so flags are less likely to be missed in the future.
+        /* new request after previous flush is completed */
+        if (ktime_after(req_start, mddev->prev_flush_start)) {
+                WARN_ON(mddev->flush_bio);
+                mddev->flush_bio = bio;
+                bio = NULL;
+        }
 
-Link: https://lkml.kernel.org/r/20210122233706.9304-1-rick.p.edgecombe@intel.com
-Fixes: b944afc9d64d ("mm: add a VM_MAP_PUT_PAGES flag for vmap")
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Daniel Axtens <dja@axtens.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
+flush_bio in md_flush_request. But there is no lock protection in
+md_submit_flush_data. It can set flush_bio to NULL first because of
+compiler reordering write instructions.
+
+For example, flush bio1 sets flush bio to NULL first in
+md_submit_flush_data. An interrupt or vmware causing an extended stall
+happen between updating flush_bio and prev_flush_start. Because flush_bio
+is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
+flush bio1 updates prev_flush_start after the interrupt or extended stall.
+
+Then flush bio3 enters in md_flush_request. The start time req_start is
+behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
+finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
+again. INIT_WORK() will re-initialize the list pointers in the
+work_struct, which then can result in a corrupted work list and the
+work_struct queued a second time. With the work list corrupted, it can
+lead in invalid work items being used and cause a crash in
+process_one_work.
+
+We need to make sure only one flush bio can be handled at one same time.
+So add spin lock in md_submit_flush_data to protect prev_flush_start and
+flush_bio in an atomic way.
+
+Reviewed-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/vmalloc.h |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/md/md.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -24,7 +24,8 @@ struct notifier_block;		/* in notifier.h
- #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
- #define VM_NO_GUARD		0x00000040      /* don't add guard page */
- #define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
--#define VM_MAP_PUT_PAGES	0x00000100	/* put pages and free array in vfree */
-+#define VM_FLUSH_RESET_PERMS	0x00000100	/* reset direct map and flush TLB on unmap, can't be freed in atomic context */
-+#define VM_MAP_PUT_PAGES	0x00000200	/* put pages and free array in vfree */
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -538,8 +538,10 @@ static void md_submit_flush_data(struct
+ 	 * could wait for this and below md_handle_request could wait for those
+ 	 * bios because of suspend check
+ 	 */
++	spin_lock_irq(&mddev->lock);
+ 	mddev->last_flush = mddev->start_flush;
+ 	mddev->flush_bio = NULL;
++	spin_unlock_irq(&mddev->lock);
+ 	wake_up(&mddev->sb_wait);
  
- /*
-  * VM_KASAN is used slighly differently depending on CONFIG_KASAN_VMALLOC.
-@@ -37,12 +38,6 @@ struct notifier_block;		/* in notifier.h
-  * determine which allocations need the module shadow freed.
-  */
- 
--/*
-- * Memory with VM_FLUSH_RESET_PERMS cannot be freed in an interrupt or with
-- * vfree_atomic().
-- */
--#define VM_FLUSH_RESET_PERMS	0x00000100      /* Reset direct map and flush TLB on unmap */
--
- /* bits [20..32] reserved for arch specific ioremap internals */
- 
- /*
+ 	if (bio->bi_iter.bi_size == 0) {
 
 
