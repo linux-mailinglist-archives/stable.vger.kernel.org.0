@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74337313686
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2050431369B
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233325AbhBHPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:11:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52604 "EHLO mail.kernel.org"
+        id S233412AbhBHPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:13:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230412AbhBHPIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:08:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB83E64EB6;
-        Mon,  8 Feb 2021 15:06:08 +0000 (UTC)
+        id S232518AbhBHPKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC01A64E87;
+        Mon,  8 Feb 2021 15:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796769;
-        bh=zu04za1olHJW9o9M8NvbZ6Jb6iTbCFvbqw7IS6YMdJQ=;
+        s=korg; t=1612796854;
+        bh=xreMSYQFGwd+0WnAYSHYKeoO+6nLb7sQx5ybv7JJe/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdM1l/iZ5Cvx92A2ZOv6TOmxd3nQk8S85yT51pypkt443NEw4IhcCg7cDZNa3f4cU
-         ydCuL/ZOooCdZLpx1BYhZ0c08gu6OPWdicBydKlgawUqDZ472m7jmGZ4qnmCiWC6HH
-         lEbiLUucQlFO2umW3JKDVQOCRsMgyoXHxygIG7zk=
+        b=qRKApsoJHPKJn4pSbUI/8SSccNRq7IQuvE1xdIbvsAwaZqbBSlj/ESbvLWvZMkPuv
+         14u9V3hGu+vGbAGHNLsPeTK73AXUB4kqc8xU6y8DyALmRzCvVKs7CJsqevbR6HtT98
+         Xw/xoVaEJ4zZB8Xt19zYY/qx43KASxevCPnKGD38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 14/30] mac80211: fix station rate table updates on assoc
+        stable@vger.kernel.org, Tho Vu <tho.vu.wh@renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.19 13/38] usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()
 Date:   Mon,  8 Feb 2021 16:01:00 +0100
-Message-Id: <20210208145805.822210549@linuxfoundation.org>
+Message-Id: <20210208145806.663348705@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 18fe0fae61252b5ae6e26553e2676b5fac555951 upstream.
+commit 9917f0e3cdba7b9f1a23f70e3f70b1a106be54a8 upstream.
 
-If the driver uses .sta_add, station entries are only uploaded after the sta
-is in assoc state. Fix early station rate table updates by deferring them
-until the sta has been uploaded.
+Should clear the pipe running flag in usbhs_pkt_pop(). Otherwise,
+we cannot use this pipe after dequeue was called while the pipe was
+running.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210201083324.3134-1-nbd@nbd.name
-[use rcu_access_pointer() instead since we won't dereference here]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 8355b2b3082d ("usb: renesas_usbhs: fix the behavior of some usbhs_pkt_handle")
+Reported-by: Tho Vu <tho.vu.wh@renesas.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1612183640-8898-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/driver-ops.c |    5 ++++-
- net/mac80211/rate.c       |    3 ++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/renesas_usbhs/fifo.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/driver-ops.c
-+++ b/net/mac80211/driver-ops.c
-@@ -128,8 +128,11 @@ int drv_sta_state(struct ieee80211_local
- 	} else if (old_state == IEEE80211_STA_AUTH &&
- 		   new_state == IEEE80211_STA_ASSOC) {
- 		ret = drv_sta_add(local, sdata, &sta->sta);
--		if (ret == 0)
-+		if (ret == 0) {
- 			sta->uploaded = true;
-+			if (rcu_access_pointer(sta->sta.rates))
-+				drv_sta_rate_tbl_update(local, sdata, &sta->sta);
-+		}
- 	} else if (old_state == IEEE80211_STA_ASSOC &&
- 		   new_state == IEEE80211_STA_AUTH) {
- 		drv_sta_remove(local, sdata, &sta->sta);
---- a/net/mac80211/rate.c
-+++ b/net/mac80211/rate.c
-@@ -941,7 +941,8 @@ int rate_control_set_rates(struct ieee80
- 	if (old)
- 		kfree_rcu(old, rcu_head);
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -126,6 +126,7 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
+ 		}
  
--	drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
-+	if (sta->uploaded)
-+		drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
+ 		usbhs_pipe_clear_without_sequence(pipe, 0, 0);
++		usbhs_pipe_running(pipe, 0);
  
- 	ieee80211_sta_set_expected_throughput(pubsta, sta_get_expected_throughput(sta));
- 
+ 		__usbhsf_pkt_del(pkt);
+ 	}
 
 
