@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B79313614
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94277313635
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbhBHPFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51778 "EHLO mail.kernel.org"
+        id S232944AbhBHPHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:07:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232525AbhBHPE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:04:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2756C64EC9;
-        Mon,  8 Feb 2021 15:03:33 +0000 (UTC)
+        id S231303AbhBHPFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:05:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A8AF64EB9;
+        Mon,  8 Feb 2021 15:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796614;
-        bh=+wA/Re9rM3RJ8vC4GAcC4vAvxwVMyULbBXoDPheAm3U=;
+        s=korg; t=1612796646;
+        bh=PGJPeetesWJDEesAMPJ3w2qLtbGhSsp6tiOqVr+7FFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUjY3KDZiIOvzmmCEdbJj7MXnl6am6Q7+yVQJ9JSBerFvUDqt5uP2W7b87aEe6bpZ
-         R8672SDZSWo6nnFge3hj4gQkeoFwEMY9aI9zpsJt6V4LjKM6TZ9w4SROIoSB/U5aTQ
-         ZHClknX6KyI7rb/1iImZtvNNmm11oN+hpHNKv6HE=
+        b=Bp2E69qjSeeNI9LYKvasdGbDWxxSINJORVz6cLSzoI4D62lmTuV1kWDXM2RvNgjYN
+         5DcMWJhYGyF0dtpp+736jT01tUw8X5G+SUd1pPRTzacFhK2AhxJkScTNMRANCIxrXF
+         e1SQuVCSOT/OsDlrLC+Yrm1uRp5JkBGgi2VkPI44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Schemmel <christoph.schemmel@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 18/38] USB: serial: option: Adding support for Cinterion MV31
-Date:   Mon,  8 Feb 2021 16:00:40 +0100
-Message-Id: <20210208145806.011526929@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 15/43] mac80211: fix fast-rx encryption check
+Date:   Mon,  8 Feb 2021 16:00:41 +0100
+Message-Id: <20210208145806.925814769@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Schemmel <christoph.schemmel@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit e478d6029dca9d8462f426aee0d32896ef64f10f upstream.
+[ Upstream commit 622d3b4e39381262da7b18ca1ed1311df227de86 ]
 
-Adding support for Cinterion device MV31 for enumeration with
-PID 0x00B3 and 0x00B7.
+When using WEP, the default unicast key needs to be selected, instead of
+the STA PTK.
 
-usb-devices output for 0x00B3
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b3 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B3 USB Mobile Broadband
-S:  SerialNumber=b3246eed
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=cdc_wdm
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-usb-devices output for 0x00B7
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b7 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00B3 USB Mobile Broadband
-S:  SerialNumber=b3246eed
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-Signed-off-by: Christoph Schemmel <christoph.schemmel@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20201218184718.93650-5-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/mac80211/rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -425,6 +425,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_AHXX_2RMNET		0x0084
- #define CINTERION_PRODUCT_AHXX_AUDIO		0x0085
- #define CINTERION_PRODUCT_CLS8			0x00b0
-+#define CINTERION_PRODUCT_MV31_MBIM		0x00b3
-+#define CINTERION_PRODUCT_MV31_RMNET		0x00b7
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 9be82ed02e0e5..c38d68131d02e 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -3802,6 +3802,8 @@ void ieee80211_check_fast_rx(struct sta_info *sta)
  
- /* Olivetti products */
- #define OLIVETTI_VENDOR_ID			0x0b3c
-@@ -1896,6 +1898,10 @@ static const struct usb_device_id option
- 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC25_MDMNET) },
- 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) }, /* HC28 enumerates with Siemens or Cinterion VID depending on FW revision */
- 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC28_MDMNET) },
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_MBIM, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
-+	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
+ 	rcu_read_lock();
+ 	key = rcu_dereference(sta->ptk[sta->ptk_idx]);
++	if (!key)
++		key = rcu_dereference(sdata->default_unicast_key);
+ 	if (key) {
+ 		switch (key->conf.cipher) {
+ 		case WLAN_CIPHER_SUITE_TKIP:
+-- 
+2.27.0
+
 
 
