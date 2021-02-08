@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C21313C8C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1961D313C73
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235319AbhBHSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:07:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
+        id S235178AbhBHSG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:06:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234608AbhBHSDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235283AbhBHSDA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 13:03:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4547464E54;
-        Mon,  8 Feb 2021 17:59:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F6864ED3;
+        Mon,  8 Feb 2021 17:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807150;
-        bh=ap1IUf3l3kOGAnjvPyfn/TaxqnlnIUVbMCDPOcRniQA=;
+        s=k20201202; t=1612807151;
+        bh=5dOnDzvovKBWKay6kA4mi5Nr/o/4H+wvdKdjlKXUnwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1j9u+6irsV+hfWzzhTla2Wwq5vHmnJzT3gA2ZDIYdnRhOA3WkR86NmNEqDT+ZQWJ
-         6WDI5iDLYaeVMrPTUSDejrlO2s7l6Bb6uiAqfHEtsYPogEsozhGjE32O3NohMbqWL3
-         TqCqKwlK7btQ4SMIbOR9h3OAZm4KYHqb4MEucyA9qiDB6YcsqQgOXnRmfoj4ppX0xz
-         vv24NhHuCuv+DaA05cjRF9ZQvXI2e2VKxoUyRBqiHJmhjb7gnsGhGFi7+8CVOAPiDL
-         W5IF0EsRPpt+u3KWLFFIJNh8tX0mHgWmD5EBQPguPAuWuurfje0NyWpxVu/QszBae6
-         eKW8DO/7qIYig==
+        b=H507NOJNlNtziA34YpF60mQhi9Em+g1WT0Evb6EKahdzlZ6qe5jSBq5VkkDfjUmJy
+         62zUWshqoKjrelY2x4LDbxpukI1GEEThsQbzAGBKdWA0G2LF1RhnADQQXz/k6/Jssf
+         Pv7kwR0NJS+HtiYkQgjOJ8q2nPoY4SyvOIrP5qV0AXz0sHiQhFrwCxxIwiR3pCdx4i
+         gbqmpmY8PKIiKAVvAaZvQqjleRLuUo4/ypVv8hajL1ifY2VnIhehZTC/C304kU2wnM
+         n4J5qJ69oFhaaKXGsX0tIQh9Ju5EEuKpmf1HNAa2IhfmW/GPzb2cHDfKHR95gCKTB1
+         FwWLObaw4eQug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Michael Labriola <michael.d.labriola@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/19] ovl: skip getxattr of security labels
-Date:   Mon,  8 Feb 2021 12:58:47 -0500
-Message-Id: <20210208175858.2092008-8-sashal@kernel.org>
+Cc:     Claus Stovgaard <claus.stovgaard@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 09/19] nvme-pci: ignore the subsysem NQN on Phison E16
+Date:   Mon,  8 Feb 2021 12:58:48 -0500
+Message-Id: <20210208175858.2092008-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175858.2092008-1-sashal@kernel.org>
 References: <20210208175858.2092008-1-sashal@kernel.org>
@@ -43,72 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Claus Stovgaard <claus.stovgaard@gmail.com>
 
-[ Upstream commit 03fedf93593c82538b18476d8c4f0e8f8435ea70 ]
+[ Upstream commit c9e95c39280530200cdd0bbd2670e6334a81970b ]
 
-When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
-calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
-intercept in inode_getxattr hooks.
+Tested both with Corsairs firmware 11.3 and 13.0 for the Corsairs MP600
+and both have the issue as reported by the kernel.
 
-When selinux LSM is installed but not initialized, it will list the
-security.selinux xattr in inode_listsecurity, but will not intercept it
-in inode_getxattr.  This results in -ENODATA for a getxattr call for an
-xattr returned by listxattr.
+nvme nvme0: missing or invalid SUBNQN field.
 
-This situation was manifested as overlayfs failure to copy up lower
-files from squashfs when selinux is built-in but not initialized,
-because ovl_copy_xattr() iterates the lower inode xattrs by
-vfs_listxattr() and vfs_getxattr().
-
-ovl_copy_xattr() skips copy up of security labels that are indentified by
-inode_copy_up_xattr LSM hooks, but it does that after vfs_getxattr().
-Since we are not going to copy them, skip vfs_getxattr() of the security
-labels.
-
-Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
-Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
-Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Claus Stovgaard <claus.stovgaard@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/copy_up.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index ec5eca5a96f41..7b758d623b5bd 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -76,6 +76,14 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
- 
- 		if (ovl_is_private_xattr(name))
- 			continue;
-+
-+		error = security_inode_copy_up_xattr(name);
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
-+		if (error == 1) {
-+			error = 0;
-+			continue; /* Discard */
-+		}
- retry:
- 		size = vfs_getxattr(old, name, value, value_size);
- 		if (size == -ERANGE)
-@@ -99,13 +107,6 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
- 			goto retry;
- 		}
- 
--		error = security_inode_copy_up_xattr(name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
--			error = 0;
--			continue; /* Discard */
--		}
- 		error = vfs_setxattr(new, name, value, size, 0);
- 		if (error)
- 			break;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index ef93bd3ed339c..511992b86399d 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3147,6 +3147,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x144d, 0xa822),   /* Samsung PM1725a */
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1d1d, 0x1f1f),	/* LighNVM qemu device */
+ 		.driver_data = NVME_QUIRK_LIGHTNVM, },
+ 	{ PCI_DEVICE(0x1d1d, 0x2807),	/* CNEX WL */
 -- 
 2.27.0
 
