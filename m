@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21206313744
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5D63136FD
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbhBHPWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:22:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
+        id S231801AbhBHPSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:18:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233517AbhBHPOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:14:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F4FD64ECB;
-        Mon,  8 Feb 2021 15:10:49 +0000 (UTC)
+        id S232133AbhBHPLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EEC364E84;
+        Mon,  8 Feb 2021 15:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797050;
-        bh=PJ6Jtig7KPgqGEEqxQ1Xnv6Kxjj3F3qRz2LrumFTtHs=;
+        s=korg; t=1612796895;
+        bh=1B5uALRLICfV9TWV/llmgG8y96SQqcS4IxY09JRtY3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLS8uddC6cEtlBkhT34FXlkniNApHseNyxJvsW376e0KisizPotmAJ1kwK76oppZw
-         6GWAOPeFZwchwayxTKvtgxi6tTyxWyKbFjZSsZDGifx+HSgpCLg1sN2RyXUxDsi/YO
-         D3sGDU+A+9X4aFLNelmNanoZLCAXptpZSrZXIwwI=
+        b=zeeZpQx1BWRyCZCNGItbxqPIqQUhxaLwe13RjNrOyIOgQ1nhJwY/dZKv6n6qYfw2B
+         s3aDx+DA+C7XzhV2OlQYAZ3RISrETIAe/yKV9Ryn0d6oQIxpUgU5XZASEQfrUPre+E
+         diklQknDGz1GslUdcub4tYRuRtSRFmZkVzHmd8Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Tom Talpey <tom@talpey.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 41/65] smb3: fix crediting for compounding when only one request in flight
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 26/38] ARM: footbridge: fix dc21285 PCI configuration accessors
 Date:   Mon,  8 Feb 2021 16:01:13 +0100
-Message-Id: <20210208145811.812309797@linuxfoundation.org>
+Message-Id: <20210208145807.214320861@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +38,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 91792bb8089b63b7b780251eb83939348ac58a64 upstream.
+commit 39d3454c3513840eb123b3913fda6903e45ce671 upstream.
 
-Currently we try to guess if a compound request is going to
-succeed waiting for credits or not based on the number of
-requests in flight. This approach doesn't work correctly
-all the time because there may be only one request in
-flight which is going to bring multiple credits satisfying
-the compound request.
+Building with gcc 4.9.2 reveals a latent bug in the PCI accessors
+for Footbridge platforms, which causes a fatal alignment fault
+while accessing IO memory. Fix this by making the assembly volatile.
 
-Change the behavior to fail a request only if there are no requests
-in flight at all and proceed waiting for credits otherwise.
-
-Cc: <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/transport.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ arch/arm/mach-footbridge/dc21285.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -659,10 +659,22 @@ wait_for_compound_request(struct TCP_Ser
- 	spin_lock(&server->req_lock);
- 	if (*credits < num) {
- 		/*
--		 * Return immediately if not too many requests in flight since
--		 * we will likely be stuck on waiting for credits.
-+		 * If the server is tight on resources or just gives us less
-+		 * credits for other reasons (e.g. requests are coming out of
-+		 * order and the server delays granting more credits until it
-+		 * processes a missing mid) and we exhausted most available
-+		 * credits there may be situations when we try to send
-+		 * a compound request but we don't have enough credits. At this
-+		 * point the client needs to decide if it should wait for
-+		 * additional credits or fail the request. If at least one
-+		 * request is in flight there is a high probability that the
-+		 * server will return enough credits to satisfy this compound
-+		 * request.
-+		 *
-+		 * Return immediately if no requests in flight since we will be
-+		 * stuck on waiting for credits.
- 		 */
--		if (server->in_flight < num - *credits) {
-+		if (server->in_flight == 0) {
- 			spin_unlock(&server->req_lock);
- 			return -ENOTSUPP;
+--- a/arch/arm/mach-footbridge/dc21285.c
++++ b/arch/arm/mach-footbridge/dc21285.c
+@@ -69,15 +69,15 @@ dc21285_read_config(struct pci_bus *bus,
+ 	if (addr)
+ 		switch (size) {
+ 		case 1:
+-			asm("ldrb	%0, [%1, %2]"
++			asm volatile("ldrb	%0, [%1, %2]"
+ 				: "=r" (v) : "r" (addr), "r" (where) : "cc");
+ 			break;
+ 		case 2:
+-			asm("ldrh	%0, [%1, %2]"
++			asm volatile("ldrh	%0, [%1, %2]"
+ 				: "=r" (v) : "r" (addr), "r" (where) : "cc");
+ 			break;
+ 		case 4:
+-			asm("ldr	%0, [%1, %2]"
++			asm volatile("ldr	%0, [%1, %2]"
+ 				: "=r" (v) : "r" (addr), "r" (where) : "cc");
+ 			break;
  		}
+@@ -103,17 +103,17 @@ dc21285_write_config(struct pci_bus *bus
+ 	if (addr)
+ 		switch (size) {
+ 		case 1:
+-			asm("strb	%0, [%1, %2]"
++			asm volatile("strb	%0, [%1, %2]"
+ 				: : "r" (value), "r" (addr), "r" (where)
+ 				: "cc");
+ 			break;
+ 		case 2:
+-			asm("strh	%0, [%1, %2]"
++			asm volatile("strh	%0, [%1, %2]"
+ 				: : "r" (value), "r" (addr), "r" (where)
+ 				: "cc");
+ 			break;
+ 		case 4:
+-			asm("str	%0, [%1, %2]"
++			asm volatile("str	%0, [%1, %2]"
+ 				: : "r" (value), "r" (addr), "r" (where)
+ 				: "cc");
+ 			break;
 
 
