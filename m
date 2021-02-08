@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFD83136A2
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6328C313726
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbhBHPM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:12:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S232132AbhBHPUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:20:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232460AbhBHPIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:08:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE75164E7C;
-        Mon,  8 Feb 2021 15:06:34 +0000 (UTC)
+        id S232171AbhBHPNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1934364EBC;
+        Mon,  8 Feb 2021 15:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796795;
-        bh=P7ETVWnObIK3YqlHFJh396rT5cS7w98vlNpsXS75r38=;
+        s=korg; t=1612797035;
+        bh=Ol5TGqL9tdYPrnU3t8SzO77dUDoR2OOxgyzlD37EV2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDNYAp1s6/t2/tdpwuogVxaturV/x7eNccP59LQvgxZw3a8sxADDOKPjMkr8kcHNm
-         9ZS3JIsYns6vGaaADZgR+2cXe9yrbewHFRK35EHzMYreefI84UiywFLGd3ilgKQaBU
-         NKlplyiUtcIBQ/jtrwypqMw63vIB2IRUSHZG0b4U=
+        b=uUdRyj6XcUQXd1KOYiVnqoO6MaBsfnWvGdulJZgVgLY38oW1XSEf4mTscSwqfJVvR
+         LsVsyPOw9nJxUmvPP3uFiVE3SyWl/A7/Ag2+yz/HWp+Tw4ANjdmdnsHOgLEtXYn3ff
+         EJ1VGAfgX7Zf6LwTsNTK6Ql6ZVtKspiTkRiD6m7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 22/30] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>, Coly Li <colyli@suse.com>,
+        Richard Palethorpe <rpalethorpe@suse.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.4 36/65] libnvdimm/dimm: Avoid race between probe and available_slots_show()
 Date:   Mon,  8 Feb 2021 16:01:08 +0100
-Message-Id: <20210208145806.146484099@linuxfoundation.org>
+Message-Id: <20210208145811.627989831@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
+commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream.
 
-If a new hugetlb page is allocated during fallocate it will not be
-marked as active (set_page_huge_active) which will result in a later
-isolate_huge_page failure when the page migration code would like to
-move that page.  Such a failure would be unexpected and wrong.
+Richard reports that the following test:
 
-Only export set_page_huge_active, just leave clear_page_huge_active as
-static.  Because there are no external users.
+(while true; do
+     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
+ done) &
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
-Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
+while true; do
+     for i in $(seq 0 4); do
+         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
+     done
+     for i in $(seq 0 4); do
+         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
+     done
+ done
+
+...fails with a crash signature like:
+
+    divide error: 0000 [#1] SMP KASAN PTI
+    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
+    [..]
+    Call Trace:
+     available_slots_show+0x4e/0x120 [libnvdimm]
+     dev_attr_show+0x42/0x80
+     ? memset+0x20/0x40
+     sysfs_kf_seq_show+0x218/0x410
+
+The root cause is that available_slots_show() consults driver-data, but
+fails to synchronize against device-unbind setting up a TOCTOU race to
+access uninitialized memory.
+
+Validate driver-data under the device-lock.
+
+Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Coly Li <colyli@suse.com>
+Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
+Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c    |    3 ++-
- include/linux/hugetlb.h |    3 +++
- mm/hugetlb.c            |    2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvdimm/dimm_devs.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -649,8 +649,9 @@ static long hugetlbfs_fallocate(struct f
- 
- 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 
-+		set_page_huge_active(page);
- 		/*
--		 * page_put due to reference from alloc_huge_page()
-+		 * put_page() due to reference from alloc_huge_page()
- 		 * unlock_page because locked by add_to_page_cache()
- 		 */
- 		put_page(page);
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -531,6 +531,9 @@ static inline void set_huge_swap_pte_at(
- 	set_huge_pte_at(mm, addr, ptep, pte);
+--- a/drivers/nvdimm/dimm_devs.c
++++ b/drivers/nvdimm/dimm_devs.c
+@@ -344,16 +344,16 @@ static ssize_t state_show(struct device
  }
- #endif
-+
-+void set_page_huge_active(struct page *page);
-+
- #else	/* CONFIG_HUGETLB_PAGE */
- struct hstate {};
- #define alloc_huge_page(v, a, r) NULL
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1238,7 +1238,7 @@ bool page_huge_active(struct page *page)
- }
+ static DEVICE_ATTR_RO(state);
  
- /* never called for tail page */
--static void set_page_huge_active(struct page *page)
-+void set_page_huge_active(struct page *page)
+-static ssize_t available_slots_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
++static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
  {
- 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
- 	SetPagePrivate(&page[1]);
+-	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
++	struct device *dev;
+ 	ssize_t rc;
+ 	u32 nfree;
+ 
+ 	if (!ndd)
+ 		return -ENXIO;
+ 
++	dev = ndd->dev;
+ 	nvdimm_bus_lock(dev);
+ 	nfree = nd_label_nfree(ndd);
+ 	if (nfree - 1 > nfree) {
+@@ -365,6 +365,18 @@ static ssize_t available_slots_show(stru
+ 	nvdimm_bus_unlock(dev);
+ 	return rc;
+ }
++
++static ssize_t available_slots_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	ssize_t rc;
++
++	nd_device_lock(dev);
++	rc = __available_slots_show(dev_get_drvdata(dev), buf);
++	nd_device_unlock(dev);
++
++	return rc;
++}
+ static DEVICE_ATTR_RO(available_slots);
+ 
+ __weak ssize_t security_show(struct device *dev,
 
 
