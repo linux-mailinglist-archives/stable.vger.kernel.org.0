@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A2F313610
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C7431360C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbhBHPFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52068 "EHLO mail.kernel.org"
+        id S231537AbhBHPFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:05:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232153AbhBHPD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231654AbhBHPD5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 10:03:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE33764ED7;
-        Mon,  8 Feb 2021 15:03:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADC7A64EC4;
+        Mon,  8 Feb 2021 15:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796600;
-        bh=egJCgA5YlpoprOQ86vdTZNHsa3WBsvrcHoQ/CHqs+mY=;
+        s=korg; t=1612796603;
+        bh=cmyzcyiFS8tmTtGmjJmUmSI4soPYQvZxx1s1bJpQnbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhnvU3TMplZ7yizhVE25Y5Z7ylokfKBAIg7fj6zk2cHkjfwMJi8TqNNbm0mqOdtOq
-         mR69fDx9hZqkOcg0nq1xPOu2uKp6iSrAY5Nl1q+SAJ2LNSWLnLKcngUhq7TJcf/yMg
-         z2/CL4v9qrVnD7isIBZjQuK1trKzkx3ugIJM2QCg=
+        b=cPUw1gE6JWDvDEArZZRaHT4NMzzUBFk9figgqYciXmsUdL+/Q07qPslFX41CnN7+U
+         /BzIV1CWjFg8Q4JMiky8PNyLGpFjxMxrZN7jQj9M6oQFjONlQ9JLm6buD350VZm8BM
+         PWJWexJN2Z0wCn/bvP+77n07qKvbV5SD8H2dr08c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Berman <stephen.berman@gmx.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 4.4 37/38] ACPI: thermal: Do not call acpi_thermal_check() directly
-Date:   Mon,  8 Feb 2021 16:00:59 +0100
-Message-Id: <20210208145806.712531651@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Shih-Yuan Lee (FourDollars)" <sylee@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 38/38] ALSA: hda/realtek - Fix typo of pincfg for Dell quirk
+Date:   Mon,  8 Feb 2021 16:01:00 +0100
+Message-Id: <20210208145806.753256445@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
 References: <20210208145805.279815326@linuxfoundation.org>
@@ -40,174 +40,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Shih-Yuan Lee (FourDollars) <sylee@canonical.com>
 
-commit 81b704d3e4674e09781d331df73d76675d5ad8cb upstream.
+commit b4576de87243c32fab50dda9f8eba1e3cf13a7e2 upstream.
 
-Calling acpi_thermal_check() from acpi_thermal_notify() directly
-is problematic if _TMP triggers Notify () on the thermal zone for
-which it has been evaluated (which happens on some systems), because
-it causes a new acpi_thermal_notify() invocation to be queued up
-every time and if that takes place too often, an indefinite number of
-pending work items may accumulate in kacpi_notify_wq over time.
+The PIN number for Dell headset mode of ALC3271 is wrong.
 
-Besides, it is not really useful to queue up a new invocation of
-acpi_thermal_check() if one of them is pending already.
-
-For these reasons, rework acpi_thermal_notify() to queue up a thermal
-check instead of calling acpi_thermal_check() directly and only allow
-one thermal check to be pending at a time.  Moreover, only allow one
-acpi_thermal_check_fn() instance at a time to run
-thermal_zone_device_update() for one thermal zone and make it return
-early if it sees other instances running for the same thermal zone.
-
-While at it, fold acpi_thermal_check() into acpi_thermal_check_fn(),
-as it is only called from there after the other changes made here.
-
-[This issue appears to have been exposed by commit 6d25be5782e4
- ("sched/core, workqueues: Distangle worker accounting from rq
- lock"), but it is unclear why it was not visible earlier.]
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208877
-Reported-by: Stephen Berman <stephen.berman@gmx.net>
-Diagnosed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Tested-by: Stephen Berman <stephen.berman@gmx.net>
-Cc: All applicable <stable@vger.kernel.org>
-[bigeasy: Backported to v4.4.y, use atomic_t instead of refcount_t]
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Fixes: fcc6c877a01f ("ALSA: hda/realtek - Support Dell headset mode for ALC3271")
+Signed-off-by: Shih-Yuan Lee (FourDollars) <sylee@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/thermal.c |   54 ++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 38 insertions(+), 16 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/thermal.c
-+++ b/drivers/acpi/thermal.c
-@@ -188,6 +188,8 @@ struct acpi_thermal {
- 	int tz_enabled;
- 	int kelvin_offset;
- 	struct work_struct thermal_check_work;
-+	struct mutex thermal_check_lock;
-+	atomic_t thermal_check_count;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6211,7 +6211,7 @@ static const struct snd_hda_pin_quirk al
+ 	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 		ALC225_STANDARD_PINS,
+ 		{0x12, 0xb7a60130},
+-		{0x13, 0xb8a60140},
++		{0x13, 0xb8a61140},
+ 		{0x17, 0x90170110}),
+ 	{}
  };
- 
- /* --------------------------------------------------------------------------
-@@ -513,16 +515,6 @@ static int acpi_thermal_get_trip_points(
- 	return 0;
- }
- 
--static void acpi_thermal_check(void *data)
--{
--	struct acpi_thermal *tz = data;
--
--	if (!tz->tz_enabled)
--		return;
--
--	thermal_zone_device_update(tz->thermal_zone);
--}
--
- /* sys I/F for generic thermal sysfs support */
- 
- static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
-@@ -556,6 +548,8 @@ static int thermal_get_mode(struct therm
- 	return 0;
- }
- 
-+static void acpi_thermal_check_fn(struct work_struct *work);
-+
- static int thermal_set_mode(struct thermal_zone_device *thermal,
- 				enum thermal_device_mode mode)
- {
-@@ -581,7 +575,7 @@ static int thermal_set_mode(struct therm
- 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
- 			"%s kernel ACPI thermal control\n",
- 			tz->tz_enabled ? "Enable" : "Disable"));
--		acpi_thermal_check(tz);
-+		acpi_thermal_check_fn(&tz->thermal_check_work);
- 	}
- 	return 0;
- }
-@@ -950,6 +944,12 @@ static void acpi_thermal_unregister_ther
-                                  Driver Interface
-    -------------------------------------------------------------------------- */
- 
-+static void acpi_queue_thermal_check(struct acpi_thermal *tz)
-+{
-+	if (!work_pending(&tz->thermal_check_work))
-+		queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+}
-+
- static void acpi_thermal_notify(struct acpi_device *device, u32 event)
- {
- 	struct acpi_thermal *tz = acpi_driver_data(device);
-@@ -960,17 +960,17 @@ static void acpi_thermal_notify(struct a
- 
- 	switch (event) {
- 	case ACPI_THERMAL_NOTIFY_TEMPERATURE:
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_THRESHOLDS:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_THRESHOLDS);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
- 	case ACPI_THERMAL_NOTIFY_DEVICES:
- 		acpi_thermal_trips_update(tz, ACPI_TRIPS_REFRESH_DEVICES);
--		acpi_thermal_check(tz);
-+		acpi_queue_thermal_check(tz);
- 		acpi_bus_generate_netlink_event(device->pnp.device_class,
- 						  dev_name(&device->dev), event, 0);
- 		break;
-@@ -1070,7 +1070,27 @@ static void acpi_thermal_check_fn(struct
- {
- 	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
- 					       thermal_check_work);
--	acpi_thermal_check(tz);
-+
-+	if (!tz->tz_enabled)
-+		return;
-+	/*
-+	 * In general, it is not sufficient to check the pending bit, because
-+	 * subsequent instances of this function may be queued after one of them
-+	 * has started running (e.g. if _TMP sleeps).  Avoid bailing out if just
-+	 * one of them is running, though, because it may have done the actual
-+	 * check some time ago, so allow at least one of them to block on the
-+	 * mutex while another one is running the update.
-+	 */
-+	if (!atomic_add_unless(&tz->thermal_check_count, -1, 1))
-+		return;
-+
-+	mutex_lock(&tz->thermal_check_lock);
-+
-+	thermal_zone_device_update(tz->thermal_zone);
-+
-+	atomic_inc(&tz->thermal_check_count);
-+
-+	mutex_unlock(&tz->thermal_check_lock);
- }
- 
- static int acpi_thermal_add(struct acpi_device *device)
-@@ -1102,6 +1122,8 @@ static int acpi_thermal_add(struct acpi_
- 	if (result)
- 		goto free_memory;
- 
-+	atomic_set(&tz->thermal_check_count, 3);
-+	mutex_init(&tz->thermal_check_lock);
- 	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
- 
- 	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
-@@ -1167,7 +1189,7 @@ static int acpi_thermal_resume(struct de
- 		tz->state.active |= tz->trips.active[i].flags.enabled;
- 	}
- 
--	queue_work(acpi_thermal_pm_queue, &tz->thermal_check_work);
-+	acpi_queue_thermal_check(tz);
- 
- 	return AE_OK;
- }
 
 
