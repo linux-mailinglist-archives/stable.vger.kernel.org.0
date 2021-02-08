@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB5E3137C2
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FE23137F3
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbhBHPaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:30:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
+        id S233761AbhBHPds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:33:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232971AbhBHPYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:24:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6272964E7E;
-        Mon,  8 Feb 2021 15:14:40 +0000 (UTC)
+        id S233742AbhBHPaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:30:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15D8664E15;
+        Mon,  8 Feb 2021 15:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797281;
-        bh=8YW3oxQxDg2BQZaZrAlhicuAJwSozWcrjoH/2iVDBE8=;
+        s=korg; t=1612797416;
+        bh=pPjA3yeHHGBbfWZGwHX2qcSChmrCCpjamJpy06+U42E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RuWvCh7AayV914djhhL7rBnHTK3A1pxeJXO1tuB5S4ny1NvBNkvVMHvhGl0eKluCX
-         cyrutfJ+7chpijiDXK5ZFXJAtBZyHVdP6r+2g+T02zwvnRmuSaqXkX1L3Sf1blTsIu
-         y2OSkKom7v6VHFaSrTlVwT9Dp8WVGRuCNaev7mLg=
+        b=UB1jcwXjFhZwaT33XxtHvQsSTfxEc1JWEoJ7+8uX03ihLeiOcKoYG96YPsv+ANcJw
+         yKoje0TnhtZqh/OVALrrhysPIYc1BAFbsT/eGXXwbtrNZ9ap8Y96nKoHQFl1w5UI1i
+         +tLHSmWVpBOOcESG/Cw70mCvoisj9jaA7wNRvB/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liangyan <liangyan.peng@linux.alibaba.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 054/120] ovl: fix dentry leak in ovl_get_redirect
-Date:   Mon,  8 Feb 2021 16:00:41 +0100
-Message-Id: <20210208145820.577049939@linuxfoundation.org>
+        stable@vger.kernel.org, Jianlin Lv <Jianlin.Lv@arm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 060/120] tracing/kprobe: Fix to support kretprobe events on unloaded modules
+Date:   Mon,  8 Feb 2021 16:00:47 +0100
+Message-Id: <20210208145820.818277358@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -41,88 +40,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liangyan <liangyan.peng@linux.alibaba.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit e04527fefba6e4e66492f122cf8cc6314f3cf3bf upstream.
+commit 97c753e62e6c31a404183898d950d8c08d752dbd upstream.
 
-We need to lock d_parent->d_lock before dget_dlock, or this may
-have d_lockref updated parallelly like calltrace below which will
-cause dentry->d_lockref leak and risk a crash.
+Fix kprobe_on_func_entry() returns error code instead of false so that
+register_kretprobe() can return an appropriate error code.
 
-     CPU 0                                CPU 1
-ovl_set_redirect                       lookup_fast
-  ovl_get_redirect                       __d_lookup
-    dget_dlock
-      //no lock protection here            spin_lock(&dentry->d_lock)
-      dentry->d_lockref.count++            dentry->d_lockref.count++
+append_trace_kprobe() expects the kprobe registration returns -ENOENT
+when the target symbol is not found, and it checks whether the target
+module is unloaded or not. If the target module doesn't exist, it
+defers to probe the target symbol until the module is loaded.
 
-[   49.799059] PGD 800000061fed7067 P4D 800000061fed7067 PUD 61fec5067 PMD 0
-[   49.799689] Oops: 0002 [#1] SMP PTI
-[   49.800019] CPU: 2 PID: 2332 Comm: node Not tainted 4.19.24-7.20.al7.x86_64 #1
-[   49.800678] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8a46cfe 04/01/2014
-[   49.801380] RIP: 0010:_raw_spin_lock+0xc/0x20
-[   49.803470] RSP: 0018:ffffac6fc5417e98 EFLAGS: 00010246
-[   49.803949] RAX: 0000000000000000 RBX: ffff93b8da3446c0 RCX: 0000000a00000000
-[   49.804600] RDX: 0000000000000001 RSI: 000000000000000a RDI: 0000000000000088
-[   49.805252] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff993cf040
-[   49.805898] R10: ffff93b92292e580 R11: ffffd27f188a4b80 R12: 0000000000000000
-[   49.806548] R13: 00000000ffffff9c R14: 00000000fffffffe R15: ffff93b8da3446c0
-[   49.807200] FS:  00007ffbedffb700(0000) GS:ffff93b927880000(0000) knlGS:0000000000000000
-[   49.807935] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   49.808461] CR2: 0000000000000088 CR3: 00000005e3f74006 CR4: 00000000003606a0
-[   49.809113] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   49.809758] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   49.810410] Call Trace:
-[   49.810653]  d_delete+0x2c/0xb0
-[   49.810951]  vfs_rmdir+0xfd/0x120
-[   49.811264]  do_rmdir+0x14f/0x1a0
-[   49.811573]  do_syscall_64+0x5b/0x190
-[   49.811917]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   49.812385] RIP: 0033:0x7ffbf505ffd7
-[   49.814404] RSP: 002b:00007ffbedffada8 EFLAGS: 00000297 ORIG_RAX: 0000000000000054
-[   49.815098] RAX: ffffffffffffffda RBX: 00007ffbedffb640 RCX: 00007ffbf505ffd7
-[   49.815744] RDX: 0000000004449700 RSI: 0000000000000000 RDI: 0000000006c8cd50
-[   49.816394] RBP: 00007ffbedffaea0 R08: 0000000000000000 R09: 0000000000017d0b
-[   49.817038] R10: 0000000000000000 R11: 0000000000000297 R12: 0000000000000012
-[   49.817687] R13: 00000000072823d8 R14: 00007ffbedffb700 R15: 00000000072823d8
-[   49.818338] Modules linked in: pvpanic cirrusfb button qemu_fw_cfg atkbd libps2 i8042
-[   49.819052] CR2: 0000000000000088
-[   49.819368] ---[ end trace 4e652b8aa299aa2d ]---
-[   49.819796] RIP: 0010:_raw_spin_lock+0xc/0x20
-[   49.821880] RSP: 0018:ffffac6fc5417e98 EFLAGS: 00010246
-[   49.822363] RAX: 0000000000000000 RBX: ffff93b8da3446c0 RCX: 0000000a00000000
-[   49.823008] RDX: 0000000000000001 RSI: 000000000000000a RDI: 0000000000000088
-[   49.823658] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff993cf040
-[   49.825404] R10: ffff93b92292e580 R11: ffffd27f188a4b80 R12: 0000000000000000
-[   49.827147] R13: 00000000ffffff9c R14: 00000000fffffffe R15: ffff93b8da3446c0
-[   49.828890] FS:  00007ffbedffb700(0000) GS:ffff93b927880000(0000) knlGS:0000000000000000
-[   49.830725] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   49.832359] CR2: 0000000000000088 CR3: 00000005e3f74006 CR4: 00000000003606a0
-[   49.834085] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   49.835792] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+However, since register_kretprobe() returns -EINVAL instead of -ENOENT
+in that case, it always fail on putting the kretprobe event on unloaded
+modules. e.g.
 
-Cc: <stable@vger.kernel.org>
-Fixes: a6c606551141 ("ovl: redirect on rename-dir")
-Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Kprobe event:
+/sys/kernel/debug/tracing # echo p xfs:xfs_end_io >> kprobe_events
+[   16.515574] trace_kprobe: This probe might be able to register after target module is loaded. Continue.
+
+Kretprobe event: (p -> r)
+/sys/kernel/debug/tracing # echo r xfs:xfs_end_io >> kprobe_events
+sh: write error: Invalid argument
+/sys/kernel/debug/tracing # cat error_log
+[   41.122514] trace_kprobe: error: Failed to register probe event
+  Command: r xfs:xfs_end_io
+             ^
+
+To fix this bug, change kprobe_on_func_entry() to detect symbol lookup
+failure and return -ENOENT in that case. Otherwise it returns -EINVAL
+or 0 (succeeded, given address is on the entry).
+
+Link: https://lkml.kernel.org/r/161176187132.1067016.8118042342894378981.stgit@devnote2
+
+Cc: stable@vger.kernel.org
+Fixes: 59158ec4aef7 ("tracing/kprobes: Check the probe on unloaded module correctly")
+Reported-by: Jianlin Lv <Jianlin.Lv@arm.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/dir.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/kprobes.h     |    2 +-
+ kernel/kprobes.c            |   34 +++++++++++++++++++++++++---------
+ kernel/trace/trace_kprobe.c |   10 ++++++----
+ 3 files changed, 32 insertions(+), 14 deletions(-)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -992,8 +992,8 @@ static char *ovl_get_redirect(struct den
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -251,7 +251,7 @@ extern void kprobes_inc_nmissed_count(st
+ extern bool arch_within_kprobe_blacklist(unsigned long addr);
+ extern int arch_populate_kprobe_blacklist(void);
+ extern bool arch_kprobe_on_func_entry(unsigned long offset);
+-extern bool kprobe_on_func_entry(kprobe_opcode_t *addr, const char *sym, unsigned long offset);
++extern int kprobe_on_func_entry(kprobe_opcode_t *addr, const char *sym, unsigned long offset);
  
- 		buflen -= thislen;
- 		memcpy(&buf[buflen], name, thislen);
--		tmp = dget_dlock(d->d_parent);
- 		spin_unlock(&d->d_lock);
-+		tmp = dget_parent(d);
+ extern bool within_kprobe_blacklist(unsigned long addr);
+ extern int kprobe_add_ksym_blacklist(unsigned long entry);
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2082,29 +2082,45 @@ bool __weak arch_kprobe_on_func_entry(un
+ 	return !offset;
+ }
  
- 		dput(d);
- 		d = tmp;
+-bool kprobe_on_func_entry(kprobe_opcode_t *addr, const char *sym, unsigned long offset)
++/**
++ * kprobe_on_func_entry() -- check whether given address is function entry
++ * @addr: Target address
++ * @sym:  Target symbol name
++ * @offset: The offset from the symbol or the address
++ *
++ * This checks whether the given @addr+@offset or @sym+@offset is on the
++ * function entry address or not.
++ * This returns 0 if it is the function entry, or -EINVAL if it is not.
++ * And also it returns -ENOENT if it fails the symbol or address lookup.
++ * Caller must pass @addr or @sym (either one must be NULL), or this
++ * returns -EINVAL.
++ */
++int kprobe_on_func_entry(kprobe_opcode_t *addr, const char *sym, unsigned long offset)
+ {
+ 	kprobe_opcode_t *kp_addr = _kprobe_addr(addr, sym, offset);
+ 
+ 	if (IS_ERR(kp_addr))
+-		return false;
++		return PTR_ERR(kp_addr);
+ 
+-	if (!kallsyms_lookup_size_offset((unsigned long)kp_addr, NULL, &offset) ||
+-						!arch_kprobe_on_func_entry(offset))
+-		return false;
++	if (!kallsyms_lookup_size_offset((unsigned long)kp_addr, NULL, &offset))
++		return -ENOENT;
+ 
+-	return true;
++	if (!arch_kprobe_on_func_entry(offset))
++		return -EINVAL;
++
++	return 0;
+ }
+ 
+ int register_kretprobe(struct kretprobe *rp)
+ {
+-	int ret = 0;
++	int ret;
+ 	struct kretprobe_instance *inst;
+ 	int i;
+ 	void *addr;
+ 
+-	if (!kprobe_on_func_entry(rp->kp.addr, rp->kp.symbol_name, rp->kp.offset))
+-		return -EINVAL;
++	ret = kprobe_on_func_entry(rp->kp.addr, rp->kp.symbol_name, rp->kp.offset);
++	if (ret)
++		return ret;
+ 
+ 	if (kretprobe_blacklist_size) {
+ 		addr = kprobe_addr(&rp->kp);
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -221,9 +221,9 @@ bool trace_kprobe_on_func_entry(struct t
+ {
+ 	struct trace_kprobe *tk = trace_kprobe_primary_from_call(call);
+ 
+-	return tk ? kprobe_on_func_entry(tk->rp.kp.addr,
++	return tk ? (kprobe_on_func_entry(tk->rp.kp.addr,
+ 			tk->rp.kp.addr ? NULL : tk->rp.kp.symbol_name,
+-			tk->rp.kp.addr ? 0 : tk->rp.kp.offset) : false;
++			tk->rp.kp.addr ? 0 : tk->rp.kp.offset) == 0) : false;
+ }
+ 
+ bool trace_kprobe_error_injectable(struct trace_event_call *call)
+@@ -828,9 +828,11 @@ static int trace_kprobe_create(int argc,
+ 		}
+ 		if (is_return)
+ 			flags |= TPARG_FL_RETURN;
+-		if (kprobe_on_func_entry(NULL, symbol, offset))
++		ret = kprobe_on_func_entry(NULL, symbol, offset);
++		if (ret == 0)
+ 			flags |= TPARG_FL_FENTRY;
+-		if (offset && is_return && !(flags & TPARG_FL_FENTRY)) {
++		/* Defer the ENOENT case until register kprobe */
++		if (ret == -EINVAL && is_return) {
+ 			trace_probe_log_err(0, BAD_RETPROBE);
+ 			goto parse_error;
+ 		}
 
 
