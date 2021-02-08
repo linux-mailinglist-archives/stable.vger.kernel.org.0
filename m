@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C45EF313C6A
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:07:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B88F313C7B
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234882AbhBHSGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:06:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S235157AbhBHSHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:07:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235208AbhBHSCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:02:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEF5F64E88;
-        Mon,  8 Feb 2021 17:59:02 +0000 (UTC)
+        id S235291AbhBHSDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:03:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E6B64ECF;
+        Mon,  8 Feb 2021 17:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807143;
-        bh=efafAd6WaDg8SGnlqP87Caf8A64qt4Co/sdcXkCnQTM=;
+        s=k20201202; t=1612807145;
+        bh=ku4Jcw91KaEot449Rj+HDA/w0UTPu7uPeCWL4rDZq2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9gsuqtN0ur4DxIjQ4nIhrsojtJHUnhl5DeyHP0AykjzniXwnKNplaTDuvXEIMCuV
-         h4VPCYZxP5eEsRn4jZBuFgYJVeGqedTB/93DoUFVVTMUpH3E8ulhtnlzaYAIs2GeR5
-         cQnX3UJPisjMtZ+piber/UPl1M8j/noZPtrpRqMBHiWoGyubZ1BCH54wcZ0Jk2HuoU
-         eWMtnjn/EVJkRfyCt9wmhhz5KreJSamf5GTW2Baz/8Gl5cNdhzwEBPBHitxODU7/18
-         W59R33yeh5Eip5VTPtdB1XuHKinv+xv4g9u7KawjitQfzDdUS8shv37ajAXaJmvsRN
-         wmAO+S4wUrtLg==
+        b=jntSegu8UBmzf3PoYqMhGygN0DTd2mAATVWAvKZKgkWhjxQK9NiFoccH6mkrqludv
+         ByQ8MLVoUs3lReMSMXMwcdJ+XmsdEkHaPZXZghKE7V+urvnCHtxVXWzKSU4cHOG01t
+         bfnZcpbAKxPCELXUdmv6t3VQQFGKVHHf/wPGc57cyOijgGNQzYgi9gHym5wMVYfV9L
+         K53IJn0xNWkEvDP4GcVb6cWbjrR5eGFxlrTP2mRObAUnHjkbSRM8Lwc8WMjRr+DxAt
+         W0t+FDbUDyomVsKUjeA616VKIfM7H6gBjAh0AEZZFyhVh0ODsVibzz9dwNDGw5jM/I
+         7F7pPr8uJOM4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/19] ARM: OMAP2+: Fix suspcious RCU usage splats for omap_enter_idle_coupled
-Date:   Mon,  8 Feb 2021 12:58:42 -0500
-Message-Id: <20210208175858.2092008-3-sashal@kernel.org>
+Cc:     Benjamin Valentin <benpicco@googlemail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 04/19] Input: xpad - sync supported devices with fork on GitHub
+Date:   Mon,  8 Feb 2021 12:58:43 -0500
+Message-Id: <20210208175858.2092008-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175858.2092008-1-sashal@kernel.org>
 References: <20210208175858.2092008-1-sashal@kernel.org>
@@ -45,103 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Benjamin Valentin <benpicco@googlemail.com>
 
-[ Upstream commit 06862d789ddde8a99c1e579e934ca17c15a84755 ]
+[ Upstream commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 ]
 
-We get suspcious RCU usage splats with cpuidle in several places in
-omap_enter_idle_coupled() with the kernel debug options enabled:
+There is a fork of this driver on GitHub [0] that has been updated
+with new device IDs.
 
-RCU used illegally from extended quiescent state!
-...
-(_raw_spin_lock_irqsave)
-(omap_enter_idle_coupled+0x17c/0x2d8)
-(omap_enter_idle_coupled)
-(cpuidle_enter_state)
-(cpuidle_enter_state_coupled)
-(cpuidle_enter)
+Merge those into the mainline driver, so the out-of-tree fork is not
+needed for users of those devices anymore.
 
-Let's use RCU_NONIDLE to suppress these splats. Things got changed around
-with commit 1098582a0f6c ("sched,idle,rcu: Push rcu_idle deeper into the
-idle path") that started triggering these warnings.
+[0] https://github.com/paroj/xpad
 
-For the tick_broadcast related calls, ideally we'd just switch over to
-using CPUIDLE_FLAG_TIMER_STOP for omap_enter_idle_coupled() to have the
-generic cpuidle code handle the tick_broadcast related calls for us and
-then just drop the tick_broadcast calls here.
-
-But we're currently missing the call in the common cpuidle code for
-tick_broadcast_enable() that CPU1 hotplug needs as described in earlier
-commit 50d6b3cf9403 ("ARM: OMAP2+: fix lack of timer interrupts on CPU1
-after hotplug").
-
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
+Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/cpuidle44xx.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/joystick/xpad.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/cpuidle44xx.c b/arch/arm/mach-omap2/cpuidle44xx.c
-index c8d317fafe2ea..de37027ad7587 100644
---- a/arch/arm/mach-omap2/cpuidle44xx.c
-+++ b/arch/arm/mach-omap2/cpuidle44xx.c
-@@ -151,10 +151,10 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 8c73377ac82ca..3d004ca76b6ed 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -215,9 +215,17 @@ static const struct xpad_device {
+ 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
+-	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
+@@ -296,6 +304,9 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
++	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
++	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+@@ -429,8 +440,12 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
+ 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
++	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
++	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
++	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
+ 	{ }
+ };
  
- 	/* Enter broadcast mode for periodic timers */
--	tick_broadcast_enable();
-+	RCU_NONIDLE(tick_broadcast_enable());
- 
- 	/* Enter broadcast mode for one-shot timers */
--	tick_broadcast_enter();
-+	RCU_NONIDLE(tick_broadcast_enter());
- 
- 	/*
- 	 * Call idle CPU PM enter notifier chain so that
-@@ -166,7 +166,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 
- 	if (dev->cpu == 0) {
- 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
--		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
-+		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
- 
- 		/*
- 		 * Call idle CPU cluster PM enter notifier chain
-@@ -178,7 +178,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 				index = 0;
- 				cx = state_ptr + index;
- 				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
--				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
-+				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
- 				mpuss_can_lose_context = 0;
- 			}
- 		}
-@@ -194,9 +194,9 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 		    mpuss_can_lose_context)
- 			gic_dist_disable();
- 
--		clkdm_deny_idle(cpu_clkdm[1]);
--		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
--		clkdm_allow_idle(cpu_clkdm[1]);
-+		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
-+		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
-+		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
- 
- 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
- 		    mpuss_can_lose_context) {
-@@ -222,7 +222,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 	cpu_pm_exit();
- 
- cpu_pm_out:
--	tick_broadcast_exit();
-+	RCU_NONIDLE(tick_broadcast_exit());
- 
- fail:
- 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);
 -- 
 2.27.0
 
