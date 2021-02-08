@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F8B313725
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0BC313668
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231947AbhBHPUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:20:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55768 "EHLO mail.kernel.org"
+        id S233114AbhBHPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:10:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232107AbhBHPNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:13:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 451C364F01;
-        Mon,  8 Feb 2021 15:10:32 +0000 (UTC)
+        id S233109AbhBHPG7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:06:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F43264EE5;
+        Mon,  8 Feb 2021 15:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797032;
-        bh=80tyYNlDjC90V3c8qAt5dQpDytLTUxx5VjyXJpQMuwE=;
+        s=korg; t=1612796726;
+        bh=8x0xXwb6d8bT4yeWb8qLdFWMtleAKvKaarZrqsnngz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zE3MvhMkiiKjvibvh9tk0xU8/d17HWH2UlEQ9jLqiKMfZsTqmvWZFkkd5EnMueWmX
-         8Y35vXH32rzEv3a2A9AaB4aKo5uW7MloEF956RSIv+kGqcYEthtN9mCU1zZn+vmmUp
-         OPvB5zD9cd/pbDtExFOCwN0hyzC/FRXBaFaVR+oE=
+        b=h6oNIjvMAU+Pg8UnALW5Err8UckrJMed0ONfKrRN1hi/xCDxvuKKSYErnRTkp2wIQ
+         miKtHONlfIHub5vXDSgKim6AJAw+5u/jW0wBDOmiqVzPR6cKA0+ycrX5saStS1Hmbf
+         7z0xdoB4nR38UDRJBH+1T+QDqe/vErk6lqL8CaPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Ananth N Mavinakayanahalli <ananth@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Cheng Jian <cj.chengjian@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 35/65] kretprobe: Avoid re-registration of the same kretprobe earlier
-Date:   Mon,  8 Feb 2021 16:01:07 +0100
-Message-Id: <20210208145811.587231720@linuxfoundation.org>
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.9 42/43] iommu/vt-d: Do not use flush-queue when caching-mode is on
+Date:   Mon,  8 Feb 2021 16:01:08 +0100
+Message-Id: <20210208145808.008636403@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 0188b87899ffc4a1d36a0badbe77d56c92fd91dc upstream.
+commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
 
-Our system encountered a re-init error when re-registering same kretprobe,
-where the kretprobe_instance in rp->free_instances is illegally accessed
-after re-init.
+When an Intel IOMMU is virtualized, and a physical device is
+passed-through to the VM, changes of the virtual IOMMU need to be
+propagated to the physical IOMMU. The hypervisor therefore needs to
+monitor PTE mappings in the IOMMU page-tables. Intel specifications
+provide "caching-mode" capability that a virtual IOMMU uses to report
+that the IOMMU is virtualized and a TLB flush is needed after mapping to
+allow the hypervisor to propagate virtual IOMMU mappings to the physical
+IOMMU. To the best of my knowledge no real physical IOMMU reports
+"caching-mode" as turned on.
 
-Implementation to avoid re-registration has been introduced for kprobe
-before, but lags for register_kretprobe(). We must check if kprobe has
-been re-registered before re-initializing kretprobe, otherwise it will
-destroy the data struct of kretprobe registered, which can lead to memory
-leak, system crash, also some unexpected behaviors.
+Synchronizing the virtual and the physical IOMMU tables is expensive if
+the hypervisor is unaware which PTEs have changed, as the hypervisor is
+required to walk all the virtualized tables and look for changes.
+Consequently, domain flushes are much more expensive than page-specific
+flushes on virtualized IOMMUs with passthrough devices. The kernel
+therefore exploited the "caching-mode" indication to avoid domain
+flushing and use page-specific flushing in virtualized environments. See
+commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+mode.")
 
-We use check_kprobe_rereg() to check if kprobe has been re-registered
-before running register_kretprobe()'s body, for giving a warning message
-and terminate registration process.
+This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+of iova deferred flushing"). Now, when batched TLB flushing is used (the
+default), full TLB domain flushes are performed frequently, requiring
+the hypervisor to perform expensive synchronization between the virtual
+TLB and the physical one.
 
-Link: https://lkml.kernel.org/r/20210128124427.2031088-1-bobo.shaobowang@huawei.com
+Getting batched TLB flushes to use page-specific invalidations again in
+such circumstances is not easy, since the TLB invalidation scheme
+assumes that "full" domain TLB flushes are performed for scalability.
 
+Disable batched TLB flushes when caching-mode is on, as the performance
+benefit from using batched TLB invalidations is likely to be much
+smaller than the overhead of the virtual-to-physical IOMMU page-tables
+synchronization.
+
+Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 1f0ab40976460 ("kprobes: Prevent re-registration of the same kprobe")
-[ The above commit should have been done for kretprobes too ]
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Nadav Amit <namit@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/kprobes.c |    4 ++++
- 1 file changed, 4 insertions(+)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1972,6 +1972,10 @@ int register_kretprobe(struct kretprobe
- 	if (!kprobe_on_func_entry(rp->kp.addr, rp->kp.symbol_name, rp->kp.offset))
- 		return -EINVAL;
+---
+ drivers/iommu/intel-iommu.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3323,6 +3323,12 @@ static int __init init_dmars(void)
  
-+	/* If only rp->kp.addr is specified, check reregistering kprobes */
-+	if (rp->kp.addr && check_kprobe_rereg(&rp->kp))
-+		return -EINVAL;
+ 		if (!ecap_pass_through(iommu->ecap))
+ 			hw_pass_through = 0;
 +
- 	if (kretprobe_blacklist_size) {
- 		addr = kprobe_addr(&rp->kp);
- 		if (IS_ERR(addr))
++		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
++			pr_info("Disable batched IOTLB flush due to virtualization");
++			intel_iommu_strict = 1;
++		}
++
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ 		if (pasid_enabled(iommu))
+ 			intel_svm_alloc_pasid_tables(iommu);
 
 
