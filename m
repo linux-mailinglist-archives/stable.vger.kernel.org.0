@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E939313642
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7266731374A
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbhBHPIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:08:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
+        id S233841AbhBHPXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:23:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232392AbhBHPGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC6F264EDF;
-        Mon,  8 Feb 2021 15:04:51 +0000 (UTC)
+        id S233564AbhBHPQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:16:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D7164E54;
+        Mon,  8 Feb 2021 15:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796692;
-        bh=R7X3F2Lwr2jEybZesvYA2VbaWLnZKOajyJcZxuiFvDM=;
+        s=korg; t=1612797077;
+        bh=wsePVODvHzqZzM2F4SMDDr4A52UH3jf6jXA59xBor3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JT/ZfHXwSPXdNlKaQsvIj0MN3gHr9Id3optf4bN2BwjiGdJMruNFxTN/mXuvKyb8x
-         K9ndN4ftn0Jpti6u4zbGwTVzTH06lSFpa/ZqLlMqLwnWGZzCRzqW2rnoA3ylAstY89
-         r1D8+06PN4OMtV8X+26NYXsO46DUxMbVw/dtrT64=
+        b=n1HARHMkUcblyrxL0LsETBeNBdQ9LCbYMqyvV4zv8UEUueqmdyfpS9SDmy5mVOqt2
+         J/kEq/JPWpLeEFxqyQ1F60B3gTBXZDI67XuZNuTyuMUZCC3aCRlJnXhd49AvEZVb02
+         1X2Oj0yPl+EldiSMF1b++mvGXq233AIRIA5BnGN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Martin Schiller <ms@dev.tdt.de>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/43] net: lapb: Copy the skb before sending a packet
+Subject: [PATCH 5.4 17/65] net: lapb: Copy the skb before sending a packet
 Date:   Mon,  8 Feb 2021 16:00:49 +0100
-Message-Id: <20210208145807.250376835@linuxfoundation.org>
+Message-Id: <20210208145810.907176671@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,10 +71,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
-index 482c94d9d958a..d1c7dcc234486 100644
+index 7a4d0715d1c32..a966d29c772d9 100644
 --- a/net/lapb/lapb_out.c
 +++ b/net/lapb/lapb_out.c
-@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
+@@ -82,7 +82,8 @@ void lapb_kick(struct lapb_cb *lapb)
  		skb = skb_dequeue(&lapb->write_queue);
  
  		do {
