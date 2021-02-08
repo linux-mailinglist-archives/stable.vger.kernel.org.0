@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D87231375B
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29919313758
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232181AbhBHPYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:24:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33700 "EHLO mail.kernel.org"
+        id S232763AbhBHPYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:24:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233349AbhBHPRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233385AbhBHPRa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 10:17:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 937B664EBE;
-        Mon,  8 Feb 2021 15:11:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 528E264ED5;
+        Mon,  8 Feb 2021 15:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797106;
-        bh=LKo9ZrO5UM2oPV6T3WVJdK3dskGNrGC1mz/F6YR38OE=;
+        s=korg; t=1612797112;
+        bh=xghOccYSA73hgfELd/klJXPilY5sPFpR8XW/ns7pQDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpaMx5pKo3ESYNTJuJ3H8vf8MItHemLbhB4AkaTgofcxKvONKOcs0etl6uVD/oCDa
-         9+xO3qfZbaAGnRxpDuA/il15LUXeIEMDSr22enKxZtAXUu4p6tnhlkGeRqbWR1kudE
-         Lsjnd2C+YnG77msDu5jOp+8HIbH0zhi51GkgUUkE=
+        b=NYSJoykxPAzOrPrHnPiZuqB+rKG0/ILu+3NneFwaQcgxvTNjMV8rsqmIVLbfTAEks
+         XZ8rUJAjhF5Ownk7rsb9/wz9jUGsHj9nWBlwFPyvZKAPdr6sojgA/bZcHxTUbAPZ88
+         HbMrg8iTqIxWpA1VGqolOhQr0Sav2ACO9TopkJSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chinmay Agarwal <chinagar@codeaurora.org>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 61/65] neighbour: Prevent a dead entry from updating gc_list
-Date:   Mon,  8 Feb 2021 16:01:33 +0100
-Message-Id: <20210208145812.578790260@linuxfoundation.org>
+Subject: [PATCH 5.4 63/65] net: dsa: mv88e6xxx: override existent unicast portvec in port_fdb_add
+Date:   Mon,  8 Feb 2021 16:01:35 +0100
+Message-Id: <20210208145812.657752226@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
 References: <20210208145810.230485165@linuxfoundation.org>
@@ -41,67 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chinmay Agarwal <chinagar@codeaurora.org>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit eb4e8fac00d1e01ada5e57c05d24739156086677 upstream.
+commit f72f2fb8fb6be095b98af5d740ac50cffd0b0cae upstream.
 
-Following race condition was detected:
-<CPU A, t0> - neigh_flush_dev() is under execution and calls
-neigh_mark_dead(n) marking the neighbour entry 'n' as dead.
+Having multiple destination ports for a unicast address does not make
+sense.
+Make port_db_load_purge override existent unicast portvec instead of
+adding a new port bit.
 
-<CPU B, t1> - Executing: __netif_receive_skb() ->
-__netif_receive_skb_core() -> arp_rcv() -> arp_process().arp_process()
-calls __neigh_lookup() which takes a reference on neighbour entry 'n'.
-
-<CPU A, t2> - Moves further along neigh_flush_dev() and calls
-neigh_cleanup_and_release(n), but since reference count increased in t2,
-'n' couldn't be destroyed.
-
-<CPU B, t3> - Moves further along, arp_process() and calls
-neigh_update()-> __neigh_update() -> neigh_update_gc_list(), which adds
-the neighbour entry back in gc_list(neigh_mark_dead(), removed it
-earlier in t0 from gc_list)
-
-<CPU B, t4> - arp_process() finally calls neigh_release(n), destroying
-the neighbour entry.
-
-This leads to 'n' still being part of gc_list, but the actual
-neighbour structure has been freed.
-
-The situation can be prevented from happening if we disallow a dead
-entry to have any possibility of updating gc_list. This is what the
-patch intends to achieve.
-
-Fixes: 9c29a2f55ec0 ("neighbor: Fix locking order for gc_list changes")
-Signed-off-by: Chinmay Agarwal <chinagar@codeaurora.org>
-Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20210127165453.GA20514@chinagar-linux.qualcomm.com
+Fixes: 884729399260 ("net: dsa: mv88e6xxx: handle multiple ports in ATU")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20210130134334.10243-1-dqfext@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1244,13 +1244,14 @@ static int __neigh_update(struct neighbo
- 	old    = neigh->nud_state;
- 	err    = -EPERM;
- 
--	if (!(flags & NEIGH_UPDATE_F_ADMIN) &&
--	    (old & (NUD_NOARP | NUD_PERMANENT)))
--		goto out;
- 	if (neigh->dead) {
- 		NL_SET_ERR_MSG(extack, "Neighbor entry is now dead");
-+		new = old;
- 		goto out;
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -1517,7 +1517,11 @@ static int mv88e6xxx_port_db_load_purge(
+ 		if (!entry.portvec)
+ 			entry.state = 0;
+ 	} else {
+-		entry.portvec |= BIT(port);
++		if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
++			entry.portvec = BIT(port);
++		else
++			entry.portvec |= BIT(port);
++
+ 		entry.state = state;
  	}
-+	if (!(flags & NEIGH_UPDATE_F_ADMIN) &&
-+	    (old & (NUD_NOARP | NUD_PERMANENT)))
-+		goto out;
- 
- 	ext_learn_change = neigh_update_ext_learned(neigh, flags, &notify);
  
 
 
