@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9127031369C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA4131372C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:22:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhBHPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:13:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S233337AbhBHPVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:21:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233051AbhBHPKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:10:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94E6B64EDF;
-        Mon,  8 Feb 2021 15:07:28 +0000 (UTC)
+        id S230499AbhBHPNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE9D064E7C;
+        Mon,  8 Feb 2021 15:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796849;
-        bh=P5FszMvcTGEB9zp098oA/xcLefOaRom4Iw25ecRU/DE=;
+        s=korg; t=1612797004;
+        bh=zBBcl3AJJa0LHaxOzVHB5o2Lj1ynzAQfpbwmB8ozt8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfgAdGezIpYcxXI1enRb45XDRBB0rn9YlTw3tMpe223ZZ6laEvTvKsGP72cvcpzyQ
-         isdXYv/bsIo1vcDxO6JKSi6XGNxh6VesMjY4NQ/6J1KjhNiDooGC8ugeT2183UGWIF
-         190SMO1LDyftk2xMwo3RHDICzL9tE83BccyoGvyM=
+        b=AU4wBGnRaN+99ggGf/Z9k9YBPJodCDV04NmwXY+mK24W3jsmJmBluLTJgCvnLU5jt
+         oXLkCENgFqIvr1IygLaKFXRNhknBgL2iEcdzM+PlnT9yTCptrApxaqphBfgbhdMumn
+         43Lf394LZNxWhvztgvHjbzQChyABI3qRKAjG7NTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 11/38] USB: gadget: legacy: fix an error code in eth_bind()
+        stable@vger.kernel.org,
+        Gerhard Klostermeier <gerhard.klostermeier@syss.de>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Subject: [PATCH 5.4 26/65] usb: dwc2: Fix endpoint direction check in ep_from_windex
 Date:   Mon,  8 Feb 2021 16:00:58 +0100
-Message-Id: <20210208145806.581333065@linuxfoundation.org>
+Message-Id: <20210208145811.242400607@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-commit 3e1f4a2e1184ae6ad7f4caf682ced9554141a0f4 upstream.
+commit f670e9f9c8cac716c3506c6bac9e997b27ad441a upstream.
 
-This code should return -ENOMEM if the allocation fails but it currently
-returns success.
+dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
+the endpoint for the index provided in the wIndex request param.
 
-Fixes: 9b95236eebdb ("usb: gadget: ether: allocate and init otg descriptor by otg capabilities")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YBKE9rqVuJEOUWpW@mwanda
-Cc: stable <stable@vger.kernel.org>
+In a test-case with a rndis gadget running and sending a malformed
+packet to it like:
+    dev.ctrl_transfer(
+        0x82,      # bmRequestType
+        0x00,       # bRequest
+        0x0000,     # wValue
+        0x0001,     # wIndex
+        0x00       # wLength
+    )
+it is possible to cause a crash:
+
+[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
+[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
+...
+[  218.313189] Call trace:
+[  218.330217]  ep_from_windex+0x3c/0x54
+[  218.348565]  usb_gadget_giveback_request+0x10/0x20
+[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
+
+This happens because ep_from_windex wants to compare the endpoint
+direction even if index_to_ep() didn't return an endpoint due to
+the direction not matching.
+
+The fix is easy insofar that the actual direction check is already
+happening when calling index_to_ep() which will return NULL if there
+is no endpoint for the targeted direction, so the offending check
+can go away completely.
+
+Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
+Cc: stable@vger.kernel.org
+Reported-by: Gerhard Klostermeier <gerhard.klostermeier@syss.de>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20210127103919.58215-1-heiko@sntech.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/ether.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/usb/gadget/legacy/ether.c
-+++ b/drivers/usb/gadget/legacy/ether.c
-@@ -403,8 +403,10 @@ static int eth_bind(struct usb_composite
- 		struct usb_descriptor_header *usb_desc;
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1543,7 +1543,6 @@ static void dwc2_hsotg_complete_oursetup
+ static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
+ 					    u32 windex)
+ {
+-	struct dwc2_hsotg_ep *ep;
+ 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
+ 	int idx = windex & 0x7F;
  
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail1;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+@@ -1553,12 +1552,7 @@ static struct dwc2_hsotg_ep *ep_from_win
+ 	if (idx > hsotg->num_of_eps)
+ 		return NULL;
+ 
+-	ep = index_to_ep(hsotg, idx, dir);
+-
+-	if (idx && ep->dir_in != dir)
+-		return NULL;
+-
+-	return ep;
++	return index_to_ep(hsotg, idx, dir);
+ }
+ 
+ /**
 
 
