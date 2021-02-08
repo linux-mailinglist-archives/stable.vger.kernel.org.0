@@ -2,311 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E35E313025
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F61313053
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhBHLHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 06:07:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbhBHLDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:03:39 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3CB7C06174A
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 03:02:58 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id 189so462621pfy.6
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 03:02:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WxqV4GP3MLMSu94I9hS8CWwp/qbQcVUhxepEsstOEPw=;
-        b=KmQEjSplogJhW8IdVRdFGEbmIxyOMPyHqRbGia/vAtpsPoq+dneghyPuie3f+hRBLz
-         pObdjkBT12sVjbp5LYeLJmecd3qPRNyvcdf/gFhoekcW+UbMW9y55Wwz87whK5YQqmVL
-         RpSOx1FcOR23eO/VHXLfXsEOXAoluvG58+Foswy4NpHLfZfLCSEQ0st/IH7qOBhV0jih
-         cfGXYMyC1yrD4FKofjGBdq2JfKJJnBQylrCk8NWh/Y13Gid/C+v2yZPiVuVJSzTdpRtm
-         MWYQJ+cCc5YtUpxI5C/u5hX816/yQILxeOWJVGD1nh4K6fjnhql40JSEhMX3tQsmWUIu
-         GjfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WxqV4GP3MLMSu94I9hS8CWwp/qbQcVUhxepEsstOEPw=;
-        b=rpLAMwl0CeMyxlLxBHZyU6Ks/Fz6WmtR4qOPzm9eX9RmObx6yIEF+pkH6Mr+zDT3Hj
-         wkb3InOrcuBEWoNS8POeFA1dg3C2hkil+Yxfa7Zc4VJ1w/0uxOgyCHJBfXV+WbnDp0Bs
-         wmY2LfPDQO4nqAngQk7xAOE460ghrsFmlt4Oz8k6+Wj4rXAKNonf7cus0VzW4FNCNEXG
-         uFqNIgFvYcYzWSNT/g3P3644CeipFfaI4vDJczjOFLGmB1HIiMikWhYszY1HzqzFxXGG
-         wQfL/RumdzJCdrHarZ9bTylYldsCw0wL/Yui8Gde8CechXBihNtkRkmnBd6KoyycSNWE
-         +onQ==
-X-Gm-Message-State: AOAM532SygOHV074w01oG0jLCiQcUYMyl3asBk4Xz6WOnqqg0VJC/rk5
-        +zPx4GAWQd+BShOTexC5sIqnmmVauPn7iQ==
-X-Google-Smtp-Source: ABdhPJxlHd0t2PNwWrF3ugBJVZw3pNFXr7U4REKXOdWNuNGYFmdD3YzB+PySM89G53UUQDjjOutoZA==
-X-Received: by 2002:a63:3602:: with SMTP id d2mr16484633pga.81.1612782178009;
-        Mon, 08 Feb 2021 03:02:58 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h70sm17023436pfe.70.2021.02.08.03.02.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 03:02:57 -0800 (PST)
-Message-ID: <60211a61.1c69fb81.2be56.4b95@mx.google.com>
-Date:   Mon, 08 Feb 2021 03:02:57 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233083AbhBHLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 06:12:06 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52233 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232907AbhBHLHV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:07:21 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 07ECCAB3;
+        Mon,  8 Feb 2021 06:05:47 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Mon, 08 Feb 2021 06:05:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=jDDysu
+        /3QmUi/+Jyj0yJfDfTBpoUFgbmvAgbruy04Ag=; b=FkMX1OSi98Idn/+C1fVefe
+        r/hwcwGMbhVbvMKCJp570k9idNIWZGkq/oY0Po3EXHmEiv+sAX/HLXjCNZjvY4g2
+        j+D3GO4EyzzlesHrXNi55DEg9Q1GrK7ELC+Ph/flVp6Ud1v9ggjmwZoJIGcgL25T
+        V8nX6DYyUfOXBjFJCxz2Psk7pX/HdzgPMAHFIrKG7FTgASHWjPvO9E27UtaKQtR8
+        h1idaf/R+pfbj0Sx9/8zCVok3iUKORVFyLRxe+cEtUwAQKqoUVIXo8uOYtujYas8
+        PzVA5uOYJYZfuGpzEuPYQnC+DfHL8nqfGpEWJ7KfMOXpUaPRvou+EWnUDnb/zvsA
+        ==
+X-ME-Sender: <xms:ChshYNf2dMQ0eu5YKBtGwW3OfKBhPqtZ6yJ8HmPq0216VbTNP1lU7A>
+    <xme:ChshYLLEOySey5NRGwdeILBCvGCfOM5SCg_e-KUynWXK1C4zk9zsa-2mzBn-981Jc
+    7gWvVju0d0Z5A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddvvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:ChshYDahZ3FtTL0JLcbfnh76I5NYr5vnZr9mgmKU_puROXT6YOQVoA>
+    <xmx:ChshYOsUaZdDVFJeuJbLicVS0e9D-3yK2ilZo-iIvCMr0Fn25_HjpA>
+    <xmx:ChshYIsTLAKAjIPrPWtZNzzAHA3Pd1Lb1QkQ-R-z_SmHT07Ceicebg>
+    <xmx:CxshYKSkUu0YDQ97MLjUrxoTknPiasJqP3CaySW-1urOSgiMUP6dk9tNB2U>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D4705108005B;
+        Mon,  8 Feb 2021 06:05:45 -0500 (EST)
+Subject: FAILED: patch "[PATCH] memblock: do not start bottom-up allocations with kernel_end" failed to apply to 4.4-stable tree
+To:     guro@fb.com, akpm@linux-foundation.org, bauerman@linux.ibm.com,
+        iamjoonsoo.kim@lge.com, mhocko@kernel.org, riel@surriel.com,
+        rppt@linux.ibm.com, torvalds@linux-foundation.org,
+        vvghjk1234@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 08 Feb 2021 12:05:43 +0100
+Message-ID: <1612782343237146@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.174-9-g72c4313237ab0
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 168 runs,
- 6 regressions (v4.19.174-9-g72c4313237ab0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 168 runs, 6 regressions (v4.19.174-9-g72c431=
-3237ab0)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2dcb3964544177c51853a210b6ad400de78ef17d Mon Sep 17 00:00:00 2001
+From: Roman Gushchin <guro@fb.com>
+Date: Thu, 4 Feb 2021 18:32:36 -0800
+Subject: [PATCH] memblock: do not start bottom-up allocations with kernel_end
+
+With kaslr the kernel image is placed at a random place, so starting the
+bottom-up allocation with the kernel_end can result in an allocation
+failure and a warning like this one:
+
+  hugetlb_cma: reserve 2048 MiB, up to 2048 MiB per node
+  ------------[ cut here ]------------
+  memblock: bottom-up allocation failed, memory hotremove may be affected
+  WARNING: CPU: 0 PID: 0 at mm/memblock.c:332 memblock_find_in_range_node+0x178/0x25a
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.10.0+ #1169
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  RIP: 0010:memblock_find_in_range_node+0x178/0x25a
+  Code: e9 6d ff ff ff 48 85 c0 0f 85 da 00 00 00 80 3d 9b 35 df 00 00 75 15 48 c7 c7 c0 75 59 88 c6 05 8b 35 df 00 01 e8 25 8a fa ff <0f> 0b 48 c7 44 24 20 ff ff ff ff 44 89 e6 44 89 ea 48 c7 c1 70 5c
+  RSP: 0000:ffffffff88803d18 EFLAGS: 00010086 ORIG_RAX: 0000000000000000
+  RAX: 0000000000000000 RBX: 0000000240000000 RCX: 00000000ffffdfff
+  RDX: 00000000ffffdfff RSI: 00000000ffffffea RDI: 0000000000000046
+  RBP: 0000000100000000 R08: ffffffff88922788 R09: 0000000000009ffb
+  R10: 00000000ffffe000 R11: 3fffffffffffffff R12: 0000000000000000
+  R13: 0000000000000000 R14: 0000000080000000 R15: 00000001fb42c000
+  FS:  0000000000000000(0000) GS:ffffffff88f71000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffa080fb401000 CR3: 00000001fa80a000 CR4: 00000000000406b0
+  Call Trace:
+    memblock_alloc_range_nid+0x8d/0x11e
+    cma_declare_contiguous_nid+0x2c4/0x38c
+    hugetlb_cma_reserve+0xdc/0x128
+    flush_tlb_one_kernel+0xc/0x20
+    native_set_fixmap+0x82/0xd0
+    flat_get_apic_id+0x5/0x10
+    register_lapic_address+0x8e/0x97
+    setup_arch+0x8a5/0xc3f
+    start_kernel+0x66/0x547
+    load_ucode_bsp+0x4c/0xcd
+    secondary_startup_64_no_verify+0xb0/0xbb
+  random: get_random_bytes called from __warn+0xab/0x110 with crng_init=0
+  ---[ end trace f151227d0b39be70 ]---
+
+At the same time, the kernel image is protected with memblock_reserve(),
+so we can just start searching at PAGE_SIZE.  In this case the bottom-up
+allocation has the same chances to success as a top-down allocation, so
+there is no reason to fallback in the case of a failure.  All together it
+simplifies the logic.
+
+Link: https://lkml.kernel.org/r/20201217201214.3414100-2-guro@fb.com
+Fixes: 8fabc623238e ("powerpc: Ensure that swiotlb buffer is allocated from low memory")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Wonhyuk Yang <vvghjk1234@gmail.com>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/memblock.c b/mm/memblock.c
+index 1eaaec1e7687..8d9b5f1e7040 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -275,14 +275,6 @@ __memblock_find_range_top_down(phys_addr_t start, phys_addr_t end,
+  *
+  * Find @size free area aligned to @align in the specified range and node.
+  *
+- * When allocation direction is bottom-up, the @start should be greater
+- * than the end of the kernel image. Otherwise, it will be trimmed. The
+- * reason is that we want the bottom-up allocation just near the kernel
+- * image so it is highly likely that the allocated memory and the kernel
+- * will reside in the same node.
+- *
+- * If bottom-up allocation failed, will try to allocate memory top-down.
+- *
+  * Return:
+  * Found address on success, 0 on failure.
+  */
+@@ -291,8 +283,6 @@ static phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
+ 					phys_addr_t end, int nid,
+ 					enum memblock_flags flags)
+ {
+-	phys_addr_t kernel_end, ret;
+-
+ 	/* pump up @end */
+ 	if (end == MEMBLOCK_ALLOC_ACCESSIBLE ||
+ 	    end == MEMBLOCK_ALLOC_KASAN)
+@@ -301,40 +291,13 @@ static phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
+ 	/* avoid allocating the first page */
+ 	start = max_t(phys_addr_t, start, PAGE_SIZE);
+ 	end = max(start, end);
+-	kernel_end = __pa_symbol(_end);
+-
+-	/*
+-	 * try bottom-up allocation only when bottom-up mode
+-	 * is set and @end is above the kernel image.
+-	 */
+-	if (memblock_bottom_up() && end > kernel_end) {
+-		phys_addr_t bottom_up_start;
+-
+-		/* make sure we will allocate above the kernel */
+-		bottom_up_start = max(start, kernel_end);
+ 
+-		/* ok, try bottom-up allocation first */
+-		ret = __memblock_find_range_bottom_up(bottom_up_start, end,
+-						      size, align, nid, flags);
+-		if (ret)
+-			return ret;
+-
+-		/*
+-		 * we always limit bottom-up allocation above the kernel,
+-		 * but top-down allocation doesn't have the limit, so
+-		 * retrying top-down allocation may succeed when bottom-up
+-		 * allocation failed.
+-		 *
+-		 * bottom-up allocation is expected to be fail very rarely,
+-		 * so we use WARN_ONCE() here to see the stack trace if
+-		 * fail happens.
+-		 */
+-		WARN_ONCE(IS_ENABLED(CONFIG_MEMORY_HOTREMOVE),
+-			  "memblock: bottom-up allocation failed, memory hotremove may be affected\n");
+-	}
+-
+-	return __memblock_find_range_top_down(start, end, size, align, nid,
+-					      flags);
++	if (memblock_bottom_up())
++		return __memblock_find_range_bottom_up(start, end, size, align,
++						       nid, flags);
++	else
++		return __memblock_find_range_top_down(start, end, size, align,
++						      nid, flags);
+ }
+ 
+ /**
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.174-9-g72c4313237ab0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.174-9-g72c4313237ab0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      72c4313237ab03b55cd21e8e7dfb94028c67483b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e19c7cd87b1bf73abe6c
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6020e19c7cd87b1=
-bf73abe73
-        new failure (last pass: v4.19.174-3-g9df30fc2980a)
-        2 lines
-
-    2021-02-08 07:00:38.706000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e1f1b0631a21823abe62
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6020e1f1b0631a21823ab=
-e63
-        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e200b0631a21823abe84
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6020e200b0631a21823ab=
-e85
-        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e1e3a05a8e4e173abe7b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6020e1e3a05a8e4e173ab=
-e7c
-        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e1a8d81ae396223abe78
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6020e1a8d81ae396223ab=
-e79
-        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6020e1b4d81ae396223abe8b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6020e1b4d81ae396223ab=
-e8c
-        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
