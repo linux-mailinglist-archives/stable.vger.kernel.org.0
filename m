@@ -2,94 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E0C313FD2
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 21:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57485313FE9
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 21:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236580AbhBHUCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 15:02:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57962 "EHLO
+        id S236596AbhBHUGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 15:06:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234918AbhBHUBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 15:01:51 -0500
+        with ESMTP id S233513AbhBHUGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 15:06:24 -0500
 Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D24C06178B
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 12:01:11 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id e24so520354ioc.1
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 12:01:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E63EC061786
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 12:05:44 -0800 (PST)
+Received: by mail-io1-xd32.google.com with SMTP id f20so2814588ioo.10
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 12:05:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2cHwYrSDu6d9T0ggDQwxfsH0y4RYpWUkI2F5iUQkfY8=;
-        b=H95o/sV2OPA384Pkciu6Ulbv8vDUPrXmmoMbxSRlv3EAz0kPDbPJdNI2KAt6VALw2n
-         SCqRiqrj+qbt2m0q2U+UcojSqTlMdR9/yZTLJl5MoKqcWwf2RLklPIRYOUAvIGGoE49F
-         rppt9UK/xvbW8/20n7SRQJ2+yowMH6fPzAGkI=
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=zHr6Odx5wrGQmC0gmtSjkpjLrbaHiyE+q9Gtvm0i9wM=;
+        b=b8xQQfapm78/B2TzPRZQyqts4/t3c0Aj2eUQ4YL6suwAEcNs4thVp8dP7uToemLMOX
+         L/eLJSpyO4bQHKoZQBAqteQGUUjO6Bo0kkurwaupEoWRgeYrlPiHPQx+b+lueIjPM360
+         W15cgeMV1B1vPh8caMtI4xqtimLCEpLuxvUCpilMZoUUfsfu5KKOXlZ1obWz6gAxm74w
+         FuTSWglCDWeFlhGZmhlWVNhmW43D6htRXJnswUgu+LG7pme0gYQJ9REG8E0BOq7Iwjix
+         X8jynrH2j1B+yF2/Ov5rNeQ/CuDfVyXltnmNJOk5RVNl2k0b25b//fbjmPVWWjd+q5T4
+         50PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2cHwYrSDu6d9T0ggDQwxfsH0y4RYpWUkI2F5iUQkfY8=;
-        b=Yz1LSh4Lkyth0HtitvjKYeUzELTV8dvJgJXFQ1y/+VaqsBYCYVSdEyUKSXrqVsAvrD
-         IVWgEcXlMb2DPoORPkiSd7DwWaxHKHG1CAYThhUh9fQy69sOGdwxlFjVbHSrK1Woxwv8
-         BepzQutNMD3CAhYRhxQFZ2VPJg0ezYIsgCgFs2sd03F2rZwx6aL7+ILOuGUSpugk92qw
-         C0EPz/0S3cZWO8Ky0VxLWnANMk7GwXQWYdSzd2eMEMa6UUu2vlgy5Lmxa4NQQ+w3UoDX
-         yxRx/HH7BbQVO2/aGvkJVEAQCEBY2nDhL0+80r3JajfZRhllVM3UnBrKOVi7GXMt3iU9
-         zStQ==
-X-Gm-Message-State: AOAM531B8lx+RCXhVsjFrC4qdiZf13ihfq2vxTkkti5eM5QjTzARYKTB
-        P4yXUaMvqeTuCbkwvsM1U8j2iw==
-X-Google-Smtp-Source: ABdhPJzQDrXmakrKiHzK8eviLx+WrgmDi1Cw+y5trhq6TtSjdfL//pp4W4CrudlSciq2aAUXGFcDug==
-X-Received: by 2002:a5d:9252:: with SMTP id e18mr17142320iol.146.1612814470667;
-        Mon, 08 Feb 2021 12:01:10 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id y23sm9056419iob.10.2021.02.08.12.01.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Feb 2021 12:01:10 -0800 (PST)
-Subject: Re: [PATCH 5.10 000/120] 5.10.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <e17d7d91-a7e5-48c4-a182-276cc5338cdd@linuxfoundation.org>
-Date:   Mon, 8 Feb 2021 13:01:09 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=zHr6Odx5wrGQmC0gmtSjkpjLrbaHiyE+q9Gtvm0i9wM=;
+        b=nskTocSnIJeXftapHfLk92SKR8t5jIV9xRcftTBlVKrWlZNAwWWSUO0tOrxMfvJuze
+         1ORxwlmh8NcPi0RZ9zpQ/9a2tG8dBMEUVpmRY17Aybof9ke7FXnjzGQoerxedhhglWM6
+         kqhOGOP5ofvSjtkvRSpPKwgGjNXL4bXlMSBtx1ERaKVm5/7AnXdF42troS34sjXWyLsE
+         Rbxr61H80WbslgfxusX4MLp6jvUI5eTubrNbiIjUH+UtZJbE619by0vhwrMX7hMU607t
+         w554HkfzZABw/7BW9oWYuM7BRFyqzFlag7O8LwaoJDgXQcbbLSltxIJ9//cUZU+HOGt/
+         f3Tw==
+X-Gm-Message-State: AOAM531LdIkwZDLmzk67xL61+6coc5W/1A9+K0uAWphG7Ker29EZcqR6
+        PtfHddtH/1eT8SGArQZBzbk75vzTWcqJ7nrRzNc=
+X-Google-Smtp-Source: ABdhPJxU9J0kSzdC2X4p+o1hy44QSnhoS9jIIkpfpK3xwy4VfiVbLGpDnCdTrm4PUt7TK5VDB5G85A2Vhx/a8YDR8c0=
+X-Received: by 2002:a6b:f406:: with SMTP id i6mr16718091iog.121.1612814744027;
+ Mon, 08 Feb 2021 12:05:44 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:6638:37a3:0:0:0:0 with HTTP; Mon, 8 Feb 2021 12:05:43
+ -0800 (PST)
+From:   Mawulom Oki <mawulomoki@gmail.com>
+Date:   Mon, 8 Feb 2021 21:05:43 +0100
+Message-ID: <CAD3oH0CehwxphyyipegQzDtsMhPU0qgDagc6ECbJ3dURgtOJpQ@mail.gmail.com>
+Subject: Notification
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/8/21 7:59 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.15 release.
-> There are 120 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+I am bringing this notice to your attention in respect of the death of
+a deceased client of mine that has the same surname with you and his
+und valued at $19.9M to be paid to you.contact me at
+mawulomoki@outlook.com for more details.
 
-Compiled and booted on my test system. No dmesg regressions.
-
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-
-thanks,
--- Shuah
+Yours Sincerely,
+Mawulom Oki,
+Attorney At Law.
