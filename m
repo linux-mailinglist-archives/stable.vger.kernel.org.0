@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9786313C55
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB9B313C58
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234085AbhBHSFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:05:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46596 "EHLO mail.kernel.org"
+        id S235412AbhBHSFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:05:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235147AbhBHSBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:01:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D9364EC8;
-        Mon,  8 Feb 2021 17:58:48 +0000 (UTC)
+        id S235215AbhBHSBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:01:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB7A264EC9;
+        Mon,  8 Feb 2021 17:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807129;
-        bh=KqdBtz4ottQ7UIvyckd2fMKx7JZ7EDOeuUQjGaqDG/A=;
+        s=k20201202; t=1612807130;
+        bh=QUQsizk1bheljDny4RuKlCEU5wYQlvpa1XqJdUP7q9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8nDE5QeIeKM2q0vYCQ1T8+v73h49Y+qCk2d3VniERl9H5vNgnKcaPUU8qdog20Y4
-         F+XVOV9dlD+5bArOT+YekPfsc3gRHlnQtWhWBY5FjiCkgCJTifr7k0snARye45JoHw
-         /Quh7RemV8Yfo6Ln3k5m/xo5lcWy6s5GyxybSXfQpyD4ibJ7/c7DxR0tRQxmp9AKbH
-         3pUvD3q5XPT4v7dWk2XZTv90J2+MJH2CtdDyh0So53dWQFkhbA/pib08GchpnzCiF8
-         a5AfZjL3iydmccdwSy8rOcV8hda/GC1cUydd2z0KZJu0RM1IjrxMbPiU3Ck3KKF8/e
-         hmATGdzUdtWZQ==
+        b=EjGQadMRkJ4WS4eTkuAlXnIVI037g5L33Jb093M+XILQw16BDhqEDh/W1spukTvp/
+         pwXJ43Qk7HIJW+lREnwdesoiQb1qs6WRoeu/Jx08tTmTQtfpth2lrunSlzMTkBHQjD
+         ikSPw5RCSTuWuZ+K1f4aqs3Dy2zrU8mmHL4A2LaZJwm+oaxyZ9JgHyrmf7JWLFUOg8
+         imPfYk0NQxfGffri1/cplX8gpSzV0511RKzrnhO6bYKy2VeK4qme+NAgf4wzVzPOB9
+         28LJVnzlwNK2V9F4h7nJa9GFn+EXQ7HGpibgnHgMDV2ppDv7yivsxd1cRmhAsaYmCT
+         sR7RgMy+ApHBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Giancarlo Ferrari <giancarlo.ferrari89@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 31/36] ARM: kexec: fix oops after TLB are invalidated
-Date:   Mon,  8 Feb 2021 12:58:01 -0500
-Message-Id: <20210208175806.2091668-31-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jessica Yu <jeyu@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 32/36] init/gcov: allow CONFIG_CONSTRUCTORS on UML to fix module gcov
+Date:   Mon,  8 Feb 2021 12:58:02 -0500
+Message-Id: <20210208175806.2091668-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175806.2091668-1-sashal@kernel.org>
 References: <20210208175806.2091668-1-sashal@kernel.org>
@@ -43,202 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4d62e81b60d4025e2dfcd5ea531cc1394ce9226f ]
+[ Upstream commit 55b6f763d8bcb5546997933105d66d3e6b080e6a ]
 
-Giancarlo Ferrari reports the following oops while trying to use kexec:
+On ARCH=um, loading a module doesn't result in its constructors getting
+called, which breaks module gcov since the debugfs files are never
+registered.  On the other hand, in-kernel constructors have already been
+called by the dynamic linker, so we can't call them again.
 
- Unable to handle kernel paging request at virtual address 80112f38
- pgd = fd7ef03e
- [80112f38] *pgd=0001141e(bad)
- Internal error: Oops: 80d [#1] PREEMPT SMP ARM
- ...
+Get out of this conundrum by allowing CONFIG_CONSTRUCTORS to be
+selected, but avoiding the in-kernel constructor calls.
 
-This is caused by machine_kexec() trying to set the kernel text to be
-read/write, so it can poke values into the relocation code before
-copying it - and an interrupt occuring which changes the page tables.
-The subsequent writes then hit read-only sections that trigger a
-data abort resulting in the above oops.
+Also remove the "if !UML" from GCOV selecting CONSTRUCTORS now, since we
+really do want CONSTRUCTORS, just not kernel binary ones.
 
-Fix this by copying the relocation code, and then writing the variables
-into the destination, thereby avoiding the need to make the kernel text
-read/write.
-
-Reported-by: Giancarlo Ferrari <giancarlo.ferrari89@gmail.com>
-Tested-by: Giancarlo Ferrari <giancarlo.ferrari89@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://lkml.kernel.org/r/20210120172041.c246a2cac2fb.I1358f584b76f1898373adfed77f4462c8705b736@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/kexec-internal.h | 12 +++++++++
- arch/arm/kernel/asm-offsets.c         |  5 ++++
- arch/arm/kernel/machine_kexec.c       | 20 ++++++--------
- arch/arm/kernel/relocate_kernel.S     | 38 ++++++++-------------------
- 4 files changed, 36 insertions(+), 39 deletions(-)
- create mode 100644 arch/arm/include/asm/kexec-internal.h
+ init/Kconfig        | 1 -
+ init/main.c         | 8 +++++++-
+ kernel/gcov/Kconfig | 2 +-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/kexec-internal.h b/arch/arm/include/asm/kexec-internal.h
-new file mode 100644
-index 0000000000000..ecc2322db7aa1
---- /dev/null
-+++ b/arch/arm/include/asm/kexec-internal.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ARM_KEXEC_INTERNAL_H
-+#define _ARM_KEXEC_INTERNAL_H
-+
-+struct kexec_relocate_data {
-+	unsigned long kexec_start_address;
-+	unsigned long kexec_indirection_page;
-+	unsigned long kexec_mach_type;
-+	unsigned long kexec_r2;
-+};
-+
-+#endif
-diff --git a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
-index a1570c8bab25a..be8050b0c3dfb 100644
---- a/arch/arm/kernel/asm-offsets.c
-+++ b/arch/arm/kernel/asm-offsets.c
-@@ -12,6 +12,7 @@
- #include <linux/mm.h>
- #include <linux/dma-mapping.h>
- #include <asm/cacheflush.h>
-+#include <asm/kexec-internal.h>
- #include <asm/glue-df.h>
- #include <asm/glue-pf.h>
- #include <asm/mach/arch.h>
-@@ -170,5 +171,9 @@ int main(void)
-   DEFINE(MPU_RGN_PRBAR,	offsetof(struct mpu_rgn, prbar));
-   DEFINE(MPU_RGN_PRLAR,	offsetof(struct mpu_rgn, prlar));
- #endif
-+  DEFINE(KEXEC_START_ADDR,	offsetof(struct kexec_relocate_data, kexec_start_address));
-+  DEFINE(KEXEC_INDIR_PAGE,	offsetof(struct kexec_relocate_data, kexec_indirection_page));
-+  DEFINE(KEXEC_MACH_TYPE,	offsetof(struct kexec_relocate_data, kexec_mach_type));
-+  DEFINE(KEXEC_R2,		offsetof(struct kexec_relocate_data, kexec_r2));
-   return 0; 
- }
-diff --git a/arch/arm/kernel/machine_kexec.c b/arch/arm/kernel/machine_kexec.c
-index 5d84ad333f050..2b09dad7935eb 100644
---- a/arch/arm/kernel/machine_kexec.c
-+++ b/arch/arm/kernel/machine_kexec.c
-@@ -13,6 +13,7 @@
- #include <linux/of_fdt.h>
- #include <asm/mmu_context.h>
- #include <asm/cacheflush.h>
-+#include <asm/kexec-internal.h>
- #include <asm/fncpy.h>
- #include <asm/mach-types.h>
- #include <asm/smp_plat.h>
-@@ -22,11 +23,6 @@
- extern void relocate_new_kernel(void);
- extern const unsigned int relocate_new_kernel_size;
+diff --git a/init/Kconfig b/init/Kconfig
+index 0872a5a2e7590..481a2131e9d7e 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -76,7 +76,6 @@ config CC_HAS_ASM_INLINE
  
--extern unsigned long kexec_start_address;
--extern unsigned long kexec_indirection_page;
--extern unsigned long kexec_mach_type;
--extern unsigned long kexec_boot_atags;
--
- static atomic_t waiting_for_crash_ipi;
+ config CONSTRUCTORS
+ 	bool
+-	depends on !UML
  
- /*
-@@ -159,6 +155,7 @@ void (*kexec_reinit)(void);
- void machine_kexec(struct kimage *image)
+ config IRQ_WORK
+ 	bool
+diff --git a/init/main.c b/init/main.c
+index 9d964511fe0c2..46bfa26f252e8 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1066,7 +1066,13 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
+ /* Call all constructor functions linked into the kernel. */
+ static void __init do_ctors(void)
  {
- 	unsigned long page_list, reboot_entry_phys;
-+	struct kexec_relocate_data *data;
- 	void (*reboot_entry)(void);
- 	void *reboot_code_buffer;
+-#ifdef CONFIG_CONSTRUCTORS
++/*
++ * For UML, the constructors have already been called by the
++ * normal setup code as it's just a normal ELF binary, so we
++ * cannot do it again - but we do need CONFIG_CONSTRUCTORS
++ * even on UML for modules.
++ */
++#if defined(CONFIG_CONSTRUCTORS) && !defined(CONFIG_UML)
+ 	ctor_fn_t *fn = (ctor_fn_t *) __ctors_start;
  
-@@ -174,18 +171,17 @@ void machine_kexec(struct kimage *image)
- 
- 	reboot_code_buffer = page_address(image->control_code_page);
- 
--	/* Prepare parameters for reboot_code_buffer*/
--	set_kernel_text_rw();
--	kexec_start_address = image->start;
--	kexec_indirection_page = page_list;
--	kexec_mach_type = machine_arch_type;
--	kexec_boot_atags = image->arch.kernel_r2;
--
- 	/* copy our kernel relocation code to the control code page */
- 	reboot_entry = fncpy(reboot_code_buffer,
- 			     &relocate_new_kernel,
- 			     relocate_new_kernel_size);
- 
-+	data = reboot_code_buffer + relocate_new_kernel_size;
-+	data->kexec_start_address = image->start;
-+	data->kexec_indirection_page = page_list;
-+	data->kexec_mach_type = machine_arch_type;
-+	data->kexec_r2 = image->arch.kernel_r2;
-+
- 	/* get the identity mapping physical address for the reboot code */
- 	reboot_entry_phys = virt_to_idmap(reboot_entry);
- 
-diff --git a/arch/arm/kernel/relocate_kernel.S b/arch/arm/kernel/relocate_kernel.S
-index 72a08786e16eb..218d524360fcd 100644
---- a/arch/arm/kernel/relocate_kernel.S
-+++ b/arch/arm/kernel/relocate_kernel.S
-@@ -5,14 +5,16 @@
- 
- #include <linux/linkage.h>
- #include <asm/assembler.h>
-+#include <asm/asm-offsets.h>
- #include <asm/kexec.h>
- 
- 	.align	3	/* not needed for this code, but keeps fncpy() happy */
- 
- ENTRY(relocate_new_kernel)
- 
--	ldr	r0,kexec_indirection_page
--	ldr	r1,kexec_start_address
-+	adr	r7, relocate_new_kernel_end
-+	ldr	r0, [r7, #KEXEC_INDIR_PAGE]
-+	ldr	r1, [r7, #KEXEC_START_ADDR]
- 
- 	/*
- 	 * If there is no indirection page (we are doing crashdumps)
-@@ -57,34 +59,16 @@ ENTRY(relocate_new_kernel)
- 
- 2:
- 	/* Jump to relocated kernel */
--	mov lr,r1
--	mov r0,#0
--	ldr r1,kexec_mach_type
--	ldr r2,kexec_boot_atags
-- ARM(	ret lr	)
-- THUMB(	bx lr		)
--
--	.align
--
--	.globl kexec_start_address
--kexec_start_address:
--	.long	0x0
--
--	.globl kexec_indirection_page
--kexec_indirection_page:
--	.long	0x0
--
--	.globl kexec_mach_type
--kexec_mach_type:
--	.long	0x0
--
--	/* phy addr of the atags for the new kernel */
--	.globl kexec_boot_atags
--kexec_boot_atags:
--	.long	0x0
-+	mov	lr, r1
-+	mov	r0, #0
-+	ldr	r1, [r7, #KEXEC_MACH_TYPE]
-+	ldr	r2, [r7, #KEXEC_R2]
-+ ARM(	ret	lr	)
-+ THUMB(	bx	lr	)
- 
- ENDPROC(relocate_new_kernel)
- 
-+	.align	3
- relocate_new_kernel_end:
- 
- 	.globl relocate_new_kernel_size
+ 	for (; fn < (ctor_fn_t *) __ctors_end; fn++)
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 3110c77230c7f..f62de2dea8a31 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+-	select CONSTRUCTORS if !UML
++	select CONSTRUCTORS
+ 	default n
+ 	help
+ 	This option enables gcov-based code profiling (e.g. for code coverage
 -- 
 2.27.0
 
