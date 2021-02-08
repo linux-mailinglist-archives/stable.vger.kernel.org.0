@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99EA3137CE
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3FBF3137DD
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:33:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbhBHPbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:31:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36396 "EHLO mail.kernel.org"
+        id S233700AbhBHPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:32:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233134AbhBHP1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:27:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F8464F1E;
-        Mon,  8 Feb 2021 15:15:51 +0000 (UTC)
+        id S233863AbhBHP2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:28:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77FD864F29;
+        Mon,  8 Feb 2021 15:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797352;
-        bh=RNoh83kxVOU4Gtrg4nivMqd2efMokmECrv5Cv7x2qOs=;
+        s=korg; t=1612797383;
+        bh=GvqqoWao7hO7q+LY/d2qHs0yxYIaYkFr6SFinrGiJdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neZ4UHV0fO7ILmEVTHIEDAeGOvAuTMxbfcQPklGfhCDxNXUZeOSOa+FQXBK6VnK8T
-         9Oc56p5qmD0z7OZGhffgo/nM2bXpiQjXY5O06WjguXjk2fFyxQSpqY+6DOJS/grXWk
-         rtSsnzfu2SXRa5GpDIn6xDBgEhz7zO2r1nN6NNiM=
+        b=W+M6uY0XagjemobvVjUO7H3eJajpkEf6dHOru0i7E8sBdCPx38C3dIKhe1A7iDLZg
+         Q7ZqWGiIyJyC79hfpHLAEfVbDeLhW8ejHoo3bavnf1BUYtnZjuQtmU6T18vtOpC7dz
+         QKzd94kdzrC3gj/wlznDUke5+mVmp3Ytt81FMl74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viktor Rosendahl <Viktor.Rosendahl@bmw.de>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 062/120] tracing: Use pause-on-trace with the latency tracers
-Date:   Mon,  8 Feb 2021 16:00:49 +0100
-Message-Id: <20210208145820.896248889@linuxfoundation.org>
+Subject: [PATCH 5.10 063/120] tracepoint: Fix race between tracing and removing tracepoint
+Date:   Mon,  8 Feb 2021 16:00:50 +0100
+Message-Id: <20210208145820.945240185@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -39,57 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit da7f84cdf02fd5f66864041f45018b328911b722 upstream.
+commit c8b186a8d54d7e12d28e9f9686cb00ff18fc2ab2 upstream.
 
-Eaerlier, tracing was disabled when reading the trace file. This behavior
-was changed with:
+When executing a tracepoint, the tracepoint's func is dereferenced twice -
+in __DO_TRACE() (where the returned pointer is checked) and later on in
+__traceiter_##_name where the returned pointer is dereferenced without
+checking which leads to races against tracepoint_removal_sync() and
+crashes.
 
-commit 06e0a548bad0 ("tracing: Do not disable tracing when reading the
-trace file").
+This adds a check before referencing the pointer in tracepoint_ptr_deref.
 
-This doesn't seem to work with the latency tracers.
-
-The above mentioned commit dit not only change the behavior but also added
-an option to emulate the old behavior. The idea with this patch is to
-enable this pause-on-trace option when the latency tracers are used.
-
-Link: https://lkml.kernel.org/r/20210119164344.37500-2-Viktor.Rosendahl@bmw.de
+Link: https://lkml.kernel.org/r/20210202072326.120557-1-aik@ozlabs.ru
 
 Cc: stable@vger.kernel.org
-Fixes: 06e0a548bad0 ("tracing: Do not disable tracing when reading the trace file")
-Signed-off-by: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
+Fixes: d25e37d89dd2f ("tracepoint: Optimize using static_call()")
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_irqsoff.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/tracepoint.h |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/kernel/trace/trace_irqsoff.c
-+++ b/kernel/trace/trace_irqsoff.c
-@@ -562,6 +562,8 @@ static int __irqsoff_tracer_init(struct
- 	/* non overwrite screws up the latency tracers */
- 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, 1);
- 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, 1);
-+	/* without pause, we will produce garbage if another latency occurs */
-+	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, 1);
- 
- 	tr->max_latency = 0;
- 	irqsoff_trace = tr;
-@@ -583,11 +585,13 @@ static void __irqsoff_tracer_reset(struc
- {
- 	int lat_flag = save_flags & TRACE_ITER_LATENCY_FMT;
- 	int overwrite_flag = save_flags & TRACE_ITER_OVERWRITE;
-+	int pause_flag = save_flags & TRACE_ITER_PAUSE_ON_TRACE;
- 
- 	stop_irqsoff_tracer(tr, is_graph(tr));
- 
- 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, lat_flag);
- 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, overwrite_flag);
-+	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, pause_flag);
- 	ftrace_reset_array_ops(tr);
- 
- 	irqsoff_busy = false;
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -307,11 +307,13 @@ static inline struct tracepoint *tracepo
+ 									\
+ 		it_func_ptr =						\
+ 			rcu_dereference_raw((&__tracepoint_##_name)->funcs); \
+-		do {							\
+-			it_func = (it_func_ptr)->func;			\
+-			__data = (it_func_ptr)->data;			\
+-			((void(*)(void *, proto))(it_func))(__data, args); \
+-		} while ((++it_func_ptr)->func);			\
++		if (it_func_ptr) {					\
++			do {						\
++				it_func = (it_func_ptr)->func;		\
++				__data = (it_func_ptr)->data;		\
++				((void(*)(void *, proto))(it_func))(__data, args); \
++			} while ((++it_func_ptr)->func);		\
++		}							\
+ 		return 0;						\
+ 	}								\
+ 	DEFINE_STATIC_CALL(tp_func_##_name, __traceiter_##_name);
 
 
