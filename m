@@ -2,267 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A711A3135EF
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3BB73135E4
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231898AbhBHPC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:02:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51522 "EHLO mail.kernel.org"
+        id S231882AbhBHPBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:01:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230479AbhBHPCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:02:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A4060238;
-        Mon,  8 Feb 2021 15:02:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796527;
-        bh=mwUEe6+13UVQMz8N3OXQRt/hmdjMEbOffHZYsDxjLhc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeHFd6lYoJReJHAXy5bf9m0nlFNd617FNECXq6YcobNoym7STua8y2nsVXHTH7iTn
-         FflxBsw2HKWVRRB+SN2VYeOcf8S5oY11lNybh3lz8tkMZKvK27Oi1hUcz5Odz9c4Uq
-         EXUTAcsxQ13UvOJQ9RoW3aA0WeVPVOgUT2f14eI0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
-        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
-        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 02/38] futex,rt_mutex: Provide futex specific rt_mutex API
-Date:   Mon,  8 Feb 2021 16:00:24 +0100
-Message-Id: <20210208145805.387552048@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S231781AbhBHPBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:01:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E88E64E27;
+        Mon,  8 Feb 2021 15:00:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612796427;
+        bh=zGX5GtXakCRE/MyD6c9tsu3nSt9nLv++IN2LNAvchk4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=f6VP1KJ0MWeCaAlH9E564MxHxasiBITo1xkJ9Ier1j3zuYPDdQRMEf3KI2RxFJbhv
+         lLVspdmShBjiHCIdvpIfZGi4I65CBpQLA6hynv1XacfexK8ihOCQbN2JajuUnnd8sS
+         p6lRNmC/qNkQ3fjz8Kyhayq9HxcMpISLQj+gMrwsOwNEcqkN+Yoi9oEMFdf1t4ixZz
+         hJtiGLoLbp5mlWmGp7Zjxo8GFafYyGFskF8rdcrhyLR8l69+rSuD0qAO3RZx85KVan
+         K6m02ZUsB7bWocb/SqqMu8Ei7515pA9S+jC7f3VaW+49vXIa3zBZiinpAZ3Fb5e/Yl
+         /78hCPAZuFtUg==
+Received: by pali.im (Postfix)
+        id C8D449E0; Mon,  8 Feb 2021 16:00:24 +0100 (CET)
+Date:   Mon, 8 Feb 2021 16:00:24 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     mathias.nyman@linux.intel.com, stable@vger.kernel.org,
+        tmn505@gmail.com, yoshihiro.shimoda.uh@renesas.com
+Subject: Re: FAILED: patch "[PATCH] usb: host: xhci: mvebu: make USB 3.0 PHY
+ optional for Armada" failed to apply to 5.4-stable tree
+Message-ID: <20210208150024.56itcicj46idkqf3@pali>
+References: <1612711854148237@kroah.com>
+ <20210207155621.m4or6ktctyqnejhk@pali>
+ <YCEN8PptcWpl5PvW@kroah.com>
+ <YCEPdBfsxpWSdSar@kroah.com>
+ <20210208110709.2ce5h3fdm3ftipcf@pali>
+ <20210208143705.xi4jjy6unz5ueph4@pali>
+ <YCFQkt2XRYa+zE0f@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YCFQkt2XRYa+zE0f@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+On Monday 08 February 2021 15:54:10 Greg KH wrote:
+> On Mon, Feb 08, 2021 at 03:37:05PM +0100, Pali Rohár wrote:
+> > On Monday 08 February 2021 12:07:09 Pali Rohár wrote:
+> > > On Monday 08 February 2021 11:16:20 Greg KH wrote:
+> > > > On Mon, Feb 08, 2021 at 11:09:52AM +0100, Greg KH wrote:
+> > > > > On Sun, Feb 07, 2021 at 04:56:21PM +0100, Pali Rohár wrote:
+> > > > > > On Sunday 07 February 2021 16:30:54 gregkh@linuxfoundation.org wrote:
+> > > > > > > The patch below does not apply to the 5.4-stable tree.
+> > > > > > > If someone wants it applied there, or to any other stable or longterm
+> > > > > > > tree, then please email the backport, including the original git commit
+> > > > > > > id to <stable@vger.kernel.org>.
+> > > > > > > 
+> > > > > > > thanks,
+> > > > > > > 
+> > > > > > > greg k-h
+> > > > > > ...
+> > > > > > > Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
+> > > > > > > Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+> > > > > > > Cc: <stable@vger.kernel.org> # 5.1+: f768e718911e: usb: host: xhci-plat: add priv quirk for skip PHY initialization
+> > > > > > 
+> > > > > > Hello Greg! Seems that you have forgot to apply some dependency patches.
+> > > > > 
+> > > > > You are right, I had one, not the other, now fixed up...
+> > > > 
+> > > > Nope, of_phy_put(phy) is not present in 5.4, so it needs a "real"
+> > > > backport.
+> > > > 
+> > > > Can you do that?
+> > > 
+> > > Ok, I will look at it.
+> > 
+> > Now I have backported this patch to 5.4 version and tested it with old
+> > arm trusted firmware (for which this patch is fixing support) and also
+> > with the new arm trusted firmware. It is working fine in both cases.
+> > 
+> > Still this patch depends on two mentioned commits which are required.
+> 
+> This worked, thanks!
+> 
+> greg k-h
 
-From: Peter Zijlstra <peterz@infradead.org>
+Perfect!
 
-[ Upstream commit 5293c2efda37775346885c7e924d4ef7018ea60b ]
+Just to note for other people, I have tested this backported patch on
+linux 5.4 on Espressobin v5 board with "old arm trusted firmware"
+version 2017.03-armada-17.10 from http://espressobin.net/tech-spec/
 
-Part of what makes futex_unlock_pi() intricate is that
-rt_mutex_futex_unlock() -> rt_mutex_slowunlock() can drop
-rt_mutex::wait_lock.
+And on 5.4 kernel finally usb 3.0 port started working!
 
-This means it cannot rely on the atomicy of wait_lock, which would be
-preferred in order to not rely on hb->lock so much.
-
-The reason rt_mutex_slowunlock() needs to drop wait_lock is because it can
-race with the rt_mutex fastpath, however futexes have their own fast path.
-
-Since futexes already have a bunch of separate rt_mutex accessors, complete
-that set and implement a rt_mutex variant without fastpath for them.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: juri.lelli@arm.com
-Cc: bigeasy@linutronix.de
-Cc: xlpang@redhat.com
-Cc: rostedt@goodmis.org
-Cc: mathieu.desnoyers@efficios.com
-Cc: jdesfossez@efficios.com
-Cc: dvhart@infradead.org
-Cc: bristot@redhat.com
-Link: http://lkml.kernel.org/r/20170322104151.702962446@infradead.org
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[Lee: Back-ported to solve a dependency]
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/futex.c                  |   30 ++++++++++-----------
- kernel/locking/rtmutex.c        |   56 +++++++++++++++++++++++++++++-----------
- kernel/locking/rtmutex_common.h |    8 ++++-
- 3 files changed, 61 insertions(+), 33 deletions(-)
-
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -936,7 +936,7 @@ static void exit_pi_state_list(struct ta
- 		pi_state->owner = NULL;
- 		raw_spin_unlock_irq(&curr->pi_lock);
- 
--		rt_mutex_unlock(&pi_state->pi_mutex);
-+		rt_mutex_futex_unlock(&pi_state->pi_mutex);
- 
- 		spin_unlock(&hb->lock);
- 
-@@ -1436,20 +1436,18 @@ static int wake_futex_pi(u32 __user *uad
- 	pi_state->owner = new_owner;
- 	raw_spin_unlock_irq(&new_owner->pi_lock);
- 
--	raw_spin_unlock(&pi_state->pi_mutex.wait_lock);
--
--	deboost = rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
--
- 	/*
--	 * First unlock HB so the waiter does not spin on it once he got woken
--	 * up. Second wake up the waiter before the priority is adjusted. If we
--	 * deboost first (and lose our higher priority), then the task might get
--	 * scheduled away before the wake up can take place.
-+	 * We've updated the uservalue, this unlock cannot fail.
- 	 */
-+	deboost = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
-+
-+	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
- 	spin_unlock(&hb->lock);
--	wake_up_q(&wake_q);
--	if (deboost)
-+
-+	if (deboost) {
-+		wake_up_q(&wake_q);
- 		rt_mutex_adjust_prio(current);
-+	}
- 
- 	return 0;
- }
-@@ -2362,7 +2360,7 @@ static int fixup_owner(u32 __user *uaddr
- 		 * task acquired the rt_mutex after we removed ourself from the
- 		 * rt_mutex waiters list.
- 		 */
--		if (rt_mutex_trylock(&q->pi_state->pi_mutex)) {
-+		if (rt_mutex_futex_trylock(&q->pi_state->pi_mutex)) {
- 			locked = 1;
- 			goto out;
- 		}
-@@ -2686,7 +2684,7 @@ retry_private:
- 	if (!trylock) {
- 		ret = rt_mutex_timed_futex_lock(&q.pi_state->pi_mutex, to);
- 	} else {
--		ret = rt_mutex_trylock(&q.pi_state->pi_mutex);
-+		ret = rt_mutex_futex_trylock(&q.pi_state->pi_mutex);
- 		/* Fixup the trylock return value: */
- 		ret = ret ? 0 : -EWOULDBLOCK;
- 	}
-@@ -2709,7 +2707,7 @@ retry_private:
- 	 * it and return the fault to userspace.
- 	 */
- 	if (ret && (rt_mutex_owner(&q.pi_state->pi_mutex) == current))
--		rt_mutex_unlock(&q.pi_state->pi_mutex);
-+		rt_mutex_futex_unlock(&q.pi_state->pi_mutex);
- 
- 	/* Unqueue and drop the lock */
- 	unqueue_me_pi(&q);
-@@ -3016,7 +3014,7 @@ static int futex_wait_requeue_pi(u32 __u
- 			spin_lock(q.lock_ptr);
- 			ret = fixup_pi_state_owner(uaddr2, &q, current);
- 			if (ret && rt_mutex_owner(&q.pi_state->pi_mutex) == current)
--				rt_mutex_unlock(&q.pi_state->pi_mutex);
-+				rt_mutex_futex_unlock(&q.pi_state->pi_mutex);
- 			/*
- 			 * Drop the reference to the pi state which
- 			 * the requeue_pi() code acquired for us.
-@@ -3059,7 +3057,7 @@ static int futex_wait_requeue_pi(u32 __u
- 		 * userspace.
- 		 */
- 		if (ret && rt_mutex_owner(pi_mutex) == current)
--			rt_mutex_unlock(pi_mutex);
-+			rt_mutex_futex_unlock(pi_mutex);
- 
- 		/* Unqueue and drop the lock. */
- 		unqueue_me_pi(&q);
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -1485,15 +1485,23 @@ EXPORT_SYMBOL_GPL(rt_mutex_lock_interrup
- 
- /*
-  * Futex variant with full deadlock detection.
-+ * Futex variants must not use the fast-path, see __rt_mutex_futex_unlock().
-  */
--int rt_mutex_timed_futex_lock(struct rt_mutex *lock,
-+int __sched rt_mutex_timed_futex_lock(struct rt_mutex *lock,
- 			      struct hrtimer_sleeper *timeout)
- {
- 	might_sleep();
- 
--	return rt_mutex_timed_fastlock(lock, TASK_INTERRUPTIBLE, timeout,
--				       RT_MUTEX_FULL_CHAINWALK,
--				       rt_mutex_slowlock);
-+	return rt_mutex_slowlock(lock, TASK_INTERRUPTIBLE,
-+				 timeout, RT_MUTEX_FULL_CHAINWALK);
-+}
-+
-+/*
-+ * Futex variant, must not use fastpath.
-+ */
-+int __sched rt_mutex_futex_trylock(struct rt_mutex *lock)
-+{
-+	return rt_mutex_slowtrylock(lock);
- }
- 
- /**
-@@ -1552,20 +1560,38 @@ void __sched rt_mutex_unlock(struct rt_m
- EXPORT_SYMBOL_GPL(rt_mutex_unlock);
- 
- /**
-- * rt_mutex_futex_unlock - Futex variant of rt_mutex_unlock
-- * @lock: the rt_mutex to be unlocked
-- *
-- * Returns: true/false indicating whether priority adjustment is
-- * required or not.
-+ * Futex variant, that since futex variants do not use the fast-path, can be
-+ * simple and will not need to retry.
-  */
--bool __sched rt_mutex_futex_unlock(struct rt_mutex *lock,
--				   struct wake_q_head *wqh)
-+bool __sched __rt_mutex_futex_unlock(struct rt_mutex *lock,
-+				    struct wake_q_head *wake_q)
- {
--	if (likely(rt_mutex_cmpxchg_release(lock, current, NULL))) {
--		rt_mutex_deadlock_account_unlock(current);
--		return false;
-+	lockdep_assert_held(&lock->wait_lock);
-+
-+	debug_rt_mutex_unlock(lock);
-+
-+	if (!rt_mutex_has_waiters(lock)) {
-+		lock->owner = NULL;
-+		return false; /* done */
-+	}
-+
-+	mark_wakeup_next_waiter(wake_q, lock);
-+	return true; /* deboost and wakeups */
-+}
-+
-+void __sched rt_mutex_futex_unlock(struct rt_mutex *lock)
-+{
-+	WAKE_Q(wake_q);
-+	bool deboost;
-+
-+	raw_spin_lock_irq(&lock->wait_lock);
-+	deboost = __rt_mutex_futex_unlock(lock, &wake_q);
-+	raw_spin_unlock_irq(&lock->wait_lock);
-+
-+	if (deboost) {
-+		wake_up_q(&wake_q);
-+		rt_mutex_adjust_prio(current);
- 	}
--	return rt_mutex_slowunlock(lock, wqh);
- }
- 
- /**
---- a/kernel/locking/rtmutex_common.h
-+++ b/kernel/locking/rtmutex_common.h
-@@ -112,8 +112,12 @@ extern int rt_mutex_wait_proxy_lock(stru
- extern bool rt_mutex_cleanup_proxy_lock(struct rt_mutex *lock,
- 				 struct rt_mutex_waiter *waiter);
- extern int rt_mutex_timed_futex_lock(struct rt_mutex *l, struct hrtimer_sleeper *to);
--extern bool rt_mutex_futex_unlock(struct rt_mutex *lock,
--				  struct wake_q_head *wqh);
-+extern int rt_mutex_futex_trylock(struct rt_mutex *l);
-+
-+extern void rt_mutex_futex_unlock(struct rt_mutex *lock);
-+extern bool __rt_mutex_futex_unlock(struct rt_mutex *lock,
-+				 struct wake_q_head *wqh);
-+
- extern void rt_mutex_adjust_prio(struct task_struct *task);
- 
- #ifdef CONFIG_DEBUG_RT_MUTEXES
-
-
+(of course with new arm trusted firmware compiled from source code there
+is no such issue, but Espressobin comes with burned above old firmware
+version)
