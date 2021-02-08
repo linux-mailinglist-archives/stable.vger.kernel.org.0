@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C167313815
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F4431382F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233895AbhBHPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:36:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33696 "EHLO mail.kernel.org"
+        id S233448AbhBHPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233407AbhBHPRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:17:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA79564EC4;
-        Mon,  8 Feb 2021 15:11:39 +0000 (UTC)
+        id S232584AbhBHPdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:33:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CECC64F47;
+        Mon,  8 Feb 2021 15:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797100;
-        bh=wpP4i7BQ4WKIsO17uvTj70lFGzob/jQLcJhFFcwLSYw=;
+        s=korg; t=1612797489;
+        bh=SI3CWuc4KjwgkE8RgZeNombFuH94Ed7cEEdI0vFxfns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKQImTk4r/Dex5qu/Ew4V09WS6+dTxfZh4QmMuDSEU6MA6a+mNLHK30o4zgEz89dW
-         fP6uojhTZOT7Dj6j4U2NUDOTYBnpkm/1T+DvuUPirpyc+AWCMlKa2axs9kmGoAtarS
-         4D0tug2TEyWivGLbfBYFZqTwgA3DRtRs/hz60SSo=
+        b=bs1vy7H9bN1X/LoyToS9m88hjiBxgs1J5SeldgiQ9l3cG4of+XxEZnXWHY38zVQuM
+         tNM6h0CwfgHiYx5fgKxczc8kPTVhtzg+ehGiay9Y2EMBDUu+nwlsifNsgMaga868mp
+         KoGbecam3d26wfDVEnlQZvoBWiMsrj1Hv0vQzVzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [PATCH 5.4 59/65] md: Set prev_flush_start and flush_bio in an atomic way
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 104/120] mm: thp: fix MADV_REMOVE deadlock on shmem THP
 Date:   Mon,  8 Feb 2021 16:01:31 +0100
-Message-Id: <20210208145812.514171243@linuxfoundation.org>
+Message-Id: <20210208145822.527241143@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
+References: <20210208145818.395353822@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit dc5d17a3c39b06aef866afca19245a9cfb533a79 upstream.
+commit 1c2f67308af4c102b4e1e6cd6f69819ae59408e0 upstream.
 
-One customer reports a crash problem which causes by flush request. It
-triggers a warning before crash.
+Sergey reported deadlock between kswapd correctly doing its usual
+lock_page(page) followed by down_read(page->mapping->i_mmap_rwsem), and
+madvise(MADV_REMOVE) on an madvise(MADV_HUGEPAGE) area doing
+down_write(page->mapping->i_mmap_rwsem) followed by lock_page(page).
 
-        /* new request after previous flush is completed */
-        if (ktime_after(req_start, mddev->prev_flush_start)) {
-                WARN_ON(mddev->flush_bio);
-                mddev->flush_bio = bio;
-                bio = NULL;
-        }
+This happened when shmem_fallocate(punch hole)'s unmap_mapping_range()
+reaches zap_pmd_range()'s call to __split_huge_pmd().  The same deadlock
+could occur when partially truncating a mapped huge tmpfs file, or using
+fallocate(FALLOC_FL_PUNCH_HOLE) on it.
 
-The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
-flush_bio in md_flush_request. But there is no lock protection in
-md_submit_flush_data. It can set flush_bio to NULL first because of
-compiler reordering write instructions.
+__split_huge_pmd()'s page lock was added in 5.8, to make sure that any
+concurrent use of reuse_swap_page() (holding page lock) could not catch
+the anon THP's mapcounts and swapcounts while they were being split.
 
-For example, flush bio1 sets flush bio to NULL first in
-md_submit_flush_data. An interrupt or vmware causing an extended stall
-happen between updating flush_bio and prev_flush_start. Because flush_bio
-is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
-flush bio1 updates prev_flush_start after the interrupt or extended stall.
+Fortunately, reuse_swap_page() is never applied to a shmem or file THP
+(not even by khugepaged, which checks PageSwapCache before calling), and
+anonymous THPs are never created in shmem or file areas: so that
+__split_huge_pmd()'s page lock can only be necessary for anonymous THPs,
+on which there is no risk of deadlock with i_mmap_rwsem.
 
-Then flush bio3 enters in md_flush_request. The start time req_start is
-behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
-finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
-again. INIT_WORK() will re-initialize the list pointers in the
-work_struct, which then can result in a corrupted work list and the
-work_struct queued a second time. With the work list corrupted, it can
-lead in invalid work items being used and cause a crash in
-process_one_work.
-
-We need to make sure only one flush bio can be handled at one same time.
-So add spin lock in md_submit_flush_data to protect prev_flush_start and
-flush_bio in an atomic way.
-
-Reviewed-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Link: https://lkml.kernel.org/r/alpine.LSU.2.11.2101161409470.2022@eggly.anvils
+Fixes: c444eb564fb1 ("mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/huge_memory.c |   37 +++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -538,8 +538,10 @@ static void md_submit_flush_data(struct
- 	 * could wait for this and below md_handle_request could wait for those
- 	 * bios because of suspend check
- 	 */
-+	spin_lock_irq(&mddev->lock);
- 	mddev->last_flush = mddev->start_flush;
- 	mddev->flush_bio = NULL;
-+	spin_unlock_irq(&mddev->lock);
- 	wake_up(&mddev->sb_wait);
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2188,7 +2188,7 @@ void __split_huge_pmd(struct vm_area_str
+ {
+ 	spinlock_t *ptl;
+ 	struct mmu_notifier_range range;
+-	bool was_locked = false;
++	bool do_unlock_page = false;
+ 	pmd_t _pmd;
  
- 	if (bio->bi_iter.bi_size == 0) {
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+@@ -2204,7 +2204,6 @@ void __split_huge_pmd(struct vm_area_str
+ 	VM_BUG_ON(freeze && !page);
+ 	if (page) {
+ 		VM_WARN_ON_ONCE(!PageLocked(page));
+-		was_locked = true;
+ 		if (page != pmd_page(*pmd))
+ 			goto out;
+ 	}
+@@ -2213,19 +2212,29 @@ repeat:
+ 	if (pmd_trans_huge(*pmd)) {
+ 		if (!page) {
+ 			page = pmd_page(*pmd);
+-			if (unlikely(!trylock_page(page))) {
+-				get_page(page);
+-				_pmd = *pmd;
+-				spin_unlock(ptl);
+-				lock_page(page);
+-				spin_lock(ptl);
+-				if (unlikely(!pmd_same(*pmd, _pmd))) {
+-					unlock_page(page);
++			/*
++			 * An anonymous page must be locked, to ensure that a
++			 * concurrent reuse_swap_page() sees stable mapcount;
++			 * but reuse_swap_page() is not used on shmem or file,
++			 * and page lock must not be taken when zap_pmd_range()
++			 * calls __split_huge_pmd() while i_mmap_lock is held.
++			 */
++			if (PageAnon(page)) {
++				if (unlikely(!trylock_page(page))) {
++					get_page(page);
++					_pmd = *pmd;
++					spin_unlock(ptl);
++					lock_page(page);
++					spin_lock(ptl);
++					if (unlikely(!pmd_same(*pmd, _pmd))) {
++						unlock_page(page);
++						put_page(page);
++						page = NULL;
++						goto repeat;
++					}
+ 					put_page(page);
+-					page = NULL;
+-					goto repeat;
+ 				}
+-				put_page(page);
++				do_unlock_page = true;
+ 			}
+ 		}
+ 		if (PageMlocked(page))
+@@ -2235,7 +2244,7 @@ repeat:
+ 	__split_huge_pmd_locked(vma, pmd, range.start, freeze);
+ out:
+ 	spin_unlock(ptl);
+-	if (!was_locked && page)
++	if (do_unlock_page)
+ 		unlock_page(page);
+ 	/*
+ 	 * No need to double call mmu_notifier->invalidate_range() callback.
 
 
