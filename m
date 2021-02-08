@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A63231367C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B626431371F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbhBHPLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:11:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52602 "EHLO mail.kernel.org"
+        id S233699AbhBHPUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:20:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233103AbhBHPG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D90B364EE2;
-        Mon,  8 Feb 2021 15:05:16 +0000 (UTC)
+        id S231743AbhBHPNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D44B64F00;
+        Mon,  8 Feb 2021 15:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796717;
-        bh=+BOrOTXiaHwbABXS+rIMBSrNb6isxC1bdb5cOY6MML8=;
+        s=korg; t=1612797030;
+        bh=W4shUEBm82+PdHKxOiO3QIVumzaP82iQQXRNNA665Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLGplgr21MuaCIcwy4Iz2JtSBdNqWt8mX9AQw1P/mC9qkTN2HL29aRhTKRBtee867
-         e62oT5LHYo4OVnyS3PAuSwgMVf+19PbJYsfsveEC2/ZnKyjk+upCC0/S+GjQLxfz70
-         L+6E0an+GUYsRUtFGhLbi0+UZMxW7Cq2hdJnrZLs=
+        b=OAR8gpy0+9Oy8wW/pVJ5ZSKaGWnKiDihrU1c2k7tLJBYv/yzODrAFIg6BnTN6c6o1
+         5ZLl64Uz5B2+SY+kk9USNDb4VOaJncJoxa4wSG88rLjXgXpEY9pAHc4tAT+UwbDAwU
+         ZwvDR/N4FeiijDQu9oaVTbUMRAi6YH2iMa7WwsCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Valentin <benpicco@googlemail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 40/43] Input: xpad - sync supported devices with fork on GitHub
+        stable@vger.kernel.org, pierre.gondois@arm.com,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 34/65] fgraph: Initialize tracing_graph_pause at task creation
 Date:   Mon,  8 Feb 2021 16:01:06 +0100
-Message-Id: <20210208145807.941125185@linuxfoundation.org>
+Message-Id: <20210208145811.547133434@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Valentin <benpicco@googlemail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 upstream.
+commit 7e0a9220467dbcfdc5bc62825724f3e52e50ab31 upstream.
 
-There is a fork of this driver on GitHub [0] that has been updated
-with new device IDs.
+On some archs, the idle task can call into cpu_suspend(). The cpu_suspend()
+will disable or pause function graph tracing, as there's some paths in
+bringing down the CPU that can have issues with its return address being
+modified. The task_struct structure has a "tracing_graph_pause" atomic
+counter, that when set to something other than zero, the function graph
+tracer will not modify the return address.
 
-Merge those into the mainline driver, so the out-of-tree fork is not
-needed for users of those devices anymore.
+The problem is that the tracing_graph_pause counter is initialized when the
+function graph tracer is enabled. This can corrupt the counter for the idle
+task if it is suspended in these architectures.
 
-[0] https://github.com/paroj/xpad
+   CPU 1				CPU 2
+   -----				-----
+  do_idle()
+    cpu_suspend()
+      pause_graph_tracing()
+          task_struct->tracing_graph_pause++ (0 -> 1)
 
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
-Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+				start_graph_tracing()
+				  for_each_online_cpu(cpu) {
+				    ftrace_graph_init_idle_task(cpu)
+				      task-struct->tracing_graph_pause = 0 (1 -> 0)
+
+      unpause_graph_tracing()
+          task_struct->tracing_graph_pause-- (0 -> -1)
+
+The above should have gone from 1 to zero, and enabled function graph
+tracing again. But instead, it is set to -1, which keeps it disabled.
+
+There's no reason that the field tracing_graph_pause on the task_struct can
+not be initialized at boot up.
+
+Cc: stable@vger.kernel.org
+Fixes: 380c4b1411ccd ("tracing/function-graph-tracer: append the tracing_graph_flag")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211339
+Reported-by: pierre.gondois@arm.com
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ init/init_task.c      |    3 ++-
+ kernel/trace/fgraph.c |    2 --
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -232,9 +232,17 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
-@@ -313,6 +321,9 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
-+	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-@@ -446,8 +457,12 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
- 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
-+	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
-+	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
- 	{ }
- };
+--- a/init/init_task.c
++++ b/init/init_task.c
+@@ -171,7 +171,8 @@ struct task_struct init_task
+ 	.lockdep_recursion = 0,
+ #endif
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	.ret_stack	= NULL,
++	.ret_stack		= NULL,
++	.tracing_graph_pause	= ATOMIC_INIT(0),
+ #endif
+ #if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPTION)
+ 	.trace_recursion = 0,
+--- a/kernel/trace/fgraph.c
++++ b/kernel/trace/fgraph.c
+@@ -367,7 +367,6 @@ static int alloc_retstack_tasklist(struc
+ 		}
  
+ 		if (t->ret_stack == NULL) {
+-			atomic_set(&t->tracing_graph_pause, 0);
+ 			atomic_set(&t->trace_overrun, 0);
+ 			t->curr_ret_stack = -1;
+ 			t->curr_ret_depth = -1;
+@@ -462,7 +461,6 @@ static DEFINE_PER_CPU(struct ftrace_ret_
+ static void
+ graph_init_task(struct task_struct *t, struct ftrace_ret_stack *ret_stack)
+ {
+-	atomic_set(&t->tracing_graph_pause, 0);
+ 	atomic_set(&t->trace_overrun, 0);
+ 	t->ftrace_timestamp = 0;
+ 	/* make curr_ret_stack visible before we add the ret_stack */
 
 
