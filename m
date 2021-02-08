@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7125313818
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88805313821
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234004AbhBHPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:36:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
+        id S233257AbhBHPhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:37:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233901AbhBHPbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:31:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17F7F64EBA;
-        Mon,  8 Feb 2021 15:17:26 +0000 (UTC)
+        id S233941AbhBHPb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:31:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D27864F36;
+        Mon,  8 Feb 2021 15:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797447;
-        bh=O2yhIxqh1eWICdYng4/cLd7KTROo58VCiHhBXMXZe4M=;
+        s=korg; t=1612797453;
+        bh=wbjXtOIshrHPJECKl2sRG3/Nsg7ZmnhFhE9fhkaJm5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oC3hh2sy2jZMuG8Qi54JYGGgT6AK/oYAocchcD01HXx3TtjIsXewupyGyTHCvyH/6
-         le0jaHAVNAd0yTo9XDFwXBxzU/xdZ2j/pVNx5gOjiWreGLf8Nof3vzGR3fZV6HHG9w
-         i8l1g3F4jSTZA0gVjDwPiI0z4457MuA+HW2aXmDM=
+        b=CM4EFgC5srM3OAFWR3VyrfwOSQ9H2Or7tc0iafkTwYVB3zOTNhXFb2Mmo7k4eTrvU
+         kS0QCgsJAmzPq/eNN6HdBMk3dqhovAIn2cICt6YtxVNpKm/pHBedWwacsalTUsssiT
+         FPDFbh7Ub8dkhJJFQdUyTvu4QYNfP8SGHrLyXX9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [PATCH 5.10 114/120] md: Set prev_flush_start and flush_bio in an atomic way
-Date:   Mon,  8 Feb 2021 16:01:41 +0100
-Message-Id: <20210208145822.912821175@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 115/120] igc: Report speed and duplex as unknown when device is runtime suspended
+Date:   Mon,  8 Feb 2021 16:01:42 +0100
+Message-Id: <20210208145822.949078473@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,65 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit dc5d17a3c39b06aef866afca19245a9cfb533a79 upstream.
+commit 2e99dedc73f004f650b197c9b269c15c7e01ad15 upstream.
 
-One customer reports a crash problem which causes by flush request. It
-triggers a warning before crash.
+Similar to commit 165ae7a8feb5 ("igb: Report speed and duplex as unknown
+when device is runtime suspended"), if we try to read speed and duplex
+sysfs while the device is runtime suspended, igc will complain and
+stops working:
 
-        /* new request after previous flush is completed */
-        if (ktime_after(req_start, mddev->prev_flush_start)) {
-                WARN_ON(mddev->flush_bio);
-                mddev->flush_bio = bio;
-                bio = NULL;
-        }
+[  123.449883] igc 0000:03:00.0 enp3s0: PCIe link lost, device now detached
+[  123.450052] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  123.450056] #PF: supervisor read access in kernel mode
+[  123.450058] #PF: error_code(0x0000) - not-present page
+[  123.450059] PGD 0 P4D 0
+[  123.450064] Oops: 0000 [#1] SMP NOPTI
+[  123.450068] CPU: 0 PID: 2525 Comm: udevadm Tainted: G     U  W  OE     5.10.0-1002-oem #2+rkl2-Ubuntu
+[  123.450078] RIP: 0010:igc_rd32+0x1c/0x90 [igc]
+[  123.450080] Code: c0 5d c3 b8 fd ff ff ff c3 0f 1f 44 00 00 0f 1f 44 00 00 55 89 f0 48 89 e5 41 56 41 55 41 54 49 89 c4 53 48 8b 57 08 48 01 d0 <44> 8b 28 41 83 fd ff 74 0c 5b 44 89 e8 41 5c 41 5d 4
 
-The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
-flush_bio in md_flush_request. But there is no lock protection in
-md_submit_flush_data. It can set flush_bio to NULL first because of
-compiler reordering write instructions.
+[  123.450083] RSP: 0018:ffffb0d100d6fcc0 EFLAGS: 00010202
+[  123.450085] RAX: 0000000000000008 RBX: ffffb0d100d6fd30 RCX: 0000000000000000
+[  123.450087] RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff945a12716c10
+[  123.450089] RBP: ffffb0d100d6fce0 R08: ffff945a12716550 R09: ffff945a09874000
+[  123.450090] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000008
+[  123.450092] R13: ffff945a12716000 R14: ffff945a037da280 R15: ffff945a037da290
+[  123.450094] FS:  00007f3b34c868c0(0000) GS:ffff945b89200000(0000) knlGS:0000000000000000
+[  123.450096] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  123.450098] CR2: 0000000000000008 CR3: 00000001144de006 CR4: 0000000000770ef0
+[  123.450100] PKRU: 55555554
+[  123.450101] Call Trace:
+[  123.450111]  igc_ethtool_get_link_ksettings+0xd6/0x1b0 [igc]
+[  123.450118]  __ethtool_get_link_ksettings+0x71/0xb0
+[  123.450123]  duplex_show+0x74/0xc0
+[  123.450129]  dev_attr_show+0x1d/0x40
+[  123.450134]  sysfs_kf_seq_show+0xa1/0x100
+[  123.450137]  kernfs_seq_show+0x27/0x30
+[  123.450142]  seq_read+0xb7/0x400
+[  123.450148]  ? common_file_perm+0x72/0x170
+[  123.450151]  kernfs_fop_read+0x35/0x1b0
+[  123.450155]  vfs_read+0xb5/0x1b0
+[  123.450157]  ksys_read+0x67/0xe0
+[  123.450160]  __x64_sys_read+0x1a/0x20
+[  123.450164]  do_syscall_64+0x38/0x90
+[  123.450168]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  123.450170] RIP: 0033:0x7f3b351fe142
+[  123.450173] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 3a ca 0a 00 e8 f5 19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[  123.450174] RSP: 002b:00007fffef2ec138 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[  123.450177] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3b351fe142
+[  123.450179] RDX: 0000000000001001 RSI: 00005644c047f070 RDI: 0000000000000003
+[  123.450180] RBP: 00007fffef2ec340 R08: 00005644c047f070 R09: 00007f3b352d9320
+[  123.450182] R10: 00005644c047c010 R11: 0000000000000246 R12: 00005644c047cbf0
+[  123.450184] R13: 00005644c047e6d0 R14: 0000000000000003 R15: 00007fffef2ec140
+[  123.450189] Modules linked in: rfcomm ccm cmac algif_hash algif_skcipher af_alg bnep toshiba_acpi industrialio toshiba_haps hp_accel lis3lv02d btusb btrtl btbcm btintel bluetooth ecdh_generic ecc joydev input_leds nls_iso8859_1 snd_sof_pci snd_sof_intel_byt snd_sof_intel_ipc snd_sof_intel_hda_common snd_soc_hdac_hda snd_hda_codec_hdmi snd_sof_xtensa_dsp snd_sof_intel_hda snd_sof snd_hda_ext_core snd_soc_acpi_intel_match snd_soc_acpi snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_intel_dspcfg soundwire_intel soundwire_generic_allocation soundwire_cadence snd_hda_codec snd_hda_core ath10k_pci snd_hwdep intel_rapl_msr intel_rapl_common ath10k_core soundwire_bus snd_soc_core x86_pkg_temp_thermal ath intel_powerclamp snd_compress ac97_bus snd_pcm_dmaengine mac80211 snd_pcm coretemp snd_seq_midi snd_seq_midi_event snd_rawmidi kvm_intel cfg80211 snd_seq snd_seq_device snd_timer mei_hdcp kvm libarc4 snd crct10dif_pclmul ghash_clmulni_intel aesni_intel
+ mei_me dell_wmi
+[  123.450266]  dell_smbios soundcore sparse_keymap dcdbas crypto_simd cryptd mei dell_uart_backlight glue_helper ee1004 wmi_bmof intel_wmi_thunderbolt dell_wmi_descriptor mac_hid efi_pstore acpi_pad acpi_tad intel_cstate sch_fq_codel parport_pc ppdev lp parport ip_tables x_tables autofs4 btrfs blake2b_generic raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear dm_mirror dm_region_hash dm_log hid_generic usbhid hid i915 i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec crc32_pclmul rc_core drm intel_lpss_pci i2c_i801 ahci igc intel_lpss i2c_smbus idma64 xhci_pci libahci virt_dma xhci_pci_renesas wmi video pinctrl_tigerlake
+[  123.450335] CR2: 0000000000000008
+[  123.450338] ---[ end trace 9f731e38b53c35cc ]---
 
-For example, flush bio1 sets flush bio to NULL first in
-md_submit_flush_data. An interrupt or vmware causing an extended stall
-happen between updating flush_bio and prev_flush_start. Because flush_bio
-is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
-flush bio1 updates prev_flush_start after the interrupt or extended stall.
+The more generic approach will be wrap get_link_ksettings() with begin()
+and complete() callbacks, and calls runtime resume and runtime suspend
+routine respectively. However, igc is like igb, runtime resume routine
+uses rtnl_lock() which upper ethtool layer also uses.
 
-Then flush bio3 enters in md_flush_request. The start time req_start is
-behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
-finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
-again. INIT_WORK() will re-initialize the list pointers in the
-work_struct, which then can result in a corrupted work list and the
-work_struct queued a second time. With the work list corrupted, it can
-lead in invalid work items being used and cause a crash in
-process_one_work.
+So to prevent a deadlock on rtnl, take a different approach, use
+pm_runtime_suspended() to avoid reading register while device is runtime
+suspended.
 
-We need to make sure only one flush bio can be handled at one same time.
-So add spin lock in md_submit_flush_data to protect prev_flush_start and
-flush_bio in an atomic way.
-
-Reviewed-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/igc/igc_ethtool.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -639,8 +639,10 @@ static void md_submit_flush_data(struct
- 	 * could wait for this and below md_handle_request could wait for those
- 	 * bios because of suspend check
- 	 */
-+	spin_lock_irq(&mddev->lock);
- 	mddev->last_flush = mddev->start_flush;
- 	mddev->flush_bio = NULL;
-+	spin_unlock_irq(&mddev->lock);
- 	wake_up(&mddev->sb_wait);
+--- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
++++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
+@@ -1714,7 +1714,8 @@ static int igc_ethtool_get_link_ksetting
+ 						     Asym_Pause);
+ 	}
  
- 	if (bio->bi_iter.bi_size == 0) {
+-	status = rd32(IGC_STATUS);
++	status = pm_runtime_suspended(&adapter->pdev->dev) ?
++		 0 : rd32(IGC_STATUS);
+ 
+ 	if (status & IGC_STATUS_LU) {
+ 		if (status & IGC_STATUS_SPEED_1000) {
 
 
