@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA8A13136BC
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:15:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EBF31368A
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233328AbhBHPOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:14:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56398 "EHLO mail.kernel.org"
+        id S232431AbhBHPML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:12:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232020AbhBHPKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:10:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCD2964EE1;
-        Mon,  8 Feb 2021 15:07:50 +0000 (UTC)
+        id S231825AbhBHPIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:08:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF73C64EB1;
+        Mon,  8 Feb 2021 15:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796871;
-        bh=h9ptwKNb7Ag+JUYotmXHox72GpVdrZkuTITWVmwkROU=;
+        s=korg; t=1612796789;
+        bh=MPlU6DmuN5KYRgcqMgqMvXNtpGyOjxpEWpuSZdATfbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvDyYpyCZiTJuCNBFCL/N9LLe9Kaw56qc3xCxq/vDNb4Scxi+Ntl2nFVBoLWxkOpV
-         giHNAxmAn+1vLFJuDDKsw33hP8GjgPXhli0hCT68PMTlb4jGMRb9tu+PS7fRcpPQ3W
-         qvw/e3sJCKzfe3DUOS46g50f+tAYkJh1lvbqBkY4=
+        b=fRSp/hXpOUnvVReBORahSEzzgZBMwtz2fu7tDvGcQ2yCMKovw/tRTNydu4pJepQHh
+         zRCtDqaGX6neMTYQ0oQh81liRjoEoY50IXTt2s/EOlM911T3CyNd+aXjDLso3Sta9j
+         hGATs/w1/bUaz1zgTufgbvWFJt8CbbyEvae9PRug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 19/38] genirq/msi: Activate Multi-MSI early when MSI_FLAG_ACTIVATE_EARLY is set
+        stable@vger.kernel.org, Thorsten Leemhuis <linux@leemhuis.info>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4.14 20/30] nvme-pci: avoid the deepest sleep state on Kingston A2000 SSDs
 Date:   Mon,  8 Feb 2021 16:01:06 +0100
-Message-Id: <20210208145806.908682551@linuxfoundation.org>
+Message-Id: <20210208145806.068622064@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,123 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Thorsten Leemhuis <linux@leemhuis.info>
 
-commit 4c457e8cb75eda91906a4f89fc39bde3f9a43922 upstream.
+commit 538e4a8c571efdf131834431e0c14808bcfb1004 upstream.
 
-When MSI_FLAG_ACTIVATE_EARLY is set (which is the case for PCI),
-__msi_domain_alloc_irqs() performs the activation of the interrupt (which
-in the case of PCI results in the endpoint being programmed) as soon as the
-interrupt is allocated.
+Some Kingston A2000 NVMe SSDs sooner or later get confused and stop
+working when they use the deepest APST sleep while running Linux. The
+system then crashes and one has to cold boot it to get the SSD working
+again.
 
-But it appears that this is only done for the first vector, introducing an
-inconsistent behaviour for PCI Multi-MSI.
+Kingston seems to known about this since at least mid-September 2020:
+https://bbs.archlinux.org/viewtopic.php?pid=1926994#p1926994
 
-Fix it by iterating over the number of vectors allocated to each MSI
-descriptor. This is easily achieved by introducing a new
-"for_each_msi_vector" iterator, together with a tiny bit of refactoring.
+Someone working for a German company representing Kingston to the German
+press confirmed to me Kingston engineering is aware of the issue and
+investigating; the person stated that to their current knowledge only
+the deepest APST sleep state causes trouble. Therefore, make Linux avoid
+it for now by applying the NVME_QUIRK_NO_DEEPEST_PS to this SSD.
 
-Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
-Reported-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210123122759.1781359-1-maz@kernel.org
+I have two such SSDs, but it seems the problem doesn't occur with them.
+I hence couldn't verify if this patch really fixes the problem, but all
+the data in front of me suggests it should.
+
+This patch can easily be reverted or improved upon if a better solution
+surfaces.
+
+FWIW, there are many reports about the issue scattered around the web;
+most of the users disabled APST completely to make things work, some
+just made Linux avoid the deepest sleep state:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c65
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c73
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c74
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c78
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c79
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c80
+https://askubuntu.com/questions/1222049/nvmekingston-a2000-sometimes-stops-giving-response-in-ubuntu-18-04dell-inspir
+https://community.acer.com/en/discussion/604326/m-2-nvme-ssd-aspire-517-51g-issue-compatibility-kingston-a2000-linux-ubuntu
+
+For the record, some data from 'nvme id-ctrl /dev/nvme0'
+
+NVME Identify Controller:
+vid       : 0x2646
+ssvid     : 0x2646
+mn        : KINGSTON SA2000M81000G
+fr        : S5Z42105
+[...]
+ps    0 : mp:9.00W operational enlat:0 exlat:0 rrt:0 rrl:0
+          rwt:0 rwl:0 idle_power:- active_power:-
+ps    1 : mp:4.60W operational enlat:0 exlat:0 rrt:1 rrl:1
+          rwt:1 rwl:1 idle_power:- active_power:-
+ps    2 : mp:3.80W operational enlat:0 exlat:0 rrt:2 rrl:2
+          rwt:2 rwl:2 idle_power:- active_power:-
+ps    3 : mp:0.0450W non-operational enlat:2000 exlat:2000 rrt:3 rrl:3
+          rwt:3 rwl:3 idle_power:- active_power:-
+ps    4 : mp:0.0040W non-operational enlat:15000 exlat:15000 rrt:4 rrl:4
+          rwt:4 rwl:4 idle_power:- active_power:-
+
+Cc: stable@vger.kernel.org # 4.14+
+Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/msi.h |    6 ++++++
- kernel/irq/msi.c    |   44 ++++++++++++++++++++------------------------
- 2 files changed, 26 insertions(+), 24 deletions(-)
+ drivers/nvme/host/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -118,6 +118,12 @@ struct msi_desc {
- 	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
- #define for_each_msi_entry_safe(desc, tmp, dev)	\
- 	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), list)
-+#define for_each_msi_vector(desc, __irq, dev)				\
-+	for_each_msi_entry((desc), (dev))				\
-+		if ((desc)->irq)					\
-+			for (__irq = (desc)->irq;			\
-+			     __irq < ((desc)->irq + (desc)->nvec_used);	\
-+			     __irq++)
- 
- #ifdef CONFIG_PCI_MSI
- #define first_pci_msi_entry(pdev)	first_msi_entry(&(pdev)->dev)
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -437,22 +437,22 @@ int msi_domain_alloc_irqs(struct irq_dom
- 
- 	can_reserve = msi_check_reservation_mode(domain, info, dev);
- 
--	for_each_msi_entry(desc, dev) {
--		virq = desc->irq;
--		if (desc->nvec_used == 1)
--			dev_dbg(dev, "irq %d for MSI\n", virq);
--		else
-+	/*
-+	 * This flag is set by the PCI layer as we need to activate
-+	 * the MSI entries before the PCI layer enables MSI in the
-+	 * card. Otherwise the card latches a random msi message.
-+	 */
-+	if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
-+		goto skip_activate;
-+
-+	for_each_msi_vector(desc, i, dev) {
-+		if (desc->irq == i) {
-+			virq = desc->irq;
- 			dev_dbg(dev, "irq [%d-%d] for MSI\n",
- 				virq, virq + desc->nvec_used - 1);
--		/*
--		 * This flag is set by the PCI layer as we need to activate
--		 * the MSI entries before the PCI layer enables MSI in the
--		 * card. Otherwise the card latches a random msi message.
--		 */
--		if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
--			continue;
-+		}
- 
--		irq_data = irq_domain_get_irq_data(domain, desc->irq);
-+		irq_data = irq_domain_get_irq_data(domain, i);
- 		if (!can_reserve) {
- 			irqd_clr_can_reserve(irq_data);
- 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
-@@ -463,28 +463,24 @@ int msi_domain_alloc_irqs(struct irq_dom
- 			goto cleanup;
- 	}
- 
-+skip_activate:
- 	/*
- 	 * If these interrupts use reservation mode, clear the activated bit
- 	 * so request_irq() will assign the final vector.
- 	 */
- 	if (can_reserve) {
--		for_each_msi_entry(desc, dev) {
--			irq_data = irq_domain_get_irq_data(domain, desc->irq);
-+		for_each_msi_vector(desc, i, dev) {
-+			irq_data = irq_domain_get_irq_data(domain, i);
- 			irqd_clr_activated(irq_data);
- 		}
- 	}
- 	return 0;
- 
- cleanup:
--	for_each_msi_entry(desc, dev) {
--		struct irq_data *irqd;
--
--		if (desc->irq == virq)
--			break;
--
--		irqd = irq_domain_get_irq_data(domain, desc->irq);
--		if (irqd_is_activated(irqd))
--			irq_domain_deactivate_irq(irqd);
-+	for_each_msi_vector(desc, i, dev) {
-+		irq_data = irq_domain_get_irq_data(domain, i);
-+		if (irqd_is_activated(irq_data))
-+			irq_domain_deactivate_irq(irq_data);
- 	}
- 	msi_domain_free_irqs(domain, dev);
- 	return ret;
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2588,6 +2588,8 @@ static const struct pci_device_id nvme_i
+ 	{ PCI_DEVICE(0x1d1d, 0x2601),	/* CNEX Granby */
+ 		.driver_data = NVME_QUIRK_LIGHTNVM, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
++	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
+ 	{ 0, }
 
 
