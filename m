@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48714313601
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C66D313633
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232452AbhBHPEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:04:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52242 "EHLO mail.kernel.org"
+        id S231272AbhBHPHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:07:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232713AbhBHPDo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:03:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1D2164EB6;
-        Mon,  8 Feb 2021 15:02:37 +0000 (UTC)
+        id S231239AbhBHPFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:05:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78F6964ECC;
+        Mon,  8 Feb 2021 15:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796558;
-        bh=liUZjemuX4P1yam1jd92H6v+ONRJGO6qtZ6S8SaJg8s=;
+        s=korg; t=1612796658;
+        bh=yUgiD7rk3GMvijhGqZGMMiHhsH3B04Vf7iuvcGLb2QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBj117/s/kfX8MkBr+e1ZpILTIW5ge/g8ApCAyecSMlN35kQPCWAcwcNazY3gnJHr
-         Js3jP3tAAZM0WKLH1Z/UCPgeQGDQ/LfesIMer/utZnp4YGVQf8q69JCH1blzLG0040
-         fpAiLaPQG9THbOj76hOYqpSZl+y7wz7EcN1ARF/w=
+        b=fETxGfeTlrAq3LmeOPIhrg1muq7SGE5BSeJgiF833ozYtEoUvgbllzdW9+OidD4Js
+         wBSvl0Lp6VlctwyPJ159aTTzb++B+y5Odwnan7LEyo6SVa2QvoR6k4dsqJYTNxUmax
+         lw9o0Iq3R1rqjsYO6BbDMarHMf3AwxxlmniOp3hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.4 23/38] USB: gadget: legacy: fix an error code in eth_bind()
+        stable@vger.kernel.org, Pho Tran <pho.tran@silabs.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 19/43] USB: serial: cp210x: add pid/vid for WSDA-200-USB
 Date:   Mon,  8 Feb 2021 16:00:45 +0100
-Message-Id: <20210208145806.195759385@linuxfoundation.org>
+Message-Id: <20210208145807.096504109@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pho Tran <Pho.Tran@silabs.com>
 
-commit 3e1f4a2e1184ae6ad7f4caf682ced9554141a0f4 upstream.
+commit 3c4f6ecd93442f4376a58b38bb40ee0b8c46e0e6 upstream.
 
-This code should return -ENOMEM if the allocation fails but it currently
-returns success.
+Information pid/vid of WSDA-200-USB, Lord corporation company:
+vid: 199b
+pid: ba30
 
-Fixes: 9b95236eebdb ("usb: gadget: ether: allocate and init otg descriptor by otg capabilities")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YBKE9rqVuJEOUWpW@mwanda
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Pho Tran <pho.tran@silabs.com>
+[ johan: amend comment with product name ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/ether.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/legacy/ether.c
-+++ b/drivers/usb/gadget/legacy/ether.c
-@@ -407,8 +407,10 @@ static int eth_bind(struct usb_composite
- 		struct usb_descriptor_header *usb_desc;
- 
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail1;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -198,6 +198,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
++	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+ 	{ USB_DEVICE(0x1B1C, 0x1C00) }, /* Corsair USB Dongle */
 
 
