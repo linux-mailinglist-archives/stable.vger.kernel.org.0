@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E741313C8F
+	by mail.lfdr.de (Postfix) with ESMTP id 8FAB2313C90
 	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235346AbhBHSH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:07:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47388 "EHLO mail.kernel.org"
+        id S235341AbhBHSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:07:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235170AbhBHSDf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235143AbhBHSDf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 13:03:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7280664EE3;
-        Mon,  8 Feb 2021 17:59:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D2B64ED9;
+        Mon,  8 Feb 2021 17:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807177;
-        bh=lHTuqpCN9q0Am9bT48KbUky1XBGiPxeb2H75xt9xYSM=;
+        s=k20201202; t=1612807178;
+        bh=pocyn+9VVPB9fe6QZ4lhsKCTCFw29kNYVSRIRcFeyvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dA7HD9ZX4ZmxrwABx35ef3V3Pmkrc817Ncx/kskIeaeJRlf4dQ8LKs5hUAiX5WvKC
-         hXdrP6yPMRP0cklpx6ABZ2b2V4Kvnbbe+hCWnhqBqTwnpWf8eYWzxCZjWEWOT8iTyY
-         AXcnE65LxPvVVCujgmliuKJQDLl8fsvliq5MIDdQqWuXXL8cmMSQ0KYFwMQDBadb5t
-         jumqgxfvvwt8f7iyTpvb/J0qxEMql9JmMz0dfD+eSyJHGZLsPBXf9MrhU0V8Vuej1R
-         W9w7NEEitWfP2/lpujJMsH0Pjmzawwn8dHQbGyAvBMtUbrelG7maCCiB1CMNVDHIFU
-         GcXp/ZB+YoW6A==
+        b=n1oioWzPrLKd/YH2+a0Pb/YhKP/KBzZvyCg6Xfe2CvKbWN0v4C8j4AswnLQbkoDst
+         A1JXgegPeD0aMwEOlUDXwNkXpWcsCnXc5sUhO7GRin1I7plGBR7ieoo1cxgAmZ7Wvd
+         hkpuSBSFTQBo3zN1IJnrEoZ7aC7oWs+GZSZUTewBVa7fCEtvFYMRXP9KtIs1RaBZ+O
+         +To+dDjnhH6DpVMERopJxApI0c1qJjVA4GvqrEp93NPfHPMxDQEwvVA2TFh1vNYyfS
+         FcVGO8FbKfN7b0S5eY6Yh/MocmiJqcOew8apsAHLys8zp7hPxehFl1Gi1KH7vpFdK8
+         jFk87eSfUhyVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Lu <victorchengchi.lu@amd.com>, Roman Li <Roman.Li@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 08/14] drm/amd/display: Free atomic state after drm_atomic_commit
-Date:   Mon,  8 Feb 2021 12:59:20 -0500
-Message-Id: <20210208175926.2092211-8-sashal@kernel.org>
+Cc:     Alexandre Ghiti <alex@ghiti.fr>, Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 09/14] riscv: virt_addr_valid must check the address belongs to linear mapping
+Date:   Mon,  8 Feb 2021 12:59:21 -0500
+Message-Id: <20210208175926.2092211-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175926.2092211-1-sashal@kernel.org>
 References: <20210208175926.2092211-1-sashal@kernel.org>
@@ -45,71 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Lu <victorchengchi.lu@amd.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-[ Upstream commit 2abaa323d744011982b20b8f3886184d56d23946 ]
+[ Upstream commit 2ab543823322b564f205cb15d0f0302803c87d11 ]
 
-[why]
-drm_atomic_commit was changed so that the caller must free their
-drm_atomic_state reference on successes.
+virt_addr_valid macro checks that a virtual address is valid, ie that
+the address belongs to the linear mapping and that the corresponding
+ physical page exists.
 
-[how]
-Add drm_atomic_commit_put after drm_atomic_commit call in
-dm_force_atomic_commit.
+Add the missing check that ensures the virtual address belongs to the
+linear mapping, otherwise __virt_to_phys, when compiled with
+CONFIG_DEBUG_VIRTUAL enabled, raises a WARN that is interpreted as a
+kernel bug by syzbot.
 
-Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Anson Jacob <Anson.Jacob@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/riscv/include/asm/page.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 7b00e96705b6d..62a2f0491117d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4732,14 +4732,14 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
+diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
+index 06cfbb3aacbb0..abc147aeff8b0 100644
+--- a/arch/riscv/include/asm/page.h
++++ b/arch/riscv/include/asm/page.h
+@@ -115,7 +115,10 @@ extern unsigned long min_low_pfn;
  
- 	ret = PTR_ERR_OR_ZERO(conn_state);
- 	if (ret)
--		goto err;
-+		goto out;
+ #endif /* __ASSEMBLY__ */
  
- 	/* Attach crtc to drm_atomic_state*/
- 	crtc_state = drm_atomic_get_crtc_state(state, &disconnected_acrtc->base);
+-#define virt_addr_valid(vaddr)	(pfn_valid(virt_to_pfn(vaddr)))
++#define virt_addr_valid(vaddr)	({						\
++	unsigned long _addr = (unsigned long)vaddr;				\
++	(unsigned long)(_addr) >= PAGE_OFFSET && pfn_valid(virt_to_pfn(_addr));	\
++})
  
- 	ret = PTR_ERR_OR_ZERO(crtc_state);
- 	if (ret)
--		goto err;
-+		goto out;
- 
- 	/* force a restore */
- 	crtc_state->mode_changed = true;
-@@ -4749,17 +4749,15 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
- 
- 	ret = PTR_ERR_OR_ZERO(plane_state);
- 	if (ret)
--		goto err;
--
-+		goto out;
- 
- 	/* Call commit internally with the state we just constructed */
- 	ret = drm_atomic_commit(state);
--	if (!ret)
--		return 0;
- 
--err:
--	DRM_ERROR("Restoring old state failed with %i\n", ret);
-+out:
- 	drm_atomic_state_put(state);
-+	if (ret)
-+		DRM_ERROR("Restoring old state failed with %i\n", ret);
- 
- 	return ret;
- }
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 -- 
 2.27.0
 
