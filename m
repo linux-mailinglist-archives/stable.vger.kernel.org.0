@@ -2,105 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8515A31328D
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9159F31328F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbhBHMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 07:41:07 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54307 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231956AbhBHMj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 07:39:58 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9E6465C0069;
-        Mon,  8 Feb 2021 07:38:43 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 07:38:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=fAIQMsT6jn1p/Ouj/vH4YmpVXRC
-        rcCIsVFko/r/lJkA=; b=HLNeS3snr9gr6d3Gfo1utIpp/70vDy80YWh5+P1oKD7
-        TW0iLbW2aeZrQHY3rSR0aMo0AUO1YC0+eghNYZL3pYciXJZiNLlQeb1HybIAcj4P
-        bEBjihdDcfWL698O0wrsLa2JH3hPKdkD2KBuFJ5nPGV7oWz0sVQwJEIeoNfkJlgy
-        R/HqKh9CYmT9ulvYd9sJjJcaEKqn1jtUOOsCiaO4qj8sR6iHovIEUyEFYfO3/YZN
-        PPzqBt29QZtPX7zHO6N1YisTUwB+bLK6cM8ggkD3XhnC2BZ5hQWpVI89bDOMd8bA
-        v2MVQANJvcyNMbJ/qbnOsykHH8sSpVN8+fkNkKNztJg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fAIQMs
-        T6jn1p/Ouj/vH4YmpVXRCrcCIsVFko/r/lJkA=; b=cls8WGrXXQq3X5zfiDjqnD
-        VMxfdnC39emwa5roK72uq0iI1bx8hLXbfTTyZY9sI2K7S4/Vsa2rFzrDXIPVGhOm
-        Eyh3eUciv+hygChTIdVswGsvSswD9NJfQqJ7+6TBjToeeOm6s65AXinz3wQEKL7x
-        uEugMLRcN/THdNwvu6LaFng2kQJr9GWa+FVhnZmufHdJ4yfMI0Sr1HgThGyjvipq
-        I+cq4sSg8bowolyUnRSHf/vkaoyzk8LOTz2tTXXnO7SLmyPgLT1Mmr4J+fftcURX
-        a1aW0hDUvwiNVDot8o0xvwjes4wyLPLnKykxCcb9xqcJKrQte5MxX7o1tWpThkGw
-        ==
-X-ME-Sender: <xms:0zAhYFj5dSRE82JysO7JiA0uA2txl-WPVmIdT2SacnT03y5XMZMmMQ>
-    <xme:0zAhYKBWVvlWRCjifwLPpYn_zW-I0e-NKho46LlmA80c0nK1OCzZnMX8m1MgLGrUc
-    DL9gHBSwsGRjw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdegudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomh
-X-ME-Proxy: <xmx:0zAhYFH6dk4M7JLzN_7aCTcbvH_scatm0ESrjfTo5ZfMcNhDg3Yocw>
-    <xmx:0zAhYKTGHJNuEqPiPrQXOb4Ntlli6uk_EQeTcPxp1dpl_s-Ah6idAw>
-    <xmx:0zAhYCywKxEbaQWmI5rWo9VAJ-j2o4KG3LMjJgpvfLYHjS4VaRaCFg>
-    <xmx:0zAhYN8WNODfdOdfniTVBt1maY-gJGT7LqMZ1Hx5bp2xx2MB-7GzQg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C2492240057;
-        Mon,  8 Feb 2021 07:38:42 -0500 (EST)
-Date:   Mon, 8 Feb 2021 13:38:40 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Jason Andryuk <jandryuk@gmail.com>
-Cc:     stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>, netdev@vger.kernel.org
-Subject: Re: Stable request: iwlwifi: mvm: don't send RFH_QUEUE_CONFIG_CMD
- with no queues
-Message-ID: <YCEw0Ey8JuHjFVOz@kroah.com>
-References: <CAKf6xpueeG-c+XV6gYu_H_DXNkR11+_v54hgv=vukuy+Tcb+LQ@mail.gmail.com>
+        id S232268AbhBHMlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 07:41:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231996AbhBHMkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 07:40:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF1464E7E;
+        Mon,  8 Feb 2021 12:39:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612787970;
+        bh=8pLDrf/AeZOIez/HX1MNFZLMmTZuKOF7ggdyqS1IatM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ezONN6xeMQy71/KvSw1R9GRiDOrA1kQ8hvxT97x1Kt1u699jgfx1HApD/G6/AwV1V
+         U27UHtTZHuKutJjWU/JJ2WpbU7zzNM12CjnVtWtd/zhA4y0jt3LewBldzC7lIRYc7+
+         tEG4ZlVUFr0GGZo3Tr69uFK3BcXPlEC0AomJ2hTQ=
+Date:   Mon, 8 Feb 2021 13:39:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/57] 5.10.14-rc1 review
+Message-ID: <YCEw/8pqE5WhG97g@kroah.com>
+References: <20210205140655.982616732@linuxfoundation.org>
+ <361dc1da83e64a4d89e5c81487890f4e@HQMAIL101.nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKf6xpueeG-c+XV6gYu_H_DXNkR11+_v54hgv=vukuy+Tcb+LQ@mail.gmail.com>
+In-Reply-To: <361dc1da83e64a4d89e5c81487890f4e@HQMAIL101.nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 07, 2021 at 09:19:07AM -0500, Jason Andryuk wrote:
-> Hi,
+On Sun, Feb 07, 2021 at 01:26:20PM +0000, Jon Hunter wrote:
+> On Fri, 05 Feb 2021 15:06:26 +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.14 release.
+> > There are 57 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 07 Feb 2021 14:06:42 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.14-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> commit 64f55156f7adedb1ac5bb9cdbcbc9ac05ff5a724 upstream
+> All tests passing for Tegra ...
 > 
-> The requested patch allows the iwlwifi driver to work with newer AX200
-> wifi cards when MSI-X interrupts are not available.  Without it,
-> bringing an interface "up" fails with a Microcode SW error.  Xen PCI
-> passthrough with a linux stubdom doesn't enable MSI-X which triggers
-> this condition.
+> Test results for stable-v5.10:
+>     12 builds:	12 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     65 tests:	65 pass, 0 fail
 > 
-> I think it's only applicable to 5.4 because it's in 5.10 and earlier
-> kernels don't have AX200 support.
+> Linux version:	5.10.14-rc1-g58d18d6d116a
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
 > 
-> I'm making this request to stable and CC-ing netdev since I saw a
-> message [1] on netdev saying:
-> """
-> We're actually experimenting with letting Greg take networking patches
-> into stable like he does for every other tree. If the patch doesn't
-> appear in the next stable release please poke stable@ directly.
-> """
-> 
-> Thanks,
-> Jason
-> 
-> [1] https://lore.kernel.org/netdev/20210129193030.46ef3b17@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/
+> Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-Now queued up.
-
-thanks,
+Thanks for testing them all and letting me know.
 
 greg k-h
