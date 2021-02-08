@@ -2,69 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6457313AC9
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 18:24:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40729313AD2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 18:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbhBHRXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 12:23:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34770 "EHLO mail.kernel.org"
+        id S234412AbhBHRYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 12:24:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233905AbhBHRWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 12:22:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C86F64E9D;
+        id S234893AbhBHRXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 12:23:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B081A64E6E;
         Mon,  8 Feb 2021 17:20:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
         s=korg; t=1612804849;
-        bh=fAvTvgv3LjW9LjKykFtKNEzPk92r0oH4fR74QFmbTxs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ehpgdRdRCpS6BHQtyDZmFvt07c1JWrRUqkNG1sFWsZ3i7xX6yZmG3JZXAdFdlkZam
-         pzDaXGpc+SQy6elpguVppXL00xKhq8Gs9WV2vcyM7Ezg3WQ3w+3dDos9Ue7YjFYLdp
-         BzJCGgp6e+I1wLrDVk6XqwF1PwB1mh5GOfJUHKyU=
-Date:   Mon, 8 Feb 2021 18:20:46 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        stable@vger.kernel.org, lwn@lwn.net, jslaby@suse.cz,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com
-Subject: Re: Linux 4.4.256
-Message-ID: <YCFy7ot/xo427FX4@kroah.com>
-References: <1612534196241236@kroah.com>
- <20210205205658.GA136925@roeck-us.net>
- <YB6S612pwLbQJf4u@kroah.com>
- <20210206131113.GB7312@1wt.eu>
- <20210206132239.GC7312@1wt.eu>
- <e173809f-505d-64a8-1547-37e0f6243f4c@roeck-us.net>
- <YB7cU7SCyBOHFJGS@kroah.com>
- <20210206184926.GA19587@roeck-us.net>
- <YB+jVD6r4vlzuZO0@kroah.com>
- <20210208171453.GA174128@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210208171453.GA174128@roeck-us.net>
+        bh=8l0fJtEYie+CjNPjSsOCrmRUM62MsJXi9RAxA1l54xA=;
+        h=Date:From:To:Subject:From;
+        b=SPpkL8dyLDo/gPqM3xOKinwTszstMJv8+KhCY2DY17FNxRhG5H+WqJTwxR6V5X8KK
+         mKAj9huXC9G2ktcAaYnGJyTEILM3moFl4p7LQKgq8XmF+tZ0KW4NK7X6vzmKkdlTEx
+         bCLPug93pQEWbB5kxmbwgMX0MTKLh3bbRnxHDaTU=
+Date:   Mon, 08 Feb 2021 09:20:48 -0800
+From:   akpm@linux-foundation.org
+To:     dja@axtens.net, hch@lst.de, linmiaohe@huawei.com,
+        mm-commits@vger.kernel.org, rick.p.edgecombe@intel.com,
+        stable@vger.kernel.org, willy@infradead.org
+Subject:  [merged]
+ mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch removed from -mm
+ tree
+Message-ID: <20210208172048.v9fS2xjms%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 08, 2021 at 09:14:53AM -0800, Guenter Roeck wrote:
-> On Sun, Feb 07, 2021 at 09:22:44AM +0100, Greg Kroah-Hartman wrote:
-> [ ... ]
-> > > There are lots (35) of "KERNEL_VERSION(4, 5, 0)" in chromeos-4.4.
-> > > That should not matter with the clamped LINUX_VERSION_CODE, but
-> > > I'd prefer to clamp KERNEL_VERSION as well just to be sure. On
-> > > top of that, some of the vendor code we carry along does check
-> > > SUBVERSION, but that is probably more of an academic concern.
-> > 
-> > Ah, the internal checks, I think the other patch by Sasha will let that
-> > get bigger and should work for you as well.  Can you try it out?
-> > 
-> Quite frankly I like the "complete" fix much better, but then I dislike
-> deviating from stable releases even more. I'll use Sasha's version.
 
-We will backport the "complete" fix soon when it hits Linus's tree.
+The patch titled
+     Subject: mm/vmalloc: separate put pages and flush VM flags
+has been removed from the -mm tree.  Its filename was
+     mm-vmalloc-separate-put-pages-and-flush-vm-flags.patch
 
-thanks,
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-greg k-h
+------------------------------------------------------
+From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Subject: mm/vmalloc: separate put pages and flush VM flags
+
+When VM_MAP_PUT_PAGES was added, it was defined with the same value as
+VM_FLUSH_RESET_PERMS.  This doesn't seem like it will cause any big
+functional problems other than some excess flushing for VM_MAP_PUT_PAGES
+allocations.
+
+Redefine VM_MAP_PUT_PAGES to have its own value.  Also, rearrange things
+so flags are less likely to be missed in the future.
+
+Link: https://lkml.kernel.org/r/20210122233706.9304-1-rick.p.edgecombe@intel.com
+Fixes: b944afc9d64d ("mm: add a VM_MAP_PUT_PAGES flag for vmap")
+Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Daniel Axtens <dja@axtens.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/vmalloc.h |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+--- a/include/linux/vmalloc.h~mm-vmalloc-separate-put-pages-and-flush-vm-flags
++++ a/include/linux/vmalloc.h
+@@ -24,7 +24,8 @@ struct notifier_block;		/* in notifier.h
+ #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
+ #define VM_NO_GUARD		0x00000040      /* don't add guard page */
+ #define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
+-#define VM_MAP_PUT_PAGES	0x00000100	/* put pages and free array in vfree */
++#define VM_FLUSH_RESET_PERMS	0x00000100	/* reset direct map and flush TLB on unmap, can't be freed in atomic context */
++#define VM_MAP_PUT_PAGES	0x00000200	/* put pages and free array in vfree */
+ 
+ /*
+  * VM_KASAN is used slighly differently depending on CONFIG_KASAN_VMALLOC.
+@@ -37,12 +38,6 @@ struct notifier_block;		/* in notifier.h
+  * determine which allocations need the module shadow freed.
+  */
+ 
+-/*
+- * Memory with VM_FLUSH_RESET_PERMS cannot be freed in an interrupt or with
+- * vfree_atomic().
+- */
+-#define VM_FLUSH_RESET_PERMS	0x00000100      /* Reset direct map and flush TLB on unmap */
+-
+ /* bits [20..32] reserved for arch specific ioremap internals */
+ 
+ /*
+_
+
+Patches currently in -mm which might be from rick.p.edgecombe@intel.com are
+
+
