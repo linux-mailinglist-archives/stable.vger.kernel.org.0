@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B91313618
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5EAD313701
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231922AbhBHPF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52602 "EHLO mail.kernel.org"
+        id S232871AbhBHPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:18:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232930AbhBHPEe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:04:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E56764EC3;
-        Mon,  8 Feb 2021 15:03:08 +0000 (UTC)
+        id S232887AbhBHPLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF84A64EEF;
+        Mon,  8 Feb 2021 15:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796589;
-        bh=PIvAXajXlDm6uxsTVk8m4cPi9wnjRkFg096EugYd7Yw=;
+        s=korg; t=1612796935;
+        bh=hEpoRemxNUNq4gd+swVQvh7eAGeFc+AfgUAfeBJHV7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCG2uRhHYnr8XNUFno2lnN0/HUx8RfrwE/XUy+s42EC/gbSQVIyO8FvSNyGB170Tr
-         0xvAaKbTBxkDuUwjzlNBMvd8K/lu7XScvNsR/QGEvYi98MnfoXoq9+ZuNuojwZr8JA
-         QgF/aTYtiU7nqowPDuKCNjBPY0c1ArZl8NWcMH5c=
+        b=yYqYY+IuR89tDaPGBCAiFQrnEVPaZnPlfiCrrhH4Z+9jnEqcLoYME3pgRWi3kRL9Y
+         JUEv/AQHTOs01zXtmP3/t3ZRmbeW18cyeRFGpPSZAwD6y32URA1sMr+hN/V/mHlGIN
+         ietxO2Kq7NTiJ+0JLQSLk3eEhfURLmOq1UUPxVUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 33/38] mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
-Date:   Mon,  8 Feb 2021 16:00:55 +0100
-Message-Id: <20210208145806.558714124@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Chulski <stefanc@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/38] net: mvpp2: TCAM entry enable should be written after SRAM data
+Date:   Mon,  8 Feb 2021 16:00:56 +0100
+Message-Id: <20210208145806.505889756@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Stefan Chulski <stefanc@marvell.com>
 
-commit ecbf4724e6061b4b01be20f6d797d64d462b2bc8 upstream.
+[ Upstream commit 43f4a20a1266d393840ce010f547486d14cc0071 ]
 
-The page_huge_active() can be called from scan_movable_pages() which do
-not hold a reference count to the HugeTLB page.  So when we call
-page_huge_active() from scan_movable_pages(), the HugeTLB page can be
-freed parallel.  Then we will trigger a BUG_ON which is in the
-page_huge_active() when CONFIG_DEBUG_VM is enabled.  Just remove the
-VM_BUG_ON_PAGE.
+Last TCAM data contains TCAM enable bit.
+It should be written after SRAM data before entry enabled.
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-6-songmuchun@bytedance.com
-Fixes: 7e1f049efb86 ("mm: hugetlb: cleanup using paeg_huge_active()")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Link: https://lore.kernel.org/r/1612172139-28343-1-git-send-email-stefanc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1184,8 +1184,7 @@ struct hstate *size_to_hstate(unsigned l
-  */
- bool page_huge_active(struct page *page)
- {
--	VM_BUG_ON_PAGE(!PageHuge(page), page);
--	return PageHead(page) && PagePrivate(&page[1]);
-+	return PageHeadHuge(page) && PagePrivate(&page[1]);
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+index a30eb90ba3d28..dd590086fe6a5 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -29,16 +29,16 @@ static int mvpp2_prs_hw_write(struct mvpp2 *priv, struct mvpp2_prs_entry *pe)
+ 	/* Clear entry invalidation bit */
+ 	pe->tcam[MVPP2_PRS_TCAM_INV_WORD] &= ~MVPP2_PRS_TCAM_INV_MASK;
+ 
+-	/* Write tcam index - indirect access */
+-	mvpp2_write(priv, MVPP2_PRS_TCAM_IDX_REG, pe->index);
+-	for (i = 0; i < MVPP2_PRS_TCAM_WORDS; i++)
+-		mvpp2_write(priv, MVPP2_PRS_TCAM_DATA_REG(i), pe->tcam[i]);
+-
+ 	/* Write sram index - indirect access */
+ 	mvpp2_write(priv, MVPP2_PRS_SRAM_IDX_REG, pe->index);
+ 	for (i = 0; i < MVPP2_PRS_SRAM_WORDS; i++)
+ 		mvpp2_write(priv, MVPP2_PRS_SRAM_DATA_REG(i), pe->sram[i]);
+ 
++	/* Write tcam index - indirect access */
++	mvpp2_write(priv, MVPP2_PRS_TCAM_IDX_REG, pe->index);
++	for (i = 0; i < MVPP2_PRS_TCAM_WORDS; i++)
++		mvpp2_write(priv, MVPP2_PRS_TCAM_DATA_REG(i), pe->tcam[i]);
++
+ 	return 0;
  }
  
- /* never called for tail page */
+-- 
+2.27.0
+
 
 
