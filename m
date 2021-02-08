@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E93931360F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6BD3136EF
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbhBHPF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
+        id S233612AbhBHPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:17:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232876AbhBHPD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:03:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E7F64EB7;
-        Mon,  8 Feb 2021 15:03:25 +0000 (UTC)
+        id S232820AbhBHPMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:12:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0B4664EF9;
+        Mon,  8 Feb 2021 15:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796606;
-        bh=5n1+5pAYKydUCiYwImBD9lr7EVtVsDVK+XpcP8nmQNU=;
+        s=korg; t=1612796972;
+        bh=+DAaZtytg7qok0bS2wOd/s+1Ax5St6pW1feTfj2T0OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmvpBhnPW7osq9RSpeWmaGTnObtvBCAOAjz4Mm2tRei4w6gvevo8KXmX6EsZj75p/
-         ws1YATvSLdGKYEull7SYQBMRTyS8UdKgj9hvLwNb6o/FXBVVc12bVf2gZ8YeCCMdgD
-         Da21R9Lz1uu6YO4mZIKRDzAlg632Jbcd/VLlNqZQ=
+        b=nGT95G9tY7hOxBtYj80gvf0e/sH8fvV3ATKNUETf1jdYooUG2eLtDufr5vasLgXrG
+         rd0tjW19GzOpO24ZjEMbQb2kX2x/5+p1Q0n5uPja6FXCVObb9CCn3G5Y0rmHUB5/J4
+         2epH2Fwp7MDfwYMLVGHSlOBzX5IY14Nb4UvUDEkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/38] stable: clamp SUBLEVEL in 4.4 and 4.9
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/65] Input: i8042 - unbreak Pegatron C15B
 Date:   Mon,  8 Feb 2021 16:00:37 +0100
-Message-Id: <20210208145805.898658055@linuxfoundation.org>
+Message-Id: <20210208145810.445834724@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Right now SUBLEVEL is overflowing, and some userspace may start treating
-4.9.256 as 4.10. While out of tree modules have different ways of
-  extracting the version number (and we're generally ok with breaking
-them), we do care about breaking userspace and it would appear that this
-overflow might do just that.
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-Our rules around userspace ABI in the stable kernel are pretty simple:
-we don't break it. Thus, while userspace may be checking major/minor, it
-shouldn't be doing anything with sublevel.
+[ Upstream commit a3a9060ecad030e2c7903b2b258383d2c716b56c ]
 
-This patch applies a big band-aid to the 4.9 and 4.4 kernels in the form
-of clamping their sublevel to 255.
+g++ reports
 
-The clamp is done for the purpose of LINUX_VERSION_CODE only, and
-extracting the version number from the Makefile or "make kernelversion"
-will continue to work as intended.
+	drivers/input/serio/i8042-x86ia64io.h:225:3: error: ‘.matches’ designator used multiple times in the same initializer list
 
-We might need to do it later in newer trees, but maybe we'll have a
-better solution by then, so I'm ignoring that problem for now.
+C99 semantics is that last duplicated initialiser wins,
+so DMI entry gets overwritten.
 
+Fixes: a48491c65b51 ("Input: i8042 - add ByteSpeed touchpad to noloop table")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Acked-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20201228072335.GA27766@localhost.localdomain
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1068,7 +1068,7 @@ endef
- 
- define filechk_version.h
- 	(echo \#define LINUX_VERSION_CODE $(shell                         \
--	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
-+	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
- 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
- endef
- 
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index eca931da76c3a..b7dbcbac3a1a5 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -219,6 +219,8 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
+ 		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
+-- 
+2.27.0
+
 
 
