@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F4831365F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 722C73136CC
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232787AbhBHPJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:09:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
+        id S233360AbhBHPPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:15:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231723AbhBHPHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:07:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4851864EBD;
-        Mon,  8 Feb 2021 15:05:34 +0000 (UTC)
+        id S232950AbhBHPLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3744864EE6;
+        Mon,  8 Feb 2021 15:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796734;
-        bh=uNdtUiPu/JXuxmabfk74niAlwlkvOOeoAi5s2CdvdPk=;
+        s=korg; t=1612796923;
+        bh=huxOI+WBBQL1Zh3IS1gpGthK6ntLMapQtRtoWWHhMDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6HDwnXba5lTeJEH2aNzHJkyRkmJ5lJ0GrIX+6xIk0WwfGFtJWAyayV0CSOL4uXQb
-         Dc8G0frhMuROYGPUXo8ukUsn5w94HvBFEp+Evsb02egNH3NFpuWpVqCdHrj9B8M0Wn
-         2rbhUPdx3z284mWVCXuXPmukcRu4KHe4kDn/C04k=
+        b=GxtZfkh89bUTelkD2sGV1+UTTgVgZYaVgiCOruoB+1KOviwnWdH+AsRCPXj68+24s
+         FENz5X6HA7yzsXw4wCn6taERJJHmEewNk1xSa9Jk0dF7in/1EiN0dd9Ev2YN+kWvrR
+         92bQDcuYUAH88azN1KmPMYmdO2zEbGoyZXxwjnjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
-        Jeremy Figgins <kernel@jeremyfiggins.com>
-Subject: [PATCH 4.9 26/43] USB: usblp: dont call usb_set_interface if theres a single alt
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/38] Input: i8042 - unbreak Pegatron C15B
 Date:   Mon,  8 Feb 2021 16:00:52 +0100
-Message-Id: <20210208145807.382485465@linuxfoundation.org>
+Message-Id: <20210208145806.352112568@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Figgins <kernel@jeremyfiggins.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-commit d8c6edfa3f4ee0d45d7ce5ef18d1245b78774b9d upstream.
+[ Upstream commit a3a9060ecad030e2c7903b2b258383d2c716b56c ]
 
-Some devices, such as the Winbond Electronics Corp. Virtual Com Port
-(Vendor=0416, ProdId=5011), lockup when usb_set_interface() or
-usb_clear_halt() are called. This device has only a single
-altsetting, so it should not be necessary to call usb_set_interface().
+g++ reports
 
-Acked-by: Pete Zaitcev <zaitcev@redhat.com>
-Signed-off-by: Jeremy Figgins <kernel@jeremyfiggins.com>
-Link: https://lore.kernel.org/r/YAy9kJhM/rG8EQXC@watson
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	drivers/input/serio/i8042-x86ia64io.h:225:3: error: ‘.matches’ designator used multiple times in the same initializer list
+
+C99 semantics is that last duplicated initialiser wins,
+so DMI entry gets overwritten.
+
+Fixes: a48491c65b51 ("Input: i8042 - add ByteSpeed touchpad to noloop table")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Acked-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20201228072335.GA27766@localhost.localdomain
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usblp.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -1349,14 +1349,17 @@ static int usblp_set_protocol(struct usb
- 	if (protocol < USBLP_FIRST_PROTOCOL || protocol > USBLP_LAST_PROTOCOL)
- 		return -EINVAL;
- 
--	alts = usblp->protocol[protocol].alt_setting;
--	if (alts < 0)
--		return -EINVAL;
--	r = usb_set_interface(usblp->dev, usblp->ifnum, alts);
--	if (r < 0) {
--		printk(KERN_ERR "usblp: can't set desired altsetting %d on interface %d\n",
--			alts, usblp->ifnum);
--		return r;
-+	/* Don't unnecessarily set the interface if there's a single alt. */
-+	if (usblp->intf->num_altsetting > 1) {
-+		alts = usblp->protocol[protocol].alt_setting;
-+		if (alts < 0)
-+			return -EINVAL;
-+		r = usb_set_interface(usblp->dev, usblp->ifnum, alts);
-+		if (r < 0) {
-+			printk(KERN_ERR "usblp: can't set desired altsetting %d on interface %d\n",
-+				alts, usblp->ifnum);
-+			return r;
-+		}
- 	}
- 
- 	usblp->bidir = (usblp->protocol[protocol].epread != NULL);
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index b256e3006a6fb..844875df8cad7 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -223,6 +223,8 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
+ 		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
+-- 
+2.27.0
+
 
 
