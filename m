@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1BA431374D
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF1B3136DA
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbhBHPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:23:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58920 "EHLO mail.kernel.org"
+        id S231283AbhBHPQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:16:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233561AbhBHPQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:16:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E354264EB7;
-        Mon,  8 Feb 2021 15:11:33 +0000 (UTC)
+        id S232800AbhBHPMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:12:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 501AE64EF4;
+        Mon,  8 Feb 2021 15:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797094;
-        bh=+fF83vxu9EJPbBZoR/JEQPnOKw1kMtIEdjCW3EFULrY=;
+        s=korg; t=1612796941;
+        bh=ELB1Sbc7yokRQoCpiSn++0/V8x6Q/koGk+mLf/och9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/ieBLNh7E4cg6RMK0tL7oNypH6Da1QT1LC6nu13Mdkfi4WztFST+liMACPekbyyj
-         wiJZ6AW6pggDbYgSLyGAchS9mSAj2zsCoMPlCGhH26iaZwJaNaoLL0eqzsjuMDS5VK
-         SKjALhoMMBPiC2BW3QqqtBAhPAl7j368VdK3brGY=
+        b=Por5FDXpEt2LrIkV3oFKMaB4Y5uMKnH5kUQIISbEAaW0/Y/Pg9LqzhgyqwH+FKfpx
+         Px54AAmEn8Q2jYpKBC7rzRJKwk8mpHGk5cFyAr9pjNAaIW0nJKRmPSKHgyMLhh15Ly
+         5ztLERV9DNVRuuPRYL+niKNT5RK9YzfvvNjQMkNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 49/65] mm: hugetlb: fix a race between freeing and dissolving the page
-Date:   Mon,  8 Feb 2021 16:01:21 +0100
-Message-Id: <20210208145812.116273487@linuxfoundation.org>
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.19 35/38] iommu/vt-d: Do not use flush-queue when caching-mode is on
+Date:   Mon,  8 Feb 2021 16:01:22 +0100
+Message-Id: <20210208145807.569232345@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,136 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 7ffddd499ba6122b1a07828f023d1d67629aa017 upstream.
+commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
 
-There is a race condition between __free_huge_page()
-and dissolve_free_huge_page().
+When an Intel IOMMU is virtualized, and a physical device is
+passed-through to the VM, changes of the virtual IOMMU need to be
+propagated to the physical IOMMU. The hypervisor therefore needs to
+monitor PTE mappings in the IOMMU page-tables. Intel specifications
+provide "caching-mode" capability that a virtual IOMMU uses to report
+that the IOMMU is virtualized and a TLB flush is needed after mapping to
+allow the hypervisor to propagate virtual IOMMU mappings to the physical
+IOMMU. To the best of my knowledge no real physical IOMMU reports
+"caching-mode" as turned on.
 
-  CPU0:                         CPU1:
+Synchronizing the virtual and the physical IOMMU tables is expensive if
+the hypervisor is unaware which PTEs have changed, as the hypervisor is
+required to walk all the virtualized tables and look for changes.
+Consequently, domain flushes are much more expensive than page-specific
+flushes on virtualized IOMMUs with passthrough devices. The kernel
+therefore exploited the "caching-mode" indication to avoid domain
+flushing and use page-specific flushing in virtualized environments. See
+commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+mode.")
 
-  // page_count(page) == 1
-  put_page(page)
-    __free_huge_page(page)
-                                dissolve_free_huge_page(page)
-                                  spin_lock(&hugetlb_lock)
-                                  // PageHuge(page) && !page_count(page)
-                                  update_and_free_page(page)
-                                  // page is freed to the buddy
-                                  spin_unlock(&hugetlb_lock)
-      spin_lock(&hugetlb_lock)
-      clear_page_huge_active(page)
-      enqueue_huge_page(page)
-      // It is wrong, the page is already freed
-      spin_unlock(&hugetlb_lock)
+This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+of iova deferred flushing"). Now, when batched TLB flushing is used (the
+default), full TLB domain flushes are performed frequently, requiring
+the hypervisor to perform expensive synchronization between the virtual
+TLB and the physical one.
 
-The race window is between put_page() and dissolve_free_huge_page().
+Getting batched TLB flushes to use page-specific invalidations again in
+such circumstances is not easy, since the TLB invalidation scheme
+assumes that "full" domain TLB flushes are performed for scalability.
 
-We should make sure that the page is already on the free list when it is
-dissolved.
+Disable batched TLB flushes when caching-mode is on, as the performance
+benefit from using batched TLB invalidations is likely to be much
+smaller than the overhead of the virtual-to-physical IOMMU page-tables
+synchronization.
 
-As a result __free_huge_page would corrupt page(s) already in the buddy
-allocator.
-
-Link: https://lkml.kernel.org/r/20210115124942.46403-4-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Nadav Amit <namit@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/hugetlb.c |   39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -71,6 +71,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
- static int num_fault_mutexes;
- struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
+---
+ drivers/iommu/intel-iommu.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3364,6 +3364,12 @@ static int __init init_dmars(void)
  
-+static inline bool PageHugeFreed(struct page *head)
-+{
-+	return page_private(head + 4) == -1UL;
-+}
+ 		if (!ecap_pass_through(iommu->ecap))
+ 			hw_pass_through = 0;
 +
-+static inline void SetPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, -1UL);
-+}
-+
-+static inline void ClearPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, 0);
-+}
-+
- /* Forward declaration */
- static int hugetlb_acct_memory(struct hstate *h, long delta);
- 
-@@ -869,6 +884,7 @@ static void enqueue_huge_page(struct hst
- 	list_move(&page->lru, &h->hugepage_freelists[nid]);
- 	h->free_huge_pages++;
- 	h->free_huge_pages_node[nid]++;
-+	SetPageHugeFreed(page);
- }
- 
- static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
-@@ -886,6 +902,7 @@ static struct page *dequeue_huge_page_no
- 		return NULL;
- 	list_move(&page->lru, &h->hugepage_activelist);
- 	set_page_refcounted(page);
-+	ClearPageHugeFreed(page);
- 	h->free_huge_pages--;
- 	h->free_huge_pages_node[nid]--;
- 	return page;
-@@ -1375,6 +1392,7 @@ static void prep_new_huge_page(struct hs
- 	set_hugetlb_cgroup(page, NULL);
- 	h->nr_huge_pages++;
- 	h->nr_huge_pages_node[nid]++;
-+	ClearPageHugeFreed(page);
- 	spin_unlock(&hugetlb_lock);
- }
- 
-@@ -1602,6 +1620,7 @@ int dissolve_free_huge_page(struct page
- {
- 	int rc = -EBUSY;
- 
-+retry:
- 	/* Not to disrupt normal path by vainly holding hugetlb_lock */
- 	if (!PageHuge(page))
- 		return 0;
-@@ -1618,6 +1637,26 @@ int dissolve_free_huge_page(struct page
- 		int nid = page_to_nid(head);
- 		if (h->free_huge_pages - h->resv_huge_pages == 0)
- 			goto out;
-+
-+		/*
-+		 * We should make sure that the page is already on the free list
-+		 * when it is dissolved.
-+		 */
-+		if (unlikely(!PageHugeFreed(head))) {
-+			spin_unlock(&hugetlb_lock);
-+			cond_resched();
-+
-+			/*
-+			 * Theoretically, we should return -EBUSY when we
-+			 * encounter this race. In fact, we have a chance
-+			 * to successfully dissolve the page if we do a
-+			 * retry. Because the race window is quite small.
-+			 * If we seize this opportunity, it is an optimization
-+			 * for increasing the success rate of dissolving page.
-+			 */
-+			goto retry;
++		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
++			pr_info("Disable batched IOTLB flush due to virtualization");
++			intel_iommu_strict = 1;
 +		}
 +
- 		/*
- 		 * Move PageHWPoison flag from head page to the raw error page,
- 		 * which makes any subpages rather than the error page reusable.
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ 		if (pasid_enabled(iommu))
+ 			intel_svm_init(iommu);
 
 
