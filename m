@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E9B3137EF
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99EAE3137FA
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231537AbhBHPdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:33:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37828 "EHLO mail.kernel.org"
+        id S232178AbhBHPeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:34:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233618AbhBHP3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233678AbhBHP3o (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 10:29:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7A3B64F2D;
-        Mon,  8 Feb 2021 15:16:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C0D64F2F;
+        Mon,  8 Feb 2021 15:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797402;
-        bh=2Wn2QtIPTcMY8mV8M/ua3sUQdAnq+iKCTTApCEh63Ms=;
+        s=korg; t=1612797405;
+        bh=x3SUHPR1hOCknJIMUCkwaNMMAOZGaXKzLs2YmmUqN40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUKaszj7tBvEJVI7SyKrkFbq5biKB320JF5sSlNFXA1NTIC4y81dcZG+wuRPDV7zG
-         PUPyreAubTdzuuZ0y8JAcKUH302N3LK3h8Qcf4Jl633FGRXY8zbm4OwGk2oAEnqqbU
-         qqfUvg/k8er8G4mmZMrwAob1sKV87ceftJdddGV4=
+        b=ZmG9wjXpN2GCbm7/hKYQ/0UHKTnd0s4FW5Zb7wt2zJS4vIgxd84rKeloWd4lIWoBI
+         +RuLTiyHPt78a4pK42tBRDD/WNAjvG/ND7AIXgz6V6kyxEuzxl45k0KG1+GZc0JBCU
+         j2q2YnjMVz05kXxRSsFD2a7tQE1dkfIu1TR3veVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Coly Li <colyli@suse.com>,
-        Richard Palethorpe <rpalethorpe@suse.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 065/120] libnvdimm/dimm: Avoid race between probe and available_slots_show()
-Date:   Mon,  8 Feb 2021 16:00:52 +0100
-Message-Id: <20210208145821.016000283@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 066/120] genirq: Prevent [devm_]irq_alloc_desc from returning irq 0
+Date:   Mon,  8 Feb 2021 16:00:53 +0100
+Message-Id: <20210208145821.049459874@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -42,96 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream.
+commit 4c7bcb51ae25f79e3733982e5d0cd8ce8640ddfc upstream.
 
-Richard reports that the following test:
+Since commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0
+is invalid"), having a linux-irq with number 0 will trigger a WARN()
+when calling platform_get_irq*() to retrieve that linux-irq.
 
-(while true; do
-     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
- done) &
+Since [devm_]irq_alloc_desc allocs a single irq and since irq 0 is not used
+on some systems, it can return 0, triggering that WARN(). This happens
+e.g. on Intel Bay Trail and Cherry Trail devices using the LPE audio engine
+for HDMI audio:
 
-while true; do
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
-     done
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
-     done
- done
+ 0 is an invalid IRQ number
+ WARNING: CPU: 3 PID: 472 at drivers/base/platform.c:238 platform_get_irq_optional+0x108/0x180
+ Modules linked in: snd_hdmi_lpe_audio(+) ...
 
-...fails with a crash signature like:
+ Call Trace:
+  platform_get_irq+0x17/0x30
+  hdmi_lpe_audio_probe+0x4a/0x6c0 [snd_hdmi_lpe_audio]
 
-    divide error: 0000 [#1] SMP KASAN PTI
-    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
-    [..]
-    Call Trace:
-     available_slots_show+0x4e/0x120 [libnvdimm]
-     dev_attr_show+0x42/0x80
-     ? memset+0x20/0x40
-     sysfs_kf_seq_show+0x218/0x410
+ ---[ end trace ceece38854223a0b ]---
 
-The root cause is that available_slots_show() consults driver-data, but
-fails to synchronize against device-unbind setting up a TOCTOU race to
-access uninitialized memory.
+Change the 'from' parameter passed to __[devm_]irq_alloc_descs() by the
+[devm_]irq_alloc_desc macros from 0 to 1, so that these macros will no
+longer return 0.
 
-Validate driver-data under the device-lock.
-
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Coly Li <colyli@suse.com>
-Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
-Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201221185647.226146-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/dimm_devs.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ include/linux/irq.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nvdimm/dimm_devs.c
-+++ b/drivers/nvdimm/dimm_devs.c
-@@ -335,16 +335,16 @@ static ssize_t state_show(struct device
- }
- static DEVICE_ATTR_RO(state);
+--- a/include/linux/irq.h
++++ b/include/linux/irq.h
+@@ -922,7 +922,7 @@ int __devm_irq_alloc_descs(struct device
+ 	__irq_alloc_descs(irq, from, cnt, node, THIS_MODULE, NULL)
  
--static ssize_t available_slots_show(struct device *dev,
--		struct device_attribute *attr, char *buf)
-+static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
- {
--	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
-+	struct device *dev;
- 	ssize_t rc;
- 	u32 nfree;
+ #define irq_alloc_desc(node)			\
+-	irq_alloc_descs(-1, 0, 1, node)
++	irq_alloc_descs(-1, 1, 1, node)
  
- 	if (!ndd)
- 		return -ENXIO;
+ #define irq_alloc_desc_at(at, node)		\
+ 	irq_alloc_descs(at, at, 1, node)
+@@ -937,7 +937,7 @@ int __devm_irq_alloc_descs(struct device
+ 	__devm_irq_alloc_descs(dev, irq, from, cnt, node, THIS_MODULE, NULL)
  
-+	dev = ndd->dev;
- 	nvdimm_bus_lock(dev);
- 	nfree = nd_label_nfree(ndd);
- 	if (nfree - 1 > nfree) {
-@@ -356,6 +356,18 @@ static ssize_t available_slots_show(stru
- 	nvdimm_bus_unlock(dev);
- 	return rc;
- }
-+
-+static ssize_t available_slots_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	ssize_t rc;
-+
-+	nd_device_lock(dev);
-+	rc = __available_slots_show(dev_get_drvdata(dev), buf);
-+	nd_device_unlock(dev);
-+
-+	return rc;
-+}
- static DEVICE_ATTR_RO(available_slots);
+ #define devm_irq_alloc_desc(dev, node)				\
+-	devm_irq_alloc_descs(dev, -1, 0, 1, node)
++	devm_irq_alloc_descs(dev, -1, 1, 1, node)
  
- __weak ssize_t security_show(struct device *dev,
+ #define devm_irq_alloc_desc_at(dev, at, node)			\
+ 	devm_irq_alloc_descs(dev, at, at, 1, node)
 
 
