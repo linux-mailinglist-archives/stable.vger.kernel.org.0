@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A783313609
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AE23136A3
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232828AbhBHPFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S229889AbhBHPNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:13:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232854AbhBHPD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:03:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE3E64EBA;
-        Mon,  8 Feb 2021 15:02:54 +0000 (UTC)
+        id S233039AbhBHPKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E024164ED3;
+        Mon,  8 Feb 2021 15:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796575;
-        bh=v8111njtkhgxdRXQZg+MMAsXlsBPdA6A0HwAUrHxhHQ=;
+        s=korg; t=1612796829;
+        bh=p3pdBOXEm9sCnNMBb9NfCLPMjcdD5ya/XoThH5uT9vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W31gZi5pJQyD/MIxnRgWxfQ9YFF3NTY5doaMDMJLlw2fKuMagWfU0WglZXYGSwIzq
-         blUMT/Ou0tv/TzoVUDs+8sSJW9lBvbSx10X7PH4ZQ4u4jQVNqdlV4m73/Es3KSbFwy
-         JyOZTE7u/DAnHisNoRGDXwHpbAJZ4rwX1hkxiRdE=
+        b=Dxy9j1ddyjYwcbYL6+TrvGNjRxoZKWXWACljTGMHGKAmoyjyIp/XCaRtSl9jnWO8Z
+         Cq4Y2O3lCCp55Y+KkkeE+LmDF1vOP+l5xcsbSt6Bv5ePIzUkU7fOQfKRx4fi474ebL
+         ZTwnvTdGXUufNLb5hVgrNypW2YYTPt3ubZjiqnmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fengnan Chang <fengnanchang@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 29/38] mmc: core: Limit retries when analyse of SDIO tuples fails
-Date:   Mon,  8 Feb 2021 16:00:51 +0100
-Message-Id: <20210208145806.420787766@linuxfoundation.org>
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/30] net: lapb: Copy the skb before sending a packet
+Date:   Mon,  8 Feb 2021 16:00:52 +0100
+Message-Id: <20210208145805.513373363@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fengnan Chang <fengnanchang@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit f92e04f764b86e55e522988e6f4b6082d19a2721 upstream.
+[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
 
-When analysing tuples fails we may loop indefinitely to retry. Let's avoid
-this by using a 10s timeout and bail if not completed earlier.
+When sending a packet, we will prepend it with an LAPB header.
+This modifies the shared parts of a cloned skb, so we should copy the
+skb rather than just clone it, before we prepend the header.
 
-Signed-off-by: Fengnan Chang <fengnanchang@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210123033230.36442-1-fengnanchang@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In "Documentation/networking/driver.rst" (the 2nd point), it states
+that drivers shouldn't modify the shared parts of a cloned skb when
+transmitting.
+
+The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
+when an skb is being sent, clones the skb and sents the clone to
+AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
+pseudo-header before handing over the skb to us, if we don't copy the
+skb before prepending the LAPB header, the first byte of the packets
+received on AF_PACKET sockets can be corrupted.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_cis.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/lapb/lapb_out.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sdio_cis.c
-+++ b/drivers/mmc/core/sdio_cis.c
-@@ -24,6 +24,8 @@
- #include "sdio_cis.h"
- #include "sdio_ops.h"
+diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
+index eda726e22f645..621c66f001177 100644
+--- a/net/lapb/lapb_out.c
++++ b/net/lapb/lapb_out.c
+@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
+ 		skb = skb_dequeue(&lapb->write_queue);
  
-+#define SDIO_READ_CIS_TIMEOUT_MS  (10 * 1000) /* 10s */
-+
- static int cistpl_vers_1(struct mmc_card *card, struct sdio_func *func,
- 			 const unsigned char *buf, unsigned size)
- {
-@@ -263,6 +265,8 @@ static int sdio_read_cis(struct mmc_card
- 
- 	do {
- 		unsigned char tpl_code, tpl_link;
-+		unsigned long timeout = jiffies +
-+			msecs_to_jiffies(SDIO_READ_CIS_TIMEOUT_MS);
- 
- 		ret = mmc_io_rw_direct(card, 0, 0, ptr++, 0, &tpl_code);
- 		if (ret)
-@@ -315,6 +319,8 @@ static int sdio_read_cis(struct mmc_card
- 			prev = &this->next;
- 
- 			if (ret == -ENOENT) {
-+				if (time_after(jiffies, timeout))
-+					break;
- 				/* warn about unknown tuples */
- 				pr_warn_ratelimited("%s: queuing unknown"
- 				       " CIS tuple 0x%02x (%u bytes)\n",
+ 		do {
+-			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
++			skbn = skb_copy(skb, GFP_ATOMIC);
++			if (!skbn) {
+ 				skb_queue_head(&lapb->write_queue, skb);
+ 				break;
+ 			}
+-- 
+2.27.0
+
 
 
