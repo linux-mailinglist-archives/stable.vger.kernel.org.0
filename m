@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14711313775
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B4B31376E
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbhBHP0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:26:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
+        id S233695AbhBHPZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:25:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233723AbhBHPVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6496764EF3;
-        Mon,  8 Feb 2021 15:13:36 +0000 (UTC)
+        id S233627AbhBHPTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:19:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1921B64EE0;
+        Mon,  8 Feb 2021 15:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797217;
-        bh=zBBcl3AJJa0LHaxOzVHB5o2Lj1ynzAQfpbwmB8ozt8A=;
+        s=korg; t=1612797161;
+        bh=OiuszCH8HSrbx2yYbeYbMTnhUR8hI/fj/dtKUvly0bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgDmXHB1OBbqUCfGdTomf0MR10/szNA2AbtJW6TEIMf3wHA67ytrewdH+ZZX0omlI
-         2MC5OffBBhZIGlF5tBP3ASr1SGmLsoNRSTQunrqjSfqnQ/qz7HUG1OLMewKIFaPtYq
-         FBVZBXnuFsRyZz9qnTTfU4ktzyqSbEIWxdAfjmVs=
+        b=XSkUdWEki6bkUALuJHqBLloRDr+sOOt5TwrlVGwIRXle2wIAHWa04SX8hXr8ljv0r
+         nRMul9WsqdF+J4Q+zkF4Nl1De0O+lb7lLFRLTKFGM+i5ETRZVmDe6PvWHgY9S4EQiS
+         4uHTzpE81la+HilV2HrAxSMcXGHIDTcp9MPQRq3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerhard Klostermeier <gerhard.klostermeier@syss.de>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
-Subject: [PATCH 5.10 009/120] usb: dwc2: Fix endpoint direction check in ep_from_windex
-Date:   Mon,  8 Feb 2021 15:59:56 +0100
-Message-Id: <20210208145818.764084889@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 014/120] ARM: OMAP1: OSK: fix ohci-omap breakage
+Date:   Mon,  8 Feb 2021 16:00:01 +0100
+Message-Id: <20210208145818.960942875@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,74 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit f670e9f9c8cac716c3506c6bac9e997b27ad441a upstream.
+[ Upstream commit 6efac0173cd15460b48c91e1b0a000379f341f00 ]
 
-dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
-the endpoint for the index provided in the wIndex request param.
+Commit 45c5775460f3 ("usb: ohci-omap: Fix descriptor conversion") tried to
+fix all issues related to ohci-omap descriptor conversion, but a wrong
+patch was applied, and one needed change to the OSK board file is still
+missing. Fix that.
 
-In a test-case with a rndis gadget running and sending a malformed
-packet to it like:
-    dev.ctrl_transfer(
-        0x82,      # bmRequestType
-        0x00,       # bRequest
-        0x0000,     # wValue
-        0x0001,     # wIndex
-        0x00       # wLength
-    )
-it is possible to cause a crash:
-
-[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
-[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
-...
-[  218.313189] Call trace:
-[  218.330217]  ep_from_windex+0x3c/0x54
-[  218.348565]  usb_gadget_giveback_request+0x10/0x20
-[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
-
-This happens because ep_from_windex wants to compare the endpoint
-direction even if index_to_ep() didn't return an endpoint due to
-the direction not matching.
-
-The fix is easy insofar that the actual direction check is already
-happening when calling index_to_ep() which will return NULL if there
-is no endpoint for the targeted direction, so the offending check
-can go away completely.
-
-Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
-Cc: stable@vger.kernel.org
-Reported-by: Gerhard Klostermeier <gerhard.klostermeier@syss.de>
-Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20210127103919.58215-1-heiko@sntech.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 45c5775460f3 ("usb: ohci-omap: Fix descriptor conversion")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+[aaro.koskinen@iki.fi: rebased and updated the changelog]
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ arch/arm/mach-omap1/board-osk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -1543,7 +1543,6 @@ static void dwc2_hsotg_complete_oursetup
- static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
- 					    u32 windex)
- {
--	struct dwc2_hsotg_ep *ep;
- 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
- 	int idx = windex & 0x7F;
+diff --git a/arch/arm/mach-omap1/board-osk.c b/arch/arm/mach-omap1/board-osk.c
+index a720259099edf..0a4c9b0b13b0c 100644
+--- a/arch/arm/mach-omap1/board-osk.c
++++ b/arch/arm/mach-omap1/board-osk.c
+@@ -203,6 +203,8 @@ static int osk_tps_setup(struct i2c_client *client, void *context)
+ 	 */
+ 	gpio_request(OSK_TPS_GPIO_USB_PWR_EN, "n_vbus_en");
+ 	gpio_direction_output(OSK_TPS_GPIO_USB_PWR_EN, 1);
++	/* Free the GPIO again as the driver will request it */
++	gpio_free(OSK_TPS_GPIO_USB_PWR_EN);
  
-@@ -1553,12 +1552,7 @@ static struct dwc2_hsotg_ep *ep_from_win
- 	if (idx > hsotg->num_of_eps)
- 		return NULL;
- 
--	ep = index_to_ep(hsotg, idx, dir);
--
--	if (idx && ep->dir_in != dir)
--		return NULL;
--
--	return ep;
-+	return index_to_ep(hsotg, idx, dir);
- }
- 
- /**
+ 	/* Set GPIO 2 high so LED D3 is off by default */
+ 	tps65010_set_gpio_out_value(GPIO2, HIGH);
+-- 
+2.27.0
+
 
 
