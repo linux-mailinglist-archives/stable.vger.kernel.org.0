@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7266731374A
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66AE73136BD
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbhBHPXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:23:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
+        id S233490AbhBHPOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:14:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233564AbhBHPQM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:16:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D7164E54;
-        Mon,  8 Feb 2021 15:11:16 +0000 (UTC)
+        id S233220AbhBHPKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D387664EE3;
+        Mon,  8 Feb 2021 15:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797077;
-        bh=wsePVODvHzqZzM2F4SMDDr4A52UH3jf6jXA59xBor3E=;
+        s=korg; t=1612796874;
+        bh=nWE8prE+g082V2ukI4f+8bi9yIYRgdKWnNSP6749RXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1HARHMkUcblyrxL0LsETBeNBdQ9LCbYMqyvV4zv8UEUueqmdyfpS9SDmy5mVOqt2
-         J/kEq/JPWpLeEFxqyQ1F60B3gTBXZDI67XuZNuTyuMUZCC3aCRlJnXhd49AvEZVb02
-         1X2Oj0yPl+EldiSMF1b++mvGXq233AIRIA5BnGN8=
+        b=l3i1bOLEC2yyJ2+WPOlBAhOt7iuyaGvvX76btMWTvKDAFhlYpLlxCeJz2P1K97Pjp
+         epYGjDs/YwnAr956zWb5XMZtl67krnNcPCcYRWe9OFYLVU64b2GFUsSb4NyMywCBX1
+         wK4JmqF5nNH7Iy5hNYKB/wDFXPz/Jv+EawXCIfkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/65] net: lapb: Copy the skb before sending a packet
+        stable@vger.kernel.org, Chenxin Jin <bg4akv@hotmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 02/38] USB: serial: cp210x: add new VID/PID for supporting Teraoka AD2000
 Date:   Mon,  8 Feb 2021 16:00:49 +0100
-Message-Id: <20210208145810.907176671@linuxfoundation.org>
+Message-Id: <20210208145806.236912121@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Chenxin Jin <bg4akv@hotmail.com>
 
-[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
+commit 43377df70480f82919032eb09832e9646a8a5efb upstream.
 
-When sending a packet, we will prepend it with an LAPB header.
-This modifies the shared parts of a cloned skb, so we should copy the
-skb rather than just clone it, before we prepend the header.
+Teraoka AD2000 uses the CP210x driver, but the chip VID/PID is
+customized with 0988/0578. We need the driver to support the new
+VID/PID.
 
-In "Documentation/networking/driver.rst" (the 2nd point), it states
-that drivers shouldn't modify the shared parts of a cloned skb when
-transmitting.
-
-The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
-when an skb is being sent, clones the skb and sents the clone to
-AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
-pseudo-header before handing over the skb to us, if we don't copy the
-skb before prepending the LAPB header, the first byte of the packets
-received on AF_PACKET sockets can be corrupted.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chenxin Jin <bg4akv@hotmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/lapb/lapb_out.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
-index 7a4d0715d1c32..a966d29c772d9 100644
---- a/net/lapb/lapb_out.c
-+++ b/net/lapb/lapb_out.c
-@@ -82,7 +82,8 @@ void lapb_kick(struct lapb_cb *lapb)
- 		skb = skb_dequeue(&lapb->write_queue);
- 
- 		do {
--			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
-+			skbn = skb_copy(skb, GFP_ATOMIC);
-+			if (!skbn) {
- 				skb_queue_head(&lapb->write_queue, skb);
- 				break;
- 			}
--- 
-2.27.0
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -61,6 +61,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
+ 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
+ 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
++	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
+ 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
+ 	{ USB_DEVICE(0x0BED, 0x1100) }, /* MEI (TM) Cashflow-SC Bill/Voucher Acceptor */
+ 	{ USB_DEVICE(0x0BED, 0x1101) }, /* MEI series 2000 Combo Acceptor */
 
 
