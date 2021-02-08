@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9F3313824
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11ABB313822
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232069AbhBHPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
+        id S234027AbhBHPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:37:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233952AbhBHPb7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:31:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CDF264F35;
-        Mon,  8 Feb 2021 15:17:44 +0000 (UTC)
+        id S233950AbhBHPcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:32:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED53364F3F;
+        Mon,  8 Feb 2021 15:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797464;
-        bh=CuuS7DDKRy19ZcGuixhP00qVe/7P/5RSrEZvzhe/42E=;
+        s=korg; t=1612797467;
+        bh=lMZ3lImxeRs+GZ78Yf6enKngygz8zpWXwEO7ZCCpzIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/kN1zc1lz37Rpjunh5lzeSjGjD0AFcYx0jlqY/dkgdrdbokrN/Jsq5M7r4dLQsvc
-         ngIKvjbUUyRpPpHR7URFThom2EQV1Lxjs7OWWHMlq1Y8gmdOJ/sId3y+PXxOtvsCl/
-         dJUeS7ITXfcqUNzPAqmWA+55KbbJeDXDjDKuAZSo=
+        b=aS0PBWkT0eoj2SOkXH2Z3mRIIK3b5wjPWn2b6S+BHPUQY+RKkrva1wTBWSEjlZ5Ou
+         i9PHDjNmq13hDRS98PrvzSQTtfoHiCU+tPtiVQ6LJyYw2zFD0p5bQTr+LYK0RO9c7J
+         tf1ObPdNaOArHZC98tMVhnJMEDG2cu8WRyuRKccI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org, Alexander Ovechkin <ovov@yandex-team.ru>,
+        Alexander Kuznetsov <wwfq@yandex-team.ru>,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Dmitry Yakunin <zeil@yandex-team.ru>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 119/120] net: dsa: mv88e6xxx: override existent unicast portvec in port_fdb_add
-Date:   Mon,  8 Feb 2021 16:01:46 +0100
-Message-Id: <20210208145823.122073711@linuxfoundation.org>
+Subject: [PATCH 5.10 120/120] net: sched: replaced invalid qdisc tree flush helper in qdisc_replace
+Date:   Mon,  8 Feb 2021 16:01:47 +0100
+Message-Id: <20210208145823.161661750@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,39 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Alexander Ovechkin <ovov@yandex-team.ru>
 
-commit f72f2fb8fb6be095b98af5d740ac50cffd0b0cae upstream.
+commit 938e0fcd3253efdef8924714158911286d08cfe1 upstream.
 
-Having multiple destination ports for a unicast address does not make
-sense.
-Make port_db_load_purge override existent unicast portvec instead of
-adding a new port bit.
+Commit e5f0e8f8e456 ("net: sched: introduce and use qdisc tree flush/purge helpers")
+introduced qdisc tree flush/purge helpers, but erroneously used flush helper
+instead of purge helper in qdisc_replace function.
+This issue was found in our CI, that tests various qdisc setups by configuring
+qdisc and sending data through it. Call of invalid helper sporadically leads
+to corruption of vt_tree/cf_tree of hfsc_class that causes kernel oops:
 
-Fixes: 884729399260 ("net: dsa: mv88e6xxx: handle multiple ports in ATU")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20210130134334.10243-1-dqfext@gmail.com
+ Oops: 0000 [#1] SMP PTI
+ CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.11.0-8f6859df #1
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
+ RIP: 0010:rb_insert_color+0x18/0x190
+ Code: c3 31 c0 c3 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 48 8b 07 48 85 c0 0f 84 05 01 00 00 48 8b 10 f6 c2 01 0f 85 34 01 00 00 <48> 8b 4a 08 49 89 d0 48 39 c1 74 7d 48 85 c9 74 32 f6 01 01 75 2d
+ RSP: 0018:ffffc900000b8bb0 EFLAGS: 00010246
+ RAX: ffff8881ef4c38b0 RBX: ffff8881d956e400 RCX: ffff8881ef4c38b0
+ RDX: 0000000000000000 RSI: ffff8881d956f0a8 RDI: ffff8881d956e4b0
+ RBP: 0000000000000000 R08: 000000d5c4e249da R09: 1600000000000000
+ R10: ffffc900000b8be0 R11: ffffc900000b8b28 R12: 0000000000000001
+ R13: 000000000000005a R14: ffff8881f0905000 R15: ffff8881f0387d00
+ FS:  0000000000000000(0000) GS:ffff8881f8b00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000008 CR3: 00000001f4796004 CR4: 0000000000060ee0
+ Call Trace:
+  <IRQ>
+  init_vf.isra.19+0xec/0x250 [sch_hfsc]
+  hfsc_enqueue+0x245/0x300 [sch_hfsc]
+  ? fib_rules_lookup+0x12a/0x1d0
+  ? __dev_queue_xmit+0x4b6/0x930
+  ? hfsc_delete_class+0x250/0x250 [sch_hfsc]
+  __dev_queue_xmit+0x4b6/0x930
+  ? ip6_finish_output2+0x24d/0x590
+  ip6_finish_output2+0x24d/0x590
+  ? ip6_output+0x6c/0x130
+  ip6_output+0x6c/0x130
+  ? __ip6_finish_output+0x110/0x110
+  mld_sendpack+0x224/0x230
+  mld_ifc_timer_expire+0x186/0x2c0
+  ? igmp6_group_dropped+0x200/0x200
+  call_timer_fn+0x2d/0x150
+  run_timer_softirq+0x20c/0x480
+  ? tick_sched_do_timer+0x60/0x60
+  ? tick_sched_timer+0x37/0x70
+  __do_softirq+0xf7/0x2cb
+  irq_exit+0xa0/0xb0
+  smp_apic_timer_interrupt+0x74/0x150
+  apic_timer_interrupt+0xf/0x20
+  </IRQ>
+
+Fixes: e5f0e8f8e456 ("net: sched: introduce and use qdisc tree flush/purge helpers")
+Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
+Reported-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
+Acked-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Link: https://lore.kernel.org/r/20210201200049.299153-1-ovov@yandex-team.ru
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/net/sch_generic.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -1669,7 +1669,11 @@ static int mv88e6xxx_port_db_load_purge(
- 		if (!entry.portvec)
- 			entry.state = 0;
- 	} else {
--		entry.portvec |= BIT(port);
-+		if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
-+			entry.portvec = BIT(port);
-+		else
-+			entry.portvec |= BIT(port);
-+
- 		entry.state = state;
- 	}
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -1155,7 +1155,7 @@ static inline struct Qdisc *qdisc_replac
+ 	old = *pold;
+ 	*pold = new;
+ 	if (old != NULL)
+-		qdisc_tree_flush_backlog(old);
++		qdisc_purge_queue(old);
+ 	sch_tree_unlock(sch);
  
+ 	return old;
 
 
