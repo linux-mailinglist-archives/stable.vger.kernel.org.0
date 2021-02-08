@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1163313C8E
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54867313C93
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235330AbhBHSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:07:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S235356AbhBHSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234019AbhBHSDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233999AbhBHSDa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 13:03:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69F9264ED1;
-        Mon,  8 Feb 2021 17:59:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE9364EDF;
+        Mon,  8 Feb 2021 17:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807165;
-        bh=hUmXp4cl6ZebLceSriEo+HTBsK9PbC91soU8GF9e8G0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1moS9wG9V+7MmWvTtiJdQ1VN1mPgynqlxGJUH2VTxXKi1qNp7A80iKSWYc9Xd4uz
-         0PY1O3IrlMxWRqMC5KNTaRADpNPqhvPou6oOJLMw/fPwfeP6TomNlQTPkdc/qWtU/5
-         iBFXk9Z6zNg9QVoyFW8XvtSC6ePahXwr0gOYsgruJ1iJAygCPSId2W7G5wp9Z9gOky
-         5lgnAc2atATHFmCgv16Pb0yi9wobQGvveA/KpRYP3FI3XpDlHb0c6WGRuaYP0a18n7
-         qVtK+hJF48sCmJChAwcLwELdpCZhZ2zFDwcJkupXBWyAE0ewf7aT1JjCU4wBC9bf+m
-         sIC66Tcvzud/Q==
+        s=k20201202; t=1612807168;
+        bh=D23j1jm6MDe6TU/clUZv9cBNNFUZraPMoWU+k0ohS9M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JmuEmYeV1yCHyhH1ge7Bx1tq0A6oREWwBe//GQy0Gk1ZQzc9u0zD9SO6KIlcOSnYR
+         hN4TL7U0nWj/oxmXdmzC6902iSaPNAwwnMrdxwQlka0blRhOaF12ARkhcWg7ukUXJr
+         3/ka+XCZ4EWpJbLcPaHhqMOho+MPfxh95Jn6CuSMQLKT2v0jUQY0zX5BkGkDbmDuWB
+         3QagQJw/OzS1B3YiQVVOMm+qR6Tnjj45N/VzyCcxeLkjRqN34j9WgrjPWKSy8Av5FC
+         e0lCQSS1jeA6u4YPCJemcs8isA6VRFNfAdx6CzeJz3EGjPy8v6YXgaL7415IZmde6P
+         7dk8qrX8s1Zzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jessica Yu <jeyu@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 19/19] init/gcov: allow CONFIG_CONSTRUCTORS on UML to fix module gcov
-Date:   Mon,  8 Feb 2021 12:58:58 -0500
-Message-Id: <20210208175858.2092008-19-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 01/14] arm64: dts: rockchip: Fix PCIe DT properties on rk3399
+Date:   Mon,  8 Feb 2021 12:59:13 -0500
+Message-Id: <20210208175926.2092211-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210208175858.2092008-1-sashal@kernel.org>
-References: <20210208175858.2092008-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,79 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 55b6f763d8bcb5546997933105d66d3e6b080e6a ]
+[ Upstream commit 43f20b1c6140896916f4e91aacc166830a7ba849 ]
 
-On ARCH=um, loading a module doesn't result in its constructors getting
-called, which breaks module gcov since the debugfs files are never
-registered.  On the other hand, in-kernel constructors have already been
-called by the dynamic linker, so we can't call them again.
+It recently became apparent that the lack of a 'device_type = "pci"'
+in the PCIe root complex node for rk3399 is a violation of the PCI
+binding, as documented in IEEE Std 1275-1994. Changes to the kernel's
+parsing of the DT made such violation fatal, as drivers cannot
+probe the controller anymore.
 
-Get out of this conundrum by allowing CONFIG_CONSTRUCTORS to be
-selected, but avoiding the in-kernel constructor calls.
+Add the missing property makes the PCIe node compliant. While we
+are at it, drop the pointless linux,pci-domain property, which only
+makes sense when there are multiple host bridges.
 
-Also remove the "if !UML" from GCOV selecting CONSTRUCTORS now, since we
-really do want CONSTRUCTORS, just not kernel binary ones.
-
-Link: https://lkml.kernel.org/r/20210120172041.c246a2cac2fb.I1358f584b76f1898373adfed77f4462c8705b736@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200815125112.462652-3-maz@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig        | 1 -
- init/main.c         | 8 +++++++-
- kernel/gcov/Kconfig | 2 +-
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index 96fc45d1b686b..8a04857453607 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -38,7 +38,6 @@ config CC_HAS_ASM_INLINE
- 
- config CONSTRUCTORS
- 	bool
--	depends on !UML
- 
- config IRQ_WORK
- 	bool
-diff --git a/init/main.c b/init/main.c
-index fef9e610b74b7..c59d41ce597eb 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -790,7 +790,13 @@ asmlinkage __visible void __init start_kernel(void)
- /* Call all constructor functions linked into the kernel. */
- static void __init do_ctors(void)
- {
--#ifdef CONFIG_CONSTRUCTORS
-+/*
-+ * For UML, the constructors have already been called by the
-+ * normal setup code as it's just a normal ELF binary, so we
-+ * cannot do it again - but we do need CONFIG_CONSTRUCTORS
-+ * even on UML for modules.
-+ */
-+#if defined(CONFIG_CONSTRUCTORS) && !defined(CONFIG_UML)
- 	ctor_fn_t *fn = (ctor_fn_t *) __ctors_start;
- 
- 	for (; fn < (ctor_fn_t *) __ctors_end; fn++)
-diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
-index 3941a9c48f833..060e8e726755f 100644
---- a/kernel/gcov/Kconfig
-+++ b/kernel/gcov/Kconfig
-@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
- config GCOV_KERNEL
- 	bool "Enable gcov-based kernel profiling"
- 	depends on DEBUG_FS
--	select CONSTRUCTORS if !UML
-+	select CONSTRUCTORS
- 	default n
- 	---help---
- 	This option enables gcov-based code profiling (e.g. for code coverage
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index f4ee7c4f83b8b..b1c1a88a1c20c 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -198,6 +198,7 @@ pcie0: pcie@f8000000 {
+ 		reg = <0x0 0xf8000000 0x0 0x2000000>,
+ 		      <0x0 0xfd000000 0x0 0x1000000>;
+ 		reg-names = "axi-base", "apb-base";
++		device_type = "pci";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+ 		#interrupt-cells = <1>;
+@@ -216,7 +217,6 @@ pcie0: pcie@f8000000 {
+ 				<0 0 0 2 &pcie0_intc 1>,
+ 				<0 0 0 3 &pcie0_intc 2>,
+ 				<0 0 0 4 &pcie0_intc 3>;
+-		linux,pci-domain = <0>;
+ 		max-link-speed = <1>;
+ 		msi-map = <0x0 &its 0x0 0x1000>;
+ 		phys = <&pcie_phy 0>, <&pcie_phy 1>,
 -- 
 2.27.0
 
