@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459A0313794
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9183135FB
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbhBHP2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:28:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33700 "EHLO mail.kernel.org"
+        id S232655AbhBHPD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:03:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233779AbhBHPWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C491664F0A;
-        Mon,  8 Feb 2021 15:13:53 +0000 (UTC)
+        id S232477AbhBHPD2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:03:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28A1664E99;
+        Mon,  8 Feb 2021 15:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797234;
-        bh=F62tx6LP7JeGwQJCwT9w7adBWae/vVK9wnFblI/pk7A=;
+        s=korg; t=1612796532;
+        bh=iyhxmu86rvr/B1jTQ10vuZ1XzacQmqUiGFHJb3r7Xoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/QzIpQIFI/qm+eNYwBScnwhhnyjPoj1IhtxBbQwgUZUs/5Tg7udU9+0v+kKyxi6r
-         4CWrV1rugHBr1YyG+JxpOCNBCnLZIYhbUIKeVVA/mxeKrfAi2PTpB+uEdIciS82MIc
-         D9ThyBGHh3DegyzcEerYl7bRw7LVlWSBrnlhMVRg=
+        b=tBDM2N6joamqbCDsViSdZItMbzWEp7fJpJbeZa/5dZ9YS7nQ00+pegGBLiEnJMRb+
+         9bf4C1mjk9QkkUS5hti3nxxnlRA/C1Iv/j27bddU6NnMBEXOSwPtUGj264Fyq/C1GN
+         odBQiM130MfOTKTqR+PKtKX3n+z06EpFsPckkZHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lijun Pan <ljp@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/120] ibmvnic: device remove has higher precedence over reset
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
+        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
+        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 04/38] futex: Rework inconsistent rt_mutex/futex_q state
 Date:   Mon,  8 Feb 2021 16:00:26 +0100
-Message-Id: <20210208145819.976343427@linuxfoundation.org>
+Message-Id: <20210208145805.463603952@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 5e9eff5dfa460cd1a74b7c1fde4fced7c04383af ]
+From: Peter Zijlstra <peterz@infradead.org>
 
-Returning -EBUSY in ibmvnic_remove() does not actually hold the
-removal procedure since driver core doesn't care for the return
-value (see __device_release_driver() in drivers/base/dd.c
-calling dev->bus->remove()) though vio_bus_remove
-(in arch/powerpc/platforms/pseries/vio.c) records the
-return value and passes it on. [1]
+[Upstream commit 73d786bd043ebc855f349c81ea805f6b11cbf2aa ]
 
-During the device removal precedure, checking for resetting
-bit is dropped so that we can continue executing all the
-cleanup calls in the rest of the remove function. Otherwise,
-it can cause latent memory leaks and kernel crashes.
+There is a weird state in the futex_unlock_pi() path when it interleaves
+with a concurrent futex_lock_pi() at the point where it drops hb->lock.
 
-[1] https://lore.kernel.org/linuxppc-dev/20210117101242.dpwayq6wdgfdzirl@pengutronix.de/T/#m48f5befd96bc9842ece2a3ad14f4c27747206a53
-Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Fixes: 7d7195a026ba ("ibmvnic: Do not process device remove during device reset")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210129043402.95744-1-ljp@linux.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In this case, it can happen that the rt_mutex wait_list and the futex_q
+disagree on pending waiters, in particular rt_mutex will find no pending
+waiters where futex_q thinks there are. In this case the rt_mutex unlock
+code cannot assign an owner.
+
+The futex side fixup code has to cleanup the inconsistencies with quite a
+bunch of interesting corner cases.
+
+Simplify all this by changing wake_futex_pi() to return -EAGAIN when this
+situation occurs. This then gives the futex_lock_pi() code the opportunity
+to continue and the retried futex_unlock_pi() will now observe a coherent
+state.
+
+The only problem is that this breaks RT timeliness guarantees. That
+is, consider the following scenario:
+
+  T1 and T2 are both pinned to CPU0. prio(T2) > prio(T1)
+
+    CPU0
+
+    T1
+      lock_pi()
+      queue_me()  <- Waiter is visible
+
+    preemption
+
+    T2
+      unlock_pi()
+	loops with -EAGAIN forever
+
+Which is undesirable for PI primitives. Future patches will rectify
+this.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: bigeasy@linutronix.de
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104151.850383690@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[Lee: Back-ported to solve a dependency]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 5 -----
- 1 file changed, 5 deletions(-)
+ kernel/futex.c |   52 +++++++++++++++-------------------------------------
+ 1 file changed, 15 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 627ce1a20473a..2f281d0f98070 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5339,11 +5339,6 @@ static int ibmvnic_remove(struct vio_dev *dev)
- 	unsigned long flags;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1389,12 +1389,19 @@ static int wake_futex_pi(u32 __user *uad
+ 	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
  
- 	spin_lock_irqsave(&adapter->state_lock, flags);
--	if (test_bit(0, &adapter->resetting)) {
--		spin_unlock_irqrestore(&adapter->state_lock, flags);
--		return -EBUSY;
+ 	/*
+-	 * It is possible that the next waiter (the one that brought
+-	 * this owner to the kernel) timed out and is no longer
+-	 * waiting on the lock.
+-	 */
+-	if (!new_owner)
+-		new_owner = this->task;
++	 * When we interleave with futex_lock_pi() where it does
++	 * rt_mutex_timed_futex_lock(), we might observe @this futex_q waiter,
++	 * but the rt_mutex's wait_list can be empty (either still, or again,
++	 * depending on which side we land).
++	 *
++	 * When this happens, give up our locks and try again, giving the
++	 * futex_lock_pi() instance time to complete, either by waiting on the
++	 * rtmutex or removing itself from the futex queue.
++	 */
++	if (!new_owner) {
++		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
++		return -EAGAIN;
++	}
+ 
+ 	/*
+ 	 * We pass it to the next owner. The WAITERS bit is always
+@@ -2337,7 +2344,6 @@ static long futex_wait_restart(struct re
+  */
+ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+ {
+-	struct task_struct *owner;
+ 	int ret = 0;
+ 
+ 	if (locked) {
+@@ -2351,43 +2357,15 @@ static int fixup_owner(u32 __user *uaddr
+ 	}
+ 
+ 	/*
+-	 * Catch the rare case, where the lock was released when we were on the
+-	 * way back before we locked the hash bucket.
+-	 */
+-	if (q->pi_state->owner == current) {
+-		/*
+-		 * Try to get the rt_mutex now. This might fail as some other
+-		 * task acquired the rt_mutex after we removed ourself from the
+-		 * rt_mutex waiters list.
+-		 */
+-		if (rt_mutex_futex_trylock(&q->pi_state->pi_mutex)) {
+-			locked = 1;
+-			goto out;
+-		}
+-
+-		/*
+-		 * pi_state is incorrect, some other task did a lock steal and
+-		 * we returned due to timeout or signal without taking the
+-		 * rt_mutex. Too late.
+-		 */
+-		raw_spin_lock(&q->pi_state->pi_mutex.wait_lock);
+-		owner = rt_mutex_owner(&q->pi_state->pi_mutex);
+-		if (!owner)
+-			owner = rt_mutex_next_owner(&q->pi_state->pi_mutex);
+-		raw_spin_unlock(&q->pi_state->pi_mutex.wait_lock);
+-		ret = fixup_pi_state_owner(uaddr, q, owner);
+-		goto out;
 -	}
 -
- 	adapter->state = VNIC_REMOVING;
- 	spin_unlock_irqrestore(&adapter->state_lock, flags);
+-	/*
+ 	 * Paranoia check. If we did not take the lock, then we should not be
+ 	 * the owner of the rt_mutex.
+ 	 */
+-	if (rt_mutex_owner(&q->pi_state->pi_mutex) == current)
++	if (rt_mutex_owner(&q->pi_state->pi_mutex) == current) {
+ 		printk(KERN_ERR "fixup_owner: ret = %d pi-mutex: %p "
+ 				"pi-state %p\n", ret,
+ 				q->pi_state->pi_mutex.owner,
+ 				q->pi_state->owner);
++	}
  
--- 
-2.27.0
-
+ out:
+ 	return ret ? ret : locked;
 
 
