@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BAB31368F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E939313642
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233293AbhBHPMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:12:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55484 "EHLO mail.kernel.org"
+        id S229795AbhBHPIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:08:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232410AbhBHPIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:08:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20B0864E8B;
-        Mon,  8 Feb 2021 15:06:25 +0000 (UTC)
+        id S232392AbhBHPGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:06:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC6F264EDF;
+        Mon,  8 Feb 2021 15:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796786;
-        bh=b+FG4vHyNSF7F8nh1LNDfEFVUMQhC8RYI7u6k4Jcogc=;
+        s=korg; t=1612796692;
+        bh=R7X3F2Lwr2jEybZesvYA2VbaWLnZKOajyJcZxuiFvDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kY/0C0OSM8uGdEClxvBeLEzoeRR523Qi6hxg+hUhQA77ux4KT3qzUSg7QE9vRE8UT
-         fLdgs0hstBry5RN8HLBl3L3lAnYSj1GRYM9c8pzamif/z2tLHvEu7c6+5WTwmZaBdI
-         uc83Gede+SPdzEqIgR8Bu+vBnQsnHUEMQAJy4wX0=
+        b=JT/ZfHXwSPXdNlKaQsvIj0MN3gHr9Id3optf4bN2BwjiGdJMruNFxTN/mXuvKyb8x
+         K9ndN4ftn0Jpti6u4zbGwTVzTH06lSFpa/ZqLlMqLwnWGZzCRzqW2rnoA3ylAstY89
+         r1D8+06PN4OMtV8X+26NYXsO46DUxMbVw/dtrT64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenxin Jin <bg4akv@hotmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 02/30] USB: serial: cp210x: add new VID/PID for supporting Teraoka AD2000
-Date:   Mon,  8 Feb 2021 16:00:48 +0100
-Message-Id: <20210208145805.359147461@linuxfoundation.org>
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 23/43] net: lapb: Copy the skb before sending a packet
+Date:   Mon,  8 Feb 2021 16:00:49 +0100
+Message-Id: <20210208145807.250376835@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chenxin Jin <bg4akv@hotmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit 43377df70480f82919032eb09832e9646a8a5efb upstream.
+[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
 
-Teraoka AD2000 uses the CP210x driver, but the chip VID/PID is
-customized with 0988/0578. We need the driver to support the new
-VID/PID.
+When sending a packet, we will prepend it with an LAPB header.
+This modifies the shared parts of a cloned skb, so we should copy the
+skb rather than just clone it, before we prepend the header.
 
-Signed-off-by: Chenxin Jin <bg4akv@hotmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In "Documentation/networking/driver.rst" (the 2nd point), it states
+that drivers shouldn't modify the shared parts of a cloned skb when
+transmitting.
+
+The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
+when an skb is being sent, clones the skb and sents the clone to
+AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
+pseudo-header before handing over the skb to us, if we don't copy the
+skb before prepending the LAPB header, the first byte of the packets
+received on AF_PACKET sockets can be corrupted.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/lapb/lapb_out.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -64,6 +64,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
- 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
- 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
-+	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
- 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
- 	{ USB_DEVICE(0x0BED, 0x1100) }, /* MEI (TM) Cashflow-SC Bill/Voucher Acceptor */
- 	{ USB_DEVICE(0x0BED, 0x1101) }, /* MEI series 2000 Combo Acceptor */
+diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
+index 482c94d9d958a..d1c7dcc234486 100644
+--- a/net/lapb/lapb_out.c
++++ b/net/lapb/lapb_out.c
+@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
+ 		skb = skb_dequeue(&lapb->write_queue);
+ 
+ 		do {
+-			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
++			skbn = skb_copy(skb, GFP_ATOMIC);
++			if (!skbn) {
+ 				skb_queue_head(&lapb->write_queue, skb);
+ 				break;
+ 			}
+-- 
+2.27.0
+
 
 
