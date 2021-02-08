@@ -2,106 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BAC3132B3
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D3B3132D5
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:59:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbhBHMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 07:46:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232430AbhBHMp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 07:45:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A91364E75;
-        Mon,  8 Feb 2021 12:45:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612788316;
-        bh=ifobcqNo6vcc1rN286jX0rDurugavttR0zGgFnndxJc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZabfLnCfWboDagFh79lmOMVM+OrOKo/UCF/y6QKsZ4+6j7wxciY+YxaHlKW/i107j
-         rAAnOR3B6JIkry3ZkGEcrhEijpEg4UCtgpNn6Z7/+AEQaCQvx3Jh2fmSZQEoITz8ZO
-         AuVrvNEltcrZSto+htnos71mPdfLSH6irIGjbt8I=
-Date:   Mon, 8 Feb 2021 13:45:14 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jack Wang <jinpu.wang@cloud.ionos.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Xiao Ni <xni@redhat.com>, David Jeffery <djeffery@redhat.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: Re: [stable-5.10] md: Set prev_flush_start and flush_bio in an
- atomic way
-Message-ID: <YCEyWvFdF6PYkKD/@kroah.com>
-References: <20210205141301.71682-1-jinpu.wang@cloud.ionos.com>
+        id S229888AbhBHM6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 07:58:40 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:36526 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230191AbhBHM6e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 07:58:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1612789026;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mlx2QrIxat+f3xVBHwBJupZMEshhECpMGCDjBF0L/0U=;
+        b=VkC9ppXGQN/LPRSh06lRZSRnujVC7aK6WW/FwP2n6Vo8wYD7EsY/b0GjZ4S468J2/joYgd
+        ToEnPmG8OWhnNCg8rTRdIb2GzW/B/19YWojR5weGdupl22qhQ2OLZKcab0xzHhydV5U1cE
+        lh7DtVatqQ7x1w6797HwI/+UP4umB3Y=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-C5FGhgQvNrueAgzPIQttpQ-1; Mon, 08 Feb 2021 07:57:03 -0500
+X-MC-Unique: C5FGhgQvNrueAgzPIQttpQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5AEA891133;
+        Mon,  8 Feb 2021 12:57:01 +0000 (UTC)
+Received: from oldenburg.str.redhat.com (ovpn-112-116.ams2.redhat.com [10.36.112.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7C32E5C1D0;
+        Mon,  8 Feb 2021 12:56:59 +0000 (UTC)
+From:   Florian Weimer <fweimer@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz
+Subject: Re: Linux 4.9.256
+References: <1612535085125226@kroah.com>
+Date:   Mon, 08 Feb 2021 13:57:12 +0100
+In-Reply-To: <1612535085125226@kroah.com> (Greg Kroah-Hartman's message of
+        "Fri, 5 Feb 2021 15:26:18 +0100")
+Message-ID: <87czxa3efr.fsf@oldenburg.str.redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210205141301.71682-1-jinpu.wang@cloud.ionos.com>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 05, 2021 at 03:13:01PM +0100, Jack Wang wrote:
-> From: Xiao Ni <xni@redhat.com>
-> 
-> One customer reports a crash problem which causes by flush request. It
-> triggers a warning before crash.
-> 
->         /* new request after previous flush is completed */
->         if (ktime_after(req_start, mddev->prev_flush_start)) {
->                 WARN_ON(mddev->flush_bio);
->                 mddev->flush_bio = bio;
->                 bio = NULL;
->         }
-> 
-> The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
-> flush_bio in md_flush_request. But there is no lock protection in
-> md_submit_flush_data. It can set flush_bio to NULL first because of
-> compiler reordering write instructions.
-> 
-> For example, flush bio1 sets flush bio to NULL first in
-> md_submit_flush_data. An interrupt or vmware causing an extended stall
-> happen between updating flush_bio and prev_flush_start. Because flush_bio
-> is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
-> flush bio1 updates prev_flush_start after the interrupt or extended stall.
-> 
-> Then flush bio3 enters in md_flush_request. The start time req_start is
-> behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
-> finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
-> again. INIT_WORK() will re-initialize the list pointers in the
-> work_struct, which then can result in a corrupted work list and the
-> work_struct queued a second time. With the work list corrupted, it can
-> lead in invalid work items being used and cause a crash in
-> process_one_work.
-> 
-> We need to make sure only one flush bio can be handled at one same time.
-> So add spin lock in md_submit_flush_data to protect prev_flush_start and
-> flush_bio in an atomic way.
-> 
-> Reviewed-by: David Jeffery <djeffery@redhat.com>
-> Signed-off-by: Xiao Ni <xni@redhat.com>
-> Signed-off-by: Song Liu <songliubraving@fb.com>
-> [jwang: backport dc5d17a3c39b06aef866afca19245a9cfb533a79 to 4.19]
-> Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-> ---
->  drivers/md/md.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/md/md.c b/drivers/md/md.c
-> index ea139d0c0bc3..2bd60bd9e2ca 100644
-> --- a/drivers/md/md.c
-> +++ b/drivers/md/md.c
-> @@ -639,8 +639,10 @@ static void md_submit_flush_data(struct work_struct *ws)
->  	 * could wait for this and below md_handle_request could wait for those
->  	 * bios because of suspend check
->  	 */
-> +	spin_lock_irq(&mddev->lock);
->  	mddev->last_flush = mddev->start_flush;
->  	mddev->flush_bio = NULL;
-> +	spin_unlock_irq(&mddev->lock);
->  	wake_up(&mddev->sb_wait);
->  
->  	if (bio->bi_iter.bi_size == 0) {
-> -- 
-> 2.25.1
+* Greg Kroah-Hartman:
 
-Now queued up, thanks.
+> I'm announcing the release of the 4.9.256 kernel.
+>
+> This, and the 4.4.256 release are a little bit "different" than normal.
+>
+> This contains only 1 patch, just the version bump from .255 to .256 which ends
+> up causing the userspace-visable LINUX_VERSION_CODE to behave a bit differently
+> than normal due to the "overflow".
+>
+> With this release, KERNEL_VERSION(4, 9, 256) is the same as KERNEL_VERSION(4, 10, 0).
+>
+> Nothing in the kernel build itself breaks with this change, but given
+> that this is a userspace visible change, and some crazy tools (like
+> glibc and gcc) have logic that checks the kernel version for different
+> reasons, I wanted to do this release as an "empty" release to ensure
+> that everything still works properly.
 
-greg k-h
+I'm looking at this from a glibc perspective.  glibc took the
+KERNEL_VERSION definition and embedded the bit layout into the
+/etc/ld.so.cache, as part of the file format.  Exact impact is still
+unclear at this point.
+
+Thanks,
+Florian
+-- 
+Red Hat GmbH, https://de.redhat.com/ , Registered seat: Grasbrunn,
+Commercial register: Amtsgericht Muenchen, HRB 153243,
+Managing Directors: Charles Cachera, Brian Klemm, Laurie Krebs, Michael O'Neill
+
