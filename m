@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A69631368E
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9468313653
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232521AbhBHPMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:12:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S232428AbhBHPJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:09:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230417AbhBHPIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:08:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB92E64EB8;
-        Mon,  8 Feb 2021 15:06:11 +0000 (UTC)
+        id S233036AbhBHPGi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:06:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9967464EC4;
+        Mon,  8 Feb 2021 15:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796772;
-        bh=CislfrCJDfHTo9CTkhei2y+/rYz2DoPL3d30oLssA3Y=;
+        s=korg; t=1612796706;
+        bh=Zr3a50vF2KkXLHkbobMc06uOnXhcEsQBL39Nd4bbvhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KommwNPu88a6sYzY1vfUe1RnCLOPmcl/LphqJk5NQtCNO+mnIBdcTLV+9LnCDPoJB
-         KyNX7YOAJ8gS4XShnRXxp1l5QUu8sFl8p+qmlyJsQysj1IEbY2HWfzSMy705kpD5Gn
-         0zvfcx3ca2qLnGlMNm0GkU+i3ajy4w7ixY2+aeo4=
+        b=Sio7x1ZL3fmhLKNKQvlIjFH3eydaWIhMOkirh8ZCHOF+hdV3seWBMSAP+JSysMS1B
+         p46oDzxWiT1CAWS0aMWugwtC4BNQmospI658VEpvoSwRhPCw03lo+8eGBNHv/GlRBv
+         vEcelrI4jVawEZiPTZoIDc0T+89t0w+134GHcRMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Ananth N Mavinakayanahalli <ananth@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Cheng Jian <cj.chengjian@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 15/30] kretprobe: Avoid re-registration of the same kretprobe earlier
-Date:   Mon,  8 Feb 2021 16:01:01 +0100
-Message-Id: <20210208145805.863520126@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 36/43] mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
+Date:   Mon,  8 Feb 2021 16:01:02 +0100
+Message-Id: <20210208145807.768478692@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 0188b87899ffc4a1d36a0badbe77d56c92fd91dc upstream.
+commit ecbf4724e6061b4b01be20f6d797d64d462b2bc8 upstream.
 
-Our system encountered a re-init error when re-registering same kretprobe,
-where the kretprobe_instance in rp->free_instances is illegally accessed
-after re-init.
+The page_huge_active() can be called from scan_movable_pages() which do
+not hold a reference count to the HugeTLB page.  So when we call
+page_huge_active() from scan_movable_pages(), the HugeTLB page can be
+freed parallel.  Then we will trigger a BUG_ON which is in the
+page_huge_active() when CONFIG_DEBUG_VM is enabled.  Just remove the
+VM_BUG_ON_PAGE.
 
-Implementation to avoid re-registration has been introduced for kprobe
-before, but lags for register_kretprobe(). We must check if kprobe has
-been re-registered before re-initializing kretprobe, otherwise it will
-destroy the data struct of kretprobe registered, which can lead to memory
-leak, system crash, also some unexpected behaviors.
-
-We use check_kprobe_rereg() to check if kprobe has been re-registered
-before running register_kretprobe()'s body, for giving a warning message
-and terminate registration process.
-
-Link: https://lkml.kernel.org/r/20210128124427.2031088-1-bobo.shaobowang@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 1f0ab40976460 ("kprobes: Prevent re-registration of the same kprobe")
-[ The above commit should have been done for kretprobes too ]
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/20210115124942.46403-6-songmuchun@bytedance.com
+Fixes: 7e1f049efb86 ("mm: hugetlb: cleanup using paeg_huge_active()")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/hugetlb.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1989,6 +1989,10 @@ int register_kretprobe(struct kretprobe
- 	if (!kprobe_on_func_entry(rp->kp.addr, rp->kp.symbol_name, rp->kp.offset))
- 		return -EINVAL;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1210,8 +1210,7 @@ struct hstate *size_to_hstate(unsigned l
+  */
+ bool page_huge_active(struct page *page)
+ {
+-	VM_BUG_ON_PAGE(!PageHuge(page), page);
+-	return PageHead(page) && PagePrivate(&page[1]);
++	return PageHeadHuge(page) && PagePrivate(&page[1]);
+ }
  
-+	/* If only rp->kp.addr is specified, check reregistering kprobes */
-+	if (rp->kp.addr && check_kprobe_rereg(&rp->kp))
-+		return -EINVAL;
-+
- 	if (kretprobe_blacklist_size) {
- 		addr = kprobe_addr(&rp->kp);
- 		if (IS_ERR(addr))
+ /* never called for tail page */
 
 
