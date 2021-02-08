@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D363137BD
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AACD33137BC
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233684AbhBHPaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:30:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35868 "EHLO mail.kernel.org"
+        id S233767AbhBHPaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:30:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233776AbhBHPZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A2FF64F19;
-        Mon,  8 Feb 2021 15:15:25 +0000 (UTC)
+        id S232197AbhBHP0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:26:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4A7864F1A;
+        Mon,  8 Feb 2021 15:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797326;
-        bh=wTUx9LfmtQw5rYVw4ZU63abr4Eekls3SODEXaxTwNj4=;
+        s=korg; t=1612797329;
+        bh=621RxkhTczHoTVOeUp9MvSyU2ZZcgPnkWxOLiz0x0XA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcqXRTcg696gOYm734y5pulSkpqtWuT8XJ4Ds3veo2c+iDJ4iwJuVdAZ/pROeYCtA
-         KdReUlzAibE6c4uUBZY1GBXmBzjlubdS9/k8Q5Je2DT7BssjJgW4GeN9U/u6GdGbqw
-         aEk6VgKTCYPRC0zM8pJZM030JIlkAZNSTGp89c4E=
+        b=HoL0WBZSYK9G9pSj6BABJkwT1+uHlZOWNLklnzaVTYZ0ae71hOYKeABlMJH/8if/J
+         Ba8n7Uhw7BvHssG9SugRvIy1pvA7Q06MtkrJshl46m92irAOUKLUAfHE3kWph4oqsb
+         vd9Swv6o2VsgK7SjEOhZUGZAsORy7VlM8xjyZdSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 071/120] cifs: report error instead of invalid when revalidating a dentry fails
-Date:   Mon,  8 Feb 2021 16:00:58 +0100
-Message-Id: <20210208145821.239783833@linuxfoundation.org>
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.10 072/120] iommu: Check dev->iommu in dev_iommu_priv_get() before dereferencing it
+Date:   Mon,  8 Feb 2021 16:00:59 +0100
+Message-Id: <20210208145821.281397713@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,74 +38,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 21b200d091826a83aafc95d847139b2b0582f6d1 upstream.
+commit 4c9fb5d9140802db4db9f66c23887f43174e113c upstream.
 
-Assuming
-- //HOST/a is mounted on /mnt
-- //HOST/b is mounted on /mnt/b
+The dev_iommu_priv_get() needs a similar check to
+dev_iommu_fwspec_get() to make sure no NULL-ptr is dereferenced.
 
-On a slow connection, running 'df' and killing it while it's
-processing /mnt/b can make cifs_get_inode_info() returns -ERESTARTSYS.
-
-This triggers the following chain of events:
-=> the dentry revalidation fail
-=> dentry is put and released
-=> superblock associated with the dentry is put
-=> /mnt/b is unmounted
-
-This patch makes cifs_d_revalidate() return the error instead of 0
-(invalid) when cifs_revalidate_dentry() fails, except for ENOENT (file
-deleted) and ESTALE (file recreated).
-
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-Suggested-by: Shyam Prasad N <nspmangalore@gmail.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 05a0542b456e1 ("iommu/amd: Store dev_data as device iommu private data")
+Cc: stable@vger.kernel.org	# v5.8+
+Link: https://lore.kernel.org/r/20210202145419.29143-1-joro@8bytes.org
+Reference: https://bugzilla.kernel.org/show_bug.cgi?id=211241
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/dir.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ include/linux/iommu.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/dir.c
-+++ b/fs/cifs/dir.c
-@@ -736,6 +736,7 @@ static int
- cifs_d_revalidate(struct dentry *direntry, unsigned int flags)
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -614,7 +614,10 @@ static inline void dev_iommu_fwspec_set(
+ 
+ static inline void *dev_iommu_priv_get(struct device *dev)
  {
- 	struct inode *inode;
-+	int rc;
+-	return dev->iommu->priv;
++	if (dev->iommu)
++		return dev->iommu->priv;
++	else
++		return NULL;
+ }
  
- 	if (flags & LOOKUP_RCU)
- 		return -ECHILD;
-@@ -745,8 +746,25 @@ cifs_d_revalidate(struct dentry *direntr
- 		if ((flags & LOOKUP_REVAL) && !CIFS_CACHE_READ(CIFS_I(inode)))
- 			CIFS_I(inode)->time = 0; /* force reval */
- 
--		if (cifs_revalidate_dentry(direntry))
--			return 0;
-+		rc = cifs_revalidate_dentry(direntry);
-+		if (rc) {
-+			cifs_dbg(FYI, "cifs_revalidate_dentry failed with rc=%d", rc);
-+			switch (rc) {
-+			case -ENOENT:
-+			case -ESTALE:
-+				/*
-+				 * Those errors mean the dentry is invalid
-+				 * (file was deleted or recreated)
-+				 */
-+				return 0;
-+			default:
-+				/*
-+				 * Otherwise some unexpected error happened
-+				 * report it as-is to VFS layer
-+				 */
-+				return rc;
-+			}
-+		}
- 		else {
- 			/*
- 			 * If the inode wasn't known to be a dfs entry when
+ static inline void dev_iommu_priv_set(struct device *dev, void *priv)
 
 
