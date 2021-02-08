@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B8B313694
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9093136D5
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233367AbhBHPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:12:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
+        id S230333AbhBHPQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:16:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232708AbhBHPI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:08:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 644F764EBC;
-        Mon,  8 Feb 2021 15:06:40 +0000 (UTC)
+        id S231898AbhBHPLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2703464EDA;
+        Mon,  8 Feb 2021 15:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796801;
-        bh=j9kG7dKsFlgnosfpg7pro04iwdJ+A/Nv/4ji7in+T38=;
+        s=korg; t=1612796886;
+        bh=V2BQ8FzKKKz/+Gj8xT4s0dh8W02fkI2A8nuo7hZcPmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2djXvlGgGaV+Iy2GYGOiv5NBGtFkjDXzwd6r5YNORnAKwbWJ2hmmvLDw1polOVoI
-         1Y8nZXzbwiTovMUEy0wmyxqmkfjonp1kA3KeolnHto6zapgpEas8DGongQfyn3Q14l
-         rY3rXmE8/SupvzmhVZFcpm0ZT6YMnGoepnjYjNaQ=
+        b=GiyXnyN1c/m2fCVrfV+AfQhoml+H643lN6n/430JtRdbWAXocjQCSCPOrEi5ydw6U
+         cW3o4ueygoKOMHnUkaXd7iXkIokqTWyGyiBTmuoTkG9j0TK1UIYnXf83SkPa+iK+Vg
+         eFGDQUdlCevZvRDfgi6IvGku2J/YtbwPGkIQMAes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 24/30] mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
+        stable@vger.kernel.org, Fengnan Chang <fengnanchang@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 23/38] mmc: core: Limit retries when analyse of SDIO tuples fails
 Date:   Mon,  8 Feb 2021 16:01:10 +0100
-Message-Id: <20210208145806.225692832@linuxfoundation.org>
+Message-Id: <20210208145807.091038265@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Fengnan Chang <fengnanchang@gmail.com>
 
-commit ecbf4724e6061b4b01be20f6d797d64d462b2bc8 upstream.
+commit f92e04f764b86e55e522988e6f4b6082d19a2721 upstream.
 
-The page_huge_active() can be called from scan_movable_pages() which do
-not hold a reference count to the HugeTLB page.  So when we call
-page_huge_active() from scan_movable_pages(), the HugeTLB page can be
-freed parallel.  Then we will trigger a BUG_ON which is in the
-page_huge_active() when CONFIG_DEBUG_VM is enabled.  Just remove the
-VM_BUG_ON_PAGE.
+When analysing tuples fails we may loop indefinitely to retry. Let's avoid
+this by using a 10s timeout and bail if not completed earlier.
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-6-songmuchun@bytedance.com
-Fixes: 7e1f049efb86 ("mm: hugetlb: cleanup using paeg_huge_active()")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Fengnan Chang <fengnanchang@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210123033230.36442-1-fengnanchang@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mmc/core/sdio_cis.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1233,8 +1233,7 @@ struct hstate *size_to_hstate(unsigned l
-  */
- bool page_huge_active(struct page *page)
- {
--	VM_BUG_ON_PAGE(!PageHuge(page), page);
--	return PageHead(page) && PagePrivate(&page[1]);
-+	return PageHeadHuge(page) && PagePrivate(&page[1]);
- }
+--- a/drivers/mmc/core/sdio_cis.c
++++ b/drivers/mmc/core/sdio_cis.c
+@@ -24,6 +24,8 @@
+ #include "sdio_cis.h"
+ #include "sdio_ops.h"
  
- /* never called for tail page */
++#define SDIO_READ_CIS_TIMEOUT_MS  (10 * 1000) /* 10s */
++
+ static int cistpl_vers_1(struct mmc_card *card, struct sdio_func *func,
+ 			 const unsigned char *buf, unsigned size)
+ {
+@@ -270,6 +272,8 @@ static int sdio_read_cis(struct mmc_card
+ 
+ 	do {
+ 		unsigned char tpl_code, tpl_link;
++		unsigned long timeout = jiffies +
++			msecs_to_jiffies(SDIO_READ_CIS_TIMEOUT_MS);
+ 
+ 		ret = mmc_io_rw_direct(card, 0, 0, ptr++, 0, &tpl_code);
+ 		if (ret)
+@@ -322,6 +326,8 @@ static int sdio_read_cis(struct mmc_card
+ 			prev = &this->next;
+ 
+ 			if (ret == -ENOENT) {
++				if (time_after(jiffies, timeout))
++					break;
+ 				/* warn about unknown tuples */
+ 				pr_warn_ratelimited("%s: queuing unknown"
+ 				       " CIS tuple 0x%02x (%u bytes)\n",
 
 
