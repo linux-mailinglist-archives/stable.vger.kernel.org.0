@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CE03135EE
+	by mail.lfdr.de (Postfix) with ESMTP id A711A3135EF
 	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbhBHPCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:02:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51416 "EHLO mail.kernel.org"
+        id S231898AbhBHPC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:02:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230013AbhBHPCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:02:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5A1264E84;
-        Mon,  8 Feb 2021 15:01:58 +0000 (UTC)
+        id S230479AbhBHPCs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:02:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A4060238;
+        Mon,  8 Feb 2021 15:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796519;
-        bh=m1Hhb2hhKjmkcGpNeolIFWsLn0o/QEYN3gjlJ4c9s4Q=;
+        s=korg; t=1612796527;
+        bh=mwUEe6+13UVQMz8N3OXQRt/hmdjMEbOffHZYsDxjLhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmYS84jeGeIPQAxxHUmSPnJDC20+cLYYfAywka/2yXMsj5ZpYQ8YqxXsQRYcQrO+R
-         urjd/gm1R2UdlpbKrnGPWnXQZxOSXAH6K5qDQb6YkJq2zkD7hZS23rEkvTsCagFrRQ
-         0wfPlIcDhxzL+95gSahqi4Nj0NCgR4UqRe8PULuQ=
+        b=YeHFd6lYoJReJHAXy5bf9m0nlFNd617FNECXq6YcobNoym7STua8y2nsVXHTH7iTn
+         FflxBsw2HKWVRRB+SN2VYeOcf8S5oY11lNybh3lz8tkMZKvK27Oi1hUcz5Odz9c4Uq
+         EXUTAcsxQ13UvOJQ9RoW3aA0WeVPVOgUT2f14eI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 01/38] net_sched: reject silly cell_log in qdisc_get_rtab()
-Date:   Mon,  8 Feb 2021 16:00:23 +0100
-Message-Id: <20210208145805.339527769@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
+        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
+        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 02/38] futex,rt_mutex: Provide futex specific rt_mutex API
+Date:   Mon,  8 Feb 2021 16:00:24 +0100
+Message-Id: <20210208145805.387552048@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
 References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,65 +43,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit e4bedf48aaa5552bc1f49703abd17606e7e6e82a upstream
+From: Peter Zijlstra <peterz@infradead.org>
 
-iproute2 probably never goes beyond 8 for the cell exponent,
-but stick to the max shift exponent for signed 32bit.
+[ Upstream commit 5293c2efda37775346885c7e924d4ef7018ea60b ]
 
-UBSAN reported:
-UBSAN: shift-out-of-bounds in net/sched/sch_api.c:389:22
-shift exponent 130 is too large for 32-bit type 'int'
-CPU: 1 PID: 8450 Comm: syz-executor586 Not tainted 5.11.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x183/0x22e lib/dump_stack.c:120
- ubsan_epilogue lib/ubsan.c:148 [inline]
- __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
- __detect_linklayer+0x2a9/0x330 net/sched/sch_api.c:389
- qdisc_get_rtab+0x2b5/0x410 net/sched/sch_api.c:435
- cbq_init+0x28f/0x12c0 net/sched/sch_cbq.c:1180
- qdisc_create+0x801/0x1470 net/sched/sch_api.c:1246
- tc_modify_qdisc+0x9e3/0x1fc0 net/sched/sch_api.c:1662
- rtnetlink_rcv_msg+0xb1d/0xe60 net/core/rtnetlink.c:5564
- netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- ____sys_sendmsg+0x5a2/0x900 net/socket.c:2345
- ___sys_sendmsg net/socket.c:2399 [inline]
- __sys_sendmsg+0x319/0x400 net/socket.c:2432
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Part of what makes futex_unlock_pi() intricate is that
+rt_mutex_futex_unlock() -> rt_mutex_slowunlock() can drop
+rt_mutex::wait_lock.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20210114160637.1660597-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+This means it cannot rely on the atomicy of wait_lock, which would be
+preferred in order to not rely on hb->lock so much.
+
+The reason rt_mutex_slowunlock() needs to drop wait_lock is because it can
+race with the rt_mutex fastpath, however futexes have their own fast path.
+
+Since futexes already have a bunch of separate rt_mutex accessors, complete
+that set and implement a rt_mutex variant without fastpath for them.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: bigeasy@linutronix.de
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104151.702962446@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[Lee: Back-ported to solve a dependency]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_api.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/futex.c                  |   30 ++++++++++-----------
+ kernel/locking/rtmutex.c        |   56 +++++++++++++++++++++++++++++-----------
+ kernel/locking/rtmutex_common.h |    8 ++++-
+ 3 files changed, 61 insertions(+), 33 deletions(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -391,7 +391,8 @@ struct qdisc_rate_table *qdisc_get_rtab(
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -936,7 +936,7 @@ static void exit_pi_state_list(struct ta
+ 		pi_state->owner = NULL;
+ 		raw_spin_unlock_irq(&curr->pi_lock);
+ 
+-		rt_mutex_unlock(&pi_state->pi_mutex);
++		rt_mutex_futex_unlock(&pi_state->pi_mutex);
+ 
+ 		spin_unlock(&hb->lock);
+ 
+@@ -1436,20 +1436,18 @@ static int wake_futex_pi(u32 __user *uad
+ 	pi_state->owner = new_owner;
+ 	raw_spin_unlock_irq(&new_owner->pi_lock);
+ 
+-	raw_spin_unlock(&pi_state->pi_mutex.wait_lock);
+-
+-	deboost = rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
+-
+ 	/*
+-	 * First unlock HB so the waiter does not spin on it once he got woken
+-	 * up. Second wake up the waiter before the priority is adjusted. If we
+-	 * deboost first (and lose our higher priority), then the task might get
+-	 * scheduled away before the wake up can take place.
++	 * We've updated the uservalue, this unlock cannot fail.
+ 	 */
++	deboost = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
++
++	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
+ 	spin_unlock(&hb->lock);
+-	wake_up_q(&wake_q);
+-	if (deboost)
++
++	if (deboost) {
++		wake_up_q(&wake_q);
+ 		rt_mutex_adjust_prio(current);
++	}
+ 
+ 	return 0;
+ }
+@@ -2362,7 +2360,7 @@ static int fixup_owner(u32 __user *uaddr
+ 		 * task acquired the rt_mutex after we removed ourself from the
+ 		 * rt_mutex waiters list.
+ 		 */
+-		if (rt_mutex_trylock(&q->pi_state->pi_mutex)) {
++		if (rt_mutex_futex_trylock(&q->pi_state->pi_mutex)) {
+ 			locked = 1;
+ 			goto out;
+ 		}
+@@ -2686,7 +2684,7 @@ retry_private:
+ 	if (!trylock) {
+ 		ret = rt_mutex_timed_futex_lock(&q.pi_state->pi_mutex, to);
+ 	} else {
+-		ret = rt_mutex_trylock(&q.pi_state->pi_mutex);
++		ret = rt_mutex_futex_trylock(&q.pi_state->pi_mutex);
+ 		/* Fixup the trylock return value: */
+ 		ret = ret ? 0 : -EWOULDBLOCK;
+ 	}
+@@ -2709,7 +2707,7 @@ retry_private:
+ 	 * it and return the fault to userspace.
+ 	 */
+ 	if (ret && (rt_mutex_owner(&q.pi_state->pi_mutex) == current))
+-		rt_mutex_unlock(&q.pi_state->pi_mutex);
++		rt_mutex_futex_unlock(&q.pi_state->pi_mutex);
+ 
+ 	/* Unqueue and drop the lock */
+ 	unqueue_me_pi(&q);
+@@ -3016,7 +3014,7 @@ static int futex_wait_requeue_pi(u32 __u
+ 			spin_lock(q.lock_ptr);
+ 			ret = fixup_pi_state_owner(uaddr2, &q, current);
+ 			if (ret && rt_mutex_owner(&q.pi_state->pi_mutex) == current)
+-				rt_mutex_unlock(&q.pi_state->pi_mutex);
++				rt_mutex_futex_unlock(&q.pi_state->pi_mutex);
+ 			/*
+ 			 * Drop the reference to the pi state which
+ 			 * the requeue_pi() code acquired for us.
+@@ -3059,7 +3057,7 @@ static int futex_wait_requeue_pi(u32 __u
+ 		 * userspace.
+ 		 */
+ 		if (ret && rt_mutex_owner(pi_mutex) == current)
+-			rt_mutex_unlock(pi_mutex);
++			rt_mutex_futex_unlock(pi_mutex);
+ 
+ 		/* Unqueue and drop the lock. */
+ 		unqueue_me_pi(&q);
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1485,15 +1485,23 @@ EXPORT_SYMBOL_GPL(rt_mutex_lock_interrup
+ 
+ /*
+  * Futex variant with full deadlock detection.
++ * Futex variants must not use the fast-path, see __rt_mutex_futex_unlock().
+  */
+-int rt_mutex_timed_futex_lock(struct rt_mutex *lock,
++int __sched rt_mutex_timed_futex_lock(struct rt_mutex *lock,
+ 			      struct hrtimer_sleeper *timeout)
  {
- 	struct qdisc_rate_table *rtab;
+ 	might_sleep();
  
--	if (tab == NULL || r->rate == 0 || r->cell_log == 0 ||
-+	if (tab == NULL || r->rate == 0 ||
-+	    r->cell_log == 0 || r->cell_log >= 32 ||
- 	    nla_len(tab) != TC_RTAB_SIZE)
- 		return NULL;
+-	return rt_mutex_timed_fastlock(lock, TASK_INTERRUPTIBLE, timeout,
+-				       RT_MUTEX_FULL_CHAINWALK,
+-				       rt_mutex_slowlock);
++	return rt_mutex_slowlock(lock, TASK_INTERRUPTIBLE,
++				 timeout, RT_MUTEX_FULL_CHAINWALK);
++}
++
++/*
++ * Futex variant, must not use fastpath.
++ */
++int __sched rt_mutex_futex_trylock(struct rt_mutex *lock)
++{
++	return rt_mutex_slowtrylock(lock);
+ }
  
+ /**
+@@ -1552,20 +1560,38 @@ void __sched rt_mutex_unlock(struct rt_m
+ EXPORT_SYMBOL_GPL(rt_mutex_unlock);
+ 
+ /**
+- * rt_mutex_futex_unlock - Futex variant of rt_mutex_unlock
+- * @lock: the rt_mutex to be unlocked
+- *
+- * Returns: true/false indicating whether priority adjustment is
+- * required or not.
++ * Futex variant, that since futex variants do not use the fast-path, can be
++ * simple and will not need to retry.
+  */
+-bool __sched rt_mutex_futex_unlock(struct rt_mutex *lock,
+-				   struct wake_q_head *wqh)
++bool __sched __rt_mutex_futex_unlock(struct rt_mutex *lock,
++				    struct wake_q_head *wake_q)
+ {
+-	if (likely(rt_mutex_cmpxchg_release(lock, current, NULL))) {
+-		rt_mutex_deadlock_account_unlock(current);
+-		return false;
++	lockdep_assert_held(&lock->wait_lock);
++
++	debug_rt_mutex_unlock(lock);
++
++	if (!rt_mutex_has_waiters(lock)) {
++		lock->owner = NULL;
++		return false; /* done */
++	}
++
++	mark_wakeup_next_waiter(wake_q, lock);
++	return true; /* deboost and wakeups */
++}
++
++void __sched rt_mutex_futex_unlock(struct rt_mutex *lock)
++{
++	WAKE_Q(wake_q);
++	bool deboost;
++
++	raw_spin_lock_irq(&lock->wait_lock);
++	deboost = __rt_mutex_futex_unlock(lock, &wake_q);
++	raw_spin_unlock_irq(&lock->wait_lock);
++
++	if (deboost) {
++		wake_up_q(&wake_q);
++		rt_mutex_adjust_prio(current);
+ 	}
+-	return rt_mutex_slowunlock(lock, wqh);
+ }
+ 
+ /**
+--- a/kernel/locking/rtmutex_common.h
++++ b/kernel/locking/rtmutex_common.h
+@@ -112,8 +112,12 @@ extern int rt_mutex_wait_proxy_lock(stru
+ extern bool rt_mutex_cleanup_proxy_lock(struct rt_mutex *lock,
+ 				 struct rt_mutex_waiter *waiter);
+ extern int rt_mutex_timed_futex_lock(struct rt_mutex *l, struct hrtimer_sleeper *to);
+-extern bool rt_mutex_futex_unlock(struct rt_mutex *lock,
+-				  struct wake_q_head *wqh);
++extern int rt_mutex_futex_trylock(struct rt_mutex *l);
++
++extern void rt_mutex_futex_unlock(struct rt_mutex *lock);
++extern bool __rt_mutex_futex_unlock(struct rt_mutex *lock,
++				 struct wake_q_head *wqh);
++
+ extern void rt_mutex_adjust_prio(struct task_struct *task);
+ 
+ #ifdef CONFIG_DEBUG_RT_MUTEXES
 
 
