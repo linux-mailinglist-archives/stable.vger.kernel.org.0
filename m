@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1961D313C73
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5161B313C89
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235178AbhBHSG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47388 "EHLO mail.kernel.org"
+        id S235309AbhBHSHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:07:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235283AbhBHSDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:03:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F6864ED3;
-        Mon,  8 Feb 2021 17:59:10 +0000 (UTC)
+        id S235286AbhBHSDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:03:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C8664ED5;
+        Mon,  8 Feb 2021 17:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807151;
-        bh=5dOnDzvovKBWKay6kA4mi5Nr/o/4H+wvdKdjlKXUnwI=;
+        s=k20201202; t=1612807152;
+        bh=YEGS8lk8azlNq7lt88NrazHPZNuQUIzIJP3/v+i7dUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H507NOJNlNtziA34YpF60mQhi9Em+g1WT0Evb6EKahdzlZ6qe5jSBq5VkkDfjUmJy
-         62zUWshqoKjrelY2x4LDbxpukI1GEEThsQbzAGBKdWA0G2LF1RhnADQQXz/k6/Jssf
-         Pv7kwR0NJS+HtiYkQgjOJ8q2nPoY4SyvOIrP5qV0AXz0sHiQhFrwCxxIwiR3pCdx4i
-         gbqmpmY8PKIiKAVvAaZvQqjleRLuUo4/ypVv8hajL1ifY2VnIhehZTC/C304kU2wnM
-         n4J5qJ69oFhaaKXGsX0tIQh9Ju5EEuKpmf1HNAa2IhfmW/GPzb2cHDfKHR95gCKTB1
-         FwWLObaw4eQug==
+        b=BuUYYwqQn4c4VtCFOLr98sHv2wLUBzXUjABDuGFu8s/iC2mQ4j0AOUQLcRn3ea0FG
+         VBvglKUz59mk0zOWM9rIANfRicZMmVrAOS7hCBP4okaFy8bgubjyaDumBUFBc5IjCH
+         ybWCQej0WWLmRRYyMGiUPMo//PHyq2ngc/pftVMtJt7VQ0oncQaZIM2IJjmW8I02fk
+         Gmnx2XFV7r6+IKtb9Vjur6SOU29I9NxrwC6LQ1+0oYs1b3O7phpipS5NSE7dnb5pJD
+         Fu+dZdjjIh30end1Qc6XFiR9oDW6J6Agh4jD1H5wGefLlVeG6Rs/V0Brt3tK1vF0nQ
+         8qlG3CMj0dtIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claus Stovgaard <claus.stovgaard@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 09/19] nvme-pci: ignore the subsysem NQN on Phison E16
-Date:   Mon,  8 Feb 2021 12:58:48 -0500
-Message-Id: <20210208175858.2092008-9-sashal@kernel.org>
+Cc:     Sung Lee <sung.lee@amd.com>, Tony Cheng <Tony.Cheng@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 10/19] drm/amd/display: Add more Clock Sources to DCN2.1
+Date:   Mon,  8 Feb 2021 12:58:49 -0500
+Message-Id: <20210208175858.2092008-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175858.2092008-1-sashal@kernel.org>
 References: <20210208175858.2092008-1-sashal@kernel.org>
@@ -42,35 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claus Stovgaard <claus.stovgaard@gmail.com>
+From: Sung Lee <sung.lee@amd.com>
 
-[ Upstream commit c9e95c39280530200cdd0bbd2670e6334a81970b ]
+[ Upstream commit 1622711beebe887e4f0f8237fea1f09bb48e9a51 ]
 
-Tested both with Corsairs firmware 11.3 and 13.0 for the Corsairs MP600
-and both have the issue as reported by the kernel.
+[WHY]
+When enabling HDMI on ComboPHY, there are not
+enough clock sources to complete display detection.
 
-nvme nvme0: missing or invalid SUBNQN field.
+[HOW]
+Initialize more clock sources.
 
-Signed-off-by: Claus Stovgaard <claus.stovgaard@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index ef93bd3ed339c..511992b86399d 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3147,6 +3147,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_DEVICE(0x144d, 0xa822),   /* Samsung PM1725a */
- 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
-+	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
-+		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE(0x1d1d, 0x1f1f),	/* LighNVM qemu device */
- 		.driver_data = NVME_QUIRK_LIGHTNVM, },
- 	{ PCI_DEVICE(0x1d1d, 0x2807),	/* CNEX WL */
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index a6d5beada6634..f63cbbee7b337 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -826,6 +826,8 @@ enum dcn20_clk_src_array_id {
+ 	DCN20_CLK_SRC_PLL0,
+ 	DCN20_CLK_SRC_PLL1,
+ 	DCN20_CLK_SRC_PLL2,
++	DCN20_CLK_SRC_PLL3,
++	DCN20_CLK_SRC_PLL4,
+ 	DCN20_CLK_SRC_TOTAL_DCN21
+ };
+ 
+@@ -1498,6 +1500,14 @@ static bool construct(
+ 			dcn21_clock_source_create(ctx, ctx->dc_bios,
+ 				CLOCK_SOURCE_COMBO_PHY_PLL2,
+ 				&clk_src_regs[2], false);
++	pool->base.clock_sources[DCN20_CLK_SRC_PLL3] =
++			dcn21_clock_source_create(ctx, ctx->dc_bios,
++				CLOCK_SOURCE_COMBO_PHY_PLL3,
++				&clk_src_regs[3], false);
++	pool->base.clock_sources[DCN20_CLK_SRC_PLL4] =
++			dcn21_clock_source_create(ctx, ctx->dc_bios,
++				CLOCK_SOURCE_COMBO_PHY_PLL4,
++				&clk_src_regs[4], false);
+ 
+ 	pool->base.clk_src_count = DCN20_CLK_SRC_TOTAL_DCN21;
+ 
 -- 
 2.27.0
 
