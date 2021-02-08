@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BA8313654
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D509B31368B
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231996AbhBHPJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:09:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51778 "EHLO mail.kernel.org"
+        id S231757AbhBHPMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:12:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233027AbhBHPGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78C3464ED7;
-        Mon,  8 Feb 2021 15:05:08 +0000 (UTC)
+        id S231703AbhBHPIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:08:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE75E64E37;
+        Mon,  8 Feb 2021 15:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796709;
-        bh=H7Nev5EX96gwW463Lb7ak1BBnu7q9HFQ6fmzmO/KIP8=;
+        s=korg; t=1612796778;
+        bh=y3HFXHh4J87OKwkm0AAzriIiV39AZD39ydaNve9IVVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erApdiFurzkJWGgAU1TvO2cXmewHd5hyVLCNI6aGFoxehMrDeNY92XldaLkJtVHIn
-         e+y48+dzuXL434Tv15tpBoQXw8yZDVcisgSOrN4EN4TuOBjfT1K6hViBLg7cXatnBU
-         86pj6/rt5anLI194DXfBwRyoddcV/dsl/GNUcevI=
+        b=cOTWX8+Z6QiMqvvn8rV9XD14DVqen97Ndu3SqZUsrDdVtDFmk1+3NQEDH9Qxi+T0m
+         h/ufM6JWyFZu2DL7spvJsS2YDOjM9H6d2io3MvQrHtYcqxJEhSoX+9H2qm4KEeTCWa
+         SXkoppt0HgvsmKiZwsJKq6oVgUV1bkUZs/fywKRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 37/43] mm: thp: fix MADV_REMOVE deadlock on shmem THP
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 17/30] cifs: report error instead of invalid when revalidating a dentry fails
 Date:   Mon,  8 Feb 2021 16:01:03 +0100
-Message-Id: <20210208145807.809372156@linuxfoundation.org>
+Message-Id: <20210208145805.943909807@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit 1c2f67308af4c102b4e1e6cd6f69819ae59408e0 upstream.
+commit 21b200d091826a83aafc95d847139b2b0582f6d1 upstream.
 
-Sergey reported deadlock between kswapd correctly doing its usual
-lock_page(page) followed by down_read(page->mapping->i_mmap_rwsem), and
-madvise(MADV_REMOVE) on an madvise(MADV_HUGEPAGE) area doing
-down_write(page->mapping->i_mmap_rwsem) followed by lock_page(page).
+Assuming
+- //HOST/a is mounted on /mnt
+- //HOST/b is mounted on /mnt/b
 
-This happened when shmem_fallocate(punch hole)'s unmap_mapping_range()
-reaches zap_pmd_range()'s call to __split_huge_pmd().  The same deadlock
-could occur when partially truncating a mapped huge tmpfs file, or using
-fallocate(FALLOC_FL_PUNCH_HOLE) on it.
+On a slow connection, running 'df' and killing it while it's
+processing /mnt/b can make cifs_get_inode_info() returns -ERESTARTSYS.
 
-__split_huge_pmd()'s page lock was added in 5.8, to make sure that any
-concurrent use of reuse_swap_page() (holding page lock) could not catch
-the anon THP's mapcounts and swapcounts while they were being split.
+This triggers the following chain of events:
+=> the dentry revalidation fail
+=> dentry is put and released
+=> superblock associated with the dentry is put
+=> /mnt/b is unmounted
 
-Fortunately, reuse_swap_page() is never applied to a shmem or file THP
-(not even by khugepaged, which checks PageSwapCache before calling), and
-anonymous THPs are never created in shmem or file areas: so that
-__split_huge_pmd()'s page lock can only be necessary for anonymous THPs,
-on which there is no risk of deadlock with i_mmap_rwsem.
+This patch makes cifs_d_revalidate() return the error instead of 0
+(invalid) when cifs_revalidate_dentry() fails, except for ENOENT (file
+deleted) and ESTALE (file recreated).
 
-Link: https://lkml.kernel.org/r/alpine.LSU.2.11.2101161409470.2022@eggly.anvils
-Fixes: c444eb564fb1 ("mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reported-by: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+Suggested-by: Shyam Prasad N <nspmangalore@gmail.com>
+Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |   37 +++++++++++++++++++++++--------------
- 1 file changed, 23 insertions(+), 14 deletions(-)
+ fs/cifs/dir.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1753,7 +1753,7 @@ void __split_huge_pmd(struct vm_area_str
- 	spinlock_t *ptl;
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long haddr = address & HPAGE_PMD_MASK;
--	bool was_locked = false;
-+	bool do_unlock_page = false;
- 	pmd_t _pmd;
+--- a/fs/cifs/dir.c
++++ b/fs/cifs/dir.c
+@@ -841,6 +841,7 @@ static int
+ cifs_d_revalidate(struct dentry *direntry, unsigned int flags)
+ {
+ 	struct inode *inode;
++	int rc;
  
- 	mmu_notifier_invalidate_range_start(mm, haddr, haddr + HPAGE_PMD_SIZE);
-@@ -1766,7 +1766,6 @@ void __split_huge_pmd(struct vm_area_str
- 	VM_BUG_ON(freeze && !page);
- 	if (page) {
- 		VM_WARN_ON_ONCE(!PageLocked(page));
--		was_locked = true;
- 		if (page != pmd_page(*pmd))
- 			goto out;
- 	}
-@@ -1775,19 +1774,29 @@ repeat:
- 	if (pmd_trans_huge(*pmd)) {
- 		if (!page) {
- 			page = pmd_page(*pmd);
--			if (unlikely(!trylock_page(page))) {
--				get_page(page);
--				_pmd = *pmd;
--				spin_unlock(ptl);
--				lock_page(page);
--				spin_lock(ptl);
--				if (unlikely(!pmd_same(*pmd, _pmd))) {
--					unlock_page(page);
-+			/*
-+			 * An anonymous page must be locked, to ensure that a
-+			 * concurrent reuse_swap_page() sees stable mapcount;
-+			 * but reuse_swap_page() is not used on shmem or file,
-+			 * and page lock must not be taken when zap_pmd_range()
-+			 * calls __split_huge_pmd() while i_mmap_lock is held.
-+			 */
-+			if (PageAnon(page)) {
-+				if (unlikely(!trylock_page(page))) {
-+					get_page(page);
-+					_pmd = *pmd;
-+					spin_unlock(ptl);
-+					lock_page(page);
-+					spin_lock(ptl);
-+					if (unlikely(!pmd_same(*pmd, _pmd))) {
-+						unlock_page(page);
-+						put_page(page);
-+						page = NULL;
-+						goto repeat;
-+					}
- 					put_page(page);
--					page = NULL;
--					goto repeat;
- 				}
--				put_page(page);
-+				do_unlock_page = true;
- 			}
- 		}
- 		if (PageMlocked(page))
-@@ -1797,7 +1806,7 @@ repeat:
- 	__split_huge_pmd_locked(vma, pmd, haddr, freeze);
- out:
- 	spin_unlock(ptl);
--	if (!was_locked && page)
-+	if (do_unlock_page)
- 		unlock_page(page);
- 	mmu_notifier_invalidate_range_end(mm, haddr, haddr + HPAGE_PMD_SIZE);
- }
+ 	if (flags & LOOKUP_RCU)
+ 		return -ECHILD;
+@@ -850,8 +851,25 @@ cifs_d_revalidate(struct dentry *direntr
+ 		if ((flags & LOOKUP_REVAL) && !CIFS_CACHE_READ(CIFS_I(inode)))
+ 			CIFS_I(inode)->time = 0; /* force reval */
+ 
+-		if (cifs_revalidate_dentry(direntry))
+-			return 0;
++		rc = cifs_revalidate_dentry(direntry);
++		if (rc) {
++			cifs_dbg(FYI, "cifs_revalidate_dentry failed with rc=%d", rc);
++			switch (rc) {
++			case -ENOENT:
++			case -ESTALE:
++				/*
++				 * Those errors mean the dentry is invalid
++				 * (file was deleted or recreated)
++				 */
++				return 0;
++			default:
++				/*
++				 * Otherwise some unexpected error happened
++				 * report it as-is to VFS layer
++				 */
++				return rc;
++			}
++		}
+ 		else {
+ 			/*
+ 			 * If the inode wasn't known to be a dfs entry when
 
 
