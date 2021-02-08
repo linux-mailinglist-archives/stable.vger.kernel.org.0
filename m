@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384983136C3
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A433C313743
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231833AbhBHPOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:14:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
+        id S233624AbhBHPWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:22:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232437AbhBHPLJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:11:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E3464EC6;
-        Mon,  8 Feb 2021 15:08:17 +0000 (UTC)
+        id S233516AbhBHPOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:14:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32ACD64ECF;
+        Mon,  8 Feb 2021 15:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796897;
-        bh=1n7OXbikigR1itgKGGTavr6sOJoICHAu215AJBgE0UU=;
+        s=korg; t=1612797059;
+        bh=1tIf1/ts3LmImnt+l2+rS1rHr4ljQ4b0tGcspUITR7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqOyTvRv09OPwEeWc58Pun9K9xV1btWs/heNPlRHAmtIlWrWH53bZIHx4MBro8mku
-         vW+e0CC41g8JoFBhCyjXuDd7dwImZMvlWaOQkzGvMr9LAjN6V3ZSNIcCRDpsrYf5ig
-         pDITypUs96uRhubtFKD3M5zp37rwqU+xs6Mmz6Pg=
+        b=I41v4RnU98KSrUcyKlDZ7XQtIgpEcnb5KnlwK8fDUTXmPvZTioDlkwpLfbyXnKw8p
+         LaBFgMMpUssolw4kfPsw9AZ6/ZkDp75EZI9VdQbeesWrOPd+R08E1ouBiS3FPKv/jv
+         UvEoSyTftK8gcUxAog94EOclu/apffkITbktBgi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 27/38] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
-Date:   Mon,  8 Feb 2021 16:01:14 +0100
-Message-Id: <20210208145807.250973848@linuxfoundation.org>
+        stable@vger.kernel.org, Stylon Wang <stylon.wang@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 43/65] drm/amd/display: Revert "Fix EDID parsing after resume from suspend"
+Date:   Mon,  8 Feb 2021 16:01:15 +0100
+Message-Id: <20210208145811.884368771@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Stylon Wang <stylon.wang@amd.com>
 
-commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
+commit 1a10e5244778169a5a53a527d7830cf0438132a1 upstream.
 
-If a new hugetlb page is allocated during fallocate it will not be
-marked as active (set_page_huge_active) which will result in a later
-isolate_huge_page failure when the page migration code would like to
-move that page.  Such a failure would be unexpected and wrong.
+This reverts commit b24bdc37d03a0478189e20a50286092840f414fa.
+It caused memory leak after S3 on 4K HDMI displays.
 
-Only export set_page_huge_active, just leave clear_page_huge_active as
-static.  Because there are no external users.
-
-Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
-Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stylon Wang <stylon.wang@amd.com>
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c    |    3 ++-
- include/linux/hugetlb.h |    3 +++
- mm/hugetlb.c            |    2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -654,9 +654,10 @@ static long hugetlbfs_fallocate(struct f
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1434,8 +1434,6 @@ amdgpu_dm_update_connector_after_detect(
  
- 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 
-+		set_page_huge_active(page);
- 		/*
- 		 * unlock_page because locked by add_to_page_cache()
--		 * page_put due to reference from alloc_huge_page()
-+		 * put_page() due to reference from alloc_huge_page()
- 		 */
- 		unlock_page(page);
- 		put_page(page);
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -541,6 +541,9 @@ static inline void set_huge_swap_pte_at(
- 	set_huge_pte_at(mm, addr, ptep, pte);
- }
- #endif
-+
-+void set_page_huge_active(struct page *page);
-+
- #else	/* CONFIG_HUGETLB_PAGE */
- struct hstate {};
- #define alloc_huge_page(v, a, r) NULL
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1201,7 +1201,7 @@ bool page_huge_active(struct page *page)
- }
- 
- /* never called for tail page */
--static void set_page_huge_active(struct page *page)
-+void set_page_huge_active(struct page *page)
- {
- 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
- 	SetPagePrivate(&page[1]);
+ 			drm_connector_update_edid_property(connector,
+ 							   aconnector->edid);
+-			drm_add_edid_modes(connector, aconnector->edid);
+-
+ 			if (aconnector->dc_link->aux_mode)
+ 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+ 						    aconnector->edid);
 
 
