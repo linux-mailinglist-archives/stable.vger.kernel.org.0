@@ -2,101 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F39CF313627
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D54313629
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229565AbhBHPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50414 "EHLO
+        id S231754AbhBHPGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:06:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbhBHPFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 10:05:08 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903BEC061786
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 07:04:28 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id g10so18525188eds.2
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 07:04:28 -0800 (PST)
+        with ESMTP id S232753AbhBHPFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 10:05:09 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B18AC061788
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 07:04:29 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id c6so18527511ede.0
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 07:04:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=cloud.ionos.com; s=google;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jwxE0e9ods3kzlYf6eMuljRX0kmoplvM9T4J3dzs0zk=;
-        b=ItxofJRWftcBWyKLLUSiFKaaBK7caRXDDd74ZWc6PU0SI7y2zSoYwSTGayxAONKhcD
-         Yc3ufoVvmdRhuG0qld1B9wnazqArawvYtu+KZw6hCpH6dZeWS5XZFXkgcs1yeF6e2rZA
-         tcywSQQpYBhosI0pOlEsofdus1x8T2r9Xf6W1UTY0HU+3xSZS8e0FAYNCfIs7uR1hN4r
-         Ur2UD1zU8NyY2CL+F9VQ5oUMqm4XKRM6ZVVlcw8wFUgHrJ+eDowNBoipMIzqlfiQ+z3w
-         Dy08ObEQf94Mc9YXo8h66Q4qqm4IPFPbH7Witf1mZjzINHBqTLfUBdz9yXM52xhYrCPc
-         fzUQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Od4EK2yVIIkurXebLowbqftTipY7/kgNJZJogZrgQvQ=;
+        b=gkWsleFufxbYGB31Xpuu3Ew0nmDJL2dPT1dQQHXNVjmAkTGyrTUsWEHNSK5wfRM0Mh
+         o3nJ5HrA+GWWMRG2sNpRNYzhlqrOgnFub2loCMYIxgIutz5mUKnWLbcn+AwQhQJO/oHz
+         ibrkjJzcY+ljr4aT7cid5A5ds1gDEwlYvDnhWCnwG5elg8BtD/C6G5ng+UuoJz7pvysc
+         BxkmcmqUbveDsv5YKnWlq0IxW5gGWJ4aF0/3a4YFzgJKI+BwhFsvZ4vFyq7IGe93FEby
+         RVjkIotPjo5moHFMo49X4sUUmmsRtDCD16HRhNv7zrIVddbr7BfQbIToMk/F8uGBq9T5
+         W58A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jwxE0e9ods3kzlYf6eMuljRX0kmoplvM9T4J3dzs0zk=;
-        b=VsB0pVGJSL/2daUINZ9MzKmzR4oi7Wdv9TtdL3q4KlZA8HM5vmbOWn1uEIbvRQ7HQo
-         eCzPhm1h6I/hgl956HvPJgwABPDlkVmjzjuWzgXwOGc4H/FJSVAgnMXi3QrEZ9kQPBKD
-         lfPgqWcRZe1WwDHff8DFlxefx7KP05Y/TjXOzJ1ofMoRP/OgD4mF/yIPXnuaP+5sbGNi
-         RXeUIp3+IteIu/z7MjNXjGLv001LVsp4oc6psEMiqxyhaoKKnm1aG4RTAkAily29QZup
-         sRtrelaNztW6LXlDtsVz5zNTXgRXbOXIFy2EuMFmiLkY7DffhS8QepzEvXPaDllyCAhg
-         /K1g==
-X-Gm-Message-State: AOAM530CaKTTs+JzCDfudSpwZkWQid+X2gowEAGgmFXkID1rO1/CtQg0
-        im7I+bGL/MPdajrgBzHeKkxv8NgKBVtihQ==
-X-Google-Smtp-Source: ABdhPJzhsRHiv0SaD9+Mw/lUalxCE+hc31yJ5qm+awwkPpUxCBMtj7LjeHLDVDX65f/CYrVEG/94Bw==
-X-Received: by 2002:aa7:cb8a:: with SMTP id r10mr17515984edt.152.1612796667356;
-        Mon, 08 Feb 2021 07:04:27 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Od4EK2yVIIkurXebLowbqftTipY7/kgNJZJogZrgQvQ=;
+        b=Eq+hOWXYeePTdui0CnigGQZCfutXXNdR/p+ybD94CgW47JBv5kOXlhkZXdYU4kuJB8
+         sNEG1qF0n8gbp2793hmZZFVzCepzql1ENqM1DaeCSYo8WPkrrtYuOYzHjzrBEIg70JKy
+         6Ra1qcNvBV4MwPOOkwV0LrjFhMlThvQvWyVxwVNJqTDDHl01MuaoTN4zeod98O3FtaL3
+         Rp5n9mKwa6XIRecKdjbBhxMY1T5P5EUy276S3nD6b4Uj1N0pUtVlL+FOO8D9TiGgfhVo
+         U/QBWEQlOjaX1fdvlHVCIaZhtwTbBZEBSODPwL8piWcqd8Xz/fg0nsbgNyLHqxqDvpGQ
+         k84w==
+X-Gm-Message-State: AOAM533TcFy26iOUZv5awY1V2iThke5vpdf0rJo+6M+ChPCjXzCbsp4m
+        88t1RQcfQCW8rdg/ydNNZiAZLg==
+X-Google-Smtp-Source: ABdhPJwWlt27fiCNOFgDFZNVVmnLRQYaoTdbsi115S0r+YDG7ugxftMDPK/WsB4QYCu2e0rMPdHn6A==
+X-Received: by 2002:a05:6402:b27:: with SMTP id bo7mr17358079edb.372.1612796668173;
+        Mon, 08 Feb 2021 07:04:28 -0800 (PST)
 Received: from jwang-Latitude-5491.fkb.profitbricks.net ([2001:16b8:4980:d900:bc0f:acd:c20a:c261])
-        by smtp.gmail.com with ESMTPSA id kb25sm4359106ejc.19.2021.02.08.07.04.26
+        by smtp.gmail.com with ESMTPSA id kb25sm4359106ejc.19.2021.02.08.07.04.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 07:04:26 -0800 (PST)
+        Mon, 08 Feb 2021 07:04:27 -0800 (PST)
 From:   Jack Wang <jinpu.wang@cloud.ionos.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org, axboe@kernel.dk,
         stable@vger.kernel.org
-Subject: [stable-4.19 Resend 0/7] block layer bugfix
-Date:   Mon,  8 Feb 2021 16:04:19 +0100
-Message-Id: <20210208150426.62755-1-jinpu.wang@cloud.ionos.com>
+Cc:     zhengbin <zhengbin13@huawei.com>
+Subject: [stable-4.19 Resend 1/7] block: fix NULL pointer dereference in register_disk
+Date:   Mon,  8 Feb 2021 16:04:20 +0100
+Message-Id: <20210208150426.62755-2-jinpu.wang@cloud.ionos.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210208150426.62755-1-jinpu.wang@cloud.ionos.com>
+References: <20210208150426.62755-1-jinpu.wang@cloud.ionos.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, hi Sasha,
+From: zhengbin <zhengbin13@huawei.com>
 
-Please consider to include following fixes in to stable tree.
-The 6 patches from Ming was fixing a deadlock, they are included around kernel
-5.3/4. Would be good to included in 4.19, we hit it during testing, with the fix
-we no longer hit the deadlock.
+If __device_add_disk-->bdi_register_owner-->bdi_register-->
+bdi_register_va-->device_create_vargs fails, bdi->dev is still
+NULL, __device_add_disk-->register_disk will visit bdi->dev->kobj.
+This patch fixes that.
 
-The last one is simple NULL pointer deref fix.
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+(cherry picked from commit 4d7c1d3fd7c7eda7dea351f071945e843a46c145)
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+---
+ block/genhd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Thanks!
-Jack Wang @ IONOS Cloud.
-
-
-v1: https://lore.kernel.org/stable/20210203132022.92406-1-jinpu.wang@cloud.ionos.com/
-
-Ming Lei (6):
-  block: don't hold q->sysfs_lock in elevator_init_mq
-  blk-mq: don't hold q->sysfs_lock in blk_mq_map_swqueue
-  block: add helper for checking if queue is registered
-  block: split .sysfs_lock into two locks
-  block: fix race between switching elevator and removing queues
-  block: don't release queue's sysfs lock during switching elevator
-
-zhengbin (1):
-  block: fix NULL pointer dereference in register_disk
-
- block/blk-core.c       |  1 +
- block/blk-mq-sysfs.c   | 12 +++++------
- block/blk-mq.c         |  7 ------
- block/blk-sysfs.c      | 49 +++++++++++++++++++++++++++---------------
- block/blk-wbt.c        |  2 +-
- block/blk.h            |  2 +-
- block/elevator.c       | 44 +++++++++++++++++++++----------------
- block/genhd.c          | 10 +++++----
- include/linux/blkdev.h |  2 ++
- 9 files changed, 74 insertions(+), 55 deletions(-)
-
+diff --git a/block/genhd.c b/block/genhd.c
+index 2b536ab570ac..6965dde96373 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -652,10 +652,12 @@ static void register_disk(struct device *parent, struct gendisk *disk)
+ 		kobject_uevent(&part_to_dev(part)->kobj, KOBJ_ADD);
+ 	disk_part_iter_exit(&piter);
+ 
+-	err = sysfs_create_link(&ddev->kobj,
+-				&disk->queue->backing_dev_info->dev->kobj,
+-				"bdi");
+-	WARN_ON(err);
++	if (disk->queue->backing_dev_info->dev) {
++		err = sysfs_create_link(&ddev->kobj,
++			  &disk->queue->backing_dev_info->dev->kobj,
++			  "bdi");
++		WARN_ON(err);
++	}
+ }
+ 
+ /**
 -- 
 2.25.1
 
