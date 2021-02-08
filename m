@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2F83136F3
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EB2313711
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233625AbhBHPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
+        id S233563AbhBHPTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:19:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233296AbhBHPLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:11:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07DD064EEE;
-        Mon,  8 Feb 2021 15:08:51 +0000 (UTC)
+        id S233475AbhBHPNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C45AF64EB6;
+        Mon,  8 Feb 2021 15:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796932;
-        bh=p3pdBOXEm9sCnNMBb9NfCLPMjcdD5ya/XoThH5uT9vQ=;
+        s=korg; t=1612796995;
+        bh=P5FszMvcTGEB9zp098oA/xcLefOaRom4Iw25ecRU/DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoTBWchDlkzzcRlAc0V08eowlS4T3HB4ypUSlGktOOneN94QGxvZ8owrzGlMD3aL9
-         vAbSn0fpAihCDnrC2DMHQ5Ok9w+7uUwM4mkFgCJXOg60UGawCuTHtEls7GyZB7BLHT
-         KHqddyDS4B9U8f7stXup7Wfq9E3x4fpsqrsw0QY8=
+        b=nkhIgYZN3A+u/W/4ImxJdJMi3WQfMGVnLWBNOR/r838hnB/o0EJPgGYBvjjOa96Lb
+         RxjulEckblQBrhy8NiKQE+tLUqbGUnaQ+I3ITU2j8WCNUKlLzYkhkYKbMuMB2FTLGf
+         ykw18SHtMxE1F47R1V/parlTsbRqOfo5JXJdZ9Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/38] net: lapb: Copy the skb before sending a packet
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 23/65] USB: gadget: legacy: fix an error code in eth_bind()
 Date:   Mon,  8 Feb 2021 16:00:55 +0100
-Message-Id: <20210208145806.464568818@linuxfoundation.org>
+Message-Id: <20210208145811.139112091@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +38,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
+commit 3e1f4a2e1184ae6ad7f4caf682ced9554141a0f4 upstream.
 
-When sending a packet, we will prepend it with an LAPB header.
-This modifies the shared parts of a cloned skb, so we should copy the
-skb rather than just clone it, before we prepend the header.
+This code should return -ENOMEM if the allocation fails but it currently
+returns success.
 
-In "Documentation/networking/driver.rst" (the 2nd point), it states
-that drivers shouldn't modify the shared parts of a cloned skb when
-transmitting.
-
-The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
-when an skb is being sent, clones the skb and sents the clone to
-AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
-pseudo-header before handing over the skb to us, if we don't copy the
-skb before prepending the LAPB header, the first byte of the packets
-received on AF_PACKET sockets can be corrupted.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9b95236eebdb ("usb: gadget: ether: allocate and init otg descriptor by otg capabilities")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YBKE9rqVuJEOUWpW@mwanda
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/lapb/lapb_out.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/legacy/ether.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
-index eda726e22f645..621c66f001177 100644
---- a/net/lapb/lapb_out.c
-+++ b/net/lapb/lapb_out.c
-@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
- 		skb = skb_dequeue(&lapb->write_queue);
+--- a/drivers/usb/gadget/legacy/ether.c
++++ b/drivers/usb/gadget/legacy/ether.c
+@@ -403,8 +403,10 @@ static int eth_bind(struct usb_composite
+ 		struct usb_descriptor_header *usb_desc;
  
- 		do {
--			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
-+			skbn = skb_copy(skb, GFP_ATOMIC);
-+			if (!skbn) {
- 				skb_queue_head(&lapb->write_queue, skb);
- 				break;
- 			}
--- 
-2.27.0
-
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail1;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
