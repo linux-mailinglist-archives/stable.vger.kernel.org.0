@@ -2,529 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0503138A0
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF55E313955
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 17:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234054AbhBHPzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:55:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbhBHPyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 10:54:50 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0B7C061797
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 07:53:31 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id 8so8016856plc.10
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 07:53:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AyNkFYLhZf9wgfHp/nwpDaPiAAPWU+7AcMVHU0e3g9Q=;
-        b=IPkIZ12IB9UbFg0VW+guofe0qOrY8TnlnLziUEpfcLFJXJ/Gej1QjptKInEkyOqC36
-         ojLU2dQEcy+2OnMrGcuf36L8VbFnqR5N74AlAr9rOMSMHXkkJNBozgkOfQTW8mRN2LQU
-         5TeWJ7hyo03w/FU/+pwnZO6mP60AAkLV0ZDH3Fy6SyVxaAPL301KZ0VwewErDlgWAEL6
-         YSnjQwawnjuSRMmnN9fZbId+W8CV2sIUI4cXSsiRWhIvxqh4B139WxKoyFhG/KslXf7j
-         QOjhYfLs9npofRHJB2c8WYgZrGV3oMH565w0jKrpXBKhK0/zqCyfKQ6s91rMAO8CpR3a
-         JSaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AyNkFYLhZf9wgfHp/nwpDaPiAAPWU+7AcMVHU0e3g9Q=;
-        b=Dyb47PJsyZrmML1XHw7IETfxajtFKi+vUyASesCXCXPLdKzzq3Wem8+WjPlOZCgu54
-         gWcoxy2ehiHR/euLPW/8Q8irs+1jXH96QQ9JUYyAcm7UTUEIXFTBylByJJCi8ZT4KMvJ
-         lg3TlcTARQl2ak/Ae1QM1rj6+4XhTeUcp5e2gHSs8u7mDVTJelK1UVJIB57nXpMZSyRQ
-         9h5wzp7XmIjSCAFI3CiHh0QUwxozmHNZNbV8R79T631ARltwMMaoAxyxoX2yg0jR10mR
-         RSWTAh3ZSilVjjGsZk0JIylaZgC0J8M2Ryoydg6Z0zSS3Gq8SQ51zyechsm7F4rl+dmT
-         8AuQ==
-X-Gm-Message-State: AOAM532bnblUioniHw6s5uP/1LkInl4F2DE1ex6+EsrXl6AR55apDhhN
-        fybHwVtmkLHNPn32dWMNO6cWHYXhD3AL7w==
-X-Google-Smtp-Source: ABdhPJx4zc7VPbQTBDRRf4madVQnIb2fW4Yq1rsAZVKN3/nWPIN15AsvXW9QrSaurWDvqk0jBhtqAw==
-X-Received: by 2002:a17:90a:7c45:: with SMTP id e5mr17094118pjl.170.1612799610283;
-        Mon, 08 Feb 2021 07:53:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o190sm19934469pga.2.2021.02.08.07.53.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 07:53:29 -0800 (PST)
-Message-ID: <60215e79.1c69fb81.872f3.b675@mx.google.com>
-Date:   Mon, 08 Feb 2021 07:53:29 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S234370AbhBHQZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 11:25:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50266 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234355AbhBHQZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 11:25:24 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A0E464E5D;
+        Mon,  8 Feb 2021 16:24:42 +0000 (UTC)
+Date:   Mon, 8 Feb 2021 11:24:40 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] fgraph: Initialize tracing_graph_pause
+ at task creation" failed to apply to 4.19-stable tree
+Message-ID: <20210208112440.78f3ee10@gandalf.local.home>
+In-Reply-To: <1612779135196131@kroah.com>
+References: <1612779135196131@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.256-29-gd00804edfe40
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 110 runs,
- 12 regressions (v4.4.256-29-gd00804edfe40)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 110 runs, 12 regressions (v4.4.256-29-gd00804=
-edfe40)
-
-Regressions Summary
--------------------
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
-g  | 1          =
-
-panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.256-29-gd00804edfe40/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.256-29-gd00804edfe40
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d00804edfe4046ecb2b43020db212ef394066536 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602128824204380d3b3abe69
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: mvebu_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove-=
-cubox.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove-=
-cubox.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/602128824204380d3b3ab=
-e6a
-        new failure (last pass: v4.4.256-20-g4fae0faf0ebd) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021294df166a6c68a3abe6c
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6021294df166a6c=
-68a3abe73
-        failing since 2 days (last pass: v4.4.255-14-ge5269953cc26, first f=
-ail: v4.4.256-14-g2d58dd4004a4)
-        2 lines
-
-    2021-02-08 12:06:33.233000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-02-08 12:06:33.248000+00:00  [   19.126495] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602129a046bfaa311a3abe7c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/602129a046bfaa311a3ab=
-e7d
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60212a8698edcdfc423abe6c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60212a8698edcdfc423ab=
-e6d
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602129793de47908473abe83
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/602129793de47908473ab=
-e84
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60212a5684df18a3f83abe62
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60212a5684df18a3f83ab=
-e63
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021299670521ce4433abe67
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6021299670521ce4433ab=
-e68
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60212989e6e09dbce53abe62
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60212989e6e09dbce53ab=
-e63
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60212992e6e09dbce53abe6e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60212992e6e09dbce53ab=
-e6f
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021296d731130ba703abe80
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
--gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6021296d731130ba703ab=
-e81
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021297a3de47908473abe86
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6021297a3de47908473ab=
-e87
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-   | regressions
---------------------+------+-----------------+----------+------------------=
----+------------
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021299570521ce4433abe62
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.256-2=
-9-gd00804edfe40/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6021299570521ce4433ab=
-e63
-        failing since 86 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
-fail: v4.4.243-19-g71b6c961c7fe) =
-
- =20
+On Mon, 08 Feb 2021 11:12:15 +0100
+<gregkh@linuxfoundation.org> wrote:
+
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Here's the 4.19 port:
+
+------------------ original commit in Linus's tree ------------------
+
+>From 7e0a9220467dbcfdc5bc62825724f3e52e50ab31 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Fri, 29 Jan 2021 10:13:53 -0500
+Subject: [PATCH] fgraph: Initialize tracing_graph_pause at task creation
+
+On some archs, the idle task can call into cpu_suspend(). The cpu_suspend()
+will disable or pause function graph tracing, as there's some paths in
+bringing down the CPU that can have issues with its return address being
+modified. The task_struct structure has a "tracing_graph_pause" atomic
+counter, that when set to something other than zero, the function graph
+tracer will not modify the return address.
+
+The problem is that the tracing_graph_pause counter is initialized when the
+function graph tracer is enabled. This can corrupt the counter for the idle
+task if it is suspended in these architectures.
+
+   CPU 1				CPU 2
+   -----				-----
+  do_idle()
+    cpu_suspend()
+      pause_graph_tracing()
+          task_struct->tracing_graph_pause++ (0 -> 1)
+
+				start_graph_tracing()
+				  for_each_online_cpu(cpu) {
+				    ftrace_graph_init_idle_task(cpu)
+				      task-struct->tracing_graph_pause = 0 (1 -> 0)
+
+      unpause_graph_tracing()
+          task_struct->tracing_graph_pause-- (0 -> -1)
+
+The above should have gone from 1 to zero, and enabled function graph
+tracing again. But instead, it is set to -1, which keeps it disabled.
+
+There's no reason that the field tracing_graph_pause on the task_struct can
+not be initialized at boot up.
+
+Cc: stable@vger.kernel.org
+Fixes: 380c4b1411ccd ("tracing/function-graph-tracer: append the tracing_graph_flag")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211339
+Reported-by: pierre.gondois@arm.com
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+Index: linux-test.git/init/init_task.c
+===================================================================
+--- linux-test.git.orig/init/init_task.c
++++ linux-test.git/init/init_task.c
+@@ -168,7 +168,8 @@ struct task_struct init_task
+ 	.lockdep_recursion = 0,
+ #endif
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	.ret_stack	= NULL,
++	.ret_stack		= NULL,
++	.tracing_graph_pause	= ATOMIC_INIT(0),
+ #endif
+ #if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPT)
+ 	.trace_recursion = 0,
+Index: linux-test.git/kernel/trace/ftrace.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/ftrace.c
++++ linux-test.git/kernel/trace/ftrace.c
+@@ -6875,7 +6875,6 @@ static int alloc_retstack_tasklist(struc
+ 		}
+ 
+ 		if (t->ret_stack == NULL) {
+-			atomic_set(&t->tracing_graph_pause, 0);
+ 			atomic_set(&t->trace_overrun, 0);
+ 			t->curr_ret_stack = -1;
+ 			t->curr_ret_depth = -1;
+@@ -7088,7 +7087,6 @@ static DEFINE_PER_CPU(struct ftrace_ret_
+ static void
+ graph_init_task(struct task_struct *t, struct ftrace_ret_stack *ret_stack)
+ {
+-	atomic_set(&t->tracing_graph_pause, 0);
+ 	atomic_set(&t->trace_overrun, 0);
+ 	t->ftrace_timestamp = 0;
+ 	/* make curr_ret_stack visible before we add the ret_stack */
