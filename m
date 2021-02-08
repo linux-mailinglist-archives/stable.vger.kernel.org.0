@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 519523137B0
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560CF3137B2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbhBHP31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:29:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S233440AbhBHP3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:29:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233652AbhBHPZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:25:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EEF064EFE;
-        Mon,  8 Feb 2021 15:15:08 +0000 (UTC)
+        id S233460AbhBHPZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:25:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABEC364F1B;
+        Mon,  8 Feb 2021 15:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797309;
-        bh=26T8cT0RofmtLrSZ8OpSoIxmAcCnX9pAreY292Av5UI=;
+        s=korg; t=1612797315;
+        bh=ZIaY/+E9j/6JBq23Zsdk3Qjd+AUNB8uNIfk4Df16bYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPN3IhHYfP9AotW3r54fgiRRjmabOQz5nM34vNZ79Sg1X0V83dvbLj5tLgVQMQP53
-         DmEMduuQ3ROIk+8w6qQrJLmaJUzrJ9w2yigXaiKvMWv3zil4CaaockisZ412p+Ao/9
-         zWVSHQZ7Mw0qlA9s6zAd7vIGLGdBg6tAxut2Tx5o=
+        b=KBeqsbk/NqjrziMauW62eXVhfozTqofaytMK7MQswuH+YudlNGGnAGg/WOcf0lBNg
+         o/1zdI5oS0GDMRcwexwnfg9OKMDqMKx0mJfUK6OKn/r68X6ToC4qBf8LY5JPPVaRDS
+         J6wMQeP7oRE/sGvFA0x6TzxIsyLwS2d714ZtDZ6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, "A. Duvnjak" <avian@extremenerds.net>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/120] rxrpc: Fix deadlock around release of dst cached on udp tunnel
-Date:   Mon,  8 Feb 2021 16:00:20 +0100
-Message-Id: <20210208145819.712876071@linuxfoundation.org>
+Subject: [PATCH 5.10 035/120] SUNRPC: Fix NFS READs that start at non-page-aligned offsets
+Date:   Mon,  8 Feb 2021 16:00:22 +0100
+Message-Id: <20210208145819.792600794@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -43,107 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 5399d52233c47905bbf97dcbaa2d7a9cc31670ba ]
+[ Upstream commit bad4c6eb5eaa8300e065bd4426727db5141d687d ]
 
-AF_RXRPC sockets use UDP ports in encap mode.  This causes socket and dst
-from an incoming packet to get stolen and attached to the UDP socket from
-whence it is leaked when that socket is closed.
+Anj Duvnjak reports that the Kodi.tv NFS client is not able to read
+video files from a v5.10.11 Linux NFS server.
 
-When a network namespace is removed, the wait for dst records to be cleaned
-up happens before the cleanup of the rxrpc and UDP socket, meaning that the
-wait never finishes.
+The new sendpage-based TCP sendto logic was not attentive to non-
+zero page_base values. nfsd_splice_read() sets that field when a
+READ payload starts in the middle of a page.
 
-Fix this by moving the rxrpc (and, by dependence, the afs) private
-per-network namespace registrations to the device group rather than subsys
-group.  This allows cached rxrpc local endpoints to be cleared and their
-UDP sockets closed before we try waiting for the dst records.
+The Linux NFS client rarely emits an NFS READ that is not page-
+aligned. All of my testing so far has been with Linux clients, so I
+missed this one.
 
-The symptom is that lines looking like the following:
-
-	unregister_netdevice: waiting for lo to become free
-
-get emitted at regular intervals after running something like the
-referenced syzbot test.
-
-Thanks to Vadim for tracking this down and work out the fix.
-
-Reported-by: syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com
-Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Fixes: 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Link: https://lore.kernel.org/r/161196443016.3868642.5577440140646403533.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: A. Duvnjak <avian@extremenerds.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211471
+Fixes: 4a85a6a3320b ("SUNRPC: Handle TCP socket sends with kernel_sendpage() again")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Tested-by: A. Duvnjak <avian@extremenerds.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/main.c        | 6 +++---
- net/rxrpc/af_rxrpc.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ net/sunrpc/svcsock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/afs/main.c b/fs/afs/main.c
-index accdd8970e7c0..b2975256dadbd 100644
---- a/fs/afs/main.c
-+++ b/fs/afs/main.c
-@@ -193,7 +193,7 @@ static int __init afs_init(void)
- 		goto error_cache;
- #endif
+diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
+index 4404c491eb388..fa7b7ae2c2c5f 100644
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -1113,14 +1113,15 @@ static int svc_tcp_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		unsigned int offset, len, remaining;
+ 		struct bio_vec *bvec;
  
--	ret = register_pernet_subsys(&afs_net_ops);
-+	ret = register_pernet_device(&afs_net_ops);
- 	if (ret < 0)
- 		goto error_net;
- 
-@@ -213,7 +213,7 @@ static int __init afs_init(void)
- error_proc:
- 	afs_fs_exit();
- error_fs:
--	unregister_pernet_subsys(&afs_net_ops);
-+	unregister_pernet_device(&afs_net_ops);
- error_net:
- #ifdef CONFIG_AFS_FSCACHE
- 	fscache_unregister_netfs(&afs_cache_netfs);
-@@ -244,7 +244,7 @@ static void __exit afs_exit(void)
- 
- 	proc_remove(afs_proc_symlink);
- 	afs_fs_exit();
--	unregister_pernet_subsys(&afs_net_ops);
-+	unregister_pernet_device(&afs_net_ops);
- #ifdef CONFIG_AFS_FSCACHE
- 	fscache_unregister_netfs(&afs_cache_netfs);
- #endif
-diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
-index 0a2f4817ec6cf..41671af6b33f9 100644
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -990,7 +990,7 @@ static int __init af_rxrpc_init(void)
- 		goto error_security;
- 	}
- 
--	ret = register_pernet_subsys(&rxrpc_net_ops);
-+	ret = register_pernet_device(&rxrpc_net_ops);
- 	if (ret)
- 		goto error_pernet;
- 
-@@ -1035,7 +1035,7 @@ error_key_type:
- error_sock:
- 	proto_unregister(&rxrpc_proto);
- error_proto:
--	unregister_pernet_subsys(&rxrpc_net_ops);
-+	unregister_pernet_device(&rxrpc_net_ops);
- error_pernet:
- 	rxrpc_exit_security();
- error_security:
-@@ -1057,7 +1057,7 @@ static void __exit af_rxrpc_exit(void)
- 	unregister_key_type(&key_type_rxrpc);
- 	sock_unregister(PF_RXRPC);
- 	proto_unregister(&rxrpc_proto);
--	unregister_pernet_subsys(&rxrpc_net_ops);
-+	unregister_pernet_device(&rxrpc_net_ops);
- 	ASSERTCMP(atomic_read(&rxrpc_n_tx_skbs), ==, 0);
- 	ASSERTCMP(atomic_read(&rxrpc_n_rx_skbs), ==, 0);
- 
+-		bvec = xdr->bvec;
+-		offset = xdr->page_base;
++		bvec = xdr->bvec + (xdr->page_base >> PAGE_SHIFT);
++		offset = offset_in_page(xdr->page_base);
+ 		remaining = xdr->page_len;
+ 		flags = MSG_MORE | MSG_SENDPAGE_NOTLAST;
+ 		while (remaining > 0) {
+ 			if (remaining <= PAGE_SIZE && tail->iov_len == 0)
+ 				flags = 0;
+-			len = min(remaining, bvec->bv_len);
++
++			len = min(remaining, bvec->bv_len - offset);
+ 			ret = kernel_sendpage(sock, bvec->bv_page,
+ 					      bvec->bv_offset + offset,
+ 					      len, flags);
 -- 
 2.27.0
 
