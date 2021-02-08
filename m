@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295273137AC
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00486313638
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbhBHP3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:29:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36398 "EHLO mail.kernel.org"
+        id S233134AbhBHPHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233496AbhBHPYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:24:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAB9264EFC;
-        Mon,  8 Feb 2021 15:14:51 +0000 (UTC)
+        id S231273AbhBHPFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:05:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9989064ECD;
+        Mon,  8 Feb 2021 15:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797292;
-        bh=Yp/JbjYEv+yzF3KH6PNQ+0pEHAgGmN42C0Z9eSCJrRQ=;
+        s=korg; t=1612796655;
+        bh=1Iqggc9G5mQwV+jkC6xopaFwm8dIdmlYT/CSiKci0vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beTqfSh9Ej7xvS3YdTl0biQGLHTaoFsad7FIBRBzNyZbi+1n5XCJydIc0WDl0Ye4t
-         SUcHU8Ob4aUZvBR/Tclt6Qwa4k3XDbboqPvmcUX8QSJV3uQTGNVdKYUVcI5jxAb4WO
-         /+2KRtiBLqrkwsSUEx7RNtp3F/8H8IQlhIyrjGv4=
+        b=Y/rGMYu8Xp9R8uFUDSn+wQAhO/PkQ8lmmAtgFrhNCAnroSxKBPmQWTTF1HzHZrPR8
+         glwntQ+paRN/O2PTi4nHihAwXEDMz7B72unJOUBfxmfLHpyFz/m5vEyksuyxcsfKX8
+         cbSZqrngnvM+mq2ZV9zteqCITopWdF4HZiK/wSlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 057/120] mac80211: fix station rate table updates on assoc
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 18/43] stable: clamp SUBLEVEL in 4.4 and 4.9
 Date:   Mon,  8 Feb 2021 16:00:44 +0100
-Message-Id: <20210208145820.696287050@linuxfoundation.org>
+Message-Id: <20210208145807.048896363@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+Right now SUBLEVEL is overflowing, and some userspace may start treating
+4.9.256 as 4.10. While out of tree modules have different ways of
+  extracting the version number (and we're generally ok with breaking
+them), we do care about breaking userspace and it would appear that this
+overflow might do just that.
 
-commit 18fe0fae61252b5ae6e26553e2676b5fac555951 upstream.
+Our rules around userspace ABI in the stable kernel are pretty simple:
+we don't break it. Thus, while userspace may be checking major/minor, it
+shouldn't be doing anything with sublevel.
 
-If the driver uses .sta_add, station entries are only uploaded after the sta
-is in assoc state. Fix early station rate table updates by deferring them
-until the sta has been uploaded.
+This patch applies a big band-aid to the 4.9 and 4.4 kernels in the form
+of clamping their sublevel to 255.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210201083324.3134-1-nbd@nbd.name
-[use rcu_access_pointer() instead since we won't dereference here]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+The clamp is done for the purpose of LINUX_VERSION_CODE only, and
+extracting the version number from the Makefile or "make kernelversion"
+will continue to work as intended.
+
+We might need to do it later in newer trees, but maybe we'll have a
+better solution by then, so I'm ignoring that problem for now.
+
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/driver-ops.c |    5 ++++-
- net/mac80211/rate.c       |    3 ++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/driver-ops.c
-+++ b/net/mac80211/driver-ops.c
-@@ -125,8 +125,11 @@ int drv_sta_state(struct ieee80211_local
- 	} else if (old_state == IEEE80211_STA_AUTH &&
- 		   new_state == IEEE80211_STA_ASSOC) {
- 		ret = drv_sta_add(local, sdata, &sta->sta);
--		if (ret == 0)
-+		if (ret == 0) {
- 			sta->uploaded = true;
-+			if (rcu_access_pointer(sta->sta.rates))
-+				drv_sta_rate_tbl_update(local, sdata, &sta->sta);
-+		}
- 	} else if (old_state == IEEE80211_STA_ASSOC &&
- 		   new_state == IEEE80211_STA_AUTH) {
- 		drv_sta_remove(local, sdata, &sta->sta);
---- a/net/mac80211/rate.c
-+++ b/net/mac80211/rate.c
-@@ -960,7 +960,8 @@ int rate_control_set_rates(struct ieee80
- 	if (old)
- 		kfree_rcu(old, rcu_head);
+--- a/Makefile
++++ b/Makefile
+@@ -1141,7 +1141,7 @@ endef
  
--	drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
-+	if (sta->uploaded)
-+		drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
- 
- 	ieee80211_sta_set_expected_throughput(pubsta, sta_get_expected_throughput(sta));
+ define filechk_version.h
+ 	(echo \#define LINUX_VERSION_CODE $(shell                         \
+-	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
++	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
+ 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
+ endef
  
 
 
