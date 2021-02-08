@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D11F2313787
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8B9313773
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231400AbhBHP1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:27:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S233752AbhBHPZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233680AbhBHPUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:20:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB18964ECA;
-        Mon,  8 Feb 2021 15:13:07 +0000 (UTC)
+        id S233718AbhBHPVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:21:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6AB764EEE;
+        Mon,  8 Feb 2021 15:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797188;
-        bh=MsM9oUK9ZNJ5Co8FGluwdbOGnL3frypyRg1qO6YYZ/s=;
+        s=korg; t=1612797191;
+        bh=2jRD/+vUlcAh4Q/IiAcqlQLJf40XZtUywx8UV4WjHGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txc4lqxyQer5yrfMJXaMwicW2vDIHxJwvMIZz7aKKAi0JBdLiRgigVM8mmgqXlu7s
-         0NnvN8ZWwuV3hHvODui2lMAcBtrKdotU1DdNH4kfisqu64D1SRyxY+kHdNZseEfVsf
-         HcyyJ7nuY+mJHYMs29/choVnv823G9OfULmwmW3w=
+        b=2tbQtQw7Dar6sZnzCZPhnVSwQ5Nw+X/U7Kl1oIS0w8yeRegWs3pRnt4JDZ5SVw3sO
+         l3gGw20SYh8urEaEZU6RjXZ2Ej17k0W+eSHTq3mkTnWg7OE4uq5xKxh8aWwHOqZ0dX
+         xEialYI9eICWhtsaYLzcUkyrGfDXm1QucDEAeiI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-stm32@st-md-mailman.stormreply.com,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/120] ARM: dts: stm32: Disable WP on DHCOM uSD slot
-Date:   Mon,  8 Feb 2021 16:00:09 +0100
-Message-Id: <20210208145819.292288083@linuxfoundation.org>
+Subject: [PATCH 5.10 023/120] ARM: dts: stm32: Disable optional TSC2004 on DRC02 board
+Date:   Mon,  8 Feb 2021 16:00:10 +0100
+Message-Id: <20210208145819.329733830@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -47,11 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 063a60634d48ee89f697371c9850c9370e494f22 ]
+[ Upstream commit 087698939f30d489e785d7df3e6aa5dce2487b39 ]
 
-The uSD slot has no WP detection, disable it.
+The DRC02 has no use for the on-SoM touchscreen controller, and the
+on-SoM touchscreen controller may not even be populated, which then
+results in error messages in kernel log. Disable the touchscreen
+controller in DT.
 
-Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
+Fixes: fde180f06d7b ("ARM: dts: stm32: Add DHSOM based DRC02 board")
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
@@ -62,21 +65,26 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index 90523a44d2541..2d027dafb7bce 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -354,6 +354,7 @@
- 	pinctrl-1 = <&sdmmc1_b4_od_pins_a &sdmmc1_dir_pins_a>;
- 	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a &sdmmc1_dir_sleep_pins_a>;
- 	cd-gpios = <&gpiog 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-+	disable-wp;
- 	st,sig-dir;
- 	st,neg-edge;
- 	st,use-ckin;
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
+index 3299a42d80633..4cabdade6432b 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
+@@ -87,6 +87,12 @@
+ 	};
+ };
+ 
++&i2c4 {
++	touchscreen@49 {
++		status = "disabled";
++	};
++};
++
+ &i2c5 {	/* TP7/TP8 */
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c5_pins_a>;
 -- 
 2.27.0
 
