@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8B831380F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7125313818
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233809AbhBHPgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:36:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37328 "EHLO mail.kernel.org"
+        id S234004AbhBHPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:36:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233374AbhBHPa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:30:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BFEE64F3B;
-        Mon,  8 Feb 2021 15:17:24 +0000 (UTC)
+        id S233901AbhBHPbc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:31:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17F7F64EBA;
+        Mon,  8 Feb 2021 15:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797445;
-        bh=W8MSarqIdqS69+5JTnBsFHEOaxYh8AoYMdo+mJgAlXY=;
+        s=korg; t=1612797447;
+        bh=O2yhIxqh1eWICdYng4/cLd7KTROo58VCiHhBXMXZe4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYKfTmKL/BHRCRONe83BsZHIRoZ+54NPoEaxmk3nH0jkLtUM67CaMZLb2FXFONiXw
-         J/sp4Ob6Rq3U73dZkoEPBi9HlVOCYwXlyVhNWLdRC0Q52jBimvBvUBfgPVShkOaR22
-         2ky51j5jqaKpKY9KtuvHc6PDSEnyzLYZo+S1PRp0=
+        b=oC3hh2sy2jZMuG8Qi54JYGGgT6AK/oYAocchcD01HXx3TtjIsXewupyGyTHCvyH/6
+         le0jaHAVNAd0yTo9XDFwXBxzU/xdZ2j/pVNx5gOjiWreGLf8Nof3vzGR3fZV6HHG9w
+         i8l1g3F4jSTZA0gVjDwPiI0z4457MuA+HW2aXmDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 113/120] Input: ili210x - implement pressure reporting for ILI251x
-Date:   Mon,  8 Feb 2021 16:01:40 +0100
-Message-Id: <20210208145822.876963509@linuxfoundation.org>
+        stable@vger.kernel.org, David Jeffery <djeffery@redhat.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [PATCH 5.10 114/120] md: Set prev_flush_start and flush_bio in an atomic way
+Date:   Mon,  8 Feb 2021 16:01:41 +0100
+Message-Id: <20210208145822.912821175@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -39,124 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Xiao Ni <xni@redhat.com>
 
-commit 60159e9e7bc7e528c103b6b6d47dfd83af29669c upstream.
+commit dc5d17a3c39b06aef866afca19245a9cfb533a79 upstream.
 
-The ILI251x seems to report pressure information in the 5th byte of
-each per-finger touch data element. On the available hardware, this
-information has the values ranging from 0x0 to 0xa, which is also
-matching the downstream example code. Report pressure information
-on the ILI251x.
+One customer reports a crash problem which causes by flush request. It
+triggers a warning before crash.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://lore.kernel.org/r/20201224071238.160098-1-marex@denx.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        /* new request after previous flush is completed */
+        if (ktime_after(req_start, mddev->prev_flush_start)) {
+                WARN_ON(mddev->flush_bio);
+                mddev->flush_bio = bio;
+                bio = NULL;
+        }
+
+The WARN_ON is triggered. We use spin lock to protect prev_flush_start and
+flush_bio in md_flush_request. But there is no lock protection in
+md_submit_flush_data. It can set flush_bio to NULL first because of
+compiler reordering write instructions.
+
+For example, flush bio1 sets flush bio to NULL first in
+md_submit_flush_data. An interrupt or vmware causing an extended stall
+happen between updating flush_bio and prev_flush_start. Because flush_bio
+is NULL, flush bio2 can get the lock and submit to underlayer disks. Then
+flush bio1 updates prev_flush_start after the interrupt or extended stall.
+
+Then flush bio3 enters in md_flush_request. The start time req_start is
+behind prev_flush_start. The flush_bio is not NULL(flush bio2 hasn't
+finished). So it can trigger the WARN_ON now. Then it calls INIT_WORK
+again. INIT_WORK() will re-initialize the list pointers in the
+work_struct, which then can result in a corrupted work list and the
+work_struct queued a second time. With the work list corrupted, it can
+lead in invalid work items being used and cause a crash in
+process_one_work.
+
+We need to make sure only one flush bio can be handled at one same time.
+So add spin lock in md_submit_flush_data to protect prev_flush_start and
+flush_bio in an atomic way.
+
+Reviewed-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/ili210x.c |   26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/md/md.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -29,11 +29,13 @@ struct ili2xxx_chip {
- 			void *buf, size_t len);
- 	int (*get_touch_data)(struct i2c_client *client, u8 *data);
- 	bool (*parse_touch_data)(const u8 *data, unsigned int finger,
--				 unsigned int *x, unsigned int *y);
-+				 unsigned int *x, unsigned int *y,
-+				 unsigned int *z);
- 	bool (*continue_polling)(const u8 *data, bool touch);
- 	unsigned int max_touches;
- 	unsigned int resolution;
- 	bool has_calibrate_reg;
-+	bool has_pressure_reg;
- };
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -639,8 +639,10 @@ static void md_submit_flush_data(struct
+ 	 * could wait for this and below md_handle_request could wait for those
+ 	 * bios because of suspend check
+ 	 */
++	spin_lock_irq(&mddev->lock);
+ 	mddev->last_flush = mddev->start_flush;
+ 	mddev->flush_bio = NULL;
++	spin_unlock_irq(&mddev->lock);
+ 	wake_up(&mddev->sb_wait);
  
- struct ili210x {
-@@ -82,7 +84,8 @@ static int ili210x_read_touch_data(struc
- 
- static bool ili210x_touchdata_to_coords(const u8 *touchdata,
- 					unsigned int finger,
--					unsigned int *x, unsigned int *y)
-+					unsigned int *x, unsigned int *y,
-+					unsigned int *z)
- {
- 	if (touchdata[0] & BIT(finger))
- 		return false;
-@@ -137,7 +140,8 @@ static int ili211x_read_touch_data(struc
- 
- static bool ili211x_touchdata_to_coords(const u8 *touchdata,
- 					unsigned int finger,
--					unsigned int *x, unsigned int *y)
-+					unsigned int *x, unsigned int *y,
-+					unsigned int *z)
- {
- 	u32 data;
- 
-@@ -169,7 +173,8 @@ static const struct ili2xxx_chip ili211x
- 
- static bool ili212x_touchdata_to_coords(const u8 *touchdata,
- 					unsigned int finger,
--					unsigned int *x, unsigned int *y)
-+					unsigned int *x, unsigned int *y,
-+					unsigned int *z)
- {
- 	u16 val;
- 
-@@ -235,7 +240,8 @@ static int ili251x_read_touch_data(struc
- 
- static bool ili251x_touchdata_to_coords(const u8 *touchdata,
- 					unsigned int finger,
--					unsigned int *x, unsigned int *y)
-+					unsigned int *x, unsigned int *y,
-+					unsigned int *z)
- {
- 	u16 val;
- 
-@@ -245,6 +251,7 @@ static bool ili251x_touchdata_to_coords(
- 
- 	*x = val & 0x3fff;
- 	*y = get_unaligned_be16(touchdata + 1 + (finger * 5) + 2);
-+	*z = touchdata[1 + (finger * 5) + 4];
- 
- 	return true;
- }
-@@ -261,6 +268,7 @@ static const struct ili2xxx_chip ili251x
- 	.continue_polling	= ili251x_check_continue_polling,
- 	.max_touches		= 10,
- 	.has_calibrate_reg	= true,
-+	.has_pressure_reg	= true,
- };
- 
- static bool ili210x_report_events(struct ili210x *priv, u8 *touchdata)
-@@ -268,14 +276,16 @@ static bool ili210x_report_events(struct
- 	struct input_dev *input = priv->input;
- 	int i;
- 	bool contact = false, touch;
--	unsigned int x = 0, y = 0;
-+	unsigned int x = 0, y = 0, z = 0;
- 
- 	for (i = 0; i < priv->chip->max_touches; i++) {
--		touch = priv->chip->parse_touch_data(touchdata, i, &x, &y);
-+		touch = priv->chip->parse_touch_data(touchdata, i, &x, &y, &z);
- 
- 		input_mt_slot(input, i);
- 		if (input_mt_report_slot_state(input, MT_TOOL_FINGER, touch)) {
- 			touchscreen_report_pos(input, &priv->prop, x, y, true);
-+			if (priv->chip->has_pressure_reg)
-+				input_report_abs(input, ABS_MT_PRESSURE, z);
- 			contact = true;
- 		}
- 	}
-@@ -437,6 +447,8 @@ static int ili210x_i2c_probe(struct i2c_
- 	max_xy = (chip->resolution ?: SZ_64K) - 1;
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, max_xy, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, max_xy, 0, 0);
-+	if (priv->chip->has_pressure_reg)
-+		input_set_abs_params(input, ABS_MT_PRESSURE, 0, 0xa, 0, 0);
- 	touchscreen_parse_properties(input, true, &priv->prop);
- 
- 	error = input_mt_init_slots(input, priv->chip->max_touches,
+ 	if (bio->bi_iter.bi_size == 0) {
 
 
