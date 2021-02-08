@@ -2,101 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7211312F52
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61E16312F55
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbhBHKom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 05:44:42 -0500
-Received: from mail.xenproject.org ([104.130.215.37]:50004 "EHLO
-        mail.xenproject.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232539AbhBHKl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:41:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
-        s=20200302mail; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
-        bh=IQPlMuHphzCxemau7EPG8KdIBVritDvW1xuyCMc3fhU=; b=sC+AR9iTEqeFWbDuKWB5Y35WRU
-        0RbDCYD8HqDZ5+YavvWLxIKZjjBgShWRRynceb425BC8VjwpIVUA9HMJAGLCISgOYcuyi1zxNzhqU
-        swR71F4tJ9r/e/ArJUxgAMKjDK+qn++/QfBSK2/QATA/oMqTo/0taQ58egBGhScfddCo=;
-Received: from xenbits.xenproject.org ([104.239.192.120])
-        by mail.xenproject.org with esmtp (Exim 4.92)
-        (envelope-from <julien@xen.org>)
-        id 1l93yJ-0001Vr-NE; Mon, 08 Feb 2021 10:40:47 +0000
-Received: from [54.239.6.177] (helo=a483e7b01a66.ant.amazon.com)
-        by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <julien@xen.org>)
-        id 1l93yJ-0004LV-Ej; Mon, 08 Feb 2021 10:40:47 +0000
-Subject: Re: [PATCH 0/7] xen/events: bug fixes and some diagnostic aids
-To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
-        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org, netdev@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
-        Jens Axboe <axboe@kernel.dk>, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-References: <20210206104932.29064-1-jgross@suse.com>
- <bd63694e-ac0c-7954-ec00-edad05f8da1c@xen.org>
- <eeb62129-d9fc-2155-0e0f-aff1fbb33fbc@suse.com>
- <fcf3181b-3efc-55f5-687c-324937b543e6@xen.org>
- <7aaeeb3d-1e1b-6166-84e9-481153811b62@suse.com>
- <6f547bb5-777a-6fc2-eba2-cccb4adfca87@xen.org>
- <0d623c98-a714-1639-cc53-f58ba3f08212@suse.com>
-From:   Julien Grall <julien@xen.org>
-Message-ID: <28399fd1-9fe8-f31a-6ee8-e78de567155b@xen.org>
-Date:   Mon, 8 Feb 2021 10:40:44 +0000
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.1
+        id S232537AbhBHKou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 05:44:50 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52491 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232254AbhBHKmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:42:39 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id C59C499C;
+        Mon,  8 Feb 2021 05:41:27 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:41:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Xxbuak
+        9Qj+P8NkuHyKfwt1+y94kc2anDBGzhJZ685BU=; b=u4nuRm9F2v1h4tX04+uusv
+        7mayqiOp5U4J0vgaLZimIcqT/JIT85xsozxXpXJ8Evugd2Dx6wdBTHtQe97jHsVt
+        GOnF/RGROK4KN/2NMUshZBqSQnNG0ekmDncXjXcqFuSHbKEgAQNrQg+ghH2aFz7T
+        k3YW8XGgFih/RTm/EY0GYBgU0pfMQEFrjS311PjRCEzxaWwPnR9J9z8grCqYc5r+
+        Xwl/bBkkRVs7btndykDjdkMsZM6QSe9Isb+BAJHD997mtXFLsczQkhLBo0F0pxPP
+        btbZAfycUGcTKNruzH+8o+HzgIVAYqAHrC4nEjA4f7QZ7nA3uFRsvfz8uHVonXpg
+        ==
+X-ME-Sender: <xms:VhUhYBDCcxinBDpL3H22c3NTM80uJjWk2EkpUxATBHPfDjpTeqLdCw>
+    <xme:VhUhYPeB2ZiLKn7-N4kHDTrtpb5re-Ru9vq_8eSceWhMMjjQZ4_jHlN39Gn4nFEqN
+    FxeaS9dg3jw8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddujecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejheefge
+    evhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:VhUhYJc1OSKJGGCxEfMykfiip81iEmwLQ9EN7bqF3QOBXdHUcl_bhQ>
+    <xmx:VhUhYDhoYBMA5g9mHS0v4lKD0j2ClKsTnzzNqDZx-Grb0hWT6gpc3A>
+    <xmx:VhUhYFS5TZA3K7_iMugv6QX0W5ArGrLfMI-EcErGtxCXDZ-vDz-LAg>
+    <xmx:VxUhYPNo6L-zeuHBPdR9vpwaboou3jGpQi1hBuMifs6m3t43WqBjaXnM5uk>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 34245108005B;
+        Mon,  8 Feb 2021 05:41:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Skip vswing programming for TBT" failed to apply to 5.10-stable tree
+To:     ville.syrjala@linux.intel.com, imre.deak@intel.com,
+        jani.nikula@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 08 Feb 2021 11:41:19 +0100
+Message-ID: <16127808794868@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <0d623c98-a714-1639-cc53-f58ba3f08212@suse.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Juergen,
 
-On 08/02/2021 10:22, Jürgen Groß wrote:
-> On 08.02.21 10:54, Julien Grall wrote:
->> ... I don't really see how the difference matter here. The idea is to 
->> re-use what's already existing rather than trying to re-invent the 
->> wheel with an extra lock (or whatever we can come up).
-> 
-> The difference is that the race is occurring _before_ any IRQ is
-> involved. So I don't see how modification of IRQ handling would help.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Roughly our current IRQ handling flow (handle_eoi_irq()) looks like:
+thanks,
 
-if ( irq in progress )
-{
-   set IRQS_PENDING
-   return;
-}
+greg k-h
 
-do
-{
-   clear IRQS_PENDING
-   handle_irq()
-} while (IRQS_PENDING is set)
+------------------ original commit in Linus's tree ------------------
 
-IRQ handling flow like handle_fasteoi_irq() looks like:
+From eaf5bfe37db871031232d2bf2535b6ca92afbad8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Thu, 28 Jan 2021 17:59:44 +0200
+Subject: [PATCH] drm/i915: Skip vswing programming for TBT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-if ( irq in progress )
-   return;
+In thunderbolt mode the PHY is owned by the thunderbolt controller.
+We are not supposed to touch it. So skip the vswing programming
+as well (we already skipped the other steps not applicable to TBT).
 
-handle_irq()
+Touching this stuff could supposedly interfere with the PHY
+programming done by the thunderbolt controller.
 
-The latter flow would catch "spurious" interrupt and ignore them. So it 
-would handle nicely the race when changing the event affinity.
+Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210128155948.13678-1-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit f8c6b615b921d8a1bcd74870f9105e62b0bceff3)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-Cheers,
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index bf17365857ca..e1e3ac12f979 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2754,6 +2754,9 @@ static void icl_mg_phy_ddi_vswing_sequence(struct intel_encoder *encoder,
+ 	int n_entries, ln;
+ 	u32 val;
+ 
++	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
++		return;
++
+ 	ddi_translations = icl_get_mg_buf_trans(encoder, crtc_state, &n_entries);
+ 	if (level >= n_entries) {
+ 		drm_dbg_kms(&dev_priv->drm,
+@@ -2890,6 +2893,9 @@ tgl_dkl_phy_ddi_vswing_sequence(struct intel_encoder *encoder,
+ 	u32 val, dpcnt_mask, dpcnt_val;
+ 	int n_entries, ln;
+ 
++	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
++		return;
++
+ 	ddi_translations = tgl_get_dkl_buf_trans(encoder, crtc_state, &n_entries);
+ 
+ 	if (level >= n_entries)
 
--- 
-Julien Grall
