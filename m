@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD0E313AF5
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 18:31:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABCC313B39
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 18:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbhBHRbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 12:31:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53336 "EHLO
+        id S233481AbhBHRnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 12:43:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234861AbhBHR3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 12:29:33 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55836C061786;
-        Mon,  8 Feb 2021 09:28:53 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id e12so8190684pls.4;
-        Mon, 08 Feb 2021 09:28:53 -0800 (PST)
+        with ESMTP id S232705AbhBHRkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 12:40:42 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E96C06178A;
+        Mon,  8 Feb 2021 09:40:02 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id l18so9197051pji.3;
+        Mon, 08 Feb 2021 09:40:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+4361NSNlFgYZUQjZIhdVzZo95GFWWRADZOU1H6lzPs=;
-        b=l0/+aWOSEwE23SJVtn1sMPlqxie02Fxh4u1vW6P17h++Ja5AeWR+y3FB+5uiJoWRHN
-         iufaFSrfGK1FS7TxGjCgqTRs4Faog8oRvYOsSyQg4gC1IVsl2HrH3Lx2VoNORgg/86Ns
-         2eIcXZFbMB4o7p4uPbqzBtLYZiJBf0X8Uhu/kPDgeazuAdeFRIQDjgkqj3c78TFkIbSg
-         g/lQhH98DIG99V/YvRvpgpbZm/nPCT3h8s68rzE6PBR/Q57U/o6ZjppwiGG2Dpfu/aHZ
-         UPsTna8XM78H5WqHAzz8F3rAR7zoUeOWvkJFFtAmuY07aJgLfZRM6chkkZFY5vHI/yE9
-         ZYhw==
+        bh=ZTo3IzS4/TnoHPJDmWEFSs444HLS3ViMS5ooRTMrLk0=;
+        b=Q7U+un28MV3D1vqvl3+l2FqhAUmdyaW0OqdMa0L65UB5OUb2RvBRfPbuDXrpeqzqMI
+         IMDTOVbUL4TyMBpZz3CKljC7udDNss3M9gtpwYw++o29dNML5XlfQBpjxeG2dwRKXZNA
+         d7IY6JLbVXWeKQzrvpxS/uicM/cHKOybTkN+wS2h/4DljoEh5eSnZD/G60cBgCbuF2xo
+         rEVNu/kUJpF4tdF+a7g+HYsgIgTDb2Z7W7eIwwaGYRUOkFosPo+0/gU64lFZebNUvckX
+         cA/4YbpEiNwdMsnqlvtIE/Iu903d4q3uGmwXm7eh7UhQVQTGGNrxHFy940KXbS9MWMtu
+         mt9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=+4361NSNlFgYZUQjZIhdVzZo95GFWWRADZOU1H6lzPs=;
-        b=S8jFig98HGLPe5IMf8iR1O3+K/ZS0g4tcBLH3RiS0zUBUfqZUYEFInZMN59lDbout2
-         Me0ZT0BsE7yX3h4tMe+U7+TXuMUn9r4D/qcOWyXzqK4j/AqwY68JPufpw52d3Q9AP1UO
-         EjPTYO/Rsd5iTbrR6UIWn9Q14wMxNffwxv5o/kFQq0g/7zUuvBL9YvNDdYHQpyN1Q08K
-         Q5ZZQ4k4aHfUnzgmfROsPD8Bj1fX3SgUmwW2mZ6J1KhUeVdpslv+a2vz9Qf9JOaSWKZB
-         WQOYL3gksUTy+BQ7FLrfMrHYxedaEDgsnRyRKmBa4kvnmLvYTV//fbxe1VTILVQ+Pv/X
-         l6IQ==
-X-Gm-Message-State: AOAM531gso5HvZmT50pPurP0nuSLYEAPXfOdXMLCWW8+QG3LQkJDWjvB
-        5I+N52ZkC9ptMnH4DzoNlYlzEqx2FMI=
-X-Google-Smtp-Source: ABdhPJwWOc9jFg2LrgPqBnpUgvR5xOgzby2pMyP5I+RFhODk9Z/p7R4bfaxazb4z+xHFyOZRBx7vKQ==
-X-Received: by 2002:a17:902:e5cc:b029:df:bc77:3aba with SMTP id u12-20020a170902e5ccb02900dfbc773abamr17526184plf.72.1612805332335;
-        Mon, 08 Feb 2021 09:28:52 -0800 (PST)
+        bh=ZTo3IzS4/TnoHPJDmWEFSs444HLS3ViMS5ooRTMrLk0=;
+        b=kFtAJcr2o9QlYSWidzJ/5ps0vc/10xcwL5/TpGoUVWXZTquUfEExh+vPjPmzW9Pj0w
+         8QR1VcuScWQCndaGQPMzPbh11nyLiaSH5w2gPR7katQRkWMaU2p2T3fnqykzA2NxFXYE
+         oNygpkjTmiTvxKlkRnr06GgpEUVS+OSpfGwqUm1nDsC5W367JLB3BUEKX3w2+MJMm7kf
+         tewlyxnyVxvNpm04jhhTm71ZHk+jO++FKiJ3HPcy/nw3HIboi7hQDn/5YdSrmY8vjEnw
+         f1u+Rxxt46+cmCRco3dUsFphQvpV4SS3+5ECJBtR8qQJUp7VLWlv3mLNiH03CkjsyPzY
+         9YZQ==
+X-Gm-Message-State: AOAM530HE/0Vk1psTeJkolUSB8VaWllfDCzgelApWrf1wdinmiBLsrhb
+        ay1zoyRAjDvvxTRuKoh8ZWtUgh2FwC0=
+X-Google-Smtp-Source: ABdhPJzGdtX7VoFnqiPXfDzS0ylaBg5qOBvnhOX+qXlV/GxvmzGcAKtDbw4jKajdhmDxe2j9lkG4dg==
+X-Received: by 2002:a17:902:5998:b029:e1:880c:a352 with SMTP id p24-20020a1709025998b02900e1880ca352mr17298340pli.70.1612806001679;
+        Mon, 08 Feb 2021 09:40:01 -0800 (PST)
 Received: from [10.67.49.228] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id 30sm20228060pgl.77.2021.02.08.09.28.47
+        by smtp.googlemail.com with ESMTPSA id z11sm16773376pjn.5.2021.02.08.09.39.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Feb 2021 09:28:51 -0800 (PST)
-Subject: Re: [PATCH 4.9 00/43] 4.9.257-rc1 review
+        Mon, 08 Feb 2021 09:40:01 -0800 (PST)
+Subject: Re: [PATCH 5.4 00/65] 5.4.97-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         stable@vger.kernel.org
-References: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 From:   Florian Fainelli <f.fainelli@gmail.com>
 Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
  mQGiBEjPuBIRBACW9MxSJU9fvEOCTnRNqG/13rAGsj+vJqontvoDSNxRgmafP8d3nesnqPyR
@@ -111,12 +111,12 @@ Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
  caxTGgc5zzQHeX67eMzrGomG3ZnIxmd1sAbgvJUDaD2GrYlulfwGWwWyTNbWRvMighVdPkSF
  6XFgQaosWxkV0OELLy2N485YrTr2Uq64VKyxpncLh50e2RnyAJ9Za0Dx0yyp44iD1OvHtkEI
  M5kY0ACeNhCZJvZ5g4C2Lc9fcTHu8jxmEkI=
-Message-ID: <50e2846e-51a1-fe73-8a98-2c23d224e2d8@gmail.com>
-Date:   Mon, 8 Feb 2021 09:28:43 -0800
+Message-ID: <ca458ba2-8511-4566-fe69-846ffaf339a6@gmail.com>
+Date:   Mon, 8 Feb 2021 09:39:52 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -125,8 +125,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 2/8/21 7:00 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.257 release.
-> There are 43 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.97 release.
+> There are 65 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -134,9 +134,9 @@ On 2/8/21 7:00 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.257-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.97-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 
 Tested-by: Florian Fainelli <f.fainelli@gmail.com>
