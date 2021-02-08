@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3480E312FC1
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A62C312FD2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229503AbhBHKzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 05:55:00 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:32953 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229590AbhBHKvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:51:11 -0500
+        id S231842AbhBHKzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 05:55:12 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:50675 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230034AbhBHKwb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:52:31 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B5038970;
-        Mon,  8 Feb 2021 05:49:54 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:49:54 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 02DA294F;
+        Mon,  8 Feb 2021 05:50:54 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:50:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6mtJ36
-        YEhcOzLO5ZbJZ+gRcB2jFLpJqbZEvrfE17zS4=; b=sAMS28Va3SR5ghWoY2S39U
-        PgjG9n2iE6AuOWYEC9ysS6gge37PDIik2hvz0wwdODK8s91yQ9xVaZYgMZETdkbO
-        4qqix1gzV1z+kSufSOrkIQxtjz1xpFzdtEqDB6hlnFr9h9aOXUvz9qV5HkKtBwn7
-        Ck+D7dN5LW0XDGC5yi5vBtC2qg8o9QMFg146fVv0Eb9u7Hxh7me9LSnVcEqdK9my
-        k/vbx8mjgO6swyBiQKReBfv6ziN5N8SZfLAzdanepGmor+wggE3KAgQFV3+s1Z0R
-        UbL5pzrA/ly2PoTerOMGwFNLm07Gm5VOeF42gw7vc3ApJYEaxo6yo/ACjZDb9Qnw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UiKylQ
+        LAF2qzmLc2+gkEwGKL28/RWdRKS/ggdz0yQAw=; b=OI4JFsp+HAEB9bxu1SBU8H
+        6BypkaLzDI6QnWvv5HHkmvlxPE4qwcW34G534JtjKEslDnTPlZbgqgesREp8wc7Z
+        FXtovzZPZdZpz0dUelSeAH0Cs8r/YGp72SO/0TYDGCTVtnFhzzhSjjJn1AjFY8qr
+        YjoB2SXqpT4r0glWS76qIFiMWotDyphbyY19MCq29LIaFhG6QsCD7j3taX99u01G
+        moUR3T/NxPBG1hFc8u8j1tllCxVm3NIECZIG0mnECPJANBqgobS9iNyB+VfZteGr
+        tydplB9O5u68mhXomW+7FZIFxRS8lTjp0+rhqhmZ8l80rzdcggPC3MmZX1jTpRXg
         ==
-X-ME-Sender: <xms:UhchYD8lha_sfoDtzQCYoFjFXcHSNd19JZkiiXTWwB_md9KX-ICTPQ>
-    <xme:UhchYPuRMZvwI8NmsYWXrRuhpCdlkItzjoBYkvZ_UZaXUXYY5G4lNPnKNZZDNTjPd
-    ZiB5mgv-DpvfA>
+X-ME-Sender: <xms:jhchYDI3guLNwm6qZfo0J3mkyaiadsTn-wyKBsIoOpXztB2ooi7J_A>
+    <xme:jhchYHKIFvV0nZEBRxHqcGst5ugYI09eVq0w3a4HBTvmkI3d5kPgCVR72DhebIA2_
+    B5DyWy6pxqOuw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddulecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:UhchYBACB9JRFPGmdLf7a4ljuacEpzkoMSM2Y5qq_8Eg7BrnQzGxmA>
-    <xmx:UhchYPesecTLe-CB8dtziwqoq-G1oiGaTwkoVEpx6eFdZdLL2FFfhQ>
-    <xmx:UhchYINTLNtMWaDWrTrP6RdjI91IqNf0gBy8V7Oygcj5aOTSUBGHgg>
-    <xmx:UhchYDbpGTnW--J02WAK68evS5ZDSgy85YOeKzio7H6pbNW5fi7-n9FaKP0>
+X-ME-Proxy: <xmx:jhchYLvcpjWtU4MyNq4iAKDiRv_koqt8uGVdREa2j0uoIrvYc6F_GA>
+    <xmx:jhchYMZpo63M8Gi149dDxVmDv7INapmilMh8XJHAfYXyI4EOt5L2nQ>
+    <xmx:jhchYKaxZzJevCCyBfwcOM4CwuRn4FCGAyzd0aU0eFy-pkrkZuyqcw>
+    <xmx:jhchYDC27sH8SoZsXrwX2Jh8T35trOBi3C-lySAY0z7Ca7DEd7Ru56ZiQzg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B8511080063;
-        Mon,  8 Feb 2021 05:49:53 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: x86: Allow guests to see MSR_IA32_TSX_CTRL even if" failed to apply to 5.4-stable tree
-To:     pbonzini@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1CE67240066;
+        Mon,  8 Feb 2021 05:50:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: x86: cleanup CR3 reserved bits checks" failed to apply to 5.10-stable tree
+To:     pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Feb 2021 11:49:45 +0100
-Message-ID: <1612781385193221@kroah.com>
+Date:   Mon, 08 Feb 2021 11:50:51 +0100
+Message-ID: <1612781451187139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,98 +70,83 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7131636e7ea5b50ca910f8953f6365ef2d1f741c Mon Sep 17 00:00:00 2001
+From c1c35cf78bfab31b8cb455259524395c9e4c7cd6 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Thu, 28 Jan 2021 11:45:00 -0500
-Subject: [PATCH] KVM: x86: Allow guests to see MSR_IA32_TSX_CTRL even if
- tsx=off
+Date: Fri, 13 Nov 2020 08:30:38 -0500
+Subject: [PATCH] KVM: x86: cleanup CR3 reserved bits checks
 
-Userspace that does not know about KVM_GET_MSR_FEATURE_INDEX_LIST
-will generally use the default value for MSR_IA32_ARCH_CAPABILITIES.
-When this happens and the host has tsx=on, it is possible to end up with
-virtual machines that have HLE and RTM disabled, but TSX_CTRL available.
+If not in long mode, the low bits of CR3 are reserved but not enforced to
+be zero, so remove those checks.  If in long mode, however, the MBZ bits
+extend down to the highest physical address bit of the guest, excluding
+the encryption bit.
 
-If the fleet is then switched to tsx=off, kvm_get_arch_capabilities()
-will clear the ARCH_CAP_TSX_CTRL_MSR bit and it will not be possible to
-use the tsx=off hosts as migration destinations, even though the guests
-do not have TSX enabled.
-
-To allow this migration, allow guests to write to their TSX_CTRL MSR,
-while keeping the host MSR unchanged for the entire life of the guests.
-This ensures that TSX remains disabled and also saves MSR reads and
-writes, and it's okay to do because with tsx=off we know that guests will
-not have the HLE and RTM features in their CPUID.  (If userspace sets
-bogus CPUID data, we do not expect HLE and RTM to work in guests anyway).
+Make the checks consistent with the above, and match them between
+nested_vmcb_checks and KVM_SET_SREGS.
 
 Cc: stable@vger.kernel.org
-Fixes: cbbaa2727aa3 ("KVM: x86: fix presentation of TSX feature in ARCH_CAPABILITIES")
+Fixes: 761e41693465 ("KVM: nSVM: Check that MBZ bits in CR3 and CR4 are not set on vmrun of nested guests")
+Fixes: a780a3ea6282 ("KVM: X86: Fix reserved bits check for MOV to CR3")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index cc60b1fc3ee7..eb69fef57485 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6860,11 +6860,20 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
- 		switch (index) {
- 		case MSR_IA32_TSX_CTRL:
- 			/*
--			 * No need to pass TSX_CTRL_CPUID_CLEAR through, so
--			 * let's avoid changing CPUID bits under the host
--			 * kernel's feet.
-+			 * TSX_CTRL_CPUID_CLEAR is handled in the CPUID
-+			 * interception.  Keep the host value unchanged to avoid
-+			 * changing CPUID bits under the host kernel's feet.
-+			 *
-+			 * hle=0, rtm=0, tsx_ctrl=1 can be found with some
-+			 * combinations of new kernel and old userspace.  If
-+			 * those guests run on a tsx=off host, do allow guests
-+			 * to use TSX_CTRL, but do not change the value on the
-+			 * host so that TSX remains always disabled.
- 			 */
--			vmx->guest_uret_msrs[j].mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
-+			if (boot_cpu_has(X86_FEATURE_RTM))
-+				vmx->guest_uret_msrs[j].mask = ~(u64)TSX_CTRL_CPUID_CLEAR;
-+			else
-+				vmx->guest_uret_msrs[j].mask = 0;
- 			break;
- 		default:
- 			vmx->guest_uret_msrs[j].mask = -1ull;
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index 7a605ad8254d..db30670dd8c4 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -231,6 +231,7 @@ static bool nested_vmcb_check_controls(struct vmcb_control_area *control)
+ 
+ static bool nested_vmcb_checks(struct vcpu_svm *svm, struct vmcb *vmcb12)
+ {
++	struct kvm_vcpu *vcpu = &svm->vcpu;
+ 	bool vmcb12_lma;
+ 
+ 	if ((vmcb12->save.efer & EFER_SVME) == 0)
+@@ -244,18 +245,10 @@ static bool nested_vmcb_checks(struct vcpu_svm *svm, struct vmcb *vmcb12)
+ 
+ 	vmcb12_lma = (vmcb12->save.efer & EFER_LME) && (vmcb12->save.cr0 & X86_CR0_PG);
+ 
+-	if (!vmcb12_lma) {
+-		if (vmcb12->save.cr4 & X86_CR4_PAE) {
+-			if (vmcb12->save.cr3 & MSR_CR3_LEGACY_PAE_RESERVED_MASK)
+-				return false;
+-		} else {
+-			if (vmcb12->save.cr3 & MSR_CR3_LEGACY_RESERVED_MASK)
+-				return false;
+-		}
+-	} else {
++	if (vmcb12_lma) {
+ 		if (!(vmcb12->save.cr4 & X86_CR4_PAE) ||
+ 		    !(vmcb12->save.cr0 & X86_CR0_PE) ||
+-		    (vmcb12->save.cr3 & MSR_CR3_LONG_MBZ_MASK))
++		    (vmcb12->save.cr3 & vcpu->arch.cr3_lm_rsvd_bits))
+ 			return false;
+ 	}
+ 	if (!kvm_is_valid_cr4(&svm->vcpu, vmcb12->save.cr4))
+diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+index 0fe874ae5498..6e7d070f8b86 100644
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -403,9 +403,6 @@ static inline bool gif_set(struct vcpu_svm *svm)
+ }
+ 
+ /* svm.c */
+-#define MSR_CR3_LEGACY_RESERVED_MASK		0xfe7U
+-#define MSR_CR3_LEGACY_PAE_RESERVED_MASK	0x7U
+-#define MSR_CR3_LONG_MBZ_MASK			0xfff0000000000000U
+ #define MSR_INVALID				0xffffffffU
+ 
+ extern int sev;
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 76bce832cade..b05a1fe9dae9 100644
+index 42b28d0f0311..c1650e26715b 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -1394,16 +1394,24 @@ static u64 kvm_get_arch_capabilities(void)
- 	if (!boot_cpu_has_bug(X86_BUG_MDS))
- 		data |= ARCH_CAP_MDS_NO;
- 
--	/*
--	 * On TAA affected systems:
--	 *      - nothing to do if TSX is disabled on the host.
--	 *      - we emulate TSX_CTRL if present on the host.
--	 *	  This lets the guest use VERW to clear CPU buffers.
--	 */
--	if (!boot_cpu_has(X86_FEATURE_RTM))
--		data &= ~(ARCH_CAP_TAA_NO | ARCH_CAP_TSX_CTRL_MSR);
--	else if (!boot_cpu_has_bug(X86_BUG_TAA))
-+	if (!boot_cpu_has(X86_FEATURE_RTM)) {
-+		/*
-+		 * If RTM=0 because the kernel has disabled TSX, the host might
-+		 * have TAA_NO or TSX_CTRL.  Clear TAA_NO (the guest sees RTM=0
-+		 * and therefore knows that there cannot be TAA) but keep
-+		 * TSX_CTRL: some buggy userspaces leave it set on tsx=on hosts,
-+		 * and we want to allow migrating those guests to tsx=off hosts.
-+		 */
-+		data &= ~ARCH_CAP_TAA_NO;
-+	} else if (!boot_cpu_has_bug(X86_BUG_TAA)) {
- 		data |= ARCH_CAP_TAA_NO;
-+	} else {
-+		/*
-+		 * Nothing to do here; we emulate TSX_CTRL if present on the
-+		 * host so the guest can choose between disabling TSX or
-+		 * using VERW to clear CPU buffers.
-+		 */
-+	}
- 
- 	return data;
- }
+@@ -9624,6 +9624,8 @@ static bool kvm_is_valid_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
+ 		 */
+ 		if (!(sregs->cr4 & X86_CR4_PAE) || !(sregs->efer & EFER_LMA))
+ 			return false;
++		if (sregs->cr3 & vcpu->arch.cr3_lm_rsvd_bits)
++			return false;
+ 	} else {
+ 		/*
+ 		 * Not in 64-bit mode: EFER.LMA is clear and the code
 
