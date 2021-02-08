@@ -2,94 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F20313288
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8515A31328D
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbhBHMjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 07:39:23 -0500
-Received: from mail-40131.protonmail.ch ([185.70.40.131]:15053 "EHLO
-        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbhBHMiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 07:38:51 -0500
-Date:   Mon, 08 Feb 2021 12:37:42 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1612787866; bh=koAMeATYJYWKmkFiz3wj+nM7gDgJYPD0x5UJ1gcespo=;
-        h=Date:To:From:Cc:Reply-To:Subject:From;
-        b=a6WMNoFmMqa0DSoaxn/SdvYQwTY+MQyEcCVxUJ00mURZdp8lg2LUC7OPODuhmmXGw
-         loPJv2L0iKeN7nZQCcXqQ233p7LPNLyZkahtEbf53ALNVmJ4ajiqq1J0KAvgCFTIMN
-         OHbUQy3DQBDTFP6GphtqZFnfex1HhaqFTA5zxrQGangF6SFSn2mIx7K4mv19BeVxzV
-         dSoqb3RvhIn7q/zY1kwVD0/bx1oSLP1zEjt8t35Kbu7YWLTxjxP+mk47YunuCq60wK
-         lDb3wsEzvPpfydmHELCTmQUqHWZiVNTv9GwGP84tH71hIvHY/+w6lRC3B/w4cmmdxT
-         3lDpVmzqX8X7w==
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        Alexander Lobakin <alobakin@pm.me>,
-        Youling Tang <tangyouling@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Xingxing Su <suxingxing@loongson.cn>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Paul Burton <paulburton@kernel.org>,
-        Hassan Naveed <hnaveed@wavecomp.com>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH mips-fixes] MIPS: compressed: fix build with enabled UBSAN
-Message-ID: <20210208123645.101354-1-alobakin@pm.me>
+        id S232408AbhBHMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 07:41:07 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54307 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231956AbhBHMj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 07:39:58 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9E6465C0069;
+        Mon,  8 Feb 2021 07:38:43 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 08 Feb 2021 07:38:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=fAIQMsT6jn1p/Ouj/vH4YmpVXRC
+        rcCIsVFko/r/lJkA=; b=HLNeS3snr9gr6d3Gfo1utIpp/70vDy80YWh5+P1oKD7
+        TW0iLbW2aeZrQHY3rSR0aMo0AUO1YC0+eghNYZL3pYciXJZiNLlQeb1HybIAcj4P
+        bEBjihdDcfWL698O0wrsLa2JH3hPKdkD2KBuFJ5nPGV7oWz0sVQwJEIeoNfkJlgy
+        R/HqKh9CYmT9ulvYd9sJjJcaEKqn1jtUOOsCiaO4qj8sR6iHovIEUyEFYfO3/YZN
+        PPzqBt29QZtPX7zHO6N1YisTUwB+bLK6cM8ggkD3XhnC2BZ5hQWpVI89bDOMd8bA
+        v2MVQANJvcyNMbJ/qbnOsykHH8sSpVN8+fkNkKNztJg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fAIQMs
+        T6jn1p/Ouj/vH4YmpVXRCrcCIsVFko/r/lJkA=; b=cls8WGrXXQq3X5zfiDjqnD
+        VMxfdnC39emwa5roK72uq0iI1bx8hLXbfTTyZY9sI2K7S4/Vsa2rFzrDXIPVGhOm
+        Eyh3eUciv+hygChTIdVswGsvSswD9NJfQqJ7+6TBjToeeOm6s65AXinz3wQEKL7x
+        uEugMLRcN/THdNwvu6LaFng2kQJr9GWa+FVhnZmufHdJ4yfMI0Sr1HgThGyjvipq
+        I+cq4sSg8bowolyUnRSHf/vkaoyzk8LOTz2tTXXnO7SLmyPgLT1Mmr4J+fftcURX
+        a1aW0hDUvwiNVDot8o0xvwjes4wyLPLnKykxCcb9xqcJKrQte5MxX7o1tWpThkGw
+        ==
+X-ME-Sender: <xms:0zAhYFj5dSRE82JysO7JiA0uA2txl-WPVmIdT2SacnT03y5XMZMmMQ>
+    <xme:0zAhYKBWVvlWRCjifwLPpYn_zW-I0e-NKho46LlmA80c0nK1OCzZnMX8m1MgLGrUc
+    DL9gHBSwsGRjw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdegudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
+    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
+    tghomh
+X-ME-Proxy: <xmx:0zAhYFH6dk4M7JLzN_7aCTcbvH_scatm0ESrjfTo5ZfMcNhDg3Yocw>
+    <xmx:0zAhYKTGHJNuEqPiPrQXOb4Ntlli6uk_EQeTcPxp1dpl_s-Ah6idAw>
+    <xmx:0zAhYCywKxEbaQWmI5rWo9VAJ-j2o4KG3LMjJgpvfLYHjS4VaRaCFg>
+    <xmx:0zAhYN8WNODfdOdfniTVBt1maY-gJGT7LqMZ1Hx5bp2xx2MB-7GzQg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C2492240057;
+        Mon,  8 Feb 2021 07:38:42 -0500 (EST)
+Date:   Mon, 8 Feb 2021 13:38:40 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Jason Andryuk <jandryuk@gmail.com>
+Cc:     stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>, netdev@vger.kernel.org
+Subject: Re: Stable request: iwlwifi: mvm: don't send RFH_QUEUE_CONFIG_CMD
+ with no queues
+Message-ID: <YCEw0Ey8JuHjFVOz@kroah.com>
+References: <CAKf6xpueeG-c+XV6gYu_H_DXNkR11+_v54hgv=vukuy+Tcb+LQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKf6xpueeG-c+XV6gYu_H_DXNkR11+_v54hgv=vukuy+Tcb+LQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer
-UBSAN") added a possibility to build the entire kernel with UBSAN
-instrumentation for MIPS, with the exception for VDSO.
-However, self-extracting head wasn't been added to exceptions, so
-this occurs:
+On Sun, Feb 07, 2021 at 09:19:07AM -0500, Jason Andryuk wrote:
+> Hi,
+> 
+> commit 64f55156f7adedb1ac5bb9cdbcbc9ac05ff5a724 upstream
+> 
+> The requested patch allows the iwlwifi driver to work with newer AX200
+> wifi cards when MSI-X interrupts are not available.  Without it,
+> bringing an interface "up" fails with a Microcode SW error.  Xen PCI
+> passthrough with a linux stubdom doesn't enable MSI-X which triggers
+> this condition.
+> 
+> I think it's only applicable to 5.4 because it's in 5.10 and earlier
+> kernels don't have AX200 support.
+> 
+> I'm making this request to stable and CC-ing netdev since I saw a
+> message [1] on netdev saying:
+> """
+> We're actually experimenting with letting Greg take networking patches
+> into stable like he does for every other tree. If the patch doesn't
+> appear in the next stable release please poke stable@ directly.
+> """
+> 
+> Thanks,
+> Jason
+> 
+> [1] https://lore.kernel.org/netdev/20210129193030.46ef3b17@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/
 
-mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
-in function `FSE_buildDTable_wksp':
-decompress.c:(.text.FSE_buildDTable_wksp+0x278): undefined reference
-to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2a8):
-undefined reference to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: decompress.c:(.text.FSE_buildDTable_wksp+0x2c4):
-undefined reference to `__ubsan_handle_shift_out_of_bounds'
-mips-alpine-linux-musl-ld: arch/mips/boot/compressed/decompress.o:
-decompress.c:(.text.FSE_buildDTable_raw+0x9c): more undefined references
-to `__ubsan_handle_shift_out_of_bounds' follow
+Now queued up.
 
-Add UBSAN_SANITIZE :=3D n to mips/boot/compressed/Makefile to exclude
-it from instrumentation scope and fix this issue.
+thanks,
 
-Fixes: 1e35918ad9d1 ("MIPS: Enable Undefined Behavior Sanitizer UBSAN")
-Cc: stable@vger.kernel.org # 5.0+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
----
- arch/mips/boot/compressed/Makefile | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed=
-/Makefile
-index 47cd9dc7454a..f93f72bcba97 100644
---- a/arch/mips/boot/compressed/Makefile
-+++ b/arch/mips/boot/compressed/Makefile
-@@ -37,6 +37,7 @@ KBUILD_AFLAGS :=3D $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
- # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
- KCOV_INSTRUMENT=09=09:=3D n
- GCOV_PROFILE :=3D n
-+UBSAN_SANITIZE :=3D n
-=20
- # decompressor objects (linked with vmlinuz)
- vmlinuzobjs-y :=3D $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
---=20
-2.30.0
-
-
+greg k-h
