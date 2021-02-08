@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE4A313CA3
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A879313CB5
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235501AbhBHSI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:08:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49236 "EHLO mail.kernel.org"
+        id S235516AbhBHSIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:08:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235400AbhBHSFd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:05:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7BE64EF7;
-        Mon,  8 Feb 2021 18:00:02 +0000 (UTC)
+        id S235432AbhBHSGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:06:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F59064EF4;
+        Mon,  8 Feb 2021 18:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807203;
-        bh=QkB5lHRWO5R1Y6A2oZiR2JHKe5zRWyF3Rwwp+qVBTbQ=;
+        s=k20201202; t=1612807204;
+        bh=8olhe+kd+LG8lLR2OlrkeSqcVmhre88z3JtLm/Ojh7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jN7Sci2bW3+rOlYlaF1//E4R//wnUNlSbBsaqD2AKyfqMSzrciE8w95zYoPiqiUAN
-         b4nDPbzdj5f/HL+a4IQ5to12PvoTQdUSlr+JOb8awPVsdtNdUa7IRQvtTHio5U3+6y
-         t/nUkrRsg4FqIXNx41OxqjEwuFWfo3ehEV2xXOCfMYDghlg+3GBSJ1HU0Ac2/0B9pf
-         4+cYqV7v2LET/sHgHvJsrdstcP2AwGBskTOSxIrUgUPkp4qkMg4L7YuWycboUPiQUw
-         B1oyrnhsTKgGcgejXpVaFqUfyB2vPUd1vWYRFal94ynfy5J+MwkcsxlOQhqM/Oqog+
-         6b+0sK4/VyR4w==
+        b=uvPpaSaZXwWAO3KH2W7tMs9Red09CZ8uUpR6B5zutQAiTdFynPoFrX50EuJw8I0Wn
+         sxi5TBjPQzxoz+bC7L0wdLchrBJn5M1xB4K/08bxEBGnjPAx++euDr6qpGqY43eZN2
+         RS9L3OaG69MqlSVux3wx3KWx2/tp8XJlW4Nkgr9oJrox5VmYMQhTWcML7C+R+9FV3E
+         H/ue+ED1wdRoZLau+0S/MownwfZAV7m1NXAvpCAFDA7vvxiRcLEvKu3//t45Ic3whZ
+         sP7KG3YhWTZRHcXWxYSDFBcr+zO3BwmekbU9+h7cP3aOPJX/f3/nhNiKh8qtb0Xo6S
+         krrgUEHCwMyfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Michael Labriola <michael.d.labriola@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/4] ovl: skip getxattr of security labels
-Date:   Mon,  8 Feb 2021 12:59:58 -0500
-Message-Id: <20210208180000.2092497-2-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 3/4] ARM: dts: lpc32xx: Revert set default clock rate of HCLK PLL
+Date:   Mon,  8 Feb 2021 12:59:59 -0500
+Message-Id: <20210208180000.2092497-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208180000.2092497-1-sashal@kernel.org>
 References: <20210208180000.2092497-1-sashal@kernel.org>
@@ -43,72 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 03fedf93593c82538b18476d8c4f0e8f8435ea70 ]
+[ Upstream commit 5638159f6d93b99ec9743ac7f65563fca3cf413d ]
 
-When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
-calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
-intercept in inode_getxattr hooks.
+This reverts commit c17e9377aa81664d94b4f2102559fcf2a01ec8e7.
 
-When selinux LSM is installed but not initialized, it will list the
-security.selinux xattr in inode_listsecurity, but will not intercept it
-in inode_getxattr.  This results in -ENODATA for a getxattr call for an
-xattr returned by listxattr.
+The lpc32xx clock driver is not able to actually change the PLL rate as
+this would require reparenting ARM_CLK, DDRAM_CLK, PERIPH_CLK to SYSCLK,
+then stop the PLL, update the register, restart the PLL and wait for the
+PLL to lock and finally reparent ARM_CLK, DDRAM_CLK, PERIPH_CLK to HCLK
+PLL.
 
-This situation was manifested as overlayfs failure to copy up lower
-files from squashfs when selinux is built-in but not initialized,
-because ovl_copy_xattr() iterates the lower inode xattrs by
-vfs_listxattr() and vfs_getxattr().
+Currently, the HCLK driver simply updates the registers but this has no
+real effect and all the clock rate calculation end up being wrong. This is
+especially annoying for the peripheral (e.g. UARTs, I2C, SPI).
 
-ovl_copy_xattr() skips copy up of security labels that are indentified by
-inode_copy_up_xattr LSM hooks, but it does that after vfs_getxattr().
-Since we are not going to copy them, skip vfs_getxattr() of the security
-labels.
-
-Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
-Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
-Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20210203090320.GA3760268@piout.net'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/copy_up.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/lpc32xx.dtsi | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index 299dbf59f28f8..3a583aa1fafeb 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -92,6 +92,14 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
+diff --git a/arch/arm/boot/dts/lpc32xx.dtsi b/arch/arm/boot/dts/lpc32xx.dtsi
+index 2802c9565b6ca..976a75a4eb2c6 100644
+--- a/arch/arm/boot/dts/lpc32xx.dtsi
++++ b/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -323,9 +323,6 @@ clk: clock-controller@0 {
  
- 		if (ovl_is_private_xattr(name))
- 			continue;
-+
-+		error = security_inode_copy_up_xattr(name);
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
-+		if (error == 1) {
-+			error = 0;
-+			continue; /* Discard */
-+		}
- retry:
- 		size = vfs_getxattr(old, name, value, value_size);
- 		if (size == -ERANGE)
-@@ -115,13 +123,6 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
- 			goto retry;
- 		}
+ 					clocks = <&xtal_32k>, <&xtal>;
+ 					clock-names = "xtal_32k", "xtal";
+-
+-					assigned-clocks = <&clk LPC32XX_CLK_HCLK_PLL>;
+-					assigned-clock-rates = <208000000>;
+ 				};
+ 			};
  
--		error = security_inode_copy_up_xattr(name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
--			error = 0;
--			continue; /* Discard */
--		}
- 		error = vfs_setxattr(new, name, value, size, 0);
- 		if (error)
- 			break;
 -- 
 2.27.0
 
