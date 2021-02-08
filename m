@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0ED3313771
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:26:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D11F2313787
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233729AbhBHPZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:25:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
+        id S231400AbhBHP1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:27:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233676AbhBHPT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:19:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBCE864EEF;
-        Mon,  8 Feb 2021 15:13:04 +0000 (UTC)
+        id S233680AbhBHPUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:20:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB18964ECA;
+        Mon,  8 Feb 2021 15:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797185;
-        bh=Zk2KCZTe6/qssRwcZtFFtA2lsFkVDuRzGXaQJNmAsMM=;
+        s=korg; t=1612797188;
+        bh=MsM9oUK9ZNJ5Co8FGluwdbOGnL3frypyRg1qO6YYZ/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUSfjZ6CSgmJVUYAVpj7NY7ne/0AuuqTfntiouSiV5mSyer2CQ6LNd/mkqtuh06oy
-         fFB0LmgtjYM9oI7VpMbbKZWBDwNCeff+iFU3EPRVKAje/7fOPaPb7Ehd7BogfpOQdw
-         a06uhEMmY061LIA3GQu6U2uDXshIbt+jPn+UdQLA=
+        b=txc4lqxyQer5yrfMJXaMwicW2vDIHxJwvMIZz7aKKAi0JBdLiRgigVM8mmgqXlu7s
+         0NnvN8ZWwuV3hHvODui2lMAcBtrKdotU1DdNH4kfisqu64D1SRyxY+kHdNZseEfVsf
+         HcyyJ7nuY+mJHYMs29/choVnv823G9OfULmwmW3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-stm32@st-md-mailman.stormreply.com,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/120] ARM: dts: stm32: Connect card-detect signal on DHCOM
-Date:   Mon,  8 Feb 2021 16:00:08 +0100
-Message-Id: <20210208145819.253484068@linuxfoundation.org>
+Subject: [PATCH 5.10 022/120] ARM: dts: stm32: Disable WP on DHCOM uSD slot
+Date:   Mon,  8 Feb 2021 16:00:09 +0100
+Message-Id: <20210208145819.292288083@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -47,10 +47,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 1a9b001237f85d3cf11a408c2daca6a2245b2add ]
+[ Upstream commit 063a60634d48ee89f697371c9850c9370e494f22 ]
 
-The DHCOM SoM uSD slot card detect signal is connected to GPIO PG1,
-describe it in the DT.
+The uSD slot has no WP detection, disable it.
 
 Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
 Signed-off-by: Marek Vasut <marex@denx.de>
@@ -63,19 +62,18 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index f796a6150313e..90523a44d2541 100644
+index 90523a44d2541..2d027dafb7bce 100644
 --- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
 +++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -353,7 +353,7 @@
- 	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
+@@ -354,6 +354,7 @@
  	pinctrl-1 = <&sdmmc1_b4_od_pins_a &sdmmc1_dir_pins_a>;
  	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a &sdmmc1_dir_sleep_pins_a>;
--	broken-cd;
-+	cd-gpios = <&gpiog 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+ 	cd-gpios = <&gpiog 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
++	disable-wp;
  	st,sig-dir;
  	st,neg-edge;
  	st,use-ckin;
