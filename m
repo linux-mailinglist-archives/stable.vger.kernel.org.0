@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C280031380B
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5499D313801
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234000AbhBHPfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:35:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58890 "EHLO mail.kernel.org"
+        id S233763AbhBHPfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:35:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232381AbhBHPSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:18:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D36764EDD;
-        Mon,  8 Feb 2021 15:12:26 +0000 (UTC)
+        id S231784AbhBHPSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6438464EDF;
+        Mon,  8 Feb 2021 15:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797147;
-        bh=9bE04pjD2ZQka+V2J2Hx2Y63OIDquVprUhtW8LOj05Y=;
+        s=korg; t=1612797150;
+        bh=qRuLJUMfiY7OZtwcty28WZv6RnVTdlnsWF+x0Y0dfDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LC/QU66TSGU2qaw3cTyThHWilhKFRIqgZvgrTM5cPXuXEY9VBYrub42jA/XOXaAwt
-         RvXDjLr+XVZ6jQbVktNQ0Jrctr6sb2wTv//ZeUVgNgTS0RLjy2hEp6mRCsri8NKgby
-         1be9WHs1sB3492zeZOapRiO4mEbogBlK+jxC4KRo=
+        b=rBE/CucIalwir0u1BtabkI+ay15gTLLCfx0GeeRbem8XkM5CM4HZm1QPF0RdbN4xO
+         LEqDc0RvEbi2k0SZ0tQnyDYfMy1ZJIrTU2Cdr/I3BPZgGe1N7k63TWlLyBEpUBIEkl
+         EyIB5aIW9/Q//PC0cw9OOtdY3Wpl0/Hcb/EhMIkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pho Tran <pho.tran@silabs.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 001/120] USB: serial: cp210x: add pid/vid for WSDA-200-USB
-Date:   Mon,  8 Feb 2021 15:59:48 +0100
-Message-Id: <20210208145818.452985892@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Gary Bisson <gary.bisson@boundarydevices.com>
+Subject: [PATCH 5.10 010/120] usb: dwc3: fix clock issue during resume in OTG mode
+Date:   Mon,  8 Feb 2021 15:59:57 +0100
+Message-Id: <20210208145818.804591186@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,32 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pho Tran <Pho.Tran@silabs.com>
+From: Gary Bisson <gary.bisson@boundarydevices.com>
 
-commit 3c4f6ecd93442f4376a58b38bb40ee0b8c46e0e6 upstream.
+commit 0e5a3c8284a30f4c43fd81d7285528ece74563b5 upstream.
 
-Information pid/vid of WSDA-200-USB, Lord corporation company:
-vid: 199b
-pid: ba30
+Commit fe8abf332b8f ("usb: dwc3: support clocks and resets for DWC3
+core") introduced clock support and a new function named
+dwc3_core_init_for_resume() which enables the clock before calling
+dwc3_core_init() during resume as clocks get disabled during suspend.
 
-Signed-off-by: Pho Tran <pho.tran@silabs.com>
-[ johan: amend comment with product name ]
+Unfortunately in this commit the DWC3_GCTL_PRTCAP_OTG case was forgotten
+and therefore during resume, a platform could call dwc3_core_init()
+without re-enabling the clocks first, preventing to resume properly.
+
+So update the resume path to call dwc3_core_init_for_resume() as it
+should.
+
+Fixes: fe8abf332b8f ("usb: dwc3: support clocks and resets for DWC3 core")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
+Link: https://lore.kernel.org/r/20210125161934.527820-1-gary.bisson@boundarydevices.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -204,6 +204,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
- 	{ USB_DEVICE(0x1B1C, 0x1C00) }, /* Corsair USB Dongle */
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1758,7 +1758,7 @@ static int dwc3_resume_common(struct dwc
+ 		if (PMSG_IS_AUTO(msg))
+ 			break;
+ 
+-		ret = dwc3_core_init(dwc);
++		ret = dwc3_core_init_for_resume(dwc);
+ 		if (ret)
+ 			return ret;
+ 
 
 
