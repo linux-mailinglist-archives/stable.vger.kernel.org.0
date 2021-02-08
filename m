@@ -2,78 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 749D431329C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D21D3132A7
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 13:45:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbhBHMnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 07:43:21 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:38863 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232698AbhBHMmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 07:42:51 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9F34D5C0069;
-        Mon,  8 Feb 2021 07:42:05 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 07:42:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=r2f1MQLip7D2d9wuRUzmSSsTUf+
-        OPlwBIlFXW5RyV/Y=; b=eeV7+KlLY6iA8rhZoOFNtxHpp1T+HU5lRTxwE3wfISE
-        HbAdL+3NyFqUyxN5m07q9dsRKng0+XWj6Ml11o8zR0Oxjery8iVk6rL2kAe5UO4y
-        1XYY52LXJf4LQNPn3RhjfQBIrHUmlRPq55XH7biH9b61Tuq6Lf4C2K58po5TNdoG
-        Cb83XHJqGwpkn5RqLmjXUEksCfsLlhWOTxZJLZd9v9wRy9MTW4RuFjH3SowVzJLD
-        4Plv0bO5xbLfTiVAtDcNbMaLFTwQbpFLrKUGgp13ZIXyebLXhRcvcR2SNpRe9pvb
-        tLQpOLv9iF3CK2XENdSuFdYNlayCQgQCTZ5Y+Yn32TQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=r2f1MQ
-        Lip7D2d9wuRUzmSSsTUf+OPlwBIlFXW5RyV/Y=; b=p1tXUyr4f2Dz14Fwyzxpc3
-        R6rZjuWB0xou2YyfNaRbHlPdJO/8mDyasL233Y+FWUT7TzmwWg3hwt9u9j+MVk/7
-        GaLLvrDKsHPseS9kNwXsFoHKPKG9HcCtfDJbs30mryAJ2ewLSNVd+ivGNfnTA5pi
-        mtl4lG/huUfyqz6ije1iMxEGqqE6k2G6cNG52OfkLkEF6GLix9yNrjnYzau78T9A
-        ji2AM8WTxNlyox1c2VjLBe9U4elipc5ASaSjNoaBJ1BDzVN2o9ScTcSXgXx8mydH
-        VXHcT0tGR7vB26oB6D+NaPy4ENGFeK+sE5UC+LyYaEU2DWSdIz7PbzET4JPPeMOw
-        ==
-X-ME-Sender: <xms:nTEhYOlRuKhqrd9FYzD_TQ8iu_DEQDA4E4Nul1LaNHKrmW0GIaGreg>
-    <xme:nTEhYFy3U2lWJsTJRR9tSWeJywocIIXDo15EeFfQNjzLawXz99iWReGRP_vIYRZhD
-    KvEPw2XJcJYQg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdegvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehttdertd
-    dttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeen
-    ucggtffrrghtthgvrhhnpeevueehjefgfffgiedvudekvdektdelleelgefhleejieeuge
-    egveeuuddukedvteenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhi
-    iigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:nTEhYJivVoHuUUTAwGxqiMGa_x3uLX4JmKF-v0fi9kXWYEGTvXIdXw>
-    <xmx:nTEhYKVAdmVDsN7fMD4KNVlKef0ZzjlvYYpl1GgaJugSE349HzWETw>
-    <xmx:nTEhYL3NiC7h0F6nGNaW7bXaQknprfceOmSsHRefcLu_qpAH0FT4UQ>
-    <xmx:nTEhYAAC5uBw1lozo3ajM1XimmbGTu4OtYary9zdpyXhzgeZIYu_-w>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D284F1080066;
-        Mon,  8 Feb 2021 07:42:04 -0500 (EST)
-Date:   Mon, 8 Feb 2021 13:42:03 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:     stable@vger.kernel.org, rafael.j.wysocki@intel.com,
-        stephen.berman@gmx.net
-Subject: Re: [PATCH] ACPI: thermal: Do not call acpi_thermal_check() directly
-Message-ID: <YCExm74avCXOCqnL@kroah.com>
-References: <20210207210634.iaufnwzlibmpabos@linutronix.de>
+        id S232020AbhBHMo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 07:44:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50022 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230249AbhBHMoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 07:44:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A0DD64E37;
+        Mon,  8 Feb 2021 12:43:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612788206;
+        bh=6ZZEHquHbOgeFmvzGp7IcPASoLP4fSRHVWRa3YLH6d4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=K7k3WOezpLz+CwRr1I/UVB8rivSVr3ZTm50UocBHGec7aoxHeKz5D8fFO+IPqui1G
+         dZPZSjMMPPpd9hOiSChzcUaGqoeP0AjTAUWQuZsIWin7QOupplpUaMMugD3k/yrPbm
+         2dcCvGnDBRRjkwjtd5v5Ya/tG8MSnu3/IC8Cfy48=
+Date:   Mon, 8 Feb 2021 13:43:23 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nadav Amit <namit@vmware.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>,
+        "jroedel@suse.de" <jroedel@suse.de>, Will Deacon <will@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] iommu/vt-d: Do not use flush-queue when
+ caching-mode is on" failed to apply to 5.10-stable tree
+Message-ID: <YCEx614XHUA8oaUr@kroah.com>
+References: <1612104088214157@kroah.com>
+ <52C9C14F-D496-4E11-9E63-CC9677DA4889@vmware.com>
+ <YB0HrznvibyfVBpu@kroah.com>
+ <803F8779-E4A5-43D9-9AAB-A64C763731B7@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210207210634.iaufnwzlibmpabos@linutronix.de>
+In-Reply-To: <803F8779-E4A5-43D9-9AAB-A64C763731B7@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 07, 2021 at 10:06:34PM +0100, Sebastian Andrzej Siewior wrote:
-> Upstream commit 81b704d3e4674e09781d331df73d76675d5ad8cb
+On Fri, Feb 05, 2021 at 06:29:27PM +0000, Nadav Amit wrote:
+> > On Feb 5, 2021, at 12:54 AM, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> > 
+> > On Thu, Feb 04, 2021 at 06:04:13PM +0000, Nadav Amit wrote:
+> >> Backporting requires to disable strict during initialization. Lu, can
+> >> you ack this patch?
+> >> 
+> > This works for 5.10, thanks!  But what about 4.9, 4.14, 4.19, and 5.4?
+> > Those also need this change, right?
 > 
-> Applies to 4.4-stable tree
+> Thanks for taking the patch.
+> 
+> Yes, older kernels need to be patched too. I wanted Lu to ack the 5.10 patch
+> first.
+> 
+> For 5.4 and older kernels, the patch is fundamentally the same as the one
+> for 5.10. Yet the patch that I sent for 5.10 does not apply cleanly, so
+> please use the following patch.
+> 
+> Please let me know if there is any problem. 
+> 
 
-Both now queued up, thanks.
+That worked, thanks.
 
 greg k-h
