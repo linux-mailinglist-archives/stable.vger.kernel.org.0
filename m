@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6FD313754
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9AE31375D
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbhBHPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:23:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33694 "EHLO mail.kernel.org"
+        id S231654AbhBHPYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:24:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233353AbhBHPRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233363AbhBHPRa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 10:17:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE37660238;
-        Mon,  8 Feb 2021 15:11:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99DCA64ED3;
+        Mon,  8 Feb 2021 15:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797097;
-        bh=5SrLtI23WZIAEPavMoaVnodJN3n6Bm4RlGll8JcCVYU=;
+        s=korg; t=1612797103;
+        bh=7HRfJ8JR8Pg4eeNf7zZEHoZnyzhmODIgyf6k/xYFUQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTPr1/cQcsfNjQjP6UbtomkghqP0QOSHbP0C1+Daw8A0rPlcnn0u8Zn5wO7wAf4iO
-         oPwV4a5jmODaJvDAcGaGaHoT7bH78ThtUdfBjktB7FiE69UeP16FiRN0Uwv/I+b8Ms
-         sOQWWOUVzC+iVq5TYZcgPIhD0/Wo3xTdTPDw3Nlw=
+        b=Lj0WD6yPANg9qpDO1b3iwOzMHNxqZaD85iNz1THp902TyXZYKcS5qyWdwxV2Mfm2R
+         SwBhsB19eqYkmilWeirppSq1re9IqXeT03PJcna/aJoXYDMaph/Y4YZaSV+lcYjBkl
+         W5KCS/HUaVT498Q/c8gGNo7egGOMWAtF5s8OHQnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.4 58/65] iommu/vt-d: Do not use flush-queue when caching-mode is on
-Date:   Mon,  8 Feb 2021 16:01:30 +0100
-Message-Id: <20210208145812.475560556@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 60/65] igc: Report speed and duplex as unknown when device is runtime suspended
+Date:   Mon,  8 Feb 2021 16:01:32 +0100
+Message-Id: <20210208145812.547371627@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
 References: <20210208145810.230485165@linuxfoundation.org>
@@ -42,76 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
+commit 2e99dedc73f004f650b197c9b269c15c7e01ad15 upstream.
 
-When an Intel IOMMU is virtualized, and a physical device is
-passed-through to the VM, changes of the virtual IOMMU need to be
-propagated to the physical IOMMU. The hypervisor therefore needs to
-monitor PTE mappings in the IOMMU page-tables. Intel specifications
-provide "caching-mode" capability that a virtual IOMMU uses to report
-that the IOMMU is virtualized and a TLB flush is needed after mapping to
-allow the hypervisor to propagate virtual IOMMU mappings to the physical
-IOMMU. To the best of my knowledge no real physical IOMMU reports
-"caching-mode" as turned on.
+Similar to commit 165ae7a8feb5 ("igb: Report speed and duplex as unknown
+when device is runtime suspended"), if we try to read speed and duplex
+sysfs while the device is runtime suspended, igc will complain and
+stops working:
 
-Synchronizing the virtual and the physical IOMMU tables is expensive if
-the hypervisor is unaware which PTEs have changed, as the hypervisor is
-required to walk all the virtualized tables and look for changes.
-Consequently, domain flushes are much more expensive than page-specific
-flushes on virtualized IOMMUs with passthrough devices. The kernel
-therefore exploited the "caching-mode" indication to avoid domain
-flushing and use page-specific flushing in virtualized environments. See
-commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
-mode.")
+[  123.449883] igc 0000:03:00.0 enp3s0: PCIe link lost, device now detached
+[  123.450052] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  123.450056] #PF: supervisor read access in kernel mode
+[  123.450058] #PF: error_code(0x0000) - not-present page
+[  123.450059] PGD 0 P4D 0
+[  123.450064] Oops: 0000 [#1] SMP NOPTI
+[  123.450068] CPU: 0 PID: 2525 Comm: udevadm Tainted: G     U  W  OE     5.10.0-1002-oem #2+rkl2-Ubuntu
+[  123.450078] RIP: 0010:igc_rd32+0x1c/0x90 [igc]
+[  123.450080] Code: c0 5d c3 b8 fd ff ff ff c3 0f 1f 44 00 00 0f 1f 44 00 00 55 89 f0 48 89 e5 41 56 41 55 41 54 49 89 c4 53 48 8b 57 08 48 01 d0 <44> 8b 28 41 83 fd ff 74 0c 5b 44 89 e8 41 5c 41 5d 4
 
-This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
-of iova deferred flushing"). Now, when batched TLB flushing is used (the
-default), full TLB domain flushes are performed frequently, requiring
-the hypervisor to perform expensive synchronization between the virtual
-TLB and the physical one.
+[  123.450083] RSP: 0018:ffffb0d100d6fcc0 EFLAGS: 00010202
+[  123.450085] RAX: 0000000000000008 RBX: ffffb0d100d6fd30 RCX: 0000000000000000
+[  123.450087] RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff945a12716c10
+[  123.450089] RBP: ffffb0d100d6fce0 R08: ffff945a12716550 R09: ffff945a09874000
+[  123.450090] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000008
+[  123.450092] R13: ffff945a12716000 R14: ffff945a037da280 R15: ffff945a037da290
+[  123.450094] FS:  00007f3b34c868c0(0000) GS:ffff945b89200000(0000) knlGS:0000000000000000
+[  123.450096] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  123.450098] CR2: 0000000000000008 CR3: 00000001144de006 CR4: 0000000000770ef0
+[  123.450100] PKRU: 55555554
+[  123.450101] Call Trace:
+[  123.450111]  igc_ethtool_get_link_ksettings+0xd6/0x1b0 [igc]
+[  123.450118]  __ethtool_get_link_ksettings+0x71/0xb0
+[  123.450123]  duplex_show+0x74/0xc0
+[  123.450129]  dev_attr_show+0x1d/0x40
+[  123.450134]  sysfs_kf_seq_show+0xa1/0x100
+[  123.450137]  kernfs_seq_show+0x27/0x30
+[  123.450142]  seq_read+0xb7/0x400
+[  123.450148]  ? common_file_perm+0x72/0x170
+[  123.450151]  kernfs_fop_read+0x35/0x1b0
+[  123.450155]  vfs_read+0xb5/0x1b0
+[  123.450157]  ksys_read+0x67/0xe0
+[  123.450160]  __x64_sys_read+0x1a/0x20
+[  123.450164]  do_syscall_64+0x38/0x90
+[  123.450168]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  123.450170] RIP: 0033:0x7f3b351fe142
+[  123.450173] Code: c0 e9 c2 fe ff ff 50 48 8d 3d 3a ca 0a 00 e8 f5 19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+[  123.450174] RSP: 002b:00007fffef2ec138 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+[  123.450177] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3b351fe142
+[  123.450179] RDX: 0000000000001001 RSI: 00005644c047f070 RDI: 0000000000000003
+[  123.450180] RBP: 00007fffef2ec340 R08: 00005644c047f070 R09: 00007f3b352d9320
+[  123.450182] R10: 00005644c047c010 R11: 0000000000000246 R12: 00005644c047cbf0
+[  123.450184] R13: 00005644c047e6d0 R14: 0000000000000003 R15: 00007fffef2ec140
+[  123.450189] Modules linked in: rfcomm ccm cmac algif_hash algif_skcipher af_alg bnep toshiba_acpi industrialio toshiba_haps hp_accel lis3lv02d btusb btrtl btbcm btintel bluetooth ecdh_generic ecc joydev input_leds nls_iso8859_1 snd_sof_pci snd_sof_intel_byt snd_sof_intel_ipc snd_sof_intel_hda_common snd_soc_hdac_hda snd_hda_codec_hdmi snd_sof_xtensa_dsp snd_sof_intel_hda snd_sof snd_hda_ext_core snd_soc_acpi_intel_match snd_soc_acpi snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_intel_dspcfg soundwire_intel soundwire_generic_allocation soundwire_cadence snd_hda_codec snd_hda_core ath10k_pci snd_hwdep intel_rapl_msr intel_rapl_common ath10k_core soundwire_bus snd_soc_core x86_pkg_temp_thermal ath intel_powerclamp snd_compress ac97_bus snd_pcm_dmaengine mac80211 snd_pcm coretemp snd_seq_midi snd_seq_midi_event snd_rawmidi kvm_intel cfg80211 snd_seq snd_seq_device snd_timer mei_hdcp kvm libarc4 snd crct10dif_pclmul ghash_clmulni_intel aesni_intel
+ mei_me dell_wmi
+[  123.450266]  dell_smbios soundcore sparse_keymap dcdbas crypto_simd cryptd mei dell_uart_backlight glue_helper ee1004 wmi_bmof intel_wmi_thunderbolt dell_wmi_descriptor mac_hid efi_pstore acpi_pad acpi_tad intel_cstate sch_fq_codel parport_pc ppdev lp parport ip_tables x_tables autofs4 btrfs blake2b_generic raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear dm_mirror dm_region_hash dm_log hid_generic usbhid hid i915 i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec crc32_pclmul rc_core drm intel_lpss_pci i2c_i801 ahci igc intel_lpss i2c_smbus idma64 xhci_pci libahci virt_dma xhci_pci_renesas wmi video pinctrl_tigerlake
+[  123.450335] CR2: 0000000000000008
+[  123.450338] ---[ end trace 9f731e38b53c35cc ]---
 
-Getting batched TLB flushes to use page-specific invalidations again in
-such circumstances is not easy, since the TLB invalidation scheme
-assumes that "full" domain TLB flushes are performed for scalability.
+The more generic approach will be wrap get_link_ksettings() with begin()
+and complete() callbacks, and calls runtime resume and runtime suspend
+routine respectively. However, igc is like igb, runtime resume routine
+uses rtnl_lock() which upper ethtool layer also uses.
 
-Disable batched TLB flushes when caching-mode is on, as the performance
-benefit from using batched TLB invalidations is likely to be much
-smaller than the overhead of the virtual-to-physical IOMMU page-tables
-synchronization.
+So to prevent a deadlock on rtnl, take a different approach, use
+pm_runtime_suspended() to avoid reading register while device is runtime
+suspended.
 
-Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Nadav Amit <namit@vmware.com>
+Fixes: 8c5ad0dae93c ("igc: Add ethtool support")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iommu/intel-iommu.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/igc/igc_ethtool.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3285,6 +3285,12 @@ static int __init init_dmars(void)
+--- a/drivers/net/ethernet/intel/igc/igc_ethtool.c
++++ b/drivers/net/ethernet/intel/igc/igc_ethtool.c
+@@ -1709,7 +1709,8 @@ static int igc_get_link_ksettings(struct
+ 						     Asym_Pause);
+ 	}
  
- 		if (!ecap_pass_through(iommu->ecap))
- 			hw_pass_through = 0;
-+
-+		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
-+			pr_info("Disable batched IOTLB flush due to virtualization");
-+			intel_iommu_strict = 1;
-+		}
-+
- #ifdef CONFIG_INTEL_IOMMU_SVM
- 		if (pasid_supported(iommu))
- 			intel_svm_init(iommu);
+-	status = rd32(IGC_STATUS);
++	status = pm_runtime_suspended(&adapter->pdev->dev) ?
++		 0 : rd32(IGC_STATUS);
+ 
+ 	if (status & IGC_STATUS_LU) {
+ 		if (status & IGC_STATUS_SPEED_1000) {
 
 
