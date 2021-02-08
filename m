@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 089BD313C2C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:04:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A065313C42
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:05:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233963AbhBHSD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:03:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
+        id S235367AbhBHSEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:04:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235254AbhBHSAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:00:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AF5C64EBC;
-        Mon,  8 Feb 2021 17:58:35 +0000 (UTC)
+        id S235163AbhBHSAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:00:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94C9964EC7;
+        Mon,  8 Feb 2021 17:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807117;
-        bh=sN/6ha34otOeEaBysqzwB3pj0rwepRQlUkw7Q+tX/U4=;
+        s=k20201202; t=1612807118;
+        bh=QG+IXIvC27Sf/5lk1f9hJH/eFsjq66BiJ8/ljnlbw+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=peh4knKSyYrytYvXB0uQtLXbcOFgzQFmJ4ri4HeEPuwgCZr4dNbHTDVBwY65v476b
-         GiaFivaMRW6eyzdqaKoK1T0OEp2orVj3LTClL/FBQcxjXBB8UECa7D0Xfle0vZup/G
-         jmlBadcGrKuZYYwe8maTRzXNlneMPyB/79WznZpL1aqDfNGaLCvOjcsmEWpq9ZIqLE
-         IYEaYZlnnr3Qb8nel8XlT8OteIsI3mdzhyAemZd1680QhH8CSjJ8BNBg32djkSHvpp
-         F+3XZZvK/6n5xmqPo4Oq9rAmq64O7rD4KVgGbWFrPcs3XNjeFDmtsVjdWcKW81+OZn
-         wf5A4DdvbLQDA==
+        b=iigNBqweQ2kDBpGMvj7p4mzcuwZrrTYo6YQT9nDGHF31jh1b/f6DL3qlCuKutpfU7
+         Ll6/ltJrtCH5lGndE4UG9NFJe0WmSOSqPwqAEl3q7r9TMPReBh159L5RQvh7gywz6o
+         Sjd73wiZBNzwCP4OJ9LMrEKOvHQcGkpUrYZBaW37hK9KEt0+YMBwyAM3wv7zms1XoO
+         FN2EnpzbJ/4o3KKsh20BsGy++4pVzeRlxaj5Po1vkWW+nH78nEfyuZwqfTvL3dNayo
+         RD5GVgCzW1vacpwQITnI6adfrkQOWZ6NpRyeqbCDtqJ4oiI+qh9pmRn/2dfm7qv9fG
+         kIAw54A35Al8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikita Lipski <mikita.lipski@amd.com>,
-        Eryk Brol <Eryk.Brol@amd.com>,
+Cc:     Victor Lu <victorchengchi.lu@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
         Anson Jacob <Anson.Jacob@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 22/36] drm/amd/display: Release DSC before acquiring
-Date:   Mon,  8 Feb 2021 12:57:52 -0500
-Message-Id: <20210208175806.2091668-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 23/36] drm/amd/display: Fix dc_sink kref count in emulated_link_detect
+Date:   Mon,  8 Feb 2021 12:57:53 -0500
+Message-Id: <20210208175806.2091668-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175806.2091668-1-sashal@kernel.org>
 References: <20210208175806.2091668-1-sashal@kernel.org>
@@ -46,53 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikita Lipski <mikita.lipski@amd.com>
+From: Victor Lu <victorchengchi.lu@amd.com>
 
-[ Upstream commit 58180a0cc0c57fe62a799a112f95b60f6935bd96 ]
+[ Upstream commit 3ddc818d9bb877c64f5c649beab97af86c403702 ]
 
 [why]
-Need to unassign DSC from pipes that are not using it
-so other pipes can acquire it. That is needed for
-asic's that have unmatching number of DSC engines from
-the number of pipes.
+prev_sink is not used anywhere else in the function and the reference to
+it from dc_link is replaced with a new dc_sink.
 
 [how]
-Before acquiring dsc to stream resources, first remove it.
+Change dc_sink_retain(prev_sink) to dc_sink_release(prev_sink).
 
-Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
-Reviewed-by: Eryk Brol <Eryk.Brol@amd.com>
+Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
 Acked-by: Anson Jacob <Anson.Jacob@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-index eee19edeeee5c..1e448f1b39a18 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-@@ -828,6 +828,9 @@ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
- 		if (computed_streams[i])
- 			continue;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 0f7749e9424d4..f1fea71a7073c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1792,8 +1792,8 @@ static void emulated_link_detect(struct dc_link *link)
+ 	link->type = dc_connection_none;
+ 	prev_sink = link->local_sink;
  
-+		if (dcn20_remove_stream_from_ctx(stream->ctx->dc, dc_state, stream) != DC_OK)
-+			return false;
-+
- 		mutex_lock(&aconnector->mst_mgr.lock);
- 		if (!compute_mst_dsc_configs_for_link(state, dc_state, stream->link)) {
- 			mutex_unlock(&aconnector->mst_mgr.lock);
-@@ -845,7 +848,8 @@ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
- 		stream = dc_state->streams[i];
+-	if (prev_sink != NULL)
+-		dc_sink_retain(prev_sink);
++	if (prev_sink)
++		dc_sink_release(prev_sink);
  
- 		if (stream->timing.flags.DSC == 1)
--			dc_stream_add_dsc_to_resource(stream->ctx->dc, dc_state, stream);
-+			if (dc_stream_add_dsc_to_resource(stream->ctx->dc, dc_state, stream) != DC_OK)
-+				return false;
- 	}
- 
- 	return true;
+ 	switch (link->connector_signal) {
+ 	case SIGNAL_TYPE_HDMI_TYPE_A: {
 -- 
 2.27.0
 
