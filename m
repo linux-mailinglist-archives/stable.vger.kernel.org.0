@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B626431371F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8A13136BC
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbhBHPUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:20:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
+        id S233328AbhBHPOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:14:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231743AbhBHPNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:13:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D44B64F00;
-        Mon,  8 Feb 2021 15:10:29 +0000 (UTC)
+        id S232020AbhBHPKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCD2964EE1;
+        Mon,  8 Feb 2021 15:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797030;
-        bh=W4shUEBm82+PdHKxOiO3QIVumzaP82iQQXRNNA665Xg=;
+        s=korg; t=1612796871;
+        bh=h9ptwKNb7Ag+JUYotmXHox72GpVdrZkuTITWVmwkROU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAR8gpy0+9Oy8wW/pVJ5ZSKaGWnKiDihrU1c2k7tLJBYv/yzODrAFIg6BnTN6c6o1
-         5ZLl64Uz5B2+SY+kk9USNDb4VOaJncJoxa4wSG88rLjXgXpEY9pAHc4tAT+UwbDAwU
-         ZwvDR/N4FeiijDQu9oaVTbUMRAi6YH2iMa7WwsCo=
+        b=lvDyYpyCZiTJuCNBFCL/N9LLe9Kaw56qc3xCxq/vDNb4Scxi+Ntl2nFVBoLWxkOpV
+         giHNAxmAn+1vLFJuDDKsw33hP8GjgPXhli0hCT68PMTlb4jGMRb9tu+PS7fRcpPQ3W
+         qvw/e3sJCKzfe3DUOS46g50f+tAYkJh1lvbqBkY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pierre.gondois@arm.com,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 34/65] fgraph: Initialize tracing_graph_pause at task creation
+        stable@vger.kernel.org,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 19/38] genirq/msi: Activate Multi-MSI early when MSI_FLAG_ACTIVATE_EARLY is set
 Date:   Mon,  8 Feb 2021 16:01:06 +0100
-Message-Id: <20210208145811.547133434@linuxfoundation.org>
+Message-Id: <20210208145806.908682551@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +41,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 7e0a9220467dbcfdc5bc62825724f3e52e50ab31 upstream.
+commit 4c457e8cb75eda91906a4f89fc39bde3f9a43922 upstream.
 
-On some archs, the idle task can call into cpu_suspend(). The cpu_suspend()
-will disable or pause function graph tracing, as there's some paths in
-bringing down the CPU that can have issues with its return address being
-modified. The task_struct structure has a "tracing_graph_pause" atomic
-counter, that when set to something other than zero, the function graph
-tracer will not modify the return address.
+When MSI_FLAG_ACTIVATE_EARLY is set (which is the case for PCI),
+__msi_domain_alloc_irqs() performs the activation of the interrupt (which
+in the case of PCI results in the endpoint being programmed) as soon as the
+interrupt is allocated.
 
-The problem is that the tracing_graph_pause counter is initialized when the
-function graph tracer is enabled. This can corrupt the counter for the idle
-task if it is suspended in these architectures.
+But it appears that this is only done for the first vector, introducing an
+inconsistent behaviour for PCI Multi-MSI.
 
-   CPU 1				CPU 2
-   -----				-----
-  do_idle()
-    cpu_suspend()
-      pause_graph_tracing()
-          task_struct->tracing_graph_pause++ (0 -> 1)
+Fix it by iterating over the number of vectors allocated to each MSI
+descriptor. This is easily achieved by introducing a new
+"for_each_msi_vector" iterator, together with a tiny bit of refactoring.
 
-				start_graph_tracing()
-				  for_each_online_cpu(cpu) {
-				    ftrace_graph_init_idle_task(cpu)
-				      task-struct->tracing_graph_pause = 0 (1 -> 0)
-
-      unpause_graph_tracing()
-          task_struct->tracing_graph_pause-- (0 -> -1)
-
-The above should have gone from 1 to zero, and enabled function graph
-tracing again. But instead, it is set to -1, which keeps it disabled.
-
-There's no reason that the field tracing_graph_pause on the task_struct can
-not be initialized at boot up.
-
+Fixes: f3b0946d629c ("genirq/msi: Make sure PCI MSIs are activated early")
+Reported-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 Cc: stable@vger.kernel.org
-Fixes: 380c4b1411ccd ("tracing/function-graph-tracer: append the tracing_graph_flag")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211339
-Reported-by: pierre.gondois@arm.com
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/20210123122759.1781359-1-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/init_task.c      |    3 ++-
- kernel/trace/fgraph.c |    2 --
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ include/linux/msi.h |    6 ++++++
+ kernel/irq/msi.c    |   44 ++++++++++++++++++++------------------------
+ 2 files changed, 26 insertions(+), 24 deletions(-)
 
---- a/init/init_task.c
-+++ b/init/init_task.c
-@@ -171,7 +171,8 @@ struct task_struct init_task
- 	.lockdep_recursion = 0,
- #endif
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	.ret_stack	= NULL,
-+	.ret_stack		= NULL,
-+	.tracing_graph_pause	= ATOMIC_INIT(0),
- #endif
- #if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPTION)
- 	.trace_recursion = 0,
---- a/kernel/trace/fgraph.c
-+++ b/kernel/trace/fgraph.c
-@@ -367,7 +367,6 @@ static int alloc_retstack_tasklist(struc
- 		}
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -118,6 +118,12 @@ struct msi_desc {
+ 	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
+ #define for_each_msi_entry_safe(desc, tmp, dev)	\
+ 	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), list)
++#define for_each_msi_vector(desc, __irq, dev)				\
++	for_each_msi_entry((desc), (dev))				\
++		if ((desc)->irq)					\
++			for (__irq = (desc)->irq;			\
++			     __irq < ((desc)->irq + (desc)->nvec_used);	\
++			     __irq++)
  
- 		if (t->ret_stack == NULL) {
--			atomic_set(&t->tracing_graph_pause, 0);
- 			atomic_set(&t->trace_overrun, 0);
- 			t->curr_ret_stack = -1;
- 			t->curr_ret_depth = -1;
-@@ -462,7 +461,6 @@ static DEFINE_PER_CPU(struct ftrace_ret_
- static void
- graph_init_task(struct task_struct *t, struct ftrace_ret_stack *ret_stack)
- {
--	atomic_set(&t->tracing_graph_pause, 0);
- 	atomic_set(&t->trace_overrun, 0);
- 	t->ftrace_timestamp = 0;
- 	/* make curr_ret_stack visible before we add the ret_stack */
+ #ifdef CONFIG_PCI_MSI
+ #define first_pci_msi_entry(pdev)	first_msi_entry(&(pdev)->dev)
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -437,22 +437,22 @@ int msi_domain_alloc_irqs(struct irq_dom
+ 
+ 	can_reserve = msi_check_reservation_mode(domain, info, dev);
+ 
+-	for_each_msi_entry(desc, dev) {
+-		virq = desc->irq;
+-		if (desc->nvec_used == 1)
+-			dev_dbg(dev, "irq %d for MSI\n", virq);
+-		else
++	/*
++	 * This flag is set by the PCI layer as we need to activate
++	 * the MSI entries before the PCI layer enables MSI in the
++	 * card. Otherwise the card latches a random msi message.
++	 */
++	if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
++		goto skip_activate;
++
++	for_each_msi_vector(desc, i, dev) {
++		if (desc->irq == i) {
++			virq = desc->irq;
+ 			dev_dbg(dev, "irq [%d-%d] for MSI\n",
+ 				virq, virq + desc->nvec_used - 1);
+-		/*
+-		 * This flag is set by the PCI layer as we need to activate
+-		 * the MSI entries before the PCI layer enables MSI in the
+-		 * card. Otherwise the card latches a random msi message.
+-		 */
+-		if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
+-			continue;
++		}
+ 
+-		irq_data = irq_domain_get_irq_data(domain, desc->irq);
++		irq_data = irq_domain_get_irq_data(domain, i);
+ 		if (!can_reserve) {
+ 			irqd_clr_can_reserve(irq_data);
+ 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
+@@ -463,28 +463,24 @@ int msi_domain_alloc_irqs(struct irq_dom
+ 			goto cleanup;
+ 	}
+ 
++skip_activate:
+ 	/*
+ 	 * If these interrupts use reservation mode, clear the activated bit
+ 	 * so request_irq() will assign the final vector.
+ 	 */
+ 	if (can_reserve) {
+-		for_each_msi_entry(desc, dev) {
+-			irq_data = irq_domain_get_irq_data(domain, desc->irq);
++		for_each_msi_vector(desc, i, dev) {
++			irq_data = irq_domain_get_irq_data(domain, i);
+ 			irqd_clr_activated(irq_data);
+ 		}
+ 	}
+ 	return 0;
+ 
+ cleanup:
+-	for_each_msi_entry(desc, dev) {
+-		struct irq_data *irqd;
+-
+-		if (desc->irq == virq)
+-			break;
+-
+-		irqd = irq_domain_get_irq_data(domain, desc->irq);
+-		if (irqd_is_activated(irqd))
+-			irq_domain_deactivate_irq(irqd);
++	for_each_msi_vector(desc, i, dev) {
++		irq_data = irq_domain_get_irq_data(domain, i);
++		if (irqd_is_activated(irq_data))
++			irq_domain_deactivate_irq(irq_data);
+ 	}
+ 	msi_domain_free_irqs(domain, dev);
+ 	return ret;
 
 
