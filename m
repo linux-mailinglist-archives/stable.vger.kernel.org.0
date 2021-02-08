@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9285E31366A
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2F83136F3
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233141AbhBHPKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S233625AbhBHPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:17:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232276AbhBHPHO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:07:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E26E864E84;
-        Mon,  8 Feb 2021 15:05:39 +0000 (UTC)
+        id S233296AbhBHPLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07DD064EEE;
+        Mon,  8 Feb 2021 15:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796740;
-        bh=BCh9qFsYtLmU+r4j51UqZbeU68kz/2QYEmXzYNsGO/g=;
+        s=korg; t=1612796932;
+        bh=p3pdBOXEm9sCnNMBb9NfCLPMjcdD5ya/XoThH5uT9vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlENh6u8Mz76/GmtfniwhXpo74vZ7iI8g8u21diytJ/YhHwL8OVEC/PU30La9hkii
-         4mybTsBiTqPC7mYgF6JM0NAz+lMpwd/jC3o1pJkMafmxK4qFD5lf5xvyBF+RyX88T/
-         oLflbkcnYPA/NZiVTGU8bX9KrEmnKGd8HrkkJMuU=
+        b=LoTBWchDlkzzcRlAc0V08eowlS4T3HB4ypUSlGktOOneN94QGxvZ8owrzGlMD3aL9
+         vAbSn0fpAihCDnrC2DMHQ5Ok9w+7uUwM4mkFgCJXOg60UGawCuTHtEls7GyZB7BLHT
+         KHqddyDS4B9U8f7stXup7Wfq9E3x4fpsqrsw0QY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 28/43] mac80211: fix station rate table updates on assoc
-Date:   Mon,  8 Feb 2021 16:00:54 +0100
-Message-Id: <20210208145807.452185088@linuxfoundation.org>
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 08/38] net: lapb: Copy the skb before sending a packet
+Date:   Mon,  8 Feb 2021 16:00:55 +0100
+Message-Id: <20210208145806.464568818@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit 18fe0fae61252b5ae6e26553e2676b5fac555951 upstream.
+[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
 
-If the driver uses .sta_add, station entries are only uploaded after the sta
-is in assoc state. Fix early station rate table updates by deferring them
-until the sta has been uploaded.
+When sending a packet, we will prepend it with an LAPB header.
+This modifies the shared parts of a cloned skb, so we should copy the
+skb rather than just clone it, before we prepend the header.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210201083324.3134-1-nbd@nbd.name
-[use rcu_access_pointer() instead since we won't dereference here]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In "Documentation/networking/driver.rst" (the 2nd point), it states
+that drivers shouldn't modify the shared parts of a cloned skb when
+transmitting.
+
+The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
+when an skb is being sent, clones the skb and sents the clone to
+AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
+pseudo-header before handing over the skb to us, if we don't copy the
+skb before prepending the LAPB header, the first byte of the packets
+received on AF_PACKET sockets can be corrupted.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/driver-ops.c |    5 ++++-
- net/mac80211/rate.c       |    3 ++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ net/lapb/lapb_out.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/driver-ops.c
-+++ b/net/mac80211/driver-ops.c
-@@ -128,8 +128,11 @@ int drv_sta_state(struct ieee80211_local
- 	} else if (old_state == IEEE80211_STA_AUTH &&
- 		   new_state == IEEE80211_STA_ASSOC) {
- 		ret = drv_sta_add(local, sdata, &sta->sta);
--		if (ret == 0)
-+		if (ret == 0) {
- 			sta->uploaded = true;
-+			if (rcu_access_pointer(sta->sta.rates))
-+				drv_sta_rate_tbl_update(local, sdata, &sta->sta);
-+		}
- 	} else if (old_state == IEEE80211_STA_ASSOC &&
- 		   new_state == IEEE80211_STA_AUTH) {
- 		drv_sta_remove(local, sdata, &sta->sta);
---- a/net/mac80211/rate.c
-+++ b/net/mac80211/rate.c
-@@ -892,7 +892,8 @@ int rate_control_set_rates(struct ieee80
- 	if (old)
- 		kfree_rcu(old, rcu_head);
+diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
+index eda726e22f645..621c66f001177 100644
+--- a/net/lapb/lapb_out.c
++++ b/net/lapb/lapb_out.c
+@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
+ 		skb = skb_dequeue(&lapb->write_queue);
  
--	drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
-+	if (sta->uploaded)
-+		drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
- 
- 	return 0;
- }
+ 		do {
+-			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
++			skbn = skb_copy(skb, GFP_ATOMIC);
++			if (!skbn) {
+ 				skb_queue_head(&lapb->write_queue, skb);
+ 				break;
+ 			}
+-- 
+2.27.0
+
 
 
