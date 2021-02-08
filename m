@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56BD7313792
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2623135F9
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233727AbhBHP1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:27:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33696 "EHLO mail.kernel.org"
+        id S230029AbhBHPDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:03:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233785AbhBHPWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:22:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D8D664F07;
-        Mon,  8 Feb 2021 15:13:59 +0000 (UTC)
+        id S232593AbhBHPD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:03:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAE9464EA1;
+        Mon,  8 Feb 2021 15:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797240;
-        bh=2MQPMAkgMPo/VJGnxnLOjW/zkJE5VCXS4+EgBMoETnU=;
+        s=korg; t=1612796538;
+        bh=xVZtRdnUhd6xyBtitThzLXOc5XRPWzzMjcGNgxSH07k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GckTAHhIav5v4/wxx+Jtko1X37O4BB3emiQfaQJcN1n+2IkqmDWpIE/fP6JQ0jvfn
-         +jRBFUMFf5/O9tjp6REJORCadJONkR4H5BOjjJPhv9M1IKzMR7WQnwSysNBJA2l6kV
-         nsNmbj9t7ZQ7Zxph3L+24YMuwJ4exoXXKEcctjls=
+        b=Ne/I0pkcjbZz3cjRrzLbo1K2uv510FoB603leoNXvsenlMml+88SZ1LQfExRRmfUb
+         5w9MUG9YHuFBj01nagi1HGS+WyK2X0wYFnR2FEZ0b6nOhzQ5f46db8glEaAtEYIW/V
+         m8qVYbJF8u4O4RDGHoZ2x6eK3uaVRKG2IjRIrQ4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Alaa Hleihel <alaa@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/120] net/mlx5: Fix leak upon failure of rule creation
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 06/38] futex: Replace pointless printk in fixup_owner()
 Date:   Mon,  8 Feb 2021 16:00:28 +0100
-Message-Id: <20210208145820.054485499@linuxfoundation.org>
+Message-Id: <20210208145805.536973210@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit a5bfe6b4675e0eefbd9418055b5cc6e89af27eb4 ]
+From: Thomas Gleixner <tglx@linutronix.de>
 
-When creation of a new rule that requires allocation of an FTE fails,
-need to call to tree_put_node on the FTE in order to release its'
-resource.
+[ Upstream commit 04b79c55201f02ffd675e1231d731365e335c307 ]
 
-Fixes: cefc23554fc2 ("net/mlx5: Fix FTE cleanup")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If that unexpected case of inconsistent arguments ever happens then the
+futex state is left completely inconsistent and the printk is not really
+helpful. Replace it with a warning and make the state consistent.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/futex.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index 634c2bfd25be1..79fc5755735fa 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -1764,6 +1764,7 @@ search_again_locked:
- 		if (!fte_tmp)
- 			continue;
- 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte_tmp);
-+		/* No error check needed here, because insert_fte() is not called */
- 		up_write_ref_node(&fte_tmp->node, false);
- 		tree_put_node(&fte_tmp->node, false);
- 		kmem_cache_free(steering->ftes_cache, fte);
-@@ -1816,6 +1817,8 @@ skip_search:
- 		up_write_ref_node(&g->node, false);
- 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
- 		up_write_ref_node(&fte->node, false);
-+		if (IS_ERR(rule))
-+			tree_put_node(&fte->node, false);
- 		return rule;
- 	}
- 	rule = ERR_PTR(-ENOENT);
-@@ -1914,6 +1917,8 @@ search_again_locked:
- 	up_write_ref_node(&g->node, false);
- 	rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
- 	up_write_ref_node(&fte->node, false);
-+	if (IS_ERR(rule))
-+		tree_put_node(&fte->node, false);
- 	tree_put_node(&g->node, false);
- 	return rule;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2412,14 +2412,10 @@ static int fixup_owner(u32 __user *uaddr
  
--- 
-2.27.0
-
+ 	/*
+ 	 * Paranoia check. If we did not take the lock, then we should not be
+-	 * the owner of the rt_mutex.
++	 * the owner of the rt_mutex. Warn and establish consistent state.
+ 	 */
+-	if (rt_mutex_owner(&q->pi_state->pi_mutex) == current) {
+-		printk(KERN_ERR "fixup_owner: ret = %d pi-mutex: %p "
+-				"pi-state %p\n", ret,
+-				q->pi_state->pi_mutex.owner,
+-				q->pi_state->owner);
+-	}
++	if (WARN_ON_ONCE(rt_mutex_owner(&q->pi_state->pi_mutex) == current))
++		return fixup_pi_state_owner(uaddr, q, current);
+ 
+ out:
+ 	return ret ? ret : locked;
 
 
