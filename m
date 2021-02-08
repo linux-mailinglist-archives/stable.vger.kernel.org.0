@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD4C313CB7
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD266313CB4
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235411AbhBHSI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:08:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49422 "EHLO mail.kernel.org"
+        id S235343AbhBHSIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:08:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235429AbhBHSGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235431AbhBHSGU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 13:06:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 783B764EA4;
-        Mon,  8 Feb 2021 18:00:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 622EB64EAC;
+        Mon,  8 Feb 2021 18:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807206;
-        bh=yEz59mW/D8ynLyqG43it/6sgqSDIlQJ4NR3HDrCHwjc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4/prwKtdGEFnWKWILV6H32TIu7bJM6DSJVMujilTEeCCuKS9QLbWmpmN0VxV8oA7
-         87VeOn05+l9cb+oLu40c3R4wHZghdstwQUuEmwotmlaqrpFcTQxS7hw/qiQYFo9MX5
-         COCRlZOIa1SujwfV/dfftwaA+MxD4E/DwOY4lJcZuvES+w27FdUpvUnAyY2v6FoSid
-         vhJ1epZ9CdhcGM/ny8Sp1BSvtGgRvY6m4d+INklVlkNCR6x96KIRxPXIBQf+lyjV7H
-         gXSK3V7NaDWZNyu+WD6PhA1Kjgzi2RtepZnLyCCK/XMuDWdQKFVAK7qdZ7PsPoZ2Wq
-         ipvEigiYf+uhw==
+        s=k20201202; t=1612807209;
+        bh=4ybdrJVYeo2/UDf8Lh/IUnsF4PV76/uempj2Vv0zRac=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oYPPeJdeDwReCCpMAE98zoZIunWi10+SPBYmP9WZV9Q1IlLjQm6XlOso5ex+cA3dv
+         Y++cNPP5O2Tn6xxrCew470NZgcG9UiI/7kayHEgfTUny4SgZg1qrz26cUp0l7Q/2oU
+         9EW6pM6AFngVLPKrPFBU/2iLflPB74oE1SkFS6B9o/eDFia1cwAfJ0PR2BYSIke/YE
+         AH4UjG2TAlhp99GMOG3nFopDHpppXUi71Hu7Dn/1lElbH/jv/VtdhNZBBoJpmsXv6G
+         zI4eboEHfGmAu2FYK/5X0BX+05kSii06uWCZIkpHBpruYjZyA/6YkvRQLze+O0yAZy
+         pxF88N56yMMeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jessica Yu <jeyu@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 4/4] init/gcov: allow CONFIG_CONSTRUCTORS on UML to fix module gcov
-Date:   Mon,  8 Feb 2021 13:00:00 -0500
-Message-Id: <20210208180000.2092497-4-sashal@kernel.org>
+Cc:     Benjamin Valentin <benpicco@googlemail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 1/2] Input: xpad - sync supported devices with fork on GitHub
+Date:   Mon,  8 Feb 2021 13:00:06 -0500
+Message-Id: <20210208180007.2092581-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210208180000.2092497-1-sashal@kernel.org>
-References: <20210208180000.2092497-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,79 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Benjamin Valentin <benpicco@googlemail.com>
 
-[ Upstream commit 55b6f763d8bcb5546997933105d66d3e6b080e6a ]
+[ Upstream commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 ]
 
-On ARCH=um, loading a module doesn't result in its constructors getting
-called, which breaks module gcov since the debugfs files are never
-registered.  On the other hand, in-kernel constructors have already been
-called by the dynamic linker, so we can't call them again.
+There is a fork of this driver on GitHub [0] that has been updated
+with new device IDs.
 
-Get out of this conundrum by allowing CONFIG_CONSTRUCTORS to be
-selected, but avoiding the in-kernel constructor calls.
+Merge those into the mainline driver, so the out-of-tree fork is not
+needed for users of those devices anymore.
 
-Also remove the "if !UML" from GCOV selecting CONSTRUCTORS now, since we
-really do want CONSTRUCTORS, just not kernel binary ones.
+[0] https://github.com/paroj/xpad
 
-Link: https://lkml.kernel.org/r/20210120172041.c246a2cac2fb.I1358f584b76f1898373adfed77f4462c8705b736@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
+Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig        | 1 -
- init/main.c         | 8 +++++++-
- kernel/gcov/Kconfig | 2 +-
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/input/joystick/xpad.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index 0a615bdc203a4..34fb7b8798aa7 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -18,7 +18,6 @@ config DEFCONFIG_LIST
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 637f1347cd13d..815b69d35722c 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -232,9 +232,17 @@ static const struct xpad_device {
+ 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
+-	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
+@@ -313,6 +321,9 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
++	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
++	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+@@ -446,8 +457,12 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
+ 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
++	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
++	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
++	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
+ 	{ }
+ };
  
- config CONSTRUCTORS
- 	bool
--	depends on !UML
- 
- config IRQ_WORK
- 	bool
-diff --git a/init/main.c b/init/main.c
-index 7ad08957dd180..649220593244e 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -669,7 +669,13 @@ asmlinkage __visible void __init start_kernel(void)
- /* Call all constructor functions linked into the kernel. */
- static void __init do_ctors(void)
- {
--#ifdef CONFIG_CONSTRUCTORS
-+/*
-+ * For UML, the constructors have already been called by the
-+ * normal setup code as it's just a normal ELF binary, so we
-+ * cannot do it again - but we do need CONFIG_CONSTRUCTORS
-+ * even on UML for modules.
-+ */
-+#if defined(CONFIG_CONSTRUCTORS) && !defined(CONFIG_UML)
- 	ctor_fn_t *fn = (ctor_fn_t *) __ctors_start;
- 
- 	for (; fn < (ctor_fn_t *) __ctors_end; fn++)
-diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
-index 1276aabaab550..2aef7d9e3e5c2 100644
---- a/kernel/gcov/Kconfig
-+++ b/kernel/gcov/Kconfig
-@@ -3,7 +3,7 @@ menu "GCOV-based kernel profiling"
- config GCOV_KERNEL
- 	bool "Enable gcov-based kernel profiling"
- 	depends on DEBUG_FS
--	select CONSTRUCTORS if !UML
-+	select CONSTRUCTORS
- 	default n
- 	---help---
- 	This option enables gcov-based code profiling (e.g. for code coverage
 -- 
 2.27.0
 
