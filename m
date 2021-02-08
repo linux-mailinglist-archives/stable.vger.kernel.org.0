@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D158C3137E8
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF20313804
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbhBHPdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:33:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
+        id S233431AbhBHPfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:35:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232400AbhBHP3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:29:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D963764F2C;
-        Mon,  8 Feb 2021 15:16:30 +0000 (UTC)
+        id S232353AbhBHPSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 783FA64EC3;
+        Mon,  8 Feb 2021 15:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797391;
-        bh=+ilpT1PhqISqHoReyBiQkxJUbTKBcAk0zlMlZUFCXOI=;
+        s=korg; t=1612797144;
+        bh=7x1RtK3j6ej2txRsFyn5vOqqlVJ+xupbVIGHvKDOdVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QetT1jA5uBLo6Dz6r77+CnwWjobHVGZx23lFPr6BdvLh96VCcy/dL8/eKlNM5YuA0
-         abaJph1eOegA5ht6Unf0vkS9HDmJ9QdLmpL2lMOan9xwbynqdSSqX0pdw/ZA9j/y+3
-         lBf3yh211MZQU4+8KfI0z91kgug7T24ECPjZwrbk=
+        b=EK2R5cPoVZUDuXMJudPF+OTkX5LwqqUpdpOzYgW6n/B3w7aybZRonkUHm0GYD4fSB
+         xI1QwgCgmbaiUS4OCBZ0eMUDmiEmxRrvJaSV8Wuc56z0Me6UENall6gCrgyN3b0ROe
+         250ixFh793em9E7iFp73GTgJ09BqqIN0RYdc0v0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonny Barker <jonny@jonnybarker.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 092/120] KVM: x86: Update emulator context mode if SYSENTER xfers to 64-bit mode
-Date:   Mon,  8 Feb 2021 16:01:19 +0100
-Message-Id: <20210208145822.068123770@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 48/65] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+Date:   Mon,  8 Feb 2021 16:01:20 +0100
+Message-Id: <20210208145812.074719342@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 943dea8af21bd896e0d6c30ea221203fb3cd3265 upstream.
+commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
 
-Set the emulator context to PROT64 if SYSENTER transitions from 32-bit
-userspace (compat mode) to a 64-bit kernel, otherwise the RIP update at
-the end of x86_emulate_insn() will incorrectly truncate the new RIP.
+If a new hugetlb page is allocated during fallocate it will not be
+marked as active (set_page_huge_active) which will result in a later
+isolate_huge_page failure when the page migration code would like to
+move that page.  Such a failure would be unexpected and wrong.
 
-Note, this bug is mostly limited to running an Intel virtual CPU model on
-an AMD physical CPU, as other combinations of virtual and physical CPUs
-do not trigger full emulation.  On Intel CPUs, SYSENTER in compatibility
-mode is legal, and unconditionally transitions to 64-bit mode.  On AMD
-CPUs, SYSENTER is illegal in compatibility mode and #UDs.  If the vCPU is
-AMD, KVM injects a #UD on SYSENTER in compat mode.  If the pCPU is Intel,
-SYSENTER will execute natively and not trigger #UD->VM-Exit (ignoring
-guest TLB shenanigans).
+Only export set_page_huge_active, just leave clear_page_huge_active as
+static.  Because there are no external users.
 
-Fixes: fede8076aab4 ("KVM: x86: handle wrap around 32-bit address space")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonny Barker <jonny@jonnybarker.com>
-[sean: wrote changelog]
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210202165546.2390296-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
+Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/hugetlbfs/inode.c    |    3 ++-
+ include/linux/hugetlb.h |    2 ++
+ mm/hugetlb.c            |    2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2879,6 +2879,8 @@ static int em_sysenter(struct x86_emulat
- 	ops->get_msr(ctxt, MSR_IA32_SYSENTER_ESP, &msr_data);
- 	*reg_write(ctxt, VCPU_REGS_RSP) = (efer & EFER_LMA) ? msr_data :
- 							      (u32)msr_data;
-+	if (efer & EFER_LMA)
-+		ctxt->mode = X86EMUL_MODE_PROT64;
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -675,9 +675,10 @@ static long hugetlbfs_fallocate(struct f
  
- 	return X86EMUL_CONTINUE;
+ 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 
++		set_page_huge_active(page);
+ 		/*
+ 		 * unlock_page because locked by add_to_page_cache()
+-		 * page_put due to reference from alloc_huge_page()
++		 * put_page() due to reference from alloc_huge_page()
+ 		 */
+ 		unlock_page(page);
+ 		put_page(page);
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -590,6 +590,8 @@ static inline void huge_ptep_modify_prot
  }
+ #endif
+ 
++void set_page_huge_active(struct page *page);
++
+ #else	/* CONFIG_HUGETLB_PAGE */
+ struct hstate {};
+ 
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1222,7 +1222,7 @@ bool page_huge_active(struct page *page)
+ }
+ 
+ /* never called for tail page */
+-static void set_page_huge_active(struct page *page)
++void set_page_huge_active(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
+ 	SetPagePrivate(&page[1]);
 
 
