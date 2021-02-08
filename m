@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F11313622
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:07:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BE8313682
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbhBHPG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:06:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S233317AbhBHPLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:11:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232795AbhBHPEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:04:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E24AC64EC5;
-        Mon,  8 Feb 2021 15:03:16 +0000 (UTC)
+        id S233213AbhBHPHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:07:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D456164EAC;
+        Mon,  8 Feb 2021 15:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796597;
-        bh=+BOrOTXiaHwbABXS+rIMBSrNb6isxC1bdb5cOY6MML8=;
+        s=korg; t=1612796763;
+        bh=ilW9tlGTvGucd3EwDI6duTFYu25KxszIyWc7Px5kUEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRnds4oNznyew0rYYczD60zc1d0YTi2kx9nfI059+715UeoYPEr80AQ/WXSQhqeTm
-         tONlyKvV/rJ54O6tbkMUT0uLqoxedDtYuA35/zqhbQ0+JucgbYKaMndUDfKbZ5MkYT
-         wfKuBXgy1ZFBvwETbH6p4rHes6HsrXqQGEvHSmNc=
+        b=1eg2Qakt+L7aGj1l5DaaOqd73QXicahb4Jbw0J+rcAd0jdFQmJvzsxxXSBnexfrEh
+         pTAuAvIlxgFcaz8NiWdnTE7GhzWvcHFllW0P2ACjGwJ+HBZj/NVk3OZUbG/ct/TJQg
+         eKi37RYzznz3x7/densqG8NFqgSHnpqi/sPVDLb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Benjamin Valentin <benpicco@googlemail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 36/38] Input: xpad - sync supported devices with fork on GitHub
+        Gerhard Klostermeier <gerhard.klostermeier@syss.de>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Subject: [PATCH 4.14 12/30] usb: dwc2: Fix endpoint direction check in ep_from_windex
 Date:   Mon,  8 Feb 2021 16:00:58 +0100
-Message-Id: <20210208145806.669075021@linuxfoundation.org>
+Message-Id: <20210208145805.747408062@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Valentin <benpicco@googlemail.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 upstream.
+commit f670e9f9c8cac716c3506c6bac9e997b27ad441a upstream.
 
-There is a fork of this driver on GitHub [0] that has been updated
-with new device IDs.
+dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
+the endpoint for the index provided in the wIndex request param.
 
-Merge those into the mainline driver, so the out-of-tree fork is not
-needed for users of those devices anymore.
+In a test-case with a rndis gadget running and sending a malformed
+packet to it like:
+    dev.ctrl_transfer(
+        0x82,      # bmRequestType
+        0x00,       # bRequest
+        0x0000,     # wValue
+        0x0001,     # wIndex
+        0x00       # wLength
+    )
+it is possible to cause a crash:
 
-[0] https://github.com/paroj/xpad
+[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
+[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
+...
+[  218.313189] Call trace:
+[  218.330217]  ep_from_windex+0x3c/0x54
+[  218.348565]  usb_gadget_giveback_request+0x10/0x20
+[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
 
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
-Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This happens because ep_from_windex wants to compare the endpoint
+direction even if index_to_ep() didn't return an endpoint due to
+the direction not matching.
+
+The fix is easy insofar that the actual direction check is already
+happening when calling index_to_ep() which will return NULL if there
+is no endpoint for the targeted direction, so the offending check
+can go away completely.
+
+Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
+Cc: stable@vger.kernel.org
+Reported-by: Gerhard Klostermeier <gerhard.klostermeier@syss.de>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20210127103919.58215-1-heiko@sntech.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -232,9 +232,17 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
-@@ -313,6 +321,9 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
-+	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-@@ -446,8 +457,12 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
- 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
-+	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
-+	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
- 	{ }
- };
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1470,7 +1470,6 @@ static void dwc2_hsotg_complete_oursetup
+ static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
+ 					    u32 windex)
+ {
+-	struct dwc2_hsotg_ep *ep;
+ 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
+ 	int idx = windex & 0x7F;
  
+@@ -1480,12 +1479,7 @@ static struct dwc2_hsotg_ep *ep_from_win
+ 	if (idx > hsotg->num_of_eps)
+ 		return NULL;
+ 
+-	ep = index_to_ep(hsotg, idx, dir);
+-
+-	if (idx && ep->dir_in != dir)
+-		return NULL;
+-
+-	return ep;
++	return index_to_ep(hsotg, idx, dir);
+ }
+ 
+ /**
 
 
