@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 020563137B4
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 519523137B0
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbhBHP3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:29:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
+        id S233420AbhBHP31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:29:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233708AbhBHPZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 011D964EB4;
-        Mon,  8 Feb 2021 15:15:05 +0000 (UTC)
+        id S233652AbhBHPZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:25:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EEF064EFE;
+        Mon,  8 Feb 2021 15:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797306;
-        bh=wA9KRhJVZTzHR+gvrGKRdjbLEmUZgcnlTvuHyd/FLhI=;
+        s=korg; t=1612797309;
+        bh=26T8cT0RofmtLrSZ8OpSoIxmAcCnX9pAreY292Av5UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWnrtAt++K7gnl9h58fl5swtT195fL0Vnk6yfofU5FQQh8jO7BdwTkCM2rBKJo4ir
-         Xzp3woBemmTJUsguE8lMS1/4dNrHrAmOVOuwC3AR6OVUtpUz8MtG2C4lQGcSs59eSc
-         LWy50RgzJEQt9KTG0sjOCBQIXDVP6cgcTO6jN5mc=
+        b=OPN3IhHYfP9AotW3r54fgiRRjmabOQz5nM34vNZ79Sg1X0V83dvbLj5tLgVQMQP53
+         DmEMduuQ3ROIk+8w6qQrJLmaJUzrJ9w2yigXaiKvMWv3zil4CaaockisZ412p+Ao/9
+         zWVSHQZ7Mw0qlA9s6zAd7vIGLGdBg6tAxut2Tx5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xplo <xplo.bn@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org,
+        syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com,
+        Vadim Fedorenko <vfedorenko@novek.ru>,
+        David Howells <dhowells@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/120] r8169: work around RTL8125 UDP hw bug
-Date:   Mon,  8 Feb 2021 16:00:19 +0100
-Message-Id: <20210208145819.668308931@linuxfoundation.org>
+Subject: [PATCH 5.10 033/120] rxrpc: Fix deadlock around release of dst cached on udp tunnel
+Date:   Mon,  8 Feb 2021 16:00:20 +0100
+Message-Id: <20210208145819.712876071@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -42,143 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 8d520b4de3edca4f4fb242b5ddc659b6a9b9e65e ]
+[ Upstream commit 5399d52233c47905bbf97dcbaa2d7a9cc31670ba ]
 
-It was reported that on RTL8125 network breaks under heavy UDP load,
-e.g. torrent traffic ([0], from comment 27). Realtek confirmed a hw bug
-and provided me with a test version of the r8125 driver including a
-workaround. Tests confirmed that the workaround fixes the issue.
-I modified the original version of the workaround to meet mainline
-code style.
+AF_RXRPC sockets use UDP ports in encap mode.  This causes socket and dst
+from an incoming packet to get stolen and attached to the UDP socket from
+whence it is leaked when that socket is closed.
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=209839
+When a network namespace is removed, the wait for dst records to be cleaned
+up happens before the cleanup of the rxrpc and UDP socket, meaning that the
+wait never finishes.
 
-v2:
-- rebased to net
-v3:
-- make rtl_skb_is_udp() more robust and use skb_header_pointer()
-  to access the ip(v6) header
-v4:
-- remove dependency on ptp_classify.h
-- replace magic number with offsetof(struct udphdr, len)
+Fix this by moving the rxrpc (and, by dependence, the afs) private
+per-network namespace registrations to the device group rather than subsys
+group.  This allows cached rxrpc local endpoints to be cleared and their
+UDP sockets closed before we try waiting for the dst records.
 
-Fixes: f1bce4ad2f1c ("r8169: add support for RTL8125")
-Tested-by: xplo <xplo.bn@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/6e453d49-1801-e6de-d5f7-d7e6c7526c8f@gmail.com
+The symptom is that lines looking like the following:
+
+	unregister_netdevice: waiting for lo to become free
+
+get emitted at regular intervals after running something like the
+referenced syzbot test.
+
+Thanks to Vadim for tracking this down and work out the fix.
+
+Reported-by: syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com
+Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Fixes: 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Link: https://lore.kernel.org/r/161196443016.3868642.5577440140646403533.stgit@warthog.procyon.org.uk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 71 +++++++++++++++++++++--
- 1 file changed, 65 insertions(+), 6 deletions(-)
+ fs/afs/main.c        | 6 +++---
+ net/rxrpc/af_rxrpc.c | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 762cabf16157b..64b77d415a525 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4082,17 +4082,72 @@ err_out:
- 	return -EIO;
- }
+diff --git a/fs/afs/main.c b/fs/afs/main.c
+index accdd8970e7c0..b2975256dadbd 100644
+--- a/fs/afs/main.c
++++ b/fs/afs/main.c
+@@ -193,7 +193,7 @@ static int __init afs_init(void)
+ 		goto error_cache;
+ #endif
  
--static bool rtl_test_hw_pad_bug(struct rtl8169_private *tp)
-+static bool rtl_skb_is_udp(struct sk_buff *skb)
-+{
-+	int no = skb_network_offset(skb);
-+	struct ipv6hdr *i6h, _i6h;
-+	struct iphdr *ih, _ih;
-+
-+	switch (vlan_get_protocol(skb)) {
-+	case htons(ETH_P_IP):
-+		ih = skb_header_pointer(skb, no, sizeof(_ih), &_ih);
-+		return ih && ih->protocol == IPPROTO_UDP;
-+	case htons(ETH_P_IPV6):
-+		i6h = skb_header_pointer(skb, no, sizeof(_i6h), &_i6h);
-+		return i6h && i6h->nexthdr == IPPROTO_UDP;
-+	default:
-+		return false;
-+	}
-+}
-+
-+#define RTL_MIN_PATCH_LEN	47
-+
-+/* see rtl8125_get_patch_pad_len() in r8125 vendor driver */
-+static unsigned int rtl8125_quirk_udp_padto(struct rtl8169_private *tp,
-+					    struct sk_buff *skb)
- {
-+	unsigned int padto = 0, len = skb->len;
-+
-+	if (rtl_is_8125(tp) && len < 128 + RTL_MIN_PATCH_LEN &&
-+	    rtl_skb_is_udp(skb) && skb_transport_header_was_set(skb)) {
-+		unsigned int trans_data_len = skb_tail_pointer(skb) -
-+					      skb_transport_header(skb);
-+
-+		if (trans_data_len >= offsetof(struct udphdr, len) &&
-+		    trans_data_len < RTL_MIN_PATCH_LEN) {
-+			u16 dest = ntohs(udp_hdr(skb)->dest);
-+
-+			/* dest is a standard PTP port */
-+			if (dest == 319 || dest == 320)
-+				padto = len + RTL_MIN_PATCH_LEN - trans_data_len;
-+		}
-+
-+		if (trans_data_len < sizeof(struct udphdr))
-+			padto = max_t(unsigned int, padto,
-+				      len + sizeof(struct udphdr) - trans_data_len);
-+	}
-+
-+	return padto;
-+}
-+
-+static unsigned int rtl_quirk_packet_padto(struct rtl8169_private *tp,
-+					   struct sk_buff *skb)
-+{
-+	unsigned int padto;
-+
-+	padto = rtl8125_quirk_udp_padto(tp, skb);
-+
- 	switch (tp->mac_version) {
- 	case RTL_GIGA_MAC_VER_34:
- 	case RTL_GIGA_MAC_VER_60:
- 	case RTL_GIGA_MAC_VER_61:
- 	case RTL_GIGA_MAC_VER_63:
--		return true;
-+		padto = max_t(unsigned int, padto, ETH_ZLEN);
- 	default:
--		return false;
-+		break;
- 	}
-+
-+	return padto;
- }
+-	ret = register_pernet_subsys(&afs_net_ops);
++	ret = register_pernet_device(&afs_net_ops);
+ 	if (ret < 0)
+ 		goto error_net;
  
- static void rtl8169_tso_csum_v1(struct sk_buff *skb, u32 *opts)
-@@ -4164,9 +4219,10 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+@@ -213,7 +213,7 @@ static int __init afs_init(void)
+ error_proc:
+ 	afs_fs_exit();
+ error_fs:
+-	unregister_pernet_subsys(&afs_net_ops);
++	unregister_pernet_device(&afs_net_ops);
+ error_net:
+ #ifdef CONFIG_AFS_FSCACHE
+ 	fscache_unregister_netfs(&afs_cache_netfs);
+@@ -244,7 +244,7 @@ static void __exit afs_exit(void)
  
- 		opts[1] |= transport_offset << TCPHO_SHIFT;
- 	} else {
--		if (unlikely(skb->len < ETH_ZLEN && rtl_test_hw_pad_bug(tp)))
--			/* eth_skb_pad would free the skb on error */
--			return !__skb_put_padto(skb, ETH_ZLEN, false);
-+		unsigned int padto = rtl_quirk_packet_padto(tp, skb);
-+
-+		/* skb_padto would free the skb on error */
-+		return !__skb_put_padto(skb, padto, false);
+ 	proc_remove(afs_proc_symlink);
+ 	afs_fs_exit();
+-	unregister_pernet_subsys(&afs_net_ops);
++	unregister_pernet_device(&afs_net_ops);
+ #ifdef CONFIG_AFS_FSCACHE
+ 	fscache_unregister_netfs(&afs_cache_netfs);
+ #endif
+diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
+index 0a2f4817ec6cf..41671af6b33f9 100644
+--- a/net/rxrpc/af_rxrpc.c
++++ b/net/rxrpc/af_rxrpc.c
+@@ -990,7 +990,7 @@ static int __init af_rxrpc_init(void)
+ 		goto error_security;
  	}
  
- 	return true;
-@@ -4349,6 +4405,9 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
- 		if (skb->len < ETH_ZLEN)
- 			features &= ~NETIF_F_CSUM_MASK;
+-	ret = register_pernet_subsys(&rxrpc_net_ops);
++	ret = register_pernet_device(&rxrpc_net_ops);
+ 	if (ret)
+ 		goto error_pernet;
  
-+		if (rtl_quirk_packet_padto(tp, skb))
-+			features &= ~NETIF_F_CSUM_MASK;
-+
- 		if (transport_offset > TCPHO_MAX &&
- 		    rtl_chip_supports_csum_v2(tp))
- 			features &= ~NETIF_F_CSUM_MASK;
+@@ -1035,7 +1035,7 @@ error_key_type:
+ error_sock:
+ 	proto_unregister(&rxrpc_proto);
+ error_proto:
+-	unregister_pernet_subsys(&rxrpc_net_ops);
++	unregister_pernet_device(&rxrpc_net_ops);
+ error_pernet:
+ 	rxrpc_exit_security();
+ error_security:
+@@ -1057,7 +1057,7 @@ static void __exit af_rxrpc_exit(void)
+ 	unregister_key_type(&key_type_rxrpc);
+ 	sock_unregister(PF_RXRPC);
+ 	proto_unregister(&rxrpc_proto);
+-	unregister_pernet_subsys(&rxrpc_net_ops);
++	unregister_pernet_device(&rxrpc_net_ops);
+ 	ASSERTCMP(atomic_read(&rxrpc_n_tx_skbs), ==, 0);
+ 	ASSERTCMP(atomic_read(&rxrpc_n_rx_skbs), ==, 0);
+ 
 -- 
 2.27.0
 
