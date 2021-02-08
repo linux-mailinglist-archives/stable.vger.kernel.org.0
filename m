@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7313A31363C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB4B3136EA
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233175AbhBHPHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:07:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S233465AbhBHPRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:17:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232174AbhBHPE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:04:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE3AE64E88;
-        Mon,  8 Feb 2021 15:03:45 +0000 (UTC)
+        id S233338AbhBHPMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:12:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59F5964EF5;
+        Mon,  8 Feb 2021 15:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796626;
-        bh=qxbqL2wn2WiMvVxuWXwglespm/qgMOjOSaH1vLuW1G8=;
+        s=korg; t=1612796964;
+        bh=nWE8prE+g082V2ukI4f+8bi9yIYRgdKWnNSP6749RXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMrnFJWw8GedMgwtUgIyaf1HnqgdLQ1w/AxQssouSO74biA1wA2vyc0aEgWQMub9A
-         7Rsvz8Zve8HN0zPfawkhB61psDxhJGMSNJ0wAA7cJhwND6+Pfr8sLhPN0lns+0yw7x
-         czwDuZHY9ZCsh1YLJuvgcV1kJHr2MyrSSY1yuwqw=
+        b=sH5mw3Yv8uZBYepYiQwCQzebRuteEcDYyK25PaF4AEZc+C2n1FI4qj+umJuQu0rml
+         xSdNobiojcDPjpWQTuRmSlmBhbyjkSHsjWO2s3szh5ihIcqtL2ItobC5RSGumkkZ3O
+         REmz0JBKKtWpTgbsmqDshUcdNqI/VdgLg59e/US4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 12/38] usb: udc: core: Use lock when write to soft_connect
+        stable@vger.kernel.org, Chenxin Jin <bg4akv@hotmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 02/65] USB: serial: cp210x: add new VID/PID for supporting Teraoka AD2000
 Date:   Mon,  8 Feb 2021 16:00:34 +0100
-Message-Id: <20210208145805.783244825@linuxfoundation.org>
+Message-Id: <20210208145810.332494144@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Chenxin Jin <bg4akv@hotmail.com>
 
-commit c28095bc99073ddda65e4f31f6ae0d908d4d5cd8 upstream
+commit 43377df70480f82919032eb09832e9646a8a5efb upstream.
 
-Use lock to guard against concurrent access for soft-connect/disconnect
-operations when writing to soft_connect sysfs.
+Teraoka AD2000 uses the CP210x driver, but the chip VID/PID is
+customized with 0988/0578. We need the driver to support the new
+VID/PID.
 
-Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
+Signed-off-by: Chenxin Jin <bg4akv@hotmail.com>
 Cc: stable@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: manual backporting to old file]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/udc-core.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/udc/udc-core.c
-+++ b/drivers/usb/gadget/udc/udc-core.c
-@@ -612,10 +612,13 @@ static ssize_t usb_udc_softconn_store(st
- 		struct device_attribute *attr, const char *buf, size_t n)
- {
- 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
-+	ssize_t			ret;
- 
-+	mutex_lock(&udc_lock);
- 	if (!udc->driver) {
- 		dev_err(dev, "soft-connect without a gadget driver\n");
--		return -EOPNOTSUPP;
-+		ret = -EOPNOTSUPP;
-+		goto out;
- 	}
- 
- 	if (sysfs_streq(buf, "connect")) {
-@@ -627,10 +630,14 @@ static ssize_t usb_udc_softconn_store(st
- 		usb_gadget_udc_stop(udc);
- 	} else {
- 		dev_err(dev, "unsupported command '%s'\n", buf);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 
--	return n;
-+	ret = n;
-+out:
-+	mutex_unlock(&udc_lock);
-+	return ret;
- }
- static DEVICE_ATTR(soft_connect, S_IWUSR, NULL, usb_udc_softconn_store);
- 
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -61,6 +61,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
+ 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
+ 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
++	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
+ 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
+ 	{ USB_DEVICE(0x0BED, 0x1100) }, /* MEI (TM) Cashflow-SC Bill/Voucher Acceptor */
+ 	{ USB_DEVICE(0x0BED, 0x1101) }, /* MEI series 2000 Combo Acceptor */
 
 
