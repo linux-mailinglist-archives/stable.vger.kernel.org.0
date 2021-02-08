@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B01F0313667
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712A03136A0
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231912AbhBHPKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S233448AbhBHPNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:13:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231669AbhBHPHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:07:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4545B64EE8;
-        Mon,  8 Feb 2021 15:05:31 +0000 (UTC)
+        id S231712AbhBHPKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BB4964ECE;
+        Mon,  8 Feb 2021 15:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796732;
-        bh=liUZjemuX4P1yam1jd92H6v+ONRJGO6qtZ6S8SaJg8s=;
+        s=korg; t=1612796826;
+        bh=EP0As8b8o54ANmz+T5tH6zr/XFh5VoStjihUNb4XJ2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4HiifJsZV7URJxgUXqK6Om/3Pb0eMVKVSh40MKC/hOHm56A78lkHZ8ghOEnB2d+e
-         yvcQDOE/IgxeVGkNReJwVChkN5CzYLiDWoUIvyt0tbB8dTNGo3ViKxRFlAbGG4gseB
-         X1IRLj8Yk3ZHbdT4jgvt7W/UUDwYuDB4Mfsgwrys=
+        b=r/7/SSMGsKy80YHQ9zRVLm5D6Caqp4l3AP803gLkMJkPNFYM5wHYvgfuNXyCSC7Fl
+         wUkO7eUjPNK8/Zav1oUwhl1RURsPIXRSnpvvkdqDWPTB4ZaoUuw9rtLo08GFvvX5Ky
+         TKzIXv1/Mis5M7YB5G0JH+OtJAQvj/I7lxLnTqUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.9 25/43] USB: gadget: legacy: fix an error code in eth_bind()
+        stable@vger.kernel.org, Zyta Szpak <zr@semihalf.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/30] arm64: dts: ls1046a: fix dcfg address range
 Date:   Mon,  8 Feb 2021 16:00:51 +0100
-Message-Id: <20210208145807.345536227@linuxfoundation.org>
+Message-Id: <20210208145805.470299974@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zyta Szpak <zr@semihalf.com>
 
-commit 3e1f4a2e1184ae6ad7f4caf682ced9554141a0f4 upstream.
+[ Upstream commit aa880c6f3ee6dbd0d5ab02026a514ff8ea0a3328 ]
 
-This code should return -ENOMEM if the allocation fails but it currently
-returns success.
+Dcfg was overlapping with clockgen address space which resulted
+in failure in memory allocation for dcfg. According regs description
+dcfg size should not be bigger than 4KB.
 
-Fixes: 9b95236eebdb ("usb: gadget: ether: allocate and init otg descriptor by otg capabilities")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YBKE9rqVuJEOUWpW@mwanda
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zyta Szpak <zr@semihalf.com>
+Fixes: 8126d88162a5 ("arm64: dts: add QorIQ LS1046A SoC support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/ether.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/legacy/ether.c
-+++ b/drivers/usb/gadget/legacy/ether.c
-@@ -407,8 +407,10 @@ static int eth_bind(struct usb_composite
- 		struct usb_descriptor_header *usb_desc;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+index c8ff0baddf1d0..cb49d21e317c0 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+@@ -304,7 +304,7 @@
  
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail1;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+ 		dcfg: dcfg@1ee0000 {
+ 			compatible = "fsl,ls1046a-dcfg", "syscon";
+-			reg = <0x0 0x1ee0000 0x0 0x10000>;
++			reg = <0x0 0x1ee0000 0x0 0x1000>;
+ 			big-endian;
+ 		};
+ 
+-- 
+2.27.0
+
 
 
