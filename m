@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF20313804
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D3A3137EC
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbhBHPfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:35:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S231954AbhBHPdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:33:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232353AbhBHPSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:18:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 783FA64EC3;
-        Mon,  8 Feb 2021 15:12:23 +0000 (UTC)
+        id S233034AbhBHP3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:29:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9248964F2A;
+        Mon,  8 Feb 2021 15:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797144;
-        bh=7x1RtK3j6ej2txRsFyn5vOqqlVJ+xupbVIGHvKDOdVo=;
+        s=korg; t=1612797394;
+        bh=9aN0FJX0jOlDuAPMqXBlCxY3IMNfEnOHwsCbfDjUC5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EK2R5cPoVZUDuXMJudPF+OTkX5LwqqUpdpOzYgW6n/B3w7aybZRonkUHm0GYD4fSB
-         xI1QwgCgmbaiUS4OCBZ0eMUDmiEmxRrvJaSV8Wuc56z0Me6UENall6gCrgyN3b0ROe
-         250ixFh793em9E7iFp73GTgJ09BqqIN0RYdc0v0I=
+        b=rq8d4nOwQ2UOalSPBkgBhum/LSzYY8aRcBLPtpxGW08kKLd5zmmN3nyy7QUYDfvjw
+         Tu1aFHI1JLfqHhzAta5GRqbo8XXOTEUZF6kyZ7ugBd7e9vsZ39jvLrVy05ue2RNTXN
+         TpdHw8vX7l+jjPiF39foU3Q2kxItuLTPHEHPRlag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 48/65] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 093/120] KVM: x86: Set so called reserved CR3 bits in LM mask at vCPU reset
 Date:   Mon,  8 Feb 2021 16:01:20 +0100
-Message-Id: <20210208145812.074719342@linuxfoundation.org>
+Message-Id: <20210208145822.104891461@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
+References: <20210208145818.395353822@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
+commit 031b91a5fe6f1ce61b7617614ddde9ed61e252be upstream.
 
-If a new hugetlb page is allocated during fallocate it will not be
-marked as active (set_page_huge_active) which will result in a later
-isolate_huge_page failure when the page migration code would like to
-move that page.  Such a failure would be unexpected and wrong.
+Set cr3_lm_rsvd_bits, which is effectively an invalid GPA mask, at vCPU
+reset.  The reserved bits check needs to be done even if userspace never
+configures the guest's CPUID model.
 
-Only export set_page_huge_active, just leave clear_page_huge_active as
-static.  Because there are no external users.
-
-Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
-Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 0107973a80ad ("KVM: x86: Introduce cr3_lm_rsvd_bits in kvm_vcpu_arch")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210204000117.3303214-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c    |    3 ++-
- include/linux/hugetlb.h |    2 ++
- mm/hugetlb.c            |    2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -675,9 +675,10 @@ static long hugetlbfs_fallocate(struct f
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9915,6 +9915,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu
+ 	fx_init(vcpu);
  
- 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 	vcpu->arch.maxphyaddr = cpuid_query_maxphyaddr(vcpu);
++	vcpu->arch.cr3_lm_rsvd_bits = rsvd_bits(cpuid_maxphyaddr(vcpu), 63);
  
-+		set_page_huge_active(page);
- 		/*
- 		 * unlock_page because locked by add_to_page_cache()
--		 * page_put due to reference from alloc_huge_page()
-+		 * put_page() due to reference from alloc_huge_page()
- 		 */
- 		unlock_page(page);
- 		put_page(page);
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -590,6 +590,8 @@ static inline void huge_ptep_modify_prot
- }
- #endif
+ 	vcpu->arch.pat = MSR_IA32_CR_PAT_DEFAULT;
  
-+void set_page_huge_active(struct page *page);
-+
- #else	/* CONFIG_HUGETLB_PAGE */
- struct hstate {};
- 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1222,7 +1222,7 @@ bool page_huge_active(struct page *page)
- }
- 
- /* never called for tail page */
--static void set_page_huge_active(struct page *page)
-+void set_page_huge_active(struct page *page)
- {
- 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
- 	SetPagePrivate(&page[1]);
 
 
