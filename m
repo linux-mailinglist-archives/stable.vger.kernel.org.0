@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE773136E8
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1BA431374D
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231961AbhBHPRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S233854AbhBHPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:23:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232327AbhBHPMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:12:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA1B164ECA;
-        Mon,  8 Feb 2021 15:09:11 +0000 (UTC)
+        id S233561AbhBHPQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:16:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E354264EB7;
+        Mon,  8 Feb 2021 15:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796952;
-        bh=oTkl4RVS8pW7MLcGQ+CDcaewkP1WqnNPKk2hCmXE9kY=;
+        s=korg; t=1612797094;
+        bh=+fF83vxu9EJPbBZoR/JEQPnOKw1kMtIEdjCW3EFULrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1TVoBv6FJ1upzqXEcR3VUSAn4JFYY4d3fJW784Mgow2T9AYbNZZJAVfXyBegSN6s
-         nBeIWZxdvBsN7NIvGVIgf1ILBKevs+1LPZ6DgMEu56NYOsINel+3rWMixdcVHwxosj
-         gOxwyTwnGhOkTjXEEHiHeib2xXQgjVrjI0gg+Cdk=
+        b=p/ieBLNh7E4cg6RMK0tL7oNypH6Da1QT1LC6nu13Mdkfi4WztFST+liMACPekbyyj
+         wiJZ6AW6pggDbYgSLyGAchS9mSAj2zsCoMPlCGhH26iaZwJaNaoLL0eqzsjuMDS5VK
+         SKjALhoMMBPiC2BW3QqqtBAhPAl7j368VdK3brGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Valentin <benpicco@googlemail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 34/38] Input: xpad - sync supported devices with fork on GitHub
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 49/65] mm: hugetlb: fix a race between freeing and dissolving the page
 Date:   Mon,  8 Feb 2021 16:01:21 +0100
-Message-Id: <20210208145807.526358759@linuxfoundation.org>
+Message-Id: <20210208145812.116273487@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +45,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Valentin <benpicco@googlemail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 upstream.
+commit 7ffddd499ba6122b1a07828f023d1d67629aa017 upstream.
 
-There is a fork of this driver on GitHub [0] that has been updated
-with new device IDs.
+There is a race condition between __free_huge_page()
+and dissolve_free_huge_page().
 
-Merge those into the mainline driver, so the out-of-tree fork is not
-needed for users of those devices anymore.
+  CPU0:                         CPU1:
 
-[0] https://github.com/paroj/xpad
+  // page_count(page) == 1
+  put_page(page)
+    __free_huge_page(page)
+                                dissolve_free_huge_page(page)
+                                  spin_lock(&hugetlb_lock)
+                                  // PageHuge(page) && !page_count(page)
+                                  update_and_free_page(page)
+                                  // page is freed to the buddy
+                                  spin_unlock(&hugetlb_lock)
+      spin_lock(&hugetlb_lock)
+      clear_page_huge_active(page)
+      enqueue_huge_page(page)
+      // It is wrong, the page is already freed
+      spin_unlock(&hugetlb_lock)
 
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
-Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The race window is between put_page() and dissolve_free_huge_page().
+
+We should make sure that the page is already on the free list when it is
+dissolved.
+
+As a result __free_huge_page would corrupt page(s) already in the buddy
+allocator.
+
+Link: https://lkml.kernel.org/r/20210115124942.46403-4-songmuchun@bytedance.com
+Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ mm/hugetlb.c |   39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -229,9 +229,17 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
-@@ -310,6 +318,9 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
-+	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-@@ -443,8 +454,12 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
- 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
-+	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
-+	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
- 	{ }
- };
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -71,6 +71,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
+ static int num_fault_mutexes;
+ struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
  
++static inline bool PageHugeFreed(struct page *head)
++{
++	return page_private(head + 4) == -1UL;
++}
++
++static inline void SetPageHugeFreed(struct page *head)
++{
++	set_page_private(head + 4, -1UL);
++}
++
++static inline void ClearPageHugeFreed(struct page *head)
++{
++	set_page_private(head + 4, 0);
++}
++
+ /* Forward declaration */
+ static int hugetlb_acct_memory(struct hstate *h, long delta);
+ 
+@@ -869,6 +884,7 @@ static void enqueue_huge_page(struct hst
+ 	list_move(&page->lru, &h->hugepage_freelists[nid]);
+ 	h->free_huge_pages++;
+ 	h->free_huge_pages_node[nid]++;
++	SetPageHugeFreed(page);
+ }
+ 
+ static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
+@@ -886,6 +902,7 @@ static struct page *dequeue_huge_page_no
+ 		return NULL;
+ 	list_move(&page->lru, &h->hugepage_activelist);
+ 	set_page_refcounted(page);
++	ClearPageHugeFreed(page);
+ 	h->free_huge_pages--;
+ 	h->free_huge_pages_node[nid]--;
+ 	return page;
+@@ -1375,6 +1392,7 @@ static void prep_new_huge_page(struct hs
+ 	set_hugetlb_cgroup(page, NULL);
+ 	h->nr_huge_pages++;
+ 	h->nr_huge_pages_node[nid]++;
++	ClearPageHugeFreed(page);
+ 	spin_unlock(&hugetlb_lock);
+ }
+ 
+@@ -1602,6 +1620,7 @@ int dissolve_free_huge_page(struct page
+ {
+ 	int rc = -EBUSY;
+ 
++retry:
+ 	/* Not to disrupt normal path by vainly holding hugetlb_lock */
+ 	if (!PageHuge(page))
+ 		return 0;
+@@ -1618,6 +1637,26 @@ int dissolve_free_huge_page(struct page
+ 		int nid = page_to_nid(head);
+ 		if (h->free_huge_pages - h->resv_huge_pages == 0)
+ 			goto out;
++
++		/*
++		 * We should make sure that the page is already on the free list
++		 * when it is dissolved.
++		 */
++		if (unlikely(!PageHugeFreed(head))) {
++			spin_unlock(&hugetlb_lock);
++			cond_resched();
++
++			/*
++			 * Theoretically, we should return -EBUSY when we
++			 * encounter this race. In fact, we have a chance
++			 * to successfully dissolve the page if we do a
++			 * retry. Because the race window is quite small.
++			 * If we seize this opportunity, it is an optimization
++			 * for increasing the success rate of dissolving page.
++			 */
++			goto retry;
++		}
++
+ 		/*
+ 		 * Move PageHWPoison flag from head page to the raw error page,
+ 		 * which makes any subpages rather than the error page reusable.
 
 
