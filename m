@@ -2,33 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F78313820
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BD09313826
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233158AbhBHPg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:36:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38662 "EHLO mail.kernel.org"
+        id S231388AbhBHPhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:37:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233937AbhBHPby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:31:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D411064E87;
-        Mon,  8 Feb 2021 15:17:29 +0000 (UTC)
+        id S233955AbhBHPcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:32:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E78D064F38;
+        Mon,  8 Feb 2021 15:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797450;
-        bh=Ly7jcL+VBICn8kff0MRqia8hg7fxON4+szUyRyHSIpo=;
+        s=korg; t=1612797470;
+        bh=tZH2xiQ/QmLOR9b6IIEglTWN46YHukGUgqV/5Jbi6gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Go4Lat/Wb0JtRH1bL2w1/2L3nmMbkJTin00fYVGuseg/KwCHCMwZu4VGI2jw+6INa
-         /gHQbhXXNRwmZSqly3CJg2Pi7DMwKnTBQQ44fJIXnZ5ivOd+IbpXxmY0M1793MCOJn
-         O1apt5lNA05G6mFQkMLsWM5BMw4oBZi7bGPZK+v8=
+        b=CNw2lFB/e7jxzC8WFC9/dXd4c/oTbfaWEN/2Ao72vlayjJpaohYSUMgqTYozW5Rwj
+         q7w11OefkQPB97CneS6D/h+1WrTqREbaikx5PNXDKsoqLFLD71Xk8QW75ZRCz7Hema
+         kkJrC1FKgRRMINphEYNzVD15Ao6LrJNqdBbICrJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 097/120] ARM: 9043/1: tegra: Fix misplaced tegra_uart_config in decompressor
-Date:   Mon,  8 Feb 2021 16:01:24 +0100
-Message-Id: <20210208145822.250611748@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 098/120] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+Date:   Mon,  8 Feb 2021 16:01:25 +0100
+Message-Id: <20210208145822.286842726@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,93 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 538eea5362a1179dfa7770dd2b6607dc30cc50c6 upstream.
+commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
 
-The tegra_uart_config of the DEBUG_LL code is now placed right at the
-start of the .text section after commit which enabled debug output in the
-decompressor. Tegra devices are not booting anymore if DEBUG_LL is enabled
-since tegra_uart_config data is executes as a code. Fix the misplaced
-tegra_uart_config storage by embedding it into the code.
+If a new hugetlb page is allocated during fallocate it will not be
+marked as active (set_page_huge_active) which will result in a later
+isolate_huge_page failure when the page migration code would like to
+move that page.  Such a failure would be unexpected and wrong.
 
-Cc: stable@vger.kernel.org
-Fixes: 2596a72d3384 ("ARM: 9009/1: uncompress: Enable debug in head.S")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Only export set_page_huge_active, just leave clear_page_huge_active as
+static.  Because there are no external users.
+
+Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
+Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/debug/tegra.S |   54 ++++++++++++++++++++---------------------
- 1 file changed, 27 insertions(+), 27 deletions(-)
+ fs/hugetlbfs/inode.c    |    3 ++-
+ include/linux/hugetlb.h |    2 ++
+ mm/hugetlb.c            |    2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/arm/include/debug/tegra.S
-+++ b/arch/arm/include/debug/tegra.S
-@@ -149,7 +149,34 @@
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -735,9 +735,10 @@ static long hugetlbfs_fallocate(struct f
  
- 		.align
- 99:		.word	.
-+#if defined(ZIMAGE)
-+		.word	. + 4
-+/*
-+ * Storage for the state maintained by the macro.
-+ *
-+ * In the kernel proper, this data is located in arch/arm/mach-tegra/tegra.c.
-+ * That's because this header is included from multiple files, and we only
-+ * want a single copy of the data. In particular, the UART probing code above
-+ * assumes it's running using physical addresses. This is true when this file
-+ * is included from head.o, but not when included from debug.o. So we need
-+ * to share the probe results between the two copies, rather than having
-+ * to re-run the probing again later.
-+ *
-+ * In the decompressor, we put the storage right here, since common.c
-+ * isn't included in the decompressor build. This storage data gets put in
-+ * .text even though it's really data, since .data is discarded from the
-+ * decompressor. Luckily, .text is writeable in the decompressor, unless
-+ * CONFIG_ZBOOT_ROM. That dependency is handled in arch/arm/Kconfig.debug.
-+ */
-+		/* Debug UART initialization required */
-+		.word	1
-+		/* Debug UART physical address */
-+		.word	0
-+		/* Debug UART virtual address */
-+		.word	0
-+#else
- 		.word	tegra_uart_config
-+#endif
- 		.ltorg
+ 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
  
- 		/* Load previously selected UART address */
-@@ -189,30 +216,3 @@
++		set_page_huge_active(page);
+ 		/*
+ 		 * unlock_page because locked by add_to_page_cache()
+-		 * page_put due to reference from alloc_huge_page()
++		 * put_page() due to reference from alloc_huge_page()
+ 		 */
+ 		unlock_page(page);
+ 		put_page(page);
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -770,6 +770,8 @@ static inline void huge_ptep_modify_prot
+ }
+ #endif
  
- 		.macro	waituarttxrdy,rd,rx
- 		.endm
--
--/*
-- * Storage for the state maintained by the macros above.
-- *
-- * In the kernel proper, this data is located in arch/arm/mach-tegra/tegra.c.
-- * That's because this header is included from multiple files, and we only
-- * want a single copy of the data. In particular, the UART probing code above
-- * assumes it's running using physical addresses. This is true when this file
-- * is included from head.o, but not when included from debug.o. So we need
-- * to share the probe results between the two copies, rather than having
-- * to re-run the probing again later.
-- *
-- * In the decompressor, we put the symbol/storage right here, since common.c
-- * isn't included in the decompressor build. This symbol gets put in .text
-- * even though it's really data, since .data is discarded from the
-- * decompressor. Luckily, .text is writeable in the decompressor, unless
-- * CONFIG_ZBOOT_ROM. That dependency is handled in arch/arm/Kconfig.debug.
-- */
--#if defined(ZIMAGE)
--tegra_uart_config:
--	/* Debug UART initialization required */
--	.word 1
--	/* Debug UART physical address */
--	.word 0
--	/* Debug UART virtual address */
--	.word 0
--#endif
++void set_page_huge_active(struct page *page);
++
+ #else	/* CONFIG_HUGETLB_PAGE */
+ struct hstate {};
+ 
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1349,7 +1349,7 @@ bool page_huge_active(struct page *page)
+ }
+ 
+ /* never called for tail page */
+-static void set_page_huge_active(struct page *page)
++void set_page_huge_active(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
+ 	SetPagePrivate(&page[1]);
 
 
