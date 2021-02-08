@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D25843137A2
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E93931360F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbhBHP20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:28:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35332 "EHLO mail.kernel.org"
+        id S231137AbhBHPF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:05:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233844AbhBHPXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:23:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B32D64EA4;
-        Mon,  8 Feb 2021 15:14:26 +0000 (UTC)
+        id S232876AbhBHPD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:03:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E7F64EB7;
+        Mon,  8 Feb 2021 15:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797266;
-        bh=S1coIZflJIvUE2Km3MzTAR00e0rZwype0VVf6gZi52E=;
+        s=korg; t=1612796606;
+        bh=5n1+5pAYKydUCiYwImBD9lr7EVtVsDVK+XpcP8nmQNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xK84ni+wBEVdQi4hxeC7K0ORdCDh3g168wCVa20LwUXzxKNGutYQxCFgx+k80yIEi
-         pUWBfaxaVL1YE2tJRGOStZrJjbpjhXaAi95lF8nv8Qt6Yw7T2zsmTwjAJIRHr9R7D9
-         7csxv7kuuM/u1N1tFOBuvU858Cn5FCVOA6Lnt+WM=
+        b=kmvpBhnPW7osq9RSpeWmaGTnObtvBCAOAjz4Mm2tRei4w6gvevo8KXmX6EsZj75p/
+         ws1YATvSLdGKYEull7SYQBMRTyS8UdKgj9hvLwNb6o/FXBVVc12bVf2gZ8YeCCMdgD
+         Da21R9Lz1uu6YO4mZIKRDzAlg632Jbcd/VLlNqZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/120] nvmet-tcp: fix out-of-bounds access when receiving multiple h2cdata PDUs
-Date:   Mon,  8 Feb 2021 16:00:36 +0100
-Message-Id: <20210208145820.379544245@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 15/38] stable: clamp SUBLEVEL in 4.4 and 4.9
+Date:   Mon,  8 Feb 2021 16:00:37 +0100
+Message-Id: <20210208145805.898658055@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+Right now SUBLEVEL is overflowing, and some userspace may start treating
+4.9.256 as 4.10. While out of tree modules have different ways of
+  extracting the version number (and we're generally ok with breaking
+them), we do care about breaking userspace and it would appear that this
+overflow might do just that.
 
-[ Upstream commit cb8563f5c735a042ea2dd7df1ad55ae06d63ffeb ]
+Our rules around userspace ABI in the stable kernel are pretty simple:
+we don't break it. Thus, while userspace may be checking major/minor, it
+shouldn't be doing anything with sublevel.
 
-When the host sends multiple h2cdata PDUs, we keep track on
-the receive progress and calculate the scatterlist index and
-offsets.
+This patch applies a big band-aid to the 4.9 and 4.4 kernels in the form
+of clamping their sublevel to 255.
 
-The issue is that sg_offset should only be kept for the first
-iov entry we map in the iovec as this is the difference between
-our cursor and the sg entry offset itself.
+The clamp is done for the purpose of LINUX_VERSION_CODE only, and
+extracting the version number from the Makefile or "make kernelversion"
+will continue to work as intended.
 
-In addition, the sg index was calculated wrong because we should
-not round up when dividing the command byte offset with PAG_SIZE.
+We might need to do it later in newer trees, but maybe we'll have a
+better solution by then, so I'm ignoring that problem for now.
 
-Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
-Reported-by: Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>
-Tested-by: Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index dc1f0f6471896..aacf06f0b4312 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -305,7 +305,7 @@ static void nvmet_tcp_map_pdu_iovec(struct nvmet_tcp_cmd *cmd)
- 	length = cmd->pdu_len;
- 	cmd->nr_mapped = DIV_ROUND_UP(length, PAGE_SIZE);
- 	offset = cmd->rbytes_done;
--	cmd->sg_idx = DIV_ROUND_UP(offset, PAGE_SIZE);
-+	cmd->sg_idx = offset / PAGE_SIZE;
- 	sg_offset = offset % PAGE_SIZE;
- 	sg = &cmd->req.sg[cmd->sg_idx];
+--- a/Makefile
++++ b/Makefile
+@@ -1068,7 +1068,7 @@ endef
  
-@@ -318,6 +318,7 @@ static void nvmet_tcp_map_pdu_iovec(struct nvmet_tcp_cmd *cmd)
- 		length -= iov_len;
- 		sg = sg_next(sg);
- 		iov++;
-+		sg_offset = 0;
- 	}
+ define filechk_version.h
+ 	(echo \#define LINUX_VERSION_CODE $(shell                         \
+-	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
++	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
+ 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
+ endef
  
- 	iov_iter_kvec(&cmd->recv_msg.msg_iter, READ, cmd->iov,
--- 
-2.27.0
-
 
 
