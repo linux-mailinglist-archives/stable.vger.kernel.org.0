@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67904312EB0
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E51312EAF
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbhBHKP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 05:15:26 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:46729 "EHLO
+        id S232064AbhBHKPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 05:15:18 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:46071 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232046AbhBHKNH (ORCPT
+        by vger.kernel.org with ESMTP id S232062AbhBHKNH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:13:07 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 720A0A3E;
-        Mon,  8 Feb 2021 05:12:16 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:12:16 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 0FCECA62;
+        Mon,  8 Feb 2021 05:12:18 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 08 Feb 2021 05:12:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LMwWm/
-        WiIqUAN3WBu1kxpzbU6YVNrRVfMzG9mR9B/9Y=; b=Uok14e1LwYTI3PvBCD00rw
-        byT90QHDmTLC1wa+nCKR0haDqkcizhDNV8Z81ZBcGrrAvH0cAtinlAj/4puuDau4
-        fs6/RpLHK3AXU6L7D5N6Nt5QP8o6/+KHctkb0RWg3UY3rYw5cwVLH8QUBsHYh5fk
-        XJOUaWLcVBOqUrQIay2MLajZF0xKNYjowIFTiMDQspModyku6SwWQeQ5cvQG442j
-        VxAWo8NMdHwTu4bzMszgQzIaLZw/umHr1jm6BCzhT8i9In6+lfDyhrsCAuxh1PgI
-        QjEHRJv81X198CNI24g90Zk72muHgc19/2isU4G3+ngZGYAHlgE5+mFWTldBelKA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DwtmhL
+        eiVnfnQToSgvGoZ0lvirNwjWdWANSsnhzDOC8=; b=kpA6oyiAVmzj9BIdRaWNjC
+        c63fZtPq39G7C9fLBGTRvnXPAehQr3/xJufFQfy0JPVN3IVrRKGfqe9BvLc38EZJ
+        Yx2Ll8m0O7ddepqkAUmIMW6aHmgbMPLsn+S+CfftBqfsmG6l1GUNDBiSlS5e5Nkv
+        P3PtzYNKFhGtw2YolsJYMpMMlox3lTdvsKhPwiipj7L1Gyn7/SOt9StXsLkjl6Fy
+        QaE2R6yzKddPFesyt/XX0oyawETTpn8AhWltPUBXyBiCJadGFhnw/nAPjJNIc4fe
+        UwgdL/vXFwzCFGJeZKRWx+vPUtq5JITFvE5QkbQHxDAFsN1JIFpc19rF+H3/893w
         ==
-X-ME-Sender: <xms:fw4hYLYHyXTKNVdaA2PzLsF5VCKg1iRX5KyxNe8HmGizWfbFeuHbHw>
-    <xme:fw4hYKboQ442nycSJddlLH6-CG8ZYE9vegwA2swruH0axDt7IIs7da3Ty0tZLr1Cd
-    Xr0vPHPSrJ8oQ>
+X-ME-Sender: <xms:gQ4hYFMz43ADBKLloyMmzcPu5hdYZN7KRwnWiC5B80t92t1RFHc_6w>
+    <xme:gQ4hYH7t0uOQ4ScK6gHKF1pvAeXQuFFu0o3e0TRmehIRPNU6k3WJVtRPYC1TThE7w
+    ZaMxAJqhHbkbg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdduvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdduvdcutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:fw4hYN-KV_rZgcU1sW-8bte6C8KPG6WBtS6DqTYt1rFDtwPRqhBtgQ>
-    <xmx:fw4hYBrngepY-0Wx-XKyZgKhCxfe8UQoPIPtbpAu6mFu_rcAltRhkQ>
-    <xmx:fw4hYGqGLGNuEeBIeJ1Z9Vlpb1Ay8Ga1-Y-i6PhC-nfFB5M5LkZINw>
-    <xmx:gA4hYEFKAq7wFQO38Ufd9sO8Q0u5Ckek0p3VzjkBTRlrEBacfXo9-CqdFE8>
+X-ME-Proxy: <xmx:gQ4hYBJIe1eJ7oGUmImPTou7xP2Uy6BQbEABtPCWooMqBST0fC4rFQ>
+    <xmx:gQ4hYJfIgNCRJHY8NMzSv84sgSMWUzWFzsiHbuH5KIaFL0yIZg6TxQ>
+    <xmx:gQ4hYMcbQGcaXDQvO-bkBzgRKfvwGFGdjOHDuizAeYg3-8yzsqNcGw>
+    <xmx:gQ4hYBH9jNapCGcpLBnpYY05na5_h4UthaWY48VvN9g-1ttrX5nOfWa9MTE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7E8DF24005C;
-        Mon,  8 Feb 2021 05:12:15 -0500 (EST)
-Subject: FAILED: patch "[PATCH] fgraph: Initialize tracing_graph_pause at task creation" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4C4361080066;
+        Mon,  8 Feb 2021 05:12:17 -0500 (EST)
+Subject: FAILED: patch "[PATCH] fgraph: Initialize tracing_graph_pause at task creation" failed to apply to 4.14-stable tree
 To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Feb 2021 11:12:13 +0100
-Message-ID: <1612779133110235@kroah.com>
+Date:   Mon, 08 Feb 2021 11:12:14 +0100
+Message-ID: <161277913410730@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
