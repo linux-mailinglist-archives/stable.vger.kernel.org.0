@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4C33136BF
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6032313731
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbhBHPOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:14:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S233743AbhBHPV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232824AbhBHPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:10:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA1F264ED9;
-        Mon,  8 Feb 2021 15:06:54 +0000 (UTC)
+        id S231782AbhBHPPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E151B64ECC;
+        Mon,  8 Feb 2021 15:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796815;
-        bh=/0vmvTyqyQLYYl28kytAgxlDqrUtpPoNNuM/KZX1vQA=;
+        s=korg; t=1612797062;
+        bh=+eNF35DoJrXJpVdyv1WkaPTZ4N2uXYixGb+GnufcBMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CI2H7VqYvwfej3HzXUdBwMtJvrSRowk/voK+X/UVZBckMdTrmn+hXoN3urdoyg2lA
-         UAJlHf2s8slEhve0TImKr8khGi5jUbdRB7rgWFYUsyPO/6GE7ahzXQqQRxHziC1urG
-         ddFm4wptN6NQgQJUMw7FQfZDp6HULOmPqXaDa+nA=
+        b=TwOezqdjhssBNv9Pf4e7lc59fpateJWjhv9hzG5UV91wwwV6H76PU8S8oFXq4V1JL
+         YUO260t0QoDD/juEXyF1rTJfK1Etd4xdDU3ymJtJEfplBBaASIWZgVZ7RUSg6ObzQ0
+         VfXMTRXDq5RnzMhopL0tyFJ1K6yT9li4Bxis7gXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.14 29/30] iommu/vt-d: Do not use flush-queue when caching-mode is on
-Date:   Mon,  8 Feb 2021 16:01:15 +0100
-Message-Id: <20210208145806.407716534@linuxfoundation.org>
+        stable@vger.kernel.org, Thorsten Leemhuis <linux@leemhuis.info>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.4 44/65] nvme-pci: avoid the deepest sleep state on Kingston A2000 SSDs
+Date:   Mon,  8 Feb 2021 16:01:16 +0100
+Message-Id: <20210208145811.922714357@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Thorsten Leemhuis <linux@leemhuis.info>
 
-commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
+commit 538e4a8c571efdf131834431e0c14808bcfb1004 upstream.
 
-When an Intel IOMMU is virtualized, and a physical device is
-passed-through to the VM, changes of the virtual IOMMU need to be
-propagated to the physical IOMMU. The hypervisor therefore needs to
-monitor PTE mappings in the IOMMU page-tables. Intel specifications
-provide "caching-mode" capability that a virtual IOMMU uses to report
-that the IOMMU is virtualized and a TLB flush is needed after mapping to
-allow the hypervisor to propagate virtual IOMMU mappings to the physical
-IOMMU. To the best of my knowledge no real physical IOMMU reports
-"caching-mode" as turned on.
+Some Kingston A2000 NVMe SSDs sooner or later get confused and stop
+working when they use the deepest APST sleep while running Linux. The
+system then crashes and one has to cold boot it to get the SSD working
+again.
 
-Synchronizing the virtual and the physical IOMMU tables is expensive if
-the hypervisor is unaware which PTEs have changed, as the hypervisor is
-required to walk all the virtualized tables and look for changes.
-Consequently, domain flushes are much more expensive than page-specific
-flushes on virtualized IOMMUs with passthrough devices. The kernel
-therefore exploited the "caching-mode" indication to avoid domain
-flushing and use page-specific flushing in virtualized environments. See
-commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
-mode.")
+Kingston seems to known about this since at least mid-September 2020:
+https://bbs.archlinux.org/viewtopic.php?pid=1926994#p1926994
 
-This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
-of iova deferred flushing"). Now, when batched TLB flushing is used (the
-default), full TLB domain flushes are performed frequently, requiring
-the hypervisor to perform expensive synchronization between the virtual
-TLB and the physical one.
+Someone working for a German company representing Kingston to the German
+press confirmed to me Kingston engineering is aware of the issue and
+investigating; the person stated that to their current knowledge only
+the deepest APST sleep state causes trouble. Therefore, make Linux avoid
+it for now by applying the NVME_QUIRK_NO_DEEPEST_PS to this SSD.
 
-Getting batched TLB flushes to use page-specific invalidations again in
-such circumstances is not easy, since the TLB invalidation scheme
-assumes that "full" domain TLB flushes are performed for scalability.
+I have two such SSDs, but it seems the problem doesn't occur with them.
+I hence couldn't verify if this patch really fixes the problem, but all
+the data in front of me suggests it should.
 
-Disable batched TLB flushes when caching-mode is on, as the performance
-benefit from using batched TLB invalidations is likely to be much
-smaller than the overhead of the virtual-to-physical IOMMU page-tables
-synchronization.
+This patch can easily be reverted or improved upon if a better solution
+surfaces.
 
-Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Nadav Amit <namit@vmware.com>
+FWIW, there are many reports about the issue scattered around the web;
+most of the users disabled APST completely to make things work, some
+just made Linux avoid the deepest sleep state:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c65
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c73
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c74
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c78
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c79
+https://bugzilla.kernel.org/show_bug.cgi?id=195039#c80
+https://askubuntu.com/questions/1222049/nvmekingston-a2000-sometimes-stops-giving-response-in-ubuntu-18-04dell-inspir
+https://community.acer.com/en/discussion/604326/m-2-nvme-ssd-aspire-517-51g-issue-compatibility-kingston-a2000-linux-ubuntu
+
+For the record, some data from 'nvme id-ctrl /dev/nvme0'
+
+NVME Identify Controller:
+vid       : 0x2646
+ssvid     : 0x2646
+mn        : KINGSTON SA2000M81000G
+fr        : S5Z42105
+[...]
+ps    0 : mp:9.00W operational enlat:0 exlat:0 rrt:0 rrl:0
+          rwt:0 rwl:0 idle_power:- active_power:-
+ps    1 : mp:4.60W operational enlat:0 exlat:0 rrt:1 rrl:1
+          rwt:1 rwl:1 idle_power:- active_power:-
+ps    2 : mp:3.80W operational enlat:0 exlat:0 rrt:2 rrl:2
+          rwt:2 rwl:2 idle_power:- active_power:-
+ps    3 : mp:0.0450W non-operational enlat:2000 exlat:2000 rrt:3 rrl:3
+          rwt:3 rwl:3 idle_power:- active_power:-
+ps    4 : mp:0.0040W non-operational enlat:15000 exlat:15000 rrt:4 rrl:4
+          rwt:4 rwl:4 idle_power:- active_power:-
+
+Cc: stable@vger.kernel.org # 4.14+
+Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iommu/intel-iommu.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/nvme/host/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3338,6 +3338,12 @@ static int __init init_dmars(void)
- 
- 		if (!ecap_pass_through(iommu->ecap))
- 			hw_pass_through = 0;
-+
-+		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
-+			pr_info("Disable batched IOTLB flush due to virtualization");
-+			intel_iommu_strict = 1;
-+		}
-+
- #ifdef CONFIG_INTEL_IOMMU_SVM
- 		if (pasid_enabled(iommu))
- 			intel_svm_alloc_pasid_tables(iommu);
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3161,6 +3161,8 @@ static const struct pci_device_id nvme_i
+ 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
++	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
 
 
