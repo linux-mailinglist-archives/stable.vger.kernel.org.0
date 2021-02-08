@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21252313C99
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B45CA313C96
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235461AbhBHSIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:08:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
+        id S235394AbhBHSIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:08:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233792AbhBHSDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:03:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FECD64EEE;
-        Mon,  8 Feb 2021 17:59:49 +0000 (UTC)
+        id S235168AbhBHSDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:03:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A973A64EF0;
+        Mon,  8 Feb 2021 17:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807190;
-        bh=4ybdrJVYeo2/UDf8Lh/IUnsF4PV76/uempj2Vv0zRac=;
+        s=k20201202; t=1612807191;
+        bh=8Q3v9KXNyoY8FwManLhHl+Kzwr834mGKxWc2c2jILPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeOz2N0ZlSIhoEV14MRvO6eJTPlOQlpD9XBsHRmWFP6vGhsC/LoL8ijJslaBYwCaT
-         qC6D9eFz1q0rVf2aQvg0tAbClYMs0KepSEhNF7HsGnbgaZz03ZSrYNkZtVPG3l6g+1
-         6JREzz2ezlvZXTBILJW2nf0qZorBwHeW6KymnZAZl24SumtDqjPaYb2Dydu4tH98uz
-         IrRqL0Oe89xyKeIZypjpGJtynpalILI/E6dQx+MElA3wIe3WS/mQNMR7dPFJIrU7mL
-         MY/bk2i9GfSUK98pOioRNkcVImQDdrDn7F3Q+SS6jXkR6eLRkpNUHvXzUzBjSO9R4j
-         GTuqMv9jNW8FQ==
+        b=QtI9Oa/iiU9u3f6miUS5ZLalrAM6NiAmtZheZ25HuBz4Va18F6WBzLl+Zdn8CLSmk
+         o05cRQg88l/9T0i2kMRuNxzk+vcZIA7CHTIG96mL3i4MNCldnUTgLvgu7tU34jcrKW
+         wGdSOasmXxxVxQ8derHrhaagkvDxBkWzr/gSAIs28znJQ9nHdvTa3AEKB6HauEcVDq
+         cYhj9kC7zlJyLNQncGA/RdYaoA4HKaJPDNcGjfD3/p7NLF/abp3qD0YloJYbP333sl
+         xDdiMS0z9yK4FVkMA+td2k+9Ei4dCiO8orJ799B1R9ZenaLlhNeDUKqcaoW9d+k9y3
+         DyH0zrB6Ow12g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Valentin <benpicco@googlemail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/9] Input: xpad - sync supported devices with fork on GitHub
-Date:   Mon,  8 Feb 2021 12:59:39 -0500
-Message-Id: <20210208175946.2092374-2-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
+        Mark Gross <mgross@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/9] platform/x86: hp-wmi: Disable tablet-mode reporting by default
+Date:   Mon,  8 Feb 2021 12:59:40 -0500
+Message-Id: <20210208175946.2092374-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175946.2092374-1-sashal@kernel.org>
 References: <20210208175946.2092374-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,72 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Valentin <benpicco@googlemail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9bbd77d5bbc9aff8cb74d805c31751f5f0691ba8 ]
+[ Upstream commit 67fbe02a5cebc3c653610f12e3c0424e58450153 ]
 
-There is a fork of this driver on GitHub [0] that has been updated
-with new device IDs.
+Recently userspace has started making more use of SW_TABLET_MODE
+(when an input-dev reports this).
 
-Merge those into the mainline driver, so the out-of-tree fork is not
-needed for users of those devices anymore.
+Specifically recent GNOME3 versions will:
 
-[0] https://github.com/paroj/xpad
+1.  When SW_TABLET_MODE is reported and is reporting 0:
+1.1 Disable accelerometer-based screen auto-rotation
+1.2 Disable automatically showing the on-screen keyboard when a
+    text-input field is focussed
 
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
-Link: https://lore.kernel.org/r/20210121142523.1b6b050f@rechenknecht2k11
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+2.  When SW_TABLET_MODE is reported and is reporting 1:
+2.1 Ignore input-events from the builtin keyboard and touchpad
+    (this is for 360° hinges style 2-in-1s where the keyboard and
+     touchpads are accessible on the back of the tablet when folded
+     into tablet-mode)
+
+This means that claiming to support SW_TABLET_MODE when it does not
+actually work / reports correct values has bad side-effects.
+
+The check in the hp-wmi code which is used to decide if the input-dev
+should claim SW_TABLET_MODE support, only checks if the
+HPWMI_HARDWARE_QUERY is supported. It does *not* check if the hardware
+actually is capable of reporting SW_TABLET_MODE.
+
+This leads to the hp-wmi input-dev claiming SW_TABLET_MODE support,
+while in reality it will always report 0 as SW_TABLET_MODE value.
+This has been seen on a "HP ENVY x360 Convertible 15-cp0xxx" and
+this likely is the case on a whole lot of other HP models.
+
+This problem causes both auto-rotation and on-screen keyboard
+support to not work on affected x360 models.
+
+There is no easy fix for this, but since userspace expects
+SW_TABLET_MODE reporting to be reliable when advertised it is
+better to not claim/report SW_TABLET_MODE support at all, then
+to claim to support it while it does not work.
+
+To avoid the mentioned problems, add a new enable_tablet_mode_sw
+module-parameter which defaults to false.
+
+Note I've made this an int using the standard -1=auto, 0=off, 1=on
+triplett, with the hope that in the future we can come up with a
+better way to detect SW_TABLET_MODE support. ATM the default
+auto option just does the same as off.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1918255
+Cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mark Gross <mgross@linux.intel.com>
+Link: https://lore.kernel.org/r/20210120124941.73409-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/platform/x86/hp-wmi.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 637f1347cd13d..815b69d35722c 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -232,9 +232,17 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
-@@ -313,6 +321,9 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
-+	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
-+	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-@@ -446,8 +457,12 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
- 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
-+	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
-+	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
- 	{ }
- };
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 952544ca0d84d..93fadd4abf14d 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -45,6 +45,10 @@ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("wmi:95F24279-4D7B-4334-9387-ACCDC67EF61C");
+ MODULE_ALIAS("wmi:5FB7F034-2C63-45e9-BE91-3D44E2C707E4");
  
++static int enable_tablet_mode_sw = -1;
++module_param(enable_tablet_mode_sw, int, 0444);
++MODULE_PARM_DESC(enable_tablet_mode_sw, "Enable SW_TABLET_MODE reporting (-1=auto, 0=no, 1=yes)");
++
+ #define HPWMI_EVENT_GUID "95F24279-4D7B-4334-9387-ACCDC67EF61C"
+ #define HPWMI_BIOS_GUID "5FB7F034-2C63-45e9-BE91-3D44E2C707E4"
+ 
+@@ -656,10 +660,12 @@ static int __init hp_wmi_input_setup(void)
+ 	}
+ 
+ 	/* Tablet mode */
+-	val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
+-	if (!(val < 0)) {
+-		__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
+-		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++	if (enable_tablet_mode_sw > 0) {
++		val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
++		if (val >= 0) {
++			__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++			input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++		}
+ 	}
+ 
+ 	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
 -- 
 2.27.0
 
