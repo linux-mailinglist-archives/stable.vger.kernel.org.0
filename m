@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E93F3135FF
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E697313734
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232283AbhBHPEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:04:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51776 "EHLO mail.kernel.org"
+        id S233756AbhBHPVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:21:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232698AbhBHPDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:03:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14A0864EB9;
-        Mon,  8 Feb 2021 15:02:42 +0000 (UTC)
+        id S233532AbhBHPPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88F3864ECE;
+        Mon,  8 Feb 2021 15:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796563;
-        bh=Q52UXuDoLrLAV8CR/xH2uRI9i/qUwMlw44Rfresgwa8=;
+        s=korg; t=1612797053;
+        bh=JNT0e7NOCpnGy1ts2DBGh5vktxZvKrb82RMeQtxt1s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YL5Uxg4QVX51SciyMo0wDX2y2KYUrxMDp2ysEDqGqwr3gn1ZFOuWj8q1FgN7byG5I
-         rkGr7ls7YmO68vqVy/QYmAjhQw1F3zcRgYBOFwh/sUCO6lNysF+NXD5nMEdp1GRRm7
-         1hJcXyJCqHs2LCdQ6sWVHuApn8gyOfAZ9OAq+7Zc=
+        b=NQ1BO0Bb6NKVz52nWjS4spFawhnG/d4mVRUAC5Np9RIl+s8xaVSQTzTpaW+rkUi3T
+         ObgzV9lg98WRmInpJFMSTA2RQWdDWoaz/51IQOOSPpRIBRT3O5P4g3XcPDYIzRuiCF
+         ra2DNp+85YE/MR8P9SVsARc57baMJBBTiKLEQ3ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gerhard Klostermeier <gerhard.klostermeier@syss.de>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
-Subject: [PATCH 4.4 25/38] usb: dwc2: Fix endpoint direction check in ep_from_windex
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/65] i40e: Revert "i40e: dont report link up for a VF who hasnt enabled queues"
 Date:   Mon,  8 Feb 2021 16:00:47 +0100
-Message-Id: <20210208145806.266644757@linuxfoundation.org>
+Message-Id: <20210208145810.828420855@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-commit f670e9f9c8cac716c3506c6bac9e997b27ad441a upstream.
+[ Upstream commit f559a356043a55bab25a4c00505ea65c50a956fb ]
 
-dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
-the endpoint for the index provided in the wIndex request param.
+This reverts commit 2ad1274fa35ace5c6360762ba48d33b63da2396c
 
-In a test-case with a rndis gadget running and sending a malformed
-packet to it like:
-    dev.ctrl_transfer(
-        0x82,      # bmRequestType
-        0x00,       # bRequest
-        0x0000,     # wValue
-        0x0001,     # wIndex
-        0x00       # wLength
-    )
-it is possible to cause a crash:
+VF queues were not brought up when PF was brought up after being
+downed if the VF driver disabled VFs queues during PF down.
+This could happen in some older or external VF driver implementations.
+The problem was that PF driver used vf->queues_enabled as a condition
+to decide what link-state it would send out which caused the issue.
 
-[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
-[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
-...
-[  218.313189] Call trace:
-[  218.330217]  ep_from_windex+0x3c/0x54
-[  218.348565]  usb_gadget_giveback_request+0x10/0x20
-[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
+Remove the check for vf->queues_enabled in the VF link notify.
+Now VF will always be notified of the current link status.
+Also remove the queues_enabled member from i40e_vf structure as it is
+not used anymore. Otherwise VNF implementation was broken and caused
+a link flap.
 
-This happens because ep_from_windex wants to compare the endpoint
-direction even if index_to_ep() didn't return an endpoint due to
-the direction not matching.
+The original commit was a workaround to avoid breaking existing VFs though
+it's really a fault of the VF code not the PF. The commit should be safe to
+revert as all of the VFs we know of have been fixed. Also, since we now
+know there is a related bug in the workaround, removing it is preferred.
 
-The fix is easy insofar that the actual direction check is already
-happening when calling index_to_ep() which will return NULL if there
-is no endpoint for the targeted direction, so the offending check
-can go away completely.
-
-Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
-Cc: stable@vger.kernel.org
-Reported-by: Gerhard Klostermeier <gerhard.klostermeier@syss.de>
-Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20210127103919.58215-1-heiko@sntech.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2ad1274fa35a ("i40e: don't report link up for a VF who hasn't enabled")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 13 +------------
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |  1 -
+ 2 files changed, 1 insertion(+), 13 deletions(-)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -871,7 +871,6 @@ static void dwc2_hsotg_complete_oursetup
- static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
- 					   u32 windex)
- {
--	struct dwc2_hsotg_ep *ep;
- 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
- 	int idx = windex & 0x7F;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index c20dc689698ed..5acd599d6b9af 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -55,12 +55,7 @@ static void i40e_vc_notify_vf_link_state(struct i40e_vf *vf)
  
-@@ -881,12 +880,7 @@ static struct dwc2_hsotg_ep *ep_from_win
- 	if (idx > hsotg->num_of_eps)
- 		return NULL;
- 
--	ep = index_to_ep(hsotg, idx, dir);
+ 	pfe.event = VIRTCHNL_EVENT_LINK_CHANGE;
+ 	pfe.severity = PF_EVENT_SEVERITY_INFO;
 -
--	if (idx && ep->dir_in != dir)
--		return NULL;
+-	/* Always report link is down if the VF queues aren't enabled */
+-	if (!vf->queues_enabled) {
+-		pfe.event_data.link_event.link_status = false;
+-		pfe.event_data.link_event.link_speed = 0;
+-	} else if (vf->link_forced) {
++	if (vf->link_forced) {
+ 		pfe.event_data.link_event.link_status = vf->link_up;
+ 		pfe.event_data.link_event.link_speed =
+ 			(vf->link_up ? VIRTCHNL_LINK_SPEED_40GB : 0);
+@@ -70,7 +65,6 @@ static void i40e_vc_notify_vf_link_state(struct i40e_vf *vf)
+ 		pfe.event_data.link_event.link_speed =
+ 			i40e_virtchnl_link_speed(ls->link_speed);
+ 	}
 -
--	return ep;
-+	return index_to_ep(hsotg, idx, dir);
+ 	i40e_aq_send_msg_to_vf(hw, abs_vf_id, VIRTCHNL_OP_EVENT,
+ 			       0, (u8 *)&pfe, sizeof(pfe), NULL);
  }
+@@ -2393,8 +2387,6 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		}
+ 	}
  
- /**
+-	vf->queues_enabled = true;
+-
+ error_param:
+ 	/* send the response to the VF */
+ 	return i40e_vc_send_resp_to_vf(vf, VIRTCHNL_OP_ENABLE_QUEUES,
+@@ -2416,9 +2408,6 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 	struct i40e_pf *pf = vf->pf;
+ 	i40e_status aq_ret = 0;
+ 
+-	/* Immediately mark queues as disabled */
+-	vf->queues_enabled = false;
+-
+ 	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
+index 7164b9bb294ff..f65cc0c165502 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
+@@ -99,7 +99,6 @@ struct i40e_vf {
+ 	unsigned int tx_rate;	/* Tx bandwidth limit in Mbps */
+ 	bool link_forced;
+ 	bool link_up;		/* only valid if VF link is forced */
+-	bool queues_enabled;	/* true if the VF queues are enabled */
+ 	bool spoofchk;
+ 	u16 num_mac;
+ 	u16 num_vlan;
+-- 
+2.27.0
+
 
 
