@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A69313C92
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE01313CA7
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235352AbhBHSIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:08:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
+        id S235512AbhBHSIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:08:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234926AbhBHSDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:03:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6976C64EF2;
-        Mon,  8 Feb 2021 17:59:31 +0000 (UTC)
+        id S235029AbhBHSDf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:03:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 950A264EF6;
+        Mon,  8 Feb 2021 17:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807172;
-        bh=YBqvqgp6PAHx6W9ojsyrbRpMv8DrvI2KfiN7xQINXmA=;
+        s=k20201202; t=1612807173;
+        bh=rVJgB9uoEMske98CMdEnJ6XPfiY1kyWyMRA678gkH4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6ItKUIdNGgapgdPffoxZZLmmChivL6y043UKuL9zWvmNjFXRe0lne6mG5gPRuYWV
-         VWjTCydJEF57ZQ0qXUvU9lU9DMIy/EkXhUxx63YkLfsgWN/W8YyDoiFoA/PcLzhkOM
-         AxcPux4A0xFXelbwI67lAlBsS8bBOhfgN35Nf71Ogyq0P74RfvxMVt/gNsr97ttGwu
-         ObmU4wLazby8BhfwQXfLHVqLpN9XE3yrXcs3dSAgngd9XQqdwqanPhdn6J2O0ngnsd
-         jrdk+Q+m23lmhQ8ATu0BD4ExIZU/hhDdLp5sQ6veTyzPo03MRXzNqkllj+IiTThjqZ
-         GxBVm97Q32EGA==
+        b=Uwx5WuD06ppaAUZmlQdPgnbspP6E75C4fboJdMUxCQO3jsdXXE2NwyU6ZevRYxRaq
+         d8ISXrtXq3sZIdBzwlrSnxoVCaaGea74/4SZGrkiAgLoxWU//hepvu8WVctpnwYdg/
+         mUuas1NZq0UVbURRN19kujqHWsmfpZy7Xh0IqflAmNFeg4b956hmk3hEpGvyA1+0b5
+         hTmdFFgt9sE4DUwg88vdOQmN0uVQ6GjoTKx1tqiOxIZh9jNYk9Ckg+K/7H+t0UOA8K
+         0RgUVaxiWn2YsjVRTGbfa0sZ3wZqg4zeRIaUmvMhZrE0WoY30T1d5tJ/vIKJdrMxUr
+         NFAyLLg5wR6Rg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Miklos Szeredi <mszeredi@redhat.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/14] ovl: perform vfs_getxattr() with mounter creds
-Date:   Mon,  8 Feb 2021 12:59:16 -0500
-Message-Id: <20210208175926.2092211-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/14] cap: fix conversions on getxattr
+Date:   Mon,  8 Feb 2021 12:59:17 -0500
+Message-Id: <20210208175926.2092211-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175926.2092211-1-sashal@kernel.org>
 References: <20210208175926.2092211-1-sashal@kernel.org>
@@ -44,36 +45,141 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 554677b97257b0b69378bd74e521edb7e94769ff ]
+[ Upstream commit f2b00be488730522d0fb7a8a5de663febdcefe0a ]
 
-The vfs_getxattr() in ovl_xattr_set() is used to check whether an xattr
-exist on a lower layer file that is to be removed.  If the xattr does not
-exist, then no need to copy up the file.
+If a capability is stored on disk in v2 format cap_inode_getsecurity() will
+currently return in v2 format unconditionally.
 
-This call of vfs_getxattr() wasn't wrapped in credential override, and this
-is probably okay.  But for consitency wrap this instance as well.
+This is wrong: v2 cap should be equivalent to a v3 cap with zero rootid,
+and so the same conversions performed on it.
 
-Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+If the rootid cannot be mapped, v3 is returned unconverted.  Fix this so
+that both v2 and v3 return -EOVERFLOW if the rootid (or the owner of the fs
+user namespace in case of v2) cannot be mapped into the current user
+namespace.
+
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ security/commoncap.c | 67 ++++++++++++++++++++++++++++----------------
+ 1 file changed, 43 insertions(+), 24 deletions(-)
 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 8b3c284ce92ea..08e60a6df77c3 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -340,7 +340,9 @@ int ovl_xattr_set(struct dentry *dentry, struct inode *inode, const char *name,
- 		goto out;
+diff --git a/security/commoncap.c b/security/commoncap.c
+index f86557a8e43f6..a1dee0ab345a2 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -377,10 +377,11 @@ int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
+ {
+ 	int size, ret;
+ 	kuid_t kroot;
++	u32 nsmagic, magic;
+ 	uid_t root, mappedroot;
+ 	char *tmpbuf = NULL;
+ 	struct vfs_cap_data *cap;
+-	struct vfs_ns_cap_data *nscap;
++	struct vfs_ns_cap_data *nscap = NULL;
+ 	struct dentry *dentry;
+ 	struct user_namespace *fs_ns;
  
- 	if (!value && !upperdentry) {
-+		old_cred = ovl_override_creds(dentry->d_sb);
- 		err = vfs_getxattr(realdentry, name, NULL, 0);
-+		revert_creds(old_cred);
- 		if (err < 0)
- 			goto out_drop_write;
+@@ -402,46 +403,61 @@ int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
+ 	fs_ns = inode->i_sb->s_user_ns;
+ 	cap = (struct vfs_cap_data *) tmpbuf;
+ 	if (is_v2header((size_t) ret, cap)) {
+-		/* If this is sizeof(vfs_cap_data) then we're ok with the
+-		 * on-disk value, so return that.  */
+-		if (alloc)
+-			*buffer = tmpbuf;
+-		else
+-			kfree(tmpbuf);
+-		return ret;
+-	} else if (!is_v3header((size_t) ret, cap)) {
+-		kfree(tmpbuf);
+-		return -EINVAL;
++		root = 0;
++	} else if (is_v3header((size_t) ret, cap)) {
++		nscap = (struct vfs_ns_cap_data *) tmpbuf;
++		root = le32_to_cpu(nscap->rootid);
++	} else {
++		size = -EINVAL;
++		goto out_free;
  	}
+ 
+-	nscap = (struct vfs_ns_cap_data *) tmpbuf;
+-	root = le32_to_cpu(nscap->rootid);
+ 	kroot = make_kuid(fs_ns, root);
+ 
+ 	/* If the root kuid maps to a valid uid in current ns, then return
+ 	 * this as a nscap. */
+ 	mappedroot = from_kuid(current_user_ns(), kroot);
+ 	if (mappedroot != (uid_t)-1 && mappedroot != (uid_t)0) {
++		size = sizeof(struct vfs_ns_cap_data);
+ 		if (alloc) {
+-			*buffer = tmpbuf;
++			if (!nscap) {
++				/* v2 -> v3 conversion */
++				nscap = kzalloc(size, GFP_ATOMIC);
++				if (!nscap) {
++					size = -ENOMEM;
++					goto out_free;
++				}
++				nsmagic = VFS_CAP_REVISION_3;
++				magic = le32_to_cpu(cap->magic_etc);
++				if (magic & VFS_CAP_FLAGS_EFFECTIVE)
++					nsmagic |= VFS_CAP_FLAGS_EFFECTIVE;
++				memcpy(&nscap->data, &cap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
++				nscap->magic_etc = cpu_to_le32(nsmagic);
++			} else {
++				/* use allocated v3 buffer */
++				tmpbuf = NULL;
++			}
+ 			nscap->rootid = cpu_to_le32(mappedroot);
+-		} else
+-			kfree(tmpbuf);
+-		return size;
++			*buffer = nscap;
++		}
++		goto out_free;
+ 	}
+ 
+ 	if (!rootid_owns_currentns(kroot)) {
+-		kfree(tmpbuf);
+-		return -EOPNOTSUPP;
++		size = -EOVERFLOW;
++		goto out_free;
+ 	}
+ 
+ 	/* This comes from a parent namespace.  Return as a v2 capability */
+ 	size = sizeof(struct vfs_cap_data);
+ 	if (alloc) {
+-		*buffer = kmalloc(size, GFP_ATOMIC);
+-		if (*buffer) {
+-			struct vfs_cap_data *cap = *buffer;
+-			__le32 nsmagic, magic;
++		if (nscap) {
++			/* v3 -> v2 conversion */
++			cap = kzalloc(size, GFP_ATOMIC);
++			if (!cap) {
++				size = -ENOMEM;
++				goto out_free;
++			}
+ 			magic = VFS_CAP_REVISION_2;
+ 			nsmagic = le32_to_cpu(nscap->magic_etc);
+ 			if (nsmagic & VFS_CAP_FLAGS_EFFECTIVE)
+@@ -449,9 +465,12 @@ int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
+ 			memcpy(&cap->data, &nscap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
+ 			cap->magic_etc = cpu_to_le32(magic);
+ 		} else {
+-			size = -ENOMEM;
++			/* use unconverted v2 */
++			tmpbuf = NULL;
+ 		}
++		*buffer = cap;
+ 	}
++out_free:
+ 	kfree(tmpbuf);
+ 	return size;
+ }
 -- 
 2.27.0
 
