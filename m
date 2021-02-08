@@ -2,206 +2,311 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532BA31300C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E35E313025
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229807AbhBHLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 06:05:22 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41781 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232808AbhBHLCR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:02:17 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0796D9E9;
-        Mon,  8 Feb 2021 06:01:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 06:01:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+TyMlH
-        8uTrdzk129C/8nl9awZMvQee6q4fh39bMrSuQ=; b=ZZMkE+dskQkeP5ugFR3N8G
-        /DKyV+7ZGOsWfkBqfa1qSc8clkbEhvFrY+9Q7kYxAUmKwAEudsaqr3kE1DJSIeo5
-        KD2KX2KZ+flqjjPeTm16KSavWcZWr1DUJpWOG11HDydP+u7Y2P4rgCIpfekzmyKa
-        +UwqFRCJizQBzIdTkSpVqKZCjbENGFPr/2TnsO8e4g9a4GX4aX3rWEizhIW/XJrg
-        S4VHK5LzrYMgnqTwDQAYEHdECGreVya5BFZkumlj5eNWi+rFEwqQnE/BK1ZQv0lT
-        83EauegPCfdmE2bBibxTu0zuQqbjRHv0Od9+/uUeeqhe3zzhSNFjc2DBLNR+S1oA
-        ==
-X-ME-Sender: <xms:ARohYEm0_ax-wX0ujPiGJ6iDL8qhqCk9kaVPEvgTadrRhoso46Egbw>
-    <xme:ARohYD11QWFf7Ny8QRG4lxBzlXxn4xaPMQ0Jtqn58gQIaWv1uf-S_R3COOGmr-0av
-    hNaNM_xvoLa0Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddvudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:ARohYCoR0ClQAJr4QdtQoz310lYLSsabXL720IHoA3MFWwXmwaOReg>
-    <xmx:ARohYAl3nkAbPmgVq0XM745mUDBKuvFhXngLc-CgK4K0uapPh47rRA>
-    <xmx:ARohYC2J-qinojQo6-We92J_xEjcMUoR81jOdhTKdTfPWkMmxFn9Tg>
-    <xmx:ARohYMq9VKQ3by5hhiBcKDK5cM5aqEaIhfZV5Gk3CcwPSkqjYneak61klYw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 294811080057;
-        Mon,  8 Feb 2021 06:01:21 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: hugetlb: fix a race between freeing and dissolving the" failed to apply to 4.14-stable tree
-To:     songmuchun@bytedance.com, akpm@linux-foundation.org,
-        david@redhat.com, mhocko@suse.com, mike.kravetz@oracle.com,
-        osalvador@suse.de, shy828301@gmail.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Feb 2021 12:01:10 +0100
-Message-ID: <161278207013991@kroah.com>
+        id S232960AbhBHLHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 06:07:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233015AbhBHLDj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:03:39 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3CB7C06174A
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 03:02:58 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id 189so462621pfy.6
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 03:02:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WxqV4GP3MLMSu94I9hS8CWwp/qbQcVUhxepEsstOEPw=;
+        b=KmQEjSplogJhW8IdVRdFGEbmIxyOMPyHqRbGia/vAtpsPoq+dneghyPuie3f+hRBLz
+         pObdjkBT12sVjbp5LYeLJmecd3qPRNyvcdf/gFhoekcW+UbMW9y55Wwz87whK5YQqmVL
+         RpSOx1FcOR23eO/VHXLfXsEOXAoluvG58+Foswy4NpHLfZfLCSEQ0st/IH7qOBhV0jih
+         cfGXYMyC1yrD4FKofjGBdq2JfKJJnBQylrCk8NWh/Y13Gid/C+v2yZPiVuVJSzTdpRtm
+         MWYQJ+cCc5YtUpxI5C/u5hX816/yQILxeOWJVGD1nh4K6fjnhql40JSEhMX3tQsmWUIu
+         GjfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WxqV4GP3MLMSu94I9hS8CWwp/qbQcVUhxepEsstOEPw=;
+        b=rpLAMwl0CeMyxlLxBHZyU6Ks/Fz6WmtR4qOPzm9eX9RmObx6yIEF+pkH6Mr+zDT3Hj
+         wkb3InOrcuBEWoNS8POeFA1dg3C2hkil+Yxfa7Zc4VJ1w/0uxOgyCHJBfXV+WbnDp0Bs
+         wmY2LfPDQO4nqAngQk7xAOE460ghrsFmlt4Oz8k6+Wj4rXAKNonf7cus0VzW4FNCNEXG
+         uFqNIgFvYcYzWSNT/g3P3644CeipFfaI4vDJczjOFLGmB1HIiMikWhYszY1HzqzFxXGG
+         wQfL/RumdzJCdrHarZ9bTylYldsCw0wL/Yui8Gde8CechXBihNtkRkmnBd6KoyycSNWE
+         +onQ==
+X-Gm-Message-State: AOAM532SygOHV074w01oG0jLCiQcUYMyl3asBk4Xz6WOnqqg0VJC/rk5
+        +zPx4GAWQd+BShOTexC5sIqnmmVauPn7iQ==
+X-Google-Smtp-Source: ABdhPJxlHd0t2PNwWrF3ugBJVZw3pNFXr7U4REKXOdWNuNGYFmdD3YzB+PySM89G53UUQDjjOutoZA==
+X-Received: by 2002:a63:3602:: with SMTP id d2mr16484633pga.81.1612782178009;
+        Mon, 08 Feb 2021 03:02:58 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h70sm17023436pfe.70.2021.02.08.03.02.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Feb 2021 03:02:57 -0800 (PST)
+Message-ID: <60211a61.1c69fb81.2be56.4b95@mx.google.com>
+Date:   Mon, 08 Feb 2021 03:02:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.174-9-g72c4313237ab0
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 168 runs,
+ 6 regressions (v4.19.174-9-g72c4313237ab0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.19 baseline: 168 runs, 6 regressions (v4.19.174-9-g72c431=
+3237ab0)
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-greg k-h
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-From 7ffddd499ba6122b1a07828f023d1d67629aa017 Mon Sep 17 00:00:00 2001
-From: Muchun Song <songmuchun@bytedance.com>
-Date: Thu, 4 Feb 2021 18:32:06 -0800
-Subject: [PATCH] mm: hugetlb: fix a race between freeing and dissolving the
- page
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-There is a race condition between __free_huge_page()
-and dissolve_free_huge_page().
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-  CPU0:                         CPU1:
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-  // page_count(page) == 1
-  put_page(page)
-    __free_huge_page(page)
-                                dissolve_free_huge_page(page)
-                                  spin_lock(&hugetlb_lock)
-                                  // PageHuge(page) && !page_count(page)
-                                  update_and_free_page(page)
-                                  // page is freed to the buddy
-                                  spin_unlock(&hugetlb_lock)
-      spin_lock(&hugetlb_lock)
-      clear_page_huge_active(page)
-      enqueue_huge_page(page)
-      // It is wrong, the page is already freed
-      spin_unlock(&hugetlb_lock)
 
-The race window is between put_page() and dissolve_free_huge_page().
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.174-9-g72c4313237ab0/plan/baseline/
 
-We should make sure that the page is already on the free list when it is
-dissolved.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.174-9-g72c4313237ab0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      72c4313237ab03b55cd21e8e7dfb94028c67483b =
 
-As a result __free_huge_page would corrupt page(s) already in the buddy
-allocator.
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-4-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 6f0e242d38ca..c6ee3c28a04e 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -79,6 +79,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
- static int num_fault_mutexes;
- struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
- 
-+static inline bool PageHugeFreed(struct page *head)
-+{
-+	return page_private(head + 4) == -1UL;
-+}
-+
-+static inline void SetPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, -1UL);
-+}
-+
-+static inline void ClearPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, 0);
-+}
-+
- /* Forward declaration */
- static int hugetlb_acct_memory(struct hstate *h, long delta);
- 
-@@ -1028,6 +1043,7 @@ static void enqueue_huge_page(struct hstate *h, struct page *page)
- 	list_move(&page->lru, &h->hugepage_freelists[nid]);
- 	h->free_huge_pages++;
- 	h->free_huge_pages_node[nid]++;
-+	SetPageHugeFreed(page);
- }
- 
- static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
-@@ -1044,6 +1060,7 @@ static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
- 
- 		list_move(&page->lru, &h->hugepage_activelist);
- 		set_page_refcounted(page);
-+		ClearPageHugeFreed(page);
- 		h->free_huge_pages--;
- 		h->free_huge_pages_node[nid]--;
- 		return page;
-@@ -1505,6 +1522,7 @@ static void prep_new_huge_page(struct hstate *h, struct page *page, int nid)
- 	spin_lock(&hugetlb_lock);
- 	h->nr_huge_pages++;
- 	h->nr_huge_pages_node[nid]++;
-+	ClearPageHugeFreed(page);
- 	spin_unlock(&hugetlb_lock);
- }
- 
-@@ -1755,6 +1773,7 @@ int dissolve_free_huge_page(struct page *page)
- {
- 	int rc = -EBUSY;
- 
-+retry:
- 	/* Not to disrupt normal path by vainly holding hugetlb_lock */
- 	if (!PageHuge(page))
- 		return 0;
-@@ -1771,6 +1790,26 @@ int dissolve_free_huge_page(struct page *page)
- 		int nid = page_to_nid(head);
- 		if (h->free_huge_pages - h->resv_huge_pages == 0)
- 			goto out;
-+
-+		/*
-+		 * We should make sure that the page is already on the free list
-+		 * when it is dissolved.
-+		 */
-+		if (unlikely(!PageHugeFreed(head))) {
-+			spin_unlock(&hugetlb_lock);
-+			cond_resched();
-+
-+			/*
-+			 * Theoretically, we should return -EBUSY when we
-+			 * encounter this race. In fact, we have a chance
-+			 * to successfully dissolve the page if we do a
-+			 * retry. Because the race window is quite small.
-+			 * If we seize this opportunity, it is an optimization
-+			 * for increasing the success rate of dissolving page.
-+			 */
-+			goto retry;
-+		}
-+
- 		/*
- 		 * Move PageHWPoison flag from head page to the raw error page,
- 		 * which makes any subpages rather than the error page reusable.
+Test Regressions
+---------------- =
 
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e19c7cd87b1bf73abe6c
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6020e19c7cd87b1=
+bf73abe73
+        new failure (last pass: v4.19.174-3-g9df30fc2980a)
+        2 lines
+
+    2021-02-08 07:00:38.706000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e1f1b0631a21823abe62
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6020e1f1b0631a21823ab=
+e63
+        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e200b0631a21823abe84
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6020e200b0631a21823ab=
+e85
+        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e1e3a05a8e4e173abe7b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6020e1e3a05a8e4e173ab=
+e7c
+        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e1a8d81ae396223abe78
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6020e1a8d81ae396223ab=
+e79
+        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6020e1b4d81ae396223abe8b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
+-9-g72c4313237ab0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6020e1b4d81ae396223ab=
+e8c
+        failing since 86 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
+ fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
