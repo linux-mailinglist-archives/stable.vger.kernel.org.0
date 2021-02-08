@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19224313C60
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21390313C67
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235424AbhBHSGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:06:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47962 "EHLO mail.kernel.org"
+        id S235428AbhBHSGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:06:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235096AbhBHSC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:02:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66D7664ED7;
-        Mon,  8 Feb 2021 17:58:53 +0000 (UTC)
+        id S235171AbhBHSCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 13:02:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4F9164ED0;
+        Mon,  8 Feb 2021 17:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807134;
-        bh=FydyvUabgfSj0tpi0vAQQgW4003YdZy9X1JeOpqxO58=;
+        s=k20201202; t=1612807135;
+        bh=y7eQowfWRCiPs6rqvJgWxNBr3H42kcUQxHDrWQVFBLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPuvdzXP2Vn5XNTW4YPEjBZ+Gw/1yMSjOqVY/Wok9wBodGCFW60EHz/4qN0G7Be4A
-         kjcYbnIzdq9OpGUaiGUR8hZiXUGyrbni24YjNH0IKuSaceqj1XEDnTOF2LY7/rjV7s
-         hS+JdRz5Ms2rEklJdHlldX7r3l5y3Gfj5wWX3LpBn2smpfl17OIY/RSPX+IbRI6TLR
-         VgmZTXzP5zyAW2DOc1vk85ds/hT/Rx87JvMigQ0gRdwuMKEh4IoMLCpmuw2EHqq3R7
-         2/P6MEivyVZsa0xWpjh241o/ZmcLUI1n/L4mtOLasR+3aosyDPVCddtwtBpIQc68DS
-         eaDNEwK5eD3Ew==
+        b=dxuMEheQD32mZCSNgXYYpfNFVYR8uqNhN2S8vpB5cPtAz5X6Zj7pUHX/0QLHnXv/Y
+         JzQILtTHf395nPcpuCi7Bx7cqat8+HQwvUDOZCtMb9+DjnP5f+ZSLzFLLqGqkkJSCW
+         qnasDvtEj9zvgb+jtvPBK5r/LjHt19eGheG8Qx5LqjceuBQ2X1CWNzWnDTw2uk7e7b
+         tnhyTTtB9Cr3u91Aj83mq7kicYidi/bKFEpcXsnfWKnAUAbH/IkaI9bK4FSiLqS+d2
+         vtn4AbeEqH0GUCbjA6Vr4A7Fxg4pP01IMzTt5gNEzY+/8x5q4qUFbMM3cVxZsDh8Wz
+         cjLcHkHqhSmcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 34/36] ubsan: implement __ubsan_handle_alignment_assumption
-Date:   Mon,  8 Feb 2021 12:58:04 -0500
-Message-Id: <20210208175806.2091668-34-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Nitesh Narayan Lal <nitesh@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>, abelits@marvell.com,
+        davem@davemloft.net, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 35/36] Revert "lib: Restrict cpumask_local_spread to houskeeping CPUs"
+Date:   Mon,  8 Feb 2021 12:58:05 -0500
+Message-Id: <20210208175806.2091668-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175806.2091668-1-sashal@kernel.org>
 References: <20210208175806.2091668-1-sashal@kernel.org>
@@ -46,95 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 28abcc963149e06d956d95a18a85f4ba26af746f ]
+[ Upstream commit 2452483d9546de1c540f330469dc4042ff089731 ]
 
-When building ARCH=mips 32r2el_defconfig with CONFIG_UBSAN_ALIGNMENT:
+This reverts commit 1abdfe706a579a702799fce465bceb9fb01d407c.
 
-  ld.lld: error: undefined symbol: __ubsan_handle_alignment_assumption
-     referenced by slab.h:557 (include/linux/slab.h:557)
-                   main.o:(do_initcalls) in archive init/built-in.a
-     referenced by slab.h:448 (include/linux/slab.h:448)
-                   do_mounts_rd.o:(rd_load_image) in archive init/built-in.a
-     referenced by slab.h:448 (include/linux/slab.h:448)
-                   do_mounts_rd.o:(identify_ramdisk_image) in archive init/built-in.a
-     referenced 1579 more times
+This change is broken and not solving any problem it claims to solve.
 
-Implement this for the kernel based on LLVM's
-handleAlignmentAssumptionImpl because the kernel is not linked against
-the compiler runtime.
+Robin reported that cpumask_local_spread() now returns any cpu out of
+cpu_possible_mask in case that NOHZ_FULL is disabled (runtime or compile
+time). It can also return any offline or not-present CPU in the
+housekeeping mask. Before that it was returning a CPU out of
+online_cpu_mask.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1245
-Link: https://github.com/llvm/llvm-project/blob/llvmorg-11.0.1/compiler-rt/lib/ubsan/ubsan_handlers.cpp#L151-L190
-Link: https://lkml.kernel.org/r/20210127224451.2587372-1-nathan@kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+While the function is racy against CPU hotplug if the caller does not
+protect against it, the actual use cases are not caring much about it as
+they use it mostly as hint for:
+
+ - the user space affinity hint which is unused by the kernel
+ - memory node selection which is just suboptimal
+ - network queue affinity which might fail but is handled gracefully
+
+But the occasional fail vs. hotplug is very different from returning
+anything from possible_cpu_mask which can have a large amount of offline
+CPUs obviously.
+
+The changelog of the commit claims:
+
+ "The current implementation of cpumask_local_spread() does not respect
+  the isolated CPUs, i.e., even if a CPU has been isolated for Real-Time
+  task, it will return it to the caller for pinning of its IRQ
+  threads. Having these unwanted IRQ threads on an isolated CPU adds up
+  to a latency overhead."
+
+The only correct part of this changelog is:
+
+ "The current implementation of cpumask_local_spread() does not respect
+  the isolated CPUs."
+
+Everything else is just disjunct from reality.
+
+Reported-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Nitesh Narayan Lal <nitesh@redhat.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: abelits@marvell.com
+Cc: davem@davemloft.net
+Link: https://lore.kernel.org/r/87y2g26tnt.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/ubsan.c | 31 +++++++++++++++++++++++++++++++
- lib/ubsan.h |  6 ++++++
- 2 files changed, 37 insertions(+)
+ lib/cpumask.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/lib/ubsan.c b/lib/ubsan.c
-index cb9af3f6b77e3..adf8dcf3c84e6 100644
---- a/lib/ubsan.c
-+++ b/lib/ubsan.c
-@@ -427,3 +427,34 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val)
- 	ubsan_epilogue();
- }
- EXPORT_SYMBOL(__ubsan_handle_load_invalid_value);
-+
-+void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr,
-+					 unsigned long align,
-+					 unsigned long offset);
-+void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr,
-+					 unsigned long align,
-+					 unsigned long offset)
-+{
-+	struct alignment_assumption_data *data = _data;
-+	unsigned long real_ptr;
-+
-+	if (suppress_report(&data->location))
-+		return;
-+
-+	ubsan_prologue(&data->location, "alignment-assumption");
-+
-+	if (offset)
-+		pr_err("assumption of %lu byte alignment (with offset of %lu byte) for pointer of type %s failed",
-+		       align, offset, data->type->type_name);
-+	else
-+		pr_err("assumption of %lu byte alignment for pointer of type %s failed",
-+		       align, data->type->type_name);
-+
-+	real_ptr = ptr - offset;
-+	pr_err("%saddress is %lu aligned, misalignment offset is %lu bytes",
-+	       offset ? "offset " : "", BIT(real_ptr ? __ffs(real_ptr) : 0),
-+	       real_ptr & (align - 1));
-+
-+	ubsan_epilogue();
-+}
-+EXPORT_SYMBOL(__ubsan_handle_alignment_assumption);
-diff --git a/lib/ubsan.h b/lib/ubsan.h
-index 7b56c09473a98..9a0b71c5ff9fb 100644
---- a/lib/ubsan.h
-+++ b/lib/ubsan.h
-@@ -78,6 +78,12 @@ struct invalid_value_data {
- 	struct type_descriptor *type;
- };
+diff --git a/lib/cpumask.c b/lib/cpumask.c
+index 85da6ab4fbb5a..fb22fb266f937 100644
+--- a/lib/cpumask.c
++++ b/lib/cpumask.c
+@@ -6,7 +6,6 @@
+ #include <linux/export.h>
+ #include <linux/memblock.h>
+ #include <linux/numa.h>
+-#include <linux/sched/isolation.h>
  
-+struct alignment_assumption_data {
-+	struct source_location location;
-+	struct source_location assumption_location;
-+	struct type_descriptor *type;
-+};
-+
- #if defined(CONFIG_ARCH_SUPPORTS_INT128)
- typedef __int128 s_max;
- typedef unsigned __int128 u_max;
+ /**
+  * cpumask_next - get the next cpu in a cpumask
+@@ -206,27 +205,22 @@ void __init free_bootmem_cpumask_var(cpumask_var_t mask)
+  */
+ unsigned int cpumask_local_spread(unsigned int i, int node)
+ {
+-	int cpu, hk_flags;
+-	const struct cpumask *mask;
++	int cpu;
+ 
+-	hk_flags = HK_FLAG_DOMAIN | HK_FLAG_MANAGED_IRQ;
+-	mask = housekeeping_cpumask(hk_flags);
+ 	/* Wrap: we always want a cpu. */
+-	i %= cpumask_weight(mask);
++	i %= num_online_cpus();
+ 
+ 	if (node == NUMA_NO_NODE) {
+-		for_each_cpu(cpu, mask) {
++		for_each_cpu(cpu, cpu_online_mask)
+ 			if (i-- == 0)
+ 				return cpu;
+-		}
+ 	} else {
+ 		/* NUMA first. */
+-		for_each_cpu_and(cpu, cpumask_of_node(node), mask) {
++		for_each_cpu_and(cpu, cpumask_of_node(node), cpu_online_mask)
+ 			if (i-- == 0)
+ 				return cpu;
+-		}
+ 
+-		for_each_cpu(cpu, mask) {
++		for_each_cpu(cpu, cpu_online_mask) {
+ 			/* Skip NUMA nodes, done above. */
+ 			if (cpumask_test_cpu(cpu, cpumask_of_node(node)))
+ 				continue;
 -- 
 2.27.0
 
