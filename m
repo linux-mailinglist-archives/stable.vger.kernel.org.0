@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2CC31379D
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6B13137AA
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233927AbhBHP2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:28:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35868 "EHLO mail.kernel.org"
+        id S232130AbhBHP2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:28:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233881AbhBHPX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AEFD64F0F;
-        Mon,  8 Feb 2021 15:14:13 +0000 (UTC)
+        id S233492AbhBHPYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:24:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08A5664EB6;
+        Mon,  8 Feb 2021 15:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797254;
-        bh=csgGPtw0nfHMpqHzEKYlrXpCeoxyEDunEzrWeE+k//I=;
+        s=korg; t=1612797286;
+        bh=9K13U7yAYhW9NBWzjCT4t+OMve9AhGLmAwwo9Pwuxvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AB3XeuvbSyjd+jnx/xFzZPsvq3zMCYl3V2mnIAxz5coQWEynt+PwewegIvfDclKcK
-         TABi5LCaOWuT9tOW9MzUQvtPkiH/sxz7aEMGQryBzcp5qmOx2tIwJSwW4hSOd6Aq/O
-         +BbOxv7TdnkIlMyTbQOFPClGgR6ufZ59HD5TltB8=
+        b=RAtU9yQOGQE69D+6YVIewUHxqWVOpTK3ZHNLMb6SNi2mM/37XV0cA29bZkkWD0awb
+         PNnZxk57q1U2j8xSV689W7nWf//29r9XIglWlmxdUIkP0IZBJ7YnXyXt0FtdKXQSxM
+         kcvgJZQpz0NROlRvHT7IuGhJrIQr6GN6XeItRdxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        KP Singh <kpsingh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/120] bpf, inode_storage: Put file handler if no storage was found
-Date:   Mon,  8 Feb 2021 16:00:15 +0100
-Message-Id: <20210208145819.516525622@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/120] um: virtio: free vu_dev only with the contained struct device
+Date:   Mon,  8 Feb 2021 16:00:16 +0100
+Message-Id: <20210208145819.551107451@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,40 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b9557caaf872271671bdc1ef003d72f421eb72f6 ]
+[ Upstream commit f4172b084342fd3f9e38c10650ffe19eac30d8ce ]
 
-Put file f if inode_storage_ptr() returns NULL.
+Since struct device is refcounted, we shouldn't free the vu_dev
+immediately when it's removed from the platform device, but only
+when the references actually all go away. Move the freeing to
+the release to accomplish that.
 
-Fixes: 8ea636848aca ("bpf: Implement bpf_local_storage for inodes")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: KP Singh <kpsingh@kernel.org>
-Link: https://lore.kernel.org/bpf/20210121020856.25507-1-bianpan2016@163.com
+Fixes: 5d38f324993f ("um: drivers: Add virtio vhost-user driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/bpf_inode_storage.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/um/drivers/virtio_uml.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/bpf_inode_storage.c b/kernel/bpf/bpf_inode_storage.c
-index dbc1dbdd2cbf0..c2a501cd90eba 100644
---- a/kernel/bpf/bpf_inode_storage.c
-+++ b/kernel/bpf/bpf_inode_storage.c
-@@ -125,8 +125,12 @@ static int bpf_fd_inode_storage_update_elem(struct bpf_map *map, void *key,
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index a6c4bb6c2c012..c17b8e5ec1869 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -1083,6 +1083,7 @@ static void virtio_uml_release_dev(struct device *d)
+ 	}
  
- 	fd = *(int *)key;
- 	f = fget_raw(fd);
--	if (!f || !inode_storage_ptr(f->f_inode))
-+	if (!f)
-+		return -EBADF;
-+	if (!inode_storage_ptr(f->f_inode)) {
-+		fput(f);
- 		return -EBADF;
-+	}
+ 	os_close_file(vu_dev->sock);
++	kfree(vu_dev);
+ }
  
- 	sdata = bpf_local_storage_update(f->f_inode,
- 					 (struct bpf_local_storage_map *)map,
+ /* Platform device */
+@@ -1096,7 +1097,7 @@ static int virtio_uml_probe(struct platform_device *pdev)
+ 	if (!pdata)
+ 		return -EINVAL;
+ 
+-	vu_dev = devm_kzalloc(&pdev->dev, sizeof(*vu_dev), GFP_KERNEL);
++	vu_dev = kzalloc(sizeof(*vu_dev), GFP_KERNEL);
+ 	if (!vu_dev)
+ 		return -ENOMEM;
+ 
 -- 
 2.27.0
 
