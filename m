@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB63331367F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AED313745
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbhBHPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S233817AbhBHPWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:22:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233199AbhBHPHr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:07:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41D3C64EEC;
-        Mon,  8 Feb 2021 15:05:54 +0000 (UTC)
+        id S230303AbhBHPP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:15:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85D3464ED1;
+        Mon,  8 Feb 2021 15:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796754;
-        bh=9bE04pjD2ZQka+V2J2Hx2Y63OIDquVprUhtW8LOj05Y=;
+        s=korg; t=1612797074;
+        bh=vJw3/se5p5IgzQrAXmzA1rjxPEZXb6shSptwNaI/XTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NpWbuSfCCMf1sLkfXY5rb0TYSdKFOcVuDkbOTNDDzxVPgGf/NppZo6hz3i3IGC4Co
-         5a8bIdbOHfSpuXkTQ5J3HxT/Xme8mrD3N8fARKHlUHqvEuBmKPy1gJMogUVn+MeLch
-         1Oa7u08i5C9CnyVFa26v7pnp9r66x9fS6GNPZoSM=
+        b=YzBEG7h1+E+q4P/zvUohbI7BSbysqBI+m1uh0g49k1EpGeXe15pCQeX+U2imPoUK2
+         7mq0nWwPmiHAPr3G7UV8j+fmsZR6zAJBhPF7iVdnDnIiCyx/p+F+JHpSzTAuz5JlEu
+         6neRtrxgQaKWJpKIi5B9aPMXs2Ryh6Ve12ZGl9f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pho Tran <pho.tran@silabs.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 01/30] USB: serial: cp210x: add pid/vid for WSDA-200-USB
-Date:   Mon,  8 Feb 2021 16:00:47 +0100
-Message-Id: <20210208145805.313945239@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Alaa Hleihel <alaa@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/65] net/mlx5: Fix leak upon failure of rule creation
+Date:   Mon,  8 Feb 2021 16:00:48 +0100
+Message-Id: <20210208145810.873577004@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,32 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pho Tran <Pho.Tran@silabs.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-commit 3c4f6ecd93442f4376a58b38bb40ee0b8c46e0e6 upstream.
+[ Upstream commit a5bfe6b4675e0eefbd9418055b5cc6e89af27eb4 ]
 
-Information pid/vid of WSDA-200-USB, Lord corporation company:
-vid: 199b
-pid: ba30
+When creation of a new rule that requires allocation of an FTE fails,
+need to call to tree_put_node on the FTE in order to release its'
+resource.
 
-Signed-off-by: Pho Tran <pho.tran@silabs.com>
-[ johan: amend comment with product name ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cefc23554fc2 ("net/mlx5: Fix FTE cleanup")
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -204,6 +204,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
- 	{ USB_DEVICE(0x1B1C, 0x1C00) }, /* Corsair USB Dongle */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+index 4944c40436f08..11e12761b0a6e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1697,6 +1697,7 @@ search_again_locked:
+ 		if (!fte_tmp)
+ 			continue;
+ 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte_tmp);
++		/* No error check needed here, because insert_fte() is not called */
+ 		up_write_ref_node(&fte_tmp->node, false);
+ 		tree_put_node(&fte_tmp->node, false);
+ 		kmem_cache_free(steering->ftes_cache, fte);
+@@ -1745,6 +1746,8 @@ skip_search:
+ 		up_write_ref_node(&g->node, false);
+ 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
+ 		up_write_ref_node(&fte->node, false);
++		if (IS_ERR(rule))
++			tree_put_node(&fte->node, false);
+ 		return rule;
+ 	}
+ 	rule = ERR_PTR(-ENOENT);
+@@ -1844,6 +1847,8 @@ search_again_locked:
+ 	up_write_ref_node(&g->node, false);
+ 	rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
+ 	up_write_ref_node(&fte->node, false);
++	if (IS_ERR(rule))
++		tree_put_node(&fte->node, false);
+ 	tree_put_node(&g->node, false);
+ 	return rule;
+ 
+-- 
+2.27.0
+
 
 
