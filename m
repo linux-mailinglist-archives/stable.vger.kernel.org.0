@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6BD3136EF
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26185313798
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233612AbhBHPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55766 "EHLO mail.kernel.org"
+        id S233904AbhBHP2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:28:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232820AbhBHPMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:12:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0B4664EF9;
-        Mon,  8 Feb 2021 15:09:31 +0000 (UTC)
+        id S233850AbhBHPXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:23:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D01464F09;
+        Mon,  8 Feb 2021 15:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796972;
-        bh=+DAaZtytg7qok0bS2wOd/s+1Ax5St6pW1feTfj2T0OM=;
+        s=korg; t=1612797269;
+        bh=jZ7ExKafJxxJlGLWKVfTaRsVizOfvA8Ossn4Vwy5mW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGT95G9tY7hOxBtYj80gvf0e/sH8fvV3ATKNUETf1jdYooUG2eLtDufr5vasLgXrG
-         rd0tjW19GzOpO24ZjEMbQb2kX2x/5+p1Q0n5uPja6FXCVObb9CCn3G5Y0rmHUB5/J4
-         2epH2Fwp7MDfwYMLVGHSlOBzX5IY14Nb4UvUDEkM=
+        b=m9y4QV2bFrbp0Nq8iQILM11qy62ZgplVKOVmbitB9029CXj3/QPhVGpiB/Ufw2fxP
+         B9Wiz+/fCwil9toaprHyTdM6kqNVPp4hv3lJ+3yhSArIt2i+0EuhlZeDUStjs01i6q
+         inuXGbcRZhlQEqXreIlsR5C6OsbQ4BQCyc8c4buc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/65] Input: i8042 - unbreak Pegatron C15B
+Subject: [PATCH 5.10 050/120] vdpa/mlx5: Restore the hardware used index after change map
 Date:   Mon,  8 Feb 2021 16:00:37 +0100
-Message-Id: <20210208145810.445834724@linuxfoundation.org>
+Message-Id: <20210208145820.424239345@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
+References: <20210208145818.395353822@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit a3a9060ecad030e2c7903b2b258383d2c716b56c ]
+[ Upstream commit b35ccebe3ef76168aa2edaa35809c0232cb3578e ]
 
-g++ reports
+When a change of memory map occurs, the hardware resources are destroyed
+and then re-created again with the new memory map. In such case, we need
+to restore the hardware available and used indices. The driver failed to
+restore the used index which is added here.
 
-	drivers/input/serio/i8042-x86ia64io.h:225:3: error: ‘.matches’ designator used multiple times in the same initializer list
+Also, since the driver also fails to reset the available and used
+indices upon device reset, fix this here to avoid regression caused by
+the fact that used index may not be zero upon device reset.
 
-C99 semantics is that last duplicated initialiser wins,
-so DMI entry gets overwritten.
-
-Fixes: a48491c65b51 ("Input: i8042 - add ByteSpeed touchpad to noloop table")
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Acked-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20201228072335.GA27766@localhost.localdomain
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20210204073618.36336-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index eca931da76c3a..b7dbcbac3a1a5 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -219,6 +219,8 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
- 		},
-+	},
-+	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 81b932f72e103..c6529f7c3034a 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -77,6 +77,7 @@ struct mlx5_vq_restore_info {
+ 	u64 device_addr;
+ 	u64 driver_addr;
+ 	u16 avail_index;
++	u16 used_index;
+ 	bool ready;
+ 	struct vdpa_callback cb;
+ 	bool restore;
+@@ -111,6 +112,7 @@ struct mlx5_vdpa_virtqueue {
+ 	u32 virtq_id;
+ 	struct mlx5_vdpa_net *ndev;
+ 	u16 avail_idx;
++	u16 used_idx;
+ 	int fw_state;
+ 
+ 	/* keep last in the struct */
+@@ -789,6 +791,7 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
+ 
+ 	obj_context = MLX5_ADDR_OF(create_virtio_net_q_in, in, obj_context);
+ 	MLX5_SET(virtio_net_q_object, obj_context, hw_available_index, mvq->avail_idx);
++	MLX5_SET(virtio_net_q_object, obj_context, hw_used_index, mvq->used_idx);
+ 	MLX5_SET(virtio_net_q_object, obj_context, queue_feature_bit_mask_12_3,
+ 		 get_features_12_3(ndev->mvdev.actual_features));
+ 	vq_ctx = MLX5_ADDR_OF(virtio_net_q_object, obj_context, virtio_q_context);
+@@ -1007,6 +1010,7 @@ static int connect_qps(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
+ struct mlx5_virtq_attr {
+ 	u8 state;
+ 	u16 available_index;
++	u16 used_index;
+ };
+ 
+ static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq,
+@@ -1037,6 +1041,7 @@ static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueu
+ 	memset(attr, 0, sizeof(*attr));
+ 	attr->state = MLX5_GET(virtio_net_q_object, obj_context, state);
+ 	attr->available_index = MLX5_GET(virtio_net_q_object, obj_context, hw_available_index);
++	attr->used_index = MLX5_GET(virtio_net_q_object, obj_context, hw_used_index);
+ 	kfree(out);
+ 	return 0;
+ 
+@@ -1520,6 +1525,16 @@ static void teardown_virtqueues(struct mlx5_vdpa_net *ndev)
+ 	}
+ }
+ 
++static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
++{
++	int i;
++
++	for (i = ndev->mvdev.max_vqs - 1; i >= 0; i--) {
++		ndev->vqs[i].avail_idx = 0;
++		ndev->vqs[i].used_idx = 0;
++	}
++}
++
+ /* TODO: cross-endian support */
+ static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
+ {
+@@ -1595,6 +1610,7 @@ static int save_channel_info(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqu
+ 		return err;
+ 
+ 	ri->avail_index = attr.available_index;
++	ri->used_index = attr.used_index;
+ 	ri->ready = mvq->ready;
+ 	ri->num_ent = mvq->num_ent;
+ 	ri->desc_addr = mvq->desc_addr;
+@@ -1639,6 +1655,7 @@ static void restore_channels_info(struct mlx5_vdpa_net *ndev)
+ 			continue;
+ 
+ 		mvq->avail_idx = ri->avail_index;
++		mvq->used_idx = ri->used_index;
+ 		mvq->ready = ri->ready;
+ 		mvq->num_ent = ri->num_ent;
+ 		mvq->desc_addr = ri->desc_addr;
+@@ -1753,6 +1770,7 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+ 	if (!status) {
+ 		mlx5_vdpa_info(mvdev, "performing device reset\n");
+ 		teardown_driver(ndev);
++		clear_virtqueues(ndev);
+ 		mlx5_vdpa_destroy_mr(&ndev->mvdev);
+ 		ndev->mvdev.status = 0;
+ 		ndev->mvdev.mlx_features = 0;
 -- 
 2.27.0
 
