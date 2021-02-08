@@ -2,140 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C853C313793
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1789313641
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233821AbhBHP1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:27:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33710 "EHLO mail.kernel.org"
+        id S229611AbhBHPIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:08:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233777AbhBHPWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4D3E64F04;
-        Mon,  8 Feb 2021 15:13:50 +0000 (UTC)
+        id S232363AbhBHPGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:06:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B349B64EDE;
+        Mon,  8 Feb 2021 15:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797231;
-        bh=HPgQTE1rrVEdPU+w3ivKoRwp3o4alHbSAUuORaMcYRs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqNAowDs19OSoN2Dy4qrXRxmVw4bhpjuC3FZ9ESbesIzrJnucDJ1h939iAkvZCO1G
-         Y2i+Xs9eEBFrjqC6i8QSTAkWnJg5D13424q8UNKAjRpu5PNhZSMHdAAl0bkq5ivNCz
-         nchEFcreIMwU/VV0LKSfzxckjxEPP4zH58bGXC7o=
+        s=korg; t=1612796689;
+        bh=D2iaUTmR4dn+fvOOvuid64TM/WBbuMRpbXA1U+GGuyg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=S0YYgWF7gJ5P0DEy+6ODaz6JDG9VV634h3XAkFVv2Jl3V8HpVPOrOIoTgT4gDEDcT
+         zpdr/yzDAIaOYdAlRKmxHkAGZLcPPDwr2erwiOTILbViWJdIpHT3sdPvkECPirgIFk
+         xl8sLSsoj0YmNsZ2t/WvZG7PxUG0/pAuykrI/sJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/120] i40e: Revert "i40e: dont report link up for a VF who hasnt enabled queues"
-Date:   Mon,  8 Feb 2021 16:00:25 +0100
-Message-Id: <20210208145819.933681429@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/43] 4.9.257-rc1 review
+Date:   Mon,  8 Feb 2021 16:00:26 +0100
+Message-Id: <20210208145806.281758651@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.257-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.257-rc1
+X-KernelTest-Deadline: 2021-02-10T14:58+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+This is the start of the stable review cycle for the 4.9.257 release.
+There are 43 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit f559a356043a55bab25a4c00505ea65c50a956fb ]
+Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
+Anything received after that time might be too late.
 
-This reverts commit 2ad1274fa35ace5c6360762ba48d33b63da2396c
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.257-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-VF queues were not brought up when PF was brought up after being
-downed if the VF driver disabled VFs queues during PF down.
-This could happen in some older or external VF driver implementations.
-The problem was that PF driver used vf->queues_enabled as a condition
-to decide what link-state it would send out which caused the issue.
+thanks,
 
-Remove the check for vf->queues_enabled in the VF link notify.
-Now VF will always be notified of the current link status.
-Also remove the queues_enabled member from i40e_vf structure as it is
-not used anymore. Otherwise VNF implementation was broken and caused
-a link flap.
+greg k-h
 
-The original commit was a workaround to avoid breaking existing VFs though
-it's really a fault of the VF code not the PF. The commit should be safe to
-revert as all of the VFs we know of have been fixed. Also, since we now
-know there is a related bug in the workaround, removing it is preferred.
+-------------
+Pseudo-Shortlog of commits:
 
-Fixes: 2ad1274fa35a ("i40e: don't report link up for a VF who hasn't enabled")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 13 +------------
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |  1 -
- 2 files changed, 1 insertion(+), 13 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.257-rc1
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 2872c4dc77f07..3b269c70dcfe1 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -55,12 +55,7 @@ static void i40e_vc_notify_vf_link_state(struct i40e_vf *vf)
- 
- 	pfe.event = VIRTCHNL_EVENT_LINK_CHANGE;
- 	pfe.severity = PF_EVENT_SEVERITY_INFO;
--
--	/* Always report link is down if the VF queues aren't enabled */
--	if (!vf->queues_enabled) {
--		pfe.event_data.link_event.link_status = false;
--		pfe.event_data.link_event.link_speed = 0;
--	} else if (vf->link_forced) {
-+	if (vf->link_forced) {
- 		pfe.event_data.link_event.link_status = vf->link_up;
- 		pfe.event_data.link_event.link_speed =
- 			(vf->link_up ? VIRTCHNL_LINK_SPEED_40GB : 0);
-@@ -70,7 +65,6 @@ static void i40e_vc_notify_vf_link_state(struct i40e_vf *vf)
- 		pfe.event_data.link_event.link_speed =
- 			i40e_virtchnl_link_speed(ls->link_speed);
- 	}
--
- 	i40e_aq_send_msg_to_vf(hw, abs_vf_id, VIRTCHNL_OP_EVENT,
- 			       0, (u8 *)&pfe, sizeof(pfe), NULL);
- }
-@@ -2443,8 +2437,6 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
- 		}
- 	}
- 
--	vf->queues_enabled = true;
--
- error_param:
- 	/* send the response to the VF */
- 	return i40e_vc_send_resp_to_vf(vf, VIRTCHNL_OP_ENABLE_QUEUES,
-@@ -2466,9 +2458,6 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 
--	/* Immediately mark queues as disabled */
--	vf->queues_enabled = false;
--
- 	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-index 5491215d81deb..091e32c1bb46f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-@@ -98,7 +98,6 @@ struct i40e_vf {
- 	unsigned int tx_rate;	/* Tx bandwidth limit in Mbps */
- 	bool link_forced;
- 	bool link_up;		/* only valid if VF link is forced */
--	bool queues_enabled;	/* true if the VF queues are enabled */
- 	bool spoofchk;
- 	u16 num_vlan;
- 
--- 
-2.27.0
+Shih-Yuan Lee (FourDollars) <sylee@canonical.com>
+    ALSA: hda/realtek - Fix typo of pincfg for Dell quirk
 
+Nadav Amit <namit@vmware.com>
+    iommu/vt-d: Do not use flush-queue when caching-mode is on
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: thermal: Do not call acpi_thermal_check() directly
+
+Benjamin Valentin <benpicco@googlemail.com>
+    Input: xpad - sync supported devices with fork on GitHub
+
+Dave Hansen <dave.hansen@linux.intel.com>
+    x86/apic: Add extra serialization for non-serializing MSRs
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    x86/build: Disable CET instrumentation in the kernel
+
+Hugh Dickins <hughd@google.com>
+    mm: thp: fix MADV_REMOVE deadlock on shmem THP
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlb: fix a race between isolating and freeing page
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: footbridge: fix dc21285 PCI configuration accessors
+
+Fengnan Chang <fengnanchang@gmail.com>
+    mmc: core: Limit retries when analyse of SDIO tuples fails
+
+Aurelien Aptel <aaptel@suse.com>
+    cifs: report error instead of invalid when revalidating a dentry fails
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: fix bounce buffer usage for non-sg list case
+
+Wang ShaoBo <bobo.shaobowang@huawei.com>
+    kretprobe: Avoid re-registration of the same kretprobe earlier
+
+Felix Fietkau <nbd@nbd.name>
+    mac80211: fix station rate table updates on assoc
+
+Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+    usb: dwc2: Fix endpoint direction check in ep_from_windex
+
+Jeremy Figgins <kernel@jeremyfiggins.com>
+    USB: usblp: don't call usb_set_interface if there's a single alt
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    USB: gadget: legacy: fix an error code in eth_bind()
+
+Arnd Bergmann <arnd@arndb.de>
+    elfcore: fix building with clang
+
+Xie He <xie.he.0141@gmail.com>
+    net: lapb: Copy the skb before sending a packet
+
+Alexey Dobriyan <adobriyan@gmail.com>
+    Input: i8042 - unbreak Pegatron C15B
+
+Christoph Schemmel <christoph.schemmel@gmail.com>
+    USB: serial: option: Adding support for Cinterion MV31
+
+Chenxin Jin <bg4akv@hotmail.com>
+    USB: serial: cp210x: add new VID/PID for supporting Teraoka AD2000
+
+Pho Tran <Pho.Tran@silabs.com>
+    USB: serial: cp210x: add pid/vid for WSDA-200-USB
+
+Sasha Levin <sashal@kernel.org>
+    stable: clamp SUBLEVEL in 4.4 and 4.9
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Don't fail on missing symbol table
+
+Brian King <brking@linux.vnet.ibm.com>
+    scsi: ibmvfc: Set default timeout to avoid crash during migration
+
+Felix Fietkau <nbd@nbd.name>
+    mac80211: fix fast-rx encryption check
+
+Javed Hasan <jhasan@marvell.com>
+    scsi: libfc: Avoid invoking response handler twice if ep is already completed
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Handle faults correctly for PI futexes
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Simplify fixup_pi_state_owner()
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Use pi_state_update_owner() in put_pi_state()
+
+Thomas Gleixner <tglx@linutronix.de>
+    rtmutex: Remove unused argument from rt_mutex_proxy_unlock()
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Provide and use pi_state_update_owner()
+
+Thomas Gleixner <tglx@linutronix.de>
+    futex: Replace pointless printk in fixup_owner()
+
+Peter Zijlstra <peterz@infradead.org>
+    futex: Avoid violating the 10th rule of futex
+
+Peter Zijlstra <peterz@infradead.org>
+    futex: Rework inconsistent rt_mutex/futex_q state
+
+Peter Zijlstra <peterz@infradead.org>
+    futex: Remove rt_mutex_deadlock_account_*()
+
+Peter Zijlstra <peterz@infradead.org>
+    futex,rt_mutex: Provide futex specific rt_mutex API
+
+Eric Dumazet <edumazet@google.com>
+    net_sched: reject silly cell_log in qdisc_get_rtab()
+
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: Ensure that CRQ entry read are correctly ordered
+
+Pan Bian <bianpan2016@163.com>
+    net: dsa: bcm_sf2: put device node before return
+
+
+-------------
+
+Diffstat:
+
+ Makefile                              |  12 +-
+ arch/arm/mach-footbridge/dc21285.c    |  12 +-
+ arch/x86/Makefile                     |   3 +
+ arch/x86/include/asm/apic.h           |  10 --
+ arch/x86/include/asm/barrier.h        |  18 +++
+ arch/x86/kernel/apic/apic.c           |   4 +
+ arch/x86/kernel/apic/x2apic_cluster.c |   6 +-
+ arch/x86/kernel/apic/x2apic_phys.c    |   6 +-
+ drivers/acpi/thermal.c                |  55 ++++---
+ drivers/input/joystick/xpad.c         |  17 ++-
+ drivers/input/serio/i8042-x86ia64io.h |   2 +
+ drivers/iommu/intel-iommu.c           |   6 +
+ drivers/mmc/core/sdio_cis.c           |   6 +
+ drivers/net/dsa/bcm_sf2.c             |   8 +-
+ drivers/net/ethernet/ibm/ibmvnic.c    |   6 +
+ drivers/scsi/ibmvscsi/ibmvfc.c        |   4 +-
+ drivers/scsi/libfc/fc_exch.c          |  16 +-
+ drivers/usb/class/usblp.c             |  19 ++-
+ drivers/usb/dwc2/gadget.c             |   8 +-
+ drivers/usb/gadget/legacy/ether.c     |   4 +-
+ drivers/usb/host/xhci-ring.c          |  31 ++--
+ drivers/usb/serial/cp210x.c           |   2 +
+ drivers/usb/serial/option.c           |   6 +
+ fs/cifs/dir.c                         |  22 ++-
+ fs/hugetlbfs/inode.c                  |   3 +-
+ include/linux/elfcore.h               |  22 +++
+ include/linux/hugetlb.h               |   3 +
+ kernel/Makefile                       |   1 -
+ kernel/elfcore.c                      |  25 ---
+ kernel/futex.c                        | 276 +++++++++++++++++++---------------
+ kernel/kprobes.c                      |   4 +
+ kernel/locking/rtmutex-debug.c        |   9 --
+ kernel/locking/rtmutex-debug.h        |   3 -
+ kernel/locking/rtmutex.c              | 127 ++++++++++------
+ kernel/locking/rtmutex.h              |   2 -
+ kernel/locking/rtmutex_common.h       |  12 +-
+ mm/huge_memory.c                      |  37 +++--
+ mm/hugetlb.c                          |   9 +-
+ net/lapb/lapb_out.c                   |   3 +-
+ net/mac80211/driver-ops.c             |   5 +-
+ net/mac80211/rate.c                   |   3 +-
+ net/mac80211/rx.c                     |   2 +
+ net/sched/sch_api.c                   |   3 +-
+ sound/pci/hda/patch_realtek.c         |   2 +-
+ tools/objtool/elf.c                   |   7 +-
+ 45 files changed, 521 insertions(+), 320 deletions(-)
 
 
