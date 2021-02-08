@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E4331378E
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6FD313754
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233717AbhBHP1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:27:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
+        id S230424AbhBHPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:23:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231697AbhBHPSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:18:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9FF664F02;
-        Mon,  8 Feb 2021 15:12:11 +0000 (UTC)
+        id S233353AbhBHPRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:17:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE37660238;
+        Mon,  8 Feb 2021 15:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797132;
-        bh=/lB1CqoITpXl91Hx5Owmq4+rsmXz8vTSzRSAOHty2oI=;
+        s=korg; t=1612797097;
+        bh=5SrLtI23WZIAEPavMoaVnodJN3n6Bm4RlGll8JcCVYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYqI7/VSUHPfQPu/7YwQAaqd2KyLaFztC8DVKfKpFU+BFZ5P0KcmHXHcphT1jaGVA
-         T6ZqmC1siOMZZHxtvLLkPSFGFn+jQfa3KE1wGpMZiKizI5ioDm25UG3AQJHliQrUhu
-         9dIJJRxMvLL3WKpAlpH1ArYHDOyz+o2neSfrJnsM=
+        b=vTPr1/cQcsfNjQjP6UbtomkghqP0QOSHbP0C1+Daw8A0rPlcnn0u8Zn5wO7wAf4iO
+         oPwV4a5jmODaJvDAcGaGaHoT7bH78ThtUdfBjktB7FiE69UeP16FiRN0Uwv/I+b8Ms
+         sOQWWOUVzC+iVq5TYZcgPIhD0/Wo3xTdTPDw3Nlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 5.4 54/65] x86/build: Disable CET instrumentation in the kernel
-Date:   Mon,  8 Feb 2021 16:01:26 +0100
-Message-Id: <20210208145812.313985463@linuxfoundation.org>
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 58/65] iommu/vt-d: Do not use flush-queue when caching-mode is on
+Date:   Mon,  8 Feb 2021 16:01:30 +0100
+Message-Id: <20210208145812.475560556@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
 References: <20210208145810.230485165@linuxfoundation.org>
@@ -42,65 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 20bf2b378729c4a0366a53e2018a0b70ace94bcd upstream.
+commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
 
-With retpolines disabled, some configurations of GCC, and specifically
-the GCC versions 9 and 10 in Ubuntu will add Intel CET instrumentation
-to the kernel by default. That breaks certain tracing scenarios by
-adding a superfluous ENDBR64 instruction before the fentry call, for
-functions which can be called indirectly.
+When an Intel IOMMU is virtualized, and a physical device is
+passed-through to the VM, changes of the virtual IOMMU need to be
+propagated to the physical IOMMU. The hypervisor therefore needs to
+monitor PTE mappings in the IOMMU page-tables. Intel specifications
+provide "caching-mode" capability that a virtual IOMMU uses to report
+that the IOMMU is virtualized and a TLB flush is needed after mapping to
+allow the hypervisor to propagate virtual IOMMU mappings to the physical
+IOMMU. To the best of my knowledge no real physical IOMMU reports
+"caching-mode" as turned on.
 
-CET instrumentation isn't currently necessary in the kernel, as CET is
-only supported in user space. Disable it unconditionally and move it
-into the x86's Makefile as CET/CFI... enablement should be a per-arch
-decision anyway.
+Synchronizing the virtual and the physical IOMMU tables is expensive if
+the hypervisor is unaware which PTEs have changed, as the hypervisor is
+required to walk all the virtualized tables and look for changes.
+Consequently, domain flushes are much more expensive than page-specific
+flushes on virtualized IOMMUs with passthrough devices. The kernel
+therefore exploited the "caching-mode" indication to avoid domain
+flushing and use page-specific flushing in virtualized environments. See
+commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
+mode.")
 
- [ bp: Massage and extend commit message. ]
+This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
+of iova deferred flushing"). Now, when batched TLB flushing is used (the
+default), full TLB domain flushes are performed frequently, requiring
+the hypervisor to perform expensive synchronization between the virtual
+TLB and the physical one.
 
-Fixes: 29be86d7f9cb ("kbuild: add -fcf-protection=none when using retpoline flags")
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Cc: <stable@vger.kernel.org>
-Cc: Seth Forshee <seth.forshee@canonical.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lkml.kernel.org/r/20210128215219.6kct3h2eiustncws@treble
+Getting batched TLB flushes to use page-specific invalidations again in
+such circumstances is not easy, since the TLB invalidation scheme
+assumes that "full" domain TLB flushes are performed for scalability.
+
+Disable batched TLB flushes when caching-mode is on, as the performance
+benefit from using batched TLB invalidations is likely to be much
+smaller than the overhead of the virtual-to-physical IOMMU page-tables
+synchronization.
+
+Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Nadav Amit <namit@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Makefile          |    6 ------
- arch/x86/Makefile |    3 +++
- 2 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -920,12 +920,6 @@ KBUILD_CFLAGS   += $(call cc-option,-Wer
- # change __FILE__ to the relative path from the srctree
- KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+---
+ drivers/iommu/intel-iommu.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3285,6 +3285,12 @@ static int __init init_dmars(void)
  
--# ensure -fcf-protection is disabled when using retpoline as it is
--# incompatible with -mindirect-branch=thunk-extern
--ifdef CONFIG_RETPOLINE
--KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
--endif
--
- include scripts/Makefile.kasan
- include scripts/Makefile.extrawarn
- include scripts/Makefile.ubsan
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -131,6 +131,9 @@ else
- 
-         KBUILD_CFLAGS += -mno-red-zone
-         KBUILD_CFLAGS += -mcmodel=kernel
+ 		if (!ecap_pass_through(iommu->ecap))
+ 			hw_pass_through = 0;
 +
-+	# Intel CET isn't enabled in the kernel
-+	KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
- endif
- 
- ifdef CONFIG_X86_X32
++		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
++			pr_info("Disable batched IOTLB flush due to virtualization");
++			intel_iommu_strict = 1;
++		}
++
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ 		if (pasid_supported(iommu))
+ 			intel_svm_init(iommu);
 
 
