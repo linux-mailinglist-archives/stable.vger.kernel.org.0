@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB4B3136EA
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6955631379F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbhBHPRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
+        id S233930AbhBHP2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:28:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233338AbhBHPMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:12:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59F5964EF5;
-        Mon,  8 Feb 2021 15:09:23 +0000 (UTC)
+        id S233882AbhBHPX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:23:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30DD264F0D;
+        Mon,  8 Feb 2021 15:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796964;
-        bh=nWE8prE+g082V2ukI4f+8bi9yIYRgdKWnNSP6749RXM=;
+        s=korg; t=1612797259;
+        bh=VCP2BdcDMCLOM2jMjfkSqwT1vdsv3Yzv0WvdlgvYLgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sH5mw3Yv8uZBYepYiQwCQzebRuteEcDYyK25PaF4AEZc+C2n1FI4qj+umJuQu0rml
-         xSdNobiojcDPjpWQTuRmSlmBhbyjkSHsjWO2s3szh5ihIcqtL2ItobC5RSGumkkZ3O
-         REmz0JBKKtWpTgbsmqDshUcdNqI/VdgLg59e/US4=
+        b=zbuJNaVJcazXntSz2ns0hQr/v5vZqZk4NkvBae+Hjh/Traa+Ax7XDpiri3Bo0wb4m
+         H06RoWdaCs4Y78fO+OCp6aqvjLuPsDg94MgP4nLvoAJ5Em+OOskox8Hq1V0zNQTGZr
+         YiJLbb/UoF7oOEooh2yFOenMyuqcSfz4CSy9FKMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenxin Jin <bg4akv@hotmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 02/65] USB: serial: cp210x: add new VID/PID for supporting Teraoka AD2000
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 047/120] net: ipa: pass correct dma_handle to dma_free_coherent()
 Date:   Mon,  8 Feb 2021 16:00:34 +0100
-Message-Id: <20210208145810.332494144@linuxfoundation.org>
+Message-Id: <20210208145820.298703097@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
+References: <20210208145818.395353822@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chenxin Jin <bg4akv@hotmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 43377df70480f82919032eb09832e9646a8a5efb upstream.
+[ Upstream commit 4ace7a6e287b7e3b33276cd9fe870c326f880480 ]
 
-Teraoka AD2000 uses the CP210x driver, but the chip VID/PID is
-customized with 0988/0578. We need the driver to support the new
-VID/PID.
+The "ring->addr = addr;" assignment is done a few lines later so we
+can't use "ring->addr" yet.  The correct dma_handle is "addr".
 
-Signed-off-by: Chenxin Jin <bg4akv@hotmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 650d1603825d ("soc: qcom: ipa: the generic software interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/YBjpTU2oejkNIULT@mwanda
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ipa/gsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -61,6 +61,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
- 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
- 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
-+	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
- 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
- 	{ USB_DEVICE(0x0BED, 0x1100) }, /* MEI (TM) Cashflow-SC Bill/Voucher Acceptor */
- 	{ USB_DEVICE(0x0BED, 0x1101) }, /* MEI series 2000 Combo Acceptor */
+diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
+index 6bfac1efe037c..4a68da7115d19 100644
+--- a/drivers/net/ipa/gsi.c
++++ b/drivers/net/ipa/gsi.c
+@@ -1256,7 +1256,7 @@ static int gsi_ring_alloc(struct gsi *gsi, struct gsi_ring *ring, u32 count)
+ 	/* Hardware requires a 2^n ring size, with alignment equal to size */
+ 	ring->virt = dma_alloc_coherent(dev, size, &addr, GFP_KERNEL);
+ 	if (ring->virt && addr % size) {
+-		dma_free_coherent(dev, size, ring->virt, ring->addr);
++		dma_free_coherent(dev, size, ring->virt, addr);
+ 		dev_err(dev, "unable to alloc 0x%zx-aligned ring buffer\n",
+ 			size);
+ 		return -EINVAL;	/* Not a good error value, but distinct */
+-- 
+2.27.0
+
 
 
