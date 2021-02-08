@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5352E313831
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4D5313825
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbhBHPhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37070 "EHLO mail.kernel.org"
+        id S233885AbhBHPhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:37:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233768AbhBHPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233922AbhBHPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 10:32:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93F3664F42;
-        Mon,  8 Feb 2021 15:17:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DEFA64F3C;
+        Mon,  8 Feb 2021 15:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797476;
-        bh=Fjkmu67Q7FLaldn2F3+yo7jQuHb/a6aXn743zCIRBGw=;
+        s=korg; t=1612797479;
+        bh=TdTA/fxymBE0tTeiPb+IL5zh8tbFN1R1nYYcEX0XlPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxFFSbrkxjulEcxD5dhsk+IEjvamtkNsbqxPoQg5WEw/fdekfhvRKeBvFyo3E9Ye8
-         gybsBd2oQKyoHKX2L4Jb1OzN77YyLzWCmi3h4/PFGbTSoEQ6t6rbLV58ztGa3pC8FW
-         SeNhMdXhUvFI530KM5bsE4s53l2vpbV+dhR1iwhU=
+        b=UGEvVAlAVoJ0LWQDjq+sDHXph2FusimJoEl93Fhs9pOZJTEsLd8XVBw71JUDowy+L
+         T1SEDGMfb4Mr9rkIr321xJc5WCyo5LTttC4uAQJEiKPg+2zJDgWgfP/Hr2lBbEcVDw
+         e94dXr0oVAWUIAi5UGM4nU9ICrQEPGnqoncCC684=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yang Shi <shy828301@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 100/120] mm: hugetlb: fix a race between isolating and freeing page
-Date:   Mon,  8 Feb 2021 16:01:27 +0100
-Message-Id: <20210208145822.361857278@linuxfoundation.org>
+Subject: [PATCH 5.10 101/120] mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
+Date:   Mon,  8 Feb 2021 16:01:28 +0100
+Message-Id: <20210208145822.401165815@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -47,35 +47,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Muchun Song <songmuchun@bytedance.com>
 
-commit 0eb2df2b5629794020f75e94655e1994af63f0d4 upstream.
+commit ecbf4724e6061b4b01be20f6d797d64d462b2bc8 upstream.
 
-There is a race between isolate_huge_page() and __free_huge_page().
+The page_huge_active() can be called from scan_movable_pages() which do
+not hold a reference count to the HugeTLB page.  So when we call
+page_huge_active() from scan_movable_pages(), the HugeTLB page can be
+freed parallel.  Then we will trigger a BUG_ON which is in the
+page_huge_active() when CONFIG_DEBUG_VM is enabled.  Just remove the
+VM_BUG_ON_PAGE.
 
-  CPU0:                                     CPU1:
-
-  if (PageHuge(page))
-                                            put_page(page)
-                                              __free_huge_page(page)
-                                                  spin_lock(&hugetlb_lock)
-                                                  update_and_free_page(page)
-                                                    set_compound_page_dtor(page,
-                                                      NULL_COMPOUND_DTOR)
-                                                  spin_unlock(&hugetlb_lock)
-    isolate_huge_page(page)
-      // trigger BUG_ON
-      VM_BUG_ON_PAGE(!PageHead(page), page)
-      spin_lock(&hugetlb_lock)
-      page_huge_active(page)
-        // trigger BUG_ON
-        VM_BUG_ON_PAGE(!PageHuge(page), page)
-      spin_unlock(&hugetlb_lock)
-
-When we isolate a HugeTLB page on CPU0.  Meanwhile, we free it to the
-buddy allocator on CPU1.  Then, we can trigger a BUG_ON on CPU0, because
-it is already freed to the buddy allocator.
-
-Link: https://lkml.kernel.org/r/20210115124942.46403-5-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
+Link: https://lkml.kernel.org/r/20210115124942.46403-6-songmuchun@bytedance.com
+Fixes: 7e1f049efb86 ("mm: hugetlb: cleanup using paeg_huge_active()")
 Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
@@ -87,22 +69,20 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/hugetlb.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -5595,9 +5595,9 @@ bool isolate_huge_page(struct page *page
+@@ -1361,8 +1361,7 @@ struct hstate *size_to_hstate(unsigned l
+  */
+ bool page_huge_active(struct page *page)
  {
- 	bool ret = true;
+-	VM_BUG_ON_PAGE(!PageHuge(page), page);
+-	return PageHead(page) && PagePrivate(&page[1]);
++	return PageHeadHuge(page) && PagePrivate(&page[1]);
+ }
  
--	VM_BUG_ON_PAGE(!PageHead(page), page);
- 	spin_lock(&hugetlb_lock);
--	if (!page_huge_active(page) || !get_page_unless_zero(page)) {
-+	if (!PageHeadHuge(page) || !page_huge_active(page) ||
-+	    !get_page_unless_zero(page)) {
- 		ret = false;
- 		goto unlock;
- 	}
+ /* never called for tail page */
 
 
