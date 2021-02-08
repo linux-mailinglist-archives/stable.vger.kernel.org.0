@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D657313702
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF0231361F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233444AbhBHPSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:18:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
+        id S232676AbhBHPGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233390AbhBHPNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:13:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4689C64EA4;
-        Mon,  8 Feb 2021 15:09:43 +0000 (UTC)
+        id S232734AbhBHPEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:04:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F009C64ECB;
+        Mon,  8 Feb 2021 15:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796983;
-        bh=06UISuueafKnvCsvOUKs4efLyGgYir3jjkFATP7Lw/A=;
+        s=korg; t=1612796620;
+        bh=ZXp0hkJIVKIJ3lKq5rUhnefyeUf147Ey5GhnkrKBKyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BN6m4VfzjqjEzXIvLhLd0Lu88rVjVT6rGcW5AqaT3oEkvrypVKSFdzRzqqLaf5AFB
-         uaRWk4viW75hfsq+hcqf3vsf9OBzStFx0a+su8i1bQeOvzrhSDkROwdz7pGPNhN8/7
-         W5TF5ZI/hPCTelbCxjSPaIiJ4iq2SSa06/d09w68=
+        b=MXr2Fr9XYi0n65Dxa9TFktn1MRbsElSmd/bYS07ATjQ284OIdaD38D5p+n7A38ww0
+         cX+RiF7GrRI4l0qdE1gFVGuTfBu2y28dd74NUSdHgYPMyExv3iIp+lFjkSQDTitfFp
+         nkBD9CaaUj6lJ3HaEc01d7u2gvzTNPeKQED1oe9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loris Reiff <loris.reiff@liblor.ch>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/65] bpf, cgroup: Fix problematic bounds check
-Date:   Mon,  8 Feb 2021 16:00:41 +0100
-Message-Id: <20210208145810.599465221@linuxfoundation.org>
+Subject: [PATCH 4.4 20/38] net: lapb: Copy the skb before sending a packet
+Date:   Mon,  8 Feb 2021 16:00:42 +0100
+Message-Id: <20210208145806.084136251@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loris Reiff <loris.reiff@liblor.ch>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit f4a2da755a7e1f5d845c52aee71336cee289935a ]
+[ Upstream commit 88c7a9fd9bdd3e453f04018920964c6f848a591a ]
 
-Since ctx.optlen is signed, a larger value than max_value could be
-passed, as it is later on used as unsigned, which causes a WARN_ON_ONCE
-in the copy_to_user.
+When sending a packet, we will prepend it with an LAPB header.
+This modifies the shared parts of a cloned skb, so we should copy the
+skb rather than just clone it, before we prepend the header.
 
-Fixes: 0d01da6afc54 ("bpf: implement getsockopt and setsockopt hooks")
-Signed-off-by: Loris Reiff <loris.reiff@liblor.ch>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/bpf/20210122164232.61770-2-loris.reiff@liblor.ch
+In "Documentation/networking/driver.rst" (the 2nd point), it states
+that drivers shouldn't modify the shared parts of a cloned skb when
+transmitting.
+
+The "dev_queue_xmit_nit" function in "net/core/dev.c", which is called
+when an skb is being sent, clones the skb and sents the clone to
+AF_PACKET sockets. Because the LAPB drivers first remove a 1-byte
+pseudo-header before handing over the skb to us, if we don't copy the
+skb before prepending the LAPB header, the first byte of the packets
+received on AF_PACKET sockets can be corrupted.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20210201055706.415842-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/cgroup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/lapb/lapb_out.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index 5b2413eb79db4..c2f0aa818b7af 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -1131,7 +1131,7 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
- 		goto out;
- 	}
+diff --git a/net/lapb/lapb_out.c b/net/lapb/lapb_out.c
+index ba4d015bd1a67..7cbb77b7479a6 100644
+--- a/net/lapb/lapb_out.c
++++ b/net/lapb/lapb_out.c
+@@ -87,7 +87,8 @@ void lapb_kick(struct lapb_cb *lapb)
+ 		skb = skb_dequeue(&lapb->write_queue);
  
--	if (ctx.optlen > max_optlen) {
-+	if (ctx.optlen > max_optlen || ctx.optlen < 0) {
- 		ret = -EFAULT;
- 		goto out;
- 	}
+ 		do {
+-			if ((skbn = skb_clone(skb, GFP_ATOMIC)) == NULL) {
++			skbn = skb_copy(skb, GFP_ATOMIC);
++			if (!skbn) {
+ 				skb_queue_head(&lapb->write_queue, skb);
+ 				break;
+ 			}
 -- 
 2.27.0
 
