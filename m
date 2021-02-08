@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3720A31382D
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EAA3137FB
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:35:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232532AbhBHPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38838 "EHLO mail.kernel.org"
+        id S233840AbhBHPey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:34:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233968AbhBHPcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:32:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBD7464F41;
-        Mon,  8 Feb 2021 15:17:52 +0000 (UTC)
+        id S233318AbhBHPSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:18:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD71E64EC6;
+        Mon,  8 Feb 2021 15:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797473;
-        bh=FJ5ZTo07s33B4dh23fjKpnTXw+8f3fE7FhfRQaf3IGU=;
+        s=korg; t=1612797135;
+        bh=ynb4w0o1+rhflb8tl3T9Vu5cz7uL0Xt2S0fGJqEV7Tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRom8mj6S4wgz6r/sQZXY75RQ8revEz6+pKUmfSnBQHImtowaASY85hzwu4AC0bDn
-         J13KzhM1E5MwGMKQNLYuf2uCHL173WYTVmw3cc9TTlsCN34CfuTlRrKTViZyqh0NEm
-         Mp62zXfdDDHH6ayMtpYlrHbqKDjQ6zmnn/Pu1Frc=
+        b=OX2lrgQKZRV+GwrQoW72E7QCycDm19BDfhxhkpJaJyIk4Q9L/Jeba1kLL9yYP6hcX
+         xi9r7v/JPxFToRszTn/aOA7EzyTMGdTP4n97MIkPWlQG1pu3yVB/VRu0UwfP4Jt7zj
+         Y+fIe9YUHpFFRuUxuRx0dFQ5QQ4Z1dik6wZCYAKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 099/120] mm: hugetlb: fix a race between freeing and dissolving the page
-Date:   Mon,  8 Feb 2021 16:01:26 +0100
-Message-Id: <20210208145822.324870255@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 55/65] x86/apic: Add extra serialization for non-serializing MSRs
+Date:   Mon,  8 Feb 2021 16:01:27 +0100
+Message-Id: <20210208145812.351639855@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,136 +42,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-commit 7ffddd499ba6122b1a07828f023d1d67629aa017 upstream.
+commit 25a068b8e9a4eb193d755d58efcb3c98928636e0 upstream.
 
-There is a race condition between __free_huge_page()
-and dissolve_free_huge_page().
+Jan Kiszka reported that the x2apic_wrmsr_fence() function uses a plain
+MFENCE while the Intel SDM (10.12.3 MSR Access in x2APIC Mode) calls for
+MFENCE; LFENCE.
 
-  CPU0:                         CPU1:
+Short summary: we have special MSRs that have weaker ordering than all
+the rest. Add fencing consistent with current SDM recommendations.
 
-  // page_count(page) == 1
-  put_page(page)
-    __free_huge_page(page)
-                                dissolve_free_huge_page(page)
-                                  spin_lock(&hugetlb_lock)
-                                  // PageHuge(page) && !page_count(page)
-                                  update_and_free_page(page)
-                                  // page is freed to the buddy
-                                  spin_unlock(&hugetlb_lock)
-      spin_lock(&hugetlb_lock)
-      clear_page_huge_active(page)
-      enqueue_huge_page(page)
-      // It is wrong, the page is already freed
-      spin_unlock(&hugetlb_lock)
+This is not known to cause any issues in practice, only in theory.
 
-The race window is between put_page() and dissolve_free_huge_page().
+Longer story below:
 
-We should make sure that the page is already on the free list when it is
-dissolved.
+The reason the kernel uses a different semantic is that the SDM changed
+(roughly in late 2017). The SDM changed because folks at Intel were
+auditing all of the recommended fences in the SDM and realized that the
+x2apic fences were insufficient.
 
-As a result __free_huge_page would corrupt page(s) already in the buddy
-allocator.
+Why was the pain MFENCE judged insufficient?
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-4-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
+WRMSR itself is normally a serializing instruction. No fences are needed
+because the instruction itself serializes everything.
+
+But, there are explicit exceptions for this serializing behavior written
+into the WRMSR instruction documentation for two classes of MSRs:
+IA32_TSC_DEADLINE and the X2APIC MSRs.
+
+Back to x2apic: WRMSR is *not* serializing in this specific case.
+But why is MFENCE insufficient? MFENCE makes writes visible, but
+only affects load/store instructions. WRMSR is unfortunately not a
+load/store instruction and is unaffected by MFENCE. This means that a
+non-serializing WRMSR could be reordered by the CPU to execute before
+the writes made visible by the MFENCE have even occurred in the first
+place.
+
+This means that an x2apic IPI could theoretically be triggered before
+there is any (visible) data to process.
+
+Does this affect anything in practice? I honestly don't know. It seems
+quite possible that by the time an interrupt gets to consume the (not
+yet) MFENCE'd data, it has become visible, mostly by accident.
+
+To be safe, add the SDM-recommended fences for all x2apic WRMSRs.
+
+This also leaves open the question of the _other_ weakly-ordered WRMSR:
+MSR_IA32_TSC_DEADLINE. While it has the same ordering architecture as
+the x2APIC MSRs, it seems substantially less likely to be a problem in
+practice. While writes to the in-memory Local Vector Table (LVT) might
+theoretically be reordered with respect to a weakly-ordered WRMSR like
+TSC_DEADLINE, the SDM has this to say:
+
+  In x2APIC mode, the WRMSR instruction is used to write to the LVT
+  entry. The processor ensures the ordering of this write and any
+  subsequent WRMSR to the deadline; no fencing is required.
+
+But, that might still leave xAPIC exposed. The safest thing to do for
+now is to add the extra, recommended LFENCE.
+
+ [ bp: Massage commit message, fix typos, drop accidentally added
+   newline to tools/arch/x86/include/asm/barrier.h. ]
+
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20200305174708.F77040DD@viggo.jf.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ arch/x86/include/asm/apic.h           |   10 ----------
+ arch/x86/include/asm/barrier.h        |   18 ++++++++++++++++++
+ arch/x86/kernel/apic/apic.c           |    4 ++++
+ arch/x86/kernel/apic/x2apic_cluster.c |    6 ++++--
+ arch/x86/kernel/apic/x2apic_phys.c    |    9 ++++++---
+ 5 files changed, 32 insertions(+), 15 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -79,6 +79,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
- static int num_fault_mutexes;
- struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -197,16 +197,6 @@ static inline bool apic_needs_pit(void)
+ #endif /* !CONFIG_X86_LOCAL_APIC */
  
-+static inline bool PageHugeFreed(struct page *head)
-+{
-+	return page_private(head + 4) == -1UL;
-+}
-+
-+static inline void SetPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, -1UL);
-+}
-+
-+static inline void ClearPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, 0);
-+}
-+
- /* Forward declaration */
- static int hugetlb_acct_memory(struct hstate *h, long delta);
- 
-@@ -1028,6 +1043,7 @@ static void enqueue_huge_page(struct hst
- 	list_move(&page->lru, &h->hugepage_freelists[nid]);
- 	h->free_huge_pages++;
- 	h->free_huge_pages_node[nid]++;
-+	SetPageHugeFreed(page);
- }
- 
- static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
-@@ -1044,6 +1060,7 @@ static struct page *dequeue_huge_page_no
- 
- 		list_move(&page->lru, &h->hugepage_activelist);
- 		set_page_refcounted(page);
-+		ClearPageHugeFreed(page);
- 		h->free_huge_pages--;
- 		h->free_huge_pages_node[nid]--;
- 		return page;
-@@ -1505,6 +1522,7 @@ static void prep_new_huge_page(struct hs
- 	spin_lock(&hugetlb_lock);
- 	h->nr_huge_pages++;
- 	h->nr_huge_pages_node[nid]++;
-+	ClearPageHugeFreed(page);
- 	spin_unlock(&hugetlb_lock);
- }
- 
-@@ -1755,6 +1773,7 @@ int dissolve_free_huge_page(struct page
+ #ifdef CONFIG_X86_X2APIC
+-/*
+- * Make previous memory operations globally visible before
+- * sending the IPI through x2apic wrmsr. We need a serializing instruction or
+- * mfence for this.
+- */
+-static inline void x2apic_wrmsr_fence(void)
+-{
+-	asm volatile("mfence" : : : "memory");
+-}
+-
+ static inline void native_apic_msr_write(u32 reg, u32 v)
  {
- 	int rc = -EBUSY;
+ 	if (reg == APIC_DFR || reg == APIC_ID || reg == APIC_LDR ||
+--- a/arch/x86/include/asm/barrier.h
++++ b/arch/x86/include/asm/barrier.h
+@@ -84,4 +84,22 @@ do {									\
  
-+retry:
- 	/* Not to disrupt normal path by vainly holding hugetlb_lock */
- 	if (!PageHuge(page))
- 		return 0;
-@@ -1771,6 +1790,26 @@ int dissolve_free_huge_page(struct page
- 		int nid = page_to_nid(head);
- 		if (h->free_huge_pages - h->resv_huge_pages == 0)
- 			goto out;
+ #include <asm-generic/barrier.h>
+ 
++/*
++ * Make previous memory operations globally visible before
++ * a WRMSR.
++ *
++ * MFENCE makes writes visible, but only affects load/store
++ * instructions.  WRMSR is unfortunately not a load/store
++ * instruction and is unaffected by MFENCE.  The LFENCE ensures
++ * that the WRMSR is not reordered.
++ *
++ * Most WRMSRs are full serializing instructions themselves and
++ * do not require this barrier.  This is only required for the
++ * IA32_TSC_DEADLINE and X2APIC MSRs.
++ */
++static inline void weak_wrmsr_fence(void)
++{
++	asm volatile("mfence; lfence" : : : "memory");
++}
 +
-+		/*
-+		 * We should make sure that the page is already on the free list
-+		 * when it is dissolved.
-+		 */
-+		if (unlikely(!PageHugeFreed(head))) {
-+			spin_unlock(&hugetlb_lock);
-+			cond_resched();
+ #endif /* _ASM_X86_BARRIER_H */
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -42,6 +42,7 @@
+ #include <asm/x86_init.h>
+ #include <asm/pgalloc.h>
+ #include <linux/atomic.h>
++#include <asm/barrier.h>
+ #include <asm/mpspec.h>
+ #include <asm/i8259.h>
+ #include <asm/proto.h>
+@@ -472,6 +473,9 @@ static int lapic_next_deadline(unsigned
+ {
+ 	u64 tsc;
+ 
++	/* This MSR is special and need a special fence: */
++	weak_wrmsr_fence();
 +
-+			/*
-+			 * Theoretically, we should return -EBUSY when we
-+			 * encounter this race. In fact, we have a chance
-+			 * to successfully dissolve the page if we do a
-+			 * retry. Because the race window is quite small.
-+			 * If we seize this opportunity, it is an optimization
-+			 * for increasing the success rate of dissolving page.
-+			 */
-+			goto retry;
-+		}
-+
- 		/*
- 		 * Move PageHWPoison flag from head page to the raw error page,
- 		 * which makes any subpages rather than the error page reusable.
+ 	tsc = rdtsc();
+ 	wrmsrl(MSR_IA32_TSC_DEADLINE, tsc + (((u64) delta) * TSC_DIVISOR));
+ 	return 0;
+--- a/arch/x86/kernel/apic/x2apic_cluster.c
++++ b/arch/x86/kernel/apic/x2apic_cluster.c
+@@ -29,7 +29,8 @@ static void x2apic_send_IPI(int cpu, int
+ {
+ 	u32 dest = per_cpu(x86_cpu_to_logical_apicid, cpu);
+ 
+-	x2apic_wrmsr_fence();
++	/* x2apic MSRs are special and need a special fence: */
++	weak_wrmsr_fence();
+ 	__x2apic_send_IPI_dest(dest, vector, APIC_DEST_LOGICAL);
+ }
+ 
+@@ -41,7 +42,8 @@ __x2apic_send_IPI_mask(const struct cpum
+ 	unsigned long flags;
+ 	u32 dest;
+ 
+-	x2apic_wrmsr_fence();
++	/* x2apic MSRs are special and need a special fence: */
++	weak_wrmsr_fence();
+ 	local_irq_save(flags);
+ 
+ 	tmpmsk = this_cpu_cpumask_var_ptr(ipi_mask);
+--- a/arch/x86/kernel/apic/x2apic_phys.c
++++ b/arch/x86/kernel/apic/x2apic_phys.c
+@@ -43,7 +43,8 @@ static void x2apic_send_IPI(int cpu, int
+ {
+ 	u32 dest = per_cpu(x86_cpu_to_apicid, cpu);
+ 
+-	x2apic_wrmsr_fence();
++	/* x2apic MSRs are special and need a special fence: */
++	weak_wrmsr_fence();
+ 	__x2apic_send_IPI_dest(dest, vector, APIC_DEST_PHYSICAL);
+ }
+ 
+@@ -54,7 +55,8 @@ __x2apic_send_IPI_mask(const struct cpum
+ 	unsigned long this_cpu;
+ 	unsigned long flags;
+ 
+-	x2apic_wrmsr_fence();
++	/* x2apic MSRs are special and need a special fence: */
++	weak_wrmsr_fence();
+ 
+ 	local_irq_save(flags);
+ 
+@@ -125,7 +127,8 @@ void __x2apic_send_IPI_shorthand(int vec
+ {
+ 	unsigned long cfg = __prepare_ICR(which, vector, 0);
+ 
+-	x2apic_wrmsr_fence();
++	/* x2apic MSRs are special and need a special fence: */
++	weak_wrmsr_fence();
+ 	native_x2apic_icr_write(cfg, 0);
+ }
+ 
 
 
