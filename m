@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7F03137A4
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5EC31364C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233936AbhBHP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:28:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        id S232667AbhBHPI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:08:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232995AbhBHPYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:24:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C5DC64EB1;
-        Mon,  8 Feb 2021 15:14:42 +0000 (UTC)
+        id S231180AbhBHPFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:05:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 183F764ECA;
+        Mon,  8 Feb 2021 15:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797283;
-        bh=eeZLm0gwuVMKgd8oJsyfhkpWbsqf7K69YBI0Pzqy5h0=;
+        s=korg; t=1612796649;
+        bh=Nogwv7lW236FlG9laAEQyERHcHhF0IvFYA0aUlAnmuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TySWFwSx0Ia8hLDzyv9CS0ZjDoN2AhlbM2ZFw3DjQ94W7mp1wehOJEM0upJULK+dX
-         YugJHrS0eUaxVMbWkEDz9PBcyjwTJ44LjL6kuNlLHYrMaTUul7cJ1GGGx4gtBNMSQW
-         r0Ich+B3xqwpdET8cd3ksXm2ffB73/+QY2scEIiQ=
+        b=OrZKehvlFIZ0DHk3ti0I+iRS4wygyQcuKg9oUDK1CbR6lFWeNwQTaTRcMONIyn8IJ
+         BzkvOMSfOKpQFDy0BT642Ap+6rFpBeTSbwG1ol0XZJbGMh09QtlFzx0HLXF0J28Brx
+         RHFaC41Ttgy7Pi6iQEs0IdA6U0zEF0tUTbEjtWoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 055/120] ovl: avoid deadlock on directory ioctl
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 16/43] scsi: ibmvfc: Set default timeout to avoid crash during migration
 Date:   Mon,  8 Feb 2021 16:00:42 +0100
-Message-Id: <20210208145820.615921124@linuxfoundation.org>
+Message-Id: <20210208145806.966964025@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-commit b854cc659dcb80f172cb35dbedc15d39d49c383f upstream.
+[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
 
-The function ovl_dir_real_file() currently uses the inode lock to serialize
-writes to the od->upperfile field.
+While testing live partition mobility, we have observed occasional crashes
+of the Linux partition. What we've seen is that during the live migration,
+for specific configurations with large amounts of memory, slow network
+links, and workloads that are changing memory a lot, the partition can end
+up being suspended for 30 seconds or longer. This resulted in the following
+scenario:
 
-However, this function will get called by ovl_ioctl_set_flags(), which
-utilizes the inode lock too.  In this case ovl_dir_real_file() will try to
-claim a lock that is owned by a function in its call stack, which won't get
-released before ovl_dir_real_file() returns.
+CPU 0                          CPU 1
+-------------------------------  ----------------------------------
+scsi_queue_rq                    migration_store
+ -> blk_mq_start_request          -> rtas_ibm_suspend_me
+  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
+              _______________________________________V
+             |
+             V
+    -> IPI from CPU 1
+     -> rtas_percpu_suspend_me
+                                     -> __rtas_suspend_last_cpu
 
-Fix by replacing the open coded compare and exchange by an explicit atomic
-op.
+-- Linux partition suspended for > 30 seconds --
+                                      -> for_each_online_cpu(cpu)
+                                           plpar_hcall_norets(H_PROD
+ -> scsi_dispatch_cmd
+                                      -> scsi_times_out
+                                       -> scsi_abort_command
+                                        -> queue_delayed_work
+  -> ibmvfc_queuecommand_lck
+   -> ibmvfc_send_event
+    -> ibmvfc_send_crq
+     - returns H_CLOSED
+   <- returns SCSI_MLQUEUE_HOST_BUSY
+-> __blk_mq_requeue_request
 
-Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and FS[S|G]ETXATTR ioctls for directories")
-Cc: stable@vger.kernel.org # v5.10
-Reported-by: Icenowy Zheng <icenowy@aosc.io>
-Tested-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+                                      -> scmd_eh_abort_handler
+                                       -> scsi_try_to_abort_cmd
+                                         - returns SUCCESS
+                                       -> scsi_queue_insert
+
+Normally, the SCMD_STATE_COMPLETE bit would protect against the command
+completion and the timeout, but that doesn't work here, since we don't
+check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
+
+In this case we end up calling scsi_queue_insert on a request that has
+already been queued, or possibly even freed, and we crash.
+
+The patch below simply increases the default I/O timeout to avoid this race
+condition. This is also the timeout value that nearly all IBM SAN storage
+recommends setting as the default value.
+
+Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/readdir.c |   23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/overlayfs/readdir.c
-+++ b/fs/overlayfs/readdir.c
-@@ -865,7 +865,7 @@ struct file *ovl_dir_real_file(const str
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index 04b3ac17531db..7865feb8e5e83 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -2891,8 +2891,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
+ 	unsigned long flags = 0;
  
- 	struct ovl_dir_file *od = file->private_data;
- 	struct dentry *dentry = file->f_path.dentry;
--	struct file *realfile = od->realfile;
-+	struct file *old, *realfile = od->realfile;
- 
- 	if (!OVL_TYPE_UPPER(ovl_path_type(dentry)))
- 		return want_upper ? NULL : realfile;
-@@ -874,29 +874,20 @@ struct file *ovl_dir_real_file(const str
- 	 * Need to check if we started out being a lower dir, but got copied up
- 	 */
- 	if (!od->is_upper) {
--		struct inode *inode = file_inode(file);
--
- 		realfile = READ_ONCE(od->upperfile);
- 		if (!realfile) {
- 			struct path upperpath;
- 
- 			ovl_path_upper(dentry, &upperpath);
- 			realfile = ovl_dir_open_realfile(file, &upperpath);
-+			if (IS_ERR(realfile))
-+				return realfile;
- 
--			inode_lock(inode);
--			if (!od->upperfile) {
--				if (IS_ERR(realfile)) {
--					inode_unlock(inode);
--					return realfile;
--				}
--				smp_store_release(&od->upperfile, realfile);
--			} else {
--				/* somebody has beaten us to it */
--				if (!IS_ERR(realfile))
--					fput(realfile);
--				realfile = od->upperfile;
-+			old = cmpxchg_release(&od->upperfile, NULL, realfile);
-+			if (old) {
-+				fput(realfile);
-+				realfile = old;
- 			}
--			inode_unlock(inode);
- 		}
- 	}
- 
+ 	spin_lock_irqsave(shost->host_lock, flags);
+-	if (sdev->type == TYPE_DISK)
++	if (sdev->type == TYPE_DISK) {
+ 		sdev->allow_restart = 1;
++		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
++	}
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+ 	return 0;
+ }
+-- 
+2.27.0
+
 
 
