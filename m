@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA9331365B
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E95313722
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232226AbhBHPJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S233711AbhBHPUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:20:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233082AbhBHPGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 249C164EBE;
-        Mon,  8 Feb 2021 15:05:10 +0000 (UTC)
+        id S231452AbhBHPNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D6664EFF;
+        Mon,  8 Feb 2021 15:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796711;
-        bh=cAtUfQ2deIWTOa9F+bv1peJGC0CcBX/K7eepwU7rZeA=;
+        s=korg; t=1612797027;
+        bh=Vw21LDfqvR1vAbR9fbUI1B2If3KKTuMXwiCW1ovarE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7ReQxA9LV8cvz8kAiuyIpqXvXyFOqRPo19h740VMCqdW5VDNHfr7LPbN2aODvfCR
-         EMnyUZr1YTqTZmqrZbp4gxVL1f4lj1b5hFUQZdCr8iUShX0vfNJh/B8fJ9UGQJb311
-         Nceo86UoIjE8+ir8+uOd/rphAM4l9hZI4Iuer2FY=
+        b=WXszzOgjo3OgFuXDLWtcVG5rRk/vTk6JECVLYim9ImU9KLuAU3VVDGQhRhMX+rVLG
+         1YJl+FYlNxn7oEUpI5DCpMuZSj40VKybbuKNTuoiopTcBzNjKdAX4xtfaYOOAeRDGH
+         mhIYZMgKaifTG2AkBiff3RFgKWoL+p3FwHmn3qXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 4.9 38/43] x86/build: Disable CET instrumentation in the kernel
-Date:   Mon,  8 Feb 2021 16:01:04 +0100
-Message-Id: <20210208145807.853978433@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 33/65] mac80211: fix station rate table updates on assoc
+Date:   Mon,  8 Feb 2021 16:01:05 +0100
+Message-Id: <20210208145811.507439369@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 20bf2b378729c4a0366a53e2018a0b70ace94bcd upstream.
+commit 18fe0fae61252b5ae6e26553e2676b5fac555951 upstream.
 
-With retpolines disabled, some configurations of GCC, and specifically
-the GCC versions 9 and 10 in Ubuntu will add Intel CET instrumentation
-to the kernel by default. That breaks certain tracing scenarios by
-adding a superfluous ENDBR64 instruction before the fentry call, for
-functions which can be called indirectly.
+If the driver uses .sta_add, station entries are only uploaded after the sta
+is in assoc state. Fix early station rate table updates by deferring them
+until the sta has been uploaded.
 
-CET instrumentation isn't currently necessary in the kernel, as CET is
-only supported in user space. Disable it unconditionally and move it
-into the x86's Makefile as CET/CFI... enablement should be a per-arch
-decision anyway.
-
- [ bp: Massage and extend commit message. ]
-
-Fixes: 29be86d7f9cb ("kbuild: add -fcf-protection=none when using retpoline flags")
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Cc: <stable@vger.kernel.org>
-Cc: Seth Forshee <seth.forshee@canonical.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lkml.kernel.org/r/20210128215219.6kct3h2eiustncws@treble
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20210201083324.3134-1-nbd@nbd.name
+[use rcu_access_pointer() instead since we won't dereference here]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile          |    6 ------
- arch/x86/Makefile |    3 +++
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ net/mac80211/driver-ops.c |    5 ++++-
+ net/mac80211/rate.c       |    3 ++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -841,12 +841,6 @@ KBUILD_CFLAGS   += $(call cc-option,-Wer
- # change __FILE__ to the relative path from the srctree
- KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+--- a/net/mac80211/driver-ops.c
++++ b/net/mac80211/driver-ops.c
+@@ -125,8 +125,11 @@ int drv_sta_state(struct ieee80211_local
+ 	} else if (old_state == IEEE80211_STA_AUTH &&
+ 		   new_state == IEEE80211_STA_ASSOC) {
+ 		ret = drv_sta_add(local, sdata, &sta->sta);
+-		if (ret == 0)
++		if (ret == 0) {
+ 			sta->uploaded = true;
++			if (rcu_access_pointer(sta->sta.rates))
++				drv_sta_rate_tbl_update(local, sdata, &sta->sta);
++		}
+ 	} else if (old_state == IEEE80211_STA_ASSOC &&
+ 		   new_state == IEEE80211_STA_AUTH) {
+ 		drv_sta_remove(local, sdata, &sta->sta);
+--- a/net/mac80211/rate.c
++++ b/net/mac80211/rate.c
+@@ -934,7 +934,8 @@ int rate_control_set_rates(struct ieee80
+ 	if (old)
+ 		kfree_rcu(old, rcu_head);
  
--# ensure -fcf-protection is disabled when using retpoline as it is
--# incompatible with -mindirect-branch=thunk-extern
--ifdef CONFIG_RETPOLINE
--KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
--endif
--
- # use the deterministic mode of AR if available
- KBUILD_ARFLAGS := $(call ar-option,D)
+-	drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
++	if (sta->uploaded)
++		drv_sta_rate_tbl_update(hw_to_local(hw), sta->sdata, pubsta);
  
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -137,6 +137,9 @@ else
-         KBUILD_CFLAGS += -mno-red-zone
-         KBUILD_CFLAGS += -mcmodel=kernel
+ 	ieee80211_sta_set_expected_throughput(pubsta, sta_get_expected_throughput(sta));
  
-+	# Intel CET isn't enabled in the kernel
-+	KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
-+
-         # -funit-at-a-time shrinks the kernel .text considerably
-         # unfortunately it makes reading oopses harder.
-         KBUILD_CFLAGS += $(call cc-option,-funit-at-a-time)
 
 
