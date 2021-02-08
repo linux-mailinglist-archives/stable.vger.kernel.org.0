@@ -2,114 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 854AC313094
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AF5313129
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:44:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233077AbhBHLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 06:20:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233125AbhBHLSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:18:09 -0500
-Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 949C6C06178B
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 03:17:29 -0800 (PST)
-Received: by mail-oo1-xc44.google.com with SMTP id q4so3342607ood.8
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 03:17:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Bps2S9MOvVarCy+pfO9ph7WX9b/kvbXybZKFRYvS39o=;
-        b=ppp2mlboV4gvOElkN5t6lAeXxQqN8DXzouILzvQjJE7AZZbepIvlWLIs6e1/tVO9uh
-         kkXHyjSBnVsbPSLbGByvpCYOga9OdF4rQT1E9Ngbny7cfTKCu1Otm/zPMGbKJoFlS1pw
-         KfsCrQjmF1EkKPYyvrkf392Ux0HGbVVFgcpPQPIToUgizgtpZ/PqgBo15XnVa/n8Q2nk
-         qommHo6nao2C3lD307HG3i7wSkAip37Nq8o9vNRGxLPWaayBGeaKThpqxF9W8QzmLuGL
-         BLRXQ+sN5RxvXcVXCFLUS52bY7qGtl9HvKoo0WVR/m/grBZ3qTwSXoX64CunE9H0ZPo2
-         CqLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Bps2S9MOvVarCy+pfO9ph7WX9b/kvbXybZKFRYvS39o=;
-        b=FW/1uN/dZFNHcQoKJtLbkBmPBCex27E6ts2e+EjTiBtbpka7tXMC1hML710R3RFD/L
-         rqmkj6nOEIlKs9P9uqgtOlMGh3RiiadG8hhfDydofEaPPbQhQRf3Z4gqq/r/m/TUpf1W
-         9JLCcts6EQFY8W+Ie1PYZ+iBEev2Z8QiizqcFJHwJlcxJorcZM51xN3wMe6uWeCK2Cj8
-         WmifSv2qhXwhbEK66cNiwBzWnxVA8iwGeC3yzJbY+DppqVCgnCP8elfnb+QNT8JRu3np
-         5uSiawW3mWBU7tkTjnJEz7fI9suUh1Xc/zKwduJzcmH3pzAC+MNjmPpkTzwU1LjqvRvB
-         ZbtQ==
-X-Gm-Message-State: AOAM532ZN4Vj7nxg0LKPr+IzqaW904j/sOeWgpHfaY8xrsYomY+4o4Xd
-        U1t32mFkT/oQY0T/IPM8BbFC/VRwrbIVMku/rzs=
-X-Google-Smtp-Source: ABdhPJyuiNdQLlRp1IVNXio11UTgy5o8mphuVOKy3PoYdDvljXZq7VJpYv3Adgs6M0iGnnA8ZHUU4+6g2kstOrSsyy4=
-X-Received: by 2002:a4a:4302:: with SMTP id k2mr12122748ooj.50.1612783047727;
- Mon, 08 Feb 2021 03:17:27 -0800 (PST)
+        id S233006AbhBHLnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 06:43:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36714 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232573AbhBHLjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 06:39:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E4D64E40;
+        Mon,  8 Feb 2021 11:39:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612784347;
+        bh=a4r5uzhe+W40QfBxBdHzqmTIeXrjs4qDjNpia/+gJag=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JmuqOjOO0I8hX3UWaH0d9y4GIZ/M3thZByYEVae7U5N9kI+GoNJRGdwfMxEwC7ERs
+         TYOfmiafy1MH8xR07/0t4twEFP4g4pQMRkSGA0ROG/QPW+2PlSq8Xt2banOr8lzExv
+         HqPeADXGJOgg+TLiPEJ9fktP/qb4z+IfpMDi3XPg=
+Date:   Mon, 8 Feb 2021 12:39:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     mathias.nyman@linux.intel.com, stable@vger.kernel.org,
+        tmn505@gmail.com, yoshihiro.shimoda.uh@renesas.com
+Subject: Re: FAILED: patch "[PATCH] usb: host: xhci: mvebu: make USB 3.0 PHY
+ optional for Armada" failed to apply to 5.4-stable tree
+Message-ID: <YCEi2IdUuDio03U4@kroah.com>
+References: <1612711854148237@kroah.com>
+ <20210207155621.m4or6ktctyqnejhk@pali>
+ <YCEN8PptcWpl5PvW@kroah.com>
+ <20210208110623.3i3vfrc3l7wd5iqx@pali>
 MIME-Version: 1.0
-Received: by 2002:a05:6838:c290:0:0:0:0 with HTTP; Mon, 8 Feb 2021 03:17:27
- -0800 (PST)
-Reply-To: ashaibu166@gmail.com
-From:   Ahmed Shaibu <shaibua3131@gmail.com>
-Date:   Mon, 8 Feb 2021 12:17:27 +0100
-Message-ID: <CAFWRiZWRZLEFXNoB-4084_02eyMP7VwfnkknGaTj_Ef5UxeVwA@mail.gmail.com>
-Subject: Urgent
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210208110623.3i3vfrc3l7wd5iqx@pali>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Mon, Feb 08, 2021 at 12:06:23PM +0100, Pali Rohár wrote:
+> On Monday 08 February 2021 11:09:52 Greg KH wrote:
+> > On Sun, Feb 07, 2021 at 04:56:21PM +0100, Pali Rohár wrote:
+> > > On Sunday 07 February 2021 16:30:54 gregkh@linuxfoundation.org wrote:
+> > > > The patch below does not apply to the 5.4-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longterm
+> > > > tree, then please email the backport, including the original git commit
+> > > > id to <stable@vger.kernel.org>.
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > ...
+> > > > Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
+> > > > Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+> > > > Cc: <stable@vger.kernel.org> # 5.1+: f768e718911e: usb: host: xhci-plat: add priv quirk for skip PHY initialization
+> > > 
+> > > Hello Greg! Seems that you have forgot to apply some dependency patches.
+> > 
+> > You are right, I had one, not the other, now fixed up...
+> 
+> Ok, great!
+> 
+> Btw, I have just one question: Is there some bot / machine which parses
+> these Fixes and Cc lines where are written required patch dependences?
+> Or such patch with dependences needs to be handled manually?
 
-I am Mr.Ahmed Shaibu, an auditor with one of the new generation banks
-in Burkina Faso , west Africa.
-
-There was an account opened in this bank in 1998 and since 2002 nobody
-has operated on this account again. After going through some old files
-in the records, I discovered that if I do not remit this money out
-urgently, this funds will go down the drains, into the hands of either
-the board of directors of this bank or the funds may eventually be
-discovered by the government as a dormant fund in the forth coming
-audit by the Nation's auditors.
-
-They will confiscate or send it into the government's treasury
-account. The question now is who is the government and where is the
-treasury? These are human beings like you and I. The owner of this
-account is Mr Hatem Kamil Abdul Fattah an Iraqi national and a miner
-at Kruger gold co, a geologist by profession and he died in 2003 . No
-other person knows about this account or any thing concerning it, the
-account has no other beneficiary and my investigation proved to me as
-well that his company does not know anything about this account.
-
-The amount involved is Ten Million, Five hundred thousand  United
-States Dollars.($10.500.000) I am only contacting you, as a foreigner
-because this money cannot be approved to a local bank account here,
-but can only be approved to any foreign account and foreign
-beneficiary because the money is in US dollars and the real owner of
-the account is Mr Hatem Kamil Abdul Fatah, himself a foreigner too.
-
-I only got your contact address from my secretary who operates
-computer; with belief in God that you will never let me down in this
-business so that I will inform you the next step to take immediately.
-
-I need your full co-operation to make this work fine because the
-management is ready to approve this payment to any foreigner, who has
-correct information of this account, which I will give to you later,
-if you will be able to handle such amount in strict confidence and
-trust according to my instructions and advice for our mutual benefit
-because this opportunity will never come again in our life time
-
-With my position now in the office I can transfer this money to any
-foreigner's reliable account, which you can provide with assurance
-that this money will be intact pending my physical arrival in your
-country for sharing and investment.
-
-I will also use my position and influence to effect legal approvals
-for onward transfer of this money to your account with appropriate
-clearance documents from the ministries and foreign exchange
-department.But, only it will cost us small money as to procure such
-back up documents from the ministries concerned.
-
-Your earliest response to this letter will be appreciated.
-I look forward to your earliest reply.
-
-Yours Friendly,
-
-Mr. Ahmed Shaibu.
+I do it manually.  But it's pretty easy, normally I notice this, but for
+the USB patches I just blew through them as I "thought" I knew better :)
