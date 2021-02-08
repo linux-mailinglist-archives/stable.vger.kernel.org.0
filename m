@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C66D313633
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD14E31371B
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbhBHPHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:07:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S233544AbhBHPUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:20:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231239AbhBHPFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:05:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78F6964ECC;
-        Mon,  8 Feb 2021 15:04:17 +0000 (UTC)
+        id S233436AbhBHPNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 149CE64EB1;
+        Mon,  8 Feb 2021 15:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796658;
-        bh=yUgiD7rk3GMvijhGqZGMMiHhsH3B04Vf7iuvcGLb2QE=;
+        s=korg; t=1612796989;
+        bh=s8bD+ZVCd/i2AGX+NGj3E0iaY0z+0vYZgixPpuWEyOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fETxGfeTlrAq3LmeOPIhrg1muq7SGE5BSeJgiF833ozYtEoUvgbllzdW9+OidD4Js
-         wBSvl0Lp6VlctwyPJ159aTTzb++B+y5Odwnan7LEyo6SVa2QvoR6k4dsqJYTNxUmax
-         lw9o0Iq3R1rqjsYO6BbDMarHMf3AwxxlmniOp3hg=
+        b=rBV7d7AGdlbhReCopV4u/nL8Jhqvwc5VJ/GEGtGAA7GLB6iCtDKQ7NPzHTgDEQgkj
+         a6FmuGbv+T7NsTZD0dUFoc1eT1tUAH/VMUmOn1MmbULgegqvkhXN2MFSvZRbCq+pDU
+         FOrcQ8Svz4mdw94wEungt1j2iHZkS8p1UQOQNzek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pho Tran <pho.tran@silabs.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 19/43] USB: serial: cp210x: add pid/vid for WSDA-200-USB
+        stable@vger.kernel.org, Kevin Lo <kevlo@kevlo.org>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/65] igc: set the default return value to -IGC_ERR_NVM in igc_write_nvm_srwr
 Date:   Mon,  8 Feb 2021 16:00:45 +0100
-Message-Id: <20210208145807.096504109@linuxfoundation.org>
+Message-Id: <20210208145810.750953737@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pho Tran <Pho.Tran@silabs.com>
+From: Kevin Lo <kevlo@kevlo.org>
 
-commit 3c4f6ecd93442f4376a58b38bb40ee0b8c46e0e6 upstream.
+[ Upstream commit ebc8d125062e7dccb7922b2190b097c20d88ad96 ]
 
-Information pid/vid of WSDA-200-USB, Lord corporation company:
-vid: 199b
-pid: ba30
+This patch sets the default return value to -IGC_ERR_NVM in
+igc_write_nvm_srwr. Without this change it wouldn't lead to a shadow RAM
+write EEWR timeout.
 
-Signed-off-by: Pho Tran <pho.tran@silabs.com>
-[ johan: amend comment with product name ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ab4056126813 ("igc: Add NVM support")
+Signed-off-by: Kevin Lo <kevlo@kevlo.org>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/igc/igc_i225.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -198,6 +198,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
- 	{ USB_DEVICE(0x1B1C, 0x1C00) }, /* Corsair USB Dongle */
+diff --git a/drivers/net/ethernet/intel/igc/igc_i225.c b/drivers/net/ethernet/intel/igc/igc_i225.c
+index c25f555aaf822..ed5d09c11c389 100644
+--- a/drivers/net/ethernet/intel/igc/igc_i225.c
++++ b/drivers/net/ethernet/intel/igc/igc_i225.c
+@@ -219,9 +219,9 @@ static s32 igc_write_nvm_srwr(struct igc_hw *hw, u16 offset, u16 words,
+ 			      u16 *data)
+ {
+ 	struct igc_nvm_info *nvm = &hw->nvm;
++	s32 ret_val = -IGC_ERR_NVM;
+ 	u32 attempts = 100000;
+ 	u32 i, k, eewr = 0;
+-	s32 ret_val = 0;
+ 
+ 	/* A check for invalid values:  offset too large, too many words,
+ 	 * too many words for the offset, and not enough words.
+@@ -229,7 +229,6 @@ static s32 igc_write_nvm_srwr(struct igc_hw *hw, u16 offset, u16 words,
+ 	if (offset >= nvm->word_size || (words > (nvm->word_size - offset)) ||
+ 	    words == 0) {
+ 		hw_dbg("nvm parameter(s) out of bounds\n");
+-		ret_val = -IGC_ERR_NVM;
+ 		goto out;
+ 	}
+ 
+-- 
+2.27.0
+
 
 
