@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C589331379B
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF94313640
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhBHP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:28:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34492 "EHLO mail.kernel.org"
+        id S233257AbhBHPIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:08:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233835AbhBHPXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:23:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C0D464F0B;
-        Mon,  8 Feb 2021 15:14:16 +0000 (UTC)
+        id S232046AbhBHPGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:06:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12CE364EBA;
+        Mon,  8 Feb 2021 15:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797257;
-        bh=gz2PSsCqWuf2hYJt7PX4NrYBeN4Tg5hYqLFc2wVAiBY=;
+        s=korg; t=1612796680;
+        bh=RCN7yRD9giWTsoYKYJczYSn1+ZDcq3WWg8pRn9KPDS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUhGZKRz5MeT7R+O58iijRjwNXQUywcGoAtOlIhSsfHqvieowZf8aDJ+k5TYIGOmX
-         KdDu8lGxAQO/lsWL6B9k2g/f4Y3z15E+HDAP14WVamztdnCOc9+CTT05u2gSYGmsnO
-         MVomK0mki/+4A80eSEJfW49Vg1TDlrUxxYGO0DZ4=
+        b=XaE4JWPDxMb+rPY/kYiWF/D8ueRuzdinXjXDUsXyPwNMP9u0H9aegiOEYzWsrVGIU
+         3QI72iS1AQnp5MC/AjveuftGVRO1FIg6Oe+RY4FWm8ndBci72MRwwqtIVlsW6NYVLt
+         38YW6PyDO1ttdvYjsgaRY5FiI58QEnpApWSbeT9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/120] r8169: fix WoL on shutdown if CONFIG_DEBUG_SHIRQ is set
+        Julia Cartwright <julia@ni.com>,
+        Gratian Crisan <gratian.crisan@ni.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Darren Hart <dvhart@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 07/43] futex: Avoid violating the 10th rule of futex
 Date:   Mon,  8 Feb 2021 16:00:33 +0100
-Message-Id: <20210208145820.261784113@linuxfoundation.org>
+Message-Id: <20210208145806.577459581@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +43,289 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit cc9f07a838c4988ed244d0907cb71d54b85482a5 ]
+commit c1e2f0eaf015fb7076d51a339011f2383e6dd389 upstream.
 
-So far phy_disconnect() is called before free_irq(). If CONFIG_DEBUG_SHIRQ
-is set and interrupt is shared, then free_irq() creates an "artificial"
-interrupt by calling the interrupt handler. The "link change" flag is set
-in the interrupt status register, causing phylib to eventually call
-phy_suspend(). Because the net_device is detached from the PHY already,
-the PHY driver can't recognize that WoL is configured and powers down the
-PHY.
+Julia reported futex state corruption in the following scenario:
 
-Fixes: f1e911d5d0df ("r8169: add basic phylib support")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/fe732c2c-a473-9088-3974-df83cfbd6efd@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+   waiter                                  waker                                            stealer (prio > waiter)
+
+   futex(WAIT_REQUEUE_PI, uaddr, uaddr2,
+         timeout=[N ms])
+      futex_wait_requeue_pi()
+         futex_wait_queue_me()
+            freezable_schedule()
+            <scheduled out>
+                                           futex(LOCK_PI, uaddr2)
+                                           futex(CMP_REQUEUE_PI, uaddr,
+                                                 uaddr2, 1, 0)
+                                              /* requeues waiter to uaddr2 */
+                                           futex(UNLOCK_PI, uaddr2)
+                                                 wake_futex_pi()
+                                                    cmp_futex_value_locked(uaddr2, waiter)
+                                                    wake_up_q()
+           <woken by waker>
+           <hrtimer_wakeup() fires,
+            clears sleeper->task>
+                                                                                           futex(LOCK_PI, uaddr2)
+                                                                                              __rt_mutex_start_proxy_lock()
+                                                                                                 try_to_take_rt_mutex() /* steals lock */
+                                                                                                    rt_mutex_set_owner(lock, stealer)
+                                                                                              <preempted>
+         <scheduled in>
+         rt_mutex_wait_proxy_lock()
+            __rt_mutex_slowlock()
+               try_to_take_rt_mutex() /* fails, lock held by stealer */
+               if (timeout && !timeout->task)
+                  return -ETIMEDOUT;
+            fixup_owner()
+               /* lock wasn't acquired, so,
+                  fixup_pi_state_owner skipped */
+
+   return -ETIMEDOUT;
+
+   /* At this point, we've returned -ETIMEDOUT to userspace, but the
+    * futex word shows waiter to be the owner, and the pi_mutex has
+    * stealer as the owner */
+
+   futex_lock(LOCK_PI, uaddr2)
+     -> bails with EDEADLK, futex word says we're owner.
+
+And suggested that what commit:
+
+  73d786bd043e ("futex: Rework inconsistent rt_mutex/futex_q state")
+
+removes from fixup_owner() looks to be just what is needed. And indeed
+it is -- I completely missed that requeue_pi could also result in this
+case. So we need to restore that, except that subsequent patches, like
+commit:
+
+  16ffa12d7425 ("futex: Pull rt_mutex_futex_unlock() out from under hb->lock")
+
+changed all the locking rules. Even without that, the sequence:
+
+-               if (rt_mutex_futex_trylock(&q->pi_state->pi_mutex)) {
+-                       locked = 1;
+-                       goto out;
+-               }
+
+-               raw_spin_lock_irq(&q->pi_state->pi_mutex.wait_lock);
+-               owner = rt_mutex_owner(&q->pi_state->pi_mutex);
+-               if (!owner)
+-                       owner = rt_mutex_next_owner(&q->pi_state->pi_mutex);
+-               raw_spin_unlock_irq(&q->pi_state->pi_mutex.wait_lock);
+-               ret = fixup_pi_state_owner(uaddr, q, owner);
+
+already suggests there were races; otherwise we'd never have to look
+at next_owner.
+
+So instead of doing 3 consecutive wait_lock sections with who knows
+what races, we do it all in a single section. Additionally, the usage
+of pi_state->owner in fixup_owner() was only safe because only the
+rt_mutex owner would modify it, which this additional case wrecks.
+
+Luckily the values can only change away and not to the value we're
+testing, this means we can do a speculative test and double check once
+we have the wait_lock.
+
+Fixes: 73d786bd043e ("futex: Rework inconsistent rt_mutex/futex_q state")
+Reported-by: Julia Cartwright <julia@ni.com>
+Reported-by: Gratian Crisan <gratian.crisan@ni.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Julia Cartwright <julia@ni.com>
+Tested-by: Gratian Crisan <gratian.crisan@ni.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Link: https://lkml.kernel.org/r/20171208124939.7livp7no2ov65rrc@hirez.programming.kicks-ass.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[Lee: Back-ported to solve a dependency]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/futex.c                  |   80 +++++++++++++++++++++++++++++++++-------
+ kernel/locking/rtmutex.c        |   26 +++++++++----
+ kernel/locking/rtmutex_common.h |    1 
+ 3 files changed, 87 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 64b77d415a525..75f774347f6d1 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4753,10 +4753,10 @@ static int rtl8169_close(struct net_device *dev)
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2262,30 +2262,34 @@ static void unqueue_me_pi(struct futex_q
+ 	spin_unlock(q->lock_ptr);
+ }
  
- 	cancel_work_sync(&tp->wk.work);
+-/*
+- * Fixup the pi_state owner with the new owner.
+- *
+- * Must be called with hash bucket lock held and mm->sem held for non
+- * private futexes.
+- */
+ static int fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+-				struct task_struct *newowner)
++				struct task_struct *argowner)
+ {
+-	u32 newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
+ 	struct futex_pi_state *pi_state = q->pi_state;
+-	struct task_struct *oldowner = pi_state->owner;
+ 	u32 uval, uninitialized_var(curval), newval;
++	struct task_struct *oldowner, *newowner;
++	u32 newtid;
+ 	int ret;
  
--	phy_disconnect(tp->phydev);
--
- 	free_irq(pci_irq_vector(pdev, 0), tp);
- 
-+	phy_disconnect(tp->phydev);
++	lockdep_assert_held(q->lock_ptr);
 +
- 	dma_free_coherent(&pdev->dev, R8169_RX_RING_BYTES, tp->RxDescArray,
- 			  tp->RxPhyAddr);
- 	dma_free_coherent(&pdev->dev, R8169_TX_RING_BYTES, tp->TxDescArray,
--- 
-2.27.0
-
++	oldowner = pi_state->owner;
+ 	/* Owner died? */
+ 	if (!pi_state->owner)
+ 		newtid |= FUTEX_OWNER_DIED;
+ 
+ 	/*
+-	 * We are here either because we stole the rtmutex from the
+-	 * previous highest priority waiter or we are the highest priority
+-	 * waiter but failed to get the rtmutex the first time.
+-	 * We have to replace the newowner TID in the user space variable.
++	 * We are here because either:
++	 *
++	 *  - we stole the lock and pi_state->owner needs updating to reflect
++	 *    that (@argowner == current),
++	 *
++	 * or:
++	 *
++	 *  - someone stole our lock and we need to fix things to point to the
++	 *    new owner (@argowner == NULL).
++	 *
++	 * Either way, we have to replace the TID in the user space variable.
+ 	 * This must be atomic as we have to preserve the owner died bit here.
+ 	 *
+ 	 * Note: We write the user space value _before_ changing the pi_state
+@@ -2299,6 +2303,39 @@ static int fixup_pi_state_owner(u32 __us
+ 	 * in lookup_pi_state.
+ 	 */
+ retry:
++	if (!argowner) {
++		if (oldowner != current) {
++			/*
++			 * We raced against a concurrent self; things are
++			 * already fixed up. Nothing to do.
++			 */
++			return 0;
++		}
++
++		if (__rt_mutex_futex_trylock(&pi_state->pi_mutex)) {
++			/* We got the lock after all, nothing to fix. */
++			return 0;
++		}
++
++		/*
++		 * Since we just failed the trylock; there must be an owner.
++		 */
++		newowner = rt_mutex_owner(&pi_state->pi_mutex);
++		BUG_ON(!newowner);
++	} else {
++		WARN_ON_ONCE(argowner != current);
++		if (oldowner == current) {
++			/*
++			 * We raced against a concurrent self; things are
++			 * already fixed up. Nothing to do.
++			 */
++			return 0;
++		}
++		newowner = argowner;
++	}
++
++	newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
++
+ 	if (get_futex_value_locked(&uval, uaddr))
+ 		goto handle_fault;
+ 
+@@ -2385,12 +2422,29 @@ static int fixup_owner(u32 __user *uaddr
+ 		/*
+ 		 * Got the lock. We might not be the anticipated owner if we
+ 		 * did a lock-steal - fix up the PI-state in that case:
++		 *
++		 * Speculative pi_state->owner read (we don't hold wait_lock);
++		 * since we own the lock pi_state->owner == current is the
++		 * stable state, anything else needs more attention.
+ 		 */
+ 		if (q->pi_state->owner != current)
+ 			ret = fixup_pi_state_owner(uaddr, q, current);
+ 		goto out;
+ 	}
+ 
++	/*
++	 * If we didn't get the lock; check if anybody stole it from us. In
++	 * that case, we need to fix up the uval to point to them instead of
++	 * us, otherwise bad things happen. [10]
++	 *
++	 * Another speculative read; pi_state->owner == current is unstable
++	 * but needs our attention.
++	 */
++	if (q->pi_state->owner == current) {
++		ret = fixup_pi_state_owner(uaddr, q, NULL);
++		goto out;
++	}
++
+ 	/*
+ 	 * Paranoia check. If we did not take the lock, then we should not be
+ 	 * the owner of the rt_mutex.
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1314,6 +1314,19 @@ rt_mutex_slowlock(struct rt_mutex *lock,
+ 	return ret;
+ }
+ 
++static inline int __rt_mutex_slowtrylock(struct rt_mutex *lock)
++{
++	int ret = try_to_take_rt_mutex(lock, current, NULL);
++
++	/*
++	 * try_to_take_rt_mutex() sets the lock waiters bit
++	 * unconditionally. Clean this up.
++	 */
++	fixup_rt_mutex_waiters(lock);
++
++	return ret;
++}
++
+ /*
+  * Slow path try-lock function:
+  */
+@@ -1336,13 +1349,7 @@ static inline int rt_mutex_slowtrylock(s
+ 	 */
+ 	raw_spin_lock_irqsave(&lock->wait_lock, flags);
+ 
+-	ret = try_to_take_rt_mutex(lock, current, NULL);
+-
+-	/*
+-	 * try_to_take_rt_mutex() sets the lock waiters bit
+-	 * unconditionally. Clean this up.
+-	 */
+-	fixup_rt_mutex_waiters(lock);
++	ret = __rt_mutex_slowtrylock(lock);
+ 
+ 	raw_spin_unlock_irqrestore(&lock->wait_lock, flags);
+ 
+@@ -1530,6 +1537,11 @@ int __sched rt_mutex_futex_trylock(struc
+ 	return rt_mutex_slowtrylock(lock);
+ }
+ 
++int __sched __rt_mutex_futex_trylock(struct rt_mutex *lock)
++{
++	return __rt_mutex_slowtrylock(lock);
++}
++
+ /**
+  * rt_mutex_timed_lock - lock a rt_mutex interruptible
+  *			the timeout structure is provided
+--- a/kernel/locking/rtmutex_common.h
++++ b/kernel/locking/rtmutex_common.h
+@@ -114,6 +114,7 @@ extern bool rt_mutex_cleanup_proxy_lock(
+ 				 struct rt_mutex_waiter *waiter);
+ extern int rt_mutex_timed_futex_lock(struct rt_mutex *l, struct hrtimer_sleeper *to);
+ extern int rt_mutex_futex_trylock(struct rt_mutex *l);
++extern int __rt_mutex_futex_trylock(struct rt_mutex *l);
+ 
+ extern void rt_mutex_futex_unlock(struct rt_mutex *lock);
+ extern bool __rt_mutex_futex_unlock(struct rt_mutex *lock,
 
 
