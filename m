@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B5A312EAA
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1AC312EAB
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:15:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbhBHKO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 05:14:56 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:60795 "EHLO
+        id S231987AbhBHKO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 05:14:58 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:49449 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231987AbhBHKMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:12:52 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 66458302;
-        Mon,  8 Feb 2021 05:11:50 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:11:50 -0500
+        by vger.kernel.org with ESMTP id S232038AbhBHKNE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:13:04 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 9C776A4E;
+        Mon,  8 Feb 2021 05:12:14 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 08 Feb 2021 05:12:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=589Vi5
-        XKrbgGLPheJKNybuU6JaQT0f+Roa5vP11YP4k=; b=tl/S7hVbI62cf+I7yzUEii
-        q6MNUqqXw9gkL8WXsokTMAY0qxlGaruKSd2tBNC+VgMfvEmds67AmzOFZHQo8hK6
-        kXHKaYJ4RPp4+lQ8wxw8c/Ysx07aAcFsf1dFsUwAe/JlwbzShfMHP7mhr9cLn9WA
-        tTVDWFlw+Nm3rkrxw5YmYf7GMOXzN0Wr9T+CnghZaydxlSkaIEfcFo9Qzx/ZyY4J
-        O9wnkELkritnqyGguDVdCucfUhwpIyLQcnEsQikPPRZnWxDhVqsmbidFJSA2L63T
-        alu0XZPodbdJly69ToBe1ejoOqgFv+I5KWMgxXH8AvBXWczoqFmH6Xva7MI9r7SQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=n4TVmN
+        DEdYJu7PYRxjHE/ouEheYG4sq6HFJBxdYFzPI=; b=EKcRFpS2sHQAJPjuDv8rdu
+        6L1DP3wd6LHupclfEJ9nEGCEXmbE3bQUajeoEdJphlx1Ko0o00H9rOUYAbeKx/VA
+        gkq50R8AH8QKKz+k7b/SGkeG2e9t+Im00hoqXJ9ZrBlCGtojMOsl87z52AwFbV0Q
+        CubYOchzVKqnC8ag3BymuS/s5TfslxmUjeHyU/nkpv0bXxf138McYoARNJUHev5q
+        aE+h5MX5u1cabdQNqKz9Nd+A4kyp+/xDZrks7XVgURjy2vC4wj8VOYrRoi5mKSMl
+        TztKUwYDcahdWUtKKE8pZQDH+dJip8JbkmKyfTD6HX+Bd5Lfh1QagFU7kz8g4uTQ
         ==
-X-ME-Sender: <xms:ZQ4hYET1ZNiv9fv1JzMML7l7NltW1aaqFheR75WTCBdqcpinpj1UgA>
-    <xme:ZQ4hYByi_TFYnRiA6jU4op4hORCVSbnRS6P6NBnGwFAAwBhzNJg_3khEVoZvwBqBm
-    97bSprwJoiTqg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdduudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:fg4hYHxzWfi3y7ox6_v8YToxlAohBpGBRk6VdlI5TZRuS9bumtVpBQ>
+    <xme:fg4hYI5GvPXBrBCVMZaqe1FWxN2vCNAqbbkhTNYQu7FQ8-IPBPIBIASyJ8qR7gGLk
+    kwbgE_7joo4Uw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgdduvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:ZQ4hYB2G09kH5hKA5Y8FXbLAlzSE8ym_yCg7y_tuJ3jBlmmzB5s-Xw>
-    <xmx:ZQ4hYICULde3Sm5y5eDt28_psWgthXpnA_HZp1h0T2uZjxd5a6xhkA>
-    <xmx:ZQ4hYNj-FrQpeIXJ_4eO53Ybi14ojs3jXi0dbu1RbnbkJvY7Zndvow>
-    <xmx:Zg4hYNav8h2f53KmYgEHzU_7LOji4O9Ws6zwiAkLch9ZxWD753ok0wvgaXM>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:fg4hYBWWR6nimyNsU-fqE52v4sUY0WjqeCMgPNuvgWwaGBwqwY1gKQ>
+    <xmx:fg4hYE3NKyo8z6As4XP_ib6KJ6W8z7O1xjsbPoouJR5VePr-Fna9Cg>
+    <xmx:fg4hYG0b4ED5XZu6q-R4PMiwNYj9zx7C6w3mxSUPJ6GXkgnalIxsqw>
+    <xmx:fg4hYPClrx2W86dBfuu1gkY2_LUbK2USlNHjvjdLqkNfGVz21YEyBjQjFsg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 179F424005D;
-        Mon,  8 Feb 2021 05:11:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] gpiolib: cdev: clear debounce period if line set to output" failed to apply to 5.10-stable tree
-To:     warthog618@gmail.com, bgolaszewski@baylibre.com,
-        linus.walleij@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id BBFE31080069;
+        Mon,  8 Feb 2021 05:12:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] fgraph: Initialize tracing_graph_pause at task creation" failed to apply to 4.4-stable tree
+To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Feb 2021 11:11:47 +0100
-Message-ID: <1612779107255191@kroah.com>
+Date:   Mon, 08 Feb 2021 11:12:12 +0100
+Message-ID: <1612779132229210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,36 +70,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 03a58ea5905fdbd93ff9e52e670d802600ba38cd Mon Sep 17 00:00:00 2001
-From: Kent Gibson <warthog618@gmail.com>
-Date: Thu, 21 Jan 2021 22:10:38 +0800
-Subject: [PATCH] gpiolib: cdev: clear debounce period if line set to output
+From 7e0a9220467dbcfdc5bc62825724f3e52e50ab31 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Fri, 29 Jan 2021 10:13:53 -0500
+Subject: [PATCH] fgraph: Initialize tracing_graph_pause at task creation
 
-When set_config changes a line from input to output debounce is
-implicitly disabled, as debounce makes no sense for outputs, but the
-debounce period is not being cleared and is still reported in the
-line info.
+On some archs, the idle task can call into cpu_suspend(). The cpu_suspend()
+will disable or pause function graph tracing, as there's some paths in
+bringing down the CPU that can have issues with its return address being
+modified. The task_struct structure has a "tracing_graph_pause" atomic
+counter, that when set to something other than zero, the function graph
+tracer will not modify the return address.
 
-So clear the debounce period when the debouncer is stopped in
-edge_detector_stop().
+The problem is that the tracing_graph_pause counter is initialized when the
+function graph tracer is enabled. This can corrupt the counter for the idle
+task if it is suspended in these architectures.
 
-Fixes: 65cff7046406 ("gpiolib: cdev: support setting debounce")
+   CPU 1				CPU 2
+   -----				-----
+  do_idle()
+    cpu_suspend()
+      pause_graph_tracing()
+          task_struct->tracing_graph_pause++ (0 -> 1)
+
+				start_graph_tracing()
+				  for_each_online_cpu(cpu) {
+				    ftrace_graph_init_idle_task(cpu)
+				      task-struct->tracing_graph_pause = 0 (1 -> 0)
+
+      unpause_graph_tracing()
+          task_struct->tracing_graph_pause-- (0 -> -1)
+
+The above should have gone from 1 to zero, and enabled function graph
+tracing again. But instead, it is set to -1, which keeps it disabled.
+
+There's no reason that the field tracing_graph_pause on the task_struct can
+not be initialized at boot up.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Kent Gibson <warthog618@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 380c4b1411ccd ("tracing/function-graph-tracer: append the tracing_graph_flag")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211339
+Reported-by: pierre.gondois@arm.com
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
-index 1a7b51163528..1631727bf0da 100644
---- a/drivers/gpio/gpiolib-cdev.c
-+++ b/drivers/gpio/gpiolib-cdev.c
-@@ -776,6 +776,8 @@ static void edge_detector_stop(struct line *line)
- 	cancel_delayed_work_sync(&line->work);
- 	WRITE_ONCE(line->sw_debounced, 0);
- 	WRITE_ONCE(line->eflags, 0);
-+	if (line->desc)
-+		WRITE_ONCE(line->desc->debounce_period_us, 0);
- 	/* do not change line->level - see comment in debounced_value() */
- }
+diff --git a/init/init_task.c b/init/init_task.c
+index 8a992d73e6fb..3711cdaafed2 100644
+--- a/init/init_task.c
++++ b/init/init_task.c
+@@ -198,7 +198,8 @@ struct task_struct init_task
+ 	.lockdep_recursion = 0,
+ #endif
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	.ret_stack	= NULL,
++	.ret_stack		= NULL,
++	.tracing_graph_pause	= ATOMIC_INIT(0),
+ #endif
+ #if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPTION)
+ 	.trace_recursion = 0,
+diff --git a/kernel/trace/fgraph.c b/kernel/trace/fgraph.c
+index 73edb9e4f354..29a6ebeebc9e 100644
+--- a/kernel/trace/fgraph.c
++++ b/kernel/trace/fgraph.c
+@@ -394,7 +394,6 @@ static int alloc_retstack_tasklist(struct ftrace_ret_stack **ret_stack_list)
+ 		}
  
+ 		if (t->ret_stack == NULL) {
+-			atomic_set(&t->tracing_graph_pause, 0);
+ 			atomic_set(&t->trace_overrun, 0);
+ 			t->curr_ret_stack = -1;
+ 			t->curr_ret_depth = -1;
+@@ -489,7 +488,6 @@ static DEFINE_PER_CPU(struct ftrace_ret_stack *, idle_ret_stack);
+ static void
+ graph_init_task(struct task_struct *t, struct ftrace_ret_stack *ret_stack)
+ {
+-	atomic_set(&t->tracing_graph_pause, 0);
+ 	atomic_set(&t->trace_overrun, 0);
+ 	t->ftrace_timestamp = 0;
+ 	/* make curr_ret_stack visible before we add the ret_stack */
 
