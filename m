@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F4431382F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2473137F5
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233448AbhBHPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38212 "EHLO mail.kernel.org"
+        id S233755AbhBHPdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:33:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232584AbhBHPdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:33:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CECC64F47;
-        Mon,  8 Feb 2021 15:18:08 +0000 (UTC)
+        id S233754AbhBHPaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:30:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B3264ECD;
+        Mon,  8 Feb 2021 15:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797489;
-        bh=SI3CWuc4KjwgkE8RgZeNombFuH94Ed7cEEdI0vFxfns=;
+        s=korg; t=1612797422;
+        bh=KgOTo85NRv/jeWrQtnUac5CCENu8eNKCvVq7HV4fbXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bs1vy7H9bN1X/LoyToS9m88hjiBxgs1J5SeldgiQ9l3cG4of+XxEZnXWHY38zVQuM
-         tNM6h0CwfgHiYx5fgKxczc8kPTVhtzg+ehGiay9Y2EMBDUu+nwlsifNsgMaga868mp
-         KoGbecam3d26wfDVEnlQZvoBWiMsrj1Hv0vQzVzY=
+        b=wqTbRKUVXBdKSJkVpcqpJpgVwIniEuluodjQBOUuVT/Ge0zBTymfD94GeCIp8R2VU
+         35mf6Pl56f7rH6Payl3UzghoLroHUhUWqUtNr1XHFvkaVclbva2qz7EnCwdXx3Vu79
+         w/o6NzUlwsT8OxOJ3t3hRa+kPGy33QwnnvXf2a/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Alex Shi <alex.shi@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Muchun Song <smuchun@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 104/120] mm: thp: fix MADV_REMOVE deadlock on shmem THP
-Date:   Mon,  8 Feb 2021 16:01:31 +0100
-Message-Id: <20210208145822.527241143@linuxfoundation.org>
+Subject: [PATCH 5.10 105/120] mm/filemap: add missing mem_cgroup_uncharge() to __add_to_page_cache_locked()
+Date:   Mon,  8 Feb 2021 16:01:32 +0100
+Message-Id: <20210208145822.572875718@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -42,111 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 1c2f67308af4c102b4e1e6cd6f69819ae59408e0 upstream.
+commit da74240eb3fcd806edb1643874363e954d9e948b upstream.
 
-Sergey reported deadlock between kswapd correctly doing its usual
-lock_page(page) followed by down_read(page->mapping->i_mmap_rwsem), and
-madvise(MADV_REMOVE) on an madvise(MADV_HUGEPAGE) area doing
-down_write(page->mapping->i_mmap_rwsem) followed by lock_page(page).
+Commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
+mem_cgroup_charge() API") introduced a bug in __add_to_page_cache_locked()
+causing the following splat:
 
-This happened when shmem_fallocate(punch hole)'s unmap_mapping_range()
-reaches zap_pmd_range()'s call to __split_huge_pmd().  The same deadlock
-could occur when partially truncating a mapped huge tmpfs file, or using
-fallocate(FALLOC_FL_PUNCH_HOLE) on it.
+  page dumped because: VM_BUG_ON_PAGE(page_memcg(page))
+  pages's memcg:ffff8889a4116000
+  ------------[ cut here ]------------
+  kernel BUG at mm/memcontrol.c:2924!
+  invalid opcode: 0000 [#1] SMP KASAN PTI
+  CPU: 35 PID: 12345 Comm: cat Tainted: G S      W I       5.11.0-rc4-debug+ #1
+  Hardware name: HP HP Z8 G4 Workstation/81C7, BIOS P60 v01.25 12/06/2017
+  RIP: commit_charge+0xf4/0x130
+  Call Trace:
+    mem_cgroup_charge+0x175/0x770
+    __add_to_page_cache_locked+0x712/0xad0
+    add_to_page_cache_lru+0xc5/0x1f0
+    cachefiles_read_or_alloc_pages+0x895/0x2e10 [cachefiles]
+    __fscache_read_or_alloc_pages+0x6c0/0xa00 [fscache]
+    __nfs_readpages_from_fscache+0x16d/0x630 [nfs]
+    nfs_readpages+0x24e/0x540 [nfs]
+    read_pages+0x5b1/0xc40
+    page_cache_ra_unbounded+0x460/0x750
+    generic_file_buffered_read_get_pages+0x290/0x1710
+    generic_file_buffered_read+0x2a9/0xc30
+    nfs_file_read+0x13f/0x230 [nfs]
+    new_sync_read+0x3af/0x610
+    vfs_read+0x339/0x4b0
+    ksys_read+0xf1/0x1c0
+    do_syscall_64+0x33/0x40
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-__split_huge_pmd()'s page lock was added in 5.8, to make sure that any
-concurrent use of reuse_swap_page() (holding page lock) could not catch
-the anon THP's mapcounts and swapcounts while they were being split.
+Before that commit, there was a try_charge() and commit_charge() in
+__add_to_page_cache_locked().  These two separated charge functions were
+replaced by a single mem_cgroup_charge().  However, it forgot to add a
+matching mem_cgroup_uncharge() when the xarray insertion failed with the
+page released back to the pool.
 
-Fortunately, reuse_swap_page() is never applied to a shmem or file THP
-(not even by khugepaged, which checks PageSwapCache before calling), and
-anonymous THPs are never created in shmem or file areas: so that
-__split_huge_pmd()'s page lock can only be necessary for anonymous THPs,
-on which there is no risk of deadlock with i_mmap_rwsem.
+Fix this by adding a mem_cgroup_uncharge() call when insertion error
+happens.
 
-Link: https://lkml.kernel.org/r/alpine.LSU.2.11.2101161409470.2022@eggly.anvils
-Fixes: c444eb564fb1 ("mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reported-by: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Link: https://lkml.kernel.org/r/20210125042441.20030-1-longman@redhat.com
+Fixes: 3fea5a499d57 ("mm: memcontrol: convert page cache to a new mem_cgroup_charge() API")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Muchun Song <smuchun@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |   37 +++++++++++++++++++++++--------------
- 1 file changed, 23 insertions(+), 14 deletions(-)
+ mm/filemap.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2188,7 +2188,7 @@ void __split_huge_pmd(struct vm_area_str
- {
- 	spinlock_t *ptl;
- 	struct mmu_notifier_range range;
--	bool was_locked = false;
-+	bool do_unlock_page = false;
- 	pmd_t _pmd;
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -835,6 +835,7 @@ noinline int __add_to_page_cache_locked(
+ 	XA_STATE(xas, &mapping->i_pages, offset);
+ 	int huge = PageHuge(page);
+ 	int error;
++	bool charged = false;
  
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
-@@ -2204,7 +2204,6 @@ void __split_huge_pmd(struct vm_area_str
- 	VM_BUG_ON(freeze && !page);
- 	if (page) {
- 		VM_WARN_ON_ONCE(!PageLocked(page));
--		was_locked = true;
- 		if (page != pmd_page(*pmd))
- 			goto out;
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(PageSwapBacked(page), page);
+@@ -848,6 +849,7 @@ noinline int __add_to_page_cache_locked(
+ 		error = mem_cgroup_charge(page, current->mm, gfp);
+ 		if (error)
+ 			goto error;
++		charged = true;
  	}
-@@ -2213,19 +2212,29 @@ repeat:
- 	if (pmd_trans_huge(*pmd)) {
- 		if (!page) {
- 			page = pmd_page(*pmd);
--			if (unlikely(!trylock_page(page))) {
--				get_page(page);
--				_pmd = *pmd;
--				spin_unlock(ptl);
--				lock_page(page);
--				spin_lock(ptl);
--				if (unlikely(!pmd_same(*pmd, _pmd))) {
--					unlock_page(page);
-+			/*
-+			 * An anonymous page must be locked, to ensure that a
-+			 * concurrent reuse_swap_page() sees stable mapcount;
-+			 * but reuse_swap_page() is not used on shmem or file,
-+			 * and page lock must not be taken when zap_pmd_range()
-+			 * calls __split_huge_pmd() while i_mmap_lock is held.
-+			 */
-+			if (PageAnon(page)) {
-+				if (unlikely(!trylock_page(page))) {
-+					get_page(page);
-+					_pmd = *pmd;
-+					spin_unlock(ptl);
-+					lock_page(page);
-+					spin_lock(ptl);
-+					if (unlikely(!pmd_same(*pmd, _pmd))) {
-+						unlock_page(page);
-+						put_page(page);
-+						page = NULL;
-+						goto repeat;
-+					}
- 					put_page(page);
--					page = NULL;
--					goto repeat;
- 				}
--				put_page(page);
-+				do_unlock_page = true;
- 			}
- 		}
- 		if (PageMlocked(page))
-@@ -2235,7 +2244,7 @@ repeat:
- 	__split_huge_pmd_locked(vma, pmd, range.start, freeze);
- out:
- 	spin_unlock(ptl);
--	if (!was_locked && page)
-+	if (do_unlock_page)
- 		unlock_page(page);
- 	/*
- 	 * No need to double call mmu_notifier->invalidate_range() callback.
+ 
+ 	gfp &= GFP_RECLAIM_MASK;
+@@ -896,6 +898,8 @@ unlock:
+ 
+ 	if (xas_error(&xas)) {
+ 		error = xas_error(&xas);
++		if (charged)
++			mem_cgroup_uncharge(page);
+ 		goto error;
+ 	}
+ 
 
 
