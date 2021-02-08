@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F691313C06
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:01:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFE5313C03
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235266AbhBHSAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:00:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
+        id S235166AbhBHSAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:00:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235139AbhBHR7r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 12:59:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2B664EC6;
-        Mon,  8 Feb 2021 17:58:24 +0000 (UTC)
+        id S235140AbhBHR7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 12:59:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B64364EBA;
+        Mon,  8 Feb 2021 17:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807105;
-        bh=Ft3y2cLhvPeVJQjkVPy7g6U6CuC59Gkyu2Hc4IHrVII=;
+        s=k20201202; t=1612807107;
+        bh=x0WINOM8wqLpK+VRogvrxA6ZgYuqhW5zPtLG29kuWMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLL2rT37ISD+WSmUU/0KprA4MHeGxckp+cvjbu88UCXzRYx1fq1J+CyMPdfjLZQYA
-         hUTE+W1GoeQQPJW3BL+Q8i4q/ACTfXX5JvFXU/baAYIUnOQGhBZVKj1uXJsEe3vxX0
-         9iv3BUR7qGEtHy/BeENibVpYrlbg3iR9YRH6kres811QetnG5yKZiWYnUvvPh91k/c
-         CynAAGDQ8NscXHgEoaenaqyUmws7LYlckZOjuQuhu9LShuA3ZHnUbEx3sc0tFfuV+D
-         rDpo+spvvxEuxpFpVQuP/cbTf5EeUWNqrlSt2MzB1WiISu9V36fTi1FKoK52Fwxi3s
-         bH7ChHgf1YhJQ==
+        b=aMN/fwBa9tPaQqN0X1QjiTo7PHMOfB+2gF2vxmTICkA7/SkwoAYyPAhGDBQ13xyM/
+         4PlhcGlKncVXLR7XkW1KIXXTI9T/dCWCd+vmfW64tkkgiH12GOmOt6C8rhwVch6QPI
+         dGxKsbmdQm+hy0z089oGw6pgECapsY3cPWojQspKCKwuCW5YrH8MCbVCruj+OFotts
+         DyuJsIWKnYa6CDejpBXrERPfFNYruDVCpkbbkeRFRchNX8MOxwyTWUqSTv1L+FzTVQ
+         BURXXlKdCWHaDZkjIukdcjjLqHx6Sy4KxGxVrPqfqpfV5FyPQo7SMGNVP9xDtKIdEp
+         L1i4fOJsQui5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Helen Koike <helen.koike@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
         devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.10 14/36] media: rkisp1: uapi: change hist_bins array type from __u16 to __u32
-Date:   Mon,  8 Feb 2021 12:57:44 -0500
-Message-Id: <20210208175806.2091668-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 15/36] media: rkisp1: stats: remove a wrong cast to u8
+Date:   Mon,  8 Feb 2021 12:57:45 -0500
+Message-Id: <20210208175806.2091668-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175806.2091668-1-sashal@kernel.org>
 References: <20210208175806.2091668-1-sashal@kernel.org>
@@ -47,48 +48,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 31f190e0ccac8b75d33fdc95a797c526cf9b149e ]
+[ Upstream commit a76f8dc8be471028540df24749e99a3ec0ac7c94 ]
 
-Each entry in the array is a 20 bits value composed of 16 bits unsigned
-integer and 4 bits fractional part. So the type should change to __u32.
-In addition add a documentation of how the measurements are done.
+hist_bins is an array of type __u32. Each entry represent
+a 20 bit fixed point value as documented inline.
+The cast to u8 when setting the values is wrong. Remove it.
 
 Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 Acked-by: Helen Koike <helen.koike@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkisp1/uapi/rkisp1-config.h | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/staging/media/rkisp1/rkisp1-stats.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/rkisp1/uapi/rkisp1-config.h b/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
-index 432cb6be55b47..c19fe059c2442 100644
---- a/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
-+++ b/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
-@@ -848,13 +848,18 @@ struct rkisp1_cif_isp_af_stat {
- /**
-  * struct rkisp1_cif_isp_hist_stat - statistics histogram data
-  *
-- * @hist_bins: measured bin counters
-+ * @hist_bins: measured bin counters. Each bin is a 20 bits unsigned fixed point
-+ *	       type. Bits 0-4 are the fractional part and bits 5-19 are the
-+ *	       integer part.
-  *
-- * Measurement window divided into 25 sub-windows, set
-- * with ISP_HIST_XXX
-+ * The window of the measurements area is divided to 5x5 sub-windows. The
-+ * histogram is then computed for each sub-window independently and the final
-+ * result is a weighted average of the histogram measurements on all
-+ * sub-windows. The window of the measurements area and the weight of each
-+ * sub-window are configurable using struct @rkisp1_cif_isp_hst_config.
-  */
- struct rkisp1_cif_isp_hist_stat {
--	__u16 hist_bins[RKISP1_CIF_ISP_HIST_BIN_N_MAX];
-+	__u32 hist_bins[RKISP1_CIF_ISP_HIST_BIN_N_MAX];
- };
+diff --git a/drivers/staging/media/rkisp1/rkisp1-stats.c b/drivers/staging/media/rkisp1/rkisp1-stats.c
+index 51c64f75fe29a..8fdf646c4b75b 100644
+--- a/drivers/staging/media/rkisp1/rkisp1-stats.c
++++ b/drivers/staging/media/rkisp1/rkisp1-stats.c
+@@ -253,8 +253,7 @@ static void rkisp1_stats_get_hst_meas(struct rkisp1_stats *stats,
+ 	pbuf->meas_type |= RKISP1_CIF_ISP_STAT_HIST;
+ 	for (i = 0; i < RKISP1_CIF_ISP_HIST_BIN_N_MAX; i++)
+ 		pbuf->params.hist.hist_bins[i] =
+-			(u8)rkisp1_read(rkisp1,
+-					RKISP1_CIF_ISP_HIST_BIN_0 + i * 4);
++			rkisp1_read(rkisp1, RKISP1_CIF_ISP_HIST_BIN_0 + i * 4);
+ }
  
- /**
+ static void rkisp1_stats_get_bls_meas(struct rkisp1_stats *stats,
 -- 
 2.27.0
 
