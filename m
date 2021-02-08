@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B49F313015
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:07:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 532BA31300C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 12:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232721AbhBHLFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 06:05:42 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:45525 "EHLO
+        id S229807AbhBHLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 06:05:22 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41781 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232781AbhBHLDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:03:20 -0500
+        by vger.kernel.org with ESMTP id S232808AbhBHLCR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 06:02:17 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 6E6EAA5D;
-        Mon,  8 Feb 2021 06:01:20 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 06:01:21 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 0796D9E9;
+        Mon,  8 Feb 2021 06:01:21 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 08 Feb 2021 06:01:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GR9QLv
-        uIxByDFRU/eL/OHYlkUqml5Fdr6br8viIQHW8=; b=GUchkr6pRqnfjRapqncTAb
-        /JjBeeJX7yISdlALCBiS8I1TtNkHaHndHeFsz3e5lLtrcg4QL23Wso7LDHpy2yCy
-        cQnZc7iLLqSyzLbOY/uQHJIvL9lzLrN7FinIaoIPkilv3YbmkAex0YPuSpa3j4h3
-        AisIES1j4DZ71MoV4jqHiMjh+tPBjKvvfo57ZLRDYscWSS8BxhnofH/WhMjAwznb
-        C85N/+h6Eqtv1tYNwKZmdzscImJNohBnHq3gwkKDDTFR3pbOrsVtRaqLdIA773yC
-        1aNUEkitmFMQQw4/HF+FgxBbCk5Nhv0hUSxOqwhWeCBaU7mTBbZAA3jpZtflKzQQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+TyMlH
+        8uTrdzk129C/8nl9awZMvQee6q4fh39bMrSuQ=; b=ZZMkE+dskQkeP5ugFR3N8G
+        /DKyV+7ZGOsWfkBqfa1qSc8clkbEhvFrY+9Q7kYxAUmKwAEudsaqr3kE1DJSIeo5
+        KD2KX2KZ+flqjjPeTm16KSavWcZWr1DUJpWOG11HDydP+u7Y2P4rgCIpfekzmyKa
+        +UwqFRCJizQBzIdTkSpVqKZCjbENGFPr/2TnsO8e4g9a4GX4aX3rWEizhIW/XJrg
+        S4VHK5LzrYMgnqTwDQAYEHdECGreVya5BFZkumlj5eNWi+rFEwqQnE/BK1ZQv0lT
+        83EauegPCfdmE2bBibxTu0zuQqbjRHv0Od9+/uUeeqhe3zzhSNFjc2DBLNR+S1oA
         ==
-X-ME-Sender: <xms:_xkhYA9w_q6SC_b5As8TuzastLzPFauAAwr7y-lsYKyxsaUxDdG5yA>
-    <xme:_xkhYItMzbKZtFHZu1fxukzk14aH9jjjRdedS0-MDwa9lUue3XWkJQxURkGRJ5GUs
-    uannCEvbMpTWw>
+X-ME-Sender: <xms:ARohYEm0_ax-wX0ujPiGJ6iDL8qhqCk9kaVPEvgTadrRhoso46Egbw>
+    <xme:ARohYD11QWFf7Ny8QRG4lxBzlXxn4xaPMQ0Jtqn58gQIaWv1uf-S_R3COOGmr-0av
+    hNaNM_xvoLa0Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddvudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:_xkhYGDRsqUNx0bRVv8elS0rzcnXyuMvMxqtBWqk4dwQegM5625L2w>
-    <xmx:_xkhYAfSor7nsQUTk0UUM0qeFvdhjBK-KI-HMDb0GYNJ8eggpfpgtA>
-    <xmx:_xkhYFN7vWA3VqHKuEORzb43DteVQlNuQYX1gSYiRzbFUTWxwj2lHQ>
-    <xmx:ABohYBD3s30AwN-3OfH4xpz0Up69uXR0Af2kigkZkPqAwuDXhAPF8Cixf6I>
+X-ME-Proxy: <xmx:ARohYCoR0ClQAJr4QdtQoz310lYLSsabXL720IHoA3MFWwXmwaOReg>
+    <xmx:ARohYAl3nkAbPmgVq0XM745mUDBKuvFhXngLc-CgK4K0uapPh47rRA>
+    <xmx:ARohYC2J-qinojQo6-We92J_xEjcMUoR81jOdhTKdTfPWkMmxFn9Tg>
+    <xmx:ARohYMq9VKQ3by5hhiBcKDK5cM5aqEaIhfZV5Gk3CcwPSkqjYneak61klYw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 999C024005A;
-        Mon,  8 Feb 2021 06:01:19 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: hugetlb: fix a race between freeing and dissolving the" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 294811080057;
+        Mon,  8 Feb 2021 06:01:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm: hugetlb: fix a race between freeing and dissolving the" failed to apply to 4.14-stable tree
 To:     songmuchun@bytedance.com, akpm@linux-foundation.org,
         david@redhat.com, mhocko@suse.com, mike.kravetz@oracle.com,
         osalvador@suse.de, shy828301@gmail.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Feb 2021 12:01:09 +0100
-Message-ID: <161278206919633@kroah.com>
+Date:   Mon, 08 Feb 2021 12:01:10 +0100
+Message-ID: <161278207013991@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
