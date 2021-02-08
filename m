@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6328C313726
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:21:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC553136B2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbhBHPUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:20:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56398 "EHLO mail.kernel.org"
+        id S233487AbhBHPOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232171AbhBHPNe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:13:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1934364EBC;
-        Mon,  8 Feb 2021 15:10:34 +0000 (UTC)
+        id S233263AbhBHPK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E99864EBE;
+        Mon,  8 Feb 2021 15:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797035;
-        bh=Ol5TGqL9tdYPrnU3t8SzO77dUDoR2OOxgyzlD37EV2I=;
+        s=korg; t=1612796880;
+        bh=yM1yKpIsH1SVBWXEtrA81hq1B2LFhZyLkWgvd5v9p6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUdRyj6XcUQXd1KOYiVnqoO6MaBsfnWvGdulJZgVgLY38oW1XSEf4mTscSwqfJVvR
-         LsVsyPOw9nJxUmvPP3uFiVE3SyWl/A7/Ag2+yz/HWp+Tw4ANjdmdnsHOgLEtXYn3ff
-         EJ1VGAfgX7Zf6LwTsNTK6Ql6ZVtKspiTkRiD6m7A=
+        b=cYHQfDrwhbLf/IiMzHUXJj5bCqbhwQMC9eaJw5IsVk0h18t96Drv9T3TfW4lkhTnT
+         uyUUN//1Dn8WEN2ZRkCX+Pxh1F9OtaqooPdTtGLsDgcS4fi4CO1s4vV+rEl8m5Pl3N
+         pX+uIhMkd+1FfAk2PghlbptvV9+UveLnF7XpSjNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Coly Li <colyli@suse.com>,
-        Richard Palethorpe <rpalethorpe@suse.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.4 36/65] libnvdimm/dimm: Avoid race between probe and available_slots_show()
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 21/38] cifs: report error instead of invalid when revalidating a dentry fails
 Date:   Mon,  8 Feb 2021 16:01:08 +0100
-Message-Id: <20210208145811.627989831@linuxfoundation.org>
+Message-Id: <20210208145807.002040003@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream.
+commit 21b200d091826a83aafc95d847139b2b0582f6d1 upstream.
 
-Richard reports that the following test:
+Assuming
+- //HOST/a is mounted on /mnt
+- //HOST/b is mounted on /mnt/b
 
-(while true; do
-     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
- done) &
+On a slow connection, running 'df' and killing it while it's
+processing /mnt/b can make cifs_get_inode_info() returns -ERESTARTSYS.
 
-while true; do
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
-     done
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
-     done
- done
+This triggers the following chain of events:
+=> the dentry revalidation fail
+=> dentry is put and released
+=> superblock associated with the dentry is put
+=> /mnt/b is unmounted
 
-...fails with a crash signature like:
+This patch makes cifs_d_revalidate() return the error instead of 0
+(invalid) when cifs_revalidate_dentry() fails, except for ENOENT (file
+deleted) and ESTALE (file recreated).
 
-    divide error: 0000 [#1] SMP KASAN PTI
-    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
-    [..]
-    Call Trace:
-     available_slots_show+0x4e/0x120 [libnvdimm]
-     dev_attr_show+0x42/0x80
-     ? memset+0x20/0x40
-     sysfs_kf_seq_show+0x218/0x410
-
-The root cause is that available_slots_show() consults driver-data, but
-fails to synchronize against device-unbind setting up a TOCTOU race to
-access uninitialized memory.
-
-Validate driver-data under the device-lock.
-
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Coly Li <colyli@suse.com>
-Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
-Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+Suggested-by: Shyam Prasad N <nspmangalore@gmail.com>
+Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/dimm_devs.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ fs/cifs/dir.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/nvdimm/dimm_devs.c
-+++ b/drivers/nvdimm/dimm_devs.c
-@@ -344,16 +344,16 @@ static ssize_t state_show(struct device
- }
- static DEVICE_ATTR_RO(state);
- 
--static ssize_t available_slots_show(struct device *dev,
--		struct device_attribute *attr, char *buf)
-+static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
+--- a/fs/cifs/dir.c
++++ b/fs/cifs/dir.c
+@@ -840,6 +840,7 @@ static int
+ cifs_d_revalidate(struct dentry *direntry, unsigned int flags)
  {
--	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
-+	struct device *dev;
- 	ssize_t rc;
- 	u32 nfree;
+ 	struct inode *inode;
++	int rc;
  
- 	if (!ndd)
- 		return -ENXIO;
+ 	if (flags & LOOKUP_RCU)
+ 		return -ECHILD;
+@@ -849,8 +850,25 @@ cifs_d_revalidate(struct dentry *direntr
+ 		if ((flags & LOOKUP_REVAL) && !CIFS_CACHE_READ(CIFS_I(inode)))
+ 			CIFS_I(inode)->time = 0; /* force reval */
  
-+	dev = ndd->dev;
- 	nvdimm_bus_lock(dev);
- 	nfree = nd_label_nfree(ndd);
- 	if (nfree - 1 > nfree) {
-@@ -365,6 +365,18 @@ static ssize_t available_slots_show(stru
- 	nvdimm_bus_unlock(dev);
- 	return rc;
- }
-+
-+static ssize_t available_slots_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	ssize_t rc;
-+
-+	nd_device_lock(dev);
-+	rc = __available_slots_show(dev_get_drvdata(dev), buf);
-+	nd_device_unlock(dev);
-+
-+	return rc;
-+}
- static DEVICE_ATTR_RO(available_slots);
- 
- __weak ssize_t security_show(struct device *dev,
+-		if (cifs_revalidate_dentry(direntry))
+-			return 0;
++		rc = cifs_revalidate_dentry(direntry);
++		if (rc) {
++			cifs_dbg(FYI, "cifs_revalidate_dentry failed with rc=%d", rc);
++			switch (rc) {
++			case -ENOENT:
++			case -ESTALE:
++				/*
++				 * Those errors mean the dentry is invalid
++				 * (file was deleted or recreated)
++				 */
++				return 0;
++			default:
++				/*
++				 * Otherwise some unexpected error happened
++				 * report it as-is to VFS layer
++				 */
++				return rc;
++			}
++		}
+ 		else {
+ 			/*
+ 			 * If the inode wasn't known to be a dfs entry when
 
 
