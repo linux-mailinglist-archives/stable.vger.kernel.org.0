@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4DA313C7F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D7E313C7E
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233463AbhBHSHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:07:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
+        id S235242AbhBHSHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:07:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235337AbhBHSDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235336AbhBHSDS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 13:03:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21C0B64ED4;
-        Mon,  8 Feb 2021 17:59:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A46E64EBD;
+        Mon,  8 Feb 2021 17:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807159;
-        bh=nubV/1ygv6kqsM4aIbnBzomM+6P/DuLH9iUpEwabiJU=;
+        s=k20201202; t=1612807161;
+        bh=CACrHjdgxxlqeca6xM+QPTTCAdtofJkj0XFyOoi53QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXibZl9195HYu61maEJ2xxxX2qCeWklrVHPgD4wpigCWMeI8mmG+2k9lOBZ+hfcBy
-         XZbWSrFX2RFW9rnlmdHBnsLRcrgryjf5vaFPapQlc25hP+XaV2n8/nAynHbkItXfvH
-         Qdp3GmkszvT+U/H5Vl67eMSaVFVSVaN6aERUFNFOEHzsjDbc17/Qg37ow0H3oack4a
-         bIlFMlro3AS+kTxbZbDegG+e8h8XjU3uq5D/FSDFwayTTQ6JaxQIpPuqcQB+5YWuHx
-         HusYHM/rQXGYtrhd8AzSr6LuMaqBJmL/WrcYq/eULMdwhj4wJPLWz3pXkjcQ3WBl1H
-         wSN4rJ8DEPAVQ==
+        b=LuhjM5bpXb6Emb4wcWtUeLC0/uzELzYb4hHo7FR/ZSs+x+auECSdj0mtETLb9SvQd
+         AWzWGHYwz36SZWGY9yrLjDIQmNp0WzobvNrdkUud3H7oLocwFmX8udmmUCaw5YUVyw
+         eZe4zlwNOMr9HKvnbDlwB6HUpjf8D494sAjTA0KqvF9fIbf2Ls5AGOtIF68O37Kp3S
+         +zNFMlCfeQj8v4kG+pnn9hkQWCXK22K0UHYhHLA4fKGtZ6Xi2Xk57m1ao4878szbpq
+         b5jXa7VFYeUXwQqPVP+7LCY9frRcwKlEPN+x0xZtThtLDxH8Ds44zwy/OhiZhiHgfO
+         UnxKS2RZ7fCOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Feng <linf@wangsu.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 15/19] bfq-iosched: Revert "bfq: Fix computation of shallow depth"
-Date:   Mon,  8 Feb 2021 12:58:54 -0500
-Message-Id: <20210208175858.2092008-15-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 16/19] ARM: dts: lpc32xx: Revert set default clock rate of HCLK PLL
+Date:   Mon,  8 Feb 2021 12:58:55 -0500
+Message-Id: <20210208175858.2092008-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175858.2092008-1-sashal@kernel.org>
 References: <20210208175858.2092008-1-sashal@kernel.org>
@@ -42,66 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Feng <linf@wangsu.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 388c705b95f23f317fa43e6abf9ff07b583b721a ]
+[ Upstream commit 5638159f6d93b99ec9743ac7f65563fca3cf413d ]
 
-This reverts commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a.
+This reverts commit c17e9377aa81664d94b4f2102559fcf2a01ec8e7.
 
-bfq.limit_depth passes word_depths[] as shallow_depth down to sbitmap core
-sbitmap_get_shallow, which uses just the number to limit the scan depth of
-each bitmap word, formula:
-scan_percentage_for_each_word = shallow_depth / (1 << sbimap->shift) * 100%
+The lpc32xx clock driver is not able to actually change the PLL rate as
+this would require reparenting ARM_CLK, DDRAM_CLK, PERIPH_CLK to SYSCLK,
+then stop the PLL, update the register, restart the PLL and wait for the
+PLL to lock and finally reparent ARM_CLK, DDRAM_CLK, PERIPH_CLK to HCLK
+PLL.
 
-That means the comments's percentiles 50%, 75%, 18%, 37% of bfq are correct.
-But after commit patch 'bfq: Fix computation of shallow depth', we use
-sbitmap.depth instead, as a example in following case:
+Currently, the HCLK driver simply updates the registers but this has no
+real effect and all the clock rate calculation end up being wrong. This is
+especially annoying for the peripheral (e.g. UARTs, I2C, SPI).
 
-sbitmap.depth = 256, map_nr = 4, shift = 6; sbitmap_word.depth = 64.
-The resulsts of computed bfqd->word_depths[] are {128, 192, 48, 96}, and
-three of the numbers exceed core dirver's 'sbitmap_word.depth=64' limit
-nothing.
-
-Signed-off-by: Lin Feng <linf@wangsu.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20210203090320.GA3760268@piout.net'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/lpc32xx.dtsi | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7d19aae015aeb..ba32adaeefdd0 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6320,13 +6320,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * limit 'something'.
- 	 */
- 	/* no more than 50% of tags for async I/O */
--	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
-+	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
- 	/*
- 	 * no more than 75% of tags for sync writes (25% extra tags
- 	 * w.r.t. async I/O, to prevent async I/O from starving sync
- 	 * writes)
- 	 */
--	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
-+	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
+diff --git a/arch/arm/boot/dts/lpc32xx.dtsi b/arch/arm/boot/dts/lpc32xx.dtsi
+index 7b7ec7b1217b8..824393e1bcfb7 100644
+--- a/arch/arm/boot/dts/lpc32xx.dtsi
++++ b/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -329,9 +329,6 @@ clk: clock-controller@0 {
  
- 	/*
- 	 * In-word depths in case some bfq_queue is being weight-
-@@ -6336,9 +6336,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * shortage.
- 	 */
- 	/* no more than ~18% of tags for async I/O */
--	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
-+	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
- 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
--	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
-+	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
+ 					clocks = <&xtal_32k>, <&xtal>;
+ 					clock-names = "xtal_32k", "xtal";
+-
+-					assigned-clocks = <&clk LPC32XX_CLK_HCLK_PLL>;
+-					assigned-clock-rates = <208000000>;
+ 				};
+ 			};
  
- 	for (i = 0; i < 2; i++)
- 		for (j = 0; j < 2; j++)
 -- 
 2.27.0
 
