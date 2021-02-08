@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 350F43137C4
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB5E3137C2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233893AbhBHPa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:30:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36034 "EHLO mail.kernel.org"
+        id S233868AbhBHPaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:30:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232315AbhBHPXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:23:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A333064F18;
-        Mon,  8 Feb 2021 15:14:34 +0000 (UTC)
+        id S232971AbhBHPYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:24:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6272964E7E;
+        Mon,  8 Feb 2021 15:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797275;
-        bh=WrbqghjL5aeZuL5WtrSMi6I7ncdWtDPCBD7Uf5j0j6Y=;
+        s=korg; t=1612797281;
+        bh=8YW3oxQxDg2BQZaZrAlhicuAJwSozWcrjoH/2iVDBE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZQx0SH88ANQdKXUSLP7f1lPixBPTYiidFMDmTenbO0euTou3PSf0WoVpK1l2GfvO
-         b/MRbCItzZNaERQZ3f5IIL6qP0UhrpV0m9ZAzZj80JnlgNODDKMURHVBt6hvRRQd+g
-         9rthigqG63zcgKU7DTOqHkpzBzQpil+kSWRMqL6k=
+        b=RuWvCh7AayV914djhhL7rBnHTK3A1pxeJXO1tuB5S4ny1NvBNkvVMHvhGl0eKluCX
+         cyrutfJ+7chpijiDXK5ZFXJAtBZyHVdP6r+2g+T02zwvnRmuSaqXkX1L3Sf1blTsIu
+         y2OSkKom7v6VHFaSrTlVwT9Dp8WVGRuCNaev7mLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Mark Wielaard <mark@klomp.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/120] kbuild: fix duplicated flags in DEBUG_CFLAGS
-Date:   Mon,  8 Feb 2021 16:00:39 +0100
-Message-Id: <20210208145820.500780978@linuxfoundation.org>
+        stable@vger.kernel.org, Liangyan <liangyan.peng@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.10 054/120] ovl: fix dentry leak in ovl_get_redirect
+Date:   Mon,  8 Feb 2021 16:00:41 +0100
+Message-Id: <20210208145820.577049939@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -42,54 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Liangyan <liangyan.peng@linux.alibaba.com>
 
-[ Upstream commit 315da87c0f99a4741a639782d59dae44878199f5 ]
+commit e04527fefba6e4e66492f122cf8cc6314f3cf3bf upstream.
 
-Sedat Dilek noticed duplicated flags in DEBUG_CFLAGS when building
-deb-pkg with CONFIG_DEBUG_INFO. For example, 'make CC=clang bindeb-pkg'
-reproduces the issue.
+We need to lock d_parent->d_lock before dget_dlock, or this may
+have d_lockref updated parallelly like calltrace below which will
+cause dentry->d_lockref leak and risk a crash.
 
-Kbuild recurses to the top Makefile for some targets such as package
-builds.
+     CPU 0                                CPU 1
+ovl_set_redirect                       lookup_fast
+  ovl_get_redirect                       __d_lookup
+    dget_dlock
+      //no lock protection here            spin_lock(&dentry->d_lock)
+      dentry->d_lockref.count++            dentry->d_lockref.count++
 
-With commit 121c5d08d53c ("kbuild: Only add -fno-var-tracking-assignments
-for old GCC versions") applied, DEBUG_CFLAGS is now reset only when
-CONFIG_CC_IS_GCC=y.
+[   49.799059] PGD 800000061fed7067 P4D 800000061fed7067 PUD 61fec5067 PMD 0
+[   49.799689] Oops: 0002 [#1] SMP PTI
+[   49.800019] CPU: 2 PID: 2332 Comm: node Not tainted 4.19.24-7.20.al7.x86_64 #1
+[   49.800678] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8a46cfe 04/01/2014
+[   49.801380] RIP: 0010:_raw_spin_lock+0xc/0x20
+[   49.803470] RSP: 0018:ffffac6fc5417e98 EFLAGS: 00010246
+[   49.803949] RAX: 0000000000000000 RBX: ffff93b8da3446c0 RCX: 0000000a00000000
+[   49.804600] RDX: 0000000000000001 RSI: 000000000000000a RDI: 0000000000000088
+[   49.805252] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff993cf040
+[   49.805898] R10: ffff93b92292e580 R11: ffffd27f188a4b80 R12: 0000000000000000
+[   49.806548] R13: 00000000ffffff9c R14: 00000000fffffffe R15: ffff93b8da3446c0
+[   49.807200] FS:  00007ffbedffb700(0000) GS:ffff93b927880000(0000) knlGS:0000000000000000
+[   49.807935] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   49.808461] CR2: 0000000000000088 CR3: 00000005e3f74006 CR4: 00000000003606a0
+[   49.809113] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   49.809758] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   49.810410] Call Trace:
+[   49.810653]  d_delete+0x2c/0xb0
+[   49.810951]  vfs_rmdir+0xfd/0x120
+[   49.811264]  do_rmdir+0x14f/0x1a0
+[   49.811573]  do_syscall_64+0x5b/0x190
+[   49.811917]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   49.812385] RIP: 0033:0x7ffbf505ffd7
+[   49.814404] RSP: 002b:00007ffbedffada8 EFLAGS: 00000297 ORIG_RAX: 0000000000000054
+[   49.815098] RAX: ffffffffffffffda RBX: 00007ffbedffb640 RCX: 00007ffbf505ffd7
+[   49.815744] RDX: 0000000004449700 RSI: 0000000000000000 RDI: 0000000006c8cd50
+[   49.816394] RBP: 00007ffbedffaea0 R08: 0000000000000000 R09: 0000000000017d0b
+[   49.817038] R10: 0000000000000000 R11: 0000000000000297 R12: 0000000000000012
+[   49.817687] R13: 00000000072823d8 R14: 00007ffbedffb700 R15: 00000000072823d8
+[   49.818338] Modules linked in: pvpanic cirrusfb button qemu_fw_cfg atkbd libps2 i8042
+[   49.819052] CR2: 0000000000000088
+[   49.819368] ---[ end trace 4e652b8aa299aa2d ]---
+[   49.819796] RIP: 0010:_raw_spin_lock+0xc/0x20
+[   49.821880] RSP: 0018:ffffac6fc5417e98 EFLAGS: 00010246
+[   49.822363] RAX: 0000000000000000 RBX: ffff93b8da3446c0 RCX: 0000000a00000000
+[   49.823008] RDX: 0000000000000001 RSI: 000000000000000a RDI: 0000000000000088
+[   49.823658] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff993cf040
+[   49.825404] R10: ffff93b92292e580 R11: ffffd27f188a4b80 R12: 0000000000000000
+[   49.827147] R13: 00000000ffffff9c R14: 00000000fffffffe R15: ffff93b8da3446c0
+[   49.828890] FS:  00007ffbedffb700(0000) GS:ffff93b927880000(0000) knlGS:0000000000000000
+[   49.830725] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   49.832359] CR2: 0000000000000088 CR3: 00000005e3f74006 CR4: 00000000003606a0
+[   49.834085] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   49.835792] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Fix it to reset DEBUG_CFLAGS all the time.
-
-Fixes: 121c5d08d53c ("kbuild: Only add -fno-var-tracking-assignments for old GCC versions")
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reviewed-by: Mark Wielaard <mark@klomp.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: a6c606551141 ("ovl: redirect on rename-dir")
+Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/overlayfs/dir.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Makefile b/Makefile
-index bb3770be9779d..535696d39f452 100644
---- a/Makefile
-+++ b/Makefile
-@@ -812,10 +812,12 @@ KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
- KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
- endif
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -992,8 +992,8 @@ static char *ovl_get_redirect(struct den
  
-+DEBUG_CFLAGS	:=
-+
- # Workaround for GCC versions < 5.0
- # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61801
- ifdef CONFIG_CC_IS_GCC
--DEBUG_CFLAGS	:= $(call cc-ifversion, -lt, 0500, $(call cc-option, -fno-var-tracking-assignments))
-+DEBUG_CFLAGS	+= $(call cc-ifversion, -lt, 0500, $(call cc-option, -fno-var-tracking-assignments))
- endif
+ 		buflen -= thislen;
+ 		memcpy(&buf[buflen], name, thislen);
+-		tmp = dget_dlock(d->d_parent);
+ 		spin_unlock(&d->d_lock);
++		tmp = dget_parent(d);
  
- ifdef CONFIG_DEBUG_INFO
--- 
-2.27.0
-
+ 		dput(d);
+ 		d = tmp;
 
 
