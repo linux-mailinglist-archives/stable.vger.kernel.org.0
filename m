@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2473137F5
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C943137FF
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbhBHPdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
+        id S233948AbhBHPfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:35:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233754AbhBHPaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:30:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B3264ECD;
-        Mon,  8 Feb 2021 15:17:01 +0000 (UTC)
+        id S233799AbhBHPaa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:30:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71CB864ECB;
+        Mon,  8 Feb 2021 15:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797422;
-        bh=KgOTo85NRv/jeWrQtnUac5CCENu8eNKCvVq7HV4fbXA=;
+        s=korg; t=1612797425;
+        bh=kkTDqg8lH95434hgag5hZj6EpSzITDdApzwt04Mq/dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqTbRKUVXBdKSJkVpcqpJpgVwIniEuluodjQBOUuVT/Ge0zBTymfD94GeCIp8R2VU
-         35mf6Pl56f7rH6Payl3UzghoLroHUhUWqUtNr1XHFvkaVclbva2qz7EnCwdXx3Vu79
-         w/o6NzUlwsT8OxOJ3t3hRa+kPGy33QwnnvXf2a/Y=
+        b=NfNq658v/FoIKLgbDnTqGQDySNZbuTBLeRR52J48IsP1IFR3pJMHqcfEC2cugIQjd
+         og7HKY0yGqNmGruR+9QBeubIquj9c4l8AgYU7hxWJ+UB04sqeQ6fF9tSGPrMwuElkZ
+         DlFc4DjvJcxJjatR+9/pEMVkX7sM8xMoDkIZuYJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Muchun Song <smuchun@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 105/120] mm/filemap: add missing mem_cgroup_uncharge() to __add_to_page_cache_locked()
-Date:   Mon,  8 Feb 2021 16:01:32 +0100
-Message-Id: <20210208145822.572875718@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>,
+        Seth Forshee <seth.forshee@canonical.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 5.10 106/120] x86/build: Disable CET instrumentation in the kernel
+Date:   Mon,  8 Feb 2021 16:01:33 +0100
+Message-Id: <20210208145822.613119170@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -46,93 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit da74240eb3fcd806edb1643874363e954d9e948b upstream.
+commit 20bf2b378729c4a0366a53e2018a0b70ace94bcd upstream.
 
-Commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") introduced a bug in __add_to_page_cache_locked()
-causing the following splat:
+With retpolines disabled, some configurations of GCC, and specifically
+the GCC versions 9 and 10 in Ubuntu will add Intel CET instrumentation
+to the kernel by default. That breaks certain tracing scenarios by
+adding a superfluous ENDBR64 instruction before the fentry call, for
+functions which can be called indirectly.
 
-  page dumped because: VM_BUG_ON_PAGE(page_memcg(page))
-  pages's memcg:ffff8889a4116000
-  ------------[ cut here ]------------
-  kernel BUG at mm/memcontrol.c:2924!
-  invalid opcode: 0000 [#1] SMP KASAN PTI
-  CPU: 35 PID: 12345 Comm: cat Tainted: G S      W I       5.11.0-rc4-debug+ #1
-  Hardware name: HP HP Z8 G4 Workstation/81C7, BIOS P60 v01.25 12/06/2017
-  RIP: commit_charge+0xf4/0x130
-  Call Trace:
-    mem_cgroup_charge+0x175/0x770
-    __add_to_page_cache_locked+0x712/0xad0
-    add_to_page_cache_lru+0xc5/0x1f0
-    cachefiles_read_or_alloc_pages+0x895/0x2e10 [cachefiles]
-    __fscache_read_or_alloc_pages+0x6c0/0xa00 [fscache]
-    __nfs_readpages_from_fscache+0x16d/0x630 [nfs]
-    nfs_readpages+0x24e/0x540 [nfs]
-    read_pages+0x5b1/0xc40
-    page_cache_ra_unbounded+0x460/0x750
-    generic_file_buffered_read_get_pages+0x290/0x1710
-    generic_file_buffered_read+0x2a9/0xc30
-    nfs_file_read+0x13f/0x230 [nfs]
-    new_sync_read+0x3af/0x610
-    vfs_read+0x339/0x4b0
-    ksys_read+0xf1/0x1c0
-    do_syscall_64+0x33/0x40
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+CET instrumentation isn't currently necessary in the kernel, as CET is
+only supported in user space. Disable it unconditionally and move it
+into the x86's Makefile as CET/CFI... enablement should be a per-arch
+decision anyway.
 
-Before that commit, there was a try_charge() and commit_charge() in
-__add_to_page_cache_locked().  These two separated charge functions were
-replaced by a single mem_cgroup_charge().  However, it forgot to add a
-matching mem_cgroup_uncharge() when the xarray insertion failed with the
-page released back to the pool.
+ [ bp: Massage and extend commit message. ]
 
-Fix this by adding a mem_cgroup_uncharge() call when insertion error
-happens.
-
-Link: https://lkml.kernel.org/r/20210125042441.20030-1-longman@redhat.com
-Fixes: 3fea5a499d57 ("mm: memcontrol: convert page cache to a new mem_cgroup_charge() API")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Muchun Song <smuchun@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
+Fixes: 29be86d7f9cb ("kbuild: add -fcf-protection=none when using retpoline flags")
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Tested-by: Nikolay Borisov <nborisov@suse.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Seth Forshee <seth.forshee@canonical.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Link: https://lkml.kernel.org/r/20210128215219.6kct3h2eiustncws@treble
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/filemap.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ Makefile          |    6 ------
+ arch/x86/Makefile |    3 +++
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -835,6 +835,7 @@ noinline int __add_to_page_cache_locked(
- 	XA_STATE(xas, &mapping->i_pages, offset);
- 	int huge = PageHuge(page);
- 	int error;
-+	bool charged = false;
+--- a/Makefile
++++ b/Makefile
+@@ -950,12 +950,6 @@ KBUILD_CFLAGS   += $(call cc-option,-Wer
+ # change __FILE__ to the relative path from the srctree
+ KBUILD_CPPFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
  
- 	VM_BUG_ON_PAGE(!PageLocked(page), page);
- 	VM_BUG_ON_PAGE(PageSwapBacked(page), page);
-@@ -848,6 +849,7 @@ noinline int __add_to_page_cache_locked(
- 		error = mem_cgroup_charge(page, current->mm, gfp);
- 		if (error)
- 			goto error;
-+		charged = true;
- 	}
+-# ensure -fcf-protection is disabled when using retpoline as it is
+-# incompatible with -mindirect-branch=thunk-extern
+-ifdef CONFIG_RETPOLINE
+-KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
+-endif
+-
+ # include additional Makefiles when needed
+ include-y			:= scripts/Makefile.extrawarn
+ include-$(CONFIG_KASAN)		+= scripts/Makefile.kasan
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -127,6 +127,9 @@ else
  
- 	gfp &= GFP_RECLAIM_MASK;
-@@ -896,6 +898,8 @@ unlock:
+         KBUILD_CFLAGS += -mno-red-zone
+         KBUILD_CFLAGS += -mcmodel=kernel
++
++	# Intel CET isn't enabled in the kernel
++	KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
+ endif
  
- 	if (xas_error(&xas)) {
- 		error = xas_error(&xas);
-+		if (charged)
-+			mem_cgroup_uncharge(page);
- 		goto error;
- 	}
- 
+ ifdef CONFIG_X86_X32
 
 
