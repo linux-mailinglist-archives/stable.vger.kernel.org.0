@@ -2,121 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11ABB313822
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0916313805
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbhBHPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:37:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233950AbhBHPcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:32:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED53364F3F;
-        Mon,  8 Feb 2021 15:17:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797467;
-        bh=lMZ3lImxeRs+GZ78Yf6enKngygz8zpWXwEO7ZCCpzIg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aS0PBWkT0eoj2SOkXH2Z3mRIIK3b5wjPWn2b6S+BHPUQY+RKkrva1wTBWSEjlZ5Ou
-         i9PHDjNmq13hDRS98PrvzSQTtfoHiCU+tPtiVQ6LJyYw2zFD0p5bQTr+LYK0RO9c7J
-         tf1ObPdNaOArHZC98tMVhnJMEDG2cu8WRyuRKccI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Ovechkin <ovov@yandex-team.ru>,
-        Alexander Kuznetsov <wwfq@yandex-team.ru>,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Dmitry Yakunin <zeil@yandex-team.ru>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 120/120] net: sched: replaced invalid qdisc tree flush helper in qdisc_replace
-Date:   Mon,  8 Feb 2021 16:01:47 +0100
-Message-Id: <20210208145823.161661750@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
-References: <20210208145818.395353822@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S233985AbhBHPfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:35:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55906 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233801AbhBHPag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 10:30:36 -0500
+Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F687C061788
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 07:29:56 -0800 (PST)
+Received: by mail-vs1-xe34.google.com with SMTP id s17so4139512vsn.11
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 07:29:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=AhnjXl5k8DIzqlsB1h9fhefVFnLYSnUsfJn4xnfHzzg=;
+        b=Kt9A1C+yOnYP7WtfPlruZ5zHbJ1EsCKPRmjJwfdGfrsdNe+Ooc4pVS9m6tYsQAecG8
+         HLeO5c5XyqjzbZ5CH7uC/sbiYnFshPu8dyGPqKeCf7XKyasoN+5wlM9W+I5ZeO1SW7sY
+         fYKiQew46KbwFLSIKTJIkMkSdUiOwtxMhTsoirSuyU1nxdgbbD5UZtvd1AZTArsTMAqr
+         ctEkieW9HqqkqDtoEIKe0TFvxma3s50SXpF1mbu8WJrQ7vqFamESBOg0rnWN00bUACqi
+         ArOQOAFy0iqsP9rQQTSMmswOZV8an5lFY8GeIpns9dQijxQVPLRLGbx3gtnM4VXhw6sZ
+         ddCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=AhnjXl5k8DIzqlsB1h9fhefVFnLYSnUsfJn4xnfHzzg=;
+        b=X3C+n7UXmnXpD6DkuTBmAZ6AB99s3RS9OWH/GbnvWfrZAcSi9VRRYO43+ZAB6s7Sjt
+         rr+4jOaPxOgKRpl2FZO5ka8QLL2qb6kxE83qKaZ8Cj0JlSdwABTDdo/8RHmrcXizV3+h
+         5IFt0DYI3Out1l5Edh8QiKZ7Yxv+iw1uuvWqzTU+vpd7wbJzqdT1n9Kr01skJ9mPfdov
+         0JvcohWh6gKrH99Fw/Ng3I36DbxtQ+7n1zdApc4OvfaqxMpMzpUwWO4k8mnI/b+snQqI
+         ZNsJYmNigS7KGxoJBKLztusplTY+3X5IUQcZWGY0k4jPAEpPwTvIN5FtKoGy/vjCYMjX
+         4bCg==
+X-Gm-Message-State: AOAM5302INBAKx7GKQSgzxgFv2lpYvG7TnU/S0bGeiKKi3DV9wncn4M8
+        JeqZTijS1uU7wRZ6pjRWeEdH89V8HJvWAlgOHyc=
+X-Google-Smtp-Source: ABdhPJyIV32UATdu+KQt9E8scp3wQh64Sat+dMjR5xUZxi5t04mIgFFl8KJpPFVfq5VSnPYWyt4WCpOtb+39bY7Nq+0=
+X-Received: by 2002:a67:e455:: with SMTP id n21mr3326738vsm.26.1612798195298;
+ Mon, 08 Feb 2021 07:29:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:ab0:5fd6:0:0:0:0:0 with HTTP; Mon, 8 Feb 2021 07:29:54 -0800 (PST)
+Reply-To: grandmastertemple13@gmail.com
+From:   illuminati temple <joan.loans01@gmail.com>
+Date:   Mon, 8 Feb 2021 07:29:54 -0800
+Message-ID: <CA+1zPjcijF1rC=gZyj=U6qDnWzhAcr-1cU2Mo9JMxJa+JopR6Q@mail.gmail.com>
+Subject: Treten Sie ILUMINATI HEUTE bei und erreichen Sie Ihre Lebensziele.
+ Kostenlos beitreten.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Ovechkin <ovov@yandex-team.ru>
-
-commit 938e0fcd3253efdef8924714158911286d08cfe1 upstream.
-
-Commit e5f0e8f8e456 ("net: sched: introduce and use qdisc tree flush/purge helpers")
-introduced qdisc tree flush/purge helpers, but erroneously used flush helper
-instead of purge helper in qdisc_replace function.
-This issue was found in our CI, that tests various qdisc setups by configuring
-qdisc and sending data through it. Call of invalid helper sporadically leads
-to corruption of vt_tree/cf_tree of hfsc_class that causes kernel oops:
-
- Oops: 0000 [#1] SMP PTI
- CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.11.0-8f6859df #1
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
- RIP: 0010:rb_insert_color+0x18/0x190
- Code: c3 31 c0 c3 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 48 8b 07 48 85 c0 0f 84 05 01 00 00 48 8b 10 f6 c2 01 0f 85 34 01 00 00 <48> 8b 4a 08 49 89 d0 48 39 c1 74 7d 48 85 c9 74 32 f6 01 01 75 2d
- RSP: 0018:ffffc900000b8bb0 EFLAGS: 00010246
- RAX: ffff8881ef4c38b0 RBX: ffff8881d956e400 RCX: ffff8881ef4c38b0
- RDX: 0000000000000000 RSI: ffff8881d956f0a8 RDI: ffff8881d956e4b0
- RBP: 0000000000000000 R08: 000000d5c4e249da R09: 1600000000000000
- R10: ffffc900000b8be0 R11: ffffc900000b8b28 R12: 0000000000000001
- R13: 000000000000005a R14: ffff8881f0905000 R15: ffff8881f0387d00
- FS:  0000000000000000(0000) GS:ffff8881f8b00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000008 CR3: 00000001f4796004 CR4: 0000000000060ee0
- Call Trace:
-  <IRQ>
-  init_vf.isra.19+0xec/0x250 [sch_hfsc]
-  hfsc_enqueue+0x245/0x300 [sch_hfsc]
-  ? fib_rules_lookup+0x12a/0x1d0
-  ? __dev_queue_xmit+0x4b6/0x930
-  ? hfsc_delete_class+0x250/0x250 [sch_hfsc]
-  __dev_queue_xmit+0x4b6/0x930
-  ? ip6_finish_output2+0x24d/0x590
-  ip6_finish_output2+0x24d/0x590
-  ? ip6_output+0x6c/0x130
-  ip6_output+0x6c/0x130
-  ? __ip6_finish_output+0x110/0x110
-  mld_sendpack+0x224/0x230
-  mld_ifc_timer_expire+0x186/0x2c0
-  ? igmp6_group_dropped+0x200/0x200
-  call_timer_fn+0x2d/0x150
-  run_timer_softirq+0x20c/0x480
-  ? tick_sched_do_timer+0x60/0x60
-  ? tick_sched_timer+0x37/0x70
-  __do_softirq+0xf7/0x2cb
-  irq_exit+0xa0/0xb0
-  smp_apic_timer_interrupt+0x74/0x150
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
-
-Fixes: e5f0e8f8e456 ("net: sched: introduce and use qdisc tree flush/purge helpers")
-Signed-off-by: Alexander Ovechkin <ovov@yandex-team.ru>
-Reported-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
-Acked-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Link: https://lore.kernel.org/r/20210201200049.299153-1-ovov@yandex-team.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/sch_generic.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -1155,7 +1155,7 @@ static inline struct Qdisc *qdisc_replac
- 	old = *pold;
- 	*pold = new;
- 	if (old != NULL)
--		qdisc_tree_flush_backlog(old);
-+		qdisc_purge_queue(old);
- 	sch_tree_unlock(sch);
- 
- 	return old;
+--=20
+Treten Sie ILUMINATI HEUTE bei und erreichen Sie Ihre Lebensziele.
+Kostenlos beitreten.
 
 
+Ich bin ein Illuminati-Agent mit der ID 6665529. Ich bringe allen, die
+nach Ruhm, Langlebigkeit und Schutz streben, gute Nachrichten.
+
+Reichtum / Reichtum / Geld und was du hast. Ich bin ein lebendiges Zeugnis
+weil ich in eine sehr arme Familie hineingeboren wurde und eine Idee
+habe, wie ich werden soll
+
+Reich an Leben, also stellte mich ein Freund den Illuminaten vor und
+ich trat ein, um am Ende meiner Initiation eine lange Geschichte zu
+schreiben
+ 50.000,00 USD, Hauptsitz in Washington, Sicherheitsring, Reisevisa
+Welt usw. Seitdem hat sich mein Leben zum Besseren ver=C3=A4ndert und ich b=
+in es
+
+sehr gl=C3=BCcklich. Dank meines Engagements f=C3=BCr die Bruderschaft habe=
+n sie
+mich zu einem Agenten gemacht, der Menschen ans Licht brachte und
+reich wurde. Daher bin ich
+
+Ich bin hier, um der Welt zu sagen, dass es der beste Ort zum Leben ist
+Illuminaten. Ich m=C3=B6chte schnell alles aufschreiben, mit dem ich verbun=
+den bin
+Illuminati ist f=C3=BCr Sie v=C3=B6llig kostenlos
+
+Zahlen Sie kein Abendessen, um Mitglied zu werden. Ich fordere euch
+alle heraus, die lesen
+Diese Nachricht wird sich uns anschlie=C3=9Fen und reich werden und
+gesch=C3=BCtzt. Wille
+
+ direkte E-Mail: grandmastertemple13@gmail.com
