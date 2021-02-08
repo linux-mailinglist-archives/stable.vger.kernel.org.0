@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 778D7313651
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD8331370C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232677AbhBHPJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:09:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S232228AbhBHPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:19:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232783AbhBHPGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA62B64EB7;
-        Mon,  8 Feb 2021 15:05:02 +0000 (UTC)
+        id S230094AbhBHPNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:13:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD5264EB8;
+        Mon,  8 Feb 2021 15:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796703;
-        bh=fzqh2cU15B8Mzgi3D49ZwYmF10tjCwNHjdsPg4dqGxI=;
+        s=korg; t=1612797012;
+        bh=UTAvX1Z2BIvkb/lCrVV8zz9Le16kHhfY0QGBnzvF21w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BF3T4hzpZqgKwkumscpmwPr07+plUUhB1i3w3yxDx33fCEHDLiClC7QWrvwx+Zoyv
-         NmMYnWttB15MkEiHswDX8xdocOiaf4LzC4ckq9fpY7F+8LAQ3uInm1QYt9Tzp6Xsv1
-         eYv2lcIUSf4LwqmKLSrce710oWfRZlSpragqrXWw=
+        b=EKhF1ELNrL5bhLnJ/nDa/FfwPdBM4TQInkiCWb50CDqzI4AY7AZSvdZ1Dwpxl81Yj
+         Dsz+JxO3pnMLOnS2zZWgZNKGrX3o9txUGgD/Ybdrz6rWquxS1gIL/YwL5XZbgCqipj
+         aT/m8IAmC+jg+V6uasn38t5JuZXn7vCun0FqYvtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 35/43] mm: hugetlb: fix a race between isolating and freeing page
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Ikjoon Jang <ikjn@chromium.org>
+Subject: [PATCH 5.4 29/65] usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints
 Date:   Mon,  8 Feb 2021 16:01:01 +0100
-Message-Id: <20210208145807.733890017@linuxfoundation.org>
+Message-Id: <20210208145811.352289043@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +39,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 0eb2df2b5629794020f75e94655e1994af63f0d4 upstream.
+commit 54f6a8af372213a254af6609758d99f7c0b6b5ad upstream.
 
-There is a race between isolate_huge_page() and __free_huge_page().
+For those unchecked endpoints, we don't allocate bandwidth for
+them, so no need free the bandwidth, otherwise will decrease
+the allocated bandwidth.
+Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
+rename bw_ep_list_new as bw_ep_chk_list.
 
-  CPU0:                                     CPU1:
-
-  if (PageHuge(page))
-                                            put_page(page)
-                                              __free_huge_page(page)
-                                                  spin_lock(&hugetlb_lock)
-                                                  update_and_free_page(page)
-                                                    set_compound_page_dtor(page,
-                                                      NULL_COMPOUND_DTOR)
-                                                  spin_unlock(&hugetlb_lock)
-    isolate_huge_page(page)
-      // trigger BUG_ON
-      VM_BUG_ON_PAGE(!PageHead(page), page)
-      spin_lock(&hugetlb_lock)
-      page_huge_active(page)
-        // trigger BUG_ON
-        VM_BUG_ON_PAGE(!PageHuge(page), page)
-      spin_unlock(&hugetlb_lock)
-
-When we isolate a HugeTLB page on CPU0.  Meanwhile, we free it to the
-buddy allocator on CPU1.  Then, we can trigger a BUG_ON on CPU0, because
-it is already freed to the buddy allocator.
-
-Link: https://lkml.kernel.org/r/20210115124942.46403-5-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-and-tested-by: Ikjoon Jang <ikjn@chromium.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c |   61 +++++++++++++++++++++-------------------
+ drivers/usb/host/xhci-mtk.h     |    4 +-
+ 2 files changed, 36 insertions(+), 29 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4657,9 +4657,9 @@ bool isolate_huge_page(struct page *page
- {
- 	bool ret = true;
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -200,6 +200,7 @@ static struct mu3h_sch_ep_info *create_s
  
--	VM_BUG_ON_PAGE(!PageHead(page), page);
- 	spin_lock(&hugetlb_lock);
--	if (!page_huge_active(page) || !get_page_unless_zero(page)) {
-+	if (!PageHeadHuge(page) || !page_huge_active(page) ||
-+	    !get_page_unless_zero(page)) {
- 		ret = false;
- 		goto unlock;
+ 	sch_ep->sch_tt = tt;
+ 	sch_ep->ep = ep;
++	INIT_LIST_HEAD(&sch_ep->endpoint);
+ 	INIT_LIST_HEAD(&sch_ep->tt_endpoint);
+ 
+ 	return sch_ep;
+@@ -374,6 +375,7 @@ static void update_bus_bw(struct mu3h_sc
+ 					sch_ep->bw_budget_table[j];
+ 		}
  	}
++	sch_ep->allocated = used;
+ }
+ 
+ static int check_sch_tt(struct usb_device *udev,
+@@ -542,6 +544,22 @@ static int check_sch_bw(struct usb_devic
+ 	return 0;
+ }
+ 
++static void destroy_sch_ep(struct usb_device *udev,
++	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
++{
++	/* only release ep bw check passed by check_sch_bw() */
++	if (sch_ep->allocated)
++		update_bus_bw(sch_bw, sch_ep, 0);
++
++	list_del(&sch_ep->endpoint);
++
++	if (sch_ep->sch_tt) {
++		list_del(&sch_ep->tt_endpoint);
++		drop_tt(udev);
++	}
++	kfree(sch_ep);
++}
++
+ static bool need_bw_sch(struct usb_host_endpoint *ep,
+ 	enum usb_device_speed speed, int has_tt)
+ {
+@@ -584,7 +602,7 @@ int xhci_mtk_sch_init(struct xhci_hcd_mt
+ 
+ 	mtk->sch_array = sch_array;
+ 
+-	INIT_LIST_HEAD(&mtk->bw_ep_list_new);
++	INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+@@ -636,29 +654,12 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd
+ 
+ 	setup_sch_info(udev, ep_ctx, sch_ep);
+ 
+-	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_list_new);
++	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_chk_list);
+ 
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_add_ep_quirk);
+ 
+-static void xhci_mtk_drop_ep(struct xhci_hcd_mtk *mtk, struct usb_device *udev,
+-			     struct mu3h_sch_ep_info *sch_ep)
+-{
+-	struct xhci_hcd *xhci = hcd_to_xhci(mtk->hcd);
+-	int bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+-	struct mu3h_sch_bw_info *sch_bw = &mtk->sch_array[bw_index];
+-
+-	update_bus_bw(sch_bw, sch_ep, 0);
+-	list_del(&sch_ep->endpoint);
+-
+-	if (sch_ep->sch_tt) {
+-		list_del(&sch_ep->tt_endpoint);
+-		drop_tt(udev);
+-	}
+-	kfree(sch_ep);
+-}
+-
+ void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 		struct usb_host_endpoint *ep)
+ {
+@@ -688,9 +689,8 @@ void xhci_mtk_drop_ep_quirk(struct usb_h
+ 	sch_bw = &sch_array[bw_index];
+ 
+ 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
+-		if (sch_ep->ep == ep) {
+-			xhci_mtk_drop_ep(mtk, udev, sch_ep);
+-		}
++		if (sch_ep->ep == ep)
++			destroy_sch_ep(udev, sch_bw, sch_ep);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
+@@ -704,9 +704,9 @@ int xhci_mtk_check_bandwidth(struct usb_
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
+ 	int bw_index, ret;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry(sch_ep, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry(sch_ep, &mtk->bw_ep_chk_list, endpoint) {
+ 		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
+ 		sch_bw = &mtk->sch_array[bw_index];
+ 
+@@ -717,7 +717,7 @@ int xhci_mtk_check_bandwidth(struct usb_
+ 		}
+ 	}
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
+ 		struct xhci_ep_ctx *ep_ctx;
+ 		struct usb_host_endpoint *ep = sch_ep->ep;
+ 		unsigned int ep_index = xhci_get_endpoint_index(&ep->desc);
+@@ -746,12 +746,17 @@ EXPORT_SYMBOL_GPL(xhci_mtk_check_bandwid
+ void xhci_mtk_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ {
+ 	struct xhci_hcd_mtk *mtk = hcd_to_mtk(hcd);
++	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	struct mu3h_sch_bw_info *sch_bw;
+ 	struct mu3h_sch_ep_info *sch_ep, *tmp;
++	int bw_index;
+ 
+-	dev_dbg(&udev->dev, "%s\n", __func__);
++	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
+ 
+-	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
+-		xhci_mtk_drop_ep(mtk, udev, sch_ep);
++	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
++		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
++		sch_bw = &mtk->sch_array[bw_index];
++		destroy_sch_ep(udev, sch_bw, sch_ep);
+ 	}
+ 
+ 	xhci_reset_bandwidth(hcd, udev);
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -59,6 +59,7 @@ struct mu3h_sch_bw_info {
+  * @ep_type: endpoint type
+  * @maxpkt: max packet size of endpoint
+  * @ep: address of usb_host_endpoint struct
++ * @allocated: the bandwidth is aready allocated from bus_bw
+  * @offset: which uframe of the interval that transfer should be
+  *		scheduled first time within the interval
+  * @repeat: the time gap between two uframes that transfers are
+@@ -86,6 +87,7 @@ struct mu3h_sch_ep_info {
+ 	u32 ep_type;
+ 	u32 maxpkt;
+ 	void *ep;
++	bool allocated;
+ 	/*
+ 	 * mtk xHCI scheduling information put into reserved DWs
+ 	 * in ep context
+@@ -130,8 +132,8 @@ struct mu3c_ippc_regs {
+ struct xhci_hcd_mtk {
+ 	struct device *dev;
+ 	struct usb_hcd *hcd;
+-	struct list_head bw_ep_list_new;
+ 	struct mu3h_sch_bw_info *sch_array;
++	struct list_head bw_ep_chk_list;
+ 	struct mu3c_ippc_regs __iomem *ippc_regs;
+ 	bool has_ippc;
+ 	int num_u2_ports;
 
 
