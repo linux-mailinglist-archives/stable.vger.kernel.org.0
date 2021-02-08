@@ -2,94 +2,291 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC24431354F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 15:37:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 874D331355B
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 15:39:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbhBHOhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 09:37:03 -0500
-Received: from mail.xenproject.org ([104.130.215.37]:51080 "EHLO
-        mail.xenproject.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbhBHOgQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 09:36:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
-        s=20200302mail; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:References:Cc:To:From:Subject;
-        bh=aivOqaGOcSxpvU6conwQTcZ0h2NZKR4vLEU5lBoBLnM=; b=TpQqFHUGQ309Z3JMnbU0rIfpjj
-        ASrKoC0dMPhuUjLk3ViAyPeqvknYbyMrlu/ppcR+upMwaNIxtxB5uhfH28LHUOellFyF5th0KdgHs
-        jKTAv2UPTPD50GHhHJfMLTxTwKrTdbDlgJtHRIu8230PgEIb7ppiHtcCI8fRvPRQBvDo=;
-Received: from xenbits.xenproject.org ([104.239.192.120])
-        by mail.xenproject.org with esmtp (Exim 4.92)
-        (envelope-from <julien@xen.org>)
-        id 1l97dF-0005YS-Lb; Mon, 08 Feb 2021 14:35:17 +0000
-Received: from [54.239.6.177] (helo=a483e7b01a66.ant.amazon.com)
-        by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <julien@xen.org>)
-        id 1l97dF-0007Co-Df; Mon, 08 Feb 2021 14:35:17 +0000
-Subject: Re: [PATCH 0/7] xen/events: bug fixes and some diagnostic aids
-From:   Julien Grall <julien@xen.org>
-To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
-        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org, netdev@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
-        Jens Axboe <axboe@kernel.dk>, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-References: <20210206104932.29064-1-jgross@suse.com>
- <bd63694e-ac0c-7954-ec00-edad05f8da1c@xen.org>
- <eeb62129-d9fc-2155-0e0f-aff1fbb33fbc@suse.com>
- <fcf3181b-3efc-55f5-687c-324937b543e6@xen.org>
- <7aaeeb3d-1e1b-6166-84e9-481153811b62@suse.com>
- <6f547bb5-777a-6fc2-eba2-cccb4adfca87@xen.org>
- <0d623c98-a714-1639-cc53-f58ba3f08212@suse.com>
- <28399fd1-9fe8-f31a-6ee8-e78de567155b@xen.org>
- <1831964f-185e-31bb-2446-778f2c18d71b@suse.com>
- <e8c46e36-cf9e-fb30-21b5-fa662834a01a@xen.org>
- <199b76fd-630b-a0c6-926b-3e662103ec42@suse.com>
- <063eff75-56a5-1af7-f684-a2ed4b13c9a7@xen.org>
- <4279cab9-9b36-e83d-bd7a-ff7cd2832054@suse.com>
- <279b741b-09dc-c6af-bf9d-df57922fa465@xen.org>
-Message-ID: <9f07dae5-050c-da2c-edc1-e1587dbae9c4@xen.org>
-Date:   Mon, 8 Feb 2021 14:35:14 +0000
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.1
+        id S229681AbhBHOiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 09:38:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46668 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232714AbhBHOhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 09:37:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B7CA64E2E;
+        Mon,  8 Feb 2021 14:37:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1612795028;
+        bh=+HupK8FRrKV+qdzANXJSRPUmR43wpCm/m1CmcaIcrLs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jUUZnDB8WeFr5TT1NLwUBSLbfo50X9bMZZJg0ozxoVYFG+q98lRO4cAPDUywNwTO2
+         pHfmVi8vpGDXaAjmEAmALtZUf1e/SXZSmWWf866wsl7j4nwy7jFQKNHRFf9L/X+94Q
+         c79yjAQNx3ZTHlqRn+o4xWevoIZV1KnwPkGywY2T5IPBE4B8ModC9bwh6VqkAU82oy
+         84J7X5qqn5G64MLsFYp6Z4MnxKZ8EGxS/6VKVQee2ZJ4Kicw7A2x/3xmQlqoFCInLe
+         KNd8t0FXIEt6cT6o96C7fZl7yiwKDJ9SJ52ZLr23j8wA8rKgtn2XWAhWOtf4mcaI0Z
+         rSYPbuhOyQenA==
+Received: by pali.im (Postfix)
+        id DDF0E9E0; Mon,  8 Feb 2021 15:37:05 +0100 (CET)
+Date:   Mon, 8 Feb 2021 15:37:05 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     mathias.nyman@linux.intel.com, stable@vger.kernel.org,
+        tmn505@gmail.com, yoshihiro.shimoda.uh@renesas.com
+Subject: Re: FAILED: patch "[PATCH] usb: host: xhci: mvebu: make USB 3.0 PHY
+ optional for Armada" failed to apply to 5.4-stable tree
+Message-ID: <20210208143705.xi4jjy6unz5ueph4@pali>
+References: <1612711854148237@kroah.com>
+ <20210207155621.m4or6ktctyqnejhk@pali>
+ <YCEN8PptcWpl5PvW@kroah.com>
+ <YCEPdBfsxpWSdSar@kroah.com>
+ <20210208110709.2ce5h3fdm3ftipcf@pali>
 MIME-Version: 1.0
-In-Reply-To: <279b741b-09dc-c6af-bf9d-df57922fa465@xen.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210208110709.2ce5h3fdm3ftipcf@pali>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 08/02/2021 14:20, Julien Grall wrote:
->>>> I believe this will be the case before our "lateeoi" handling is
->>>> becoming active (more precise: when our IRQ handler is returning to
->>>> handle_fasteoi_irq()), resulting in the possibility of the same race we
->>>> are experiencing now.
->>>
->>> I am a bit confused what you mean by "lateeoi" handling is becoming 
->>> active. Can you clarify?
->>
->> See above: the next call of the handler should be allowed only after
->> xen_irq_lateeoi() for the IRQ has been called.
->>
->> If the handler is being called earlier we have the race resulting
->> in the WARN() splats.
+On Monday 08 February 2021 12:07:09 Pali Rohár wrote:
+> On Monday 08 February 2021 11:16:20 Greg KH wrote:
+> > On Mon, Feb 08, 2021 at 11:09:52AM +0100, Greg KH wrote:
+> > > On Sun, Feb 07, 2021 at 04:56:21PM +0100, Pali Rohár wrote:
+> > > > On Sunday 07 February 2021 16:30:54 gregkh@linuxfoundation.org wrote:
+> > > > > The patch below does not apply to the 5.4-stable tree.
+> > > > > If someone wants it applied there, or to any other stable or longterm
+> > > > > tree, then please email the backport, including the original git commit
+> > > > > id to <stable@vger.kernel.org>.
+> > > > > 
+> > > > > thanks,
+> > > > > 
+> > > > > greg k-h
+> > > > ...
+> > > > > Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
+> > > > > Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+> > > > > Cc: <stable@vger.kernel.org> # 5.1+: f768e718911e: usb: host: xhci-plat: add priv quirk for skip PHY initialization
+> > > > 
+> > > > Hello Greg! Seems that you have forgot to apply some dependency patches.
+> > > 
+> > > You are right, I had one, not the other, now fixed up...
+> > 
+> > Nope, of_phy_put(phy) is not present in 5.4, so it needs a "real"
+> > backport.
+> > 
+> > Can you do that?
 > 
-> I feel it is dislike to understand race with just words. Can you provide
+> Ok, I will look at it.
 
-Sorry I meant difficult rather than dislike.
+Now I have backported this patch to 5.4 version and tested it with old
+arm trusted firmware (for which this patch is fixing support) and also
+with the new arm trusted firmware. It is working fine in both cases.
 
-Cheers,
+Still this patch depends on two mentioned commits which are required.
 
+
+From a04199cc1ca41f91622e03dfb8d7a2536cdd4f46 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Mon, 1 Feb 2021 16:08:03 +0100
+Subject: [PATCH] usb: host: xhci: mvebu: make USB 3.0 PHY optional for Armada
+ 3720
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+commit 3241929b67d28c83945d3191c6816a3271fd6b85 upstream.
+
+Older ATF does not provide SMC call for USB 3.0 phy power on functionality
+and therefore initialization of xhci-hcd is failing when older version of
+ATF is used. In this case phy_power_on() function returns -EOPNOTSUPP.
+
+[    3.108467] mvebu-a3700-comphy d0018300.phy: unsupported SMC call, try updating your firmware
+[    3.117250] phy phy-d0018300.phy.0: phy poweron failed --> -95
+[    3.123465] xhci-hcd: probe of d0058000.usb failed with error -95
+
+This patch introduces a new plat_setup callback for xhci platform drivers
+which is called prior calling usb_add_hcd() function. This function at its
+beginning skips PHY init if hcd->skip_phy_initialization is set.
+
+Current init_quirk callback for xhci platform drivers is called from
+xhci_plat_setup() function which is called after chip reset completes.
+It happens in the middle of the usb_add_hcd() function and therefore this
+callback cannot be used for setting if PHY init should be skipped or not.
+
+For Armada 3720 this patch introduce a new xhci_mvebu_a3700_plat_setup()
+function configured as a xhci platform plat_setup callback. This new
+function calls phy_power_on() and in case it returns -EOPNOTSUPP then
+XHCI_SKIP_PHY_INIT quirk is set to instruct xhci-plat to skip PHY
+initialization.
+
+This patch fixes above failure by ignoring 'not supported' error in
+xhci-hcd driver. In this case it is expected that phy is already power on.
+
+It fixes initialization of xhci-hcd on Espressobin boards where is older
+Marvell's Arm Trusted Firmware without SMC call for USB 3.0 phy power.
+
+This is regression introduced in commit bd3d25b07342 ("arm64: dts: marvell:
+armada-37xx: link USB hosts with their PHYs") where USB 3.0 phy was defined
+and therefore xhci-hcd on Espressobin with older ATF started failing.
+
+Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
+Cc: <stable@vger.kernel.org> # 5.1+: ea17a0f153af: phy: marvell: comphy: Convert internal SMCC firmware return codes to errno
+Cc: <stable@vger.kernel.org> # 5.1+: f768e718911e: usb: host: xhci-plat: add priv quirk for skip PHY initialization
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com> # On R-Car
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com> # xhci-plat
+Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20210201150803.7305-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[pali: Backported to 5.4 by replacing of_phy_put() with phy_put()]
+Signed-off-by: Pali Rohár <pali@kernel.org>
+---
+ drivers/usb/host/xhci-mvebu.c | 42 +++++++++++++++++++++++++++++++++++
+ drivers/usb/host/xhci-mvebu.h |  6 +++++
+ drivers/usb/host/xhci-plat.c  | 20 ++++++++++++++++-
+ drivers/usb/host/xhci-plat.h  |  1 +
+ 4 files changed, 68 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/xhci-mvebu.c b/drivers/usb/host/xhci-mvebu.c
+index 60651a50770f..f27d5c2c42f3 100644
+--- a/drivers/usb/host/xhci-mvebu.c
++++ b/drivers/usb/host/xhci-mvebu.c
+@@ -8,6 +8,7 @@
+ #include <linux/mbus.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/phy/phy.h>
+ 
+ #include <linux/usb.h>
+ #include <linux/usb/hcd.h>
+@@ -74,6 +75,47 @@ int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
+ 	return 0;
+ }
+ 
++int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd)
++{
++	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	struct device *dev = hcd->self.controller;
++	struct phy *phy;
++	int ret;
++
++	/* Old bindings miss the PHY handle */
++	phy = of_phy_get(dev->of_node, "usb3-phy");
++	if (IS_ERR(phy) && PTR_ERR(phy) == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++	else if (IS_ERR(phy))
++		goto phy_out;
++
++	ret = phy_init(phy);
++	if (ret)
++		goto phy_put;
++
++	ret = phy_set_mode(phy, PHY_MODE_USB_HOST_SS);
++	if (ret)
++		goto phy_exit;
++
++	ret = phy_power_on(phy);
++	if (ret == -EOPNOTSUPP) {
++		/* Skip initializatin of XHCI PHY when it is unsupported by firmware */
++		dev_warn(dev, "PHY unsupported by firmware\n");
++		xhci->quirks |= XHCI_SKIP_PHY_INIT;
++	}
++	if (ret)
++		goto phy_exit;
++
++	phy_power_off(phy);
++phy_exit:
++	phy_exit(phy);
++phy_put:
++	phy_put(phy);
++phy_out:
++
++	return 0;
++}
++
+ int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
+diff --git a/drivers/usb/host/xhci-mvebu.h b/drivers/usb/host/xhci-mvebu.h
+index ca0a3a5721dd..74b4d21a498a 100644
+--- a/drivers/usb/host/xhci-mvebu.h
++++ b/drivers/usb/host/xhci-mvebu.h
+@@ -12,6 +12,7 @@ struct usb_hcd;
+ 
+ #if IS_ENABLED(CONFIG_USB_XHCI_MVEBU)
+ int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd);
++int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd);
+ int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd);
+ #else
+ static inline int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
+@@ -19,6 +20,11 @@ static inline int xhci_mvebu_mbus_init_quirk(struct usb_hcd *hcd)
+ 	return 0;
+ }
+ 
++static inline int xhci_mvebu_a3700_plat_setup(struct usb_hcd *hcd)
++{
++	return 0;
++}
++
+ static inline int xhci_mvebu_a3700_init_quirk(struct usb_hcd *hcd)
+ {
+ 	return 0;
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index 7f78818ebbb3..84cfa8544285 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -44,6 +44,16 @@ static void xhci_priv_plat_start(struct usb_hcd *hcd)
+ 		priv->plat_start(hcd);
+ }
+ 
++static int xhci_priv_plat_setup(struct usb_hcd *hcd)
++{
++	struct xhci_plat_priv *priv = hcd_to_xhci_priv(hcd);
++
++	if (!priv->plat_setup)
++		return 0;
++
++	return priv->plat_setup(hcd);
++}
++
+ static int xhci_priv_init_quirk(struct usb_hcd *hcd)
+ {
+ 	struct xhci_plat_priv *priv = hcd_to_xhci_priv(hcd);
+@@ -101,6 +111,7 @@ static const struct xhci_plat_priv xhci_plat_marvell_armada = {
+ };
+ 
+ static const struct xhci_plat_priv xhci_plat_marvell_armada3700 = {
++	.plat_setup = xhci_mvebu_a3700_plat_setup,
+ 	.init_quirk = xhci_mvebu_a3700_init_quirk,
+ };
+ 
+@@ -308,7 +319,14 @@ static int xhci_plat_probe(struct platform_device *pdev)
+ 
+ 	hcd->tpl_support = of_usb_host_tpl_support(sysdev->of_node);
+ 	xhci->shared_hcd->tpl_support = hcd->tpl_support;
+-	if (priv && (priv->quirks & XHCI_SKIP_PHY_INIT))
++
++	if (priv) {
++		ret = xhci_priv_plat_setup(hcd);
++		if (ret)
++			goto disable_usb_phy;
++	}
++
++	if ((xhci->quirks & XHCI_SKIP_PHY_INIT) || (priv && (priv->quirks & XHCI_SKIP_PHY_INIT)))
+ 		hcd->skip_phy_initialization = 1;
+ 
+ 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+diff --git a/drivers/usb/host/xhci-plat.h b/drivers/usb/host/xhci-plat.h
+index 5681723fc9cd..b7749151bdfb 100644
+--- a/drivers/usb/host/xhci-plat.h
++++ b/drivers/usb/host/xhci-plat.h
+@@ -13,6 +13,7 @@
+ struct xhci_plat_priv {
+ 	const char *firmware_name;
+ 	unsigned long long quirks;
++	int (*plat_setup)(struct usb_hcd *);
+ 	void (*plat_start)(struct usb_hcd *);
+ 	int (*init_quirk)(struct usb_hcd *);
+ 	int (*resume_quirk)(struct usb_hcd *);
 -- 
-Julien Grall
+2.20.1
