@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3C5313C0F
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:01:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC62313C12
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235180AbhBHSAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:00:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S235193AbhBHSA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:00:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235113AbhBHR7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235115AbhBHR7l (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Feb 2021 12:59:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDBC264E87;
-        Mon,  8 Feb 2021 17:58:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 380DB64EA4;
+        Mon,  8 Feb 2021 17:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612807095;
-        bh=iFWC2DtP+Zvyu7SqrESfK1vWP5a8+/pgdlP0zwg4DB0=;
+        s=k20201202; t=1612807096;
+        bh=Y3lm0UJOooi/cZh1vHuUz8TAPZVc/grlGeUxI5mXckM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5S+rE337Yd3hiFU81wXbnnu8ZoruYoWy7O2/H77fRNdvGjanZevUg9ra/BuQLozL
-         9TceuZe/Zf8L3I7yqCNPi2Y4XzCiZvW1JA16KnmEQOjB+znu9cfKfNLzR2LGxsgo3+
-         NK61dz8OeN1Ot6x/6//W/ArOqKfpj1K1noOu846ijLPiu56aLfPTWn+MjLdpaL3I2r
-         TNBNdx5ueMYEFX50qL59qQewQvOVgjvXPptVEJaGIerzYkysqdn2hsQ9+dvcQW79RB
-         eFf+jqoemH2gvgAb1OFGsZ8jXwljoBZLmROO2DWq58Zk9GVqikkcrAWKBdpGKwOKMO
-         27pBALffwPAYg==
+        b=ZyMt8woTvEIDD7i63vOz2/FvPmX5gdF2d2Oa9/tf/DFuUSZGDfRyp24Qxh4CuHllD
+         pzfeLhZT+U+6RJdEXtwIa+C3cWYjHDWlKYtLxAjfDZNubrNrx/uHPEPukk6rqoWTeo
+         tj8aq+D/DqWZixzPFLB/4munB/jM5IazV2geZSCoR5zUDlzxxaHR4FS+O2vxVjWjC1
+         dUTm9HYYt1yIN+slR3xb/9LmdX10p17/avoMUPY09467ItrriEbyYo+7qGMiRwIjBs
+         SP9VfS+y7WP6BbEVpzmu+kVj7kFawuMTJHuUd+0Blbt+QLYr2/Z9lcmuCD7v9XCzjl
+         zBHPfxwBzjzEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 06/36] arm64: dts: rockchip: remove interrupt-names property from rk3399 vdec node
-Date:   Mon,  8 Feb 2021 12:57:36 -0500
-Message-Id: <20210208175806.2091668-6-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 07/36] kbuild: simplify GCC_PLUGINS enablement in dummy-tools/gcc
+Date:   Mon,  8 Feb 2021 12:57:37 -0500
+Message-Id: <20210208175806.2091668-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210208175806.2091668-1-sashal@kernel.org>
 References: <20210208175806.2091668-1-sashal@kernel.org>
@@ -43,42 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 94a5400f8b966c91c49991bae41c2ef911b935ac ]
+[ Upstream commit f4c3b83b75b91c5059726cb91e3165cc01764ce7 ]
 
-A test with the command below gives this error:
-/arch/arm64/boot/dts/rockchip/rk3399-evb.dt.yaml: video-codec@ff660000:
-'interrupt-names' does not match any of the regexes: 'pinctrl-[0-9]+'
+With commit 1e860048c53e ("gcc-plugins: simplify GCC plugin-dev
+capability test") applied, this hunk can be way simplified because
+now scripts/gcc-plugins/Kconfig only checks plugin-version.h
 
-The rkvdec driver gets it irq with help of the platform_get_irq()
-function, so remove the interrupt-names property from the rk3399
-vdec node.
-
-make ARCH=arm64 dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/
-media/rockchip,vdec.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210117181653.24886-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ scripts/dummy-tools/gcc | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 5df535ad4bbc3..7e69603fb41c0 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1278,7 +1278,6 @@ vdec: video-codec@ff660000 {
- 		compatible = "rockchip,rk3399-vdec";
- 		reg = <0x0 0xff660000 0x0 0x400>;
- 		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH 0>;
--		interrupt-names = "vdpu";
- 		clocks = <&cru ACLK_VDU>, <&cru HCLK_VDU>,
- 			 <&cru SCLK_VDU_CA>, <&cru SCLK_VDU_CORE>;
- 		clock-names = "axi", "ahb", "cabac", "core";
+diff --git a/scripts/dummy-tools/gcc b/scripts/dummy-tools/gcc
+index 33487e99d83e5..5c113cad56017 100755
+--- a/scripts/dummy-tools/gcc
++++ b/scripts/dummy-tools/gcc
+@@ -75,16 +75,12 @@ if arg_contain -S "$@"; then
+ 	fi
+ fi
+ 
+-# For scripts/gcc-plugin.sh
++# To set GCC_PLUGINS
+ if arg_contain -print-file-name=plugin "$@"; then
+ 	plugin_dir=$(mktemp -d)
+ 
+-	sed -n 's/.*#include "\(.*\)"/\1/p' $(dirname $0)/../gcc-plugins/gcc-common.h |
+-	while read header
+-	do
+-		mkdir -p $plugin_dir/include/$(dirname $header)
+-		touch $plugin_dir/include/$header
+-	done
++	mkdir -p $plugin_dir/include
++	touch $plugin_dir/include/plugin-version.h
+ 
+ 	echo $plugin_dir
+ 	exit 0
 -- 
 2.27.0
 
