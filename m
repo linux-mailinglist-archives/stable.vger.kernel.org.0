@@ -2,94 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3A6312CF9
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 10:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56181312D0A
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 10:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231180AbhBHJNB convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 8 Feb 2021 04:13:01 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:29242 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231364AbhBHJLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 04:11:13 -0500
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-211-2Qlbkk45NXqH2etaL8K-mg-1; Mon, 08 Feb 2021 09:09:32 +0000
-X-MC-Unique: 2Qlbkk45NXqH2etaL8K-mg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Mon, 8 Feb 2021 09:09:32 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Mon, 8 Feb 2021 09:09:32 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Willy Tarreau' <w@1wt.eu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Guenter Roeck <linux@roeck-us.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "lwn@lwn.net" <lwn@lwn.net>, "jslaby@suse.cz" <jslaby@suse.cz>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "pavel@denx.de" <pavel@denx.de>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>
-Subject: RE: Linux 4.4.256
-Thread-Topic: Linux 4.4.256
-Thread-Index: AQHW/It+/rP1vSf8XEWqgVFokkPLWqpN9+Rw
-Date:   Mon, 8 Feb 2021 09:09:32 +0000
-Message-ID: <54e88e8d1ba1487ba43eb36ddfec4e5a@AcuMS.aculab.com>
-References: <1612534196241236@kroah.com>
- <20210205205658.GA136925@roeck-us.net> <YB6S612pwLbQJf4u@kroah.com>
- <20210206131113.GB7312@1wt.eu> <20210206132239.GC7312@1wt.eu>
-In-Reply-To: <20210206132239.GC7312@1wt.eu>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S231538AbhBHJOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 04:14:00 -0500
+Received: from mail.xenproject.org ([104.130.215.37]:58000 "EHLO
+        mail.xenproject.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231431AbhBHJMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 04:12:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
+        s=20200302mail; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
+        bh=Z2FuntU0FCSPGAWD+ofKK+yUmsoCyrZClvV7APxBvaU=; b=S3YFzpNjNeKQK9a3thbvJwcCVT
+        /0VqloskC35+uEOgRFBZD+9JV3WrwxjsyPgNFqKOnfjWAtoIi0DKRJlxFQvbTwbupeSSukJX8x1dj
+        n1sYe+iGxzjWMHsDVsqLDKXVJUELdnB3CcU8BTrhm0NTQvuJ5S5mzzk9OVF2XbxfQZ1w=;
+Received: from xenbits.xenproject.org ([104.239.192.120])
+        by mail.xenproject.org with esmtp (Exim 4.92)
+        (envelope-from <julien@xen.org>)
+        id 1l92Zm-00046z-Fi; Mon, 08 Feb 2021 09:11:22 +0000
+Received: from [54.239.6.177] (helo=a483e7b01a66.ant.amazon.com)
+        by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <julien@xen.org>)
+        id 1l92Zm-0003Oc-7O; Mon, 08 Feb 2021 09:11:22 +0000
+Subject: Re: [PATCH 0/7] xen/events: bug fixes and some diagnostic aids
+To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        linux-block@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
+        Jens Axboe <axboe@kernel.dk>, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+References: <20210206104932.29064-1-jgross@suse.com>
+ <bd63694e-ac0c-7954-ec00-edad05f8da1c@xen.org>
+ <eeb62129-d9fc-2155-0e0f-aff1fbb33fbc@suse.com>
+From:   Julien Grall <julien@xen.org>
+Message-ID: <fcf3181b-3efc-55f5-687c-324937b543e6@xen.org>
+Date:   Mon, 8 Feb 2021 09:11:18 +0000
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.0
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <eeb62129-d9fc-2155-0e0f-aff1fbb33fbc@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau
-> Sent: 06 February 2021 13:23
+Hi Juergen,
+
+On 07/02/2021 12:58, Jürgen Groß wrote:
+> On 06.02.21 19:46, Julien Grall wrote:
+>> Hi Juergen,
+>>
+>> On 06/02/2021 10:49, Juergen Gross wrote:
+>>> The first three patches are fixes for XSA-332. The avoid WARN splats
+>>> and a performance issue with interdomain events.
+>>
+>> Thanks for helping to figure out the problem. Unfortunately, I still 
+>> see reliably the WARN splat with the latest Linux master 
+>> (1e0d27fce010) + your first 3 patches.
+>>
+>> I am using Xen 4.11 (1c7d984645f9) and dom0 is forced to use the 2L 
+>> events ABI.
+>>
+>> After some debugging, I think I have an idea what's went wrong. The 
+>> problem happens when the event is initially bound from vCPU0 to a 
+>> different vCPU.
+>>
+>>  From the comment in xen_rebind_evtchn_to_cpu(), we are masking the 
+>> event to prevent it being delivered on an unexpected vCPU. However, I 
+>> believe the following can happen:
+>>
+>> vCPU0                | vCPU1
+>>                  |
+>>                  | Call xen_rebind_evtchn_to_cpu()
+>> receive event X            |
+>>                  | mask event X
+>>                  | bind to vCPU1
+>> <vCPU descheduled>        | unmask event X
+>>                  |
+>>                  | receive event X
+>>                  |
+>>                  | handle_edge_irq(X)
+>> handle_edge_irq(X)        |  -> handle_irq_event()
+>>                  |   -> set IRQD_IN_PROGRESS
+>>   -> set IRQS_PENDING        |
+>>                  |   -> evtchn_interrupt()
+>>                  |   -> clear IRQD_IN_PROGRESS
+>>                  |  -> IRQS_PENDING is set
+>>                  |  -> handle_irq_event()
+>>                  |   -> evtchn_interrupt()
+>>                  |     -> WARN()
+>>                  |
+>>
+>> All the lateeoi handlers expect a ONESHOT semantic and 
+>> evtchn_interrupt() is doesn't tolerate any deviation.
+>>
+>> I think the problem was introduced by 7f874a0447a9 ("xen/events: fix 
+>> lateeoi irq acknowledgment") because the interrupt was disabled 
+>> previously. Therefore we wouldn't do another iteration in 
+>> handle_edge_irq().
 > 
-> On Sat, Feb 06, 2021 at 02:11:13PM +0100, Willy Tarreau wrote:
-> > Something like this looks more robust to me, it will use SUBLEVEL for
-> > values 0 to 255 and 255 for any larger value:
+> I think you picked the wrong commit for blaming, as this is just
+> the last patch of the three patches you were testing.
+
+I actually found the right commit for blaming but I copied the 
+information from the wrong shell :/. The bug was introduced by:
+
+c44b849cee8c ("xen/events: switch user event channels to lateeoi model")
+
 > 
-> diff --git a/Makefile b/Makefile
-> index 7d86ad6ad36c..9b91b8815b40 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1252,7 +1252,7 @@ endef
+>> Aside the handlers, I think it may impact the defer EOI mitigation 
+>> because in theory if a 3rd vCPU is joining the party (let say vCPU A 
+>> migrate the event from vCPU B to vCPU C). So info->{eoi_cpu, 
+>> irq_epoch, eoi_time} could possibly get mangled?
+>>
+>> For a fix, we may want to consider to hold evtchn_rwlock with the 
+>> write permission. Although, I am not 100% sure this is going to 
+>> prevent everything.
 > 
->  define filechk_version.h
->  	echo \#define LINUX_VERSION_CODE $(shell                         \
-> -	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
-> +	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255 \* \( 0$(SUBLEVEL) \> 255 \) +
-> 0$(SUBLEVEL) \* \( 0$(SUBLEVEL) \<= 255 \) ); \
->  	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'
->  endef
+> It will make things worse, as it would violate the locking hierarchy
+> (xen_rebind_evtchn_to_cpu() is called with the IRQ-desc lock held).
 
-Why not:
-	$(shell echo $$(($(VERSION)<<16 + $(PATCHLEVEL)<<8 + ($(SUBVERSION) < 255 ? $(SUBVERSION) : 255))))
-Untested, but I think only the one $ needs any kind of escape.
-The extra leading zeros do have to go - $((...)) does octal :-(
+Ah, right.
 
-	David
+> 
+> On a first glance I think we'll need a 3rd masking state ("temporarily
+> masked") in the second patch in order to avoid a race with lateeoi.
+> 
+> In order to avoid the race you outlined above we need an "event is being
+> handled" indicator checked via test_and_set() semantics in
+> handle_irq_for_port() and reset only when calling clear_evtchn().
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+It feels like we are trying to workaround the IRQ flow we are using 
+(i.e. handle_edge_irq()).
 
+This reminds me the thread we had before discovering XSA-332 (see [1]). 
+Back then, it was suggested to switch back to handle_fasteoi_irq().
+
+Cheers,
+
+[1] 
+https://lore.kernel.org/xen-devel/alpine.DEB.2.21.2004271552430.29217@sstabellini-ThinkPad-T480s/
+
+-- 
+Julien Grall
