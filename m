@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8B9313773
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B2F313781
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233752AbhBHPZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:25:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S231476AbhBHP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233718AbhBHPVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:21:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6AB764EEE;
-        Mon,  8 Feb 2021 15:13:10 +0000 (UTC)
+        id S233712AbhBHPUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:20:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89AD464EAC;
+        Mon,  8 Feb 2021 15:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797191;
-        bh=2jRD/+vUlcAh4Q/IiAcqlQLJf40XZtUywx8UV4WjHGY=;
+        s=korg; t=1612797194;
+        bh=skOZTl6nLcjm1TYWcN3Z1w/d4l+Nm2S3Psvlf9ZHkqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tbQtQw7Dar6sZnzCZPhnVSwQ5Nw+X/U7Kl1oIS0w8yeRegWs3pRnt4JDZ5SVw3sO
-         l3gGw20SYh8urEaEZU6RjXZ2Ej17k0W+eSHTq3mkTnWg7OE4uq5xKxh8aWwHOqZ0dX
-         xEialYI9eICWhtsaYLzcUkyrGfDXm1QucDEAeiI4=
+        b=pOUGaSKuuwnR6GvjcIctEUbnr+pMmzIPzeqPO34i/XjREt8q/w2hd+tfHyBLO3nBc
+         MKvAPD+bMAQS8tR4swFf1S0vUOHrSkyeCP6nJARjQ1TVesn0KiCb2HzQUjW8JgB8t8
+         3AC8qHHFeQ99qOfxPkTeVxITl2KAOtDb6thjDQzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-stm32@st-md-mailman.stormreply.com,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/120] ARM: dts: stm32: Disable optional TSC2004 on DRC02 board
-Date:   Mon,  8 Feb 2021 16:00:10 +0100
-Message-Id: <20210208145819.329733830@linuxfoundation.org>
+Subject: [PATCH 5.10 024/120] ARM: dts: stm32: Fix GPIO hog flags on DHCOM DRC02
+Date:   Mon,  8 Feb 2021 16:00:11 +0100
+Message-Id: <20210208145819.364334269@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -47,12 +47,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 087698939f30d489e785d7df3e6aa5dce2487b39 ]
+[ Upstream commit 83d411224025ac1baab981e3d2f5d29e7761541d ]
 
-The DRC02 has no use for the on-SoM touchscreen controller, and the
-on-SoM touchscreen controller may not even be populated, which then
-results in error messages in kernel log. Disable the touchscreen
-controller in DT.
+The GPIO hog flags are ignored by gpiolib-of.c now, set the flags to 0.
+Since GPIO_ACTIVE_HIGH is defined as 0, this change only increases the
+correctness of the DT.
 
 Fixes: fde180f06d7b ("ARM: dts: stm32: Add DHSOM based DRC02 board")
 Signed-off-by: Marek Vasut <marex@denx.de>
@@ -65,26 +64,31 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
-index 3299a42d80633..4cabdade6432b 100644
+index 4cabdade6432b..e4d287d994214 100644
 --- a/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
 +++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-drc02.dtsi
-@@ -87,6 +87,12 @@
+@@ -35,7 +35,7 @@
+ 	 */
+ 	rs485-rx-en {
+ 		gpio-hog;
+-		gpios = <8 GPIO_ACTIVE_HIGH>;
++		gpios = <8 0>;
+ 		output-low;
+ 		line-name = "rs485-rx-en";
  	};
- };
- 
-+&i2c4 {
-+	touchscreen@49 {
-+		status = "disabled";
-+	};
-+};
-+
- &i2c5 {	/* TP7/TP8 */
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c5_pins_a>;
+@@ -63,7 +63,7 @@
+ 	 */
+ 	usb-hub {
+ 		gpio-hog;
+-		gpios = <2 GPIO_ACTIVE_HIGH>;
++		gpios = <2 0>;
+ 		output-high;
+ 		line-name = "usb-hub-reset";
+ 	};
 -- 
 2.27.0
 
