@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 712A03136A0
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01428313749
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233448AbhBHPNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:13:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56624 "EHLO mail.kernel.org"
+        id S233837AbhBHPXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:23:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231712AbhBHPKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:10:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BB4964ECE;
-        Mon,  8 Feb 2021 15:07:05 +0000 (UTC)
+        id S233570AbhBHPQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:16:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 575B364E8F;
+        Mon,  8 Feb 2021 15:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796826;
-        bh=EP0As8b8o54ANmz+T5tH6zr/XFh5VoStjihUNb4XJ2A=;
+        s=korg; t=1612797082;
+        bh=1nXBXdKfOELf7jr8kGkf0QOzPMOZdhYj2GdyYwNJQ0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/7/SSMGsKy80YHQ9zRVLm5D6Caqp4l3AP803gLkMJkPNFYM5wHYvgfuNXyCSC7Fl
-         wUkO7eUjPNK8/Zav1oUwhl1RURsPIXRSnpvvkdqDWPTB4ZaoUuw9rtLo08GFvvX5Ky
-         TKzIXv1/Mis5M7YB5G0JH+OtJAQvj/I7lxLnTqUc=
+        b=QlrJx4PpfGoI1rnrPsATX7xx5Mdm70Xd2xrCDUDwkBcfNRTB1r/NqG55yM3R41nvY
+         tdTZPqwGqQ9PWzIq7BhZW9E+OvK5J7f5v6y5ALJcfCJEzgU79W/vVB8tHhr46418KE
+         JCtZHCayTbxI9y7jw45EzCR5EAz/jGi5RUnHBBCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zyta Szpak <zr@semihalf.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/30] arm64: dts: ls1046a: fix dcfg address range
+Subject: [PATCH 5.4 19/65] r8169: fix WoL on shutdown if CONFIG_DEBUG_SHIRQ is set
 Date:   Mon,  8 Feb 2021 16:00:51 +0100
-Message-Id: <20210208145805.470299974@linuxfoundation.org>
+Message-Id: <20210208145810.979039645@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zyta Szpak <zr@semihalf.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit aa880c6f3ee6dbd0d5ab02026a514ff8ea0a3328 ]
+[ Upstream commit cc9f07a838c4988ed244d0907cb71d54b85482a5 ]
 
-Dcfg was overlapping with clockgen address space which resulted
-in failure in memory allocation for dcfg. According regs description
-dcfg size should not be bigger than 4KB.
+So far phy_disconnect() is called before free_irq(). If CONFIG_DEBUG_SHIRQ
+is set and interrupt is shared, then free_irq() creates an "artificial"
+interrupt by calling the interrupt handler. The "link change" flag is set
+in the interrupt status register, causing phylib to eventually call
+phy_suspend(). Because the net_device is detached from the PHY already,
+the PHY driver can't recognize that WoL is configured and powers down the
+PHY.
 
-Signed-off-by: Zyta Szpak <zr@semihalf.com>
-Fixes: 8126d88162a5 ("arm64: dts: add QorIQ LS1046A SoC support")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: f1e911d5d0df ("r8169: add basic phylib support")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/fe732c2c-a473-9088-3974-df83cfbd6efd@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-index c8ff0baddf1d0..cb49d21e317c0 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-@@ -304,7 +304,7 @@
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 366ca1b5da5cc..1e8244ec5b332 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -6419,10 +6419,10 @@ static int rtl8169_close(struct net_device *dev)
  
- 		dcfg: dcfg@1ee0000 {
- 			compatible = "fsl,ls1046a-dcfg", "syscon";
--			reg = <0x0 0x1ee0000 0x0 0x10000>;
-+			reg = <0x0 0x1ee0000 0x0 0x1000>;
- 			big-endian;
- 		};
+ 	cancel_work_sync(&tp->wk.work);
  
+-	phy_disconnect(tp->phydev);
+-
+ 	free_irq(pci_irq_vector(pdev, 0), tp);
+ 
++	phy_disconnect(tp->phydev);
++
+ 	dma_free_coherent(&pdev->dev, R8169_RX_RING_BYTES, tp->RxDescArray,
+ 			  tp->RxPhyAddr);
+ 	dma_free_coherent(&pdev->dev, R8169_TX_RING_BYTES, tp->TxDescArray,
 -- 
 2.27.0
 
