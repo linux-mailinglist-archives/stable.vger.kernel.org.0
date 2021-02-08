@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFD631361A
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76EBE3136FE
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbhBHPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:06:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S232626AbhBHPSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:18:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232237AbhBHPE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:04:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0E7B64E84;
-        Mon,  8 Feb 2021 15:02:48 +0000 (UTC)
+        id S233282AbhBHPLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:11:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2030464EC3;
+        Mon,  8 Feb 2021 15:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796569;
-        bh=XNB5Kb6a/T3bRSttZEMsuYhm1giFt/X4+p086CTSXrY=;
+        s=korg; t=1612796906;
+        bh=HM0XlfwS6bkLvk0EzFap5NM6LxYLMPb4FCeFAwji3uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7aSvutQp9Os7swi3rOUtWRfVduN1S4iGXnn4gpg4BS04b7QH89OyMpVkgd+dDz7e
-         qNwPW04QiwYv1hNrMGRV5sN273lT74zhaDS0MXhJeBcWfGDi0bY5mms6Wf+a1PcMlM
-         4790zrNkHuRA8gYZu5EfzZOoCa4746umdY3zfuOA=
+        b=wSnxJEYYARYqbhvr/Y8jagZGEJQtw7Mg4wWMgLVcFGLvFHc6F1TEbfzfOFGHIeqB+
+         z+4IPQDctDKIZm2y+MSVQnn67+syV6fZL8XNgRtHNxGSs6R/hJ5lZFW4q/cvIdWLay
+         kh48V1TE/tsa3KSecP10noXoC8GRrQsBSlBf18QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Ananth N Mavinakayanahalli <ananth@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Cheng Jian <cj.chengjian@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 27/38] kretprobe: Avoid re-registration of the same kretprobe earlier
-Date:   Mon,  8 Feb 2021 16:00:49 +0100
-Message-Id: <20210208145806.352054917@linuxfoundation.org>
+        Christoph Schemmel <christoph.schemmel@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 03/38] USB: serial: option: Adding support for Cinterion MV31
+Date:   Mon,  8 Feb 2021 16:00:50 +0100
+Message-Id: <20210208145806.277869716@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Christoph Schemmel <christoph.schemmel@gmail.com>
 
-commit 0188b87899ffc4a1d36a0badbe77d56c92fd91dc upstream.
+commit e478d6029dca9d8462f426aee0d32896ef64f10f upstream.
 
-Our system encountered a re-init error when re-registering same kretprobe,
-where the kretprobe_instance in rp->free_instances is illegally accessed
-after re-init.
+Adding support for Cinterion device MV31 for enumeration with
+PID 0x00B3 and 0x00B7.
 
-Implementation to avoid re-registration has been introduced for kprobe
-before, but lags for register_kretprobe(). We must check if kprobe has
-been re-registered before re-initializing kretprobe, otherwise it will
-destroy the data struct of kretprobe registered, which can lead to memory
-leak, system crash, also some unexpected behaviors.
+usb-devices output for 0x00B3
+T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  6 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b3 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B3 USB Mobile Broadband
+S:  SerialNumber=b3246eed
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=cdc_wdm
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-We use check_kprobe_rereg() to check if kprobe has been re-registered
-before running register_kretprobe()'s body, for giving a warning message
-and terminate registration process.
+usb-devices output for 0x00B7
+T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b7 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00B3 USB Mobile Broadband
+S:  SerialNumber=b3246eed
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-Link: https://lkml.kernel.org/r/20210128124427.2031088-1-bobo.shaobowang@huawei.com
-
+Signed-off-by: Christoph Schemmel <christoph.schemmel@gmail.com>
 Cc: stable@vger.kernel.org
-Fixes: 1f0ab40976460 ("kprobes: Prevent re-registration of the same kprobe")
-[ The above commit should have been done for kretprobes too ]
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1884,6 +1884,10 @@ int register_kretprobe(struct kretprobe
- 	int i;
- 	void *addr;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -425,6 +425,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_AHXX_2RMNET		0x0084
+ #define CINTERION_PRODUCT_AHXX_AUDIO		0x0085
+ #define CINTERION_PRODUCT_CLS8			0x00b0
++#define CINTERION_PRODUCT_MV31_MBIM		0x00b3
++#define CINTERION_PRODUCT_MV31_RMNET		0x00b7
  
-+	/* If only rp->kp.addr is specified, check reregistering kprobes */
-+	if (rp->kp.addr && check_kprobe_rereg(&rp->kp))
-+		return -EINVAL;
-+
- 	if (kretprobe_blacklist_size) {
- 		addr = kprobe_addr(&rp->kp);
- 		if (IS_ERR(addr))
+ /* Olivetti products */
+ #define OLIVETTI_VENDOR_ID			0x0b3c
+@@ -1914,6 +1916,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC25_MDMNET) },
+ 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) }, /* HC28 enumerates with Siemens or Cinterion VID depending on FW revision */
+ 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC28_MDMNET) },
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_MBIM, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
++	  .driver_info = RSVD(0)},
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
 
 
