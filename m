@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1083136EE
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E1D313636
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233595AbhBHPRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
+        id S233100AbhBHPH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:07:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233287AbhBHPMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:12:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79B9264EA1;
-        Mon,  8 Feb 2021 15:09:20 +0000 (UTC)
+        id S231302AbhBHPFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:05:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C792664EBC;
+        Mon,  8 Feb 2021 15:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796961;
-        bh=FONfckAciqoMyZq6bGdb31EHz34huYjP6AS3wVYOswE=;
+        s=korg; t=1612796652;
+        bh=z4eELWqiKpoLXarkTLEvEzlB9IJ1xLXSWxQO2miv9u8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZImAs+YSfYQWKCQDWEmG1q0MD6D40wGfAYe7By+1SgMScJW8sUx6V2k6j8qSTQBFk
-         EC67Zr5I7eeIEvnox6O2mcaQ4xyH5EPnfbxOlNl9iUq1gAkeI+1diSc+cvxmtwqlKL
-         rrZlrsLm3bVYtSdm5j0QJGf5ewDznnlggqQYphSk=
+        b=bfC2lurFlOwJntPccKNsR2yQJABrjUpZVAjqjt6mNWgkeVtVPMsFsM/YLaqZh5j2u
+         hMQy+FvRxewx6rSsOpVFTt9FhUErjNDTxA8cuZdZq8yBQfxEGca0kFha3r12VFJaVO
+         31Jq2D6JHtplAt+y3XwugIH0cNj6lOli5jHR8Uw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        David Howells <dhowells@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/65] rxrpc: Fix deadlock around release of dst cached on udp tunnel
+Subject: [PATCH 4.9 17/43] objtool: Dont fail on missing symbol table
 Date:   Mon,  8 Feb 2021 16:00:43 +0100
-Message-Id: <20210208145810.671309845@linuxfoundation.org>
+Message-Id: <20210208145807.003381621@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
+References: <20210208145806.281758651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 5399d52233c47905bbf97dcbaa2d7a9cc31670ba ]
+[ Upstream commit 1d489151e9f9d1647110277ff77282fe4d96d09b ]
 
-AF_RXRPC sockets use UDP ports in encap mode.  This causes socket and dst
-from an incoming packet to get stolen and attached to the UDP socket from
-whence it is leaked when that socket is closed.
+Thanks to a recent binutils change which doesn't generate unused
+symbols, it's now possible for thunk_64.o be completely empty without
+CONFIG_PREEMPTION: no text, no data, no symbols.
 
-When a network namespace is removed, the wait for dst records to be cleaned
-up happens before the cleanup of the rxrpc and UDP socket, meaning that the
-wait never finishes.
+We could edit the Makefile to only build that file when
+CONFIG_PREEMPTION is enabled, but that will likely create confusion
+if/when the thunks end up getting used by some other code again.
 
-Fix this by moving the rxrpc (and, by dependence, the afs) private
-per-network namespace registrations to the device group rather than subsys
-group.  This allows cached rxrpc local endpoints to be cleared and their
-UDP sockets closed before we try waiting for the dst records.
+Just ignore it and move on.
 
-The symptom is that lines looking like the following:
-
-	unregister_netdevice: waiting for lo to become free
-
-get emitted at regular intervals after running something like the
-referenced syzbot test.
-
-Thanks to Vadim for tracking this down and work out the fix.
-
-Reported-by: syzbot+df400f2f24a1677cd7e0@syzkaller.appspotmail.com
-Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Fixes: 5271953cad31 ("rxrpc: Use the UDP encap_rcv hook")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Link: https://lore.kernel.org/r/161196443016.3868642.5577440140646403533.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1254
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/main.c        | 6 +++---
- net/rxrpc/af_rxrpc.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ tools/objtool/elf.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/afs/main.c b/fs/afs/main.c
-index c9c45d7078bd1..5cd26af2464c9 100644
---- a/fs/afs/main.c
-+++ b/fs/afs/main.c
-@@ -186,7 +186,7 @@ static int __init afs_init(void)
- 		goto error_cache;
- #endif
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index d84c28eac262d..0ba5bb51bd93c 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -226,8 +226,11 @@ static int read_symbols(struct elf *elf)
  
--	ret = register_pernet_subsys(&afs_net_ops);
-+	ret = register_pernet_device(&afs_net_ops);
- 	if (ret < 0)
- 		goto error_net;
- 
-@@ -206,7 +206,7 @@ static int __init afs_init(void)
- error_proc:
- 	afs_fs_exit();
- error_fs:
--	unregister_pernet_subsys(&afs_net_ops);
-+	unregister_pernet_device(&afs_net_ops);
- error_net:
- #ifdef CONFIG_AFS_FSCACHE
- 	fscache_unregister_netfs(&afs_cache_netfs);
-@@ -237,7 +237,7 @@ static void __exit afs_exit(void)
- 
- 	proc_remove(afs_proc_symlink);
- 	afs_fs_exit();
--	unregister_pernet_subsys(&afs_net_ops);
-+	unregister_pernet_device(&afs_net_ops);
- #ifdef CONFIG_AFS_FSCACHE
- 	fscache_unregister_netfs(&afs_cache_netfs);
- #endif
-diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
-index 2921fc2767134..9bacec6653bac 100644
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -976,7 +976,7 @@ static int __init af_rxrpc_init(void)
- 		goto error_security;
+ 	symtab = find_section_by_name(elf, ".symtab");
+ 	if (!symtab) {
+-		WARN("missing symbol table");
+-		return -1;
++		/*
++		 * A missing symbol table is actually possible if it's an empty
++		 * .o file.  This can happen for thunk_64.o.
++		 */
++		return 0;
  	}
  
--	ret = register_pernet_subsys(&rxrpc_net_ops);
-+	ret = register_pernet_device(&rxrpc_net_ops);
- 	if (ret)
- 		goto error_pernet;
- 
-@@ -1021,7 +1021,7 @@ error_key_type:
- error_sock:
- 	proto_unregister(&rxrpc_proto);
- error_proto:
--	unregister_pernet_subsys(&rxrpc_net_ops);
-+	unregister_pernet_device(&rxrpc_net_ops);
- error_pernet:
- 	rxrpc_exit_security();
- error_security:
-@@ -1043,7 +1043,7 @@ static void __exit af_rxrpc_exit(void)
- 	unregister_key_type(&key_type_rxrpc);
- 	sock_unregister(PF_RXRPC);
- 	proto_unregister(&rxrpc_proto);
--	unregister_pernet_subsys(&rxrpc_net_ops);
-+	unregister_pernet_device(&rxrpc_net_ops);
- 	ASSERTCMP(atomic_read(&rxrpc_n_tx_skbs), ==, 0);
- 	ASSERTCMP(atomic_read(&rxrpc_n_rx_skbs), ==, 0);
- 
+ 	symbols_nr = symtab->sh.sh_size / symtab->sh.sh_entsize;
 -- 
 2.27.0
 
