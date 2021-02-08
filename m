@@ -2,37 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD9A3137BB
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B99EA3137CE
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231945AbhBHP36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:29:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35872 "EHLO mail.kernel.org"
+        id S233188AbhBHPbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:31:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233773AbhBHPZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4689364F0C;
-        Mon,  8 Feb 2021 15:15:20 +0000 (UTC)
+        id S233134AbhBHP1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:27:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F8464F1E;
+        Mon,  8 Feb 2021 15:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797320;
-        bh=/Dp0GfNBKFQufNcMsRmbeBmvkhZTSBEsO2xQ7F26qmA=;
+        s=korg; t=1612797352;
+        bh=RNoh83kxVOU4Gtrg4nivMqd2efMokmECrv5Cv7x2qOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xtuKsZUCZWOr7zua71Bx/zhxBbnyRg5Q+MBlIi16JDJYyBy/H8Uvk+XAU+iMA8or/
-         INFG6HbU0negvQZNZSbR+aResFF2D73HdXcjzFaoFx5ZMJj9/3ZPyQGUVPKQw6cYf2
-         gC73MEukj7L6WeN03OTxL3STMfVOLgCG0PKyN/Ho=
+        b=neZ4UHV0fO7ILmEVTHIEDAeGOvAuTMxbfcQPklGfhCDxNXUZeOSOa+FQXBK6VnK8T
+         9Oc56p5qmD0z7OZGhffgo/nM2bXpiQjXY5O06WjguXjk2fFyxQSpqY+6DOJS/grXWk
+         rtSsnzfu2SXRa5GpDIn6xDBgEhz7zO2r1nN6NNiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Ananth N Mavinakayanahalli <ananth@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Cheng Jian <cj.chengjian@huawei.com>,
+        stable@vger.kernel.org, Viktor Rosendahl <Viktor.Rosendahl@bmw.de>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 061/120] kretprobe: Avoid re-registration of the same kretprobe earlier
-Date:   Mon,  8 Feb 2021 16:00:48 +0100
-Message-Id: <20210208145820.855669953@linuxfoundation.org>
+Subject: [PATCH 5.10 062/120] tracing: Use pause-on-trace with the latency tracers
+Date:   Mon,  8 Feb 2021 16:00:49 +0100
+Message-Id: <20210208145820.896248889@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -44,52 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
 
-commit 0188b87899ffc4a1d36a0badbe77d56c92fd91dc upstream.
+commit da7f84cdf02fd5f66864041f45018b328911b722 upstream.
 
-Our system encountered a re-init error when re-registering same kretprobe,
-where the kretprobe_instance in rp->free_instances is illegally accessed
-after re-init.
+Eaerlier, tracing was disabled when reading the trace file. This behavior
+was changed with:
 
-Implementation to avoid re-registration has been introduced for kprobe
-before, but lags for register_kretprobe(). We must check if kprobe has
-been re-registered before re-initializing kretprobe, otherwise it will
-destroy the data struct of kretprobe registered, which can lead to memory
-leak, system crash, also some unexpected behaviors.
+commit 06e0a548bad0 ("tracing: Do not disable tracing when reading the
+trace file").
 
-We use check_kprobe_rereg() to check if kprobe has been re-registered
-before running register_kretprobe()'s body, for giving a warning message
-and terminate registration process.
+This doesn't seem to work with the latency tracers.
 
-Link: https://lkml.kernel.org/r/20210128124427.2031088-1-bobo.shaobowang@huawei.com
+The above mentioned commit dit not only change the behavior but also added
+an option to emulate the old behavior. The idea with this patch is to
+enable this pause-on-trace option when the latency tracers are used.
+
+Link: https://lkml.kernel.org/r/20210119164344.37500-2-Viktor.Rosendahl@bmw.de
 
 Cc: stable@vger.kernel.org
-Fixes: 1f0ab40976460 ("kprobes: Prevent re-registration of the same kprobe")
-[ The above commit should have been done for kretprobes too ]
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
+Fixes: 06e0a548bad0 ("tracing: Do not disable tracing when reading the trace file")
+Signed-off-by: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c |    4 ++++
+ kernel/trace/trace_irqsoff.c |    4 ++++
  1 file changed, 4 insertions(+)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2122,6 +2122,10 @@ int register_kretprobe(struct kretprobe
- 	if (ret)
- 		return ret;
+--- a/kernel/trace/trace_irqsoff.c
++++ b/kernel/trace/trace_irqsoff.c
+@@ -562,6 +562,8 @@ static int __irqsoff_tracer_init(struct
+ 	/* non overwrite screws up the latency tracers */
+ 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, 1);
+ 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, 1);
++	/* without pause, we will produce garbage if another latency occurs */
++	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, 1);
  
-+	/* If only rp->kp.addr is specified, check reregistering kprobes */
-+	if (rp->kp.addr && check_kprobe_rereg(&rp->kp))
-+		return -EINVAL;
-+
- 	if (kretprobe_blacklist_size) {
- 		addr = kprobe_addr(&rp->kp);
- 		if (IS_ERR(addr))
+ 	tr->max_latency = 0;
+ 	irqsoff_trace = tr;
+@@ -583,11 +585,13 @@ static void __irqsoff_tracer_reset(struc
+ {
+ 	int lat_flag = save_flags & TRACE_ITER_LATENCY_FMT;
+ 	int overwrite_flag = save_flags & TRACE_ITER_OVERWRITE;
++	int pause_flag = save_flags & TRACE_ITER_PAUSE_ON_TRACE;
+ 
+ 	stop_irqsoff_tracer(tr, is_graph(tr));
+ 
+ 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, lat_flag);
+ 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, overwrite_flag);
++	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, pause_flag);
+ 	ftrace_reset_array_ops(tr);
+ 
+ 	irqsoff_busy = false;
 
 
