@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1393137CA
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAD53137C8
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233858AbhBHPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36904 "EHLO mail.kernel.org"
+        id S230360AbhBHPbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:31:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232216AbhBHP0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:26:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D36564F00;
-        Mon,  8 Feb 2021 15:15:37 +0000 (UTC)
+        id S233816AbhBHP0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:26:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3116864EBC;
+        Mon,  8 Feb 2021 15:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797337;
-        bh=7MTfk6n6glJXE0u304vVJG6k0fJP8beLHRBuhlEp31U=;
+        s=korg; t=1612797340;
+        bh=TZtXsgwzFVx+DLmQCjLx6s3nzypWL7pogSFgBDx+ob4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fR3/pkTNyF89wLDA4l904G5Ohw+1H9rvYZz1zBSTxYd+tS9roq0mVNmxGyQFmKQAx
-         J7Myko80GzZsYfa1uiBFgt0IDfs4XNIbVJ2M/MSyKPcJO71SECM3zZz30t/VGgJRQR
-         TrvGsSuqwTdeWG216mgxdKPqakoplACP/ElSRrZQ=
+        b=f5tXFHmDJd6VoTeVV4J5h8p94au1bzWe/282hK3xS8Zb7t6Vu9rMONNAMissiVXK4
+         GDEboIui8Z5kXlxeVOWr6YHjvzds91Vtmcvjid63I1cCL1fimMzvDJAxLJ9qGqLG7K
+         ThlDe7ycOpoaJbiFRvZJOM5K+0LlgCF/41IVXS7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Nicolas Schichan <nschichan@freeebox.fr>,
+        stable@vger.kernel.org, Fengnan Chang <fengnanchang@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 075/120] mmc: sdhci-pltfm: Fix linking err for sdhci-brcmstb
-Date:   Mon,  8 Feb 2021 16:01:02 +0100
-Message-Id: <20210208145821.401880161@linuxfoundation.org>
+Subject: [PATCH 5.10 076/120] mmc: core: Limit retries when analyse of SDIO tuples fails
+Date:   Mon,  8 Feb 2021 16:01:03 +0100
+Message-Id: <20210208145821.438291091@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -41,46 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Fengnan Chang <fengnanchang@gmail.com>
 
-commit d7fb9c24209556478e65211d7a1f056f2d43cceb upstream.
+commit f92e04f764b86e55e522988e6f4b6082d19a2721 upstream.
 
-The implementation of sdhci_pltfm_suspend() is only available when
-CONFIG_PM_SLEEP is set, which triggers a linking error:
+When analysing tuples fails we may loop indefinitely to retry. Let's avoid
+this by using a 10s timeout and bail if not completed earlier.
 
-"undefined symbol: sdhci_pltfm_suspend" when building sdhci-brcmstb.c.
-
-Fix this by implementing the missing stubs when CONFIG_PM_SLEEP is unset.
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: 5b191dcba719 ("mmc: sdhci-brcmstb: Fix mmc timeout errors on S5 suspend")
+Signed-off-by: Fengnan Chang <fengnanchang@gmail.com>
 Cc: stable@vger.kernel.org
-Tested-By: Nicolas Schichan <nschichan@freeebox.fr>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210123033230.36442-1-fengnanchang@gmail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pltfm.h |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sdio_cis.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pltfm.h
-+++ b/drivers/mmc/host/sdhci-pltfm.h
-@@ -111,8 +111,13 @@ static inline void *sdhci_pltfm_priv(str
- 	return host->private;
- }
+--- a/drivers/mmc/core/sdio_cis.c
++++ b/drivers/mmc/core/sdio_cis.c
+@@ -20,6 +20,8 @@
+ #include "sdio_cis.h"
+ #include "sdio_ops.h"
  
-+extern const struct dev_pm_ops sdhci_pltfm_pmops;
-+#ifdef CONFIG_PM_SLEEP
- int sdhci_pltfm_suspend(struct device *dev);
- int sdhci_pltfm_resume(struct device *dev);
--extern const struct dev_pm_ops sdhci_pltfm_pmops;
-+#else
-+static inline int sdhci_pltfm_suspend(struct device *dev) { return 0; }
-+static inline int sdhci_pltfm_resume(struct device *dev) { return 0; }
-+#endif
++#define SDIO_READ_CIS_TIMEOUT_MS  (10 * 1000) /* 10s */
++
+ static int cistpl_vers_1(struct mmc_card *card, struct sdio_func *func,
+ 			 const unsigned char *buf, unsigned size)
+ {
+@@ -274,6 +276,8 @@ static int sdio_read_cis(struct mmc_card
  
- #endif /* _DRIVERS_MMC_SDHCI_PLTFM_H */
+ 	do {
+ 		unsigned char tpl_code, tpl_link;
++		unsigned long timeout = jiffies +
++			msecs_to_jiffies(SDIO_READ_CIS_TIMEOUT_MS);
+ 
+ 		ret = mmc_io_rw_direct(card, 0, 0, ptr++, 0, &tpl_code);
+ 		if (ret)
+@@ -326,6 +330,8 @@ static int sdio_read_cis(struct mmc_card
+ 			prev = &this->next;
+ 
+ 			if (ret == -ENOENT) {
++				if (time_after(jiffies, timeout))
++					break;
+ 				/* warn about unknown tuples */
+ 				pr_warn_ratelimited("%s: queuing unknown"
+ 				       " CIS tuple 0x%02x (%u bytes)\n",
 
 
