@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D9693136F2
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34BFE31372F
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233631AbhBHPR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:17:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
+        id S233741AbhBHPVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:21:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231858AbhBHPJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:09:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63D3264ECF;
-        Mon,  8 Feb 2021 15:07:00 +0000 (UTC)
+        id S233520AbhBHPOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:14:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA6F364ED0;
+        Mon,  8 Feb 2021 15:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796821;
-        bh=PeRpHfP0z20bjDsgIF/jCZ8Y+qqhnkh0Rwhh0c3Ksy8=;
+        s=korg; t=1612797065;
+        bh=gjkRdFUKqHbORY7oZ1IXEXpkKVAh0vDsgCycMe2TIEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPIQ3yIvksEYHcE3YFBM3xbhIFCFHlH6X5HoGiDR1vkoNUkWQ+Z7Rk7OReKWquy7O
-         HVSFDGXNBAeGooUxnK//nrDTvb36xbTTGO3rqrKmhF5c+gLcO6tNoQ4Gw2h73eSfAS
-         eB8m8bOrDM4+rWf37NYDBJeEC1GYMppuFou1PRD4=
+        b=fG6m15bVsVkn/3e/G/PauEAn6mFquKWHhnrzDrfsMj0ER7y+D9CnTyIVoCDfSJruW
+         /9uMgDBEr0cP5oEFI1yrz69l8yvPqKplqjQYZV64co7ohqEEVfTOyjRn5snGG8Aucl
+         kwqpWcuDjEbTFUcgTnKvlRnkCUH0ae+hpTy5qdWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 30/30] net: dsa: mv88e6xxx: override existent unicast portvec in port_fdb_add
-Date:   Mon,  8 Feb 2021 16:01:16 +0100
-Message-Id: <20210208145806.449755046@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 45/65] KVM: SVM: Treat SVM as unsupported when running as an SEV guest
+Date:   Mon,  8 Feb 2021 16:01:17 +0100
+Message-Id: <20210208145811.960794021@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-References: <20210208145805.239714726@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f72f2fb8fb6be095b98af5d740ac50cffd0b0cae upstream.
+commit ccd85d90ce092bdb047a7f6580f3955393833b22 upstream.
 
-Having multiple destination ports for a unicast address does not make
-sense.
-Make port_db_load_purge override existent unicast portvec instead of
-adding a new port bit.
+Don't let KVM load when running as an SEV guest, regardless of what
+CPUID says.  Memory is encrypted with a key that is not accessible to
+the host (L0), thus it's impossible for L0 to emulate SVM, e.g. it'll
+see garbage when reading the VMCB.
 
-Fixes: 884729399260 ("net: dsa: mv88e6xxx: handle multiple ports in ATU")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20210130134334.10243-1-dqfext@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Technically, KVM could decrypt all memory that needs to be accessible to
+the L0 and use shadow paging so that L0 does not need to shadow NPT, but
+exposing such information to L0 largely defeats the purpose of running as
+an SEV guest.  This can always be revisited if someone comes up with a
+use case for running VMs inside SEV guests.
+
+Note, VMLOAD, VMRUN, etc... will also #GP on GPAs with C-bit set, i.e. KVM
+is doomed even if the SEV guest is debuggable and the hypervisor is willing
+to decrypt the VMCB.  This may or may not be fixed on CPUs that have the
+SVME_ADDR_CHK fix.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210202212017.2486595-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm.c        |    5 +++++
+ arch/x86/mm/mem_encrypt.c |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -1364,7 +1364,11 @@ static int mv88e6xxx_port_db_load_purge(
- 		if (!entry.portvec)
- 			entry.state = MV88E6XXX_G1_ATU_DATA_STATE_UNUSED;
- 	} else {
--		entry.portvec |= BIT(port);
-+		if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
-+			entry.portvec = BIT(port);
-+		else
-+			entry.portvec |= BIT(port);
-+
- 		entry.state = state;
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -889,6 +889,11 @@ static int has_svm(void)
+ 		return 0;
  	}
  
++	if (sev_active()) {
++		pr_info("KVM is unsupported when running as an SEV guest\n");
++		return 0;
++	}
++
+ 	return 1;
+ }
+ 
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -375,6 +375,7 @@ bool force_dma_unencrypted(struct device
+ 
+ 	return false;
+ }
++EXPORT_SYMBOL_GPL(sev_active);
+ 
+ /* Architecture __weak replacement functions */
+ void __init mem_encrypt_free_decrypted_mem(void)
 
 
