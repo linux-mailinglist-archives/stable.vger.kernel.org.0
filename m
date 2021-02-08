@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA623137ED
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:34:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F24AE3137C0
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231138AbhBHPd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:33:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36416 "EHLO mail.kernel.org"
+        id S233812AbhBHPam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233470AbhBHP3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:29:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A1964E50;
-        Mon,  8 Feb 2021 15:16:53 +0000 (UTC)
+        id S233760AbhBHPZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:25:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B2D164F1C;
+        Mon,  8 Feb 2021 15:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797414;
-        bh=oKL58fKocLIGBEmXqpkzY7Q7KGHXNyGg5yjf+FxwM8k=;
+        s=korg; t=1612797323;
+        bh=qW8LkbnbrJe4/eL0XdRTduZmErZLTDf4hS5G9CaUnKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJ3CEF5ovOmK0okbFYf9g3g5BiqED2I1m4UcsPwrTABQe9PvAcCCpXIqpLXt8wYec
-         zgddKRnKI4bO4KmvJm3wHyktajqrjJt6phmhPjEMTHFirWLqr5Xo5bnbPwcQ65u0hA
-         yNKuz3pqTmwcmJak0ceat/o/F3PLd1VAgLodErEg=
+        b=19s6UEDcQlhVbovP3pNF8HkAh8Qn31PQaxbFeAveR286i0OwtjFWCUT8X9q8MBHcE
+         53R15Swz4pkY+t80IOcUFTNdjfcijooXWpl3pAD4BFVjvCXu0/JlUZMsFUfoZ0S+UH
+         U2CeiqiygX1T3MmMpBxTa/CmPpd45Yfd+IlHAqU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andreas Hartmann <andihartmann@01019freenet.de>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 069/120] xhci: fix bounce buffer usage for non-sg list case
-Date:   Mon,  8 Feb 2021 16:00:56 +0100
-Message-Id: <20210208145821.163155500@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.10 070/120] RISC-V: Define MAXPHYSMEM_1GB only for RV32
+Date:   Mon,  8 Feb 2021 16:00:57 +0100
+Message-Id: <20210208145821.203360523@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210208145818.395353822@linuxfoundation.org>
 References: <20210208145818.395353822@linuxfoundation.org>
@@ -40,82 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-commit d4a610635400ccc382792f6be69427078541c678 upstream.
+commit de5f4b8f634beacf667e6eff334522601dd03b59 upstream.
 
-xhci driver may in some special cases need to copy small amounts
-of payload data to a bounce buffer in order to meet the boundary
-and alignment restrictions set by the xHCI specification.
+MAXPHYSMEM_1GB option was added for RV32 because RV32 only supports 1GB
+of maximum physical memory. This lead to few compilation errors reported
+by kernel test robot which created the following configuration combination
+which are not useful but can be configured.
 
-In the majority of these cases the data is in a sg list, and
-driver incorrectly assumed data is always in urb->sg when using
-the bounce buffer.
+1. MAXPHYSMEM_1GB & RV64
+2, MAXPHYSMEM_2GB & RV32
 
-If data instead is contiguous, and in urb->transfer_buffer, we may still
-need to bounce buffer a small part if data starts very close (less than
-packet size) to a 64k boundary.
+Fix this by restricting MAXPHYSMEM_1GB for RV32 and MAXPHYSMEM_2GB only for
+RV64.
 
-Check if sg list is used before copying data to/from it.
-
-Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
+Fixes: e557793799c5 ("RISC-V: Fix maximum allowed phsyical memory for RV32")
 Cc: stable@vger.kernel.org
-Reported-by: Andreas Hartmann <andihartmann@01019freenet.de>
-Tested-by: Andreas Hartmann <andihartmann@01019freenet.de>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210203113702.436762-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c |   31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ arch/riscv/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -699,11 +699,16 @@ static void xhci_unmap_td_bounce_buffer(
- 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
- 			 DMA_FROM_DEVICE);
- 	/* for in tranfers we need to copy the data from bounce to sg */
--	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
--			     seg->bounce_len, seg->bounce_offs);
--	if (len != seg->bounce_len)
--		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %zu != %d\n",
--				len, seg->bounce_len);
-+	if (urb->num_sgs) {
-+		len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
-+					   seg->bounce_len, seg->bounce_offs);
-+		if (len != seg->bounce_len)
-+			xhci_warn(xhci, "WARN Wrong bounce buffer read length: %zu != %d\n",
-+				  len, seg->bounce_len);
-+	} else {
-+		memcpy(urb->transfer_buffer + seg->bounce_offs, seg->bounce_buf,
-+		       seg->bounce_len);
-+	}
- 	seg->bounce_len = 0;
- 	seg->bounce_offs = 0;
- }
-@@ -3275,12 +3280,16 @@ static int xhci_align_td(struct xhci_hcd
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index e9e2c1f0a690..e0a34eb5ed3b 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -252,8 +252,10 @@ choice
+ 	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
  
- 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
- 	if (usb_urb_dir_out(urb)) {
--		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
--				   seg->bounce_buf, new_buff_len, enqd_len);
--		if (len != new_buff_len)
--			xhci_warn(xhci,
--				"WARN Wrong bounce buffer write length: %zu != %d\n",
--				len, new_buff_len);
-+		if (urb->num_sgs) {
-+			len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
-+						 seg->bounce_buf, new_buff_len, enqd_len);
-+			if (len != new_buff_len)
-+				xhci_warn(xhci, "WARN Wrong bounce buffer write length: %zu != %d\n",
-+					  len, new_buff_len);
-+		} else {
-+			memcpy(seg->bounce_buf, urb->transfer_buffer + enqd_len, new_buff_len);
-+		}
-+
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
- 	} else {
+ 	config MAXPHYSMEM_1GB
++		depends on 32BIT
+ 		bool "1GiB"
+ 	config MAXPHYSMEM_2GB
++		depends on 64BIT && CMODEL_MEDLOW
+ 		bool "2GiB"
+ 	config MAXPHYSMEM_128GB
+ 		depends on 64BIT && CMODEL_MEDANY
+-- 
+2.30.0
+
 
 
