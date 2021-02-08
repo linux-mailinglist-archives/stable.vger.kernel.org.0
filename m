@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5EC31364C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F93313626
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232667AbhBHPI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:08:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S233067AbhBHPGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:06:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231180AbhBHPFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:05:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 183F764ECA;
-        Mon,  8 Feb 2021 15:04:08 +0000 (UTC)
+        id S232208AbhBHPEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:04:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C106C64E29;
+        Mon,  8 Feb 2021 15:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796649;
-        bh=Nogwv7lW236FlG9laAEQyERHcHhF0IvFYA0aUlAnmuo=;
+        s=korg; t=1612796623;
+        bh=wEFg040k+Z5m9ZxtD+zFzKC9MeiI/trvGdmifnjE0Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrZKehvlFIZ0DHk3ti0I+iRS4wygyQcuKg9oUDK1CbR6lFWeNwQTaTRcMONIyn8IJ
-         BzkvOMSfOKpQFDy0BT642Ap+6rFpBeTSbwG1ol0XZJbGMh09QtlFzx0HLXF0J28Brx
-         RHFaC41Ttgy7Pi6iQEs0IdA6U0zEF0tUTbEjtWoQ=
+        b=j/fyy4PU5oLWDHq2TKZ0KJtoahxbPaWDeDgtn2XKHwXjsed9hztn+zl9WROY+4fg3
+         bZnJGPSI6rzAlzY3fWDWjs1e+D5zQNQkItZS8jTaUvsLZi2MOWAbm0ZBFCswEp125o
+         ryz9UCz3b94axcLW/TTdLflE2FkkP3TyQOzTG4AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/43] scsi: ibmvfc: Set default timeout to avoid crash during migration
-Date:   Mon,  8 Feb 2021 16:00:42 +0100
-Message-Id: <20210208145806.966964025@linuxfoundation.org>
+        stable@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <james.hogan@imgtec.com>,
+        "Maciej W. Rozycki" <macro@linux-mips.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 21/38] ELF/MIPS build fix
+Date:   Mon,  8 Feb 2021 16:00:43 +0100
+Message-Id: <20210208145806.116824584@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+References: <20210208145805.279815326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Ralf Baechle <ralf@linux-mips.org>
 
-[ Upstream commit 764907293edc1af7ac857389af9dc858944f53dc ]
+commit f43edca7ed08fc02279f2a62015da5cb6aa0ad61 upstream.
 
-While testing live partition mobility, we have observed occasional crashes
-of the Linux partition. What we've seen is that during the live migration,
-for specific configurations with large amounts of memory, slow network
-links, and workloads that are changing memory a lot, the partition can end
-up being suspended for 30 seconds or longer. This resulted in the following
-scenario:
+CONFIG_MIPS32_N32=y but CONFIG_BINFMT_ELF disabled results in the
+following linker errors:
 
-CPU 0                          CPU 1
--------------------------------  ----------------------------------
-scsi_queue_rq                    migration_store
- -> blk_mq_start_request          -> rtas_ibm_suspend_me
-  -> blk_add_timer                 -> on_each_cpu(rtas_percpu_suspend_me
-              _______________________________________V
-             |
-             V
-    -> IPI from CPU 1
-     -> rtas_percpu_suspend_me
-                                     -> __rtas_suspend_last_cpu
+  arch/mips/built-in.o: In function `elf_core_dump':
+  binfmt_elfn32.c:(.text+0x23dbc): undefined reference to `elf_core_extra_phdrs'
+  binfmt_elfn32.c:(.text+0x246e4): undefined reference to `elf_core_extra_data_size'
+  binfmt_elfn32.c:(.text+0x248d0): undefined reference to `elf_core_write_extra_phdrs'
+  binfmt_elfn32.c:(.text+0x24ac4): undefined reference to `elf_core_write_extra_data'
 
--- Linux partition suspended for > 30 seconds --
-                                      -> for_each_online_cpu(cpu)
-                                           plpar_hcall_norets(H_PROD
- -> scsi_dispatch_cmd
-                                      -> scsi_times_out
-                                       -> scsi_abort_command
-                                        -> queue_delayed_work
-  -> ibmvfc_queuecommand_lck
-   -> ibmvfc_send_event
-    -> ibmvfc_send_crq
-     - returns H_CLOSED
-   <- returns SCSI_MLQUEUE_HOST_BUSY
--> __blk_mq_requeue_request
+CONFIG_MIPS32_O32=y but CONFIG_BINFMT_ELF disabled results in the following
+linker errors:
 
-                                      -> scmd_eh_abort_handler
-                                       -> scsi_try_to_abort_cmd
-                                         - returns SUCCESS
-                                       -> scsi_queue_insert
+  arch/mips/built-in.o: In function `elf_core_dump':
+  binfmt_elfo32.c:(.text+0x28a04): undefined reference to `elf_core_extra_phdrs'
+  binfmt_elfo32.c:(.text+0x29330): undefined reference to `elf_core_extra_data_size'
+  binfmt_elfo32.c:(.text+0x2951c): undefined reference to `elf_core_write_extra_phdrs'
+  binfmt_elfo32.c:(.text+0x29710): undefined reference to `elf_core_write_extra_data'
 
-Normally, the SCMD_STATE_COMPLETE bit would protect against the command
-completion and the timeout, but that doesn't work here, since we don't
-check that at all in the SCSI_MLQUEUE_HOST_BUSY path.
+This is because binfmt_elfn32 and binfmt_elfo32 are using symbols from
+elfcore but for these configurations elfcore will not be built.
 
-In this case we end up calling scsi_queue_insert on a request that has
-already been queued, or possibly even freed, and we crash.
+Fixed by making elfcore selectable by a separate config symbol which
+unlike the current mechanism can also be used from other directories
+than kernel/, then having each flavor of ELF that relies on elfcore.o,
+select it in Kconfig, including CONFIG_MIPS32_N32 and CONFIG_MIPS32_O32
+which fixes this issue.
 
-The patch below simply increases the default I/O timeout to avoid this race
-condition. This is also the timeout value that nearly all IBM SAN storage
-recommends setting as the default value.
-
-Link: https://lore.kernel.org/r/1610463998-19791-1-git-send-email-brking@linux.vnet.ibm.com
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20160520141705.GA1913@linux-mips.org
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Reviewed-by: James Hogan <james.hogan@imgtec.com>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/Kconfig |    1 +
+ fs/Kconfig.binfmt |    8 ++++++++
+ kernel/Makefile   |    4 +---
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 04b3ac17531db..7865feb8e5e83 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -2891,8 +2891,10 @@ static int ibmvfc_slave_configure(struct scsi_device *sdev)
- 	unsigned long flags = 0;
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2990,6 +2990,7 @@ config MIPS32_N32
+ config BINFMT_ELF32
+ 	bool
+ 	default y if MIPS32_O32 || MIPS32_N32
++	select ELFCORE
  
- 	spin_lock_irqsave(shost->host_lock, flags);
--	if (sdev->type == TYPE_DISK)
-+	if (sdev->type == TYPE_DISK) {
- 		sdev->allow_restart = 1;
-+		blk_queue_rq_timeout(sdev->request_queue, 120 * HZ);
-+	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- 	return 0;
- }
--- 
-2.27.0
-
+ endmenu
+ 
+--- a/fs/Kconfig.binfmt
++++ b/fs/Kconfig.binfmt
+@@ -1,6 +1,7 @@
+ config BINFMT_ELF
+ 	bool "Kernel support for ELF binaries"
+ 	depends on MMU && (BROKEN || !FRV)
++	select ELFCORE
+ 	default y
+ 	---help---
+ 	  ELF (Executable and Linkable Format) is a format for libraries and
+@@ -26,6 +27,7 @@ config BINFMT_ELF
+ config COMPAT_BINFMT_ELF
+ 	bool
+ 	depends on COMPAT && BINFMT_ELF
++	select ELFCORE
+ 
+ config ARCH_BINFMT_ELF_STATE
+ 	bool
+@@ -34,6 +36,7 @@ config BINFMT_ELF_FDPIC
+ 	bool "Kernel support for FDPIC ELF binaries"
+ 	default y
+ 	depends on (FRV || BLACKFIN || (SUPERH32 && !MMU) || C6X)
++	select ELFCORE
+ 	help
+ 	  ELF FDPIC binaries are based on ELF, but allow the individual load
+ 	  segments of a binary to be located in memory independently of each
+@@ -43,6 +46,11 @@ config BINFMT_ELF_FDPIC
+ 
+ 	  It is also possible to run FDPIC ELF binaries on MMU linux also.
+ 
++config ELFCORE
++	bool
++	help
++	  This option enables kernel/elfcore.o.
++
+ config CORE_DUMP_DEFAULT_ELF_HEADERS
+ 	bool "Write ELF core dumps with partial segments"
+ 	default y
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -77,9 +77,7 @@ obj-$(CONFIG_TASK_DELAY_ACCT) += delayac
+ obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
+ obj-$(CONFIG_TRACEPOINTS) += tracepoint.o
+ obj-$(CONFIG_LATENCYTOP) += latencytop.o
+-obj-$(CONFIG_BINFMT_ELF) += elfcore.o
+-obj-$(CONFIG_COMPAT_BINFMT_ELF) += elfcore.o
+-obj-$(CONFIG_BINFMT_ELF_FDPIC) += elfcore.o
++obj-$(CONFIG_ELFCORE) += elfcore.o
+ obj-$(CONFIG_FUNCTION_TRACER) += trace/
+ obj-$(CONFIG_TRACING) += trace/
+ obj-$(CONFIG_TRACE_CLOCK) += trace/
 
 
