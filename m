@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E0BC313668
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDFD83136A2
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233114AbhBHPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:10:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52238 "EHLO mail.kernel.org"
+        id S232317AbhBHPM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:12:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233109AbhBHPG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:06:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F43264EE5;
-        Mon,  8 Feb 2021 15:05:25 +0000 (UTC)
+        id S232460AbhBHPIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:08:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE75164E7C;
+        Mon,  8 Feb 2021 15:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796726;
-        bh=8x0xXwb6d8bT4yeWb8qLdFWMtleAKvKaarZrqsnngz4=;
+        s=korg; t=1612796795;
+        bh=P7ETVWnObIK3YqlHFJh396rT5cS7w98vlNpsXS75r38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6oNIjvMAU+Pg8UnALW5Err8UckrJMed0ONfKrRN1hi/xCDxvuKKSYErnRTkp2wIQ
-         miKtHONlfIHub5vXDSgKim6AJAw+5u/jW0wBDOmiqVzPR6cKA0+ycrX5saStS1Hmbf
-         7z0xdoB4nR38UDRJBH+1T+QDqe/vErk6lqL8CaPM=
+        b=EDNYAp1s6/t2/tdpwuogVxaturV/x7eNccP59LQvgxZw3a8sxADDOKPjMkr8kcHNm
+         9ZS3JIsYns6vGaaADZgR+2cXe9yrbewHFRK35EHzMYreefI84UiywFLGd3ilgKQaBU
+         NKlplyiUtcIBQ/jtrwypqMw63vIB2IRUSHZG0b4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.9 42/43] iommu/vt-d: Do not use flush-queue when caching-mode is on
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 22/30] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
 Date:   Mon,  8 Feb 2021 16:01:08 +0100
-Message-Id: <20210208145808.008636403@linuxfoundation.org>
+Message-Id: <20210208145806.146484099@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-References: <20210208145806.281758651@linuxfoundation.org>
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+References: <20210208145805.239714726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 29b32839725f8c89a41cb6ee054c85f3116ea8b5 upstream.
+commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
 
-When an Intel IOMMU is virtualized, and a physical device is
-passed-through to the VM, changes of the virtual IOMMU need to be
-propagated to the physical IOMMU. The hypervisor therefore needs to
-monitor PTE mappings in the IOMMU page-tables. Intel specifications
-provide "caching-mode" capability that a virtual IOMMU uses to report
-that the IOMMU is virtualized and a TLB flush is needed after mapping to
-allow the hypervisor to propagate virtual IOMMU mappings to the physical
-IOMMU. To the best of my knowledge no real physical IOMMU reports
-"caching-mode" as turned on.
+If a new hugetlb page is allocated during fallocate it will not be
+marked as active (set_page_huge_active) which will result in a later
+isolate_huge_page failure when the page migration code would like to
+move that page.  Such a failure would be unexpected and wrong.
 
-Synchronizing the virtual and the physical IOMMU tables is expensive if
-the hypervisor is unaware which PTEs have changed, as the hypervisor is
-required to walk all the virtualized tables and look for changes.
-Consequently, domain flushes are much more expensive than page-specific
-flushes on virtualized IOMMUs with passthrough devices. The kernel
-therefore exploited the "caching-mode" indication to avoid domain
-flushing and use page-specific flushing in virtualized environments. See
-commit 78d5f0f500e6 ("intel-iommu: Avoid global flushes with caching
-mode.")
+Only export set_page_huge_active, just leave clear_page_huge_active as
+static.  Because there are no external users.
 
-This behavior changed after commit 13cf01744608 ("iommu/vt-d: Make use
-of iova deferred flushing"). Now, when batched TLB flushing is used (the
-default), full TLB domain flushes are performed frequently, requiring
-the hypervisor to perform expensive synchronization between the virtual
-TLB and the physical one.
-
-Getting batched TLB flushes to use page-specific invalidations again in
-such circumstances is not easy, since the TLB invalidation scheme
-assumes that "full" domain TLB flushes are performed for scalability.
-
-Disable batched TLB flushes when caching-mode is on, as the performance
-benefit from using batched TLB invalidations is likely to be much
-smaller than the overhead of the virtual-to-physical IOMMU page-tables
-synchronization.
-
-Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210127175317.1600473-1-namit@vmware.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Nadav Amit <namit@vmware.com>
+Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
+Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iommu/intel-iommu.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/hugetlbfs/inode.c    |    3 ++-
+ include/linux/hugetlb.h |    3 +++
+ mm/hugetlb.c            |    2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3323,6 +3323,12 @@ static int __init init_dmars(void)
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -649,8 +649,9 @@ static long hugetlbfs_fallocate(struct f
  
- 		if (!ecap_pass_through(iommu->ecap))
- 			hw_pass_through = 0;
+ 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 
++		set_page_huge_active(page);
+ 		/*
+-		 * page_put due to reference from alloc_huge_page()
++		 * put_page() due to reference from alloc_huge_page()
+ 		 * unlock_page because locked by add_to_page_cache()
+ 		 */
+ 		put_page(page);
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -531,6 +531,9 @@ static inline void set_huge_swap_pte_at(
+ 	set_huge_pte_at(mm, addr, ptep, pte);
+ }
+ #endif
 +
-+		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
-+			pr_info("Disable batched IOTLB flush due to virtualization");
-+			intel_iommu_strict = 1;
-+		}
++void set_page_huge_active(struct page *page);
 +
- #ifdef CONFIG_INTEL_IOMMU_SVM
- 		if (pasid_enabled(iommu))
- 			intel_svm_alloc_pasid_tables(iommu);
+ #else	/* CONFIG_HUGETLB_PAGE */
+ struct hstate {};
+ #define alloc_huge_page(v, a, r) NULL
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1238,7 +1238,7 @@ bool page_huge_active(struct page *page)
+ }
+ 
+ /* never called for tail page */
+-static void set_page_huge_active(struct page *page)
++void set_page_huge_active(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
+ 	SetPagePrivate(&page[1]);
 
 
