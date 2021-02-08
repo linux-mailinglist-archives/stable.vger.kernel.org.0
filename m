@@ -2,86 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3545313CF0
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E92E2313D70
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 19:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235280AbhBHSOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 13:14:01 -0500
-Received: from aposti.net ([89.234.176.197]:44402 "EHLO aposti.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235331AbhBHSM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 13:12:56 -0500
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>, od@zcrc.me,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org
-Subject: [PATCH] perf stat: Use nftw() instead of ftw()
-Date:   Mon,  8 Feb 2021 18:11:57 +0000
-Message-Id: <20210208181157.1324550-1-paul@crapouillou.net>
+        id S232499AbhBHS1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 13:27:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235621AbhBHS0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 13:26:17 -0500
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF44C061786;
+        Mon,  8 Feb 2021 10:25:31 -0800 (PST)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1l9BDz-000AHc-Jg; Mon, 08 Feb 2021 19:25:27 +0100
+Message-ID: <69e7fbb93740c0116c358a2f40aadb2dbde702fe.camel@sipsolutions.net>
+Subject: Re: [PATCH AUTOSEL 4.9 4/4] init/gcov: allow CONFIG_CONSTRUCTORS on
+ UML to fix module gcov
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jessica Yu <jeyu@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 08 Feb 2021 19:25:21 +0100
+In-Reply-To: <20210208180000.2092497-4-sashal@kernel.org>
+References: <20210208180000.2092497-1-sashal@kernel.org>
+         <20210208180000.2092497-4-sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-malware-bazaar: not-scanned
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ftw() has been obsolete for about 12 years now.
+On Mon, 2021-02-08 at 18:00 +0000, Sasha Levin wrote:
+> From: Johannes Berg <johannes.berg@intel.com>
+> 
+> [ Upstream commit 55b6f763d8bcb5546997933105d66d3e6b080e6a ]
+> 
+> On ARCH=um, loading a module doesn't result in its constructors getting
+> called, which breaks module gcov since the debugfs files are never
+> registered.  On the other hand, in-kernel constructors have already been
+> called by the dynamic linker, so we can't call them again.
+> 
+> Get out of this conundrum by allowing CONFIG_CONSTRUCTORS to be
+> selected, but avoiding the in-kernel constructor calls.
+> 
+> Also remove the "if !UML" from GCOV selecting CONSTRUCTORS now, since we
+> really do want CONSTRUCTORS, just not kernel binary ones.
+> 
+> Link: https://lkml.kernel.org/r/20210120172041.c246a2cac2fb.I1358f584b76f1898373adfed77f4462c8705b736@changeid
+> 
 
-Fixes: bb1c15b60b98 ("perf stat: Support regex pattern in --for-each-cgroup")
-CC: stable@vger.kernel.org
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
----
 
-Notes:
-    NOTE: Not runtime-tested, I have no idea what I need to do in perf
-    to test this. But at least it compiles now with my uClibc-based
-    toolchain.
+While I don't really *object* to this getting backported, it's also a
+(development) corner case that somebody wants gcov and modules in
+ARCH=um ... I'd probably not backport this.
 
- tools/perf/util/cgroup.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/tools/perf/util/cgroup.c b/tools/perf/util/cgroup.c
-index 5dff7e489921..f24ab4585553 100644
---- a/tools/perf/util/cgroup.c
-+++ b/tools/perf/util/cgroup.c
-@@ -161,7 +161,7 @@ void evlist__set_default_cgroup(struct evlist *evlist, struct cgroup *cgroup)
- 
- /* helper function for ftw() in match_cgroups and list_cgroups */
- static int add_cgroup_name(const char *fpath, const struct stat *sb __maybe_unused,
--			   int typeflag)
-+			   int typeflag, struct FTW *ftwbuf __maybe_unused)
- {
- 	struct cgroup_name *cn;
- 
-@@ -209,12 +209,12 @@ static int list_cgroups(const char *str)
- 			if (!s)
- 				return -1;
- 			/* pretend if it's added by ftw() */
--			ret = add_cgroup_name(s, NULL, FTW_D);
-+			ret = add_cgroup_name(s, NULL, FTW_D, NULL);
- 			free(s);
- 			if (ret)
- 				return -1;
- 		} else {
--			if (add_cgroup_name("", NULL, FTW_D) < 0)
-+			if (add_cgroup_name("", NULL, FTW_D, NULL) < 0)
- 				return -1;
- 		}
- 
-@@ -247,7 +247,7 @@ static int match_cgroups(const char *str)
- 	prefix_len = strlen(mnt);
- 
- 	/* collect all cgroups in the cgroup_list */
--	if (ftw(mnt, add_cgroup_name, 20) < 0)
-+	if (nftw(mnt, add_cgroup_name, 20, 0) < 0)
- 		return -1;
- 
- 	for (;;) {
--- 
-2.30.0
+johannes
 
