@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8905F313A0E
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 17:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E96D4313A11
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 17:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233582AbhBHQu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 11:50:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44778 "EHLO
+        id S233431AbhBHQva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 11:51:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234556AbhBHQt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 11:49:56 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01851C061793
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 08:48:45 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id p19so7731156plr.22
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 08:48:44 -0800 (PST)
+        with ESMTP id S232115AbhBHQuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 11:50:10 -0500
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9BFC0617A7
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 08:48:58 -0800 (PST)
+Received: by mail-pf1-x44a.google.com with SMTP id o14so9683704pfp.16
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 08:48:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:message-id:mime-version:subject:from:to:cc;
         bh=CWLS3iCdl7avu6UrS/4a9Q7lCozs1sxuZ+Q+3TdBAr4=;
-        b=MkS/AQpsy4KJi2RAXDyDVdKnFaGcb8SW96N1xaxNIG/R8e6YcwlBQ9vh0t51rhuofi
-         i2vBYteTnMD+u7upnr9YfcoJu3W8ZaYEvYWAQArs9ud8ocrYGqh9b6UKHfUE0aTX2nd+
-         X7EQW1I5ERB5Wy2/NAVTjwKHNbol9Y4O97ag3nwYL6j0+jshBjpP0zCchaUV1eomWmUm
-         gU1ntF6fsqDAWh40hku88WgSOyoCs6I8fVL/b22dS+pJLvCZ9gVrCi5QEWlnU2rpV7Hk
-         yDcUZ0z49g+Fy7AdPfB8khbpopSxyhugyzcqDYjYRFCRfOSB3i2a3ZzHLoQinzIaMpVG
-         n3zA==
+        b=h63zsE4ezN6OCZsuKkcFUpv5B4yvCpCVEuK32I4ib8AUnfahsxf/fPZ7KtlM2O2YHt
+         CwUiwX5vUz6lb6ueS7j8/BzB78EcrGvf/HcN0Ikw0iq2ZVYCL2r3jcA5bQpSHTMMR/+z
+         EEC12b0bfkYfdrIukt/4St/vkL5K29wqi12l6LG+6hlfmgOrh746Z66PUmosCqxtc1Hp
+         fPE+JPm7qf6VJTJawhgpdyHKuWC0NPZzTKy14W2hWLuP8SEJd99gD6LUbIhZjI9wiKul
+         NCl+xxl3SMvFn16Iv7jxa9dIoBj5F9457+1yRY/GfRdfjUfA4Ukg7NWoP+QMjNWJBGWg
+         mcYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
          :to:cc;
         bh=CWLS3iCdl7avu6UrS/4a9Q7lCozs1sxuZ+Q+3TdBAr4=;
-        b=WPBDb427FUZIb6z3yYOdMllLAxz1aNteYiyNw/uEiAYPTSu5A0YM69uGNPspb8US1d
-         if/RUCKa7fRDxqN9W6CLNcewjkZSSVILkOLI5dYhBw+aWzBNv+3gqmuP7Fzo28wQGjXF
-         Jj4iQZBcrfDuD1bXhHvKZcGHNVFsXfee5i5EMJ29zBnTR19NoZFIRnVnkDceKPrXO53p
-         BpaDXKLdTgIE5l8nbMr1ukcnoed3ggpFblMKV1KlFlQAZyaSPuwgx1s5bOsAVZnI/twG
-         vxiVeMp7Sl6xhHNINtGRR8rZQ+4XiWdKJDsCXu117Oy/i7kb2kt9i7A2udCJyH8WSmnD
-         5xjw==
-X-Gm-Message-State: AOAM530x4QmEfl1t4RVHlL8BeVEVoICvxuKT7DGliCyO2swWcnRN3Vin
-        DvSVUy6at74E4g/IFXSCq/Lw2HMZIo4nWUUYWAPL/uN6ayarUmBlTVoCTXhCZIadV5/lAzgjE6r
-        Jf7y1P1yJNyMRBD/Aj+wg62ZMbbcUcjtQGonHINxuOxy9w/eq7zOU4uNpZSjcRA==
-X-Google-Smtp-Source: ABdhPJzsbIldQf/8UDs4hDwDDcUOVrtcG212tLSgbSxhCz6lTXYVMBAf80R68i/GgR8Gx2bdiBy8lRKlNSg=
+        b=SRZ9XmvXR0Hd80NRtrTc3+rq/dT+G4wiRbSPSv6pLs6dSYVIc46bZDm92Lttx1DyUp
+         opysT/Ojajb7uw3Oi8RIT5YPTbAWb2iRzAMTcrAn6557kyYCkoMAuced2S1KZ9tuGk/6
+         3/xOCreiRDTnzYws69x4+jYxcBuTl2q1J64zCjkfEaTIKYEgWWOdb90OSiF1HxvTp1DE
+         GDn2A3fL2+eEy5iBRvIoctK2W+uCQMrStmwb9FJN08lBlUMqK4wwnslSYdVDESfQeEWv
+         xfH2Qwtbgj2EzBWY2CUYd0kSXU00hBGG8REk4QXhbGe0oaY+vQWt1yeUNz0uzBIymSAT
+         3jfw==
+X-Gm-Message-State: AOAM53037u1at6ZfhH05FnfOCSHm7qxb1hnURRNtxOhjAprLjqUdarNE
+        YPbnVGT1ajqJl/69puXDnR9bs7oTcUHdkfBxSpol3BqnRbCGpbMtDy7k9LJ7YoScRjh0IUc+Njy
+        FZlaEQhid1mLZ2bgiJZ1f5CB3aatd/qf5SnwC0ONA3iYutAZZq8/yS5YWP+UbxQ==
+X-Google-Smtp-Source: ABdhPJyrMNiN0ra//SFWELFPtCPbNLOL3F1BSTGyIONMn9Zwnqqz5JsBarlztfEaJUc/8S4FKFvEAwb7Iys=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:11:588:a801:402d:d5e5])
- (user=pgonda job=sendgmr) by 2002:a17:902:9009:b029:dc:52a6:575 with SMTP id
- a9-20020a1709029009b02900dc52a60575mr16415595plp.57.1612802924247; Mon, 08
- Feb 2021 08:48:44 -0800 (PST)
-Date:   Mon,  8 Feb 2021 08:48:40 -0800
-Message-Id: <20210208164840.769333-1-pgonda@google.com>
+ (user=pgonda job=sendgmr) by 2002:aa7:91cf:0:b029:1cb:1c6f:b77d with SMTP id
+ z15-20020aa791cf0000b02901cb1c6fb77dmr18651925pfa.74.1612802937434; Mon, 08
+ Feb 2021 08:48:57 -0800 (PST)
+Date:   Mon,  8 Feb 2021 08:48:55 -0800
+Message-Id: <20210208164855.772287-1-pgonda@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.30.0.478.g8a0d178c01-goog
-Subject: [PATCH for 4.19] Fix unsynchronized access to sev members through svm_register_enc_region
+Subject: [PATCH for 5.4] Fix unsynchronized access to sev members through svm_register_enc_region
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>,
