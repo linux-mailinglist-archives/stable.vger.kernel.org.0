@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD8331370C
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:19:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 721953136A7
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbhBHPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:19:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56646 "EHLO mail.kernel.org"
+        id S232844AbhBHPNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:13:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230094AbhBHPNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:13:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD5264EB8;
-        Mon,  8 Feb 2021 15:10:11 +0000 (UTC)
+        id S233161AbhBHPKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:10:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB56464E8A;
+        Mon,  8 Feb 2021 15:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612797012;
-        bh=UTAvX1Z2BIvkb/lCrVV8zz9Le16kHhfY0QGBnzvF21w=;
+        s=korg; t=1612796857;
+        bh=K1gzxVXqGoGNDBjPE883pZK+9sakuF76mYnc/0In93U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKhF1ELNrL5bhLnJ/nDa/FfwPdBM4TQInkiCWb50CDqzI4AY7AZSvdZ1Dwpxl81Yj
-         Dsz+JxO3pnMLOnS2zZWgZNKGrX3o9txUGgD/Ybdrz6rWquxS1gIL/YwL5XZbgCqipj
-         aT/m8IAmC+jg+V6uasn38t5JuZXn7vCun0FqYvtI=
+        b=gIVjqqBrsiwhvYvf6l2XZL1A5qwjMntk1SHHeRyE8wS31cOTGO+LH6496MbNredJO
+         4rXI/0M4V5TqvWOAHuPFPycYMmv/8iXlzHMSIB3EC8sNIcPTh9rH3N/l5035LiYpLw
+         ihJDhrEk9J10+L9YKeOEsoSRquFrs2xxj1M+ofXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Ikjoon Jang <ikjn@chromium.org>
-Subject: [PATCH 5.4 29/65] usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints
+        stable@vger.kernel.org,
+        Gerhard Klostermeier <gerhard.klostermeier@syss.de>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Subject: [PATCH 4.19 14/38] usb: dwc2: Fix endpoint direction check in ep_from_windex
 Date:   Mon,  8 Feb 2021 16:01:01 +0100
-Message-Id: <20210208145811.352289043@linuxfoundation.org>
+Message-Id: <20210208145806.700903899@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
-References: <20210208145810.230485165@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+References: <20210208145806.141056364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,189 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
 
-commit 54f6a8af372213a254af6609758d99f7c0b6b5ad upstream.
+commit f670e9f9c8cac716c3506c6bac9e997b27ad441a upstream.
 
-For those unchecked endpoints, we don't allocate bandwidth for
-them, so no need free the bandwidth, otherwise will decrease
-the allocated bandwidth.
-Meanwhile use xhci_dbg() instead of dev_dbg() to print logs and
-rename bw_ep_list_new as bw_ep_chk_list.
+dwc2_hsotg_process_req_status uses ep_from_windex() to retrieve
+the endpoint for the index provided in the wIndex request param.
 
-Fixes: 1d69f9d901ef ("usb: xhci-mtk: fix unreleased bandwidth data")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-and-tested-by: Ikjoon Jang <ikjn@chromium.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1612159064-28413-1-git-send-email-chunfeng.yun@mediatek.com
+In a test-case with a rndis gadget running and sending a malformed
+packet to it like:
+    dev.ctrl_transfer(
+        0x82,      # bmRequestType
+        0x00,       # bRequest
+        0x0000,     # wValue
+        0x0001,     # wIndex
+        0x00       # wLength
+    )
+it is possible to cause a crash:
+
+[  217.533022] dwc2 ff300000.usb: dwc2_hsotg_process_req_status: USB_REQ_GET_STATUS
+[  217.559003] Unable to handle kernel read from unreadable memory at virtual address 0000000000000088
+...
+[  218.313189] Call trace:
+[  218.330217]  ep_from_windex+0x3c/0x54
+[  218.348565]  usb_gadget_giveback_request+0x10/0x20
+[  218.368056]  dwc2_hsotg_complete_request+0x144/0x184
+
+This happens because ep_from_windex wants to compare the endpoint
+direction even if index_to_ep() didn't return an endpoint due to
+the direction not matching.
+
+The fix is easy insofar that the actual direction check is already
+happening when calling index_to_ep() which will return NULL if there
+is no endpoint for the targeted direction, so the offending check
+can go away completely.
+
+Fixes: c6f5c050e2a7 ("usb: dwc2: gadget: add bi-directional endpoint support")
+Cc: stable@vger.kernel.org
+Reported-by: Gerhard Klostermeier <gerhard.klostermeier@syss.de>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20210127103919.58215-1-heiko@sntech.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c |   61 +++++++++++++++++++++-------------------
- drivers/usb/host/xhci-mtk.h     |    4 +-
- 2 files changed, 36 insertions(+), 29 deletions(-)
+ drivers/usb/dwc2/gadget.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -200,6 +200,7 @@ static struct mu3h_sch_ep_info *create_s
- 
- 	sch_ep->sch_tt = tt;
- 	sch_ep->ep = ep;
-+	INIT_LIST_HEAD(&sch_ep->endpoint);
- 	INIT_LIST_HEAD(&sch_ep->tt_endpoint);
- 
- 	return sch_ep;
-@@ -374,6 +375,7 @@ static void update_bus_bw(struct mu3h_sc
- 					sch_ep->bw_budget_table[j];
- 		}
- 	}
-+	sch_ep->allocated = used;
- }
- 
- static int check_sch_tt(struct usb_device *udev,
-@@ -542,6 +544,22 @@ static int check_sch_bw(struct usb_devic
- 	return 0;
- }
- 
-+static void destroy_sch_ep(struct usb_device *udev,
-+	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
-+{
-+	/* only release ep bw check passed by check_sch_bw() */
-+	if (sch_ep->allocated)
-+		update_bus_bw(sch_bw, sch_ep, 0);
-+
-+	list_del(&sch_ep->endpoint);
-+
-+	if (sch_ep->sch_tt) {
-+		list_del(&sch_ep->tt_endpoint);
-+		drop_tt(udev);
-+	}
-+	kfree(sch_ep);
-+}
-+
- static bool need_bw_sch(struct usb_host_endpoint *ep,
- 	enum usb_device_speed speed, int has_tt)
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1453,7 +1453,6 @@ static void dwc2_hsotg_complete_oursetup
+ static struct dwc2_hsotg_ep *ep_from_windex(struct dwc2_hsotg *hsotg,
+ 					    u32 windex)
  {
-@@ -584,7 +602,7 @@ int xhci_mtk_sch_init(struct xhci_hcd_mt
+-	struct dwc2_hsotg_ep *ep;
+ 	int dir = (windex & USB_DIR_IN) ? 1 : 0;
+ 	int idx = windex & 0x7F;
  
- 	mtk->sch_array = sch_array;
+@@ -1463,12 +1462,7 @@ static struct dwc2_hsotg_ep *ep_from_win
+ 	if (idx > hsotg->num_of_eps)
+ 		return NULL;
  
--	INIT_LIST_HEAD(&mtk->bw_ep_list_new);
-+	INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
- 
- 	return 0;
- }
-@@ -636,29 +654,12 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd
- 
- 	setup_sch_info(udev, ep_ctx, sch_ep);
- 
--	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_list_new);
-+	list_add_tail(&sch_ep->endpoint, &mtk->bw_ep_chk_list);
- 
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(xhci_mtk_add_ep_quirk);
- 
--static void xhci_mtk_drop_ep(struct xhci_hcd_mtk *mtk, struct usb_device *udev,
--			     struct mu3h_sch_ep_info *sch_ep)
--{
--	struct xhci_hcd *xhci = hcd_to_xhci(mtk->hcd);
--	int bw_index = get_bw_index(xhci, udev, sch_ep->ep);
--	struct mu3h_sch_bw_info *sch_bw = &mtk->sch_array[bw_index];
+-	ep = index_to_ep(hsotg, idx, dir);
 -
--	update_bus_bw(sch_bw, sch_ep, 0);
--	list_del(&sch_ep->endpoint);
+-	if (idx && ep->dir_in != dir)
+-		return NULL;
 -
--	if (sch_ep->sch_tt) {
--		list_del(&sch_ep->tt_endpoint);
--		drop_tt(udev);
--	}
--	kfree(sch_ep);
--}
--
- void xhci_mtk_drop_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
- 		struct usb_host_endpoint *ep)
- {
-@@ -688,9 +689,8 @@ void xhci_mtk_drop_ep_quirk(struct usb_h
- 	sch_bw = &sch_array[bw_index];
- 
- 	list_for_each_entry_safe(sch_ep, tmp, &sch_bw->bw_ep_list, endpoint) {
--		if (sch_ep->ep == ep) {
--			xhci_mtk_drop_ep(mtk, udev, sch_ep);
--		}
-+		if (sch_ep->ep == ep)
-+			destroy_sch_ep(udev, sch_bw, sch_ep);
- 	}
+-	return ep;
++	return index_to_ep(hsotg, idx, dir);
  }
- EXPORT_SYMBOL_GPL(xhci_mtk_drop_ep_quirk);
-@@ -704,9 +704,9 @@ int xhci_mtk_check_bandwidth(struct usb_
- 	struct mu3h_sch_ep_info *sch_ep, *tmp;
- 	int bw_index, ret;
  
--	dev_dbg(&udev->dev, "%s\n", __func__);
-+	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
- 
--	list_for_each_entry(sch_ep, &mtk->bw_ep_list_new, endpoint) {
-+	list_for_each_entry(sch_ep, &mtk->bw_ep_chk_list, endpoint) {
- 		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
- 		sch_bw = &mtk->sch_array[bw_index];
- 
-@@ -717,7 +717,7 @@ int xhci_mtk_check_bandwidth(struct usb_
- 		}
- 	}
- 
--	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
-+	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
- 		struct xhci_ep_ctx *ep_ctx;
- 		struct usb_host_endpoint *ep = sch_ep->ep;
- 		unsigned int ep_index = xhci_get_endpoint_index(&ep->desc);
-@@ -746,12 +746,17 @@ EXPORT_SYMBOL_GPL(xhci_mtk_check_bandwid
- void xhci_mtk_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
- {
- 	struct xhci_hcd_mtk *mtk = hcd_to_mtk(hcd);
-+	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-+	struct mu3h_sch_bw_info *sch_bw;
- 	struct mu3h_sch_ep_info *sch_ep, *tmp;
-+	int bw_index;
- 
--	dev_dbg(&udev->dev, "%s\n", __func__);
-+	xhci_dbg(xhci, "%s() udev %s\n", __func__, dev_name(&udev->dev));
- 
--	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_list_new, endpoint) {
--		xhci_mtk_drop_ep(mtk, udev, sch_ep);
-+	list_for_each_entry_safe(sch_ep, tmp, &mtk->bw_ep_chk_list, endpoint) {
-+		bw_index = get_bw_index(xhci, udev, sch_ep->ep);
-+		sch_bw = &mtk->sch_array[bw_index];
-+		destroy_sch_ep(udev, sch_bw, sch_ep);
- 	}
- 
- 	xhci_reset_bandwidth(hcd, udev);
---- a/drivers/usb/host/xhci-mtk.h
-+++ b/drivers/usb/host/xhci-mtk.h
-@@ -59,6 +59,7 @@ struct mu3h_sch_bw_info {
-  * @ep_type: endpoint type
-  * @maxpkt: max packet size of endpoint
-  * @ep: address of usb_host_endpoint struct
-+ * @allocated: the bandwidth is aready allocated from bus_bw
-  * @offset: which uframe of the interval that transfer should be
-  *		scheduled first time within the interval
-  * @repeat: the time gap between two uframes that transfers are
-@@ -86,6 +87,7 @@ struct mu3h_sch_ep_info {
- 	u32 ep_type;
- 	u32 maxpkt;
- 	void *ep;
-+	bool allocated;
- 	/*
- 	 * mtk xHCI scheduling information put into reserved DWs
- 	 * in ep context
-@@ -130,8 +132,8 @@ struct mu3c_ippc_regs {
- struct xhci_hcd_mtk {
- 	struct device *dev;
- 	struct usb_hcd *hcd;
--	struct list_head bw_ep_list_new;
- 	struct mu3h_sch_bw_info *sch_array;
-+	struct list_head bw_ep_chk_list;
- 	struct mu3c_ippc_regs __iomem *ippc_regs;
- 	bool has_ippc;
- 	int num_u2_ports;
+ /**
 
 
