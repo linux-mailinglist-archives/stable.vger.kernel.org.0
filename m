@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A62B313608
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC13313746
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 16:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232778AbhBHPFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 10:05:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
+        id S233823AbhBHPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 10:22:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232851AbhBHPD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Feb 2021 10:03:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4667164EBC;
-        Mon,  8 Feb 2021 15:03:00 +0000 (UTC)
+        id S233083AbhBHPP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Feb 2021 10:15:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 163BF64E99;
+        Mon,  8 Feb 2021 15:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612796580;
-        bh=aSQihHmeBeMfPs0/tAyg/BaHUc0dQA01ZURtNbjvBTQ=;
+        s=korg; t=1612797088;
+        bh=wqWN5xytufg7GZYq8FXdxm66L7+eWAmdstwff4gsBvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyNr6+OFtzSTdUEb7Myadwa/5HBQhhg1Pa5ZCt1sFMMiKKIiVt5Fgy2mnbYgzbyYT
-         W2ZhQEkennGNPV+0Zam0xxwMgqjdSuCkbUbI1uuKmrASWNojOiAnV0Y72Sep9ybpGv
-         2pGOtfFbwooh1Q22CjaydgI33ZIKvm5QqKHiNp20=
+        b=w/peW5Dkthti0syQsMEyFsQA1JjuH6I5CvFp36+aIiV46cXEbxfSw87y21upMtYx8
+         8YUVa6Ed0rA3ECxj7JSBYI133U9UyaOCNQuKTonilr7RJBrg3EcpWdDbcE+FYkixxL
+         WI0lJuD3nUfY/ACKKOQdJt5hd7BCYeTPv50+IbIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 31/38] mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page
+        stable@vger.kernel.org,
+        Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 21/65] nvmet-tcp: fix out-of-bounds access when receiving multiple h2cdata PDUs
 Date:   Mon,  8 Feb 2021 16:00:53 +0100
-Message-Id: <20210208145806.482939172@linuxfoundation.org>
+Message-Id: <20210208145811.053812315@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
-References: <20210208145805.279815326@linuxfoundation.org>
+In-Reply-To: <20210208145810.230485165@linuxfoundation.org>
+References: <20210208145810.230485165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 585fc0d2871c9318c949fbf45b1f081edd489e96 upstream.
+[ Upstream commit cb8563f5c735a042ea2dd7df1ad55ae06d63ffeb ]
 
-If a new hugetlb page is allocated during fallocate it will not be
-marked as active (set_page_huge_active) which will result in a later
-isolate_huge_page failure when the page migration code would like to
-move that page.  Such a failure would be unexpected and wrong.
+When the host sends multiple h2cdata PDUs, we keep track on
+the receive progress and calculate the scatterlist index and
+offsets.
 
-Only export set_page_huge_active, just leave clear_page_huge_active as
-static.  Because there are no external users.
+The issue is that sg_offset should only be kept for the first
+iov entry we map in the iovec as this is the difference between
+our cursor and the sg entry offset itself.
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-3-songmuchun@bytedance.com
-Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In addition, the sg index was calculated wrong because we should
+not round up when dividing the command byte offset with PAG_SIZE.
+
+Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
+Reported-by: Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>
+Tested-by: Narayan Ayalasomayajula <Narayan.Ayalasomayajula@wdc.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c    |    3 ++-
- include/linux/hugetlb.h |    3 +++
- mm/hugetlb.c            |    2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvme/target/tcp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -661,8 +661,9 @@ static long hugetlbfs_fallocate(struct f
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index e31823f19a0fa..9242224156f5b 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -292,7 +292,7 @@ static void nvmet_tcp_map_pdu_iovec(struct nvmet_tcp_cmd *cmd)
+ 	length = cmd->pdu_len;
+ 	cmd->nr_mapped = DIV_ROUND_UP(length, PAGE_SIZE);
+ 	offset = cmd->rbytes_done;
+-	cmd->sg_idx = DIV_ROUND_UP(offset, PAGE_SIZE);
++	cmd->sg_idx = offset / PAGE_SIZE;
+ 	sg_offset = offset % PAGE_SIZE;
+ 	sg = &cmd->req.sg[cmd->sg_idx];
  
- 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+@@ -305,6 +305,7 @@ static void nvmet_tcp_map_pdu_iovec(struct nvmet_tcp_cmd *cmd)
+ 		length -= iov_len;
+ 		sg = sg_next(sg);
+ 		iov++;
++		sg_offset = 0;
+ 	}
  
-+		set_page_huge_active(page);
- 		/*
--		 * page_put due to reference from alloc_huge_page()
-+		 * put_page() due to reference from alloc_huge_page()
- 		 * unlock_page because locked by add_to_page_cache()
- 		 */
- 		put_page(page);
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -506,6 +506,9 @@ static inline void hugetlb_count_sub(lon
- {
- 	atomic_long_sub(l, &mm->hugetlb_usage);
- }
-+
-+void set_page_huge_active(struct page *page);
-+
- #else	/* CONFIG_HUGETLB_PAGE */
- struct hstate {};
- #define alloc_huge_page(v, a, r) NULL
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1189,7 +1189,7 @@ bool page_huge_active(struct page *page)
- }
- 
- /* never called for tail page */
--static void set_page_huge_active(struct page *page)
-+void set_page_huge_active(struct page *page)
- {
- 	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
- 	SetPagePrivate(&page[1]);
+ 	iov_iter_kvec(&cmd->recv_msg.msg_iter, READ, cmd->iov,
+-- 
+2.27.0
+
 
 
