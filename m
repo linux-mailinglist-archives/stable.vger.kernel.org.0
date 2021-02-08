@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1D7312E8A
-	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:09:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6854B312E8C
+	for <lists+stable@lfdr.de>; Mon,  8 Feb 2021 11:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhBHKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 05:06:10 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50757 "EHLO
+        id S231942AbhBHKGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 05:06:23 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51367 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232123AbhBHKB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:01:26 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 30BE0A5D;
-        Mon,  8 Feb 2021 05:00:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 08 Feb 2021 05:00:32 -0500
+        by vger.kernel.org with ESMTP id S232094AbhBHKBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 05:01:39 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id F0736A68;
+        Mon,  8 Feb 2021 05:00:30 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Mon, 08 Feb 2021 05:00:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tH0csB
-        JjLMM4tbvNvtv4wQZ/aZfcPb1z7ReJkdgGEMY=; b=iq8vUtGMbradp9ZgeN9FZj
-        ftMY8FxjI/6NE3g3Cxns1qFAmoacshofNPr0v2whomMbYPnNHQjtCWY3/jo4n7Hu
-        k8ROVtbGwtppqEzL7t+eS6VSByZg2aY0mHY3x7FHO9iGlwn9x9PZmahXxnI07QNY
-        TT2M0v62Ojf7YkeimOGbMdUw71TAN1dEdTmIsOzxJq3RvOLSsQulVhwUZ125YyBi
-        y+Rc+3Mx7Po5mRo3tDD1fcPbAHbkPHzBE69seimEntSTKLrSlZvyEh2pkBCRRNtE
-        z309qlDS5MoYPvdYQOaFw0CegnHHi4Mq0ZI63CmriupPBz4AnPwMmLroidb6CDfw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ppixbI
+        5dGw1RiK++g9l11zTnfeJvxiaGBZQfSaNqL4k=; b=JqSaylNEwSoPNXSM3D5Mg1
+        SncaCQlxhJw1anUNsh6mXcF6s9ackMUa7Ge2DPv4ggRn/C/Ndzg/LfyJNmn0dVlm
+        uZgGR1IDonGvJ9P6IoK3Eu7kFusSqc7fKlypYJ+8lDmPs8RxjVjPUGstrG0li2r+
+        rN7zkhXCfz7/xohBSnbrVR559o5FI2C6UbIk2JI4YvZHPFgbgP7gFuBtaV3CYYGy
+        nOpMNtOkjBQ4zgqxjBSsYJ2YsqCgOK8qzaAY7UPlSudakaZyhSv1bRjHaW2wZCrY
+        5fVpafNgqkCyeowHJ1AAC0MBjb9k/vqaYSx6AG9QwPXNAIZ2+2CFJwCSd2PPpA3g
         ==
-X-ME-Sender: <xms:vwshYAPE3EAIljTxzFnDStoQTyaLifpax2ZXcU1rRYc7GquIHWbr9A>
-    <xme:vwshYG9D1IqSNrmhEVem4_AJu9Rul4rTMxfLeM_sMB8MVfaMZhFLoAwl8Z9VH3eAC
-    6IeiT8Bmb5VQg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddtlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:vgshYM47dM0WpoqAfo2TeLjEsJ12E4EiUCOdfJDRZd9Cezx-BENKhQ>
+    <xme:vgshYN0LlhaPJoYwz1iDLLTS5py2fuNJXwPxzYkOCrvFumeZTatWshRSJIDZQqj9w
+    r021Olnyn_VNw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddutdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrheefgddtlecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:vwshYHTIqjS1q1mmw2H-rrnFLVW4zH8BseXu90dN8qLCVaGEMOHPTw>
-    <xmx:vwshYIv9ooQE_8T8iBSFhJMre9BarHama6d_hwFBPDI5chj73YwDbg>
-    <xmx:vwshYIeamGuEO5UepxbGM_2BaogJ116LU65QjEMPWBswNEC0iI3tHA>
-    <xmx:vwshYEEP6mllnjgTQ-bvKgGZop_YIxcfbq966nyz_llePFKXc2BxMkdo5Z8>
+X-ME-Proxy: <xmx:vgshYIWQbKMtF7-q7_EafL0eJlJZ4i7shx9ns4AUNkiJpeS0hUSpeA>
+    <xmx:vgshYI7zV3GF1pV5N8A890g7cWoC85mUUSoLnzUwWUu3YfJnSLp-sQ>
+    <xmx:vgshYPJQKwEMQXDshOo6-1RhcvbBQu8Y7PoE4JNUWcMnyBKWtMhMcA>
+    <xmx:vgshYAnJySlqWFgEYvisLbZmGnTu6P6Y5nJgrRIlOzXk7ekDWmxvJktoTBw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 62D0B108005B;
-        Mon,  8 Feb 2021 05:00:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: renesas_usbhs: Clear pipe running flag in" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BC1CF24005E;
+        Mon,  8 Feb 2021 05:00:29 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: renesas_usbhs: Clear pipe running flag in" failed to apply to 4.14-stable tree
 To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, tho.vu.wh@renesas.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 08 Feb 2021 11:00:19 +0100
-Message-ID: <1612778419175243@kroah.com>
+Message-ID: <161277841922126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
