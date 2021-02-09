@@ -2,150 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ADB6314FCB
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 14:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C332E315067
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 14:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbhBINIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 08:08:02 -0500
-Received: from sonic311-23.consmr.mail.gq1.yahoo.com ([98.137.65.204]:39891
-        "EHLO sonic311-23.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231175AbhBINH4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 08:07:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1612876010; bh=T/SFAyzoQajj7pmg3F6mRFmbgFjMMOgJpnlk5kQAz24=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=CUundgL6ZLPtqEoL9i9w4Dc3MEP9HFeI8gOfIrZ6T2Rb8YgMDf/Cw9hQvxutuaNTTpLIeYXxEZenI2dKrafvuoBVbcp8v4W/gUqONLMndK4CxyhWf9TsVdXDLx9x5d+vKNBXdbuzS3EkIp43WSqL+go4apfNADQXg//5ZV+C6LXDI1wyt5oHGqUfyfR3HScndj8W4uaLhTrDqHq6cL5q/TRToc9DmBzBAZf9Yk1nMVdhP7HE8eBsfCCF/AQu9ww7SDayxqAny7iEPBqCIB/EIfx6g7OwIijZscPx/qcZxljGMLI3xhYhbbmxdU3TDDg0CeHMt4QoVTg/SZ0q0zm2FQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1612876010; bh=u69q4lXNMHn7rpe4nC/X3pqpD1UHyZXHCG976ocyHJ0=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=Ax+6AtmjdYhtnPet2zQ0p4PdmT8K3HDFvkTQh8ZRFBHs4ke+45vQhtExk1OKzM4RBlIMGtK7oZ/dsGniFvNkOXA5AV3EleeODFOucUJ+Z85+DkghKrkn1U2S/YgRThAFI58VfxQSeeL6GMEj4zyDKVlhQrrkgjZdyidaUgpJNwHGxz/amUnqA6r+e+pv3/bCcMDNPQs+FL8t9j1DSugjI9jBJ7GVGcH/vJxCMd66zjgvwRAGtqRF4+NuidXn5F82ogZz1mEaREiaJZ3wxqs2HH5o5Coi/YqtjRwOsuf8NcOBag0LzZkMaIkaA5RSXC5nnBZO5K8mcT+JLSioOHFa2A==
-X-YMail-OSG: ZAROcn4VM1nb.IwTrqwoFcL2MIUhCmvdVLA837m8WqghSwRxJKZ4TClJw7l1JyB
- 65YnixG5PVber2HhDtWpk1Qz7grfH02SKMNPoj5jkAfcm7muW47uZPiKT.vjODAn1PABu2sH_7k0
- bY1FiaY7cf0NZk1E9pZoQy48GigJbfOiENvaRcqYZZaL6T9iaWQZQaFYcWrCc5YdWTDn83rYPppt
- sCXzzhq5q71Xia5BORKdvJslqSQXWk8c6JwUJi0N0GN4AsvOVHX_ZhaVat6c1aZ0lHkmY2vnQUg0
- zsk3.exsYVirWtZ.BQDQEdK7HeJS_gN8c2UuWU1cdHYQ_vj3xRsl0dlHXt4EeoVulJuTCa0MAwRI
- uqeCDPu6nRrImNyZ06pGaJ1qSDOZri59J4p5OwNnvx.Mkf.9lUTWUBydhke6fibyeBsrNwqHDlN2
- Dw8kMBqKR0aU.KbnrvEzEiw87Dz6K6sSOcdqD1IQ4sspBwLnt.ko8_3Y2N56jeuXHHfWlA0wnbOA
- wrycaDumxRQmYASPn2FhWOuPtMsGvEG1Wzw4VliNPEehyHk7FPVWFw4axQIKNOS0pHlulOW0leAY
- O3s_dTj6ULI9xSL3_FB1h7DAxNuvkelG3.Wgvr_V_z9PjYcbraL7F0zkNy9JhW6knbBTfONNXfPd
- DcPF525hryycfgj7bMX39i5kJoclnEGAYV7nkJMqhmnXHSLe8vF6gNcanH59EO6TfoIAT741QKeN
- MzYmyKftNMy1WZdbodbVflZU6D8hwmLHJDrwrnJmLq9ICdyiL.s7aqIxjZpMgCiXljosXGRaZiC5
- JkfFjgi6DR6cvHFty9VRzByEmx1_9bAaCVGM0MxL5whKHMokzdHrKTQBbu7nHOC4kvFAIMvDMj9F
- xmD59s5.B7MxtlSzRbzzDig8EoZkqhMJ_pUbqk8muTcINDVf0479fPVCmv1dWR7AIEJwachr9oe8
- HgdnYiSzKhCwOVMsYnosIP5mru1tUhg0UGV74J2keloZJ8skd7HS20DKjsXOLZ5ikQJixc3Lxbts
- lf_mkkia.Z3ID835FpEKI6v.x3cg07t7frDKA2ZUjF206WxdHeShWgrDE5YENHJTCl8YCuOHwZCX
- 7hyProw9R7fgXKf1f9op00EfINYD_g_h0pR6qMWIJocAYM.s9SMQUL.odvh7fQB.bmKDQlk3ONCQ
- F8amTODwRniHTzd9daOY21FbGz42RH1.988hchlFNkEeFc2gPLiAlWK_IyrtCPZgw.bqX2MIBwsQ
- 6a.OvQCl_BMqaC5caAkzGXYaQ2Yf_AmEvMr0F4ojSm_vzM1LN5UPNDxCkqwAbyFNUJyFYhZigwed
- 4QdONAOz6bTJesmeNcNE_N3XftzZlf1Ryi.POI2avJGTXAZfAAtp_uHm1ni91ZdySsKoke6xkXqj
- XNusCxecYNrTcxZliiC6C81xPSV2LLeGnBsIjvNiL.DOeVXGaLLlbnqaIUCPYS8XpsLVlKUOcJ9C
- wFKZqHDb.GjGTUIFZ15aadE.2unuSMoWSFkiwDIGQJz4YQlP2oPx7JMYxygNdycWEIdHWgJgLICY
- Q.aYnwBf3Yr9O8PPP3rEFi373hFduWO7A2Rst3aDxMK.PA_ZWJnJvCcbOyfU9alnB3kvjyWgpgYb
- EiQ6V3vHfoBWUVkWvEyaj5AMh9tadkjUC2MIFadbBRcnM.BTbUTOUe37p23kbJf1o0f5JWRCqnCF
- kVXCbhBykTlgIUfTA1rdV4AzSLwPJpyKmhb8uOuo2GTz.0sRSSXhKYnEX1AFl52ttCix4HGBpNLJ
- mJZ06oIZtUDudYDoYmpPf4wknLLFr4qnPA8MnXRk3NFrSXVAKvdrZIEX5FTalMYflyx02lt26phS
- CE1sx2uxl0ZsVcYL9wkDCEAm4GIVGnkZ1vNuOuXl2Jae4ukhXmgnQ.hKEVgOayKptPNC0VfNPEiv
- kJxSWU1IEcIA4JzjqzPdPnihSliqy.NZg8ju8Olv8VAcg_dbaCFfqUmaYLrbWIkbMtzfLuNEjP3i
- lcPFi.GXcjIsfwEeTeMK_x4layLuDizg3hxrbd1t9ja408gHON_K2rT7s.4qrKWQOXmCiVKv66z7
- nC2qWlaVpHY3b7U2B5EVwXpp0OnyTPRoMJCRG8eHg_qM875bGeL4NPRe7QdrDTh80dJ_ChdMmFnC
- br8cS.XmH91Q2VANC6RRSTSr9QAhEcj2wPowKCkEafJZE4wW7NSFsaDZ7l872BmpMrC0Gbq7zE3m
- G.CC7lhVXprHEVaSJks0_ItAIp5AQ4oGfBt7nsXlpRiqsneyNkKwA9jM8HCIxPxGusq2yrtE_WkV
- qwrfsXfPKZkJ2P7uX_luRD7Uhhaw942MhmYyoH5_kSPAZ60L7FA9eJgQsaCLniiVa5UmWSqeE.JR
- mQZNDPWNevqLbMizX_rPFvhkJ33alJ8BT6Q6yUPgWjUYy9BFypzisjctX3W.NI8i.xvZWvGBiKyg
- ZRjlZV4aT0OfTE2BIGIC3gKP9cyDHU5hJK.At6wcMreORX8_EgSH17MvuUaYs8PrrFibyiV8yMGG
- EB6pXwBgMoDH_yfAT6cfc7_Bmo3f.JpR.W5pA_J6Jd8_vZCqdwxwIGURRcf.cV6ON7YlSDSj9Msz
- 16EqYhizp.ZQpROm5qPbFjppyVrzQCs7LnRhXSPsGoBmij9_MMBUTonVWo_h56DAXI1BF_p0bImY
- 1AUm4esbj_00MCr.sH_2CyUsW1Z8AyZa44LD4fjbxmdn1mUZqmeN6sa9L5nOmcsY8
-X-Sonic-MF: <hsiangkao@aol.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Tue, 9 Feb 2021 13:06:50 +0000
-Received: by smtp408.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 5ddfd49f5fe95523731af90341f94f5d;
-          Tue, 09 Feb 2021 13:06:45 +0000 (UTC)
-From:   Gao Xiang <hsiangkao@aol.com>
-To:     linux-erofs@lists.ozlabs.org
-Cc:     Chao Yu <yuchao0@huawei.com>, LKML <linux-kernel@vger.kernel.org>,
-        Gao Xiang <hsiangkao@redhat.com>, stable@vger.kernel.org,
-        Huang Jianan <huangjianan@oppo.com>
-Subject: [PATCH] erofs: initialized fields can only be observed after bit is set
-Date:   Tue,  9 Feb 2021 21:06:18 +0800
-Message-Id: <20210209130618.15838-1-hsiangkao@aol.com>
-X-Mailer: git-send-email 2.24.0
+        id S231233AbhBINiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 08:38:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230289AbhBINhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 08:37:36 -0500
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD08C06178A
+        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 05:36:56 -0800 (PST)
+Received: by mail-qk1-x72f.google.com with SMTP id s77so17885373qke.4
+        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 05:36:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=rQDN9SsYyOm1+6OzrJKfjjujxeS9Kf+poa36QyspUHo=;
+        b=S69bRY1mHQ3ZCVAh+fPnTuBsl7+eZNIht8JRwW20nRzCxS36nimK/5rd3kMxq+2pHb
+         HYLgTwbxmGuFoEWrr+ZAmtFQq2a1xkgs1UJHIqGMntO5E7iIiLAyLHN2n93bZnF6Ty+m
+         /MxYtzcA3z5JPJ5KYQAq8hNtH4LFEu4cx+E1K3uTmRwMhdIiExWgloutL2q4659LRmo3
+         9eIMozKPjtU3aQe3UcZ3QxGdbwJ0G60qISvLyNkM/NXZEgYisRGyhlOyDOUpCWy2o7Fl
+         nN7JY9LFC7D+kXbUCcEC7j5+HK2qxI2CKEM7D4b69O+whsMYQQliwa3D3yRZcGOUmx0T
+         4U2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rQDN9SsYyOm1+6OzrJKfjjujxeS9Kf+poa36QyspUHo=;
+        b=b/ITydGZFBLQaXirUuEoA7ME8bZQABIJkREWanI9Od/VkOTvv077Ikx034cXMwm9hF
+         xPbRBYEuKnimvmLyQOZlFcaYu+VhYlKXeQfi6h+pdcBymlIpNnl291qP83zKK4rurLGX
+         sw7bjjRq56eUg4xOyR3y5FIgUXE56nvECwyyzY/g3+OtfdhXVKS/HTdrmkXx1QYLisml
+         otJ4CETmkRpiHrBeTQNPmw4FhOR4ZoPXPOnLiVQAi1qGPZYUtg30xAwY0dKzrtCnriTZ
+         pWU3swF6PkylhSQRQ10+0t+5R1OJVZFBAuM1nR+YMiWuf6+rpXO4zTbieNNaqIyEUuuJ
+         dlyg==
+X-Gm-Message-State: AOAM5310pZ4rjgflvULv9dHyQQOmalFa+M1BbUBQzvd4kogRmdXn6SK/
+        WvSOouxMWUiOdeyvPFU6mHu28w==
+X-Google-Smtp-Source: ABdhPJwQw6W1kHlfnJVOsEKJxg8Vk8eql2NS8SYRCjTHZ68Dr1qE31sHp7DvgGGwh+sr2aoUfACiUg==
+X-Received: by 2002:a37:aec5:: with SMTP id x188mr21372955qke.144.1612877815500;
+        Tue, 09 Feb 2021 05:36:55 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
+        by smtp.gmail.com with ESMTPSA id f8sm16383731qth.6.2021.02.09.05.36.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Feb 2021 05:36:54 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1l9TCH-005RIO-Tr; Tue, 09 Feb 2021 09:36:53 -0400
+Date:   Tue, 9 Feb 2021 09:36:53 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Lino Sanfilippo <l.sanfilippo@kunbus.com>
+Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
+        stefanb@linux.vnet.ibm.com, stable@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] tpm: in tpm2_del_space check if ops pointer is
+ still valid
+Message-ID: <20210209133653.GC4718@ziepe.ca>
+References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1612482643-11796-3-git-send-email-LinoSanfilippo@gmx.de>
+ <7308e5e9f51501bd92cced8f28ff6130c976b3ed.camel@HansenPartnership.com>
+ <YByrCnswkIlz1w1t@kernel.org>
+ <ee4adfbb99273e1bdceca210bc1fa5f16a50c415.camel@HansenPartnership.com>
+ <20210205172528.GP4718@ziepe.ca>
+ <08ce58ab-3513-5d98-16a5-b197276f6bce@kunbus.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-References: <20210209130618.15838-1-hsiangkao.ref@aol.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08ce58ab-3513-5d98-16a5-b197276f6bce@kunbus.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+On Tue, Feb 09, 2021 at 12:52:17PM +0100, Lino Sanfilippo wrote:
+> > @@ -640,8 +643,10 @@ void tpm_chip_unregister(struct tpm_chip *chip)
+> >  	if (IS_ENABLED(CONFIG_HW_RANDOM_TPM))
+> >  		hwrng_unregister(&chip->hwrng);
+> >  	tpm_bios_log_teardown(chip);
+> > -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
+> > +	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+> >  		cdev_device_del(&chip->cdevs, &chip->devs);
+> > +		put_device(&chip->devs);
+> > +	}
+> >  	tpm_del_char_device(chip);
+> >  }
+> >  EXPORT_SYMBOL_GPL(tpm_chip_unregister);
+> > 
+> 
+> I tested the solution you scetched and it fixes the issue for me. Will you send a (real) patch for this?
 
-Currently, although set_bit() & test_bit() pairs are used as a fast-
-path for initialized configurations. However, these atomic ops are
-actually relaxed forms. Instead, load-acquire & store-release form is
-needed to make sure uninitialized fields won't be observed in advance
-here (yet no such corresponding bitops so use full barriers instead.)
+No, feel free to bundle this up with any fixes needed and send it with
+a Signed-off-by from both of us
 
-Fixes: 62dc45979f3f ("staging: erofs: fix race of initializing xattrs of a inode at the same time")
-Fixes: 152a333a5895 ("staging: erofs: add compacted compression indexes support")
-Cc: <stable@vger.kernel.org> # 5.3+
-Reported-by: Huang Jianan <huangjianan@oppo.com>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
----
- fs/erofs/xattr.c | 10 +++++++++-
- fs/erofs/zmap.c  | 10 +++++++++-
- 2 files changed, 18 insertions(+), 2 deletions(-)
+I did it pretty fast so it will need a careful read that there isn't a
+typo
 
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index 5bde77d70852..47314a26767a 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -48,8 +48,14 @@ static int init_inode_xattrs(struct inode *inode)
- 	int ret = 0;
- 
- 	/* the most case is that xattrs of this inode are initialized. */
--	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags))
-+	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags)) {
-+		/*
-+		 * paired with smp_mb() at the end of the function to ensure
-+		 * fields will only be observed after the bit is set.
-+		 */
-+		smp_mb();
- 		return 0;
-+	}
- 
- 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_XATTR_BIT, TASK_KILLABLE))
- 		return -ERESTARTSYS;
-@@ -137,6 +143,8 @@ static int init_inode_xattrs(struct inode *inode)
- 	}
- 	xattr_iter_end(&it, atomic_map);
- 
-+	/* paired with smp_mb() at the beginning of the function. */
-+	smp_mb();
- 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
- 
- out_unlock:
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index ae325541884e..14d2de35110c 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -36,8 +36,14 @@ static int z_erofs_fill_inode_lazy(struct inode *inode)
- 	void *kaddr;
- 	struct z_erofs_map_header *h;
- 
--	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags))
-+	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags)) {
-+		/*
-+		 * paired with smp_mb() at the end of the function to ensure
-+		 * fields will only be observed after the bit is set.
-+		 */
-+		smp_mb();
- 		return 0;
-+	}
- 
- 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_Z_BIT, TASK_KILLABLE))
- 		return -ERESTARTSYS;
-@@ -83,6 +89,8 @@ static int z_erofs_fill_inode_lazy(struct inode *inode)
- 
- 	vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits +
- 					((h->h_clusterbits >> 5) & 7);
-+	/* paired with smp_mb() at the beginning of the function */
-+	smp_mb();
- 	set_bit(EROFS_I_Z_INITED_BIT, &vi->flags);
- unmap_done:
- 	kunmap_atomic(kaddr);
--- 
-2.24.0
-
+Thanks,
+Jason
