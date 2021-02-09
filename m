@@ -2,136 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCB6314928
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 07:57:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7841D314934
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 07:59:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229753AbhBIG4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 01:56:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbhBIG4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 01:56:42 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AD1C061786
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 22:56:02 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id y10so9212228plk.7
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 22:56:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4XL4D8wFteXOSsD2TECXOEsyw8u6QN5owWiVHggaTCk=;
-        b=uiDVY3OP7ZX4eOd/putskG6YhYu7HvUIlVBE+yKMNO+HD+MKCyhb2nnKxAVvSHAx+c
-         vGp49WkW0orJQChBjLG94fgPeOXPSWpid5519fya0JMXe2GaaYZrOqJiLTKR/PQ7qQQ7
-         h64XxMBBu6FhKorUsmZSNUJ57SKjwOJRubMF4UJfzyGqzSXKjr7fuRRY1kWnbyywCQM+
-         d+9Kh31dZMDdzx3RJW6uh4g1E+v0u7VsXGuTYhHZUKyq2sIqIeO6ANWfhf/+6FYeJCPQ
-         Wy/DAUtfvh5QvVUI8ENChQIkFPQiti+W77ZycC7okG/Clba7cUznG5GOeKDd+mv87Qwx
-         VHXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4XL4D8wFteXOSsD2TECXOEsyw8u6QN5owWiVHggaTCk=;
-        b=DX6RtfOqGB9jo5Cy2jGSHfOi/vG/Vj1oT4zTnZvG9RU8xi6tDjMrtRK/Q62Oi9vGVN
-         etLtI98+M9f5j40trHjGd6y/baTRd0XcOywt/XDhoRxATEYCOIWKfkKdW0zQgNmV45fU
-         JXoc0c+GumtASbuUow8LmoLg+75DvrQiSI8XUfwRi0kClDuDjhcm6xYPAKmRA43WzDuf
-         BP7kbgzF+talZUAUFyMTAaGfXT3WdOluVLYbhqNkswrdTs4KPKnU1R7QeMPwvaxpx0Ie
-         FnW3VcWzB+okXQAa15LHZ5v+HqKWW3YeLRBPAQGAECk81ASMW5imXBujM1E9oj83A93E
-         D3CA==
-X-Gm-Message-State: AOAM530co/fQ2HVI7PELpSfvjzEIkGOcwewX1Dw/IC34wzPVaM1zD3XG
-        G47vvdd4M7QN2E3FAB7A3LFkmwULEhlDlg==
-X-Google-Smtp-Source: ABdhPJxx9lg3vhx6aqtH+ydA7MThgowtZotF8PbC9KsshhU6hhb2kx8B80I0zzrHbrV/PUOJh3tFSQ==
-X-Received: by 2002:a17:90a:e646:: with SMTP id ep6mr2663219pjb.218.1612853761212;
-        Mon, 08 Feb 2021 22:56:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q2sm18960514pfu.215.2021.02.08.22.56.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 22:56:00 -0800 (PST)
-Message-ID: <60223200.1c69fb81.6fe90.b865@mx.google.com>
-Date:   Mon, 08 Feb 2021 22:56:00 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229895AbhBIG7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 01:59:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229464AbhBIG7W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 01:59:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA80D64E9A;
+        Tue,  9 Feb 2021 06:58:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612853919;
+        bh=dpxVE0srNtqxA2P2gotaZ3bV8h2QUfJrlvUUTfe0l7o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TXzbsFhDpAQgj9QwPWKvmB1zj6vFiKg4V4CTlVCZzGXPcxBW49yvO/txzd5T2Ii+w
+         rtL1/wYnZETAmKBFTPqDlkEsOY+vxAe9mVCFLWZ97V8boxpU4loubPLrclacpCX3FY
+         zrcJswcPX2TBjIjas307svqNOUapi81jMEm1i7hk=
+Date:   Tue, 9 Feb 2021 07:58:35 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com,
+        iommu@lists.linux-foundation.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        obayashi.yoshimasa@socionext.com
+Subject: Re: DMA direct mapping fix for 5.4 and earlier stable branches
+Message-ID: <YCIym62vHfbG+dWf@kroah.com>
+References: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.174-38-g601019cf8e3a
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 84 runs,
- 1 regressions (v4.19.174-38-g601019cf8e3a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 84 runs, 1 regressions (v4.19.174-38-g601019=
-cf8e3a)
+On Tue, Feb 09, 2021 at 11:39:25AM +0530, Sumit Garg wrote:
+> Hi Christoph, Greg,
+> 
+> Currently we are observing an incorrect address translation
+> corresponding to DMA direct mapping methods on 5.4 stable kernel while
+> sharing dmabuf from one device to another where both devices have
+> their own coherent DMA memory pools.
 
-Regressions Summary
--------------------
+What devices have this problem?  And why can't then just use 5.10 to
+solve this issue as that problem has always been present for them,
+right?
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+> I am able to root cause this issue which is caused by incorrect virt
+> to phys translation for addresses belonging to vmalloc space using
+> virt_to_page(). But while looking at the mainline kernel, this patch
+> [1] changes address translation from virt->to->phys to dma->to->phys
+> which fixes the issue observed on 5.4 stable kernel as well (minimal
+> fix [2]).
+> 
+> So I would like to seek your suggestion for backport to stable kernels
+> (5.4 or earlier) as to whether we should backport the complete
+> mainline commit [1] or we should just apply the minimal fix [2]?
 
+Whenever you try to create a "minimal" fix, 90% of the time it is wrong
+and does not work and I end up having to deal with the mess.  What
+prevents you from doing the real thing here?  Are the patches to big?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.174-38-g601019cf8e3a/plan/baseline/
+And again, why not just use 5.10 for this hardware?  What hardware is
+it?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.174-38-g601019cf8e3a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      601019cf8e3ade680cd4110809ff7b19f3b98cb1 =
+thanks,
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6021ff6465faede5cc3abe77
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--38-g601019cf8e3a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.174=
--38-g601019cf8e3a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6021ff6465faede=
-5cc3abe7e
-        failing since 0 day (last pass: v4.19.174-3-g9df30fc2980a, first fa=
-il: v4.19.174-9-g72c4313237ab0)
-        2 lines
-
-    2021-02-09 03:19:59.778000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/107
-    2021-02-09 03:19:59.788000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-02-09 03:19:59.801000+00:00  <8>[   22.881835] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+greg k-h
