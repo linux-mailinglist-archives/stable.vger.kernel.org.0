@@ -2,188 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54568315252
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:05:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A198315250
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232280AbhBIPEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 10:04:20 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14596 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231520AbhBIPES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:04:18 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 119F2GH5137593;
-        Tue, 9 Feb 2021 10:02:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : mime-version : content-type; s=pp1;
- bh=rHI33tG847HjDphUjKhRWnUDT4m38IL9WicV3JpW8dM=;
- b=WW+/i0DgtTaEkgxa8ruQYSwl8XSwbAlTjD4eHcZQ7dPfOg5gDiZ46Vb1l69R4hriYNG8
- BkPIIZua0ay6rMB38v3wSgqoe50nC+8YA7uMS9BJkejhUN5Jak78A6FYohFJZuoGGkiP
- sWyDmZaw8zrGuWYNrEGPef1mSlqKyUIkI92bOSIE1RUG1ZAwK5CWX/zDSSTvz5+M4auN
- bqeHQdDJwFiVW0jREB9li9oT1nR8nd74H4cy83Mb2Z7wIAu59vfifr3lmDyVsbbmefnB
- 3bfEaOON+nLk2vYPZXoSJQu3HBW6Y5R3fZz1s4G20qNX/N0GZp78t2RyJepdLj8OKmBy TQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36kuktk2u3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 10:02:46 -0500
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 119F2Elj137448;
-        Tue, 9 Feb 2021 10:02:46 -0500
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36kuktk2ta-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 10:02:45 -0500
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 119EvNW2000919;
-        Tue, 9 Feb 2021 15:02:45 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma05wdc.us.ibm.com with ESMTP id 36hjr9781d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 15:02:45 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 119F2igb26083812
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Feb 2021 15:02:45 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1343AC05B;
-        Tue,  9 Feb 2021 15:02:44 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC29CAC067;
-        Tue,  9 Feb 2021 15:02:43 +0000 (GMT)
-Received: from work-tp (unknown [9.65.218.248])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTPS;
-        Tue,  9 Feb 2021 15:02:43 +0000 (GMT)
-Date:   Tue, 9 Feb 2021 12:02:40 -0300
-From:   Raoni Fassina Firmino <raoni@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH] powerpc/64/signal: Fix regression in
- __kernel_sigtramp_rt64() semantics
-Message-ID: <20210209150240.epboynhzuaia4qyr@work-tp>
+        id S231881AbhBIPDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 10:03:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230357AbhBIPDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:03:52 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA89C061788
+        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 07:03:11 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id s26so18357805edt.10
+        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 07:03:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Hf40SMql2cpJ00lLxJ2Q57iPteMc3eOneN8yQh7cveg=;
+        b=FCASHMWZB3dngwfI3RrNgL4gf0qYbXoVxiFqBJ6CTjCPYn9UNV5haUOaKYBYNgQYV0
+         R2nmuA7PAJo+XYGBCD1q0Jp0enmLwZlym7uGGGrPTdGtXXyagSwCJT3G2FLMG4QRGUb8
+         6RRXYOW5Mov75AisKoIiSrlSrVnA5zsKKImTpkHh7WwrbpS1R/HmW+sgrC9EF8zeNzQo
+         lZzu2SgDpAjmOIMQ4n5luq2SVebbmjxTnRfyya5kDVzmvKKcHk7AW0Okq1VLIqXVXtSo
+         AexMB9TVMjap5mYRCNctDxJnKpbpvToZRq7ud7aLSYci8vRoPu6vnav1j2P48OykgSHh
+         i4WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Hf40SMql2cpJ00lLxJ2Q57iPteMc3eOneN8yQh7cveg=;
+        b=qt0MBHGpM0GjSshksFYa3d6yaYb8VmxhAXXvjfWJrAStbXKZxkHzmnfrv/k3qXeI0N
+         casJuWEqzbqMHXXeUrzguIL4DVw6pZhdQ1Q35pBawRF3Wv5j+6B73kqSrE3Yi3xdAIX6
+         /R4r6FjdlmDa9+eihQlsbPmvN1H1jPnpIzqH2qBYJqbRUysONnoqMfLuobj5x3fR4GAV
+         /ITIWiamcH1Biu7XBwCrI3Aymms7dgA85MXOx1ikMttZmi+5V15eUB9Zr6SJ/RMEht4X
+         EqFrRcFJdP8TmXzaU45uiDiB9uHIumpWJZZxIkXhlEJCad6vrO/WakkIJRv1eW6kur2b
+         yrcw==
+X-Gm-Message-State: AOAM533smJeuK7r/s34VYl8dsjSyIVCltV5KUeXFIqt1skZJSHvx89tI
+        uMGiORiVAHbWbTmv6x3YnOQALZ1kbBB/Dals3gL/WECAZucqaNGZ
+X-Google-Smtp-Source: ABdhPJx9YhjjkL1LqR/0j459tp1u9dH9jSbjKMS70Ct70fTc13eyh4ZeGDaWBByGYI/VbxNWF0pxwu/XAACmhTC3q80=
+X-Received: by 2002:aa7:d3c7:: with SMTP id o7mr23339582edr.23.1612882990358;
+ Tue, 09 Feb 2021 07:03:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-09_03:2021-02-09,2021-02-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- mlxscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 mlxlogscore=999 spamscore=0 bulkscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102090075
+References: <20210208145806.141056364@linuxfoundation.org>
+In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 9 Feb 2021 20:32:57 +0530
+Message-ID: <CA+G9fYsvC21HbauGfmSkOksebNzUePBBFS=a=4YqnKSSaGy_4A@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/38] 4.19.175-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Repeated the same tests as the upstream code on top of v5.10.14 and
-v5.9.16, tested on powerpc64 and powerpc64le, with a glibc build and
-running the affected glibc's testcase[2], inspected that glibc's
-backtrace() now gives the correct result and gdb backtrace also keeps
-working as before.
+On Mon, 8 Feb 2021 at 20:40, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.175 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.175-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I believe this should be backported to releases 5.9 and 5.10 as
-userspace is affected in this releases. I hope I had tagged this
-correctly in the patch.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-The commit message bellow is cherry-picked from the upstream commit, I
-am not sure what should I do with the footer, I left it as-is and just
-added a [rff: Backported] at the end.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
----- 8< ----
+Summary
+------------------------------------------------------------------------
 
-commit 24321ac668e452a4942598533d267805f291fdc9 upstream.
+kernel: 4.19.175-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 69312fa724104d8af5a6124d4f61935bac6a8562
+git describe: v4.19.174-39-g69312fa72410
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.174-39-g69312fa72410
 
-This backport differ from the upstream patch in the way to set the
-sigtramp offsets, after 5.10 VDSO symbols offsets are retrieved at
-buildtime and before, in this patch it uses the runtime generated
-offsets logic.
+No regressions (compared to build v4.19.174)
 
-Commit 0138ba5783ae ("powerpc/64/signal: Balance return predictor
-stack in signal trampoline") changed __kernel_sigtramp_rt64() VDSO and
-trampoline code, and introduced a regression in the way glibc's
-backtrace()[1] detects the signal-handler stack frame. Apart from the
-practical implications, __kernel_sigtramp_rt64() was a VDSO function
-with the semantics that it is a function you can call from userspace
-to end a signal handling. Now this semantics are no longer valid.
+No fixes (compared to build v4.19.174)
 
-I believe the aforementioned change affects all releases since 5.9.
+Ran 49968 total tests in the following environments and test suites.
 
-This patch tries to fix both the semantics and practical aspect of
-__kernel_sigtramp_rt64() returning it to the previous code, whilst
-keeping the intended behaviour of 0138ba5783ae by adding a new symbol
-to serve as the jump target from the kernel to the trampoline. Now the
-trampoline has two parts, a new entry point and the old return point.
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
 
-[1] https://lists.ozlabs.org/pipermail/linuxppc-dev/2021-January/223194.html
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* fwts
+* kselftest-bpf
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-cve-tests
+* ltp-open-posix-tests
+* rcutorture
+* ssuite
+* network-basic-tests
+* kselftest-android
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* kselftest-
+* kselftest-kexec
+* kselftest-vm
+* kselftest-x86
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
 
-Fixes: 0138ba5783ae ("powerpc/64/signal: Balance return predictor stack in signal trampoline")
-Cc: stable@vger.kernel.org # v5.9+
-Signed-off-by: Raoni Fassina Firmino <raoni@linux.ibm.com>
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-[mpe: Minor tweaks to change log formatting, add stable tag]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210201200505.iz46ubcizipnkcxe@work-tp
-[rff: Backported]
----
- arch/powerpc/kernel/vdso.c              |  2 +-
- arch/powerpc/kernel/vdso64/sigtramp.S   | 11 ++++++++++-
- arch/powerpc/kernel/vdso64/vdso64.lds.S |  1 +
- 3 files changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
-index 8dad44262e75..495ffc9cf5e2 100644
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -475,7 +475,7 @@ static __init void vdso_setup_trampolines(struct lib32_elfinfo *v32,
- 	 */
- 
- #ifdef CONFIG_PPC64
--	vdso64_rt_sigtramp = find_function64(v64, "__kernel_sigtramp_rt64");
-+	vdso64_rt_sigtramp = find_function64(v64, "__kernel_start_sigtramp_rt64");
- #endif
- 	vdso32_sigtramp	   = find_function32(v32, "__kernel_sigtramp32");
- 	vdso32_rt_sigtramp = find_function32(v32, "__kernel_sigtramp_rt32");
-diff --git a/arch/powerpc/kernel/vdso64/sigtramp.S b/arch/powerpc/kernel/vdso64/sigtramp.S
-index bbf68cd01088..2d4067561293 100644
---- a/arch/powerpc/kernel/vdso64/sigtramp.S
-+++ b/arch/powerpc/kernel/vdso64/sigtramp.S
-@@ -15,11 +15,20 @@
- 
- 	.text
- 
-+/*
-+ * __kernel_start_sigtramp_rt64 and __kernel_sigtramp_rt64 together
-+ * are one function split in two parts. The kernel jumps to the former
-+ * and the signal handler indirectly (by blr) returns to the latter.
-+ * __kernel_sigtramp_rt64 needs to point to the return address so
-+ * glibc can correctly identify the trampoline stack frame.
-+ */
- 	.balign 8
- 	.balign IFETCH_ALIGN_BYTES
--V_FUNCTION_BEGIN(__kernel_sigtramp_rt64)
-+V_FUNCTION_BEGIN(__kernel_start_sigtramp_rt64)
- .Lsigrt_start:
- 	bctrl	/* call the handler */
-+V_FUNCTION_END(__kernel_start_sigtramp_rt64)
-+V_FUNCTION_BEGIN(__kernel_sigtramp_rt64)
- 	addi	r1, r1, __SIGNAL_FRAMESIZE
- 	li	r0,__NR_rt_sigreturn
- 	sc
-diff --git a/arch/powerpc/kernel/vdso64/vdso64.lds.S b/arch/powerpc/kernel/vdso64/vdso64.lds.S
-index 256fb9720298..bd120f590b9e 100644
---- a/arch/powerpc/kernel/vdso64/vdso64.lds.S
-+++ b/arch/powerpc/kernel/vdso64/vdso64.lds.S
-@@ -150,6 +150,7 @@ VERSION
- 		__kernel_get_tbfreq;
- 		__kernel_sync_dicache;
- 		__kernel_sync_dicache_p5;
-+		__kernel_start_sigtramp_rt64;
- 		__kernel_sigtramp_rt64;
- 		__kernel_getcpu;
- 		__kernel_time;
-
-base-commit: b0c8835fc649454c33371f4617111cb5d60463e1
--- 
-2.26.2
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
