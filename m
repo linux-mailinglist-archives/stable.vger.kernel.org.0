@@ -2,96 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 733FF314D69
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 11:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B02314E12
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 12:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbhBIKq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 05:46:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231796AbhBIKox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 05:44:53 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E9DC06178C;
-        Tue,  9 Feb 2021 02:44:13 -0800 (PST)
-Date:   Tue, 09 Feb 2021 10:44:04 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1612867445;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Uwpeo3Pc3rJ7rsLPJvMVrXq2Xz/8Zo2qpdp9T3CjP+A=;
-        b=4lnjtjhMBByXj5Un84y0tpQPHXN1AcHBulU+B887OhzllNhTSBdQ0U+Xo2MExeX3RxNotj
-        AuRHxkBwkLuDnxLKVNeq7+zU9sGN931bVCyFuolU5uGceA76wnb00xNOJ2ScFWl0hwuZpT
-        d13viJaq1jNYHW0OA8/Zmqw15fNapzAq6GvwMjtaeulEpRN/CbebYgdEMXxDoxJtsz3nJy
-        2DCaoJ4pHsKVhSrGddvZKbJ9QJQmuj8IsDSI4lNE9C8EedEeR1sK5ir/znpeOWVktNDZUu
-        CGg8eO+/G1MDL+MtWyEcGn9BX9SZmvaDedNFqyh3onUPT80sMCkNXzNEGnyKNg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1612867445;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Uwpeo3Pc3rJ7rsLPJvMVrXq2Xz/8Zo2qpdp9T3CjP+A=;
-        b=7jDFlVdOIJGu9Ybix5yN9yNjJZwPDCZ50q7lPP/dFiI73avwDgMliEw6r1cuvBH4zdyK2f
-        wCJVdMasPDwuSxDg==
-From:   "irqchip-bot for Huacai Chen" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-kernel@vger.kernel.org
-Subject: [irqchip: irq/irqchip-next] irqchip/loongson-pch-msi: Use
- bitmap_zalloc() to allocate bitmap
-Cc:     stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, tglx@linutronix.de
-In-Reply-To: <20210209071051.2078435-1-chenhuacai@loongson.cn>
-References: <20210209071051.2078435-1-chenhuacai@loongson.cn>
+        id S229720AbhBILPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 06:15:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230205AbhBILNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 06:13:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5376B64E40;
+        Tue,  9 Feb 2021 11:12:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612869159;
+        bh=Ph1Qa9pT03RauygTnNT/+m1n9D6jb1k3gdJXUz2rV7g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uKXVZSAychn3RwRQsLg5HhrPcBwt3+mM5YDAWrLPnf6GJN2aWn86Wb4kGcqERq3yR
+         TOeQUJfXN8oOAN0aqX6Emw64W7BtZaEgMfZTLmX8qtLKtJBxOyWwJOVwnjPtVZhkns
+         /FWyYwErYzw+6t/P7Ss22tljt5VbRe/D+0SnIUuI=
+Date:   Tue, 9 Feb 2021 12:12:36 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     richard.gong@linux.intel.com
+Cc:     mdf@kernel.org, trix@redhat.com, linux-kernel@vger.kernel.org,
+        Richard Gong <richard.gong@intel.com>,
+        "# 5 . 9+" <stable@vger.kernel.org>
+Subject: Re: [PATCHv2] firmware: stratix10-svc: reset
+ COMMAND_RECONFIG_FLAG_PARTIAL to 0
+Message-ID: <YCJuJJcT56lEPvDn@kroah.com>
+References: <1611848292-17882-1-git-send-email-richard.gong@linux.intel.com>
 MIME-Version: 1.0
-Message-ID: <161286744434.23325.15913380078296596924.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1611848292-17882-1-git-send-email-richard.gong@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/irqchip-next branch of irqchip:
+On Thu, Jan 28, 2021 at 09:38:12AM -0600, richard.gong@linux.intel.com wrote:
+> From: Richard Gong <richard.gong@intel.com>
+> 
+> Clean up COMMAND_RECONFIG_FLAG_PARTIAL flag by resetting it to 0, which
+> aligns with the firmware settings.
+> 
+> Cc: <stable@vger.kernel.org> # 5.9+
+> Fixes: 36847f9e3e56 ("firmware: correct reconfig flag and timeout values")
 
-Commit-ID:     c1f664d2400e73d5ca0fcd067fa5847d2c789c11
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/c1f664d2400e73d5ca0fcd067fa5847d2c789c11
-Author:        Huacai Chen <chenhuacai@loongson.cn>
-AuthorDate:    Tue, 09 Feb 2021 15:10:51 +08:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Tue, 09 Feb 2021 10:41:40 
+This is not the subject line of this git commit id, and linux-next would
+complain if I let this into my tree.
 
-irqchip/loongson-pch-msi: Use bitmap_zalloc() to allocate bitmap
+Please fix up and resend.
 
-Currently we use bitmap_alloc() to allocate msi bitmap which should be
-initialized with zero. This is obviously wrong but it works because msi
-can fallback to legacy interrupt mode. So use bitmap_zalloc() instead.
+thnaks,
 
-Fixes: 632dcc2c75ef6de3272aa ("irqchip: Add Loongson PCH MSI controller")
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210209071051.2078435-1-chenhuacai@loongson.cn
----
- drivers/irqchip/irq-loongson-pch-msi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/irqchip/irq-loongson-pch-msi.c b/drivers/irqchip/irq-loongson-pch-msi.c
-index 12aeeab..32562b7 100644
---- a/drivers/irqchip/irq-loongson-pch-msi.c
-+++ b/drivers/irqchip/irq-loongson-pch-msi.c
-@@ -225,7 +225,7 @@ static int pch_msi_init(struct device_node *node,
- 		goto err_priv;
- 	}
- 
--	priv->msi_map = bitmap_alloc(priv->num_irqs, GFP_KERNEL);
-+	priv->msi_map = bitmap_zalloc(priv->num_irqs, GFP_KERNEL);
- 	if (!priv->msi_map) {
- 		ret = -ENOMEM;
- 		goto err_priv;
+greg k-h
