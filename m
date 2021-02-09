@@ -2,161 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B743152BD
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:26:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E2A3152ED
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbhBIPZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 10:25:13 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:44914 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232629AbhBIPXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:23:06 -0500
-Date:   Tue, 09 Feb 2021 15:22:21 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1612884142;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XB03glBY/5tLLvRLJWJe41AKQPCVAeafGDFn/GWB+gk=;
-        b=FD7jb+nGF9QH+3aMW0aVJ1nO1YituWa3YaYDJkKstPzdcdI+OH8A2Ia3niVvoYTpyyLWCY
-        ejMTXssqP7y/sR6Fwzf5kPtFqUDosg9ADu5KaXeiIZWN2CxJWEwX9tBzTL3nup4h2Ae6PD
-        tdZiHX7FkqeeA232fIJWUGDTaWNCL6vBFQWIRGjbNDsjXern0ulIVkhImEer1WngO3ZFOu
-        psj3ChQbd3ZA2tujwkUDqZb6IVaU64x9yuV4BojemNfUUO6uHHeWbtR9J/AA5Zob1C4S/t
-        VkT1PHuH4pyvkD6nWICif9Ui3Mcf0vttjENtlb3OtKQZ9kkt27wiDURlkCs23A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1612884142;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XB03glBY/5tLLvRLJWJe41AKQPCVAeafGDFn/GWB+gk=;
-        b=E/IEdE+BlWEwcA7E3mJlQV0pPelYYszaUXVt/bOeH/pe0YIQlFWa1FtUnGrFZ4mUG+ufAu
-        nsCOzCxOqR4WVoCA==
-From:   "tip-bot2 for Mikael Beckius" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] hrtimer: Update softirq_expires_next correctly
- in hrtimer_force_reprogram()
-Cc:     Mikael Beckius <mikael.beckius@windriver.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210128140208.30264-1-mikael.beckius@windriver.com>
-References: <20210128140208.30264-1-mikael.beckius@windriver.com>
+        id S232400AbhBIPjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 10:39:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231907AbhBIPjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:39:05 -0500
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A72C061786
+        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 07:38:23 -0800 (PST)
+Received: by mail-il1-x136.google.com with SMTP id g9so16490605ilc.3
+        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 07:38:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=sJCgouTqMM8pJ+UDsVPdviim+ttCBLUhBzV1tWaxDFg=;
+        b=YwWx/e8nx3m0nk8bNTWM4sNiiZ0eIa4e+5irz9CkUzRaJZq3pWaMWl9+h5KzN3MQHQ
+         aDQJ6x7SLQU0G2S9UJbEZeDvvHy6wBsOd9DNEHwNLIpsD2IEecxVmMI0m9PKTf7keKVc
+         u0FKtJx5bhviiBGY6SxObk+Gk5zfuY8b9GRb8EXlnw+DsJgW72qaGBup2mw/ngwbOse4
+         6FaNvd15QBvxiDJx8AOvWVxRu7jxGowzeZE3udvRDL6OupmTMww8MLuT2T5GohyM3Udt
+         /5chpWC/sZanhhDW+p3E4gitu2/Tl7XpA3gGgfyhvnbkuXBytVSuFZ4dSwQjPPeuESgq
+         88Eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=sJCgouTqMM8pJ+UDsVPdviim+ttCBLUhBzV1tWaxDFg=;
+        b=k+WRbAnWOP/F69MxAJUy3T2O9IWrfxyN57SiVjqBPTa04trsfHZ7zCvNTefA+KDkrC
+         0LJH2y5OZof6yhONnVvNGRyyBuLdFGOhAlUWeVIitfynuckEfo+y+mREaPCKV6GbFLOC
+         GYh/zVnSDh9G5fK+Rxt7bHrpju1Zg0ZeLJFL5RUS8STET/87kI1NEjEagtXK2xX2Z+Wk
+         kOEYr89qusP6c/1BbUYbx0FMlxrs3ez/nH31DtFRFrk3Nm1D0U1vuIjxT885NU5xdTyW
+         YZom6oJChkvxaAn0y6Tel6p3bq7+FRDR1XYzHGgw9R3iN87Yo+hTDDPC/2voOufU3vdG
+         CMWQ==
+X-Gm-Message-State: AOAM531prTbTlUDu3Mhs4+85Fx2uuJ02KdaDFbOihz7IQKd68Gb3oitD
+        N7bXtk1AVaP6WCZCwnLHnDcDyeT2SGJp1V0DWfo=
+X-Google-Smtp-Source: ABdhPJzpPHitiwHv/OI39QScSantOnt9JM4q+tqktjmiB0j9+ykxKzUndKwwE9TqohBvYvNGKnAaKvIMA3sVu4aCy/0=
+X-Received: by 2002:a05:6e02:1c0b:: with SMTP id l11mr19384206ilh.187.1612885103171;
+ Tue, 09 Feb 2021 07:38:23 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <161288414184.23325.3143319640747364296.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:6e02:ca6:0:0:0:0 with HTTP; Tue, 9 Feb 2021 07:38:22
+ -0800 (PST)
+Reply-To: kelvinlawrence5001@gmail.com
+From:   kelvin lawrence <k.lanwrence1@gmail.com>
+Date:   Tue, 9 Feb 2021 16:38:22 +0100
+Message-ID: <CALp0QB7K=oHfSYQ+E+MDc4Cvs3ZmDeV_+x1h8Y8wdzJBgfrY2w@mail.gmail.com>
+Subject: I dear need your Attention right now
+To:     stacey.haywood@aol.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+Attention Please:
 
-Commit-ID:     0fcc7c20d2e2a65fb5b80d42841084e8509d085d
-Gitweb:        https://git.kernel.org/tip/0fcc7c20d2e2a65fb5b80d42841084e8509d085d
-Author:        Mikael Beckius <mikael.beckius@windriver.com>
-AuthorDate:    Thu, 28 Jan 2021 15:02:08 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 09 Feb 2021 16:18:42 +01:00
+As the personal attorney and  executor of the estate of my Late Client
+whom you share the same surname with, i have sent you mail before to
+notify you as my earlier letter to you were not replied. I wish to
+notify you that my late client in his "Will and Testament" declared
+that a member of his bearing same family name is the beneficiary to
+his Funds and estate before he died. He left the sum of (US$32.3
+million) in the Bank in United Kingdom.
 
-hrtimer: Update softirq_expires_next correctly in hrtimer_force_reprogram()
+I look forward to your urgent response. May his soul rest in peace Amen.
 
-hrtimer_force_reprogram() invokes __hrtimer_get_next_event() to find the
-earliest expiry time of all hrtimer bases. __hrtimer_get_next_event() does
-not update cpu_base::[softirq_]_expires_next. That needs to be done at the
-callsites.
-
-hrtimer_force_reprogram() updates cpu_base::softirq_expires_next only when
-the first expiring timer is a softirq timer and the soft interrupt is not
-activated. That's wrong because cpu_base::softirq_expires_next is left
-stale when the first expiring timer of all bases is a timer which expires
-in hard interrupt context.
-
-That becomes a problem when clock_settime() sets CLOCK_REALTIME forward and
-the first soft expiring timer is in the CLOCK_REALTIME_SOFT base. Setting
-CLOCK_REALTIME forward moves the clock MONOTONIC based expiry time of that
-timer before the stale cpu_base::softirq_expires_next.
-
-cpu_base::softirq_expires_next is cached to make the check for raising the
-soft interrupt fast. In the above case the soft interrupt won't be raised
-until clock monotonic reaches the stale cpu_base::softirq_expires_next
-value. That's incorrect, but what's worse it that if the softirq timer
-becomes the first expiring timer of all clock bases after the hard expiry
-timer has been handled the reprogramming of the clockevent from
-hrtimer_interrupt() will result in an interrupt storm. That happens because
-the reprogramming does not use cpu_base::softirq_expires_next, it uses
-__hrtimer_get_next_event() which returns the actual expiry time. Once clock
-MONOTONIC reaches cpu_base::softirq_expires_next the soft interrupt is
-raised and the storm subsides.
-
-Change the logic in hrtimer_force_reprogram() to evaluate the soft and hard
-bases seperately, update softirq_expires_next and handle the case when a
-soft expiring timer is the first of all bases by comparing the expiry times
-and updating the required cpu base fields.
-
-[ tglx: Modified it to avoid the double evaluation ]
-
-Fixes:5da70160462e ("hrtimer: Implement support for softirq based hrtimers")
-Signed-off-by: Mikael Beckius <mikael.beckius@windriver.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210128140208.30264-1-mikael.beckius@windriver.com
-
----
- kernel/time/hrtimer.c | 32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
-
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 743c852..88a0145 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -626,24 +626,30 @@ static inline int hrtimer_hres_active(void)
- static void
- hrtimer_force_reprogram(struct hrtimer_cpu_base *cpu_base, int skip_equal)
- {
--	ktime_t expires_next;
-+	ktime_t expires_next, soft = KTIME_MAX;
- 
- 	/*
--	 * Find the current next expiration time.
-+	 * If the soft interrupt has already been activated, ignore the
-+	 * soft bases. They will be handled in the already raised soft
-+	 * interrupt.
- 	 */
--	expires_next = __hrtimer_get_next_event(cpu_base, HRTIMER_ACTIVE_ALL);
--
--	if (cpu_base->next_timer && cpu_base->next_timer->is_soft) {
-+	if (!cpu_base->softirq_activated) {
-+		soft = __hrtimer_get_next_event(cpu_base, HRTIMER_ACTIVE_SOFT);
- 		/*
--		 * When the softirq is activated, hrtimer has to be
--		 * programmed with the first hard hrtimer because soft
--		 * timer interrupt could occur too late.
-+		 * Update the soft expiry time. clock_settime() might have
-+		 * affected it.
- 		 */
--		if (cpu_base->softirq_activated)
--			expires_next = __hrtimer_get_next_event(cpu_base,
--								HRTIMER_ACTIVE_HARD);
--		else
--			cpu_base->softirq_expires_next = expires_next;
-+		cpu_base->softirq_expires_next = soft;
-+	}
-+
-+	expires_next = __hrtimer_get_next_event(cpu_base, HRTIMER_ACTIVE_HARD);
-+	/*
-+	 * If a softirq timer is expiring first, update cpu_base->next_timer
-+	 * and program the hardware with the soft expiry time.
-+	 */
-+	if (expires_next > soft) {
-+		cpu_base->next_timer = cpu_base->softirq_next_timer;
-+		expires_next = soft;
- 	}
- 
- 	if (skip_equal && expires_next == cpu_base->expires_next)
+Yours sincerely,
