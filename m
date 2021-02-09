@@ -2,91 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A983B3155AF
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436013155D7
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233142AbhBISIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 13:08:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36260 "EHLO mail.kernel.org"
+        id S233127AbhBISYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 13:24:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232827AbhBIR6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 12:58:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 986FC64EBE;
-        Tue,  9 Feb 2021 17:57:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612893437;
-        bh=f97SMV19YkR4bhxVq8KdTDs0WFpllYt/GmKgggtTv44=;
-        h=Subject:To:From:Date:From;
-        b=HYmAOpQkF0z9urVmydrgKv/tG4gVJzrAonC3wyj2eNfqZYcpuI7H8rR4B58/5zLBS
-         FUggDJE6h5rciNT9mIhjn00arkaSDRvqYrX4Gd7TFfhGouJmDEGhr6Bp+89Cpd33vQ
-         +LBh7XAg0dwG/OE8bCneOLv5G1kpUIXLUbn5hKAw=
-Subject: patch "mei: bus: block send with vtag on non-conformat FW" added to char-misc-next
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tomas.winkler@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Feb 2021 18:54:37 +0100
-Message-ID: <1612893277202249@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S233236AbhBISV4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 13:21:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20EA964EC5;
+        Tue,  9 Feb 2021 17:57:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1612893449;
+        bh=R5/Z4YVY+CRp4WOBrSRBK9EYjUyvY/7ttju1PrJy/tg=;
+        h=Date:From:To:Subject:From;
+        b=yixuL2P+wFSthqbZXG1u9v6tUFmRfZWhSPRF6Bt86jNibq/tf42s6p/DszfCcQrxF
+         XqKj75aTk6Q2XRqdrVv7wMM5p2CQRBNTaEW97OdoUMfgkO3eLmnrV6xa3M3r1gu5nP
+         k0Q22VpoELecjlHCNouYWRglEBZ29T4B5iVdaatg=
+Date:   Tue, 09 Feb 2021 09:57:28 -0800
+From:   akpm@linux-foundation.org
+To:     corbet@lwn.net, dave.hansen@linux.intel.com, davem@davemloft.net,
+        lucien.xin@gmail.com, luto@kernel.org, marcelo.leitner@gmail.com,
+        mingo@redhat.com, mm-commits@vger.kernel.org, neilb@suse.de,
+        nhorman@tuxdriver.com, peterz@infradead.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
+        vyasevich@gmail.com
+Subject:  [merged]
+ net-fix-iteration-for-sctp-transport-seq_files.patch removed from -mm tree
+Message-ID: <20210209175728.8pjvclyN3%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch titled
+     Subject: net: fix iteration for sctp transport seq_files
+has been removed from the -mm tree.  Its filename was
+     net-fix-iteration-for-sctp-transport-seq_files.patch
 
-    mei: bus: block send with vtag on non-conformat FW
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+------------------------------------------------------
+From: NeilBrown <neilb@suse.de>
+Subject: net: fix iteration for sctp transport seq_files
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+The sctp transport seq_file iterators take a reference to the transport in
+the ->start and ->next functions and releases the reference in the ->show
+function.  The preferred handling for such resources is to release them in
+the subsequent ->next or ->stop function call.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+Since Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration
+code and interface") there is no guarantee that ->show will be called
+after ->next, so this function can now leak references.
 
-If you have any questions about this process, please let me know.
+So move the sctp_transport_put() call to ->next and ->stop.
 
-
-From b398d53cd421454d64850f8b1f6d609ede9042d9 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Mon, 8 Feb 2021 17:06:48 +0200
-Subject: mei: bus: block send with vtag on non-conformat FW
-
-Block data send with vtag if either transport layer or
-FW client are not supporting vtags.
-
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210208150649.141358-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/161248539022.21478.17038123892954492263.stgit@noble1
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+Signed-off-by: NeilBrown <neilb@suse.de>
+Reported-by: Xin Long <lucien.xin@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/misc/mei/bus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 580074e32599..935acc6bbf3c 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -61,6 +61,13 @@ ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length, u8 vtag,
- 		goto out;
- 	}
+ net/sctp/proc.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+--- a/net/sctp/proc.c~net-fix-iteration-for-sctp-transport-seq_files
++++ a/net/sctp/proc.c
+@@ -215,6 +215,12 @@ static void sctp_transport_seq_stop(stru
+ {
+ 	struct sctp_ht_iter *iter = seq->private;
  
-+	if (vtag) {
-+		/* Check if vtag is supported by client */
-+		rets = mei_cl_vt_support_check(cl);
-+		if (rets)
-+			goto out;
++	if (v && v != SEQ_START_TOKEN) {
++		struct sctp_transport *transport = v;
++
++		sctp_transport_put(transport);
 +	}
 +
- 	if (length > mei_cl_mtu(cl)) {
- 		rets = -EFBIG;
- 		goto out;
--- 
-2.30.0
+ 	sctp_transport_walk_stop(&iter->hti);
+ }
+ 
+@@ -222,6 +228,12 @@ static void *sctp_transport_seq_next(str
+ {
+ 	struct sctp_ht_iter *iter = seq->private;
+ 
++	if (v && v != SEQ_START_TOKEN) {
++		struct sctp_transport *transport = v;
++
++		sctp_transport_put(transport);
++	}
++
+ 	++*pos;
+ 
+ 	return sctp_transport_get_next(seq_file_net(seq), &iter->hti);
+@@ -277,8 +289,6 @@ static int sctp_assocs_seq_show(struct s
+ 		sk->sk_rcvbuf);
+ 	seq_printf(seq, "\n");
+ 
+-	sctp_transport_put(transport);
+-
+ 	return 0;
+ }
+ 
+@@ -354,8 +364,6 @@ static int sctp_remaddr_seq_show(struct
+ 		seq_printf(seq, "\n");
+ 	}
+ 
+-	sctp_transport_put(transport);
+-
+ 	return 0;
+ }
+ 
+_
 
+Patches currently in -mm which might be from neilb@suse.de are
+
+seq_file-document-how-per-entry-resources-are-managed.patch
+x86-fix-seq_file-iteration-for-pat-memtypec.patch
 
