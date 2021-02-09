@@ -2,134 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436013155D7
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:27:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 569DA3155D3
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbhBISYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 13:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233236AbhBISV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 13:21:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20EA964EC5;
-        Tue,  9 Feb 2021 17:57:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1612893449;
-        bh=R5/Z4YVY+CRp4WOBrSRBK9EYjUyvY/7ttju1PrJy/tg=;
-        h=Date:From:To:Subject:From;
-        b=yixuL2P+wFSthqbZXG1u9v6tUFmRfZWhSPRF6Bt86jNibq/tf42s6p/DszfCcQrxF
-         XqKj75aTk6Q2XRqdrVv7wMM5p2CQRBNTaEW97OdoUMfgkO3eLmnrV6xa3M3r1gu5nP
-         k0Q22VpoELecjlHCNouYWRglEBZ29T4B5iVdaatg=
-Date:   Tue, 09 Feb 2021 09:57:28 -0800
-From:   akpm@linux-foundation.org
-To:     corbet@lwn.net, dave.hansen@linux.intel.com, davem@davemloft.net,
-        lucien.xin@gmail.com, luto@kernel.org, marcelo.leitner@gmail.com,
-        mingo@redhat.com, mm-commits@vger.kernel.org, neilb@suse.de,
-        nhorman@tuxdriver.com, peterz@infradead.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        vyasevich@gmail.com
-Subject:  [merged]
- net-fix-iteration-for-sctp-transport-seq_files.patch removed from -mm tree
-Message-ID: <20210209175728.8pjvclyN3%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S233271AbhBISYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 13:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233233AbhBISWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 13:22:00 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A7C061356;
+        Tue,  9 Feb 2021 10:10:45 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id l19so7902825oih.6;
+        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=fDl+34Ws0reoegWYcMSOTld+/zyr9JSnL2c4x6D1jmM=;
+        b=rrAEl/s+ibJpeJ39yhbxxw3u8/HsX3DZUmTocwO+f3cPD02AoNXJ5mxv1F96gIw6u6
+         KwKFu2NoEShbDA4Tg3I6jrh71RRhsKXKLoXgDfCnn4fcGuFPGfUEvM3m7vW1/S1VhpMx
+         KxalunLpOzSz5pdIZ/+XGerG/OgKgJexibCBPXZpxJ2S9ucVYB9onxrZ2aTnQhaTeZQY
+         TXGWEAUVMW8zVie0ZbIfT+nlBa+H0JsFKJTjLv+GgnnJglbrYuA27nOlPY6pAmJ1wP1i
+         6WJv+4nk7Eadjoo7OY4+iJnK8axienqCupnxXJDoNyxNJHjDU098/tnoAAFjQcK9eEEe
+         5Sbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=fDl+34Ws0reoegWYcMSOTld+/zyr9JSnL2c4x6D1jmM=;
+        b=hqpqJ0G0t/vlDt3435e06zzP6P0fS7DyQE8eLAK4TfP12xbQidp7my0p77RnAh264m
+         SdS6uDKsR7/yBRbPiYIiEcbMIiFZnqUQ8m7/7q2in/4LFmy0eRxA2dxUOxxWeYoJEmxi
+         Noz1+ujtGh5T6vHSRs2SDxoU9uPQb79pk4NuXIvkDSqBy0HejMBv5eafmBwjLqQ5ZS3W
+         VG/gA5SPUJIu9fcbTrq6KUUhgZ1zllSyPbs6VOmwwSSDpxSOfPv1j833oY4g4mvpjEO2
+         uUQZTKKztGvtiRChhQuXeyYmClwlPBpTX8svhgCQDpPKLNqUmxUBhPBP3z9uCBUAgsDy
+         1P1Q==
+X-Gm-Message-State: AOAM5324KnZ+yn43geSQCYYvl2hZVkdYHF9ZXIQPR65oAM2KvnBoQnb1
+        UbMx9wCu+rxBGhHZ8y5gLl8tSntON6A=
+X-Google-Smtp-Source: ABdhPJwrladHCZioyFWnaln0oPzWpqZHS2VLcaOS8Aa/zn2A42vUPym7Aq4nkowakHBR/8Q59CwXtg==
+X-Received: by 2002:a54:410f:: with SMTP id l15mr3218375oic.149.1612894245423;
+        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e14sm1371581otk.22.2021.02.09.10.10.44
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 9 Feb 2021 10:10:43 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/30] 4.14.221-rc1 review
+Message-ID: <20210209181043.GC142661@roeck-us.net>
+References: <20210208145805.239714726@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Feb 08, 2021 at 04:00:46PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.221 release.
+> There are 30 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
+> Anything received after that time might be too late.
+> 
 
-The patch titled
-     Subject: net: fix iteration for sctp transport seq_files
-has been removed from the -mm tree.  Its filename was
-     net-fix-iteration-for-sctp-transport-seq_files.patch
+Build results:
+	total: 168 pass: 168 fail: 0
+Qemu test results:
+	total: 404 pass: 404 fail: 0
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-------------------------------------------------------
-From: NeilBrown <neilb@suse.de>
-Subject: net: fix iteration for sctp transport seq_files
-
-The sctp transport seq_file iterators take a reference to the transport in
-the ->start and ->next functions and releases the reference in the ->show
-function.  The preferred handling for such resources is to release them in
-the subsequent ->next or ->stop function call.
-
-Since Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration
-code and interface") there is no guarantee that ->show will be called
-after ->next, so this function can now leak references.
-
-So move the sctp_transport_put() call to ->next and ->stop.
-
-Link: https://lkml.kernel.org/r/161248539022.21478.17038123892954492263.stgit@noble1
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Reported-by: Xin Long <lucien.xin@gmail.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- net/sctp/proc.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
---- a/net/sctp/proc.c~net-fix-iteration-for-sctp-transport-seq_files
-+++ a/net/sctp/proc.c
-@@ -215,6 +215,12 @@ static void sctp_transport_seq_stop(stru
- {
- 	struct sctp_ht_iter *iter = seq->private;
- 
-+	if (v && v != SEQ_START_TOKEN) {
-+		struct sctp_transport *transport = v;
-+
-+		sctp_transport_put(transport);
-+	}
-+
- 	sctp_transport_walk_stop(&iter->hti);
- }
- 
-@@ -222,6 +228,12 @@ static void *sctp_transport_seq_next(str
- {
- 	struct sctp_ht_iter *iter = seq->private;
- 
-+	if (v && v != SEQ_START_TOKEN) {
-+		struct sctp_transport *transport = v;
-+
-+		sctp_transport_put(transport);
-+	}
-+
- 	++*pos;
- 
- 	return sctp_transport_get_next(seq_file_net(seq), &iter->hti);
-@@ -277,8 +289,6 @@ static int sctp_assocs_seq_show(struct s
- 		sk->sk_rcvbuf);
- 	seq_printf(seq, "\n");
- 
--	sctp_transport_put(transport);
--
- 	return 0;
- }
- 
-@@ -354,8 +364,6 @@ static int sctp_remaddr_seq_show(struct
- 		seq_printf(seq, "\n");
- 	}
- 
--	sctp_transport_put(transport);
--
- 	return 0;
- }
- 
-_
-
-Patches currently in -mm which might be from neilb@suse.de are
-
-seq_file-document-how-per-entry-resources-are-managed.patch
-x86-fix-seq_file-iteration-for-pat-memtypec.patch
-
+Guenter
