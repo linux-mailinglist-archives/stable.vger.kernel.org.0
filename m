@@ -2,86 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 569DA3155D3
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E762C315613
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:38:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233271AbhBISYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 13:24:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233233AbhBISWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 13:22:00 -0500
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A7C061356;
-        Tue,  9 Feb 2021 10:10:45 -0800 (PST)
-Received: by mail-oi1-x22c.google.com with SMTP id l19so7902825oih.6;
-        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=fDl+34Ws0reoegWYcMSOTld+/zyr9JSnL2c4x6D1jmM=;
-        b=rrAEl/s+ibJpeJ39yhbxxw3u8/HsX3DZUmTocwO+f3cPD02AoNXJ5mxv1F96gIw6u6
-         KwKFu2NoEShbDA4Tg3I6jrh71RRhsKXKLoXgDfCnn4fcGuFPGfUEvM3m7vW1/S1VhpMx
-         KxalunLpOzSz5pdIZ/+XGerG/OgKgJexibCBPXZpxJ2S9ucVYB9onxrZ2aTnQhaTeZQY
-         TXGWEAUVMW8zVie0ZbIfT+nlBa+H0JsFKJTjLv+GgnnJglbrYuA27nOlPY6pAmJ1wP1i
-         6WJv+4nk7Eadjoo7OY4+iJnK8axienqCupnxXJDoNyxNJHjDU098/tnoAAFjQcK9eEEe
-         5Sbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=fDl+34Ws0reoegWYcMSOTld+/zyr9JSnL2c4x6D1jmM=;
-        b=hqpqJ0G0t/vlDt3435e06zzP6P0fS7DyQE8eLAK4TfP12xbQidp7my0p77RnAh264m
-         SdS6uDKsR7/yBRbPiYIiEcbMIiFZnqUQ8m7/7q2in/4LFmy0eRxA2dxUOxxWeYoJEmxi
-         Noz1+ujtGh5T6vHSRs2SDxoU9uPQb79pk4NuXIvkDSqBy0HejMBv5eafmBwjLqQ5ZS3W
-         VG/gA5SPUJIu9fcbTrq6KUUhgZ1zllSyPbs6VOmwwSSDpxSOfPv1j833oY4g4mvpjEO2
-         uUQZTKKztGvtiRChhQuXeyYmClwlPBpTX8svhgCQDpPKLNqUmxUBhPBP3z9uCBUAgsDy
-         1P1Q==
-X-Gm-Message-State: AOAM5324KnZ+yn43geSQCYYvl2hZVkdYHF9ZXIQPR65oAM2KvnBoQnb1
-        UbMx9wCu+rxBGhHZ8y5gLl8tSntON6A=
-X-Google-Smtp-Source: ABdhPJwrladHCZioyFWnaln0oPzWpqZHS2VLcaOS8Aa/zn2A42vUPym7Aq4nkowakHBR/8Q59CwXtg==
-X-Received: by 2002:a54:410f:: with SMTP id l15mr3218375oic.149.1612894245423;
-        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e14sm1371581otk.22.2021.02.09.10.10.44
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 09 Feb 2021 10:10:45 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 9 Feb 2021 10:10:43 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        id S233410AbhBISf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 13:35:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43226 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233441AbhBIS1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 13:27:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EB9164EC6;
+        Tue,  9 Feb 2021 18:00:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612893603;
+        bh=CC2bS6/1VwEvvk4tThIMSoyuevAcYr40V8Y9jUq77m4=;
+        h=Subject:To:From:Date:From;
+        b=sWXfB2z0gzdLzVXwIvRgAOZqqg8BQebJT52tCBfKU+onoPQrcaCNM6mYyQkavRWjs
+         fIsdAQ8WqvHkweI/n7Trv9IhlvcHWEQIHrIWaJgsqK6m6itI3R8PUZtrOVVMtmaJui
+         pw6isJGNUD1+9EEQXyxl/YTwvRxiRoL1iVuWYAf4=
+Subject: patch "drivers/misc/vmw_vmci: restrict too big queue size in" added to char-misc-next
+To:     snovitoll@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/30] 4.14.221-rc1 review
-Message-ID: <20210209181043.GC142661@roeck-us.net>
-References: <20210208145805.239714726@linuxfoundation.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 09 Feb 2021 18:55:02 +0100
+Message-ID: <16128933029184@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210208145805.239714726@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 08, 2021 at 04:00:46PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.221 release.
-> There are 30 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 168 pass: 168 fail: 0
-Qemu test results:
-	total: 404 pass: 404 fail: 0
+This is a note to let you know that I've just added the patch titled
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+    drivers/misc/vmw_vmci: restrict too big queue size in
 
-Guenter
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e Mon Sep 17 00:00:00 2001
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Date: Tue, 9 Feb 2021 16:26:12 +0600
+Subject: drivers/misc/vmw_vmci: restrict too big queue size in
+ qp_host_alloc_queue
+
+syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
+when num_pages is 0x100001, giving queue_size + queue_page_size
+bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
+condition.
+
+queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
+
+[1]
+Call Trace:
+ alloc_pages include/linux/gfp.h:547 [inline]
+ kmalloc_order+0x40/0x130 mm/slab_common.c:837
+ kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
+ kmalloc_large include/linux/slab.h:481 [inline]
+ __kmalloc+0x257/0x330 mm/slub.c:3959
+ kmalloc include/linux/slab.h:557 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
+ qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
+ qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
+
+Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index d787ddecee77..880c33ab9f47 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -539,6 +539,9 @@ static struct vmci_queue *qp_host_alloc_queue(u64 size)
+ 
+ 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
+ 
++	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
++		return NULL;
++
+ 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
+ 	if (queue) {
+ 		queue->q_header = NULL;
+-- 
+2.30.0
+
+
