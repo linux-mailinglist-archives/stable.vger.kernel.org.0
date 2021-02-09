@@ -2,128 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 443C9314879
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 07:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F5F3148FB
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 07:39:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229665AbhBIGK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 01:10:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46984 "EHLO
+        id S230299AbhBIGiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 01:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbhBIGKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 01:10:19 -0500
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5BBC06178A
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 22:09:38 -0800 (PST)
-Received: by mail-lj1-x230.google.com with SMTP id b16so5122360lji.13
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 22:09:38 -0800 (PST)
+        with ESMTP id S230468AbhBIGhZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 01:37:25 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584E5C061786
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 22:36:45 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id u11so9169001plg.13
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 22:36:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=EN0Mzb6s8Tl+sO9KcM8dEOwC7FeQgGNzUGgSeuHZRDo=;
-        b=QiOwygcdrjYgf/3lDY8pI7Ji34qvamUJReMpjfXTUuvpzEcBEFrIOOiUI8xr04NjZU
-         tpwH6Mnld5gW5qUqlcT9yclH/H8vFgE74ftvEsxScW/+eNUafP6SF28PnC/FqJsK0wXw
-         UALR75hzAWTlMJczQAzJgq1zobcY00uLi654VtOoTCD5qOkMlYDcrFKxsW8nOAxEPNxw
-         WOL5S79DTZlWQCi0Re6jfrDqg034CDDoVLCPh75gl2R1gKqxXAIoqFdBXAS+juaAqs/D
-         U1bhIwdWGgY5hgvpirFgjr7we1NAuDFcJnrmXzAdj0ahBNHgu2U4sqd3h7/I3c4UQTYx
-         DnGQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Bw6fKDVthjprpqXjyDjojaSz/DnU5svA9Gl7eo4j/zM=;
+        b=nlvCSMQX011oNoa6UUVI9lr5RGUygYnVeGZCyQfZDm7WZSC1OTFhryqFtMjlWyrEH/
+         2yrkI28B9fJ9KuToZ7qrcjo4IManBfGo8n3fab2FW0nKZDWFXeTVXiKugo4jigJ8c7lS
+         MWirZQIB7Lul4Ykd0TzKqPMZrKuTtl5vpeE1fmXUrbZGmq2pPot44cJNn4MMb/ZAhxX2
+         I+lqTwR5wjKog/NkCQGbIS8Igi0YcDmkfjE37IFzspciGlBPSP6wowXA0syPSgOlmINf
+         4iA5sJTlMpucsAx4eL1Mid03kRneu4cOKH6BJ5HXD34BITLsPJKgUqQ0TNY77J3PXnn6
+         Dt9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=EN0Mzb6s8Tl+sO9KcM8dEOwC7FeQgGNzUGgSeuHZRDo=;
-        b=ATnVVV7mIltqtGyEJI1WKqqb2xKKja2W8zMtb36O3PqBugM4gVr7DJUvMkMMiD+cFl
-         z8ATqzmuk5W43aE40nwW8fwEQUpDVnmxh7kQDdf/gBWkm1GYU3Ew7fWp/QBPvcd+X+uG
-         LZfwlukFRhcZC4/LjYYGa/W7jw73qyRAk7zx70Qw16+fcQG/Ytcvv2ESgWDUOqzNE3AJ
-         EgXXTN6ewCFrtxReL52+PG2tYTD8laBirHm7U6usM0DlKfTCwm9EN18gwGphyeLaosSz
-         Km7jlyylGOp5AqR8lALw5LGkubvI7jKDgfcbZt+X8UQsTLGr4FDd3udhXhLzdgsPwOar
-         Dk+A==
-X-Gm-Message-State: AOAM533+j0yfvw4lvVjVoI2hwXuYCWVJ6vFFxpZHrdCleeFB8ogZswwN
-        OpeYF4pRV51eCxQgb9JnDX5FDygSWNocgDucQ5GGfQ==
-X-Google-Smtp-Source: ABdhPJzg+OLmID5j3R8uwBU7Ya6jUJbEGbdW5wxF4lUjHYE+P58BfiZAah3eC7aYCYxA/+068IMOyaRZUMqwz3AR+s0=
-X-Received: by 2002:a05:651c:c5:: with SMTP id 5mr2207729ljr.480.1612850976581;
- Mon, 08 Feb 2021 22:09:36 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Bw6fKDVthjprpqXjyDjojaSz/DnU5svA9Gl7eo4j/zM=;
+        b=PCRG/n6EyHR9Hv0TL/wN2vvGIRFi48KTTiyiNCUyriHj2xfWLSLbOd+irKuw3tKl9R
+         xRIloR2SuztiastMi50gEiF+GBjS5yJMc9u95M8+drjZbuu8f9390/2TJMFSWx66/L5L
+         xtM6A+BsVuUhKBPsQwxTjuibeEgKpKlJqOCQWdJnURdj8QoYpepEKyOD5UXwKJJBEalY
+         nPGAZznM/ZPRdZpQoxiJm5+F9ke22TVTOoGT8vUlkO6jqTVUzVZWf2rP5KHbqepy4Yea
+         dOgTy34L/oJ61eChDSDDtz6RJRnBxcXe2fyQSfdba43VDX3fTpkQ7EGR4Na2p3LMAOSL
+         EwwA==
+X-Gm-Message-State: AOAM531VeKBAhFj7aiLip7HlmrZ+1JK0oztrMbBli4zBvfcNgscNs8QX
+        54Q86XWIxURrV9codjrNFgA7S5biS6j9zQ==
+X-Google-Smtp-Source: ABdhPJw8+KS8zPi+ZJTSqvkM3Ku3404EMTNfBssLa0HPsw/2/V/Im9BHLwGcCQcGbfdTgX+OJJPIMA==
+X-Received: by 2002:a17:90b:46c5:: with SMTP id jx5mr2600720pjb.27.1612852604523;
+        Mon, 08 Feb 2021 22:36:44 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lr7sm1213163pjb.56.2021.02.08.22.36.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Feb 2021 22:36:43 -0800 (PST)
+Message-ID: <60222d7b.1c69fb81.a971d.3a43@mx.google.com>
+Date:   Mon, 08 Feb 2021 22:36:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Tue, 9 Feb 2021 11:39:25 +0530
-Message-ID: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
-Subject: DMA direct mapping fix for 5.4 and earlier stable branches
-To:     hch@lst.de, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     m.szyprowski@samsung.com, robin.murphy@arm.com,
-        iommu@lists.linux-foundation.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        obayashi.yoshimasa@socionext.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.220-31-gc7c1196add208
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y baseline: 68 runs,
+ 3 regressions (v4.14.220-31-gc7c1196add208)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Christoph, Greg,
+stable-rc/linux-4.14.y baseline: 68 runs, 3 regressions (v4.14.220-31-gc7c1=
+196add208)
 
-Currently we are observing an incorrect address translation
-corresponding to DMA direct mapping methods on 5.4 stable kernel while
-sharing dmabuf from one device to another where both devices have
-their own coherent DMA memory pools.
+Regressions Summary
+-------------------
 
-I am able to root cause this issue which is caused by incorrect virt
-to phys translation for addresses belonging to vmalloc space using
-virt_to_page(). But while looking at the mainline kernel, this patch
-[1] changes address translation from virt->to->phys to dma->to->phys
-which fixes the issue observed on 5.4 stable kernel as well (minimal
-fix [2]).
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+fsl-ls2088a-rdb | arm64 | lab-nxp       | gcc-8    | defconfig           | =
+1          =
 
-So I would like to seek your suggestion for backport to stable kernels
-(5.4 or earlier) as to whether we should backport the complete
-mainline commit [1] or we should just apply the minimal fix [2]?
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+1          =
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=34dc0ea6bc960f1f57b2148f01a3f4da23f87013
-[2] minimal fix required for 5.4 stable kernel:
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+1          =
 
-commit bb0b3ff6e54d78370b6b0c04426f0d9192f31795
-Author: Sumit Garg <sumit.garg@linaro.org>
-Date:   Wed Feb 3 13:08:37 2021 +0530
 
-    dma-mapping: Fix common get_sgtable and mmap methods
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.220-31-gc7c1196add208/plan/baseline/
 
-    Currently common get_sgtable and mmap methods can only handle normal
-    kernel addresses leading to incorrect handling of vmalloc addresses which
-    is common means for DMA coherent memory mapping.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.220-31-gc7c1196add208
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c7c1196add2085d4956a80729d2832ef83d963c8 =
 
-    So instead of cpu_addr, directly decode the physical address from
-dma_addr and
-    hence decode corresponding page and pfn values. In this way we can handle
-    normal kernel addresses as well as vmalloc addresses.
 
-    This fix is inspired from following mainline commit:
 
-    34dc0ea6bc96 ("dma-direct: provide mmap and get_sgtable method overrides")
+Test Regressions
+---------------- =
 
-    This fixes an issue observed during dmabuf sharing from one device to
-    another where both devices have their own coherent DMA memory pools.
 
-    Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
 
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index 8682a53..034bbae 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -127,7 +127,7 @@ int dma_common_get_sgtable(struct device *dev,
-struct sg_table *sgt,
-                        return -ENXIO;
-                page = pfn_to_page(pfn);
-        } else {
--               page = virt_to_page(cpu_addr);
-+               page = pfn_to_page(PHYS_PFN(dma_to_phys(dev, dma_addr)));
-        }
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+fsl-ls2088a-rdb | arm64 | lab-nxp       | gcc-8    | defconfig           | =
+1          =
 
-        ret = sg_alloc_table(sgt, 1, GFP_KERNEL);
-@@ -214,7 +214,7 @@ int dma_common_mmap(struct device *dev, struct
-vm_area_struct *vma,
-                if (!pfn_valid(pfn))
-                        return -ENXIO;
-        } else {
--               pfn = page_to_pfn(virt_to_page(cpu_addr));
-+               pfn = PHYS_PFN(dma_to_phys(dev, dma_addr));
-        }
 
-        return remap_pfn_range(vma, vma->vm_start, pfn + vma->vm_pgoff,
+  Details:     https://kernelci.org/test/plan/id/6021fbd3dbb7f58be53abe62
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6021fbd3dbb7f58be53ab=
+e63
+        new failure (last pass: v4.14.220) =
+
+ =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6021fbd0af0cd028583abe64
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6021fbd0af0cd028583ab=
+e65
+        failing since 314 days (last pass: v4.14.172-114-g734382e2d26e, fir=
+st fail: v4.14.174-131-g234ce78cac23) =
+
+ =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6021f91e55b8f655583abe9c
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+20-31-gc7c1196add208/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-p=
+anda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6021f91e55b8f65=
+5583abea3
+        failing since 1 day (last pass: v4.14.219-16-g9bdfeb6e50d8, first f=
+ail: v4.14.220)
+        2 lines
+
+    2021-02-09 02:53:14.569000+00:00  [   20.237854] usb 3-1.1: New USB dev=
+ice found, idVendor=3D0424, idProduct=3Dec00
+    2021-02-09 02:53:14.576000+00:00  [   20.245239] usb 3-1.1: New USB dev=
+ice strings: Mfr=3D0, Product=3D0, SerialNumber=3D0
+    2021-02-09 02:53:14.604000+00:00  [   20.276824] smsc95xx v1.0.6
+    2021-02-09 02:53:14.621000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/93
+    2021-02-09 02:53:14.630000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
