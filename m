@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF613147B7
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 05:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E533147B8
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 05:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230029AbhBIExY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 23:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58784 "EHLO
+        id S230034AbhBIExZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 23:53:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230034AbhBIExL (ORCPT
+        with ESMTP id S230038AbhBIExL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 23:53:11 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92596C061356
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 20:51:58 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id bl23so29265077ejb.5
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 20:51:58 -0800 (PST)
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CA9C06121C
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 20:51:59 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id s11so21912052edd.5
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 20:51:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Xr2fuZ0tacGYD7jCksNHw/mjJ6HTmk/yx83D48Kusno=;
-        b=kslcS/g0uK4nQN4cEKJSW7dvky+khw2h6sYvkhjdTTFaT71WiM+r/qzTWfw5EP9MwL
-         Zqis9fByNDeKZgo9S4neHK9R8bMVo8aeqX+TeLCWJgvSJi5CSX2+B40YOm1ahR0/mKYw
-         GHzes+fg+Ep6YA/o24GNP8qw/rHXCKC2S2nmhl+TTRl/SBm9FmFv4bOU75nZvNHvQnsK
-         KnO6BdJ6Pp4parbWCnFul0DjuvIWziDq5JcUXwbzwhlEVIGhXsMrgaTVCTBaPgLe5cEc
-         IRojEnHPb6dOtcIzc5uuM9/j511qhp6jmP9ihlydQx1jhP8NhkgPZZWKr0B8M3zbz5Ls
-         JsBQ==
+        bh=3mk+54N0sp9sB5kMDzgz4t7dZbdpPAhaoei/vff2jSo=;
+        b=PIPsbjKJzds0F8+/GXi2O04IbZX8payUiPAgR1wSuS9oCBwgtqigSW0+IXu+y4SGjd
+         NDdIYItBu/j+FHKsuD4FmRhuAXSzeF6YLjij5r+g0EfyLXslLzeMSct4tEB4PI1kGHwi
+         UPFPY7glsT0XlPjd4nvEOmSP/nHjXzDN7clFK2eaA4PIMX8kkuDeibtf0dle0cbvYAwU
+         zHKxLmMBDcGzTXB8lfBwvQilJO36G2yF1eyrSznzGTPRtGQWx1h06cV9NQHG/zKjKET1
+         O2ivVdB2rWsO65fec+CEBalcRZO8YAEpLyTxrUKFCURi9QmiRroUeMx2Le4xlZFJPYDw
+         AQ/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Xr2fuZ0tacGYD7jCksNHw/mjJ6HTmk/yx83D48Kusno=;
-        b=Gco1atDCL7zV29g8PwGf/U1OO/i7b1z6YjVGePxbBgSgd1bU6ENjejwKsruYWZYeHA
-         yLPvAPHZ9rN5TUt5Zj4Cx1FBdfInVXBi28OoT6Pd0V7EvqDy28gaUHXH7jEpZ8DGbzwr
-         hPbdvM35DowBlMN3Ph5bAAvMGgBmIpq/cXmH9oe0j1n0oZOsG5uqES1S3Ppz/gisnqUM
-         SzkBC4Pk23EeZRoOdup4CQjA4+4TW066ZqYwg8+u9tEP4i2C1rz3hlq6C70NWWUAekca
-         SIuvv3okETPsuI1hV9AtPyO49q79J4Tp+xfoUT4mDphz0D6VrRHfjL5OPUBktFAsAjAG
-         5ZMw==
-X-Gm-Message-State: AOAM533RpM1c2MghV+IzN6Uv3kV/26dykpR72r6ErKbfXrq2yFsj4Egr
-        qTQDiccDisXSXpxkJ6n72OGKBJFcLXc=
-X-Google-Smtp-Source: ABdhPJw0B+qag68mveiE2murY/j2bYsWgjFx1koAv4EaH1bowHy0RKRzB3+2j4rY63Hq8AH/8AErZQ==
-X-Received: by 2002:a17:906:3a10:: with SMTP id z16mr5435097eje.483.1612846317094;
-        Mon, 08 Feb 2021 20:51:57 -0800 (PST)
+        bh=3mk+54N0sp9sB5kMDzgz4t7dZbdpPAhaoei/vff2jSo=;
+        b=flBWS7CvxqFqNqVsjtZ8+AThVy01pnON5xFuE7lqJ7BRDvjQ8D72g1E4K4VED5SXAe
+         QBPoxEw1PaEHmqxkVYaddnn+5JMXWR1P42HBE7dXgxWsgYZgePPEg35ViPCZcObWQXeH
+         zek04drfDxZmViiqNKofwaEhpUEAuYfC+tAzN9TIWgRkvyx15OXP4L+vegSJLs9Ie/xf
+         Fo1gQGY/aLBxH21rFFwR+i/1J+kXx3IUPyDprHLuhbw/BXPZvVJ6xyjJLCq1IIYCokva
+         gwwSWxGrPS+QzABMA+CebDY20hEuIF2cZcAXCfY7ymdwAzq+8FaQCM19qw5AcJA/SUOw
+         kE8Q==
+X-Gm-Message-State: AOAM533sqLeiqKqKYHv9KBMn8WbEKViIguJu2kiiPE7noOauq/q0eXA+
+        ANTuqSI4rkEAH0Rh2Ze1ucIWT+iE7UQ=
+X-Google-Smtp-Source: ABdhPJxtsmZkxhvjQa0OizH8ktK4ZiG0m5+D7D880NKJL62dbQt2rmR9QsqNHUTklCLlmHcB0kNxVw==
+X-Received: by 2002:aa7:d5c1:: with SMTP id d1mr20502980eds.359.1612846318072;
+        Mon, 08 Feb 2021 20:51:58 -0800 (PST)
 Received: from localhost.localdomain ([148.252.128.244])
-        by smtp.gmail.com with ESMTPSA id g9sm9973445ejp.55.2021.02.08.20.51.56
+        by smtp.gmail.com with ESMTPSA id g9sm9973445ejp.55.2021.02.08.20.51.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 20:51:56 -0800 (PST)
+        Mon, 08 Feb 2021 20:51:57 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>
-Subject: [PATCH 12/16] io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
-Date:   Tue,  9 Feb 2021 04:47:46 +0000
-Message-Id: <5da560a302a2502fd47679e55c24705704614fde.1612845821.git.asml.silence@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        syzbot+6879187cf57845801267@syzkaller.appspotmail.com
+Subject: [PATCH 13/16] io_uring: fix list corruption for splice file_get
+Date:   Tue,  9 Feb 2021 04:47:47 +0000
+Message-Id: <f3cb58e6def11ded052a0820b5f95dc9c8152ccb.1612845821.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612845821.git.asml.silence@gmail.com>
 References: <cover.1612845821.git.asml.silence@gmail.com>
@@ -63,102 +63,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+[ Upstream commit f609cbb8911e40e15f9055e8f945f926ac906924 ]
 
-[ Upstream commit 6195ba09822c87cad09189bbf550d0fbe714687a ]
+kernel BUG at lib/list_debug.c:29!
+Call Trace:
+ __list_add include/linux/list.h:67 [inline]
+ list_add include/linux/list.h:86 [inline]
+ io_file_get+0x8cc/0xdb0 fs/io_uring.c:6466
+ __io_splice_prep+0x1bc/0x530 fs/io_uring.c:3866
+ io_splice_prep fs/io_uring.c:3920 [inline]
+ io_req_prep+0x3546/0x4e80 fs/io_uring.c:6081
+ io_queue_sqe+0x609/0x10d0 fs/io_uring.c:6628
+ io_submit_sqe fs/io_uring.c:6705 [inline]
+ io_submit_sqes+0x1495/0x2720 fs/io_uring.c:6953
+ __do_sys_io_uring_enter+0x107d/0x1f30 fs/io_uring.c:9353
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Abaci reported the follow warning:
+io_file_get() may be called from splice, and so REQ_F_INFLIGHT may
+already be set.
 
-[   27.073425] do not call blocking ops when !TASK_RUNNING; state=1 set at [] prepare_to_wait_exclusive+0x3a/0xc0
-[   27.075805] WARNING: CPU: 0 PID: 951 at kernel/sched/core.c:7853 __might_sleep+0x80/0xa0
-[   27.077604] Modules linked in:
-[   27.078379] CPU: 0 PID: 951 Comm: a.out Not tainted 5.11.0-rc3+ #1
-[   27.079637] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[   27.080852] RIP: 0010:__might_sleep+0x80/0xa0
-[   27.081835] Code: 65 48 8b 04 25 80 71 01 00 48 8b 90 c0 15 00 00 48 8b 70 18 48 c7 c7 08 39 95 82 c6 05 f9 5f de 08 01 48 89 d1 e8 00 c6 fa ff  0b eb bf 41 0f b6 f5 48 c7 c7 40 23 c9 82 e8 f3 48 ec 00 eb a7
-[   27.084521] RSP: 0018:ffffc90000fe3ce8 EFLAGS: 00010286
-[   27.085350] RAX: 0000000000000000 RBX: ffffffff82956083 RCX: 0000000000000000
-[   27.086348] RDX: ffff8881057a0000 RSI: ffffffff8118cc9e RDI: ffff88813bc28570
-[   27.087598] RBP: 00000000000003a7 R08: 0000000000000001 R09: 0000000000000001
-[   27.088819] R10: ffffc90000fe3e00 R11: 00000000fffef9f0 R12: 0000000000000000
-[   27.089819] R13: 0000000000000000 R14: ffff88810576eb80 R15: ffff88810576e800
-[   27.091058] FS:  00007f7b144cf740(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
-[   27.092775] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   27.093796] CR2: 00000000022da7b8 CR3: 000000010b928002 CR4: 00000000003706f0
-[   27.094778] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   27.095780] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   27.097011] Call Trace:
-[   27.097685]  __mutex_lock+0x5d/0xa30
-[   27.098565]  ? prepare_to_wait_exclusive+0x71/0xc0
-[   27.099412]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
-[   27.100441]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
-[   27.101537]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
-[   27.102656]  ? trace_hardirqs_on+0x46/0x110
-[   27.103459]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
-[   27.104317]  io_cqring_overflow_flush.part.101+0x6d/0x70
-[   27.105113]  io_cqring_wait+0x36e/0x4d0
-[   27.105770]  ? find_held_lock+0x28/0xb0
-[   27.106370]  ? io_uring_remove_task_files+0xa0/0xa0
-[   27.107076]  __x64_sys_io_uring_enter+0x4fb/0x640
-[   27.107801]  ? rcu_read_lock_sched_held+0x59/0xa0
-[   27.108562]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
-[   27.109684]  ? syscall_enter_from_user_mode+0x26/0x70
-[   27.110731]  do_syscall_64+0x2d/0x40
-[   27.111296]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   27.112056] RIP: 0033:0x7f7b13dc8239
-[   27.112663] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
-[   27.115113] RSP: 002b:00007ffd6d7f5c88 EFLAGS: 00000286 ORIG_RAX: 00000000000001aa
-[   27.116562] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7b13dc8239
-[   27.117961] RDX: 000000000000478e RSI: 0000000000000000 RDI: 0000000000000003
-[   27.118925] RBP: 00007ffd6d7f5cb0 R08: 0000000020000040 R09: 0000000000000008
-[   27.119773] R10: 0000000000000001 R11: 0000000000000286 R12: 0000000000400480
-[   27.120614] R13: 00007ffd6d7f5d90 R14: 0000000000000000 R15: 0000000000000000
-[   27.121490] irq event stamp: 5635
-[   27.121946] hardirqs last  enabled at (5643): [] console_unlock+0x5c4/0x740
-[   27.123476] hardirqs last disabled at (5652): [] console_unlock+0x4e7/0x740
-[   27.125192] softirqs last  enabled at (5272): [] __do_softirq+0x3c5/0x5aa
-[   27.126430] softirqs last disabled at (5267): [] asm_call_irq_on_stack+0xf/0x20
-[   27.127634] ---[ end trace 289d7e28fa60f928 ]---
-
-This is caused by calling io_cqring_overflow_flush() which may sleep
-after calling prepare_to_wait_exclusive() which set task state to
-TASK_INTERRUPTIBLE
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Fixes: 6c503150ae33 ("io_uring: patch up IOPOLL overflow_flush sync")
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 02a13674fa0e8 ("io_uring: account io_uring internal files as REQ_F_INFLIGHT")
+Cc: stable@vger.kernel.org # 5.9+
+Reported-by: syzbot+6879187cf57845801267@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 03c1185270d1..b09a59edf6aa 100644
+index b09a59edf6aa..296b4cb44c7d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7000,14 +7000,18 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 						TASK_INTERRUPTIBLE);
- 		/* make sure we run task_work before checking for signals */
- 		ret = io_run_task_work_sig();
--		if (ret > 0)
-+		if (ret > 0) {
-+			finish_wait(&ctx->wait, &iowq.wq);
- 			continue;
-+		}
- 		else if (ret < 0)
- 			break;
- 		if (io_should_wake(&iowq))
- 			break;
--		if (test_bit(0, &ctx->cq_check_overflow))
-+		if (test_bit(0, &ctx->cq_check_overflow)) {
-+			finish_wait(&ctx->wait, &iowq.wq);
- 			continue;
-+		}
- 		schedule();
- 	} while (1);
- 	finish_wait(&ctx->wait, &iowq.wq);
+@@ -6170,7 +6170,8 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 		file = __io_file_get(state, fd);
+ 	}
+ 
+-	if (file && file->f_op == &io_uring_fops) {
++	if (file && file->f_op == &io_uring_fops &&
++	    !(req->flags & REQ_F_INFLIGHT)) {
+ 		io_req_init_async(req);
+ 		req->flags |= REQ_F_INFLIGHT;
+ 
 -- 
 2.24.0
 
