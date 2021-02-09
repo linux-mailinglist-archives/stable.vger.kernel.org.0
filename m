@@ -2,106 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6140F314AB7
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:50:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95493314AEB
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:56:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230207AbhBIIsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 03:48:07 -0500
-Received: from mx1.emlix.com ([136.243.223.33]:57596 "EHLO mx1.emlix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230076AbhBIIpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 03:45:42 -0500
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id B08565FAF2;
-        Tue,  9 Feb 2021 09:44:41 +0100 (CET)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
-Date:   Tue, 09 Feb 2021 09:44:33 +0100
-Message-ID: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
-In-Reply-To: <20210209050047.1958473-1-daniel.diaz@linaro.org>
-References: <20210209050047.1958473-1-daniel.diaz@linaro.org>
+        id S230264AbhBIIz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 03:55:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230102AbhBIIyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 03:54:00 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039DBC061788
+        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 00:53:19 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id v14so5050587wro.7
+        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 00:53:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=scylladb-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=H208pVEPEbQ1MKSr4OW/7+4dNKsHEjdg7nesnQMvyp8=;
+        b=nEOooPDEVr2l45WeE7wb95Sm/9VCZYRDo2IDYlfp7OyUip+YG8taZwJNy6NutaQbTS
+         uNEDbwAeJj/AJlyEOBYwxQHrNzv8uSi60zxOBa+Dm+iEDq9VfFAy74NJX72E8Ugk81n9
+         9GVv/2zSK1G2H6rFXL7iSkSi9BuegWhZW6BwFbi2wXzNmBZcQ3nc0MEObEqgSKltJJGJ
+         f1TBzMEIBHk61cssdfbyGaL12eLdhXEVUM8RI05F0CnZLoW3EFKiW0GZtrgyOTkzKIwW
+         YgryQpDvKCmW0I/fwsvm4zcXW1w0RSQbtpVQH9rI8wVag5Q0xmZcWxk3QGCePVUpi/nm
+         HbKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=H208pVEPEbQ1MKSr4OW/7+4dNKsHEjdg7nesnQMvyp8=;
+        b=T3Mej+p3mpuSs4FHEq4AFo2/tCrtMWLndLC+X8Frn8g8mZDH7Fz0H0a8dtAAOG3dbf
+         DYFGmOI8W6fmVdKrnKE+rWYWjg7vHxpxR1W+CTQBOY3aAASqPsRP1jAU0Yw4e/bacFhU
+         EuBWgqzNLPytjg/j7Nej+uDAGiT3Ru4Y93d/qpMO6ccaXIwj6FcOnFQ2Deamh+XGB4bT
+         PD5PVx5EN21cs6knbvBzBRalfTLU1oFQArB7SsdrriGByK18VgNXn2dY08QLlH5s81bN
+         yRyAY1pwGVt9oxZsU73lNfKHBeeUXZ+dyR2VCqjdD9Cla61pFUz9/trgYeRsBeBKvRZM
+         FP5w==
+X-Gm-Message-State: AOAM5323QFydP/tp4PoJUdwPjrpJ0EJT7P9JCdoXP373Lh57aNdk4dDV
+        Z17UcrJNP2VT3w7O2bvPFKyyqagsGL0NxA==
+X-Google-Smtp-Source: ABdhPJzN9QLvfxnc87FTfAej1i1vfCta3vnRz10Qfk8dnuz0GigPQqeqioTRm2sIPYW4akt9sBr4hg==
+X-Received: by 2002:adf:fe82:: with SMTP id l2mr5098493wrr.341.1612860798577;
+        Tue, 09 Feb 2021 00:53:18 -0800 (PST)
+Received: from tmp.scylladb.com (bzq-109-67-58-110.red.bezeqint.net. [109.67.58.110])
+        by smtp.googlemail.com with ESMTPSA id q15sm7180104wrr.58.2021.02.09.00.53.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Feb 2021 00:53:17 -0800 (PST)
+Subject: Re: Linux 4.9.256
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz
+References: <1612535085125226@kroah.com>
+ <23a28990-c465-f813-52a4-f7f3db007f9d@scylladb.com>
+ <20210208185707.GC4035784@sasha-vm>
+From:   Avi Kivity <avi@scylladb.com>
+Message-ID: <219a26ec-fd6b-b841-43ef-57e04b417c4e@scylladb.com>
+Date:   Tue, 9 Feb 2021 10:53:15 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2242286.IDMuxJGT9b"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+In-Reply-To: <20210208185707.GC4035784@sasha-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart2242286.IDMuxJGT9b
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"; protected-headers="v1"
-From: Rolf Eike Beer <eb@emlix.com>
-To: Masahiro Yamada <masahiroy@kernel.org>, Michal Marek <michal.lkml@markovi.net>, linux-kbuild@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc: Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>, stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
-Date: Tue, 09 Feb 2021 09:44:33 +0100
-Message-ID: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
-In-Reply-To: <20210209050047.1958473-1-daniel.diaz@linaro.org>
-References: <20210209050047.1958473-1-daniel.diaz@linaro.org>
+On 2/8/21 8:57 PM, Sasha Levin wrote:
+> On Mon, Feb 08, 2021 at 05:50:21PM +0200, Avi Kivity wrote:
+>> On 05/02/2021 16.26, Greg Kroah-Hartman wrote:
+>>> I'm announcing the release of the 4.9.256 kernel.
+>>>
+>>> This, and the 4.4.256 release are a little bit "different" than normal.
+>>>
+>>> This contains only 1 patch, just the version bump from .255 to .256 
+>>> which ends
+>>> up causing the userspace-visable LINUX_VERSION_CODE to behave a bit 
+>>> differently
+>>> than normal due to the "overflow".
+>>>
+>>> With this release, KERNEL_VERSION(4, 9, 256) is the same as 
+>>> KERNEL_VERSION(4, 10, 0).
+>>
+>>
+>> I think this is a bad idea. Many kernel features can only be 
+>> discovered by checking the kernel version. If a feature was 
+>> introduced in 4.10, then an application can be tricked into thinking 
+>> a 4.9 kernel has it.
+>>
+>>
+>> IMO, better to stop LINUX_VERSION_CODE at 255 and introduce a 
+>
+> In the upstream (and new -stable fix) we did this part.
+>
+>> LINUX_VERSION_CODE_IMPROVED that has more bits for patchlevel.
+>
+> Do you have a usecase where it's actually needed? i.e. userspace that
+> checks for -stable patchlevels?
+>
 
-Am Dienstag, 9. Februar 2021, 05:59:56 CET schrieb Daniel D=C3=ADaz:
-> When compiling under OpenEmbedded, the following error is seen
-> as of recently:
->=20
->   /srv/oe/build/tmp/hosttools/ld: cannot find /lib/libc.so.6 inside /
->   /srv/oe/build/tmp/hosttools/ld: cannot find /usr/lib/libc_nonshared.a
-> inside / /srv/oe/build/tmp/hosttools/ld: cannot find
-> /lib/ld-linux-x86-64.so.2 inside / collect2: error: ld returned 1 exit
-> status
->   make[2]: *** [scripts/Makefile.host:95: scripts/extract-cert] Error 1
+Not stable patchlevels, but minors. So a change from 4.9 to 4.10 could 
+be harmful.
 
-[...]
-> As per `make`'s documentation:
->=20
->   LDFLAGS
->     Extra flags to give to compilers when they are supposed to
->     invoke the linker, =E2=80=98ld=E2=80=99, such as -L. Libraries (-lfoo)
->     should be added to the LDLIBS variable instead.
->=20
->   LDLIBS
->     Library flags or names given to compilers when they are
->     supposed to invoke the linker, =E2=80=98ld=E2=80=99. LOADLIBES is a
->     deprecated (but still supported) alternative to LDLIBS.
->     Non-library linker flags, such as -L, should go in the
->     LDFLAGS variable.
 
-Correct. And the patch I use for my local 4.19 build actually uses LDLIBS, =
-so=20
-it must have gone wrong in some rebase for one of the intermediate versions.
-
-Acked-by: Rolf Eike Beer <eb@emlix.com>
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart2242286.IDMuxJGT9b
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCYCJLcQAKCRCr5FH7Xu2t
-/HgNBAC/L0SeWjHivmkwlNtBK3WRW1GT/A1YwTPF+ZRV4xJk9UlHW4hLLmqJZdeH
-agVHegp4Ffm5X7YgjQeAHf799IrVyfDcA/Z4e4gmd8pXdqUzkjdUXTpfFO7EFnrV
-zCvyvqVVmqq9/QUrv0KApvn/pspEr6WYulLbp74dRMY/UU3u0Q==
-=bLUv
------END PGP SIGNATURE-----
-
---nextPart2242286.IDMuxJGT9b--
-
+I have two such examples (not on the 4.9->4.10 boundary), but they test 
+the runtime version from uname(), not LINUX_VERSION_CODE, so they would 
+be vulnerable to such a change.
 
 
