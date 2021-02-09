@@ -2,121 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459283149AA
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 08:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E693149DF
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:02:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbhBIHre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 02:47:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
+        id S229651AbhBIH7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 02:59:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbhBIHrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 02:47:33 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B72C061786
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 23:46:52 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id y10so9279367plk.7
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 23:46:52 -0800 (PST)
+        with ESMTP id S229564AbhBIH7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 02:59:41 -0500
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C88C06178A
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 23:58:59 -0800 (PST)
+Received: by mail-lj1-x236.google.com with SMTP id r23so19243162ljh.1
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 23:58:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=iO28uYiLG1v9ndZ6JI+neNXnF0bsA5w2dNfHr//vfBA=;
-        b=MfQVOGHZ1Vw6KkYTnD/BCl/QoUDwvYqqQyUNAD5xs5RPzgJCvW40xtO9UeKPRZbfKU
-         uGSPtf9za9Os8+eITsMydHgkBIDly8Ga+y6FnePle0Kjh8DEApnOJRU0xL0/NSU/7dNa
-         YRh7SLQzUj3lbJZ45oTsS/hAfmrqyKHhGJr8ZQbTrifxeNgmbt5HBZ66awzqf87I/QUj
-         ZRDh7vC2rz3u0h46Zi+LnjHQuRSsd5Kit2zNf6su9uSMUmE8jISXnqaW59THll/26q5G
-         Cy7RdnRpiCpQOEWBHAR86nVd35FvqtsSFipw2Zu3bq50qosV4AK2ASLOjhFStHXsMqKr
-         2gGw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nvYr3UpVMJcspPgs92smoTgnsMh1VCW0bV8LvsobYYo=;
+        b=PTS5aka1KohStwAU5+Gps+c4zkQiCj85UR26Vgmo6gQKkG7t2J+5d5hgJVySdMORoz
+         944kjrRhLJYYDdkz9qf1vh/ztXdbs6a7RbFney1Maz9dUcn8Wsv981p8M+eT11QQxzdj
+         xGodZQUfcAYqHiEhbdves1hZhIHJ6o+61VnMpEAu8UE+0FlyJfpNprfhneMUT0G2WkN6
+         aoAV3/vQ/TFYrlafjpxXJBv1fxQjc4/5eyMVEt+xPenafiYunsPP6XBSGR2dXn278X9f
+         5F/5I7eXgm5aM9StnDv9XSi3XaZyr/iKf88ekI4lGK47Z/SJuksWMs8WQVjLVc5F+WsF
+         9SOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=iO28uYiLG1v9ndZ6JI+neNXnF0bsA5w2dNfHr//vfBA=;
-        b=UAFuIhflzEisqqQhsfyLcssGUxDIh/hpRYvdXEQslwOdagbSiSPn21LJenPZ2Ky9ZB
-         P2HJzDpdgu7J5lwVPNc4/+C7TDrfMWKauiYko+H5mdjkxEcVtNfNNlsDwHW20ikz/7xy
-         GO+jznU3tVvPlV6LE3Nq2iYEa0dvdkGbPMssj9tckSx0zfm9G/pgNnaxOO9ucOyo56rO
-         kkD5QYvrNudEdXBLrV3AczG/XP7kq+ljl+F5P+r89oaMmEp1t8E7gB+8SWBqDSUtV93R
-         lpNLEsxC7GmD4FzqsMuUGnhEFVhCyuCcf+ZS+E9186iCGDDSmtKreElr8kkFCkE1UIp7
-         y7+w==
-X-Gm-Message-State: AOAM533fMdxNigL1FNL6ekfeverQrXdPbR8q621HsuKYnn0A3Ib5v6n6
-        56jgB4NMrfXc1sOPRgwka+etQP5Fe0t28A==
-X-Google-Smtp-Source: ABdhPJwTQdz43ZyUTlLPJcjUkNi5U+ufPZ2XpItwu2P8dwWkiJ4ZxoPKn9NiEqmqgFeZmNA4tuYV/w==
-X-Received: by 2002:a17:902:9a46:b029:e2:f97b:47da with SMTP id x6-20020a1709029a46b02900e2f97b47damr349654plv.77.1612856811708;
-        Mon, 08 Feb 2021 23:46:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x11sm6423716pfr.24.2021.02.08.23.46.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 23:46:50 -0800 (PST)
-Message-ID: <60223dea.1c69fb81.778c5.f0c5@mx.google.com>
-Date:   Mon, 08 Feb 2021 23:46:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nvYr3UpVMJcspPgs92smoTgnsMh1VCW0bV8LvsobYYo=;
+        b=baLzZs5rbLI54eM4agSmO1tMO7Je5L9XL9vSc+WRqoL2krax96tMdlhaPV/TbuNf3J
+         8JxJgiE6P4W7WvFFNICoFWsznlGF0tHLwjSvK1EwmxHGBbBScZcmnJ7pD9v+qFYINrT2
+         dC4tLhk57jmJ5GNkceON7hQjq4vzHiz+truN83WluWw/wDeZ1OL22B9PROT9sKEeVjf4
+         q4fQqNXxjnQmkmeoO7S4T59fMVW0UuZZmbr0uRaXlGSCxg/9nyIucqnJF7hwBV/7EoyH
+         UAYded5rhdY9Shws/Wi0y5eCOj/39YwK9mhThmEOoPbhcV1nwodN4APqATwjZpV6Oq++
+         kaaA==
+X-Gm-Message-State: AOAM530uMQVdwQcamua/EikGlsK6VqXf5uYO1BQmME/zZI0zIHMojN8D
+        PIK/OttJWDWP/q/evNuPlhWpZFqwCUuG12YPXDL6xA==
+X-Google-Smtp-Source: ABdhPJzyVOha9XmT9JUA0stVdq2FCGisCJUOITHdBXVCZOVheWKMIXAoOBJtz/eVi2kKilykxeYohCBUma3w/lrrYn8=
+X-Received: by 2002:a2e:97cc:: with SMTP id m12mr13363798ljj.343.1612857538176;
+ Mon, 08 Feb 2021 23:58:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.96-65-g28b8ea189a5c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 99 runs,
- 1 regressions (v5.4.96-65-g28b8ea189a5c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
+ <YCIym62vHfbG+dWf@kroah.com>
+In-Reply-To: <YCIym62vHfbG+dWf@kroah.com>
+From:   Sumit Garg <sumit.garg@linaro.org>
+Date:   Tue, 9 Feb 2021 13:28:47 +0530
+Message-ID: <CAFA6WYM+xJ0YDKenWFPMHrTz4gLWatnog84wyk31Xy2dTiT2RA@mail.gmail.com>
+Subject: Re: DMA direct mapping fix for 5.4 and earlier stable branches
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        obayashi.yoshimasa@socionext.com
+Cc:     hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com,
+        iommu@lists.linux-foundation.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 99 runs, 1 regressions (v5.4.96-65-g28b8ea189=
-a5c)
+Thanks Greg for your response.
 
-Regressions Summary
--------------------
+On Tue, 9 Feb 2021 at 12:28, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Feb 09, 2021 at 11:39:25AM +0530, Sumit Garg wrote:
+> > Hi Christoph, Greg,
+> >
+> > Currently we are observing an incorrect address translation
+> > corresponding to DMA direct mapping methods on 5.4 stable kernel while
+> > sharing dmabuf from one device to another where both devices have
+> > their own coherent DMA memory pools.
+>
+> What devices have this problem?
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+The problem is seen with V4L2 device drivers which are currently under
+development for UniPhier PXs3 Reference Board from Socionext [1].
+Following is brief description of the test framework:
 
+The issue is observed while trying to construct a Gstreamer pipeline
+leveraging hardware video converter engine (VPE device) and hardware
+video encode/decode engine (CODEC device) where we use dmabuf
+framework for Zero-Copy.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.96-65-g28b8ea189a5c/plan/baseline/
+Example GStreamer pipeline is:
+gst-launch-1.0 -v -e videotestsrc \
+> ! video/x-raw, width=480, height=270, format=NV15 \
+> ! v4l2convert device=/dev/vpe0 capture-io-mode=dmabuf-import \
+> ! video/x-raw, width=480, height=270, format=NV12 \
+> ! v4l2h265enc device=/dev/codec0 output-io-mode=dmabuf \
+> ! video/x-h265, format=byte-stream, width=480, height=270 \
+> ! filesink location=out.hevc
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.96-65-g28b8ea189a5c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      28b8ea189a5c596608340d850da8a5cc4b272052 =
+Using GStreamer's V4L2 plugin,
+- v4l2convert controls VPE driver,
+- v4l2h265enc controls CODEC driver.
 
+In the above pipeline, VPE driver imports CODEC driver's DMABUF for Zero-Copy.
 
+[1] arch/arm64/boot/dts/socionext/uniphier-pxs3-ref.dts
 
-Test Regressions
----------------- =
+> And why can't then just use 5.10 to
+> solve this issue as that problem has always been present for them,
+> right?
 
+As the drivers are currently under development and Socionext has
+chosen 5.4 stable kernel for their development. So I will let
+Obayashi-san answer this if it's possible for them to migrate to 5.10
+instead?
 
+BTW, this problem belongs to the common code, so others may experience
+this issue as well.
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+>
+> > I am able to root cause this issue which is caused by incorrect virt
+> > to phys translation for addresses belonging to vmalloc space using
+> > virt_to_page(). But while looking at the mainline kernel, this patch
+> > [1] changes address translation from virt->to->phys to dma->to->phys
+> > which fixes the issue observed on 5.4 stable kernel as well (minimal
+> > fix [2]).
+> >
+> > So I would like to seek your suggestion for backport to stable kernels
+> > (5.4 or earlier) as to whether we should backport the complete
+> > mainline commit [1] or we should just apply the minimal fix [2]?
+>
+> Whenever you try to create a "minimal" fix, 90% of the time it is wrong
+> and does not work and I end up having to deal with the mess.
 
+I agree with your concerns for having to apply a non-mainline commit
+onto a stable kernel.
 
-  Details:     https://kernelci.org/test/plan/id/60220e6392f629377b3abe8d
+>  What
+> prevents you from doing the real thing here?  Are the patches to big?
+>
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.96-65=
--g28b8ea189a5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.96-65=
--g28b8ea189a5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+IMHO, yes the mainline patch is big enough to touch multiple
+architectures. But if that's the only way preferred then I can
+backport the mainline patch instead.
 
+> And again, why not just use 5.10 for this hardware?  What hardware is
+> it?
+>
 
+Please see my response above.
 
-  * baseline.login: https://kernelci.org/test/case/id/60220e6392f629377b3ab=
-e8e
-        new failure (last pass: v5.4.96-22-g157237aef1207) =
+-Sumit
 
- =20
+> thanks,
+>
+> greg k-h
