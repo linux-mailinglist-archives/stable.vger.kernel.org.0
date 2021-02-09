@@ -2,95 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F36431560C
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20FD131560A
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 19:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbhBIScs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 13:32:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43230 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233442AbhBIS1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 13:27:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1169264ECB;
-        Tue,  9 Feb 2021 18:00:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612893647;
-        bh=iJhPhRm1H5EM9IPWCzqH62R48suHp4qRtHqi6fh5JLo=;
-        h=Subject:To:From:Date:From;
-        b=1dSSClkrDod4hl8/x1dgMWlFvqXieY3ASwP36MEXBJpR6zi+jXIn3mekpVJYNUZ+Z
-         tHNVt3HJyCbwVGEV4bKglpqrDs0GbL1caOw45rZ1hs4gvPKpC35OKaHYnAoT04mYaj
-         eMHloGysajct3MXC8yDxCRUuwAPihIQ8AWm3pyU8=
-Subject: patch "usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt" added to usb-next
-To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
+        id S233459AbhBIScQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 13:32:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35818 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233400AbhBISYp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 13:24:45 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B610C0617A7;
+        Tue,  9 Feb 2021 10:09:58 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id h6so20415160oie.5;
+        Tue, 09 Feb 2021 10:09:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=3/z3GxOXiRLOViUCc5mf/Q2YmJ+mvY1b98stIWw6iV4=;
+        b=fGeuQHIW9sovDzLcdYdkp/HxnpCbRRn9myV/JHBemowA+U6VM2Ihxapvt9lfs695lC
+         Y8q9NNH4l5I7I9n5vf8oz9chTV82GHaey27XLgsmcRJBYwWCQvQ+yy+XD/CR1KfxLWtk
+         Tgj4BcRzAQXEqzgRckhDQ5Q8yKgN2xzaASIDIOdF6PnahS8eGsIeMhsEyxm0c4+1pYNZ
+         LRp3Y2QvRVfEiEM5BDhDy1eenQn4IeGB8YU5iXDnspwm3cKdRVifue5WceIXhbWydjTV
+         Q/a1GdZsMms4bQDOt4zGRk22vno2bHasTDFs1uIMxAmhpJdyHrqZAhFNL73vz4MfvRKn
+         EM5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=3/z3GxOXiRLOViUCc5mf/Q2YmJ+mvY1b98stIWw6iV4=;
+        b=pXF51+dgaUoreMx61y/rwnvYccZvBc/1S1zFcIF1bQww/PshxRhKxGHgZ1D+LeAYln
+         8TYhUbj2SbBIl6oP32Pzb3aB0qLr/Gl4uKxIEK7OXUHm5G4xv1OruidPYCQUCoyupC9W
+         lLKEKGU1GyK3eWAfcfyMKkpiPg79UNdTFpycqyEaTDvxpuUwqIqPjX3WiT0FZKm7gKI8
+         y89FgmuFISuVr/9Yw9XF2cv23tHSbUDG8AlRLUiBwc7HPK9aGYIPNHE1wYuZPSqFZaa3
+         ji2m7EAmp0Wyg9frtspQj4piwaI0humDv4Ve05dytvnc9AYs99rir7nM9OqPOhh2bFrd
+         z1Uw==
+X-Gm-Message-State: AOAM5321KXe+nfsHTFOUeBS1ZLWzMNVvAJl9Rm1FHM5Hi8f3PhWppELr
+        dM5K7qlO0FL266BbpZkB3zg=
+X-Google-Smtp-Source: ABdhPJyqIcPNfXEiDGAtBTJwW2MwJESp7pGpYNoMuIky9jUfbJVIct6vqk7ipqfuVwtCnz0ooTkDvA==
+X-Received: by 2002:a54:4482:: with SMTP id v2mr3323396oiv.121.1612894197680;
+        Tue, 09 Feb 2021 10:09:57 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w13sm22271otp.51.2021.02.09.10.09.56
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 09 Feb 2021 10:09:57 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 9 Feb 2021 10:09:55 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Feb 2021 18:55:09 +0100
-Message-ID: <161289330920429@kroah.com>
+Subject: Re: [PATCH 4.4 00/38] 4.4.257-rc1 review
+Message-ID: <20210209180955.GA142661@roeck-us.net>
+References: <20210208145805.279815326@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210208145805.279815326@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Feb 08, 2021 at 04:00:22PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.257 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
+> Anything received after that time might be too late.
+> 
 
-This is a note to let you know that I've just added the patch titled
+Build results:
+	total: 165 pass: 165 fail: 0
+Qemu test results:
+	total: 328 pass: 328 fail: 0
 
-    usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 4b049f55ed95cd889bcdb3034fd75e1f01852b38 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Mon, 8 Feb 2021 13:53:16 -0800
-Subject: usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
-
-The dep->interval captures the number of frames/microframes per interval
-from bInterval. Fullspeed interrupt endpoint bInterval is the number of
-frames per interval and not 2^(bInterval - 1). So fix it here. This
-change is only for debugging purpose and should not affect the interrupt
-endpoint operation.
-
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/1263b563dedc4ab8b0fb854fba06ce4bc56bd495.1612820995.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/gadget.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index d0f8d3ec855f..aebcf8ec0716 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -615,8 +615,13 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep *dep, unsigned int action)
- 		if (dwc->gadget->speed == USB_SPEED_FULL)
- 			bInterval_m1 = 0;
- 
-+		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
-+		    dwc->gadget->speed == USB_SPEED_FULL)
-+			dep->interval = desc->bInterval;
-+		else
-+			dep->interval = 1 << (desc->bInterval - 1);
-+
- 		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
--		dep->interval = 1 << (desc->bInterval - 1);
- 	}
- 
- 	return dwc3_send_gadget_ep_cmd(dep, DWC3_DEPCMD_SETEPCONFIG, &params);
--- 
-2.30.0
-
-
+Guenter
