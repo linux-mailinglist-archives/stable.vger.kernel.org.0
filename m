@@ -2,58 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0210E3147B3
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 05:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7413147B9
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 05:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbhBIExQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Feb 2021 23:53:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58764 "EHLO
+        id S229850AbhBIExR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Feb 2021 23:53:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbhBIExK (ORCPT
+        with ESMTP id S229891AbhBIExK (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 8 Feb 2021 23:53:10 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A65C061794
-        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 20:51:51 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id s26so16132284edt.10
-        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 20:51:51 -0800 (PST)
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB739C061797
+        for <stable@vger.kernel.org>; Mon,  8 Feb 2021 20:51:52 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id lg21so29292945ejb.3
+        for <stable@vger.kernel.org>; Mon, 08 Feb 2021 20:51:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=6vk8XXvYh9OABFZeI+2WE9M1Hx4UR0ZhAg5PM96i33k=;
-        b=hocl0CcnN8Qdiw/jVlb1QDjA9ywm4dNgfARqGO3naVGUJQO8ALHsARrXkBzO5csPOL
-         083sn+wuDMSvKJxjQr4ScmT1mkNW4F0doPQqsC54ps2MoS3WFdjuvffzSosS2B61FbBt
-         Q5QeOgfGMMg1EMsgDBRm4yIbmWg84ruQj/leNhQhCiLwObzYge04OyDEa0w1ndOTdVmy
-         32VigFJsnMsg5jPx7HBXs4cD7qLT6vm1bHWRDShQ+8WCBx5VXmOzKyeO2rzUvdtkjNvS
-         aPtgoNunGWMOwvmCaJAb/SQsFs4xIpsvyuAZgMfhyhd9eEWwD0YVkIFxVCg+UKM3k1jq
-         9NWw==
+        bh=pynK/xnd+nC2KvWAKX/Qo0kFMdqW3cOoRzYMswrz2gk=;
+        b=h5wOOFeDtkZdPQHuRmtJB4zPGxqymzhC/Utfao/yf8cqUM9wYY/Km+UrHadNGqNx7k
+         EeU1Tk1elcTLEtn87yQQh4km8MXR6K5NcIfFFmoysgJp0gJlMeSgdtPMxl+sCPSmia0P
+         WZiR1ILrb1eQKM/IWvbOXbO7eQshnwBd48Yo5WcuW2eLz6lidSkghcko7VDww7oYW0ac
+         TuidNpJjTobyYIAA0Q6huUFDuraV+hAzrM7RS/SpJhZb5Ci5vo4MqJyuQwXbOaiAIiqT
+         OVsPNSJlTANM/BLlq0qxG3Fv7S5n40/0VbHSbIu4ZTHo7T+rwgoOfVEFyoCZJ4/N7yug
+         Q4Gg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6vk8XXvYh9OABFZeI+2WE9M1Hx4UR0ZhAg5PM96i33k=;
-        b=jrBufvg9fKKTnRMUkTJBHAwqpWMRlWKl+2CfecA3e8t4fi0TIGO3Hoh3LE8WYwgJIW
-         fXDccJ2cQQSBCEMjMACl7pyCVQYj3QCiHTXo+9jQeBfeuC4UQWkk8ZixZxT/LNTZG4ah
-         SAkyufIcHXONEmmAm1SPnEJlxs8P82D8vP25a4WMhzEC5l80t8akuB+5mb/bpeL1jFN8
-         bKh3Mavwxb9sO15ymHIsa7wTDeFXen3m8NjvZt1f4Pj391yU0Av18uwLSfIBXgMdQkJI
-         5EmXtdBvfoytsGNOaDTIYQsZzGA7Ubho77MMCypMLREaU5EiRmr2/7A0CLe+fhpb0Bwl
-         jUwQ==
-X-Gm-Message-State: AOAM5319pkgnb6oouOrKckWtyckksMECX5B801yAhqJ8slcqyRNwpSu4
-        7TBwpTmMlwN45XI8MrpNtjRKgC0VueU=
-X-Google-Smtp-Source: ABdhPJzNi2bBroxNqVcZswMd5oLjaPwq501EDzucsLYHE5kPmULcSItRUiFX8sNEBfrq+7997OyMFw==
-X-Received: by 2002:a50:c94b:: with SMTP id p11mr20770798edh.388.1612846310271;
-        Mon, 08 Feb 2021 20:51:50 -0800 (PST)
+        bh=pynK/xnd+nC2KvWAKX/Qo0kFMdqW3cOoRzYMswrz2gk=;
+        b=WZzt98eR44J+BW9ZwzWmQRfWDGuDxX+Xmg/xjdawping2sr/bVdCwtWUHRYVOeZBek
+         H8s8SY1qxNwk3Q9P0cIgu6xoV8gY2HUBibqsT+M90SB49aPtUxLvY33iBxCKAUK0XZxV
+         0gpQnvQVltVlVUXtppkvjR3UfesBeXOIePV9yrIh4cIAmFaIrItoxLlwklZl0N6lx1VH
+         m9Aoj/SJQLDUZCWPNN6ZPab5agUmArZrfr5Qu5V4XAtL7He566jR9qfGlLS8VPPSoWEf
+         9nPKJNI+EBd2vIRhF+YBA5n1TPFQYQzSseJOZGr9HCWUW6xgpClSUVZ7Wyqrj6ernwjc
+         /7MA==
+X-Gm-Message-State: AOAM531PPg167vZpgX8ptCUo/oal2CzvRAiqoXt1U5R/QahjjjhcVY11
+        nLo+amDTf2VJKPwv1D2HHL+7ThBHIgs=
+X-Google-Smtp-Source: ABdhPJyQbQqZzqAFofm451aVDi+xWTQpJVaNYAV53iM7HPVkQ96RjV335oNtxvPgqaNKjP3WLult2Q==
+X-Received: by 2002:a17:906:1d51:: with SMTP id o17mr20467646ejh.85.1612846311219;
+        Mon, 08 Feb 2021 20:51:51 -0800 (PST)
 Received: from localhost.localdomain ([148.252.128.244])
-        by smtp.gmail.com with ESMTPSA id g9sm9973445ejp.55.2021.02.08.20.51.49
+        by smtp.gmail.com with ESMTPSA id g9sm9973445ejp.55.2021.02.08.20.51.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Feb 2021 20:51:49 -0800 (PST)
+        Mon, 08 Feb 2021 20:51:50 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        syzbot+c0d52d0b3c0c3ffb9525@syzkaller.appspotmail.com
-Subject: [PATCH 06/16] io_uring: fix files cancellation
-Date:   Tue,  9 Feb 2021 04:47:40 +0000
-Message-Id: <a868bfa580350805d5562eb215a5e0b903175d17.1612845821.git.asml.silence@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 07/16] io_uring: account io_uring internal files as REQ_F_INFLIGHT
+Date:   Tue,  9 Feb 2021 04:47:41 +0000
+Message-Id: <9c1d1608c20fad5b92196b550ec0b7463046590f.1612845821.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1612845821.git.asml.silence@gmail.com>
 References: <cover.1612845821.git.asml.silence@gmail.com>
@@ -63,64 +62,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bee749b187ac57d1faf00b2ab356ff322230fce8 ]
+From: Jens Axboe <axboe@kernel.dk>
 
-io_uring_cancel_files()'s task check condition mistakenly got flipped.
+[ Upstream commit 02a13674fa0e8dd326de8b9f4514b41b03d99003 ]
 
-1. There can't be a request in the inflight list without
-IO_WQ_WORK_FILES, kill this check to keep the whole condition simpler.
-2. Also, don't call the function for files==NULL to not do such a check,
-all that staff is already handled well by its counter part,
-__io_uring_cancel_task_requests().
+We need to actively cancel anything that introduces a potential circular
+loop, where io_uring holds a reference to itself. If the file in question
+is an io_uring file, then add the request to the inflight list.
 
-With that just flip the task check.
-
-Also, it iowq-cancels all request of current task there, don't forget to
-set right ->files into struct io_task_cancel.
-
-Fixes: c1973b38bf639 ("io_uring: cancel only requests of current task")
-Reported-by: syzbot+c0d52d0b3c0c3ffb9525@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: stable@vger.kernel.org # 5.9+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/io_uring.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 44b859456ef6..a40ee81e6438 100644
+index a40ee81e6438..9801fa9b00ba 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8571,15 +8571,14 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct files_struct *files)
+@@ -1000,6 +1000,9 @@ static inline void io_clean_op(struct io_kiocb *req)
+ static inline bool __io_match_files(struct io_kiocb *req,
+ 				    struct files_struct *files)
  {
- 	while (!list_empty_careful(&ctx->inflight_list)) {
--		struct io_task_cancel cancel = { .task = task, .files = NULL, };
-+		struct io_task_cancel cancel = { .task = task, .files = files };
- 		struct io_kiocb *req;
- 		DEFINE_WAIT(wait);
- 		bool found = false;
++	if (req->file && req->file->f_op == &io_uring_fops)
++		return true;
++
+ 	return ((req->flags & REQ_F_WORK_INITIALIZED) &&
+ 	        (req->work.flags & IO_WQ_WORK_FILES)) &&
+ 		req->work.identity->files == files;
+@@ -1398,11 +1401,14 @@ static bool io_grab_identity(struct io_kiocb *req)
+ 			return false;
+ 		atomic_inc(&id->files->count);
+ 		get_nsproxy(id->nsproxy);
+-		req->flags |= REQ_F_INFLIGHT;
+ 
+-		spin_lock_irq(&ctx->inflight_lock);
+-		list_add(&req->inflight_entry, &ctx->inflight_list);
+-		spin_unlock_irq(&ctx->inflight_lock);
++		if (!(req->flags & REQ_F_INFLIGHT)) {
++			req->flags |= REQ_F_INFLIGHT;
++
++			spin_lock_irq(&ctx->inflight_lock);
++			list_add(&req->inflight_entry, &ctx->inflight_list);
++			spin_unlock_irq(&ctx->inflight_lock);
++		}
+ 		req->work.flags |= IO_WQ_WORK_FILES;
+ 	}
+ 	if (!(req->work.flags & IO_WQ_WORK_MM) &&
+@@ -5886,8 +5892,10 @@ static void io_req_drop_files(struct io_kiocb *req)
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	unsigned long flags;
+ 
+-	put_files_struct(req->work.identity->files);
+-	put_nsproxy(req->work.identity->nsproxy);
++	if (req->work.flags & IO_WQ_WORK_FILES) {
++		put_files_struct(req->work.identity->files);
++		put_nsproxy(req->work.identity->nsproxy);
++	}
+ 	spin_lock_irqsave(&ctx->inflight_lock, flags);
+ 	list_del(&req->inflight_entry);
+ 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+@@ -6159,6 +6167,15 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 		file = __io_file_get(state, fd);
+ 	}
+ 
++	if (file && file->f_op == &io_uring_fops) {
++		io_req_init_async(req);
++		req->flags |= REQ_F_INFLIGHT;
++
++		spin_lock_irq(&ctx->inflight_lock);
++		list_add(&req->inflight_entry, &ctx->inflight_list);
++		spin_unlock_irq(&ctx->inflight_lock);
++	}
++
+ 	return file;
+ }
+ 
+@@ -8578,8 +8595,7 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
  
  		spin_lock_irq(&ctx->inflight_lock);
  		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
--			if (req->task == task &&
--			    (req->work.flags & IO_WQ_WORK_FILES) &&
-+			if (req->task != task ||
- 			    req->work.identity->files != files)
+-			if (req->task != task ||
+-			    req->work.identity->files != files)
++			if (!io_match_task(req, task, files))
  				continue;
  			found = true;
-@@ -8665,10 +8664,11 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 
- 	io_cancel_defer_files(ctx, task, files);
- 	io_cqring_overflow_flush(ctx, true, task, files);
--	io_uring_cancel_files(ctx, task, files);
- 
- 	if (!files)
- 		__io_uring_cancel_task_requests(ctx, task);
-+	else
-+		io_uring_cancel_files(ctx, task, files);
- 
- 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
- 		atomic_dec(&task->io_uring->in_idle);
+ 			break;
 -- 
 2.24.0
 
