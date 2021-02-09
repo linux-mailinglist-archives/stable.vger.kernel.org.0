@@ -2,243 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A198315250
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E6A315267
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 16:09:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231881AbhBIPDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 10:03:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48822 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbhBIPDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:03:52 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA89C061788
-        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 07:03:11 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id s26so18357805edt.10
-        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 07:03:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Hf40SMql2cpJ00lLxJ2Q57iPteMc3eOneN8yQh7cveg=;
-        b=FCASHMWZB3dngwfI3RrNgL4gf0qYbXoVxiFqBJ6CTjCPYn9UNV5haUOaKYBYNgQYV0
-         R2nmuA7PAJo+XYGBCD1q0Jp0enmLwZlym7uGGGrPTdGtXXyagSwCJT3G2FLMG4QRGUb8
-         6RRXYOW5Mov75AisKoIiSrlSrVnA5zsKKImTpkHh7WwrbpS1R/HmW+sgrC9EF8zeNzQo
-         lZzu2SgDpAjmOIMQ4n5luq2SVebbmjxTnRfyya5kDVzmvKKcHk7AW0Okq1VLIqXVXtSo
-         AexMB9TVMjap5mYRCNctDxJnKpbpvToZRq7ud7aLSYci8vRoPu6vnav1j2P48OykgSHh
-         i4WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Hf40SMql2cpJ00lLxJ2Q57iPteMc3eOneN8yQh7cveg=;
-        b=qt0MBHGpM0GjSshksFYa3d6yaYb8VmxhAXXvjfWJrAStbXKZxkHzmnfrv/k3qXeI0N
-         casJuWEqzbqMHXXeUrzguIL4DVw6pZhdQ1Q35pBawRF3Wv5j+6B73kqSrE3Yi3xdAIX6
-         /R4r6FjdlmDa9+eihQlsbPmvN1H1jPnpIzqH2qBYJqbRUysONnoqMfLuobj5x3fR4GAV
-         /ITIWiamcH1Biu7XBwCrI3Aymms7dgA85MXOx1ikMttZmi+5V15eUB9Zr6SJ/RMEht4X
-         EqFrRcFJdP8TmXzaU45uiDiB9uHIumpWJZZxIkXhlEJCad6vrO/WakkIJRv1eW6kur2b
-         yrcw==
-X-Gm-Message-State: AOAM533smJeuK7r/s34VYl8dsjSyIVCltV5KUeXFIqt1skZJSHvx89tI
-        uMGiORiVAHbWbTmv6x3YnOQALZ1kbBB/Dals3gL/WECAZucqaNGZ
-X-Google-Smtp-Source: ABdhPJx9YhjjkL1LqR/0j459tp1u9dH9jSbjKMS70Ct70fTc13eyh4ZeGDaWBByGYI/VbxNWF0pxwu/XAACmhTC3q80=
-X-Received: by 2002:aa7:d3c7:: with SMTP id o7mr23339582edr.23.1612882990358;
- Tue, 09 Feb 2021 07:03:10 -0800 (PST)
-MIME-Version: 1.0
-References: <20210208145806.141056364@linuxfoundation.org>
-In-Reply-To: <20210208145806.141056364@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 9 Feb 2021 20:32:57 +0530
-Message-ID: <CA+G9fYsvC21HbauGfmSkOksebNzUePBBFS=a=4YqnKSSaGy_4A@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/38] 4.19.175-rc1 review
+        id S231907AbhBIPJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 10:09:36 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18858 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230471AbhBIPJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 10:09:34 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 119F5aar176174;
+        Tue, 9 Feb 2021 10:08:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=references : from : to :
+ cc : subject : in-reply-to : date : message-id : mime-version :
+ content-type; s=pp1; bh=8T5q1IPHHnSAQXIhtWIJzipHgDJgeF4dTv3Vm6hNG/A=;
+ b=liKey9vbv/cZ0GifvYo/V99ZCad6fUQfIktQKSAeNWRYMIApGh4MEf2rL/fL6uk2S5pw
+ Rgj3Q+giUfYZdNatMKKZG+TnTeAATvlEbuSNeDgZ9P+CsmjAOjySdr+ncq14+05h9kYC
+ uk2SlNNtvALbJxREo8LVGzJqNCSNU6MBOzTDAhIsO/JcMiIKBU7Alox8MxFYS93fdY4P
+ 45vrtcwHLd7djOGoqZvrz87hKXmfcg3qy7arPCglAOoE8rmJJSbUgLoqDuq7UVcLKDsA
+ 7yRRlo5gDpSnJUWhZ4ZRHy54YwFLd3zu2xcfoo+mvftG1zv9sFzGWfNStPpC6brw2RyC WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36kuyqj1xd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 10:08:46 -0500
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 119F6CFq180583;
+        Tue, 9 Feb 2021 10:08:35 -0500
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36kuyqj0pd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 10:08:35 -0500
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 119F3Q97010827;
+        Tue, 9 Feb 2021 15:08:02 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma05wdc.us.ibm.com with ESMTP id 36hjr979a1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 15:08:02 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 119F81GA9568646
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 9 Feb 2021 15:08:01 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C5510AC05E;
+        Tue,  9 Feb 2021 15:08:01 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 726A8AC059;
+        Tue,  9 Feb 2021 15:07:59 +0000 (GMT)
+Received: from manicouagan.localdomain (unknown [9.80.214.244])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTPS;
+        Tue,  9 Feb 2021 15:07:59 +0000 (GMT)
+References: <20210208145818.395353822@linuxfoundation.org>
+ <20210208145820.464727041@linuxfoundation.org>
+User-agent: mu4e 1.4.10; emacs 27.1
+From:   Thiago Jung Bauermann <bauerman@linux.ibm.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Roman Gushchin <guro@fb.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Rik van Riel <riel@surriel.com>,
+        Wonhyuk Yang <vvghjk1234@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 051/120] memblock: do not start bottom-up
+ allocations with kernel_end
+In-reply-to: <20210208145820.464727041@linuxfoundation.org>
+Date:   Tue, 09 Feb 2021 12:07:57 -0300
+Message-ID: <875z31th2q.fsf@manicouagan.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-09_03:2021-02-09,2021-02-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ mlxlogscore=673 phishscore=0 spamscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 clxscore=1011 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102090079
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 8 Feb 2021 at 20:40, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
+
+> From: Roman Gushchin <guro@fb.com>
 >
-> This is the start of the stable review cycle for the 4.19.175 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> [ Upstream commit 2dcb3964544177c51853a210b6ad400de78ef17d ]
 >
-> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.175-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> With kaslr the kernel image is placed at a random place, so starting the
+> bottom-up allocation with the kernel_end can result in an allocation
+> failure and a warning like this one:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Not sure if this is ready for stable yet (including stable branches 4.19
+and 5.4), since it seems to uncover latent bugs in x86 early memory
+reservation. I asked about this issue here:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+https://lore.kernel.org/lkml/87ft26yuwg.fsf@manicouagan.localdomain/
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.19.175-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 69312fa724104d8af5a6124d4f61935bac6a8562
-git describe: v4.19.174-39-g69312fa72410
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.174-39-g69312fa72410
-
-No regressions (compared to build v4.19.174)
-
-No fixes (compared to build v4.19.174)
-
-Ran 49968 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- s390
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kvm-unit-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* fwts
-* kselftest-bpf
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* ltp-cve-tests
-* ltp-open-posix-tests
-* rcutorture
-* ssuite
-* network-basic-tests
-* kselftest-android
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* kselftest-
-* kselftest-kexec
-* kselftest-vm
-* kselftest-x86
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Thiago Jung Bauermann
+IBM Linux Technology Center
