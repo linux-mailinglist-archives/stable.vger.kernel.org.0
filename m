@@ -2,127 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E1F314F67
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 13:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040F8314F68
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 13:48:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230206AbhBIMrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 07:47:11 -0500
-Received: from foss.arm.com ([217.140.110.172]:51008 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229626AbhBIMqG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 07:46:06 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EE31EED1;
-        Tue,  9 Feb 2021 04:45:13 -0800 (PST)
-Received: from [10.57.49.26] (unknown [10.57.49.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 85BFD3F73B;
-        Tue,  9 Feb 2021 04:45:12 -0800 (PST)
-Subject: Re: DMA direct mapping fix for 5.4 and earlier stable branches
-To:     Sumit Garg <sumit.garg@linaro.org>, Christoph Hellwig <hch@lst.de>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        obayashi.yoshimasa@socionext.com, m.szyprowski@samsung.com,
-        iommu@lists.linux-foundation.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>
-References: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
- <YCIym62vHfbG+dWf@kroah.com>
- <CAFA6WYM+xJ0YDKenWFPMHrTz4gLWatnog84wyk31Xy2dTiT2RA@mail.gmail.com>
- <YCJCDZGa1Dhqv6Ni@kroah.com>
- <27bbe35deacb4ca49f31307f4ed551b5@SOC-EX02V.e01.socionext.com>
- <YCJUgKDNVjJ4dUqM@kroah.com> <20210209093642.GA1006@lst.de>
- <CAFA6WYO59w=wif8W16sG6BnzSjFhaY6PmRUTdSCu9A+zA7gzBw@mail.gmail.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <e36b8a7d-a999-da09-d7d9-cc26579a65d1@arm.com>
-Date:   Tue, 9 Feb 2021 12:45:11 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S230055AbhBIMrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 07:47:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230222AbhBIMqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 07:46:22 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD38C06178A;
+        Tue,  9 Feb 2021 04:45:41 -0800 (PST)
+Received: from [IPv6:2003:c7:cf1c:ce00:59a:7e98:1669:ccc] (p200300c7cf1cce00059a7e9816690ccc.dip0.t-ipconnect.de [IPv6:2003:c7:cf1c:ce00:59a:7e98:1669:ccc])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: dafna)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 076FA1F44DA5;
+        Tue,  9 Feb 2021 12:45:40 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 5.10 14/36] media: rkisp1: uapi: change hist_bins
+ array type from __u16 to __u32
+To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Helen Koike <helen.koike@collabora.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-media@vger.kernel.org, devel@driverdev.osuosl.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20210208175806.2091668-1-sashal@kernel.org>
+ <20210208175806.2091668-14-sashal@kernel.org>
+ <12c8f50e-3bba-5936-6e67-55bd928a75c7@xs4all.nl>
+From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Message-ID: <e086d0f4-c5f0-e38c-8937-593852ac0b50@collabora.com>
+Date:   Tue, 9 Feb 2021 13:45:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CAFA6WYO59w=wif8W16sG6BnzSjFhaY6PmRUTdSCu9A+zA7gzBw@mail.gmail.com>
+In-Reply-To: <12c8f50e-3bba-5936-6e67-55bd928a75c7@xs4all.nl>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-02-09 12:36, Sumit Garg wrote:
-> Hi Christoph,
-> 
-> On Tue, 9 Feb 2021 at 15:06, Christoph Hellwig <hch@lst.de> wrote:
+
+
+Am 08.02.21 um 21:46 schrieb Hans Verkuil:
+> On 08/02/2021 18:57, Sasha Levin wrote:
+>> From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 >>
->> On Tue, Feb 09, 2021 at 10:23:12AM +0100, Greg KH wrote:
->>>>    From the view point of ZeroCopy using DMABUF, is 5.4 not
->>>> mature enough, and is 5.10 enough mature ?
->>>>    This is the most important point for judging migration.
->>>
->>> How do you judge "mature"?
->>>
->>> And again, if a feature isn't present in a specific kernel version, why
->>> would you think that it would be a viable solution for you to use?
+>> [ Upstream commit 31f190e0ccac8b75d33fdc95a797c526cf9b149e ]
 >>
->> I'm pretty sure dma_get_sgtable has been around much longer and was
->> supposed to work, but only really did work properly for arm32, and
->> for platforms with coherent DMA.  I bet he is using non-coherent arm64,
+>> Each entry in the array is a 20 bits value composed of 16 bits unsigned
+>> integer and 4 bits fractional part. So the type should change to __u32.
+>> In addition add a documentation of how the measurements are done.
 > 
-> It's an arm64 platform using coherent DMA where device coherent DMA
-> memory pool is defined in the DT as follows:
+> Dafna, Helen, does it make sense at all to backport these three patches to
+> when rkisp1 was a staging driver?
 > 
->          reserved-memory {
->                  #address-cells = <2>;
->                  #size-cells = <2>;
->                  ranges;
-> 
->                  <snip>
->                  encbuffer: encbuffer@0xb0000000 {
->                          compatible = "shared-dma-pool";
->                          reg = <0 0xb0000000 0 0x08000000>; // this
-> area used with dma-coherent
->                          no-map;
->                  };
->                  <snip>
->          };
-> 
-> Device is dma-coherent as per following DT property:
-> 
->                  codec {
->                          compatible = "socionext,uniphier-pxs3-codec";
->                          <snip>
->                          memory-region = <&encbuffer>;
->                          dma-coherent;
->                          <snip>
->                  };
-> 
-> And call chain to create device coherent DMA pool is as follows:
-> 
-> rmem_dma_device_init();
->    dma_init_coherent_memory();
->      memremap();
->        ioremap_wc();
-> 
-> which simply maps coherent DMA memory into vmalloc space on arm64.
-> 
-> The thing I am unclear is why this is called a new feature rather than
-> a bug in dma_common_get_sgtable() which is failing to handle vmalloc
-> addresses? While at the same time DMA debug APIs specifically handle
-> vmalloc addresses [1].
+> I would be inclined not to backport this.
 
-It's not a bug, it's a fundamental design failure. dma_get_sgtable() has 
-only ever sort-of-worked for DMA buffers that come from CMA or regular 
-page allocations. In particular, a "no-map" DMA pool is not backed by 
-kernel memory, so does not have any corresponding page structs, so it's 
-impossible to generate a *valid* scatterlist to represent memory from 
-that pool, regardless of what you might get away with provided you don't 
-poke too hard at it.
+I also don't think it makes sense since this changes the uapi and it is not really a bug fix.
 
-It is not a good API...
 
-Robin.
+Thanks,
+Dafna
 
 > 
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/kernel/dma/debug.c?h=linux-5.4.y#n1462
+> Regards,
 > 
-> -Sumit
+> 	Hans
 > 
->> and it would be broken for other drivers there as well if people did
->> test them, which they apparently so far did not.
+>>
+>> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+>> Acked-by: Helen Koike <helen.koike@collabora.com>
+>> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+>> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>   drivers/staging/media/rkisp1/uapi/rkisp1-config.h | 13 +++++++++----
+>>   1 file changed, 9 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/staging/media/rkisp1/uapi/rkisp1-config.h b/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
+>> index 432cb6be55b47..c19fe059c2442 100644
+>> --- a/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
+>> +++ b/drivers/staging/media/rkisp1/uapi/rkisp1-config.h
+>> @@ -848,13 +848,18 @@ struct rkisp1_cif_isp_af_stat {
+>>   /**
+>>    * struct rkisp1_cif_isp_hist_stat - statistics histogram data
+>>    *
+>> - * @hist_bins: measured bin counters
+>> + * @hist_bins: measured bin counters. Each bin is a 20 bits unsigned fixed point
+>> + *	       type. Bits 0-4 are the fractional part and bits 5-19 are the
+>> + *	       integer part.
+>>    *
+>> - * Measurement window divided into 25 sub-windows, set
+>> - * with ISP_HIST_XXX
+>> + * The window of the measurements area is divided to 5x5 sub-windows. The
+>> + * histogram is then computed for each sub-window independently and the final
+>> + * result is a weighted average of the histogram measurements on all
+>> + * sub-windows. The window of the measurements area and the weight of each
+>> + * sub-window are configurable using struct @rkisp1_cif_isp_hst_config.
+>>    */
+>>   struct rkisp1_cif_isp_hist_stat {
+>> -	__u16 hist_bins[RKISP1_CIF_ISP_HIST_BIN_N_MAX];
+>> +	__u32 hist_bins[RKISP1_CIF_ISP_HIST_BIN_N_MAX];
+>>   };
+>>   
+>>   /**
+>>
+> 
