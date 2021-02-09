@@ -2,150 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 771403149EF
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D9A3149F9
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229601AbhBIIFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 03:05:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229517AbhBIIFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Feb 2021 03:05:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE0D664E50;
-        Tue,  9 Feb 2021 08:04:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612857872;
-        bh=zPK+5MZsx1tSvH2HRp1p3HtPtCmnOHY9jiF0A95/QwE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Avm+GfAVXF4EksYujMA/CDdtYumq9mFdLJEs2zSEghuaaGAEeAmAE8ALnUIuCt+aM
-         zb7IZIEoOJxxxT8U7DM62ZovMxPGZGcVVPmz0oBWmqNTKEf33vg9GEFOaSVsNBjQo+
-         fNJYB/4IPVoWeLGW/uCJ6r0XhQ7Q6Qyb82RAit68=
-Date:   Tue, 9 Feb 2021 09:04:29 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sumit Garg <sumit.garg@linaro.org>
-Cc:     obayashi.yoshimasa@socionext.com, hch@lst.de,
-        m.szyprowski@samsung.com, robin.murphy@arm.com,
-        iommu@lists.linux-foundation.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>
-Subject: Re: DMA direct mapping fix for 5.4 and earlier stable branches
-Message-ID: <YCJCDZGa1Dhqv6Ni@kroah.com>
-References: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
- <YCIym62vHfbG+dWf@kroah.com>
- <CAFA6WYM+xJ0YDKenWFPMHrTz4gLWatnog84wyk31Xy2dTiT2RA@mail.gmail.com>
+        id S229581AbhBIIId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 03:08:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229521AbhBIIIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 03:08:31 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC00C061786
+        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 00:07:51 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id k13so4939074pfh.13
+        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 00:07:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nqSanvVXG6QZ9vlAS/m4whgcygmWqIbPgxFj3xOUd6E=;
+        b=OKF9Zw8bE/WNFVYBrNOnNESd1zMdwu7vBt2f3mX1xFZj/b+qfUoKbtKQTwEKk5pWcN
+         ZZXlWghK45PeuTubuyQ7TOSaiuXFsfU59cDGU7nggcUa0ljd+U7HxIbVv+10p5RZpCeW
+         V7sg+FKGImixD5F8A1THk6uYQ4Hns//sHt7V38oMrYKO8Mu9agRZ7kVZ2y6LlRlTQmR3
+         aVkdUAmZPrqZgiW7xDqEccCKcWoQoh/o6O/YTTz5BQP/Gu7Ix6k9yKes5br4BtDCy75I
+         4Jt3loLKTgq5JrqHNWJ9Fh1MB1uM59bS34mliTbLARXUzvpXDFHbyOHGVhYltZZPtYO+
+         cEQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nqSanvVXG6QZ9vlAS/m4whgcygmWqIbPgxFj3xOUd6E=;
+        b=Ur5TZAOWykjDeEelhktA2w+tQDD/+9YUJ/6gasNEia2rkE1ptcDSyVIuGtEfSB+2aQ
+         ZSps9mAtFjsWFUQEeGS//zxYMcEqHhivdPQqrcW2CT3OyIve9NxIqv7qsoIXag9BfbxX
+         9Y/TLjXhoA80/+QbIhELAWAdIgml3xXUVKu/MXPbR3nJhIavKoukN9UKrmRdS+zkLDo/
+         8+oQB+Sd5oMMczCnX6tHdN9Kemi6Gx8aN0L484gk+Qpkql0sp3Oc2ACvBwNrvPJK3X7S
+         mZqa42wSBzU39IkfaAo+PHPZ93L+CMbvQx9OmkN6pDQ3suwsVhE2pwe2VOFmOCtm5+l2
+         Dhuw==
+X-Gm-Message-State: AOAM532RpoHFoq7yEWkyTHgISyzJWvcL5IQVaL9u6yJJ8TRHj7piATqv
+        VGCyqiGJzs+tY60hnsgq8B8zMOozhQS+RQ==
+X-Google-Smtp-Source: ABdhPJwVB8EOifk8da8K7BZHcsUTQ+/fqZMB1kqsYiiuwjzTw4FkhRrP0SUQYtCGwle9VbyFlt/Zlw==
+X-Received: by 2002:a63:5f15:: with SMTP id t21mr16848925pgb.402.1612858070839;
+        Tue, 09 Feb 2021 00:07:50 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p19sm1623317pjo.7.2021.02.09.00.07.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Feb 2021 00:07:50 -0800 (PST)
+Message-ID: <602242d6.1c69fb81.3d08c.4780@mx.google.com>
+Date:   Tue, 09 Feb 2021 00:07:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFA6WYM+xJ0YDKenWFPMHrTz4gLWatnog84wyk31Xy2dTiT2RA@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.14-120-g09da6c497f8e5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 109 runs,
+ 2 regressions (v5.10.14-120-g09da6c497f8e5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 09, 2021 at 01:28:47PM +0530, Sumit Garg wrote:
-> Thanks Greg for your response.
-> 
-> On Tue, 9 Feb 2021 at 12:28, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Feb 09, 2021 at 11:39:25AM +0530, Sumit Garg wrote:
-> > > Hi Christoph, Greg,
-> > >
-> > > Currently we are observing an incorrect address translation
-> > > corresponding to DMA direct mapping methods on 5.4 stable kernel while
-> > > sharing dmabuf from one device to another where both devices have
-> > > their own coherent DMA memory pools.
-> >
-> > What devices have this problem?
-> 
-> The problem is seen with V4L2 device drivers which are currently under
-> development for UniPhier PXs3 Reference Board from Socionext [1].
+stable-rc/queue/5.10 baseline: 109 runs, 2 regressions (v5.10.14-120-g09da6=
+c497f8e5)
 
-Ok, so it's not even a driver in the 5.4 kernel today, so there's
-nothing I can do here as there is no regression of the existing source
-tree.
+Regressions Summary
+-------------------
 
-> Following is brief description of the test framework:
-> 
-> The issue is observed while trying to construct a Gstreamer pipeline
-> leveraging hardware video converter engine (VPE device) and hardware
-> video encode/decode engine (CODEC device) where we use dmabuf
-> framework for Zero-Copy.
-> 
-> Example GStreamer pipeline is:
-> gst-launch-1.0 -v -e videotestsrc \
-> > ! video/x-raw, width=480, height=270, format=NV15 \
-> > ! v4l2convert device=/dev/vpe0 capture-io-mode=dmabuf-import \
-> > ! video/x-raw, width=480, height=270, format=NV12 \
-> > ! v4l2h265enc device=/dev/codec0 output-io-mode=dmabuf \
-> > ! video/x-h265, format=byte-stream, width=480, height=270 \
-> > ! filesink location=out.hevc
-> 
-> Using GStreamer's V4L2 plugin,
-> - v4l2convert controls VPE driver,
-> - v4l2h265enc controls CODEC driver.
-> 
-> In the above pipeline, VPE driver imports CODEC driver's DMABUF for Zero-Copy.
-> 
-> [1] arch/arm64/boot/dts/socionext/uniphier-pxs3-ref.dts
-> 
-> > And why can't then just use 5.10 to
-> > solve this issue as that problem has always been present for them,
-> > right?
-> 
-> As the drivers are currently under development and Socionext has
-> chosen 5.4 stable kernel for their development. So I will let
-> Obayashi-san answer this if it's possible for them to migrate to 5.10
-> instead?
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+imx8mp-evk     | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
 
-Why pick a kernel that doesn not support the features they require?
-That seems very odd and unwise.
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
 
-> BTW, this problem belongs to the common code, so others may experience
-> this issue as well.
 
-Then they should move to 5.10 or newer as this just doesn't work on
-older kernels, right?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.14-120-g09da6c497f8e5/plan/baseline/
 
-> > > I am able to root cause this issue which is caused by incorrect virt
-> > > to phys translation for addresses belonging to vmalloc space using
-> > > virt_to_page(). But while looking at the mainline kernel, this patch
-> > > [1] changes address translation from virt->to->phys to dma->to->phys
-> > > which fixes the issue observed on 5.4 stable kernel as well (minimal
-> > > fix [2]).
-> > >
-> > > So I would like to seek your suggestion for backport to stable kernels
-> > > (5.4 or earlier) as to whether we should backport the complete
-> > > mainline commit [1] or we should just apply the minimal fix [2]?
-> >
-> > Whenever you try to create a "minimal" fix, 90% of the time it is wrong
-> > and does not work and I end up having to deal with the mess.
-> 
-> I agree with your concerns for having to apply a non-mainline commit
-> onto a stable kernel.
-> 
-> >  What
-> > prevents you from doing the real thing here?  Are the patches to big?
-> >
-> 
-> IMHO, yes the mainline patch is big enough to touch multiple
-> architectures. But if that's the only way preferred then I can
-> backport the mainline patch instead.
-> 
-> > And again, why not just use 5.10 for this hardware?  What hardware is
-> > it?
-> >
-> 
-> Please see my response above.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.14-120-g09da6c497f8e5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      09da6c497f8e5d640180188f23faf203c0c472d9 =
 
-If a feature in the kernel was not present on older kernels, trying to
-shoe-horn it into them is not wise at all.  You pick a kernel version
-to reflect the features/options that you require, and it sounds like 5.4
-just will not work for them, so to stick with that would be quite
-foolish.
 
-Just move to 5.10, much simpler!
 
-thanks,
+Test Regressions
+---------------- =
 
-greg k-h
+
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+imx8mp-evk     | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6022105ec437c942393abe63
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.14-=
+120-g09da6c497f8e5/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.14-=
+120-g09da6c497f8e5/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6022105ec437c942393ab=
+e64
+        failing since 1 day (last pass: v5.10.13-57-gadb6856092da6, first f=
+ail: v5.10.14-4-g5bf21c370d20) =
+
+ =
+
+
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60220f18a8ff786c733abe67
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.14-=
+120-g09da6c497f8e5/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.14-=
+120-g09da6c497f8e5/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60220f18a8ff786c733ab=
+e68
+        new failure (last pass: v5.10.14-4-ge86cf3211995) =
+
+ =20
