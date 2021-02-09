@@ -2,105 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C30E2315925
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 23:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB5B315998
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 23:42:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbhBIWJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 17:09:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233534AbhBIWFk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 17:05:40 -0500
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB11BC08EC66
-        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 14:04:00 -0800 (PST)
-Received: by mail-lf1-x134.google.com with SMTP id m22so30761742lfg.5
-        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 14:04:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Tx92KR5yoK7Kj/E1nLE3ghpQl5QQOqByWmJjzpCqtGY=;
-        b=V9UwqGgzVSybr9MIk7X99nXuilfse+Mk3lydDn9RKCzCDYoRB0jaRN+0j9MgwzacFu
-         gRu43Pm1ruDkaldhqSI5PoDCwr8oM5gMRZ1n8jG6KKWHOx0mKaox9/lF3u76ljge1VQS
-         yj32Jj3AKfWfodOLM8Zk0KFcJSORZEpSei+Io=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Tx92KR5yoK7Kj/E1nLE3ghpQl5QQOqByWmJjzpCqtGY=;
-        b=ZkdcJP3aKH3pNU9bm6W3AsWYNfBqkeCGdgiHGRyopsFu9cg0QLYhTF8iT8TFHYgXDa
-         uaecnPVY3+qB0cruGY862ECYcSZqpcI/oS3Z2ZeEvcl7zW0bfl3J+0IBx0T+icnDN5sM
-         N3gZplavD+WEZGUpZM+zpbgubUWn5qvB3VOH2npKPoWGyZOaKQ305hYYpFTHbiJ2C/zq
-         jqkgoTXjg7wC8wW5RqUdull7gxU1tuvlqxOzDbVvKm/01pfrgBhQspn9u4NPF5AqASZ9
-         f7CXR4i1hOT6ImsZLLUPiPOBJcDI5boPngu/ZhpIn50rH3s8JjvEhWIYhbqlChSe4Ot7
-         d4iw==
-X-Gm-Message-State: AOAM531qp5Ce5tEpt6zxqK3cKNmZCknGyFLB9YaXeK4XKpcLQi5bl6cS
-        zJpW2jkbOi9BTCj//9SWKFNi1zcUoQM5Fw==
-X-Google-Smtp-Source: ABdhPJz0vSIaAt89voNJtuNyaIqadCRZ+Yxbh7g0J4McJt8XWsoJrMHE2SfNMASp98hXIxtVx7HsKQ==
-X-Received: by 2002:a05:6512:10c5:: with SMTP id k5mr14015659lfg.583.1612908220322;
-        Tue, 09 Feb 2021 14:03:40 -0800 (PST)
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com. [209.85.208.175])
-        by smtp.gmail.com with ESMTPSA id j5sm2733226lfm.105.2021.02.09.14.03.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Feb 2021 14:03:37 -0800 (PST)
-Received: by mail-lj1-f175.google.com with SMTP id q14so198254ljp.4
-        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 14:03:36 -0800 (PST)
-X-Received: by 2002:a2e:8116:: with SMTP id d22mr15212997ljg.48.1612908215823;
- Tue, 09 Feb 2021 14:03:35 -0800 (PST)
-MIME-Version: 1.0
-References: <20210209134115.4d933d446165cd0ed8977b03@linux-foundation.org> <20210209214217.gRa4Jmu1g%akpm@linux-foundation.org>
-In-Reply-To: <20210209214217.gRa4Jmu1g%akpm@linux-foundation.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 9 Feb 2021 14:03:19 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wiDt_eJvfrr-dCXq3eZ+ZmVTD2-rM2pcxBk4d-FM3h-bw@mail.gmail.com>
-Message-ID: <CAHk-=wiDt_eJvfrr-dCXq3eZ+ZmVTD2-rM2pcxBk4d-FM3h-bw@mail.gmail.com>
-Subject: Re: [patch 09/14] tmpfs: disallow CONFIG_TMPFS_INODE64 on alpha
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Chris Down <chris@chrisdown.name>,
-        Hugh Dickins <hughd@google.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Linux-MM <linux-mm@kvack.org>, Matt Turner <mattst88@gmail.com>,
-        mm-commits@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S233918AbhBIWhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 17:37:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55938 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234207AbhBIWRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 17:17:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7A2964EC6;
+        Tue,  9 Feb 2021 21:42:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1612906921;
+        bh=TCzoe9JQziNvVHa90fFpG29M+5+j6wz+oHY3DdrgANA=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=inV+5CWEo0VCrpGTf363EQPjNmQkUuo1tAXAMRmR3NMjjdBepaup3ByKXyQaov/1m
+         Nq3jO9jUCw3inYb+mWKcsOttJrYkjO6CEuO4Zi048ANjauMm/rnSxVCGL40VoTJRkS
+         1A5Xg78QfUDDo8hSEiAFvnK9l+IRgaxjyIXfxVa0=
+Date:   Tue, 09 Feb 2021 13:42:00 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, phillip@squashfs.org.uk,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 04/14] squashfs: add more sanity checks in xattr
+ id lookup
+Message-ID: <20210209214200.eB2f3Dmb5%akpm@linux-foundation.org>
+In-Reply-To: <20210209134115.4d933d446165cd0ed8977b03@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 9, 2021 at 1:42 PM Andrew Morton <akpm@linux-foundation.org> wrote:
->
-> As with s390, alpha is a 64-bit architecture with a 32-bit ino_t.  With
-> CONFIG_TMPFS_INODE64=y tmpfs mounts will get 64-bit inode numbers and
-> display "inode64" in the mount options, whereas passing "inode64" in the
-> mount options will fail.
+From: Phillip Lougher <phillip@squashfs.org.uk>
+Subject: squashfs: add more sanity checks in xattr id lookup
 
-Ugh.
+Sysbot has reported a warning where a kmalloc() attempt exceeds the
+maximum limit.  This has been identified as corruption of the xattr_ids
+count when reading the xattr id lookup table.
 
-The two patches for s390 and alpha are obviously the right thing to
-do, but I do wonder if we could strive to make __kernel_ino_t go away
-entirely.
+This patch adds a number of additional sanity checks to detect this
+corruption and others.
 
-It's actually not used very much, because it's such a nasty type, and
-s390 and alpha are the only ones that override it from the default
-"word length" version (and honestly, even that default is not a great
-type).
+1. It checks for a corrupted xattr index read from the inode.  This could
+   be because the metadata block is uncompressed, or because the
+   "compression" bit has been corrupted (turning a compressed block
+   into an uncompressed block).  This would cause an out of bounds read.
 
-The main use of it is for "ino_t" and for "struct ustat".
+2. It checks against corruption of the xattr_ids count.  This can either
+   lead to the above kmalloc failure, or a smaller than expected
+   table to be read.
 
-And yes, "ino_t" is widely used, but I think pretty much all uses of
-it are entirely internal to the kernel, and we could just make it be
-"unsigned long".
+3. It checks the contents of the index table for corruption.
 
-Does anybody see any actual user interfaces that depend on
-"__kernel_ino_t", aka "ino_t" (apart from that "struct ustat")?
+[phillip@squashfs.org.uk: fix checkpatch issue]
+  Link: https://lkml.kernel.org/r/270245655.754655.1612770082682@webmail.123-reg.co.uk
+Link: https://lkml.kernel.org/r/20210204130249.4495-5-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-I guess this is mostly a question for s390, which is actively maintained?
+ fs/squashfs/xattr_id.c |   66 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 57 insertions(+), 9 deletions(-)
 
-           Linus
+--- a/fs/squashfs/xattr_id.c~squashfs-add-more-sanity-checks-in-xattr-id-lookup
++++ a/fs/squashfs/xattr_id.c
+@@ -31,10 +31,15 @@ int squashfs_xattr_lookup(struct super_b
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int block = SQUASHFS_XATTR_BLOCK(index);
+ 	int offset = SQUASHFS_XATTR_BLOCK_OFFSET(index);
+-	u64 start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++	u64 start_block;
+ 	struct squashfs_xattr_id id;
+ 	int err;
+ 
++	if (index >= msblk->xattr_ids)
++		return -EINVAL;
++
++	start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++
+ 	err = squashfs_read_metadata(sb, &id, &start_block, &offset,
+ 							sizeof(id));
+ 	if (err < 0)
+@@ -50,13 +55,17 @@ int squashfs_xattr_lookup(struct super_b
+ /*
+  * Read uncompressed xattr id lookup table indexes from disk into memory
+  */
+-__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 start,
++__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+ 		u64 *xattr_table_start, int *xattr_ids)
+ {
+-	unsigned int len;
++	struct squashfs_sb_info *msblk = sb->s_fs_info;
++	unsigned int len, indexes;
+ 	struct squashfs_xattr_id_table *id_table;
++	__le64 *table;
++	u64 start, end;
++	int n;
+ 
+-	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
++	id_table = squashfs_read_table(sb, table_start, sizeof(*id_table));
+ 	if (IS_ERR(id_table))
+ 		return (__le64 *) id_table;
+ 
+@@ -70,13 +79,52 @@ __le64 *squashfs_read_xattr_id_table(str
+ 	if (*xattr_ids == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	/* xattr_table should be less than start */
+-	if (*xattr_table_start >= start)
++	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
++
++	/*
++	 * The computed size of the index table (len bytes) should exactly
++	 * match the table start and end points
++	 */
++	start = table_start + sizeof(*id_table);
++	end = msblk->bytes_used;
++
++	if (len != (end - start))
+ 		return ERR_PTR(-EINVAL);
+ 
+-	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	table = squashfs_read_table(sb, start, len);
++	if (IS_ERR(table))
++		return table;
++
++	/* table[0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed xattr id blocks.  Each entry should be less than
++	 * the next (i.e. table[0] < table[1]), and the difference between them
++	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
++	 * should be less than table_start, and again the difference
++	 * shouls be SQUASHFS_METADATA_SIZE or less.
++	 *
++	 * Finally xattr_table_start should be less than table[0].
++	 */
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	TRACE("In read_xattr_index_table, length %d\n", len);
++	if (*xattr_table_start >= le64_to_cpu(table[0])) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	return squashfs_read_table(sb, start + sizeof(*id_table), len);
++	return table;
+ }
+_
