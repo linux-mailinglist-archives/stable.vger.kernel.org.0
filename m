@@ -2,219 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF51031571E
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 20:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5CF31576B
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 21:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbhBITqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 14:46:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51644 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233581AbhBITil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 14:38:41 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B471C061A31
-        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 11:37:19 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id lg21so33757748ejb.3
-        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 11:37:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=o3jYTiOHJZlHfoq5+7MSBsToqrkgCMv+obDe+1t3RuE=;
-        b=ah+sPiHCRo9jFUGiRHcc6MlSUUEjL5fNdMzG17M1DHpuGGA3s1+eFZ7mghLA8F5wJ6
-         QEBX4vN7HQWDmkc4KhTnMBEewLXXnzuEYm2ZBefDIvQPRoHb6B3hQ/1pJoNYL2IRF8my
-         1YrB6xBQVdihAvcgMWGdLPMm8hKAzK/4tXvdrjVIL+vN1Tyg5GOXwdbbhGczQ6vN2Lmr
-         TkM9zxLzDwrYjx2s8bVhKazV5+chVDN8fwdLRO1pLunEbSM9TDaoFLtmhM07nZuOhjj5
-         En2DPS1Di7xn1J0iNE+a3avFHFuuRsUsdlFpIGZbbN7fbLAjfxvYXk9cxxc2X+axT+8P
-         Ow0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=o3jYTiOHJZlHfoq5+7MSBsToqrkgCMv+obDe+1t3RuE=;
-        b=MT+bpCZ174OpsZ9d82U7HYSIW1srdDdt8YiTSqv9EHqqgm34R3zdYygh9OVJuZU+rW
-         iCTV+0Bx4PX1c5VHQ/VK4kNnHTc5x4YPK57CL9MbaBkkvY6Xj3bLy3DXn9ioKmtB3jnk
-         lPbi1mB4brMCB2uouJOZ0zZGYBEDrv9rTDFWdoVIZBu6ReRPAmTqgVndbdamydNJtYwM
-         Lt/adibjGX8n+ZkjDPtAPLNGYPkYetA+ZN5LU3C4m+WikE47LEnzIU1qr7ZCEP9K6rAf
-         RtPnbBcN/vDorbxVazmc5vzqR3GbSZXpDPj734aVyYc10NopF6ulRsGgqZra3EFBCrbz
-         dLRA==
-X-Gm-Message-State: AOAM5333g2XZappjkZcLxGXUTvBMLQJSHKyGW4cTEEvL82X7bbsTzwMi
-        BomIazxffhoD18jHmJXvD4vswqT0n4Znqk+PWI0h1Q==
-X-Google-Smtp-Source: ABdhPJw2PJt76E7qkl54G//GgcdZfOFHyO6FDhElskb438Yor31E7lvFIFCnCPc4bXHBfnIOLN9LXrLFfjxnXtEOub8=
-X-Received: by 2002:a17:906:6943:: with SMTP id c3mr9585460ejs.133.1612899437958;
- Tue, 09 Feb 2021 11:37:17 -0800 (PST)
+        id S233764AbhBIUEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 15:04:22 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24724 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233450AbhBITve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 14:51:34 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 119JXGqO091331;
+        Tue, 9 Feb 2021 14:49:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=1gsPEt1/kDSSNflaImtKJVxcfOurcbBEdIG2t/N6F+8=;
+ b=mo+TQXicVlL/ceoR6QmzmGuRiUkrHwCF1KsxgqYAJQWrKD+UkaBvCChXGlipYOdUFzAh
+ 8qkjbA2CftXI3LIIEvrwHmnLOrvMqWq+YarhtAiOYg0KccnnQFp7YRUB+UPJF7f57qlP
+ EkNi+zmDwkCJs6eeSxf3QxcFGu37CAwHs+lVfCAzUy75jzczXTJNTd7tx5TDKqNlj7q9
+ QXqUMcfnDb3LjFcvRu/3v6qJenNgZNWTkVyja1ed9raALR4QHow8UeQVBo9DoEvzpfaz
+ cHhqRBhSBz9PNqbjgCRNdy9U/bUr9F8A4bpohK1sjXG6++3PxRNVVuea0C3zKMWCuNlj sA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kyx7t8na-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 14:49:01 -0500
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 119JXKuf091898;
+        Tue, 9 Feb 2021 14:49:00 -0500
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kyx7t8n6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 14:49:00 -0500
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 119Jgdpc003984;
+        Tue, 9 Feb 2021 19:49:00 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01dal.us.ibm.com with ESMTP id 36hjr9f50u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 19:49:00 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 119JmxOf42729850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 9 Feb 2021 19:48:59 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E4C6B2065;
+        Tue,  9 Feb 2021 19:48:59 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E612B205F;
+        Tue,  9 Feb 2021 19:48:58 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.203.235])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue,  9 Feb 2021 19:48:58 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
+        kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
+        Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH 0/1] fix circular lockdep when staring SE guest
+Date:   Tue,  9 Feb 2021 14:48:29 -0500
+Message-Id: <20210209194830.20271-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-References: <20210208145806.281758651@linuxfoundation.org>
-In-Reply-To: <20210208145806.281758651@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 10 Feb 2021 01:07:06 +0530
-Message-ID: <CA+G9fYsDW5D+VBhw0BpBrF=5w7gyD2fi9Q9XucmPKqWOvdYXBQ@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/43] 4.9.257-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-09_06:2021-02-09,2021-02-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 malwarescore=0 suspectscore=0 spamscore=0 clxscore=1011
+ bulkscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102090094
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 8 Feb 2021 at 20:35, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.257 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 10 Feb 2021 14:57:55 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.257-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Patch f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
+pointer invalidated") introduced a change that results in a circular
+locking dependency when a Secure Execution guest that is configured with
+crypto devices is started. The problem resulted due to the fact that the
+patch moved the setting of the guest's AP masks within the protection of
+the matrix_dev->lock when the vfio_ap driver is notified that the KVM 
+pointer has been set. Since it is not critical that setting/clearing of
+the guest's AP masks when the driver is notified, the masks will not be
+updated under the matrix_dev->lock. The lock is necessary for the
+setting/unsetting of the KVM pointer, however, so that will remain in
+place. 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+The dependency chain for the circular lockdep resolved by this patch 
+is:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+#2	vfio_ap_mdev_group_notifier:	kvm->lock
+					matrix_dev->lock
 
-Summary
-------------------------------------------------------------------------
+#1:	handle_pqap:			matrix_dev->lock
+	kvm_vcpu_ioctl:			vcpu->mutex
 
-kernel: 4.9.257-rc1
-git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-git branch: linux-4.9.y
-git commit: cffa06cb070f1ce0015e19c0f54b7a2b86ab4d24
-git describe: v4.9.256-44-gcffa06cb070f
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.=
-y/build/v4.9.256-44-gcffa06cb070f
+#0:	kvm_s390_cpus_to_pv:		vcpu->mutex
+	kvm_vm_ioctl:  			kvm->lock   
 
-No regressions (compared to build v4.9.255-14-gd4780bd0ccef)
+Tony Krowiak (1):
+  s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks
 
-No fixes (compared to build v4.9.255-14-gd4780bd0ccef)
+ drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
+ 1 file changed, 45 insertions(+), 30 deletions(-)
 
-Ran 39352 total tests in the following environments and test suites.
+-- 
+2.21.1
 
-Environments
---------------
-- arm
-- arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-64k_page_size
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-intel_pstate
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* fwts
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* libhugetlbfs
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* network-basic-tests
-* kvm-unit-tests
-* ltp-open-posix-tests
-* kselftest-vm
-* kselftest-kexec
-* kselftest-x86
-
---
-Linaro LKFT
-https://lkft.linaro.org
