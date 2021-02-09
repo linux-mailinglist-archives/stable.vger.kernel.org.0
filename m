@@ -2,114 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95493314AEB
-	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 09:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DF08314B51
+	for <lists+stable@lfdr.de>; Tue,  9 Feb 2021 10:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbhBIIz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Feb 2021 03:55:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230102AbhBIIyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Feb 2021 03:54:00 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039DBC061788
-        for <stable@vger.kernel.org>; Tue,  9 Feb 2021 00:53:19 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id v14so5050587wro.7
-        for <stable@vger.kernel.org>; Tue, 09 Feb 2021 00:53:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=scylladb-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=H208pVEPEbQ1MKSr4OW/7+4dNKsHEjdg7nesnQMvyp8=;
-        b=nEOooPDEVr2l45WeE7wb95Sm/9VCZYRDo2IDYlfp7OyUip+YG8taZwJNy6NutaQbTS
-         uNEDbwAeJj/AJlyEOBYwxQHrNzv8uSi60zxOBa+Dm+iEDq9VfFAy74NJX72E8Ugk81n9
-         9GVv/2zSK1G2H6rFXL7iSkSi9BuegWhZW6BwFbi2wXzNmBZcQ3nc0MEObEqgSKltJJGJ
-         f1TBzMEIBHk61cssdfbyGaL12eLdhXEVUM8RI05F0CnZLoW3EFKiW0GZtrgyOTkzKIwW
-         YgryQpDvKCmW0I/fwsvm4zcXW1w0RSQbtpVQH9rI8wVag5Q0xmZcWxk3QGCePVUpi/nm
-         HbKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=H208pVEPEbQ1MKSr4OW/7+4dNKsHEjdg7nesnQMvyp8=;
-        b=T3Mej+p3mpuSs4FHEq4AFo2/tCrtMWLndLC+X8Frn8g8mZDH7Fz0H0a8dtAAOG3dbf
-         DYFGmOI8W6fmVdKrnKE+rWYWjg7vHxpxR1W+CTQBOY3aAASqPsRP1jAU0Yw4e/bacFhU
-         EuBWgqzNLPytjg/j7Nej+uDAGiT3Ru4Y93d/qpMO6ccaXIwj6FcOnFQ2Deamh+XGB4bT
-         PD5PVx5EN21cs6knbvBzBRalfTLU1oFQArB7SsdrriGByK18VgNXn2dY08QLlH5s81bN
-         yRyAY1pwGVt9oxZsU73lNfKHBeeUXZ+dyR2VCqjdD9Cla61pFUz9/trgYeRsBeBKvRZM
-         FP5w==
-X-Gm-Message-State: AOAM5323QFydP/tp4PoJUdwPjrpJ0EJT7P9JCdoXP373Lh57aNdk4dDV
-        Z17UcrJNP2VT3w7O2bvPFKyyqagsGL0NxA==
-X-Google-Smtp-Source: ABdhPJzN9QLvfxnc87FTfAej1i1vfCta3vnRz10Qfk8dnuz0GigPQqeqioTRm2sIPYW4akt9sBr4hg==
-X-Received: by 2002:adf:fe82:: with SMTP id l2mr5098493wrr.341.1612860798577;
-        Tue, 09 Feb 2021 00:53:18 -0800 (PST)
-Received: from tmp.scylladb.com (bzq-109-67-58-110.red.bezeqint.net. [109.67.58.110])
-        by smtp.googlemail.com with ESMTPSA id q15sm7180104wrr.58.2021.02.09.00.53.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Feb 2021 00:53:17 -0800 (PST)
-Subject: Re: Linux 4.9.256
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        jslaby@suse.cz
-References: <1612535085125226@kroah.com>
- <23a28990-c465-f813-52a4-f7f3db007f9d@scylladb.com>
- <20210208185707.GC4035784@sasha-vm>
-From:   Avi Kivity <avi@scylladb.com>
-Message-ID: <219a26ec-fd6b-b841-43ef-57e04b417c4e@scylladb.com>
-Date:   Tue, 9 Feb 2021 10:53:15 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S230285AbhBIJSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Feb 2021 04:18:37 -0500
+Received: from mx.socionext.com ([202.248.49.38]:50115 "EHLO mx.socionext.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230448AbhBIJP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Feb 2021 04:15:26 -0500
+X-Greylist: delayed 532 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Feb 2021 04:15:23 EST
+Received: from unknown (HELO iyokan2-ex.css.socionext.com) ([172.31.9.54])
+  by mx.socionext.com with ESMTP; 09 Feb 2021 18:05:42 +0900
+Received: from mail.mfilter.local (m-filter-1 [10.213.24.61])
+        by iyokan2-ex.css.socionext.com (Postfix) with ESMTP id 685F62059034;
+        Tue,  9 Feb 2021 18:05:42 +0900 (JST)
+Received: from 10.213.24.1 (10.213.24.1) by m-FILTER with ESMTP; Tue, 9 Feb 2021 18:05:42 +0900
+Received: from SOC-EX02V.e01.socionext.com (10.213.24.22) by
+ SOC-EX02V.e01.socionext.com (10.213.24.22) with Microsoft SMTP Server (TLS)
+ id 15.0.995.29; Tue, 9 Feb 2021 18:05:41 +0900
+Received: from SOC-EX02V.e01.socionext.com ([10.213.25.22]) by
+ SOC-EX02V.e01.socionext.com ([10.213.25.22]) with mapi id 15.00.0995.028;
+ Tue, 9 Feb 2021 18:05:41 +0900
+From:   <obayashi.yoshimasa@socionext.com>
+To:     <gregkh@linuxfoundation.org>, <sumit.garg@linaro.org>
+CC:     <hch@lst.de>, <m.szyprowski@samsung.com>, <robin.murphy@arm.com>,
+        <iommu@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>, <daniel.thompson@linaro.org>
+Subject: RE: DMA direct mapping fix for 5.4 and earlier stable branches
+Thread-Topic: DMA direct mapping fix for 5.4 and earlier stable branches
+Thread-Index: AQHW/qowxPC004ZwL0WzBboqT0yFrapOzcOAgAAQ0oCAAAGYgIAAmb8Q
+Date:   Tue, 9 Feb 2021 09:05:40 +0000
+Message-ID: <27bbe35deacb4ca49f31307f4ed551b5@SOC-EX02V.e01.socionext.com>
+References: <CAFA6WYNazCmYN20irLdNV+2vcv5dqR+grvaY-FA7q2WOBMs__g@mail.gmail.com>
+ <YCIym62vHfbG+dWf@kroah.com>
+ <CAFA6WYM+xJ0YDKenWFPMHrTz4gLWatnog84wyk31Xy2dTiT2RA@mail.gmail.com>
+ <YCJCDZGa1Dhqv6Ni@kroah.com>
+In-Reply-To: <YCJCDZGa1Dhqv6Ni@kroah.com>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-securitypolicycheck: OK by SHieldMailChecker v2.6.1
+x-shieldmailcheckerpolicyversion: POLICY200130
+x-originating-ip: [10.213.24.1]
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20210208185707.GC4035784@sasha-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/8/21 8:57 PM, Sasha Levin wrote:
-> On Mon, Feb 08, 2021 at 05:50:21PM +0200, Avi Kivity wrote:
->> On 05/02/2021 16.26, Greg Kroah-Hartman wrote:
->>> I'm announcing the release of the 4.9.256 kernel.
->>>
->>> This, and the 4.4.256 release are a little bit "different" than normal.
->>>
->>> This contains only 1 patch, just the version bump from .255 to .256 
->>> which ends
->>> up causing the userspace-visable LINUX_VERSION_CODE to behave a bit 
->>> differently
->>> than normal due to the "overflow".
->>>
->>> With this release, KERNEL_VERSION(4, 9, 256) is the same as 
->>> KERNEL_VERSION(4, 10, 0).
->>
->>
->> I think this is a bad idea. Many kernel features can only be 
->> discovered by checking the kernel version. If a feature was 
->> introduced in 4.10, then an application can be tricked into thinking 
->> a 4.9 kernel has it.
->>
->>
->> IMO, better to stop LINUX_VERSION_CODE at 255 and introduce a 
->
-> In the upstream (and new -stable fix) we did this part.
->
->> LINUX_VERSION_CODE_IMPROVED that has more bits for patchlevel.
->
-> Do you have a usecase where it's actually needed? i.e. userspace that
-> checks for -stable patchlevels?
->
-
-Not stable patchlevels, but minors. So a change from 4.9 to 4.10 could 
-be harmful.
-
-
-I have two such examples (not on the 4.9->4.10 boundary), but they test 
-the runtime version from uname(), not LINUX_VERSION_CODE, so they would 
-be vulnerable to such a change.
-
-
+PiA+IEFzIHRoZSBkcml2ZXJzIGFyZSBjdXJyZW50bHkgdW5kZXIgZGV2ZWxvcG1lbnQgYW5kIFNv
+Y2lvbmV4dCBoYXMNCj4gPiBjaG9zZW4gNS40IHN0YWJsZSBrZXJuZWwgZm9yIHRoZWlyIGRldmVs
+b3BtZW50LiBTbyBJIHdpbGwgbGV0DQo+ID4gT2JheWFzaGktc2FuIGFuc3dlciB0aGlzIGlmIGl0
+J3MgcG9zc2libGUgZm9yIHRoZW0gdG8gbWlncmF0ZSB0byA1LjEwDQo+ID4gaW5zdGVhZD8NCg0K
+ICBXZSBoYXZlIHN0YXJ0ZWQgdGhpcyBkZXZlbG9wbWVudCBwcm9qZWN0IGZyb20gbGFzdCBBdWd1
+c3QsIA0Kc28gd2UgaGF2ZSBzZWxlY3RlZCA1LjQgYXMgbW9zdCByZWNlbnQgYW5kIGxvbmdlc3Qg
+bGlmZXRpbWUgTFRTIA0KdmVyc2lvbiBhdCB0aGF0IHRpbWUuDQoNCiAgQW5kIHdlIGhhdmUgYWxy
+ZWFkeSBmaW5pc2hlZCB0byBkZXZlbG9wIG90aGVyIGRldmljZSBkcml2ZXJzLCANCmFuZCBWaWRl
+byBjb252ZXJ0ZXIgYW5kIENPREVDIGRyaXZlcnMgYXJlIG5vdyBpbiBkZXZlbG9wbWVudC4NCg0K
+PiBXaHkgcGljayBhIGtlcm5lbCB0aGF0IGRvZXNuIG5vdCBzdXBwb3J0IHRoZSBmZWF0dXJlcyB0
+aGV5IHJlcXVpcmU/DQo+IFRoYXQgc2VlbXMgdmVyeSBvZGQgYW5kIHVud2lzZS4NCg0KICBGcm9t
+IHRoZSB2aWV3IHBvaW50IG9mIFplcm9Db3B5IHVzaW5nIERNQUJVRiwgaXMgNS40IG5vdCANCm1h
+dHVyZSBlbm91Z2gsIGFuZCBpcyA1LjEwIGVub3VnaCBtYXR1cmUgPw0KICBUaGlzIGlzIHRoZSBt
+b3N0IGltcG9ydGFudCBwb2ludCBmb3IganVkZ2luZyBtaWdyYXRpb24uDQoNClJlZ2FyZHMuDQoN
+Cj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3JlZyBLcm9haC1IYXJ0bWFu
+IDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4NCj4gU2VudDogVHVlc2RheSwgRmVicnVhcnkg
+OSwgMjAyMSA1OjA0IFBNDQo+IFRvOiBTdW1pdCBHYXJnIDxzdW1pdC5nYXJnQGxpbmFyby5vcmc+
+DQo+IENjOiBPYmF5YXNoaSwgWW9zaGltYXNhLxskQkh4TlMbKEIgGyRCQTFANRsoQiA8b2JheWFz
+aGkueW9zaGltYXNhQHNvY2lvbmV4dC5jb20+OyBoY2hAbHN0LmRlOw0KPiBtLnN6eXByb3dza2lA
+c2Ftc3VuZy5jb207IHJvYmluLm11cnBoeUBhcm0uY29tOyBpb21tdUBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZzsgTGludXggS2VybmVsIE1haWxpbmcNCj4gTGlzdCA8bGludXgta2VybmVsQHZn
+ZXIua2VybmVsLm9yZz47IHN0YWJsZSA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz47IERhbmllbCBU
+aG9tcHNvbg0KPiA8ZGFuaWVsLnRob21wc29uQGxpbmFyby5vcmc+DQo+IFN1YmplY3Q6IFJlOiBE
+TUEgZGlyZWN0IG1hcHBpbmcgZml4IGZvciA1LjQgYW5kIGVhcmxpZXIgc3RhYmxlIGJyYW5jaGVz
+DQo+IA0KPiBPbiBUdWUsIEZlYiAwOSwgMjAyMSBhdCAwMToyODo0N1BNICswNTMwLCBTdW1pdCBH
+YXJnIHdyb3RlOg0KPiA+IFRoYW5rcyBHcmVnIGZvciB5b3VyIHJlc3BvbnNlLg0KPiA+DQo+ID4g
+T24gVHVlLCA5IEZlYiAyMDIxIGF0IDEyOjI4LCBHcmVnIEtyb2FoLUhhcnRtYW4NCj4gPiA8Z3Jl
+Z2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+IHdyb3RlOg0KPiA+ID4NCj4gPiA+IE9uIFR1ZSwgRmVi
+IDA5LCAyMDIxIGF0IDExOjM5OjI1QU0gKzA1MzAsIFN1bWl0IEdhcmcgd3JvdGU6DQo+ID4gPiA+
+IEhpIENocmlzdG9waCwgR3JlZywNCj4gPiA+ID4NCj4gPiA+ID4gQ3VycmVudGx5IHdlIGFyZSBv
+YnNlcnZpbmcgYW4gaW5jb3JyZWN0IGFkZHJlc3MgdHJhbnNsYXRpb24NCj4gPiA+ID4gY29ycmVz
+cG9uZGluZyB0byBETUEgZGlyZWN0IG1hcHBpbmcgbWV0aG9kcyBvbiA1LjQgc3RhYmxlIGtlcm5l
+bA0KPiA+ID4gPiB3aGlsZSBzaGFyaW5nIGRtYWJ1ZiBmcm9tIG9uZSBkZXZpY2UgdG8gYW5vdGhl
+ciB3aGVyZSBib3RoIGRldmljZXMNCj4gPiA+ID4gaGF2ZSB0aGVpciBvd24gY29oZXJlbnQgRE1B
+IG1lbW9yeSBwb29scy4NCj4gPiA+DQo+ID4gPiBXaGF0IGRldmljZXMgaGF2ZSB0aGlzIHByb2Js
+ZW0/DQo+ID4NCj4gPiBUaGUgcHJvYmxlbSBpcyBzZWVuIHdpdGggVjRMMiBkZXZpY2UgZHJpdmVy
+cyB3aGljaCBhcmUgY3VycmVudGx5IHVuZGVyDQo+ID4gZGV2ZWxvcG1lbnQgZm9yIFVuaVBoaWVy
+IFBYczMgUmVmZXJlbmNlIEJvYXJkIGZyb20gU29jaW9uZXh0IFsxXS4NCj4gDQo+IE9rLCBzbyBp
+dCdzIG5vdCBldmVuIGEgZHJpdmVyIGluIHRoZSA1LjQga2VybmVsIHRvZGF5LCBzbyB0aGVyZSdz
+IG5vdGhpbmcgSSBjYW4gZG8gaGVyZSBhcyB0aGVyZSBpcyBubyByZWdyZXNzaW9uDQo+IG9mIHRo
+ZSBleGlzdGluZyBzb3VyY2UgdHJlZS4NCj4gDQo+ID4gRm9sbG93aW5nIGlzIGJyaWVmIGRlc2Ny
+aXB0aW9uIG9mIHRoZSB0ZXN0IGZyYW1ld29yazoNCj4gPg0KPiA+IFRoZSBpc3N1ZSBpcyBvYnNl
+cnZlZCB3aGlsZSB0cnlpbmcgdG8gY29uc3RydWN0IGEgR3N0cmVhbWVyIHBpcGVsaW5lDQo+ID4g
+bGV2ZXJhZ2luZyBoYXJkd2FyZSB2aWRlbyBjb252ZXJ0ZXIgZW5naW5lIChWUEUgZGV2aWNlKSBh
+bmQgaGFyZHdhcmUNCj4gPiB2aWRlbyBlbmNvZGUvZGVjb2RlIGVuZ2luZSAoQ09ERUMgZGV2aWNl
+KSB3aGVyZSB3ZSB1c2UgZG1hYnVmDQo+ID4gZnJhbWV3b3JrIGZvciBaZXJvLUNvcHkuDQo+ID4N
+Cj4gPiBFeGFtcGxlIEdTdHJlYW1lciBwaXBlbGluZSBpczoNCj4gPiBnc3QtbGF1bmNoLTEuMCAt
+diAtZSB2aWRlb3Rlc3RzcmMgXA0KPiA+ID4gISB2aWRlby94LXJhdywgd2lkdGg9NDgwLCBoZWln
+aHQ9MjcwLCBmb3JtYXQ9TlYxNSBcICEgdjRsMmNvbnZlcnQNCj4gPiA+IGRldmljZT0vZGV2L3Zw
+ZTAgY2FwdHVyZS1pby1tb2RlPWRtYWJ1Zi1pbXBvcnQgXCAhIHZpZGVvL3gtcmF3LA0KPiA+ID4g
+d2lkdGg9NDgwLCBoZWlnaHQ9MjcwLCBmb3JtYXQ9TlYxMiBcICEgdjRsMmgyNjVlbmMNCj4gPiA+
+IGRldmljZT0vZGV2L2NvZGVjMCBvdXRwdXQtaW8tbW9kZT1kbWFidWYgXCAhIHZpZGVvL3gtaDI2
+NSwNCj4gPiA+IGZvcm1hdD1ieXRlLXN0cmVhbSwgd2lkdGg9NDgwLCBoZWlnaHQ9MjcwIFwgISBm
+aWxlc2luaw0KPiA+ID4gbG9jYXRpb249b3V0LmhldmMNCj4gPg0KPiA+IFVzaW5nIEdTdHJlYW1l
+cidzIFY0TDIgcGx1Z2luLA0KPiA+IC0gdjRsMmNvbnZlcnQgY29udHJvbHMgVlBFIGRyaXZlciwN
+Cj4gPiAtIHY0bDJoMjY1ZW5jIGNvbnRyb2xzIENPREVDIGRyaXZlci4NCj4gPg0KPiA+IEluIHRo
+ZSBhYm92ZSBwaXBlbGluZSwgVlBFIGRyaXZlciBpbXBvcnRzIENPREVDIGRyaXZlcidzIERNQUJV
+RiBmb3IgWmVyby1Db3B5Lg0KPiA+DQo+ID4gWzFdIGFyY2gvYXJtNjQvYm9vdC9kdHMvc29jaW9u
+ZXh0L3VuaXBoaWVyLXB4czMtcmVmLmR0cw0KPiA+DQo+ID4gPiBBbmQgd2h5IGNhbid0IHRoZW4g
+anVzdCB1c2UgNS4xMCB0bw0KPiA+ID4gc29sdmUgdGhpcyBpc3N1ZSBhcyB0aGF0IHByb2JsZW0g
+aGFzIGFsd2F5cyBiZWVuIHByZXNlbnQgZm9yIHRoZW0sDQo+ID4gPiByaWdodD8NCj4gPg0KPiA+
+IEFzIHRoZSBkcml2ZXJzIGFyZSBjdXJyZW50bHkgdW5kZXIgZGV2ZWxvcG1lbnQgYW5kIFNvY2lv
+bmV4dCBoYXMNCj4gPiBjaG9zZW4gNS40IHN0YWJsZSBrZXJuZWwgZm9yIHRoZWlyIGRldmVsb3Bt
+ZW50LiBTbyBJIHdpbGwgbGV0DQo+ID4gT2JheWFzaGktc2FuIGFuc3dlciB0aGlzIGlmIGl0J3Mg
+cG9zc2libGUgZm9yIHRoZW0gdG8gbWlncmF0ZSB0byA1LjEwDQo+ID4gaW5zdGVhZD8NCj4gDQo+
+IFdoeSBwaWNrIGEga2VybmVsIHRoYXQgZG9lc24gbm90IHN1cHBvcnQgdGhlIGZlYXR1cmVzIHRo
+ZXkgcmVxdWlyZT8NCj4gVGhhdCBzZWVtcyB2ZXJ5IG9kZCBhbmQgdW53aXNlLg0KPiANCj4gPiBC
+VFcsIHRoaXMgcHJvYmxlbSBiZWxvbmdzIHRvIHRoZSBjb21tb24gY29kZSwgc28gb3RoZXJzIG1h
+eSBleHBlcmllbmNlDQo+ID4gdGhpcyBpc3N1ZSBhcyB3ZWxsLg0KPiANCj4gVGhlbiB0aGV5IHNo
+b3VsZCBtb3ZlIHRvIDUuMTAgb3IgbmV3ZXIgYXMgdGhpcyBqdXN0IGRvZXNuJ3Qgd29yayBvbiBv
+bGRlciBrZXJuZWxzLCByaWdodD8NCj4gDQo+ID4gPiA+IEkgYW0gYWJsZSB0byByb290IGNhdXNl
+IHRoaXMgaXNzdWUgd2hpY2ggaXMgY2F1c2VkIGJ5IGluY29ycmVjdA0KPiA+ID4gPiB2aXJ0IHRv
+IHBoeXMgdHJhbnNsYXRpb24gZm9yIGFkZHJlc3NlcyBiZWxvbmdpbmcgdG8gdm1hbGxvYyBzcGFj
+ZQ0KPiA+ID4gPiB1c2luZyB2aXJ0X3RvX3BhZ2UoKS4gQnV0IHdoaWxlIGxvb2tpbmcgYXQgdGhl
+IG1haW5saW5lIGtlcm5lbCwNCj4gPiA+ID4gdGhpcyBwYXRjaCBbMV0gY2hhbmdlcyBhZGRyZXNz
+IHRyYW5zbGF0aW9uIGZyb20gdmlydC0+dG8tPnBoeXMgdG8NCj4gPiA+ID4gZG1hLT50by0+cGh5
+cyB3aGljaCBmaXhlcyB0aGUgaXNzdWUgb2JzZXJ2ZWQgb24gNS40IHN0YWJsZSBrZXJuZWwNCj4g
+PiA+ID4gYXMgd2VsbCAobWluaW1hbCBmaXggWzJdKS4NCj4gPiA+ID4NCj4gPiA+ID4gU28gSSB3
+b3VsZCBsaWtlIHRvIHNlZWsgeW91ciBzdWdnZXN0aW9uIGZvciBiYWNrcG9ydCB0byBzdGFibGUN
+Cj4gPiA+ID4ga2VybmVscw0KPiA+ID4gPiAoNS40IG9yIGVhcmxpZXIpIGFzIHRvIHdoZXRoZXIg
+d2Ugc2hvdWxkIGJhY2twb3J0IHRoZSBjb21wbGV0ZQ0KPiA+ID4gPiBtYWlubGluZSBjb21taXQg
+WzFdIG9yIHdlIHNob3VsZCBqdXN0IGFwcGx5IHRoZSBtaW5pbWFsIGZpeCBbMl0/DQo+ID4gPg0K
+PiA+ID4gV2hlbmV2ZXIgeW91IHRyeSB0byBjcmVhdGUgYSAibWluaW1hbCIgZml4LCA5MCUgb2Yg
+dGhlIHRpbWUgaXQgaXMNCj4gPiA+IHdyb25nIGFuZCBkb2VzIG5vdCB3b3JrIGFuZCBJIGVuZCB1
+cCBoYXZpbmcgdG8gZGVhbCB3aXRoIHRoZSBtZXNzLg0KPiA+DQo+ID4gSSBhZ3JlZSB3aXRoIHlv
+dXIgY29uY2VybnMgZm9yIGhhdmluZyB0byBhcHBseSBhIG5vbi1tYWlubGluZSBjb21taXQNCj4g
+PiBvbnRvIGEgc3RhYmxlIGtlcm5lbC4NCj4gPg0KPiA+ID4gIFdoYXQNCj4gPiA+IHByZXZlbnRz
+IHlvdSBmcm9tIGRvaW5nIHRoZSByZWFsIHRoaW5nIGhlcmU/ICBBcmUgdGhlIHBhdGNoZXMgdG8g
+YmlnPw0KPiA+ID4NCj4gPg0KPiA+IElNSE8sIHllcyB0aGUgbWFpbmxpbmUgcGF0Y2ggaXMgYmln
+IGVub3VnaCB0byB0b3VjaCBtdWx0aXBsZQ0KPiA+IGFyY2hpdGVjdHVyZXMuIEJ1dCBpZiB0aGF0
+J3MgdGhlIG9ubHkgd2F5IHByZWZlcnJlZCB0aGVuIEkgY2FuDQo+ID4gYmFja3BvcnQgdGhlIG1h
+aW5saW5lIHBhdGNoIGluc3RlYWQuDQo+ID4NCj4gPiA+IEFuZCBhZ2Fpbiwgd2h5IG5vdCBqdXN0
+IHVzZSA1LjEwIGZvciB0aGlzIGhhcmR3YXJlPyAgV2hhdCBoYXJkd2FyZQ0KPiA+ID4gaXMgaXQ/
+DQo+ID4gPg0KPiA+DQo+ID4gUGxlYXNlIHNlZSBteSByZXNwb25zZSBhYm92ZS4NCj4gDQo+IElm
+IGEgZmVhdHVyZSBpbiB0aGUga2VybmVsIHdhcyBub3QgcHJlc2VudCBvbiBvbGRlciBrZXJuZWxz
+LCB0cnlpbmcgdG8gc2hvZS1ob3JuIGl0IGludG8gdGhlbSBpcyBub3Qgd2lzZQ0KPiBhdCBhbGwu
+ICBZb3UgcGljayBhIGtlcm5lbCB2ZXJzaW9uIHRvIHJlZmxlY3QgdGhlIGZlYXR1cmVzL29wdGlv
+bnMgdGhhdCB5b3UgcmVxdWlyZSwgYW5kIGl0IHNvdW5kcyBsaWtlDQo+IDUuNCBqdXN0IHdpbGwg
+bm90IHdvcmsgZm9yIHRoZW0sIHNvIHRvIHN0aWNrIHdpdGggdGhhdCB3b3VsZCBiZSBxdWl0ZSBm
+b29saXNoLg0KPiANCj4gSnVzdCBtb3ZlIHRvIDUuMTAsIG11Y2ggc2ltcGxlciENCj4gDQo+IHRo
+YW5rcywNCj4gDQo+IGdyZWcgay1oDQo=
