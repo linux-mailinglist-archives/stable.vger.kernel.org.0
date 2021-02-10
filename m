@@ -2,58 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE42F316769
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA0A031677C
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:08:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbhBJNDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 08:03:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33736 "EHLO mail.kernel.org"
+        id S229654AbhBJNHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 08:07:52 -0500
+Received: from mail.jv-coder.de ([5.9.79.73]:38986 "EHLO mail.jv-coder.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231543AbhBJNBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 08:01:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D67D64E3B;
-        Wed, 10 Feb 2021 13:00:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612962053;
-        bh=nrXu6xAPjOcZpDR/4duoPi3UpzdK1/f3kCdIhheWMhw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TJKEKIxWT+Z3R8hf5yttBCH7MbYjeJYP2zckMhhhVQnHcjTxQ0TOmGSF0vBaT0fkX
-         UYUlpyb9qmWxNMjzecLREgMUROavGJC5mTe9Kb671BFGqrhChBOIFGKw+Z8btbZz0B
-         MO5tRF1VOBMLiY76vkC7sIzDgiO+6JfJADlKxvXE=
-Date:   Wed, 10 Feb 2021 14:00:51 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Joerg Vehlow <lkml@jv-coder.de>
+        id S231237AbhBJNHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 08:07:23 -0500
+Received: from [192.168.178.40] (unknown [188.192.1.224])
+        by mail.jv-coder.de (Postfix) with ESMTPSA id 247689F713;
+        Wed, 10 Feb 2021 13:06:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jv-coder.de; s=dkim;
+        t=1612962389; bh=ctMZOfE2foIeYMgl3gwz+hOPsCWvGsb4JYLBNnv55LY=;
+        h=Subject:To:From:Message-ID:Date:MIME-Version;
+        b=sN1Z7NsXN7dHvnKud5DbJaFXbz2OD2K/dQNtM/aPgcWJA1KQ+a5Pq9uKda9Zc+eNh
+         CnqCPSrsSCcXZjpvvwzy4QoJ3F36uuxHTmV70vHOar6YSgUwLh6BKh/VQ273PwUV/g
+         02rMfF6wVczEh9jUVeemo744R9s0HNpcCcUK4nyg=
+Subject: Re: [4.14] Failing selftest timer/adjtick
+To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
         Miroslav Lichvar <mlichvar@redhat.com>,
         John Stultz <john.stultz@linaro.org>
-Subject: Re: [4.14] Failing selftest timer/adjtick
-Message-ID: <YCPZA7nkGGDru3xw@kroah.com>
 References: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
+ <YCPZA7nkGGDru3xw@kroah.com>
+From:   Joerg Vehlow <lkml@jv-coder.de>
+Message-ID: <239b8a9a-d550-11e3-4650-39ad5bd85013@jv-coder.de>
+Date:   Wed, 10 Feb 2021 14:07:21 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
+In-Reply-To: <YCPZA7nkGGDru3xw@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Spam-Status: No, score=-3.4 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A
+        autolearn=ham autolearn_force=no version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on mail.jv-coder.de
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 01:43:10PM +0100, Joerg Vehlow wrote:
-> Hi,
-> 
-> we found that on the selftest timer/adjtick fails on arm64 (tested on some
-> renesas board and in qemu) quite frequently.
-> By bisecting the kernel I found that it stopped failing after commit
-> 78b98e3c5a66 (timekeeping/ntp: Determine the multiplier directly from NTP
-> tick length).
-> Should this patch be applied to 4.14 and is it even possible or could it
-> break something else?
+Hi Greg,
 
-Have you tried applying it to that tree to see if it solves your problem
-and works properly?  If so, please feel free to provide a working
-backported copy, with your signed-off-by and we can consider it.
+On 2/10/2021 2:00 PM, Greg KH wrote:
+> Have you tried applying it to that tree to see if it solves your problem
+> and works properly?  If so, please feel free to provide a working
+> backported copy, with your signed-off-by and we can consider it.
+It can be applied without any changes and fixes the problem, but since I 
+have not a lot of knowledge about this subsystem, I don't know if this 
+breaks anything or if it requires other patches to be applied first, to 
+not break anything..
+Maybe the authors of the patch can check this easily or maybe know it. 
+That's why I added them to the initial mail.
+> But, why not just use 4.19 or newer on that system?
+Why does an LTS version of 4.14 exist? Because the customer demands it :)
+If the failing test was not one of the kernel selftest, I wouldn't 
+bother you with this...
 
-But, why not just use 4.19 or newer on that system?
-
-thanks,
-
-greg k-h
+Joerg
