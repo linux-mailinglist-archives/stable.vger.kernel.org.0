@@ -2,78 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D03EF3161EC
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 10:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD1D31628D
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 10:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbhBJJSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 04:18:23 -0500
-Received: from mail-qt1-f182.google.com ([209.85.160.182]:43609 "EHLO
-        mail-qt1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230201AbhBJJO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 04:14:59 -0500
-Received: by mail-qt1-f182.google.com with SMTP id d3so996873qtr.10;
-        Wed, 10 Feb 2021 01:14:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=k2foprN11jPvL8F6T6kuwwDYHPt232FzT4lVXv/dAAs=;
-        b=XxLBwCn0Czm5ili8QdkM/Rh6RBf14N81oVagPDjO6Ho2IS4ggnqH3ragxXUKgxnBJX
-         NlKOI3zAK2iG2frcZnZ0Xohcp271h+lI13IH91S5abU0FXEHA63L1331GnZmPRv7nSs8
-         07DEkB9bw46vqHZ8G3vn0xguQUeljy2yrQTtnL0BDpPnY3E7Bn+U39FSEaoMZQtX0gta
-         SQb7tJfcEg52A8CapR6AC5bhTbO+xSLMcc+dlPYWkChpoq23ayPgCt4Qecpy9/EOVqJw
-         rpMUWShaFHFv0k8UJ0/R0UiwxPfgTOClwHxICckL5sFXTsEu94cTFO4PH/BiUrwN1brw
-         gBqw==
-X-Gm-Message-State: AOAM530b0x4HRYwVESyJ2qif0uY4VggnEEP6gATSjOqpIR+gRSzso+v5
-        /LGBMbNmztPMLbXyinzHeVoh+3TYF/ek9r5W+SE=
-X-Google-Smtp-Source: ABdhPJyiJTAt0q8MYJ8vdhT20PD2qMYb5gC/dcGBc9RoF5fw3VnDIJB3XMvy/JS7UcST5bgkskSxAf3+LSqjikwm7iY=
-X-Received: by 2002:ac8:4e8b:: with SMTP id 11mr1808204qtp.292.1612948457651;
- Wed, 10 Feb 2021 01:14:17 -0800 (PST)
+        id S229517AbhBJJmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 04:42:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230177AbhBJJkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 04:40:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 003AD64E37;
+        Wed, 10 Feb 2021 09:40:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612950002;
+        bh=qlZnGeZvhu0trRMGYxFuCEbU07lN+a+h/9PGVvs+5Do=;
+        h=Subject:To:From:Date:From;
+        b=s0YIzD3Y5tupcvZo8NMTjaYWd05pqYO6tMx03IA31iC2DMUMFOXNPOAJBtPdHUFmj
+         nr6oNqQJUjS+SWrQIenJYBI98MxPNXjuIK+0vf+1Qg/tQW+AQWsZ7SCROl7i4b2hzb
+         GQreRY4QTjNzFSW+RKRj/yE43X+hSMKf/RorpVik=
+Subject: patch "phy: lantiq: rcu-usb2: wait after clock enable" added to char-misc-testing
+To:     dev@kresin.me, hauke@hauke-m.de,
+        martin.blumenstingl@googlemail.com, stable@vger.kernel.org,
+        vkoul@kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 10 Feb 2021 10:39:45 +0100
+Message-ID: <16129499851931@kroah.com>
 MIME-Version: 1.0
-References: <20210208181157.1324550-1-paul@crapouillou.net> <20210208192902.GR920417@kernel.org>
-In-Reply-To: <20210208192902.GR920417@kernel.org>
-From:   Namhyung Kim <namhyung@kernel.org>
-Date:   Wed, 10 Feb 2021 18:14:06 +0900
-Message-ID: <CAM9d7ciG7p4KKTdLgHTUJHS03VpQuou8Ns3VWAZYB9S9kyr4nw@mail.gmail.com>
-Subject: Re: [PATCH] perf stat: Use nftw() instead of ftw()
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Paul Cercueil <paul@crapouillou.net>, Jiri Olsa <jolsa@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        od@zcrc.me, linux-kernel <linux-kernel@vger.kernel.org>,
-        "stable # 4 . 5" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Tue, Feb 9, 2021 at 4:29 AM Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
->
-> Em Mon, Feb 08, 2021 at 06:11:57PM +0000, Paul Cercueil escreveu:
-> > ftw() has been obsolete for about 12 years now.
-> >
-> > Fixes: bb1c15b60b98 ("perf stat: Support regex pattern in --for-each-cgroup")
-> > CC: stable@vger.kernel.org
-> > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> > ---
-> >
-> > Notes:
-> >     NOTE: Not runtime-tested, I have no idea what I need to do in perf
-> >     to test this. But at least it compiles now with my uClibc-based
-> >     toolchain.
->
-> Seems safe from reading the nftw() man page, the only typeflag that this
-> code is using is FTW_D and that is present in both ftw() and nftw().
->
-> Applying,
+This is a note to let you know that I've just added the patch titled
 
-Didn't notice it was obsolete.
+    phy: lantiq: rcu-usb2: wait after clock enable
 
-Acked-by: Namhyung Kim <namhyung@kernel.org>
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
-Thanks,
-Namhyung
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 36acd5e24e3000691fb8d1ee31cf959cb1582d35 Mon Sep 17 00:00:00 2001
+From: Mathias Kresin <dev@kresin.me>
+Date: Thu, 7 Jan 2021 23:49:01 +0100
+Subject: phy: lantiq: rcu-usb2: wait after clock enable
+
+Commit 65dc2e725286 ("usb: dwc2: Update Core Reset programming flow.")
+revealed that the phy isn't ready immediately after enabling it's
+clocks. The dwc2_check_core_version() fails and the dwc2 usb driver
+errors out.
+
+Add a short delay to let the phy get up and running. There isn't any
+documentation how much time is required, the value was chosen based on
+tests.
+
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: <stable@vger.kernel.org> # v5.7+
+Link: https://lore.kernel.org/r/20210107224901.2102479-1-dev@kresin.me
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+---
+ drivers/phy/lantiq/phy-lantiq-rcu-usb2.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c b/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
+index a7d126192cf1..29d246ea24b4 100644
+--- a/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
++++ b/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
+@@ -124,8 +124,16 @@ static int ltq_rcu_usb2_phy_power_on(struct phy *phy)
+ 	reset_control_deassert(priv->phy_reset);
+ 
+ 	ret = clk_prepare_enable(priv->phy_gate_clk);
+-	if (ret)
++	if (ret) {
+ 		dev_err(dev, "failed to enable PHY gate\n");
++		return ret;
++	}
++
++	/*
++	 * at least the xrx200 usb2 phy requires some extra time to be
++	 * operational after enabling the clock
++	 */
++	usleep_range(100, 200);
+ 
+ 	return ret;
+ }
+-- 
+2.30.1
+
+
