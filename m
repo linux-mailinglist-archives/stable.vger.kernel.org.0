@@ -2,71 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 140BD3168B4
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 15:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DF13168C0
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 15:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230014AbhBJOKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 09:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60290 "EHLO mail.kernel.org"
+        id S231725AbhBJOLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 09:11:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229610AbhBJOKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 09:10:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7CE64E28;
-        Wed, 10 Feb 2021 14:09:40 +0000 (UTC)
+        id S231817AbhBJOLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 09:11:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FF5D64E7A;
+        Wed, 10 Feb 2021 14:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612966181;
-        bh=663FjPnEul4ObP1OEfJ+OgGVXmtuEZH0BQ+wT+8wXL4=;
+        s=korg; t=1612966233;
+        bh=+AHPAbY2Omn02r90l7z3c/7R8FzCiF1+7hR1mIE0dac=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tHovXOEy1lZZo7KN/AP7PN3rTLajEojMHh9Dj3wghdyEMwnbQqV70i4AtAlgsO5HN
-         ZfqB/2gR9GifRlYV0ANgZJK68pVQwZcV2qGvifxuLK4J9oZtynzbxBZskSAkfqA0D9
-         s+owBENk60bNfhdulxvorkV8LAr8Hflt+jGVFxDA=
-Date:   Wed, 10 Feb 2021 15:09:38 +0100
+        b=swcSwWxBD7UOMlSvU0ZHOEOhasBjkYoKjHdMkQKLYjgGP9Otf8BlM6DrMdbUJj+9d
+         UZ+kfQaS6V5veHBynVDQom1u+jB/7UeUaTZSOd96OxHgcECIFB0iNYKcj7rnokKCCp
+         vfxhMjyLn9P0U9ikJ/xYLI4DXv0yc4zkKVr3n0ds=
+Date:   Wed, 10 Feb 2021 15:10:30 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH stable 5.10 00/16] stable 5.10 backports
-Message-ID: <YCPpIn9S2Kcs5H0i@kroah.com>
-References: <cover.1612845821.git.asml.silence@gmail.com>
+To:     Kent Gibson <warthog618@gmail.com>
+Cc:     stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [BACKPORT 5.10 PATCH] gpiolib: cdev: clear debounce period if
+ line set to output
+Message-ID: <YCPpVqNwYDsy29eQ@kroah.com>
+References: <1612779107255191@kroah.com>
+ <20210208233325.6087-1-warthog618@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1612845821.git.asml.silence@gmail.com>
+In-Reply-To: <20210208233325.6087-1-warthog618@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 09, 2021 at 04:47:34AM +0000, Pavel Begunkov wrote:
-> A bit more than expected because apart from 9 failed-to-apply patches
-> there are lots of dependencies to them, but for the most part
-> automatically merged.
+On Tue, Feb 09, 2021 at 07:33:25AM +0800, Kent Gibson wrote:
+> commit 03a58ea5905fdbd93ff9e52e670d802600ba38cd upstream.
 > 
-> Hao Xu (1):
->   io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
+> When set_config changes a line from input to output debounce is
+> implicitly disabled, as debounce makes no sense for outputs, but the
+> debounce period is not being cleared and is still reported in the
+> line info.
 > 
-> Jens Axboe (2):
->   io_uring: account io_uring internal files as REQ_F_INFLIGHT
->   io_uring: if we see flush on exit, cancel related tasks
+> So clear the debounce period when the debouncer is stopped in
+> edge_detector_stop().
 > 
-> Pavel Begunkov (13):
->   io_uring: simplify io_task_match()
->   io_uring: add a {task,files} pair matching helper
->   io_uring: don't iterate io_uring_cancel_files()
->   io_uring: pass files into kill timeouts/poll
->   io_uring: always batch cancel in *cancel_files()
->   io_uring: fix files cancellation
->   io_uring: fix __io_uring_files_cancel() with TASK_UNINTERRUPTIBLE
->   io_uring: replace inflight_wait with tctx->wait
->   io_uring: fix cancellation taking mutex while TASK_UNINTERRUPTIBLE
->   io_uring: fix list corruption for splice file_get
->   io_uring: fix sqo ownership false positive warning
->   io_uring: reinforce cancel on flush during exit
->   io_uring: drop mm/files between task_work_submit
-> 
->  fs/io-wq.c    |  10 --
->  fs/io-wq.h    |   1 -
->  fs/io_uring.c | 360 ++++++++++++++++++++------------------------------
->  3 files changed, 141 insertions(+), 230 deletions(-)
+> Fixes: 65cff7046406 ("gpiolib: cdev: support setting debounce")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kent Gibson <warthog618@gmail.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  drivers/gpio/gpiolib-cdev.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-All now queued up, thanks!
+Now applied, thanks.
 
 greg k-h
