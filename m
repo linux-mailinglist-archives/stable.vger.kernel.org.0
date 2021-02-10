@@ -2,151 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E87BD316F4C
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 19:55:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5530316F64
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:00:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234227AbhBJSyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 13:54:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41820 "EHLO
+        id S234372AbhBJS7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 13:59:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234459AbhBJSxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 13:53:12 -0500
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D424C061574
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:52:25 -0800 (PST)
-Received: by mail-qt1-x829.google.com with SMTP id z32so2307768qtd.8
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:52:25 -0800 (PST)
+        with ESMTP id S232350AbhBJS5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 13:57:38 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE9DC06174A
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:56:57 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id b145so1877064pfb.4
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:56:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SwU0ayPD0PtSCkVTXGkFA8DKhH7jfcjQKb0CMqGBDz0=;
-        b=lDkUUi8AjKwiBggsItTz5fUfL6ihzyBnWNcdCGwwMOkgXaZHVsT/vKdFHSkGeioDd2
-         uMudoAujVvf7ESxw9FMOvpYTBVd6NkEd9N+4xHqE7hgjsnVZZ4Z/j8Z9OQlLuBDI8DdH
-         GrQvyZQjIuo7GBPJ5x0AVF0eiQNaDPM93mVmA8Iwmj7WW5TFmKeHdEzZH/JwzN4mcuMP
-         T+HBCynnJOD3FjBBM9yYolT08s0x28FF4g2srNhXR0qEV3r5HLO3jqXdCo2+tYabTiqd
-         eTVj/0//DQmc8rL+sftuFhlQIhVkhN7uagdSUiLAF3NZny/xQR+/h1nA4rXkn67ekQ4s
-         BNXg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uMmrxNFTDORqpF5V5oPyx1H5bmvs0/+e/42h3EVID58=;
+        b=O29vxzw58GSreWUjQPBNtrY2oWUMvXeo6ZzGMvAQLJDSHlAfJTSndM+B0EPLAjCMDw
+         ZwsZWbko9By40dMNVo+vHhm8MM8k2aJScywfHGOwuDkjiIKK6LirASFLfn7uJ/51fLSd
+         NYJYBKUHOQq06Qb5QXvoPIS37yHQTShmhUyAVMHHr5ENbDXuML4ojOx8r60xOQkzKg+u
+         /v7Bu15yCS0Bh8Qihz/+7RfsgdIUDWQmtJLxKCZA4og5kVPI07rdGPtA+4oCF82OiqgM
+         liPy0rpeg2LSK5e4NRmVoc+GB8KvmAvGBZTxlui4STgbydq7RkaNAeREGdJ9na+KHR8W
+         bEeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SwU0ayPD0PtSCkVTXGkFA8DKhH7jfcjQKb0CMqGBDz0=;
-        b=bHNxGQDp76KQ0F9SVy6i2O5wjCdrwOUF+eZvdMguPnF9MkHFWSG8kj6QP4dBdidP7Z
-         8laAVLzLgg0wbLF1ABQjxsDEl52W7/HESg1ul+Tj9tEvrZ7OzZfcEluvF8RJD/sQZiOB
-         7joC66kTDvrzNq0ma1EvDr6Y98LIyz1ZYVVhsuKR0TDyA8+E/W3MyAdr/RnRHqE7agAb
-         fuV2kzyWe/0yvU1xvgt1567vBwSsrG/XmUhfRX9/uSgSMOEfZsMB9m89KHbvKg4RebIU
-         +NHq6Hwixvl2xQjmdLB7c/dlRLXrUKYxBB5jImoNLzFgO5WV9mpbdlA83WJCAzF1IV1T
-         H1VQ==
-X-Gm-Message-State: AOAM5338F7CbXs+pfFou5s4HLJmDYJJHBPqsrnAvOO+nmrxgkwRpGmoI
-        HNhOxBq2GpPoB/PoloZq0DMUsQ==
-X-Google-Smtp-Source: ABdhPJwZDpNnFBsjuGRuyx1pJMiCb5NXUC2u1+xE33psBZRBUsIN4ZHQZnTzhLFWLPkt2wCmz5qCbQ==
-X-Received: by 2002:aed:2be3:: with SMTP id e90mr3962805qtd.367.1612983144130;
-        Wed, 10 Feb 2021 10:52:24 -0800 (PST)
-Received: from ?IPv6:2804:7f0:8284:af7a:15d8:1333:f294:716b? ([2804:7f0:8284:af7a:15d8:1333:f294:716b])
-        by smtp.gmail.com with ESMTPSA id w143sm2029690qka.58.2021.02.10.10.52.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Feb 2021 10:52:23 -0800 (PST)
-Subject: Re: [PATCH] arm64: mte: Allow PTRACE_PEEKMTETAGS access to the zero
- page
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Kevin Brodsky <kevin.brodsky@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        Will Deacon <will@kernel.org>,
-        David Spickett <david.spickett@linaro.org>
-References: <20210210180316.23654-1-catalin.marinas@arm.com>
-From:   Luis Machado <luis.machado@linaro.org>
-Message-ID: <0916e89e-46b5-6002-7f9d-5d1df9e3e205@linaro.org>
-Date:   Wed, 10 Feb 2021 15:52:18 -0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uMmrxNFTDORqpF5V5oPyx1H5bmvs0/+e/42h3EVID58=;
+        b=St2wQ2owf6m1ZAIKpCwVrpMnDt22ysADBgDJFn55LGgFIZxd2antV+0mfFZsBy98P5
+         mNyikS+gu0l1fQ+tFSNZN3hsbfzdvKNqxZ8ZrpxNk0gArd+vCAZDHKqMyeDCF2/G6Hop
+         Ppv4XtDLKtMu+KOcZKTZyHRVyIs3wmolC2qlzzkaek6ZvN5uAtlcPSMjabGVd+DZCcj6
+         wCyNnWpXYiF2wmt+DwlErt+nJvp+KaEFluiUy9IGgbdPhlIOWiPo0q9gXncZYS03o5bd
+         rC6R4P9qlGueBt+jwnDUd4PfD6JBCoJawRc4Oc8vDUimyFtGOgUEs2CFAdU116oYP+Kx
+         rbqQ==
+X-Gm-Message-State: AOAM533rQBezbSJoUK0oy+GTftqxjctGfSb5ywYKR4KC5NSOfcSTgZbO
+        MADErTJlRmb4AQzhOnVAtQ6U6Vh9ELfIPg==
+X-Google-Smtp-Source: ABdhPJwAs7B8yCBUc1Z31JRzySDlpgyGqhU6si+JDBuPEEl9Hd/3OqJS7Shhl7Sszntdk/id36s6FA==
+X-Received: by 2002:a63:1524:: with SMTP id v36mr4383516pgl.383.1612983417203;
+        Wed, 10 Feb 2021 10:56:57 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q139sm3215268pfc.2.2021.02.10.10.56.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Feb 2021 10:56:56 -0800 (PST)
+Message-ID: <60242c78.1c69fb81.50257.708e@mx.google.com>
+Date:   Wed, 10 Feb 2021 10:56:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210210180316.23654-1-catalin.marinas@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.256-47-g343972be0e1d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 45 runs,
+ 1 regressions (v4.9.256-47-g343972be0e1d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/10/21 3:03 PM, Catalin Marinas wrote:
-> The ptrace(PTRACE_PEEKMTETAGS) implementation checks whether the user
-> page has valid tags (mapped with PROT_MTE) by testing the PG_mte_tagged
-> page flag. If this bit is cleared, ptrace(PTRACE_PEEKMTETAGS) returns
-> -EIO.
-> 
-> A newly created (PROT_MTE) mapping points to the zero page which had its
-> tags zeroed during cpu_enable_mte(). If there were no prior writes to
-> this mapping, ptrace(PTRACE_PEEKMTETAGS) fails with -EIO since the zero
-> page does not have the PG_mte_tagged flag set.
-> 
-> Set PG_mte_tagged on the zero page when its tags are cleared during
-> boot. In addition, to avoid ptrace(PTRACE_PEEKMTETAGS) succeeding on
-> !PROT_MTE mappings pointing to the zero page, change the
-> __access_remote_tags() check to (vm_flags & VM_MTE) instead of
-> PG_mte_tagged.
-> 
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> Fixes: 34bfeea4a9e9 ("arm64: mte: Clear the tags when a page is mapped in user-space with PROT_MTE")
-> Cc: <stable@vger.kernel.org> # 5.10.x
-> Cc: Will Deacon <will@kernel.org>
-> Reported-by: Luis Machado <luis.machado@linaro.org>
-> ---
-> 
-> The fix is actually checking VM_MTE instead of PG_mte_tagged in
-> __access_remote_tags() but I added the WARN_ON(!PG_mte_tagged) and
-> setting the flag on the zero page in case we break this assumption in
-> the future.
-> 
->   arch/arm64/kernel/cpufeature.c | 6 +-----
->   arch/arm64/kernel/mte.c        | 3 ++-
->   2 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-> index e99eddec0a46..3e6331b64932 100644
-> --- a/arch/arm64/kernel/cpufeature.c
-> +++ b/arch/arm64/kernel/cpufeature.c
-> @@ -1701,16 +1701,12 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
->   #ifdef CONFIG_ARM64_MTE
->   static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
->   {
-> -	static bool cleared_zero_page = false;
-> -
->   	/*
->   	 * Clear the tags in the zero page. This needs to be done via the
->   	 * linear map which has the Tagged attribute.
->   	 */
-> -	if (!cleared_zero_page) {
-> -		cleared_zero_page = true;
-> +	if (!test_and_set_bit(PG_mte_tagged, &ZERO_PAGE(0)->flags))
->   		mte_clear_page_tags(lm_alias(empty_zero_page));
-> -	}
->   
->   	kasan_init_hw_tags_cpu();
->   }
-> diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-> index dc9ada64feed..80b62fe49dcf 100644
-> --- a/arch/arm64/kernel/mte.c
-> +++ b/arch/arm64/kernel/mte.c
-> @@ -329,11 +329,12 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
->   		 * would cause the existing tags to be cleared if the page
->   		 * was never mapped with PROT_MTE.
->   		 */
-> -		if (!test_bit(PG_mte_tagged, &page->flags)) {
-> +		if (!(vma->vm_flags & VM_MTE)) {
->   			ret = -EOPNOTSUPP;
->   			put_page(page);
->   			break;
->   		}
-> +		WARN_ON_ONCE(!test_bit(PG_mte_tagged, &page->flags));
->   
->   		/* limit access to the end of the page */
->   		offset = offset_in_page(addr);
-> 
+stable-rc/queue/4.9 baseline: 45 runs, 1 regressions (v4.9.256-47-g343972be=
+0e1d)
 
-Thanks. I gave this a try and it works as expected. So memory that is 
-PROT_MTE but has not been accessed yet can be inspected with PEEKMTETAGS 
-without getting an EIO back.
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.256-47-g343972be0e1d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.256-47-g343972be0e1d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      343972be0e1d61810a687ce0690edb076009e09d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6023f9c0d8af0e2c3e3abe80
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-4=
+7-g343972be0e1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-4=
+7-g343972be0e1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6023f9c0d8af0e2=
+c3e3abe87
+        new failure (last pass: v4.9.256-43-g76bcadc3cd1c)
+        2 lines
+
+    2021-02-10 15:20:27.325000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/121
+    2021-02-10 15:20:27.334000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-02-10 15:20:27.354000+00:00  [   20.867462] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
