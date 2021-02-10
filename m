@@ -2,95 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B957316DC5
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 19:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DC3316DE0
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 19:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbhBJSDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 13:03:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
+        id S233692AbhBJSGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 13:06:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233571AbhBJSBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 13:01:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 171A864E6F;
-        Wed, 10 Feb 2021 18:00:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612980027;
-        bh=Zk7OqLQIa9Im9RmLh/iXB3llwfY7isgcOwpCyCEnmTQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RHhw7Ixm9JO/VgrXA5FpKhv2NNlOfhg2fKBr0WGqmhQM1acwzEJgsl/ErZLllTftO
-         NozAltpMUklKOGdpyBaLNL79Z1uPPl5n7nKzfpEVFy8J8Py7QHjX0FuXGHolAwAnP6
-         JMEhTob/3Tweom/dFQOHCH1iCXSLraw23EIayN6MtI9w5hpTzrAI2G1cA1ssus2Tn+
-         LOxE3T/mFOb9E8YGYgpFV/SVnH/m3uNL8DoHi1hFlX2mG48+A+VKsI+A0lsIylSMp2
-         7XqZ6yJaxvAY99GbHvaAF0P73glsX6b6SJE0rA//ivheIHRU/pwXSNMWStzW5/UdfA
-         kHIQyZNacCHkQ==
-Date:   Wed, 10 Feb 2021 13:00:25 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>, Theodore Tso <tytso@mit.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Chris Mason <clm@fb.com>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, rostedt <rostedt@goodmis.org>,
-        Michael Jeanson <mjeanson@efficios.com>
-Subject: Re: [stable 4.4, 4.9, 4.14, 4.19 LTS] Missing fix "memcg: fix a
- crash in wb_workfn when a device disappears"
-Message-ID: <20210210180025.GE4035784@sasha-vm>
-References: <537870616.15400.1612973059419.JavaMail.zimbra@efficios.com>
- <YCQTQyRlCsJHXzIQ@kroah.com>
- <2071967108.15704.1612977931149.JavaMail.zimbra@efficios.com>
+        id S232750AbhBJSEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 13:04:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A04FA64ED7;
+        Wed, 10 Feb 2021 18:03:18 +0000 (UTC)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     Luis Machado <luis.machado@linaro.org>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH] arm64: mte: Allow PTRACE_PEEKMTETAGS access to the zero page
+Date:   Wed, 10 Feb 2021 18:03:16 +0000
+Message-Id: <20210210180316.23654-1-catalin.marinas@arm.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <2071967108.15704.1612977931149.JavaMail.zimbra@efficios.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 12:25:31PM -0500, Mathieu Desnoyers wrote:
->----- On Feb 10, 2021, at 12:09 PM, Greg Kroah-Hartman gregkh@linuxfoundation.org wrote:
->
->> On Wed, Feb 10, 2021 at 11:04:19AM -0500, Mathieu Desnoyers wrote:
->>> Hi,
->>>
->>> While reconciling the lttng-modules writeback instrumentation with its
->>> counterpart
->>> within the upstream Linux kernel, I notice that the following commit introduced
->>> in
->>> 5.6 is present in stable branches 5.4 and 5.5, but is missing from LTS stable
->>> branches
->>> for 4.4, 4.9, 4.14, 4.19:
->>>
->>> commit 68f23b89067fdf187763e75a56087550624fdbee
->>> ("memcg: fix a crash in wb_workfn when a device disappears")
->>>
->>> Considering that this fix was CC'd to the stable mailing list, is there any
->>> reason why it has not been integrated into those LTS branches ?
->>
->> Yes, it doesn't apply at all.  If you think this is needed, I will
->> gladly take backported and tested patches.
->>
->> But why do you think this is needed in older kernels?  Have you hit
->> this in real-life?
->
->No, I have not hit this in real-life. Looking at the patch commit message,
->the conditions needed to trigger this issue are very specific: memcg must
->be enabled, and a device must be hotremoved while writeback is going on,
->with writeback tracing active.
->
->AFAIU memcg was present in those LTS releases and devices can be hotremoved
->(please correct me if I'm wrong here), so all the preconditions appear to be
->met.
->
->Considering that I don't have the setup ready to reproduce this issue, I will
->have to defer to the original patch authors for a properly tested backport,
->if it happens to be relevant at all.
->
->I just though reporting what appears to be a missing fix in LTS branches
->would be the right thing to do.
+The ptrace(PTRACE_PEEKMTETAGS) implementation checks whether the user
+page has valid tags (mapped with PROT_MTE) by testing the PG_mte_tagged
+page flag. If this bit is cleared, ptrace(PTRACE_PEEKMTETAGS) returns
+-EIO.
 
-Looks like it doesn't apply due to churn with tracepoints, I think it's
-fixable. Let me try and get something for <=4.19.
+A newly created (PROT_MTE) mapping points to the zero page which had its
+tags zeroed during cpu_enable_mte(). If there were no prior writes to
+this mapping, ptrace(PTRACE_PEEKMTETAGS) fails with -EIO since the zero
+page does not have the PG_mte_tagged flag set.
 
--- 
-Thanks,
-Sasha
+Set PG_mte_tagged on the zero page when its tags are cleared during
+boot. In addition, to avoid ptrace(PTRACE_PEEKMTETAGS) succeeding on
+!PROT_MTE mappings pointing to the zero page, change the
+__access_remote_tags() check to (vm_flags & VM_MTE) instead of
+PG_mte_tagged.
+
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 34bfeea4a9e9 ("arm64: mte: Clear the tags when a page is mapped in user-space with PROT_MTE")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: Will Deacon <will@kernel.org>
+Reported-by: Luis Machado <luis.machado@linaro.org>
+---
+
+The fix is actually checking VM_MTE instead of PG_mte_tagged in
+__access_remote_tags() but I added the WARN_ON(!PG_mte_tagged) and
+setting the flag on the zero page in case we break this assumption in
+the future.
+
+ arch/arm64/kernel/cpufeature.c | 6 +-----
+ arch/arm64/kernel/mte.c        | 3 ++-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index e99eddec0a46..3e6331b64932 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1701,16 +1701,12 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
+ #ifdef CONFIG_ARM64_MTE
+ static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
+ {
+-	static bool cleared_zero_page = false;
+-
+ 	/*
+ 	 * Clear the tags in the zero page. This needs to be done via the
+ 	 * linear map which has the Tagged attribute.
+ 	 */
+-	if (!cleared_zero_page) {
+-		cleared_zero_page = true;
++	if (!test_and_set_bit(PG_mte_tagged, &ZERO_PAGE(0)->flags))
+ 		mte_clear_page_tags(lm_alias(empty_zero_page));
+-	}
+ 
+ 	kasan_init_hw_tags_cpu();
+ }
+diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+index dc9ada64feed..80b62fe49dcf 100644
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -329,11 +329,12 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
+ 		 * would cause the existing tags to be cleared if the page
+ 		 * was never mapped with PROT_MTE.
+ 		 */
+-		if (!test_bit(PG_mte_tagged, &page->flags)) {
++		if (!(vma->vm_flags & VM_MTE)) {
+ 			ret = -EOPNOTSUPP;
+ 			put_page(page);
+ 			break;
+ 		}
++		WARN_ON_ONCE(!test_bit(PG_mte_tagged, &page->flags));
+ 
+ 		/* limit access to the end of the page */
+ 		offset = offset_in_page(addr);
