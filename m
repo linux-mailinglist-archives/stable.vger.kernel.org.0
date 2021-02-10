@@ -2,64 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9435316C20
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 18:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 754B6316C61
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 18:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232012AbhBJRKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 12:10:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40388 "EHLO mail.kernel.org"
+        id S232588AbhBJRR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 12:17:58 -0500
+Received: from mx2.suse.de ([195.135.220.15]:35790 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231481AbhBJRKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 12:10:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F58364E77;
-        Wed, 10 Feb 2021 17:09:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1612976966;
-        bh=7seGJWhCZNh4jS921GuRjIARtdD3+bBH7qwyHjoxvp8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rK6f2dOzywGvkXtBdIQlvOksgz9tfxk584TbglR4hEPYrIdrgfVxhutXlmRAxEo18
-         JD6cfZ+gIVb59zcqaEDegCirX8WrVumiYyyLtaR12DdF9PkZU9UXHuAv9kA4QRVQDI
-         ifpLmLBdHJQ0huclP/l8LfdLEVaIf3UDPZuhnSG8=
-Date:   Wed, 10 Feb 2021 18:09:23 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     stable <stable@vger.kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Chris Mason <clm@fb.com>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, rostedt <rostedt@goodmis.org>,
-        Michael Jeanson <mjeanson@efficios.com>
-Subject: Re: [stable 4.4, 4.9, 4.14, 4.19 LTS] Missing fix "memcg: fix a
- crash in wb_workfn when a device disappears"
-Message-ID: <YCQTQyRlCsJHXzIQ@kroah.com>
-References: <537870616.15400.1612973059419.JavaMail.zimbra@efficios.com>
+        id S232683AbhBJRRq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 12:17:46 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1612977421; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=dvw6lO/krvYEguk6lpQWl/lG+Hg8h0QutF3y6sNkrWQ=;
+        b=MozZHVfPcbekPoUWP9Z7Okgj9rqa5ORtTxPHPZObd0M48kJ+sZy/VJOqbvp4pN0n+tuMme
+        UPqpiOB0eQk8QT5nBRcVegBFhgfF4/+ATagmGytTPUOnlX8OpjCKPovewy7BVr7F6QtDr8
+        m8NTz//MsGeH0z+0oJQYZbP4ucU/ECQ=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E3B89AC97;
+        Wed, 10 Feb 2021 17:17:00 +0000 (UTC)
+Date:   Wed, 10 Feb 2021 18:16:59 +0100
+From:   Petr Mladek <pmladek@suse.com>
+To:     Muchun Song <songmuchun@bytedance.com>
+Cc:     sergey.senozhatsky@gmail.com, rostedt@goodmis.org,
+        john.ogness@linutronix.de, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3] printk: fix deadlock when kernel panic
+Message-ID: <YCQVC6oBKKjtM/yg@alley>
+References: <20210210034823.64867-1-songmuchun@bytedance.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <537870616.15400.1612973059419.JavaMail.zimbra@efficios.com>
+In-Reply-To: <20210210034823.64867-1-songmuchun@bytedance.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 11:04:19AM -0500, Mathieu Desnoyers wrote:
-> Hi,
+On Wed 2021-02-10 11:48:23, Muchun Song wrote:
+> printk_safe_flush_on_panic() caused the following deadlock on our
+> server:
 > 
-> While reconciling the lttng-modules writeback instrumentation with its counterpart
-> within the upstream Linux kernel, I notice that the following commit introduced in
-> 5.6 is present in stable branches 5.4 and 5.5, but is missing from LTS stable branches
-> for 4.4, 4.9, 4.14, 4.19:
+> CPU0:                                         CPU1:
+> panic                                         rcu_dump_cpu_stacks
+>   kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
+>     register_nmi_handler(crash_nmi_callback)      printk_safe_flush
+>                                                     __printk_safe_flush
+>                                                       raw_spin_lock_irqsave(&read_lock)
+>     // send NMI to other processors
+>     apic_send_IPI_allbutself(NMI_VECTOR)
+>                                                         // NMI interrupt, dead loop
+>                                                         crash_nmi_callback
+>   printk_safe_flush_on_panic
+>     printk_safe_flush
+>       __printk_safe_flush
+>         // deadlock
+>         raw_spin_lock_irqsave(&read_lock)
 > 
-> commit 68f23b89067fdf187763e75a56087550624fdbee
-> ("memcg: fix a crash in wb_workfn when a device disappears")
+> DEADLOCK: read_lock is taken on CPU1 and will never get released.
 > 
-> Considering that this fix was CC'd to the stable mailing list, is there any
-> reason why it has not been integrated into those LTS branches ?
+> It happens when panic() stops a CPU by NMI while it has been in
+> the middle of printk_safe_flush().
+> 
+> Handle the lock the same way as logbuf_lock. The printk_safe buffers
+> are flushed only when both locks can be safely taken. It can avoid
+> the deadlock _in this particular case_ at expense of losing contents
+> of printk_safe buffers.
+> 
+> Note: It would actually be safe to re-init the locks when all CPUs were
+>       stopped by NMI. But it would require passing this information
+>       from arch-specific code. It is not worth the complexity.
+>       Especially because logbuf_lock and printk_safe buffers have been
+>       obsoleted by the lockless ring buffer.
+> 
+> Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
+> Cc: <stable@vger.kernel.org>
 
-Yes, it doesn't apply at all.  If you think this is needed, I will
-gladly take backported and tested patches.
+The patch is committed on printk/linux.git, branch for-5.12.
 
-But why do you think this is needed in older kernels?  Have you hit
-this in real-life?
-
-thanks,
-
-greg k-h
+Best Regards,
+Petr
