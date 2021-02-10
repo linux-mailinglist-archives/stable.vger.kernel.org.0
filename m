@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C51123163B3
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 11:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 414C43163B4
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 11:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbhBJKYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 05:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45738 "EHLO mail.kernel.org"
+        id S230280AbhBJKYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 05:24:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230424AbhBJKWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 05:22:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B85E64E30;
-        Wed, 10 Feb 2021 10:21:41 +0000 (UTC)
+        id S230489AbhBJKWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 05:22:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73DDF64E53;
+        Wed, 10 Feb 2021 10:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612952502;
-        bh=LFTR44xoV7raM1DAE8siL1aibscjupoOYgutxK8nQTA=;
+        s=k20201202; t=1612952520;
+        bh=tMu8y9gKpKhT7k5kbtkYQ9wuDfv13TiiOrjpeMamVLI=;
         h=From:To:Cc:Subject:Date:From;
-        b=r9FL0LPC4eChhR3s/zwASAPokfWWwAOZcpjNvphejkEXt6lAoGVCY4YQtFjAzRRiF
-         BkVg3M8hSxJzFqf6bZ51rI3h0J2EFAbWEFKs1vYsTsDp6MtIwIlV18im3IrXcZm3o1
-         kBTpWJH1AvZ0JUnDrup/sw+JhAQAF/PDYajyq6DGOO5NyatifGB89UvZ09hGejzTqi
-         fTEiaMvQ8jf/jiP+syP8MtxR6W/66qL6laF13S2VV1dwRDmG060FDCDbho5p0U7wOe
-         +XUbGtZNSYDhGEQGJOo8RYXJeqJX5Iz1C/5fwR100ZedOENM31jqg/c/J+0mw9jpPC
-         kfy2xLyCesreg==
+        b=T/eoxvZU/vI7isci0VpLO82SHdFSJAwK4gwGTHxwV7wh5FSnL5hJEyi/cbPXPY7D1
+         6WZ2+vhXwBRMOE4zYaNHxWZLJcNv3HnQkDnKu2DDRcReLywhGy+jMNrLiVShhl2/cc
+         /WFzA+8TzvQk/nqCeRIetKtzCO9CnMfgPGIeM5axP8PCQZKp2eWUHubuWfSJmlOjaN
+         gdrUbs8pOt8572z+ovPFUvBu4vAtJ3hMxPELiBQl+1SCqRhs9tOODE0bcaUV2W4Ino
+         QdAFWLGTj5dmrUcoGWcykMkXnw0EUoCCAP5H2wellG9WlRdxmUHd70eqflSF4lt/13
+         gMLQl+LxywfEQ==
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     mhiramat@kernel.org, Jianlin.Lv@arm.com, rostedt@goodmis.org
-Subject: [PATCH 4.19.y] tracing/kprobe: Fix to support kretprobe events on unloaded modules
-Date:   Wed, 10 Feb 2021 19:21:38 +0900
-Message-Id: <161295249877.311478.554843513199648098.stgit@devnote2>
+Subject: [PATCH 5.4.y] tracing/kprobe: Fix to support kretprobe events on unloaded modules
+Date:   Wed, 10 Feb 2021 19:21:57 +0900
+Message-Id: <161295251675.311731.1025064176598613505.stgit@devnote2>
 X-Mailer: git-send-email 2.25.1
 User-Agent: StGit/0.19
 MIME-Version: 1.0
@@ -37,6 +37,8 @@ Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+commit 97c753e62e6c31a404183898d950d8c08d752dbd upstream.
 
 Fix kprobe_on_func_entry() returns error code instead of false so that
 register_kretprobe() can return an appropriate error code.
@@ -76,14 +78,14 @@ Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
  include/linux/kprobes.h     |    2 +-
  kernel/kprobes.c            |   34 +++++++++++++++++++++++++---------
- kernel/trace/trace_kprobe.c |    4 ++--
- 3 files changed, 28 insertions(+), 12 deletions(-)
+ kernel/trace/trace_kprobe.c |   10 ++++++----
+ 3 files changed, 32 insertions(+), 14 deletions(-)
 
 diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
-index 9f22652d69bb..c28204e22b54 100644
+index a60488867dd0..a121fd8e7c3a 100644
 --- a/include/linux/kprobes.h
 +++ b/include/linux/kprobes.h
-@@ -245,7 +245,7 @@ extern void kprobes_inc_nmissed_count(struct kprobe *p);
+@@ -232,7 +232,7 @@ extern void kprobes_inc_nmissed_count(struct kprobe *p);
  extern bool arch_within_kprobe_blacklist(unsigned long addr);
  extern int arch_populate_kprobe_blacklist(void);
  extern bool arch_kprobe_on_func_entry(unsigned long offset);
@@ -93,10 +95,10 @@ index 9f22652d69bb..c28204e22b54 100644
  extern bool within_kprobe_blacklist(unsigned long addr);
  extern int kprobe_add_ksym_blacklist(unsigned long entry);
 diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 2161f519d481..ebbd4320143d 100644
+index 283c8b01ce78..8f9fbc74021d 100644
 --- a/kernel/kprobes.c
 +++ b/kernel/kprobes.c
-@@ -1921,29 +1921,45 @@ bool __weak arch_kprobe_on_func_entry(unsigned long offset)
+@@ -1948,29 +1948,45 @@ bool __weak arch_kprobe_on_func_entry(unsigned long offset)
  	return !offset;
  }
  
@@ -152,19 +154,33 @@ index 2161f519d481..ebbd4320143d 100644
  	if (kretprobe_blacklist_size) {
  		addr = kprobe_addr(&rp->kp);
 diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 5c17f70c7f2d..61eff45653f5 100644
+index 1074a69beff3..233322c77b76 100644
 --- a/kernel/trace/trace_kprobe.c
 +++ b/kernel/trace/trace_kprobe.c
-@@ -112,9 +112,9 @@ bool trace_kprobe_on_func_entry(struct trace_event_call *call)
+@@ -220,9 +220,9 @@ bool trace_kprobe_on_func_entry(struct trace_event_call *call)
  {
- 	struct trace_kprobe *tk = (struct trace_kprobe *)call->data;
+ 	struct trace_kprobe *tk = trace_kprobe_primary_from_call(call);
  
--	return kprobe_on_func_entry(tk->rp.kp.addr,
-+	return (kprobe_on_func_entry(tk->rp.kp.addr,
+-	return tk ? kprobe_on_func_entry(tk->rp.kp.addr,
++	return tk ? (kprobe_on_func_entry(tk->rp.kp.addr,
  			tk->rp.kp.addr ? NULL : tk->rp.kp.symbol_name,
--			tk->rp.kp.addr ? 0 : tk->rp.kp.offset);
-+			tk->rp.kp.addr ? 0 : tk->rp.kp.offset) == 0);
+-			tk->rp.kp.addr ? 0 : tk->rp.kp.offset) : false;
++			tk->rp.kp.addr ? 0 : tk->rp.kp.offset) == 0) : false;
  }
  
  bool trace_kprobe_error_injectable(struct trace_event_call *call)
+@@ -811,9 +811,11 @@ static int trace_kprobe_create(int argc, const char *argv[])
+ 			trace_probe_log_err(0, BAD_PROBE_ADDR);
+ 			goto parse_error;
+ 		}
+-		if (kprobe_on_func_entry(NULL, symbol, offset))
++		ret = kprobe_on_func_entry(NULL, symbol, offset);
++		if (ret == 0)
+ 			flags |= TPARG_FL_FENTRY;
+-		if (offset && is_return && !(flags & TPARG_FL_FENTRY)) {
++		/* Defer the ENOENT case until register kprobe */
++		if (ret == -EINVAL && is_return) {
+ 			trace_probe_log_err(0, BAD_RETPROBE);
+ 			goto parse_error;
+ 		}
 
