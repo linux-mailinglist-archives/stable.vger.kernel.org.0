@@ -2,16 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5D3316869
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7241316862
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhBJNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 08:54:38 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:59988 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231326AbhBJNyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 08:54:18 -0500
-Date:   Wed, 10 Feb 2021 13:53:31 -0000
+        id S231629AbhBJNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 08:54:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231396AbhBJNyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 08:54:16 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8545AC061574;
+        Wed, 10 Feb 2021 05:53:34 -0800 (PST)
+Date:   Wed, 10 Feb 2021 13:53:32 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020; t=1612965212;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -19,12 +22,12 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9cwRrvjT76sSrp2ibMmziPN8oPePakowNcut7jAjPqM=;
-        b=TkTMBbm4GuxAIHC41Aj4ZRuBEoYhpZ54VT2zzDVFC/1lBV6Ssp1fNnrNPMW0UyW3fTsQDG
-        dxY0XPV3QNMp6cT03mlBI3nNF6G1xhZrS/4gAbkswIkf5BBzZDXgXIaoXgKVgdHIGDTq4P
-        SjmRBEahV/EOmHmzHsBqSG9+J2a9yDcal+2SdXzCLPrZIlT6l4OAX0+h28qWDvjHU/s2e/
-        3HPpSwlQjozhoQ6FKxSDiIakeE4xzmry5OCG6I7ikj/SLvOaTKpqyax1KTV1XbpZcvWa7/
-        y/b+UiCQYWTclXTBzlIiqWYWKP7n6NTbDCbrOpvYhfbB5XiJtpqgkgbc3UJxWQ==
+        bh=A0CB8zPCHW0sNIe0P1frAuXXaFjM4jFls7TklCrWBFI=;
+        b=jZMVbU9+mBsrGhqW6sbO4ZyKGo1oMq92N8FsnLq1uuLx5FpweB0LGBWfWRYT+5zc2w5nO/
+        YsuQLPkEPCndAOebBm89LONJEf2srkUs6cX/XEhNDAsl2QzyaKZRBmTS65cSDR1GNbyEnf
+        +4G9yB3i6nxPqNeTHAFCqOCgh00e+vp24pphM1Szr7tg8WooazgRSxMqLNPDuen0HUObW1
+        pyT61S1Qfi471eTE5ZgkOMwUX7tSG4awCkLRks4lKzSKZ7GUJDeD2JQ2wlVnq4XCGR7Iv4
+        SjTvrbGxv1ZxgUNvTQAYKlOsvOzaOyuRPzk1ZUpJy4E8+b6WVTq4Zc3W2T9q7w==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020e; t=1612965212;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -32,23 +35,24 @@ DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9cwRrvjT76sSrp2ibMmziPN8oPePakowNcut7jAjPqM=;
-        b=L+QK7Okt4CNWQB0o9Gw3UMdEuUBnrUzasjJ1BzF+yMOlm8JIo7UrNXdP5qC+1kC7tPq6lm
-        1dbigMuac/ssY7Ag==
+        bh=A0CB8zPCHW0sNIe0P1frAuXXaFjM4jFls7TklCrWBFI=;
+        b=uwtfyAv5YqdBO9YABZwxVw2KIrMmuofUGi7sDX+BKChwdbyo+G7O/aan3y/ov3sJStCIdY
+        nvOocx8mKYQxbWDw==
 From:   "tip-bot2 for Frederic Weisbecker" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: sched/core] entry/kvm: Explicitly flush pending rcuog wakeup
- before last rescheduling point
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+Subject: [tip: sched/core] rcu/nocb: Trigger self-IPI on late deferred wake up
+ before user resume
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
         Frederic Weisbecker <frederic@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         stable@vger.kernel.org, x86@kernel.org,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20210131230548.32970-6-frederic@kernel.org>
-References: <20210131230548.32970-6-frederic@kernel.org>
+In-Reply-To: <20210131230548.32970-4-frederic@kernel.org>
+References: <20210131230548.32970-4-frederic@kernel.org>
 MIME-Version: 1.0
-Message-ID: <161296521175.23325.4682669795184175011.tip-bot2@tip-bot2>
+Message-ID: <161296521234.23325.16460014025012705438.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -59,156 +63,181 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the sched/core branch of tip:
 
-Commit-ID:     14bbd41d5109a8049f3f1b77e994e0213f94f4c0
-Gitweb:        https://git.kernel.org/tip/14bbd41d5109a8049f3f1b77e994e0213f94f4c0
+Commit-ID:     0940cbceefbaa40d85efeb968ce9f2707a145e58
+Gitweb:        https://git.kernel.org/tip/0940cbceefbaa40d85efeb968ce9f2707a145e58
 Author:        Frederic Weisbecker <frederic@kernel.org>
-AuthorDate:    Mon, 01 Feb 2021 00:05:48 +01:00
+AuthorDate:    Mon, 01 Feb 2021 00:05:46 +01:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Wed, 10 Feb 2021 14:44:51 +01:00
+CommitterDate: Wed, 10 Feb 2021 14:44:50 +01:00
 
-entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point
+rcu/nocb: Trigger self-IPI on late deferred wake up before user resume
 
-Following the idle loop model, cleanly check for pending rcuog wakeup
-before the last rescheduling point upon resuming to guest mode. This
-way we can avoid to do it from rcu_user_enter() with the last resort
-self-IPI hack that enforces rescheduling.
+Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+kthread (rcuog) to be serviced.
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Unfortunately the call to rcu_user_enter() is already past the last
+rescheduling opportunity before we resume to userspace or to guest mode.
+We may escape there with the woken task ignored.
+
+The ultimate resort to fix every callsites is to trigger a self-IPI
+(nohz_full depends on arch to implement arch_irq_work_raise()) that will
+trigger a reschedule on IRQ tail or guest exit.
+
+Eventually every site that want a saner treatment will need to carefully
+place a call to rcu_nocb_flush_deferred_wakeup() before the last explicit
+need_resched() check upon resume.
+
+Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-4-frederic@kernel.org
 ---
- arch/x86/kvm/x86.c        |  1 +-
- include/linux/entry-kvm.h | 14 ++++++++++++-
- kernel/rcu/tree.c         | 44 +++++++++++++++++++++++++++++---------
- kernel/rcu/tree_plugin.h  |  1 +-
- 4 files changed, 50 insertions(+), 10 deletions(-)
+ kernel/rcu/tree.c        | 21 ++++++++++++++++++++-
+ kernel/rcu/tree.h        |  2 +-
+ kernel/rcu/tree_plugin.h | 25 ++++++++++++++++---------
+ 3 files changed, 37 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1b404e4..b967c1c 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1782,6 +1782,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
- 
- bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
- {
-+	xfer_to_guest_mode_prepare();
- 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
- 		xfer_to_guest_mode_work_pending();
- }
-diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
-index 9b93f85..8b2b1d6 100644
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -47,6 +47,20 @@ static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
- int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
- 
- /**
-+ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
-+ *				need to be handled while IRQs are disabled
-+ *				upon entering to guest.
-+ *
-+ * Has to be invoked with interrupts disabled before the last call
-+ * to xfer_to_guest_mode_work_pending().
-+ */
-+static inline void xfer_to_guest_mode_prepare(void)
-+{
-+	lockdep_assert_irqs_disabled();
-+	rcu_nocb_flush_deferred_wakeup();
-+}
-+
-+/**
-  * __xfer_to_guest_mode_work_pending - Check if work is pending
-  *
-  * Returns: True if work pending, False otherwise.
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 2ebc211..ce17b84 100644
+index 82838e9..4b1e5bd 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -678,9 +678,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
+@@ -677,6 +677,18 @@ void rcu_idle_enter(void)
+ EXPORT_SYMBOL_GPL(rcu_idle_enter);
  
  #ifdef CONFIG_NO_HZ_FULL
- 
-+#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
- /*
-  * An empty function that will trigger a reschedule on
-- * IRQ tail once IRQs get re-enabled on userspace resume.
-+ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
-  */
- static void late_wakeup_func(struct irq_work *work)
- {
-@@ -689,6 +690,37 @@ static void late_wakeup_func(struct irq_work *work)
- static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
- 	IRQ_WORK_INIT(late_wakeup_func);
- 
++
 +/*
-+ * If either:
-+ *
-+ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
-+ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
-+ *
-+ * In these cases the late RCU wake ups aren't supported in the resched loops and our
-+ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
-+ * get re-enabled again.
++ * An empty function that will trigger a reschedule on
++ * IRQ tail once IRQs get re-enabled on userspace resume.
 + */
-+noinstr static void rcu_irq_work_resched(void)
++static void late_wakeup_func(struct irq_work *work)
 +{
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
-+	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
-+		return;
-+
-+	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
-+		return;
-+
-+	instrumentation_begin();
-+	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
-+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
-+	}
-+	instrumentation_end();
 +}
 +
-+#else
-+static inline void rcu_irq_work_resched(void) { }
-+#endif
++static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
++	IRQ_WORK_INIT(late_wakeup_func);
 +
  /**
   * rcu_user_enter - inform RCU that we are resuming userspace.
   *
-@@ -702,8 +734,6 @@ static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
-  */
- noinstr void rcu_user_enter(void)
- {
--	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
--
+@@ -694,12 +706,19 @@ noinstr void rcu_user_enter(void)
+ 
  	lockdep_assert_irqs_disabled();
  
- 	/*
-@@ -711,13 +741,7 @@ noinstr void rcu_user_enter(void)
- 	 * rescheduling opportunity in the entry code. Trigger a self IPI
- 	 * that will fire and reschedule once we resume in user/guest mode.
- 	 */
--	instrumentation_begin();
--	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
--		if (do_nocb_deferred_wakeup(rdp) && need_resched())
--			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
--	}
--	instrumentation_end();
--
-+	rcu_irq_work_resched();
++	/*
++	 * We may be past the last rescheduling opportunity in the entry code.
++	 * Trigger a self IPI that will fire and reschedule once we resume to
++	 * user/guest mode.
++	 */
+ 	instrumentation_begin();
+-	do_nocb_deferred_wakeup(rdp);
++	if (do_nocb_deferred_wakeup(rdp) && need_resched())
++		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+ 	instrumentation_end();
+ 
  	rcu_eqs_enter(true);
  }
++
+ #endif /* CONFIG_NO_HZ_FULL */
  
+ /**
+diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
+index 7708ed1..9226f40 100644
+--- a/kernel/rcu/tree.h
++++ b/kernel/rcu/tree.h
+@@ -433,7 +433,7 @@ static bool rcu_nocb_try_bypass(struct rcu_data *rdp, struct rcu_head *rhp,
+ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_empty,
+ 				 unsigned long flags);
+ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp);
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp);
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp);
+ static void rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp);
+ static void rcu_spawn_cpu_nocb_kthread(int cpu);
+ static void __init rcu_spawn_nocb_kthreads(void);
 diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 384856e..cdc1b76 100644
+index d5b38c2..384856e 100644
 --- a/kernel/rcu/tree_plugin.h
 +++ b/kernel/rcu/tree_plugin.h
-@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void)
+@@ -1631,8 +1631,8 @@ bool rcu_is_nocb_cpu(int cpu)
+  * Kick the GP kthread for this NOCB group.  Caller holds ->nocb_lock
+  * and this function releases it.
+  */
+-static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+-			   unsigned long flags)
++static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
++			 unsigned long flags)
+ 	__releases(rdp->nocb_lock)
  {
- 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
+ 	bool needwake = false;
+@@ -1643,7 +1643,7 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
+ 				    TPS("AlreadyAwake"));
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	del_timer(&rdp->nocb_timer);
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+@@ -1656,6 +1656,8 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 	raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
+ 	if (needwake)
+ 		wake_up_process(rdp_gp->nocb_gp_kthread);
++
++	return needwake;
  }
-+EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
  
- void __init rcu_init_nohz(void)
+ /*
+@@ -2152,20 +2154,23 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread(). */
+-static void do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
  {
+ 	unsigned long flags;
+ 	int ndw;
++	int ret;
+ 
+ 	rcu_nocb_lock_irqsave(rdp, flags);
+ 	if (!rcu_nocb_need_deferred_wakeup(rdp)) {
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+ 	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+-	wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
++	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
++
++	return ret;
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread() from a timer handler. */
+@@ -2181,10 +2186,11 @@ static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
+  * This means we do an inexact common-case check.  Note that if
+  * we miss, ->nocb_timer will eventually clean things up.
+  */
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
+ 	if (rcu_nocb_need_deferred_wakeup(rdp))
+-		do_nocb_deferred_wakeup_common(rdp);
++		return do_nocb_deferred_wakeup_common(rdp);
++	return false;
+ }
+ 
+ void rcu_nocb_flush_deferred_wakeup(void)
+@@ -2523,8 +2529,9 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ 	return false;
+ }
+ 
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
++	return false;
+ }
+ 
+ static void rcu_spawn_cpu_nocb_kthread(int cpu)
