@@ -2,211 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B56E431682A
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:40:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5D3316869
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 14:55:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229706AbhBJNkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 08:40:07 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18178 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229654AbhBJNkG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 08:40:06 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11ADWZnW027811;
-        Wed, 10 Feb 2021 08:39:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=JeOhYgWABl8vHEfaVaEUGU0iyKhnrw8N9X68EYJpLqc=;
- b=e+Ky5ej94oD/5fB5gBMh1H8a+4jM2ype5KyG7LtTMqOONPSDATDcRFlIK6T14fWotF4+
- Ne1mfKfgrkfOBgdpXNtF3UvRv98rsNsp5NXX42WLThKuBH8qTpkMORtkrY+YalkDzP4t
- Sed+BAohWVJdM39epU9+5k7fTHP5m/BQjLoZw4tVg5stM3bc24NY3XRxZt27ckJ28Gzz
- 68ou34h9kzprEOP0NokO5ztdwqiOE0s64/aY3G5Nfq1dd+UQ57TOWjsly7plwF1bLaP1
- 4+32Z72nvucW+zF6vUtln4wDPzzl+2LpIHcp1cAmixotuAJpX16GafMCIm3pEMhC8Hu0 WA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36mgfcgemc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 08:39:15 -0500
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11ADXCtn030512;
-        Wed, 10 Feb 2021 08:39:14 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36mgfcgegs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 08:39:14 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11ADXV5i004549;
-        Wed, 10 Feb 2021 13:34:11 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 36j94wm28v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 13:34:10 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11ADY8nO43254184
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 Feb 2021 13:34:08 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2147AA4057;
-        Wed, 10 Feb 2021 13:34:08 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 67932A404D;
-        Wed, 10 Feb 2021 13:34:07 +0000 (GMT)
-Received: from osiris (unknown [9.171.5.38])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 10 Feb 2021 13:34:07 +0000 (GMT)
-Date:   Wed, 10 Feb 2021 14:34:05 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Chris Down <chris@chrisdown.name>,
-        Hugh Dickins <hughd@google.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Linux-MM <linux-mm@kvack.org>, Matt Turner <mattst88@gmail.com>,
-        mm-commits@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Tuan Hoang1 <Tuan.Hoang1@ibm.com>
-Subject: Re: [patch 09/14] tmpfs: disallow CONFIG_TMPFS_INODE64 on alpha
-Message-ID: <YCPgzb1PhtvfUh9y@osiris>
-References: <20210209134115.4d933d446165cd0ed8977b03@linux-foundation.org>
- <20210209214217.gRa4Jmu1g%akpm@linux-foundation.org>
- <CAHk-=wiDt_eJvfrr-dCXq3eZ+ZmVTD2-rM2pcxBk4d-FM3h-bw@mail.gmail.com>
+        id S230005AbhBJNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 08:54:38 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:59988 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231326AbhBJNyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 08:54:18 -0500
+Date:   Wed, 10 Feb 2021 13:53:31 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1612965212;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9cwRrvjT76sSrp2ibMmziPN8oPePakowNcut7jAjPqM=;
+        b=TkTMBbm4GuxAIHC41Aj4ZRuBEoYhpZ54VT2zzDVFC/1lBV6Ssp1fNnrNPMW0UyW3fTsQDG
+        dxY0XPV3QNMp6cT03mlBI3nNF6G1xhZrS/4gAbkswIkf5BBzZDXgXIaoXgKVgdHIGDTq4P
+        SjmRBEahV/EOmHmzHsBqSG9+J2a9yDcal+2SdXzCLPrZIlT6l4OAX0+h28qWDvjHU/s2e/
+        3HPpSwlQjozhoQ6FKxSDiIakeE4xzmry5OCG6I7ikj/SLvOaTKpqyax1KTV1XbpZcvWa7/
+        y/b+UiCQYWTclXTBzlIiqWYWKP7n6NTbDCbrOpvYhfbB5XiJtpqgkgbc3UJxWQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1612965212;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9cwRrvjT76sSrp2ibMmziPN8oPePakowNcut7jAjPqM=;
+        b=L+QK7Okt4CNWQB0o9Gw3UMdEuUBnrUzasjJ1BzF+yMOlm8JIo7UrNXdP5qC+1kC7tPq6lm
+        1dbigMuac/ssY7Ag==
+From:   "tip-bot2 for Frederic Weisbecker" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: sched/core] entry/kvm: Explicitly flush pending rcuog wakeup
+ before last rescheduling point
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20210131230548.32970-6-frederic@kernel.org>
+References: <20210131230548.32970-6-frederic@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wiDt_eJvfrr-dCXq3eZ+ZmVTD2-rM2pcxBk4d-FM3h-bw@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-10_05:2021-02-10,2021-02-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- suspectscore=0 spamscore=0 clxscore=1011 mlxlogscore=999 adultscore=0
- phishscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102100126
+Message-ID: <161296521175.23325.4682669795184175011.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 09, 2021 at 02:03:19PM -0800, Linus Torvalds wrote:
-> On Tue, Feb 9, 2021 at 1:42 PM Andrew Morton <akpm@linux-foundation.org> wrote:
-> >
-> > As with s390, alpha is a 64-bit architecture with a 32-bit ino_t.  With
-> > CONFIG_TMPFS_INODE64=y tmpfs mounts will get 64-bit inode numbers and
-> > display "inode64" in the mount options, whereas passing "inode64" in the
-> > mount options will fail.
-> 
-> Ugh.
-> 
-> The two patches for s390 and alpha are obviously the right thing to
-> do, but I do wonder if we could strive to make __kernel_ino_t go away
-> entirely.
-> 
-> It's actually not used very much, because it's such a nasty type, and
-> s390 and alpha are the only ones that override it from the default
-> "word length" version (and honestly, even that default is not a great
-> type).
-> 
-> The main use of it is for "ino_t" and for "struct ustat".
-> 
-> And yes, "ino_t" is widely used, but I think pretty much all uses of
-> it are entirely internal to the kernel, and we could just make it be
-> "unsigned long".
-> 
-> Does anybody see any actual user interfaces that depend on
-> "__kernel_ino_t", aka "ino_t" (apart from that "struct ustat")?
-> 
-> I guess this is mostly a question for s390, which is actively maintained?
+The following commit has been merged into the sched/core branch of tip:
 
-I couldn't spot any and also gave the patch below a try and my system
-still boots without any errors.
-So, as far as I can tell it _should_ be ok to change this.
+Commit-ID:     14bbd41d5109a8049f3f1b77e994e0213f94f4c0
+Gitweb:        https://git.kernel.org/tip/14bbd41d5109a8049f3f1b77e994e0213f94f4c0
+Author:        Frederic Weisbecker <frederic@kernel.org>
+AuthorDate:    Mon, 01 Feb 2021 00:05:48 +01:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Wed, 10 Feb 2021 14:44:51 +01:00
 
-Note that the unusual 32 bit ino_t also recently caused a bug on
-s390. See commit ebce3eb2f7ef ("ceph: fix inode number handling on
-arches with 32-bit ino_t"). So getting rid of this would be a good
-thing.
+entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 24862d15f3a3..383c98e86a70 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -327,6 +327,10 @@ config ARCH_32BIT_OFF_T
- 	  still support 32-bit off_t. This option is enabled for all such
- 	  architectures explicitly.
+Following the idle loop model, cleanly check for pending rcuog wakeup
+before the last rescheduling point upon resuming to guest mode. This
+way we can avoid to do it from rcu_user_enter() with the last resort
+self-IPI hack that enforces rescheduling.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
+---
+ arch/x86/kvm/x86.c        |  1 +-
+ include/linux/entry-kvm.h | 14 ++++++++++++-
+ kernel/rcu/tree.c         | 44 +++++++++++++++++++++++++++++---------
+ kernel/rcu/tree_plugin.h  |  1 +-
+ 4 files changed, 50 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 1b404e4..b967c1c 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1782,6 +1782,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
  
-+# Selected by 64 bit architectures which have a 32 bit f_tinode in struct ustat
-+config ARCH_32BIT_USTAT_F_TINODE
-+	bool
-+
- config HAVE_ASM_MODVERSIONS
- 	bool
- 	help
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 1f51437d5765..96ce6565890e 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -2,6 +2,7 @@
- config ALPHA
- 	bool
- 	default y
-+	select ARCH_32BIT_USTAT_F_TINODE
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select ARCH_NO_PREEMPT
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index c72874f09741..434efd9ca0c5 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -58,6 +58,7 @@ config S390
- 	# Note: keep this list sorted alphabetically
- 	#
- 	imply IMA_SECURE_AND_OR_TRUSTED_BOOT
-+	select ARCH_32BIT_USTAT_F_TINODE
- 	select ARCH_BINFMT_ELF_STATE
- 	select ARCH_HAS_DEBUG_VM_PGTABLE
- 	select ARCH_HAS_DEBUG_WX
-diff --git a/fs/statfs.c b/fs/statfs.c
-index 68cb07788750..0ba34c135593 100644
---- a/fs/statfs.c
-+++ b/fs/statfs.c
-@@ -255,7 +255,10 @@ SYSCALL_DEFINE2(ustat, unsigned, dev, struct ustat __user *, ubuf)
- 
- 	memset(&tmp,0,sizeof(struct ustat));
- 	tmp.f_tfree = sbuf.f_bfree;
--	tmp.f_tinode = sbuf.f_ffree;
-+	if (IS_ENABLED(CONFIG_ARCH_32BIT_USTAT_F_TINODE))
-+		tmp.f_tinode = min_t(u64, sbuf.f_ffree, UINT_MAX);
-+	else
-+		tmp.f_tinode = sbuf.f_ffree;
- 
- 	return copy_to_user(ubuf, &tmp, sizeof(struct ustat)) ? -EFAULT : 0;
+ bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
+ {
++	xfer_to_guest_mode_prepare();
+ 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
+ 		xfer_to_guest_mode_work_pending();
  }
-diff --git a/include/linux/types.h b/include/linux/types.h
-index a147977602b5..1e9d0a2c1dba 100644
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -14,7 +14,7 @@ typedef u32 __kernel_dev_t;
+diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
+index 9b93f85..8b2b1d6 100644
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -47,6 +47,20 @@ static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
+ int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
  
- typedef __kernel_fd_set		fd_set;
- typedef __kernel_dev_t		dev_t;
--typedef __kernel_ino_t		ino_t;
-+typedef __kernel_ulong_t	ino_t;
- typedef __kernel_mode_t		mode_t;
- typedef unsigned short		umode_t;
- typedef u32			nlink_t;
-@@ -189,7 +189,11 @@ struct hlist_node {
+ /**
++ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
++ *				need to be handled while IRQs are disabled
++ *				upon entering to guest.
++ *
++ * Has to be invoked with interrupts disabled before the last call
++ * to xfer_to_guest_mode_work_pending().
++ */
++static inline void xfer_to_guest_mode_prepare(void)
++{
++	lockdep_assert_irqs_disabled();
++	rcu_nocb_flush_deferred_wakeup();
++}
++
++/**
+  * __xfer_to_guest_mode_work_pending - Check if work is pending
+  *
+  * Returns: True if work pending, False otherwise.
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 2ebc211..ce17b84 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -678,9 +678,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
  
- struct ustat {
- 	__kernel_daddr_t	f_tfree;
--	__kernel_ino_t		f_tinode;
-+#ifdef ARCH_HAS_32BIT_F_TINODE
-+	unsigned int		f_tinode;
+ #ifdef CONFIG_NO_HZ_FULL
+ 
++#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
+ /*
+  * An empty function that will trigger a reschedule on
+- * IRQ tail once IRQs get re-enabled on userspace resume.
++ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
+  */
+ static void late_wakeup_func(struct irq_work *work)
+ {
+@@ -689,6 +690,37 @@ static void late_wakeup_func(struct irq_work *work)
+ static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
+ 	IRQ_WORK_INIT(late_wakeup_func);
+ 
++/*
++ * If either:
++ *
++ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
++ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
++ *
++ * In these cases the late RCU wake ups aren't supported in the resched loops and our
++ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
++ * get re-enabled again.
++ */
++noinstr static void rcu_irq_work_resched(void)
++{
++	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
++
++	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
++		return;
++
++	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
++		return;
++
++	instrumentation_begin();
++	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
++		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
++	}
++	instrumentation_end();
++}
++
 +#else
-+	unsigned long		f_tinode;
++static inline void rcu_irq_work_resched(void) { }
 +#endif
- 	char			f_fname[6];
- 	char			f_fpack[6];
- };
++
+ /**
+  * rcu_user_enter - inform RCU that we are resuming userspace.
+  *
+@@ -702,8 +734,6 @@ static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
+  */
+ noinstr void rcu_user_enter(void)
+ {
+-	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+-
+ 	lockdep_assert_irqs_disabled();
+ 
+ 	/*
+@@ -711,13 +741,7 @@ noinstr void rcu_user_enter(void)
+ 	 * rescheduling opportunity in the entry code. Trigger a self IPI
+ 	 * that will fire and reschedule once we resume in user/guest mode.
+ 	 */
+-	instrumentation_begin();
+-	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
+-		if (do_nocb_deferred_wakeup(rdp) && need_resched())
+-			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+-	}
+-	instrumentation_end();
+-
++	rcu_irq_work_resched();
+ 	rcu_eqs_enter(true);
+ }
+ 
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index 384856e..cdc1b76 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void)
+ {
+ 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
+ }
++EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
+ 
+ void __init rcu_init_nohz(void)
+ {
