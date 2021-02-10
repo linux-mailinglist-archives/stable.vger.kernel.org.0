@@ -2,88 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16594317028
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:31:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD06317065
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhBJTa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 14:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
+        id S232085AbhBJTkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 14:40:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbhBJTa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 14:30:57 -0500
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E78C061574
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 11:30:17 -0800 (PST)
-Received: by mail-il1-x130.google.com with SMTP id y5so2954522ilg.4
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 11:30:17 -0800 (PST)
+        with ESMTP id S232208AbhBJTjD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 14:39:03 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74ACFC0613D6
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 11:38:23 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id cl8so1719566pjb.0
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 11:38:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XR3GJYIrFqVh/P4AaYfLRSkAEDtaWqwqBD1TKpNkqZA=;
-        b=bxN2BwNs3tdQqP3WHeziz9Kyj02bvgwpyBZJJqV9quH5IrMHzseF6fX5i/QqhEOIDU
-         N/cnJlpbCMzDI9KItYP08h/4UB7dz/x0mvQeZNBGkXhQdJ+l0aREjeuzOBS8e/IfljwD
-         yl1fV6QBd4hslnuvA6/4n/isUDgsTwPmE47k4=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=R5ogvTV9BE1tzJYX2t3w2zKHnnrn3/vuYok0Hvd6lX0=;
+        b=VeYGRi6bG2oitUrih6HLLG4f5FaU2gSdTKvKlIGpr5TRY0z1eeoBnPQQ0Tan6xsGmL
+         j3YeNot1L+D57CaQUOX9ohuUYZapifscjskRRU3nLm/tA5Uia0mEEueblprZq2NiMaul
+         okDX22yQFwgPLsjuDvDuJjoFP7Ue6t2gwhovW7brZSUfrpeKP7S5P+LRMBh2+PsiuYU+
+         wU0ntJ82CwlPCIaC+y+pR7m6c+3Ie1oXsvRLiJxGoYTwt4Lq10w5YllrpxnyunRUNi1e
+         iJ0P91e9je6pAtQcjsnQ6EnsVZbIOfKryF9KkX/nkHFG6PtmhwPVj7jQAVtb476ejrOl
+         GOLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XR3GJYIrFqVh/P4AaYfLRSkAEDtaWqwqBD1TKpNkqZA=;
-        b=KoTMGAoiWUn/D3i8hp0fDaROrAvEn+uB8iBAoBPNQhzNub9ExTggABnBC0xIif6JjF
-         JzHMa4YSFGB81DTuXVm+wqUKwi9sGlQ//wfwjg7GMKgJDdSVCjOlCLRFT9nBwPTLho+c
-         0DiTZqdHTG0ztXdQwCSnJOJiN8BCUYcgtWVA8bfqqNef5WELpx2qu7NvD4Mb7VtVZWXB
-         1Ic11O5l0aklOZaN+dnRF9uaxVFV5l29reCpSitOBgryvjqnjy+5QxWdA9tUa1Kd0cwL
-         SnZdQaO4+q+nWL6y3r1yPpacWoWRVYnn7f4PD25xaBYPcrlFhwJ/ax3ITsH1Ow4+23BP
-         wPfw==
-X-Gm-Message-State: AOAM5307e+ll05qCNrWO+HUxYoyspzHzqzhPGoma4uVG4gFPskyw94jo
-        yzbcxg/pmMhwIzZRqpM0Kjv5/eQOt/dypA==
-X-Google-Smtp-Source: ABdhPJymfPILdbwLyN0DTMhJuzxKYhPU4KqGl0Zs00HpprZmaO6r4xlK+ZEfU3anemuro2Syxd8rQA==
-X-Received: by 2002:a92:de01:: with SMTP id x1mr2496484ilm.307.1612985417025;
-        Wed, 10 Feb 2021 11:30:17 -0800 (PST)
-Received: from mail-il1-f174.google.com (mail-il1-f174.google.com. [209.85.166.174])
-        by smtp.gmail.com with ESMTPSA id a14sm889630ilm.68.2021.02.10.11.30.16
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Feb 2021 11:30:16 -0800 (PST)
-Received: by mail-il1-f174.google.com with SMTP id e1so2976398ilu.0
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 11:30:16 -0800 (PST)
-X-Received: by 2002:a92:c26a:: with SMTP id h10mr2537425ild.234.1612984986592;
- Wed, 10 Feb 2021 11:23:06 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=R5ogvTV9BE1tzJYX2t3w2zKHnnrn3/vuYok0Hvd6lX0=;
+        b=sLW81iqXFXEuczVVtkSN8J8ciQNnbgGb8robhVx+c7Y50dXAJfXLmDmZ6okp40rpiW
+         xkAZ020+owlQ+EZ6iyhDNkPm/T3W7/a5pAI8ypprPeFeRusuH7Pa0C3bR/FZKSsjo2bI
+         lGp5Y2T2D6oWznmci6NyEO9xPK8hIJsUv6TUh9rYuXQLmLTOby69XhIxIRMDcPlGKcn1
+         Qg2C9WCXVwmWxlU9bnobqRpPgx/ZBCPV4+b3Jfx2NzsfisNsDMley/wk3pNWMIqCMMKI
+         eZNmPQCLKstuAKco1HUMPmQ9km8VOda7k++ilLgstq6LyOeceF9/4z3yD9bFvkhhp1oD
+         PM4w==
+X-Gm-Message-State: AOAM530pBV18RFjfvqnDxK9j2991ecZj2Xl2AL3i1A5J18V8mR28I9Wp
+        qBs1Guxu/LgqPsenxPJxzEXZupfmulb5xg==
+X-Google-Smtp-Source: ABdhPJxnrlUpq0Oqg6aC+QkXz6W3pgN1TYi41ZR82EuFEzOToIArVdXFsS/SpE6pctNiZJI9cZKY3A==
+X-Received: by 2002:a17:90a:2f82:: with SMTP id t2mr443721pjd.107.1612985902729;
+        Wed, 10 Feb 2021 11:38:22 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h188sm3196839pfg.68.2021.02.10.11.38.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Feb 2021 11:38:22 -0800 (PST)
+Message-ID: <6024362e.1c69fb81.5a35f.6e11@mx.google.com>
+Date:   Wed, 10 Feb 2021 11:38:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210209214232.hlVJaEmRu%akpm@linux-foundation.org> <4d33f14e-93ba-76ec-a82e-168ee2f25fe6@suse.cz>
-In-Reply-To: <4d33f14e-93ba-76ec-a82e-168ee2f25fe6@suse.cz>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 10 Feb 2021 11:22:50 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgMASx-nw8L_pYGktuVQH6msBnm718e9=JW+MCA8PSweg@mail.gmail.com>
-Message-ID: <CAHk-=wgMASx-nw8L_pYGktuVQH6msBnm718e9=JW+MCA8PSweg@mail.gmail.com>
-Subject: Re: [patch 13/14] mm, slub: better heuristic for number of cpus when
- calculating slab order
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        bharata@linux.ibm.com, Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Lameter <cl@linux.com>, Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Jann Horn <jannh@google.com>, Linux-MM <linux-mm@kvack.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Michal Hocko <mhocko@kernel.org>, mm-commits@vger.kernel.org,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        stable <stable@vger.kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Will Deacon <will@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.175
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y baseline: 86 runs, 1 regressions (v4.19.175)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 6:34 AM Vlastimil Babka <vbabka@suse.cz> wrote:
->
-> As Andrew's incoming series might have been not merged yet, I will point to
-> Mel's Tested-by:
+stable/linux-4.19.y baseline: 86 runs, 1 regressions (v4.19.175)
 
-Thanks, added.
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
 
-           Linus
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.175/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.175
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      54354bc5e2a599518c25769b56d76eabe94e67c9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/602403ffcd45d122cc3abe6d
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.175/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.175/=
+arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60240400cd45d12=
+2cc3abe74
+        failing since 21 days (last pass: v4.19.168, first fail: v4.19.169)
+        2 lines
+
+    2021-02-10 16:04:11.306000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/111
+    2021-02-10 16:04:11.315000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-02-10 16:04:11.329000+00:00  <8>[   22.782104] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
