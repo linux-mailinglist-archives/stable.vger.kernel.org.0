@@ -2,194 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBE63171E2
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 22:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DF7317212
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 22:11:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbhBJVEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 16:04:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41902 "EHLO
+        id S233206AbhBJVLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 16:11:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232658AbhBJVEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 16:04:10 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F52C061574
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 13:03:29 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id g3so1923873plp.2
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 13:03:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rUgqG18S0Z3jsLJ3FZPJGxyncZ+NZeRB/9wk8bRiJsc=;
-        b=hfsooW+7kG25I/E8Xbtdla9TnWmN0tFIi6N7IKIBlspySAQP0bcbuOgHm7bCreI+Nq
-         RLgbPyM+O+Jil8WOo2ItzVXmB29SDt7mlWVPiIlZWSuiAsCV34hLQ3unDGyu8zZkoAKE
-         FGXTeHcSuUXDlRiwbYh43Z7lwkKG9tQAW7d1TE5S7EChHYSC2z/dRYIcRI7CpShlLZ8E
-         JSB1hpnhmGNOlSeaxiwM1bBIX6IShVreSR9UdJxv1kqpJnsad/pIL+fqbSPfDHMuGN96
-         tTPX3EbrU4beUuVc232WRPsN/Tx37lNRb0f+bRRMhB4wJmLHbUe0ALdx8YdeKmzFtRc4
-         255Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rUgqG18S0Z3jsLJ3FZPJGxyncZ+NZeRB/9wk8bRiJsc=;
-        b=aD1SSj6UEQ5YnhREQSPnHMq/3SNKB89F79PTqZUBOjSM0DblFowJXfpc2ryLTIBZus
-         Z2uX1xZQoLXNJRfZo9CY5GiLCK7EN2Pdtc9n71ak6wv1NtGb9wZqD8ZrenuobteWSkHr
-         NSrDh74NgmdeNOqaM6CKlGlTEbpZ5qArnSnb7NFQtGbonu/bvIzu7TQ24jBETf/h95u8
-         Jwtr9/R1FgImz90To+vtTsn9TKynAGesap8Mm73LpD0E0J5shCMmB85CVNs2EQWqwKGv
-         zeZe5rLDxGkXX2J/oQBGLO3zZjjRGbQWdlPsWs55Xg+x8WEo+ye2HQFQYxhy6GTbibpR
-         6P7A==
-X-Gm-Message-State: AOAM530bVeef3sLGV/YuKcqFU6WJmLaeUO4cQ7mgf4edkh+xcbdgkaoK
-        kj72R5zhunuN1JFCCHXWFK16pfG7+OTFfQ==
-X-Google-Smtp-Source: ABdhPJwEGNyX24XyQfK51QATu7Wzp2wrm1PbJatNrHV3/+WVL+5oACrE1SGkOaLQMf2iSmHHo8tVcQ==
-X-Received: by 2002:a17:90a:474f:: with SMTP id y15mr787580pjg.110.1612991009214;
-        Wed, 10 Feb 2021 13:03:29 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v4sm2957019pjt.4.2021.02.10.13.03.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 13:03:28 -0800 (PST)
-Message-ID: <60244a20.1c69fb81.9925f.6d02@mx.google.com>
-Date:   Wed, 10 Feb 2021 13:03:28 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231897AbhBJVK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 16:10:57 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40193C061574;
+        Wed, 10 Feb 2021 13:10:16 -0800 (PST)
+Date:   Wed, 10 Feb 2021 21:10:13 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1612991414;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gngjeJPNcZZcgmyt6/v2khOLAQVyDcojVu/JN00cNBY=;
+        b=aQnMd/CN9ux3ON8NLtKjiGUGk0bv9NldIvkAK6H2vk4dT2A6HT130dxS3EyrwRUvLqx4S6
+        tCuG4mVv18GTR57VfEkpc09Oo7/7CVFLHPXvFjg7N2I1w8W5K41M2mDy5ikaoBn/8Ldeu6
+        uVhBmPau05NQmuJ2+vMUFSWksMSL/msLtH8lBT05+ZoFS0qCYyoplyB5mHXQm0DVO+dIl7
+        bWkq5jEBKyNw8k/LqPs2rSkLpXpshj81YKsxIfNU1eKlbOYKCruC6Mj4jQ7yq7zJGIn321
+        Fm9wNr7NEnEcD3YmD12OwAqlanAoFPVqTu79uCT+5YCm77cMoFBowhkqck7Hkw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1612991414;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gngjeJPNcZZcgmyt6/v2khOLAQVyDcojVu/JN00cNBY=;
+        b=OA17cxdwMMMoqlgshG/WDLTV2hlYomxccsUwStwlKjafBgRQ+eR6c2xnAmg2I7Rdj721MC
+        Ush82G/5PimCRtDQ==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pci: Create PCI/MSI irqdomain after
+ x86_init.pci.arch_init()
+Cc:     Juergen Gross <jgross@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <87pn18djte.fsf@nanos.tec.linutronix.de>
+References: <87pn18djte.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.221
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 59 runs, 3 regressions (v4.14.221)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <161299141323.23325.8366354176580288665.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 59 runs, 3 regressions (v4.14.221)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     70245f86c109e0eafb92ea9653184c0e44b4b35c
+Gitweb:        https://git.kernel.org/tip/70245f86c109e0eafb92ea9653184c0e44b4b35c
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 10 Feb 2021 16:27:41 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 10 Feb 2021 22:06:47 +01:00
 
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
+x86/pci: Create PCI/MSI irqdomain after x86_init.pci.arch_init()
 
-meson-gxm-q200  | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
+Invoking x86_init.irqs.create_pci_msi_domain() before
+x86_init.pci.arch_init() breaks XEN PV.
 
-panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
+The XEN_PV specific pci.arch_init() function overrides the default
+create_pci_msi_domain() which is obviously too late.
 
+As a consequence the XEN PV PCI/MSI allocation goes through the native
+path which runs out of vectors and causes malfunction.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.221/plan/baseline/
+Invoke it after x86_init.pci.arch_init().
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.221
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      29c52025152bab4c557d8174da58f1a4c8e70438 =
+Fixes: 6b15ffa07dc3 ("x86/irq: Initialize PCI/MSI domain at PCI init time")
+Reported-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Juergen Gross <jgross@suse.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87pn18djte.fsf@nanos.tec.linutronix.de
+---
+ arch/x86/pci/init.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60241b6c71caa3beb73abe9c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60241b6c71caa3beb73ab=
-e9d
-        failing since 314 days (last pass: v4.14.172, first fail: v4.14.175=
-) =
-
- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-meson-gxm-q200  | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60241ab8ab489a7b0b3abe85
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60241ab8ab489a7b0b3ab=
-e86
-        failing since 17 days (last pass: v4.14.216, first fail: v4.14.217) =
-
- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig           | =
-regressions
-----------------+-------+---------------+----------+---------------------+-=
------------
-panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602415e7b5c808f5473abe6c
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.221/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602415e7b5c808f=
-5473abe73
-        failing since 3 days (last pass: v4.14.219, first fail: v4.14.220)
-        2 lines
-
-    2021-02-10 17:20:36.105000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+diff --git a/arch/x86/pci/init.c b/arch/x86/pci/init.c
+index 00bfa1e..0bb3b8b 100644
+--- a/arch/x86/pci/init.c
++++ b/arch/x86/pci/init.c
+@@ -9,16 +9,23 @@
+    in the right sequence from here. */
+ static __init int pci_arch_init(void)
+ {
+-	int type;
+-
+-	x86_create_pci_msi_domain();
++	int type, pcbios = 1;
+ 
+ 	type = pci_direct_probe();
+ 
+ 	if (!(pci_probe & PCI_PROBE_NOEARLY))
+ 		pci_mmcfg_early_init();
+ 
+-	if (x86_init.pci.arch_init && !x86_init.pci.arch_init())
++	if (x86_init.pci.arch_init)
++		pcbios = x86_init.pci.arch_init();
++
++	/*
++	 * Must happen after x86_init.pci.arch_init(). Xen sets up the
++	 * x86_init.irqs.create_pci_msi_domain there.
++	 */
++	x86_create_pci_msi_domain();
++
++	if (!pcbios)
+ 		return 0;
+ 
+ 	pci_pcbios_init();
