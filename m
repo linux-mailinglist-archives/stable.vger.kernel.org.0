@@ -2,135 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5530316F64
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:00:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82130316F6E
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:01:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234372AbhBJS7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 13:59:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
+        id S234452AbhBJTAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 14:00:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232350AbhBJS5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 13:57:38 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE9DC06174A
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:56:57 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id b145so1877064pfb.4
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:56:57 -0800 (PST)
+        with ESMTP id S234414AbhBJTA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 14:00:26 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B68C061574
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:59:46 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id v193so3202754oie.8
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 10:59:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uMmrxNFTDORqpF5V5oPyx1H5bmvs0/+e/42h3EVID58=;
-        b=O29vxzw58GSreWUjQPBNtrY2oWUMvXeo6ZzGMvAQLJDSHlAfJTSndM+B0EPLAjCMDw
-         ZwsZWbko9By40dMNVo+vHhm8MM8k2aJScywfHGOwuDkjiIKK6LirASFLfn7uJ/51fLSd
-         NYJYBKUHOQq06Qb5QXvoPIS37yHQTShmhUyAVMHHr5ENbDXuML4ojOx8r60xOQkzKg+u
-         /v7Bu15yCS0Bh8Qihz/+7RfsgdIUDWQmtJLxKCZA4og5kVPI07rdGPtA+4oCF82OiqgM
-         liPy0rpeg2LSK5e4NRmVoc+GB8KvmAvGBZTxlui4STgbydq7RkaNAeREGdJ9na+KHR8W
-         bEeQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=H/NwjI0G4hJBKe8FbPn6CSlv+zT5kFR2e/T4DwZ4wp4=;
+        b=ZunjwweaQ+zjq+0tfLhb1Q+XRFjvsTf3SKcpqyabsgHDZHwXbYbxizxbZlsm9jJlLA
+         XEUw1WrwCV2Zwb7D77zLeSqNCf+uAHtW39aUuPk59pvd1euAtkeZZSjtMEb+BFszmsFy
+         2DdSEKNegUQdqFuTKLLccLat/SxpHJcfNTi4Mf9QUOEDJqlbloQpkYtpNqR4FUigZ2Lb
+         pcbJ90/hjWQc7UHKBC/nHpuJNsH6miI/XnEgaYDrxVEPxzBcnIpx5OFeZBEOEP1b+mfc
+         wQmombM/5Fxvd0hLHhMNkJNG23wABtOYwMneDZCr5/k1wbZyY7sM5dzT4tRycFezvVoZ
+         dpoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uMmrxNFTDORqpF5V5oPyx1H5bmvs0/+e/42h3EVID58=;
-        b=St2wQ2owf6m1ZAIKpCwVrpMnDt22ysADBgDJFn55LGgFIZxd2antV+0mfFZsBy98P5
-         mNyikS+gu0l1fQ+tFSNZN3hsbfzdvKNqxZ8ZrpxNk0gArd+vCAZDHKqMyeDCF2/G6Hop
-         Ppv4XtDLKtMu+KOcZKTZyHRVyIs3wmolC2qlzzkaek6ZvN5uAtlcPSMjabGVd+DZCcj6
-         wCyNnWpXYiF2wmt+DwlErt+nJvp+KaEFluiUy9IGgbdPhlIOWiPo0q9gXncZYS03o5bd
-         rC6R4P9qlGueBt+jwnDUd4PfD6JBCoJawRc4Oc8vDUimyFtGOgUEs2CFAdU116oYP+Kx
-         rbqQ==
-X-Gm-Message-State: AOAM533rQBezbSJoUK0oy+GTftqxjctGfSb5ywYKR4KC5NSOfcSTgZbO
-        MADErTJlRmb4AQzhOnVAtQ6U6Vh9ELfIPg==
-X-Google-Smtp-Source: ABdhPJwAs7B8yCBUc1Z31JRzySDlpgyGqhU6si+JDBuPEEl9Hd/3OqJS7Shhl7Sszntdk/id36s6FA==
-X-Received: by 2002:a63:1524:: with SMTP id v36mr4383516pgl.383.1612983417203;
-        Wed, 10 Feb 2021 10:56:57 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q139sm3215268pfc.2.2021.02.10.10.56.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 10:56:56 -0800 (PST)
-Message-ID: <60242c78.1c69fb81.50257.708e@mx.google.com>
-Date:   Wed, 10 Feb 2021 10:56:56 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=H/NwjI0G4hJBKe8FbPn6CSlv+zT5kFR2e/T4DwZ4wp4=;
+        b=TxbUJjqXlV1MiAOG1B0ykyEHI/74PXkmIFJIHn5y0ep8qn1+sHETuwC/wA7fw+QSbp
+         EmYXTYWwSnKUXkUg9lPUgmluAlvYd2+LvcQuBcgAI26+/7az9KKUpxvUL9CXanxXcj1b
+         7k5ZnvpEQHkQM+9e8yKeYmxwPb7CY8rvBO6cTFLxYZWTfUoKrxGHNaiN/6espuiwFmCF
+         sKsKlmF6JwzrwphYaFiLm882QDFNVVyRo2TfvokwMEyTpzWokh9xpYoeZZuYbkPzMFVQ
+         AEnLwnkm5wKXQKAFqIRIDIn0sPmvqhLWhiOGabKYmFGIUYrNzwNXAPVxNE63aMqhPfad
+         fYVA==
+X-Gm-Message-State: AOAM532B3BABsnu4MhrnQ2buFxfVeuJAUge5LAvPhzm7GabloHF87S7k
+        jhb5RBQmdv+rIQW5a1p9LFD4+fl8XmehKA34UuH+lEjk5Y7kPvKP
+X-Google-Smtp-Source: ABdhPJwIZdeQcKqiKfLeMioxEw9qtPS9hH4q+QDQJTxJfsv+waTtOUMUvVgp2imMyfjSsdQNq6QmWQMI4cQQ4d1U/UA=
+X-Received: by 2002:aca:2217:: with SMTP id b23mr282434oic.13.1612983585955;
+ Wed, 10 Feb 2021 10:59:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.256-47-g343972be0e1d
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 45 runs,
- 1 regressions (v4.9.256-47-g343972be0e1d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
+ <YCPZA7nkGGDru3xw@kroah.com> <239b8a9a-d550-11e3-4650-39ad5bd85013@jv-coder.de>
+ <20210210131916.GC1903164@localhost>
+In-Reply-To: <20210210131916.GC1903164@localhost>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 11 Feb 2021 00:29:33 +0530
+Message-ID: <CA+G9fYuQL9=gJJtWp7wHRzY1dc4q-Be4XjrZJUmYTJUbDEN=dA@mail.gmail.com>
+Subject: Re: [4.14] Failing selftest timer/adjtick
+To:     Joerg Vehlow <lkml@jv-coder.de>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        John Stultz <john.stultz@linaro.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 45 runs, 1 regressions (v4.9.256-47-g343972be=
-0e1d)
+I have tested adjtick on arm64 juno-r2 device and it got pass
+and here is the test output on Linux version 4.14.221-rc1.
 
-Regressions Summary
--------------------
++ ./adjtick
+Each iteration takes about 15 seconds
+Estimating tick (act: 9000 usec, -100000 ppm): 9000 usec, -100000 ppm [OK]
+Estimating tick (act: 9250 usec, -75000 ppm): 9250 usec, -75000 ppm [OK]
+Estimating tick (act: 9500 usec, -50000 ppm): 9500 usec, -50000 ppm [OK]
+Estimating tick (act: 9750 usec, -25000 ppm): 9750 usec, -25001 ppm [OK]
+Estimating tick (act: 10000 usec, 0 ppm): 10000 usec, 0 ppm [OK]
+Estimating tick (act: 10250 usec, 25000 ppm): 10249 usec, 24999 ppm [OK]
+Estimating tick (act: 10500 usec, 50000 ppm): 10500 usec, 50000 ppm [OK]
+Estimating tick (act: 10750 usec, 75000 ppm): 10750 usec, 75000 ppm [OK]
+Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+1..0
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+output link,
+https://lkft.validation.linaro.org/scheduler/job/2254102#L1255
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.256-47-g343972be0e1d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.256-47-g343972be0e1d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      343972be0e1d61810a687ce0690edb076009e09d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6023f9c0d8af0e2c3e3abe80
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-4=
-7-g343972be0e1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.256-4=
-7-g343972be0e1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6023f9c0d8af0e2=
-c3e3abe87
-        new failure (last pass: v4.9.256-43-g76bcadc3cd1c)
-        2 lines
-
-    2021-02-10 15:20:27.325000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/121
-    2021-02-10 15:20:27.334000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-02-10 15:20:27.354000+00:00  [   20.867462] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+- Naresh
