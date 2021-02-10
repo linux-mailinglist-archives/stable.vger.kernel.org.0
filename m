@@ -2,105 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F033170C0
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 20:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19125317126
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 21:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbhBJT4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 14:56:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232614AbhBJT42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 14:56:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4A364EEA;
-        Wed, 10 Feb 2021 19:55:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612986947;
-        bh=ySOGh/LfDfk0EzIqZMt+l+18yGYgMtEtuEXYBi5g4TA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=NZ6ZYISXE7p99BEUvfNFWg2og56folXbUeOyoZ8+kVzAgtDJZ03+I89uh4iqrlRRy
-         wM2C9l4aWJRzKKmf+ok848J0AJTyWwt6ew8vnqxJu1GlFrcUUaE9TUtK94YXdsNHCJ
-         8yySFz0SyNzlod+AzBQBWQPyjbm7HOIHMGF6VDYlea6MdSW+8HVeFO2Edf7fRjQwOV
-         Nj6pRFBYyT+aDuCael3O1mDT42s3EMVULHPdrlyNP+9QKLaIjrKkANbOF5yd3aMh8E
-         QpDbZWI82gbDPsSARpuVP3x+QlX+rv4nc5QxC9gLrojopDQJtijBc1PAZSxbBHpouq
-         6Bc1tai7xcQCQ==
-Received: by mail-ot1-f46.google.com with SMTP id l23so2968977otn.10;
-        Wed, 10 Feb 2021 11:55:47 -0800 (PST)
-X-Gm-Message-State: AOAM531WjL7YeecWllIsaLrmfoH5pgyWCQJvDwA8FervTAIi+m0l0r4k
-        gJ+hNPcq6kk3vOB9mPjreYO3GFOZ6vHDqfaT1qI=
-X-Google-Smtp-Source: ABdhPJzFbtRr/UiFKse9DDFj7qK/D6leqlSGTX/krNy8dk6itAmmGB+6zN0Q1h8IBj4DQy1pe/Nkq+znMh4FLhb764M=
-X-Received: by 2002:a05:6830:18e6:: with SMTP id d6mr3452163otf.251.1612986946460;
- Wed, 10 Feb 2021 11:55:46 -0800 (PST)
+        id S233321AbhBJUTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 15:19:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233271AbhBJUTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 15:19:34 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB49C06174A
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 12:18:54 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id fa16so1785648pjb.1
+        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 12:18:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4y57y2LLtRWyPpoZLzXPI9+Em42SBB3cshoRB3jXBpo=;
+        b=ISbJmtG0BjaaGcWikZlW9OleFixQf62KEG2PeULvEnEbWtIBLTeoO1kFNm0N07gKZV
+         Agxg3HmEb5IcYln4vmXn0aMrThsj+7sOsjAIArWYygeHKyQibvUlQ3LXSjAMhxInM+N5
+         l1ASqcegmv1/TygsWtJL/08bad37gLksYscZoL0jK4eCXHIBbrpwewJHKBdAw/xFkjBn
+         YnIBB5IJqAsW9t1ZDX2ulbcKyfnnPZgL0QE+JcavlcI7PXjGlPDHUId0PCcbkktJrYBS
+         oNf4bmuA/v3EiY2JlHEr216rJDmffwM7KqWCLg4/CREKp0RQ8iGXF6Vbs4Gt5gqYjRQ5
+         3HnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4y57y2LLtRWyPpoZLzXPI9+Em42SBB3cshoRB3jXBpo=;
+        b=i/G6gu9i5/cMcg5UYoHrJtv+WKbn6Sjgrol62yTDrKOpyJ1mqyIE4RxShiI/vQLKKN
+         4ZQeTF71SxciGOfEhouMIbgzph0EvIF/qxmzXDxZrg2TP584F3ev6/ggCkl3X4zY4SWe
+         2wUtlbcvu9HXZGeZmLnB/Ypblz0JudYnKLHZCUVTcn4yoUI+4iZ5ERsB5QIlUZ9V8ye+
+         1pY0sJ50h3XHzg3SZZpPhl2iJ67Ol9PSCKJJjTkZ2gcMEvEmgfYeb8UbYdgDQ2UYTC1G
+         3dA+4wRL3WUYcZWS1hIZpyIcxPnM1ea38t8yQstJJxLXauCUqosmM4AJ8ykv45AQp3AL
+         ZAWQ==
+X-Gm-Message-State: AOAM533JBFWMNrYX7FhQRPw+qOnUqf1WgqKNAO9qWG2hvmBQ7pWApnm+
+        h8ssg8fgTpmccGw2oqVhyhNO6A8EzGKTOg==
+X-Google-Smtp-Source: ABdhPJxwv+eyTxY4rQHIohLiIi/CxFrl+a2hWxnqn2/YgXeeS90gYdgLCBx8LeDcZwUZWio1rZeqmQ==
+X-Received: by 2002:a17:90a:8c08:: with SMTP id a8mr577946pjo.179.1612988333864;
+        Wed, 10 Feb 2021 12:18:53 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s7sm3169658pgb.89.2021.02.10.12.18.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Feb 2021 12:18:53 -0800 (PST)
+Message-ID: <60243fad.1c69fb81.48f39.6e74@mx.google.com>
+Date:   Wed, 10 Feb 2021 12:18:53 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210209134115.4d933d446165cd0ed8977b03@linux-foundation.org>
- <20210209214217.gRa4Jmu1g%akpm@linux-foundation.org> <CAHk-=wiDt_eJvfrr-dCXq3eZ+ZmVTD2-rM2pcxBk4d-FM3h-bw@mail.gmail.com>
- <YCPgzb1PhtvfUh9y@osiris> <CAHk-=wghVA-6aNQz3rwr5VHmJAHkUvGyzKFpsEN1HPB5SL+aQA@mail.gmail.com>
-In-Reply-To: <CAHk-=wghVA-6aNQz3rwr5VHmJAHkUvGyzKFpsEN1HPB5SL+aQA@mail.gmail.com>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Wed, 10 Feb 2021 20:55:30 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3P6tMpVaLJHwNbp8sEj9+XVh5j4ymNAiXjF6P=noxL-g@mail.gmail.com>
-Message-ID: <CAK8P3a3P6tMpVaLJHwNbp8sEj9+XVh5j4ymNAiXjF6P=noxL-g@mail.gmail.com>
-Subject: Re: [patch 09/14] tmpfs: disallow CONFIG_TMPFS_INODE64 on alpha
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Chris Down <chris@chrisdown.name>,
-        Hugh Dickins <hughd@google.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Linux-MM <linux-mm@kvack.org>, Matt Turner <mattst88@gmail.com>,
-        mm-commits@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Tuan Hoang1 <Tuan.Hoang1@ibm.com>,
-        Debian <debian-kernel@lists.debian.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.257
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y baseline: 41 runs, 1 regressions (v4.9.257)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 8:17 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Wed, Feb 10, 2021 at 5:39 AM Heiko Carstens <hca@linux.ibm.com> wrote:
-> >
-> > I couldn't spot any and also gave the patch below a try and my system
-> > still boots without any errors.
-> > So, as far as I can tell it _should_ be ok to change this.
->
-> So your patch (with the fix on top) looks sane to me.
->
-> I'm not entirely sure it is worth it, but the fact that we've had bugs
-> wrt this before does seem to imply that we should do this.
->
-> I'd remove the __kernel_ino_t type entirely, but I wonder if user
-> space might depend on it. I do find
->
->    #ifndef __kernel_ino_t
->    typedef __kernel_ulong_t __kernel_ino_t;
->    #endif
->
-> in the GNU libc headers I have, but then I don't find any actual use
-> of that, so it looks like it may be jyst a "we copied things for other
-> reasons".
+stable/linux-4.9.y baseline: 41 runs, 1 regressions (v4.9.257)
 
-I checked debian codesearch to see if there are any users in
-distro source code and found exactly one instance that will
-definitely break at compile time:
+Regressions Summary
+-------------------
 
-https://sources.debian.org/src/nfs-utils/1:1.3.4-4/support/include/nfs/nfs.h/?hl=99#L99
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
 
-This is a copy of a kernel header that was removed ten years ago
-with commit c152292f9ee7 ("nfsd: remove include/linux/nfsd/syscall.h").
 
-The mainline version of that package removed the contents in 2016 in
-the following release (2.1.1), but debian is still on the previous
-version (1.3.4)
-http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=commitdiff;h=fc1127d754578cd1
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
+v4.9.257/plan/baseline/
 
-Someone will have to update the package for Debian, but it seems
-that would be a good idea anyway.
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.9.y
+  Describe: v4.9.257
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      282aeb477a10d09cc5c4d73c54bb996964723f96 =
 
-      Arnd
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/60240cff22ced6fbd83abe67
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.257/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.257/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60240cff22ced6fbd83ab=
+e68
+        failing since 83 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =20
