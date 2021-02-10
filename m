@@ -2,87 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108EC3166F9
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 13:43:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7431E316701
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 13:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229465AbhBJMmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 07:42:55 -0500
-Received: from mga02.intel.com ([134.134.136.20]:3119 "EHLO mga02.intel.com"
+        id S231892AbhBJMpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 07:45:09 -0500
+Received: from mail.jv-coder.de ([5.9.79.73]:38498 "EHLO mail.jv-coder.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231274AbhBJMlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 07:41:21 -0500
-IronPort-SDR: CN7WfTFZNZdfE8/0g+hBvLmARu/6HqUS8euNJpLqtjs1rp7l0Q/Mxtph+ZEGSqAhHJIJ1e1cmG
- 4gFnfL7lcMhA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9890"; a="169189329"
-X-IronPort-AV: E=Sophos;i="5.81,168,1610438400"; 
-   d="scan'208";a="169189329"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 04:40:31 -0800
-IronPort-SDR: /OOriOnbA9GvacZvRk+hMmUhkhITDx/8m8sBFH2KgomCoHdCBjN0xHmfMvJR9mR7RtdKPz1rdC
- r01tpTBj2idg==
-X-IronPort-AV: E=Sophos;i="5.81,168,1610438400"; 
-   d="scan'208";a="396693394"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 04:40:28 -0800
-Date:   Wed, 10 Feb 2021 14:40:24 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Lyude Paul <lyude@redhat.com>,
-        Ville Syrjala <ville.syrjala@intel.com>,
-        dri-devel@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: Re: [PATCH 5.10 078/120] drm/dp/mst: Export
- drm_dp_get_vc_payload_bw()
-Message-ID: <20210210124024.GA65741@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20210208145818.395353822@linuxfoundation.org>
- <20210208145821.517331268@linuxfoundation.org>
- <20210210122517.GA27201@duo.ucw.cz>
+        id S230200AbhBJMnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Feb 2021 07:43:19 -0500
+Received: from [192.168.178.40] (unknown [188.192.1.224])
+        by mail.jv-coder.de (Postfix) with ESMTPSA id D947B9F713;
+        Wed, 10 Feb 2021 12:42:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jv-coder.de; s=dkim;
+        t=1612960938; bh=jobc+08FAOyjmkbANrhe+gJitxkT/44/+3m3HJpaN80=;
+        h=To:From:Subject:Message-ID:Date:MIME-Version;
+        b=ZijUB3wnnfuxuaLfy+tpo4xCu41WohXoxZtnN0eX4G5ZJ1FfaRjsXvTs0Rd7v8Qk1
+         YBcijXKiMMdPr/2U6ntBdhHspCwyMaJub0TWq6K1pSldaNUhuOYi/bcXZwMNLnRVnb
+         Ir7ucsgiKMXs6sytttnVvhoR9Hp7Ur5xia8qHYsA=
+To:     stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        John Stultz <john.stultz@linaro.org>
+From:   Joerg Vehlow <lkml@jv-coder.de>
+Subject: [4.14] Failing selftest timer/adjtick
+Message-ID: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
+Date:   Wed, 10 Feb 2021 13:43:10 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210210122517.GA27201@duo.ucw.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Spam-Status: No, score=-3.1 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF autolearn=ham
+        autolearn_force=no version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on mail.jv-coder.de
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-On Wed, Feb 10, 2021 at 01:25:17PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > commit 83404d581471775f37f85e5261ec0d09407d8bed upstream.
-> > 
-> > This function will be needed by the next patch where the driver
-> > calculates the BW based on driver specific parameters, so export it.
-> > 
-> > At the same time sanitize the function params, passing the more natural
-> > link rate instead of the encoding of the same rate.
-> 
-> > Cc: <stable@vger.kernel.org>
-> 
-> This adds exports, but there's no user of the export, neither in
-> 5.10-stable nor in linux-next. What is the plan here?
+we found that on the selftest timer/adjtick fails on arm64 (tested on 
+some renesas board and in qemu) quite frequently.
+By bisecting the kernel I found that it stopped failing after commit 
+78b98e3c5a66 (timekeeping/ntp: Determine the multiplier directly from 
+NTP tick length).
+Should this patch be applied to 4.14 and is it even possible or could it 
+break something else?
 
-the export is used by the upstream 
-commit 882554042d138dbc6fb1a43017d0b9c3b38ee5f5
-Author: Imre Deak <imre.deak@intel.com>
-Date:   Mon Jan 25 19:36:36 2021 +0200
-
-    drm/i915: Fix the MST PBN divider calculation
-
-which I can also see now applied to 5.10.15:
-
-commit 0fe98e455784a6c11e0dd48612acd343f4a46fce
-Author:     Imre Deak <imre.deak@intel.com>
-AuthorDate: Mon Jan 25 19:36:36 2021 +0200
-Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CommitDate: Wed Feb 10 09:29:18 2021 +0100
-
-    drm/i915: Fix the MST PBN divider calculation
-
-    commit 882554042d138dbc6fb1a43017d0b9c3b38ee5f5 upstream.
-
---Imre
+Thanks,
+Joerg
