@@ -2,54 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7431E316701
-	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 13:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B50B316717
+	for <lists+stable@lfdr.de>; Wed, 10 Feb 2021 13:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231892AbhBJMpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 07:45:09 -0500
-Received: from mail.jv-coder.de ([5.9.79.73]:38498 "EHLO mail.jv-coder.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230200AbhBJMnT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Feb 2021 07:43:19 -0500
-Received: from [192.168.178.40] (unknown [188.192.1.224])
-        by mail.jv-coder.de (Postfix) with ESMTPSA id D947B9F713;
-        Wed, 10 Feb 2021 12:42:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jv-coder.de; s=dkim;
-        t=1612960938; bh=jobc+08FAOyjmkbANrhe+gJitxkT/44/+3m3HJpaN80=;
-        h=To:From:Subject:Message-ID:Date:MIME-Version;
-        b=ZijUB3wnnfuxuaLfy+tpo4xCu41WohXoxZtnN0eX4G5ZJ1FfaRjsXvTs0Rd7v8Qk1
-         YBcijXKiMMdPr/2U6ntBdhHspCwyMaJub0TWq6K1pSldaNUhuOYi/bcXZwMNLnRVnb
-         Ir7ucsgiKMXs6sytttnVvhoR9Hp7Ur5xia8qHYsA=
-To:     stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <john.stultz@linaro.org>
-From:   Joerg Vehlow <lkml@jv-coder.de>
-Subject: [4.14] Failing selftest timer/adjtick
-Message-ID: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
-Date:   Wed, 10 Feb 2021 13:43:10 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S230419AbhBJMtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 07:49:47 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:41975 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230267AbhBJMsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 07:48:52 -0500
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 4DbKKk2nstz1qs0V;
+        Wed, 10 Feb 2021 13:47:38 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 4DbKKk0wQyz1t6pp;
+        Wed, 10 Feb 2021 13:47:38 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id Ul3ytJQpfjMS; Wed, 10 Feb 2021 13:47:36 +0100 (CET)
+X-Auth-Info: RuUU4Nm21+ZCGrYnw5dh1sqjchZK5Zl5bOvlUvzxcO9GF0ovy/0kftXqixYAQR7M
+Received: from igel.home (ppp-46-244-165-216.dynamic.mnet-online.de [46.244.165.216])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Wed, 10 Feb 2021 13:47:36 +0100 (CET)
+Received: by igel.home (Postfix, from userid 1000)
+        id 799A32C31E1; Wed, 10 Feb 2021 13:47:34 +0100 (CET)
+From:   Andreas Schwab <schwab@linux-m68k.org>
+To:     Palmer Dabbelt <palmer@dabbelt.com>
+Cc:     devicetree@vger.kernel.org, aou@eecs.berkeley.edu,
+        anup@brainfault.org, Palmer Dabbelt <palmerdabbelt@google.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        yash.shah@sifive.com, robh+dt@kernel.org, sagar.kadam@sifive.com,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        linux-riscv@lists.infradead.org, kernel-team@android.com
+Subject: Re: [PATCH] Revert "dts: phy: add GPIO number and active state used
+ for phy reset"
+References: <20210205034112.2147142-1-palmer@dabbelt.com>
+X-Yow:  Will it improve my CASH FLOW?
+Date:   Wed, 10 Feb 2021 13:47:34 +0100
+In-Reply-To: <20210205034112.2147142-1-palmer@dabbelt.com> (Palmer Dabbelt's
+        message of "Thu, 4 Feb 2021 19:41:12 -0800")
+Message-ID: <877dngjdi1.fsf@igel.home>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1.91 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Spam-Status: No, score=-3.1 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF autolearn=ham
-        autolearn_force=no version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on mail.jv-coder.de
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Feb 04 2021, Palmer Dabbelt wrote:
 
-we found that on the selftest timer/adjtick fails on arm64 (tested on 
-some renesas board and in qemu) quite frequently.
-By bisecting the kernel I found that it stopped failing after commit 
-78b98e3c5a66 (timekeeping/ntp: Determine the multiplier directly from 
-NTP tick length).
-Should this patch be applied to 4.14 and is it even possible or could it 
-break something else?
+> From: Palmer Dabbelt <palmerdabbelt@google.com>
+>
+> VSC8541 phys need a special reset sequence, which the driver doesn't
+> currentlny support.  As a result enabling the reset via GPIO essentially
+> guarnteees that the device won't work correctly.
+>
+> This reverts commit a0fa9d727043da2238432471e85de0bdb8a8df65.
+>
+> Fixes: a0fa9d727043 ("dts: phy: add GPIO number and active state used for phy reset")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 
-Thanks,
-Joerg
+This fixes ethernet on the HiFive Unleashed with 5.10.12.
+
+Andreas.
+
+-- 
+Andreas Schwab, schwab@linux-m68k.org
+GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+"And now for something completely different."
