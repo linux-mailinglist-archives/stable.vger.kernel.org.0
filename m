@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D1D9318E5D
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9CD318E08
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230382AbhBKPZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:25:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
+        id S229937AbhBKPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:19:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230259AbhBKPT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:19:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DED464F1E;
-        Thu, 11 Feb 2021 15:06:23 +0000 (UTC)
+        id S230097AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:13:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2707664EF2;
+        Thu, 11 Feb 2021 15:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055984;
-        bh=FCPfVnRG2CO+xF685n4LNuumA9F5bRF7rvJBReS7buY=;
+        s=korg; t=1613055892;
+        bh=Tu/ihzwj0fdIKZC3D8WmvryBsJDFFHOXxBFv25QlwuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8JiC4bAs1xovxTg7Q2lptDs6uEW7vy5M0NkZ0fiKXJRLPIH0Cwne2Sl1sC+5cIWf
-         8ix38FR1Z/0tCunzTu5xrzelCgYnT6QFO9EsYYsxG2aPzEDoPZ3CW07cpbwhZUiTou
-         kBncGtI0ZtkRZegvZ1TCnE3yN1JNzogAshBdudGI=
+        b=KaJkMuVU1FYkbfKAjn8rXIsd8aCiTAsKDoZJuYAGHe2lG9lNlLkbcFO70WRaGeBJe
+         9KqhzDgTBQze0OXeXmmXFVcN2olearzOxXqp/YYEyHlA1H2Vd4/0p5VdEpuxM30aYn
+         5vkGHW578IxU7JKzjW+Gi+jP4bRNEITL3jEmbo4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/24] iwlwifi: mvm: skip power command when unbinding vif during CSA
-Date:   Thu, 11 Feb 2021 16:02:32 +0100
-Message-Id: <20210211150148.925559231@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Joachim Henke <joachim.henke@t-systems.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 49/54] nilfs2: make splice write available again
+Date:   Thu, 11 Feb 2021 16:02:33 +0100
+Message-Id: <20210211150155.010025735@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-References: <20210211150148.516371325@linuxfoundation.org>
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Joachim Henke <joachim.henke@t-systems.com>
 
-[ Upstream commit bf544e9aa570034e094a8a40d5f9e1e2c4916d18 ]
+commit a35d8f016e0b68634035217d06d1c53863456b50 upstream.
 
-In the new CSA flow, we remain associated during CSA, but
-still do a unbind-bind to the vif. However, sending the power
-command right after when vif is unbound but still associated
-causes FW to assert (0x3400) since it cannot tell the LMAC id.
+Since 5.10, splice() or sendfile() to NILFS2 return EINVAL.  This was
+caused by commit 36e2c7421f02 ("fs: don't allow splice read/write
+without explicit ops").
 
-Just skip this command, we will send it again in a bit, when
-assigning the new context.
+This patch initializes the splice_write field in file_operations, like
+most file systems do, to restore the functionality.
 
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130252.64a2254ac5c3.Iaa3a9050bf3d7c9cd5beaf561e932e6defc12ec3@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/1612784101-14353-1-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Joachim Henke <joachim.henke@t-systems.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.10+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nilfs2/file.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index daae86cd61140..fc6430edd1107 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -4169,6 +4169,9 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
- 	iwl_mvm_binding_remove_vif(mvm, vif);
+--- a/fs/nilfs2/file.c
++++ b/fs/nilfs2/file.c
+@@ -141,6 +141,7 @@ const struct file_operations nilfs_file_
+ 	/* .release	= nilfs_release_file, */
+ 	.fsync		= nilfs_sync_file,
+ 	.splice_read	= generic_file_splice_read,
++	.splice_write   = iter_file_splice_write,
+ };
  
- out:
-+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD) &&
-+	    switching_chanctx)
-+		return;
- 	mvmvif->phy_ctxt = NULL;
- 	iwl_mvm_power_update_mac(mvm);
- }
--- 
-2.27.0
-
+ const struct inode_operations nilfs_file_inode_operations = {
 
 
