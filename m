@@ -2,125 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F69318B65
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 14:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5EB318BDB
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 14:21:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbhBKNBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 08:01:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58118 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229803AbhBKM7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 07:59:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D4264E23;
-        Thu, 11 Feb 2021 12:58:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613048319;
-        bh=Rp2mERnaPj4kuH9Jsjd7wSt+VHabC+3TVaeZun1SIo8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2jKDCosxbVtGR5RnkscJGQyE6WMSAzMcYTzMXqHuFaCghAFDKCVvuQ3vNGiRKEwpY
-         4pXGVMNYTI6LSLRaBZOdtnRcpGI/03jExmf7QShncJinGtgLliw+4hK4sOhdOrffyY
-         OxwT9U+1Rn0YqH95qzSB1emccWUFH4mDGOp58QW8=
-Date:   Thu, 11 Feb 2021 13:58:37 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Florian Weimer <fweimer@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        jslaby@suse.cz, libc-alpha@sourceware.org,
-        linux-api@vger.kernel.org
-Subject: Re: LINUX_VERSION_CODE overflow (was: Re: Linux 4.9.256)
-Message-ID: <YCUp/ZEl0r+BdtGN@kroah.com>
-References: <1612535085125226@kroah.com>
- <87o8gqriba.fsf@oldenburg.str.redhat.com>
+        id S230311AbhBKNT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 08:19:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28995 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231722AbhBKNR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 08:17:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613049358;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=p4kjSj6IqX+6LexeNsu4OvUsCWjUNloaXb9pUNsIyFw=;
+        b=MJToyGgFG2Vf6AeQUlxzbnC92QCLBfT1TIAyFZnW5aF2DWbzrKujFimXNg0xFSQiyayMJ3
+        FFQLJaW/fmI2G5/5ph7WjnRl2pmePxBTDNIq/MsLyqxF0UvsmCjefg8cv2NchMiVkxUDfN
+        nNKHVsqSUFApEEd2NZkW2M26v/rC9xM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-509-BERIYeOFOlOJTvK6dhNGqg-1; Thu, 11 Feb 2021 08:15:52 -0500
+X-MC-Unique: BERIYeOFOlOJTvK6dhNGqg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C498C107ACE4;
+        Thu, 11 Feb 2021 13:15:50 +0000 (UTC)
+Received: from [10.36.114.52] (ovpn-114-52.ams2.redhat.com [10.36.114.52])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 16C492C01B;
+        Thu, 11 Feb 2021 13:15:48 +0000 (UTC)
+Subject: Re: [PATCH v3 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
+ entry pointer
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, stable@vger.kernel.org
+References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
+ <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+ <2a65f089-1728-7bc7-a2a8-a2c089a01cec@redhat.com>
+ <20210211135756.249b535b@ibm-vm>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <1fb901ef-7c42-7753-fe78-0251ca4715d3@redhat.com>
+Date:   Thu, 11 Feb 2021 14:15:47 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87o8gqriba.fsf@oldenburg.str.redhat.com>
+In-Reply-To: <20210211135756.249b535b@ibm-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 11, 2021 at 11:48:41AM +0100, Florian Weimer wrote:
-> * Greg Kroah-Hartman:
+On 11.02.21 13:57, Claudio Imbrenda wrote:
+> On Thu, 11 Feb 2021 10:18:56 +0100
+> David Hildenbrand <david@redhat.com> wrote:
 > 
-> > I'm announcing the release of the 4.9.256 kernel.
-> >
-> > This, and the 4.4.256 release are a little bit "different" than normal.
-> >
-> > This contains only 1 patch, just the version bump from .255 to .256
-> > which ends up causing the userspace-visable LINUX_VERSION_CODE to
-> > behave a bit differently than normal due to the "overflow".
-> >
-> > With this release, KERNEL_VERSION(4, 9, 256) is the same as KERNEL_VERSION(4, 10, 0).
-> >
-> > Nothing in the kernel build itself breaks with this change, but given
-> > that this is a userspace visible change, and some crazy tools (like
-> > glibc and gcc) have logic that checks the kernel version for different
-> > reasons, I wanted to do this release as an "empty" release to ensure
-> > that everything still works properly.
+>> On 09.02.21 16:43, Claudio Imbrenda wrote:
+>>> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+>>> DAT table entry, or to the invalid entry.
+>>>
+>>> Also return some flags in the lower bits of the address:
+>>> DAT_PROT: indicates that DAT protection applies because of the
+>>>             protection bit in the segment (or, if EDAT, region)
+>>> tables NOT_PTE: indicates that the address of the DAT table entry
+>>> returned does not refer to a PTE, but to a segment or region table.
+>>>    
+>>
+>> I've been thinking about one possible issue, but I think it's not
+>> actually an issue. Just sharing so others can verify:
+>>
+>> In case our guest uses huge pages / gigantic pages / ASCE R, we
+>> create fake page tables (GMAP_SHADOW_FAKE_TABLE).
+>>
+>> So, it could be that kvm_s390_shadow_fault()->gmap_shadow_pgt_lookup()
+>> succeeds, however, we have a fake PTE in our hands. We lost the
+>> actual guest STE/RTE address. (I think it could be recovered somehow
+>> via page->index, thought)
+>>
+>> But I guess, if there is a fake PTE, then there is not acutally
+>> something that could go wrong in gmap_shadow_page() anymore that could
+>> lead us in responding something wrong to the guest. We can only really
+>> fail with -EINVAL, -ENOMEM or -EFAULT.
 > 
-> As promised, I looked at this from the glibc perspective.
+> this was also my reasoning
 > 
-> A dynamically linked glibc reads the LINUX_VERSION_CODE in the ELF note
-> in the vDSO.
+>> So if the guest changed anything in the meantime (e.g., zap a
+>> segment), we would have unshadowed the whole fake page table
+>> hierarchy and would simply retry.
+>>
+>>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>>> Cc: stable@vger.kernel.org
+>>> ---
+>>>    arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
+>>>    arch/s390/kvm/gaccess.h |  5 ++++-
+>>>    arch/s390/kvm/vsie.c    |  8 ++++----
+>>>    3 files changed, 33 insertions(+), 10 deletions(-)
+>>>
+>>> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+>>> index 6d6b57059493..e0ab83f051d2 100644
+>>> --- a/arch/s390/kvm/gaccess.c
+>>> +++ b/arch/s390/kvm/gaccess.c
+>>> @@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct
+>>> kvm_vcpu *vcpu, unsigned long gra)
+>>>     * kvm_s390_shadow_tables - walk the guest page table and create
+>>> shadow tables
+>>>     * @sg: pointer to the shadow guest address space structure
+>>>     * @saddr: faulting address in the shadow gmap
+>>> - * @pgt: pointer to the page table address result
+>>> + * @pgt: pointer to the beginning of the page table for the given
+>>> address if
+>>> + *       successful (return value 0), or to the first invalid DAT
+>>> entry in
+>>> + *       case of exceptions (return value > 0)
+>>>     * @fake: pgt references contiguous guest memory block, not a
+>>> pgtable */
+>>>    static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long
+>>> saddr, @@ -1034,6 +1036,7 @@ static int
+>>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>>> rfte.val = ptr; goto shadow_r2t;
+>>>    		}
+>>> +		*pgt = ptr + vaddr.rfx * 8;
+>>>    		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8,
+>>> &rfte.val);
+>>
+>> Using
+>>
+>> gmap_read_table(parent, *pgt, &rfte.val);
+>>
+>> or similar with a local variable might then be even clearer. But no
+>> strong opinion.
 > 
-> Statically linked binaries use the uname system call and parse the
-> release field in struct utsname.  If the uname system call fails, there
-> is also /proc fallback, but I believe that path is unused.
+> that's also something I had thought about, in the end this minimizes
+> the number of lines / variables while still being readable
 > 
-> The glibc dynamic linker falls back to uname if the vDSO cannot be
-> located.
+>>>    		if (rc)
+>>>    			return rc;
+>>> @@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, rste.val = ptr;
+>>>    			goto shadow_r3t;
+>>>    		}
+>>> +		*pgt = ptr + vaddr.rsx * 8;
+>>>    		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8,
+>>> &rste.val); if (rc)
+>>>    			return rc;
+>>> @@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, rtte.val = ptr;
+>>>    			goto shadow_sgt;
+>>>    		}
+>>> +		*pgt = ptr + vaddr.rtx * 8;
+>>>    		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8,
+>>> &rtte.val); if (rc)
+>>>    			return rc;
+>>> @@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, ste.val = ptr;
+>>>    			goto shadow_pgt;
+>>>    		}
+>>> +		*pgt = ptr + vaddr.sx * 8;
+>>>    		rc = gmap_read_table(parent, ptr + vaddr.sx * 8,
+>>> &ste.val); if (rc)
+>>>    			return rc;
+>>> @@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr,
+>>>     * @vcpu: virtual cpu
+>>>     * @sg: pointer to the shadow guest address space structure
+>>>     * @saddr: faulting address in the shadow gmap
+>>> + * @datptr: will contain the address of the faulting DAT table
+>>> entry, or of
+>>> + *          the valid leaf, plus some flags
+>>>     *
+>>>     * Returns: - 0 if the shadow fault was successfully resolved
+>>>     *	    - > 0 (pgm exception code) on exceptions while
+>>> faulting @@ -1165,11 +1173,11 @@ static int
+>>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>>>     *	    - -ENOMEM if out of memory
+>>>     */
+>>>    int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+>>> -			  unsigned long saddr)
+>>> +			  unsigned long saddr, unsigned long
+>>> *datptr) {
+>>>    	union vaddress vaddr;
+>>>    	union page_table_entry pte;
+>>> -	unsigned long pgt;
+>>> +	unsigned long pgt = 0;
+>>>    	int dat_protection, fake;
+>>>    	int rc;
+>>>    
+>>> @@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu
+>>> *vcpu, struct gmap *sg, pte.val = pgt + vaddr.px * PAGE_SIZE;
+>>>    		goto shadow_page;
+>>>    	}
+>>> -	if (!rc)
+>>> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px *
+>>> 8, &pte.val); +
+>>> +	switch (rc) {
+>>> +	case PGM_SEGMENT_TRANSLATION:
+>>> +	case PGM_REGION_THIRD_TRANS:
+>>> +	case PGM_REGION_SECOND_TRANS:
+>>> +	case PGM_REGION_FIRST_TRANS:
+>>> +		pgt |= NOT_PTE;
+>>> +		break;
+>>> +	case 0:
+>>> +		pgt += vaddr.px * 8;
+>>> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+>>> +	}
+>>> +	if (*datptr)
+>>> +		*datptr = pgt | dat_protection * DAT_PROT;
+>>>    	if (!rc && pte.i)
+>>>    		rc = PGM_PAGE_TRANSLATION;
+>>>    	if (!rc && pte.z)
+>>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+>>> index f4c51756c462..fec26bbb17ba 100644
+>>> --- a/arch/s390/kvm/gaccess.h
+>>> +++ b/arch/s390/kvm/gaccess.h
+>>> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+>>>    int ipte_lock_held(struct kvm_vcpu *vcpu);
+>>>    int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu,
+>>> unsigned long gra);
+>>> +#define DAT_PROT 2
+>>> +#define NOT_PTE 4
+>>
+>> What if our guest is using ASCE.R ?
 > 
-> The LINUX_VERSION_CODE format is also used in /etc/ld.so.cache.  This is
-> difficult to change because a newer ldconfig is supposed to build a
-> cache that is compatible with older glibc versions (two-way
-> compatibility).  The information in /etc/ld.so.cache is copied from the
-> ELF_NOTE_ABI/NT_GNU_ABI_TAG ELF note in the DSOs; the note format is not
-> subject to overflows because it uses 32-bit values for the component
-> versions.
+> then we don't care.
 > 
-> glibc uses the current kernel's LINUX_VERSION_CODE for two purposes: for
-> its own “kernel too old” check (glibc refuses to start in this case),
-> and to skip loading DSOs which have an ELF_NOTE_ABI/NT_GNU_ABI_TAG that
-> indicates a higher kernel version than the current kernel.  glibc does
-> not use LINUX_VERSION_CODE to detect features or activate workarounds
-> for kernel bugs.
+> if the guest is using ASCE.R, then shadowing will always succeed, and
+> the VSIE MVPG handler will retry right away.
 > 
-> The overflow from 4.9.256 to 4.10.0 means that we might get spurious
-> passes on these checks.  Worst case, it can happen that if the system
-> has a DSO in two versions on the library search path, one for kernel
-> 4.10 and one for kernel 4.9 or earlier (in that order), we now load the
-> 4.10 version on a 4.9 kernel.  Previously, loading the 4.10 DSO failed,
-> and the fallback version for earlier kernels was used.  That would be
-> real breakage.
-> 
-> Our options in userspace are limited because whatever changes we make to
-> glibc today are unlikely to reach people running 4.4 or 4.9 kernels
-> anytime soon, if ever.  Clamping the sublevel field of
-> LINUX_VERSION_CODE in the vDSO to 255 only benefits dynamically linked
-> binaries, but it could be that this is sufficient to paper over this
-> issue.
-> 
-> There's also the question whether these glibc checks are valuable at
-> all.  It encourages kernel patching to lie about kernel versions, making
-> diagnostics harder (e.g., reporting 3.10 if it's really a 2.6.32 with
-> lots of system call backports).  The ELF_NOTE_ABI/NT_GNU_ABI_TAG DSO
-> selection is known to cause endless problems with Qt, basically the only
-> large-scale user of this feature.  Perhaps we should remove it, but it
-> would also break the fallback DSO approach mentioned above.
+> if you are worried about the the lowest order bit, it can only be set
+> if a specific feature is enabled in the host, and KVM doesn't use /
+> support it, so the guest can't use it for its guest.
 
-Thank you for looking into this.  Based on the above, I think we are
-safe by keeping the LINUX_VERSION_CODE maxed out at 255, and still
-increasing the kernel version number itself (which will be returned by
-uname(2).)
+Got it, thanks! :)
 
-I have a report of Android systems parsing the uname(2) string output,
-and treating the minor number as an 8bit number, but luckily the
-decision based on that will not overflow until 5*256 so we are ok for a
-few more years on older Android systems :)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-If you run into any reports of problems, please let us know.
 
-thanks again,
+-- 
+Thanks,
 
-greg k-h
+David / dhildenb
+
