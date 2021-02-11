@@ -2,149 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C3E318971
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 12:30:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A15131898B
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 12:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231587AbhBKL2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 06:28:46 -0500
-Received: from mx2.suse.de ([195.135.220.15]:40214 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231215AbhBKL0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 06:26:42 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1613042754; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=1w2zYZzVu/kN/xdrmtBPuljrT1JGHIIdDgmFx1ldrRU=;
-        b=E9iKLZQkZ3042WHpsi/v9r0SRvCwZ5P+U11IaeCy5pHu/RTe9Am6RbICJcl9gBEaDJTCKm
-        mEaNQjOIgeHdXZtiGzpJC5HQPOIv1AMH+iuwCHthZKcTuH3sjYU8XJYVoAXKU5Z/Igub7f
-        bOixfGTl8X+6W7qLR9cV0NVflFzd3+M=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id E4E78AD2B;
-        Thu, 11 Feb 2021 11:25:53 +0000 (UTC)
-Subject: Re: [PATCH] btrfs: avoid double put of block group when emptying
- cluster
-To:     dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
-        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-References: <5ca694ff4f8cff4c0ef6896593a1f1d01fbe956d.1611610947.git.josef@toxicpanda.com>
- <bf8cd92d-12a0-3bb3-34c0-dd9c938bf349@suse.com>
- <ad0ea42a-5e41-f9b9-986d-8c70e9f2eed3@toxicpanda.com>
- <20210210225014.GA1993@twin.jikos.cz>
-From:   Nikolay Borisov <nborisov@suse.com>
-Autocrypt: addr=nborisov@suse.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <dd555517-d6c8-4b6f-54f6-5cbaf5874c00@suse.com>
-Date:   Thu, 11 Feb 2021 13:25:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S230019AbhBKLbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 06:31:32 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30344 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231591AbhBKL3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 06:29:20 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11BBIwUv195111;
+        Thu, 11 Feb 2021 06:28:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=J8XkNxnzTANSvad+tV1zVRL62x8HQfAH1so5t6b2Bbo=;
+ b=EZyr//4gR19waKYjTFOgeNKsc8GDtdp5LsQVkFovZlB7s7mB/sVakKR8NkT/zWa0tuey
+ E9YCZA1gfj/USPu4SG4blYyG78QaX66+h0h26EHEcr6MbXKtsXnSrI1W8RkkHElhCfzF
+ 704pXQa4SfWY7GGrgIslGeOBCUPlIFad0iXTUemubQjiKorOhws/2GZb0b95j7jEo7Qb
+ P36nZcrqM0Fxr5mdMW5+CWlPa2xFKEYNtX2aicES6wYAWE9pf2oZOA3R+cqGpLsNnj4C
+ 18xz2hEH3r1tfl5fDLoDHeRSgKn725/S1N6OrIfZmwZsb3Q79G1k5b5GJWExtKTgiTZt Sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n3kpg5uk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 06:28:16 -0500
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11BBQ4a5024006;
+        Thu, 11 Feb 2021 06:28:16 -0500
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n3kpg5u9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 06:28:16 -0500
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11BBRT06002943;
+        Thu, 11 Feb 2021 11:28:15 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma04dal.us.ibm.com with ESMTP id 36hjr9xgmf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 11:28:15 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11BBSEtf12649134
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 Feb 2021 11:28:14 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77F02C6057;
+        Thu, 11 Feb 2021 11:28:14 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2774FC6055;
+        Thu, 11 Feb 2021 11:28:13 +0000 (GMT)
+Received: from work-tp (unknown [9.65.218.248])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTPS;
+        Thu, 11 Feb 2021 11:28:12 +0000 (GMT)
+Date:   Thu, 11 Feb 2021 08:28:09 -0300
+From:   Raoni Fassina Firmino <raoni@linux.ibm.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH] powerpc/64/signal: Fix regression in
+ __kernel_sigtramp_rt64() semantics
+Message-ID: <20210211112809.ao77vciijej5kdu7@work-tp>
+References: <20210209150240.epboynhzuaia4qyr@work-tp>
+ <YCPtOTuh0kOk7Xee@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210210225014.GA1993@twin.jikos.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YCPtOTuh0kOk7Xee@kroah.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-11_05:2021-02-10,2021-02-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ clxscore=1011 spamscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
+ mlxlogscore=999 lowpriorityscore=0 mlxscore=0 impostorscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102110094
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 11.02.21 г. 0:50 ч., David Sterba wrote:
-> On Tue, Jan 26, 2021 at 09:30:45AM -0500, Josef Bacik wrote:
->> On 1/26/21 4:02 AM, Nikolay Borisov wrote:
->>> On 25.01.21 г. 23:42 ч., Josef Bacik wrote:
->>>> In __btrfs_return_cluster_to_free_space we will bail doing the cleanup
->>>> of the cluster if the block group we passed in doesn't match the block
->>>> group on the cluster.  However we drop a reference to block_group, as
->>>> the cluster holds a reference to the block group while it's attached to
->>>> the cluster.  If cluster->block_group != block_group however then this
->>>> is an extra put, which means we'll go negative and free this block group
->>>> down the line, leading to a UAF.
->>>
->>> Was this found by code inspection or did you hit in production. Also why
->>> in btrfs_remove_free_space_cache just before
->>> __btrfs_return_cluster_to_free_space there is:
->>>
->>
->> It was found in production sort of halfway.  I was doing something for WhatsApp 
->> and had to convert our block group reference counting to the refcount stuff so I 
->> could find where I made a mistake.  Turns out this was where the problem was, my 
->> stuff had just made it way more likely to happen.  I don't have the stack trace 
->> because this was like 6 months ago, I'm going through all my WhatsApp magic and 
->> getting them actually usable for upstream.
->>
->>> WARN_ON(cluster->block_group != block_group);
->>>
->>> IMO this patch should also remove the WARN_ON if it's a valid condition
->>> to have the passed bg be different than the one in the cluster. Also
->>> that WARN_ON is likely racy since it's done outside of cluster->lock.
->>>
->>
->> Yup that's in a follow up thing, I wanted to get the actual fix out before I got 
->> distracted by my mountain of meetings this week.  Thanks,
+On Wed, Feb 10, 2021 at 03:27:05PM +0100, Greg KH wrote:
+> On Tue, Feb 09, 2021 at 12:02:40PM -0300, Raoni Fassina Firmino wrote:
+> > Repeated the same tests as the upstream code on top of v5.10.14 and
+> > v5.9.16, tested on powerpc64 and powerpc64le, with a glibc build and
+> > running the affected glibc's testcase[2], inspected that glibc's
+> > backtrace() now gives the correct result and gdb backtrace also keeps
+> > working as before.
+> > 
+> > I believe this should be backported to releases 5.9 and 5.10 as
+> > userspace is affected in this releases. I hope I had tagged this
+> > correctly in the patch.
 > 
-> Removing the WARN_ON in a separate patch sounds ok to me, this patch
-> clearly fixes the refcounting bug, the warning condition is the same but
-> would need a different reasoning.
-> 
-> Nikolay, if you're ok with current patch version let me know if you want
-> a rev-by added.
-> 
+> Now added to 5.10.y, 5.9.y is long end-of-life so there is nothing we
+> can do there, sorry.
 
+No problem, I didn't know 5.9.y was already EOL, that is on me.
 
-Codewise I'm fine with it. However just had another read of the commit
-message and I think it could be rewritten to be somewhat simpler:
+Thanks,
 
-It's wrong calling btrfs_put_block_group in
-__btrfs_return_cluster_to_free_space if the block group passed is
-different than the block group the cluster represents. As this means the
-cluster doesn't have a reference to the passed block group. This results
-in double put and an UAF.
-
-What prompted me is that the 2nd and 3rd sentences read somewhat awkward
-due to starting with 'However'
-
-
-
+o/
+Raoni
