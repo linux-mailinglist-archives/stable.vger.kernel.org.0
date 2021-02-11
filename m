@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3660F318E71
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D06D318E73
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbhBKP1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:27:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52622 "EHLO mail.kernel.org"
+        id S231235AbhBKP1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:27:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230499AbhBKPWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230497AbhBKPWw (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 11 Feb 2021 10:22:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6864164E95;
-        Thu, 11 Feb 2021 15:03:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B008364E9A;
+        Thu, 11 Feb 2021 15:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055796;
-        bh=Y/D9TlconG/v/RfHRvPj2cE1WCzKMekYt0QQa4iN0xY=;
+        s=korg; t=1613055799;
+        bh=t3UXESm8KdOATL0MlX7hnUVPRag5wNUpkdpBf40DHyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GZ3uNTzPDOyWkvTRN83FHJrjvtB24aUES6kQSASCQHUAXrZekkxPbWCIp7xnmlWw
-         ILSTcHf0qjzBJeB0S4KFJ/QWbMF8A6FD7YDr7HprfASft/GBSyavMB8UYRo3T6p8qL
-         5rIFv6VLNBL3MfryfWtlYLIRAWbLN3PgoY6Yuxwo=
+        b=qRLkl/Jn4R9hsnRPI1/vrgKN4Ov6OrnCV/W9y6C73Zy5V6EAXjnCV6cqKghdGOvF2
+         ob+H9X7oZ9CiyjzhoRy7xzF9X0VK6ODEBL7B8B/kPkuhJbwH+Xi1iqbTHO80kaDvIQ
+         J4xezmQA7OjdTogLYNSoNPUl7jsGgMchXSc9jTF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        syzbot+f655445043a26a7cfab8@syzkaller.appspotmail.com,
+        Abaci <abaci@linux.alibaba.com>,
         Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 11/54] io_uring: fix cancellation taking mutex while TASK_UNINTERRUPTIBLE
-Date:   Thu, 11 Feb 2021 16:01:55 +0100
-Message-Id: <20210211150153.372524326@linuxfoundation.org>
+        Hao Xu <haoxu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 12/54] io_uring: fix flush cqring overflow list while TASK_INTERRUPTIBLE
+Date:   Thu, 11 Feb 2021 16:01:56 +0100
+Message-Id: <20210211150153.413759868@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -40,115 +40,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Hao Xu <haoxu@linux.alibaba.com>
 
-[ Upstream commit ca70f00bed6cb255b7a9b91aa18a2717c9217f70 ]
+[ Upstream commit 6195ba09822c87cad09189bbf550d0fbe714687a ]
 
-do not call blocking ops when !TASK_RUNNING; state=2 set at
-	[<00000000ced9dbfc>] prepare_to_wait+0x1f4/0x3b0
-	kernel/sched/wait.c:262
-WARNING: CPU: 1 PID: 19888 at kernel/sched/core.c:7853
-	__might_sleep+0xed/0x100 kernel/sched/core.c:7848
-RIP: 0010:__might_sleep+0xed/0x100 kernel/sched/core.c:7848
-Call Trace:
- __mutex_lock_common+0xc4/0x2ef0 kernel/locking/mutex.c:935
- __mutex_lock kernel/locking/mutex.c:1103 [inline]
- mutex_lock_nested+0x1a/0x20 kernel/locking/mutex.c:1118
- io_wq_submit_work+0x39a/0x720 fs/io_uring.c:6411
- io_run_cancel fs/io-wq.c:856 [inline]
- io_wqe_cancel_pending_work fs/io-wq.c:990 [inline]
- io_wq_cancel_cb+0x614/0xcb0 fs/io-wq.c:1027
- io_uring_cancel_files fs/io_uring.c:8874 [inline]
- io_uring_cancel_task_requests fs/io_uring.c:8952 [inline]
- __io_uring_files_cancel+0x115d/0x19e0 fs/io_uring.c:9038
- io_uring_files_cancel include/linux/io_uring.h:51 [inline]
- do_exit+0x2e6/0x2490 kernel/exit.c:780
- do_group_exit+0x168/0x2d0 kernel/exit.c:922
- get_signal+0x16b5/0x2030 kernel/signal.c:2770
- arch_do_signal_or_restart+0x8e/0x6a0 arch/x86/kernel/signal.c:811
- handle_signal_work kernel/entry/common.c:147 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
- exit_to_user_mode_prepare+0xac/0x1e0 kernel/entry/common.c:201
- __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
- syscall_exit_to_user_mode+0x48/0x190 kernel/entry/common.c:302
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Abaci reported the follow warning:
 
-Rewrite io_uring_cancel_files() to mimic __io_uring_task_cancel()'s
-counting scheme, so it does all the heavy work before setting
-TASK_UNINTERRUPTIBLE.
+[   27.073425] do not call blocking ops when !TASK_RUNNING; state=1 set at [] prepare_to_wait_exclusive+0x3a/0xc0
+[   27.075805] WARNING: CPU: 0 PID: 951 at kernel/sched/core.c:7853 __might_sleep+0x80/0xa0
+[   27.077604] Modules linked in:
+[   27.078379] CPU: 0 PID: 951 Comm: a.out Not tainted 5.11.0-rc3+ #1
+[   27.079637] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   27.080852] RIP: 0010:__might_sleep+0x80/0xa0
+[   27.081835] Code: 65 48 8b 04 25 80 71 01 00 48 8b 90 c0 15 00 00 48 8b 70 18 48 c7 c7 08 39 95 82 c6 05 f9 5f de 08 01 48 89 d1 e8 00 c6 fa ff  0b eb bf 41 0f b6 f5 48 c7 c7 40 23 c9 82 e8 f3 48 ec 00 eb a7
+[   27.084521] RSP: 0018:ffffc90000fe3ce8 EFLAGS: 00010286
+[   27.085350] RAX: 0000000000000000 RBX: ffffffff82956083 RCX: 0000000000000000
+[   27.086348] RDX: ffff8881057a0000 RSI: ffffffff8118cc9e RDI: ffff88813bc28570
+[   27.087598] RBP: 00000000000003a7 R08: 0000000000000001 R09: 0000000000000001
+[   27.088819] R10: ffffc90000fe3e00 R11: 00000000fffef9f0 R12: 0000000000000000
+[   27.089819] R13: 0000000000000000 R14: ffff88810576eb80 R15: ffff88810576e800
+[   27.091058] FS:  00007f7b144cf740(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+[   27.092775] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   27.093796] CR2: 00000000022da7b8 CR3: 000000010b928002 CR4: 00000000003706f0
+[   27.094778] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   27.095780] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   27.097011] Call Trace:
+[   27.097685]  __mutex_lock+0x5d/0xa30
+[   27.098565]  ? prepare_to_wait_exclusive+0x71/0xc0
+[   27.099412]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.100441]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
+[   27.101537]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
+[   27.102656]  ? trace_hardirqs_on+0x46/0x110
+[   27.103459]  ? io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.104317]  io_cqring_overflow_flush.part.101+0x6d/0x70
+[   27.105113]  io_cqring_wait+0x36e/0x4d0
+[   27.105770]  ? find_held_lock+0x28/0xb0
+[   27.106370]  ? io_uring_remove_task_files+0xa0/0xa0
+[   27.107076]  __x64_sys_io_uring_enter+0x4fb/0x640
+[   27.107801]  ? rcu_read_lock_sched_held+0x59/0xa0
+[   27.108562]  ? lockdep_hardirqs_on_prepare+0xe9/0x1c0
+[   27.109684]  ? syscall_enter_from_user_mode+0x26/0x70
+[   27.110731]  do_syscall_64+0x2d/0x40
+[   27.111296]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   27.112056] RIP: 0033:0x7f7b13dc8239
+[   27.112663] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
+[   27.115113] RSP: 002b:00007ffd6d7f5c88 EFLAGS: 00000286 ORIG_RAX: 00000000000001aa
+[   27.116562] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7b13dc8239
+[   27.117961] RDX: 000000000000478e RSI: 0000000000000000 RDI: 0000000000000003
+[   27.118925] RBP: 00007ffd6d7f5cb0 R08: 0000000020000040 R09: 0000000000000008
+[   27.119773] R10: 0000000000000001 R11: 0000000000000286 R12: 0000000000400480
+[   27.120614] R13: 00007ffd6d7f5d90 R14: 0000000000000000 R15: 0000000000000000
+[   27.121490] irq event stamp: 5635
+[   27.121946] hardirqs last  enabled at (5643): [] console_unlock+0x5c4/0x740
+[   27.123476] hardirqs last disabled at (5652): [] console_unlock+0x4e7/0x740
+[   27.125192] softirqs last  enabled at (5272): [] __do_softirq+0x3c5/0x5aa
+[   27.126430] softirqs last disabled at (5267): [] asm_call_irq_on_stack+0xf/0x20
+[   27.127634] ---[ end trace 289d7e28fa60f928 ]---
 
-Cc: stable@vger.kernel.org # 5.9+
-Reported-by: syzbot+f655445043a26a7cfab8@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-[axboe: fix inverted task check]
+This is caused by calling io_cqring_overflow_flush() which may sleep
+after calling prepare_to_wait_exclusive() which set task state to
+TASK_INTERRUPTIBLE
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Fixes: 6c503150ae33 ("io_uring: patch up IOPOLL overflow_flush sync")
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   39 ++++++++++++++++++++++-----------------
- 1 file changed, 22 insertions(+), 17 deletions(-)
+ fs/io_uring.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8586,30 +8586,31 @@ static void io_cancel_defer_files(struct
- 	}
- }
- 
-+static int io_uring_count_inflight(struct io_ring_ctx *ctx,
-+				   struct task_struct *task,
-+				   struct files_struct *files)
-+{
-+	struct io_kiocb *req;
-+	int cnt = 0;
-+
-+	spin_lock_irq(&ctx->inflight_lock);
-+	list_for_each_entry(req, &ctx->inflight_list, inflight_entry)
-+		cnt += io_match_task(req, task, files);
-+	spin_unlock_irq(&ctx->inflight_lock);
-+	return cnt;
-+}
-+
- static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct task_struct *task,
- 				  struct files_struct *files)
- {
- 	while (!list_empty_careful(&ctx->inflight_list)) {
- 		struct io_task_cancel cancel = { .task = task, .files = files };
--		struct io_kiocb *req;
- 		DEFINE_WAIT(wait);
--		bool found = false;
-+		int inflight;
- 
--		spin_lock_irq(&ctx->inflight_lock);
--		list_for_each_entry(req, &ctx->inflight_list, inflight_entry) {
--			if (!io_match_task(req, task, files))
--				continue;
--			found = true;
--			break;
--		}
--		if (found)
--			prepare_to_wait(&task->io_uring->wait, &wait,
--					TASK_UNINTERRUPTIBLE);
--		spin_unlock_irq(&ctx->inflight_lock);
--
--		/* We need to keep going until we don't find a matching req */
--		if (!found)
-+		inflight = io_uring_count_inflight(ctx, task, files);
-+		if (!inflight)
+@@ -7000,14 +7000,18 @@ static int io_cqring_wait(struct io_ring
+ 						TASK_INTERRUPTIBLE);
+ 		/* make sure we run task_work before checking for signals */
+ 		ret = io_run_task_work_sig();
+-		if (ret > 0)
++		if (ret > 0) {
++			finish_wait(&ctx->wait, &iowq.wq);
+ 			continue;
++		}
+ 		else if (ret < 0)
  			break;
- 
- 		io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, &cancel, true);
-@@ -8617,7 +8618,11 @@ static void io_uring_cancel_files(struct
- 		io_kill_timeouts(ctx, task, files);
- 		/* cancellations _may_ trigger task work */
- 		io_run_task_work();
--		schedule();
-+
-+		prepare_to_wait(&task->io_uring->wait, &wait,
-+				TASK_UNINTERRUPTIBLE);
-+		if (inflight == io_uring_count_inflight(ctx, task, files))
-+			schedule();
- 		finish_wait(&task->io_uring->wait, &wait);
- 	}
- }
+ 		if (io_should_wake(&iowq))
+ 			break;
+-		if (test_bit(0, &ctx->cq_check_overflow))
++		if (test_bit(0, &ctx->cq_check_overflow)) {
++			finish_wait(&ctx->wait, &iowq.wq);
+ 			continue;
++		}
+ 		schedule();
+ 	} while (1);
+ 	finish_wait(&ctx->wait, &iowq.wq);
 
 
