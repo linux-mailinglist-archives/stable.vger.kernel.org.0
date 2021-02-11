@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F157318E7E
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1635F318E66
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbhBKP2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:28:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53520 "EHLO mail.kernel.org"
+        id S229813AbhBKP0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:26:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230386AbhBKPYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:24:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82CED64EAC;
-        Thu, 11 Feb 2021 15:03:29 +0000 (UTC)
+        id S230131AbhBKPJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:09:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4950A64EB9;
+        Thu, 11 Feb 2021 15:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055810;
-        bh=UX8knx71OTQhAq2JbIxW49k4VFQBjNbCR0qusov5xgA=;
+        s=korg; t=1613055812;
+        bh=5bBAisnUx/EivRlInogrC4oMUh7HMDN3q0XuLUb/r04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAqb66xS1RIb/tiTtbPlTXDSzr++82Ku3ZxFwW+MiXHSBp5y9XdDJ1zsaqUOAI+xy
-         fOP1ZUsGw3yOvPFbagZG5xvOvOvhCTahVYNNmqptjSa/ozv6SQpEQE19xnbNCjcSHS
-         2PIWr4q0+wTFIIhai/rV3CVsSVd5V7p0wk5a71i8=
+        b=s08laOSvDJQbzU6YqTegsipZtrwHl3jTBBAmk0fjeC4Ef1T+qdtIAFvawaSSa4tAj
+         fYoLk8smYWbanrnz81bF2KygzLo6PWq2/+ao2gr82f3tf62Flje9h7mIESYmzD9Bbx
+         GtAWmZ2q+463J6KBN5G/lvA/YHSdvC5QpMZKiYHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.10 16/54] io_uring: drop mm/files between task_work_submit
-Date:   Thu, 11 Feb 2021 16:02:00 +0100
-Message-Id: <20210211150153.580290349@linuxfoundation.org>
+        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.10 17/54] gpiolib: cdev: clear debounce period if line set to output
+Date:   Thu, 11 Feb 2021 16:02:01 +0100
+Message-Id: <20210211150153.626682364@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -39,32 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Kent Gibson <warthog618@gmail.com>
 
-[ Upstream commit aec18a57edad562d620f7d19016de1fc0cc2208c ]
+commit 03a58ea5905fdbd93ff9e52e670d802600ba38cd upstream.
 
-Since SQPOLL task can be shared and so task_work entries can be a mix of
-them, we need to drop mm and files before trying to issue next request.
+When set_config changes a line from input to output debounce is
+implicitly disabled, as debounce makes no sense for outputs, but the
+debounce period is not being cleared and is still reported in the
+line info.
 
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+So clear the debounce period when the debouncer is stopped in
+edge_detector_stop().
+
+Fixes: 65cff7046406 ("gpiolib: cdev: support setting debounce")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kent Gibson <warthog618@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpiolib-cdev.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2084,6 +2084,9 @@ static void __io_req_task_submit(struct
- 	else
- 		__io_req_task_cancel(req, -EFAULT);
- 	mutex_unlock(&ctx->uring_lock);
-+
-+	if (ctx->flags & IORING_SETUP_SQPOLL)
-+		io_sq_thread_drop_mm();
+--- a/drivers/gpio/gpiolib-cdev.c
++++ b/drivers/gpio/gpiolib-cdev.c
+@@ -756,6 +756,8 @@ static void edge_detector_stop(struct li
+ 	cancel_delayed_work_sync(&line->work);
+ 	WRITE_ONCE(line->sw_debounced, 0);
+ 	line->eflags = 0;
++	if (line->desc)
++		WRITE_ONCE(line->desc->debounce_period_us, 0);
+ 	/* do not change line->level - see comment in debounced_value() */
  }
  
- static void io_req_task_submit(struct callback_head *cb)
 
 
