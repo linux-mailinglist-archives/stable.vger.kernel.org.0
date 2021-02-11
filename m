@@ -2,105 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 116F13188B1
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED24A3188C9
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbhBKKxF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 11 Feb 2021 05:53:05 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:56462 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230101AbhBKKun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 05:50:43 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.69.177;
-Received: from localhost (unverified [78.156.69.177]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 23836641-1500050 
-        for multiple; Thu, 11 Feb 2021 10:49:53 +0000
-Content-Type: text/plain; charset="utf-8"
+        id S229662AbhBKK4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 05:56:12 -0500
+Received: from foss.arm.com ([217.140.110.172]:49784 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230257AbhBKKxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 05:53:48 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7BD7E31B;
+        Thu, 11 Feb 2021 02:52:43 -0800 (PST)
+Received: from [10.37.8.13] (unknown [10.37.8.13])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE4FC3F73B;
+        Thu, 11 Feb 2021 02:52:41 -0800 (PST)
+Subject: Re: [PATCH] arm64: mte: Allow PTRACE_PEEKMTETAGS access to the zero
+ page
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Luis Machado <luis.machado@linaro.org>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>
+References: <20210210180316.23654-1-catalin.marinas@arm.com>
+From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
+Message-ID: <aa94d2b9-d2f1-04fd-7cfe-8a1ab078e5c3@arm.com>
+Date:   Thu, 11 Feb 2021 10:56:46 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
-References: <fe6040b5-72a0-9882-439e-ea7fc0b3935d@redhat.com> <161282685855.9448.10484374241892252440@build.alporthouse.com> <f1070486-891a-8ec0-0390-b9aeb03178ce@redhat.com> <161291205642.6673.10994709665368036431@build.alporthouse.com> <02fd493c-957f-890d-d0ad-ebd4119f55f2@redhat.com> <161296131275.7731.862746142230006325@build.alporthouse.com> <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
-Subject: Re: [Intel-gfx] [5.10.y regression] i915 clear-residuals mitigation is causing gfx issues
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        stable@vger.kernel.org
-Date:   Thu, 11 Feb 2021 10:49:51 +0000
-Message-ID: <161304059194.7731.17263409378570191651@build.alporthouse.com>
-User-Agent: alot/0.9
+In-Reply-To: <20210210180316.23654-1-catalin.marinas@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Hans de Goede (2021-02-11 10:36:13)
-> Hi,
-> 
-> On 2/10/21 1:48 PM, Chris Wilson wrote:
-> > Quoting Hans de Goede (2021-02-10 10:37:19)
-> >> Hi,
-> >>
-> >> On 2/10/21 12:07 AM, Chris Wilson wrote:
-> >>> Quoting Hans de Goede (2021-02-09 11:46:46)
-> >>>> Hi,
-> >>>>
-> >>>> On 2/9/21 12:27 AM, Chris Wilson wrote:
-> >>>>> Quoting Hans de Goede (2021-02-08 20:38:58)
-> >>>>>> Hi All,
-> >>>>>>
-> >>>>>> We (Fedora) have been receiving reports from multiple users about gfx issues / glitches
-> >>>>>> stating with 5.10.9. All reporters are users of Ivy Bridge / Haswell iGPUs and all
-> >>>>>> reporters report that adding i915.mitigations=off to the cmdline fixes things, see:
-> >>>>>
-> >>>>> I tried to reproduce this on the w/e on hsw-gt1, to no avail; and piglit
-> >>>>> did not report any differences with and without mitigations. I have yet
-> >>>>> to test other platforms. So I don't yet have an alternative.
-> >>>>
-> >>>> Note the original / first reporter of:
-> >>>>
-> >>>> https://bugzilla.redhat.com/show_bug.cgi?id=1925346
-> >>>>
-> >>>> Is using hsw-gt2, so it seems that the problem is not just the enabling of
-> >>>> the mitigations on ivy-bridge / bay-trail but that there actually is
-> >>>> a regression on devices where the WA worked fine before...
-> >>>
-> >>> There have been 3 crashes uploaded related to v5.10.9, and in all 3
-> >>> cases the ACTHD has been in the first page. This strongly suggests that
-> >>> the w/a is scribbling over address 0. And there's then a very good
-> >>> chance that
-> >>>
-> >>> commit 29d35b73ead4e41aa0d1a954c9bfbdce659ec5d6
-> >>> Author: Chris Wilson <chris@chris-wilson.co.uk>
-> >>> Date:   Mon Jan 25 12:50:33 2021 +0000
-> >>>
-> >>>     drm/i915/gt: Always try to reserve GGTT address 0x0
-> >>>     
-> >>>     commit 489140b5ba2e7cc4b853c29e0591895ddb462a82 upstream.
-> >>>
-> >>> in v5.10.14 is sufficient to hide the issue.
-> >>
-> >> That one actually is already in v5.10.13 and the various reportes of these
-> >> issues have already tested 5.10.13. They did mention that it took longer
-> >> to reproduce with 5.10.13 then with 5.10.10, but that could also be due to:
-> >>
-> >> "drm/i915/gt: Clear CACHE_MODE prior to clearing residuals"
-> >> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.10.y&id=520d05a77b2866eb4cb9e548e1d8c8abcfe60ec5
-> > 
-> > Started looking for scratch page overwrites, and found this little gem:
-> > https://patchwork.freedesktop.org/patch/420436/?series=86947&rev=1
-> > 
-> > Looks promising wrt the cause of overwriting random addresses -- and
-> > I hope that is the explanation for the glitches/hangs. I have a hsw gt2
-> > with gnome shell, piglit is happy, but I suspect it is all due to
-> > placement and so will only occur at random.
-> 
-> If you can give me a list of commits to cherry-pick then I can prepare
-> a Fedora 5.10.y kernel which those added for the group of Fedora users
-> who are hitting this to test.
 
-e627d5923cae ("drm/i915/gt: One more flush for Baytrail clear residuals")
-d30bbd62b1bf ("drm/i915/gt: Flush before changing register state")
-1914911f4aa0 ("drm/i915/gt: Correct surface base address for renderclear")
 
-are missing from v5.10.15
--Chris
+On 2/10/21 6:03 PM, Catalin Marinas wrote:
+> The ptrace(PTRACE_PEEKMTETAGS) implementation checks whether the user
+> page has valid tags (mapped with PROT_MTE) by testing the PG_mte_tagged
+> page flag. If this bit is cleared, ptrace(PTRACE_PEEKMTETAGS) returns
+> -EIO.
+> 
+> A newly created (PROT_MTE) mapping points to the zero page which had its
+> tags zeroed during cpu_enable_mte(). If there were no prior writes to
+> this mapping, ptrace(PTRACE_PEEKMTETAGS) fails with -EIO since the zero
+> page does not have the PG_mte_tagged flag set.
+> 
+> Set PG_mte_tagged on the zero page when its tags are cleared during
+> boot. In addition, to avoid ptrace(PTRACE_PEEKMTETAGS) succeeding on
+> !PROT_MTE mappings pointing to the zero page, change the
+> __access_remote_tags() check to (vm_flags & VM_MTE) instead of
+> PG_mte_tagged.
+> 
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Fixes: 34bfeea4a9e9 ("arm64: mte: Clear the tags when a page is mapped in user-space with PROT_MTE")
+> Cc: <stable@vger.kernel.org> # 5.10.x
+> Cc: Will Deacon <will@kernel.org>
+> Reported-by: Luis Machado <luis.machado@linaro.org>
+> ---
+> 
+> The fix is actually checking VM_MTE instead of PG_mte_tagged in
+> __access_remote_tags() but I added the WARN_ON(!PG_mte_tagged) and
+> setting the flag on the zero page in case we break this assumption in
+> the future.
+> 
+>  arch/arm64/kernel/cpufeature.c | 6 +-----
+>  arch/arm64/kernel/mte.c        | 3 ++-
+>  2 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+> index e99eddec0a46..3e6331b64932 100644
+> --- a/arch/arm64/kernel/cpufeature.c
+> +++ b/arch/arm64/kernel/cpufeature.c
+> @@ -1701,16 +1701,12 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
+>  #ifdef CONFIG_ARM64_MTE
+>  static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
+>  {
+> -	static bool cleared_zero_page = false;
+> -
+>  	/*
+>  	 * Clear the tags in the zero page. This needs to be done via the
+>  	 * linear map which has the Tagged attribute.
+>  	 */
+> -	if (!cleared_zero_page) {
+> -		cleared_zero_page = true;
+> +	if (!test_and_set_bit(PG_mte_tagged, &ZERO_PAGE(0)->flags))
+>  		mte_clear_page_tags(lm_alias(empty_zero_page));
+> -	}
+>  
+>  	kasan_init_hw_tags_cpu();
+>  }
+> diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+> index dc9ada64feed..80b62fe49dcf 100644
+> --- a/arch/arm64/kernel/mte.c
+> +++ b/arch/arm64/kernel/mte.c
+> @@ -329,11 +329,12 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
+>  		 * would cause the existing tags to be cleared if the page
+>  		 * was never mapped with PROT_MTE.
+>  		 */
+> -		if (!test_bit(PG_mte_tagged, &page->flags)) {
+> +		if (!(vma->vm_flags & VM_MTE)) {
+>  			ret = -EOPNOTSUPP;
+>  			put_page(page);
+>  			break;
+>  		}
+> +		WARN_ON_ONCE(!test_bit(PG_mte_tagged, &page->flags));
+>  
+
+Nit: I would live a white line before WARN_ON_ONCE() to improve readability and
+maybe transform it in WARN_ONCE() with a message (alternatively a comment on
+top) based on what you are explaining in the commit message.
+
+Otherwise:
+
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+
+>  		/* limit access to the end of the page */
+>  		offset = offset_in_page(addr);
+> 
+
+-- 
+Regards,
+Vincenzo
