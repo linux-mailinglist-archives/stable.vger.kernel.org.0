@@ -2,182 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAAE318E21
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B00318DF2
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:19:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbhBKPV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:21:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52472 "EHLO mail.kernel.org"
+        id S229809AbhBKPSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:18:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230014AbhBKPRm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:17:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4350064F09;
-        Thu, 11 Feb 2021 15:05:33 +0000 (UTC)
+        id S230018AbhBKPNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:13:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD26564EED;
+        Thu, 11 Feb 2021 15:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055933;
-        bh=oay6nCYT2aYEVTlzf7BDWQe0pcdXoheFAcG0rLPjmLM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=bqzgzHjwmmAXVo4Pw1FeYUemx01TnUH76TFfUsYVyKiL/rAEmDy22jP26DN1hxi3I
-         EV0SpbcdO/rc6xLlS1NBNE/R5gOJDVuVFD5stAbN20RlYFMAWzc2KaTkT9eDwMuf36
-         iQUuXLZeYHUiyOWHsnS0NCYg6zHxiAgvy5vv5HAs=
+        s=korg; t=1613055869;
+        bh=7HAX9sU+l6BNdNYSlFXNawad2Tcj2aC8xHHqNBYP1s8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TXLPunO3Dz3YqF84l4Xg7UXZfJh+xlmf+MeE2T6t2n0Qzw3RjPfro5ZoVsItT+BA2
+         RZl9ynj0Ex4hP4KJfI0Bu9txXVHLBf4QBkmjDHzN0UYFhnsh5N2ul0GUBCiaBMbqpP
+         C9biJrrpEqF7L4aZMgMF6rrq0Xa5+UOvotJljmuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 00/24] 5.4.98-rc1 review
-Date:   Thu, 11 Feb 2021 16:02:23 +0100
-Message-Id: <20210211150148.516371325@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 40/54] SUNRPC: Handle 0 length opaque XDR object data properly
+Date:   Thu, 11 Feb 2021 16:02:24 +0100
+Message-Id: <20210211150154.623509341@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-MIME-Version: 1.0
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.98-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.98-rc1
-X-KernelTest-Deadline: 2021-02-13T15:01+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.98 release.
-There are 24 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-Responses should be made by Sat, 13 Feb 2021 15:01:39 +0000.
-Anything received after that time might be too late.
+[ Upstream commit e4a7d1f7707eb44fd953a31dd59eff82009d879c ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.98-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+When handling an auth_gss downcall, it's possible to get 0-length
+opaque object for the acceptor.  In the case of a 0-length XDR
+object, make sure simple_get_netobj() fills in dest->data = NULL,
+and does not continue to kmemdup() which will set
+dest->data = ZERO_SIZE_PTR for the acceptor.
 
-thanks,
+The trace event code can handle NULL but not ZERO_SIZE_PTR for a
+string, and so without this patch the rpcgss_context trace event
+will crash the kernel as follows:
 
-greg k-h
+[  162.887992] BUG: kernel NULL pointer dereference, address: 0000000000000010
+[  162.898693] #PF: supervisor read access in kernel mode
+[  162.900830] #PF: error_code(0x0000) - not-present page
+[  162.902940] PGD 0 P4D 0
+[  162.904027] Oops: 0000 [#1] SMP PTI
+[  162.905493] CPU: 4 PID: 4321 Comm: rpc.gssd Kdump: loaded Not tainted 5.10.0 #133
+[  162.908548] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  162.910978] RIP: 0010:strlen+0x0/0x20
+[  162.912505] Code: 48 89 f9 74 09 48 83 c1 01 80 39 00 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 0f 1f 80 00 00 00 00 <80> 3f 00 74 10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3 31
+[  162.920101] RSP: 0018:ffffaec900c77d90 EFLAGS: 00010202
+[  162.922263] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000fffde697
+[  162.925158] RDX: 000000000000002f RSI: 0000000000000080 RDI: 0000000000000010
+[  162.928073] RBP: 0000000000000010 R08: 0000000000000e10 R09: 0000000000000000
+[  162.930976] R10: ffff8e698a590cb8 R11: 0000000000000001 R12: 0000000000000e10
+[  162.933883] R13: 00000000fffde697 R14: 000000010034d517 R15: 0000000000070028
+[  162.936777] FS:  00007f1e1eb93700(0000) GS:ffff8e6ab7d00000(0000) knlGS:0000000000000000
+[  162.940067] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  162.942417] CR2: 0000000000000010 CR3: 0000000104eba000 CR4: 00000000000406e0
+[  162.945300] Call Trace:
+[  162.946428]  trace_event_raw_event_rpcgss_context+0x84/0x140 [auth_rpcgss]
+[  162.949308]  ? __kmalloc_track_caller+0x35/0x5a0
+[  162.951224]  ? gss_pipe_downcall+0x3a3/0x6a0 [auth_rpcgss]
+[  162.953484]  gss_pipe_downcall+0x585/0x6a0 [auth_rpcgss]
+[  162.955953]  rpc_pipe_write+0x58/0x70 [sunrpc]
+[  162.957849]  vfs_write+0xcb/0x2c0
+[  162.959264]  ksys_write+0x68/0xe0
+[  162.960706]  do_syscall_64+0x33/0x40
+[  162.962238]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  162.964346] RIP: 0033:0x7f1e1f1e57df
 
--------------
-Pseudo-Shortlog of commits:
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/sunrpc/auth_gss/auth_gss_internal.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.98-rc1
+diff --git a/net/sunrpc/auth_gss/auth_gss_internal.h b/net/sunrpc/auth_gss/auth_gss_internal.h
+index c5603242b54bf..f6d9631bd9d00 100644
+--- a/net/sunrpc/auth_gss/auth_gss_internal.h
++++ b/net/sunrpc/auth_gss/auth_gss_internal.h
+@@ -34,9 +34,12 @@ simple_get_netobj(const void *p, const void *end, struct xdr_netobj *dest)
+ 	q = (const void *)((const char *)p + len);
+ 	if (unlikely(q > end || q < p))
+ 		return ERR_PTR(-EFAULT);
+-	dest->data = kmemdup(p, len, GFP_NOFS);
+-	if (unlikely(dest->data == NULL))
+-		return ERR_PTR(-ENOMEM);
++	if (len) {
++		dest->data = kmemdup(p, len, GFP_NOFS);
++		if (unlikely(dest->data == NULL))
++			return ERR_PTR(-ENOMEM);
++	} else
++		dest->data = NULL;
+ 	dest->len = len;
+ 	return q;
+ }
+-- 
+2.27.0
 
-Phillip Lougher <phillip@squashfs.org.uk>
-    squashfs: add more sanity checks in xattr id lookup
-
-Phillip Lougher <phillip@squashfs.org.uk>
-    squashfs: add more sanity checks in inode lookup
-
-Phillip Lougher <phillip@squashfs.org.uk>
-    squashfs: add more sanity checks in id lookup
-
-Peter Gonda <pgonda@google.com>
-    Fix unsynchronized access to sev members through svm_register_enc_region
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix 32 bit src register truncation on div/mod
-
-Mark Brown <broonie@kernel.org>
-    regulator: Fix lockdep warning resolving supplies
-
-Baolin Wang <baolin.wang@linux.alibaba.com>
-    blk-cgroup: Use cond_resched() when destroy blkgs
-
-Qii Wang <qii.wang@mediatek.com>
-    i2c: mediatek: Move suspend and resume handling to NOIRQ phase
-
-Dave Wysochanski <dwysocha@redhat.com>
-    SUNRPC: Handle 0 length opaque XDR object data properly
-
-Dave Wysochanski <dwysocha@redhat.com>
-    SUNRPC: Move simple_get_bytes and simple_get_netobj into private header
-
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: mvm: guard against device removal in reprobe
-
-Gregory Greenman <gregory.greenman@intel.com>
-    iwlwifi: mvm: invalidate IDs of internal stations at mvm start
-
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: pcie: fix context info memory leak
-
-Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-    iwlwifi: pcie: add a NULL check in iwl_pcie_txq_unmap
-
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
-
-Sara Sharon <sara.sharon@intel.com>
-    iwlwifi: mvm: skip power command when unbinding vif during CSA
-
-Eliot Blennerhassett <eliot@blennerhassett.gen.nz>
-    ASoC: ak4458: correct reset polarity
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    pNFS/NFSv4: Try to return invalid layout in pnfs_layout_process()
-
-Pan Bian <bianpan2016@163.com>
-    chtls: Fix potential resource leak
-
-Ricardo Ribalda <ribalda@chromium.org>
-    ASoC: Intel: Skylake: Zero snd_ctl_elem_value
-
-Shay Bar <shay.bar@celeno.com>
-    mac80211: 160MHz with extended NSS BW in CSA
-
-David Collins <collinsd@codeaurora.org>
-    regulator: core: avoid regulator_resolve_supply() race condition
-
-Cong Wang <cong.wang@bytedance.com>
-    af_key: relax availability checks for skb size calculation
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing/kprobe: Fix to support kretprobe events on unloaded modules
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/x86/kvm/svm.c                                 | 18 +++---
- block/blk-cgroup.c                                 | 18 ++++--
- drivers/crypto/chelsio/chtls/chtls_cm.c            |  7 +--
- drivers/i2c/busses/i2c-mt65xx.c                    | 19 ++++++-
- .../net/wireless/intel/iwlwifi/mvm/debugfs-vif.c   |  3 +
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  |  3 +
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c       |  7 ++-
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c       |  6 ++
- .../wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c   | 11 +++-
- drivers/net/wireless/intel/iwlwifi/pcie/tx.c       |  5 ++
- drivers/regulator/core.c                           | 44 +++++++++++----
- fs/nfs/pnfs.c                                      |  8 ++-
- fs/squashfs/export.c                               | 41 +++++++++++---
- fs/squashfs/id.c                                   | 40 ++++++++++---
- fs/squashfs/squashfs_fs_sb.h                       |  1 +
- fs/squashfs/super.c                                |  6 +-
- fs/squashfs/xattr.h                                | 10 +++-
- fs/squashfs/xattr_id.c                             | 66 +++++++++++++++++++---
- include/linux/kprobes.h                            |  2 +-
- include/linux/sunrpc/xdr.h                         |  3 +-
- kernel/bpf/verifier.c                              | 28 +++++----
- kernel/kprobes.c                                   | 34 ++++++++---
- kernel/trace/trace_kprobe.c                        | 10 ++--
- net/key/af_key.c                                   |  6 +-
- net/mac80211/spectmgmt.c                           | 10 +++-
- net/sunrpc/auth_gss/auth_gss.c                     | 30 +---------
- net/sunrpc/auth_gss/auth_gss_internal.h            | 45 +++++++++++++++
- net/sunrpc/auth_gss/gss_krb5_mech.c                | 31 +---------
- sound/soc/codecs/ak4458.c                          | 22 +++-----
- sound/soc/intel/skylake/skl-topology.c             |  2 +-
- 31 files changed, 364 insertions(+), 176 deletions(-)
 
 
