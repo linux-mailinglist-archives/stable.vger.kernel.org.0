@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A43318ED7
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A8C5318ECE
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231264AbhBKPfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:35:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
+        id S231208AbhBKPe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:34:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231429AbhBKPb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:31:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C5A64F0D;
-        Thu, 11 Feb 2021 15:05:42 +0000 (UTC)
+        id S231424AbhBKPcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:32:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 761CE64EFC;
+        Thu, 11 Feb 2021 15:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055943;
-        bh=wx1VjmK1ZRT05MnfSOG3AXi4r5wT1JE27/vFg66holI=;
+        s=korg; t=1613055906;
+        bh=cAgOBk3MyjaSix8dPcIOHbQDM9GJ5MFiu3LQh8rxwXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzbidoEJy5//FT3kMSCGDSi65PYLSwfw3F54i6EYSVi2Nz3x5cNIGnnnZytvXHnZv
-         ++HznVGlZHa2IgYPMEyTNMo6Bi6955rjNNMm4Xr61OPsb+7ATjY1h49N8mv/hpamRI
-         t2wnRFNnqP2lLFwa93R8BFvo2R3n8ls2J1GFrcGE=
+        b=AsTiR43o9Gv6xZhPCv2VlQ2PnjADzU+Zg3gC/cENOjbjddrhM/82yFnG5WfuT5I8B
+         Fnk/UNiTz5nEQqMoWeJwA2HEVAVVUIYZKpS0p16hj8f6uRBPIr8kTXtK5iW7zrGR2B
+         y9EqeQT//ETZ51Jj9TYVkIVxC8P4gQwgOHIacVik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/24] iwlwifi: mvm: guard against device removal in reprobe
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+04419e3ff19d2970ea28@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 53/54] squashfs: add more sanity checks in inode lookup
 Date:   Thu, 11 Feb 2021 16:02:37 +0100
-Message-Id: <20210211150149.138123122@linuxfoundation.org>
+Message-Id: <20210211150155.181873848@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-References: <20210211150148.516371325@linuxfoundation.org>
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit 7a21b1d4a728a483f07c638ccd8610d4b4f12684 ]
+commit eabac19e40c095543def79cb6ffeb3a8588aaff4 upstream.
 
-If we get into a problem severe enough to attempt a reprobe,
-we schedule a worker to do that. However, if the problem gets
-more severe and the device is actually destroyed before this
-worker has a chance to run, we use a free device. Bump up the
-reference count of the device until the worker runs to avoid
-this situation.
+Sysbot has reported an "slab-out-of-bounds read" error which has been
+identified as being caused by a corrupted "ino_num" value read from the
+inode.  This could be because the metadata block is uncompressed, or
+because the "compression" bit has been corrupted (turning a compressed
+block into an uncompressed block).
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210122144849.871f0892e4b2.I94819e11afd68d875f3e242b98bef724b8236f1e@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds additional sanity checks to detect this, and the
+following corruption.
+
+1. It checks against corruption of the inodes count.  This can either
+   lead to a larger table to be read, or a smaller than expected
+   table to be read.
+
+   In the case of a too large inodes count, this would often have been
+   trapped by the existing sanity checks, but this patch introduces
+   a more exact check, which can identify too small values.
+
+2. It checks the contents of the index table for corruption.
+
+[phillip@squashfs.org.uk: fix checkpatch issue]
+  Link: https://lkml.kernel.org/r/527909353.754618.1612769948607@webmail.123-reg.co.uk
+
+Link: https://lkml.kernel.org/r/20210204130249.4495-4-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+04419e3ff19d2970ea28@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/squashfs/export.c |   41 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 33 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index bc25a59807c34..8b0576cde797e 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1242,6 +1242,7 @@ static void iwl_mvm_reprobe_wk(struct work_struct *wk)
- 	reprobe = container_of(wk, struct iwl_mvm_reprobe, work);
- 	if (device_reprobe(reprobe->dev))
- 		dev_err(reprobe->dev, "reprobe failed!\n");
-+	put_device(reprobe->dev);
- 	kfree(reprobe);
- 	module_put(THIS_MODULE);
- }
-@@ -1292,7 +1293,7 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
- 			module_put(THIS_MODULE);
- 			return;
- 		}
--		reprobe->dev = mvm->trans->dev;
-+		reprobe->dev = get_device(mvm->trans->dev);
- 		INIT_WORK(&reprobe->work, iwl_mvm_reprobe_wk);
- 		schedule_work(&reprobe->work);
- 	} else if (test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED,
--- 
-2.27.0
-
+--- a/fs/squashfs/export.c
++++ b/fs/squashfs/export.c
+@@ -41,12 +41,17 @@ static long long squashfs_inode_lookup(s
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int blk = SQUASHFS_LOOKUP_BLOCK(ino_num - 1);
+ 	int offset = SQUASHFS_LOOKUP_BLOCK_OFFSET(ino_num - 1);
+-	u64 start = le64_to_cpu(msblk->inode_lookup_table[blk]);
++	u64 start;
+ 	__le64 ino;
+ 	int err;
+ 
+ 	TRACE("Entered squashfs_inode_lookup, inode_number = %d\n", ino_num);
+ 
++	if (ino_num == 0 || (ino_num - 1) >= msblk->inodes)
++		return -EINVAL;
++
++	start = le64_to_cpu(msblk->inode_lookup_table[blk]);
++
+ 	err = squashfs_read_metadata(sb, &ino, &start, &offset, sizeof(ino));
+ 	if (err < 0)
+ 		return err;
+@@ -111,7 +116,10 @@ __le64 *squashfs_read_inode_lookup_table
+ 		u64 lookup_table_start, u64 next_table, unsigned int inodes)
+ {
+ 	unsigned int length = SQUASHFS_LOOKUP_BLOCK_BYTES(inodes);
++	unsigned int indexes = SQUASHFS_LOOKUP_BLOCKS(inodes);
++	int n;
+ 	__le64 *table;
++	u64 start, end;
+ 
+ 	TRACE("In read_inode_lookup_table, length %d\n", length);
+ 
+@@ -121,20 +129,37 @@ __le64 *squashfs_read_inode_lookup_table
+ 	if (inodes == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	/* length bytes should not extend into the next table - this check
+-	 * also traps instances where lookup_table_start is incorrectly larger
+-	 * than the next table start
++	/*
++	 * The computed size of the lookup table (length bytes) should exactly
++	 * match the table start and end points
+ 	 */
+-	if (lookup_table_start + length > next_table)
++	if (length != (next_table - lookup_table_start))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	table = squashfs_read_table(sb, lookup_table_start, length);
++	if (IS_ERR(table))
++		return table;
+ 
+ 	/*
+-	 * table[0] points to the first inode lookup table metadata block,
+-	 * this should be less than lookup_table_start
++	 * table0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed inode lookup blocks.  Each entry should be
++	 * less than the next (i.e. table[0] < table[1]), and the difference
++	 * between them should be SQUASHFS_METADATA_SIZE or less.
++	 * table[indexes - 1] should  be less than lookup_table_start, and
++	 * again the difference should be SQUASHFS_METADATA_SIZE or less
+ 	 */
+-	if (!IS_ERR(table) && le64_to_cpu(table[0]) >= lookup_table_start) {
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
 
 
