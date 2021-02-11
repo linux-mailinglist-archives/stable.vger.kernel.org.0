@@ -2,83 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B3231921D
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 19:21:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7027631924B
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 19:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231905AbhBKSVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 13:21:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232488AbhBKSS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 13:18:57 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83E0C061756
-        for <stable@vger.kernel.org>; Thu, 11 Feb 2021 10:18:14 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id o24so6656618wmh.5
-        for <stable@vger.kernel.org>; Thu, 11 Feb 2021 10:18:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iQmHsNuspPNJzcfS9pT/2W+5PmGpXr1wvhVP/5EDOrk=;
-        b=UXd/00usCnlyJAALdY7zGKZ4gli/9TRYwCWbEnr8M2KfgV4Yjombq3t2hCR4MWOES+
-         n8/bObILcwfMydkz9+hH3dYx4eeMah66ogH/ktOrR3F5PF4Rf/OIru3ubxTObzZFsm+X
-         7/ZhHaO1n0mMwh+S3p9qaqo1ZLGecfreNOdFsmjylDuHQRoxp62lj6h9q5VdREka2ONj
-         5/qQ2KcRJMok93F3QIyovhBK6mw4OL6UjwXqe7ZHUyB0ymUGLUHBX0zVY9d6HXG9pw3P
-         +PIfr2R/KR+DcZEpC/NevrLM/IsVX2SV/JiiR6Hip/ZXgGxQui+4uN7/bQQk2b/nXmbs
-         RPdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iQmHsNuspPNJzcfS9pT/2W+5PmGpXr1wvhVP/5EDOrk=;
-        b=POMsueR4yC7UFo76Atxfly2EfsBHT5TUESKpW6YEx9LCq8bgN2fOLsxzeaiuwGLPG9
-         HI9BlY4o85YifoNzsSqmvJL+dh2zSfi2Au2vuLx7za6gJDTz5eZkQgb8DIedpTGA8RxM
-         KUEoNedUDpAwGaFJyquJWkVdTUAvTCskhEWx4+apciEk5G1HS/5utM9AOWrihs7yX0v3
-         pwxBhdv8eesXSEqULfCoVL6oF42cFf2HVyij4nKPVtKzE6havzbVAkEVPC7wvTNgqq73
-         Vi5/3U8v56gNiiUaZnwZZFywVyWTti6KFYkM0BjS+CaLxPj4KmGb1cm/xUmL95hv01Kd
-         RXrQ==
-X-Gm-Message-State: AOAM533wTF5/7520jvYo2slnr3llyUKrJ64p+rf2EzzjaPBggIPl8e+4
-        L2lAEEm0TCk7q6fqrv4pq5JAUE+mkJycnslR2zjZtnfvEwg=
-X-Google-Smtp-Source: ABdhPJyFvwicgw0zi29LTidbtn1k/0roebAs2vFw6CP06nO4nbRPtBV+NDJAqgIF7McgrrYVa3YDsXUwiW0+0YycOUs=
-X-Received: by 2002:a1c:e043:: with SMTP id x64mr6009715wmg.75.1613067493709;
- Thu, 11 Feb 2021 10:18:13 -0800 (PST)
-MIME-Version: 1.0
-References: <CAEvUa7mYi9J6qUbnUJi9=_+AXeXOopYJkZb+Z4CD9enGEQaFBQ@mail.gmail.com>
- <YCI39srMrc8dmL+p@kroah.com>
-In-Reply-To: <YCI39srMrc8dmL+p@kroah.com>
-From:   David Michael <fedora.dm0@gmail.com>
-Date:   Thu, 11 Feb 2021 13:18:02 -0500
-Message-ID: <CAEvUa7nBGwManydNPKFqVXQUugsDzx19nPv4Y2BaxrEqe6jFww@mail.gmail.com>
-Subject: Re: Reporting stable build failure from commit bca9ca
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, christophe.leroy@csgroup.eu,
-        mpe@ellerman.id.au
-Content-Type: text/plain; charset="UTF-8"
+        id S232320AbhBKScL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 13:32:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56020 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231261AbhBKSbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 13:31:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6D6664E5F;
+        Thu, 11 Feb 2021 18:30:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1613068237;
+        bh=pA5YLQp3xMiaQoI3sECH3Stk7u/BFFa3pdTcqO+VDiE=;
+        h=Date:From:To:Subject:From;
+        b=0sUTB2g+0T5908OO0HPtgNCknf0RTpJ3WisL929ltyUtZ0/L0alVpGzbUcDULeu4J
+         wWB2Sk3IoGxGVtz3QYvKhfNFVYY6jeK/tbZDJ1NMELmHvMq3Letscq47OSwv2az4Ew
+         DuNF+2uwd5Q6Ah7mKUmY9gnzbQKDF62BXnj8bniA=
+Date:   Thu, 11 Feb 2021 10:30:36 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, phillip@squashfs.org.uk,
+        pliard@google.com, stable@vger.kernel.org
+Subject:  [merged]
+ squashfs-avoid-out-of-bounds-writes-in-decompressors.patch removed from -mm
+ tree
+Message-ID: <20210211183036.jwiyWy2hS%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 9, 2021 at 2:21 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> On Mon, Feb 08, 2021 at 04:14:44PM -0500, David Michael wrote:
-> > Commit bca9ca[0] causes a build failure while building for a G4 system
-> > since 5.10.8:
-> >
-> > arch/powerpc/kernel/head_book3s_32.S: Assembler messages:
-> > arch/powerpc/kernel/head_book3s_32.S:296: Error: attempt to move .org backwards
-> > make[2]: *** [scripts/Makefile.build:360:
-> > arch/powerpc/kernel/head_book3s_32.o] Error 1
-> >
-> > Reverting the commit allows it to build.  I've uploaded the config[1],
-> > but let me know if you need other information.
->
-> Do you also have the same build failure in Linus's tree with this commit
-> in it?  And why not cc: the authors of the offending patch?
 
-No, 5.11-rc7 builds correctly with the same
-https://dpaste.com/7SZMWCU89.txt olddefconfiged.  I've CCed the commit
-authors.
+The patch titled
+     Subject: squashfs: avoid out of bounds writes in decompressors
+has been removed from the -mm tree.  Its filename was
+     squashfs-avoid-out-of-bounds-writes-in-decompressors.patch
 
-Thanks.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-David
+------------------------------------------------------
+From: Phillip Lougher <phillip@squashfs.org.uk>
+Subject: squashfs: avoid out of bounds writes in decompressors
+
+Patch series "Squashfs: fix BIO migration regression and add sanity checks".
+
+Patch [1/4] fixes a regression introduced by the "migrate from ll_rw_block
+usage to BIO" patch, which has produced a number of Sysbot/Syzkaller
+reports.
+
+Patches [2/4], [3/4], and [4/4] fix a number of filesystem corruption
+issues which have produced Sysbot reports in the id, inode and xattr
+lookup code.
+
+Each patch has been tested against the Sysbot reproducers using the given
+kernel configuration.  They have the appropriate "Reported-by:" lines
+added.
+
+Additionally, all of the reproducer filesystems are indirectly fixed by
+patch [4/4] due to the fact they all have xattr corruption which is now
+detected there.
+
+Additional testing with other configurations and architectures (32bit, big
+endian), and normal filesystems has also been done to trap any inadvertent
+regressions caused by the additional sanity checks.
+
+
+This patch (of 4):
+
+This is a regression introduced by the patch "migrate from ll_rw_block
+usage to BIO".
+
+Sysbot/Syskaller has reported a number of "out of bounds writes" and
+"unable to handle kernel paging request in squashfs_decompress" errors
+which have been identified as a regression introduced by the above patch.
+
+Specifically, the patch removed the following sanity check
+
+if (length < 0 || length > output->length ||
+		(index + length) > msblk->bytes_used)
+
+This check did two things:
+
+1. It ensured any reads were not beyond the end of the filesystem
+
+2. It ensured that the "length" field read from the filesystem
+   was within the expected maximum length.  Without this any
+   corrupted values can over-run allocated buffers.
+
+Link: https://lkml.kernel.org/r/20210204130249.4495-1-phillip@squashfs.org.uk
+Link: https://lkml.kernel.org/r/20210204130249.4495-2-phillip@squashfs.org.uk
+Fixes: 93e72b3c612adc ("squashfs: migrate from ll_rw_block usage to BIO")
+Reported-by: syzbot+6fba78f99b9afd4b5634@syzkaller.appspotmail.com
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Cc: Philippe Liard <pliard@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/squashfs/block.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/fs/squashfs/block.c~squashfs-avoid-out-of-bounds-writes-in-decompressors
++++ a/fs/squashfs/block.c
+@@ -196,9 +196,15 @@ int squashfs_read_data(struct super_bloc
+ 		length = SQUASHFS_COMPRESSED_SIZE(length);
+ 		index += 2;
+ 
+-		TRACE("Block @ 0x%llx, %scompressed size %d\n", index,
++		TRACE("Block @ 0x%llx, %scompressed size %d\n", index - 2,
+ 		      compressed ? "" : "un", length);
+ 	}
++	if (length < 0 || length > output->length ||
++			(index + length) > msblk->bytes_used) {
++		res = -EIO;
++		goto out;
++	}
++
+ 	if (next_index)
+ 		*next_index = index + length;
+ 
+_
+
+Patches currently in -mm which might be from phillip@squashfs.org.uk are
+
+
