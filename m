@@ -2,130 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED24A3188C9
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3854E31890C
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 12:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbhBKK4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 05:56:12 -0500
-Received: from foss.arm.com ([217.140.110.172]:49784 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230257AbhBKKxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 05:53:48 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7BD7E31B;
-        Thu, 11 Feb 2021 02:52:43 -0800 (PST)
-Received: from [10.37.8.13] (unknown [10.37.8.13])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE4FC3F73B;
-        Thu, 11 Feb 2021 02:52:41 -0800 (PST)
-Subject: Re: [PATCH] arm64: mte: Allow PTRACE_PEEKMTETAGS access to the zero
- page
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Luis Machado <luis.machado@linaro.org>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        Will Deacon <will@kernel.org>
-References: <20210210180316.23654-1-catalin.marinas@arm.com>
-From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
-Message-ID: <aa94d2b9-d2f1-04fd-7cfe-8a1ab078e5c3@arm.com>
-Date:   Thu, 11 Feb 2021 10:56:46 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S230484AbhBKLGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 06:06:10 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:58572 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230395AbhBKLB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 06:01:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613041192;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=43q0O9aZ2uqu/EPy/MYzL5B9BqsrK/x8AuDZmtqwScc=;
+        b=OxdAPEHaEFc1cpmOSKor2h4VCKAfopqpIeGrU9s6MBcdl9mDSlp8QATtVer6TpgnKV2Bgz
+        VyxGN2ytRJXtbVsVmAV70QfksgP8493DkHmP945TGI5QAKI022Qm0F8Q5ZnuaDKICIMLWT
+        tNrKVJUEUbR8S1MfLtO/tOCFwfhTMgI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-134-YA3mc8hyODClKumZ8ey7gw-1; Thu, 11 Feb 2021 05:59:48 -0500
+X-MC-Unique: YA3mc8hyODClKumZ8ey7gw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0215686A060;
+        Thu, 11 Feb 2021 10:59:47 +0000 (UTC)
+Received: from localhost (holly.tpb.lab.eng.brq.redhat.com [10.43.134.11])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id C628762953;
+        Thu, 11 Feb 2021 10:59:45 +0000 (UTC)
+Date:   Thu, 11 Feb 2021 11:59:44 +0100
+From:   Miroslav Lichvar <mlichvar@redhat.com>
+To:     Joerg Vehlow <lkml@jv-coder.de>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        John Stultz <john.stultz@linaro.org>
+Subject: Re: [4.14] Failing selftest timer/adjtick
+Message-ID: <20210211105944.GG1903164@localhost>
+References: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
+ <YCPZA7nkGGDru3xw@kroah.com>
+ <239b8a9a-d550-11e3-4650-39ad5bd85013@jv-coder.de>
+ <20210210131916.GC1903164@localhost>
+ <897e03f9-4062-d34f-0445-ff4f047ccd13@jv-coder.de>
 MIME-Version: 1.0
-In-Reply-To: <20210210180316.23654-1-catalin.marinas@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <897e03f9-4062-d34f-0445-ff4f047ccd13@jv-coder.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 11, 2021 at 11:33:05AM +0100, Joerg Vehlow wrote:
+> > My suggestion for a fix would be to increase the limit in the failing
+> > test.
+> Thanks, that's what I expected. But I still wonder why the test is failing
+> almost 100% of time for me on qemu-arm64 (running on x86). Is this a
+> regression in 4.14, that was working at some point or was it never tested on
+> arm?
 
-
-On 2/10/21 6:03 PM, Catalin Marinas wrote:
-> The ptrace(PTRACE_PEEKMTETAGS) implementation checks whether the user
-> page has valid tags (mapped with PROT_MTE) by testing the PG_mte_tagged
-> page flag. If this bit is cleared, ptrace(PTRACE_PEEKMTETAGS) returns
-> -EIO.
-> 
-> A newly created (PROT_MTE) mapping points to the zero page which had its
-> tags zeroed during cpu_enable_mte(). If there were no prior writes to
-> this mapping, ptrace(PTRACE_PEEKMTETAGS) fails with -EIO since the zero
-> page does not have the PG_mte_tagged flag set.
-> 
-> Set PG_mte_tagged on the zero page when its tags are cleared during
-> boot. In addition, to avoid ptrace(PTRACE_PEEKMTETAGS) succeeding on
-> !PROT_MTE mappings pointing to the zero page, change the
-> __access_remote_tags() check to (vm_flags & VM_MTE) instead of
-> PG_mte_tagged.
-> 
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> Fixes: 34bfeea4a9e9 ("arm64: mte: Clear the tags when a page is mapped in user-space with PROT_MTE")
-> Cc: <stable@vger.kernel.org> # 5.10.x
-> Cc: Will Deacon <will@kernel.org>
-> Reported-by: Luis Machado <luis.machado@linaro.org>
-> ---
-> 
-> The fix is actually checking VM_MTE instead of PG_mte_tagged in
-> __access_remote_tags() but I added the WARN_ON(!PG_mte_tagged) and
-> setting the flag on the zero page in case we break this assumption in
-> the future.
-> 
->  arch/arm64/kernel/cpufeature.c | 6 +-----
->  arch/arm64/kernel/mte.c        | 3 ++-
->  2 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-> index e99eddec0a46..3e6331b64932 100644
-> --- a/arch/arm64/kernel/cpufeature.c
-> +++ b/arch/arm64/kernel/cpufeature.c
-> @@ -1701,16 +1701,12 @@ static void bti_enable(const struct arm64_cpu_capabilities *__unused)
->  #ifdef CONFIG_ARM64_MTE
->  static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
->  {
-> -	static bool cleared_zero_page = false;
-> -
->  	/*
->  	 * Clear the tags in the zero page. This needs to be done via the
->  	 * linear map which has the Tagged attribute.
->  	 */
-> -	if (!cleared_zero_page) {
-> -		cleared_zero_page = true;
-> +	if (!test_and_set_bit(PG_mte_tagged, &ZERO_PAGE(0)->flags))
->  		mte_clear_page_tags(lm_alias(empty_zero_page));
-> -	}
->  
->  	kasan_init_hw_tags_cpu();
->  }
-> diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-> index dc9ada64feed..80b62fe49dcf 100644
-> --- a/arch/arm64/kernel/mte.c
-> +++ b/arch/arm64/kernel/mte.c
-> @@ -329,11 +329,12 @@ static int __access_remote_tags(struct mm_struct *mm, unsigned long addr,
->  		 * would cause the existing tags to be cleared if the page
->  		 * was never mapped with PROT_MTE.
->  		 */
-> -		if (!test_bit(PG_mte_tagged, &page->flags)) {
-> +		if (!(vma->vm_flags & VM_MTE)) {
->  			ret = -EOPNOTSUPP;
->  			put_page(page);
->  			break;
->  		}
-> +		WARN_ON_ONCE(!test_bit(PG_mte_tagged, &page->flags));
->  
-
-Nit: I would live a white line before WARN_ON_ONCE() to improve readability and
-maybe transform it in WARN_ONCE() with a message (alternatively a comment on
-top) based on what you are explaining in the commit message.
-
-Otherwise:
-
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-
->  		/* limit access to the end of the page */
->  		offset = offset_in_page(addr);
-> 
+I don't think it is specific to arm or that it is a regression. I
+think the virtual machine just happens to be too idle for the test.
+There may be unrelated changes, maybe in the kernel, qemu, or
+applications, that caused the rate of the clock updates to decrease so
+much that the instability now triggers the failure in the test.  The
+issue with the clock was there since NO_HZ was introduced, but it
+becomes more severe as the activity of the kernel decreases.
 
 -- 
-Regards,
-Vincenzo
+Miroslav Lichvar
+
