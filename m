@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5BA318E01
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:19:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1D9318E5D
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbhBKPT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:19:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
+        id S230382AbhBKPZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:25:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229908AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D83E64EF6;
-        Thu, 11 Feb 2021 15:04:49 +0000 (UTC)
+        id S230259AbhBKPT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:19:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DED464F1E;
+        Thu, 11 Feb 2021 15:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055890;
-        bh=tgG5ZuzJMSSY7xXkHOE2YZTZXgxpiFihf6Aiob7jUp8=;
+        s=korg; t=1613055984;
+        bh=FCPfVnRG2CO+xF685n4LNuumA9F5bRF7rvJBReS7buY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEbSjnI+kaZklhLbd6CVL71mEXXufU7mgnhZsxDPKDl0QQlvZ8EvobTYKVt+wo/Q7
-         bdGrVduZPL0sIRqBRVuqRy0xjr9DCRRj8bzH2HL1h7ywd7cn0pb2iS7Dv3GMdcugNX
-         L4QKxAu5V/0zb8mUbEazHtgjbRnO/9SgUXI0/gvc=
+        b=Q8JiC4bAs1xovxTg7Q2lptDs6uEW7vy5M0NkZ0fiKXJRLPIH0Cwne2Sl1sC+5cIWf
+         8ix38FR1Z/0tCunzTu5xrzelCgYnT6QFO9EsYYsxG2aPzEDoPZ3CW07cpbwhZUiTou
+         kBncGtI0ZtkRZegvZ1TCnE3yN1JNzogAshBdudGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 48/54] drm/i915: Skip vswing programming for TBT
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/24] iwlwifi: mvm: skip power command when unbinding vif during CSA
 Date:   Thu, 11 Feb 2021 16:02:32 +0100
-Message-Id: <20210211150154.962908516@linuxfoundation.org>
+Message-Id: <20210211150148.925559231@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
-References: <20210211150152.885701259@linuxfoundation.org>
+In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
+References: <20210211150148.516371325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-commit eaf5bfe37db871031232d2bf2535b6ca92afbad8 upstream.
+[ Upstream commit bf544e9aa570034e094a8a40d5f9e1e2c4916d18 ]
 
-In thunderbolt mode the PHY is owned by the thunderbolt controller.
-We are not supposed to touch it. So skip the vswing programming
-as well (we already skipped the other steps not applicable to TBT).
+In the new CSA flow, we remain associated during CSA, but
+still do a unbind-bind to the vif. However, sending the power
+command right after when vif is unbound but still associated
+causes FW to assert (0x3400) since it cannot tell the LMAC id.
 
-Touching this stuff could supposedly interfere with the PHY
-programming done by the thunderbolt controller.
+Just skip this command, we will send it again in a bit, when
+assigning the new context.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210128155948.13678-1-ville.syrjala@linux.intel.com
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-(cherry picked from commit f8c6b615b921d8a1bcd74870f9105e62b0bceff3)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130252.64a2254ac5c3.Iaa3a9050bf3d7c9cd5beaf561e932e6defc12ec3@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_ddi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index daae86cd61140..fc6430edd1107 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -4169,6 +4169,9 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
+ 	iwl_mvm_binding_remove_vif(mvm, vif);
+ 
+ out:
++	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD) &&
++	    switching_chanctx)
++		return;
+ 	mvmvif->phy_ctxt = NULL;
+ 	iwl_mvm_power_update_mac(mvm);
+ }
+-- 
+2.27.0
 
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -2597,6 +2597,9 @@ static void icl_mg_phy_ddi_vswing_sequen
- 	u32 n_entries, val;
- 	int ln, rate = 0;
- 
-+	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
-+		return;
-+
- 	if (type != INTEL_OUTPUT_HDMI) {
- 		struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
- 
-@@ -2741,6 +2744,9 @@ tgl_dkl_phy_ddi_vswing_sequence(struct i
- 	u32 n_entries, val, ln, dpcnt_mask, dpcnt_val;
- 	int rate = 0;
- 
-+	if (enc_to_dig_port(encoder)->tc_mode == TC_PORT_TBT_ALT)
-+		return;
-+
- 	if (type != INTEL_OUTPUT_HDMI) {
- 		struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
- 
 
 
