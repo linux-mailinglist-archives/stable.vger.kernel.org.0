@@ -2,137 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29AB0318A8B
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:30:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E656318A91
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230174AbhBKM1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 07:27:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48472 "EHLO
+        id S229699AbhBKM3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 07:29:33 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58324 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230011AbhBKMYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 07:24:48 -0500
+        by vger.kernel.org with ESMTP id S230385AbhBKM1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 07:27:43 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613046199;
+        s=mimecast20190719; t=1613046375;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=faRpucM8bYk3+6I7D614thA2FMfgheqmON/unvovBDw=;
-        b=hCTli6TjKEUkdHVP+kswbDvJtC3IWdYBm/g6pn5LbkrHBF8+oq3XUGiGsnp/4PmM5aTNw6
-        boJAOANAsRPcQo2K9j59VTS5U4vhnKq4Vzoxn3EwR3P2fnZ1OdchV9Udfp6dOSODLw//cE
-        A+++af+M58cV6sA/Uo/mmQWBrKd8srY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-233-aPNvSw21OQiRLgyafqWlog-1; Thu, 11 Feb 2021 07:23:15 -0500
-X-MC-Unique: aPNvSw21OQiRLgyafqWlog-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A20F81005501;
-        Thu, 11 Feb 2021 12:23:13 +0000 (UTC)
-Received: from gondolin (ovpn-112-229.ams2.redhat.com [10.36.112.229])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BA37B60936;
-        Thu, 11 Feb 2021 12:23:08 +0000 (UTC)
-Date:   Thu, 11 Feb 2021 13:23:06 +0100
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-Message-ID: <20210211132306.64249174.cohuck@redhat.com>
-In-Reply-To: <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
-References: <20210209194830.20271-1-akrowiak@linux.ibm.com>
-        <20210209194830.20271-2-akrowiak@linux.ibm.com>
-        <20210210115334.46635966.cohuck@redhat.com>
-        <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
-Organization: Red Hat GmbH
+        bh=mt+vMWhYR3R266BZ9fplZ+SW7dWjlgg0RCEaln+DNdA=;
+        b=iET/paalZZWa2jpXdaStK8k7yuhveXcxPXtOD+kvScW3O+BNTrRLnonAYQYht7FQoNulZC
+        0zfscLmwM+2+SjszzgJWJp0wfjHQ9KIlABGWCRZmocyjUbm7pNK6wz//ci2jG/CPC5zPPW
+        hwazvKBSee16fbN1sPjSYXweCo5frqE=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-139-0eVXnXP5PBOx65Wj4HsTxg-1; Thu, 11 Feb 2021 07:26:11 -0500
+X-MC-Unique: 0eVXnXP5PBOx65Wj4HsTxg-1
+Received: by mail-ed1-f69.google.com with SMTP id j10so207905edv.5
+        for <stable@vger.kernel.org>; Thu, 11 Feb 2021 04:26:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=mt+vMWhYR3R266BZ9fplZ+SW7dWjlgg0RCEaln+DNdA=;
+        b=ZKLfPGWTW/5jxn7jUYo1JppLbbQA5JVsRy6ilPTmcEhB1mDvaUuvN7YdGBd5xSLh1u
+         wzsDU0D+kHbkvTQayrGIva7OEh5Q3RHB1V5y/JeTgXG3JO//hc86SHwP8G8+5R2VEOZr
+         +69wqUnMBa/bvsRHUmAHWXePB+zUKq9szPZ5e8CjfAaWCRzVHLf/XpjpAKcb2F/3diIQ
+         YFptRsHs0c4hx3EqrXWowSjkYNqZY75Estz5jeuxXi2TN2Q6cVFbF2qXgS4fB8Uzc661
+         fOmE4EcpsIGzBKCrBvFcXFRZO1Qqk8fj5PSOXDwz2p+NOXV2zRT+/pqIhrAqzJiBtb5F
+         A9Rw==
+X-Gm-Message-State: AOAM530uwjyWpUUZD+tmsVoOT7LiSisWiQOLMP5P0gfJsmFGKmOCGhGw
+        g2p1nDbfn4NUkr/hJhT/9J4ROqq9A0GBBFAOWxv+NkQm92Y+1I8stzu1B8shwG6w5MvE8pV6elP
+        6VKVGMtVbgvifEJwSRzPy9MiBo250AjooHMYU7yTtJmQ2+6yKcMSANe3GDH/aFFgq2qmx
+X-Received: by 2002:a17:906:9ad3:: with SMTP id ah19mr8210172ejc.37.1613046370024;
+        Thu, 11 Feb 2021 04:26:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxbKdxgY9aBKky0s6h/qDD6L6sXqRg8l/yYG9oi6m9p9fIFP+/VOTlJFanqKrc/lE4xfvjpTw==
+X-Received: by 2002:a17:906:9ad3:: with SMTP id ah19mr8210154ejc.37.1613046369789;
+        Thu, 11 Feb 2021 04:26:09 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id ec18sm4252199ejb.24.2021.02.11.04.26.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Feb 2021 04:26:09 -0800 (PST)
+Subject: Re: [Intel-gfx] [5.10.y regression] i915 clear-residuals mitigation
+ is causing gfx issues
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable@vger.kernel.org
+References: <fe6040b5-72a0-9882-439e-ea7fc0b3935d@redhat.com>
+ <161282685855.9448.10484374241892252440@build.alporthouse.com>
+ <f1070486-891a-8ec0-0390-b9aeb03178ce@redhat.com>
+ <161291205642.6673.10994709665368036431@build.alporthouse.com>
+ <02fd493c-957f-890d-d0ad-ebd4119f55f2@redhat.com>
+ <161296131275.7731.862746142230006325@build.alporthouse.com>
+ <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
+ <161304059194.7731.17263409378570191651@build.alporthouse.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <e00f5813-37c6-52e7-4fd3-691be9d062d9@redhat.com>
+Date:   Thu, 11 Feb 2021 13:26:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <161304059194.7731.17263409378570191651@build.alporthouse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Feb 2021 15:34:24 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Hi,
 
-> On 2/10/21 5:53 AM, Cornelia Huck wrote:
-> > On Tue,  9 Feb 2021 14:48:30 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> This patch fixes a circular locking dependency in the CI introduced by
-> >> commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
-> >> pointer invalidated"). The lockdep only occurs when starting a Secure
-> >> Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
-> >> SE guests; however, in order to avoid CI errors, this fix is being
-> >> provided.
-> >>
-> >> The circular lockdep was introduced when the masks in the guest's APCB
-> >> were taken under the matrix_dev->lock. While the lock is definitely
-> >> needed to protect the setting/unsetting of the KVM pointer, it is not
-> >> necessarily critical for setting the masks, so this will not be done under
-> >> protection of the matrix_dev->lock.
-> >>
-> >> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> >> ---
-> >>   drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
-> >>   1 file changed, 45 insertions(+), 30 deletions(-)
-> >>
-> >>   static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-> >>   {
-> >> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >> -	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> >> -	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> >> -	kvm_put_kvm(matrix_mdev->kvm);
-> >> -	matrix_mdev->kvm = NULL;
-> >> +	if (matrix_mdev->kvm) {  
-> > If you're doing setting/unsetting under matrix_dev->lock, is it
-> > possible that matrix_mdev->kvm gets unset between here and the next
-> > line, as you don't hold the lock?  
+On 2/11/21 11:49 AM, Chris Wilson wrote:
+> Quoting Hans de Goede (2021-02-11 10:36:13)
+>> Hi,
+>>
+>> On 2/10/21 1:48 PM, Chris Wilson wrote:
+>>> Quoting Hans de Goede (2021-02-10 10:37:19)
+>>>> Hi,
+>>>>
+>>>> On 2/10/21 12:07 AM, Chris Wilson wrote:
+>>>>> Quoting Hans de Goede (2021-02-09 11:46:46)
+>>>>>> Hi,
+>>>>>>
+>>>>>> On 2/9/21 12:27 AM, Chris Wilson wrote:
+>>>>>>> Quoting Hans de Goede (2021-02-08 20:38:58)
+>>>>>>>> Hi All,
+>>>>>>>>
+>>>>>>>> We (Fedora) have been receiving reports from multiple users about gfx issues / glitches
+>>>>>>>> stating with 5.10.9. All reporters are users of Ivy Bridge / Haswell iGPUs and all
+>>>>>>>> reporters report that adding i915.mitigations=off to the cmdline fixes things, see:
+>>>>>>>
+>>>>>>> I tried to reproduce this on the w/e on hsw-gt1, to no avail; and piglit
+>>>>>>> did not report any differences with and without mitigations. I have yet
+>>>>>>> to test other platforms. So I don't yet have an alternative.
+>>>>>>
+>>>>>> Note the original / first reporter of:
+>>>>>>
+>>>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1925346
+>>>>>>
+>>>>>> Is using hsw-gt2, so it seems that the problem is not just the enabling of
+>>>>>> the mitigations on ivy-bridge / bay-trail but that there actually is
+>>>>>> a regression on devices where the WA worked fine before...
+>>>>>
+>>>>> There have been 3 crashes uploaded related to v5.10.9, and in all 3
+>>>>> cases the ACTHD has been in the first page. This strongly suggests that
+>>>>> the w/a is scribbling over address 0. And there's then a very good
+>>>>> chance that
+>>>>>
+>>>>> commit 29d35b73ead4e41aa0d1a954c9bfbdce659ec5d6
+>>>>> Author: Chris Wilson <chris@chris-wilson.co.uk>
+>>>>> Date:   Mon Jan 25 12:50:33 2021 +0000
+>>>>>
+>>>>>     drm/i915/gt: Always try to reserve GGTT address 0x0
+>>>>>     
+>>>>>     commit 489140b5ba2e7cc4b853c29e0591895ddb462a82 upstream.
+>>>>>
+>>>>> in v5.10.14 is sufficient to hide the issue.
+>>>>
+>>>> That one actually is already in v5.10.13 and the various reportes of these
+>>>> issues have already tested 5.10.13. They did mention that it took longer
+>>>> to reproduce with 5.10.13 then with 5.10.10, but that could also be due to:
+>>>>
+>>>> "drm/i915/gt: Clear CACHE_MODE prior to clearing residuals"
+>>>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.10.y&id=520d05a77b2866eb4cb9e548e1d8c8abcfe60ec5
+>>>
+>>> Started looking for scratch page overwrites, and found this little gem:
+>>> https://patchwork.freedesktop.org/patch/420436/?series=86947&rev=1
+>>>
+>>> Looks promising wrt the cause of overwriting random addresses -- and
+>>> I hope that is the explanation for the glitches/hangs. I have a hsw gt2
+>>> with gnome shell, piglit is happy, but I suspect it is all due to
+>>> placement and so will only occur at random.
+>>
+>> If you can give me a list of commits to cherry-pick then I can prepare
+>> a Fedora 5.10.y kernel which those added for the group of Fedora users
+>> who are hitting this to test.
 > 
-> That is highly unlikely because the only place the matrix_mdev->kvm
-> pointer is cleared is in this function which is called from only two
-> places: the notifier that handles the VFIO_GROUP_NOTIFY_SET_KVM
-> notification when the KVM pointer is cleared; the vfio_ap_mdev_release()
-> function which is called when the mdev fd is closed (i.e., when the guest
-> is shut down). The fact is, with the only end-to-end implementation
-> currently available, the notifier callback is never invoked to clear
-> the KVM pointer because the vfio_ap_mdev_release callback is
-> invoked first and it unregisters the notifier callback.
-> 
-> Having said that, I suppose there is no guarantee that there will not
-> be different userspace clients in the future that do things in a
-> different order. At the very least, it wouldn't hurt to protect against
-> that as you suggest below.
+> e627d5923cae ("drm/i915/gt: One more flush for Baytrail clear residuals")
+> d30bbd62b1bf ("drm/i915/gt: Flush before changing register state")
+> 1914911f4aa0 ("drm/i915/gt: Correct surface base address for renderclear")
 
-Yes, if userspace is able to use the interfaces in the certain way, we
-should always make sure that nothing bad happens if it does so, even if
-known userspace applications are well-behaved.
+Thanks, the test-kernel is building now. I will let you know when I have
+heard back from the Fedora users (this will likely take 1-2 days).
 
-[Can we make an 'evil userspace' test program, maybe? The hardware
-dependency makes this hard to run, though.]
+Regards,
 
-> 
-> >
-> > Maybe you could
-> > - grab a reference to kvm while holding the lock
-> > - call the mask handling functions with that kvm reference
-> > - lock again, drop the reference, and do the rest of the processing?
-> >  
-> >> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >> +		mutex_lock(&matrix_dev->lock);
-> >> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> >> +		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> >> +		kvm_put_kvm(matrix_mdev->kvm);
-> >> +		matrix_mdev->kvm = NULL;
-> >> +		mutex_unlock(&matrix_dev->lock);
-> >> +	}
-> >>   }  
-> 
+Hans
 
