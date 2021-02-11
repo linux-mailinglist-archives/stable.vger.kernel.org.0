@@ -2,249 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5EB318BDB
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 14:21:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 133FB318C80
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 14:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbhBKNT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 08:19:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28995 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231722AbhBKNR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 08:17:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613049358;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p4kjSj6IqX+6LexeNsu4OvUsCWjUNloaXb9pUNsIyFw=;
-        b=MJToyGgFG2Vf6AeQUlxzbnC92QCLBfT1TIAyFZnW5aF2DWbzrKujFimXNg0xFSQiyayMJ3
-        FFQLJaW/fmI2G5/5ph7WjnRl2pmePxBTDNIq/MsLyqxF0UvsmCjefg8cv2NchMiVkxUDfN
-        nNKHVsqSUFApEEd2NZkW2M26v/rC9xM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-509-BERIYeOFOlOJTvK6dhNGqg-1; Thu, 11 Feb 2021 08:15:52 -0500
-X-MC-Unique: BERIYeOFOlOJTvK6dhNGqg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C498C107ACE4;
-        Thu, 11 Feb 2021 13:15:50 +0000 (UTC)
-Received: from [10.36.114.52] (ovpn-114-52.ams2.redhat.com [10.36.114.52])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 16C492C01B;
-        Thu, 11 Feb 2021 13:15:48 +0000 (UTC)
-Subject: Re: [PATCH v3 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
- entry pointer
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org
-References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
- <20210209154302.1033165-2-imbrenda@linux.ibm.com>
- <2a65f089-1728-7bc7-a2a8-a2c089a01cec@redhat.com>
- <20210211135756.249b535b@ibm-vm>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <1fb901ef-7c42-7753-fe78-0251ca4715d3@redhat.com>
-Date:   Thu, 11 Feb 2021 14:15:47 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S231293AbhBKNql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 08:46:41 -0500
+Received: from mengyan1223.wang ([89.208.246.23]:47310 "EHLO mengyan1223.wang"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231980AbhBKNnC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 08:43:02 -0500
+X-Greylist: delayed 565 seconds by postgrey-1.27 at vger.kernel.org; Thu, 11 Feb 2021 08:42:54 EST
+Received: from [192.168.0.103] (unknown [120.208.101.20])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
+        (Client did not present a certificate)
+        (Authenticated sender: xry111@mengyan1223.wang)
+        by mengyan1223.wang (Postfix) with ESMTPSA id 4B70C65AC8;
+        Thu, 11 Feb 2021 08:32:06 -0500 (EST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mengyan1223.wang;
+        s=mail; t=1613050329;
+        bh=isfdrzAN/aDlEfsQlBx+3bqfWbKXh9oIzMihYVq7voQ=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=i2FFyuarN2VFHmYdNdwF6tt8/93l/3Bc6CDDrvv9k0eXxVSmcSUlwEYcNOFJIneys
+         myN12cpz8roF95DXWVI4twTWQdTEJapPb31Lc5Vei6DVplFyf5V083Hzs3tOK5TkhQ
+         kC5lv5dMtTfp4jnSB/mh+xIcf1ZRJ4XcVywrz2S4QkTOOOdODfXwonHFDX2/Pm3z+x
+         3dT/tBCabwOScFbZYpaVJW5yEdfdJD+PNlN0cYjvVxfIae4FXlbIdhRHxyAI3Phs6H
+         f9hvJ9F6/n9jattnL/hu7Ns7btCPRcDVA43wOccX8/2/5dTGBxwgb2JFhgwCiu+Ct/
+         ZZEAd1U2tLSbw==
+Message-ID: <dded80b60d9136ea90987516c28f93273385651f.camel@mengyan1223.wang>
+Subject: Re: [tip: objtool/urgent] objtool: Fix seg fault with Clang
+ non-section symbols
+From:   Xi Ruoyao <xry111@mengyan1223.wang>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Miroslav Benes <mbenes@suse.cz>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org
+Date:   Thu, 11 Feb 2021 21:32:03 +0800
+In-Reply-To: <160812658044.3364.4188208281079332844.tip-bot2@tip-bot2>
+References: <ba6b6c0f0dd5acbba66e403955a967d9fdd1726a.1607983452.git.jpoimboe@redhat.com>
+         <160812658044.3364.4188208281079332844.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.3 
 MIME-Version: 1.0
-In-Reply-To: <20210211135756.249b535b@ibm-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11.02.21 13:57, Claudio Imbrenda wrote:
-> On Thu, 11 Feb 2021 10:18:56 +0100
-> David Hildenbrand <david@redhat.com> wrote:
-> 
->> On 09.02.21 16:43, Claudio Imbrenda wrote:
->>> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
->>> DAT table entry, or to the invalid entry.
->>>
->>> Also return some flags in the lower bits of the address:
->>> DAT_PROT: indicates that DAT protection applies because of the
->>>             protection bit in the segment (or, if EDAT, region)
->>> tables NOT_PTE: indicates that the address of the DAT table entry
->>> returned does not refer to a PTE, but to a segment or region table.
->>>    
->>
->> I've been thinking about one possible issue, but I think it's not
->> actually an issue. Just sharing so others can verify:
->>
->> In case our guest uses huge pages / gigantic pages / ASCE R, we
->> create fake page tables (GMAP_SHADOW_FAKE_TABLE).
->>
->> So, it could be that kvm_s390_shadow_fault()->gmap_shadow_pgt_lookup()
->> succeeds, however, we have a fake PTE in our hands. We lost the
->> actual guest STE/RTE address. (I think it could be recovered somehow
->> via page->index, thought)
->>
->> But I guess, if there is a fake PTE, then there is not acutally
->> something that could go wrong in gmap_shadow_page() anymore that could
->> lead us in responding something wrong to the guest. We can only really
->> fail with -EINVAL, -ENOMEM or -EFAULT.
-> 
-> this was also my reasoning
-> 
->> So if the guest changed anything in the meantime (e.g., zap a
->> segment), we would have unshadowed the whole fake page table
->> hierarchy and would simply retry.
->>
->>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> Cc: stable@vger.kernel.org
->>> ---
->>>    arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
->>>    arch/s390/kvm/gaccess.h |  5 ++++-
->>>    arch/s390/kvm/vsie.c    |  8 ++++----
->>>    3 files changed, 33 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
->>> index 6d6b57059493..e0ab83f051d2 100644
->>> --- a/arch/s390/kvm/gaccess.c
->>> +++ b/arch/s390/kvm/gaccess.c
->>> @@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct
->>> kvm_vcpu *vcpu, unsigned long gra)
->>>     * kvm_s390_shadow_tables - walk the guest page table and create
->>> shadow tables
->>>     * @sg: pointer to the shadow guest address space structure
->>>     * @saddr: faulting address in the shadow gmap
->>> - * @pgt: pointer to the page table address result
->>> + * @pgt: pointer to the beginning of the page table for the given
->>> address if
->>> + *       successful (return value 0), or to the first invalid DAT
->>> entry in
->>> + *       case of exceptions (return value > 0)
->>>     * @fake: pgt references contiguous guest memory block, not a
->>> pgtable */
->>>    static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long
->>> saddr, @@ -1034,6 +1036,7 @@ static int
->>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->>> rfte.val = ptr; goto shadow_r2t;
->>>    		}
->>> +		*pgt = ptr + vaddr.rfx * 8;
->>>    		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8,
->>> &rfte.val);
->>
->> Using
->>
->> gmap_read_table(parent, *pgt, &rfte.val);
->>
->> or similar with a local variable might then be even clearer. But no
->> strong opinion.
-> 
-> that's also something I had thought about, in the end this minimizes
-> the number of lines / variables while still being readable
-> 
->>>    		if (rc)
->>>    			return rc;
->>> @@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, rste.val = ptr;
->>>    			goto shadow_r3t;
->>>    		}
->>> +		*pgt = ptr + vaddr.rsx * 8;
->>>    		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8,
->>> &rste.val); if (rc)
->>>    			return rc;
->>> @@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, rtte.val = ptr;
->>>    			goto shadow_sgt;
->>>    		}
->>> +		*pgt = ptr + vaddr.rtx * 8;
->>>    		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8,
->>> &rtte.val); if (rc)
->>>    			return rc;
->>> @@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr, ste.val = ptr;
->>>    			goto shadow_pgt;
->>>    		}
->>> +		*pgt = ptr + vaddr.sx * 8;
->>>    		rc = gmap_read_table(parent, ptr + vaddr.sx * 8,
->>> &ste.val); if (rc)
->>>    			return rc;
->>> @@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap
->>> *sg, unsigned long saddr,
->>>     * @vcpu: virtual cpu
->>>     * @sg: pointer to the shadow guest address space structure
->>>     * @saddr: faulting address in the shadow gmap
->>> + * @datptr: will contain the address of the faulting DAT table
->>> entry, or of
->>> + *          the valid leaf, plus some flags
->>>     *
->>>     * Returns: - 0 if the shadow fault was successfully resolved
->>>     *	    - > 0 (pgm exception code) on exceptions while
->>> faulting @@ -1165,11 +1173,11 @@ static int
->>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->>>     *	    - -ENOMEM if out of memory
->>>     */
->>>    int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
->>> -			  unsigned long saddr)
->>> +			  unsigned long saddr, unsigned long
->>> *datptr) {
->>>    	union vaddress vaddr;
->>>    	union page_table_entry pte;
->>> -	unsigned long pgt;
->>> +	unsigned long pgt = 0;
->>>    	int dat_protection, fake;
->>>    	int rc;
->>>    
->>> @@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu
->>> *vcpu, struct gmap *sg, pte.val = pgt + vaddr.px * PAGE_SIZE;
->>>    		goto shadow_page;
->>>    	}
->>> -	if (!rc)
->>> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px *
->>> 8, &pte.val); +
->>> +	switch (rc) {
->>> +	case PGM_SEGMENT_TRANSLATION:
->>> +	case PGM_REGION_THIRD_TRANS:
->>> +	case PGM_REGION_SECOND_TRANS:
->>> +	case PGM_REGION_FIRST_TRANS:
->>> +		pgt |= NOT_PTE;
->>> +		break;
->>> +	case 0:
->>> +		pgt += vaddr.px * 8;
->>> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
->>> +	}
->>> +	if (*datptr)
->>> +		*datptr = pgt | dat_protection * DAT_PROT;
->>>    	if (!rc && pte.i)
->>>    		rc = PGM_PAGE_TRANSLATION;
->>>    	if (!rc && pte.z)
->>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
->>> index f4c51756c462..fec26bbb17ba 100644
->>> --- a/arch/s390/kvm/gaccess.h
->>> +++ b/arch/s390/kvm/gaccess.h
->>> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
->>>    int ipte_lock_held(struct kvm_vcpu *vcpu);
->>>    int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu,
->>> unsigned long gra);
->>> +#define DAT_PROT 2
->>> +#define NOT_PTE 4
->>
->> What if our guest is using ASCE.R ?
-> 
-> then we don't care.
-> 
-> if the guest is using ASCE.R, then shadowing will always succeed, and
-> the VSIE MVPG handler will retry right away.
-> 
-> if you are worried about the the lowest order bit, it can only be set
-> if a specific feature is enabled in the host, and KVM doesn't use /
-> support it, so the guest can't use it for its guest.
+Hi all,
 
-Got it, thanks! :)
+The latest GNU assembler (binutils-2.36.1) is removing unused section symbols
+like Clang [1].  So linux-5.10.15 can't be built with binutils-2.36.1 now.  It
+has been reported as https://bugzilla.kernel.org/show_bug.cgi?id=211693.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+I can confirm this commit fixes the issue.  It should be cherry-picked into
+stable branches, so the following stable releases will be able to built with
+latest GNU toolchain.
 
+[1]: https://sourceware.org/pipermail/binutils/2020-December/114671.html
+
+At last, happy new lunar year guys :).
+
+On 2020-12-16 13:49 +0000, tip-bot2 for Josh Poimboeuf wrote:
+> The following commit has been merged into the objtool/urgent branch of tip:
+> 
+> Commit-ID:     44f6a7c0755d8dd453c70557e11687bb080a6f21
+> Gitweb:       
+> https://git.kernel.org/tip/44f6a7c0755d8dd453c70557e11687bb080a6f21
+> Author:        Josh Poimboeuf <jpoimboe@redhat.com>
+> AuthorDate:    Mon, 14 Dec 2020 16:04:20 -06:00
+> Committer:     Peter Zijlstra <peterz@infradead.org>
+> CommitterDate: Wed, 16 Dec 2020 14:35:46 +01:00
+> 
+> objtool: Fix seg fault with Clang non-section symbols
+> 
+> The Clang assembler likes to strip section symbols, which means objtool
+> can't reference some text code by its section.  This confuses objtool
+> greatly, causing it to seg fault.
+> 
+> The fix is similar to what was done before, for ORC reloc generation:
+> 
+>   e81e07244325 ("objtool: Support Clang non-section symbols in ORC
+> generation")
+> 
+> Factor out that code into a common helper and use it for static call
+> reloc generation as well.
+> 
+> Reported-by: Arnd Bergmann <arnd@kernel.org>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1207
+> Link:
+> https://lkml.kernel.org/r/ba6b6c0f0dd5acbba66e403955a967d9fdd1726a.1607983452.git.jpoimboe@redhat.com
+> ---
+>  tools/objtool/check.c   | 11 +++++++++--
+>  tools/objtool/elf.c     | 26 ++++++++++++++++++++++++++
+>  tools/objtool/elf.h     |  2 ++
+>  tools/objtool/orc_gen.c | 29 +++++------------------------
+>  4 files changed, 42 insertions(+), 26 deletions(-)
+> 
+> diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+> index c6ab445..5f8d3ee 100644
+> --- a/tools/objtool/check.c
+> +++ b/tools/objtool/check.c
+> @@ -467,13 +467,20 @@ static int create_static_call_sections(struct
+> objtool_file *file)
+>  
+>                 /* populate reloc for 'addr' */
+>                 reloc = malloc(sizeof(*reloc));
+> +
+>                 if (!reloc) {
+>                         perror("malloc");
+>                         return -1;
+>                 }
+>                 memset(reloc, 0, sizeof(*reloc));
+> -               reloc->sym = insn->sec->sym;
+> -               reloc->addend = insn->offset;
+> +
+> +               insn_to_reloc_sym_addend(insn->sec, insn->offset, reloc);
+> +               if (!reloc->sym) {
+> +                       WARN_FUNC("static call tramp: missing containing
+> symbol",
+> +                                 insn->sec, insn->offset);
+> +                       return -1;
+> +               }
+> +
+>                 reloc->type = R_X86_64_PC32;
+>                 reloc->offset = idx * sizeof(struct static_call_site);
+>                 reloc->sec = reloc_sec;
+> diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+> index 4e1d746..be89c74 100644
+> --- a/tools/objtool/elf.c
+> +++ b/tools/objtool/elf.c
+> @@ -262,6 +262,32 @@ struct reloc *find_reloc_by_dest(const struct elf *elf,
+> struct section *sec, uns
+>         return find_reloc_by_dest_range(elf, sec, offset, 1);
+>  }
+>  
+> +void insn_to_reloc_sym_addend(struct section *sec, unsigned long offset,
+> +                             struct reloc *reloc)
+> +{
+> +       if (sec->sym) {
+> +               reloc->sym = sec->sym;
+> +               reloc->addend = offset;
+> +               return;
+> +       }
+> +
+> +       /*
+> +        * The Clang assembler strips section symbols, so we have to reference
+> +        * the function symbol instead:
+> +        */
+> +       reloc->sym = find_symbol_containing(sec, offset);
+> +       if (!reloc->sym) {
+> +               /*
+> +                * Hack alert.  This happens when we need to reference the NOP
+> +                * pad insn immediately after the function.
+> +                */
+> +               reloc->sym = find_symbol_containing(sec, offset - 1);
+> +       }
+> +
+> +       if (reloc->sym)
+> +               reloc->addend = offset - reloc->sym->offset;
+> +}
+> +
+>  static int read_sections(struct elf *elf)
+>  {
+>         Elf_Scn *s = NULL;
+> diff --git a/tools/objtool/elf.h b/tools/objtool/elf.h
+> index 807f8c6..e6890cc 100644
+> --- a/tools/objtool/elf.h
+> +++ b/tools/objtool/elf.h
+> @@ -140,6 +140,8 @@ struct reloc *find_reloc_by_dest(const struct elf *elf,
+> struct section *sec, uns
+>  struct reloc *find_reloc_by_dest_range(const struct elf *elf, struct section
+> *sec,
+>                                      unsigned long offset, unsigned int len);
+>  struct symbol *find_func_containing(struct section *sec, unsigned long
+> offset);
+> +void insn_to_reloc_sym_addend(struct section *sec, unsigned long offset,
+> +                             struct reloc *reloc);
+>  int elf_rebuild_reloc_section(struct elf *elf, struct section *sec);
+>  
+>  #define for_each_sec(file,
+> sec)                                                \
+> diff --git a/tools/objtool/orc_gen.c b/tools/objtool/orc_gen.c
+> index 235663b..9ce68b3 100644
+> --- a/tools/objtool/orc_gen.c
+> +++ b/tools/objtool/orc_gen.c
+> @@ -105,30 +105,11 @@ static int create_orc_entry(struct elf *elf, struct
+> section *u_sec, struct secti
+>         }
+>         memset(reloc, 0, sizeof(*reloc));
+>  
+> -       if (insn_sec->sym) {
+> -               reloc->sym = insn_sec->sym;
+> -               reloc->addend = insn_off;
+> -       } else {
+> -               /*
+> -                * The Clang assembler doesn't produce section symbols, so we
+> -                * have to reference the function symbol instead:
+> -                */
+> -               reloc->sym = find_symbol_containing(insn_sec, insn_off);
+> -               if (!reloc->sym) {
+> -                       /*
+> -                        * Hack alert.  This happens when we need to reference
+> -                        * the NOP pad insn immediately after the function.
+> -                        */
+> -                       reloc->sym = find_symbol_containing(insn_sec,
+> -                                                          insn_off - 1);
+> -               }
+> -               if (!reloc->sym) {
+> -                       WARN("missing symbol for insn at offset 0x%lx\n",
+> -                            insn_off);
+> -                       return -1;
+> -               }
+> -
+> -               reloc->addend = insn_off - reloc->sym->offset;
+> +       insn_to_reloc_sym_addend(insn_sec, insn_off, reloc);
+> +       if (!reloc->sym) {
+> +               WARN("missing symbol for insn at offset 0x%lx",
+> +                    insn_off);
+> +               return -1;
+>         }
+>  
+>         reloc->type = R_X86_64_PC32;
 
 -- 
-Thanks,
-
-David / dhildenb
+Xi Ruoyao <xry111@mengyan1223.wang>
+School of Aerospace Science and Technology, Xidian University
 
