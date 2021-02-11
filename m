@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9CD318E08
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E34F318E49
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbhBKPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:19:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
+        id S229964AbhBKPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:24:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230097AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2707664EF2;
-        Thu, 11 Feb 2021 15:04:51 +0000 (UTC)
+        id S230260AbhBKPT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:19:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CC9664F1B;
+        Thu, 11 Feb 2021 15:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055892;
-        bh=Tu/ihzwj0fdIKZC3D8WmvryBsJDFFHOXxBFv25QlwuQ=;
+        s=korg; t=1613055986;
+        bh=X8nsuQJTgoe6gbLnW8ip3eaIYtCcVSr3zvpNLTjzxfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaJkMuVU1FYkbfKAjn8rXIsd8aCiTAsKDoZJuYAGHe2lG9lNlLkbcFO70WRaGeBJe
-         9KqhzDgTBQze0OXeXmmXFVcN2olearzOxXqp/YYEyHlA1H2Vd4/0p5VdEpuxM30aYn
-         5vkGHW578IxU7JKzjW+Gi+jP4bRNEITL3jEmbo4I=
+        b=V8BQEGZfWqfDrS/nn+BHwkgDe8sNBbtrDmTGX6yTb8HL37E2MfqYARoH2HpSagn52
+         p53t5V52xqzQwubSrpS779buF3yeqSZ7fNh/uE8YcU3GCC+xud9xXvV53km8Tk55Bu
+         EKyRItj5j3Lb2dVEHSsLPMqhvubwJ9m9H2CY9sqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joachim Henke <joachim.henke@t-systems.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 49/54] nilfs2: make splice write available again
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/24] iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
 Date:   Thu, 11 Feb 2021 16:02:33 +0100
-Message-Id: <20210211150155.010025735@linuxfoundation.org>
+Message-Id: <20210211150148.972655600@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
-References: <20210211150152.885701259@linuxfoundation.org>
+In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
+References: <20210211150148.516371325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joachim Henke <joachim.henke@t-systems.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit a35d8f016e0b68634035217d06d1c53863456b50 upstream.
+[ Upstream commit 5c56d862c749669d45c256f581eac4244be00d4d ]
 
-Since 5.10, splice() or sendfile() to NILFS2 return EINVAL.  This was
-caused by commit 36e2c7421f02 ("fs: don't allow splice read/write
-without explicit ops").
+We need to take the mutex to call iwl_mvm_get_sync_time(), do it.
 
-This patch initializes the splice_write field in file_operations, like
-most file systems do, to restore the functionality.
-
-Link: https://lkml.kernel.org/r/1612784101-14353-1-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Joachim Henke <joachim.henke@t-systems.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130252.4bb5ccf881a6.I62973cbb081e80aa5b0447a5c3b9c3251a65cf6b@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nilfs2/file.c
-+++ b/fs/nilfs2/file.c
-@@ -141,6 +141,7 @@ const struct file_operations nilfs_file_
- 	/* .release	= nilfs_release_file, */
- 	.fsync		= nilfs_sync_file,
- 	.splice_read	= generic_file_splice_read,
-+	.splice_write   = iter_file_splice_write,
- };
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
+index f043eefabb4ec..7b1d2dac6ceb8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
+@@ -514,7 +514,10 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
+ 	const size_t bufsz = sizeof(buf);
+ 	int pos = 0;
  
- const struct inode_operations nilfs_file_inode_operations = {
++	mutex_lock(&mvm->mutex);
+ 	iwl_mvm_get_sync_time(mvm, &curr_gp2, &curr_os);
++	mutex_unlock(&mvm->mutex);
++
+ 	do_div(curr_os, NSEC_PER_USEC);
+ 	diff = curr_os - curr_gp2;
+ 	pos += scnprintf(buf + pos, bufsz - pos, "diff=%lld\n", diff);
+-- 
+2.27.0
+
 
 
