@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FFDA318E0B
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBEA318E09
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229911AbhBKPTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:19:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
+        id S229869AbhBKPTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:19:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230003AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S229940AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 11 Feb 2021 10:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2186664EE8;
-        Thu, 11 Feb 2021 15:04:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8990864EE9;
+        Thu, 11 Feb 2021 15:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055859;
-        bh=wUK9OGL1h0Qhog08GnNk0WylrDiiA+cqNwg3rfsdqCk=;
+        s=korg; t=1613055862;
+        bh=bOF1+ygeVJ0Xvrdhb7APeT6uiLTctc3tlWBM7fCpBYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkzAvMxZB/NQiMLpAHVRoiWb1zucLzvMINyFnLfQcVxhNjNdq3qAE2I1lqAdGfR0A
-         SZEqMA/W3mN0zWKRGfkeg7QYUY+BG3fCtx3BcVVVUNK/9mUotViARgsSYiFk+dMt5s
-         C05JBEXCogMso/KEPLyvIPyc8FiVf0XaGlqCb7aM=
+        b=yFPmmFzbXggwWXbPkmGSMotiJ99LGOnO/KwJPULHIEzCdTryEvxDzRgkiGCcYY+1w
+         vpMoHTcpRv7OSKSqIdfsW7QNbSXyZqv117HzBylYOxWv+jFu/Pa3c9jPJh5cq8lmBA
+         MRWEwDe8Cphbo/qXB4BHwWK6b/eKlBLMvBBA6V7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Josef Grieb <josef.grieb@gmail.com>,
         Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.10 08/54] io_uring: if we see flush on exit, cancel related tasks
-Date:   Thu, 11 Feb 2021 16:01:52 +0100
-Message-Id: <20210211150153.241428769@linuxfoundation.org>
+Subject: [PATCH 5.10 09/54] io_uring: fix __io_uring_files_cancel() with TASK_UNINTERRUPTIBLE
+Date:   Thu, 11 Feb 2021 16:01:53 +0100
+Message-Id: <20210211150153.284941450@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -40,47 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 84965ff8a84f0368b154c9b367b62e59c1193f30 ]
+[ Upstream commit a1bb3cd58913338e1b627ea6b8c03c2ae82d293f ]
 
-Ensure we match tasks that belong to a dead or dying task as well, as we
-need to reap those in addition to those belonging to the exiting task.
+If the tctx inflight number haven't changed because of cancellation,
+__io_uring_task_cancel() will continue leaving the task in
+TASK_UNINTERRUPTIBLE state, that's not expected by
+__io_uring_files_cancel(). Ensure we always call finish_wait() before
+retrying.
 
 Cc: stable@vger.kernel.org # 5.9+
-Reported-by: Josef Grieb <josef.grieb@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/io_uring.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1014,8 +1014,12 @@ static bool io_match_task(struct io_kioc
- {
- 	struct io_kiocb *link;
+@@ -8829,15 +8829,15 @@ void __io_uring_task_cancel(void)
+ 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
  
--	if (task && head->task != task)
-+	if (task && head->task != task) {
-+		/* in terms of cancelation, always match if req task is dead */
-+		if (head->task->flags & PF_EXITING)
-+			return true;
- 		return false;
-+	}
- 	if (!files)
- 		return true;
- 	if (__io_match_files(head, files))
-@@ -8844,6 +8848,9 @@ static int io_uring_flush(struct file *f
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_ring_ctx *ctx = file->private_data;
+ 		/*
+-		 * If we've seen completions, retry. This avoids a race where
+-		 * a completion comes in before we did prepare_to_wait().
++		 * If we've seen completions, retry without waiting. This
++		 * avoids a race where a completion comes in before we did
++		 * prepare_to_wait().
+ 		 */
+-		if (inflight != tctx_inflight(tctx))
+-			continue;
+-		schedule();
++		if (inflight == tctx_inflight(tctx))
++			schedule();
++		finish_wait(&tctx->wait, &wait);
+ 	} while (1);
  
-+	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
-+		io_uring_cancel_task_requests(ctx, NULL);
-+
- 	if (!tctx)
- 		return 0;
+-	finish_wait(&tctx->wait, &wait);
+ 	atomic_dec(&tctx->in_idle);
  
+ 	io_uring_remove_task_files(tctx);
 
 
