@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A95318E78
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1E6318E8B
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhBKP1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:27:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
+        id S230021AbhBKP3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:29:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230423AbhBKPWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:22:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B464364F34;
-        Thu, 11 Feb 2021 15:07:15 +0000 (UTC)
+        id S231200AbhBKPZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:25:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A33D264EAA;
+        Thu, 11 Feb 2021 15:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613056036;
-        bh=M7tf0YXjwh9g467iZNihXYU2nRWQ8SxGzo/8yqj+BoE=;
+        s=korg; t=1613055807;
+        bh=V1cGGQRVwnMxGoASW1ReOzrD9iGH4FBinLv7pYIAjKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTjeSUCmRt7MwQA86W2REqqG+ABg5ZCQzrIUfGiIuAjY1/1HjhXDnpYM3zUXAwopQ
-         tEwG0aH65+oio5a9BRkIm0tFSby5m9t2Px1tXOqs6O7Syy+ysrZL3yM/U27/f0Utdc
-         grEgmgYZxuUs2zMzg0qodS0fb/CqvzqEK4hE7I4k=
+        b=1NqhjOOwHc1TmO2hTxbHlvb6pnE7xKsccMNQxgUF962wwq5nak576ntz2brhhm6IK
+         YBZ86B7ZvSnjHiwmeTdgGyUAxME5Mecpy4ZpHA9eXz/sStYNwRuS9l/e+k0C/C9k4R
+         zX4xT57YFi0Qrxk9dpzFdXsH4HdpxC6VotE2QYhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 24/24] squashfs: add more sanity checks in xattr id lookup
-Date:   Thu, 11 Feb 2021 16:02:58 +0100
-Message-Id: <20210211150148.807278117@linuxfoundation.org>
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 5.10 15/54] io_uring: reinforce cancel on flush during exit
+Date:   Thu, 11 Feb 2021 16:01:59 +0100
+Message-Id: <20210211150153.538316844@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150147.743660073@linuxfoundation.org>
-References: <20210211150147.743660073@linuxfoundation.org>
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,139 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 506220d2ba21791314af569211ffd8870b8208fa upstream.
+[ Upstream commit 3a7efd1ad269ccaf9c1423364d97c9661ba6dafa ]
 
-Sysbot has reported a warning where a kmalloc() attempt exceeds the
-maximum limit.  This has been identified as corruption of the xattr_ids
-count when reading the xattr id lookup table.
+What 84965ff8a84f0 ("io_uring: if we see flush on exit, cancel related tasks")
+really wants is to cancel all relevant REQ_F_INFLIGHT requests reliably.
+That can be achieved by io_uring_cancel_files(), but we'll miss it
+calling io_uring_cancel_task_requests(files=NULL) from io_uring_flush(),
+because it will go through __io_uring_cancel_task_requests().
 
-This patch adds a number of additional sanity checks to detect this
-corruption and others.
+Just always call io_uring_cancel_files() during cancel, it's good enough
+for now.
 
-1. It checks for a corrupted xattr index read from the inode.  This could
-   be because the metadata block is uncompressed, or because the
-   "compression" bit has been corrupted (turning a compressed block
-   into an uncompressed block).  This would cause an out of bounds read.
-
-2. It checks against corruption of the xattr_ids count.  This can either
-   lead to the above kmalloc failure, or a smaller than expected
-   table to be read.
-
-3. It checks the contents of the index table for corruption.
-
-[phillip@squashfs.org.uk: fix checkpatch issue]
-  Link: https://lkml.kernel.org/r/270245655.754655.1612770082682@webmail.123-reg.co.uk
-
-Link: https://lkml.kernel.org/r/20210204130249.4495-5-phillip@squashfs.org.uk
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Reported-by: syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org # 5.9+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/xattr_id.c |   66 ++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 57 insertions(+), 9 deletions(-)
+ fs/io_uring.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -44,10 +44,15 @@ int squashfs_xattr_lookup(struct super_b
- 	struct squashfs_sb_info *msblk = sb->s_fs_info;
- 	int block = SQUASHFS_XATTR_BLOCK(index);
- 	int offset = SQUASHFS_XATTR_BLOCK_OFFSET(index);
--	u64 start_block = le64_to_cpu(msblk->xattr_id_table[block]);
-+	u64 start_block;
- 	struct squashfs_xattr_id id;
- 	int err;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8692,10 +8692,9 @@ static void io_uring_cancel_task_request
+ 	io_cancel_defer_files(ctx, task, files);
+ 	io_cqring_overflow_flush(ctx, true, task, files);
  
-+	if (index >= msblk->xattr_ids)
-+		return -EINVAL;
-+
-+	start_block = le64_to_cpu(msblk->xattr_id_table[block]);
-+
- 	err = squashfs_read_metadata(sb, &id, &start_block, &offset,
- 							sizeof(id));
- 	if (err < 0)
-@@ -63,13 +68,17 @@ int squashfs_xattr_lookup(struct super_b
- /*
-  * Read uncompressed xattr id lookup table indexes from disk into memory
-  */
--__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 start,
-+__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
- 		u64 *xattr_table_start, int *xattr_ids)
- {
--	unsigned int len;
-+	struct squashfs_sb_info *msblk = sb->s_fs_info;
-+	unsigned int len, indexes;
- 	struct squashfs_xattr_id_table *id_table;
-+	__le64 *table;
-+	u64 start, end;
-+	int n;
++	io_uring_cancel_files(ctx, task, files);
+ 	if (!files)
+ 		__io_uring_cancel_task_requests(ctx, task);
+-	else
+-		io_uring_cancel_files(ctx, task, files);
  
--	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
-+	id_table = squashfs_read_table(sb, table_start, sizeof(*id_table));
- 	if (IS_ERR(id_table))
- 		return (__le64 *) id_table;
- 
-@@ -83,13 +92,52 @@ __le64 *squashfs_read_xattr_id_table(str
- 	if (*xattr_ids == 0)
- 		return ERR_PTR(-EINVAL);
- 
--	/* xattr_table should be less than start */
--	if (*xattr_table_start >= start)
-+	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
-+	indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
-+
-+	/*
-+	 * The computed size of the index table (len bytes) should exactly
-+	 * match the table start and end points
-+	 */
-+	start = table_start + sizeof(*id_table);
-+	end = msblk->bytes_used;
-+
-+	if (len != (end - start))
- 		return ERR_PTR(-EINVAL);
- 
--	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
-+	table = squashfs_read_table(sb, start, len);
-+	if (IS_ERR(table))
-+		return table;
-+
-+	/* table[0], table[1], ... table[indexes - 1] store the locations
-+	 * of the compressed xattr id blocks.  Each entry should be less than
-+	 * the next (i.e. table[0] < table[1]), and the difference between them
-+	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
-+	 * should be less than table_start, and again the difference
-+	 * shouls be SQUASHFS_METADATA_SIZE or less.
-+	 *
-+	 * Finally xattr_table_start should be less than table[0].
-+	 */
-+	for (n = 0; n < (indexes - 1); n++) {
-+		start = le64_to_cpu(table[n]);
-+		end = le64_to_cpu(table[n + 1]);
-+
-+		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+			kfree(table);
-+			return ERR_PTR(-EINVAL);
-+		}
-+	}
-+
-+	start = le64_to_cpu(table[indexes - 1]);
-+	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
-+		kfree(table);
-+		return ERR_PTR(-EINVAL);
-+	}
- 
--	TRACE("In read_xattr_index_table, length %d\n", len);
-+	if (*xattr_table_start >= le64_to_cpu(table[0])) {
-+		kfree(table);
-+		return ERR_PTR(-EINVAL);
-+	}
- 
--	return squashfs_read_table(sb, start + sizeof(*id_table), len);
-+	return table;
- }
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
+ 		atomic_dec(&task->io_uring->in_idle);
 
 
