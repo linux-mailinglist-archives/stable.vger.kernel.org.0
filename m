@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D36318E79
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B20C318E19
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbhBKP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:27:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
+        id S230050AbhBKPUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:20:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230433AbhBKPWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:22:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B58B64E92;
-        Thu, 11 Feb 2021 15:07:18 +0000 (UTC)
+        id S230119AbhBKPRm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:17:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15CD764EFA;
+        Thu, 11 Feb 2021 15:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613056038;
-        bh=SLwc77TFFMJcOP+AJWiuTTF5RNE/y47+UVh4py5mNUk=;
+        s=korg; t=1613055908;
+        bh=rmkHtqdHOAADIqXZNJsn2jznTd52r0jqSpRSJ7qc+mI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCa46gGiHYgqKKsqAU/75ch+UhWYKd8AbDgZO9eyce6XjmDv4qhSyWPSQpYz/qVfV
-         xejUELv4CJqapCBCrrCizFLwVpJYaOZCOLkMtMKn3uLPOGmSzXyH2aAEj1AtBVpzqV
-         b+djEEpGlBZ9G1CXIopq8EJR4D9QkDtLAg0gmS/o=
+        b=v7l7lBA4zoxfke2mm1B43ati2b3jr9XHBAGprDUW2NOqe+F41gfEmnjhd9u2JPUqF
+         f1WmpLHb6QetM1HK11Rv326GLv+xRgDtfBK0XAZq72WgJBMTb8HA/SFsY+FaO9L6Ft
+         lTqK9g8FPeyBZYFKbnql9DUDlWRWFKDE06TZE+E8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 04/24] remoteproc: qcom_q6v5_mss: Validate modem blob firmware size before load
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 54/54] squashfs: add more sanity checks in xattr id lookup
 Date:   Thu, 11 Feb 2021 16:02:38 +0100
-Message-Id: <20210211150147.944349082@linuxfoundation.org>
+Message-Id: <20210211150155.219688580@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150147.743660073@linuxfoundation.org>
-References: <20210211150147.743660073@linuxfoundation.org>
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +41,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <sibis@codeaurora.org>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-commit 135b9e8d1cd8ba5ac9ad9bcf24b464b7b052e5b8 upstream
+commit 506220d2ba21791314af569211ffd8870b8208fa upstream.
 
-The following mem abort is observed when one of the modem blob firmware
-size exceeds the allocated mpss region. Fix this by restricting the copy
-size to segment size using request_firmware_into_buf before load.
+Sysbot has reported a warning where a kmalloc() attempt exceeds the
+maximum limit.  This has been identified as corruption of the xattr_ids
+count when reading the xattr id lookup table.
 
-Err Logs:
-Unable to handle kernel paging request at virtual address
-Mem abort info:
-...
-Call trace:
-  __memcpy+0x110/0x180
-  rproc_start+0xd0/0x190
-  rproc_boot+0x404/0x550
-  state_store+0x54/0xf8
-  dev_attr_store+0x44/0x60
-  sysfs_kf_write+0x58/0x80
-  kernfs_fop_write+0x140/0x230
-  vfs_write+0xc4/0x208
-  ksys_write+0x74/0xf8
-...
+This patch adds a number of additional sanity checks to detect this
+corruption and others.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: 051fb70fd4ea4 ("remoteproc: qcom: Driver for the self-authenticating Hexagon v5")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20200722201047.12975-3-sibis@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-[sudip: manual backport to old file path]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+1. It checks for a corrupted xattr index read from the inode.  This could
+   be because the metadata block is uncompressed, or because the
+   "compression" bit has been corrupted (turning a compressed block
+   into an uncompressed block).  This would cause an out of bounds read.
+
+2. It checks against corruption of the xattr_ids count.  This can either
+   lead to the above kmalloc failure, or a smaller than expected
+   table to be read.
+
+3. It checks the contents of the index table for corruption.
+
+[phillip@squashfs.org.uk: fix checkpatch issue]
+  Link: https://lkml.kernel.org/r/270245655.754655.1612770082682@webmail.123-reg.co.uk
+
+Link: https://lkml.kernel.org/r/20210204130249.4495-5-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/remoteproc/qcom_q6v5_pil.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/squashfs/xattr_id.c |   66 ++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 57 insertions(+), 9 deletions(-)
 
---- a/drivers/remoteproc/qcom_q6v5_pil.c
-+++ b/drivers/remoteproc/qcom_q6v5_pil.c
-@@ -739,14 +739,13 @@ static int q6v5_mpss_load(struct q6v5 *q
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -31,10 +31,15 @@ int squashfs_xattr_lookup(struct super_b
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int block = SQUASHFS_XATTR_BLOCK(index);
+ 	int offset = SQUASHFS_XATTR_BLOCK_OFFSET(index);
+-	u64 start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++	u64 start_block;
+ 	struct squashfs_xattr_id id;
+ 	int err;
  
- 		if (phdr->p_filesz) {
- 			snprintf(seg_name, sizeof(seg_name), "modem.b%02d", i);
--			ret = request_firmware(&seg_fw, seg_name, qproc->dev);
-+			ret = request_firmware_into_buf(&seg_fw, seg_name, qproc->dev,
-+							ptr, phdr->p_filesz);
- 			if (ret) {
- 				dev_err(qproc->dev, "failed to load %s\n", seg_name);
- 				goto release_firmware;
- 			}
++	if (index >= msblk->xattr_ids)
++		return -EINVAL;
++
++	start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++
+ 	err = squashfs_read_metadata(sb, &id, &start_block, &offset,
+ 							sizeof(id));
+ 	if (err < 0)
+@@ -50,13 +55,17 @@ int squashfs_xattr_lookup(struct super_b
+ /*
+  * Read uncompressed xattr id lookup table indexes from disk into memory
+  */
+-__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 start,
++__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+ 		u64 *xattr_table_start, int *xattr_ids)
+ {
+-	unsigned int len;
++	struct squashfs_sb_info *msblk = sb->s_fs_info;
++	unsigned int len, indexes;
+ 	struct squashfs_xattr_id_table *id_table;
++	__le64 *table;
++	u64 start, end;
++	int n;
  
--			memcpy(ptr, seg_fw->data, seg_fw->size);
--
- 			release_firmware(seg_fw);
- 		}
+-	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
++	id_table = squashfs_read_table(sb, table_start, sizeof(*id_table));
+ 	if (IS_ERR(id_table))
+ 		return (__le64 *) id_table;
  
+@@ -70,13 +79,52 @@ __le64 *squashfs_read_xattr_id_table(str
+ 	if (*xattr_ids == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	/* xattr_table should be less than start */
+-	if (*xattr_table_start >= start)
++	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
++
++	/*
++	 * The computed size of the index table (len bytes) should exactly
++	 * match the table start and end points
++	 */
++	start = table_start + sizeof(*id_table);
++	end = msblk->bytes_used;
++
++	if (len != (end - start))
+ 		return ERR_PTR(-EINVAL);
+ 
+-	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	table = squashfs_read_table(sb, start, len);
++	if (IS_ERR(table))
++		return table;
++
++	/* table[0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed xattr id blocks.  Each entry should be less than
++	 * the next (i.e. table[0] < table[1]), and the difference between them
++	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
++	 * should be less than table_start, and again the difference
++	 * shouls be SQUASHFS_METADATA_SIZE or less.
++	 *
++	 * Finally xattr_table_start should be less than table[0].
++	 */
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	TRACE("In read_xattr_index_table, length %d\n", len);
++	if (*xattr_table_start >= le64_to_cpu(table[0])) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	return squashfs_read_table(sb, start + sizeof(*id_table), len);
++	return table;
+ }
 
 
