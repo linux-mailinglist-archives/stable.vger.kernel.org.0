@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC323318EC8
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB29318EDA
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbhBKPdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:33:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
+        id S229469AbhBKPgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:36:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231289AbhBKPbm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:31:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD52764E9C;
-        Thu, 11 Feb 2021 15:30:57 +0000 (UTC)
+        id S230360AbhBKPeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:34:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A89664DDF;
+        Thu, 11 Feb 2021 15:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613057458;
-        bh=9+DzES7+wmzyfIDycjBZRQiZdVPHPrvrWvKtPT/o9Qs=;
+        s=korg; t=1613057608;
+        bh=857gtv4KcGB952k5y4++kWatbCK8L7kM4ReKNrWqago=;
         h=Subject:To:From:Date:From;
-        b=wKF4viEvDgjwR8INxloxTrgWONI5I2ceAM96khH52FRV2Uw0gP8h8UAI1beMRdhkM
-         cO8+bFn6mM0yi8Mk3RJ7tLXNu4ZrqA5uwqIoBmGYY9IrP4SlESf7xmqDrHUyslhrJL
-         QGIPABUWlP9TpxUcWxZbSS0Ri50GfGQPXWexYv8c=
-Subject: patch "staging: gdm724x: Fix DMA from stack" added to staging-next
-To:     ameynarkhede03@gmail.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=S9PsO5jEoQuBqIDu9JDbT9QPBt5Raus2r4hduhQwP1wMuj6+Cfo5BaNuBATN6Bh0n
+         5tehlgn+g9ubypAD4oa63vLuhKTux1cE+ec3I7GNW9Vf7UXaSJnJwfiiVetbz3zkS/
+         Wi6KMSJ5FXLBxXrik9y0qzuaMFbKbYIpPdFNrz7w=
+Subject: patch "driver core: auxiliary bus: Fix calling stage for auxiliary bus init" added to driver-core-next
+To:     dave.jiang@intel.com, dan.j.williams@intel.com,
+        david.m.ertman@intel.com, gregkh@linuxfoundation.org,
+        jacob.jun.pan@intel.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 11 Feb 2021 16:30:55 +0100
-Message-ID: <161305745545233@kroah.com>
+Date:   Thu, 11 Feb 2021 16:33:26 +0100
+Message-ID: <161305760622254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +37,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: gdm724x: Fix DMA from stack
+    driver core: auxiliary bus: Fix calling stage for auxiliary bus init
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,56 +52,146 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 7c3a0635cd008eaca9a734dc802709ee0b81cac5 Mon Sep 17 00:00:00 2001
-From: Amey Narkhede <ameynarkhede03@gmail.com>
-Date: Thu, 11 Feb 2021 11:08:19 +0530
-Subject: staging: gdm724x: Fix DMA from stack
+From 471b12c43f376d5203dbff0e91316eea11f6f4df Mon Sep 17 00:00:00 2001
+From: Dave Jiang <dave.jiang@intel.com>
+Date: Wed, 10 Feb 2021 13:16:11 -0700
+Subject: driver core: auxiliary bus: Fix calling stage for auxiliary bus init
 
-Stack allocated buffers cannot be used for DMA
-on all architectures so allocate hci_packet buffer
-using kmalloc.
+When the auxiliary device code is built into the kernel, it can be executed
+before the auxiliary bus is registered. This causes bus->p to be not
+allocated and triggers a NULL pointer dereference when the auxiliary bus
+device gets added with bus_add_device(). Call the auxiliary_bus_init()
+under driver_init() so the bus is initialized before devices.
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Amey Narkhede <ameynarkhede03@gmail.com>
-Link: https://lore.kernel.org/r/20210211053819.34858-1-ameynarkhede03@gmail.com
+Below is the kernel splat for the bug:
+[ 1.948215] BUG: kernel NULL pointer dereference, address: 0000000000000060
+[ 1.950670] #PF: supervisor read access in kernel mode
+[ 1.950670] #PF: error_code(0x0000) - not-present page
+[ 1.950670] PGD 0
+[ 1.950670] Oops: 0000 1 SMP NOPTI
+[ 1.950670] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-intel-nextsvmtest+ #2205
+[ 1.950670] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[ 1.950670] RIP: 0010:bus_add_device+0x64/0x140
+[ 1.950670] Code: 00 49 8b 75 20 48 89 df e8 59 a1 ff ff 41 89 c4 85 c0 75 7b 48 8b 53 50 48 85 d2 75 03 48 8b 13 49 8b 85 a0 00 00 00 48 89 de <48> 8
+78 60 48 83 c7 18 e8 ef d9 a9 ff 41 89 c4 85 c0 75 45 48 8b
+[ 1.950670] RSP: 0000:ff46032ac001baf8 EFLAGS: 00010246
+[ 1.950670] RAX: 0000000000000000 RBX: ff4597f7414aa680 RCX: 0000000000000000
+[ 1.950670] RDX: ff4597f74142bbc0 RSI: ff4597f7414aa680 RDI: ff4597f7414aa680
+[ 1.950670] RBP: ff46032ac001bb10 R08: 0000000000000044 R09: 0000000000000228
+[ 1.950670] R10: ff4597f741141b30 R11: ff4597f740182a90 R12: 0000000000000000
+[ 1.950670] R13: ffffffffa5e936c0 R14: 0000000000000000 R15: 0000000000000000
+[ 1.950670] FS: 0000000000000000(0000) GS:ff4597f7bba00000(0000) knlGS:0000000000000000
+[ 1.950670] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1.950670] CR2: 0000000000000060 CR3: 000000002140c001 CR4: 0000000000f71ef0
+[ 1.950670] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1.950670] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
+[ 1.950670] PKRU: 55555554
+[ 1.950670] Call Trace:
+[ 1.950670] device_add+0x3ee/0x850
+[ 1.950670] __auxiliary_device_add+0x47/0x60
+[ 1.950670] idxd_pci_probe+0xf77/0x1180
+[ 1.950670] local_pci_probe+0x4a/0x90
+[ 1.950670] pci_device_probe+0xff/0x1b0
+[ 1.950670] really_probe+0x1cf/0x440
+[ 1.950670] ? rdinit_setup+0x31/0x31
+[ 1.950670] driver_probe_device+0xe8/0x150
+[ 1.950670] device_driver_attach+0x58/0x60
+[ 1.950670] __driver_attach+0x8f/0x150
+[ 1.950670] ? device_driver_attach+0x60/0x60
+[ 1.950670] ? device_driver_attach+0x60/0x60
+[ 1.950670] bus_for_each_dev+0x79/0xc0
+[ 1.950670] ? kmem_cache_alloc_trace+0x323/0x430
+[ 1.950670] driver_attach+0x1e/0x20
+[ 1.950670] bus_add_driver+0x154/0x1f0
+[ 1.950670] driver_register+0x70/0xc0
+[ 1.950670] __pci_register_driver+0x54/0x60
+[ 1.950670] idxd_init_module+0xe2/0xfc
+[ 1.950670] ? idma64_platform_driver_init+0x19/0x19
+[ 1.950670] do_one_initcall+0x4a/0x1e0
+[ 1.950670] kernel_init_freeable+0x1fc/0x25c
+[ 1.950670] ? rest_init+0xba/0xba
+[ 1.950670] kernel_init+0xe/0x116
+[ 1.950670] ret_from_fork+0x1f/0x30
+[ 1.950670] Modules linked in:
+[ 1.950670] CR2: 0000000000000060
+[ 1.950670] --[ end trace cd7d1b226d3ca901 ]--
+
+Fixes: 7de3697e9cbd ("Add auxiliary bus support")
+Reported-by: Jacob Pan <jacob.jun.pan@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Dave Ertman <david.m.ertman@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20210210201611.1611074-1-dave.jiang@intel.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/gdm724x/gdm_usb.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/base/auxiliary.c | 13 +++----------
+ drivers/base/base.h      |  5 +++++
+ drivers/base/init.c      |  1 +
+ 3 files changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/gdm724x/gdm_usb.c b/drivers/staging/gdm724x/gdm_usb.c
-index dc4da66c3695..54bdb64f52e8 100644
---- a/drivers/staging/gdm724x/gdm_usb.c
-+++ b/drivers/staging/gdm724x/gdm_usb.c
-@@ -56,20 +56,24 @@ static int gdm_usb_recv(void *priv_dev,
+diff --git a/drivers/base/auxiliary.c b/drivers/base/auxiliary.c
+index 8336535f1e11..d8b314e7d0fd 100644
+--- a/drivers/base/auxiliary.c
++++ b/drivers/base/auxiliary.c
+@@ -15,6 +15,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/string.h>
+ #include <linux/auxiliary_bus.h>
++#include "base.h"
  
- static int request_mac_address(struct lte_udev *udev)
- {
--	u8 buf[16] = {0,};
--	struct hci_packet *hci = (struct hci_packet *)buf;
-+	struct hci_packet *hci;
- 	struct usb_device *usbdev = udev->usbdev;
- 	int actual;
- 	int ret = -1;
- 
-+	hci = kmalloc(struct_size(hci, data, 1), GFP_KERNEL);
-+	if (!hci)
-+		return -ENOMEM;
-+
- 	hci->cmd_evt = gdm_cpu_to_dev16(udev->gdm_ed, LTE_GET_INFORMATION);
- 	hci->len = gdm_cpu_to_dev16(udev->gdm_ed, 1);
- 	hci->data[0] = MAC_ADDRESS;
- 
--	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), buf, 5,
-+	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), hci, 5,
- 			   &actual, 1000);
- 
- 	udev->request_mac_addr = 1;
-+	kfree(hci);
- 
- 	return ret;
+ static const struct auxiliary_device_id *auxiliary_match_id(const struct auxiliary_device_id *id,
+ 							    const struct auxiliary_device *auxdev)
+@@ -260,19 +261,11 @@ void auxiliary_driver_unregister(struct auxiliary_driver *auxdrv)
  }
+ EXPORT_SYMBOL_GPL(auxiliary_driver_unregister);
+ 
+-static int __init auxiliary_bus_init(void)
++void __init auxiliary_bus_init(void)
+ {
+-	return bus_register(&auxiliary_bus_type);
++	WARN_ON(bus_register(&auxiliary_bus_type));
+ }
+ 
+-static void __exit auxiliary_bus_exit(void)
+-{
+-	bus_unregister(&auxiliary_bus_type);
+-}
+-
+-module_init(auxiliary_bus_init);
+-module_exit(auxiliary_bus_exit);
+-
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("Auxiliary Bus");
+ MODULE_AUTHOR("David Ertman <david.m.ertman@intel.com>");
+diff --git a/drivers/base/base.h b/drivers/base/base.h
+index f5600a83124f..52b3d7b75c27 100644
+--- a/drivers/base/base.h
++++ b/drivers/base/base.h
+@@ -119,6 +119,11 @@ static inline int hypervisor_init(void) { return 0; }
+ extern int platform_bus_init(void);
+ extern void cpu_dev_init(void);
+ extern void container_dev_init(void);
++#ifdef CONFIG_AUXILIARY_BUS
++extern void auxiliary_bus_init(void);
++#else
++static inline void auxiliary_bus_init(void) { }
++#endif
+ 
+ struct kobject *virtual_device_parent(struct device *dev);
+ 
+diff --git a/drivers/base/init.c b/drivers/base/init.c
+index 908e6520e804..a9f57c22fb9e 100644
+--- a/drivers/base/init.c
++++ b/drivers/base/init.c
+@@ -32,6 +32,7 @@ void __init driver_init(void)
+ 	 */
+ 	of_core_init();
+ 	platform_bus_init();
++	auxiliary_bus_init();
+ 	cpu_dev_init();
+ 	memory_dev_init();
+ 	container_dev_init();
 -- 
 2.30.1
 
