@@ -2,79 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEC4318EA9
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC323318EC8
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229647AbhBKPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:32:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S231359AbhBKPdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231311AbhBKP2a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:28:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7543964D87;
-        Thu, 11 Feb 2021 15:27:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613057270;
-        bh=5CaJiFoG/fwUYfQnBEAeBMgRK+ntGqqdbkCchfAnmqc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GFw8GhBxfjdR5BlSWcHkeTPN1ufTNy6ZoFvRY9UAWUt/yCd+T3O89rE+jlB5Lul6O
-         qFQRlq2hEikTIOBZd5hsMqE3U9+mW7YbkjQhcsRHZvUr6FEvX6MQkP7QMxk8dbW/B6
-         /YZ6mzwTScvA52yvP8SzwTmYZzHSkzJZ4LMPvV6AUor6/gaNzUMmlFiZIv8fksyGAQ
-         NT2nKwpMeo03+0yeMOnR7GcDMnymqtLGIliv5JPIu8oOeZSvd5qTYKDMGTkmyabSth
-         Uf3GX8oe0RXr8aSqD0UPDEBpJ7bwBd8cSlvj7Y4scTJ+2tWf06X2q11nF3ggnq0p58
-         ejCWv6CF/66Dw==
-Date:   Thu, 11 Feb 2021 15:26:56 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Collins <collinsd@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 07/24] regulator: core: avoid
- regulator_resolve_supply() race condition
-Message-ID: <20210211152656.GD5217@sirena.org.uk>
-References: <20210211150147.743660073@linuxfoundation.org>
- <20210211150148.069380965@linuxfoundation.org>
+        id S231289AbhBKPbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:31:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD52764E9C;
+        Thu, 11 Feb 2021 15:30:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1613057458;
+        bh=9+DzES7+wmzyfIDycjBZRQiZdVPHPrvrWvKtPT/o9Qs=;
+        h=Subject:To:From:Date:From;
+        b=wKF4viEvDgjwR8INxloxTrgWONI5I2ceAM96khH52FRV2Uw0gP8h8UAI1beMRdhkM
+         cO8+bFn6mM0yi8Mk3RJ7tLXNu4ZrqA5uwqIoBmGYY9IrP4SlESf7xmqDrHUyslhrJL
+         QGIPABUWlP9TpxUcWxZbSS0Ri50GfGQPXWexYv8c=
+Subject: patch "staging: gdm724x: Fix DMA from stack" added to staging-next
+To:     ameynarkhede03@gmail.com, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Feb 2021 16:30:55 +0100
+Message-ID: <161305745545233@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="OaZoDhBhXzo6bW1J"
-Content-Disposition: inline
-In-Reply-To: <20210211150148.069380965@linuxfoundation.org>
-X-Cookie: Do not pick the flowers.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---OaZoDhBhXzo6bW1J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a note to let you know that I've just added the patch titled
 
-On Thu, Feb 11, 2021 at 04:02:41PM +0100, Greg Kroah-Hartman wrote:
-> From: David Collins <collinsd@codeaurora.org>
->=20
-> [ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
->=20
-> The final step in regulator_register() is to call
-> regulator_resolve_supply() for each registered regulator
+    staging: gdm724x: Fix DMA from stack
 
-This is buggy without a followup which doesn't seem to have been
-backported here.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
---OaZoDhBhXzo6bW1J
-Content-Type: application/pgp-signature; name="signature.asc"
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
------BEGIN PGP SIGNATURE-----
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmAlTL8ACgkQJNaLcl1U
-h9DW+gf+IS7hwdAZRY+j1bSIul433VAxLvBks9GcB7EwmixSKg9PC/2IofbYOTpA
-spNvrFMe5vREV5+7KTz6ZzViMLmy5ZQwhGYF8Uyn2SxsOTHhEh90zpvHyKpCeZlR
-owvCoQ2wNg3gbm30658skJQIc6YhstTIrPRWsw9cD3hs/TlhS2RX4HOHSqO17P65
-RE/76uU8/WoauqmcsVUELLrxOWzuasi8c9hJJZHLvpVgHOUvFPiHkBdMlQlqRMZ+
-q0YC/LokZmXIPM+jougbSfF7YUqq9oSKPVTgg0JMPIqAd8+BdKzY8o9HXoJnpsMn
-SaU0KO8G1f7tA+0lIvn3IFS53vYWKg==
-=wJ4/
------END PGP SIGNATURE-----
+If you have any questions about this process, please let me know.
 
---OaZoDhBhXzo6bW1J--
+
+From 7c3a0635cd008eaca9a734dc802709ee0b81cac5 Mon Sep 17 00:00:00 2001
+From: Amey Narkhede <ameynarkhede03@gmail.com>
+Date: Thu, 11 Feb 2021 11:08:19 +0530
+Subject: staging: gdm724x: Fix DMA from stack
+
+Stack allocated buffers cannot be used for DMA
+on all architectures so allocate hci_packet buffer
+using kmalloc.
+
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Amey Narkhede <ameynarkhede03@gmail.com>
+Link: https://lore.kernel.org/r/20210211053819.34858-1-ameynarkhede03@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/gdm724x/gdm_usb.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/gdm724x/gdm_usb.c b/drivers/staging/gdm724x/gdm_usb.c
+index dc4da66c3695..54bdb64f52e8 100644
+--- a/drivers/staging/gdm724x/gdm_usb.c
++++ b/drivers/staging/gdm724x/gdm_usb.c
+@@ -56,20 +56,24 @@ static int gdm_usb_recv(void *priv_dev,
+ 
+ static int request_mac_address(struct lte_udev *udev)
+ {
+-	u8 buf[16] = {0,};
+-	struct hci_packet *hci = (struct hci_packet *)buf;
++	struct hci_packet *hci;
+ 	struct usb_device *usbdev = udev->usbdev;
+ 	int actual;
+ 	int ret = -1;
+ 
++	hci = kmalloc(struct_size(hci, data, 1), GFP_KERNEL);
++	if (!hci)
++		return -ENOMEM;
++
+ 	hci->cmd_evt = gdm_cpu_to_dev16(udev->gdm_ed, LTE_GET_INFORMATION);
+ 	hci->len = gdm_cpu_to_dev16(udev->gdm_ed, 1);
+ 	hci->data[0] = MAC_ADDRESS;
+ 
+-	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), buf, 5,
++	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), hci, 5,
+ 			   &actual, 1000);
+ 
+ 	udev->request_mac_addr = 1;
++	kfree(hci);
+ 
+ 	return ret;
+ }
+-- 
+2.30.1
+
+
