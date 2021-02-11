@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6093B318DE9
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F513318E65
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbhBKPOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:14:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
+        id S230132AbhBKP0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:26:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230031AbhBKPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:10:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4BB64DE9;
-        Thu, 11 Feb 2021 15:03:43 +0000 (UTC)
+        id S230027AbhBKPJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:09:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9F1D64ECA;
+        Thu, 11 Feb 2021 15:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055823;
-        bh=g0jnqO8DlA/7RA7rV5xrQmRpl8bFcYn5/QDQbmd3AsM=;
+        s=korg; t=1613055826;
+        bh=chsoQVgOMFMKf0kMZfwuHu6gkK472skam4SXRssOxjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIod9L2KmGUzKemgB67s7vFou2BtiU2QZ7Km0KGTHZdy7OSNa/fOOtJH36+2/DpEF
-         4HHiT/bcNsdj/dxIMTkPZ6mVYkLqWinhQzCVzlUQQe4mSMeZgeoUrMjr0hz3DY2Z9y
-         7KPIoLTLv1An2n3szXxU6crANF6WoJjHcjheWyWE=
+        b=mlZAjbqZ1fISw3FPNpwzPjvjVcjYZR2sZ6na8MZAmfmesFM7T1CKIlj9cz+9wacXh
+         J4rzGk5RcV/p/e5Qz0o+Ngnp2bAwjzzTvzFlVJso62EXhc11JcjvTJItW1wYru45ta
+         sxQ7WOb/AH+efMSTWjQ1IjuDYZrUxFplOG1C+2hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
+        stable@vger.kernel.org, James Schulman <james.schulman@cirrus.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/54] regulator: core: avoid regulator_resolve_supply() race condition
-Date:   Thu, 11 Feb 2021 16:02:04 +0100
-Message-Id: <20210211150153.763514141@linuxfoundation.org>
+Subject: [PATCH 5.10 21/54] ASoC: wm_adsp: Fix control name parsing for multi-fw
+Date:   Thu, 11 Feb 2021 16:02:05 +0100
+Message-Id: <20210211150153.806525427@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -40,153 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+From: James Schulman <james.schulman@cirrus.com>
 
-[ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
+[ Upstream commit a8939f2e138e418c2b059056ff5b501eaf2eae54 ]
 
-The final step in regulator_register() is to call
-regulator_resolve_supply() for each registered regulator
-(including the one in the process of being registered).  The
-regulator_resolve_supply() function first checks if rdev->supply
-is NULL, then it performs various steps to try to find the supply.
-If successful, rdev->supply is set inside of set_supply().
+When switching between firmware types, the wrong control
+can be selected when requesting control in kernel API.
+Use the currently selected DSP firwmare type to select
+the proper mixer control.
 
-This procedure can encounter a race condition if two concurrent
-tasks call regulator_register() near to each other on separate CPUs
-and one of the regulators has rdev->supply_name specified.  There
-is currently nothing guaranteeing atomicity between the rdev->supply
-check and set steps.  Thus, both tasks can observe rdev->supply==NULL
-in their regulator_resolve_supply() calls.  This then results in
-both creating a struct regulator for the supply.  One ends up
-actually stored in rdev->supply and the other is lost (though still
-present in the supply's consumer_list).
-
-Here is a kernel log snippet showing the issue:
-
-[   12.421768] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
-[   12.425854] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
-[   12.429064] debugfs: Directory 'regulator.4-SUPPLY' with parent
-               '17a00000.rsc:rpmh-regulator-gfxlvl-pm8350_s5_level'
-               already present!
-
-Avoid this race condition by holding the rdev->mutex lock inside
-of regulator_resolve_supply() while checking and setting
-rdev->supply.
-
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Link: https://lore.kernel.org/r/1610068562-4410-1-git-send-email-collinsd@codeaurora.org
+Signed-off-by: James Schulman <james.schulman@cirrus.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210115201105.14075-1-james.schulman@cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 39 ++++++++++++++++++++++++++++-----------
- 1 file changed, 28 insertions(+), 11 deletions(-)
+ sound/soc/codecs/wm_adsp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 42bbd99a36acf..2c31f04ff950f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1813,23 +1813,34 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index dec8716aa8ef5..985b2dcecf138 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -2031,11 +2031,14 @@ static struct wm_coeff_ctl *wm_adsp_get_ctl(struct wm_adsp *dsp,
+ 					     unsigned int alg)
  {
- 	struct regulator_dev *r;
- 	struct device *dev = rdev->dev.parent;
--	int ret;
-+	int ret = 0;
+ 	struct wm_coeff_ctl *pos, *rslt = NULL;
++	const char *fw_txt = wm_adsp_fw_text[dsp->fw];
  
- 	/* No supply to resolve? */
- 	if (!rdev->supply_name)
- 		return 0;
- 
--	/* Supply already resolved? */
-+	/* Supply already resolved? (fast-path without locking contention) */
- 	if (rdev->supply)
- 		return 0;
- 
-+	/*
-+	 * Recheck rdev->supply with rdev->mutex lock held to avoid a race
-+	 * between rdev->supply null check and setting rdev->supply in
-+	 * set_supply() from concurrent tasks.
-+	 */
-+	regulator_lock(rdev);
-+
-+	/* Supply just resolved by a concurrent task? */
-+	if (rdev->supply)
-+		goto out;
-+
- 	r = regulator_dev_lookup(dev, rdev->supply_name);
- 	if (IS_ERR(r)) {
- 		ret = PTR_ERR(r);
- 
- 		/* Did the lookup explicitly defer for us? */
- 		if (ret == -EPROBE_DEFER)
--			return ret;
-+			goto out;
- 
- 		if (have_full_constraints()) {
- 			r = dummy_regulator_rdev;
-@@ -1837,15 +1848,18 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 		} else {
- 			dev_err(dev, "Failed to resolve %s-supply for %s\n",
- 				rdev->supply_name, rdev->desc->name);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto out;
- 		}
- 	}
- 
- 	if (r == rdev) {
- 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
- 			rdev->desc->name, rdev->supply_name);
--		if (!have_full_constraints())
--			return -EINVAL;
-+		if (!have_full_constraints()) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		r = dummy_regulator_rdev;
- 		get_device(&r->dev);
- 	}
-@@ -1859,7 +1873,8 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 	if (r->dev.parent && r->dev.parent != rdev->dev.parent) {
- 		if (!device_is_bound(r->dev.parent)) {
- 			put_device(&r->dev);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto out;
- 		}
- 	}
- 
-@@ -1867,13 +1882,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 	ret = regulator_resolve_supply(r);
- 	if (ret < 0) {
- 		put_device(&r->dev);
--		return ret;
-+		goto out;
- 	}
- 
- 	ret = set_supply(rdev, r);
- 	if (ret < 0) {
- 		put_device(&r->dev);
--		return ret;
-+		goto out;
- 	}
- 
- 	/*
-@@ -1886,11 +1901,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 		if (ret < 0) {
- 			_regulator_put(rdev->supply);
- 			rdev->supply = NULL;
--			return ret;
-+			goto out;
- 		}
- 	}
- 
--	return 0;
-+out:
-+	regulator_unlock(rdev);
-+	return ret;
- }
- 
- /* Internal regulator request function */
+ 	list_for_each_entry(pos, &dsp->ctl_list, list) {
+ 		if (!pos->subname)
+ 			continue;
+ 		if (strncmp(pos->subname, name, pos->subname_len) == 0 &&
++		    strncmp(pos->fw_name, fw_txt,
++			    SNDRV_CTL_ELEM_ID_NAME_MAXLEN) == 0 &&
+ 				pos->alg_region.alg == alg &&
+ 				pos->alg_region.type == type) {
+ 			rslt = pos;
 -- 
 2.27.0
 
