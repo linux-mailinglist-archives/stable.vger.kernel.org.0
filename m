@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C7A318E63
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6093B318DE9
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbhBKPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:25:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51442 "EHLO mail.kernel.org"
+        id S229743AbhBKPOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:14:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230132AbhBKPJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:09:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 822E064EC0;
-        Thu, 11 Feb 2021 15:03:37 +0000 (UTC)
+        id S230031AbhBKPKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:10:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4BB64DE9;
+        Thu, 11 Feb 2021 15:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055818;
-        bh=TCV7KUcTSr1en8/CCzAjSD+7rg3xTxSgUfFS669nnVU=;
+        s=korg; t=1613055823;
+        bh=g0jnqO8DlA/7RA7rV5xrQmRpl8bFcYn5/QDQbmd3AsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxXc628mxBkKqT8JsFkPy4z6kcRFxhkCo4YA56PGebBSFxIpU5xNLHBO0yLCMGci0
-         OK1fDOse/0NM85vrkX1vWrLuUWk6IchpItvJdxc6X8Oz5nVcuc6TYUYVIu3wrwlwHK
-         xz8IO3fFjPOkyBNTVSt4zqW+3nDBHVUHfpZAX/GE=
+        b=GIod9L2KmGUzKemgB67s7vFou2BtiU2QZ7Km0KGTHZdy7OSNa/fOOtJH36+2/DpEF
+         4HHiT/bcNsdj/dxIMTkPZ6mVYkLqWinhQzCVzlUQQe4mSMeZgeoUrMjr0hz3DY2Z9y
+         7KPIoLTLv1An2n3szXxU6crANF6WoJjHcjheWyWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b2bf2652983d23734c5c@syzkaller.appspotmail.com,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Cong Wang <cong.wang@bytedance.com>,
+        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/54] af_key: relax availability checks for skb size calculation
-Date:   Thu, 11 Feb 2021 16:02:03 +0100
-Message-Id: <20210211150153.714973166@linuxfoundation.org>
+Subject: [PATCH 5.10 20/54] regulator: core: avoid regulator_resolve_supply() race condition
+Date:   Thu, 11 Feb 2021 16:02:04 +0100
+Message-Id: <20210211150153.763514141@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -43,62 +40,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: David Collins <collinsd@codeaurora.org>
 
-[ Upstream commit afbc293add6466f8f3f0c3d944d85f53709c170f ]
+[ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
 
-xfrm_probe_algs() probes kernel crypto modules and changes the
-availability of struct xfrm_algo_desc. But there is a small window
-where ealg->available and aalg->available get changed between
-count_ah_combs()/count_esp_combs() and dump_ah_combs()/dump_esp_combs(),
-in this case we may allocate a smaller skb but later put a larger
-amount of data and trigger the panic in skb_put().
+The final step in regulator_register() is to call
+regulator_resolve_supply() for each registered regulator
+(including the one in the process of being registered).  The
+regulator_resolve_supply() function first checks if rdev->supply
+is NULL, then it performs various steps to try to find the supply.
+If successful, rdev->supply is set inside of set_supply().
 
-Fix this by relaxing the checks when counting the size, that is,
-skipping the test of ->available. We may waste some memory for a few
-of sizeof(struct sadb_comb), but it is still much better than a panic.
+This procedure can encounter a race condition if two concurrent
+tasks call regulator_register() near to each other on separate CPUs
+and one of the regulators has rdev->supply_name specified.  There
+is currently nothing guaranteeing atomicity between the rdev->supply
+check and set steps.  Thus, both tasks can observe rdev->supply==NULL
+in their regulator_resolve_supply() calls.  This then results in
+both creating a struct regulator for the supply.  One ends up
+actually stored in rdev->supply and the other is lost (though still
+present in the supply's consumer_list).
 
-Reported-by: syzbot+b2bf2652983d23734c5c@syzkaller.appspotmail.com
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Here is a kernel log snippet showing the issue:
+
+[   12.421768] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
+[   12.425854] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
+[   12.429064] debugfs: Directory 'regulator.4-SUPPLY' with parent
+               '17a00000.rsc:rpmh-regulator-gfxlvl-pm8350_s5_level'
+               already present!
+
+Avoid this race condition by holding the rdev->mutex lock inside
+of regulator_resolve_supply() while checking and setting
+rdev->supply.
+
+Signed-off-by: David Collins <collinsd@codeaurora.org>
+Link: https://lore.kernel.org/r/1610068562-4410-1-git-send-email-collinsd@codeaurora.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/core.c | 39 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 11 deletions(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index c12dbc51ef5fe..ef9b4ac03e7b7 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -2902,7 +2902,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
- 			break;
- 		if (!aalg->pfkey_supported)
- 			continue;
--		if (aalg_tmpl_set(t, aalg) && aalg->available)
-+		if (aalg_tmpl_set(t, aalg))
- 			sz += sizeof(struct sadb_comb);
- 	}
- 	return sz + sizeof(struct sadb_prop);
-@@ -2920,7 +2920,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
- 		if (!ealg->pfkey_supported)
- 			continue;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 42bbd99a36acf..2c31f04ff950f 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1813,23 +1813,34 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ {
+ 	struct regulator_dev *r;
+ 	struct device *dev = rdev->dev.parent;
+-	int ret;
++	int ret = 0;
  
--		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
-+		if (!(ealg_tmpl_set(t, ealg)))
- 			continue;
+ 	/* No supply to resolve? */
+ 	if (!rdev->supply_name)
+ 		return 0;
  
- 		for (k = 1; ; k++) {
-@@ -2931,7 +2931,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
- 			if (!aalg->pfkey_supported)
- 				continue;
+-	/* Supply already resolved? */
++	/* Supply already resolved? (fast-path without locking contention) */
+ 	if (rdev->supply)
+ 		return 0;
  
--			if (aalg_tmpl_set(t, aalg) && aalg->available)
-+			if (aalg_tmpl_set(t, aalg))
- 				sz += sizeof(struct sadb_comb);
++	/*
++	 * Recheck rdev->supply with rdev->mutex lock held to avoid a race
++	 * between rdev->supply null check and setting rdev->supply in
++	 * set_supply() from concurrent tasks.
++	 */
++	regulator_lock(rdev);
++
++	/* Supply just resolved by a concurrent task? */
++	if (rdev->supply)
++		goto out;
++
+ 	r = regulator_dev_lookup(dev, rdev->supply_name);
+ 	if (IS_ERR(r)) {
+ 		ret = PTR_ERR(r);
+ 
+ 		/* Did the lookup explicitly defer for us? */
+ 		if (ret == -EPROBE_DEFER)
+-			return ret;
++			goto out;
+ 
+ 		if (have_full_constraints()) {
+ 			r = dummy_regulator_rdev;
+@@ -1837,15 +1848,18 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 		} else {
+ 			dev_err(dev, "Failed to resolve %s-supply for %s\n",
+ 				rdev->supply_name, rdev->desc->name);
+-			return -EPROBE_DEFER;
++			ret = -EPROBE_DEFER;
++			goto out;
  		}
  	}
+ 
+ 	if (r == rdev) {
+ 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
+ 			rdev->desc->name, rdev->supply_name);
+-		if (!have_full_constraints())
+-			return -EINVAL;
++		if (!have_full_constraints()) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		r = dummy_regulator_rdev;
+ 		get_device(&r->dev);
+ 	}
+@@ -1859,7 +1873,8 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 	if (r->dev.parent && r->dev.parent != rdev->dev.parent) {
+ 		if (!device_is_bound(r->dev.parent)) {
+ 			put_device(&r->dev);
+-			return -EPROBE_DEFER;
++			ret = -EPROBE_DEFER;
++			goto out;
+ 		}
+ 	}
+ 
+@@ -1867,13 +1882,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 	ret = regulator_resolve_supply(r);
+ 	if (ret < 0) {
+ 		put_device(&r->dev);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	ret = set_supply(rdev, r);
+ 	if (ret < 0) {
+ 		put_device(&r->dev);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -1886,11 +1901,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 		if (ret < 0) {
+ 			_regulator_put(rdev->supply);
+ 			rdev->supply = NULL;
+-			return ret;
++			goto out;
+ 		}
+ 	}
+ 
+-	return 0;
++out:
++	regulator_unlock(rdev);
++	return ret;
+ }
+ 
+ /* Internal regulator request function */
 -- 
 2.27.0
 
