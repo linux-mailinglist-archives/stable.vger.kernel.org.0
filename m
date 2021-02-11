@@ -2,75 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73ADA318851
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6383F318853
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:39:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229647AbhBKKhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 05:37:21 -0500
-Received: from mail.jv-coder.de ([5.9.79.73]:33570 "EHLO mail.jv-coder.de"
+        id S229821AbhBKKiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 05:38:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230050AbhBKKfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 05:35:02 -0500
-Received: from [192.168.178.40] (unknown [188.192.1.224])
-        by mail.jv-coder.de (Postfix) with ESMTPSA id 05F05A14B9;
-        Thu, 11 Feb 2021 10:34:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jv-coder.de; s=dkim;
-        t=1613039645; bh=LcTRFOTkQnbeyfl+wKEoO2VXLucFdQjucP6C5s8Ghi4=;
-        h=Subject:To:From:Message-ID:Date:MIME-Version;
-        b=RRtRczBY7+J2dheRBG9l8IVaj/QeXTzt/uDQLjUe59cHorIo7eoK0BeHSSeJ5XOlR
-         f6vaWGCAENKeABhqg6UuIT/92XQ/vQFAztWj3CaROjsOXRvXFqVmCp262TyHKFknUd
-         cFI3722tozEazAXmFlR8ncRY9p4GoDIXpr2YPkpg=
-Subject: Re: [4.14] Failing selftest timer/adjtick
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        lkft-triage@lists.linaro.org
-References: <e76744b3-342a-1f75-cba6-51fd8b01c5ce@jv-coder.de>
- <YCPZA7nkGGDru3xw@kroah.com>
- <239b8a9a-d550-11e3-4650-39ad5bd85013@jv-coder.de>
- <20210210131916.GC1903164@localhost>
- <CA+G9fYuQL9=gJJtWp7wHRzY1dc4q-Be4XjrZJUmYTJUbDEN=dA@mail.gmail.com>
-From:   Joerg Vehlow <lkml@jv-coder.de>
-Message-ID: <4fa3c57d-23ea-2f8c-72fe-d23f3146f571@jv-coder.de>
-Date:   Thu, 11 Feb 2021 11:34:58 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S230311AbhBKKgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 05:36:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCA6D64E8B;
+        Thu, 11 Feb 2021 10:35:31 +0000 (UTC)
+Date:   Thu, 11 Feb 2021 10:35:29 +0000
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Luis Machado <luis.machado@linaro.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        David Spickett <david.spickett@linaro.org>
+Subject: Re: [PATCH] arm64: mte: Allow PTRACE_PEEKMTETAGS access to the zero
+ page
+Message-ID: <20210211103528.GA12106@arm.com>
+References: <20210210180316.23654-1-catalin.marinas@arm.com>
+ <0916e89e-46b5-6002-7f9d-5d1df9e3e205@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <CA+G9fYuQL9=gJJtWp7wHRzY1dc4q-Be4XjrZJUmYTJUbDEN=dA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Spam-Status: No, score=-3.3 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A
-        autolearn=ham autolearn_force=no version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on mail.jv-coder.de
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0916e89e-46b5-6002-7f9d-5d1df9e3e205@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, Feb 10, 2021 at 03:52:18PM -0300, Luis Machado wrote:
+> On 2/10/21 3:03 PM, Catalin Marinas wrote:
+> > The ptrace(PTRACE_PEEKMTETAGS) implementation checks whether the user
+> > page has valid tags (mapped with PROT_MTE) by testing the PG_mte_tagged
+> > page flag. If this bit is cleared, ptrace(PTRACE_PEEKMTETAGS) returns
+> > -EIO.
+> > 
+> > A newly created (PROT_MTE) mapping points to the zero page which had its
+> > tags zeroed during cpu_enable_mte(). If there were no prior writes to
+> > this mapping, ptrace(PTRACE_PEEKMTETAGS) fails with -EIO since the zero
+> > page does not have the PG_mte_tagged flag set.
+> > 
+> > Set PG_mte_tagged on the zero page when its tags are cleared during
+> > boot. In addition, to avoid ptrace(PTRACE_PEEKMTETAGS) succeeding on
+> > !PROT_MTE mappings pointing to the zero page, change the
+> > __access_remote_tags() check to (vm_flags & VM_MTE) instead of
+> > PG_mte_tagged.
+> > 
+> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> > Fixes: 34bfeea4a9e9 ("arm64: mte: Clear the tags when a page is mapped in user-space with PROT_MTE")
+> > Cc: <stable@vger.kernel.org> # 5.10.x
+> > Cc: Will Deacon <will@kernel.org>
+> > Reported-by: Luis Machado <luis.machado@linaro.org>
+[...]
+> Thanks. I gave this a try and it works as expected. So memory that is
+> PROT_MTE but has not been accessed yet can be inspected with PEEKMTETAGS
+> without getting an EIO back.
 
-On 2/10/2021 7:59 PM, Naresh Kamboju wrote:
-> I have tested adjtick on arm64 juno-r2 device and it got pass
-> and here is the test output on Linux version 4.14.221-rc1.
-Interesting. Is this vanilla 4.14.221 or are there some o-e patches applied?
-I just tried again on qemu arm with 4.14.222 from kernel.org stable tree 
-and still have failures like the one below every time I try. The failing 
-test step differs, but it always fails.
+Thanks. I assume I can add your tested-by.
 
-Each iteration takes about 15 seconds
-Estimating tick (act: 9000 usec, -100000 ppm): 9000 usec, -100000 ppm    
-[OK]
-Estimating tick (act: 9250 usec, -75000 ppm): 9250 usec, -75001 ppm    [OK]
-Estimating tick (act: 9500 usec, -50000 ppm): 9501 usec, -49995 ppm    [OK]
-Estimating tick (act: 9750 usec, -25000 ppm): 9750 usec, -25003 ppm    [OK]
-Estimating tick (act: 10000 usec, 0 ppm): 9996 usec, -463 ppm [FAILED]
-Bail out!
-Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
-1..0
-
-
-Joerg
+-- 
+Catalin
