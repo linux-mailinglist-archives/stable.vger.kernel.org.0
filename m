@@ -2,117 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AB71318ECC
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEC4318EA9
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbhBKPee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:34:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
+        id S229647AbhBKPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231422AbhBKPcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:32:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE50D64F0E;
-        Thu, 11 Feb 2021 15:05:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055948;
-        bh=7HAX9sU+l6BNdNYSlFXNawad2Tcj2aC8xHHqNBYP1s8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkdp3GtNvD8DbDw963Ud1bowS/7Vx1xdwoSuB7FzRdk/EI4xes4lpWgyj2ym8eX1o
-         vzV33txmm2e22/DG6HaSjIasQ5eOQomiJTdzoLie+UGbVf22s1uoqqwl9nS8VRZIFr
-         kbDaKnlW13++Mc3k6xeC8ORWIl0JnlynsYk2w/GA=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        id S231311AbhBKP2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:28:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7543964D87;
+        Thu, 11 Feb 2021 15:27:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613057270;
+        bh=5CaJiFoG/fwUYfQnBEAeBMgRK+ntGqqdbkCchfAnmqc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GFw8GhBxfjdR5BlSWcHkeTPN1ufTNy6ZoFvRY9UAWUt/yCd+T3O89rE+jlB5Lul6O
+         qFQRlq2hEikTIOBZd5hsMqE3U9+mW7YbkjQhcsRHZvUr6FEvX6MQkP7QMxk8dbW/B6
+         /YZ6mzwTScvA52yvP8SzwTmYZzHSkzJZ4LMPvV6AUor6/gaNzUMmlFiZIv8fksyGAQ
+         NT2nKwpMeo03+0yeMOnR7GcDMnymqtLGIliv5JPIu8oOeZSvd5qTYKDMGTkmyabSth
+         Uf3GX8oe0RXr8aSqD0UPDEBpJ7bwBd8cSlvj7Y4scTJ+2tWf06X2q11nF3ggnq0p58
+         ejCWv6CF/66Dw==
+Date:   Thu, 11 Feb 2021 15:26:56 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Collins <collinsd@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/24] SUNRPC: Handle 0 length opaque XDR object data properly
-Date:   Thu, 11 Feb 2021 16:02:39 +0100
-Message-Id: <20210211150149.223655608@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-References: <20210211150148.516371325@linuxfoundation.org>
-User-Agent: quilt/0.66
+Subject: Re: [PATCH 4.19 07/24] regulator: core: avoid
+ regulator_resolve_supply() race condition
+Message-ID: <20210211152656.GD5217@sirena.org.uk>
+References: <20210211150147.743660073@linuxfoundation.org>
+ <20210211150148.069380965@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="OaZoDhBhXzo6bW1J"
+Content-Disposition: inline
+In-Reply-To: <20210211150148.069380965@linuxfoundation.org>
+X-Cookie: Do not pick the flowers.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit e4a7d1f7707eb44fd953a31dd59eff82009d879c ]
+--OaZoDhBhXzo6bW1J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-When handling an auth_gss downcall, it's possible to get 0-length
-opaque object for the acceptor.  In the case of a 0-length XDR
-object, make sure simple_get_netobj() fills in dest->data = NULL,
-and does not continue to kmemdup() which will set
-dest->data = ZERO_SIZE_PTR for the acceptor.
+On Thu, Feb 11, 2021 at 04:02:41PM +0100, Greg Kroah-Hartman wrote:
+> From: David Collins <collinsd@codeaurora.org>
+>=20
+> [ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
+>=20
+> The final step in regulator_register() is to call
+> regulator_resolve_supply() for each registered regulator
 
-The trace event code can handle NULL but not ZERO_SIZE_PTR for a
-string, and so without this patch the rpcgss_context trace event
-will crash the kernel as follows:
+This is buggy without a followup which doesn't seem to have been
+backported here.
 
-[  162.887992] BUG: kernel NULL pointer dereference, address: 0000000000000010
-[  162.898693] #PF: supervisor read access in kernel mode
-[  162.900830] #PF: error_code(0x0000) - not-present page
-[  162.902940] PGD 0 P4D 0
-[  162.904027] Oops: 0000 [#1] SMP PTI
-[  162.905493] CPU: 4 PID: 4321 Comm: rpc.gssd Kdump: loaded Not tainted 5.10.0 #133
-[  162.908548] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[  162.910978] RIP: 0010:strlen+0x0/0x20
-[  162.912505] Code: 48 89 f9 74 09 48 83 c1 01 80 39 00 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 0f 1f 80 00 00 00 00 <80> 3f 00 74 10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3 31
-[  162.920101] RSP: 0018:ffffaec900c77d90 EFLAGS: 00010202
-[  162.922263] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000fffde697
-[  162.925158] RDX: 000000000000002f RSI: 0000000000000080 RDI: 0000000000000010
-[  162.928073] RBP: 0000000000000010 R08: 0000000000000e10 R09: 0000000000000000
-[  162.930976] R10: ffff8e698a590cb8 R11: 0000000000000001 R12: 0000000000000e10
-[  162.933883] R13: 00000000fffde697 R14: 000000010034d517 R15: 0000000000070028
-[  162.936777] FS:  00007f1e1eb93700(0000) GS:ffff8e6ab7d00000(0000) knlGS:0000000000000000
-[  162.940067] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  162.942417] CR2: 0000000000000010 CR3: 0000000104eba000 CR4: 00000000000406e0
-[  162.945300] Call Trace:
-[  162.946428]  trace_event_raw_event_rpcgss_context+0x84/0x140 [auth_rpcgss]
-[  162.949308]  ? __kmalloc_track_caller+0x35/0x5a0
-[  162.951224]  ? gss_pipe_downcall+0x3a3/0x6a0 [auth_rpcgss]
-[  162.953484]  gss_pipe_downcall+0x585/0x6a0 [auth_rpcgss]
-[  162.955953]  rpc_pipe_write+0x58/0x70 [sunrpc]
-[  162.957849]  vfs_write+0xcb/0x2c0
-[  162.959264]  ksys_write+0x68/0xe0
-[  162.960706]  do_syscall_64+0x33/0x40
-[  162.962238]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  162.964346] RIP: 0033:0x7f1e1f1e57df
+--OaZoDhBhXzo6bW1J
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/sunrpc/auth_gss/auth_gss_internal.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/net/sunrpc/auth_gss/auth_gss_internal.h b/net/sunrpc/auth_gss/auth_gss_internal.h
-index c5603242b54bf..f6d9631bd9d00 100644
---- a/net/sunrpc/auth_gss/auth_gss_internal.h
-+++ b/net/sunrpc/auth_gss/auth_gss_internal.h
-@@ -34,9 +34,12 @@ simple_get_netobj(const void *p, const void *end, struct xdr_netobj *dest)
- 	q = (const void *)((const char *)p + len);
- 	if (unlikely(q > end || q < p))
- 		return ERR_PTR(-EFAULT);
--	dest->data = kmemdup(p, len, GFP_NOFS);
--	if (unlikely(dest->data == NULL))
--		return ERR_PTR(-ENOMEM);
-+	if (len) {
-+		dest->data = kmemdup(p, len, GFP_NOFS);
-+		if (unlikely(dest->data == NULL))
-+			return ERR_PTR(-ENOMEM);
-+	} else
-+		dest->data = NULL;
- 	dest->len = len;
- 	return q;
- }
--- 
-2.27.0
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmAlTL8ACgkQJNaLcl1U
+h9DW+gf+IS7hwdAZRY+j1bSIul433VAxLvBks9GcB7EwmixSKg9PC/2IofbYOTpA
+spNvrFMe5vREV5+7KTz6ZzViMLmy5ZQwhGYF8Uyn2SxsOTHhEh90zpvHyKpCeZlR
+owvCoQ2wNg3gbm30658skJQIc6YhstTIrPRWsw9cD3hs/TlhS2RX4HOHSqO17P65
+RE/76uU8/WoauqmcsVUELLrxOWzuasi8c9hJJZHLvpVgHOUvFPiHkBdMlQlqRMZ+
+q0YC/LokZmXIPM+jougbSfF7YUqq9oSKPVTgg0JMPIqAd8+BdKzY8o9HXoJnpsMn
+SaU0KO8G1f7tA+0lIvn3IFS53vYWKg==
+=wJ4/
+-----END PGP SIGNATURE-----
 
-
-
+--OaZoDhBhXzo6bW1J--
