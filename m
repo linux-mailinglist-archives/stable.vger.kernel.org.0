@@ -2,134 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72563182AF
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 01:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 539D03182BC
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 01:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229584AbhBKAk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Feb 2021 19:40:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60418 "EHLO
+        id S230307AbhBKAvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Feb 2021 19:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbhBKAk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 19:40:27 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28975C06174A
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 16:39:47 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id s15so2227833plr.9
-        for <stable@vger.kernel.org>; Wed, 10 Feb 2021 16:39:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uRy5B4JpCR46FeM+9np/TBQhKn4GOftMeU83Z3wenmg=;
-        b=MuF9tstiv5TJkCtGIc8fAEjGLSB8xwERHVbDRsFh8P6873J2yI+Z8qrBNd/YAY9ouc
-         ZsL8hOVK68u6gvFhl923bRGxOwO0QIb/z9K9I6ROnmsbkamHqIBpm8urlVd9yyVkvO0f
-         GbW86UVD6mF6IhcrvwjQAJJbowBh4gUG4NRw8nl0FeBPuvtDlymzb6hmpvKhOGVfynpM
-         b13EZYaECe+gwa0PO8BNlxwt9AvGeyxre7FfIINYAgl1Rphj3/5PLprVPx0JOkA76kXq
-         J9oWH9ZxOvNkljyizQRzEPor88Y7ekumzwL0p4ilqiqKujz4q+oES72aNyxttC7zEHDY
-         rcJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uRy5B4JpCR46FeM+9np/TBQhKn4GOftMeU83Z3wenmg=;
-        b=grVKZ6FqiZbZzVlUmeNdd6vDiQt//+n5LJC1WpwK0u30XratP5Th+oq1dkVi54XVZO
-         yJe2LV2pPuodPq5M5FJacOtmdaPyklAMZxDs3mWMPZFmFD3ZH/FO7eDLEA97cFwcTDuK
-         l3GhT9Bw2y9Mcwzp0eSHiZ1qgTMu4/twDXzEVtULcDZJVvHnl7r6rORquB7U/kS9yxWw
-         BbMOWECLc4++VgSPeoYMwuiX1gzH9FQmJ/268Pkev1ci+Xyts+u6BoUaPOWtuOpPI7f2
-         B7qiko+2j6x/vBaqUCByak6gvhTJIjcF/luEPA5UUD0Zm71vQxpRm7KVpS7kISD00VJX
-         RbQA==
-X-Gm-Message-State: AOAM533Lr4PWXluh0+G6izAzZwMh+MkFgKZMV/b49cQb3tPI8vRphMYB
-        mCnrZ5V3sd/DqRa3Zw/ttXedrTz/aGjVrg==
-X-Google-Smtp-Source: ABdhPJy/6natHTiLtpIMWC+LDPwItPvxT/sc4cvifQX/7SPmvSJoDZRjNqgH/IZkzHD2V7cZY08cvw==
-X-Received: by 2002:a17:90a:f182:: with SMTP id bv2mr1525148pjb.47.1613003984536;
-        Wed, 10 Feb 2021 16:39:44 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m5sm3399269pgj.11.2021.02.10.16.39.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 16:39:43 -0800 (PST)
-Message-ID: <60247ccf.1c69fb81.d21eb.81c6@mx.google.com>
-Date:   Wed, 10 Feb 2021 16:39:43 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230102AbhBKAvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Feb 2021 19:51:14 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABD3DC06178C;
+        Wed, 10 Feb 2021 16:50:28 -0800 (PST)
+Date:   Thu, 11 Feb 2021 00:50:26 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1613004627;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pX+YaPAnnOVy3bv73++XGwEpy7ufnfN5Bx2KrTGv/HY=;
+        b=F5S9N+P7sd5aD+IpPASsvyjhkDO7TOqLv4tLOsGmMqcAsOUmoRTDRWDJOvT9J9Uk+GBePE
+        d/7tlDrcsaU4sIkZEFIE4ElbsvsYgyia6ppAI5HdEw6yw41qcWG4qk8A1Yu4SXdGfdwB4I
+        YVn6s/Or389Eai9x49F98BOGsaYvRtvhBj/iTcYq4up5N+B38EJgbn87ttrArqPshCdAs6
+        U6eVibZQQVOo/MkAt2q0cYRNq8IFfb4FhlTPcUQJYh2AMyAdIZ/E9K8ZbcjJsq5mmXFjA/
+        ZDPVukBvHN5WA7h7fBJZDtneBBvdaRERj9BYi8/GDuBuv+FeaGNKl87gIpz2OQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1613004627;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pX+YaPAnnOVy3bv73++XGwEpy7ufnfN5Bx2KrTGv/HY=;
+        b=81nddm/KQnK3aWbINgFR34oxryELKSoE23eDWV4isWZz1ccH2ycfBwq/+QF/Z5C/wcoDfb
+        ikqlnc0TciK744Dw==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/entry] x86/entry: Fix instrumentation annotation
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20210210002512.106502464@linutronix.de>
+References: <20210210002512.106502464@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.175-18-gfec73bfa6244
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 76 runs,
- 1 regressions (v4.19.175-18-gfec73bfa6244)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <161300462686.23325.5366837009836887341.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 76 runs, 1 regressions (v4.19.175-18-gfec73b=
-fa6244)
+The following commit has been merged into the x86/entry branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     15f720aabe71a5662c4198b22532d95bbeec80ef
+Gitweb:        https://git.kernel.org/tip/15f720aabe71a5662c4198b22532d95bbeec80ef
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 10 Feb 2021 00:40:42 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 10 Feb 2021 23:34:13 +01:00
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+x86/entry: Fix instrumentation annotation
+
+Embracing a callout into instrumentation_begin() / instrumentation_begin()
+does not really make sense. Make the latter instrumentation_end().
+
+Fixes: 2f6474e4636b ("x86/entry: Switch XEN/PV hypercall entry to IDTENTRY")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210210002512.106502464@linutronix.de
+
 ---
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+ arch/x86/entry/common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.175-18-gfec73bfa6244/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.175-18-gfec73bfa6244
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fec73bfa6244151568edfb918b648616f0febda6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/60244aa6ace6418c513abe67
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.175=
--18-gfec73bfa6244/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.175=
--18-gfec73bfa6244/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60244aa6ace6418=
-c513abe6e
-        failing since 2 days (last pass: v4.19.174-3-g9df30fc2980a, first f=
-ail: v4.19.174-9-g72c4313237ab0)
-        2 lines
-
-    2021-02-10 21:05:37.894000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-02-10 21:05:37.912000+00:00  <8>[   22.919067] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index 18d8f17..c4efffb 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -266,7 +266,7 @@ __visible noinstr void xen_pv_evtchn_do_upcall(struct pt_regs *regs)
+ 
+ 	instrumentation_begin();
+ 	run_on_irqstack_cond(__xen_pv_evtchn_do_upcall, regs);
+-	instrumentation_begin();
++	instrumentation_end();
+ 
+ 	set_irq_regs(old_regs);
+ 
