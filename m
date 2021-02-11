@@ -2,80 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 733BD3187F2
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:19:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C898318833
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 11:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229928AbhBKKTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 05:19:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42636 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbhBKKSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 05:18:06 -0500
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F291C061756;
-        Thu, 11 Feb 2021 02:17:24 -0800 (PST)
-Received: by mail-lj1-x230.google.com with SMTP id b16so6656557lji.13;
-        Thu, 11 Feb 2021 02:17:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Jm2Vg2vtcC2uZCoulDXy0fsniUr4eVjzDAzUDSNNKSE=;
-        b=kJ4MWHlGcO1k8YkKwbXpzbClY+KIxj4eKCFTLXw3JpIocfPdXG8hJm8ffbwAehAbZe
-         W/TtyZEPWUaB5ltVUC01nF1kigZvDTIFtLqhv2va42R9wNPZMTeqrsr3ioKVepmCzCc4
-         ms8Ypkn6Nl7AQaz+zMM76NnashtmXuu6Fvc0QXVLtP29kDf7Sy5Nhr2NKgRbpqyuvGRi
-         LuA298TlR+PlN0J5ZITIz2+/edAg4LVemPt0bWq4uGOLAKvTU9Z3yxVZq9CckZ+2xJoQ
-         r4S8J/GuQlsHAlBXDs3J91jNHztIZhFs/qmbcsxjGL/Gkn/LYWbiu1grJJdtYb8Z3OQt
-         Jqzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Jm2Vg2vtcC2uZCoulDXy0fsniUr4eVjzDAzUDSNNKSE=;
-        b=Xv9KHl7DN9hz+6mqmcHcWVmPqpMD82Ku7tkeAb8uz7G6HVv447JgJRSEp9Kti+PRJ/
-         sdUe4/29nuYOlCpSWylLuORduKTnl73qHKXjPJfTEqP2uHJyrcMCerG5fLZLqpXm/gh3
-         74iNHlOde97+pMR7uL5LGbeH16C5/xENcQ6i86fVTED0jDvD0s1/eCz6cwNKCdkLnk8F
-         /4QC8OukTO5Q2/ri0VnUN5kNGjSVMbiSmDm/UXlokb/+Q9N00FIK3YlqRITmPCNaBoge
-         PCJKtC+oRZYoh8DqV1prPzrVryG69+o3mKXGysatYSMHVgjy5xu/rWQ+xbtEtBNWosg9
-         QQ4Q==
-X-Gm-Message-State: AOAM531cgHX5CndkKiRi+KR8BHxNMtbMxrEgn/pg/gW+tj3NWwxNkrhb
-        4YviASbWaVL3xoZtlSrI9rNUoMy6zvcEau8tC+s=
-X-Google-Smtp-Source: ABdhPJwzs+vtdW8dlE+eJfKnDrxgE1OVplgXPLeWWVicD6u1HQRmIyoAMDeeIstz519wL1P3b/icBmQP/U+Jn1v3188=
-X-Received: by 2002:a2e:a312:: with SMTP id l18mr4697526lje.490.1613038643003;
- Thu, 11 Feb 2021 02:17:23 -0800 (PST)
-MIME-Version: 1.0
-References: <20210211095413.1043102-1-ch@denx.de> <8c08b85e-fa1e-3dd7-6d86-6ec9b57a3670@denx.de>
-In-Reply-To: <8c08b85e-fa1e-3dd7-6d86-6ec9b57a3670@denx.de>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Thu, 11 Feb 2021 07:17:12 -0300
-Message-ID: <CAOMZO5Amnrc6Os44B=0-Nqv+m1THhT-AtWA-oTbmUjYbb_xqUw@mail.gmail.com>
-Subject: Re: [PATCH] pinctrl: imx: imx8mm: fix pad offset of SD1_DATA0 pin
-To:     Claudius Heine <ch@denx.de>
-Cc:     Rob Herring <robh+dt@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
+        id S230103AbhBKKco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 05:32:44 -0500
+Received: from mx1.emlix.com ([136.243.223.33]:37006 "EHLO mx1.emlix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229867AbhBKKaf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 05:30:35 -0500
+Received: from mailer.emlix.com (p5098be52.dip0.t-ipconnect.de [80.152.190.82])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx1.emlix.com (Postfix) with ESMTPS id D0C965F9C9;
+        Thu, 11 Feb 2021 11:29:39 +0100 (CET)
+From:   Rolf Eike Beer <eb@emlix.com>
+To:     Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        linux-kbuild@vger.kernel.org,
         open list <linux-kernel@vger.kernel.org>,
-        Marek Vasut <marex@denx.de>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
+Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
+Date:   Thu, 11 Feb 2021 11:29:33 +0100
+Message-ID: <3314666.Em9qtOGRgX@mobilepool36.emlix.com>
+In-Reply-To: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
+References: <20210209050047.1958473-1-daniel.diaz@linaro.org> <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart1763431.qQEGOizavN"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Claudius,
+--nextPart1763431.qQEGOizavN
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"; protected-headers="v1"
+From: Rolf Eike Beer <eb@emlix.com>
+To: Masahiro Yamada <masahiroy@kernel.org>, Michal Marek <michal.lkml@markovi.net>, linux-kbuild@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc: stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
+Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
+Date: Thu, 11 Feb 2021 11:29:33 +0100
+Message-ID: <3314666.Em9qtOGRgX@mobilepool36.emlix.com>
+In-Reply-To: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
+References: <20210209050047.1958473-1-daniel.diaz@linaro.org> <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
 
-On Thu, Feb 11, 2021 at 7:15 AM Claudius Heine <ch@denx.de> wrote:
->
-> Hi,
->
-> can you please add:
->
-> Fixes: c1c9d41319c3 ("dt-bindings: imx: Add pinctrl binding doc for imx8mm")
+Am Dienstag, 9. Februar 2021, 09:44:33 CET schrieb Rolf Eike Beer:
+> Am Dienstag, 9. Februar 2021, 05:59:56 CET schrieb Daniel D=C3=ADaz:
+> > When compiling under OpenEmbedded, the following error is seen
+> >=20
+> > as of recently:
+> >   /srv/oe/build/tmp/hosttools/ld: cannot find /lib/libc.so.6 inside /
+> >   /srv/oe/build/tmp/hosttools/ld: cannot find /usr/lib/libc_nonshared.a
+> >=20
+> > inside / /srv/oe/build/tmp/hosttools/ld: cannot find
+> > /lib/ld-linux-x86-64.so.2 inside / collect2: error: ld returned 1 exit
+> > status
+> >=20
+> >   make[2]: *** [scripts/Makefile.host:95: scripts/extract-cert] Error 1
+>=20
+> [...]
+>=20
+> > As per `make`'s documentation:
+> >   LDFLAGS
+> >  =20
+> >     Extra flags to give to compilers when they are supposed to
+> >     invoke the linker, =E2=80=98ld=E2=80=99, such as -L. Libraries (-lf=
+oo)
+> >     should be added to the LDLIBS variable instead.
+> >  =20
+> >   LDLIBS
+> >  =20
+> >     Library flags or names given to compilers when they are
+> >     supposed to invoke the linker, =E2=80=98ld=E2=80=99. LOADLIBES is a
+> >     deprecated (but still supported) alternative to LDLIBS.
+> >     Non-library linker flags, such as -L, should go in the
+> >     LDFLAGS variable.
+>=20
+> Correct. And the patch I use for my local 4.19 build actually uses LDLIBS,
+> so it must have gone wrong in some rebase for one of the intermediate
+> versions.
+>=20
+> Acked-by: Rolf Eike Beer <eb@emlix.com>
 
-Yes, I was about to suggest the same. Thanks for the fix:
+Ok, now actually with proper testing: no, your patch doesn't work. When=20
+changing LDLIBS to LDFLAGS things do not show up on the commandline at all.
 
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
+LDLIBS:
+
+  gcc -Wp,-MMD,scripts/.sign-file.d -Wall -Wmissing-prototypes -Wstrict-
+prototypes -O2 -fomit-frame-pointer -std=3Dgnu89      -I/opt/emlix/test/inc=
+lude=20
+=2DI ./scripts   -o scripts/sign-file /tmp/e2/build/linux-kernel/scripts/si=
+gn-
+file.c   -L/opt/emlix/test/lib -lcrypto -lz -ldl -pthread
+
+LDFLAGS:
+
+  gcc -Wp,-MMD,scripts/.sign-file.d -Wall -Wmissing-prototypes -Wstrict-
+prototypes -O2 -fomit-frame-pointer -std=3Dgnu89      -I/opt/emlix/test/inc=
+lude=20
+=2DI ./scripts   -o scripts/sign-file /tmp/e2/build/linux-kernel/scripts/si=
+gn-
+file.c  =20
+
+When looking closely you may notice that this is not entirely the same as=20
+current master would output: I missed the CFLAGS for sign-file in my patch.=
+=20
+When testing your patch I accidentially had a .config that had module=20
+signatures disabled, so I have not tested it actually, that's why I didn't=
+=20
+notice that it doesn't work.
+
+I'm just guessing, but your build error looks like you are also cross-build=
+ing=20
+the tools, which is wrong. You want them to be host-tools. So don't export=
+=20
+PKG_CONFIG_SYSROOT_DIR, it would then try to link target libraries into a h=
+ost =20
+binary.
+
+Eike
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
+Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
+=2E: DE 205 198 055
+
+emlix - smart embedded open source
+--nextPart1763431.qQEGOizavN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCYCUHDQAKCRCr5FH7Xu2t
+/DlBA/wOmT/FOjxipuiCwOtBZgASLr30Dy6hPGnMuwoyu7rJzoBkWrvAKE/Q3XTN
+QCRTOcL/DTjJLjxTUBgyfQDgRSDIXCf6h1LYo5zBZV8YTYEeih9T1W4pNNNhD1yv
+LKnI1Pgku3dHQhHgcM+3SWY+Vfxb7u9WyoPsvf4o2qXOwJsKrQ==
+=hlG6
+-----END PGP SIGNATURE-----
+
+--nextPart1763431.qQEGOizavN--
+
+
+
