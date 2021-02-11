@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1EC318E81
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90102318E7F
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229649AbhBKP3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:29:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
+        id S231283AbhBKP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:28:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230493AbhBKPYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230407AbhBKPYz (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 11 Feb 2021 10:24:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88CEA64EE1;
-        Thu, 11 Feb 2021 15:04:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0CFF64EDF;
+        Thu, 11 Feb 2021 15:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055848;
-        bh=6NcTRIFKk4unTxxNvkfJ3ULuqkv+plZ1Alue4N3L8Sc=;
+        s=korg; t=1613055850;
+        bh=e/SV40VPBlsUlwcHTzsHcKsnGW76XkUS6dZkh9sRgdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdMLtLN+PC0ufnv9CDCdfA1jy221qgkpY/NwnPeZUbgGn+6Lt76pf7VjfRoArS44V
-         ENxRsn4vwW90nU6VsM/ULwQOL707BeZeV5mF9zjvUamXY2/jI+eaw//JnPbyyLHd49
-         WEQRFufXlS5QXHcpvt2OK07tcyw/HT57uAyv//6s=
+        b=Um4zfSRdGEvDyQLhodWapjWmCqDJAbjxsnKMOvxnHgXra0+SM66a7D3iAqxyCe7hz
+         KlxuVnuD3cuzRMObMXTE2q4vmEWkg/6wjlHVcXKtobgVGzIHzsL4ao+ZcFVAU0hbzL
+         XSLjBYmub73wqHRXo9l2WTbJIzSf6MsaPSsYhj1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.10 03/54] io_uring: dont iterate io_uring_cancel_files()
-Date:   Thu, 11 Feb 2021 16:01:47 +0100
-Message-Id: <20210211150153.042590656@linuxfoundation.org>
+Subject: [PATCH 5.10 04/54] io_uring: pass files into kill timeouts/poll
+Date:   Thu, 11 Feb 2021 16:01:48 +0100
+Message-Id: <20210211150153.078434896@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
 References: <20210211150152.885701259@linuxfoundation.org>
@@ -41,96 +41,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit b52fda00dd9df8b4a6de5784df94f9617f6133a1 ]
+[ Upstream commit 6b81928d4ca8668513251f9c04cdcb9d38ef51c7 ]
 
-io_uring_cancel_files() guarantees to cancel all matching requests,
-that's not necessary to do that in a loop. Move it up in the callchain
-into io_uring_cancel_task_requests().
+Make io_poll_remove_all() and io_kill_timeouts() to match against files
+as well. A preparation patch, effectively not used by now.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ fs/io_uring.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8654,16 +8654,10 @@ static void io_cancel_defer_files(struct
- 	}
- }
- 
--/*
-- * Returns true if we found and killed one or more files pinning requests
-- */
--static bool io_uring_cancel_files(struct io_ring_ctx *ctx,
-+static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				  struct task_struct *task,
- 				  struct files_struct *files)
+@@ -1508,14 +1508,15 @@ static bool io_task_match(struct io_kioc
+ /*
+  * Returns true if we found and killed one or more timeouts
+  */
+-static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk)
++static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
++			     struct files_struct *files)
  {
--	if (list_empty_careful(&ctx->inflight_list))
--		return false;
--
- 	while (!list_empty_careful(&ctx->inflight_list)) {
- 		struct io_kiocb *cancel_req = NULL, *req;
- 		DEFINE_WAIT(wait);
-@@ -8698,8 +8692,6 @@ static bool io_uring_cancel_files(struct
- 		schedule();
- 		finish_wait(&ctx->inflight_wait, &wait);
- 	}
--
--	return true;
- }
+ 	struct io_kiocb *req, *tmp;
+ 	int canceled = 0;
  
- static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
-@@ -8710,15 +8702,12 @@ static bool io_cancel_task_cb(struct io_
- 	return io_task_match(req, task);
- }
- 
--static bool __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
--					    struct task_struct *task,
--					    struct files_struct *files)
-+static void __io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
-+					    struct task_struct *task)
+ 	spin_lock_irq(&ctx->completion_lock);
+ 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
+-		if (io_task_match(req, tsk)) {
++		if (io_match_task(req, tsk, files)) {
+ 			io_kill_timeout(req);
+ 			canceled++;
+ 		}
+@@ -5312,7 +5313,8 @@ static bool io_poll_remove_one(struct io
+ /*
+  * Returns true if we found and killed one or more poll requests
+  */
+-static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk)
++static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
++			       struct files_struct *files)
  {
--	bool ret;
--
--	ret = io_uring_cancel_files(ctx, task, files);
--	if (!files) {
-+	while (1) {
- 		enum io_wq_cancel cret;
-+		bool ret = false;
+ 	struct hlist_node *tmp;
+ 	struct io_kiocb *req;
+@@ -5324,7 +5326,7 @@ static bool io_poll_remove_all(struct io
  
- 		cret = io_wq_cancel_cb(ctx->io_wq, io_cancel_task_cb, task, true);
- 		if (cret != IO_WQ_CANCEL_NOTFOUND)
-@@ -8734,9 +8723,11 @@ static bool __io_uring_cancel_task_reque
- 
- 		ret |= io_poll_remove_all(ctx, task);
- 		ret |= io_kill_timeouts(ctx, task);
-+		if (!ret)
-+			break;
-+		io_run_task_work();
-+		cond_resched();
+ 		list = &ctx->cancel_hash[i];
+ 		hlist_for_each_entry_safe(req, tmp, list, hash_node) {
+-			if (io_task_match(req, tsk))
++			if (io_match_task(req, tsk, files))
+ 				posted += io_poll_remove_one(req);
+ 		}
  	}
--
--	return ret;
- }
+@@ -8485,8 +8487,8 @@ static void io_ring_ctx_wait_and_kill(st
+ 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 	mutex_unlock(&ctx->uring_lock);
  
- static void io_disable_sqo_submit(struct io_ring_ctx *ctx)
-@@ -8771,11 +8762,10 @@ static void io_uring_cancel_task_request
+-	io_kill_timeouts(ctx, NULL);
+-	io_poll_remove_all(ctx, NULL);
++	io_kill_timeouts(ctx, NULL, NULL);
++	io_poll_remove_all(ctx, NULL, NULL);
  
- 	io_cancel_defer_files(ctx, task, files);
- 	io_cqring_overflow_flush(ctx, true, task, files);
-+	io_uring_cancel_files(ctx, task, files);
+ 	if (ctx->io_wq)
+ 		io_wq_cancel_cb(ctx->io_wq, io_cancel_ctx_cb, ctx, true);
+@@ -8721,8 +8723,8 @@ static void __io_uring_cancel_task_reque
+ 			}
+ 		}
  
--	while (__io_uring_cancel_task_requests(ctx, task, files)) {
--		io_run_task_work();
--		cond_resched();
--	}
-+	if (!files)
-+		__io_uring_cancel_task_requests(ctx, task);
- 
- 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
- 		atomic_dec(&task->io_uring->in_idle);
+-		ret |= io_poll_remove_all(ctx, task);
+-		ret |= io_kill_timeouts(ctx, task);
++		ret |= io_poll_remove_all(ctx, task, NULL);
++		ret |= io_kill_timeouts(ctx, task, NULL);
+ 		if (!ret)
+ 			break;
+ 		io_run_task_work();
 
 
