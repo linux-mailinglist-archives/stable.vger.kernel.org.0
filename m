@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AB4318ECD
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F58318ED6
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhBKPet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:34:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55774 "EHLO mail.kernel.org"
+        id S231388AbhBKPfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231423AbhBKPcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:32:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72C8D64F08;
-        Thu, 11 Feb 2021 15:05:35 +0000 (UTC)
+        id S231430AbhBKPb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:31:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE36264F16;
+        Thu, 11 Feb 2021 15:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055935;
-        bh=EsMfjvEzCgcNelPGHItlpvhSL0P/9s9n/3PMRhQAf9M=;
+        s=korg; t=1613055938;
+        bh=CTrKFKFw9wzgKDGrZqscRZtG58ni4CENVIvrkbvqplU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VojyAgZtn3IcUGP5lUXHImBNfUG8I2ojNQxurfBSFrRAgmBIxhmASvmxA8m370mTr
-         qwt7oNy/SX0/WRfZBkVvbGrexpJKImrsvdSD8AxWpM5wHbgiGSKD/ejWIYnIM/w+A/
-         G8RIp56E5ONSvKEtHt/3M8WrjiolwuthcE5LdFBc=
+        b=tACRwpJB+cSG20cNh/ExbHe8SYbsCbq5ioLZRNhN9DfbOtSH91Lbj35x52sQcEDUD
+         PYD9QvFRUL2IecUU6x7lzGkM1BV0GKegUC3bqfKBWaaPn9RkO8Wpv42CkXUCeVQoZ1
+         3WJntMUCvDa9LONrRzzCJN9oLM5UOIseOUE+8mwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/24] regulator: core: avoid regulator_resolve_supply() race condition
-Date:   Thu, 11 Feb 2021 16:02:26 +0100
-Message-Id: <20210211150148.673690030@linuxfoundation.org>
+Subject: [PATCH 5.4 12/24] iwlwifi: pcie: fix context info memory leak
+Date:   Thu, 11 Feb 2021 16:02:35 +0100
+Message-Id: <20210211150149.054019804@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
 References: <20210211150148.516371325@linuxfoundation.org>
@@ -40,153 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
+[ Upstream commit 2d6bc752cc2806366d9a4fd577b3f6c1f7a7e04e ]
 
-The final step in regulator_register() is to call
-regulator_resolve_supply() for each registered regulator
-(including the one in the process of being registered).  The
-regulator_resolve_supply() function first checks if rdev->supply
-is NULL, then it performs various steps to try to find the supply.
-If successful, rdev->supply is set inside of set_supply().
+If the image loader allocation fails, we leak all the previously
+allocated memory. Fix this.
 
-This procedure can encounter a race condition if two concurrent
-tasks call regulator_register() near to each other on separate CPUs
-and one of the regulators has rdev->supply_name specified.  There
-is currently nothing guaranteeing atomicity between the rdev->supply
-check and set steps.  Thus, both tasks can observe rdev->supply==NULL
-in their regulator_resolve_supply() calls.  This then results in
-both creating a struct regulator for the supply.  One ends up
-actually stored in rdev->supply and the other is lost (though still
-present in the supply's consumer_list).
-
-Here is a kernel log snippet showing the issue:
-
-[   12.421768] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
-[   12.425854] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
-[   12.429064] debugfs: Directory 'regulator.4-SUPPLY' with parent
-               '17a00000.rsc:rpmh-regulator-gfxlvl-pm8350_s5_level'
-               already present!
-
-Avoid this race condition by holding the rdev->mutex lock inside
-of regulator_resolve_supply() while checking and setting
-rdev->supply.
-
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Link: https://lore.kernel.org/r/1610068562-4410-1-git-send-email-collinsd@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210115130252.97172cbaa67c.I3473233d0ad01a71aa9400832fb2b9f494d88a11@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 39 ++++++++++++++++++++++++++++-----------
- 1 file changed, 28 insertions(+), 11 deletions(-)
+ .../net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c  | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index c9b8613e69db2..5e0490e18b46a 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1772,23 +1772,34 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- {
- 	struct regulator_dev *r;
- 	struct device *dev = rdev->dev.parent;
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+index 7a5b024a6d384..eab159205e48b 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+@@ -164,8 +164,10 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
+ 	/* Allocate IML */
+ 	iml_img = dma_alloc_coherent(trans->dev, trans->iml_len,
+ 				     &trans_pcie->iml_dma_addr, GFP_KERNEL);
+-	if (!iml_img)
+-		return -ENOMEM;
++	if (!iml_img) {
++		ret = -ENOMEM;
++		goto err_free_ctxt_info;
++	}
  
- 	/* No supply to resolve? */
- 	if (!rdev->supply_name)
- 		return 0;
+ 	memcpy(iml_img, trans->iml, trans->iml_len);
  
--	/* Supply already resolved? */
-+	/* Supply already resolved? (fast-path without locking contention) */
- 	if (rdev->supply)
- 		return 0;
+@@ -207,6 +209,11 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
  
-+	/*
-+	 * Recheck rdev->supply with rdev->mutex lock held to avoid a race
-+	 * between rdev->supply null check and setting rdev->supply in
-+	 * set_supply() from concurrent tasks.
-+	 */
-+	regulator_lock(rdev);
-+
-+	/* Supply just resolved by a concurrent task? */
-+	if (rdev->supply)
-+		goto out;
-+
- 	r = regulator_dev_lookup(dev, rdev->supply_name);
- 	if (IS_ERR(r)) {
- 		ret = PTR_ERR(r);
+ 	return 0;
  
- 		/* Did the lookup explicitly defer for us? */
- 		if (ret == -EPROBE_DEFER)
--			return ret;
-+			goto out;
- 
- 		if (have_full_constraints()) {
- 			r = dummy_regulator_rdev;
-@@ -1796,15 +1807,18 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 		} else {
- 			dev_err(dev, "Failed to resolve %s-supply for %s\n",
- 				rdev->supply_name, rdev->desc->name);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto out;
- 		}
- 	}
- 
- 	if (r == rdev) {
- 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
- 			rdev->desc->name, rdev->supply_name);
--		if (!have_full_constraints())
--			return -EINVAL;
-+		if (!have_full_constraints()) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		r = dummy_regulator_rdev;
- 		get_device(&r->dev);
- 	}
-@@ -1818,7 +1832,8 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 	if (r->dev.parent && r->dev.parent != rdev->dev.parent) {
- 		if (!device_is_bound(r->dev.parent)) {
- 			put_device(&r->dev);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto out;
- 		}
- 	}
- 
-@@ -1826,13 +1841,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 	ret = regulator_resolve_supply(r);
- 	if (ret < 0) {
- 		put_device(&r->dev);
--		return ret;
-+		goto out;
- 	}
- 
- 	ret = set_supply(rdev, r);
- 	if (ret < 0) {
- 		put_device(&r->dev);
--		return ret;
-+		goto out;
- 	}
- 
- 	/*
-@@ -1845,11 +1860,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
- 		if (ret < 0) {
- 			_regulator_put(rdev->supply);
- 			rdev->supply = NULL;
--			return ret;
-+			goto out;
- 		}
- 	}
- 
--	return 0;
-+out:
-+	regulator_unlock(rdev);
-+	return ret;
- }
- 
- /* Internal regulator request function */
++err_free_ctxt_info:
++	dma_free_coherent(trans->dev, sizeof(*trans_pcie->ctxt_info_gen3),
++			  trans_pcie->ctxt_info_gen3,
++			  trans_pcie->ctxt_info_dma_addr);
++	trans_pcie->ctxt_info_gen3 = NULL;
+ err_free_prph_info:
+ 	dma_free_coherent(trans->dev,
+ 			  sizeof(*prph_info),
 -- 
 2.27.0
 
