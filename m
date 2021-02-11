@@ -2,59 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DAC318ADB
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21239318B1E
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231339AbhBKMhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 07:37:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
+        id S231309AbhBKMq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 07:46:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231618AbhBKMed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 07:34:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EE2664E23;
-        Thu, 11 Feb 2021 12:33:50 +0000 (UTC)
+        id S230363AbhBKMoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 07:44:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B777964E2E;
+        Thu, 11 Feb 2021 12:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613046831;
-        bh=jNgALE8uQwqd1w0SVELtzGJ/GK+zIW88YxI2LssWh1M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xV57KyRHEzTjRjGjbTxqD/8ZUZHsBujSuhbQwqx0fNd2VTxRtjuWRKV46OXES7oJc
-         +MySRAu6ZZOMfV4un1nFsD9mF3FffjUjWw9kWkxA+w8lFF0VSn3QwDKy//Zp+Gz2Wb
-         cjXgIHKKSKs18oAsUgvAzPXDuIF4CSWJgEZU3IaA=
-Date:   Thu, 11 Feb 2021 13:33:48 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Raoni Fassina Firmino <raoni@linux.ibm.com>
-Cc:     stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH] powerpc/64/signal: Fix regression in
- __kernel_sigtramp_rt64() semantics
-Message-ID: <YCUkLNoZjlZEkbZF@kroah.com>
-References: <20210209150240.epboynhzuaia4qyr@work-tp>
- <YCPtOTuh0kOk7Xee@kroah.com>
- <20210211112809.ao77vciijej5kdu7@work-tp>
+        s=korg; t=1613047407;
+        bh=bmtOUEqZjCpdhFNwpKPoJgm3UqXxQboTZWdSdoIRZ/w=;
+        h=Subject:To:From:Date:From;
+        b=yrlZkELGHuJ48TiQfQVl8lEElGsusSrqhpSLKqKDi0G1UbQ9WGwxmbA83cWOlAwFs
+         75bkR62v7gphm+mdzJB5TQLOc4k9pAjikx5n0IR3LJBEj4qfn7AbnUI/nVXJ3AnPnM
+         NpYda3HtmiaMM5ep4Yw4/hKrAbODApXRVuZ1NdlQ=
+Subject: patch "usb: quirks: add quirk to start video capture on ELMO L-12F document" added to usb-next
+To:     stefan.ursella@wolfvision.net, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Feb 2021 13:42:00 +0100
+Message-ID: <16130473202323@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210211112809.ao77vciijej5kdu7@work-tp>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 11, 2021 at 08:28:09AM -0300, Raoni Fassina Firmino wrote:
-> On Wed, Feb 10, 2021 at 03:27:05PM +0100, Greg KH wrote:
-> > On Tue, Feb 09, 2021 at 12:02:40PM -0300, Raoni Fassina Firmino wrote:
-> > > Repeated the same tests as the upstream code on top of v5.10.14 and
-> > > v5.9.16, tested on powerpc64 and powerpc64le, with a glibc build and
-> > > running the affected glibc's testcase[2], inspected that glibc's
-> > > backtrace() now gives the correct result and gdb backtrace also keeps
-> > > working as before.
-> > > 
-> > > I believe this should be backported to releases 5.9 and 5.10 as
-> > > userspace is affected in this releases. I hope I had tagged this
-> > > correctly in the patch.
-> > 
-> > Now added to 5.10.y, 5.9.y is long end-of-life so there is nothing we
-> > can do there, sorry.
-> 
-> No problem, I didn't know 5.9.y was already EOL, that is on me.
 
-Hint, in the future www.kernel.org shows you this :)
+This is a note to let you know that I've just added the patch titled
+
+    usb: quirks: add quirk to start video capture on ELMO L-12F document
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 1ebe718bb48278105816ba03a0408ecc2d6cf47f Mon Sep 17 00:00:00 2001
+From: Stefan Ursella <stefan.ursella@wolfvision.net>
+Date: Wed, 10 Feb 2021 15:07:11 +0100
+Subject: usb: quirks: add quirk to start video capture on ELMO L-12F document
+ camera reliable
+
+Without this quirk starting a video capture from the device often fails with
+
+kernel: uvcvideo: Failed to set UVC probe control : -110 (exp. 34).
+
+Signed-off-by: Stefan Ursella <stefan.ursella@wolfvision.net>
+Link: https://lore.kernel.org/r/20210210140713.18711-1-stefan.ursella@wolfvision.net
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 66a0dc618dfc..6ade3daf7858 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -391,6 +391,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
+ 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
+ 
++	/* ELMO L-12F document camera */
++	{ USB_DEVICE(0x09a1, 0x0028), .driver_info = USB_QUIRK_DELAY_CTRL_MSG },
++
+ 	/* Broadcom BCM92035DGROM BT dongle */
+ 	{ USB_DEVICE(0x0a5c, 0x2021), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
+-- 
+2.30.1
+
+
