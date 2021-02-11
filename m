@@ -2,119 +2,260 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E5E7318648
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 09:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB50318660
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 09:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhBKIY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 03:24:26 -0500
-Received: from mx1.emlix.com ([136.243.223.33]:36656 "EHLO mx1.emlix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229636AbhBKIYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 03:24:25 -0500
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id 6772A5F9C9;
-        Thu, 11 Feb 2021 09:23:28 +0100 (CET)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kbuild@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
-Date:   Thu, 11 Feb 2021 09:23:25 +0100
-Message-ID: <1703981.WaQNzpUyZo@mobilepool36.emlix.com>
-In-Reply-To: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
-References: <20210209050047.1958473-1-daniel.diaz@linaro.org> <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
+        id S229523AbhBKIgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 03:36:37 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43008 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229478AbhBKIgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 03:36:37 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11B8WIJs150417;
+        Thu, 11 Feb 2021 03:35:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Nlcr3nKBLvyoPjmf/rFztISMggdQUalsfPUdkRrSmHs=;
+ b=BbkpthWdeiMX2KXdxgUDyIx/Rv0ubpKmTp2c+5OidS0+bqKxJZvUSLUJ5JAkWse6obr+
+ 7DLI30AKqZAFozFHNWoOjEAULQdX/RhVdkSs8Pr7YDkjvyNK7ZCNfPJrXuVhBVw9SIrb
+ BbugEg0cKGjzIKxVjMYe2IcfN+EIVMCSZSHTLJrN8dgs5HGogURONrTMieAwIN3T6h3l
+ ogcJaKrdWKP7thqQbV3chu2YZ7Usb8TeElrju5rcTSk+d45z2bbCNeSzpBrzI1pELIGs
+ HLbm5WYKsp/yErs4OiISFqpS/tB4K9aUx3gtXx6MNgz5On0jc4okXamGO8rALFnTvfn5 TA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36n13y05nb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11B8Ws99152603;
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36n13y05kq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11B8RBuH026928;
+        Thu, 11 Feb 2021 08:35:18 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 36hjr8dk4x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 08:35:18 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11B8Z5b434931004
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 Feb 2021 08:35:05 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7758CAE055;
+        Thu, 11 Feb 2021 08:35:15 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D26EAE04D;
+        Thu, 11 Feb 2021 08:35:15 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.64.239])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 11 Feb 2021 08:35:14 +0000 (GMT)
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
+ <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v3 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
+ entry pointer
+Message-ID: <f7fabdb6-e53a-1c17-92a8-3240b0c03e47@linux.ibm.com>
+Date:   Thu, 11 Feb 2021 09:35:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3171492.fxiCIuZd90"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+In-Reply-To: <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-11_05:2021-02-10,2021-02-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1015 impostorscore=0 malwarescore=0 mlxscore=0
+ suspectscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102110072
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart3171492.fxiCIuZd90
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"; protected-headers="v1"
-From: Rolf Eike Beer <eb@emlix.com>
-To: Masahiro Yamada <masahiroy@kernel.org>, Michal Marek <michal.lkml@markovi.net>, linux-kbuild@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, Daniel =?ISO-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc: stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
-Date: Thu, 11 Feb 2021 09:23:25 +0100
-Message-ID: <1703981.WaQNzpUyZo@mobilepool36.emlix.com>
-In-Reply-To: <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
-References: <20210209050047.1958473-1-daniel.diaz@linaro.org> <6065587.C4oOSP4HzL@mobilepool36.emlix.com>
+On 2/9/21 4:43 PM, Claudio Imbrenda wrote:
+> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+> DAT table entry, or to the invalid entry.
+> 
+> Also return some flags in the lower bits of the address:
+> DAT_PROT: indicates that DAT protection applies because of the
+>           protection bit in the segment (or, if EDAT, region) tables
+> NOT_PTE: indicates that the address of the DAT table entry returned
+>          does not refer to a PTE, but to a segment or region table.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: stable@vger.kernel.org
 
-Am Dienstag, 9. Februar 2021, 09:44:33 CET schrieb Rolf Eike Beer:
-> Am Dienstag, 9. Februar 2021, 05:59:56 CET schrieb Daniel D=C3=ADaz:
-> > When compiling under OpenEmbedded, the following error is seen
-> >=20
-> > as of recently:
-> >   /srv/oe/build/tmp/hosttools/ld: cannot find /lib/libc.so.6 inside /
-> >   /srv/oe/build/tmp/hosttools/ld: cannot find /usr/lib/libc_nonshared.a
-> >=20
-> > inside / /srv/oe/build/tmp/hosttools/ld: cannot find
-> > /lib/ld-linux-x86-64.so.2 inside / collect2: error: ld returned 1 exit
-> > status
-> >=20
-> >   make[2]: *** [scripts/Makefile.host:95: scripts/extract-cert] Error 1
->=20
-> [...]
->=20
-> > As per `make`'s documentation:
-> >   LDFLAGS
-> >  =20
-> >     Extra flags to give to compilers when they are supposed to
-> >     invoke the linker, =E2=80=98ld=E2=80=99, such as -L. Libraries (-lf=
-oo)
-> >     should be added to the LDLIBS variable instead.
-> >  =20
-> >   LDLIBS
-> >  =20
-> >     Library flags or names given to compilers when they are
-> >     supposed to invoke the linker, =E2=80=98ld=E2=80=99. LOADLIBES is a
-> >     deprecated (but still supported) alternative to LDLIBS.
-> >     Non-library linker flags, such as -L, should go in the
-> >     LDFLAGS variable.
->=20
-> Correct. And the patch I use for my local 4.19 build actually uses LDLIBS,
-> so it must have gone wrong in some rebase for one of the intermediate
-> versions.
->=20
-> Acked-by: Rolf Eike Beer <eb@emlix.com>
+Reviewed-by: Janosch Frank <frankja@de.ibm.com>
 
-Oh, scrap that. I misread your patch. I was actually using LDLIBS exclusive=
-ly,=20
-no LDFLAGS at all.
+Small nit below.
 
-I'll have to get my test setup ready for this, can take a moment.
+> ---
+>  arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
+>  arch/s390/kvm/gaccess.h |  5 ++++-
+>  arch/s390/kvm/vsie.c    |  8 ++++----
+>  3 files changed, 33 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 6d6b57059493..e0ab83f051d2 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra)
+>   * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
+>   * @sg: pointer to the shadow guest address space structure
+>   * @saddr: faulting address in the shadow gmap
+> - * @pgt: pointer to the page table address result
+> + * @pgt: pointer to the beginning of the page table for the given address if
+> + *       successful (return value 0), or to the first invalid DAT entry in
+> + *       case of exceptions (return value > 0)
+>   * @fake: pgt references contiguous guest memory block, not a pgtable
+>   */
+>  static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+> @@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rfte.val = ptr;
+>  			goto shadow_r2t;
+>  		}
+> +		*pgt = ptr + vaddr.rfx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rste.val = ptr;
+>  			goto shadow_r3t;
+>  		}
+> +		*pgt = ptr + vaddr.rsx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rtte.val = ptr;
+>  			goto shadow_sgt;
+>  		}
+> +		*pgt = ptr + vaddr.rtx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			ste.val = ptr;
+>  			goto shadow_pgt;
+>  		}
+> +		*pgt = ptr + vaddr.sx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>   * @vcpu: virtual cpu
+>   * @sg: pointer to the shadow guest address space structure
+>   * @saddr: faulting address in the shadow gmap
+> + * @datptr: will contain the address of the faulting DAT table entry, or of
+> + *          the valid leaf, plus some flags
+>   *
+>   * Returns: - 0 if the shadow fault was successfully resolved
+>   *	    - > 0 (pgm exception code) on exceptions while faulting
+> @@ -1165,11 +1173,11 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>   *	    - -ENOMEM if out of memory
+>   */
+>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+> -			  unsigned long saddr)
+> +			  unsigned long saddr, unsigned long *datptr)
+>  {
+>  	union vaddress vaddr;
+>  	union page_table_entry pte;
+> -	unsigned long pgt;
+> +	unsigned long pgt = 0;
+>  	int dat_protection, fake;
+>  	int rc;
+>  
+> @@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+>  		pte.val = pgt + vaddr.px * PAGE_SIZE;
+>  		goto shadow_page;
+>  	}
+> -	if (!rc)
+> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
+> +
+> +	switch (rc) {
+> +	case PGM_SEGMENT_TRANSLATION:
+> +	case PGM_REGION_THIRD_TRANS:
+> +	case PGM_REGION_SECOND_TRANS:
+> +	case PGM_REGION_FIRST_TRANS:
+> +		pgt |= NOT_PTE;
+> +		break;
+> +	case 0:
+> +		pgt += vaddr.px * 8;
+> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+> +	}
+> +	if (*datptr)
+> +		*datptr = pgt | dat_protection * DAT_PROT;
+>  	if (!rc && pte.i)
+>  		rc = PGM_PAGE_TRANSLATION;
+>  	if (!rc && pte.z)
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index f4c51756c462..fec26bbb17ba 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+>  int ipte_lock_held(struct kvm_vcpu *vcpu);
+>  int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+>  
+> +#define DAT_PROT 2
+> +#define NOT_PTE 4
 
-Eike
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
+I'd like to have a PEI prefix and a short comment where this comes from,
+something like:
+"MVPG PEI indication bits"
 
-emlix - smart embedded open source
---nextPart3171492.fxiCIuZd90
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCYCTpfQAKCRCr5FH7Xu2t
-/GAlA/sGIXnM1yi4UcosLjEavPqHS79oPb3VT7h937qzOnb6HDawVB1i4NWfhnBQ
-ie9XfCm4wQpDQa9FqYKN1GWBGS0kgmtn+m56XjSgYzAMfch9Uvsk0a/EWP2JqUzj
-1tArm+5kywsa5mXHLf60QtNJim9HYfYEAsysnSMjcPViLAB3hg==
-=+cDF
------END PGP SIGNATURE-----
-
---nextPart3171492.fxiCIuZd90--
-
-
+> +
+>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+> -			  unsigned long saddr);
+> +			  unsigned long saddr, unsigned long *datptr);
+>  
+>  #endif /* __KVM_S390_GACCESS_H */
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index c5d0a58b2c29..7db022141db3 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -619,10 +619,10 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	/* with mso/msl, the prefix lies at offset *mso* */
+>  	prefix += scb_s->mso;
+>  
+> -	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
+> +	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+>  	if (!rc && (scb_s->ecb & ECB_TE))
+>  		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -					   prefix + PAGE_SIZE);
+> +					   prefix + PAGE_SIZE, NULL);
+>  	/*
+>  	 * We don't have to mprotect, we will be called for all unshadows.
+>  	 * SIE will detect if protection applies and trigger a validity.
+> @@ -913,7 +913,7 @@ static int handle_fault(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  				    current->thread.gmap_addr, 1);
+>  
+>  	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -				   current->thread.gmap_addr);
+> +				   current->thread.gmap_addr, NULL);
+>  	if (rc > 0) {
+>  		rc = inject_fault(vcpu, rc,
+>  				  current->thread.gmap_addr,
+> @@ -935,7 +935,7 @@ static void handle_last_fault(struct kvm_vcpu *vcpu,
+>  {
+>  	if (vsie_page->fault_addr)
+>  		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -				      vsie_page->fault_addr);
+> +				      vsie_page->fault_addr, NULL);
+>  	vsie_page->fault_addr = 0;
+>  }
+>  
+> 
 
