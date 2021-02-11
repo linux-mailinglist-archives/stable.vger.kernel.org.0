@@ -2,91 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3617318A26
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AB0318A8B
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 13:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231755AbhBKMMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 07:12:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231700AbhBKMKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 07:10:16 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7798EC0613D6
-        for <stable@vger.kernel.org>; Thu, 11 Feb 2021 04:09:36 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id d7so4901593otq.6
-        for <stable@vger.kernel.org>; Thu, 11 Feb 2021 04:09:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=LMZF8WZc8lhbJqnOiPEdiVatFarRYpRO2RMJaztfk/8=;
-        b=aafPkRkN1A63ryJ7CKj247p3hLEejDgAleQz7pUjQZgQua+aw7EX44PCMfBcsbl7L/
-         xO3bhkX7rfPjdwouQhMytq7jo62vZWWWvkyZyJMISwST+4FnOGh/J7weZYAf0aKGJWtp
-         Hu/L/2y5810FFdBvXenEEzkxaVueEElHfQdMAlBsv+MKIQw62m4Z2WPD4yFnePZ7yiwl
-         xWVYkFOrPf5gWOxuHxr9DoFy0RZQl0urNRzmtI4W6gCkuo2/MOGCy61uzAuoUQEiKFET
-         ciE0i0AbaZJUQ+6FURzqN5XSrsS0lDsRuBDGyfZ2+OWDqrGo9c8rYVPLj8sYN2XSPcFB
-         YgSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=LMZF8WZc8lhbJqnOiPEdiVatFarRYpRO2RMJaztfk/8=;
-        b=pleVQD5RZ8q4S4T9DuOolLC9mWOnV4QaSm5j7GQSlQCpasNewXDraUNsclgzLDHGcZ
-         5gP+yA+z59tmS9N87+KBG9qt7FZtEFxwO3+gjgvuzSp3HhuiZsls8RIRFwEDJulOoy9/
-         uyyFaI6sfMjTjC/qZpqHuyvnrYC/YqNr28PcmXamr730+I3khykJ1BG9jvQg2LgWv+AM
-         P3b/Lk2ldXnAWnXVuGh18VEzumq+JtBhqIzfLVlrQ1DBmdtdFTPAUWwVsUzFZ7mfVSGf
-         7874Kgkm4/QNcJ1EXsLd6VQXCQ62WRew4fSCjzOQtV1RzvqVw1Duq7jnkxebiBc9G+wW
-         ddAA==
-X-Gm-Message-State: AOAM531usRSOA1gr4VufL62UdXMZQFu6QMitsQiG92L3USgV64pDHxlA
-        TM6Fezxo9zrgYAKDO9L9PEw06oichbuAwGo5eQM=
-X-Google-Smtp-Source: ABdhPJy5D5NE/gdiHMNWiTdw7zmW+waMbmDjMo5/bljXCVlRdRA83FT7tshaf60ELSiUIiF5apWrFrkSsi0w6VevcEY=
-X-Received: by 2002:a05:6830:1f4e:: with SMTP id u14mr5435418oth.65.1613045375921;
- Thu, 11 Feb 2021 04:09:35 -0800 (PST)
+        id S230174AbhBKM1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 07:27:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48472 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230011AbhBKMYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 07:24:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613046199;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=faRpucM8bYk3+6I7D614thA2FMfgheqmON/unvovBDw=;
+        b=hCTli6TjKEUkdHVP+kswbDvJtC3IWdYBm/g6pn5LbkrHBF8+oq3XUGiGsnp/4PmM5aTNw6
+        boJAOANAsRPcQo2K9j59VTS5U4vhnKq4Vzoxn3EwR3P2fnZ1OdchV9Udfp6dOSODLw//cE
+        A+++af+M58cV6sA/Uo/mmQWBrKd8srY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-233-aPNvSw21OQiRLgyafqWlog-1; Thu, 11 Feb 2021 07:23:15 -0500
+X-MC-Unique: aPNvSw21OQiRLgyafqWlog-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A20F81005501;
+        Thu, 11 Feb 2021 12:23:13 +0000 (UTC)
+Received: from gondolin (ovpn-112-229.ams2.redhat.com [10.36.112.229])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BA37B60936;
+        Thu, 11 Feb 2021 12:23:08 +0000 (UTC)
+Date:   Thu, 11 Feb 2021 13:23:06 +0100
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210211132306.64249174.cohuck@redhat.com>
+In-Reply-To: <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
+References: <20210209194830.20271-1-akrowiak@linux.ibm.com>
+        <20210209194830.20271-2-akrowiak@linux.ibm.com>
+        <20210210115334.46635966.cohuck@redhat.com>
+        <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Received: by 2002:a05:6838:5d02:0:0:0:0 with HTTP; Thu, 11 Feb 2021 04:09:35
- -0800 (PST)
-Reply-To: mrsnicolepauline813@gmail.com
-From:   "Mrs. Nicole Pauline" <drmuhammadusman32@gmail.com>
-Date:   Thu, 11 Feb 2021 04:09:35 -0800
-Message-ID: <CAE4FhF64OF8ifdgs2NdT2hx9476VGpJa+YCS_UBn_UMdzOL9Sw@mail.gmail.com>
-Subject: My Dearest
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dearest,
+On Wed, 10 Feb 2021 15:34:24 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-My name is Mrs. Nicole Pauline, from Toulouse France. I have been
-suffering from ovarian cancer disease and the doctor says that I have
-just a short time to live. For the past Twelve years, I have being
-dealing on gold exportation, before falling ill due to the Cancer.
+> On 2/10/21 5:53 AM, Cornelia Huck wrote:
+> > On Tue,  9 Feb 2021 14:48:30 -0500
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >  
+> >> This patch fixes a circular locking dependency in the CI introduced by
+> >> commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
+> >> pointer invalidated"). The lockdep only occurs when starting a Secure
+> >> Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
+> >> SE guests; however, in order to avoid CI errors, this fix is being
+> >> provided.
+> >>
+> >> The circular lockdep was introduced when the masks in the guest's APCB
+> >> were taken under the matrix_dev->lock. While the lock is definitely
+> >> needed to protect the setting/unsetting of the KVM pointer, it is not
+> >> necessarily critical for setting the masks, so this will not be done under
+> >> protection of the matrix_dev->lock.
+> >>
+> >> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> >> ---
+> >>   drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
+> >>   1 file changed, 45 insertions(+), 30 deletions(-)
+> >>
+> >>   static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> >>   {
+> >> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> >> -	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> >> -	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> >> -	kvm_put_kvm(matrix_mdev->kvm);
+> >> -	matrix_mdev->kvm = NULL;
+> >> +	if (matrix_mdev->kvm) {  
+> > If you're doing setting/unsetting under matrix_dev->lock, is it
+> > possible that matrix_mdev->kvm gets unset between here and the next
+> > line, as you don't hold the lock?  
+> 
+> That is highly unlikely because the only place the matrix_mdev->kvm
+> pointer is cleared is in this function which is called from only two
+> places: the notifier that handles the VFIO_GROUP_NOTIFY_SET_KVM
+> notification when the KVM pointer is cleared; the vfio_ap_mdev_release()
+> function which is called when the mdev fd is closed (i.e., when the guest
+> is shut down). The fact is, with the only end-to-end implementation
+> currently available, the notifier callback is never invoked to clear
+> the KVM pointer because the vfio_ap_mdev_release callback is
+> invoked first and it unregisters the notifier callback.
+> 
+> Having said that, I suppose there is no guarantee that there will not
+> be different userspace clients in the future that do things in a
+> different order. At the very least, it wouldn't hurt to protect against
+> that as you suggest below.
 
-My late husband, Dr. Benoit Kabore, a retired diplomat and one time
-minister of mines and Power in the republic of Burkina Faso made a lot
-of money from the sales of Gold and cotton while he was a minister,
-but we had no child of our own. Later my husband realized through a
-powerful man of God that it was evil course instituted by his brother
-in other to inherit his wealth, but before then it was too late, I and
-my husband agreed that he should remarry another wife but our religion
-did not permit it, while planning this my husband s brother heard it
-and they planned and killed my husband at the age of 56, he died in
-the month of September 2007 Now that I am very sick and according to
-the doctor, will not survive the sickness. The worst of it all is that
-I do not have any family members or children to inherit my wealth.
+Yes, if userspace is able to use the interfaces in the certain way, we
+should always make sure that nothing bad happens if it does so, even if
+known userspace applications are well-behaved.
 
-I am writing this letter now through the help of the computer beside
-my sick bed. I have $6.5 Million US Dollars deposited in Coris Bank
-International here in Burkina Faso and I am willing to instruct my
-bank to transfer the said fund to you as my foreign Trustee.
+[Can we make an 'evil userspace' test program, maybe? The hardware
+dependency makes this hard to run, though.]
 
-You will apply to the bank that they should release the fund to you,
-but you will assure me that you will take 50% of the fund and give 50%
-to the orphanages home in your country for my soul to rest after I
-have gone. In my next email, I will send you the copy of the
-certificate of Deposit which will enable you apply to the bank and
-receive the money with no case.
+> 
+> >
+> > Maybe you could
+> > - grab a reference to kvm while holding the lock
+> > - call the mask handling functions with that kvm reference
+> > - lock again, drop the reference, and do the rest of the processing?
+> >  
+> >> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> >> +		mutex_lock(&matrix_dev->lock);
+> >> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> >> +		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> >> +		kvm_put_kvm(matrix_mdev->kvm);
+> >> +		matrix_mdev->kvm = NULL;
+> >> +		mutex_unlock(&matrix_dev->lock);
+> >> +	}
+> >>   }  
+> 
 
-Yours Faithfully,
-Mrs. Nicole Pauline,
