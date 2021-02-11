@@ -2,77 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E34F318E49
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71673318E38
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229964AbhBKPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:24:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52472 "EHLO mail.kernel.org"
+        id S229469AbhBKPXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:23:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230260AbhBKPT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:19:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CC9664F1B;
-        Thu, 11 Feb 2021 15:06:26 +0000 (UTC)
+        id S230265AbhBKPT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:19:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF7CD64F23;
+        Thu, 11 Feb 2021 15:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055986;
-        bh=X8nsuQJTgoe6gbLnW8ip3eaIYtCcVSr3zvpNLTjzxfo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8BQEGZfWqfDrS/nn+BHwkgDe8sNBbtrDmTGX6yTb8HL37E2MfqYARoH2HpSagn52
-         p53t5V52xqzQwubSrpS779buF3yeqSZ7fNh/uE8YcU3GCC+xud9xXvV53km8Tk55Bu
-         EKyRItj5j3Lb2dVEHSsLPMqhvubwJ9m9H2CY9sqM=
+        s=korg; t=1613055994;
+        bh=KVUqIA4ERjVtw5gVOcNI1jgV6m5LaiWawq9MvjORJ44=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GaAqAatZS4j1BRJwotzEl1EVgHHTzXXLtOLmHyivMcA/PCXJw4y1ByzIXr5qFGjoU
+         Q4TnofKNOnIiGDvbIZYlCN1uuDfIeHMb42dIxLxNIEI58VsuNdrv9RAjYexOvpKCpw
+         sJI8ZokHSPPsn1IU6ZgmVV/gO6yqdrjnegNqAVm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/24] iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
-Date:   Thu, 11 Feb 2021 16:02:33 +0100
-Message-Id: <20210211150148.972655600@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 00/24] 4.19.176-rc1 review
+Date:   Thu, 11 Feb 2021 16:02:34 +0100
+Message-Id: <20210211150147.743660073@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-References: <20210211150148.516371325@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.176-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.176-rc1
+X-KernelTest-Deadline: 2021-02-13T15:01+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+This is the start of the stable review cycle for the 4.19.176 release.
+There are 24 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 5c56d862c749669d45c256f581eac4244be00d4d ]
+Responses should be made by Sat, 13 Feb 2021 15:01:39 +0000.
+Anything received after that time might be too late.
 
-We need to take the mutex to call iwl_mvm_get_sync_time(), do it.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.176-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130252.4bb5ccf881a6.I62973cbb081e80aa5b0447a5c3b9c3251a65cf6b@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c | 3 +++
- 1 file changed, 3 insertions(+)
+thanks,
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-index f043eefabb4ec..7b1d2dac6ceb8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-@@ -514,7 +514,10 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
- 	const size_t bufsz = sizeof(buf);
- 	int pos = 0;
- 
-+	mutex_lock(&mvm->mutex);
- 	iwl_mvm_get_sync_time(mvm, &curr_gp2, &curr_os);
-+	mutex_unlock(&mvm->mutex);
-+
- 	do_div(curr_os, NSEC_PER_USEC);
- 	diff = curr_os - curr_gp2;
- 	pos += scnprintf(buf + pos, bufsz - pos, "diff=%lld\n", diff);
--- 
-2.27.0
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.176-rc1
+
+Phillip Lougher <phillip@squashfs.org.uk>
+    squashfs: add more sanity checks in xattr id lookup
+
+Phillip Lougher <phillip@squashfs.org.uk>
+    squashfs: add more sanity checks in inode lookup
+
+Phillip Lougher <phillip@squashfs.org.uk>
+    squashfs: add more sanity checks in id lookup
+
+Ming Lei <ming.lei@redhat.com>
+    blk-mq: don't hold q->sysfs_lock in blk_mq_map_swqueue
+
+Ming Lei <ming.lei@redhat.com>
+    block: don't hold q->sysfs_lock in elevator_init_mq
+
+Peter Gonda <pgonda@google.com>
+    Fix unsynchronized access to sev members through svm_register_enc_region
+
+Theodore Ts'o <tytso@mit.edu>
+    memcg: fix a crash in wb_workfn when a device disappears
+
+Qian Cai <cai@lca.pw>
+    include/trace/events/writeback.h: fix -Wstringop-truncation warnings
+
+Tobin C. Harding <tobin@kernel.org>
+    lib/string: Add strscpy_pad() function
+
+Dave Wysochanski <dwysocha@redhat.com>
+    SUNRPC: Handle 0 length opaque XDR object data properly
+
+Dave Wysochanski <dwysocha@redhat.com>
+    SUNRPC: Move simple_get_bytes and simple_get_netobj into private header
+
+Johannes Berg <johannes.berg@intel.com>
+    iwlwifi: mvm: guard against device removal in reprobe
+
+Johannes Berg <johannes.berg@intel.com>
+    iwlwifi: pcie: fix context info memory leak
+
+Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+    iwlwifi: pcie: add a NULL check in iwl_pcie_txq_unmap
+
+Johannes Berg <johannes.berg@intel.com>
+    iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    pNFS/NFSv4: Try to return invalid layout in pnfs_layout_process()
+
+Pan Bian <bianpan2016@163.com>
+    chtls: Fix potential resource leak
+
+David Collins <collinsd@codeaurora.org>
+    regulator: core: avoid regulator_resolve_supply() race condition
+
+Cong Wang <cong.wang@bytedance.com>
+    af_key: relax availability checks for skb size calculation
+
+Sibi Sankar <sibis@codeaurora.org>
+    remoteproc: qcom_q6v5_mss: Validate MBA firmware size before load
+
+Sibi Sankar <sibis@codeaurora.org>
+    remoteproc: qcom_q6v5_mss: Validate modem blob firmware size before load
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    fgraph: Initialize tracing_graph_pause at task creation
+
+zhengbin <zhengbin13@huawei.com>
+    block: fix NULL pointer dereference in register_disk
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    tracing/kprobe: Fix to support kretprobe events on unloaded modules
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/x86/kvm/svm.c                                 | 18 +++---
+ block/blk-mq.c                                     |  7 ---
+ block/elevator.c                                   | 14 ++---
+ block/genhd.c                                      | 10 ++--
+ drivers/crypto/chelsio/chtls/chtls_cm.c            |  7 +--
+ .../net/wireless/intel/iwlwifi/mvm/debugfs-vif.c   |  3 +
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c       |  3 +-
+ .../wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c   | 11 +++-
+ drivers/net/wireless/intel/iwlwifi/pcie/tx.c       |  5 ++
+ drivers/regulator/core.c                           | 39 +++++++++----
+ drivers/remoteproc/qcom_q6v5_pil.c                 | 11 +++-
+ fs/fs-writeback.c                                  |  2 +-
+ fs/nfs/pnfs.c                                      |  8 ++-
+ fs/squashfs/export.c                               | 41 +++++++++++---
+ fs/squashfs/id.c                                   | 40 ++++++++++---
+ fs/squashfs/squashfs_fs_sb.h                       |  1 +
+ fs/squashfs/super.c                                |  6 +-
+ fs/squashfs/xattr.h                                | 10 +++-
+ fs/squashfs/xattr_id.c                             | 66 +++++++++++++++++++---
+ include/linux/backing-dev.h                        | 10 ++++
+ include/linux/kprobes.h                            |  2 +-
+ include/linux/string.h                             |  4 ++
+ include/linux/sunrpc/xdr.h                         |  3 +-
+ include/trace/events/writeback.h                   | 35 ++++++------
+ init/init_task.c                                   |  3 +-
+ kernel/kprobes.c                                   | 34 ++++++++---
+ kernel/trace/ftrace.c                              |  2 -
+ kernel/trace/trace_kprobe.c                        |  4 +-
+ lib/string.c                                       | 47 ++++++++++++---
+ mm/backing-dev.c                                   |  1 +
+ net/key/af_key.c                                   |  6 +-
+ net/sunrpc/auth_gss/auth_gss.c                     | 30 +---------
+ net/sunrpc/auth_gss/auth_gss_internal.h            | 45 +++++++++++++++
+ net/sunrpc/auth_gss/gss_krb5_mech.c                | 31 +---------
+ 35 files changed, 379 insertions(+), 184 deletions(-)
 
 
