@@ -2,123 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC225318D67
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 15:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF43318D92
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 15:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232047AbhBKO3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 09:29:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231293AbhBKO1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 09:27:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90B9D64ECF;
-        Thu, 11 Feb 2021 14:23:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613053398;
-        bh=WChxGIvOv+ddcZNCBGS3FZQ5DthPIh0PppyDsv4OSwg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pGbsbtF5uCfynxoTbW0yIUqgt/y2MfVu3Yj7jN7H8AocFuhkHbVt1jhvagkwXB4Rq
-         Cs4FRKkJOHNxWL/whCnEIhElr6HuqJA7i7EEH7ehRLgow3ss2lHJq+++FAUyZUMHdk
-         gcgtAkVGEtn2vz8M0WkqKxu3/wyMcZnTIdgMoeTQ=
-Date:   Thu, 11 Feb 2021 15:23:10 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] lkdtm: don't move ctors to .rodata
-Message-ID: <YCU9zoiw8EZktw5U@kroah.com>
-References: <20201207170533.10738-1-mark.rutland@arm.com>
- <202012081319.D5827CF@keescook>
- <X9DkdTGAiAEfUvm5@kroah.com>
- <161300376813.1254594.5196098885798133458@swboyd.mtv.corp.google.com>
+        id S229963AbhBKOot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 09:44:49 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8468 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230483AbhBKOjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Feb 2021 09:39:44 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11BEWG3A059644;
+        Thu, 11 Feb 2021 09:38:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6wqPoNT+YWRNhA6XxX5OOG/vz4Y0AUZ5SY3AwKfclKY=;
+ b=dsRgkDGiH2343Rp5FmsqnheEWyE5z21HwWdqYRk8+GMTgAoeUZoS6QaTKysfhQrHbkjD
+ H48FUeftWVVGh7hOWNJb0rdlYMQPsRs+y6sh44isGx99FxiO93IQFYh7VQs9X/KCSmzx
+ MVg4y8jaXs8Xkg197cvrUo5L11D472ikxBLN5jf6CPe9z7eLe+fBndyeItAu1inbwMn7
+ Bkry6BSX/cZ4hN49LAuwUOMfKAhjhGeml8KWS32kW9v50nAbIXGYkLnyWLM0plDPg0pi
+ Qo6nksbr5NAcbyoBuHWhQF00gCTB9ZJGjklqqVBWaTAIoXeGmPS8rb1C4m074WnW1con oQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n6dmrfs2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 09:38:45 -0500
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11BEWhZ0061795;
+        Thu, 11 Feb 2021 09:38:42 -0500
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n6dmrfg3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 09:38:42 -0500
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11BEX3HW029900;
+        Thu, 11 Feb 2021 14:38:36 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02wdc.us.ibm.com with ESMTP id 36hjr9x80y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 14:38:36 +0000
+Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11BEcaQg31064418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 Feb 2021 14:38:36 GMT
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 675B8112062;
+        Thu, 11 Feb 2021 14:38:36 +0000 (GMT)
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF78D112061;
+        Thu, 11 Feb 2021 14:38:35 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.203.235])
+        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 11 Feb 2021 14:38:35 +0000 (GMT)
+Subject: Re: [PATCH 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
+References: <20210209194830.20271-1-akrowiak@linux.ibm.com>
+ <20210209194830.20271-2-akrowiak@linux.ibm.com>
+ <20210210115334.46635966.cohuck@redhat.com>
+ <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
+ <20210211132306.64249174.cohuck@redhat.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <357fe77e-eee3-9e83-d7bf-e59edf814045@linux.ibm.com>
+Date:   Thu, 11 Feb 2021 09:38:35 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <161300376813.1254594.5196098885798133458@swboyd.mtv.corp.google.com>
+In-Reply-To: <20210211132306.64249174.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-11_06:2021-02-10,2021-02-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 suspectscore=0 clxscore=1015
+ spamscore=0 mlxlogscore=999 bulkscore=0 phishscore=0 impostorscore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102110122
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 04:36:08PM -0800, Stephen Boyd wrote:
-> Quoting Greg Kroah-Hartman (2020-12-09 06:51:33)
-> > On Tue, Dec 08, 2020 at 01:20:56PM -0800, Kees Cook wrote:
-> > > On Mon, Dec 07, 2020 at 05:05:33PM +0000, Mark Rutland wrote:
-> > > > When building with KASAN and LKDTM, clang may implictly generate an
-> > > > asan.module_ctor function in the LKDTM rodata object. The Makefile moves
-> > > > the lkdtm_rodata_do_nothing() function into .rodata by renaming the
-> > > > file's .text section to .rodata, and consequently also moves the ctor
-> > > > function into .rodata, leading to a boot time crash (splat below) when
-> > > > the ctor is invoked by do_ctors().
-> > > > 
-> > > > Let's prevent this by marking the function as noinstr rather than
-> > > > notrace, and renaming the file's .noinstr.text to .rodata. Marking the
-> > > > function as noinstr will prevent tracing and kprobes, and will inhibit
-> > > > any undesireable compiler instrumentation.
-> > > > 
-> > > > The ctor function (if any) will be placed in .text and will work
-> > > > correctly.
-> > > > 
-> > > > Example splat before this patch is applied:
-> > > > 
-> > > > [    0.916359] Unable to handle kernel execute from non-executable memory at virtual address ffffa0006b60f5ac
-> > > > [    0.922088] Mem abort info:
-> > > > [    0.922828]   ESR = 0x8600000e
-> > > > [    0.923635]   EC = 0x21: IABT (current EL), IL = 32 bits
-> > > > [    0.925036]   SET = 0, FnV = 0
-> > > > [    0.925838]   EA = 0, S1PTW = 0
-> > > > [    0.926714] swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000427b3000
-> > > > [    0.928489] [ffffa0006b60f5ac] pgd=000000023ffff003, p4d=000000023ffff003, pud=000000023fffe003, pmd=0068000042000f01
-> > > > [    0.931330] Internal error: Oops: 8600000e [#1] PREEMPT SMP
-> > > > [    0.932806] Modules linked in:
-> > > > [    0.933617] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-rc7 #2
-> > > > [    0.935620] Hardware name: linux,dummy-virt (DT)
-> > > > [    0.936924] pstate: 40400005 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-> > > > [    0.938609] pc : asan.module_ctor+0x0/0x14
-> > > > [    0.939759] lr : do_basic_setup+0x4c/0x70
-> > > > [    0.940889] sp : ffff27b600177e30
-> > > > [    0.941815] x29: ffff27b600177e30 x28: 0000000000000000
-> > > > [    0.943306] x27: 0000000000000000 x26: 0000000000000000
-> > > > [    0.944803] x25: 0000000000000000 x24: 0000000000000000
-> > > > [    0.946289] x23: 0000000000000001 x22: 0000000000000000
-> > > > [    0.947777] x21: ffffa0006bf4a890 x20: ffffa0006befb6c0
-> > > > [    0.949271] x19: ffffa0006bef9358 x18: 0000000000000068
-> > > > [    0.950756] x17: fffffffffffffff8 x16: 0000000000000000
-> > > > [    0.952246] x15: 0000000000000000 x14: 0000000000000000
-> > > > [    0.953734] x13: 00000000838a16d5 x12: 0000000000000001
-> > > > [    0.955223] x11: ffff94000da74041 x10: dfffa00000000000
-> > > > [    0.956715] x9 : 0000000000000000 x8 : ffffa0006b60f5ac
-> > > > [    0.958199] x7 : f9f9f9f9f9f9f9f9 x6 : 000000000000003f
-> > > > [    0.959683] x5 : 0000000000000040 x4 : 0000000000000000
-> > > > [    0.961178] x3 : ffffa0006bdc15a0 x2 : 0000000000000005
-> > > > [    0.962662] x1 : 00000000000000f9 x0 : ffffa0006bef9350
-> > > > [    0.964155] Call trace:
-> > > > [    0.964844]  asan.module_ctor+0x0/0x14
-> > > > [    0.965895]  kernel_init_freeable+0x158/0x198
-> > > > [    0.967115]  kernel_init+0x14/0x19c
-> > > > [    0.968104]  ret_from_fork+0x10/0x30
-> > > > [    0.969110] Code: 00000003 00000000 00000000 00000000 (00000000)
-> > > > [    0.970815] ---[ end trace b5339784e20d015c ]---
-> > > > 
-> > > > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> > > 
-> > > Oh, eek. Why was a ctor generated at all? But yes, this looks good.
-> > > Greg, can you pick this up please?
-> > > 
-> > > Acked-by: Kees Cook <keescook@chromium.org>
-> > 
-> > Now picked up, thanks.
-> > 
-> 
-> Can this be backported to 5.4 and 5.10 stable trees? I just ran across
-> this trying to use kasan on 5.4 with lkdtm and it blows up early. This
-> patch applies on 5.4 cleanly but doesn't compile because it's missing
-> noinstr. Here's a version of the patch that introduces noinstr on 5.4.97
-> so this patch can be picked to 5.4 stable trees.
 
-Why 5.10?  This showed up in 5.8, so how would it be needed there?
 
-confused,
+On 2/11/21 7:23 AM, Cornelia Huck wrote:
+> On Wed, 10 Feb 2021 15:34:24 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> On 2/10/21 5:53 AM, Cornelia Huck wrote:
+>>> On Tue,  9 Feb 2021 14:48:30 -0500
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>   
+>>>> This patch fixes a circular locking dependency in the CI introduced by
+>>>> commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
+>>>> pointer invalidated"). The lockdep only occurs when starting a Secure
+>>>> Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
+>>>> SE guests; however, in order to avoid CI errors, this fix is being
+>>>> provided.
+>>>>
+>>>> The circular lockdep was introduced when the masks in the guest's APCB
+>>>> were taken under the matrix_dev->lock. While the lock is definitely
+>>>> needed to protect the setting/unsetting of the KVM pointer, it is not
+>>>> necessarily critical for setting the masks, so this will not be done under
+>>>> protection of the matrix_dev->lock.
+>>>>
+>>>> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
+>>>> Cc: stable@vger.kernel.org
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
+>>>>    1 file changed, 45 insertions(+), 30 deletions(-)
+>>>>
+>>>>    static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+>>>>    {
+>>>> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>>>> -	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+>>>> -	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+>>>> -	kvm_put_kvm(matrix_mdev->kvm);
+>>>> -	matrix_mdev->kvm = NULL;
+>>>> +	if (matrix_mdev->kvm) {
+>>> If you're doing setting/unsetting under matrix_dev->lock, is it
+>>> possible that matrix_mdev->kvm gets unset between here and the next
+>>> line, as you don't hold the lock?
+>> That is highly unlikely because the only place the matrix_mdev->kvm
+>> pointer is cleared is in this function which is called from only two
+>> places: the notifier that handles the VFIO_GROUP_NOTIFY_SET_KVM
+>> notification when the KVM pointer is cleared; the vfio_ap_mdev_release()
+>> function which is called when the mdev fd is closed (i.e., when the guest
+>> is shut down). The fact is, with the only end-to-end implementation
+>> currently available, the notifier callback is never invoked to clear
+>> the KVM pointer because the vfio_ap_mdev_release callback is
+>> invoked first and it unregisters the notifier callback.
+>>
+>> Having said that, I suppose there is no guarantee that there will not
+>> be different userspace clients in the future that do things in a
+>> different order. At the very least, it wouldn't hurt to protect against
+>> that as you suggest below.
+> Yes, if userspace is able to use the interfaces in the certain way, we
+> should always make sure that nothing bad happens if it does so, even if
+> known userspace applications are well-behaved.
+>
+> [Can we make an 'evil userspace' test program, maybe? The hardware
+> dependency makes this hard to run, though.]
 
-greg k-h
+Of course it is possible to create such a test program, but off the
+top of my head, I can't come up with an algorithm that would
+result in the scenario you have laid out. I haven't dabbled in the QEMU
+space in quite some time; so, there would also be a bit of a re-learning
+curve. I'm not sure it would be worth the effort to take this on given
+how unlikely it is this scenario can happen, but I will take it into
+consideration as it is a good idea.
+
+>
+>>> Maybe you could
+>>> - grab a reference to kvm while holding the lock
+>>> - call the mask handling functions with that kvm reference
+>>> - lock again, drop the reference, and do the rest of the processing?
+>>>   
+>>>> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>>>> +		mutex_lock(&matrix_dev->lock);
+>>>> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+>>>> +		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+>>>> +		kvm_put_kvm(matrix_mdev->kvm);
+>>>> +		matrix_mdev->kvm = NULL;
+>>>> +		mutex_unlock(&matrix_dev->lock);
+>>>> +	}
+>>>>    }
+
