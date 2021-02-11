@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 270A3318E55
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 342F9318E59
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbhBKPYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:24:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52616 "EHLO mail.kernel.org"
+        id S231196AbhBKPZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230155AbhBKPUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S229912AbhBKPUg (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 11 Feb 2021 10:20:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1E5C64F1F;
-        Thu, 11 Feb 2021 15:06:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77DD464F29;
+        Thu, 11 Feb 2021 15:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613056010;
-        bh=7HAX9sU+l6BNdNYSlFXNawad2Tcj2aC8xHHqNBYP1s8=;
+        s=korg; t=1613056012;
+        bh=JHDr2IOXzI89qrCUK4WjbM/xAngvlCwxSD66t9bjhFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8U+6SE5b4hCWscGOsqBuE7ajrW4PrJkF0Vs24QDqkr1IpzuB/l/q3xNCWB57u4cS
-         gOdODZ/BYITfpE9wmA3sgkRDMLKYn1vcI5ZpNqMqaaDLwE3y8NbyFHbp19pDlGBIQT
-         Snl0jaO5SvC6CgNHtsZxW2f61RU+pOFSJyivex0o=
+        b=0Tqe7KViKodYZBpVNvi8NQlq8E+DWuy2zu7HKdDr8SudecuE8qhDaJ3J5HSGrGFlB
+         PNQJTj0X9wJxMA9ePfU7eyDzH3lI/vDrbvOdpQ5fb9fXhvNUo6L9wQhipN06agQJI2
+         aAtIzAOlR86jl2FJF5jqy1m2vCevkB9XSd4yBcdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/24] SUNRPC: Handle 0 length opaque XDR object data properly
-Date:   Thu, 11 Feb 2021 16:02:49 +0100
-Message-Id: <20210211150148.417533976@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Tobin C. Harding" <tobin@kernel.org>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/24] lib/string: Add strscpy_pad() function
+Date:   Thu, 11 Feb 2021 16:02:50 +0100
+Message-Id: <20210211150148.467778368@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210211150147.743660073@linuxfoundation.org>
 References: <20210211150147.743660073@linuxfoundation.org>
@@ -40,77 +40,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Tobin C. Harding <tobin@kernel.org>
 
-[ Upstream commit e4a7d1f7707eb44fd953a31dd59eff82009d879c ]
+[ Upstream commit 458a3bf82df4fe1f951d0f52b1e0c1e9d5a88a3b ]
 
-When handling an auth_gss downcall, it's possible to get 0-length
-opaque object for the acceptor.  In the case of a 0-length XDR
-object, make sure simple_get_netobj() fills in dest->data = NULL,
-and does not continue to kmemdup() which will set
-dest->data = ZERO_SIZE_PTR for the acceptor.
+We have a function to copy strings safely and we have a function to copy
+strings and zero the tail of the destination (if source string is
+shorter than destination buffer) but we do not have a function to do
+both at once.  This means developers must write this themselves if they
+desire this functionality.  This is a chore, and also leaves us open to
+off by one errors unnecessarily.
 
-The trace event code can handle NULL but not ZERO_SIZE_PTR for a
-string, and so without this patch the rpcgss_context trace event
-will crash the kernel as follows:
+Add a function that calls strscpy() then memset()s the tail to zero if
+the source string is shorter than the destination buffer.
 
-[  162.887992] BUG: kernel NULL pointer dereference, address: 0000000000000010
-[  162.898693] #PF: supervisor read access in kernel mode
-[  162.900830] #PF: error_code(0x0000) - not-present page
-[  162.902940] PGD 0 P4D 0
-[  162.904027] Oops: 0000 [#1] SMP PTI
-[  162.905493] CPU: 4 PID: 4321 Comm: rpc.gssd Kdump: loaded Not tainted 5.10.0 #133
-[  162.908548] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[  162.910978] RIP: 0010:strlen+0x0/0x20
-[  162.912505] Code: 48 89 f9 74 09 48 83 c1 01 80 39 00 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 0f 1f 80 00 00 00 00 <80> 3f 00 74 10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3 31
-[  162.920101] RSP: 0018:ffffaec900c77d90 EFLAGS: 00010202
-[  162.922263] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000fffde697
-[  162.925158] RDX: 000000000000002f RSI: 0000000000000080 RDI: 0000000000000010
-[  162.928073] RBP: 0000000000000010 R08: 0000000000000e10 R09: 0000000000000000
-[  162.930976] R10: ffff8e698a590cb8 R11: 0000000000000001 R12: 0000000000000e10
-[  162.933883] R13: 00000000fffde697 R14: 000000010034d517 R15: 0000000000070028
-[  162.936777] FS:  00007f1e1eb93700(0000) GS:ffff8e6ab7d00000(0000) knlGS:0000000000000000
-[  162.940067] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  162.942417] CR2: 0000000000000010 CR3: 0000000104eba000 CR4: 00000000000406e0
-[  162.945300] Call Trace:
-[  162.946428]  trace_event_raw_event_rpcgss_context+0x84/0x140 [auth_rpcgss]
-[  162.949308]  ? __kmalloc_track_caller+0x35/0x5a0
-[  162.951224]  ? gss_pipe_downcall+0x3a3/0x6a0 [auth_rpcgss]
-[  162.953484]  gss_pipe_downcall+0x585/0x6a0 [auth_rpcgss]
-[  162.955953]  rpc_pipe_write+0x58/0x70 [sunrpc]
-[  162.957849]  vfs_write+0xcb/0x2c0
-[  162.959264]  ksys_write+0x68/0xe0
-[  162.960706]  do_syscall_64+0x33/0x40
-[  162.962238]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  162.964346] RIP: 0033:0x7f1e1f1e57df
-
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Signed-off-by: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/auth_gss_internal.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ include/linux/string.h |  4 ++++
+ lib/string.c           | 47 +++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 44 insertions(+), 7 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss_internal.h b/net/sunrpc/auth_gss/auth_gss_internal.h
-index c5603242b54bf..f6d9631bd9d00 100644
---- a/net/sunrpc/auth_gss/auth_gss_internal.h
-+++ b/net/sunrpc/auth_gss/auth_gss_internal.h
-@@ -34,9 +34,12 @@ simple_get_netobj(const void *p, const void *end, struct xdr_netobj *dest)
- 	q = (const void *)((const char *)p + len);
- 	if (unlikely(q > end || q < p))
- 		return ERR_PTR(-EFAULT);
--	dest->data = kmemdup(p, len, GFP_NOFS);
--	if (unlikely(dest->data == NULL))
--		return ERR_PTR(-ENOMEM);
-+	if (len) {
-+		dest->data = kmemdup(p, len, GFP_NOFS);
-+		if (unlikely(dest->data == NULL))
-+			return ERR_PTR(-ENOMEM);
-+	} else
-+		dest->data = NULL;
- 	dest->len = len;
- 	return q;
+diff --git a/include/linux/string.h b/include/linux/string.h
+index 4db285b83f44e..1e0c442b941e2 100644
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -31,6 +31,10 @@ size_t strlcpy(char *, const char *, size_t);
+ #ifndef __HAVE_ARCH_STRSCPY
+ ssize_t strscpy(char *, const char *, size_t);
+ #endif
++
++/* Wraps calls to strscpy()/memset(), no arch specific code required */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ extern char * strcat(char *, const char *);
+ #endif
+diff --git a/lib/string.c b/lib/string.c
+index edf4907ec946f..f7f7770444bf5 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -158,11 +158,9 @@ EXPORT_SYMBOL(strlcpy);
+  * @src: Where to copy the string from
+  * @count: Size of destination buffer
+  *
+- * Copy the string, or as much of it as fits, into the dest buffer.
+- * The routine returns the number of characters copied (not including
+- * the trailing NUL) or -E2BIG if the destination buffer wasn't big enough.
+- * The behavior is undefined if the string buffers overlap.
+- * The destination buffer is always NUL terminated, unless it's zero-sized.
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always NUL terminated, unless it's zero-sized.
+  *
+  * Preferred to strlcpy() since the API doesn't require reading memory
+  * from the src string beyond the specified "count" bytes, and since
+@@ -172,8 +170,10 @@ EXPORT_SYMBOL(strlcpy);
+  *
+  * Preferred to strncpy() since it always returns a valid string, and
+  * doesn't unnecessarily force the tail of the destination buffer to be
+- * zeroed.  If the zeroing is desired, it's likely cleaner to use strscpy()
+- * with an overflow test, then just memset() the tail of the dest buffer.
++ * zeroed.  If zeroing is desired please use strscpy_pad().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
+  */
+ ssize_t strscpy(char *dest, const char *src, size_t count)
+ {
+@@ -260,6 +260,39 @@ char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
  }
+ EXPORT_SYMBOL(stpcpy);
+ 
++/**
++ * strscpy_pad() - Copy a C-string into a sized buffer
++ * @dest: Where to copy the string to
++ * @src: Where to copy the string from
++ * @count: Size of destination buffer
++ *
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always %NUL terminated, unless it's zero-sized.
++ *
++ * If the source string is shorter than the destination buffer, zeros
++ * the tail of the destination buffer.
++ *
++ * For full explanation of why you may want to consider using the
++ * 'strscpy' functions please see the function docstring for strscpy().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
++ */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count)
++{
++	ssize_t written;
++
++	written = strscpy(dest, src, count);
++	if (written < 0 || written == count - 1)
++		return written;
++
++	memset(dest + written + 1, 0, count - written - 1);
++
++	return written;
++}
++EXPORT_SYMBOL(strscpy_pad);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
 -- 
 2.27.0
 
