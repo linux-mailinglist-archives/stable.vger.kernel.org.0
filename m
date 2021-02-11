@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A92DD318DF8
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A83318E48
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhBKPS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:18:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
+        id S229821AbhBKPYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:24:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229916AbhBKPNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D30364EF3;
-        Thu, 11 Feb 2021 15:04:43 +0000 (UTC)
+        id S230231AbhBKPT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:19:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08DFF6024A;
+        Thu, 11 Feb 2021 15:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055884;
-        bh=pZUWVGmpSgyq0X0nBEATrlOBq1AczwSKMjBI4an9OuY=;
+        s=korg; t=1613055978;
+        bh=Yhi2Z1egjuosOWB1BmQ12EbaVaKb9Lt0pI+RIJIyiy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kI2Ff6tbpAzyiodDz1zfnpRM2xSNMfcNcu6qOmoyLo2GDh61k1yzttvY3IzUdAJxZ
-         iJ6iAC5ZQDpmPUVwoa1t0/H2sEmq0s2xQpS2vooPEnR8UoCgvrVPMovY2QipTJn3Wp
-         utjZPXXt1GLpC6441Fb/FHOGvVKznowufZXJIsd8=
+        b=orVd07yS5oqmvZund7EUQUcQM8t0o7rDn624ejb7SX3i7hEWyG2yFnh44BWDPaQod
+         SZvoVxHvAIpvg9Sem0SVXLmOiOkXnNM83uEynp38iFLyhB6H/jJp7oudDZeEulrV2G
+         UiSsFLMDDYlFU2i60Bq9TMrjvyRmFEaOUTLR8Dmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 46/54] bpf: Fix verifier jsgt branch analysis on max bound
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/24] pNFS/NFSv4: Try to return invalid layout in pnfs_layout_process()
 Date:   Thu, 11 Feb 2021 16:02:30 +0100
-Message-Id: <20210211150154.878999096@linuxfoundation.org>
+Message-Id: <20210211150148.833411184@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
-References: <20210211150152.885701259@linuxfoundation.org>
+In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
+References: <20210211150148.516371325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit ee114dd64c0071500345439fc79dd5e0f9d106ed upstream.
+[ Upstream commit 08bd8dbe88825760e953759d7ec212903a026c75 ]
 
-Fix incorrect is_branch{32,64}_taken() analysis for the jsgt case. The return
-code for both will tell the caller whether a given conditional jump is taken
-or not, e.g. 1 means branch will be taken [for the involved registers] and the
-goto target will be executed, 0 means branch will not be taken and instead we
-fall-through to the next insn, and last but not least a -1 denotes that it is
-not known at verification time whether a branch will be taken or not. Now while
-the jsgt has the branch-taken case correct with reg->s32_min_value > sval, the
-branch-not-taken case is off-by-one when testing for reg->s32_max_value < sval
-since the branch will also be taken for reg->s32_max_value == sval. The jgt
-branch analysis, for example, gets this right.
+If the server returns a new stateid that does not match the one in our
+cache, then try to return the one we hold instead of just invalidating
+it on the client side. This ensures that both client and server will
+agree that the stateid is invalid.
 
-Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
-Fixes: 4f7b3e82589e ("bpf: improve verifier branch analysis")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/pnfs.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6822,7 +6822,7 @@ static int is_branch32_taken(struct bpf_
- 	case BPF_JSGT:
- 		if (reg->s32_min_value > sval)
- 			return 1;
--		else if (reg->s32_max_value < sval)
-+		else if (reg->s32_max_value <= sval)
- 			return 0;
- 		break;
- 	case BPF_JLT:
-@@ -6895,7 +6895,7 @@ static int is_branch64_taken(struct bpf_
- 	case BPF_JSGT:
- 		if (reg->smin_value > sval)
- 			return 1;
--		else if (reg->smax_value < sval)
-+		else if (reg->smax_value <= sval)
- 			return 0;
- 		break;
- 	case BPF_JLT:
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index ca1d98f274d12..e3a79e6958124 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2369,7 +2369,13 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
+ 		 * We got an entirely new state ID.  Mark all segments for the
+ 		 * inode invalid, and retry the layoutget
+ 		 */
+-		pnfs_mark_layout_stateid_invalid(lo, &free_me);
++		struct pnfs_layout_range range = {
++			.iomode = IOMODE_ANY,
++			.length = NFS4_MAX_UINT64,
++		};
++		pnfs_set_plh_return_info(lo, IOMODE_ANY, 0);
++		pnfs_mark_matching_lsegs_return(lo, &lo->plh_return_segs,
++						&range, 0);
+ 		goto out_forget;
+ 	}
+ 
+-- 
+2.27.0
+
 
 
