@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3EE318E6F
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74697318E25
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230364AbhBKP0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:26:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52876 "EHLO mail.kernel.org"
+        id S230052AbhBKPVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:21:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230434AbhBKPWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:22:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAD3064F3D;
-        Thu, 11 Feb 2021 15:07:33 +0000 (UTC)
+        id S230204AbhBKPSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7A4B64F10;
+        Thu, 11 Feb 2021 15:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613056054;
-        bh=8zbBwMMZ2sjCt9t0409HVX+AKEniPr73bu/McM7taqY=;
+        s=korg; t=1613055961;
+        bh=TnW3LRvYFb3Bh56T1fRRhMh9otvJCWWAxpknbqrSmYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXxyTjAqUE3fgHr8TIY5HDpbO01odpCjm4d9TIowhy3c7wHn4MW1XOElyot8PwOKg
-         dIfoO05h4qAOj7BpOjOdrkyfDn2J7r7IFXNPtHU2ZL9R6yClGsjQF2hwp3Q7nDq5J8
-         Wryt/4CSb/wM7ojexGpDbWKuomB5fB82205OWQQY=
+        b=brW4hHbPzkFpmUGsNP0dJdyggDFKR/D9mdRKOz5ot73YrmzRmiZQdtelkJRS5L5gA
+         f0q+kHsxOmO5iSO4D5gQeaGxOyMmxY9o2IpGeGYopBmXCnXGW3v8ztotLQ+h9ExiZp
+         +A2nFHq5Nvha4DaWJebP/yCHkLUpRIwXt/af8CqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/24] iwlwifi: mvm: take mutex for calling iwl_mvm_get_sync_time()
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>, x86@kernel.org,
+        kvm@vger.kernel.org, Peter Gonda <pgonda@google.com>
+Subject: [PATCH 5.4 21/24] Fix unsynchronized access to sev members through svm_register_enc_region
 Date:   Thu, 11 Feb 2021 16:02:44 +0100
-Message-Id: <20210211150148.219110399@linuxfoundation.org>
+Message-Id: <20210211150149.446771096@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150147.743660073@linuxfoundation.org>
-References: <20210211150147.743660073@linuxfoundation.org>
+In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
+References: <20210211150148.516371325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Peter Gonda <pgonda@google.com>
 
-[ Upstream commit 5c56d862c749669d45c256f581eac4244be00d4d ]
+commit 19a23da53932bc8011220bd8c410cb76012de004 upstream.
 
-We need to take the mutex to call iwl_mvm_get_sync_time(), do it.
+Grab kvm->lock before pinning memory when registering an encrypted
+region; sev_pin_memory() relies on kvm->lock being held to ensure
+correctness when checking and updating the number of pinned pages.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130252.4bb5ccf881a6.I62973cbb081e80aa5b0447a5c3b9c3251a65cf6b@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a lockdep assertion to help prevent future regressions.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: x86@kernel.org
+Cc: kvm@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Fixes: 1e80fdc09d12 ("KVM: SVM: Pin guest memory when SEV is active")
+Signed-off-by: Peter Gonda <pgonda@google.com>
+
+V2
+ - Fix up patch description
+ - Correct file paths svm.c -> sev.c
+ - Add unlock of kvm->lock on sev_pin_memory error
+
+V1
+ - https://lore.kernel.org/kvm/20210126185431.1824530-1-pgonda@google.com/
+
+Message-Id: <20210127161524.2832400-1-pgonda@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/svm.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-index 798605c4f1227..5287f21d7ba63 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs-vif.c
-@@ -520,7 +520,10 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
- 	const size_t bufsz = sizeof(buf);
- 	int pos = 0;
+
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1835,6 +1835,8 @@ static struct page **sev_pin_memory(stru
+ 	struct page **pages;
+ 	unsigned long first, last;
  
-+	mutex_lock(&mvm->mutex);
- 	iwl_mvm_get_sync_time(mvm, &curr_gp2, &curr_os);
-+	mutex_unlock(&mvm->mutex);
++	lockdep_assert_held(&kvm->lock);
 +
- 	do_div(curr_os, NSEC_PER_USEC);
- 	diff = curr_os - curr_gp2;
- 	pos += scnprintf(buf + pos, bufsz - pos, "diff=%lld\n", diff);
--- 
-2.27.0
-
+ 	if (ulen == 0 || uaddr + ulen < uaddr)
+ 		return NULL;
+ 
+@@ -7091,12 +7093,21 @@ static int svm_register_enc_region(struc
+ 	if (!region)
+ 		return -ENOMEM;
+ 
++	mutex_lock(&kvm->lock);
+ 	region->pages = sev_pin_memory(kvm, range->addr, range->size, &region->npages, 1);
+ 	if (!region->pages) {
+ 		ret = -ENOMEM;
++		mutex_unlock(&kvm->lock);
+ 		goto e_free;
+ 	}
+ 
++	region->uaddr = range->addr;
++	region->size = range->size;
++
++	mutex_lock(&kvm->lock);
++	list_add_tail(&region->list, &sev->regions_list);
++	mutex_unlock(&kvm->lock);
++
+ 	/*
+ 	 * The guest may change the memory encryption attribute from C=0 -> C=1
+ 	 * or vice versa for this memory range. Lets make sure caches are
+@@ -7105,13 +7116,6 @@ static int svm_register_enc_region(struc
+ 	 */
+ 	sev_clflush_pages(region->pages, region->npages);
+ 
+-	region->uaddr = range->addr;
+-	region->size = range->size;
+-
+-	mutex_lock(&kvm->lock);
+-	list_add_tail(&region->list, &sev->regions_list);
+-	mutex_unlock(&kvm->lock);
+-
+ 	return ret;
+ 
+ e_free:
 
 
