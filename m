@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D40318E26
-	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:24:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E59C3318E6A
+	for <lists+stable@lfdr.de>; Thu, 11 Feb 2021 16:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbhBKPV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Feb 2021 10:21:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52628 "EHLO mail.kernel.org"
+        id S230448AbhBKP0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Feb 2021 10:26:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230185AbhBKPSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Feb 2021 10:18:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 329DA64F12;
-        Thu, 11 Feb 2021 15:05:53 +0000 (UTC)
+        id S230317AbhBKPWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Feb 2021 10:22:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A300A64F3A;
+        Thu, 11 Feb 2021 15:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613055953;
-        bh=mBU5b8VRc4MSpIsnNB2jc88+ZShmw8rX+D3GQtW1cFE=;
+        s=korg; t=1613056046;
+        bh=G25eVsCG0FfJD+6TQYx5u0/1KEGw50qSzxQT6J01+js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G95xZDAYNuJxLeqW02FiNjtGuJtZO3x5PNTkSIk/ieIDaYFHh13kRW4VmhNtr9g5v
-         ZoGlqYl1cQILklWVOB6fr3FUWYZSQ/v977RvzGAIyqaxOzmJiZf/7uKoT6Dv2AEvAF
-         Pgtq2IIMp6KI3pmHYe03YFCUtMbGyRlGwFpZMeJY=
+        b=rMquAHeHjtAlOVJi1qj8ACMM5hw2A5YWhU73UNOHrGs79S+D3vi+/mgc+kP406dV3
+         wSOAD377ixPY91bSgBrAd1vV06OOutdHpXRxt6H7clEKAmIXGeqAVXSygW83c7y3vs
+         bI4XAQxidMapUWKBAkBj38DMMecydPuC1NQKsiSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/24] blk-cgroup: Use cond_resched() when destroy blkgs
+        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/24] regulator: core: avoid regulator_resolve_supply() race condition
 Date:   Thu, 11 Feb 2021 16:02:41 +0100
-Message-Id: <20210211150149.315436519@linuxfoundation.org>
+Message-Id: <20210211150148.069380965@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-References: <20210211150148.516371325@linuxfoundation.org>
+In-Reply-To: <20210211150147.743660073@linuxfoundation.org>
+References: <20210211150147.743660073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: David Collins <collinsd@codeaurora.org>
 
-[ Upstream commit 6c635caef410aa757befbd8857c1eadde5cc22ed ]
+[ Upstream commit eaa7995c529b54d68d97a30f6344cc6ca2f214a7 ]
 
-On !PREEMPT kernel, we can get below softlockup when doing stress
-testing with creating and destroying block cgroup repeatly. The
-reason is it may take a long time to acquire the queue's lock in
-the loop of blkcg_destroy_blkgs(), or the system can accumulate a
-huge number of blkgs in pathological cases. We can add a need_resched()
-check on each loop and release locks and do cond_resched() if true
-to avoid this issue, since the blkcg_destroy_blkgs() is not called
-from atomic contexts.
+The final step in regulator_register() is to call
+regulator_resolve_supply() for each registered regulator
+(including the one in the process of being registered).  The
+regulator_resolve_supply() function first checks if rdev->supply
+is NULL, then it performs various steps to try to find the supply.
+If successful, rdev->supply is set inside of set_supply().
 
-[ 4757.010308] watchdog: BUG: soft lockup - CPU#11 stuck for 94s!
-[ 4757.010698] Call trace:
-[ 4757.010700]  blkcg_destroy_blkgs+0x68/0x150
-[ 4757.010701]  cgwb_release_workfn+0x104/0x158
-[ 4757.010702]  process_one_work+0x1bc/0x3f0
-[ 4757.010704]  worker_thread+0x164/0x468
-[ 4757.010705]  kthread+0x108/0x138
+This procedure can encounter a race condition if two concurrent
+tasks call regulator_register() near to each other on separate CPUs
+and one of the regulators has rdev->supply_name specified.  There
+is currently nothing guaranteeing atomicity between the rdev->supply
+check and set steps.  Thus, both tasks can observe rdev->supply==NULL
+in their regulator_resolve_supply() calls.  This then results in
+both creating a struct regulator for the supply.  One ends up
+actually stored in rdev->supply and the other is lost (though still
+present in the supply's consumer_list).
 
-Suggested-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Here is a kernel log snippet showing the issue:
+
+[   12.421768] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
+[   12.425854] gpu_cc_gx_gdsc: supplied by pm8350_s5_level
+[   12.429064] debugfs: Directory 'regulator.4-SUPPLY' with parent
+               '17a00000.rsc:rpmh-regulator-gfxlvl-pm8350_s5_level'
+               already present!
+
+Avoid this race condition by holding the rdev->mutex lock inside
+of regulator_resolve_supply() while checking and setting
+rdev->supply.
+
+Signed-off-by: David Collins <collinsd@codeaurora.org>
+Link: https://lore.kernel.org/r/1610068562-4410-1-git-send-email-collinsd@codeaurora.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/regulator/core.c | 39 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 11 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 3d34ac02d76ef..cb3d44d200055 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1089,6 +1089,8 @@ static void blkcg_css_offline(struct cgroup_subsys_state *css)
-  */
- void blkcg_destroy_blkgs(struct blkcg *blkcg)
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 8a6ca06d9c160..fa8f5fc04d8fd 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1567,23 +1567,34 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
  {
-+	might_sleep();
+ 	struct regulator_dev *r;
+ 	struct device *dev = rdev->dev.parent;
+-	int ret;
++	int ret = 0;
+ 
+ 	/* No supply to resovle? */
+ 	if (!rdev->supply_name)
+ 		return 0;
+ 
+-	/* Supply already resolved? */
++	/* Supply already resolved? (fast-path without locking contention) */
+ 	if (rdev->supply)
+ 		return 0;
+ 
++	/*
++	 * Recheck rdev->supply with rdev->mutex lock held to avoid a race
++	 * between rdev->supply null check and setting rdev->supply in
++	 * set_supply() from concurrent tasks.
++	 */
++	regulator_lock(rdev);
 +
- 	spin_lock_irq(&blkcg->lock);
++	/* Supply just resolved by a concurrent task? */
++	if (rdev->supply)
++		goto out;
++
+ 	r = regulator_dev_lookup(dev, rdev->supply_name);
+ 	if (IS_ERR(r)) {
+ 		ret = PTR_ERR(r);
  
- 	while (!hlist_empty(&blkcg->blkg_list)) {
-@@ -1096,14 +1098,20 @@ void blkcg_destroy_blkgs(struct blkcg *blkcg)
- 						struct blkcg_gq, blkcg_node);
- 		struct request_queue *q = blkg->q;
+ 		/* Did the lookup explicitly defer for us? */
+ 		if (ret == -EPROBE_DEFER)
+-			return ret;
++			goto out;
  
--		if (spin_trylock(&q->queue_lock)) {
--			blkg_destroy(blkg);
--			spin_unlock(&q->queue_lock);
--		} else {
-+		if (need_resched() || !spin_trylock(&q->queue_lock)) {
-+			/*
-+			 * Given that the system can accumulate a huge number
-+			 * of blkgs in pathological cases, check to see if we
-+			 * need to rescheduling to avoid softlockup.
-+			 */
- 			spin_unlock_irq(&blkcg->lock);
--			cpu_relax();
-+			cond_resched();
- 			spin_lock_irq(&blkcg->lock);
-+			continue;
+ 		if (have_full_constraints()) {
+ 			r = dummy_regulator_rdev;
+@@ -1591,15 +1602,18 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 		} else {
+ 			dev_err(dev, "Failed to resolve %s-supply for %s\n",
+ 				rdev->supply_name, rdev->desc->name);
+-			return -EPROBE_DEFER;
++			ret = -EPROBE_DEFER;
++			goto out;
  		}
-+
-+		blkg_destroy(blkg);
-+		spin_unlock(&q->queue_lock);
  	}
  
- 	spin_unlock_irq(&blkcg->lock);
+ 	if (r == rdev) {
+ 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
+ 			rdev->desc->name, rdev->supply_name);
+-		if (!have_full_constraints())
+-			return -EINVAL;
++		if (!have_full_constraints()) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		r = dummy_regulator_rdev;
+ 		get_device(&r->dev);
+ 	}
+@@ -1613,7 +1627,8 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 	if (r->dev.parent && r->dev.parent != rdev->dev.parent) {
+ 		if (!device_is_bound(r->dev.parent)) {
+ 			put_device(&r->dev);
+-			return -EPROBE_DEFER;
++			ret = -EPROBE_DEFER;
++			goto out;
+ 		}
+ 	}
+ 
+@@ -1621,13 +1636,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 	ret = regulator_resolve_supply(r);
+ 	if (ret < 0) {
+ 		put_device(&r->dev);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	ret = set_supply(rdev, r);
+ 	if (ret < 0) {
+ 		put_device(&r->dev);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/* Cascade always-on state to supply */
+@@ -1636,11 +1651,13 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 		if (ret < 0) {
+ 			_regulator_put(rdev->supply);
+ 			rdev->supply = NULL;
+-			return ret;
++			goto out;
+ 		}
+ 	}
+ 
+-	return 0;
++out:
++	regulator_unlock(rdev);
++	return ret;
+ }
+ 
+ /* Internal regulator request function */
 -- 
 2.27.0
 
