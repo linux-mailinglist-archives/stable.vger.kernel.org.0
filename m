@@ -2,98 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D84431A1B4
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 16:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93BE431A27A
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 17:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbhBLPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 10:31:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229917AbhBLPbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Feb 2021 10:31:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2570A64E65;
-        Fri, 12 Feb 2021 15:30:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613143852;
-        bh=2GikqJ76Pgc7I30iCl8osvQH0Fze6qbpvM2PmeBOsWk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bGyIaPrlayhiG4sd7omkCau887oZhQK4o2OEsex4fQwRz626PQe2b/p9KTbYjxdgZ
-         Hvq36OVPzq5ZykACksRWi7rVJWXGNcD6VTV4rzu9D8x/oqh0zm3fHcIqz6EYf6an62
-         VNaHGdywrpcPajZSvT6tGNp4IvcyEuYxggXNrldI=
-Date:   Fri, 12 Feb 2021 16:30:49 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Xi Ruoyao <xry111@mengyan1223.wang>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-tip-commits@vger.kernel.org
-Subject: Re: [tip: objtool/urgent] objtool: Fix seg fault with Clang
- non-section symbols
-Message-ID: <YCafKVSTX9MxDBMd@kroah.com>
-References: <ba6b6c0f0dd5acbba66e403955a967d9fdd1726a.1607983452.git.jpoimboe@redhat.com>
- <160812658044.3364.4188208281079332844.tip-bot2@tip-bot2>
- <dded80b60d9136ea90987516c28f93273385651f.camel@mengyan1223.wang>
- <YCU3Vdoqd+EI+zpv@kroah.com>
- <CAKwvOd=GHdkvAU3u6ROSgtGqC_wrkXo8siL1nZHE-qsqSx0gsw@mail.gmail.com>
+        id S229493AbhBLQSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 11:18:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229721AbhBLQR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 11:17:58 -0500
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56595C061574
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 08:17:15 -0800 (PST)
+Received: by mail-io1-xd2c.google.com with SMTP id e24so9848041ioc.1
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 08:17:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=caRDYdH8hzxAnk3La5B4p3k+zmOXXpmwnnS/me/9Xo4=;
+        b=bHvBvO9nMVOVuHh/hK45iSGA8moDu+Yn0NKWSn6SjpCtFo246Tv3GTu/o3uDDklqd9
+         Solpkq/cYY+LixmxZtv2LcOQluvpbeEJlbDOoRSWQAmBX7hPGa0PZDGA0gmz4wEvU4SQ
+         SaUdlvPN/0YIX9KyJ0v7wL3H65I+5+BNx+udU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=caRDYdH8hzxAnk3La5B4p3k+zmOXXpmwnnS/me/9Xo4=;
+        b=Jh9gNd+D/KgJF2PDGnL4zC/ITXtccXr6kqP0+KS95MlOjd+cY0gCvuxW0TSBMM/OxT
+         xP+jVUQV5fjxrCxFEXYkO18hg2DWexSWJPm6WsfE1678ECuYOW+mPwCceuz3LAMgLRbL
+         29KzGQoo14OJJrgtpsZQvbvjHzD3+wPDaGNyQPp5jeKCEVJaBqOsFBl8QW2oAtBUp+QQ
+         vff8XIkfZfxPs4zOVVLYSixx5bm/nj8six4JXfaUFZvYeXQwWlYmQU6CMBQGE3HGXsST
+         AlUUK0P8o6lb8AvrtAwdhNnE9vKmt+nBwFroZpOhHOQs1nNHeHaMniYRog7ZZR57je/M
+         kJIA==
+X-Gm-Message-State: AOAM530BOWYVsP9C4Q0cAmspZ3jmlbPlJylpEkSByBVA1xWfH5rAc2yT
+        dDblT4OZL+E2F4bGyreSwhnvHsH/pVRvtQ==
+X-Google-Smtp-Source: ABdhPJz8znk/YpAOPRKoB5bA+N9PP2fT8/r+kkUrLuxrlDEWBnpY8v5UH1FKeI9KAP5RgOIQOG2cVA==
+X-Received: by 2002:a02:cba5:: with SMTP id v5mr3390739jap.72.1613146634787;
+        Fri, 12 Feb 2021 08:17:14 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id m4sm4619764ilc.53.2021.02.12.08.17.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 12 Feb 2021 08:17:14 -0800 (PST)
+Subject: Re: [PATCH 5.10 00/54] 5.10.16-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20210211150152.885701259@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <0825d0d8-0183-9653-dd74-d5921e360bb7@linuxfoundation.org>
+Date:   Fri, 12 Feb 2021 09:17:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOd=GHdkvAU3u6ROSgtGqC_wrkXo8siL1nZHE-qsqSx0gsw@mail.gmail.com>
+In-Reply-To: <20210211150152.885701259@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 11, 2021 at 10:46:05AM -0800, Nick Desaulniers wrote:
-> On Thu, Feb 11, 2021 at 5:55 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Feb 11, 2021 at 09:32:03PM +0800, Xi Ruoyao wrote:
-> > > Hi all,
-> > >
-> > > The latest GNU assembler (binutils-2.36.1) is removing unused section symbols
-> > > like Clang [1].  So linux-5.10.15 can't be built with binutils-2.36.1 now.  It
-> > > has been reported as https://bugzilla.kernel.org/show_bug.cgi?id=211693.
+On 2/11/21 8:01 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.16 release.
+> There are 54 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Xi,
-> Happy Lunar New Year to you, too, and thanks for the report.  Did you
-> observe such segfaults for older branches of stable?
+> Responses should be made by Sat, 13 Feb 2021 15:01:39 +0000.
+> Anything received after that time might be too late.
 > 
-> > 2.36 of binutils fails to build the 4.4.y tree right now as well, but as
-> > objtool isn't there, I don't know what to do about it :(
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
-> Greg,
-> There may be multiple issues in the latest binutils release for the
-> kernel; we should still avoid segfaults in host tools so I do
-> recommend considering this patch for inclusion at least into 5.10.y.
-> Arnd's report in https://github.com/ClangBuiltLinux/linux/issues/1207
-> mentions this was found via randconfig testing, so likely some set of
-> configs is needed to reproduce reliably.
+> thanks,
 > 
-> Do you have more info about the failure you're observing? Trolling
-> lore, I only see:
-> https://lore.kernel.org/stable/YCLeJcQFsDIsrAEc@kroah.com/
-> (Maybe it was reported on a different list; I only searched stable ML).
+> greg k-h
+> 
 
-I didn't report it anywhere.
+Compiled and booted on my test system. No dmesg regressions.
 
-Here's the output of doing a 'make allmodconfig' on the latest 4.4.257
-release failing with binutils 2.36
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Cannot find symbol for section 8: .text.unlikely.
-kernel/kexec_file.o: failed
-make[1]: *** [scripts/Makefile.build:277: kernel/kexec_file.o] Error 1
-make[1]: *** Deleting file 'kernel/kexec_file.o'
-make[1]: *** Waiting for unfinished jobs....
+Note: gdm doesn't start and no response to keyboard and mouse.
 
-4.9.257 works fine, probably because we are using objtool?
-
-Any ideas are appreciated.
+I can ssh in and use the system. I am going debug and update you.
+5.4.98-rc1 and 4.9.176-rc1 are fine and no such issues.
 
 thanks,
+-- Shuah
 
-greg k-h
