@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3A731A052
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 15:10:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA1131A05B
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 15:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbhBLOIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 09:08:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33354 "EHLO
+        id S231135AbhBLOKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 09:10:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230174AbhBLOIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 09:08:16 -0500
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28972C061574;
-        Fri, 12 Feb 2021 06:07:36 -0800 (PST)
-Received: by mail-ua1-x92f.google.com with SMTP id 67so2919022uao.1;
-        Fri, 12 Feb 2021 06:07:36 -0800 (PST)
+        with ESMTP id S229940AbhBLOKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 09:10:03 -0500
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B8AC061574;
+        Fri, 12 Feb 2021 06:09:23 -0800 (PST)
+Received: by mail-vs1-xe33.google.com with SMTP id 68so3347774vsk.11;
+        Fri, 12 Feb 2021 06:09:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZZgcR0GXQOuQH7akp/dBCCzUPB9l3DB+PduIt221Fus=;
-        b=LwSJnQ9Rf7hYrkwVZMRDzruVm0i2SDp4GtwQaF5CkTY3sHxUJlqfaTiUG7vBZXAysI
-         WOoNc4c7DZJ90E9NDXYemZqoZftzw8SueDOMpxFaprmEeIWxuupOI48xua7PFgZI8TS2
-         MuCOrmK594Wcb0qTFn9LPw7GwTDNCwh9ncvLk+z6UtHWdktN5PfbBC/eqFOXGzQgSFRX
-         6mL3Xf0H7pWjn/qdsrKfrV6cCXfXLaCFmLaPkchfA9iTlodzvz2zBkByjRw0CbCAg6C2
-         v4D6aUG3BvdFwACvMlf+yXZRTcYmAiy+DnflKtJ+Lel3IL+BqQIuvkeYDunVhLXs8/TL
-         78+Q==
+         :cc:content-transfer-encoding;
+        bh=mGUEM8BkIgjUi3SKnHZuM7SaerLEeBlJ+h2BpANQXuQ=;
+        b=tT++vyICTpA35K1XTNsUAg+swzDOMB9wHNUBqMN0s40RY7O6i+dGqR757jXFkttcG8
+         Nh3EsNsBSyRUMLlsbSECySlXLkNgYWSlvl0P0i3hCBGnO8OP5H6ICL8QNHYB0Y08liJX
+         stuXqWRcrGM5zfJ0jig3Aw3fyKY0MFmNs7Rg8V05ezn0VpRVpdm0scb9ZH0vwi7TkZ0e
+         4eXJKfHz/a86PfrgJKI2GcpIGd0NhKzw2GuyGcsvJIOVY1iH7tO7srgw7mlXCstFyoJi
+         1KDntNsVs3l2Ven6KMZSBbLmzR0e2YAwYszVUZE4qZT5g/qBrB9KhfCnX1OOxQQFC0ac
+         4T3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZZgcR0GXQOuQH7akp/dBCCzUPB9l3DB+PduIt221Fus=;
-        b=RyTUMBqqRIyEooJbQzYse8B8ZLYEyk7BhiabW6fyVxtChtaH/fzT2PrlwFY44JpBHO
-         DxsPf8jEdXUFH+E6nQgxXLC6+JyO0ybPtrRdBZWp/kTE2PAVMmvtnY+vPmiCXHrHA9T8
-         w62EcOBeEzMds5sqqwB/475YE9HN81kQhZn7A8JhwbdJcG5/Si3DAuzoxu6XN3r+UCAe
-         NQalUkTO5QqIjEpftJf4WiIQThWos78TA3VS14UXOvu1OnmNqRTMwZmEC3VDTxjtMpt8
-         LE32kRq6eLMQYZtg5csHYK2LNBdrxTQ2ssHuyE5U/TigyVxQUYZ4aYRBqHvTADiQhlcM
-         HW1A==
-X-Gm-Message-State: AOAM531tynFG4FL6PfeGy583hzRdiBEZlacKVv+l2qe6qogdgo2gAj6T
-        vK+yV92usjV8UfXUbfE8TUWcoJoaFFhPrKcJ9wpboVRByxNCtQ==
-X-Google-Smtp-Source: ABdhPJx92cVtlR8nyOwrnpqoQUY5gXSHyY10cEr8vAqdJP/vf9c/d7G1G7CJoeOQjImt0yesSCuQ+D8ttFlZsja+xBE=
-X-Received: by 2002:ab0:338d:: with SMTP id y13mr1550050uap.64.1613138855360;
- Fri, 12 Feb 2021 06:07:35 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mGUEM8BkIgjUi3SKnHZuM7SaerLEeBlJ+h2BpANQXuQ=;
+        b=qTK5MdKnzo38qFA740Ym4MvQxxsg88A4M59eSLaXElIMljPVITOTWrlxX6sixmhOWH
+         4wHaJSEHVLJd7ZwuLkBeAZDsQKrYetP9izfYmS46TYzXPFMmrYVjkWpfR4FbKn73YM4W
+         K2eMibT8ZeTA13xpBRp3bVSgBjpPxLnhzrC9FZco/0wMlNWdQbFgPRAATHSldIb9cavs
+         D7OJdiBG7XZ0SJrlN++fmnxCCJhbAImh2z8rCNihjR0R2luxH3TVP77G9/CO2Vb4mjM0
+         SVIr+/Gya3sohsWuF/0rrpv6Etc8CgU/DnsnKd6lzUmpghePhO3QZLIjUawXknVhemeq
+         ZREw==
+X-Gm-Message-State: AOAM53219V72TKMegK08Y8USFYQ43twuxsJcA8TD1XOYpANSi8JGtJVg
+        xoXlDE64zGZVB648ecAD9bwIZuOPIpQPYEm6uD0=
+X-Google-Smtp-Source: ABdhPJzYPikYFqTmSgbjd45vsc7zqYpXlE1kFNbWMlv5LAZLJ1P/Ly0qtWligVBnGVuhCT90UJ5RIFuiYQc8pU0aOv0=
+X-Received: by 2002:a67:cd18:: with SMTP id u24mr1342241vsl.19.1613138962980;
+ Fri, 12 Feb 2021 06:09:22 -0800 (PST)
 MIME-Version: 1.0
 References: <20210205163752.11932-1-chris@chris-wilson.co.uk>
  <20210205220012.1983-1-chris@chris-wilson.co.uk> <CACvgo52u1ASWXOuWuDwoXvbZhoq+RHn_GTxD5y9k+kO_dzmT7w@mail.gmail.com>
- <pIyZ-Jj7O2MYk1vKeyghnFmiFWk_5ZWm-Ze1gUqdDaXzImOVjVdjPh2uyHa-sxOPovRk1ApSKk_5zKBvOrzoSwXeXUu0LbZ75Q1D3gIK2Kk=@emersion.fr>
-In-Reply-To: <pIyZ-Jj7O2MYk1vKeyghnFmiFWk_5ZWm-Ze1gUqdDaXzImOVjVdjPh2uyHa-sxOPovRk1ApSKk_5zKBvOrzoSwXeXUu0LbZ75Q1D3gIK2Kk=@emersion.fr>
+ <3a2316b6-27a9-d56a-b488-ac15a402a0d2@daenzer.net>
+In-Reply-To: <3a2316b6-27a9-d56a-b488-ac15a402a0d2@daenzer.net>
 From:   Emil Velikov <emil.l.velikov@gmail.com>
-Date:   Fri, 12 Feb 2021 14:07:23 +0000
-Message-ID: <CACvgo50Bki0GKW0SNjzn9zieWqHO=curbVhkL0ALpA_d2E5bfw@mail.gmail.com>
+Date:   Fri, 12 Feb 2021 14:09:11 +0000
+Message-ID: <CACvgo53tAe56fqpwmEpEvToWCqd=7bWs1DUv6aZM9JuPz7dQXg@mail.gmail.com>
 Subject: Re: [PATCH v3] kcmp: Support selection of SYS_kcmp without CHECKPOINT_RESTORE
-To:     Simon Ser <contact@emersion.fr>
+To:     =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Will Drewry <wad@chromium.org>,
         Kees Cook <keescook@chromium.org>,
@@ -66,20 +66,23 @@ Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         "# 3.13+" <stable@vger.kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 12 Feb 2021 at 13:14, Simon Ser <contact@emersion.fr> wrote:
+On Fri, 12 Feb 2021 at 14:01, Michel D=C3=A4nzer <michel@daenzer.net> wrote=
+:
 >
-> On Friday, February 12th, 2021 at 1:57 PM, Emil Velikov <emil.l.velikov@gmail.com> wrote:
->
-> > On Fri, 5 Feb 2021 at 22:01, Chris Wilson <chris@chris-wilson.co.uk> wrote:
-> > >
-> > > Userspace has discovered the functionality offered by SYS_kcmp and has
-> > > started to depend upon it. In particular, Mesa uses SYS_kcmp for
-> > > os_same_file_description() in order to identify when two fd (e.g. device
-> > > or dmabuf)
+> On 2021-02-12 1:57 p.m., Emil Velikov wrote:
+> > On Fri, 5 Feb 2021 at 22:01, Chris Wilson <chris@chris-wilson.co.uk> wr=
+ote:
+> >>
+> >> Userspace has discovered the functionality offered by SYS_kcmp and has
+> >> started to depend upon it. In particular, Mesa uses SYS_kcmp for
+> >> os_same_file_description() in order to identify when two fd (e.g. devi=
+ce
+> >> or dmabuf)
 > >
 > > As you rightfully point out, SYS_kcmp is a bit of a two edged sword.
 > > While you mention the CONFIG issue, there is also a portability aspect
@@ -91,13 +94,10 @@ On Fri, 12 Feb 2021 at 13:14, Simon Ser <contact@emersion.fr> wrote:
 > > A far shorter and more portable solution is possible, so let me
 > > prepare a Mesa patch.
 >
-> Comparing two DMA-BUFs can be done with their inode number, I think.
+> Make sure to read my comments on
+> https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/6881 first. :)
 >
-> Comparing two device FDs is more subtle, because of GEM handle
-> ref'counting. You sometimes really want to check whether two FDs are
-> backed by the same file *description*. See [1] for details.
->
-Thanks for the correction and the reference.
-Seems like I've short circuited file description table vs file descriptor.
+Much appreciated. I might have been "slightly" off - pardon for the noise o=
+/
 
-Emil
+-Emil
