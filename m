@@ -2,244 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0479319FE0
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 14:31:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE5131A062
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 15:14:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbhBLN3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 08:29:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231148AbhBLN3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 08:29:43 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D42C061756
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 05:29:03 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id q2so10786046eds.11
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 05:29:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Neefq26+0wySW8CCnpLiBrHunY0atHBH7eM16bKt2m0=;
-        b=bcewxCG4FV8BHFBpRn1shnV7GDwRUGR+xXERg6mUXkd8n62XwsN2ArPOvBxUNeYXuB
-         2r3SjemR3eHwstWqtHfua3AbZsVZvKaOUHfXuJOfjX2zfh0HVdx8Nu+7W7+LXb3Edcic
-         AsnhQFP4d6HmuuQmp3X9rHHNtcpy7xKuKSJMJmPVMW3WPc1wtXVNju06lRMlmWZxIdXQ
-         OPPocEKzMv0q+VTjQSru+7VI/w3PHjZZ1s0GEcvT0Emh6yhcwQ7HaUrERjaGCNFuaSeQ
-         0USgCvt56eN92SS3RdeiAEWuA20QEkOH0IwMSBJb7dF/HpDrajBrDUpYA2jbz1GeN/Em
-         mmcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Neefq26+0wySW8CCnpLiBrHunY0atHBH7eM16bKt2m0=;
-        b=rNJ9NyAmqEFM48S2eqoTEQJjsB45DZqrTTEahO6njS3MHGlN/vKWwyGK/iHRI0KHUr
-         G5xFzfobqYpHMK55jcOaO/3Xw7Tzzp0ebdaA3z2CgV39fmMu2JcCh8Bl+WQouHjAziME
-         UxAa3OPLehorxsUJUquwTAYREvR8iY5BHfSvdymBKDQsRuSqWKGcD6TsEZtOOPZ7eYu4
-         lhuHsyIdXv83ATNBkAqFqA3GA3bsPhjIplOfWz5zh0TCUluvnYGD0FcAKk0LM87C/GOE
-         L619SLLhxy/y1m+1A+abUUbzmeUvD9t0zHOiXbFu74EfeAIY7ymuSeci49Wu4dJOPyE8
-         gfxw==
-X-Gm-Message-State: AOAM530tmjXiw9wXA0Ws0QxLwnugHngRsoO6gfru0sM1ZUwrdYWfuq6r
-        3mDk8RwbmJli7JgWRCtHC7NQLMcCAu37pbsQNSzCTA==
-X-Google-Smtp-Source: ABdhPJyuoZ2N89f1TFVEVZX0+m2/XBkrFKVLO0lTG9qKGTaZn1cG4Ny2hI2eK7IiHUvaopGL8HqK4A4rmZAiWFKd5+Q=
-X-Received: by 2002:aa7:d3c7:: with SMTP id o7mr3355484edr.23.1613136541914;
- Fri, 12 Feb 2021 05:29:01 -0800 (PST)
+        id S230090AbhBLOMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 09:12:32 -0500
+Received: from mail.netline.ch ([148.251.143.178]:35932 "EHLO
+        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231715AbhBLOMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 09:12:32 -0500
+X-Greylist: delayed 615 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Feb 2021 09:12:31 EST
+Received: from localhost (localhost [127.0.0.1])
+        by netline-mail3.netline.ch (Postfix) with ESMTP id 4FFAD2A6045;
+        Fri, 12 Feb 2021 15:01:23 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
+Received: from netline-mail3.netline.ch ([127.0.0.1])
+        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id vkV0bfZJWGJB; Fri, 12 Feb 2021 15:01:23 +0100 (CET)
+Received: from thor (24.99.2.85.dynamic.wline.res.cust.swisscom.ch [85.2.99.24])
+        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 622122A6042;
+        Fri, 12 Feb 2021 15:01:21 +0100 (CET)
+Received: from [::1]
+        by thor with esmtp (Exim 4.94)
+        (envelope-from <michel@daenzer.net>)
+        id 1lAZ0b-000BpT-Bs; Fri, 12 Feb 2021 15:01:21 +0100
+To:     Emil Velikov <emil.l.velikov@gmail.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        "# 3.13+" <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+References: <20210205163752.11932-1-chris@chris-wilson.co.uk>
+ <20210205220012.1983-1-chris@chris-wilson.co.uk>
+ <CACvgo52u1ASWXOuWuDwoXvbZhoq+RHn_GTxD5y9k+kO_dzmT7w@mail.gmail.com>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Subject: Re: [PATCH v3] kcmp: Support selection of SYS_kcmp without
+ CHECKPOINT_RESTORE
+Message-ID: <3a2316b6-27a9-d56a-b488-ac15a402a0d2@daenzer.net>
+Date:   Fri, 12 Feb 2021 15:01:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <20210212074240.963766197@linuxfoundation.org>
-In-Reply-To: <20210212074240.963766197@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 12 Feb 2021 18:58:50 +0530
-Message-ID: <CA+G9fYvtosFoB8ufDgu-3jhLOYGhEH5Vxo1n6P3bbgmDhBFzqA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/27] 4.19.176-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CACvgo52u1ASWXOuWuDwoXvbZhoq+RHn_GTxD5y9k+kO_dzmT7w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-CA
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 12 Feb 2021 at 13:25, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.176 release.
-> There are 27 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 14 Feb 2021 07:42:29 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.176-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 2021-02-12 1:57 p.m., Emil Velikov wrote:
+> On Fri, 5 Feb 2021 at 22:01, Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>>
+>> Userspace has discovered the functionality offered by SYS_kcmp and has
+>> started to depend upon it. In particular, Mesa uses SYS_kcmp for
+>> os_same_file_description() in order to identify when two fd (e.g. device
+>> or dmabuf)
+> 
+> As you rightfully point out, SYS_kcmp is a bit of a two edged sword.
+> While you mention the CONFIG issue, there is also a portability aspect
+> (mesa runs on more than just linux) and as well as sandbox filtering
+> of the extra syscall.
+> 
+> Last time I looked, the latter was still an issue and mesa was using
+> SYS_kcmp to compare device node fds.
+> A far shorter and more portable solution is possible, so let me
+> prepare a Mesa patch.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.19.176-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 7a5acd93ed02982be8ee91127bad4f85473b3c1a
-git describe: v4.19.175-28-g7a5acd93ed02
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.175-28-g7a5acd93ed02
-
-No regressions (compared to build v4.19.175)
-
-No fixes (compared to build v4.19.175)
+Make sure to read my comments on 
+https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/6881 first. :)
 
 
-Ran 48636 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- s390
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* v4l2-compliance
-* fwts
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* kselftest-
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-vm
-* kselftest-x86
-* ltp-open-posix-tests
-* kvm-unit-tests
-* rcutorture
-* ssuite
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Earthling Michel Dänzer               |               https://redhat.com
+Libre software enthusiast             |             Mesa and X developer
