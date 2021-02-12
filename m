@@ -2,78 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72106319D28
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 12:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71067319F32
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 13:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbhBLLRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 06:17:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36550 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229718AbhBLLRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Feb 2021 06:17:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 035AB60C41;
-        Fri, 12 Feb 2021 11:16:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613128603;
-        bh=3cBFgSXoPKtGmZ39QTAsBzgIxi9rHYwIcUPbJHWDSvA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Z1c5KuWmeNAsE0v455SwagTiWRv6dcQYqpQH0ZEMdip5vz2k1HUhbGChnLuEdDHrv
-         wEnadPY6ZiJlQkk7Wf55dpnB289oOo9AcsaYD5d46AuU1iu+PeT34hp711kSy2Gf5l
-         T1g9RrkGsCgLWRZaNy2Uq8Aw2GnLGsClvE+/9vsk=
-Date:   Fri, 12 Feb 2021 12:16:41 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lukasz Majczak <lma@semihalf.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Tj <ml.linux@elloe.vision>, Dirk Gouders <dirk@gouders.net>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Radoslaw Biernacki <rad@semihalf.com>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Alex Levin <levinale@google.com>, upstream@semihalf.com
-Subject: Re: [PATCH v5] tpm_tis: Add missing
- tpm_request/relinquish_locality() calls
-Message-ID: <YCZjmf4ZLMnlvu9r@kroah.com>
-References: <20210212110600.19216-1-lma@semihalf.com>
+        id S231278AbhBLMxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 07:53:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231347AbhBLMwd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 07:52:33 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F82C061574
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 04:51:53 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id t11so6171065pgu.8
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 04:51:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zTX9PnmWufJC212lpcL430ibL2V6QNLLR27nieN0Hg4=;
+        b=cv0pANa6/aAtuaehe30NJuGCic+jUENp91lkH6V6MyPvD5kJdnekg5tNvXaEI7DyS0
+         hVkqACxeQh8hlVw6dq2iF8W2kp/AMysgwrtrPb+K8cx+79Wl5m9BsP0ukoPnjQmhip0D
+         Ut+1h/GUp5bL6e4e2IV/zaWIlsY/TW1Cpr1DyQOvYzKxRfB8NZlMt8CXsQONfE3URQxp
+         R3Cxw0xgvIZbGv8sAiH3O7q2d7Q4X5U7a5OLdonY/8Fkh/6qkLQfYOcg3KIQXDBdrDqn
+         xjlEzP/FCF+G+qC10203q2uw/duo1FJemL9I4UcFvC8kFY8ZgAZ5ynzIq2qIcaISyNk8
+         it+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zTX9PnmWufJC212lpcL430ibL2V6QNLLR27nieN0Hg4=;
+        b=RqrYFBnI54YxmX+H1BQFomdD8utxHgXchMCoXGyr7+E6/XcR4AturFbc25Mbl1KKKi
+         hEU9XyZ247TL4bKAdeLnyGAGRhtnGlqFFZ3f838uovwFl/UfYLEUncyJoj5P1271EVlz
+         h8UfcCwUsLlyl84DNasJQW+bNbbcVCzshopcP/OSBeawFqi9FaIt14Fe1OYGmtpRZaaN
+         epi4kvkG0XE3Hj77BtihIxW8vQUvkyLWl0FYQnnHaxwdcPF6iuokvGZhIQjlorYLwrlI
+         JjFbjHxQ6cNsv/rwNS7bhSZG6WPatug8TEmiocsZsRqXpCVoQsnQQUhUMtSbBdD0h50b
+         APhA==
+X-Gm-Message-State: AOAM533swzARRFwQRcSEc6tY4m6UGIDekaqmI8bejfrHAtc+DSYdgmU1
+        uqkrXYaZz/qQ8alcWpTGXr51RfTwhpnuxg==
+X-Google-Smtp-Source: ABdhPJzN3eUwGzxlIGaRY1e/MoHEr0Ky30RVlr/u/jcCkv43VzdA2eXvD5OVnlQ60S3WUSmyMR5kmA==
+X-Received: by 2002:a62:7e8c:0:b029:1e1:6431:7ce with SMTP id z134-20020a627e8c0000b02901e1643107cemr2942219pfc.6.1613134312709;
+        Fri, 12 Feb 2021 04:51:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s11sm8519670pfu.69.2021.02.12.04.51.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Feb 2021 04:51:52 -0800 (PST)
+Message-ID: <602679e8.1c69fb81.51da6.2d3f@mx.google.com>
+Date:   Fri, 12 Feb 2021 04:51:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210212110600.19216-1-lma@semihalf.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.175-28-g7a5acd93ed02
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 80 runs,
+ 1 regressions (v4.19.175-28-g7a5acd93ed02)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 12, 2021 at 12:06:00PM +0100, Lukasz Majczak wrote:
-> There are missing calls to tpm_request_locality() before the calls to
-> the tpm_get_timeouts() and tpm_tis_probe_irq_single() - both functions
-> internally send commands to the tpm using tpm_tis_send_data()
-> which in turn, at the very beginning, calls the tpm_tis_status().
-> This one tries to read TPM_STS register, what fails and propagates
-> this error upward. The read fails due to lack of acquired locality,
-> as it is described in
-> TCG PC Client Platform TPM Profile (PTP) Specification,
-> paragraph 6.1 FIFO Interface Locality Usage per Register,
-> Table 39 Register Behavior Based on Locality Setting for FIFO
-> - a read attempt to TPM_STS_x Registers returns 0xFF in case of lack
-> of locality. The described situation manifests itself with
-> the following warning trace:
-> 
-> [    4.324298] TPM returned invalid status
-> [    4.324806] WARNING: CPU: 2 PID: 1 at drivers/char/tpm/tpm_tis_core.c:275 tpm_tis_status+0x86/0x8f
-> 
-> Tested on Samsung Chromebook Pro (Caroline), TPM 1.2 (SLB 9670)
-> Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-> 
-> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-<formletter>
+stable-rc/linux-4.19.y baseline: 80 runs, 1 regressions (v4.19.175-28-g7a5a=
+cd93ed02)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Regressions Summary
+-------------------
 
-</formletter>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.175-28-g7a5acd93ed02/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.175-28-g7a5acd93ed02
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7a5acd93ed02982be8ee91127bad4f85473b3c1a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/602642908c24bfec063abec0
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+75-28-g7a5acd93ed02/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+75-28-g7a5acd93ed02/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602642908c24bfe=
+c063abec7
+        failing since 3 days (last pass: v4.19.174, first fail: v4.19.174-3=
+9-g69312fa72410)
+        2 lines
+
+    2021-02-12 08:55:39.811000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/104
+    2021-02-12 08:55:39.820000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
