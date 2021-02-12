@@ -2,93 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF5F31A4ED
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 20:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9560131A520
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 20:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbhBLTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 14:03:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40094 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbhBLTD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 14:03:27 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E91BAC061756;
-        Fri, 12 Feb 2021 11:02:46 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id j5so248944pgb.11;
-        Fri, 12 Feb 2021 11:02:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+rTz26vnYC1fotvas8j7PrVOHMU8dZmXWqxuNF7AEdQ=;
-        b=sWb/f+VeYcBuxE8KyGryN0dGxT4JolGR2ALwoDfPjToVvK20OomqPL6WVc9IFN1544
-         rX2J0IERmJcIiPxAGFC61ISedk0u93meTehf1Q3kf0b1A9apR+h6TQtsetCRCNGNmO5D
-         4i+ZAOfKjufYGlGT1dy4gUeD3B6IjiYcSCirEpzAUJJGxzeP180hKOd4NOSMJZmPuFuZ
-         AdusP31EH7ykePvjgkIZ6EzrXGb89rIF8Hq275+KqVA5PqDdlK3aFujABx/WPrEjIkbf
-         ypGjKOkXPAs+fElvYj3gYgBVZIdAZ6RWoA2Pwcxfpr38jr+HbL0XKYM49LaRcPttyGvn
-         7V7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+rTz26vnYC1fotvas8j7PrVOHMU8dZmXWqxuNF7AEdQ=;
-        b=FAzjqpjP56RRonB8N8p8iqL/Bf++/Bw/k8T0X0ZPcY56FuT2d/UYIi8XoAydLhsttA
-         WvWwhtl+KOO1CiVQAuc92MkUD8wu1ygtFV8OmG015A5+E+oHqDmjEfMXDa2vbOjcbN3g
-         B195wnHNZP1tTbWWmWypf/gYRnmY9FKFIiJqAjVp+oBW8BFOhs+K9c6Owb6uVj4ImVJY
-         vOftdHSOLhg08ONyAhJRQwzVELqawhWUuJgnoI36lk/urKLIj2p/bNREQv1sNVDM4cqF
-         BE5t2Jv+8W1empWWymSb+jysl25G0vybkUJ5+qFKBflXsJOxZ6xGLRKOQxxm1efrOurM
-         k7Qw==
-X-Gm-Message-State: AOAM531hb/PAzgxlhjcjdFLt9V8+Rk0rVNjFNhKM8p/emFvOG9lkeZZn
-        L8tqYa8RO00neX+8mw3zgnH36rbv2rY=
-X-Google-Smtp-Source: ABdhPJyT4PlVF0GMJ8exTobaR2IbCESakNk1QQ9E0ZKxgn0hWz96WBqc/YRGnu8aUTkBM9RhA0L90Q==
-X-Received: by 2002:a62:8fca:0:b029:1a9:39bc:ed37 with SMTP id n193-20020a628fca0000b02901a939bced37mr4116532pfd.61.1613156566074;
-        Fri, 12 Feb 2021 11:02:46 -0800 (PST)
-Received: from [192.168.1.67] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
-        by smtp.gmail.com with ESMTPSA id y9sm10091297pfr.192.2021.02.12.11.02.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Feb 2021 11:02:45 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/24] 5.4.98-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210211150148.516371325@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <b56a46f1-4d7f-d3b9-89d6-603c153116cc@gmail.com>
-Date:   Fri, 12 Feb 2021 11:02:37 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.1
+        id S231555AbhBLTNI convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 12 Feb 2021 14:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231978AbhBLTNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Feb 2021 14:13:06 -0500
+Received: from archlinux (cpc108967-cmbg20-2-0-cust86.5-4.cable.virginm.net [81.101.6.87])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57BF360241;
+        Fri, 12 Feb 2021 19:12:23 +0000 (UTC)
+Date:   Fri, 12 Feb 2021 19:12:19 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Petr =?UTF-8?B?xaB0ZXRpYXI=?= <ynezz@true.cz>
+Cc:     Tomasz Duszynski <tomasz.duszynski@octakon.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iio: chemical: scd30: fix Oops due to missing parent
+ device
+Message-ID: <20210212191219.7b16abbb@archlinux>
+In-Reply-To: <20210208223947.32344-1-ynezz@true.cz>
+References: <20210208223947.32344-1-ynezz@true.cz>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210211150148.516371325@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon,  8 Feb 2021 23:39:47 +0100
+Petr Štetiar <ynezz@true.cz> wrote:
 
-
-On 2/11/2021 7:02 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.98 release.
-> There are 24 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> My machine Oopsed while testing SCD30 sensor in interrupt driven mode:
 > 
-> Responses should be made by Sat, 13 Feb 2021 15:01:39 +0000.
-> Anything received after that time might be too late.
+>  Unable to handle kernel NULL pointer dereference at virtual address 00000188
+>  pgd = (ptrval)
+>  [00000188] *pgd=00000000
+>  Internal error: Oops: 5 [#1] SMP ARM
+>  Modules linked in:
+>  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.96+ #473
+>  Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+>  PC is at _raw_spin_lock_irqsave+0x10/0x4c
+>  LR is at devres_add+0x18/0x38
+>  ...
+>  [<8070ecac>] (_raw_spin_lock_irqsave) from [<804916a8>] (devres_add+0x18/0x38)
+>  [<804916a8>] (devres_add) from [<805ef708>] (devm_iio_trigger_alloc+0x5c/0x7c)
+>  [<805ef708>] (devm_iio_trigger_alloc) from [<805f0a90>] (scd30_probe+0x1d4/0x3f0)
+>  [<805f0a90>] (scd30_probe) from [<805f10fc>] (scd30_i2c_probe+0x54/0x64)
+>  [<805f10fc>] (scd30_i2c_probe) from [<80583390>] (i2c_device_probe+0x150/0x278)
+>  [<80583390>] (i2c_device_probe) from [<8048e6c0>] (really_probe+0x1f8/0x360)
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.98-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> I've found out, that it's due to missing parent/owner device in iio_dev struct
+> which then leads to NULL pointer dereference during spinlock while registering
+> the device resource via devres_add().
+> 
+> Cc: <stable@vger.kernel.org> # v5.9+
+> Fixes: 64b3d8b1b0f5 ("iio: chemical: scd30: add core driver")
+> Signed-off-by: Petr Štetiar <ynezz@true.cz>
 
-On ARCH_BRCMSTB, 32-bit ARM and 64-bit ARM:
+Hi Petr,
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+So, we moved this into the core a while back (to avoid exactly this sort of issue).
+That change predates this introduction of this driver as it went in
+in v5.8
+
+So I think you've hit an issue with a backport here to an earlier kernel?
+
+Jonathan
+
+
+> ---
+>  drivers/iio/chemical/scd30_core.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/iio/chemical/scd30_core.c b/drivers/iio/chemical/scd30_core.c
+> index 4d0d798c7cd3..33aa6eb1963d 100644
+> --- a/drivers/iio/chemical/scd30_core.c
+> +++ b/drivers/iio/chemical/scd30_core.c
+> @@ -697,6 +697,7 @@ int scd30_probe(struct device *dev, int irq, const char *name, void *priv,
+>  
+>  	dev_set_drvdata(dev, indio_dev);
+>  
+> +	indio_dev->dev.parent = dev;
+>  	indio_dev->info = &scd30_info;
+>  	indio_dev->name = name;
+>  	indio_dev->channels = scd30_channels;
+
