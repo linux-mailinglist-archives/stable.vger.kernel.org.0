@@ -2,83 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA42319FA5
-	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 14:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C98B7319FAF
+	for <lists+stable@lfdr.de>; Fri, 12 Feb 2021 14:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232084AbhBLNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 08:15:51 -0500
-Received: from mail2.protonmail.ch ([185.70.40.22]:46815 "EHLO
-        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232046AbhBLNP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 08:15:27 -0500
-Date:   Fri, 12 Feb 2021 13:14:19 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=emersion.fr;
-        s=protonmail3; t=1613135680;
-        bh=3kzHPPEfw1Oh/I2MyZYvqJOoI3OUAOuTBbGYxZ6hJXU=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=QJUxtEvMZXp/osU9H8/N9GbtIb0yBNvkFGeCOL83GaSoAQ4Y5uzywHWQ5KupwWfZZ
-         dxXwtjq9n3nTzUsXXDQpC0e8gEpkSpIsFpQ+g+3LAMSPZmgku7VGXWKhBE9ICCCAdn
-         gGM4UJQ1XQmA4LCV0sNYK7v3dwHFEZOYYryZbtwmFdKey+Sb8bPuM5v/mJs0VMSt5q
-         SATj5yWIEkdvvnpW6dHFbUG3Qy9rcx6t3CLkgA8O6fUkpDg535qZLcMk2Tf4gh6Ysl
-         Pk4V0rUV5z6hgP8HNxDAh1AjvCHYnxiqIqgPy4H8+FjxNRaA+NQi++RR4j6vymslB8
-         7mfCBayLxA0xA==
-To:     Emil Velikov <emil.l.velikov@gmail.com>
-From:   Simon Ser <contact@emersion.fr>
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Will Drewry <wad@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
-        ML dri-devel <dri-devel@lists.freedesktop.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        "# 3.13+" <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Reply-To: Simon Ser <contact@emersion.fr>
-Subject: Re: [PATCH v3] kcmp: Support selection of SYS_kcmp without CHECKPOINT_RESTORE
-Message-ID: <pIyZ-Jj7O2MYk1vKeyghnFmiFWk_5ZWm-Ze1gUqdDaXzImOVjVdjPh2uyHa-sxOPovRk1ApSKk_5zKBvOrzoSwXeXUu0LbZ75Q1D3gIK2Kk=@emersion.fr>
-In-Reply-To: <CACvgo52u1ASWXOuWuDwoXvbZhoq+RHn_GTxD5y9k+kO_dzmT7w@mail.gmail.com>
-References: <20210205163752.11932-1-chris@chris-wilson.co.uk> <20210205220012.1983-1-chris@chris-wilson.co.uk> <CACvgo52u1ASWXOuWuDwoXvbZhoq+RHn_GTxD5y9k+kO_dzmT7w@mail.gmail.com>
+        id S231157AbhBLNTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 08:19:14 -0500
+Received: from mx2.suse.de ([195.135.220.15]:45928 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230489AbhBLNTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Feb 2021 08:19:09 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1613135902; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=DdKEhUPuhqGBAUysfIP1I2yAVIN2YPMmqzhpgnH18iA=;
+        b=ZArfTI79Cfq9BQnCodN+yfBRelzlY3xtotzVaP9cXFcIXOl1s5EqKg5dk+qp13v2m87L0b
+        3FwdtayPn96A1scACXpo/1rjSoWoKnwT4oGZ7turTE2WfRi/ENrb0B3ti5Zo8yCSwHSW+f
+        RGuiC+m1XB9HyJvF6O4kbS1PGYhfaoI=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 2BADFAC90;
+        Fri, 12 Feb 2021 13:18:22 +0000 (UTC)
+Date:   Fri, 12 Feb 2021 14:18:20 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
+ holes in memory layout
+Message-ID: <YCaAHI/rFp1upRLc@dhcp22.suse.cz>
+References: <20210208110820.6269-1-rppt@kernel.org>
+ <YCZZeAAC8VOCPhpU@dhcp22.suse.cz>
+ <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Friday, February 12th, 2021 at 1:57 PM, Emil Velikov <emil.l.velikov@gma=
-il.com> wrote:
+On Fri 12-02-21 11:42:15, David Hildenbrand wrote:
+> On 12.02.21 11:33, Michal Hocko wrote:
+[...]
+> > I have to digest this but my first impression is that this is more heavy
+> > weight than it needs to. Pfn walkers should normally obey node range at
+> > least. The first pfn is usually excluded but I haven't seen real
+> 
+> We've seen examples where this is not sufficient. Simple example:
+> 
+> Have your physical memory end within a memory section. Easy via QEMU, just
+> do a "-m 4000M". The remaining part of the last section has fake/wrong
+> node/zone info.
 
-> On Fri, 5 Feb 2021 at 22:01, Chris Wilson <chris@chris-wilson.co.uk> wrot=
-e:
-> >
-> > Userspace has discovered the functionality offered by SYS_kcmp and has
-> > started to depend upon it. In particular, Mesa uses SYS_kcmp for
-> > os_same_file_description() in order to identify when two fd (e.g. devic=
-e
-> > or dmabuf)
->
-> As you rightfully point out, SYS_kcmp is a bit of a two edged sword.
-> While you mention the CONFIG issue, there is also a portability aspect
-> (mesa runs on more than just linux) and as well as sandbox filtering
-> of the extra syscall.
->
-> Last time I looked, the latter was still an issue and mesa was using
-> SYS_kcmp to compare device node fds.
-> A far shorter and more portable solution is possible, so let me
-> prepare a Mesa patch.
+Does this really matter though. If those pages are reserved then nobody
+will touch them regardless of their node/zone ids.
 
-Comparing two DMA-BUFs can be done with their inode number, I think.
+> Hotplug memory. The node/zone gets resized such that PFN walkers might
+> stumble over it.
+> 
+> The basic idea is to make sure that any initialized/"online" pfn belongs to
+> exactly one node/zone and that the node/zone spans that PFN.
 
-Comparing two device FDs is more subtle, because of GEM handle
-ref'counting. You sometimes really want to check whether two FDs are
-backed by the same file *description*. See [1] for details.
+Yeah, this sounds like a good idea but what is the poper node for hole
+between two ranges associated with a different nodes/zones? This will
+always be a random number. We should have a clear way to tell "do not
+touch those pages" and PageReserved sounds like a good way to tell that.
 
-[1]: https://gitlab.freedesktop.org/mesa/drm/-/merge_requests/110
+> > problems with that. The VM_BUG_ON blowing up is really bad but as said
+> > above we can simply make it less offensive in presence of reserved pages
+> > as those shouldn't reach that path AFAICS normally.
+> 
+> Andrea tried tried working around if via PG_reserved pages and it resulted
+> in quite some ugly code. Andrea also noted that we cannot rely on any random
+> page walker to do the right think when it comes to messed up node/zone info.
+
+I am sorry, I haven't followed previous discussions. Has the removal of
+the VM_BUG_ON been considered as an immediate workaround?
+-- 
+Michal Hocko
+SUSE Labs
