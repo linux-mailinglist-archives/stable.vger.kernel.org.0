@@ -2,86 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA0331A8E5
-	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 01:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD8131A9B9
+	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 04:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbhBMAoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 19:44:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56598 "EHLO
+        id S231894AbhBMDQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 22:16:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbhBMAoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 19:44:37 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C35C061756
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:43:57 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id d26so555149pfn.5
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:43:56 -0800 (PST)
+        with ESMTP id S229648AbhBMDQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 22:16:09 -0500
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316C0C061574;
+        Fri, 12 Feb 2021 19:15:29 -0800 (PST)
+Received: by mail-io1-xd2e.google.com with SMTP id u8so1216837ior.13;
+        Fri, 12 Feb 2021 19:15:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20150623.gappssmtp.com; s=20150623;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dbhUzwqGfG1hKMLbbUj/LjjWuHYf51AvOfJj5/4HJUU=;
-        b=lOvDyZuCcqdlGpIpZqJwhKAdJ8v2iA4ozRlURXedM0oL6iIOUvFhraAQSlkyBpqhx5
-         httUjscQ3/UM95/G0oBLqe5j5qxsxAJApYykpS3o/b+aNux4jCsg0Hhp4w4X68CAvGZo
-         bhaXfGbLFlH+TqiuefsFSxAj9iMMm5ygvA6eyuulXQVvqpYVU0I8a/dkZ3e2T8e66Kem
-         fPqXAX9NoXq1dac6LINFPFB5pxtnJV+H58P2Hqe5nxVSSiiQgIfjjNqDeoZPaR2vg04a
-         1uJPv+KC0h9T2OjiE0PLBt5DcSFIGdvNuAP3ZUMWEEk/WTSzkAuixeEmTzmvmvUeifz+
-         pL3g==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=P68Xlwkd2VFwZrNBdT3Q6/hwS7cc99fB0MhjS7aD+k0=;
+        b=I/GN3F/FKIZewmeCtfk5wZLuHyY9TVE7Lf6nwUJzZg66dMRlxbdrHYxHhCARXHNnuu
+         8ql8tFmnOueXbuW/8ci7DvwKqNYY0XfBkRU4JSRjwiHkk9G9SRwoCFE5gy94a9EoRJRW
+         LW5ac/jDZ6D/ZNck+wy7+idXnNQSYweheznpaiNlMLzPXrrI9eALNTK6eUOCSZkTWTfB
+         OW9l//0U+tao60TZe909Zul4YjkiAySOT6GiQwX2dyv0ARbsVs0iKK1BzIzXVBEzwo4c
+         3q/P4YjkzMw+uoiu94uglWNsCVEaBy1XKeP7hAQbGyr2cVEBO+8nPq1ZuXhhtwyadbrP
+         PDcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=dbhUzwqGfG1hKMLbbUj/LjjWuHYf51AvOfJj5/4HJUU=;
-        b=QzcHMQu49MFOFHq9VJsOArjvUgO9Warmy7TnBmCwJyHcHwenh5tWqSqynE90uzFr5D
-         GPEulkMFuio7OD41wXXTDpmF/Y3QBJh4EEfPUScXMmg4ursh1/zg6veSaTqol5YqDFdN
-         W9TNrwXLzxYhcRzYHbG3B6JB0k8BKCxefGLG/n0+wRZwAdM9l3yEEkK1wY3xydNA3rF1
-         XbnMkMtkt2JV8Id6Ne6V8JWOZN5T30zFEobwWA7CvgPYRmhrxaBnpp3wbXpF3XAEYScw
-         vlv2GwBbQnCt4ks4HOJfuMxPFUHAkFCiu9run1MI9U8zGosTRjTWhx+8FIqZl322D1Ut
-         DScw==
-X-Gm-Message-State: AOAM530uPB3+dgjzk8NRk9scsZF9KMfeLIkgSh70Ga7EvTvhlp5PsA51
-        38OFMyVU07kPPbcTbHlp6pxeaA==
-X-Google-Smtp-Source: ABdhPJzdBhGkqACtkkAi9SNbmD9Ucwde/9QRGP1PUg2zL/AcBwjgqor8b5sJsMl3wBwUtpZjEeQ8Kw==
-X-Received: by 2002:a63:1826:: with SMTP id y38mr5577270pgl.252.1613177036325;
-        Fri, 12 Feb 2021 16:43:56 -0800 (PST)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id n12sm9230574pff.29.2021.02.12.16.43.54
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=P68Xlwkd2VFwZrNBdT3Q6/hwS7cc99fB0MhjS7aD+k0=;
+        b=gmSAkVUUgQaqrgZjSR3kQfw2og2YyCrIAaYKrIlON+U2G421XEP92JaTM+28a6vMyN
+         SNcIstZLMQYYD5hOIzw2Go/3Kekzfdat7HL+WZyvhDnp18+NOFcKWo690Xluuzfq+mgu
+         6gsR8S18HK7geQOpb8MTIp0HI2K6BNfWLDOUVHyPgoOL7fU87nMx5DHmnjEogizyfunB
+         sFWVNNbLMGsKMisfAXeIMnZqpKVI4QlqU8x260z3npmy0wDOQNN7j4129t13kbY4kdrS
+         8xp5lY2QMx8CiIPkFVo+jvf/Qs9TezUi/TkL53RzHIMSBQ6Wd6QHvEUYOKMgWigWYJBh
+         ruEA==
+X-Gm-Message-State: AOAM530WnxSK6/RguXSMpXg65DCQbXU6Zn1tdrzw5pW/kFA/4UUQEyH2
+        JNR8VM6KXmOO9GOJrCMkMBk=
+X-Google-Smtp-Source: ABdhPJxeklg9F2sBdA0h24DHNx5mzPxQiL2bKCfAUL0LFNuCM8+d5jLgSdakukQc4iUKeDlQ9RlPbA==
+X-Received: by 2002:a5e:a816:: with SMTP id c22mr4664659ioa.199.1613186128336;
+        Fri, 12 Feb 2021 19:15:28 -0800 (PST)
+Received: from book ([2601:445:8200:6c90::d0e5])
+        by smtp.gmail.com with ESMTPSA id b1sm5114967iob.42.2021.02.12.19.15.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Feb 2021 16:43:55 -0800 (PST)
-Date:   Fri, 12 Feb 2021 16:43:55 -0800 (PST)
-X-Google-Original-Date: Fri, 12 Feb 2021 16:43:50 PST (-0800)
-Subject:     Re: [PATCH] Revert "dts: phy: add GPIO number and active state used for phy reset"
-In-Reply-To: <877dngjdi1.fsf@igel.home>
-CC:     devicetree@vger.kernel.org, aou@eecs.berkeley.edu,
-        anup@brainfault.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, yash.shah@sifive.com, robh+dt@kernel.org,
-        sagar.kadam@sifive.com, Paul Walmsley <paul.walmsley@sifive.com>,
-        linux-riscv@lists.infradead.org, kernel-team@android.com
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     schwab@linux-m68k.org
-Message-ID: <mhng-60c8c9ad-1184-4c41-b2c4-1cf5fe057473@penguin>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Fri, 12 Feb 2021 19:15:27 -0800 (PST)
+Date:   Fri, 12 Feb 2021 21:15:25 -0600
+From:   Ross Schmidt <ross.schm.dev@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/27] 4.19.176-rc2 review
+Message-ID: <20210213031525.GA7927@book>
+References: <20210212074240.963766197@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210212074240.963766197@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Feb 2021 04:47:34 PST (-0800), schwab@linux-m68k.org wrote:
-> On Feb 04 2021, Palmer Dabbelt wrote:
+On Fri, Feb 12, 2021 at 08:55:04AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.176 release.
+> There are 27 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
->> From: Palmer Dabbelt <palmerdabbelt@google.com>
->>
->> VSC8541 phys need a special reset sequence, which the driver doesn't
->> currentlny support.  As a result enabling the reset via GPIO essentially
->> guarnteees that the device won't work correctly.
->>
->> This reverts commit a0fa9d727043da2238432471e85de0bdb8a8df65.
->>
->> Fixes: a0fa9d727043 ("dts: phy: add GPIO number and active state used for phy reset")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
->
-> This fixes ethernet on the HiFive Unleashed with 5.10.12.
 
-Thanks for testing.  Looks like I forgot to reply, but it's in Linus' tree and 
-should end up in stable.
+Compiled and booted with no regressions on x86_64.
+
+Tested-by: Ross Schmidt <ross.schm.dev@gmail.com>
+
+
+thanks,
+
+Ross
