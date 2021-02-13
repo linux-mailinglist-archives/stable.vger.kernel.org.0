@@ -2,222 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 863E731A87F
-	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 00:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 299C331A887
+	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 01:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229650AbhBLX4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 18:56:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229679AbhBLX4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Feb 2021 18:56:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA3364E25;
-        Fri, 12 Feb 2021 23:55:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613174137;
-        bh=qB6dyxCgCs6hpdMfaqAM+5cZxOG0rVPh2DI+4rxPH7U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BZyoiIUmJE83cjcXVkT2x2L9I+aJLnwkubehxYHjFxjKKutrqtjYlojrVKQgUoIDE
-         jLdcQ/lLzERk+34spSAWv8NFJfj6RCNOf2pA+uGcGv8rPV50tfu4Ydn40skRHi3+Hw
-         WkLc4apR0X0QTBMBeEZCyz/mlBIPWREr2VeahlftsEmfQB3ff94d+hGm5zOe4TQfNq
-         /HOiBjCyf9qDLOijlpkf1k0jYRGKS8jlrQ8/w9Zk/rIRSCFFhm0Q74BOdFH0N5NRW9
-         Np416mQ48jXj4nqFTR6etvjsT2u9WBwBFHKP8hJcRb5RFSBBs9iZnppw1UOy9R/hvT
-         pSO4KaEM5dWbg==
-Date:   Sat, 13 Feb 2021 01:55:28 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Lukasz Majczak <lma@semihalf.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Tj <ml.linux@elloe.vision>, Dirk Gouders <dirk@gouders.net>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Radoslaw Biernacki <rad@semihalf.com>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Alex Levin <levinale@google.com>, upstream@semihalf.com
-Subject: Re: [PATCH v5] tpm_tis: Add missing
- tpm_request/relinquish_locality() calls
-Message-ID: <YCcVcA876iJesEW5@kernel.org>
-References: <20210212110600.19216-1-lma@semihalf.com>
+        id S231364AbhBMACV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 19:02:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229497AbhBMACU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 19:02:20 -0500
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 936CCC061574
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:01:39 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id j11so1145898wmi.3
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:01:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xVCQMi5Rey+AZZ+t8UZNvWNm3o+cNUVc8nqRGcYe8Xs=;
+        b=Xj8whxCz832NJO1GTtRiQCT2/dL4FTaEJt1R0F21MiJOG+tsOiRUE4mzaxVnPsr6UJ
+         TKXjTsa9z5p+Fy1MzQNmBCInh8cG5ueQo3n3f+GohV1ltZAIyC3GhfzG2qp3Cymj8Mnq
+         H+v+bC8TvJU3Oga0o87lwE2x0tH/vecCbDz/HQJfB73fgj5whmns7AbVTsUs3NGg9zE1
+         IsORjY7mX/7AD5bulUPgW29YaQVRrSqQdDcMqk+gFaJWoAHn6JihaKXrif0Y26ZLRjJM
+         vc1PqhD7qSwviHmK9rpxaYDUmqLHeH7Y199T5xndct91LuMLFXzuZ9ea9JQ/6wEy2cCf
+         rDwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xVCQMi5Rey+AZZ+t8UZNvWNm3o+cNUVc8nqRGcYe8Xs=;
+        b=OY4C8yeuYdRDy1p/HgSr69cJWaI8oUXbzpQCGYGq7p4c2ofJRAsQSb/gc2cPtMYTIn
+         qirsamnfXj4dewfTosyExGloYOl4dftCKmx1wurps47ic02UNf7e+uxJXjpTrGP1MMAL
+         LMx44+SO/gKJU2HZ1Id5nh2G6DAULIlyTz8ADcZvdmwcZ7qh0KAQB05V5ak2TMGcsDVr
+         JjtNA6JaTpL8MVIkFLc5gKSTnAXNnpgmAZiKBy5PjAW7K+BoXT/e093E9Ie9bwNOl3yU
+         XzSGPsyrzfxEDmcqzPSa4/jRspc8+gg9WsDV1Gt8KsO90bE7yKbBef6D2eV8aYQCcG56
+         5qzQ==
+X-Gm-Message-State: AOAM531rI7WMdtiLB5KcYoi65LBgoAPd68XsYpeljCNs6NXK+zojMSo4
+        xYX8c/BDmAr8GeyVDyktNas=
+X-Google-Smtp-Source: ABdhPJzj9O59lJUKojCL/wB1cS5F98NwIimTxOn9nUtnL7hsRlxb4kzXOAt5i6fb7qpMM7/SK6hWFA==
+X-Received: by 2002:a05:600c:4f46:: with SMTP id m6mr4625500wmq.160.1613174498153;
+        Fri, 12 Feb 2021 16:01:38 -0800 (PST)
+Received: from debian (host-2-98-59-96.as13285.net. [2.98.59.96])
+        by smtp.gmail.com with ESMTPSA id e16sm14919061wrt.36.2021.02.12.16.01.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Feb 2021 16:01:37 -0800 (PST)
+Date:   Sat, 13 Feb 2021 00:01:35 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     Sergey.Semin@baikalelectronics.ru, heikki.krogerus@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] usb: dwc3: ulpi: Replace CPU-based
+ busyloop with" failed to apply to 5.4-stable tree
+Message-ID: <YCcW3zX1JGnQeZhI@debian>
+References: <161035422430194@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="fKUPKjpbpTG4nPyH"
 Content-Disposition: inline
-In-Reply-To: <20210212110600.19216-1-lma@semihalf.com>
+In-Reply-To: <161035422430194@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 12, 2021 at 12:06:00PM +0100, Lukasz Majczak wrote:
-> There are missing calls to tpm_request_locality() before the calls to
-> the tpm_get_timeouts() and tpm_tis_probe_irq_single() - both functions
-> internally send commands to the tpm using tpm_tis_send_data()
-> which in turn, at the very beginning, calls the tpm_tis_status().
-> This one tries to read TPM_STS register, what fails and propagates
-> this error upward. The read fails due to lack of acquired locality,
-> as it is described in
-> TCG PC Client Platform TPM Profile (PTP) Specification,
-> paragraph 6.1 FIFO Interface Locality Usage per Register,
-> Table 39 Register Behavior Based on Locality Setting for FIFO
-> - a read attempt to TPM_STS_x Registers returns 0xFF in case of lack
-> of locality. The described situation manifests itself with
-> the following warning trace:
+
+--fKUPKjpbpTG4nPyH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Mon, Jan 11, 2021 at 09:37:04AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> [    4.324298] TPM returned invalid status
-> [    4.324806] WARNING: CPU: 2 PID: 1 at drivers/char/tpm/tpm_tis_core.c:275 tpm_tis_status+0x86/0x8f
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-The commit message is has great description  of the background, but
-it does not have description what the commit does. Please describe
-this in imperative form, e.g. "Export tpm_request_locality() and ..."
-and "Call tpm_request_locality() before ...". You get the idea.
+Here is the backport, along with 2a499b452952 ("usb: dwc3: ulpi: fix checkpatch warning")
+which makes backporting easy. Will also apply to 4.19-stable.
 
-It's also lacking expalanation of the implementation path, i.e.
-why you are not using tpm_chip_start() and tpm_chip_stop().
+--
+Regards
+Sudip
 
-> 
-> Tested on Samsung Chromebook Pro (Caroline), TPM 1.2 (SLB 9670)
+--fKUPKjpbpTG4nPyH
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-usb-dwc3-ulpi-fix-checkpatch-warning.patch"
 
-Empty line here.
+From ac6ba1ce363799ff9259ceaee08dceb431f44291 Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@kernel.org>
+Date: Thu, 13 Aug 2020 08:30:38 +0300
+Subject: [PATCH 1/2] usb: dwc3: ulpi: fix checkpatch warning
 
-Also, add:
+commit 2a499b45295206e7f3dc76edadde891c06cc4447 upstream
 
-Cc: stable@vger.kernel.org
+no functional changes.
 
-> Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/dwc3/ulpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Remove empty line.
+diff --git a/drivers/usb/dwc3/ulpi.c b/drivers/usb/dwc3/ulpi.c
+index bb8271531da7..a462ef54678a 100644
+--- a/drivers/usb/dwc3/ulpi.c
++++ b/drivers/usb/dwc3/ulpi.c
+@@ -19,7 +19,7 @@
+ 
+ static int dwc3_ulpi_busyloop(struct dwc3 *dwc)
+ {
+-	unsigned count = 1000;
++	unsigned int count = 1000;
+ 	u32 reg;
+ 
+ 	while (count--) {
+-- 
+2.30.0
 
-> Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+--fKUPKjpbpTG4nPyH
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0002-usb-dwc3-ulpi-Replace-CPU-based-busyloop-with-Protoc.patch"
+
+From 25f8c4577e254f235fc445b9d62b8d201d69c63e Mon Sep 17 00:00:00 2001
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Date: Thu, 10 Dec 2020 11:50:07 +0300
+Subject: [PATCH 2/2] usb: dwc3: ulpi: Replace CPU-based busyloop with
+ Protocol-based one
+
+commit fca3f138105727c3a22edda32d02f91ce1bf11c9 upstream
+
+Originally the procedure of the ULPI transaction finish detection has been
+developed as a simple busy-loop with just decrementing counter and no
+delays. It's wrong since on different systems the loop will take a
+different time to complete. So if the system bus and CPU are fast enough
+to overtake the ULPI bus and the companion PHY reaction, then we'll get to
+take a false timeout error. Fix this by converting the busy-loop procedure
+to take the standard bus speed, address value and the registers access
+mode into account for the busy-loop delay calculation.
+
+Here is the way the fix works. It's known that the ULPI bus is clocked
+with 60MHz signal. In accordance with [1] the ULPI bus protocol is created
+so to spend 5 and 6 clock periods for immediate register write and read
+operations respectively, and 6 and 7 clock periods - for the extended
+register writes and reads. Based on that we can easily pre-calculate the
+time which will be needed for the controller to perform a requested IO
+operation. Note we'll still preserve the attempts counter in case if the
+DWC USB3 controller has got some internals delays.
+
+[1] UTMI+ Low Pin Interface (ULPI) Specification, Revision 1.1,
+    October 20, 2004, pp. 30 - 36.
+
+Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20201210085008.13264-3-Sergey.Semin@baikalelectronics.ru
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/dwc3/ulpi.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/dwc3/ulpi.c b/drivers/usb/dwc3/ulpi.c
+index a462ef54678a..ffe3440abb74 100644
+--- a/drivers/usb/dwc3/ulpi.c
++++ b/drivers/usb/dwc3/ulpi.c
+@@ -7,6 +7,8 @@
+  * Author: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+  */
+ 
++#include <linux/delay.h>
++#include <linux/time64.h>
+ #include <linux/ulpi/regs.h>
+ 
+ #include "core.h"
+@@ -17,12 +19,22 @@
+ 		DWC3_GUSB2PHYACC_ADDR(ULPI_ACCESS_EXTENDED) | \
+ 		DWC3_GUSB2PHYACC_EXTEND_ADDR(a) : DWC3_GUSB2PHYACC_ADDR(a))
+ 
+-static int dwc3_ulpi_busyloop(struct dwc3 *dwc)
++#define DWC3_ULPI_BASE_DELAY	DIV_ROUND_UP(NSEC_PER_SEC, 60000000L)
++
++static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
+ {
++	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
+ 	unsigned int count = 1000;
+ 	u32 reg;
+ 
++	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
++		ns += DWC3_ULPI_BASE_DELAY;
++
++	if (read)
++		ns += DWC3_ULPI_BASE_DELAY;
++
+ 	while (count--) {
++		ndelay(ns);
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
+ 		if (reg & DWC3_GUSB2PHYACC_DONE)
+ 			return 0;
+@@ -47,7 +59,7 @@ static int dwc3_ulpi_read(struct device *dev, u8 addr)
+ 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
+ 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
+ 
+-	ret = dwc3_ulpi_busyloop(dwc);
++	ret = dwc3_ulpi_busyloop(dwc, addr, true);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -71,7 +83,7 @@ static int dwc3_ulpi_write(struct device *dev, u8 addr, u8 val)
+ 	reg |= DWC3_GUSB2PHYACC_WRITE | val;
+ 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
+ 
+-	return dwc3_ulpi_busyloop(dwc);
++	return dwc3_ulpi_busyloop(dwc, addr, false);
+ }
+ 
+ static const struct ulpi_ops dwc3_ulpi_ops = {
+-- 
+2.30.0
 
 
-> ---
-> 
-> Hi
-> 
-> I have tried to clean all the pointed issues, but decided to stay with 
-> tpm_request/relinquish_locality() calls instead of using tpm_chip_start/stop(),
-> the rationale behind this is that, in this case only locality is requested, there
-> is no need to enable/disable the clock, the similar case is present in
-> the probe_itpm() function.
-
-I would prefer to use the "same same" if it does not cause any extra harm
-instead of new exports. That will also make the fix more compact. So don't
-agree with this reasoning. Also the commit message lacks *any* reasoning.
-
-> One more clarification is that, the TPM present on my test machine is the SLB 9670
-> (not Cr50).
-> 
-> Best regards,
-> Lukasz
-> 
-> Changes:
-> v4->v5:
-> * Fixed style, typos, clarified commit message
-> 
->  drivers/char/tpm/tpm-chip.c      |  6 ++++--
->  drivers/char/tpm/tpm-interface.c | 13 ++++++++++---
->  drivers/char/tpm/tpm.h           |  2 ++
->  drivers/char/tpm/tpm_tis_core.c  | 14 +++++++++++---
->  4 files changed, 27 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index ddaeceb7e109..ce9c2650fbe5 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -32,7 +32,7 @@ struct class *tpm_class;
->  struct class *tpmrm_class;
->  dev_t tpm_devt;
->  
-> -static int tpm_request_locality(struct tpm_chip *chip)
-> +int tpm_request_locality(struct tpm_chip *chip)
->  {
->  	int rc;
->  
-> @@ -46,8 +46,9 @@ static int tpm_request_locality(struct tpm_chip *chip)
->  	chip->locality = rc;
->  	return 0;
->  }
-> +EXPORT_SYMBOL_GPL(tpm_request_locality);
->  
-> -static void tpm_relinquish_locality(struct tpm_chip *chip)
-> +void tpm_relinquish_locality(struct tpm_chip *chip)
->  {
->  	int rc;
->  
-> @@ -60,6 +61,7 @@ static void tpm_relinquish_locality(struct tpm_chip *chip)
->  
->  	chip->locality = -1;
->  }
-> +EXPORT_SYMBOL_GPL(tpm_relinquish_locality);
->  
->  static int tpm_cmd_ready(struct tpm_chip *chip)
->  {
-> diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-> index 1621ce818705..2a9001d329f2 100644
-> --- a/drivers/char/tpm/tpm-interface.c
-> +++ b/drivers/char/tpm/tpm-interface.c
-> @@ -241,10 +241,17 @@ int tpm_get_timeouts(struct tpm_chip *chip)
->  	if (chip->flags & TPM_CHIP_FLAG_HAVE_TIMEOUTS)
->  		return 0;
->  
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> +	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
->  		return tpm2_get_timeouts(chip);
-> -	else
-> -		return tpm1_get_timeouts(chip);
-> +	} else {
-> +		ssize_t ret = tpm_request_locality(chip);
-> +
-> +		if (ret)
-> +			return ret;
-> +		ret = tpm1_get_timeouts(chip);
-> +		tpm_relinquish_locality(chip);
-> +		return ret;
-> +	}
->  }
->  EXPORT_SYMBOL_GPL(tpm_get_timeouts);
->  
-> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-> index 947d1db0a5cc..8c13008437dd 100644
-> --- a/drivers/char/tpm/tpm.h
-> +++ b/drivers/char/tpm/tpm.h
-> @@ -193,6 +193,8 @@ static inline void tpm_msleep(unsigned int delay_msec)
->  
->  int tpm_chip_start(struct tpm_chip *chip);
->  void tpm_chip_stop(struct tpm_chip *chip);
-> +int tpm_request_locality(struct tpm_chip *chip);
-> +void tpm_relinquish_locality(struct tpm_chip *chip);
->  struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
->  __must_check int tpm_try_get_ops(struct tpm_chip *chip);
->  void tpm_put_ops(struct tpm_chip *chip);
-> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-> index 431919d5f48a..d4f381d6356e 100644
-> --- a/drivers/char/tpm/tpm_tis_core.c
-> +++ b/drivers/char/tpm/tpm_tis_core.c
-> @@ -708,11 +708,19 @@ static int tpm_tis_gen_interrupt(struct tpm_chip *chip)
->  	u32 cap2;
->  	cap_t cap;
->  
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> +	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
->  		return tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
-> -	else
-> -		return tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc,
-> +	} else {
-> +		ssize_t ret = tpm_request_locality(chip);
-> +
-> +		if (ret)
-> +			return ret;
-> +		ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc,
->  				  0);
-> +		tpm_relinquish_locality(chip);
-> +		return ret;
-> +	}
-> +
->  }
->  
->  /* Register the IRQ and issue a command that will cause an interrupt. If an
-> -- 
-> 2.25.1
-> 
-> 
+--fKUPKjpbpTG4nPyH--
