@@ -2,78 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDFB31A88B
-	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 01:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C89A931A893
+	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 01:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbhBMADm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Feb 2021 19:03:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
+        id S231578AbhBMAEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Feb 2021 19:04:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231706AbhBMADg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 19:03:36 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9483C061574
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:02:55 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id m1so1367237wml.2
-        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:02:55 -0800 (PST)
+        with ESMTP id S229648AbhBMAE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Feb 2021 19:04:26 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173E7C061574
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:03:46 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id r21so1307372wrr.9
+        for <stable@vger.kernel.org>; Fri, 12 Feb 2021 16:03:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=vMh6EGGvTJYwrXGUrFUBzMOC53RMRoX94LvlMeiKhuw=;
-        b=c14nayi7HL892+Uol7qIFGwqtD660yql+KJtuH+vALcORZ8qebkrexulN6p2NoJQIa
-         j6OS/pLYHBXK4CiqUNE9isJs89gz5G79Q3eeb/ZwAL8ucve51dI8fqDz61uiYGXc01Bw
-         in7aAWU7gh9A1F0UbB5EBLhpec3EU38ISCA8rARhil5amyR+vC1uNfG+6tnAF1xH/mGE
-         eRaa9SqHt/RaHTUbc0ne1PkjaiUxIDwwCGAxXBRN9Rem5O/NCzOKps9d7EB8cPDDgTIN
-         zdQLDitgi9aJTZhEsgRTSTSuIAd0KJyJ1tj3eNFJxKUjAXg36Cl+iFBhnJFXSs+Ux/uA
-         UQLA==
+        bh=Um9PhsyBd9Bs+88noZN0PnApfZgcLF0N2YhndOSlCds=;
+        b=C5X5qVyPMx3DLjYQMqsYL3cUyelht4L6owYn8D+knvW8ek/zT79yAFA6zVVuuCGld0
+         3CjOI5Ucf2x0vkaNSzr6/xFK434F098hAtyZyAKIuoCq1NKrJxlGwkwxBfIX8zCVXUbJ
+         9IGvvzho0Xc6h7ni9gYrtunhkXSI0cCcAHa2XBS9N4W8AGB4Wnp7He5t4U+TAo9ol0Ry
+         SpRFZehtfr9Ze0WmguqNUYrk6xzmn6JY0Aucw44frzoAbXooL4eO6Q/JE2yRxctR2B5N
+         N8QnzMBrXd1N6ywOt7iFb9U9bwXgRBqecC/4sl/c8Fupt1zUeJL+9Eg0lWlncvVp4bry
+         E04g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=vMh6EGGvTJYwrXGUrFUBzMOC53RMRoX94LvlMeiKhuw=;
-        b=CItw0G1Q6hTATdaVyu9jEy6bTkSQwUE5C5qtT3AHn3IMw4HPs9CP61Lw89foNaf0ZX
-         KTJBj9Q9o0V01CzTFKEDXSEI3+bemomsPeI5kt3LS1plvkdLPybzkKUaXtirQAbC6c1d
-         2s4IJBauwxs5Wxz2BYL7S/gHdjyGJo2KXjW+0ms5z6ZiXBB6Yy2hLulZKhTaZw/fn6P3
-         px2Ysm9LiwFlWYE6WbwAMy+Mpcq/nUXprNdlOY4jlHE+5PxshX0CYhQ50tZDk2DIld3N
-         shjvdzYHu45WgBPZT67YTJbKw14+0Vg6vvksgIYw5fL40rs1UkQ4MxA2v7g2y69rEdC6
-         xtxg==
-X-Gm-Message-State: AOAM532AI4aXetHDxfT/RIwcSg16WjxDLXvSjv0jQaTI4HhmaVKpc/Ov
-        jgyHU7pnJBPC6KCv7f92z0g=
-X-Google-Smtp-Source: ABdhPJzh0NQljVw9q+rxkap9Btj0DUR4iEu5qT8bHB73K+cr+gGISiJ43jApZZmHf77AwUQ/fObZ+A==
-X-Received: by 2002:a05:600c:2210:: with SMTP id z16mr4679784wml.50.1613174574492;
-        Fri, 12 Feb 2021 16:02:54 -0800 (PST)
+        bh=Um9PhsyBd9Bs+88noZN0PnApfZgcLF0N2YhndOSlCds=;
+        b=tC8yV4RDvGfJdHjnqF7BUIQ1hLIwBMyErQHOvxW8C8U3S7pG9ObKqrxH2flLUz48oa
+         UMIDey1WOj0nL4w2qVl8HQFteVPkLMpsKIhRVdaYp9f5MGhASAM3AucQsO5rciSvNdwx
+         BA3SDDb/O/20FBCzPE+yeE8idFHUVv6fA/xkGXJAXEysCuEhEBecRo82qlWff+eERdqK
+         M0hdzo9rxRJZljmKC5qLBbZB0WY1zLDO36YIIy9wrXQ+XUcMkeUB0tuwaQ5YOp9LEARF
+         qTufk47jluOK0jaMkO2XQCzdUzg/XBigq9wWkzNHaMgal7DDFm+UMVrf4IEoGOF8QVsV
+         vucA==
+X-Gm-Message-State: AOAM533zB5zvWTqj2OnpNYFyL7M2hPRaUImKMDPMzrfkjosMmfJ32kq+
+        9+xm5vHwOup6/mU127YzucSCg0C5BPg73A==
+X-Google-Smtp-Source: ABdhPJxF3g5RvKM+SrffykoF4jKWzksEyqrTqrCGO2lzoyAKu+fx+YFdoIDHWS9GsSJJ8cyjbzJIFg==
+X-Received: by 2002:adf:f089:: with SMTP id n9mr6259844wro.98.1613174624848;
+        Fri, 12 Feb 2021 16:03:44 -0800 (PST)
 Received: from debian (host-2-98-59-96.as13285.net. [2.98.59.96])
-        by smtp.gmail.com with ESMTPSA id j40sm14807915wmp.47.2021.02.12.16.02.53
+        by smtp.gmail.com with ESMTPSA id h12sm15360485wru.18.2021.02.12.16.03.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Feb 2021 16:02:53 -0800 (PST)
-Date:   Sat, 13 Feb 2021 00:02:52 +0000
+        Fri, 12 Feb 2021 16:03:44 -0800 (PST)
+Date:   Sat, 13 Feb 2021 00:03:42 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Sergey.Semin@baikalelectronics.ru, heikki.krogerus@linux.intel.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] usb: dwc3: ulpi: Replace CPU-based
- busyloop with" failed to apply to 4.14-stable tree
-Message-ID: <YCcXLGkHVYfmO8Pj@debian>
-References: <161035422122542@kroah.com>
+ busyloop with" failed to apply to 4.9-stable tree
+Message-ID: <YCcXXkH5Oz5p718j@debian>
+References: <1610354220102122@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="K7RLa8IsMSqGv4Iz"
+Content-Type: multipart/mixed; boundary="Jyiob6+tyUuBJziy"
 Content-Disposition: inline
-In-Reply-To: <161035422122542@kroah.com>
+In-Reply-To: <1610354220102122@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---K7RLa8IsMSqGv4Iz
+--Jyiob6+tyUuBJziy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Jan 11, 2021 at 09:37:01AM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Jan 11, 2021 at 09:37:00AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -85,12 +85,12 @@ which makes backporting easy.
 Regards
 Sudip
 
---K7RLa8IsMSqGv4Iz
+--Jyiob6+tyUuBJziy
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment;
 	filename="0001-usb-dwc3-ulpi-fix-checkpatch-warning.patch"
 
-From dcdc76aadec9417bc4be087aa2a6374b168ee1f3 Mon Sep 17 00:00:00 2001
+From 03e926afc1a65c54c8b90825e005c5cce0ca5407 Mon Sep 17 00:00:00 2001
 From: Felipe Balbi <balbi@kernel.org>
 Date: Thu, 13 Aug 2020 08:30:38 +0300
 Subject: [PATCH 1/2] usb: dwc3: ulpi: fix checkpatch warning
@@ -106,7 +106,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/usb/dwc3/ulpi.c b/drivers/usb/dwc3/ulpi.c
-index d3b68e97096e..231f7cf5c7b2 100644
+index bd86f84f3790..df890a5a9fd3 100644
 --- a/drivers/usb/dwc3/ulpi.c
 +++ b/drivers/usb/dwc3/ulpi.c
 @@ -22,7 +22,7 @@
@@ -122,12 +122,12 @@ index d3b68e97096e..231f7cf5c7b2 100644
 2.30.0
 
 
---K7RLa8IsMSqGv4Iz
+--Jyiob6+tyUuBJziy
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment;
 	filename="0002-usb-dwc3-ulpi-Replace-CPU-based-busyloop-with-Protoc.patch"
 
-From 46a78fd7786a27206e2f67550fc6f6adabfed603 Mon Sep 17 00:00:00 2001
+From 12646bcfce19d05086135f1a385611453d377c24 Mon Sep 17 00:00:00 2001
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Date: Thu, 10 Dec 2020 11:50:07 +0300
 Subject: [PATCH 2/2] usb: dwc3: ulpi: Replace CPU-based busyloop with
@@ -169,7 +169,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/dwc3/ulpi.c b/drivers/usb/dwc3/ulpi.c
-index 231f7cf5c7b2..bc2dd9499ea0 100644
+index df890a5a9fd3..3862edf59f7d 100644
 --- a/drivers/usb/dwc3/ulpi.c
 +++ b/drivers/usb/dwc3/ulpi.c
 @@ -10,6 +10,8 @@
@@ -203,9 +203,9 @@ index 231f7cf5c7b2..bc2dd9499ea0 100644
  	while (count--) {
 +		ndelay(ns);
  		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
- 		if (reg & DWC3_GUSB2PHYACC_DONE)
+ 		if (!(reg & DWC3_GUSB2PHYACC_BUSY))
  			return 0;
-@@ -50,7 +62,7 @@ static int dwc3_ulpi_read(struct device *dev, u8 addr)
+@@ -44,7 +56,7 @@ static int dwc3_ulpi_read(struct device *dev, u8 addr)
  	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
  	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
  
@@ -214,7 +214,7 @@ index 231f7cf5c7b2..bc2dd9499ea0 100644
  	if (ret)
  		return ret;
  
-@@ -74,7 +86,7 @@ static int dwc3_ulpi_write(struct device *dev, u8 addr, u8 val)
+@@ -62,7 +74,7 @@ static int dwc3_ulpi_write(struct device *dev, u8 addr, u8 val)
  	reg |= DWC3_GUSB2PHYACC_WRITE | val;
  	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
  
@@ -227,4 +227,4 @@ index 231f7cf5c7b2..bc2dd9499ea0 100644
 2.30.0
 
 
---K7RLa8IsMSqGv4Iz--
+--Jyiob6+tyUuBJziy--
