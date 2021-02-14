@@ -2,134 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB7831B2FA
-	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 23:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BEA31B30B
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 23:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229994AbhBNWMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Feb 2021 17:12:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229881AbhBNWMR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 17:12:17 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6695C061756
-        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:11:37 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id f8so1071852plg.5
-        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:11:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2orBR9OYW5BKPAJ7AUQqRPGmm1xoHW5Oit/il/3Xfxc=;
-        b=Op94sF5oBLL66NIdX6/K56BaonIeXXOiaAlM7IhiIGrqTBncYmJjgdHCeYRY83OVND
-         sM1o5moqOinpXei4Xk09Mo/VDxG+mBZD6p2Xifb+YDbMqss8Cmhan8Wi9lf05GdQf1ZY
-         LQMKrBbJfH1xIA4wUl5e3BS7D4L44OzTTZP/Dca293xoolt+ME5H9zZMc5hVXVVH5o4S
-         GUX2dnlAnwqHqDNZK/xJdd6V7HrVLZRFN2wFIFpAN85whtk9aRX5nc2hnBGC1Qbd3UAY
-         322jtjWaKonZA7zzmlTSSk6hJURN637YXQfBxH7woLukD/znmZAtxbVP6+JgrEJ975Ba
-         ilng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2orBR9OYW5BKPAJ7AUQqRPGmm1xoHW5Oit/il/3Xfxc=;
-        b=bKBWYiGQ3uMCd1Mk38/syJEC1zlX4AJY1DMPeRoFSoaTS4sxurXGWa9CfwYZauEvIy
-         ooEo1qJ/S3WWQniL2QjkU9UKZYeiO61lxvcVT+ZmaaCWYEUbtxUQBjLMrtzY90xIwh88
-         O+resNtknaooEyTt8NTaSsqfv+LRlQt7/BVRZ7zgy9pktcNlki7QC91s6e3qoKVmhosc
-         uClcTapqA2S+1s0FnMMq1CT5cGn3g6HZ6QOcODO8yULE1d8Zvvi0/smiYUKin5hY0xwU
-         jG2d1xMVZNbmEZrraxohhgfASQT+T8S3yWHlK16ufHlwupFkPYjp9oCrc8K8aP5vc+tQ
-         TvHw==
-X-Gm-Message-State: AOAM532QIP8FndxVorpVkBiJ9BpFofNTYZ9cYYl4WK80xybfb+Wo5f+L
-        eri6A0je2XEqM8DLJJoWwmmf7HHUoi/oBg==
-X-Google-Smtp-Source: ABdhPJzZ+eFpxKLLVsZ7Hbiougar+Z8b1qNtfgEbzzytJxoexU8TJ3U9qLZUQLd96+omgEGGQTWG4A==
-X-Received: by 2002:a17:902:d64d:b029:de:8aaa:d6ba with SMTP id y13-20020a170902d64db02900de8aaad6bamr12653531plh.0.1613340697039;
-        Sun, 14 Feb 2021 14:11:37 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z2sm15753674pfj.100.2021.02.14.14.11.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Feb 2021 14:11:36 -0800 (PST)
-Message-ID: <6029a018.1c69fb81.2014b.186b@mx.google.com>
-Date:   Sun, 14 Feb 2021 14:11:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229918AbhBNWdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 17:33:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229789AbhBNWdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Feb 2021 17:33:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E78FD64E29;
+        Sun, 14 Feb 2021 22:32:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613341979;
+        bh=IQr5Zi4JcZ0zY+DGjxnDqEW3QO4XRZ6h92GpBYhGKk4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tWyU9U5euuHNkxkgv2Yj87Q0OVrT3gyxOPrYWLccOLWYGGj4yAmG4Mw7n3jVURwJT
+         7FY/jHyuyvUuw/PbsA6cbpvcg9q+uYMOLj9A8Q9tJ51Ytoch8Ijsa9t9Zd7ZMji8B3
+         qToxJZzZIVSJ3ssF90rljP4Jvbz5WnjWbk0WByxptGMT65HV6q9eOUf062xZ3TfyOu
+         9+d3pgsPmt687m2jpFuIyO607m53U7wFrk0jaFn4RojkgP2uze0ni68/xqfrC41i2R
+         W3fp01Y87MPmz/LSCTpcW9qQAE7MWtLLtnY9AjKC+DqfT7v+gX6aQQHXJtH18JYRxA
+         tvBtr9T+ps2lA==
+Date:   Sun, 14 Feb 2021 17:32:57 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Stephen Boyd <swboyd@chromium.org>,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] lkdtm: don't move ctors to .rodata
+Message-ID: <20210214223257.GA2858@sasha-vm>
+References: <20201207170533.10738-1-mark.rutland@arm.com>
+ <202012081319.D5827CF@keescook>
+ <X9DkdTGAiAEfUvm5@kroah.com>
+ <161300376813.1254594.5196098885798133458@swboyd.mtv.corp.google.com>
+ <YCU9zoiw8EZktw5U@kroah.com>
+ <161306959090.1254594.16358795480052823449@swboyd.mtv.corp.google.com>
+ <YCla7cNQxBoG2KCr@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.176-15-gc9fac9124144
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 78 runs,
- 1 regressions (v4.19.176-15-gc9fac9124144)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <YCla7cNQxBoG2KCr@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 78 runs, 1 regressions (v4.19.176-15-gc9fac9=
-124144)
+On Sun, Feb 14, 2021 at 06:16:29PM +0100, Greg Kroah-Hartman wrote:
+>On Thu, Feb 11, 2021 at 10:53:10AM -0800, Stephen Boyd wrote:
+>> Sorry for the confusion. Can commit 655389666643 ("vmlinux.lds.h: Create
+>> section for protection against instrumentation") and commit 3f618ab33234
+>> ("lkdtm: don't move ctors to .rodata") be backported to 5.4.y and only
+>> commit 3f618ab3323407ee4c6a6734a37eb6e9663ebfb9 be backported to 5.10.y?
+>
+>655389666643 ("vmlinux.lds.h: Create section for protection against
+>instrumentation") does not apply cleanly to 5.4.y, so can you provide a
+>working backport for both of those patches to 5.4.y that you have
+>tested?
 
-Regressions Summary
--------------------
+It was due to a backport of eff8728fe698 ("vmlinux.lds.h: Add PGO and
+AutoFDO input sections"). Taking 655389666643 and 3f618ab33234 converged
+us back with Linus's tree as eff8728fe698 worked around not having those
+in 5.4.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+I've fixed it up and queued both of those patches.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.176-15-gc9fac9124144/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.176-15-gc9fac9124144
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c9fac912414487d724cc2a4f653e85c0e74121dd =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/60296c3ac6bf4403ef3abeb0
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.176=
--15-gc9fac9124144/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.176=
--15-gc9fac9124144/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60296c3ac6bf440=
-3ef3abeb7
-        failing since 6 days (last pass: v4.19.174-3-g9df30fc2980a, first f=
-ail: v4.19.174-9-g72c4313237ab0)
-        2 lines
-
-    2021-02-14 18:30:13.635000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-02-14 18:30:13.647000+00:00  <8>[   22.693237] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+-- 
+Thanks,
+Sasha
