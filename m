@@ -2,94 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2CE831B188
-	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 18:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32CD31B18D
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 18:29:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbhBNRYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Feb 2021 12:24:36 -0500
-Received: from mout.gmx.net ([212.227.17.20]:53837 "EHLO mout.gmx.net"
+        id S229768AbhBNR37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 12:29:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229740AbhBNRYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Feb 2021 12:24:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1613323369;
-        bh=c1gtv63Pa+secmNNZ9I2Rx3+3cPoEs33KOz8GXpWQo4=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=U4k/suJVeCCVSEtSQHbjgIHBO3F1bqv+ClPe1BwsS/TqkX3leYsKY1zIaTcyeMDd/
-         zgwUnNuo3kk1R6hQC84mG3/3Hk8KwTNmEohEuf2Hl3gXRiMy9cKRJff1HIzMWuGSux
-         XLbHxIGF8Fac2GYjpUHEOP052EMYfa5BvvMFxWrc=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.178.51] ([78.42.220.31]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mnpru-1ledVb0Lco-00pIXR; Sun, 14
- Feb 2021 18:22:49 +0100
-Subject: Re: [PATCH v3 2/2] tpm: in tpm2_del_space check if ops pointer is
- still valid
-To:     Jarkko Sakkinen <jarkko@kernel.org>,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        peterhuewe@gmx.de, stefanb@linux.vnet.ibm.com,
-        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1612482643-11796-1-git-send-email-LinoSanfilippo@gmx.de>
- <1612482643-11796-3-git-send-email-LinoSanfilippo@gmx.de>
- <7308e5e9f51501bd92cced8f28ff6130c976b3ed.camel@HansenPartnership.com>
- <YByrCnswkIlz1w1t@kernel.org>
- <ee4adfbb99273e1bdceca210bc1fa5f16a50c415.camel@HansenPartnership.com>
- <20210205172528.GP4718@ziepe.ca>
- <08ce58ab-3513-5d98-16a5-b197276f6bce@kunbus.com>
- <YCZfrjZGKVyWuglE@kernel.org>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Message-ID: <940f4ced-20bd-ae8e-feab-5c6850129d92@gmx.de>
-Date:   Sun, 14 Feb 2021 18:22:44 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S229759AbhBNR36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Feb 2021 12:29:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F4D064E08;
+        Sun, 14 Feb 2021 17:29:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613323757;
+        bh=Jg/hxcmrt1OLpohmuaNMK3aXYRGAXzsF42r6hglIF5s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UsGftF9PDGm67w/5WT5j8t9iMoWYfNaHNsd5R6HJFCxy0YVyqILNCEKKf+d7cOYj7
+         RcW4fl3ClLfNcL/105tTwVg5ULS4lTZfmul2g5sDYU1SZZkaxg4gPI/cO+EgQSjEXZ
+         NABBFOxxa9NirbHNGN9B2GeXGwBBiHd1OjbLAWVABjXfUihVIaktXF6VYqAxOMGbQJ
+         JJavbprWtSxWSQzG33x3pZMRpH504tAJpRkhTNBU53HXgtFJqoyFVOD4P7upxSqexG
+         T/JwZ8eIn+HFTDki9X1mCfZFeMJwWwJArgd2wmDwdZBDzqIEj3paOekTgAXD7oJMsx
+         G0Gxbav60HoZg==
+Date:   Sun, 14 Feb 2021 19:29:06 +0200
+From:   Mike Rapoport <rppt@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
+ holes in memory layout
+Message-ID: <20210214172906.GN242749@kernel.org>
+References: <20210208110820.6269-1-rppt@kernel.org>
+ <5dccbc93-f260-7f14-23bc-6dee2dff6c13@redhat.com>
+ <a6cf3a26-a174-abab-a5a0-6cf89ebe4af7@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <YCZfrjZGKVyWuglE@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:aXh3LgOWKQ3dui4BzDVu3TeMdHQ/9F0PYUyUJrAAeDrT2LX3VdW
- IOORxkPcvhX8/rTByGlBHvUUYo+KyFefcZT6poZtaobA4l7nk3N6gGUomR00KkoO+WXz1Jq
- tCX3HUXscVDMi/O5612eGNjmHxmeLliztWzGWfO+VOr/XByiom+i8fEHv52r2E0HIOPYuA1
- 1o8NHMt/0ZLCkjPXWcx1g==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:FTjNfs2vQqU=:MO9sbsYVpMp/wBRHE1gDB0
- KfFtt7Ht5OxUWKIppzrEITA9FXGHBgEUOwdC0UbuQTUCelkXgpa1rcbXkvP1dhe7bpC099h+A
- BFDjvTWHfmuRFU/SeBRTqbFOjLV5QZTtbkO4l7SYAjm1498YmJqD5zxZK3p4/gAA97P5TdlN9
- m8RSlOnR/wbjGfwX4LFIE1Gdqgb7AhY/fFanrKA4X+GnVewDVjlqcdxszLTbPMHg5pFqH3kBy
- 42baG2g3impnDWsP65zkvxXsGPE4NyMiv2OVpCxhr30+V1skcE2G/jCfIvOv+35GXKf8+pw8E
- F906Mr4ost0z21xuPMPZBKaHYNZCb8lYRBV8rpWf5EgLzvnrvyJWwljVX3UDXHFBY/yOec8OY
- Au1cl61A2zc83ytbZ2z+EmLi2VYImA7AsNc43rrVLUqCWQQvRoVKLeSH+euFTeJAg2IbKGJ+w
- Ay3wyQZDIDFKN0T0EZyl4QOSm29M9JECXpLQ0Mwgj4hONNm9EsmwKpLxVF69mERsB7+97Wpe+
- BHFCxMaPa6NUO1i1jtkSAPbEf66rx7skkuLE++TuYWEjzYpB67QW935lMfP8yYGcenPaGaAKl
- RixxZhTgeX9Qp9fKqxg9QnzucNazRxQPQVm7G93HWNqvc7yzq9gswrJs71k7CAk0cnyd2UdmU
- VkmtXdmoukyM1uCiVvISQtpBMhBz79gyCWu63dRcxEoQpBuaUDWiWa5mN8KUwiV+AVUuXXrDF
- AvaOlYMqp03WNR5cnrBU7EfGhJxwHXRKb9jm/XeP35Mtvc2D9pQq14sDM+UiluhMK9LvHLE5K
- AeToHFEaH703v2UVWiJZkA1SjvFX0/NAXhGWcp/DpcKQ6HlAdlrB5xlntiLyi6yl3V0Ob/R3b
- CBkGCX1UhKyY4t8EqFjw==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a6cf3a26-a174-abab-a5a0-6cf89ebe4af7@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, Feb 12, 2021 at 10:56:19AM +0100, David Hildenbrand wrote:
+> On 12.02.21 10:55, David Hildenbrand wrote:
+> > On 08.02.21 12:08, Mike Rapoport wrote:
+> > > +#ifdef CONFIG_SPARSEMEM
+> > > +	/*
+> > > +	 * Sections in the memory map may not match actual populated
+> > > +	 * memory, extend the node span to cover the entire section.
+> > > +	 */
+> > > +	*start_pfn = round_down(*start_pfn, PAGES_PER_SECTION);
+> > > +	*end_pfn = round_up(*end_pfn, PAGES_PER_SECTION);
+> > 
+> > Does that mean that we might create overlapping zones when one node
+> 
+> s/overlapping zones/overlapping nodes/
+> 
+> > starts in the middle of a section and the other one ends in the middle
+> > of a section?
+> 
+> > Could it be a problem? (e.g., would we have to look at neighboring nodes
+> > when making the decision to extend, and how far to extend?)
 
-On 12.02.21 at 11:59, Jarkko Sakkinen wrote:
+Having a node end/start in a middle of a section would be a problem, but in
+this case I don't see a way to detect how a node should be extended :(
 
->
-> One *option*:
->
-> 1. You take the Jason's patch.
-> 2. https://www.kernel.org/doc/html/v5.10/process/submitting-patches.html=
-#when-to-use-acked-by-cc-and-co-developed-by
->
-> Just mentioning this, and spreading the knowledge about co-developed-by.
->
+We can return to a v4 [1] without x86 modifications.
+With that we'll have struct pages corresponding to a hole in a middle of a
+zone with correct zone link and a good guess for the node.
 
-This seems to me like a very good fit, thanks for pointing at this.
-I will prepare a new patch series and use that tag.
+As for the pfn 0 on x86, it'll remain outside any node and zone, but since
+it was the case since, like forever, I think we can live with it.
 
-Best regards,
-Lino
+[1] https://lore.kernel.org/lkml/20210130221035.4169-1-rppt@kernel.org
 
-
+-- 
+Sincerely yours,
+Mike.
