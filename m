@@ -2,71 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BEA31B30B
-	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 23:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C56C31B314
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 23:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbhBNWdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Feb 2021 17:33:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229789AbhBNWdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Feb 2021 17:33:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E78FD64E29;
-        Sun, 14 Feb 2021 22:32:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613341979;
-        bh=IQr5Zi4JcZ0zY+DGjxnDqEW3QO4XRZ6h92GpBYhGKk4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tWyU9U5euuHNkxkgv2Yj87Q0OVrT3gyxOPrYWLccOLWYGGj4yAmG4Mw7n3jVURwJT
-         7FY/jHyuyvUuw/PbsA6cbpvcg9q+uYMOLj9A8Q9tJ51Ytoch8Ijsa9t9Zd7ZMji8B3
-         qToxJZzZIVSJ3ssF90rljP4Jvbz5WnjWbk0WByxptGMT65HV6q9eOUf062xZ3TfyOu
-         9+d3pgsPmt687m2jpFuIyO607m53U7wFrk0jaFn4RojkgP2uze0ni68/xqfrC41i2R
-         W3fp01Y87MPmz/LSCTpcW9qQAE7MWtLLtnY9AjKC+DqfT7v+gX6aQQHXJtH18JYRxA
-         tvBtr9T+ps2lA==
-Date:   Sun, 14 Feb 2021 17:32:57 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] lkdtm: don't move ctors to .rodata
-Message-ID: <20210214223257.GA2858@sasha-vm>
-References: <20201207170533.10738-1-mark.rutland@arm.com>
- <202012081319.D5827CF@keescook>
- <X9DkdTGAiAEfUvm5@kroah.com>
- <161300376813.1254594.5196098885798133458@swboyd.mtv.corp.google.com>
- <YCU9zoiw8EZktw5U@kroah.com>
- <161306959090.1254594.16358795480052823449@swboyd.mtv.corp.google.com>
- <YCla7cNQxBoG2KCr@kroah.com>
+        id S230052AbhBNWj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 17:39:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229789AbhBNWj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 17:39:56 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A36C061574
+        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:39:16 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id w18so3075235pfu.9
+        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:39:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jbQ4CVpfd4zFASXJtWFQ0WEoGYwu0g0NQRcUgKfI/QY=;
+        b=U/rL4sfUWLIgAsi1ArNz9kPPPOkEOlvSr+HL3J7WK6ZxRNZbOvGrMdChxBj8CpJzjh
+         NLCDyvsDE8MqAc4Jv5ID871u3LVgBt2/dOO5dDgNC2q+9qoARpdjoPpxUZIusGpZ5trU
+         S6sxYPLeofAL76ULOqJ9WKL9a+euU3aXRZtBmlVHW2OlFDGSSkRydNSwivuRAqDp+usG
+         fe6hkhs5BXlKaZMLE/WUcBVt0FbQlpX8mCgp0SNel2gDNDabUIzHUkCH4AOAKopuRIkP
+         7ber5QiQAFX1ZLs3VTDs6eUz6Yw4nC2xhtvWzEdzGd55Y9gVLdzFzwD3nC8DvDxc2x22
+         XUWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jbQ4CVpfd4zFASXJtWFQ0WEoGYwu0g0NQRcUgKfI/QY=;
+        b=V2NDhp74rZPUxQQ93uu9y1xGydYqC/saiSsTUmxiRoPP9+EqPnUHNvqlMncZ0IiPVA
+         +zlDzMDIQMxmXGUbrE/QY530gXQwtyLb0Emc7Hli/OXXAK90iwTIH9PXJv0qMTwTbN4I
+         vo9hGqfclrG7ETE1Oorx1o4wq09Im57y9yySxVjQ+FrpOxbIlocK1aueK1DN8Aicx9t9
+         RlLg8VYtpBjGR7MLqA+kn72JYBjt4wrexZx/RRpmzTA0a7yMZlGQM4Z/uux0RvfUIwdu
+         /cn/+w1P17kLiUkVSeS230JE7JZLFnTAzO16Pkrimf6FwXQU4evoDd6KsfIje0uBMz2J
+         mbSA==
+X-Gm-Message-State: AOAM531gKM3mtu48iWsxwm/H5GruIOoPRNVbm1ctjxUBaB4Pimmu2J6o
+        MgPkmL/lxdBMXlbWfFqQAHVMW9XOju92MA==
+X-Google-Smtp-Source: ABdhPJzQsdyOCS54bprmOqhLTVr0LhpOxt8udTpPEXWZAvg3iICd+22kyXZvpPWuxQi7SBotmV72Aw==
+X-Received: by 2002:a63:5952:: with SMTP id j18mr12587351pgm.29.1613342355667;
+        Sun, 14 Feb 2021 14:39:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e12sm15119859pjj.23.2021.02.14.14.39.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Feb 2021 14:39:15 -0800 (PST)
+Message-ID: <6029a693.1c69fb81.e31f7.017a@mx.google.com>
+Date:   Sun, 14 Feb 2021 14:39:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YCla7cNQxBoG2KCr@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.221-28-g014cf8e02a4c
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 61 runs,
+ 2 regressions (v4.14.221-28-g014cf8e02a4c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 14, 2021 at 06:16:29PM +0100, Greg Kroah-Hartman wrote:
->On Thu, Feb 11, 2021 at 10:53:10AM -0800, Stephen Boyd wrote:
->> Sorry for the confusion. Can commit 655389666643 ("vmlinux.lds.h: Create
->> section for protection against instrumentation") and commit 3f618ab33234
->> ("lkdtm: don't move ctors to .rodata") be backported to 5.4.y and only
->> commit 3f618ab3323407ee4c6a6734a37eb6e9663ebfb9 be backported to 5.10.y?
->
->655389666643 ("vmlinux.lds.h: Create section for protection against
->instrumentation") does not apply cleanly to 5.4.y, so can you provide a
->working backport for both of those patches to 5.4.y that you have
->tested?
+stable-rc/queue/4.14 baseline: 61 runs, 2 regressions (v4.14.221-28-g014cf8=
+e02a4c)
 
-It was due to a backport of eff8728fe698 ("vmlinux.lds.h: Add PGO and
-AutoFDO input sections"). Taking 655389666643 and 3f618ab33234 converged
-us back with Linus's tree as eff8728fe698 worked around not having those
-in 5.4.
+Regressions Summary
+-------------------
 
-I've fixed it up and queued both of those patches.
+platform       | arch  | lab           | compiler | defconfig           | r=
+egressions
+---------------+-------+---------------+----------+---------------------+--=
+----------
+meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
+          =
 
--- 
-Thanks,
-Sasha
+panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
+          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.221-28-g014cf8e02a4c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.221-28-g014cf8e02a4c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      014cf8e02a4c917c2d8a0d9291c93dde93bc857f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform       | arch  | lab           | compiler | defconfig           | r=
+egressions
+---------------+-------+---------------+----------+---------------------+--=
+----------
+meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60297967a449cd131c3abea6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
+-28-g014cf8e02a4c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
+-28-g014cf8e02a4c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60297967a449cd131c3ab=
+ea7
+        failing since 68 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
+ fail: v4.14.210-20-g5ea7913395d3) =
+
+ =
+
+
+
+platform       | arch  | lab           | compiler | defconfig           | r=
+egressions
+---------------+-------+---------------+----------+---------------------+--=
+----------
+panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/602974fac4c089a2523abe62
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
+-28-g014cf8e02a4c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
+-28-g014cf8e02a4c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602974fac4c089a=
+2523abe69
+        failing since 8 days (last pass: v4.14.219-15-g82c6ae41b66a6, first=
+ fail: v4.14.219-15-g8b9453943a205)
+        2 lines
+
+    2021-02-14 19:07:34.874000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
