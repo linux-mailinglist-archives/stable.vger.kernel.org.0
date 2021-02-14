@@ -2,138 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8530531B100
-	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 16:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C02E731B115
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 17:03:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229818AbhBNPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Feb 2021 10:53:27 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50118 "EHLO
+        id S229809AbhBNQCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 11:02:21 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53308 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229759AbhBNPx1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 10:53:27 -0500
+        by vger.kernel.org with ESMTP id S229798AbhBNQCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 11:02:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613317920;
+        s=mimecast20190719; t=1613318452;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=b0So7W4a4U2tcf26Y/zPdxj6J7yWSOARMMAY/QxHwq8=;
-        b=brfPwERZ9r+31tGx7PUJtE/UTBkeCF8Sc9R4yyDmsVct84e9XC5aM9XuwP4h+inkiGDzwn
-        SA4vqNxN7I6G8dUyC1nna+lIpbsIENtOgNeUt4DHjJlxTRJXv6rV5VR3TRubmGK5yzlZmg
-        bxLYZ0I8gMJ7qi18bcBx8gCw1HV7Vt0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-243-svSsil19MpCJuxoQ9NQ19Q-1; Sun, 14 Feb 2021 10:51:53 -0500
-X-MC-Unique: svSsil19MpCJuxoQ9NQ19Q-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ECA46192AB79;
-        Sun, 14 Feb 2021 15:51:51 +0000 (UTC)
-Received: from treble (ovpn-120-169.rdu2.redhat.com [10.10.120.169])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2BA9B10021AA;
-        Sun, 14 Feb 2021 15:51:49 +0000 (UTC)
-Date:   Sun, 14 Feb 2021 09:51:47 -0600
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-tip-commits@vger.kernel.org
-Subject: Re: [tip: objtool/urgent] objtool: Fix seg fault with Clang
- non-section symbols
-Message-ID: <20210214155147.3owdimqv2lyhu6by@treble>
-References: <dded80b60d9136ea90987516c28f93273385651f.camel@mengyan1223.wang>
- <YCU3Vdoqd+EI+zpv@kroah.com>
- <CAKwvOd=GHdkvAU3u6ROSgtGqC_wrkXo8siL1nZHE-qsqSx0gsw@mail.gmail.com>
- <YCafKVSTX9MxDBMd@kroah.com>
- <20210212170750.y7xtitigfqzpchqd@treble>
- <20210212124547.1dcf067e@gandalf.local.home>
- <YCfdfkoeh8i0baCj@kroah.com>
- <20210213091304.2dd51e5f@oasis.local.home>
- <20210213155203.lehuegwc3h42nebs@treble>
- <YCf9bnsmXqRGMn+j@kroah.com>
+        bh=zJnCD65xbRWMUMjLE2t5rjUv7RyeHohz4SCngFSrsYU=;
+        b=GdDR7NTthrWxCv1Q7KBs6OeyB7JKUXhX/4G55YrAVWyJ5DZvztYL0sru0Pzutv1D3jJ8/+
+        vV4+Aq8Y9Op4dwtaTvOXvI4UbnZCrLGsejnB46CxAl5AyAAoGdAx4dqlbK6Q8pMCv8mm71
+        nhNQOu91UkrkRDDwamVNr6AxhurpaLk=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-232-B_zbzZsVPeSYL366AUWQWA-1; Sun, 14 Feb 2021 11:00:48 -0500
+X-MC-Unique: B_zbzZsVPeSYL366AUWQWA-1
+Received: by mail-ed1-f70.google.com with SMTP id i4so3485146edt.11
+        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 08:00:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zJnCD65xbRWMUMjLE2t5rjUv7RyeHohz4SCngFSrsYU=;
+        b=B2bj39KqAPzi9yQU+GhYU6DhB2eaSN7PC6NjZ/lsq5VJr23GCR220jSzS2L1HkUcRO
+         lSeBxiyMaRz9rLK7FvD2/R5cTYWL2yiKiYe3qKKqfFu7h4QvIMVaVGLveV98C97cJtyn
+         x8BqLV5n+qCp5iNduxMpNAULi/2QvvmHnS191EsVhZRo75hF8b8ZF/yZwY4Er7CaNLvb
+         yMehGDlx3DUBVUcC4vwXsOvSlLrTq6u2BwIWkK0JxmYaXgaLmyhT2wFC7BjPOEECDklU
+         1aFRi+XZLIJ17EwgivMswd9u8siUa7I0CjNRyjp3hCBNzgpLA2YsjARa1uS2rDu3CnZp
+         vOOw==
+X-Gm-Message-State: AOAM530Jr5SPWU4mGqanr5oXDFXeIgru9K6NvwJMQMbGEwsYFVtLnXm0
+        GmwOXgvgPAS8gBdgRGrWuVUmj6UXuycXrCxSVgWCkhePNn2gcy+ylp5GKHTQ69eFJmZjRmPWHLL
+        GN3mzunvEy2VxlR3fPtw9XQz4OYgtqdWVf6zCGDBggKD42+TKLuirp3hsDai+LAXmLCTd
+X-Received: by 2002:a17:906:33c5:: with SMTP id w5mr12025821eja.319.1613318446595;
+        Sun, 14 Feb 2021 08:00:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzDn4q+tUxPm+eyE2w8xwHUQPqEK3mZPRTE2swFRpEF2RA0C9I0NzGmfqVGZ8PDW0uSv2oWjg==
+X-Received: by 2002:a17:906:33c5:: with SMTP id w5mr12025801eja.319.1613318446337;
+        Sun, 14 Feb 2021 08:00:46 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id q13sm9482813ejy.20.2021.02.14.08.00.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 14 Feb 2021 08:00:45 -0800 (PST)
+Subject: Re: [Intel-gfx] [5.10.y regression] i915 clear-residuals mitigation
+ is causing gfx issues
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable@vger.kernel.org
+References: <fe6040b5-72a0-9882-439e-ea7fc0b3935d@redhat.com>
+ <161282685855.9448.10484374241892252440@build.alporthouse.com>
+ <f1070486-891a-8ec0-0390-b9aeb03178ce@redhat.com>
+ <161291205642.6673.10994709665368036431@build.alporthouse.com>
+ <02fd493c-957f-890d-d0ad-ebd4119f55f2@redhat.com>
+ <161296131275.7731.862746142230006325@build.alporthouse.com>
+ <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
+ <161304059194.7731.17263409378570191651@build.alporthouse.com>
+ <e00f5813-37c6-52e7-4fd3-691be9d062d9@redhat.com>
+Message-ID: <96614fc1-c92d-1532-fd92-beb19e490075@redhat.com>
+Date:   Sun, 14 Feb 2021 17:00:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
+In-Reply-To: <e00f5813-37c6-52e7-4fd3-691be9d062d9@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YCf9bnsmXqRGMn+j@kroah.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 13, 2021 at 05:25:18PM +0100, Greg Kroah-Hartman wrote:
-> On Sat, Feb 13, 2021 at 09:52:03AM -0600, Josh Poimboeuf wrote:
-> > On Sat, Feb 13, 2021 at 09:13:04AM -0500, Steven Rostedt wrote:
-> > > On Sat, 13 Feb 2021 15:09:02 +0100
-> > > Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > > Thanks for the patch, but no, still fails with:
-> > > > 
-> > > > Cannot find symbol for section 8: .text.unlikely.
-> > > > kernel/kexec_file.o: failed
-> > > > make[1]: *** [scripts/Makefile.build:277: kernel/kexec_file.o] Error 1
-> > > > make[1]: *** Deleting file 'kernel/kexec_file.o'
-> > > 
-> > > It was just a guess.
-> > > 
-> > > I guess I'll need to find some time next week to set up a VM with
-> > > binutils 2.36 (I just checked, and all my development machines have
-> > > 2.35). Then I'll be able to try and debug it.
-> > 
-> > FWIW, I wasn't able to recreate.   I tried both binutils 2.36 and
-> > 2.36.1, with gcc 11 and a 'make allmodconfig' kernel.
+Hi,
+
+On 2/11/21 1:26 PM, Hans de Goede wrote:
+> Hi,
 > 
-> I'm using whatever the latest is in Arch, which is gcc 10.2 and binutils
-> 2.36.  My config is here:
-> 	https://github.com/gregkh/gregkh-linux/blob/master/stable/configs/4.4.y
+> On 2/11/21 11:49 AM, Chris Wilson wrote:
+>> Quoting Hans de Goede (2021-02-11 10:36:13)
+>>> Hi,
+>>>
+>>> On 2/10/21 1:48 PM, Chris Wilson wrote:
+>>>> Quoting Hans de Goede (2021-02-10 10:37:19)
+>>>>> Hi,
+>>>>>
+>>>>> On 2/10/21 12:07 AM, Chris Wilson wrote:
+>>>>>> Quoting Hans de Goede (2021-02-09 11:46:46)
+>>>>>>> Hi,
+>>>>>>>
+>>>>>>> On 2/9/21 12:27 AM, Chris Wilson wrote:
+>>>>>>>> Quoting Hans de Goede (2021-02-08 20:38:58)
+>>>>>>>>> Hi All,
+>>>>>>>>>
+>>>>>>>>> We (Fedora) have been receiving reports from multiple users about gfx issues / glitches
+>>>>>>>>> stating with 5.10.9. All reporters are users of Ivy Bridge / Haswell iGPUs and all
+>>>>>>>>> reporters report that adding i915.mitigations=off to the cmdline fixes things, see:
+>>>>>>>>
+>>>>>>>> I tried to reproduce this on the w/e on hsw-gt1, to no avail; and piglit
+>>>>>>>> did not report any differences with and without mitigations. I have yet
+>>>>>>>> to test other platforms. So I don't yet have an alternative.
+>>>>>>>
+>>>>>>> Note the original / first reporter of:
+>>>>>>>
+>>>>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1925346
+>>>>>>>
+>>>>>>> Is using hsw-gt2, so it seems that the problem is not just the enabling of
+>>>>>>> the mitigations on ivy-bridge / bay-trail but that there actually is
+>>>>>>> a regression on devices where the WA worked fine before...
+>>>>>>
+>>>>>> There have been 3 crashes uploaded related to v5.10.9, and in all 3
+>>>>>> cases the ACTHD has been in the first page. This strongly suggests that
+>>>>>> the w/a is scribbling over address 0. And there's then a very good
+>>>>>> chance that
+>>>>>>
+>>>>>> commit 29d35b73ead4e41aa0d1a954c9bfbdce659ec5d6
+>>>>>> Author: Chris Wilson <chris@chris-wilson.co.uk>
+>>>>>> Date:   Mon Jan 25 12:50:33 2021 +0000
+>>>>>>
+>>>>>>     drm/i915/gt: Always try to reserve GGTT address 0x0
+>>>>>>     
+>>>>>>     commit 489140b5ba2e7cc4b853c29e0591895ddb462a82 upstream.
+>>>>>>
+>>>>>> in v5.10.14 is sufficient to hide the issue.
+>>>>>
+>>>>> That one actually is already in v5.10.13 and the various reportes of these
+>>>>> issues have already tested 5.10.13. They did mention that it took longer
+>>>>> to reproduce with 5.10.13 then with 5.10.10, but that could also be due to:
+>>>>>
+>>>>> "drm/i915/gt: Clear CACHE_MODE prior to clearing residuals"
+>>>>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.10.y&id=520d05a77b2866eb4cb9e548e1d8c8abcfe60ec5
+>>>>
+>>>> Started looking for scratch page overwrites, and found this little gem:
+>>>> https://patchwork.freedesktop.org/patch/420436/?series=86947&rev=1
+>>>>
+>>>> Looks promising wrt the cause of overwriting random addresses -- and
+>>>> I hope that is the explanation for the glitches/hangs. I have a hsw gt2
+>>>> with gnome shell, piglit is happy, but I suspect it is all due to
+>>>> placement and so will only occur at random.
+>>>
+>>> If you can give me a list of commits to cherry-pick then I can prepare
+>>> a Fedora 5.10.y kernel which those added for the group of Fedora users
+>>> who are hitting this to test.
+>>
+>> e627d5923cae ("drm/i915/gt: One more flush for Baytrail clear residuals")
+>> d30bbd62b1bf ("drm/i915/gt: Flush before changing register state")
+>> 1914911f4aa0 ("drm/i915/gt: Correct surface base address for renderclear")
+> 
+> Thanks, the test-kernel is building now. I will let you know when I have
+> heard back from the Fedora users (this will likely take 1-2 days).
 
-Ok, I was able to recreate with that config.
+I've heard back from 2 of the reporters who were seeing issues with 5.10.9+
 
-GCC places two weak functions (arch_kexec_apply_relocations_add() and
-arch_kexec_apply_relocations()) in .text.unlikely (probably because
-printk() is __cold), and then the assembler doesn't generate the
-'.text.unlikely' symbol because no other code references it.
+And I'm happy to report 5.10.15 + the 3 commits mentioned above cherry-picked
+on top fixes the graphics glitches for them.
 
-Steve, looks like recordmcount avoids referencing weak symbols directly
-by their function symbol.  Maybe it can just skip weak symbols which
-don't have a section symbol, since this seems like a rare scenario.
+So if we can get these 3 commits into 5.10.y and 5.11.y then this should be
+resolved.
 
-Here's a total hack fix.  Just remove the functions, awkwardly avoiding
-the problem.
+Regards,
 
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 6030efd4a188..456e3427c5e5 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -115,24 +115,6 @@ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
- 	return -EKEYREJECTED;
- }
- 
--/* Apply relocations of type RELA */
--int __weak
--arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--				 unsigned int relsec)
--{
--	pr_err("RELA relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/* Apply relocations of type REL */
--int __weak
--arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--			     unsigned int relsec)
--{
--	pr_err("REL relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
- /*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
+Hans
 
