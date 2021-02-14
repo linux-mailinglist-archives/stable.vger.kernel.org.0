@@ -2,168 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3AD931AE07
-	for <lists+stable@lfdr.de>; Sat, 13 Feb 2021 21:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF1F31AFB4
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 09:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbhBMUrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Feb 2021 15:47:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229649AbhBMUrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Feb 2021 15:47:04 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1652AC061574
-        for <stable@vger.kernel.org>; Sat, 13 Feb 2021 12:46:24 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id gb24so1510322pjb.4
-        for <stable@vger.kernel.org>; Sat, 13 Feb 2021 12:46:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5KDzohr0geUPG3FCZB7joUqno9N58oGHTrC37Nf3UXA=;
-        b=pPbRRfCs3bhaA869BBR2LBASw3whpAN+9QUO5xwjO3cqfrSPOtdnQKM1cS51xFOAlP
-         hAbZR+bk78Un/+Whn9M10tzLUqSMTVdM0VKDEp3MOh5D/NKjMSGBHcxzSwiDL/1WpK/p
-         gpZ8CO+27x35GJt5FqpedmnjM1l2X1EyBUmhX1qYVs5so9o/qDSyaSDnSHT8BQIuL/Iu
-         xYa7Oa7Vxi1+Vn2QolLn4z9OR4+7bVQhoqLhrKOue6MIxB23ZqS+XXI3UOUFkUgUf49i
-         n7nWYuj6iTXn1sC8V+pMWaKw0FzNUodIm5Gbztvgp9/4SrTmT8hi3sznSNqvVSAM1GBO
-         vezQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5KDzohr0geUPG3FCZB7joUqno9N58oGHTrC37Nf3UXA=;
-        b=J8BA0IWGFCh5DXw1SeWbUdFAeZNv7FM6hbPwLDbzKxJRQe+F/LkpUIVHHZpcXKTysW
-         IHHNofK2DC6ixjKwOBg4gvb/IWlZ2vUQGOz6boN4SXMs5heQf/X7p7O1htkgiTEn8a2j
-         v3IwlGiHO/cfnS7QzA1ZmdqNjr5qrTkCJkedk5DYtnDwy9a4rPtjrFWii95tPEpKCgF9
-         10ILbPdoHa+2+1jvgW2y9S94vQnrYXG+a09pxPWmOmiwoZ2QMQI0oRTT5IKmBBCEpBRD
-         lVfYSsKYPRfn/sXjd0sqQYzBX/4fovGVPDM8ZBIwirfYgSfN7UGEl4fYcCG3+0qsi6v3
-         sf4w==
-X-Gm-Message-State: AOAM531H6FaQcP0Kgnm2BRwIfIaGFsxIxnvS5gu6yDiEKYoigtiG/zdX
-        eSVaKqQR+ZjtjTDZ8gFxpkXS90OkV9bGeQ==
-X-Google-Smtp-Source: ABdhPJwhJw2Urur5xWAnTV/uZWLfWb1mzBLVCfnkwW6Pwuq2GWNC9I0JXBbWnUSD7Lo05MA/f54mFQ==
-X-Received: by 2002:a17:902:a3cb:b029:e3:23b7:ef2f with SMTP id q11-20020a170902a3cbb02900e323b7ef2fmr7205177plb.44.1613249181295;
-        Sat, 13 Feb 2021 12:46:21 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d133sm12454242pfd.6.2021.02.13.12.46.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Feb 2021 12:46:20 -0800 (PST)
-Message-ID: <60283a9c.1c69fb81.96cd1.af6f@mx.google.com>
-Date:   Sat, 13 Feb 2021 12:46:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229682AbhBNIOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 03:14:03 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:49341 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229673AbhBNIOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 03:14:01 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 5B394B0A;
+        Sun, 14 Feb 2021 03:12:55 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 14 Feb 2021 03:12:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=awfo3z
+        ISjDDiOg0gNsw/dW+Yw6NtDjwGtaABaF6sNYc=; b=pm/vCeFejFMXUiM8h8wwdV
+        dg5HHkFmZkQorVxtEuUwaWWslepgmketMTR/iQV5VCRVV13vC5UMxqBSPrGTtRQ/
+        i0U7UzU5MZqBuol2DEC/SZ6kt4lFyh+Qvq6APCCzFKoTuAKlg0XQJSSYy8NGSlLq
+        1mU88jbeCZQg4DGd0i4N4i8Jw1maY10ljHfmvxRHfYdyvNOUCb4GpDJLGZFfm7dt
+        ljgQVMmPYXt+VizK2S9Us3AT9CPrMTB5JcucF0FT0qNU4b6TOrr0yyN8vR3EDxnw
+        bQNqTvladUk8qOpjQfn0dOFsL9D61Hi003DFk+//5gcu/vegQXacv8OQK9KRQE+A
+        ==
+X-ME-Sender: <xms:hdsoYGWsAGpRbB6h0WoRl5HzVgwqSMl2ndbvqnaWwOxHBJOnXi7uPA>
+    <xme:hdsoYClBPohDsiAfPFyO50zMiosfkn1cXSUoTuoNa9U9BZazvhD-Gs-B0vfLMHZqs
+    Div8uy5-wxVmg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrieeggdduudehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
+    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:hdsoYKbsOIib-83XUCvIBsU9NyFrv7BMBVO1qoRVriFAekmPAAsgfw>
+    <xmx:hdsoYNVSxYZTYxMlNre8D34klrhsQP1sGIa3Jujln_to8gTMLoJj2g>
+    <xmx:hdsoYAlnD_mufyK8gXbMwcDw3xHbDaa08WAYqUqlG16rIF4us_G9GQ>
+    <xmx:htsoYFzsEuSRkWMiGF4WJwWO4fTctxwKoX21Od769YE0JhjRNthp_Cd7I4U>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6D60724005A;
+        Sun, 14 Feb 2021 03:12:53 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Fix overlay frontbuffer tracking" failed to apply to 5.4-stable tree
+To:     ville.syrjala@linux.intel.com, chris@chris-wilson.co.uk,
+        jani.nikula@intel.com, joonas.lahtinen@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 14 Feb 2021 09:12:50 +0100
+Message-ID: <16132903708565@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.221-16-g68b7ef36719c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 53 runs,
- 2 regressions (v4.14.221-16-g68b7ef36719c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 53 runs, 2 regressions (v4.14.221-16-g68b7ef=
-36719c)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
-          =
+thanks,
 
-panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
-          =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.221-16-g68b7ef36719c/plan/baseline/
+From 5feba0e905c495a217aea9db4ea91093d8fe5dde Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Tue, 9 Feb 2021 04:19:17 +0200
+Subject: [PATCH] drm/i915: Fix overlay frontbuffer tracking
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.221-16-g68b7ef36719c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      68b7ef36719cc6d328f3fb7c18e434373f5bd2b7 =
+We don't have a persistent fb holding a reference to the frontbuffer
+object, so every time we do the get+put we throw the frontbuffer object
+immediately away. And so the next time around we get a pristine
+frontbuffer object with bits==0 even for the old vma. This confuses
+the frontbuffer tracking code which understandably expects the old
+frontbuffer to have the overlay's bit set.
 
+Fix this by hanging on to the frontbuffer reference until the next
+flip. And just to make this a bit more clear let's track the frontbuffer
+explicitly instead of just grabbing it via the old vma.
 
+Cc: stable@vger.kernel.org
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1136
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210209021918.16234-2-ville.syrjala@linux.intel.com
+Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+(cherry picked from commit 553c23bdb4775130f333f07a51b047276bc53f79)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-Test Regressions
----------------- =
+diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
+index 0095c8cac9b4..b73d51e766ce 100644
+--- a/drivers/gpu/drm/i915/display/intel_overlay.c
++++ b/drivers/gpu/drm/i915/display/intel_overlay.c
+@@ -182,6 +182,7 @@ struct intel_overlay {
+ 	struct intel_crtc *crtc;
+ 	struct i915_vma *vma;
+ 	struct i915_vma *old_vma;
++	struct intel_frontbuffer *frontbuffer;
+ 	bool active;
+ 	bool pfit_active;
+ 	u32 pfit_vscale_ratio; /* shifted-point number, (1<<12) == 1.0 */
+@@ -282,21 +283,19 @@ static void intel_overlay_flip_prepare(struct intel_overlay *overlay,
+ 				       struct i915_vma *vma)
+ {
+ 	enum pipe pipe = overlay->crtc->pipe;
+-	struct intel_frontbuffer *from = NULL, *to = NULL;
++	struct intel_frontbuffer *frontbuffer = NULL;
+ 
+ 	drm_WARN_ON(&overlay->i915->drm, overlay->old_vma);
+ 
+-	if (overlay->vma)
+-		from = intel_frontbuffer_get(overlay->vma->obj);
+ 	if (vma)
+-		to = intel_frontbuffer_get(vma->obj);
++		frontbuffer = intel_frontbuffer_get(vma->obj);
+ 
+-	intel_frontbuffer_track(from, to, INTEL_FRONTBUFFER_OVERLAY(pipe));
++	intel_frontbuffer_track(overlay->frontbuffer, frontbuffer,
++				INTEL_FRONTBUFFER_OVERLAY(pipe));
+ 
+-	if (to)
+-		intel_frontbuffer_put(to);
+-	if (from)
+-		intel_frontbuffer_put(from);
++	if (overlay->frontbuffer)
++		intel_frontbuffer_put(overlay->frontbuffer);
++	overlay->frontbuffer = frontbuffer;
+ 
+ 	intel_frontbuffer_flip_prepare(overlay->i915,
+ 				       INTEL_FRONTBUFFER_OVERLAY(pipe));
 
-
-
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60281bd8a8eaef4ed63abe62
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--16-g68b7ef36719c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--16-g68b7ef36719c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60281bd8a8eaef4ed63ab=
-e63
-        failing since 67 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
- fail: v4.14.210-20-g5ea7913395d3) =
-
- =
-
-
-
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6028091577280224893abea3
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--16-g68b7ef36719c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--16-g68b7ef36719c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602809157728022=
-4893abeaa
-        failing since 6 days (last pass: v4.14.219-15-g82c6ae41b66a6, first=
- fail: v4.14.219-15-g8b9453943a205)
-        2 lines
-
-    2021-02-13 17:14:57.927000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
