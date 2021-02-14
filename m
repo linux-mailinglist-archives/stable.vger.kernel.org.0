@@ -2,123 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAA131B2E2
-	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 22:46:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF0631B2F2
+	for <lists+stable@lfdr.de>; Sun, 14 Feb 2021 23:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229818AbhBNVp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Feb 2021 16:45:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37508 "EHLO
+        id S229923AbhBNWHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Feb 2021 17:07:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229827AbhBNVpy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 16:45:54 -0500
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094D3C061574
-        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 13:45:14 -0800 (PST)
-Received: by mail-lf1-x135.google.com with SMTP id f1so7438558lfu.3
-        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 13:45:13 -0800 (PST)
+        with ESMTP id S229881AbhBNWHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Feb 2021 17:07:00 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F153CC061574
+        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:06:19 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id o63so3163412pgo.6
+        for <stable@vger.kernel.org>; Sun, 14 Feb 2021 14:06:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=J0NWatg2CnEm93y+dsZC2nDOO41g2cTZ6mNodiIJS8I=;
-        b=cYX84w2EkSGSFGeQd+6x70O89BqciOwNPu9r/DVh2H0qzs2/s+Y8UWW9mhuoQYOC8p
-         ETQYBVtPIsxqcumsGCrRXVRkfhHWUxEAwR++hNq7MpCelLExWE8n4HbpZSsw3/bx41SQ
-         rRWARRn8V9qHqzTEyTgY9LaAyax9dDDEB9+RtjIQzJSBqL1qlkDOEgXXy8lumVoAvS42
-         gkTCJiuQmHa+gCYtbCuVEvsvzQy8ETuvxEquDleI+hoGYcnRKntNtsQ/MlbIzr23oXr8
-         oZ16IOnt9imbW/JK3xOQXG5XqG/j/DU0mtKM1a8r30bANeWp67XcWzVcAY+l8gKQnlSI
-         U1kA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gduNGYGnjAjK0SeDbeP92b5qbpqHA+EeySrj/r1Y4Fo=;
+        b=wij3DnWWk7izBsiec83nFSERCIEriX78K6vbiVxc58FlsM5DzkXaCIAvDz7kgOvDd8
+         w8XG35Ssl4SjzcfsgvVb6jk1Ko+Tuyq6KKj4Iv17Ha9oh5pP7KZmwHApEkYo4H/+AVan
+         aKkw1CpxZNKRzVkI5W419ZME6dKnArPeagADSXdBD7l4yaq1/e5XJeVePgDubcaNUGMO
+         0cPVqFnk4SeGMb1DDRh4MMAlXOUmL6JTPh78eVKNWRVdTDAVtoBJm5f6qa+Cxau/w9iz
+         zJF/80lEYMI7NlI4cv4NpY7GS4hC+2Jsjqc7ywtSc+JLm3fPNPscRer6jUyJ/2FQizKo
+         +fZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=J0NWatg2CnEm93y+dsZC2nDOO41g2cTZ6mNodiIJS8I=;
-        b=K3HjdBTFN7R2HDV+rQ3jcZbSX1m/IjNvLLOEXZNjziKreuoYDyAOMmEIU3eTzhH4dJ
-         Rbm4g0/V+zr1uk7TTz2hYJofnJ366HcExlelUml5Thg3vK+WEyZ1FZ6zb4tIirz0RKyk
-         pct9m2l8gB2LOHZw0/3yIYRJUEsqlnHo/6qB+bgPjgu9c8SuSVah8qtdK2++1dlzGDOZ
-         Dwftje93kdLFWzIOCDaQxP+U1zjcUX2DRYdxGZaRa6x9C22vt7+ABiSJ6+JjIi1+QBWk
-         NoqvwspVeCVq7NsdlbONM7bhlF4mouqF7Oj66GeGvIe8ZVWpfKi7E/SRInzCAQ/yeAnA
-         Lw+Q==
-X-Gm-Message-State: AOAM532PUIniU3NzkTiMuTG2wwm+tmRRIqLs6pU10ifr/CgBMl8zh6N2
-        ah4XqSpBF+fgbXhuLo7bpwCpUx7ZIzlVVGjn6g==
-X-Google-Smtp-Source: ABdhPJyQA2Z95XVlIKsaq2HjC9a0zYR7EMSYC1tCiSkNO9Tg/VhnE7H+Fk8FBIS3UyQbFxeZIZPdL8BHuTuP17OU9ho=
-X-Received: by 2002:a05:6512:2f2:: with SMTP id m18mr6692729lfq.89.1613339112513;
- Sun, 14 Feb 2021 13:45:12 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gduNGYGnjAjK0SeDbeP92b5qbpqHA+EeySrj/r1Y4Fo=;
+        b=GUZ69e26CdVGSkt+h21ExI5WH9+ctxSfkPfMdSvuiSv7UxhMjUM0R+pxF7zGN3K2TB
+         yJSQoxhEn6gEhMjqxJ8WjiG7BTKyuIbiAyngwA267Gfc+w9mQYtcQdo6P0cI822xPc9p
+         Y5SpSqTzkiAwD26oIn8eskMq6dsVOj2uPyfq67Yu98UAe2Mk7T8+lq5c8kUgA5M5QMk8
+         5mp59PzQFK9VLaKEg6Lv6kmBmtAkD3ACveVUG8y/rMImwEPK3N9Hc4Lng23WkLxD5JUc
+         CuH96rNgC0maeoTrle8qoXbQ1UQ1a42KrDNGUT2FE2PsjOBJ/vj5dLrqPkox6IbdRcSi
+         FCWg==
+X-Gm-Message-State: AOAM531s66mO+dMqIPvSfUi8IrVTJk7r8DeOer7UEbO6UMY7ulpSDcxF
+        ggpHoK1gyKwQ8riBnOu8GUNksuIRo1GCMw==
+X-Google-Smtp-Source: ABdhPJxuY2YvXXiHEFIS4k12A1aBX4IfDIS4USTKpOWCY6z2DUQRXkW+JOhVkStktXisA0Dm7KiZfA==
+X-Received: by 2002:a63:416:: with SMTP id 22mr12406919pge.286.1613340378114;
+        Sun, 14 Feb 2021 14:06:18 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t25sm15763786pgo.87.2021.02.14.14.06.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Feb 2021 14:06:17 -0800 (PST)
+Message-ID: <60299ed9.1c69fb81.bb0cf.15e0@mx.google.com>
+Date:   Sun, 14 Feb 2021 14:06:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:ab3:214:0:0:0:0:0 with HTTP; Sun, 14 Feb 2021 13:45:12 -0800 (PST)
-Reply-To: kipkalyariahnna@gmail.com
-From:   Riahnna Kipkalya <mrfrancescosavgae@gmail.com>
-Date:   Sun, 14 Feb 2021 13:45:12 -0800
-Message-ID: <CANdDgEchVUEqkTr7uVoFRTasvYh5Ce7359p5EbTsxZXzjRx-kQ@mail.gmail.com>
-Subject: REPLY URGENT
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.98-23-ga860ca302099
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 94 runs,
+ 1 regressions (v5.4.98-23-ga860ca302099)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My dearest,
+stable-rc/queue/5.4 baseline: 94 runs, 1 regressions (v5.4.98-23-ga860ca302=
+099)
 
-I am writing this mail to you with tears and sorrow from my heart.
-With due respect, trust and humanity, i appeal to you to exercise a
-little patience and read through my letter i feel quite safe dealing
-with you in this important business having gone through your
-remarkable profile, honestly i am writing this email to you with
-pains, tears and sorrow from my heart, i will really like to have good
-relationship with you and i have a special reason why I decided to
-contact you. I decided to contact you due to the urgency of my
-situation.
+Regressions Summary
+-------------------
 
-My name is Miss. Riahnna Kipkalya, 19yrs old female and i am from
-Kenya in East Africa. Light in complexion, single (never married) but
-presently i am residing here in Ouagadougou, Burkina Faso refugee
-camp. My father Late Dr. Kipkalya Kones was the former Kenyan road
-Minister. He and Assistant Minister of Home Affairs Lorna Laboso had
-been on board the Cessna 210, which was headed to Kericho and crashed
-in a remote area called Kajong'a, in western Kenya. The plane crashed
-on the Tuesday 10th, June, 2008. You can read more about the crash
-through the below site:
-http://edition.cnn.com/2008/WORLD/africa/06/10/kenya.crash/index.html?iref=
-=3Dnextin
-
-After the burial of my father, my Father Brothers conspired and sold
-my father' s property to an Italian Expatriate which they shared the
-money among themselves and left nothing for me. One faithful morning I
-opened my father's briefcase and found out the documents which he have
-deposited huge amount of money to the tune of us$18.7 million with 150
-kilogram of gold dust in one bank in Burkina Faso with my name as the
-next of kin.
-
-I have informed the bank about claiming this deposit and the only
-thing they told me is that I am still underage to claim the deposit. I
-told them that I have already contacted my father=E2=80=99s foreign partner
-who will assist me in the transfer. My mind told me that you are the
-honest and reliable person who will help me and stand as my trustee so
-that I will present you to the Bank for transferring of my father=E2=80=99s
-gold and money to your bank account in overseas. I have chosen to
-contact you after my prayers and I believe that you will not betray my
-trust. But rather take me as your own biological sister or daughter
-which I will be coming to your country as soon as this money and gold
-is transferred to you.
-
-My dearest, things are very bad for me here in the refugee camp, Even
-one of us died last night and was buried this morning. I am afraid of
-what i am seeing here. I don't know who it will be her turn tomorrow;
-I was planning to read law in my life before the ugly incident that
-killed my parents that put me in this horrible place i found myself
-today. This place is like a prison as we are only allowed to go out on
-Monday and Friday of the week as given by the united nation rules and
-regulation here in Burkina Faso.I hope by Gods grace I will come out
-here soon.
-
-I don' t have any relatives now whom i can go to and the only person I
-have now is Rev. Isaac Ambrose who is the reverend father of the
-Catholic church here in the refugee camp, he has been very nice to me
-since i came here but i am not living with him rather i am leaving in
-the women's hostel because the refugee have two hostels one for men
-the other for women, Please if you want to help me out of this
-situation respond back so that I will tell you more about me.
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
 
 
-Thanks.
-Miss. Riahnna Kipkalya
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.98-23-ga860ca302099/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.98-23-ga860ca302099
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a860ca302099652d849cdaf09d55de50792eea05 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/6029661edb90d003853abe85
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.98-23=
+-ga860ca302099/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.98-23=
+-ga860ca302099/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6029661edb90d003853ab=
+e86
+        failing since 86 days (last pass: v5.4.78-5-g843222460ebea, first f=
+ail: v5.4.78-13-g81acf0f7c6ec) =
+
+ =20
