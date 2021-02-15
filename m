@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472A931BCDA
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9746D31BCDF
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230511AbhBOPgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:36:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
+        id S231292AbhBOPg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:36:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231423AbhBOPeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:34:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21CFD64ECC;
-        Mon, 15 Feb 2021 15:31:13 +0000 (UTC)
+        id S231238AbhBOPe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:34:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BC1F64EBD;
+        Mon, 15 Feb 2021 15:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403074;
-        bh=2e99QUB4Tkv1LThWpAS43IFLnF2v8YDKpk1OdgW0sqk=;
+        s=korg; t=1613403077;
+        bh=mq1Qo8ZiUNVpDs+RDDKp6kECIl3RoQzYEWYOhFQ+T48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVwLeBXl4/pRdWc1bgPTJVlKyeUOGonq2w97sSfEWJaLL4dxq/vDz3vjm7Qmau3QO
-         p0bnnF7GXrByf49O2y6kUry7OVnxS1gW33q9TRD7Ttyl767e1l5ZoPqkMTVmBkXcSn
-         H28HBHQzVUMUnXEU4xOjDyIpZh3PPYx7qQbsrtyo=
+        b=swdgU4nAoOiD6c5gmjpEEri/DhKKS4rUrG/88OlODRdmsSSBhFLCw8l1e5PUJUZEs
+         3bdWpczAs673yPAWZmMhcqAe2X+gdNndo9jVMATK7NZF8c3DJMM2Wx1Jw+WE/5FA92
+         NpXrG5X7poAg1VlWMUSJskts3JMtxz8VyVaGLu5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/104] arm64: dts: rockchip: Fix PCIe DT properties on rk3399
-Date:   Mon, 15 Feb 2021 16:26:31 +0100
-Message-Id: <20210215152720.071790760@linuxfoundation.org>
+Subject: [PATCH 5.10 019/104] arm64: dts: qcom: sdm845: Reserve LPASS clocks in gcc
+Date:   Mon, 15 Feb 2021 16:26:32 +0100
+Message-Id: <20210215152720.104266598@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -40,48 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 43f20b1c6140896916f4e91aacc166830a7ba849 ]
+[ Upstream commit 93f2a11580a9732c1d90f9e01a7e9facc825658f ]
 
-It recently became apparent that the lack of a 'device_type = "pci"'
-in the PCIe root complex node for rk3399 is a violation of the PCI
-binding, as documented in IEEE Std 1275-1994. Changes to the kernel's
-parsing of the DT made such violation fatal, as drivers cannot
-probe the controller anymore.
+The GCC_LPASS_Q6_AXI_CLK and GCC_LPASS_SWAY_CLK clocks may not be
+touched on a typical UEFI based SDM845 device, but when the kernel is
+built with CONFIG_SDM_LPASSCC_845 this happens, unless they are marked
+as protected-clocks in the DT.
 
-Add the missing property makes the PCIe node compliant. While we
-are at it, drop the pointless linux,pci-domain property, which only
-makes sense when there are multiple host bridges.
+This was done for the MTP and the Pocophone, but not for DB845c and the
+Lenovo Yoga C630 - causing these to fail to boot if the LPASS clock
+controller is enabled (which it typically isn't).
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200815125112.462652-3-maz@kernel.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Tested-by: Vinod Koul <vkoul@kernel.org> #on db845c
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20201222001103.3112306-1-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm845-db845c.dts           | 4 +++-
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 7a9a7aca86c6a..5df535ad4bbc3 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -234,6 +234,7 @@
- 		reg = <0x0 0xf8000000 0x0 0x2000000>,
- 		      <0x0 0xfd000000 0x0 0x1000000>;
- 		reg-names = "axi-base", "apb-base";
-+		device_type = "pci";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
- 		#interrupt-cells = <1>;
-@@ -252,7 +253,6 @@
- 				<0 0 0 2 &pcie0_intc 1>,
- 				<0 0 0 3 &pcie0_intc 2>,
- 				<0 0 0 4 &pcie0_intc 3>;
--		linux,pci-domain = <0>;
- 		max-link-speed = <1>;
- 		msi-map = <0x0 &its 0x0 0x1000>;
- 		phys = <&pcie_phy 0>, <&pcie_phy 1>,
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+index 7cc236575ee20..c0b93813ea9ac 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+@@ -415,7 +415,9 @@
+ &gcc {
+ 	protected-clocks = <GCC_QSPI_CORE_CLK>,
+ 			   <GCC_QSPI_CORE_CLK_SRC>,
+-			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>;
++			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>,
++			   <GCC_LPASS_Q6_AXI_CLK>,
++			   <GCC_LPASS_SWAY_CLK>;
+ };
+ 
+ &gpu {
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index d70aae77a6e84..888dc23a530e6 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -245,7 +245,9 @@
+ &gcc {
+ 	protected-clocks = <GCC_QSPI_CORE_CLK>,
+ 			   <GCC_QSPI_CORE_CLK_SRC>,
+-			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>;
++			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>,
++			   <GCC_LPASS_Q6_AXI_CLK>,
++			   <GCC_LPASS_SWAY_CLK>;
+ };
+ 
+ &gpu {
 -- 
 2.27.0
 
