@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF1931BCF7
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A241231BCB7
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231489AbhBOPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49602 "EHLO mail.kernel.org"
+        id S230260AbhBOPd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:33:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230459AbhBOPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:36:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B988364E8E;
-        Mon, 15 Feb 2021 15:32:36 +0000 (UTC)
+        id S231259AbhBOPcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:32:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E3064EA5;
+        Mon, 15 Feb 2021 15:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403157;
-        bh=nKIGJtfqLEwveiYn9Xc73rQHQjsxo+hapHWA2sKcDIo=;
+        s=korg; t=1613403001;
+        bh=YEGS8lk8azlNq7lt88NrazHPZNuQUIzIJP3/v+i7dUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/s1ioYmelxLbcsG5BI97urxpXpmB8uBbSuh+a0QmoIwwxjb2ekC1uMGLQnkIasZI
-         JmImis/ZH5dCqvWGm/JeJOApzwjJMjH4A+sBSWboaJKU3jmHaEPpeZtoKeJGp5FRVY
-         E19otseZkTX5o6OBwnbpOC6WIlBAXrIQG9eUOck0=
+        b=LiLU03yVvDyTp51L8QnC6/NimC/thVaxFYxnQx1V1b3fo7RLm8NSzPdUJQrGH7LGr
+         eI5Ghoe7RJimTORIGSoblGS8ly/TK50ltKbLlBP8oQJshef3NnWlFeyePA9VVRYlRd
+         8WhC7OBBh0zHTGtWeNQSj/Vkh0Gg8+6gXXrcwK9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikhil Rao <nikhil.rao@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/104] dmaengine: idxd: fix misc interrupt completion
+        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/60] drm/amd/display: Add more Clock Sources to DCN2.1
 Date:   Mon, 15 Feb 2021 16:27:03 +0100
-Message-Id: <20210215152721.092303584@linuxfoundation.org>
+Message-Id: <20210215152715.866337273@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Sung Lee <sung.lee@amd.com>
 
-[ Upstream commit f5cc9ace24fbdf41b4814effbb2f9bad7046e988 ]
+[ Upstream commit 1622711beebe887e4f0f8237fea1f09bb48e9a51 ]
 
-Nikhil reported the misc interrupt handler can sometimes miss handling
-the command interrupt when an error interrupt happens near the same time.
-Have the irq handling thread continue to process the misc interrupts until
-all interrupts are processed. This is a low usage interrupt and is not
-expected to handle high volume traffic. Therefore there is no concern of
-this thread running for a long time.
+[WHY]
+When enabling HDMI on ComboPHY, there are not
+enough clock sources to complete display detection.
 
-Fixes: 0d5c10b4c84d ("dmaengine: idxd: add work queue drain support")
-Reported-by: Nikhil Rao <nikhil.rao@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/161074755329.2183844.13295528344116907983.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[HOW]
+Initialize more clock sources.
+
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/irq.c | 36 +++++++++++++++++++++++++++---------
- 1 file changed, 27 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/dma/idxd/irq.c b/drivers/dma/idxd/irq.c
-index 17a65a13fb649..552e2e2707058 100644
---- a/drivers/dma/idxd/irq.c
-+++ b/drivers/dma/idxd/irq.c
-@@ -53,19 +53,14 @@ irqreturn_t idxd_irq_handler(int vec, void *data)
- 	return IRQ_WAKE_THREAD;
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index a6d5beada6634..f63cbbee7b337 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -826,6 +826,8 @@ enum dcn20_clk_src_array_id {
+ 	DCN20_CLK_SRC_PLL0,
+ 	DCN20_CLK_SRC_PLL1,
+ 	DCN20_CLK_SRC_PLL2,
++	DCN20_CLK_SRC_PLL3,
++	DCN20_CLK_SRC_PLL4,
+ 	DCN20_CLK_SRC_TOTAL_DCN21
+ };
  
--irqreturn_t idxd_misc_thread(int vec, void *data)
-+static int process_misc_interrupts(struct idxd_device *idxd, u32 cause)
- {
--	struct idxd_irq_entry *irq_entry = data;
--	struct idxd_device *idxd = irq_entry->idxd;
- 	struct device *dev = &idxd->pdev->dev;
- 	union gensts_reg gensts;
--	u32 cause, val = 0;
-+	u32 val = 0;
- 	int i;
- 	bool err = false;
+@@ -1498,6 +1500,14 @@ static bool construct(
+ 			dcn21_clock_source_create(ctx, ctx->dc_bios,
+ 				CLOCK_SOURCE_COMBO_PHY_PLL2,
+ 				&clk_src_regs[2], false);
++	pool->base.clock_sources[DCN20_CLK_SRC_PLL3] =
++			dcn21_clock_source_create(ctx, ctx->dc_bios,
++				CLOCK_SOURCE_COMBO_PHY_PLL3,
++				&clk_src_regs[3], false);
++	pool->base.clock_sources[DCN20_CLK_SRC_PLL4] =
++			dcn21_clock_source_create(ctx, ctx->dc_bios,
++				CLOCK_SOURCE_COMBO_PHY_PLL4,
++				&clk_src_regs[4], false);
  
--	cause = ioread32(idxd->reg_base + IDXD_INTCAUSE_OFFSET);
--	iowrite32(cause, idxd->reg_base + IDXD_INTCAUSE_OFFSET);
--
- 	if (cause & IDXD_INTC_ERR) {
- 		spin_lock_bh(&idxd->dev_lock);
- 		for (i = 0; i < 4; i++)
-@@ -123,7 +118,7 @@ irqreturn_t idxd_misc_thread(int vec, void *data)
- 			      val);
+ 	pool->base.clk_src_count = DCN20_CLK_SRC_TOTAL_DCN21;
  
- 	if (!err)
--		goto out;
-+		return 0;
- 
- 	gensts.bits = ioread32(idxd->reg_base + IDXD_GENSTATS_OFFSET);
- 	if (gensts.state == IDXD_DEVICE_STATE_HALT) {
-@@ -144,10 +139,33 @@ irqreturn_t idxd_misc_thread(int vec, void *data)
- 				gensts.reset_type == IDXD_DEVICE_RESET_FLR ?
- 				"FLR" : "system reset");
- 			spin_unlock_bh(&idxd->dev_lock);
-+			return -ENXIO;
- 		}
- 	}
- 
-- out:
-+	return 0;
-+}
-+
-+irqreturn_t idxd_misc_thread(int vec, void *data)
-+{
-+	struct idxd_irq_entry *irq_entry = data;
-+	struct idxd_device *idxd = irq_entry->idxd;
-+	int rc;
-+	u32 cause;
-+
-+	cause = ioread32(idxd->reg_base + IDXD_INTCAUSE_OFFSET);
-+	if (cause)
-+		iowrite32(cause, idxd->reg_base + IDXD_INTCAUSE_OFFSET);
-+
-+	while (cause) {
-+		rc = process_misc_interrupts(idxd, cause);
-+		if (rc < 0)
-+			break;
-+		cause = ioread32(idxd->reg_base + IDXD_INTCAUSE_OFFSET);
-+		if (cause)
-+			iowrite32(cause, idxd->reg_base + IDXD_INTCAUSE_OFFSET);
-+	}
-+
- 	idxd_unmask_msix_vector(idxd, irq_entry->id);
- 	return IRQ_HANDLED;
- }
 -- 
 2.27.0
 
