@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBBA831BCFC
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCAF31BCB6
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231513AbhBOPhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
+        id S231408AbhBOPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:33:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231318AbhBOPhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 178C664EDF;
-        Mon, 15 Feb 2021 15:32:41 +0000 (UTC)
+        id S231263AbhBOPcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:32:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AAAB64EA1;
+        Mon, 15 Feb 2021 15:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403162;
-        bh=d1CUVYk0SC2MJPPsLMtuThawV9TOFuQjU/XcEX12xzA=;
+        s=korg; t=1613403006;
+        bh=tQDgRxccZT0w5FpWpcu44zNGlL5L0CwpxUugW1uxiOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnI+SDvZ0hFGgfApVqxFZvpO6NzCP+EG6KKjI5aaXL135dxMrrf3Kix2CT2pOQNCz
-         F+C/USR8dSUVp1TCuy0rJ3iMnG6hnSaotTfyLRY7vOjxO/yz7vV71HEIFAKE78BPMb
-         Sw/bOgWt8rrHeIgco1H0DIDuHpzyb0hMuC0BL1zA=
+        b=ymrciRxWN17TcCZyNmPnhHQ4Pc8ycVjuh+nz5y8vxAZXpEIaggGjR7ccck1B+VH8/
+         7uR78AGha4s2wSFbGhozCpjCg811At/EaagctgfLJdl+mePqKnGzT8CSJqXWgbVnmY
+         +HT1PAySbzJbx7SBkTVDz1F/AmH6x3c8XfAf2nS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Victor Lu <victorchengchi.lu@amd.com>,
+        Roman Li <Roman.Li@amd.com>, Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/104] mt76: dma: fix a possible memory leak in mt76_add_fragment()
+Subject: [PATCH 5.4 17/60] drm/amd/display: Free atomic state after drm_atomic_commit
 Date:   Mon, 15 Feb 2021 16:27:05 +0100
-Message-Id: <20210215152721.159111487@linuxfoundation.org>
+Message-Id: <20210215152715.926381087@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Victor Lu <victorchengchi.lu@amd.com>
 
-[ Upstream commit 93a1d4791c10d443bc67044def7efee2991d48b7 ]
+[ Upstream commit 2abaa323d744011982b20b8f3886184d56d23946 ]
 
-Fix a memory leak in mt76_add_fragment routine returning the buffer
-to the page_frag_cache when we receive a new fragment and the
-skb_shared_info frag array is full.
+[why]
+drm_atomic_commit was changed so that the caller must free their
+drm_atomic_state reference on successes.
 
-Fixes: b102f0c522cf6 ("mt76: fix array overflow on receiving too many fragments for a packet")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/4f9dd73407da88b2a552517ce8db242d86bf4d5c.1611616130.git.lorenzo@kernel.org
+[how]
+Add drm_atomic_commit_put after drm_atomic_commit call in
+dm_force_atomic_commit.
+
+Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 145e839fea4e5..917617aad8d3c 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -519,15 +519,17 @@ static void
- mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
- 		  int len, bool more)
- {
--	struct page *page = virt_to_head_page(data);
--	int offset = data - page_address(page);
- 	struct sk_buff *skb = q->rx_head;
- 	struct skb_shared_info *shinfo = skb_shinfo(skb);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 3671b3e8f69d8..b4da8d1e4fb87 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6463,14 +6463,14 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
  
- 	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
--		offset += q->buf_offset;
-+		struct page *page = virt_to_head_page(data);
-+		int offset = data - page_address(page) + q->buf_offset;
-+
- 		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
- 				q->buf_size);
-+	} else {
-+		skb_free_frag(data);
- 	}
+ 	ret = PTR_ERR_OR_ZERO(conn_state);
+ 	if (ret)
+-		goto err;
++		goto out;
  
- 	if (more)
+ 	/* Attach crtc to drm_atomic_state*/
+ 	crtc_state = drm_atomic_get_crtc_state(state, &disconnected_acrtc->base);
+ 
+ 	ret = PTR_ERR_OR_ZERO(crtc_state);
+ 	if (ret)
+-		goto err;
++		goto out;
+ 
+ 	/* force a restore */
+ 	crtc_state->mode_changed = true;
+@@ -6480,17 +6480,15 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
+ 
+ 	ret = PTR_ERR_OR_ZERO(plane_state);
+ 	if (ret)
+-		goto err;
+-
++		goto out;
+ 
+ 	/* Call commit internally with the state we just constructed */
+ 	ret = drm_atomic_commit(state);
+-	if (!ret)
+-		return 0;
+ 
+-err:
+-	DRM_ERROR("Restoring old state failed with %i\n", ret);
++out:
+ 	drm_atomic_state_put(state);
++	if (ret)
++		DRM_ERROR("Restoring old state failed with %i\n", ret);
+ 
+ 	return ret;
+ }
 -- 
 2.27.0
 
