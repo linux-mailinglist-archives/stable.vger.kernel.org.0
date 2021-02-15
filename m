@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F0D31BC9D
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9E731BD1D
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231203AbhBOPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:32:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45570 "EHLO mail.kernel.org"
+        id S230497AbhBOPkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:40:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231206AbhBOPbL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:31:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B60C164E91;
-        Mon, 15 Feb 2021 15:29:18 +0000 (UTC)
+        id S231514AbhBOPhz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAB2064EAD;
+        Mon, 15 Feb 2021 15:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402959;
-        bh=GpQVdLLn9DHMVjFpGoVkpWFbjXvU0sucLjBRLmL0nu8=;
+        s=korg; t=1613403215;
+        bh=oottzwMwE9LU5zEDtqqbkNl1S94kxsMjf4g8+8diCFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wom64j2nCzCmvmlZHYo3t/0dX//3ky/NtNTeX6E/+txqHa0cNn42sCDZG3fAnjmBU
-         qD1btaoHaadnDV8g0ZG+kSOu75VJMfatuHLWRLBJjF5COzsTEQQirY9vhNuRNpDb/E
-         UuX87hxFVcpy68qtFkeEZXVbRs8ekYUuQ6QrFNO4=
+        b=OjNehNTIALh+x//I7m+inkOZOuGzStpctJL316m4wfzEA2Mpl16cswOsO+KoGZHb0
+         ZCsVYPiwOYvhtz4FzIjHyjFaYt4gUoC/CWS4YccaMVCjStr9wTFq85IMHAqox8UpXU
+         GODl5BC5rSsPWZPxSxzno8LBwcoUAqSFDyvgycVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/60] selftests: txtimestamp: fix compilation issue
-Date:   Mon, 15 Feb 2021 16:27:22 +0100
-Message-Id: <20210215152716.450762755@linuxfoundation.org>
+Subject: [PATCH 5.10 070/104] scsi: scsi_debug: Fix a memory leak
+Date:   Mon, 15 Feb 2021 16:27:23 +0100
+Message-Id: <20210215152721.720212090@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 647b8dd5184665432cc8a2b5bca46a201f690c37 ]
+[ Upstream commit f852c596f2ee6f0eb364ea8f28f89da6da0ae7b5 ]
 
-PACKET_TX_TIMESTAMP is defined in if_packet.h but it is not included in
-test. Include it instead of <netpacket/packet.h> otherwise the error of
-redefinition arrives.
-Also fix the compiler warning about ambiguous control flow by adding
-explicit braces.
+The sdebug_q_arr pointer must be freed when the module is unloaded.
 
-Fixes: 8fe2f761cae9 ("net-timestamp: expand documentation")
-Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/1612461034-24524-1-git-send-email-vfedorenko@novek.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+$ cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff888e1cfb0000 (size 4096):
+  comm "modprobe", pid 165555, jiffies 4325987516 (age 685.194s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000458f4f5d>] 0xffffffffc06702d9
+    [<000000003edc4b1f>] do_one_initcall+0xe9/0x57d
+    [<00000000da7d518c>] do_init_module+0x1d1/0x6f0
+    [<000000009a6a9248>] load_module+0x36bd/0x4f50
+    [<00000000ddb0c3ce>] __do_sys_init_module+0x1db/0x260
+    [<000000009532db57>] do_syscall_64+0xa5/0x420
+    [<000000002916b13d>] entry_SYSCALL_64_after_hwframe+0x6a/0xdf
+
+Fixes: 87c715dcde63 ("scsi: scsi_debug: Add per_host_store option")
+Link: https://lore.kernel.org/r/20210208111734.34034-1-mlombard@redhat.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/networking/timestamping/txtimestamp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_debug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/networking/timestamping/txtimestamp.c b/tools/testing/selftests/networking/timestamping/txtimestamp.c
-index 7e386be471201..2fce2e8f47f55 100644
---- a/tools/testing/selftests/networking/timestamping/txtimestamp.c
-+++ b/tools/testing/selftests/networking/timestamping/txtimestamp.c
-@@ -26,6 +26,7 @@
- #include <inttypes.h>
- #include <linux/errqueue.h>
- #include <linux/if_ether.h>
-+#include <linux/if_packet.h>
- #include <linux/ipv6.h>
- #include <linux/net_tstamp.h>
- #include <netdb.h>
-@@ -34,7 +35,6 @@
- #include <netinet/ip.h>
- #include <netinet/udp.h>
- #include <netinet/tcp.h>
--#include <netpacket/packet.h>
- #include <poll.h>
- #include <stdarg.h>
- #include <stdbool.h>
-@@ -396,12 +396,12 @@ static void do_test(int family, unsigned int report_opt)
- 	total_len = cfg_payload_len;
- 	if (cfg_use_pf_packet || cfg_proto == SOCK_RAW) {
- 		total_len += sizeof(struct udphdr);
--		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW)
-+		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW) {
- 			if (family == PF_INET)
- 				total_len += sizeof(struct iphdr);
- 			else
- 				total_len += sizeof(struct ipv6hdr);
--
-+		}
- 		/* special case, only rawv6_sendmsg:
- 		 * pass proto in sin6_port if not connected
- 		 * also see ANK comment in net/ipv4/raw.c
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 4a08c450b756f..b6540b92f5661 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -6881,6 +6881,7 @@ static void __exit scsi_debug_exit(void)
+ 
+ 	sdebug_erase_all_stores(false);
+ 	xa_destroy(per_store_ap);
++	kfree(sdebug_q_arr);
+ }
+ 
+ device_initcall(scsi_debug_init);
 -- 
 2.27.0
 
