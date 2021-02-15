@@ -2,83 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AB331BB23
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 15:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C5731BB59
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 15:45:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230021AbhBOOdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 09:33:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54818 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229934AbhBOOdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 09:33:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3857464DF4;
-        Mon, 15 Feb 2021 14:32:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613399541;
-        bh=wkAC5+Pz1fyPNEDU1s3uWND5jzs7Q96skLsoF5pmDvY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XZ9fhlHw2ebNfM71Rug5UflI2pWXxWLEJY+08rXCXjNAeDgQqhAyt0K9IhHTCDU7s
-         wsbGwqlowVRZ2N+DHDdfYrNLW+ET8fMu30uonh/xQBSFZiWAlMXWna0lBS57v4b65P
-         I8vKTQaoUvoFgPYxo2sIK6WMXh5MRP4y7rNpMDxk=
-Date:   Mon, 15 Feb 2021 15:32:19 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Stefano Garzarella <sgarzare@redhat.com>
-Cc:     stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH for 5.10] vdpa_sim: fix param validation in
- vdpasim_get_config()
-Message-ID: <YCqF891BLn5zsUwd@kroah.com>
-References: <20210211162519.215418-1-sgarzare@redhat.com>
+        id S229910AbhBOOp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 09:45:26 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:33627 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229907AbhBOOpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 09:45:25 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 9BE45F4A;
+        Mon, 15 Feb 2021 09:44:38 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 15 Feb 2021 09:44:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xrSpRv
+        ZESBxOyXgV5AWDTrCTB+CIp2/gqkJECLxb5k0=; b=NrmMtwXDYGeQJ+p1TPrKtm
+        2wV0AaCM4/YcPfVzK21y6g0Or7UmIFtkLZGRv8gcAwRrMWm2HsX3K5VjnNC2FNMY
+        ZWrzjHhF0D5AqMnXQvAHVpl/cXPpnLMWdf5kJMrGJ3QKn901LqytNW7TkWvZrYKm
+        tHN4oySKhJk21sB66Qt5mkpbObYV3lpl9koIgcqqr7uERFa1Z5oJCliRTgm8iEUc
+        pKQnLmbMrEQ8tH0BohT04+xq4V9eZA3p8J8y511IBtoWcIuJ1v0SclKSZ8uAux83
+        1o+5hTICcT6JTst9qEH3+SjEjYHcq12kzEnZWe1LC2CasShnT81XThAMXx1P4ZVQ
+        ==
+X-ME-Sender: <xms:1IgqYBIQ65XXWv_wP7a-wvxSyPFXP2wrA_PAQvLgdjH1KY1_Ie5CbA>
+    <xme:1IgqYNIfFLrxu6JID4D6iWz5wtBCjGrNytVQWtTMPR8LIu9Q6w0JOy7mSv2aG27QM
+    pD-DRLaG9G9vQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrieekgdeigecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:1IgqYJuQILhXJeNhCwx-9IqzpHc1QmroqOH5_55XLrnrUIEJAgOXzA>
+    <xmx:1IgqYCZAkKUZXjdXg5AfG5p3pZV_xrtDiWgtYU0l-ZpRbarcFgBDLg>
+    <xmx:1IgqYIY4WWvSsUCmcB90z2rvRsvQMEbTcaaQUgbSyxXjwiJtVgHOJA>
+    <xmx:1YgqYGm2bZjFZNMFoZvyVXQ0TIr4lHRBTuboE_DKSj6cl27tQuCizrpO9ZQabLou>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1988F240057;
+        Mon, 15 Feb 2021 09:44:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/mremap: fix BUILD_BUG_ON() error in get_extent" failed to apply to 5.10-stable tree
+To:     arnd@arndb.de, 0x7f454c46@gmail.com, akpm@linux-foundation.org,
+        bgeffon@google.com, kirill.shutemov@linux.intel.com,
+        natechancellor@gmail.com, ndesaulniers@google.com,
+        richard.weiyang@linux.alibaba.com, sedat.dilek@gmail.com,
+        torvalds@linux-foundation.org, vbabka@suse.cz
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Feb 2021 15:44:34 +0100
+Message-ID: <1613400274103207@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210211162519.215418-1-sgarzare@redhat.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 11, 2021 at 05:25:19PM +0100, Stefano Garzarella wrote:
-> Commit 65b709586e222fa6ffd4166ac7fdb5d5dad113ee upstream.
 
-No, this really is not that commit, so please do not say it is.
-
-> Before this patch, if 'offset + len' was equal to
-> sizeof(struct virtio_net_config), the entire buffer wasn't filled,
-> returning incorrect values to the caller.
-> 
-> Since 'vdpasim->config' type is 'struct virtio_net_config', we can
-> safely copy its content under this condition.
-> 
-> Commit 65b709586e22 ("vdpa_sim: add get_config callback in
-> vdpasim_dev_attr") unintentionally solved it upstream while
-> refactoring vdpa_sim.c to support multiple devices. But we don't want
-> to backport it to stable branches as it contains many changes.
-> 
-> Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-> Cc: <stable@vger.kernel.org> # 5.10.x
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index 6a90fdb9cbfc..8ca178d7b02f 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -572,7 +572,7 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
->  {
->  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->  
-> -	if (offset + len < sizeof(struct virtio_net_config))
-> +	if (offset + len <= sizeof(struct virtio_net_config))
->  		memcpy(buf, (u8 *)&vdpasim->config + offset, len);
->  }
-
-I'll be glad to take a one-off patch, but why can't we take the real
-upstream patch?  That is always the better long-term solution, right?
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From a30a29091b5a6d4c64b5fc77040720a65e2dd4e6 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 9 Feb 2021 13:42:10 -0800
+Subject: [PATCH] mm/mremap: fix BUILD_BUG_ON() error in get_extent
+
+clang can't evaluate this function argument at compile time when the
+function is not inlined, which leads to a link time failure:
+
+  ld.lld: error: undefined symbol: __compiletime_assert_414
+  >>> referenced by mremap.c
+  >>>               mremap.o:(get_extent) in archive mm/built-in.a
+
+Mark the function as __always_inline to avoid it.
+
+Link: https://lkml.kernel.org/r/20201230154104.522605-1-arnd@kernel.org
+Fixes: 9ad9718bfa41 ("mm/mremap: calculate extent in one place")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Brian Geffon <bgeffon@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/mremap.c b/mm/mremap.c
+index f554320281cc..aa63bfd3cad2 100644
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -336,8 +336,9 @@ enum pgt_entry {
+  * valid. Else returns a smaller extent bounded by the end of the source and
+  * destination pgt_entry.
+  */
+-static unsigned long get_extent(enum pgt_entry entry, unsigned long old_addr,
+-			unsigned long old_end, unsigned long new_addr)
++static __always_inline unsigned long get_extent(enum pgt_entry entry,
++			unsigned long old_addr, unsigned long old_end,
++			unsigned long new_addr)
+ {
+ 	unsigned long next, extent, mask, size;
+ 
+
