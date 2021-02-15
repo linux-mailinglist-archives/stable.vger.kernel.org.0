@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D45031BCF9
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B6931BD12
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231499AbhBOPhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
+        id S231234AbhBOPj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:39:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230003AbhBOPhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231284AbhBOPhK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 10:37:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3057764ED3;
-        Mon, 15 Feb 2021 15:32:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB8CC64EC4;
+        Mon, 15 Feb 2021 15:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403128;
-        bh=X7wy2ezr0jlJfmnwzBG6RnKatBfbh3Fb17dTcH/L8KI=;
+        s=korg; t=1613403131;
+        bh=nd+74Ivruz0O1CFSFEyWbEz5jI05EjRHuPkqjvRvKdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExFxECLeWnrOw6fWls+zOlqXY7Ohi7zq9AGE/k0rdvmRItwuk3vwMtLAadDGb26EW
-         uzgI0v6prMyESvY6huG6AqnqHSztIGE5/5dhjXiKI5HiXRUQpv+hRohWSKE1dgkM6t
-         2XoJrzprYvohxhCPilaz2npo3yf4g/NaxkguHj+o=
+        b=p+x6sNt1pYKFN0TuLlunbQLM2nlyY7rYEdl3kMZ8uIUnRzEdwf4ZRdqDFlwijy3Y6
+         dvEuaKEvTMO2AaTS2kggLDTp7uw9GH63c+U1q+B0y7W6HdIP+lpl2gfhPw6UouURxS
+         cPd3NeMjJVKk7fTt4QKtkT46XqWM7vWDvEES1bxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Shubin <nikita.shubin@maquefel.me>,
-        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.10 005/104] gpio: ep93xx: Fix single irqchip with multi gpiochips
-Date:   Mon, 15 Feb 2021 16:26:18 +0100
-Message-Id: <20210215152719.643118977@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 006/104] tracing: Do not count ftrace events in top level enable output
+Date:   Mon, 15 Feb 2021 16:26:19 +0100
+Message-Id: <20210215152719.674067103@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -40,102 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Shubin <nikita.shubin@maquefel.me>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 28dc10eb77a2db7681b08e3b109764bbe469e347 upstream.
+commit 256cfdd6fdf70c6fcf0f7c8ddb0ebd73ce8f3bc9 upstream.
 
-Fixes the following warnings which results in interrupts disabled on
-port B/F:
+The file /sys/kernel/tracing/events/enable is used to enable all events by
+echoing in "1", or disabling all events when echoing in "0". To know if all
+events are enabled, disabled, or some are enabled but not all of them,
+cating the file should show either "1" (all enabled), "0" (all disabled), or
+"X" (some enabled but not all of them). This works the same as the "enable"
+files in the individule system directories (like tracing/events/sched/enable).
 
-gpio gpiochip1: (B): detected irqchip that is shared with multiple gpiochips: please fix the driver.
-gpio gpiochip5: (F): detected irqchip that is shared with multiple gpiochips: please fix the driver.
+But when all events are enabled, the top level "enable" file shows "X". The
+reason is that its checking the "ftrace" events, which are special events
+that only exist for their format files. These include the format for the
+function tracer events, that are enabled when the function tracer is
+enabled, but not by the "enable" file. The check includes these events,
+which will always be disabled, and even though all true events are enabled,
+the top level "enable" file will show "X" instead of "1".
 
-- added separate irqchip for each interrupt capable gpiochip
-- provided unique names for each irqchip
+To fix this, have the check test the event's flags to see if it has the
+"IGNORE_ENABLE" flag set, and if so, not test it.
 
-Fixes: d2b091961510 ("gpio: ep93xx: Pass irqchip when adding gpiochip")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Tested-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: stable@vger.kernel.org
+Fixes: 553552ce1796c ("tracing: Combine event filter_active and enable into single flags field")
+Reported-by: "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-ep93xx.c |   30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ kernel/trace/trace_events.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-ep93xx.c
-+++ b/drivers/gpio/gpio-ep93xx.c
-@@ -38,6 +38,7 @@
- #define EP93XX_GPIO_F_IRQ_BASE 80
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -1212,7 +1212,8 @@ system_enable_read(struct file *filp, ch
+ 	mutex_lock(&event_mutex);
+ 	list_for_each_entry(file, &tr->events, list) {
+ 		call = file->event_call;
+-		if (!trace_event_name(call) || !call->class || !call->class->reg)
++		if ((call->flags & TRACE_EVENT_FL_IGNORE_ENABLE) ||
++		    !trace_event_name(call) || !call->class || !call->class->reg)
+ 			continue;
  
- struct ep93xx_gpio_irq_chip {
-+	struct irq_chip ic;
- 	u8 irq_offset;
- 	u8 int_unmasked;
- 	u8 int_enabled;
-@@ -263,15 +264,6 @@ static int ep93xx_gpio_irq_type(struct i
- 	return 0;
- }
- 
--static struct irq_chip ep93xx_gpio_irq_chip = {
--	.name		= "GPIO",
--	.irq_ack	= ep93xx_gpio_irq_ack,
--	.irq_mask_ack	= ep93xx_gpio_irq_mask_ack,
--	.irq_mask	= ep93xx_gpio_irq_mask,
--	.irq_unmask	= ep93xx_gpio_irq_unmask,
--	.irq_set_type	= ep93xx_gpio_irq_type,
--};
--
- /*************************************************************************
-  * gpiolib interface for EP93xx on-chip GPIOs
-  *************************************************************************/
-@@ -331,6 +323,15 @@ static int ep93xx_gpio_f_to_irq(struct g
- 	return EP93XX_GPIO_F_IRQ_BASE + offset;
- }
- 
-+static void ep93xx_init_irq_chip(struct device *dev, struct irq_chip *ic)
-+{
-+	ic->irq_ack = ep93xx_gpio_irq_ack;
-+	ic->irq_mask_ack = ep93xx_gpio_irq_mask_ack;
-+	ic->irq_mask = ep93xx_gpio_irq_mask;
-+	ic->irq_unmask = ep93xx_gpio_irq_unmask;
-+	ic->irq_set_type = ep93xx_gpio_irq_type;
-+}
-+
- static int ep93xx_gpio_add_bank(struct ep93xx_gpio_chip *egc,
- 				struct platform_device *pdev,
- 				struct ep93xx_gpio *epg,
-@@ -352,6 +353,8 @@ static int ep93xx_gpio_add_bank(struct e
- 
- 	girq = &gc->irq;
- 	if (bank->has_irq || bank->has_hierarchical_irq) {
-+		struct irq_chip *ic;
-+
- 		gc->set_config = ep93xx_gpio_set_config;
- 		egc->eic = devm_kcalloc(dev, 1,
- 					sizeof(*egc->eic),
-@@ -359,7 +362,12 @@ static int ep93xx_gpio_add_bank(struct e
- 		if (!egc->eic)
- 			return -ENOMEM;
- 		egc->eic->irq_offset = bank->irq;
--		girq->chip = &ep93xx_gpio_irq_chip;
-+		ic = &egc->eic->ic;
-+		ic->name = devm_kasprintf(dev, GFP_KERNEL, "gpio-irq-%s", bank->label);
-+		if (!ic->name)
-+			return -ENOMEM;
-+		ep93xx_init_irq_chip(dev, ic);
-+		girq->chip = ic;
- 	}
- 
- 	if (bank->has_irq) {
-@@ -401,7 +409,7 @@ static int ep93xx_gpio_add_bank(struct e
- 			gpio_irq = EP93XX_GPIO_F_IRQ_BASE + i;
- 			irq_set_chip_data(gpio_irq, &epg->gc[5]);
- 			irq_set_chip_and_handler(gpio_irq,
--						 &ep93xx_gpio_irq_chip,
-+						 girq->chip,
- 						 handle_level_irq);
- 			irq_clear_status_flags(gpio_irq, IRQ_NOREQUEST);
- 		}
+ 		if (system && strcmp(call->class->system, system->name) != 0)
 
 
