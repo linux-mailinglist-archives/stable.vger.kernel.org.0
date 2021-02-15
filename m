@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CF931BCB2
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F77131BCCC
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230518AbhBOPdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:33:49 -0500
+        id S230426AbhBOPf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:35:58 -0500
 Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231218AbhBOPcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:32:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AED564EAC;
-        Mon, 15 Feb 2021 15:29:58 +0000 (UTC)
+        id S231379AbhBOPdH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:33:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EBF264EB4;
+        Mon, 15 Feb 2021 15:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402999;
-        bh=bXu+3Njr8/+tN4f/IALTL9GxBcfMQjO99UoiG7nOQy8=;
+        s=korg; t=1613403048;
+        bh=IyfM8QAqxdmKj3ed2+J8pq6AN14oeZqETF42m9dQf5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abE8o4px3MCA60wUP+T+VKGlnmmuSftlC5Jz15jsfv++ART7Bs/7/xXLxltP6wYSE
-         8SSZVoOo8fM5tg+1uAFKUcZZsLDg+GyQr52KfSYFXnSn5dyGz543s3vzp9t+WFrDPe
-         XGvZXUVtNsEVUHVxyabHeRmnJlGcN/xuhvgeLWjI=
+        b=BtT4362cvuwVZh3gEwm/38iVBxDNRG//3jiceNc/xwlRHK6bb4H50fhDiQloszuy4
+         e6Kryl03LmW92FeTOzBJSgihONOQsCYXUibUj0IBhjvz7JMqFxG90aVcQUDkSfPXpc
+         Xoszs02XsTirkP2NzcA2/2l3bICIv6+ekNDA1aQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 48/60] usb: dwc3: ulpi: Replace CPU-based busyloop with Protocol-based one
-Date:   Mon, 15 Feb 2021 16:27:36 +0100
-Message-Id: <20210215152716.913993294@linuxfoundation.org>
+        syzbot+174de899852504e4a74a@syzkaller.appspotmail.com,
+        syzbot+3d1c772efafd3c38d007@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 49/60] rxrpc: Fix clearance of Tx/Rx ring when releasing a call
+Date:   Mon, 15 Feb 2021 16:27:37 +0100
+Message-Id: <20210215152716.946569241@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
 References: <20210215152715.401453874@linuxfoundation.org>
@@ -41,95 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: David Howells <dhowells@redhat.com>
 
-commit fca3f138105727c3a22edda32d02f91ce1bf11c9 upstream
+commit 7b5eab57cac45e270a0ad624ba157c5b30b3d44d upstream.
 
-Originally the procedure of the ULPI transaction finish detection has been
-developed as a simple busy-loop with just decrementing counter and no
-delays. It's wrong since on different systems the loop will take a
-different time to complete. So if the system bus and CPU are fast enough
-to overtake the ULPI bus and the companion PHY reaction, then we'll get to
-take a false timeout error. Fix this by converting the busy-loop procedure
-to take the standard bus speed, address value and the registers access
-mode into account for the busy-loop delay calculation.
+At the end of rxrpc_release_call(), rxrpc_cleanup_ring() is called to clear
+the Rx/Tx skbuff ring, but this doesn't lock the ring whilst it's accessing
+it.  Unfortunately, rxrpc_resend() might be trying to retransmit a packet
+concurrently with this - and whilst it does lock the ring, this isn't
+protection against rxrpc_cleanup_call().
 
-Here is the way the fix works. It's known that the ULPI bus is clocked
-with 60MHz signal. In accordance with [1] the ULPI bus protocol is created
-so to spend 5 and 6 clock periods for immediate register write and read
-operations respectively, and 6 and 7 clock periods - for the extended
-register writes and reads. Based on that we can easily pre-calculate the
-time which will be needed for the controller to perform a requested IO
-operation. Note we'll still preserve the attempts counter in case if the
-DWC USB3 controller has got some internals delays.
+Fix this by removing the call to rxrpc_cleanup_ring() from
+rxrpc_release_call().  rxrpc_cleanup_ring() will be called again anyway
+from rxrpc_cleanup_call().  The earlier call is just an optimisation to
+recycle skbuffs more quickly.
 
-[1] UTMI+ Low Pin Interface (ULPI) Specification, Revision 1.1,
-    October 20, 2004, pp. 30 - 36.
+Alternative solutions include rxrpc_release_call() could try to cancel the
+work item or wait for it to complete or rxrpc_cleanup_ring() could lock
+when accessing the ring (which would require a bh lock).
 
-Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20201210085008.13264-3-Sergey.Semin@baikalelectronics.ru
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+This can produce a report like the following:
+
+  BUG: KASAN: use-after-free in rxrpc_send_data_packet+0x19b4/0x1e70 net/rxrpc/output.c:372
+  Read of size 4 at addr ffff888011606e04 by task kworker/0:0/5
+  ...
+  Workqueue: krxrpcd rxrpc_process_call
+  Call Trace:
+   ...
+   kasan_report.cold+0x79/0xd5 mm/kasan/report.c:413
+   rxrpc_send_data_packet+0x19b4/0x1e70 net/rxrpc/output.c:372
+   rxrpc_resend net/rxrpc/call_event.c:266 [inline]
+   rxrpc_process_call+0x1634/0x1f60 net/rxrpc/call_event.c:412
+   process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
+   ...
+
+  Allocated by task 2318:
+   ...
+   sock_alloc_send_pskb+0x793/0x920 net/core/sock.c:2348
+   rxrpc_send_data+0xb51/0x2bf0 net/rxrpc/sendmsg.c:358
+   rxrpc_do_sendmsg+0xc03/0x1350 net/rxrpc/sendmsg.c:744
+   rxrpc_sendmsg+0x420/0x630 net/rxrpc/af_rxrpc.c:560
+   ...
+
+  Freed by task 2318:
+   ...
+   kfree_skb+0x140/0x3f0 net/core/skbuff.c:704
+   rxrpc_free_skb+0x11d/0x150 net/rxrpc/skbuff.c:78
+   rxrpc_cleanup_ring net/rxrpc/call_object.c:485 [inline]
+   rxrpc_release_call+0x5dd/0x860 net/rxrpc/call_object.c:552
+   rxrpc_release_calls_on_socket+0x21c/0x300 net/rxrpc/call_object.c:579
+   rxrpc_release_sock net/rxrpc/af_rxrpc.c:885 [inline]
+   rxrpc_release+0x263/0x5a0 net/rxrpc/af_rxrpc.c:916
+   __sock_release+0xcd/0x280 net/socket.c:597
+   ...
+
+  The buggy address belongs to the object at ffff888011606dc0
+   which belongs to the cache skbuff_head_cache of size 232
+
+Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
+Reported-by: syzbot+174de899852504e4a74a@syzkaller.appspotmail.com
+Reported-by: syzbot+3d1c772efafd3c38d007@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Hillf Danton <hdanton@sina.com>
+Link: https://lore.kernel.org/r/161234207610.653119.5287360098400436976.stgit@warthog.procyon.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ulpi.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ net/rxrpc/call_object.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/dwc3/ulpi.c
-+++ b/drivers/usb/dwc3/ulpi.c
-@@ -7,6 +7,8 @@
-  * Author: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-  */
- 
-+#include <linux/delay.h>
-+#include <linux/time64.h>
- #include <linux/ulpi/regs.h>
- 
- #include "core.h"
-@@ -17,12 +19,22 @@
- 		DWC3_GUSB2PHYACC_ADDR(ULPI_ACCESS_EXTENDED) | \
- 		DWC3_GUSB2PHYACC_EXTEND_ADDR(a) : DWC3_GUSB2PHYACC_ADDR(a))
- 
--static int dwc3_ulpi_busyloop(struct dwc3 *dwc)
-+#define DWC3_ULPI_BASE_DELAY	DIV_ROUND_UP(NSEC_PER_SEC, 60000000L)
-+
-+static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
- {
-+	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
- 	unsigned int count = 1000;
- 	u32 reg;
- 
-+	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
-+		ns += DWC3_ULPI_BASE_DELAY;
-+
-+	if (read)
-+		ns += DWC3_ULPI_BASE_DELAY;
-+
- 	while (count--) {
-+		ndelay(ns);
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
- 		if (reg & DWC3_GUSB2PHYACC_DONE)
- 			return 0;
-@@ -47,7 +59,7 @@ static int dwc3_ulpi_read(struct device
- 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
- 
--	ret = dwc3_ulpi_busyloop(dwc);
-+	ret = dwc3_ulpi_busyloop(dwc, addr, true);
- 	if (ret)
- 		return ret;
- 
-@@ -71,7 +83,7 @@ static int dwc3_ulpi_write(struct device
- 	reg |= DWC3_GUSB2PHYACC_WRITE | val;
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
- 
--	return dwc3_ulpi_busyloop(dwc);
-+	return dwc3_ulpi_busyloop(dwc, addr, false);
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -507,8 +507,6 @@ void rxrpc_release_call(struct rxrpc_soc
+ 		rxrpc_disconnect_call(call);
+ 	if (call->security)
+ 		call->security->free_call_crypto(call);
+-
+-	rxrpc_cleanup_ring(call);
+ 	_leave("");
  }
  
- static const struct ulpi_ops dwc3_ulpi_ops = {
 
 
