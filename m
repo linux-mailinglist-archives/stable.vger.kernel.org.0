@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD0831BD16
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AD131BC91
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231543AbhBOPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:39:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S231132AbhBOPbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:31:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231466AbhBOPht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFBFE64E9D;
-        Mon, 15 Feb 2021 15:33:05 +0000 (UTC)
+        id S230364AbhBOPau (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:30:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D21D564E6D;
+        Mon, 15 Feb 2021 15:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403186;
-        bh=9ZiByKcGi3UbxYcYe6hBpPNXJ2Ra093phZ3dwHz1PHE=;
+        s=korg; t=1613402933;
+        bh=8uz61srI5MpGZlQlk5XsysikPJubFMCHy6yVxUdvUds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRN4k/jZHZX2ANnPylLU1FQvd9sgel/aYWQYZuT7Q4/Hq2NK0nCF6uWR/NGcWyZLv
-         Zspo8f3fgkIl9f2surAi42KXyXqMZ2+kqm2H2DWEjvAA7tBEk11eE478XTRb3xQWkX
-         IkAmEbHWJJz5ZwdEsbS7qPsthUfBwhtVrPJuvVtA=
+        b=NUlE9Y8sQ6X7pWq4qt0NAlbMgnIh11XamzRRb0L0krfqk0gu7nufRX3dF+CJzi+t/
+         8o5L/ZQbOqzqe/TnQI0XrPwN1x1cpF86bLJ6qsF1gOiv+an8UwFajO6oLM9K6tycKf
+         IZL63SeazC47PQKjWny5f4gBEdBKd5jSzxMMP6+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/104] netfilter: flowtable: fix tcp and udp header checksum update
+Subject: [PATCH 5.4 25/60] lkdtm: dont move ctors to .rodata
 Date:   Mon, 15 Feb 2021 16:27:13 +0100
-Message-Id: <20210215152721.414262503@linuxfoundation.org>
+Message-Id: <20210215152716.160248805@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 8d6bca156e47d68551750a384b3ff49384c67be3 ]
+[ Upstream commit 3f618ab3323407ee4c6a6734a37eb6e9663ebfb9 ]
 
-When updating the tcp or udp header checksum on port nat the function
-inet_proto_csum_replace2 with the last parameter pseudohdr as true.
-This leads to an error in the case that GRO is used and packets are
-split up in GSO. The tcp or udp checksum of all packets is incorrect.
+When building with KASAN and LKDTM, clang may implictly generate an
+asan.module_ctor function in the LKDTM rodata object. The Makefile moves
+the lkdtm_rodata_do_nothing() function into .rodata by renaming the
+file's .text section to .rodata, and consequently also moves the ctor
+function into .rodata, leading to a boot time crash (splat below) when
+the ctor is invoked by do_ctors().
 
-The error is probably masked due to the fact the most network driver
-implement tcp/udp checksum offloading. It also only happens when GRO is
-applied and not on single packets.
+Let's prevent this by marking the function as noinstr rather than
+notrace, and renaming the file's .noinstr.text to .rodata. Marking the
+function as noinstr will prevent tracing and kprobes, and will inhibit
+any undesireable compiler instrumentation.
 
-The error is most visible when using a pppoe connection which is not
-triggering the tcp/udp checksum offload.
+The ctor function (if any) will be placed in .text and will work
+correctly.
 
-Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Example splat before this patch is applied:
+
+[    0.916359] Unable to handle kernel execute from non-executable memory at virtual address ffffa0006b60f5ac
+[    0.922088] Mem abort info:
+[    0.922828]   ESR = 0x8600000e
+[    0.923635]   EC = 0x21: IABT (current EL), IL = 32 bits
+[    0.925036]   SET = 0, FnV = 0
+[    0.925838]   EA = 0, S1PTW = 0
+[    0.926714] swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000427b3000
+[    0.928489] [ffffa0006b60f5ac] pgd=000000023ffff003, p4d=000000023ffff003, pud=000000023fffe003, pmd=0068000042000f01
+[    0.931330] Internal error: Oops: 8600000e [#1] PREEMPT SMP
+[    0.932806] Modules linked in:
+[    0.933617] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-rc7 #2
+[    0.935620] Hardware name: linux,dummy-virt (DT)
+[    0.936924] pstate: 40400005 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+[    0.938609] pc : asan.module_ctor+0x0/0x14
+[    0.939759] lr : do_basic_setup+0x4c/0x70
+[    0.940889] sp : ffff27b600177e30
+[    0.941815] x29: ffff27b600177e30 x28: 0000000000000000
+[    0.943306] x27: 0000000000000000 x26: 0000000000000000
+[    0.944803] x25: 0000000000000000 x24: 0000000000000000
+[    0.946289] x23: 0000000000000001 x22: 0000000000000000
+[    0.947777] x21: ffffa0006bf4a890 x20: ffffa0006befb6c0
+[    0.949271] x19: ffffa0006bef9358 x18: 0000000000000068
+[    0.950756] x17: fffffffffffffff8 x16: 0000000000000000
+[    0.952246] x15: 0000000000000000 x14: 0000000000000000
+[    0.953734] x13: 00000000838a16d5 x12: 0000000000000001
+[    0.955223] x11: ffff94000da74041 x10: dfffa00000000000
+[    0.956715] x9 : 0000000000000000 x8 : ffffa0006b60f5ac
+[    0.958199] x7 : f9f9f9f9f9f9f9f9 x6 : 000000000000003f
+[    0.959683] x5 : 0000000000000040 x4 : 0000000000000000
+[    0.961178] x3 : ffffa0006bdc15a0 x2 : 0000000000000005
+[    0.962662] x1 : 00000000000000f9 x0 : ffffa0006bef9350
+[    0.964155] Call trace:
+[    0.964844]  asan.module_ctor+0x0/0x14
+[    0.965895]  kernel_init_freeable+0x158/0x198
+[    0.967115]  kernel_init+0x14/0x19c
+[    0.968104]  ret_from_fork+0x10/0x30
+[    0.969110] Code: 00000003 00000000 00000000 00000000 (00000000)
+[    0.970815] ---[ end trace b5339784e20d015c ]---
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Kees Cook <keescook@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20201207170533.10738-1-mark.rutland@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/lkdtm/Makefile | 2 +-
+ drivers/misc/lkdtm/rodata.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 513f78db3cb2f..4a4acbba78ff7 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -399,7 +399,7 @@ static int nf_flow_nat_port_tcp(struct sk_buff *skb, unsigned int thoff,
- 		return -1;
+diff --git a/drivers/misc/lkdtm/Makefile b/drivers/misc/lkdtm/Makefile
+index c70b3822013f4..30c8ac24635d4 100644
+--- a/drivers/misc/lkdtm/Makefile
++++ b/drivers/misc/lkdtm/Makefile
+@@ -16,7 +16,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
  
- 	tcph = (void *)(skb_network_header(skb) + thoff);
--	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, true);
-+	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, false);
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_rodata_objcopy.o	:= \
+-			--rename-section .text=.rodata,alloc,readonly,load
++			--rename-section .noinstr.text=.rodata,alloc,readonly,load
+ targets += rodata.o rodata_objcopy.o
+ $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
+ 	$(call if_changed,objcopy)
+diff --git a/drivers/misc/lkdtm/rodata.c b/drivers/misc/lkdtm/rodata.c
+index 58d180af72cf0..baacb876d1d94 100644
+--- a/drivers/misc/lkdtm/rodata.c
++++ b/drivers/misc/lkdtm/rodata.c
+@@ -5,7 +5,7 @@
+  */
+ #include "lkdtm.h"
  
- 	return 0;
+-void notrace lkdtm_rodata_do_nothing(void)
++void noinstr lkdtm_rodata_do_nothing(void)
+ {
+ 	/* Does nothing. We just want an architecture agnostic "return". */
  }
-@@ -415,7 +415,7 @@ static int nf_flow_nat_port_udp(struct sk_buff *skb, unsigned int thoff,
- 	udph = (void *)(skb_network_header(skb) + thoff);
- 	if (udph->check || skb->ip_summed == CHECKSUM_PARTIAL) {
- 		inet_proto_csum_replace2(&udph->check, skb, port,
--					 new_port, true);
-+					 new_port, false);
- 		if (!udph->check)
- 			udph->check = CSUM_MANGLED_0;
- 	}
 -- 
 2.27.0
 
