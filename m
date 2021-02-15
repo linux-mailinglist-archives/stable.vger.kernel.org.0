@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E34331BEEC
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 17:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F1531BE30
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 17:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbhBOQVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 11:21:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
+        id S230494AbhBOQCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 11:02:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231702AbhBOPq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:46:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B100264E37;
-        Mon, 15 Feb 2021 15:35:12 +0000 (UTC)
+        id S231948AbhBOPtj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:49:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F3764EBE;
+        Mon, 15 Feb 2021 15:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403313;
-        bh=bhDqEH9zOJRCMqDkygcw2XwdvM5ZzSlCwdfVnG58tRA=;
+        s=korg; t=1613403316;
+        bh=pZ7TnNK5FWqXQ/Iyb7sLO3lT8Uu4DIWCxjevEDk4xhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQ1gS++5TM8FGLVh1mt6XStM6VccK1T33SXHiYaZ1YyjmagT8sp/XKxTeQB8EZI2F
-         M7Jn4i1UJIQ4dRBB8iZm56rgxQXsroY3guEwxJEWyJDvWOHoQ7VK/1lsh4hVlld8eH
-         RAWiepd//lPSSqGSVA2Y+L+mno6U0PWOeRaqZmOo=
+        b=GLd5ro6b1+FHpf95w3dSMBxwVk+w5fZhUEdxl1ulNNE3L/IdR1V0ErHjf4yN8A7jL
+         ZVh4keHWsTAoQTUOpY4aFTfyIvbIf0jCAqzwiuP0D73EuET5LF5qydGmcjHGxmN60o
+         TI2UOe6xRd4trrPowfpLT5v5i6r9G1RoCGrQtpjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Andre Heider <a.heider@gmail.com>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/104] clk: sunxi-ng: mp: fix parent rate change flag check
-Date:   Mon, 15 Feb 2021 16:27:34 +0100
-Message-Id: <20210215152722.065814250@linuxfoundation.org>
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 082/104] i2c: stm32f7: fix configuration of the digital filter
+Date:   Mon, 15 Feb 2021 16:27:35 +0100
+Message-Id: <20210215152722.097073003@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -43,38 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 245090ab2636c0869527ce563afbfb8aff29e825 ]
+[ Upstream commit 3d6a3d3a2a7a3a60a824e7c04e95fd50dec57812 ]
 
-CLK_SET_RATE_PARENT flag is checked on parent clock instead of current
-one. Fix that.
+The digital filter related computation are present in the driver
+however the programming of the filter within the IP is missing.
+The maximum value for the DNF is wrong and should be 15 instead of 16.
 
-Fixes: 3f790433c3cb ("clk: sunxi-ng: Adjust MP clock parent rate when allowed")
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Tested-by: Andre Heider <a.heider@gmail.com>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20210209175900.7092-2-jernej.skrabec@siol.net
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu_mp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu_mp.c b/drivers/clk/sunxi-ng/ccu_mp.c
-index fa4ecb9155909..9d3a76604d94c 100644
---- a/drivers/clk/sunxi-ng/ccu_mp.c
-+++ b/drivers/clk/sunxi-ng/ccu_mp.c
-@@ -108,7 +108,7 @@ static unsigned long ccu_mp_round_rate(struct ccu_mux_internal *mux,
- 	max_m = cmp->m.max ?: 1 << cmp->m.width;
- 	max_p = cmp->p.max ?: 1 << ((1 << cmp->p.width) - 1);
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index f41f51a176a1d..6747353345475 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -57,6 +57,8 @@
+ #define STM32F7_I2C_CR1_RXDMAEN			BIT(15)
+ #define STM32F7_I2C_CR1_TXDMAEN			BIT(14)
+ #define STM32F7_I2C_CR1_ANFOFF			BIT(12)
++#define STM32F7_I2C_CR1_DNF_MASK		GENMASK(11, 8)
++#define STM32F7_I2C_CR1_DNF(n)			(((n) & 0xf) << 8)
+ #define STM32F7_I2C_CR1_ERRIE			BIT(7)
+ #define STM32F7_I2C_CR1_TCIE			BIT(6)
+ #define STM32F7_I2C_CR1_STOPIE			BIT(5)
+@@ -160,7 +162,7 @@ enum {
+ };
  
--	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT)) {
-+	if (!clk_hw_can_set_rate_parent(&cmp->common.hw)) {
- 		ccu_mp_find_best(*parent_rate, rate, max_m, max_p, &m, &p);
- 		rate = *parent_rate / p / m;
- 	} else {
+ #define STM32F7_I2C_DNF_DEFAULT			0
+-#define STM32F7_I2C_DNF_MAX			16
++#define STM32F7_I2C_DNF_MAX			15
+ 
+ #define STM32F7_I2C_ANALOG_FILTER_ENABLE	1
+ #define STM32F7_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
+@@ -725,6 +727,13 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
+ 	else
+ 		stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
+ 				     STM32F7_I2C_CR1_ANFOFF);
++
++	/* Program the Digital Filter */
++	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
++			     STM32F7_I2C_CR1_DNF_MASK);
++	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
++			     STM32F7_I2C_CR1_DNF(i2c_dev->setup.dnf));
++
+ 	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
+ 			     STM32F7_I2C_CR1_PE);
+ }
 -- 
 2.27.0
 
