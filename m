@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070A031BD0C
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA7131BC96
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbhBOPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:39:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
+        id S231172AbhBOPbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:31:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231390AbhBOPhV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20C5F64E94;
-        Mon, 15 Feb 2021 15:32:28 +0000 (UTC)
+        id S231184AbhBOPay (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:30:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B3C64DBA;
+        Mon, 15 Feb 2021 15:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403149;
-        bh=N7iQosL3JKwRkW9ldYYAmSXSbyFJasnEVSlivJd289U=;
+        s=korg; t=1613402949;
+        bh=/oBINWDiQUGltYOyt7yACtw2wC0EBHA8BV2LQVzw+3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRhmDT4XcTNkx+GTKs3m+RgRkH9762IbpJaWmPnlz22ZaLv1FxVBhFlhaIgjzSX3c
-         xRqZJxom8BbSiCu2rdyb0I34dadg76ffvoDEBHDpWntzb6AMltEacSyogq43mRcLDG
-         8xYn5cFnH+lZjXKJ3xvDr6NR7tboR79VxEzGg7v0=
+        b=1ZphGjU3bpajD8jLBIGPeQo7usNiDprjtQKZGxkUWNMwwA7ry01huUDZAlNSY5Aqt
+         gMCqJ/IQW9FZa1V6kFr5cKTMa+Tw90KKA6PIHuOxa4NNaXKCAYZDXYOtU0gMe5IlSi
+         F4iFzGERTspUp/ZrzWlsC9cBq7jyht4azRrs/NAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.10 047/104] lkdtm: dont move ctors to .rodata
-Date:   Mon, 15 Feb 2021 16:27:00 +0100
-Message-Id: <20210215152720.995680282@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Labriola <michael.d.labriola@gmail.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/60] ovl: skip getxattr of security labels
+Date:   Mon, 15 Feb 2021 16:27:01 +0100
+Message-Id: <20210215152715.799220993@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 3f618ab3323407ee4c6a6734a37eb6e9663ebfb9 upstream.
+[ Upstream commit 03fedf93593c82538b18476d8c4f0e8f8435ea70 ]
 
-When building with KASAN and LKDTM, clang may implictly generate an
-asan.module_ctor function in the LKDTM rodata object. The Makefile moves
-the lkdtm_rodata_do_nothing() function into .rodata by renaming the
-file's .text section to .rodata, and consequently also moves the ctor
-function into .rodata, leading to a boot time crash (splat below) when
-the ctor is invoked by do_ctors().
+When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
+calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
+intercept in inode_getxattr hooks.
 
-Let's prevent this by marking the function as noinstr rather than
-notrace, and renaming the file's .noinstr.text to .rodata. Marking the
-function as noinstr will prevent tracing and kprobes, and will inhibit
-any undesireable compiler instrumentation.
+When selinux LSM is installed but not initialized, it will list the
+security.selinux xattr in inode_listsecurity, but will not intercept it
+in inode_getxattr.  This results in -ENODATA for a getxattr call for an
+xattr returned by listxattr.
 
-The ctor function (if any) will be placed in .text and will work
-correctly.
+This situation was manifested as overlayfs failure to copy up lower
+files from squashfs when selinux is built-in but not initialized,
+because ovl_copy_xattr() iterates the lower inode xattrs by
+vfs_listxattr() and vfs_getxattr().
 
-Example splat before this patch is applied:
+ovl_copy_xattr() skips copy up of security labels that are indentified by
+inode_copy_up_xattr LSM hooks, but it does that after vfs_getxattr().
+Since we are not going to copy them, skip vfs_getxattr() of the security
+labels.
 
-[    0.916359] Unable to handle kernel execute from non-executable memory at virtual address ffffa0006b60f5ac
-[    0.922088] Mem abort info:
-[    0.922828]   ESR = 0x8600000e
-[    0.923635]   EC = 0x21: IABT (current EL), IL = 32 bits
-[    0.925036]   SET = 0, FnV = 0
-[    0.925838]   EA = 0, S1PTW = 0
-[    0.926714] swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000427b3000
-[    0.928489] [ffffa0006b60f5ac] pgd=000000023ffff003, p4d=000000023ffff003, pud=000000023fffe003, pmd=0068000042000f01
-[    0.931330] Internal error: Oops: 8600000e [#1] PREEMPT SMP
-[    0.932806] Modules linked in:
-[    0.933617] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-rc7 #2
-[    0.935620] Hardware name: linux,dummy-virt (DT)
-[    0.936924] pstate: 40400005 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-[    0.938609] pc : asan.module_ctor+0x0/0x14
-[    0.939759] lr : do_basic_setup+0x4c/0x70
-[    0.940889] sp : ffff27b600177e30
-[    0.941815] x29: ffff27b600177e30 x28: 0000000000000000
-[    0.943306] x27: 0000000000000000 x26: 0000000000000000
-[    0.944803] x25: 0000000000000000 x24: 0000000000000000
-[    0.946289] x23: 0000000000000001 x22: 0000000000000000
-[    0.947777] x21: ffffa0006bf4a890 x20: ffffa0006befb6c0
-[    0.949271] x19: ffffa0006bef9358 x18: 0000000000000068
-[    0.950756] x17: fffffffffffffff8 x16: 0000000000000000
-[    0.952246] x15: 0000000000000000 x14: 0000000000000000
-[    0.953734] x13: 00000000838a16d5 x12: 0000000000000001
-[    0.955223] x11: ffff94000da74041 x10: dfffa00000000000
-[    0.956715] x9 : 0000000000000000 x8 : ffffa0006b60f5ac
-[    0.958199] x7 : f9f9f9f9f9f9f9f9 x6 : 000000000000003f
-[    0.959683] x5 : 0000000000000040 x4 : 0000000000000000
-[    0.961178] x3 : ffffa0006bdc15a0 x2 : 0000000000000005
-[    0.962662] x1 : 00000000000000f9 x0 : ffffa0006bef9350
-[    0.964155] Call trace:
-[    0.964844]  asan.module_ctor+0x0/0x14
-[    0.965895]  kernel_init_freeable+0x158/0x198
-[    0.967115]  kernel_init+0x14/0x19c
-[    0.968104]  ret_from_fork+0x10/0x30
-[    0.969110] Code: 00000003 00000000 00000000 00000000 (00000000)
-[    0.970815] ---[ end trace b5339784e20d015c ]---
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Kees Cook <keescook@chromium.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20201207170533.10738-1-mark.rutland@arm.com
-Cc: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
+Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
+Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/Makefile |    2 +-
- drivers/misc/lkdtm/rodata.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/overlayfs/copy_up.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/misc/lkdtm/Makefile
-+++ b/drivers/misc/lkdtm/Makefile
-@@ -16,7 +16,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
+diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+index ec5eca5a96f41..7b758d623b5bd 100644
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -76,6 +76,14 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
  
- OBJCOPYFLAGS :=
- OBJCOPYFLAGS_rodata_objcopy.o	:= \
--			--rename-section .text=.rodata,alloc,readonly,load
-+			--rename-section .noinstr.text=.rodata,alloc,readonly,load
- targets += rodata.o rodata_objcopy.o
- $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
- 	$(call if_changed,objcopy)
---- a/drivers/misc/lkdtm/rodata.c
-+++ b/drivers/misc/lkdtm/rodata.c
-@@ -5,7 +5,7 @@
-  */
- #include "lkdtm.h"
+ 		if (ovl_is_private_xattr(name))
+ 			continue;
++
++		error = security_inode_copy_up_xattr(name);
++		if (error < 0 && error != -EOPNOTSUPP)
++			break;
++		if (error == 1) {
++			error = 0;
++			continue; /* Discard */
++		}
+ retry:
+ 		size = vfs_getxattr(old, name, value, value_size);
+ 		if (size == -ERANGE)
+@@ -99,13 +107,6 @@ retry:
+ 			goto retry;
+ 		}
  
--void notrace lkdtm_rodata_do_nothing(void)
-+void noinstr lkdtm_rodata_do_nothing(void)
- {
- 	/* Does nothing. We just want an architecture agnostic "return". */
- }
+-		error = security_inode_copy_up_xattr(name);
+-		if (error < 0 && error != -EOPNOTSUPP)
+-			break;
+-		if (error == 1) {
+-			error = 0;
+-			continue; /* Discard */
+-		}
+ 		error = vfs_setxattr(new, name, value, size, 0);
+ 		if (error)
+ 			break;
+-- 
+2.27.0
+
 
 
