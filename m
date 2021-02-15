@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CCF31BD3C
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4252B31BCC4
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbhBOPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
+        id S230443AbhBOPfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:35:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230223AbhBOPiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:38:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69EF064EF5;
-        Mon, 15 Feb 2021 15:34:30 +0000 (UTC)
+        id S230494AbhBOPdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:33:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DB764EB3;
+        Mon, 15 Feb 2021 15:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403271;
-        bh=CqKua+9AC4BBzGT223pySJUvNsv/Q9xQ2IvYXgmVfvs=;
+        s=korg; t=1613403022;
+        bh=QDBg45RFT+SOm/lag6l4rj0iybT9eBugjWUvyOd+7iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJzlntPC3PryPfx7sJ0sRZgQkZaVxnUX/QoRdjrIQLJpURqMa5dIJPGd9+dXlRWPo
-         mGj+jsXlFXC5cVDuaNDC0BzICgfYZrBcL45Pfq0LSY/tJgHzi4LCTMdB4XtK2PE3pt
-         nw856qKnrZOpGG6Au524FIOZzyouOaId11XiDwCQ=
+        b=DxVzB8Bz/zsHEqNuOK3si8c3LmxY/dgOcYNdH+z3K5g7qBT8sHkZdS01LpB+lbH3n
+         VMNTLqqRE53iPLXDoKXjuxJgJCCmqGKhC44na1OGfZlYSpCnzHY4JHG5wftG1z3oDj
+         PaBqu7eZffPvvjv724qwkyJ+h6ZrLi1q0RuO/Kuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        NeilBrown <neilb@suse.de>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+c2a7e5c5211605a90865@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 093/104] net: fix iteration for sctp transport seq_files
-Date:   Mon, 15 Feb 2021 16:27:46 +0100
-Message-Id: <20210215152722.460127927@linuxfoundation.org>
+Subject: [PATCH 5.4 59/60] net/qrtr: restrict user-controlled length in qrtr_tun_write_iter()
+Date:   Mon, 15 Feb 2021 16:27:47 +0100
+Message-Id: <20210215152717.273523982@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-commit af8085f3a4712c57d0dd415ad543bac85780375c upstream.
+commit 2a80c15812372e554474b1dba0b1d8e467af295d upstream.
 
-The sctp transport seq_file iterators take a reference to the transport
-in the ->start and ->next functions and releases the reference in the
-->show function.  The preferred handling for such resources is to
-release them in the subsequent ->next or ->stop function call.
+syzbot found WARNING in qrtr_tun_write_iter [1] when write_iter length
+exceeds KMALLOC_MAX_SIZE causing order >= MAX_ORDER condition.
 
-Since Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration
-code and interface") there is no guarantee that ->show will be called
-after ->next, so this function can now leak references.
+Additionally, there is no check for 0 length write.
 
-So move the sctp_transport_put() call to ->next and ->stop.
+[1]
+WARNING: mm/page_alloc.c:5011
+[..]
+Call Trace:
+ alloc_pages_current+0x18c/0x2a0 mm/mempolicy.c:2267
+ alloc_pages include/linux/gfp.h:547 [inline]
+ kmalloc_order+0x2e/0xb0 mm/slab_common.c:837
+ kmalloc_order_trace+0x14/0x120 mm/slab_common.c:853
+ kmalloc include/linux/slab.h:557 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ qrtr_tun_write_iter+0x8a/0x180 net/qrtr/tun.c:83
+ call_write_iter include/linux/fs.h:1901 [inline]
 
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-Reported-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Reported-by: syzbot+c2a7e5c5211605a90865@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Link: https://lore.kernel.org/r/20210202092059.1361381-1-snovitoll@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/proc.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/qrtr/tun.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/sctp/proc.c
-+++ b/net/sctp/proc.c
-@@ -215,6 +215,12 @@ static void sctp_transport_seq_stop(stru
- {
- 	struct sctp_ht_iter *iter = seq->private;
+--- a/net/qrtr/tun.c
++++ b/net/qrtr/tun.c
+@@ -80,6 +80,12 @@ static ssize_t qrtr_tun_write_iter(struc
+ 	ssize_t ret;
+ 	void *kbuf;
  
-+	if (v && v != SEQ_START_TOKEN) {
-+		struct sctp_transport *transport = v;
++	if (!len)
++		return -EINVAL;
 +
-+		sctp_transport_put(transport);
-+	}
++	if (len > KMALLOC_MAX_SIZE)
++		return -ENOMEM;
 +
- 	sctp_transport_walk_stop(&iter->hti);
- }
- 
-@@ -222,6 +228,12 @@ static void *sctp_transport_seq_next(str
- {
- 	struct sctp_ht_iter *iter = seq->private;
- 
-+	if (v && v != SEQ_START_TOKEN) {
-+		struct sctp_transport *transport = v;
-+
-+		sctp_transport_put(transport);
-+	}
-+
- 	++*pos;
- 
- 	return sctp_transport_get_next(seq_file_net(seq), &iter->hti);
-@@ -277,8 +289,6 @@ static int sctp_assocs_seq_show(struct s
- 		sk->sk_rcvbuf);
- 	seq_printf(seq, "\n");
- 
--	sctp_transport_put(transport);
--
- 	return 0;
- }
- 
-@@ -354,8 +364,6 @@ static int sctp_remaddr_seq_show(struct
- 		seq_printf(seq, "\n");
- 	}
- 
--	sctp_transport_put(transport);
--
- 	return 0;
- }
- 
+ 	kbuf = kzalloc(len, GFP_KERNEL);
+ 	if (!kbuf)
+ 		return -ENOMEM;
 
 
