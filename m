@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF51431BCCF
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8CCF31BD3C
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbhBOPgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:36:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
+        id S231534AbhBOPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231376AbhBOPdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:33:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 891C864E64;
-        Mon, 15 Feb 2021 15:30:45 +0000 (UTC)
+        id S230223AbhBOPiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:38:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69EF064EF5;
+        Mon, 15 Feb 2021 15:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403046;
-        bh=r2yip97vPP4YlZD2qpuCsmsTqFzhko98rZRcExv9fjg=;
+        s=korg; t=1613403271;
+        bh=CqKua+9AC4BBzGT223pySJUvNsv/Q9xQ2IvYXgmVfvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enI9cw1Xz+FMvO2mQWkTALmoipHLemgWgsFq5M8FgUr95U/TzBOgtC0JiEfz2DzV7
-         1InSzc0gkOVE1kPQvysgS6fO+okBGuXqlIyp/XO+Bc0tBQ4RyvyIdh/q0+fIN9qV/G
-         j6+uak/GBRvNvfXsL3A6FqNeU7cnb9FL4dEeR5KQ=
+        b=RJzlntPC3PryPfx7sJ0sRZgQkZaVxnUX/QoRdjrIQLJpURqMa5dIJPGd9+dXlRWPo
+         mGj+jsXlFXC5cVDuaNDC0BzICgfYZrBcL45Pfq0LSY/tJgHzi4LCTMdB4XtK2PE3pt
+         nw856qKnrZOpGG6Au524FIOZzyouOaId11XiDwCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1bd2b07f93745fa38425@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        NeilBrown <neilb@suse.de>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 58/60] net/rds: restrict iovecs length for RDS_CMSG_RDMA_ARGS
+Subject: [PATCH 5.10 093/104] net: fix iteration for sctp transport seq_files
 Date:   Mon, 15 Feb 2021 16:27:46 +0100
-Message-Id: <20210215152717.240042606@linuxfoundation.org>
+Message-Id: <20210215152722.460127927@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-commit a11148e6fcce2ae53f47f0a442d098d860b4f7db upstream.
+commit af8085f3a4712c57d0dd415ad543bac85780375c upstream.
 
-syzbot found WARNING in rds_rdma_extra_size [1] when RDS_CMSG_RDMA_ARGS
-control message is passed with user-controlled
-0x40001 bytes of args->nr_local, causing order >= MAX_ORDER condition.
+The sctp transport seq_file iterators take a reference to the transport
+in the ->start and ->next functions and releases the reference in the
+->show function.  The preferred handling for such resources is to
+release them in the subsequent ->next or ->stop function call.
 
-The exact value 0x40001 can be checked with UIO_MAXIOV which is 0x400.
-So for kcalloc() 0x400 iovecs with sizeof(struct rds_iovec) = 0x10
-is the closest limit, with 0x10 leftover.
+Since Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration
+code and interface") there is no guarantee that ->show will be called
+after ->next, so this function can now leak references.
 
-Same condition is currently done in rds_cmsg_rdma_args().
+So move the sctp_transport_put() call to ->next and ->stop.
 
-[1] WARNING: mm/page_alloc.c:5011
-[..]
-Call Trace:
- alloc_pages_current+0x18c/0x2a0 mm/mempolicy.c:2267
- alloc_pages include/linux/gfp.h:547 [inline]
- kmalloc_order+0x2e/0xb0 mm/slab_common.c:837
- kmalloc_order_trace+0x14/0x120 mm/slab_common.c:853
- kmalloc_array include/linux/slab.h:592 [inline]
- kcalloc include/linux/slab.h:621 [inline]
- rds_rdma_extra_size+0xb2/0x3b0 net/rds/rdma.c:568
- rds_rm_size net/rds/send.c:928 [inline]
-
-Reported-by: syzbot+1bd2b07f93745fa38425@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Link: https://lore.kernel.org/r/20210201203233.1324704-1-snovitoll@gmail.com
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+Reported-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rds/rdma.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sctp/proc.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/net/rds/rdma.c
-+++ b/net/rds/rdma.c
-@@ -532,6 +532,9 @@ int rds_rdma_extra_size(struct rds_rdma_
- 	if (args->nr_local == 0)
- 		return -EINVAL;
+--- a/net/sctp/proc.c
++++ b/net/sctp/proc.c
+@@ -215,6 +215,12 @@ static void sctp_transport_seq_stop(stru
+ {
+ 	struct sctp_ht_iter *iter = seq->private;
  
-+	if (args->nr_local > UIO_MAXIOV)
-+		return -EMSGSIZE;
++	if (v && v != SEQ_START_TOKEN) {
++		struct sctp_transport *transport = v;
 +
- 	iov->iov = kcalloc(args->nr_local,
- 			   sizeof(struct rds_iovec),
- 			   GFP_KERNEL);
++		sctp_transport_put(transport);
++	}
++
+ 	sctp_transport_walk_stop(&iter->hti);
+ }
+ 
+@@ -222,6 +228,12 @@ static void *sctp_transport_seq_next(str
+ {
+ 	struct sctp_ht_iter *iter = seq->private;
+ 
++	if (v && v != SEQ_START_TOKEN) {
++		struct sctp_transport *transport = v;
++
++		sctp_transport_put(transport);
++	}
++
+ 	++*pos;
+ 
+ 	return sctp_transport_get_next(seq_file_net(seq), &iter->hti);
+@@ -277,8 +289,6 @@ static int sctp_assocs_seq_show(struct s
+ 		sk->sk_rcvbuf);
+ 	seq_printf(seq, "\n");
+ 
+-	sctp_transport_put(transport);
+-
+ 	return 0;
+ }
+ 
+@@ -354,8 +364,6 @@ static int sctp_remaddr_seq_show(struct
+ 		seq_printf(seq, "\n");
+ 	}
+ 
+-	sctp_transport_put(transport);
+-
+ 	return 0;
+ }
+ 
 
 
