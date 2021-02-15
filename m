@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409D131BD41
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B507231BD44
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbhBOPnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:43:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49202 "EHLO mail.kernel.org"
+        id S231645AbhBOPnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:43:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231322AbhBOPiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231327AbhBOPiX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 10:38:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F383064EFB;
-        Mon, 15 Feb 2021 15:34:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAED664EFA;
+        Mon, 15 Feb 2021 15:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403286;
-        bh=JKDRT1aG4NKmi0QJGTdK3fJt/hWYLn3Nnfvi7OxVZT4=;
+        s=korg; t=1613403289;
+        bh=Ep7ueRS3pWvf+wcVb/DumE+C/snQ9vS6/p6iQUmTIZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPbwLW3UkRVHZhjqHBN+4iKJimVHsmk4SZLprfrLx/TyKUO/x8s+x6VTxvPK/Ag37
-         6KknqTRly4M5LIosju2vn6QedkYhtlDB7WGpJZFZU1Tv0cISzQjTU2ml0BtgxaHrUq
-         MiXeT1s4B6jYCf7lEUvFrQdLzGqK141jj/1MNB00=
+        b=CgZl1J1kB9dE0a9zsOUOij+22b46HRNWd3mD0ZJJUsWZQVWaCgsdtGhyTFlf5arJC
+         CuTadd+SJuh0UtPG6DjpcoEBQVlQhp9GjqUVtXPyN10MVM9OHUle8A6Lbs+u6Pz0Lw
+         cenEElgRtRoG1bGsz1HxtHxGXFmAEDAEpZZS2cb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 098/104] switchdev: mrp: Remove SWITCHDEV_ATTR_ID_MRP_PORT_STAT
-Date:   Mon, 15 Feb 2021 16:27:51 +0100
-Message-Id: <20210215152722.633343806@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 099/104] vsock/virtio: update credit only if socket is not closed
+Date:   Mon, 15 Feb 2021 16:27:52 +0100
+Message-Id: <20210215152722.667509924@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -40,39 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit 059d2a1004981dce19f0127dabc1b4ec927d202a upstream.
+commit ce7536bc7398e2ae552d2fabb7e0e371a9f1fe46 upstream.
 
-Now that MRP started to use also SWITCHDEV_ATTR_ID_PORT_STP_STATE to
-notify HW, then SWITCHDEV_ATTR_ID_MRP_PORT_STAT is not used anywhere
-else, therefore we can remove it.
+If the socket is closed or is being released, some resources used by
+virtio_transport_space_update() such as 'vsk->trans' may be released.
 
-Fixes: c284b545900830 ("switchdev: mrp: Extend switchdev API to offload MRP")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To avoid a use after free bug we should only update the available credit
+when we are sure the socket is still open and we have the lock held.
+
+Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20210208144454.84438-1-sgarzare@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/switchdev.h |    2 --
- 1 file changed, 2 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -41,7 +41,6 @@ enum switchdev_attr_id {
- 	SWITCHDEV_ATTR_ID_BRIDGE_MC_DISABLED,
- 	SWITCHDEV_ATTR_ID_BRIDGE_MROUTER,
- #if IS_ENABLED(CONFIG_BRIDGE_MRP)
--	SWITCHDEV_ATTR_ID_MRP_PORT_STATE,
- 	SWITCHDEV_ATTR_ID_MRP_PORT_ROLE,
- #endif
- };
-@@ -60,7 +59,6 @@ struct switchdev_attr {
- 		bool vlan_filtering;			/* BRIDGE_VLAN_FILTERING */
- 		bool mc_disabled;			/* MC_DISABLED */
- #if IS_ENABLED(CONFIG_BRIDGE_MRP)
--		u8 mrp_port_state;			/* MRP_PORT_STATE */
- 		u8 mrp_port_role;			/* MRP_PORT_ROLE */
- #endif
- 	} u;
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1130,8 +1130,6 @@ void virtio_transport_recv_pkt(struct vi
+ 
+ 	vsk = vsock_sk(sk);
+ 
+-	space_available = virtio_transport_space_update(sk, pkt);
+-
+ 	lock_sock(sk);
+ 
+ 	/* Check if sk has been closed before lock_sock */
+@@ -1142,6 +1140,8 @@ void virtio_transport_recv_pkt(struct vi
+ 		goto free_pkt;
+ 	}
+ 
++	space_available = virtio_transport_space_update(sk, pkt);
++
+ 	/* Update CID in case it has changed after a transport reset event */
+ 	vsk->local_addr.svm_cid = dst.svm_cid;
+ 
 
 
