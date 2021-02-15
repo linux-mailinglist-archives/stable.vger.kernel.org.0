@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4166C31BD34
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B376631BCC5
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbhBOPmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:42:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
+        id S230231AbhBOPfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:35:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230396AbhBOPiI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:38:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71C8B64EEF;
-        Mon, 15 Feb 2021 15:34:09 +0000 (UTC)
+        id S230438AbhBOPdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:33:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A054764EAF;
+        Mon, 15 Feb 2021 15:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403250;
-        bh=rJ3cqbEgNSmAErDCZ7J+vtEJej8rLb/DxMwN4DWhHaA=;
+        s=korg; t=1613403020;
+        bh=xYSyYs1Q1r9aVnYKzKuFGV7yvk31Rvzr/CGCdDIT7RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1gZXAKgJZOfsHRsMW2Nf2nVJ7s81rnG5T3nT7rZ2Wyyv+ti71arLYb4rXNLlbItL
-         mHljBYdk8zJIbBDwZ4rRUgsQnH0HGp2WjclguqnwDwYwH8hiAkt+GPD3iibuESdgvn
-         dRhlFZhfB8XMQMJmkzeEMpY6ni5bZCx80+EE8zCA=
+        b=XM7iGTVeW71jFBbhPF6wJbQzmDY8cd6ZkRVqysTPqxFdDjg53YH78BXVfA/PJlt7b
+         bFHK9Hm/VCIYm9sndsh9TwImuiJsYRjbnAFA4kCmyI3Is2dGGz/XcJELlXz1aRqnDP
+         LHk+4ICcYjdIDZZXn96XvoN7FSs4u/++7AUfp41Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 085/104] x86/pci: Create PCI/MSI irqdomain after x86_init.pci.arch_init()
+        stable@vger.kernel.org, Oliver Graute <oliver.graute@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 50/60] udp: fix skb_copy_and_csum_datagram with odd segment sizes
 Date:   Mon, 15 Feb 2021 16:27:38 +0100
-Message-Id: <20210215152722.200008050@linuxfoundation.org>
+Message-Id: <20210215152716.980123815@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +42,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 70245f86c109e0eafb92ea9653184c0e44b4b35c upstream.
+commit 52cbd23a119c6ebf40a527e53f3402d2ea38eccb upstream.
 
-Invoking x86_init.irqs.create_pci_msi_domain() before
-x86_init.pci.arch_init() breaks XEN PV.
+When iteratively computing a checksum with csum_block_add, track the
+offset "pos" to correctly rotate in csum_block_add when offset is odd.
 
-The XEN_PV specific pci.arch_init() function overrides the default
-create_pci_msi_domain() which is obviously too late.
+The open coded implementation of skb_copy_and_csum_datagram did this.
+With the switch to __skb_datagram_iter calling csum_and_copy_to_iter,
+pos was reinitialized to 0 on each call.
 
-As a consequence the XEN PV PCI/MSI allocation goes through the native
-path which runs out of vectors and causes malfunction.
+Bring back the pos by passing it along with the csum to the callback.
 
-Invoke it after x86_init.pci.arch_init().
+Changes v1->v2
+  - pass csum value, instead of csump pointer (Alexander Duyck)
 
-Fixes: 6b15ffa07dc3 ("x86/irq: Initialize PCI/MSI domain at PCI init time")
-Reported-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Juergen Gross <jgross@suse.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87pn18djte.fsf@nanos.tec.linutronix.de
+Link: https://lore.kernel.org/netdev/20210128152353.GB27281@optiplex/
+Fixes: 950fcaecd5cc ("datagram: consolidate datagram copy to iter helpers")
+Reported-by: Oliver Graute <oliver.graute@gmail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210203192952.1849843-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/pci/init.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ include/linux/uio.h |    8 +++++++-
+ lib/iov_iter.c      |   24 ++++++++++++++----------
+ net/core/datagram.c |   12 ++++++++++--
+ 3 files changed, 31 insertions(+), 13 deletions(-)
 
---- a/arch/x86/pci/init.c
-+++ b/arch/x86/pci/init.c
-@@ -9,16 +9,23 @@
-    in the right sequence from here. */
- static __init int pci_arch_init(void)
+--- a/include/linux/uio.h
++++ b/include/linux/uio.h
+@@ -261,7 +261,13 @@ static inline void iov_iter_reexpand(str
  {
--	int type;
--
--	x86_create_pci_msi_domain();
-+	int type, pcbios = 1;
- 
- 	type = pci_direct_probe();
- 
- 	if (!(pci_probe & PCI_PROBE_NOEARLY))
- 		pci_mmcfg_early_init();
- 
--	if (x86_init.pci.arch_init && !x86_init.pci.arch_init())
-+	if (x86_init.pci.arch_init)
-+		pcbios = x86_init.pci.arch_init();
+ 	i->count = count;
+ }
+-size_t csum_and_copy_to_iter(const void *addr, size_t bytes, void *csump, struct iov_iter *i);
 +
-+	/*
-+	 * Must happen after x86_init.pci.arch_init(). Xen sets up the
-+	 * x86_init.irqs.create_pci_msi_domain there.
-+	 */
-+	x86_create_pci_msi_domain();
++struct csum_state {
++	__wsum csum;
++	size_t off;
++};
 +
-+	if (!pcbios)
++size_t csum_and_copy_to_iter(const void *addr, size_t bytes, void *csstate, struct iov_iter *i);
+ size_t csum_and_copy_from_iter(void *addr, size_t bytes, __wsum *csum, struct iov_iter *i);
+ bool csum_and_copy_from_iter_full(void *addr, size_t bytes, __wsum *csum, struct iov_iter *i);
+ size_t hash_and_copy_to_iter(const void *addr, size_t bytes, void *hashp,
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -570,12 +570,13 @@ static __wsum csum_and_memcpy(void *to,
+ }
+ 
+ static size_t csum_and_copy_to_pipe_iter(const void *addr, size_t bytes,
+-				__wsum *csum, struct iov_iter *i)
++					 struct csum_state *csstate,
++					 struct iov_iter *i)
+ {
+ 	struct pipe_inode_info *pipe = i->pipe;
++	__wsum sum = csstate->csum;
++	size_t off = csstate->off;
+ 	size_t n, r;
+-	size_t off = 0;
+-	__wsum sum = *csum;
+ 	int idx;
+ 
+ 	if (!sanity(i))
+@@ -596,7 +597,8 @@ static size_t csum_and_copy_to_pipe_iter
+ 		addr += chunk;
+ 	}
+ 	i->count -= bytes;
+-	*csum = sum;
++	csstate->csum = sum;
++	csstate->off = off;
+ 	return bytes;
+ }
+ 
+@@ -1484,18 +1486,19 @@ bool csum_and_copy_from_iter_full(void *
+ }
+ EXPORT_SYMBOL(csum_and_copy_from_iter_full);
+ 
+-size_t csum_and_copy_to_iter(const void *addr, size_t bytes, void *csump,
++size_t csum_and_copy_to_iter(const void *addr, size_t bytes, void *_csstate,
+ 			     struct iov_iter *i)
+ {
++	struct csum_state *csstate = _csstate;
+ 	const char *from = addr;
+-	__wsum *csum = csump;
+ 	__wsum sum, next;
+-	size_t off = 0;
++	size_t off;
+ 
+ 	if (unlikely(iov_iter_is_pipe(i)))
+-		return csum_and_copy_to_pipe_iter(addr, bytes, csum, i);
++		return csum_and_copy_to_pipe_iter(addr, bytes, _csstate, i);
+ 
+-	sum = *csum;
++	sum = csstate->csum;
++	off = csstate->off;
+ 	if (unlikely(iov_iter_is_discard(i))) {
+ 		WARN_ON(1);	/* for now */
  		return 0;
+@@ -1524,7 +1527,8 @@ size_t csum_and_copy_to_iter(const void
+ 		off += v.iov_len;
+ 	})
+ 	)
+-	*csum = sum;
++	csstate->csum = sum;
++	csstate->off = off;
+ 	return bytes;
+ }
+ EXPORT_SYMBOL(csum_and_copy_to_iter);
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -700,8 +700,16 @@ static int skb_copy_and_csum_datagram(co
+ 				      struct iov_iter *to, int len,
+ 				      __wsum *csump)
+ {
+-	return __skb_datagram_iter(skb, offset, to, len, true,
+-			csum_and_copy_to_iter, csump);
++	struct csum_state csdata = { .csum = *csump };
++	int ret;
++
++	ret = __skb_datagram_iter(skb, offset, to, len, true,
++				  csum_and_copy_to_iter, &csdata);
++	if (ret)
++		return ret;
++
++	*csump = csdata.csum;
++	return 0;
+ }
  
- 	pci_pcbios_init();
+ /**
 
 
