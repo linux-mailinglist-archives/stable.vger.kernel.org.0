@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D747A31BD29
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37AE631BC86
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231524AbhBOPlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:41:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50362 "EHLO mail.kernel.org"
+        id S231182AbhBOPax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:30:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231569AbhBOPiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:38:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B819764EE5;
-        Mon, 15 Feb 2021 15:33:47 +0000 (UTC)
+        id S230295AbhBOP3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:29:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D4864E40;
+        Mon, 15 Feb 2021 15:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403228;
-        bh=Sg1viS9T1qX7q/DGhQ1LBwL/pdHKMdZ+oy6b1PRCgVA=;
+        s=korg; t=1613402904;
+        bh=SFH41UuPb7XtnofRcWtjtIekGzKQlQOefDC+q8pl4SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2M7A1NLm6pjaAm4Wyjw6wjlBvyCQsgXtpEtNzb0fwIls+pc0+iGOkiIpIDggxN0rt
-         BJOKCBJWqsdNr2Z0MIEV9G/heJ6Dq8B88QabjgL3BELXjh6wqFI6vW8ZgbGGEUeT1/
-         OOpy2Ds59eX5UMnrcmwxP5nXknf+5/RQX083rPvo=
+        b=pkju7FKgK9iH5JAthlqpmNktgjLou6KbWClTIhjVQowL+LHs8Ha3Y6OIck91Kyzcn
+         TQ1BBCHgdYcTw8sUYtc7jG6XCZ/mdfmuamotZSp95y80O2SHzUwdsyLQv4RwykNlQY
+         L7F7IzPUrSz6zv95+H5Ua27dvGf5fuWyvxWeiCao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/104] kallsyms: fix nonconverging kallsyms table with lld
+        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
+        Julien Grall <jgrall@amazon.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 05/60] arm/xen: Dont probe xenbus as part of an early initcall
 Date:   Mon, 15 Feb 2021 16:26:53 +0100
-Message-Id: <20210215152720.772794406@linuxfoundation.org>
+Message-Id: <20210215152715.564530615@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Julien Grall <jgrall@amazon.com>
 
-[ Upstream commit efe6e3068067212b85c2d0474b5ee3b2d0c7adab ]
+commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
 
-ARM randconfig builds with lld sometimes show a build failure
-from kallsyms:
+After Commit 3499ba8198cad ("xen: Fix event channel callback via
+INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
+recent to a guest hang during boot.
 
-  Inconsistent kallsyms data
-  Try make KALLSYMS_EXTRA_PASS=1 as a workaround
+If the hang wasn't there, we would have ended up to call
+xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
 
-The problem is the veneers/thunks getting added by the linker extend
-the symbol table, which in turn leads to more veneers being needed,
-so it may take a few extra iterations to converge.
+We don't need to initialize xenbus_probe() early for Arm guest.
+Therefore, the call in xen_guest_init() is now removed.
 
-This bug has been fixed multiple times before, but comes back every time
-a new symbol name is used. lld uses a different set of identifiers from
-ld.bfd, so the additional ones need to be added as well.
+After this change, there is no more external caller for xenbus_probe().
+So the function is turned to a static one. Interestingly there were two
+prototypes for it.
 
-I looked through the sources and found that arm64 and mips define similar
-prefixes, so I'm adding those as well, aside from the ones I observed. I'm
-not sure about powerpc64, which seems to already be handled through a
-section match, but if it comes back, the "__long_branch_" and "__plt_"
-prefixes would have to get added as well.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
+Reported-by: Ian Jackson <iwj@xenproject.org>
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/kallsyms.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/xen/enlighten.c          |    2 --
+ drivers/xen/xenbus/xenbus.h       |    1 -
+ drivers/xen/xenbus/xenbus_probe.c |    2 +-
+ include/xen/xenbus.h              |    2 --
+ 4 files changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
-index 7ecd2ccba531b..54ad86d137849 100644
---- a/scripts/kallsyms.c
-+++ b/scripts/kallsyms.c
-@@ -112,6 +112,12 @@ static bool is_ignored_symbol(const char *name, char type)
- 		"__crc_",		/* modversions */
- 		"__efistub_",		/* arm64 EFI stub namespace */
- 		"__kvm_nvhe_",		/* arm64 non-VHE KVM namespace */
-+		"__AArch64ADRPThunk_",	/* arm64 lld */
-+		"__ARMV5PILongThunk_",	/* arm lld */
-+		"__ARMV7PILongThunk_",
-+		"__ThumbV7PILongThunk_",
-+		"__LA25Thunk_",		/* mips lld */
-+		"__microLA25Thunk_",
- 		NULL
- 	};
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -370,8 +370,6 @@ static int __init xen_guest_init(void)
+ 		return -ENOMEM;
+ 	}
+ 	gnttab_init();
+-	if (!xen_initial_domain())
+-		xenbus_probe();
  
--- 
-2.27.0
-
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -115,7 +115,6 @@ int xenbus_probe_node(struct xen_bus_typ
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
+-void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -683,7 +683,7 @@ void unregister_xenstore_notifier(struct
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
+ 
+-void xenbus_probe(void)
++static void xenbus_probe(void)
+ {
+ 	xenstored_ready = 1;
+ 
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -187,8 +187,6 @@ void xs_suspend_cancel(void);
+ 
+ struct work_struct;
+ 
+-void xenbus_probe(void);
+-
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
+ 		kfree(str);				\
 
 
