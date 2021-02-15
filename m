@@ -2,97 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5DC31BEEE
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 17:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E79831BEB6
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 17:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhBOQVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 11:21:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53260 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231703AbhBOPq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:46:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC7F64EB2;
-        Mon, 15 Feb 2021 15:35:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403302;
-        bh=IwpvTOBV/qBSb/D4GNBQPatO473ds64g9Ir3Kza9X0Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwH+nKfOnDg3tLNklLKCzHRM8ytYacWEgig+5Gf9D7ji/0OdeSADkI18nbP73SSvs
-         GKU1GMjZGTf7NQrqnxYy+vwK5BdgH8tPk4fIXiIAJ18dbMX/xazc6CsOFol3wVNtFT
-         ZgUAFNcMy8vBe9AE/izmOfg/7cs/By6KOqnIddxE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+        id S232142AbhBOQQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 11:16:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:36421 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230349AbhBOP7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 10:59:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613404698;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=c6jv3nP+7Q06U4+toIFOfwOxFo1g4xAmXkGnBLIkfoE=;
+        b=a5UjVgdGpinU5lo41acwy4bdNya0qQUWijK3uAk6g7tucWTO+v/bcpibnpRfJN4URLrdKI
+        I0Kyvo19wTrlQtrtyh17CD2U/kpYLAe3kHUrzDeLi0GwkFsBVs5wMa+HKLUmYvCmQXS29d
+        /8uXq+SZHQWIdBYzh3rVQrvfRTH1wls=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-518-zltMbELtNOuUs49q07VJ3g-1; Mon, 15 Feb 2021 10:58:14 -0500
+X-MC-Unique: zltMbELtNOuUs49q07VJ3g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7179B107ACC7;
+        Mon, 15 Feb 2021 15:58:10 +0000 (UTC)
+Received: from treble (ovpn-120-169.rdu2.redhat.com [10.10.120.169])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6E02919CAB;
+        Mon, 15 Feb 2021 15:58:08 +0000 (UTC)
+Date:   Mon, 15 Feb 2021 09:58:06 -0600
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>,
-        Andrey Konovalov <andreyknvl@google.com>
-Subject: [PATCH 5.10 104/104] kcov, usb: only collect coverage from __usb_hcd_giveback_urb in softirq
-Date:   Mon, 15 Feb 2021 16:27:57 +0100
-Message-Id: <20210215152722.828789915@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
-User-Agent: quilt/0.66
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Xi Ruoyao <xry111@mengyan1223.wang>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Arnd Bergmann <arnd@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-tip-commits@vger.kernel.org
+Subject: Re: [tip: objtool/urgent] objtool: Fix seg fault with Clang
+ non-section symbols
+Message-ID: <20210215155806.bjcouvmkapj4pa4y@treble>
+References: <CAKwvOd=GHdkvAU3u6ROSgtGqC_wrkXo8siL1nZHE-qsqSx0gsw@mail.gmail.com>
+ <YCafKVSTX9MxDBMd@kroah.com>
+ <20210212170750.y7xtitigfqzpchqd@treble>
+ <20210212124547.1dcf067e@gandalf.local.home>
+ <YCfdfkoeh8i0baCj@kroah.com>
+ <20210213091304.2dd51e5f@oasis.local.home>
+ <20210213155203.lehuegwc3h42nebs@treble>
+ <YCf9bnsmXqRGMn+j@kroah.com>
+ <20210214155147.3owdimqv2lyhu6by@treble>
+ <20210215095307.6f5fb12f@gandalf.local.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210215095307.6f5fb12f@gandalf.local.home>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+On Mon, Feb 15, 2021 at 09:53:07AM -0500, Steven Rostedt wrote:
+> On Sun, 14 Feb 2021 09:51:47 -0600
+> Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> 
+> > Steve, looks like recordmcount avoids referencing weak symbols directly
+> > by their function symbol.  Maybe it can just skip weak symbols which
+> > don't have a section symbol, since this seems like a rare scenario.
+> 
+> When does the .text.unlikely section disappear? During the creation of the
+> object, or later in the linker stage?
 
-commit aee9ddb1d3718d3ba05b50c51622d7792ae749c9 upstream.
+The section is there, but the symbol associated with the section
+(".text.unlikely" symbol) isn't generated by the assembler.
 
-Currently there's a KCOV remote coverage collection section in
-__usb_hcd_giveback_urb(). Initially that section was added based on the
-assumption that usb_hcd_giveback_urb() can only be called in interrupt
-context as indicated by a comment before it. This is what happens when
-syzkaller is fuzzing the USB stack via the dummy_hcd driver.
-
-As it turns out, it's actually valid to call usb_hcd_giveback_urb() in task
-context, provided that the caller turned off the interrupts; USB/IP does
-exactly that. This can lead to a nested KCOV remote coverage collection
-sections both trying to collect coverage in task context. This isn't
-supported by KCOV, and leads to a WARNING.
-
-Change __usb_hcd_giveback_urb() to only call kcov_remote_*() callbacks
-when it's being executed in a softirq. As the result, the coverage from
-USB/IP related usb_hcd_giveback_urb() calls won't be collected, but the
-WARNING is fixed.
-
-A potential future improvement would be to support nested remote coverage
-collection sections, but this patch doesn't address that.
-
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Link: https://lore.kernel.org/r/f3a7a153f0719cb53ec385b16e912798bd3e4cf9.1602856358.git.andreyknvl@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hcd.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1646,9 +1646,16 @@ static void __usb_hcd_giveback_urb(struc
- 
- 	/* pass ownership to the completion handler */
- 	urb->status = status;
--	kcov_remote_start_usb((u64)urb->dev->bus->busnum);
-+	/*
-+	 * This function can be called in task context inside another remote
-+	 * coverage collection section, but KCOV doesn't support that kind of
-+	 * recursion yet. Only collect coverage in softirq context for now.
-+	 */
-+	if (in_serving_softirq())
-+		kcov_remote_start_usb((u64)urb->dev->bus->busnum);
- 	urb->complete(urb);
--	kcov_remote_stop();
-+	if (in_serving_softirq())
-+		kcov_remote_stop();
- 
- 	usb_anchor_resume_wakeups(anchor);
- 	atomic_dec(&urb->use_count);
-
+-- 
+Josh
 
