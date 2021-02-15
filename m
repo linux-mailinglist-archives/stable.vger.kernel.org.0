@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FC331BD00
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E04131BC78
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231130AbhBOPiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:38:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
+        id S230500AbhBOP3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:29:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231366AbhBOPhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECC6A600EF;
-        Mon, 15 Feb 2021 15:32:23 +0000 (UTC)
+        id S230506AbhBOP25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:28:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFD51600EF;
+        Mon, 15 Feb 2021 15:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403144;
-        bh=ft/YBWz1t9UpptJmcSTd20AycxE77gRkYFZxdGCheSs=;
+        s=korg; t=1613402896;
+        bh=X7wy2ezr0jlJfmnwzBG6RnKatBfbh3Fb17dTcH/L8KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVgdAeuT/cphymnYGk1HUBEEMlbjEKw1e+UtGds5VdSwcJdmMbcCm1clo3cOLnrBT
-         m1xCz5NPbe92S77cvUrQPu3RzHNKAPiIHC0UcIMCCHQeK9BVnJXpgUq2El1f9ahXXr
-         4vjPcShFVcWiM9QLEeHgzzsPxbNOZXX/mcBcvGu0=
+        b=QeoG5EJCOUm6Fn2377bkkixvkzcrgGGeVD4ybTkifR67QvcgYYgvUFBV6e0pkAYgo
+         hUJxtvBi6QislAE+aDlHhFoWpz8GMVRoAcZfqOIfj2krUhn+yyfo4MYawK1yAwVyAW
+         zXYZ3CTlhNZby8X/Tm5Rj+1DNoEj6fNNmtk+DrAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/104] riscv: virt_addr_valid must check the address belongs to linear mapping
+        stable@vger.kernel.org, Nikita Shubin <nikita.shubin@maquefel.me>,
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.4 02/60] gpio: ep93xx: Fix single irqchip with multi gpiochips
 Date:   Mon, 15 Feb 2021 16:26:50 +0100
-Message-Id: <20210215152720.680761820@linuxfoundation.org>
+Message-Id: <20210215152715.476298903@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Nikita Shubin <nikita.shubin@maquefel.me>
 
-[ Upstream commit 2ab543823322b564f205cb15d0f0302803c87d11 ]
+commit 28dc10eb77a2db7681b08e3b109764bbe469e347 upstream.
 
-virt_addr_valid macro checks that a virtual address is valid, ie that
-the address belongs to the linear mapping and that the corresponding
- physical page exists.
+Fixes the following warnings which results in interrupts disabled on
+port B/F:
 
-Add the missing check that ensures the virtual address belongs to the
-linear mapping, otherwise __virt_to_phys, when compiled with
-CONFIG_DEBUG_VIRTUAL enabled, raises a WARN that is interpreted as a
-kernel bug by syzbot.
+gpio gpiochip1: (B): detected irqchip that is shared with multiple gpiochips: please fix the driver.
+gpio gpiochip5: (F): detected irqchip that is shared with multiple gpiochips: please fix the driver.
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- added separate irqchip for each interrupt capable gpiochip
+- provided unique names for each irqchip
+
+Fixes: d2b091961510 ("gpio: ep93xx: Pass irqchip when adding gpiochip")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+Tested-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/page.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-ep93xx.c |   30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
-index 2d50f76efe481..64a675c5c30ac 100644
---- a/arch/riscv/include/asm/page.h
-+++ b/arch/riscv/include/asm/page.h
-@@ -135,7 +135,10 @@ extern phys_addr_t __phys_addr_symbol(unsigned long x);
+--- a/drivers/gpio/gpio-ep93xx.c
++++ b/drivers/gpio/gpio-ep93xx.c
+@@ -38,6 +38,7 @@
+ #define EP93XX_GPIO_F_IRQ_BASE 80
  
- #endif /* __ASSEMBLY__ */
+ struct ep93xx_gpio_irq_chip {
++	struct irq_chip ic;
+ 	u8 irq_offset;
+ 	u8 int_unmasked;
+ 	u8 int_enabled;
+@@ -263,15 +264,6 @@ static int ep93xx_gpio_irq_type(struct i
+ 	return 0;
+ }
  
--#define virt_addr_valid(vaddr)	(pfn_valid(virt_to_pfn(vaddr)))
-+#define virt_addr_valid(vaddr)	({						\
-+	unsigned long _addr = (unsigned long)vaddr;				\
-+	(unsigned long)(_addr) >= PAGE_OFFSET && pfn_valid(virt_to_pfn(_addr));	\
-+})
+-static struct irq_chip ep93xx_gpio_irq_chip = {
+-	.name		= "GPIO",
+-	.irq_ack	= ep93xx_gpio_irq_ack,
+-	.irq_mask_ack	= ep93xx_gpio_irq_mask_ack,
+-	.irq_mask	= ep93xx_gpio_irq_mask,
+-	.irq_unmask	= ep93xx_gpio_irq_unmask,
+-	.irq_set_type	= ep93xx_gpio_irq_type,
+-};
+-
+ /*************************************************************************
+  * gpiolib interface for EP93xx on-chip GPIOs
+  *************************************************************************/
+@@ -331,6 +323,15 @@ static int ep93xx_gpio_f_to_irq(struct g
+ 	return EP93XX_GPIO_F_IRQ_BASE + offset;
+ }
  
- #define VM_DATA_DEFAULT_FLAGS	VM_DATA_FLAGS_NON_EXEC
++static void ep93xx_init_irq_chip(struct device *dev, struct irq_chip *ic)
++{
++	ic->irq_ack = ep93xx_gpio_irq_ack;
++	ic->irq_mask_ack = ep93xx_gpio_irq_mask_ack;
++	ic->irq_mask = ep93xx_gpio_irq_mask;
++	ic->irq_unmask = ep93xx_gpio_irq_unmask;
++	ic->irq_set_type = ep93xx_gpio_irq_type;
++}
++
+ static int ep93xx_gpio_add_bank(struct ep93xx_gpio_chip *egc,
+ 				struct platform_device *pdev,
+ 				struct ep93xx_gpio *epg,
+@@ -352,6 +353,8 @@ static int ep93xx_gpio_add_bank(struct e
  
--- 
-2.27.0
-
+ 	girq = &gc->irq;
+ 	if (bank->has_irq || bank->has_hierarchical_irq) {
++		struct irq_chip *ic;
++
+ 		gc->set_config = ep93xx_gpio_set_config;
+ 		egc->eic = devm_kcalloc(dev, 1,
+ 					sizeof(*egc->eic),
+@@ -359,7 +362,12 @@ static int ep93xx_gpio_add_bank(struct e
+ 		if (!egc->eic)
+ 			return -ENOMEM;
+ 		egc->eic->irq_offset = bank->irq;
+-		girq->chip = &ep93xx_gpio_irq_chip;
++		ic = &egc->eic->ic;
++		ic->name = devm_kasprintf(dev, GFP_KERNEL, "gpio-irq-%s", bank->label);
++		if (!ic->name)
++			return -ENOMEM;
++		ep93xx_init_irq_chip(dev, ic);
++		girq->chip = ic;
+ 	}
+ 
+ 	if (bank->has_irq) {
+@@ -401,7 +409,7 @@ static int ep93xx_gpio_add_bank(struct e
+ 			gpio_irq = EP93XX_GPIO_F_IRQ_BASE + i;
+ 			irq_set_chip_data(gpio_irq, &epg->gc[5]);
+ 			irq_set_chip_and_handler(gpio_irq,
+-						 &ep93xx_gpio_irq_chip,
++						 girq->chip,
+ 						 handle_level_irq);
+ 			irq_clear_status_flags(gpio_irq, IRQ_NOREQUEST);
+ 		}
 
 
