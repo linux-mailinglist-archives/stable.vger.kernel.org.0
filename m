@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77EC31BD0F
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E61631BC77
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbhBOPjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50360 "EHLO mail.kernel.org"
+        id S230526AbhBOP3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:29:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231430AbhBOPhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 371EF64E34;
-        Mon, 15 Feb 2021 15:32:51 +0000 (UTC)
+        id S230509AbhBOP3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:29:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6458A64E34;
+        Mon, 15 Feb 2021 15:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403172;
-        bh=xS1Pt+PYfKUTxEyXn4PYk1P4+dKudPioyWkc7c3XnTw=;
+        s=korg; t=1613402899;
+        bh=jaNdeTeK14iSyDQKo9Y1WRCNgd0hDf2cFfuvNIG1D1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijhbXGzHvVg6T+qF3n8gekTuJeZMpY3dhkrxDXU0z+WN8XLAijrfdT+TQ9/7T7dw3
-         lAp6l3EAYQW4wZxWNktfEJfXVCVttKhivZIUXkejeiPTERNPkimgjKmHYvUBCyyOeg
-         EZ6w9UNQm+Jpk9HuSJqf0t4miQ3sTTcFEtjrHGGk=
+        b=A+4/TG7YuD46uF/a61tD6pAfFZoWSosWjMfjc16lyQGXyGheIdo1FGl5vNC2M83rQ
+         a8P79OYRp0OSW/gH5d/Sq6hJJqjDNGnY0+BJXz4yQKexaA2qJJNcdt/uaB6CbP7jEZ
+         J3gXf/a/MIbAcQMvdKC6JUmskAfW/puuKUlbthbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Feng <linf@wangsu.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/104] bfq-iosched: Revert "bfq: Fix computation of shallow depth"
+        stable@vger.kernel.org,
+        "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 03/60] tracing: Do not count ftrace events in top level enable output
 Date:   Mon, 15 Feb 2021 16:26:51 +0100
-Message-Id: <20210215152720.711381389@linuxfoundation.org>
+Message-Id: <20210215152715.504296444@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Feng <linf@wangsu.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 388c705b95f23f317fa43e6abf9ff07b583b721a ]
+commit 256cfdd6fdf70c6fcf0f7c8ddb0ebd73ce8f3bc9 upstream.
 
-This reverts commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a.
+The file /sys/kernel/tracing/events/enable is used to enable all events by
+echoing in "1", or disabling all events when echoing in "0". To know if all
+events are enabled, disabled, or some are enabled but not all of them,
+cating the file should show either "1" (all enabled), "0" (all disabled), or
+"X" (some enabled but not all of them). This works the same as the "enable"
+files in the individule system directories (like tracing/events/sched/enable).
 
-bfq.limit_depth passes word_depths[] as shallow_depth down to sbitmap core
-sbitmap_get_shallow, which uses just the number to limit the scan depth of
-each bitmap word, formula:
-scan_percentage_for_each_word = shallow_depth / (1 << sbimap->shift) * 100%
+But when all events are enabled, the top level "enable" file shows "X". The
+reason is that its checking the "ftrace" events, which are special events
+that only exist for their format files. These include the format for the
+function tracer events, that are enabled when the function tracer is
+enabled, but not by the "enable" file. The check includes these events,
+which will always be disabled, and even though all true events are enabled,
+the top level "enable" file will show "X" instead of "1".
 
-That means the comments's percentiles 50%, 75%, 18%, 37% of bfq are correct.
-But after commit patch 'bfq: Fix computation of shallow depth', we use
-sbitmap.depth instead, as a example in following case:
+To fix this, have the check test the event's flags to see if it has the
+"IGNORE_ENABLE" flag set, and if so, not test it.
 
-sbitmap.depth = 256, map_nr = 4, shift = 6; sbitmap_word.depth = 64.
-The resulsts of computed bfqd->word_depths[] are {128, 192, 48, 96}, and
-three of the numbers exceed core dirver's 'sbitmap_word.depth=64' limit
-nothing.
-
-Signed-off-by: Lin Feng <linf@wangsu.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 553552ce1796c ("tracing: Combine event filter_active and enable into single flags field")
+Reported-by: "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/trace/trace_events.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 9e4eb0fc1c16e..9e81d1052091f 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6332,13 +6332,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * limit 'something'.
- 	 */
- 	/* no more than 50% of tags for async I/O */
--	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
-+	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
- 	/*
- 	 * no more than 75% of tags for sync writes (25% extra tags
- 	 * w.r.t. async I/O, to prevent async I/O from starving sync
- 	 * writes)
- 	 */
--	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
-+	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -1107,7 +1107,8 @@ system_enable_read(struct file *filp, ch
+ 	mutex_lock(&event_mutex);
+ 	list_for_each_entry(file, &tr->events, list) {
+ 		call = file->event_call;
+-		if (!trace_event_name(call) || !call->class || !call->class->reg)
++		if ((call->flags & TRACE_EVENT_FL_IGNORE_ENABLE) ||
++		    !trace_event_name(call) || !call->class || !call->class->reg)
+ 			continue;
  
- 	/*
- 	 * In-word depths in case some bfq_queue is being weight-
-@@ -6348,9 +6348,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * shortage.
- 	 */
- 	/* no more than ~18% of tags for async I/O */
--	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
-+	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
- 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
--	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
-+	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
- 
- 	for (i = 0; i < 2; i++)
- 		for (j = 0; j < 2; j++)
--- 
-2.27.0
-
+ 		if (system && strcmp(call->class->system, system->name) != 0)
 
 
