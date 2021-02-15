@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C5731BD08
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB02D31BCBF
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbhBOPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:38:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
+        id S230504AbhBOPfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231350AbhBOPhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B486D64E9B;
-        Mon, 15 Feb 2021 15:32:46 +0000 (UTC)
+        id S231348AbhBOPc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:32:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C21764EAB;
+        Mon, 15 Feb 2021 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403167;
-        bh=4RtjZHLi7/YjwmChPaUuXBDuz3b+W46ekT5abyQYwU4=;
+        s=korg; t=1613403014;
+        bh=nubV/1ygv6kqsM4aIbnBzomM+6P/DuLH9iUpEwabiJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIxmaTSoszdT+CcK0n73lcVcH27izj4ms8ON1Tg2pK2FUuBNaSeOfi22CMMPkm/cJ
-         vkmOr42kvn5ZnK1qpSCRCwEUT4tew/Wjai+i4X6t2PiyRvuVoNz7/eLAXqJujkFUdg
-         JjG8FIVcR9G+vuXXBjjerq9ifiG4cJqxPsXPVe38=
+        b=fWoTXTyEOlibPVOe1vLzkD3IEd7nSEBg67FeyqsISVN1JJTXOR8vif73Jmj64Pngf
+         +6k+JtlFL6NZdywntFS+csxqSl9kAShXAdTkR3FqevykAhkzuVGKHFw7mUpBtp+fU6
+         wPC/NcQ/CtvUkrb+VU9r7cVNVCMv5TM2rl4L9ykw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanjay Kumar <sanjay.k.kumar@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/104] dmaengine: idxd: check device state before issue command
-Date:   Mon, 15 Feb 2021 16:27:07 +0100
-Message-Id: <20210215152721.221177527@linuxfoundation.org>
+        stable@vger.kernel.org, Lin Feng <linf@wangsu.com>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 20/60] bfq-iosched: Revert "bfq: Fix computation of shallow depth"
+Date:   Mon, 15 Feb 2021 16:27:08 +0100
+Message-Id: <20210215152716.012942558@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Lin Feng <linf@wangsu.com>
 
-[ Upstream commit 89e3becd8f821e507052e012d2559dcda59f538e ]
+[ Upstream commit 388c705b95f23f317fa43e6abf9ff07b583b721a ]
 
-Add device state check before executing command. Without the check the
-command can be issued while device is in halt state and causes the driver to
-block while waiting for the completion of the command.
+This reverts commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a.
 
-Reported-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Tested-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Fixes: 0d5c10b4c84d ("dmaengine: idxd: add work queue drain support")
-Link: https://lore.kernel.org/r/161219313921.2976211.12222625226450097465.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+bfq.limit_depth passes word_depths[] as shallow_depth down to sbitmap core
+sbitmap_get_shallow, which uses just the number to limit the scan depth of
+each bitmap word, formula:
+scan_percentage_for_each_word = shallow_depth / (1 << sbimap->shift) * 100%
+
+That means the comments's percentiles 50%, 75%, 18%, 37% of bfq are correct.
+But after commit patch 'bfq: Fix computation of shallow depth', we use
+sbitmap.depth instead, as a example in following case:
+
+sbitmap.depth = 256, map_nr = 4, shift = 6; sbitmap_word.depth = 64.
+The resulsts of computed bfqd->word_depths[] are {128, 192, 48, 96}, and
+three of the numbers exceed core dirver's 'sbitmap_word.depth=64' limit
+nothing.
+
+Signed-off-by: Lin Feng <linf@wangsu.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 23 ++++++++++++++++++++++-
- drivers/dma/idxd/idxd.h   |  2 +-
- drivers/dma/idxd/init.c   |  5 ++++-
- 3 files changed, 27 insertions(+), 3 deletions(-)
+ block/bfq-iosched.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 663344987e3f3..a6704838ffcb7 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -325,17 +325,31 @@ static inline bool idxd_is_enabled(struct idxd_device *idxd)
- 	return false;
- }
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 7d19aae015aeb..ba32adaeefdd0 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -6320,13 +6320,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * limit 'something'.
+ 	 */
+ 	/* no more than 50% of tags for async I/O */
+-	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
++	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
+ 	/*
+ 	 * no more than 75% of tags for sync writes (25% extra tags
+ 	 * w.r.t. async I/O, to prevent async I/O from starving sync
+ 	 * writes)
+ 	 */
+-	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
++	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
  
-+static inline bool idxd_device_is_halted(struct idxd_device *idxd)
-+{
-+	union gensts_reg gensts;
-+
-+	gensts.bits = ioread32(idxd->reg_base + IDXD_GENSTATS_OFFSET);
-+
-+	return (gensts.state == IDXD_DEVICE_STATE_HALT);
-+}
-+
- /*
-  * This is function is only used for reset during probe and will
-  * poll for completion. Once the device is setup with interrupts,
-  * all commands will be done via interrupt completion.
-  */
--void idxd_device_init_reset(struct idxd_device *idxd)
-+int idxd_device_init_reset(struct idxd_device *idxd)
- {
- 	struct device *dev = &idxd->pdev->dev;
- 	union idxd_command_reg cmd;
- 	unsigned long flags;
+ 	/*
+ 	 * In-word depths in case some bfq_queue is being weight-
+@@ -6336,9 +6336,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * shortage.
+ 	 */
+ 	/* no more than ~18% of tags for async I/O */
+-	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
++	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
+ 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
+-	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
++	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
  
-+	if (idxd_device_is_halted(idxd)) {
-+		dev_warn(&idxd->pdev->dev, "Device is HALTED!\n");
-+		return -ENXIO;
-+	}
-+
- 	memset(&cmd, 0, sizeof(cmd));
- 	cmd.cmd = IDXD_CMD_RESET_DEVICE;
- 	dev_dbg(dev, "%s: sending reset for init.\n", __func__);
-@@ -346,6 +360,7 @@ void idxd_device_init_reset(struct idxd_device *idxd)
- 	       IDXD_CMDSTS_ACTIVE)
- 		cpu_relax();
- 	spin_unlock_irqrestore(&idxd->dev_lock, flags);
-+	return 0;
- }
- 
- static void idxd_cmd_exec(struct idxd_device *idxd, int cmd_code, u32 operand,
-@@ -355,6 +370,12 @@ static void idxd_cmd_exec(struct idxd_device *idxd, int cmd_code, u32 operand,
- 	DECLARE_COMPLETION_ONSTACK(done);
- 	unsigned long flags;
- 
-+	if (idxd_device_is_halted(idxd)) {
-+		dev_warn(&idxd->pdev->dev, "Device is HALTED!\n");
-+		*status = IDXD_CMDSTS_HW_ERR;
-+		return;
-+	}
-+
- 	memset(&cmd, 0, sizeof(cmd));
- 	cmd.cmd = cmd_code;
- 	cmd.operand = operand;
-diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
-index d48f193daacc0..953ef6536aac4 100644
---- a/drivers/dma/idxd/idxd.h
-+++ b/drivers/dma/idxd/idxd.h
-@@ -281,7 +281,7 @@ void idxd_mask_msix_vector(struct idxd_device *idxd, int vec_id);
- void idxd_unmask_msix_vector(struct idxd_device *idxd, int vec_id);
- 
- /* device control */
--void idxd_device_init_reset(struct idxd_device *idxd);
-+int idxd_device_init_reset(struct idxd_device *idxd);
- int idxd_device_enable(struct idxd_device *idxd);
- int idxd_device_disable(struct idxd_device *idxd);
- void idxd_device_reset(struct idxd_device *idxd);
-diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index 0a4432b063b5c..fa8c4228f358a 100644
---- a/drivers/dma/idxd/init.c
-+++ b/drivers/dma/idxd/init.c
-@@ -289,7 +289,10 @@ static int idxd_probe(struct idxd_device *idxd)
- 	int rc;
- 
- 	dev_dbg(dev, "%s entered and resetting device\n", __func__);
--	idxd_device_init_reset(idxd);
-+	rc = idxd_device_init_reset(idxd);
-+	if (rc < 0)
-+		return rc;
-+
- 	dev_dbg(dev, "IDXD reset complete\n");
- 
- 	idxd_read_caps(idxd);
+ 	for (i = 0; i < 2; i++)
+ 		for (j = 0; j < 2; j++)
 -- 
 2.27.0
 
