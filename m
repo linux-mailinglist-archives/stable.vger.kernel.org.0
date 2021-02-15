@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5132731BD30
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 666EE31BD28
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbhBOPlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50014 "EHLO mail.kernel.org"
+        id S231435AbhBOPlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231548AbhBOPh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D6B64EA0;
-        Mon, 15 Feb 2021 15:33:42 +0000 (UTC)
+        id S231557AbhBOPiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:38:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 361D164EB1;
+        Mon, 15 Feb 2021 15:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403223;
-        bh=grc1k0mbQ9jRudH5zA0+n9VImf0+UaRZieI9KyOEOVY=;
+        s=korg; t=1613403225;
+        bh=2hljRmYRsaCubJA6yh5FcPHKxO/+/e/4mzZZ0NUXBqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FvS2PmX048zmbrcU5CLlR4W27PeJbSGRpD+GR79ns/v75qVwqfeD3JT1r0uYAhhCv
-         wTfYEsjVx80YEVPwcHiMpt8AzPWML26I+SO1mgVUrTNHOxkqYZrmj9AwbpzIPz0knm
-         xlHzohDYvN6tTadTAAEcb5a9H3SQcq2RRbBHaEM0=
+        b=O3E17FKS5MHYwsRqFofuwvNASKQTVTcnrx1eyLHXPKO8hkGHtA2fT5JBWh2gK3QHt
+         aDl5aounkbBC79ZLGgcwhS/wWeVR5b5AM/rfmiFSlmag02lGonvFS94vxh24B6yrK+
+         wwwlCQlzAU4lIaFcp9+0J4ZQwlOCvuaUU/JHBmsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/104] net: hns3: add a check for queue_id in hclge_reset_vf_queue()
-Date:   Mon, 15 Feb 2021 16:27:26 +0100
-Message-Id: <20210215152721.811226958@linuxfoundation.org>
+Subject: [PATCH 5.10 074/104] net: hns3: add a check for tqp_index in hclge_get_ring_chain_from_mbx()
+Date:   Mon, 15 Feb 2021 16:27:27 +0100
+Message-Id: <20210215152721.840893688@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -43,45 +43,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 67a69f84cab60484f02eb8cbc7a76edffbb28a25 ]
+[ Upstream commit 326334aad024a60f46dc5e7dbe1efe32da3ca66f ]
 
-The queue_id is received from vf, if use it directly,
+The tqp_index is received from vf, if use it directly,
 an out-of-bound issue may be caused, so add a check for
-this queue_id before using it in hclge_reset_vf_queue().
+this tqp_index before using it in hclge_get_ring_chain_from_mbx().
 
-Fixes: 1a426f8b40fc ("net: hns3: fix the VF queue reset flow error")
+Fixes: 84e095d64ed9 ("net: hns3: Change PF to add ring-vect binding & resetQ to mailbox")
 Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
 Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 4321132a4f630..c40820baf48a6 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -9404,12 +9404,19 @@ int hclge_reset_tqp(struct hnae3_handle *handle, u16 queue_id)
- 
- void hclge_reset_vf_queue(struct hclge_vport *vport, u16 queue_id)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 3ab6db2588d31..c997c90371550 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -158,21 +158,31 @@ static int hclge_get_ring_chain_from_mbx(
+ 			struct hclge_vport *vport)
  {
-+	struct hnae3_handle *handle = &vport->nic;
- 	struct hclge_dev *hdev = vport->back;
- 	int reset_try_times = 0;
- 	int reset_status;
- 	u16 queue_gid;
- 	int ret;
+ 	struct hnae3_ring_chain_node *cur_chain, *new_chain;
++	struct hclge_dev *hdev = vport->back;
+ 	int ring_num;
+-	int i = 0;
++	int i;
  
-+	if (queue_id >= handle->kinfo.num_tqps) {
-+		dev_warn(&hdev->pdev->dev, "Invalid vf queue id(%u)\n",
-+			 queue_id);
-+		return;
+ 	ring_num = req->msg.ring_num;
+ 
+ 	if (ring_num > HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM)
+ 		return -ENOMEM;
+ 
++	for (i = 0; i < ring_num; i++) {
++		if (req->msg.param[i].tqp_index >= vport->nic.kinfo.rss_size) {
++			dev_err(&hdev->pdev->dev, "tqp index(%u) is out of range(0-%u)\n",
++				req->msg.param[i].tqp_index,
++				vport->nic.kinfo.rss_size - 1);
++			return -EINVAL;
++		}
 +	}
 +
- 	queue_gid = hclge_covert_handle_qid_global(&vport->nic, queue_id);
+ 	hnae3_set_bit(ring_chain->flag, HNAE3_RING_TYPE_B,
+-		      req->msg.param[i].ring_type);
++		      req->msg.param[0].ring_type);
+ 	ring_chain->tqp_index =
+ 		hclge_get_queue_id(vport->nic.kinfo.tqp
+-				   [req->msg.param[i].tqp_index]);
++				   [req->msg.param[0].tqp_index]);
+ 	hnae3_set_field(ring_chain->int_gl_idx, HNAE3_RING_GL_IDX_M,
+-			HNAE3_RING_GL_IDX_S, req->msg.param[i].int_gl_index);
++			HNAE3_RING_GL_IDX_S, req->msg.param[0].int_gl_index);
  
- 	ret = hclge_send_reset_tqp_cmd(hdev, queue_gid, true);
+ 	cur_chain = ring_chain;
+ 
 -- 
 2.27.0
 
