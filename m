@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9746D31BCDF
+	by mail.lfdr.de (Postfix) with ESMTP id 2635A31BCDE
 	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbhBOPg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49202 "EHLO mail.kernel.org"
+        id S230503AbhBOPgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:36:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231238AbhBOPe5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:34:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BC1F64EBD;
-        Mon, 15 Feb 2021 15:31:16 +0000 (UTC)
+        id S231196AbhBOPed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:34:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A75661490;
+        Mon, 15 Feb 2021 15:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403077;
-        bh=mq1Qo8ZiUNVpDs+RDDKp6kECIl3RoQzYEWYOhFQ+T48=;
+        s=korg; t=1613403082;
+        bh=efafAd6WaDg8SGnlqP87Caf8A64qt4Co/sdcXkCnQTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swdgU4nAoOiD6c5gmjpEEri/DhKKS4rUrG/88OlODRdmsSSBhFLCw8l1e5PUJUZEs
-         3bdWpczAs673yPAWZmMhcqAe2X+gdNndo9jVMATK7NZF8c3DJMM2Wx1Jw+WE/5FA92
-         NpXrG5X7poAg1VlWMUSJskts3JMtxz8VyVaGLu5s=
+        b=fw6Jaw7pMDXHh4ayHDH2vED1MzN0YV8mfrBYdX2Fur9hVkcANrGYmLcY+xsTx6Ma1
+         rmi6H43PRNuGOCLk3rd3llzkkAPcdeVxH5xEkGCKMd0OiZwfl/h4GCCziugFuyw38d
+         pzq0vpWov1yubuYDWMKcxYFRVnhgri00UY1Cmpxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/104] arm64: dts: qcom: sdm845: Reserve LPASS clocks in gcc
-Date:   Mon, 15 Feb 2021 16:26:32 +0100
-Message-Id: <20210215152720.104266598@linuxfoundation.org>
+Subject: [PATCH 5.10 020/104] ARM: OMAP2+: Fix suspcious RCU usage splats for omap_enter_idle_coupled
+Date:   Mon, 15 Feb 2021 16:26:33 +0100
+Message-Id: <20210215152720.133238537@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -40,59 +42,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 93f2a11580a9732c1d90f9e01a7e9facc825658f ]
+[ Upstream commit 06862d789ddde8a99c1e579e934ca17c15a84755 ]
 
-The GCC_LPASS_Q6_AXI_CLK and GCC_LPASS_SWAY_CLK clocks may not be
-touched on a typical UEFI based SDM845 device, but when the kernel is
-built with CONFIG_SDM_LPASSCC_845 this happens, unless they are marked
-as protected-clocks in the DT.
+We get suspcious RCU usage splats with cpuidle in several places in
+omap_enter_idle_coupled() with the kernel debug options enabled:
 
-This was done for the MTP and the Pocophone, but not for DB845c and the
-Lenovo Yoga C630 - causing these to fail to boot if the LPASS clock
-controller is enabled (which it typically isn't).
+RCU used illegally from extended quiescent state!
+...
+(_raw_spin_lock_irqsave)
+(omap_enter_idle_coupled+0x17c/0x2d8)
+(omap_enter_idle_coupled)
+(cpuidle_enter_state)
+(cpuidle_enter_state_coupled)
+(cpuidle_enter)
 
-Tested-by: Vinod Koul <vkoul@kernel.org> #on db845c
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20201222001103.3112306-1-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Let's use RCU_NONIDLE to suppress these splats. Things got changed around
+with commit 1098582a0f6c ("sched,idle,rcu: Push rcu_idle deeper into the
+idle path") that started triggering these warnings.
+
+For the tick_broadcast related calls, ideally we'd just switch over to
+using CPUIDLE_FLAG_TIMER_STOP for omap_enter_idle_coupled() to have the
+generic cpuidle code handle the tick_broadcast related calls for us and
+then just drop the tick_broadcast calls here.
+
+But we're currently missing the call in the common cpuidle code for
+tick_broadcast_enable() that CPU1 hotplug needs as described in earlier
+commit 50d6b3cf9403 ("ARM: OMAP2+: fix lack of timer interrupts on CPU1
+after hotplug").
+
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-db845c.dts           | 4 +++-
- arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/cpuidle44xx.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-index 7cc236575ee20..c0b93813ea9ac 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-@@ -415,7 +415,9 @@
- &gcc {
- 	protected-clocks = <GCC_QSPI_CORE_CLK>,
- 			   <GCC_QSPI_CORE_CLK_SRC>,
--			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>;
-+			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>,
-+			   <GCC_LPASS_Q6_AXI_CLK>,
-+			   <GCC_LPASS_SWAY_CLK>;
- };
+diff --git a/arch/arm/mach-omap2/cpuidle44xx.c b/arch/arm/mach-omap2/cpuidle44xx.c
+index c8d317fafe2ea..de37027ad7587 100644
+--- a/arch/arm/mach-omap2/cpuidle44xx.c
++++ b/arch/arm/mach-omap2/cpuidle44xx.c
+@@ -151,10 +151,10 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
  
- &gpu {
-diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-index d70aae77a6e84..888dc23a530e6 100644
---- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-@@ -245,7 +245,9 @@
- &gcc {
- 	protected-clocks = <GCC_QSPI_CORE_CLK>,
- 			   <GCC_QSPI_CORE_CLK_SRC>,
--			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>;
-+			   <GCC_QSPI_CNOC_PERIPH_AHB_CLK>,
-+			   <GCC_LPASS_Q6_AXI_CLK>,
-+			   <GCC_LPASS_SWAY_CLK>;
- };
+ 	/* Enter broadcast mode for periodic timers */
+-	tick_broadcast_enable();
++	RCU_NONIDLE(tick_broadcast_enable());
  
- &gpu {
+ 	/* Enter broadcast mode for one-shot timers */
+-	tick_broadcast_enter();
++	RCU_NONIDLE(tick_broadcast_enter());
+ 
+ 	/*
+ 	 * Call idle CPU PM enter notifier chain so that
+@@ -166,7 +166,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 
+ 	if (dev->cpu == 0) {
+ 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
++		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
+ 
+ 		/*
+ 		 * Call idle CPU cluster PM enter notifier chain
+@@ -178,7 +178,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 				index = 0;
+ 				cx = state_ptr + index;
+ 				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
++				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
+ 				mpuss_can_lose_context = 0;
+ 			}
+ 		}
+@@ -194,9 +194,9 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 		    mpuss_can_lose_context)
+ 			gic_dist_disable();
+ 
+-		clkdm_deny_idle(cpu_clkdm[1]);
+-		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
+-		clkdm_allow_idle(cpu_clkdm[1]);
++		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
++		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
++		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
+ 
+ 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
+ 		    mpuss_can_lose_context) {
+@@ -222,7 +222,7 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 	cpu_pm_exit();
+ 
+ cpu_pm_out:
+-	tick_broadcast_exit();
++	RCU_NONIDLE(tick_broadcast_exit());
+ 
+ fail:
+ 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);
 -- 
 2.27.0
 
