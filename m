@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D598D31BD2D
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A102431BC76
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231426AbhBOPle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:41:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S230505AbhBOP3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:29:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231618AbhBOPiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:38:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE5464EEC;
-        Mon, 15 Feb 2021 15:34:01 +0000 (UTC)
+        id S230501AbhBOP2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:28:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC1C064DEE;
+        Mon, 15 Feb 2021 15:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403241;
-        bh=y7eQowfWRCiPs6rqvJgWxNBr3H42kcUQxHDrWQVFBLM=;
+        s=korg; t=1613402893;
+        bh=cmKW45r6hs2Z1/NnGF/yyuEQQZMv5xQUmLc50BBG/B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGY2U7ZeWRma1HuKoBix1lqA3z4HY29Y6zbYuQD2yT4wn9WfjJG54UpGlguKRJg4N
-         ygLhQqC2dO27WvdbDeC496MuHJAwic1FPlefP1jc+nbiHCQDXIdzbVz8vOeB0GzrAb
-         B6wkyMSv6vcLcsJwktrrul4QDTwEQfjNdeYEL1h8=
+        b=qxki/DpSaL9VtvVS3KJfR1FslV9l4u/ZooqoV6rwFIM9VrwLlTFB5l4U2W3RmVFX7
+         sNajgq9/xjrJCoL61e1YJfUVmfWSzoLjygls74fwvYcZzD9daLFA7Amr0U3+3IiTxD
+         MxVRyGtqsZQwtNlpebpRKblnQsdSovSUvUWk9710=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nitesh Narayan Lal <nitesh@redhat.com>,
-        Marcelo Tosatti <mtosatti@redhat.com>, abelits@marvell.com,
-        davem@davemloft.net, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/104] Revert "lib: Restrict cpumask_local_spread to houskeeping CPUs"
+        stable@vger.kernel.org,
+        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/60] platform/x86: hp-wmi: Disable tablet-mode reporting by default
 Date:   Mon, 15 Feb 2021 16:26:58 +0100
-Message-Id: <20210215152720.928637631@linuxfoundation.org>
+Message-Id: <20210215152715.710120421@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,104 +42,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2452483d9546de1c540f330469dc4042ff089731 ]
+[ Upstream commit 67fbe02a5cebc3c653610f12e3c0424e58450153 ]
 
-This reverts commit 1abdfe706a579a702799fce465bceb9fb01d407c.
+Recently userspace has started making more use of SW_TABLET_MODE
+(when an input-dev reports this).
 
-This change is broken and not solving any problem it claims to solve.
+Specifically recent GNOME3 versions will:
 
-Robin reported that cpumask_local_spread() now returns any cpu out of
-cpu_possible_mask in case that NOHZ_FULL is disabled (runtime or compile
-time). It can also return any offline or not-present CPU in the
-housekeeping mask. Before that it was returning a CPU out of
-online_cpu_mask.
+1.  When SW_TABLET_MODE is reported and is reporting 0:
+1.1 Disable accelerometer-based screen auto-rotation
+1.2 Disable automatically showing the on-screen keyboard when a
+    text-input field is focussed
 
-While the function is racy against CPU hotplug if the caller does not
-protect against it, the actual use cases are not caring much about it as
-they use it mostly as hint for:
+2.  When SW_TABLET_MODE is reported and is reporting 1:
+2.1 Ignore input-events from the builtin keyboard and touchpad
+    (this is for 360° hinges style 2-in-1s where the keyboard and
+     touchpads are accessible on the back of the tablet when folded
+     into tablet-mode)
 
- - the user space affinity hint which is unused by the kernel
- - memory node selection which is just suboptimal
- - network queue affinity which might fail but is handled gracefully
+This means that claiming to support SW_TABLET_MODE when it does not
+actually work / reports correct values has bad side-effects.
 
-But the occasional fail vs. hotplug is very different from returning
-anything from possible_cpu_mask which can have a large amount of offline
-CPUs obviously.
+The check in the hp-wmi code which is used to decide if the input-dev
+should claim SW_TABLET_MODE support, only checks if the
+HPWMI_HARDWARE_QUERY is supported. It does *not* check if the hardware
+actually is capable of reporting SW_TABLET_MODE.
 
-The changelog of the commit claims:
+This leads to the hp-wmi input-dev claiming SW_TABLET_MODE support,
+while in reality it will always report 0 as SW_TABLET_MODE value.
+This has been seen on a "HP ENVY x360 Convertible 15-cp0xxx" and
+this likely is the case on a whole lot of other HP models.
 
- "The current implementation of cpumask_local_spread() does not respect
-  the isolated CPUs, i.e., even if a CPU has been isolated for Real-Time
-  task, it will return it to the caller for pinning of its IRQ
-  threads. Having these unwanted IRQ threads on an isolated CPU adds up
-  to a latency overhead."
+This problem causes both auto-rotation and on-screen keyboard
+support to not work on affected x360 models.
 
-The only correct part of this changelog is:
+There is no easy fix for this, but since userspace expects
+SW_TABLET_MODE reporting to be reliable when advertised it is
+better to not claim/report SW_TABLET_MODE support at all, then
+to claim to support it while it does not work.
 
- "The current implementation of cpumask_local_spread() does not respect
-  the isolated CPUs."
+To avoid the mentioned problems, add a new enable_tablet_mode_sw
+module-parameter which defaults to false.
 
-Everything else is just disjunct from reality.
+Note I've made this an int using the standard -1=auto, 0=off, 1=on
+triplett, with the hope that in the future we can come up with a
+better way to detect SW_TABLET_MODE support. ATM the default
+auto option just does the same as off.
 
-Reported-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Nitesh Narayan Lal <nitesh@redhat.com>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: abelits@marvell.com
-Cc: davem@davemloft.net
-Link: https://lore.kernel.org/r/87y2g26tnt.fsf@nanos.tec.linutronix.de
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1918255
+Cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mark Gross <mgross@linux.intel.com>
+Link: https://lore.kernel.org/r/20210120124941.73409-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/cpumask.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/platform/x86/hp-wmi.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/lib/cpumask.c b/lib/cpumask.c
-index 85da6ab4fbb5a..fb22fb266f937 100644
---- a/lib/cpumask.c
-+++ b/lib/cpumask.c
-@@ -6,7 +6,6 @@
- #include <linux/export.h>
- #include <linux/memblock.h>
- #include <linux/numa.h>
--#include <linux/sched/isolation.h>
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index a44a2ec332872..63a530a3d9feb 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -32,6 +32,10 @@ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("wmi:95F24279-4D7B-4334-9387-ACCDC67EF61C");
+ MODULE_ALIAS("wmi:5FB7F034-2C63-45e9-BE91-3D44E2C707E4");
  
- /**
-  * cpumask_next - get the next cpu in a cpumask
-@@ -206,27 +205,22 @@ void __init free_bootmem_cpumask_var(cpumask_var_t mask)
-  */
- unsigned int cpumask_local_spread(unsigned int i, int node)
- {
--	int cpu, hk_flags;
--	const struct cpumask *mask;
-+	int cpu;
++static int enable_tablet_mode_sw = -1;
++module_param(enable_tablet_mode_sw, int, 0444);
++MODULE_PARM_DESC(enable_tablet_mode_sw, "Enable SW_TABLET_MODE reporting (-1=auto, 0=no, 1=yes)");
++
+ #define HPWMI_EVENT_GUID "95F24279-4D7B-4334-9387-ACCDC67EF61C"
+ #define HPWMI_BIOS_GUID "5FB7F034-2C63-45e9-BE91-3D44E2C707E4"
  
--	hk_flags = HK_FLAG_DOMAIN | HK_FLAG_MANAGED_IRQ;
--	mask = housekeeping_cpumask(hk_flags);
- 	/* Wrap: we always want a cpu. */
--	i %= cpumask_weight(mask);
-+	i %= num_online_cpus();
+@@ -654,10 +658,12 @@ static int __init hp_wmi_input_setup(void)
+ 	}
  
- 	if (node == NUMA_NO_NODE) {
--		for_each_cpu(cpu, mask) {
-+		for_each_cpu(cpu, cpu_online_mask)
- 			if (i-- == 0)
- 				return cpu;
--		}
- 	} else {
- 		/* NUMA first. */
--		for_each_cpu_and(cpu, cpumask_of_node(node), mask) {
-+		for_each_cpu_and(cpu, cpumask_of_node(node), cpu_online_mask)
- 			if (i-- == 0)
- 				return cpu;
--		}
+ 	/* Tablet mode */
+-	val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
+-	if (!(val < 0)) {
+-		__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
+-		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++	if (enable_tablet_mode_sw > 0) {
++		val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
++		if (val >= 0) {
++			__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++			input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++		}
+ 	}
  
--		for_each_cpu(cpu, mask) {
-+		for_each_cpu(cpu, cpu_online_mask) {
- 			/* Skip NUMA nodes, done above. */
- 			if (cpumask_test_cpu(cpu, cpumask_of_node(node)))
- 				continue;
+ 	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
 -- 
 2.27.0
 
