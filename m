@@ -2,95 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F3431C1C6
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 19:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3367031C1E7
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 19:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbhBOSjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 13:39:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231224AbhBOSi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 13:38:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5997C64E52;
-        Mon, 15 Feb 2021 18:37:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613414243;
-        bh=aKLsGDzsotx/vhQoDb17p3KLQrVDH372nSPDeTVo3E4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pQS8xsTMC/Y4FyIJY6tbfT8yfFKSH4pUTyEQlkY2OchT0MPIO6F1iZoJc1foMEIQq
-         XcMIRz3t5wvLNOZtjVKDYSrJxuSl3+bxEeEpc2XfxIGDHvxfVSAZJe2H9e2y+POGg2
-         LdYeY8XIBs8vk1LdQXKO+ogjhF8T6BSjoOzR6zbVeX1nMuhEYJO+rQ//zPgTHn6APV
-         cOw3wHNxaoo9odsmM5BzdsFZlkDpeX1onB+o757i1GBVhyOXhAhhiO2kbZCEo9Hhwa
-         cJhQfKwdYi6miQk1qPt7ZpNg8YDm8JLxtEkuZXHRVdVuCSYB1ZN3spZEnMGfTDVdS5
-         fUWFSXzfDVu8Q==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rong Chen <rong.a.chen@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Yoshinori Sato <ysato@users.osdn.me>,
-        Rich Felker <dalias@libc.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        id S230349AbhBOSrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 13:47:51 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:56648 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231236AbhBOSrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 13:47:42 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id BA50F1C0B76; Mon, 15 Feb 2021 19:46:45 +0100 (CET)
+Date:   Mon, 15 Feb 2021 19:46:44 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4] scripts/recordmcount.pl: support big endian for ARCH sh
-Date:   Mon, 15 Feb 2021 13:37:21 -0500
-Message-Id: <20210215183721.122408-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
+Subject: Re: [PATCH 5.10 048/104] KVM: x86: cleanup CR3 reserved bits checks
+Message-ID: <20210215184644.GA8689@amd>
+References: <20210215152719.459796636@linuxfoundation.org>
+ <20210215152721.031370031@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Disposition: inline
+In-Reply-To: <20210215152721.031370031@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rong Chen <rong.a.chen@intel.com>
 
-[ Upstream commit 93ca696376dd3d44b9e5eae835ffbc84772023ec ]
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The kernel test robot reported the following issue:
+Hi!
 
-    CC [M]  drivers/soc/litex/litex_soc_ctrl.o
-  sh4-linux-objcopy: Unable to change endianness of input file(s)
-  sh4-linux-ld: cannot find drivers/soc/litex/.tmp_gl_litex_soc_ctrl.o: No such file or directory
-  sh4-linux-objcopy: 'drivers/soc/litex/.tmp_mx_litex_soc_ctrl.o': No such file
+> [ Upstream commit c1c35cf78bfab31b8cb455259524395c9e4c7cd6 ]
+>=20
+> If not in long mode, the low bits of CR3 are reserved but not enforced to
+> be zero, so remove those checks.  If in long mode, however, the MBZ bits
+> extend down to the highest physical address bit of the guest, excluding
+> the encryption bit.
+>=20
+> Make the checks consistent with the above, and match them between
+> nested_vmcb_checks and KVM_SET_SREGS.
 
-The problem is that the format of input file is elf32-shbig-linux, but
-sh4-linux-objcopy wants to output a file which format is elf32-sh-linux:
+> +++ b/arch/x86/kvm/x86.c
+> @@ -9558,6 +9558,8 @@ static int kvm_valid_sregs(struct kvm_vcpu *vcpu, s=
+truct kvm_sregs *sregs)
+>  		if (!(sregs->cr4 & X86_CR4_PAE)
+>  		    || !(sregs->efer & EFER_LMA))
+>  			return -EINVAL;
+> +		if (sregs->cr3 & vcpu->arch.cr3_lm_rsvd_bits)
+> +			return false;
+>  	} else {
 
-  $ sh4-linux-objdump -d drivers/soc/litex/litex_soc_ctrl.o | grep format
-  drivers/soc/litex/litex_soc_ctrl.o:     file format elf32-shbig-linux
+Function has different return type between 5.10 and 5.11, so this
+needs fixing.
 
-Link: https://lkml.kernel.org/r/20210210150435.2171567-1-rong.a.chen@intel.com
-Link: https://lore.kernel.org/linux-mm/202101261118.GbbYSlHu-lkp@intel.com
-Signed-off-by: Rong Chen <rong.a.chen@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Yoshinori Sato <ysato@users.osdn.me>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- scripts/recordmcount.pl | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Best regards,
+								Pavel
 
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index 96e2486a6fc47..ccd6614ea2182 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -259,7 +259,11 @@ if ($arch eq "x86_64") {
- 
-     # force flags for this arch
-     $ld .= " -m shlelf_linux";
--    $objcopy .= " -O elf32-sh-linux";
-+    if ($endian eq "big") {
-+        $objcopy .= " -O elf32-shbig-linux";
-+    } else {
-+        $objcopy .= " -O elf32-sh-linux";
-+    }
- 
- } elsif ($arch eq "powerpc") {
-     $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\.?\\S+)";
--- 
-2.27.0
+--=20
+http://www.livejournal.com/~pavelmachek
 
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmAqwZQACgkQMOfwapXb+vJgkACeN1p7SnT9C+Qaj6PP66/1I7Ed
+XP8An34INGsMCRNTWHZAkXh661eaS0Ko
+=zfyL
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--
