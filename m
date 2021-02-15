@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6425231C1BB
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 19:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6DD31C1BE
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 19:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbhBOSiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 13:38:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
+        id S231240AbhBOSjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 13:39:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230489AbhBOSia (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230494AbhBOSia (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 13:38:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2280864E20;
-        Mon, 15 Feb 2021 18:37:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB53D64E32;
+        Mon, 15 Feb 2021 18:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613414231;
-        bh=56bT5TlpNdZSQNxD1+ZpYXi7VacHBATJ87iy0NBQKK4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdWV9rwq8onho3ExNyrEIO03xilq5VO+UK4O4xv7PzSNMOAThRsPvLwkxeYjAo4xM
-         CdCUu+3TTlWdwzqHOD6enkPtjliKzErJZb70QnwTh+uk0+pV7Tkuw90lrZlFGj5mKi
-         drODSUEznhYoELzlEPXs3qTUX/4NR8kIBzGXedTmV3sOy3gow5VZeiEEEchx3XURSz
-         rpKlzIM40R0Sc1M1YEQLQjRPK/cfTcY2dwtF7vIOGAcK4YgtsygzIVTza/5TFDQV+o
-         rqXTCesqdmFGKjWBR6JUukijMGus/1mhi4I/ud7DsokyeDPfpBje78cFuuNgAIYZkA
-         FbnQQBexahOvA==
+        s=k20201202; t=1613414233;
+        bh=UDwNeojXeNDgig3aThqrowLAyM+cfcfxJYXYvYYuwVY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TCusKpZd0OdIODY4A73ry0B+DmzKvuiQrun1vJB/aFQ+vOvVVGtgA2OdlydOnCmO7
+         ZGGie6X67W0WHCUDGVDPogtpGMqdhKtFpJOUhlwGDf8nYb/oyA/dheN2aX2F0Qv2Ez
+         7eF7aavNPWS5Y5Z8KtjUp4N3a+gj+3Jz3NazMD2YSkYo1POrBSSchk8jHFCLnhK5O5
+         LJRf/6O+ba0ywd070caH/4BYlYisFlkQdNv126vxk1na5MfMEcxabj+0V1zBwP0VuO
+         Yc5JmsAEyTBlr+2a/7G6EzpUZArYHTp3xuflJdkHaz65GSkp4fR4DL5yth0JQgwckr
+         bJZgsLAXtiM1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rong Chen <rong.a.chen@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Yoshinori Sato <ysato@users.osdn.me>,
-        Rich Felker <dalias@libc.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 3/3] scripts/recordmcount.pl: support big endian for ARCH sh
-Date:   Mon, 15 Feb 2021 13:37:06 -0500
-Message-Id: <20210215183706.122183-3-sashal@kernel.org>
+Cc:     Christoph Schemmel <christoph.schemmel@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/3] NET: usb: qmi_wwan: Adding support for Cinterion MV31
+Date:   Mon, 15 Feb 2021 13:37:09 -0500
+Message-Id: <20210215183711.122258-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210215183706.122183-1-sashal@kernel.org>
-References: <20210215183706.122183-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,53 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rong Chen <rong.a.chen@intel.com>
+From: Christoph Schemmel <christoph.schemmel@gmail.com>
 
-[ Upstream commit 93ca696376dd3d44b9e5eae835ffbc84772023ec ]
+[ Upstream commit a4dc7eee9106a9d2a6e08b442db19677aa9699c7 ]
 
-The kernel test robot reported the following issue:
+Adding support for Cinterion MV31 with PID 0x00B7.
 
-    CC [M]  drivers/soc/litex/litex_soc_ctrl.o
-  sh4-linux-objcopy: Unable to change endianness of input file(s)
-  sh4-linux-ld: cannot find drivers/soc/litex/.tmp_gl_litex_soc_ctrl.o: No such file or directory
-  sh4-linux-objcopy: 'drivers/soc/litex/.tmp_mx_litex_soc_ctrl.o': No such file
+T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 11 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00b7 Rev=04.14
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion USB Mobile Broadband
+S:  SerialNumber=b3246eed
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-The problem is that the format of input file is elf32-shbig-linux, but
-sh4-linux-objcopy wants to output a file which format is elf32-sh-linux:
-
-  $ sh4-linux-objdump -d drivers/soc/litex/litex_soc_ctrl.o | grep format
-  drivers/soc/litex/litex_soc_ctrl.o:     file format elf32-shbig-linux
-
-Link: https://lkml.kernel.org/r/20210210150435.2171567-1-rong.a.chen@intel.com
-Link: https://lore.kernel.org/linux-mm/202101261118.GbbYSlHu-lkp@intel.com
-Signed-off-by: Rong Chen <rong.a.chen@intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Yoshinori Sato <ysato@users.osdn.me>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Christoph Schemmel <christoph.schemmel@gmail.com>
+Link: https://lore.kernel.org/r/20210202084523.4371-1-christoph.schemmel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.pl | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index f599031260d51..7f6f96256b09f 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -263,7 +263,11 @@ if ($arch eq "x86_64") {
- 
-     # force flags for this arch
-     $ld .= " -m shlelf_linux";
--    $objcopy .= " -O elf32-sh-linux";
-+    if ($endian eq "big") {
-+        $objcopy .= " -O elf32-shbig-linux";
-+    } else {
-+        $objcopy .= " -O elf32-sh-linux";
-+    }
- 
- } elsif ($arch eq "powerpc") {
-     my $ldemulation;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index f205ccba27c4a..6702a374dbd7b 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1280,6 +1280,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},	/* Cinterion PHxx,PXxx (2 RmNet) */
+ 	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},	/* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
+ 	{QMI_QUIRK_SET_DTR(0x1e2d, 0x00b0, 4)},	/* Cinterion CLS8 */
++	{QMI_FIXED_INTF(0x1e2d, 0x00b7, 0)},	/* Cinterion MV31 RmNet */
+ 	{QMI_FIXED_INTF(0x413c, 0x81a2, 8)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{QMI_FIXED_INTF(0x413c, 0x81a3, 8)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{QMI_FIXED_INTF(0x413c, 0x81a4, 8)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 -- 
 2.27.0
 
