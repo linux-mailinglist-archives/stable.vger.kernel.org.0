@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B5A31BD17
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD99731BC8E
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbhBOPjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:39:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49600 "EHLO mail.kernel.org"
+        id S230183AbhBOPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:31:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231462AbhBOPht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B5FD64EA1;
-        Mon, 15 Feb 2021 15:33:08 +0000 (UTC)
+        id S230160AbhBOPat (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:30:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A24564E7B;
+        Mon, 15 Feb 2021 15:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403189;
-        bh=qgzS7wxRx3dLglzG4utUzIJH1AUFn3MhFa/oV2d+NK0=;
+        s=korg; t=1613402936;
+        bh=4Bi+YtUSMojEFvriuXcLkjj3Lnw4Zl2BmQopFeoNn8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wr1ODP/I9XVweCS6YC+hxzrFDdP1LhjwSaqKsYBiGV88Uu04BtWXlEgDcPz24LJHi
-         NHvmeCwZqciEgZ4K675zlpQXBGt2BIf9so5Af/SjxrI+uH2Q4tUC2cH4JpB5b70Utc
-         rpwHsyELYwjLDgd49TcasOcNgfVKoyZkHxPJhtAo=
+        b=V09svDXIVW7O6sQi6EjPPXonLTBebeYIQ1G0MzXKtXglSWY6Hk5ZOqHgM5AlF+tMb
+         Lr/eShRgjzyeTKsDDuq9fWkjoAnpw1ApeJep7BXrpJNBMIkzq2l0f0o5UTA6Qx7MVy
+         Uxww8kfNkf6JKH/HMfm3j64+oL5wX7byctUcu5vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Druzhinin <igor.druzhinin@citrix.com>,
-        Juergen Gross <jgross@suse.com>, Wei Liu <wl@xen.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/104] xen/netback: avoid race in xenvif_rx_ring_slots_available()
+Subject: [PATCH 5.4 26/60] mt76: dma: fix a possible memory leak in mt76_add_fragment()
 Date:   Mon, 15 Feb 2021 16:27:14 +0100
-Message-Id: <20210215152721.443983403@linuxfoundation.org>
+Message-Id: <20210215152716.189203864@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit ec7d8e7dd3a59528e305a18e93f1cb98f7faf83b ]
+[ Upstream commit 93a1d4791c10d443bc67044def7efee2991d48b7 ]
 
-Since commit 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
-xenvif_rx_ring_slots_available() is no longer called only from the rx
-queue kernel thread, so it needs to access the rx queue with the
-associated queue held.
+Fix a memory leak in mt76_add_fragment routine returning the buffer
+to the page_frag_cache when we receive a new fragment and the
+skb_shared_info frag array is full.
 
-Reported-by: Igor Druzhinin <igor.druzhinin@citrix.com>
-Fixes: 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Wei Liu <wl@xen.org>
-Link: https://lore.kernel.org/r/20210202070938.7863-1-jgross@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b102f0c522cf6 ("mt76: fix array overflow on receiving too many fragments for a packet")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/4f9dd73407da88b2a552517ce8db242d86bf4d5c.1611616130.git.lorenzo@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/rx.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/dma.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index b8febe1d1bfd3..accc991d153f7 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -38,10 +38,15 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	RING_IDX prod, cons;
- 	struct sk_buff *skb;
- 	int needed;
-+	unsigned long flags;
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 026d996612fbe..781952b686ed2 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -452,15 +452,17 @@ static void
+ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
+ 		  int len, bool more)
+ {
+-	struct page *page = virt_to_head_page(data);
+-	int offset = data - page_address(page);
+ 	struct sk_buff *skb = q->rx_head;
+ 	struct skb_shared_info *shinfo = skb_shinfo(skb);
+ 
+ 	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
+-		offset += q->buf_offset;
++		struct page *page = virt_to_head_page(data);
++		int offset = data - page_address(page) + q->buf_offset;
 +
-+	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
+ 				q->buf_size);
++	} else {
++		skb_free_frag(data);
+ 	}
  
- 	skb = skb_peek(&queue->rx_queue);
--	if (!skb)
-+	if (!skb) {
-+		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
- 		return false;
-+	}
- 
- 	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
- 	if (skb_is_gso(skb))
-@@ -49,6 +54,8 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	if (skb->sw_hash)
- 		needed++;
- 
-+	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
- 	do {
- 		prod = queue->rx.sring->req_prod;
- 		cons = queue->rx.req_cons;
+ 	if (more)
 -- 
 2.27.0
 
