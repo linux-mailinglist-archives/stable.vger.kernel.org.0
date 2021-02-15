@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B7C31BCF4
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B64B531BCF2
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231473AbhBOPht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50014 "EHLO mail.kernel.org"
+        id S231458AbhBOPhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:37:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231300AbhBOPgO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:36:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 907BF64ED0;
-        Mon, 15 Feb 2021 15:31:57 +0000 (UTC)
+        id S231268AbhBOPfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:35:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AEF164ED1;
+        Mon, 15 Feb 2021 15:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403118;
-        bh=sN/6ha34otOeEaBysqzwB3pj0rwepRQlUkw7Q+tX/U4=;
+        s=korg; t=1613403120;
+        bh=q85n0vqDPsGHxnCM2Xt4ymm83fSyhLzfEC0f+a0SCj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTwlqFk3/Cl0Oi/xRBHV951eMAS6w57hAWIlP9ZBptH6Cprkbh4+Tz/HcyoqNrHSe
-         rEcdPiO6BeyyahgvxlU+SvsQ2/NZIhjrkt1ZtjlSCLR3u5yPfhMhrialNw+iXHVBu3
-         23KOHz/KPWlrHwUJHkvJBOr3EWVEOtLj2CqovpN0=
+        b=KqX1G1pD5QNppu72ffShqQ45CY4FdLc/28mum3s6tUT5shPVj14u3Cy2EsDA68GyY
+         9X9Y3LFJdRrR7yAtFdHz9IzpiUxzW+1Vqqct51lBVairuqoiNdoBh3F0tVxeOOBcl0
+         TT8epW9ACjNCQEel1cLEbthfW4KusJTRmJ8aCEYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikita Lipski <mikita.lipski@amd.com>,
-        Eryk Brol <Eryk.Brol@amd.com>,
+        stable@vger.kernel.org, Victor Lu <victorchengchi.lu@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
         Anson Jacob <Anson.Jacob@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/104] drm/amd/display: Release DSC before acquiring
-Date:   Mon, 15 Feb 2021 16:26:46 +0100
-Message-Id: <20210215152720.557440832@linuxfoundation.org>
+Subject: [PATCH 5.10 034/104] drm/amd/display: Fix dc_sink kref count in emulated_link_detect
+Date:   Mon, 15 Feb 2021 16:26:47 +0100
+Message-Id: <20210215152720.588711554@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -43,53 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikita Lipski <mikita.lipski@amd.com>
+From: Victor Lu <victorchengchi.lu@amd.com>
 
-[ Upstream commit 58180a0cc0c57fe62a799a112f95b60f6935bd96 ]
+[ Upstream commit 3ddc818d9bb877c64f5c649beab97af86c403702 ]
 
 [why]
-Need to unassign DSC from pipes that are not using it
-so other pipes can acquire it. That is needed for
-asic's that have unmatching number of DSC engines from
-the number of pipes.
+prev_sink is not used anywhere else in the function and the reference to
+it from dc_link is replaced with a new dc_sink.
 
 [how]
-Before acquiring dsc to stream resources, first remove it.
+Change dc_sink_retain(prev_sink) to dc_sink_release(prev_sink).
 
-Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
-Reviewed-by: Eryk Brol <Eryk.Brol@amd.com>
+Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
 Acked-by: Anson Jacob <Anson.Jacob@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-index eee19edeeee5c..1e448f1b39a18 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-@@ -828,6 +828,9 @@ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
- 		if (computed_streams[i])
- 			continue;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 580880212e551..e5e05a6cb62ab 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1792,8 +1792,8 @@ static void emulated_link_detect(struct dc_link *link)
+ 	link->type = dc_connection_none;
+ 	prev_sink = link->local_sink;
  
-+		if (dcn20_remove_stream_from_ctx(stream->ctx->dc, dc_state, stream) != DC_OK)
-+			return false;
-+
- 		mutex_lock(&aconnector->mst_mgr.lock);
- 		if (!compute_mst_dsc_configs_for_link(state, dc_state, stream->link)) {
- 			mutex_unlock(&aconnector->mst_mgr.lock);
-@@ -845,7 +848,8 @@ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
- 		stream = dc_state->streams[i];
+-	if (prev_sink != NULL)
+-		dc_sink_retain(prev_sink);
++	if (prev_sink)
++		dc_sink_release(prev_sink);
  
- 		if (stream->timing.flags.DSC == 1)
--			dc_stream_add_dsc_to_resource(stream->ctx->dc, dc_state, stream);
-+			if (dc_stream_add_dsc_to_resource(stream->ctx->dc, dc_state, stream) != DC_OK)
-+				return false;
- 	}
- 
- 	return true;
+ 	switch (link->connector_signal) {
+ 	case SIGNAL_TYPE_HDMI_TYPE_A: {
 -- 
 2.27.0
 
