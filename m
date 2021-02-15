@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD99731BC8E
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8F531BD14
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbhBOPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:31:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45436 "EHLO mail.kernel.org"
+        id S231335AbhBOPjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:39:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230160AbhBOPat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:30:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A24564E7B;
-        Mon, 15 Feb 2021 15:28:55 +0000 (UTC)
+        id S231463AbhBOPht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 456A664EA3;
+        Mon, 15 Feb 2021 15:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402936;
-        bh=4Bi+YtUSMojEFvriuXcLkjj3Lnw4Zl2BmQopFeoNn8s=;
+        s=korg; t=1613403191;
+        bh=2d82ML/lsPXn5JpjMp119lFurxZ44IhVjiVuGINp/T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V09svDXIVW7O6sQi6EjPPXonLTBebeYIQ1G0MzXKtXglSWY6Hk5ZOqHgM5AlF+tMb
-         Lr/eShRgjzyeTKsDDuq9fWkjoAnpw1ApeJep7BXrpJNBMIkzq2l0f0o5UTA6Qx7MVy
-         Uxww8kfNkf6JKH/HMfm3j64+oL5wX7byctUcu5vw=
+        b=IOPUSQF8XRdhHPKp9w9xHiWjcAcJtt9WtrHpdxvjJ7dbv4z3eF0Bliq1WX0vPxkCv
+         pCcOGDOguooHw9HBNAt+ALeBJ1RMjDKlcBF3OBUd2r0uWhBpbeY/KO1SHGWdcspq/R
+         u19Q9mEwTYW+fxkg/C8dWmqU8rXZRfatkvVybFV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/60] mt76: dma: fix a possible memory leak in mt76_add_fragment()
-Date:   Mon, 15 Feb 2021 16:27:14 +0100
-Message-Id: <20210215152716.189203864@linuxfoundation.org>
+Subject: [PATCH 5.10 062/104] net: hdlc_x25: Return meaningful error code in x25_open
+Date:   Mon, 15 Feb 2021 16:27:15 +0100
+Message-Id: <20210215152721.473422296@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 93a1d4791c10d443bc67044def7efee2991d48b7 ]
+[ Upstream commit 81b8be68ef8e8915d0cc6cedd2ac425c74a24813 ]
 
-Fix a memory leak in mt76_add_fragment routine returning the buffer
-to the page_frag_cache when we receive a new fragment and the
-skb_shared_info frag array is full.
+It's not meaningful to pass on LAPB error codes to HDLC code or other
+parts of the system, because they will not understand the error codes.
 
-Fixes: b102f0c522cf6 ("mt76: fix array overflow on receiving too many fragments for a packet")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/4f9dd73407da88b2a552517ce8db242d86bf4d5c.1611616130.git.lorenzo@kernel.org
+Instead, use system-wide recognizable error codes.
+
+Fixes: f362e5fe0f1f ("wan/hdlc_x25: make lapb params configurable")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20210203071541.86138-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wan/hdlc_x25.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 026d996612fbe..781952b686ed2 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -452,15 +452,17 @@ static void
- mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
- 		  int len, bool more)
- {
--	struct page *page = virt_to_head_page(data);
--	int offset = data - page_address(page);
- 	struct sk_buff *skb = q->rx_head;
- 	struct skb_shared_info *shinfo = skb_shinfo(skb);
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index f52b9fed05931..34bc53facd11c 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -171,11 +171,11 @@ static int x25_open(struct net_device *dev)
  
- 	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
--		offset += q->buf_offset;
-+		struct page *page = virt_to_head_page(data);
-+		int offset = data - page_address(page) + q->buf_offset;
-+
- 		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
- 				q->buf_size);
-+	} else {
-+		skb_free_frag(data);
- 	}
+ 	result = lapb_register(dev, &cb);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -ENOMEM;
  
- 	if (more)
+ 	result = lapb_getparms(dev, &params);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -EINVAL;
+ 
+ 	if (state(hdlc)->settings.dce)
+ 		params.mode = params.mode | LAPB_DCE;
+@@ -190,7 +190,7 @@ static int x25_open(struct net_device *dev)
+ 
+ 	result = lapb_setparms(dev, &params);
+ 	if (result != LAPB_OK)
+-		return result;
++		return -EINVAL;
+ 
+ 	return 0;
+ }
 -- 
 2.27.0
 
