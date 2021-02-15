@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7C431BD21
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE5331BD1A
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhBOPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
+        id S231501AbhBOPkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:40:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231478AbhBOPhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231479AbhBOPhu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 10:37:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD08764E9E;
-        Mon, 15 Feb 2021 15:33:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9405064EA7;
+        Mon, 15 Feb 2021 15:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403194;
-        bh=KCAOwNu5ccPs1lCxAQElK+NUIAZY9kh3m8TN7iNIFtM=;
+        s=korg; t=1613403197;
+        bh=GZTzwpC31F6WXnAiRavxsqhcbOW5d1H/w3YO1vV4c5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IorEXmu2uICSl4Htz8c3gQPPSoyfmr4uC1L4iFEuYjB8/2qDr9qztBAuvMHGrY/cD
-         e1R2jJTABGLzO4F5D5jAsGRFBqOZOxEctpCl/hqt2dmZPDQqJtgraJgogBu0DX7S4L
-         TKI8CafQ6AoRzEp0pjySFx27QehRgFOygx/e/Tsk=
+        b=S2I6YIcbgcgMBron3e+IXN5hGGTXCaI7TJPM0nO0PaGIybGOSU8zua037wX7E8/r8
+         emAyP2e2bjVtjvtmTYFnyh8x0lG9VgmdxnUndXsGim4cLauOvTHZH+6S78mRjAZCwd
+         IXJXWRIwr/Q0sUFRCtgGaAerNti9eTFZnKTA8q9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alex Elder <elder@linaro.org>,
+        stable@vger.kernel.org, Juan Vazquez <juvazq@microsoft.com>,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/104] net: ipa: set error code in gsi_channel_setup()
-Date:   Mon, 15 Feb 2021 16:27:16 +0100
-Message-Id: <20210215152721.510515900@linuxfoundation.org>
+Subject: [PATCH 5.10 064/104] hv_netvsc: Reset the RSC count if NVSP_STAT_FAIL in netvsc_receive()
+Date:   Mon, 15 Feb 2021 16:27:17 +0100
+Message-Id: <20210215152721.540604376@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -41,37 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
 
-[ Upstream commit 1d23a56b0296d29e7047b41fe0a42a001036160d ]
+[ Upstream commit 12bc8dfb83b5292fe387b795210018b7632ee08b ]
 
-In gsi_channel_setup(), we check to see if the configuration data
-contains any information about channels that are not supported by
-the hardware.  If one is found, we abort the setup process, but
-the error code (ret) is not set in this case.  Fix this bug.
+Commit 44144185951a0f ("hv_netvsc: Add validation for untrusted Hyper-V
+values") added validation to rndis_filter_receive_data() (and
+rndis_filter_receive()) which introduced NVSP_STAT_FAIL-scenarios where
+the count is not updated/reset.  Fix this omission, and prevent similar
+scenarios from occurring in the future.
 
-Fixes: 650d1603825d8 ("soc: qcom: ipa: the generic software interface")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alex Elder <elder@linaro.org>
-Link: https://lore.kernel.org/r/20210204010655.15619-1-elder@linaro.org
+Reported-by: Juan Vazquez <juvazq@microsoft.com>
+Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Fixes: 44144185951a0f ("hv_netvsc: Add validation for untrusted Hyper-V values")
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Link: https://lore.kernel.org/r/20210203113602.558916-1-parri.andrea@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/gsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/hyperv/netvsc.c       | 5 ++++-
+ drivers/net/hyperv/rndis_filter.c | 2 --
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
-index 4a68da7115d19..2a65efd3e8da9 100644
---- a/drivers/net/ipa/gsi.c
-+++ b/drivers/net/ipa/gsi.c
-@@ -1573,6 +1573,7 @@ static int gsi_channel_setup(struct gsi *gsi, bool legacy)
- 		if (!channel->gsi)
- 			continue;	/* Ignore uninitialized channels */
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index 0c3de94b51787..6a7ab930ef70d 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -1253,8 +1253,11 @@ static int netvsc_receive(struct net_device *ndev,
+ 		ret = rndis_filter_receive(ndev, net_device,
+ 					   nvchan, data, buflen);
  
-+		ret = -EINVAL;
- 		dev_err(gsi->dev, "channel %u not supported by hardware\n",
- 			channel_id - 1);
- 		channel_id = gsi->channel_count;
+-		if (unlikely(ret != NVSP_STAT_SUCCESS))
++		if (unlikely(ret != NVSP_STAT_SUCCESS)) {
++			/* Drop incomplete packet */
++			nvchan->rsc.cnt = 0;
+ 			status = NVSP_STAT_FAIL;
++		}
+ 	}
+ 
+ 	enq_receive_complete(ndev, net_device, q_idx,
+diff --git a/drivers/net/hyperv/rndis_filter.c b/drivers/net/hyperv/rndis_filter.c
+index b22e47bcfeca1..90bc0008fa2fd 100644
+--- a/drivers/net/hyperv/rndis_filter.c
++++ b/drivers/net/hyperv/rndis_filter.c
+@@ -508,8 +508,6 @@ static int rndis_filter_receive_data(struct net_device *ndev,
+ 	return ret;
+ 
+ drop:
+-	/* Drop incomplete packet */
+-	nvchan->rsc.cnt = 0;
+ 	return NVSP_STAT_FAIL;
+ }
+ 
 -- 
 2.27.0
 
