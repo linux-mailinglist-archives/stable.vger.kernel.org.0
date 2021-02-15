@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD2331BD1C
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3542931BCA7
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbhBOPkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:40:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
+        id S230389AbhBOPdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231494AbhBOPhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 906D264EAC;
-        Mon, 15 Feb 2021 15:33:24 +0000 (UTC)
+        id S231229AbhBOPbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:31:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F3BC64DEE;
+        Mon, 15 Feb 2021 15:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403205;
-        bh=DsiKUk3GygY9jko2vQZXxEPF1RWrFbhLv7k8z45r9ZY=;
+        s=korg; t=1613402951;
+        bh=a9M9lhYevYf3bgK1smEiT/lV8oOTA61upZQtQADeO/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHtZui+m/8AKz/f8kFzT1uAVhjpVsVNsO79/Nnq1udAsO2zPvzT/qLMDdyvjXDg+t
-         ECbSqcXzVRrio7K/cuoNUAS9ye05gmrVSN0XqJ9mW1N0tmpcsBt+LpunDxVMegswP6
-         vnRwNcYXoIX2bM5nC6r/1IKGsPCpULPbcoM6GbfE=
+        b=Gzvl1l/qV8CYepCXg/ptvsZy1OWtWXWmozJS6WeewB90g48yP0y0srcgMrPoN6qnO
+         nZD6Pf5bQbANmgRtEny+jua/LCJq9UpXoz3O6KrmJxaMWAzXHOMSI78P8doVAy+NiR
+         jK9HyZ7fSZSqw8jusxGdro+hbvPCs7zwZ8tzjyvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/104] selftests: txtimestamp: fix compilation issue
+Subject: [PATCH 5.4 31/60] netfilter: flowtable: fix tcp and udp header checksum update
 Date:   Mon, 15 Feb 2021 16:27:19 +0100
-Message-Id: <20210215152721.599910786@linuxfoundation.org>
+Message-Id: <20210215152716.345059700@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Sven Auhagen <sven.auhagen@voleatech.de>
 
-[ Upstream commit 647b8dd5184665432cc8a2b5bca46a201f690c37 ]
+[ Upstream commit 8d6bca156e47d68551750a384b3ff49384c67be3 ]
 
-PACKET_TX_TIMESTAMP is defined in if_packet.h but it is not included in
-test. Include it instead of <netpacket/packet.h> otherwise the error of
-redefinition arrives.
-Also fix the compiler warning about ambiguous control flow by adding
-explicit braces.
+When updating the tcp or udp header checksum on port nat the function
+inet_proto_csum_replace2 with the last parameter pseudohdr as true.
+This leads to an error in the case that GRO is used and packets are
+split up in GSO. The tcp or udp checksum of all packets is incorrect.
 
-Fixes: 8fe2f761cae9 ("net-timestamp: expand documentation")
-Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/1612461034-24524-1-git-send-email-vfedorenko@novek.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The error is probably masked due to the fact the most network driver
+implement tcp/udp checksum offloading. It also only happens when GRO is
+applied and not on single packets.
+
+The error is most visible when using a pppoe connection which is not
+triggering the tcp/udp checksum offload.
+
+Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
+Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/txtimestamp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nf_flow_table_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/txtimestamp.c b/tools/testing/selftests/net/txtimestamp.c
-index 490a8cca708a8..fabb1d555ee5c 100644
---- a/tools/testing/selftests/net/txtimestamp.c
-+++ b/tools/testing/selftests/net/txtimestamp.c
-@@ -26,6 +26,7 @@
- #include <inttypes.h>
- #include <linux/errqueue.h>
- #include <linux/if_ether.h>
-+#include <linux/if_packet.h>
- #include <linux/ipv6.h>
- #include <linux/net_tstamp.h>
- #include <netdb.h>
-@@ -34,7 +35,6 @@
- #include <netinet/ip.h>
- #include <netinet/udp.h>
- #include <netinet/tcp.h>
--#include <netpacket/packet.h>
- #include <poll.h>
- #include <stdarg.h>
- #include <stdbool.h>
-@@ -495,12 +495,12 @@ static void do_test(int family, unsigned int report_opt)
- 	total_len = cfg_payload_len;
- 	if (cfg_use_pf_packet || cfg_proto == SOCK_RAW) {
- 		total_len += sizeof(struct udphdr);
--		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW)
-+		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW) {
- 			if (family == PF_INET)
- 				total_len += sizeof(struct iphdr);
- 			else
- 				total_len += sizeof(struct ipv6hdr);
--
-+		}
- 		/* special case, only rawv6_sendmsg:
- 		 * pass proto in sin6_port if not connected
- 		 * also see ANK comment in net/ipv4/raw.c
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 128245efe84ab..e05e5df803d68 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -354,7 +354,7 @@ static int nf_flow_nat_port_tcp(struct sk_buff *skb, unsigned int thoff,
+ 		return -1;
+ 
+ 	tcph = (void *)(skb_network_header(skb) + thoff);
+-	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, true);
++	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, false);
+ 
+ 	return 0;
+ }
+@@ -371,7 +371,7 @@ static int nf_flow_nat_port_udp(struct sk_buff *skb, unsigned int thoff,
+ 	udph = (void *)(skb_network_header(skb) + thoff);
+ 	if (udph->check || skb->ip_summed == CHECKSUM_PARTIAL) {
+ 		inet_proto_csum_replace2(&udph->check, skb, port,
+-					 new_port, true);
++					 new_port, false);
+ 		if (!udph->check)
+ 			udph->check = CSUM_MANGLED_0;
+ 	}
 -- 
 2.27.0
 
