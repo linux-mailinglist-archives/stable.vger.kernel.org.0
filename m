@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B584931BCA0
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD2331BD1C
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231213AbhBOPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:32:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S231611AbhBOPkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:40:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231210AbhBOPbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:31:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C97CC64E95;
-        Mon, 15 Feb 2021 15:29:05 +0000 (UTC)
+        id S231494AbhBOPhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 906D264EAC;
+        Mon, 15 Feb 2021 15:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402946;
-        bh=KA+GgUN8BxJ+1IPKWYr3fbSEfwMSQZIHIY9T93JIjDE=;
+        s=korg; t=1613403205;
+        bh=DsiKUk3GygY9jko2vQZXxEPF1RWrFbhLv7k8z45r9ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGftQL4X4sSFJkhUqLmHRF4JiE5CzZBSXLyWJDZlLEKvSEfIb6KMvBsXJijpiznbg
-         zyivn6qavkHrPbrTEd3G/Ok4juuJri9B7JZyGkNSAINc4JJNTWdmzz8AxckNQPndIj
-         QFZ2K5n/taScOuL1bQ1w6xwGLUCTxH/R6mTlj91w=
+        b=PHtZui+m/8AKz/f8kFzT1uAVhjpVsVNsO79/Nnq1udAsO2zPvzT/qLMDdyvjXDg+t
+         ECbSqcXzVRrio7K/cuoNUAS9ye05gmrVSN0XqJ9mW1N0tmpcsBt+LpunDxVMegswP6
+         vnRwNcYXoIX2bM5nC6r/1IKGsPCpULPbcoM6GbfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Vadim Fedorenko <vfedorenko@novek.ru>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/60] netfilter: nftables: fix possible UAF over chains from packet path in netns
-Date:   Mon, 15 Feb 2021 16:27:18 +0100
-Message-Id: <20210215152716.316351297@linuxfoundation.org>
+Subject: [PATCH 5.10 066/104] selftests: txtimestamp: fix compilation issue
+Date:   Mon, 15 Feb 2021 16:27:19 +0100
+Message-Id: <20210215152721.599910786@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Vadim Fedorenko <vfedorenko@novek.ru>
 
-[ Upstream commit 767d1216bff82507c945e92fe719dff2083bb2f4 ]
+[ Upstream commit 647b8dd5184665432cc8a2b5bca46a201f690c37 ]
 
-Although hooks are released via call_rcu(), chain and rule objects are
-immediately released while packets are still walking over these bits.
+PACKET_TX_TIMESTAMP is defined in if_packet.h but it is not included in
+test. Include it instead of <netpacket/packet.h> otherwise the error of
+redefinition arrives.
+Also fix the compiler warning about ambiguous control flow by adding
+explicit braces.
 
-This patch adds the .pre_exit callback which is invoked before
-synchronize_rcu() in the netns framework to stay safe.
-
-Remove a comment which is not valid anymore since the core does not use
-synchronize_net() anymore since 8c873e219970 ("netfilter: core: free
-hooks with call_rcu").
-
-Suggested-by: Florian Westphal <fw@strlen.de>
-Fixes: df05ef874b28 ("netfilter: nf_tables: release objects on netns destruction")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 8fe2f761cae9 ("net-timestamp: expand documentation")
+Suggested-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/1612461034-24524-1-git-send-email-vfedorenko@novek.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ tools/testing/selftests/net/txtimestamp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 40216c2a7dd72..373ea0e49f12d 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -7696,6 +7696,17 @@ int __nft_release_basechain(struct nft_ctx *ctx)
- }
- EXPORT_SYMBOL_GPL(__nft_release_basechain);
- 
-+static void __nft_release_hooks(struct net *net)
-+{
-+	struct nft_table *table;
-+	struct nft_chain *chain;
-+
-+	list_for_each_entry(table, &net->nft.tables, list) {
-+		list_for_each_entry(chain, &table->chains, list)
-+			nf_tables_unregister_hook(net, table, chain);
-+	}
-+}
-+
- static void __nft_release_tables(struct net *net)
- {
- 	struct nft_flowtable *flowtable, *nf;
-@@ -7711,10 +7722,6 @@ static void __nft_release_tables(struct net *net)
- 
- 	list_for_each_entry_safe(table, nt, &net->nft.tables, list) {
- 		ctx.family = table->family;
+diff --git a/tools/testing/selftests/net/txtimestamp.c b/tools/testing/selftests/net/txtimestamp.c
+index 490a8cca708a8..fabb1d555ee5c 100644
+--- a/tools/testing/selftests/net/txtimestamp.c
++++ b/tools/testing/selftests/net/txtimestamp.c
+@@ -26,6 +26,7 @@
+ #include <inttypes.h>
+ #include <linux/errqueue.h>
+ #include <linux/if_ether.h>
++#include <linux/if_packet.h>
+ #include <linux/ipv6.h>
+ #include <linux/net_tstamp.h>
+ #include <netdb.h>
+@@ -34,7 +35,6 @@
+ #include <netinet/ip.h>
+ #include <netinet/udp.h>
+ #include <netinet/tcp.h>
+-#include <netpacket/packet.h>
+ #include <poll.h>
+ #include <stdarg.h>
+ #include <stdbool.h>
+@@ -495,12 +495,12 @@ static void do_test(int family, unsigned int report_opt)
+ 	total_len = cfg_payload_len;
+ 	if (cfg_use_pf_packet || cfg_proto == SOCK_RAW) {
+ 		total_len += sizeof(struct udphdr);
+-		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW)
++		if (cfg_use_pf_packet || cfg_ipproto == IPPROTO_RAW) {
+ 			if (family == PF_INET)
+ 				total_len += sizeof(struct iphdr);
+ 			else
+ 				total_len += sizeof(struct ipv6hdr);
 -
--		list_for_each_entry(chain, &table->chains, list)
--			nf_tables_unregister_hook(net, table, chain);
--		/* No packets are walking on these chains anymore. */
- 		ctx.table = table;
- 		list_for_each_entry(chain, &table->chains, list) {
- 			ctx.chain = chain;
-@@ -7762,6 +7769,11 @@ static int __net_init nf_tables_init_net(struct net *net)
- 	return 0;
- }
- 
-+static void __net_exit nf_tables_pre_exit_net(struct net *net)
-+{
-+	__nft_release_hooks(net);
-+}
-+
- static void __net_exit nf_tables_exit_net(struct net *net)
- {
- 	mutex_lock(&net->nft.commit_mutex);
-@@ -7774,8 +7786,9 @@ static void __net_exit nf_tables_exit_net(struct net *net)
- }
- 
- static struct pernet_operations nf_tables_net_ops = {
--	.init	= nf_tables_init_net,
--	.exit	= nf_tables_exit_net,
-+	.init		= nf_tables_init_net,
-+	.pre_exit	= nf_tables_pre_exit_net,
-+	.exit		= nf_tables_exit_net,
- };
- 
- static int __init nf_tables_module_init(void)
++		}
+ 		/* special case, only rawv6_sendmsg:
+ 		 * pass proto in sin6_port if not connected
+ 		 * also see ANK comment in net/ipv4/raw.c
 -- 
 2.27.0
 
