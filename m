@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A7A31BD09
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B299F31BD07
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:39:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbhBOPi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:38:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50210 "EHLO mail.kernel.org"
+        id S231283AbhBOPio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:38:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231360AbhBOPhS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231362AbhBOPhS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 10:37:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DA5464ED6;
-        Mon, 15 Feb 2021 15:32:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E923164E91;
+        Mon, 15 Feb 2021 15:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403136;
-        bh=UwJWluWcNg2b6jt/cHSlCJiCOzOKbIm8NV448JHNE84=;
+        s=korg; t=1613403139;
+        bh=6HQyKtEMhDLbf+qDArxqy3u2PczAa9UoihEXtMgT/VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvqda1xLN02MB28cbaOFt5EeJeu+6ZXblRW4Un6CJvswoa1qYqbNPkpMF55rhcsyZ
-         Q9xznzuCBo85DlOOBqUegDdpnrRWrlPjImACMsJZ/4Rfvdq8Gas2ie7L7ZCRl00mT5
-         BOrcktB9Z/4F2wAMkeilRwIOCVqm+cFxfl1vt7gU=
+        b=V3phEgCcs5Kh6TEoD98fPJCABghEFnNFXgu3AoJ87yrn/4ryT86iX/rmqgYCE7YKc
+         LXEM6VeUR5wWgp7xvL/gHrNgZRHn3HUNwzEeaMn+2fYkS7csrbU+x8wJ5IjjO/RYMh
+         /9hvBddSrmnUcj25d5xyjmfZ+unnejEZV7gWkgOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 008/104] drm/i915: Fix overlay frontbuffer tracking
-Date:   Mon, 15 Feb 2021 16:26:21 +0100
-Message-Id: <20210215152719.736885823@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
+        Julien Grall <jgrall@amazon.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 009/104] arm/xen: Dont probe xenbus as part of an early initcall
+Date:   Mon, 15 Feb 2021 16:26:22 +0100
+Message-Id: <20210215152719.767707000@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -42,74 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Julien Grall <jgrall@amazon.com>
 
-commit 5feba0e905c495a217aea9db4ea91093d8fe5dde upstream.
+commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
 
-We don't have a persistent fb holding a reference to the frontbuffer
-object, so every time we do the get+put we throw the frontbuffer object
-immediately away. And so the next time around we get a pristine
-frontbuffer object with bits==0 even for the old vma. This confuses
-the frontbuffer tracking code which understandably expects the old
-frontbuffer to have the overlay's bit set.
+After Commit 3499ba8198cad ("xen: Fix event channel callback via
+INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
+recent to a guest hang during boot.
 
-Fix this by hanging on to the frontbuffer reference until the next
-flip. And just to make this a bit more clear let's track the frontbuffer
-explicitly instead of just grabbing it via the old vma.
+If the hang wasn't there, we would have ended up to call
+xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
+
+We don't need to initialize xenbus_probe() early for Arm guest.
+Therefore, the call in xen_guest_init() is now removed.
+
+After this change, there is no more external caller for xenbus_probe().
+So the function is turned to a static one. Interestingly there were two
+prototypes for it.
 
 Cc: stable@vger.kernel.org
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1136
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210209021918.16234-2-ville.syrjala@linux.intel.com
-Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-(cherry picked from commit 553c23bdb4775130f333f07a51b047276bc53f79)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
+Reported-by: Ian Jackson <iwj@xenproject.org>
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_overlay.c |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/arm/xen/enlighten.c          |    2 --
+ drivers/xen/xenbus/xenbus.h       |    1 -
+ drivers/xen/xenbus/xenbus_probe.c |    2 +-
+ include/xen/xenbus.h              |    2 --
+ 4 files changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_overlay.c
-+++ b/drivers/gpu/drm/i915/display/intel_overlay.c
-@@ -182,6 +182,7 @@ struct intel_overlay {
- 	struct intel_crtc *crtc;
- 	struct i915_vma *vma;
- 	struct i915_vma *old_vma;
-+	struct intel_frontbuffer *frontbuffer;
- 	bool active;
- 	bool pfit_active;
- 	u32 pfit_vscale_ratio; /* shifted-point number, (1<<12) == 1.0 */
-@@ -282,21 +283,19 @@ static void intel_overlay_flip_prepare(s
- 				       struct i915_vma *vma)
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -370,8 +370,6 @@ static int __init xen_guest_init(void)
+ 		return -ENOMEM;
+ 	}
+ 	gnttab_init();
+-	if (!xen_initial_domain())
+-		xenbus_probe();
+ 
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -115,7 +115,6 @@ int xenbus_probe_node(struct xen_bus_typ
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
+-void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -683,7 +683,7 @@ void unregister_xenstore_notifier(struct
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
+ 
+-void xenbus_probe(void)
++static void xenbus_probe(void)
  {
- 	enum pipe pipe = overlay->crtc->pipe;
--	struct intel_frontbuffer *from = NULL, *to = NULL;
-+	struct intel_frontbuffer *frontbuffer = NULL;
+ 	xenstored_ready = 1;
  
- 	drm_WARN_ON(&overlay->i915->drm, overlay->old_vma);
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -192,8 +192,6 @@ void xs_suspend_cancel(void);
  
--	if (overlay->vma)
--		from = intel_frontbuffer_get(overlay->vma->obj);
- 	if (vma)
--		to = intel_frontbuffer_get(vma->obj);
-+		frontbuffer = intel_frontbuffer_get(vma->obj);
+ struct work_struct;
  
--	intel_frontbuffer_track(from, to, INTEL_FRONTBUFFER_OVERLAY(pipe));
-+	intel_frontbuffer_track(overlay->frontbuffer, frontbuffer,
-+				INTEL_FRONTBUFFER_OVERLAY(pipe));
- 
--	if (to)
--		intel_frontbuffer_put(to);
--	if (from)
--		intel_frontbuffer_put(from);
-+	if (overlay->frontbuffer)
-+		intel_frontbuffer_put(overlay->frontbuffer);
-+	overlay->frontbuffer = frontbuffer;
- 
- 	intel_frontbuffer_flip_prepare(overlay->i915,
- 				       INTEL_FRONTBUFFER_OVERLAY(pipe));
+-void xenbus_probe(void);
+-
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
+ 		kfree(str);				\
 
 
