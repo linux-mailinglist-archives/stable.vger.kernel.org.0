@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0283A31BCE2
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1445931BCE0
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbhBOPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S231343AbhBOPg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:36:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230425AbhBOPfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:35:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E54F64DCF;
-        Mon, 15 Feb 2021 15:31:41 +0000 (UTC)
+        id S230005AbhBOPfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:35:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB3364EC7;
+        Mon, 15 Feb 2021 15:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403102;
-        bh=H6plJyXO27aiqIwdd5XSrW9dkGwIyHBmlxIkRT8gcMY=;
+        s=korg; t=1613403105;
+        bh=LtxRUfpLwRQQJdBOvkOkAPlbx4qTobni8oVIcD7kdA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KF9szHFC2n+S2JVfXJUX+NgMX/O8tZIMUBy98hh9YmjQsqmw+c7Smhi3Al8J0WcZR
-         kuD83niOb3Bt6g7PoH4pNyXsqRbQ84NYYVqgRboPn0x3691dAH4U/net2gH85SSMmv
-         PyjHQ+nSswD2LeNbwUkAmJdiRy4bAM2qqEJt7A8s=
+        b=ppdRvsrT7eGD49Vt2GMYHbGQ0J7KV9XOF2vq0nhxQWeAJRUb2izIFasxg/cyJNzOL
+         EsVvPvchsaNKufe0Tj1mVyH8N8qsqcIIJwgJjac0mR0/53JX2ckrmwR4N90AB3L+A6
+         cOfdtW8oRdMCG1Fytkn440ISjUIbgboXr4wMygHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/104] scsi: lpfc: Fix EEH encountering oops with NVMe traffic
-Date:   Mon, 15 Feb 2021 16:26:41 +0100
-Message-Id: <20210215152720.386890600@linuxfoundation.org>
+Subject: [PATCH 5.10 029/104] x86/split_lock: Enable the split lock feature on another Alder Lake CPU
+Date:   Mon, 15 Feb 2021 16:26:42 +0100
+Message-Id: <20210215152720.427102627@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -41,50 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 8c65830ae1629b03e5d65e9aafae7e2cf5f8b743 ]
+[ Upstream commit 8acf417805a5f5c69e9ff66f14cab022c2755161 ]
 
-In testing, in a configuration with Redfish and native NVMe multipath when
-an EEH is injected, a kernel oops is being encountered:
+Add Alder Lake mobile processor to CPU list to enumerate and enable the
+split lock feature.
 
-(unreliable)
-lpfc_nvme_ls_req+0x328/0x720 [lpfc]
-__nvme_fc_send_ls_req.constprop.13+0x1d8/0x3d0 [nvme_fc]
-nvme_fc_create_association+0x224/0xd10 [nvme_fc]
-nvme_fc_reset_ctrl_work+0x110/0x154 [nvme_fc]
-process_one_work+0x304/0x5d
-
-the NBMe transport is issuing a Disconnect LS request, which the driver
-receives and tries to post but the work queue used by the driver is already
-being torn down by the eeh.
-
-Fix by validating the validity of the work queue before proceeding with the
-LS transmit.
-
-Link: https://lore.kernel.org/r/20210127221601.84878-1-jsmart2021@gmail.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20210201190007.4031869-1-fenghua.yu@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvme.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/intel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 69f1a0457f51e..03c81cec6bc98 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -714,6 +714,9 @@ __lpfc_nvme_ls_req(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 		return -ENODEV;
- 	}
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index 59a1e3ce3f145..816fdbec795a4 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -1159,6 +1159,7 @@ static const struct x86_cpu_id split_lock_cpu_ids[] __initconst = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(TIGERLAKE,		1),
+ 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	1),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		1),
++	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		1),
+ 	{}
+ };
  
-+	if (!vport->phba->sli4_hba.nvmels_wq)
-+		return -ENOMEM;
-+
- 	/*
- 	 * there are two dma buf in the request, actually there is one and
- 	 * the second one is just the start address + cmd size.
 -- 
 2.27.0
 
