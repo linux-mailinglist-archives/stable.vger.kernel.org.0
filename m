@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4252B31BCC4
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6545F31BD3D
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbhBOPfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:35:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
+        id S231570AbhBOPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:42:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230494AbhBOPdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:33:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DB764EB3;
-        Mon, 15 Feb 2021 15:30:22 +0000 (UTC)
+        id S230381AbhBOPiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:38:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F21A464EF8;
+        Mon, 15 Feb 2021 15:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403022;
-        bh=QDBg45RFT+SOm/lag6l4rj0iybT9eBugjWUvyOd+7iY=;
+        s=korg; t=1613403273;
+        bh=8yzTv+kmNL+oFvIi5QPN6VNeXCm398HTDlgtF/bf5rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DxVzB8Bz/zsHEqNuOK3si8c3LmxY/dgOcYNdH+z3K5g7qBT8sHkZdS01LpB+lbH3n
-         VMNTLqqRE53iPLXDoKXjuxJgJCCmqGKhC44na1OGfZlYSpCnzHY4JHG5wftG1z3oDj
-         PaBqu7eZffPvvjv724qwkyJ+h6ZrLi1q0RuO/Kuc=
+        b=GPF3qkRAwM4nMFGVKQDaxdKOl4dWgUD0JioyLZ2duafepwQLy3emQ8PdLWxKR3goi
+         z6AQCCKQyJW00oApnOm9LDZDDeVympqCpqMQLI8BGiw+npgp+G5Y+/d3P6NlWrl3KM
+         nq9RfLj8DwUNNB52OTxE5NIETi+Dje2zOIgSZ8MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c2a7e5c5211605a90865@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
+        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 59/60] net/qrtr: restrict user-controlled length in qrtr_tun_write_iter()
+Subject: [PATCH 5.10 094/104] net/vmw_vsock: fix NULL pointer dereference
 Date:   Mon, 15 Feb 2021 16:27:47 +0100
-Message-Id: <20210215152717.273523982@linuxfoundation.org>
+Message-Id: <20210215152722.496048614@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-commit 2a80c15812372e554474b1dba0b1d8e467af295d upstream.
+commit 5d1cbcc990f18edaddddef26677073c4e6fad7b7 upstream.
 
-syzbot found WARNING in qrtr_tun_write_iter [1] when write_iter length
-exceeds KMALLOC_MAX_SIZE causing order >= MAX_ORDER condition.
+In vsock_stream_connect(), a thread will enter schedule_timeout().
+While being scheduled out, another thread can enter vsock_stream_connect()
+as well and set vsk->transport to NULL. In case a signal was sent, the
+first thread can leave schedule_timeout() and vsock_transport_cancel_pkt()
+will be called right after. Inside vsock_transport_cancel_pkt(), a null
+dereference will happen on transport->cancel_pkt.
 
-Additionally, there is no check for 0 length write.
-
-[1]
-WARNING: mm/page_alloc.c:5011
-[..]
-Call Trace:
- alloc_pages_current+0x18c/0x2a0 mm/mempolicy.c:2267
- alloc_pages include/linux/gfp.h:547 [inline]
- kmalloc_order+0x2e/0xb0 mm/slab_common.c:837
- kmalloc_order_trace+0x14/0x120 mm/slab_common.c:853
- kmalloc include/linux/slab.h:557 [inline]
- kzalloc include/linux/slab.h:682 [inline]
- qrtr_tun_write_iter+0x8a/0x180 net/qrtr/tun.c:83
- call_write_iter include/linux/fs.h:1901 [inline]
-
-Reported-by: syzbot+c2a7e5c5211605a90865@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Link: https://lore.kernel.org/r/20210202092059.1361381-1-snovitoll@gmail.com
+Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/trinity-c2d6cede-bfb1-44e2-85af-1fbc7f541715-1612535117028@3c-app-gmx-bap12
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/tun.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/vmw_vsock/af_vsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/qrtr/tun.c
-+++ b/net/qrtr/tun.c
-@@ -80,6 +80,12 @@ static ssize_t qrtr_tun_write_iter(struc
- 	ssize_t ret;
- 	void *kbuf;
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1216,7 +1216,7 @@ static int vsock_transport_cancel_pkt(st
+ {
+ 	const struct vsock_transport *transport = vsk->transport;
  
-+	if (!len)
-+		return -EINVAL;
-+
-+	if (len > KMALLOC_MAX_SIZE)
-+		return -ENOMEM;
-+
- 	kbuf = kzalloc(len, GFP_KERNEL);
- 	if (!kbuf)
- 		return -ENOMEM;
+-	if (!transport->cancel_pkt)
++	if (!transport || !transport->cancel_pkt)
+ 		return -EOPNOTSUPP;
+ 
+ 	return transport->cancel_pkt(vsk);
 
 
