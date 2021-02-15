@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB02D31BCBF
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34BAF31BD11
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbhBOPfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:35:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
+        id S231482AbhBOPjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:39:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231348AbhBOPc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:32:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C21764EAB;
-        Mon, 15 Feb 2021 15:30:13 +0000 (UTC)
+        id S231425AbhBOPhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F1C564DEE;
+        Mon, 15 Feb 2021 15:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403014;
-        bh=nubV/1ygv6kqsM4aIbnBzomM+6P/DuLH9iUpEwabiJU=;
+        s=korg; t=1613403170;
+        bh=KweFA7IRadDskMiNVr6d6PMy5T6GyKj7eecvLMkpI0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWoTXTyEOlibPVOe1vLzkD3IEd7nSEBg67FeyqsISVN1JJTXOR8vif73Jmj64Pngf
-         +6k+JtlFL6NZdywntFS+csxqSl9kAShXAdTkR3FqevykAhkzuVGKHFw7mUpBtp+fU6
-         wPC/NcQ/CtvUkrb+VU9r7cVNVCMv5TM2rl4L9ykw=
+        b=QpMpydnu3oxDDHMP9INmCwFiGFubZOS3OVvRzKEstysXElQ/t8AXe0Hnpudh/1PC6
+         myZhJtdPUE3SWtN5Z/NREwA1YY/cWeQ6sk1W3I2ikyK0JwcQOu0yH/+Uto1xkNg+oJ
+         vqgB71jbIPVfoAddm8NkwboRxuNg4UDU11KtyhAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Feng <linf@wangsu.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/60] bfq-iosched: Revert "bfq: Fix computation of shallow depth"
+Subject: [PATCH 5.10 055/104] bpf: Unbreak BPF_PROG_TYPE_KPROBE when kprobe is called via do_int3
 Date:   Mon, 15 Feb 2021 16:27:08 +0100
-Message-Id: <20210215152716.012942558@linuxfoundation.org>
+Message-Id: <20210215152721.255908467@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Feng <linf@wangsu.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 388c705b95f23f317fa43e6abf9ff07b583b721a ]
+[ Upstream commit 548f1191d86ccb9bde2a5305988877b7584c01eb ]
 
-This reverts commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a.
+The commit 0d00449c7a28 ("x86: Replace ist_enter() with nmi_enter()")
+converted do_int3 handler to be "NMI-like".
+That made old if (in_nmi()) check abort execution of bpf programs
+attached to kprobe when kprobe is firing via int3
+(For example when kprobe is placed in the middle of the function).
+Remove the check to restore user visible behavior.
 
-bfq.limit_depth passes word_depths[] as shallow_depth down to sbitmap core
-sbitmap_get_shallow, which uses just the number to limit the scan depth of
-each bitmap word, formula:
-scan_percentage_for_each_word = shallow_depth / (1 << sbimap->shift) * 100%
-
-That means the comments's percentiles 50%, 75%, 18%, 37% of bfq are correct.
-But after commit patch 'bfq: Fix computation of shallow depth', we use
-sbitmap.depth instead, as a example in following case:
-
-sbitmap.depth = 256, map_nr = 4, shift = 6; sbitmap_word.depth = 64.
-The resulsts of computed bfqd->word_depths[] are {128, 192, 48, 96}, and
-three of the numbers exceed core dirver's 'sbitmap_word.depth=64' limit
-nothing.
-
-Signed-off-by: Lin Feng <linf@wangsu.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0d00449c7a28 ("x86: Replace ist_enter() with nmi_enter()")
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/bpf/20210203070636.70926-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/trace/bpf_trace.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7d19aae015aeb..ba32adaeefdd0 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6320,13 +6320,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * limit 'something'.
- 	 */
- 	/* no more than 50% of tags for async I/O */
--	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
-+	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
- 	/*
- 	 * no more than 75% of tags for sync writes (25% extra tags
- 	 * w.r.t. async I/O, to prevent async I/O from starving sync
- 	 * writes)
- 	 */
--	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
-+	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 0dde84b9d29fe..fcbfc95649967 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -93,9 +93,6 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
+ {
+ 	unsigned int ret;
  
- 	/*
- 	 * In-word depths in case some bfq_queue is being weight-
-@@ -6336,9 +6336,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * shortage.
- 	 */
- 	/* no more than ~18% of tags for async I/O */
--	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
-+	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
- 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
--	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
-+	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
+-	if (in_nmi()) /* not supported yet */
+-		return 1;
+-
+ 	cant_sleep();
  
- 	for (i = 0; i < 2; i++)
- 		for (j = 0; j < 2; j++)
+ 	if (unlikely(__this_cpu_inc_return(bpf_prog_active) != 1)) {
 -- 
 2.27.0
 
