@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563F731BCEF
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0283A31BCE2
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231437AbhBOPhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
+        id S231346AbhBOPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:37:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231247AbhBOPfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:35:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E9F64E7B;
-        Mon, 15 Feb 2021 15:31:39 +0000 (UTC)
+        id S230425AbhBOPfP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:35:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E54F64DCF;
+        Mon, 15 Feb 2021 15:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403100;
-        bh=c9oTIPCJxOABCDcp2YEZVO2qtD25V6Z2kSdaxHbHbRM=;
+        s=korg; t=1613403102;
+        bh=H6plJyXO27aiqIwdd5XSrW9dkGwIyHBmlxIkRT8gcMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9X67jzfeqO5g09i1IalyW0LGDF76sb4eDuWLXsP9B8YW7071SXmAKRLyk45E1Py7
-         r1FE4iryQ+ClzbLB1xGGiyo8CEGDqhbs2Mr7buXWqFrXdh8OIp3krLw6PZH243CFQL
-         kcRoReaN50G2RSeRklc7+cLxFuHL+fTJZr6vfzls=
+        b=KF9szHFC2n+S2JVfXJUX+NgMX/O8tZIMUBy98hh9YmjQsqmw+c7Smhi3Al8J0WcZR
+         kuD83niOb3Bt6g7PoH4pNyXsqRbQ84NYYVqgRboPn0x3691dAH4U/net2gH85SSMmv
+         PyjHQ+nSswD2LeNbwUkAmJdiRy4bAM2qqEJt7A8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Labriola <michael.d.labriola@gmail.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/104] ovl: skip getxattr of security labels
-Date:   Mon, 15 Feb 2021 16:26:40 +0100
-Message-Id: <20210215152720.357560526@linuxfoundation.org>
+Subject: [PATCH 5.10 028/104] scsi: lpfc: Fix EEH encountering oops with NVMe traffic
+Date:   Mon, 15 Feb 2021 16:26:41 +0100
+Message-Id: <20210215152720.386890600@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -42,72 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 03fedf93593c82538b18476d8c4f0e8f8435ea70 ]
+[ Upstream commit 8c65830ae1629b03e5d65e9aafae7e2cf5f8b743 ]
 
-When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
-calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
-intercept in inode_getxattr hooks.
+In testing, in a configuration with Redfish and native NVMe multipath when
+an EEH is injected, a kernel oops is being encountered:
 
-When selinux LSM is installed but not initialized, it will list the
-security.selinux xattr in inode_listsecurity, but will not intercept it
-in inode_getxattr.  This results in -ENODATA for a getxattr call for an
-xattr returned by listxattr.
+(unreliable)
+lpfc_nvme_ls_req+0x328/0x720 [lpfc]
+__nvme_fc_send_ls_req.constprop.13+0x1d8/0x3d0 [nvme_fc]
+nvme_fc_create_association+0x224/0xd10 [nvme_fc]
+nvme_fc_reset_ctrl_work+0x110/0x154 [nvme_fc]
+process_one_work+0x304/0x5d
 
-This situation was manifested as overlayfs failure to copy up lower
-files from squashfs when selinux is built-in but not initialized,
-because ovl_copy_xattr() iterates the lower inode xattrs by
-vfs_listxattr() and vfs_getxattr().
+the NBMe transport is issuing a Disconnect LS request, which the driver
+receives and tries to post but the work queue used by the driver is already
+being torn down by the eeh.
 
-ovl_copy_xattr() skips copy up of security labels that are indentified by
-inode_copy_up_xattr LSM hooks, but it does that after vfs_getxattr().
-Since we are not going to copy them, skip vfs_getxattr() of the security
-labels.
+Fix by validating the validity of the work queue before proceeding with the
+LS transmit.
 
-Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
-Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
-Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Link: https://lore.kernel.org/r/20210127221601.84878-1-jsmart2021@gmail.com
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/copy_up.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvme.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index 955ecd4030f04..89d5d59c7d7a4 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -84,6 +84,14 @@ int ovl_copy_xattr(struct super_block *sb, struct dentry *old,
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 69f1a0457f51e..03c81cec6bc98 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -714,6 +714,9 @@ __lpfc_nvme_ls_req(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		return -ENODEV;
+ 	}
  
- 		if (ovl_is_private_xattr(sb, name))
- 			continue;
++	if (!vport->phba->sli4_hba.nvmels_wq)
++		return -ENOMEM;
 +
-+		error = security_inode_copy_up_xattr(name);
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
-+		if (error == 1) {
-+			error = 0;
-+			continue; /* Discard */
-+		}
- retry:
- 		size = vfs_getxattr(old, name, value, value_size);
- 		if (size == -ERANGE)
-@@ -107,13 +115,6 @@ retry:
- 			goto retry;
- 		}
- 
--		error = security_inode_copy_up_xattr(name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
--			error = 0;
--			continue; /* Discard */
--		}
- 		error = vfs_setxattr(new, name, value, size, 0);
- 		if (error) {
- 			if (error != -EOPNOTSUPP || ovl_must_copy_xattr(name))
+ 	/*
+ 	 * there are two dma buf in the request, actually there is one and
+ 	 * the second one is just the start address + cmd size.
 -- 
 2.27.0
 
