@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C7431BCAC
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F295231BD26
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231239AbhBOPdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:33:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46846 "EHLO mail.kernel.org"
+        id S231431AbhBOPlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:41:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230227AbhBOPbh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:31:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38C6E64E8D;
-        Mon, 15 Feb 2021 15:29:21 +0000 (UTC)
+        id S231531AbhBOPh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77D8664EB6;
+        Mon, 15 Feb 2021 15:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402961;
-        bh=fo2yfu+WbSY0HsxWCdHXg9uoBMjqPu07TLIm50NAOi8=;
+        s=korg; t=1613403218;
+        bh=RsVJ3ZzbahlO33rvIw90SxfYRw4YLDY5kLKyW79RwKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nr/6vCetB62wSv9RT7ArqGAn0GMrzyUahzd+co7sYsY00XjfJMqDdQ6HfZFhbJIo6
-         wf/vvTuj9mzHaL3ZErcF9bnUhFKmL6m158S8gFbgTi15t/TUOouPMk1F8nNeteFeb2
-         yAqjTRejHrgGlJksICrm2+HqV+4irbRywih2nRGM=
+        b=K6aDbQ284u3+bWrKH2PHTo0bPF/H1gopDUvyWF/T9rvlJEF083a849Y2P0afu79b6
+         LegaRDDzsNS7d/7YHbyckzmdBG/NPce957yJSVgt+aWQJHZmav6IrPZ+ECN1nUP4MX
+         r4g3R2wEhzmhhkPVEYKHXH1GfspwJTqGibhbJYgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        "Song, Yoong Siang" <yoong.siang.song@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Song@vger.kernel.org
-Subject: [PATCH 5.4 35/60] net: stmmac: set TxQ mode back to DCB after disabling CBS
-Date:   Mon, 15 Feb 2021 16:27:23 +0100
-Message-Id: <20210215152716.479393398@linuxfoundation.org>
+        stable@vger.kernel.org, AC <achirvasub@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 071/104] x86/build: Disable CET instrumentation in the kernel for 32-bit too
+Date:   Mon, 15 Feb 2021 16:27:24 +0100
+Message-Id: <20210215152721.750388925@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit f317e2ea8c88737aa36228167b2292baef3f0430 ]
+[ Upstream commit 256b92af784d5043eeb7d559b6d5963dcc2ecb10 ]
 
-When disable CBS, mode_to_use parameter is not updated even the operation
-mode of Tx Queue is changed to Data Centre Bridging (DCB). Therefore,
-when tc_setup_cbs() function is called to re-enable CBS, the operation
-mode of Tx Queue remains at DCB, which causing CBS fails to work.
+Commit
 
-This patch updates the value of mode_to_use parameter to MTL_QUEUE_DCB
-after operation mode of Tx Queue is changed to DCB in stmmac_dma_qmode()
-callback function.
+  20bf2b378729 ("x86/build: Disable CET instrumentation in the kernel")
 
-Fixes: 1f705bc61aee ("net: stmmac: Add support for CBS QDISC")
-Suggested-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Song, Yoong Siang <yoong.siang.song@intel.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/1612447396-20351-1-git-send-email-yoong.siang.song@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+disabled CET instrumentation which gets added by default by the Ubuntu
+gcc9 and 10 by default, but did that only for 64-bit builds. It would
+still fail when building a 32-bit target. So disable CET for all x86
+builds.
+
+Fixes: 20bf2b378729 ("x86/build: Disable CET instrumentation in the kernel")
+Reported-by: AC <achirvasub@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: AC <achirvasub@gmail.com>
+Link: https://lkml.kernel.org/r/YCCIgMHkzh/xT4ex@arch-chirva.localdomain
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 1d135b02ea021..52b453b605979 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -332,7 +332,12 @@ static int tc_setup_cbs(struct stmmac_priv *priv,
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 6a7efa78eba22..0a6d497221e49 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -57,6 +57,9 @@ export BITS
+ KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
+ KBUILD_CFLAGS += $(call cc-option,-mno-avx,)
  
- 		priv->plat->tx_queues_cfg[queue].mode_to_use = MTL_QUEUE_AVB;
- 	} else if (!qopt->enable) {
--		return stmmac_dma_qmode(priv, priv->ioaddr, queue, MTL_QUEUE_DCB);
-+		ret = stmmac_dma_qmode(priv, priv->ioaddr, queue,
-+				       MTL_QUEUE_DCB);
-+		if (ret)
-+			return ret;
++# Intel CET isn't enabled in the kernel
++KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
 +
-+		priv->plat->tx_queues_cfg[queue].mode_to_use = MTL_QUEUE_DCB;
- 	}
+ ifeq ($(CONFIG_X86_32),y)
+         BITS := 32
+         UTS_MACHINE := i386
+@@ -127,9 +130,6 @@ else
  
- 	/* Port Transmit Rate and Speed Divider */
+         KBUILD_CFLAGS += -mno-red-zone
+         KBUILD_CFLAGS += -mcmodel=kernel
+-
+-	# Intel CET isn't enabled in the kernel
+-	KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
+ endif
+ 
+ ifdef CONFIG_X86_X32
 -- 
 2.27.0
 
