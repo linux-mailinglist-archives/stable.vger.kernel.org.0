@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37AE631BC86
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9E931BD2A
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbhBOPax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
+        id S231433AbhBOPlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:41:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230295AbhBOP3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:29:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D4864E40;
-        Mon, 15 Feb 2021 15:28:23 +0000 (UTC)
+        id S231567AbhBOPiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:38:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F3C64EE9;
+        Mon, 15 Feb 2021 15:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402904;
-        bh=SFH41UuPb7XtnofRcWtjtIekGzKQlQOefDC+q8pl4SI=;
+        s=korg; t=1613403230;
+        bh=ft4G97VhIjJwaES8UFkwK1Ab7kaT0oqcang245BltCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkju7FKgK9iH5JAthlqpmNktgjLou6KbWClTIhjVQowL+LHs8Ha3Y6OIck91Kyzcn
-         TQ1BBCHgdYcTw8sUYtc7jG6XCZ/mdfmuamotZSp95y80O2SHzUwdsyLQv4RwykNlQY
-         L7F7IzPUrSz6zv95+H5Ua27dvGf5fuWyvxWeiCao=
+        b=xF0EwvTAQJvQc7BzyRaxUdpqfOvdHZX5yrtLZ262gP1z5C4SmpfyASuI+xgUWw9ym
+         hfHpFMhI034FzW0Rx0XbVM5ElKQu5SrlAGsXzV+veuSDcGAWmyZ9NuR2AlSSsYUg18
+         Fq1Kp0RAXqDqgFbVJZDq4OEQObAplcqY5wsGaQJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
-        Julien Grall <jgrall@amazon.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 05/60] arm/xen: Dont probe xenbus as part of an early initcall
-Date:   Mon, 15 Feb 2021 16:26:53 +0100
-Message-Id: <20210215152715.564530615@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 041/104] ARM: ensure the signal page contains defined contents
+Date:   Mon, 15 Feb 2021 16:26:54 +0100
+Message-Id: <20210215152720.801524308@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <jgrall@amazon.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
+[ Upstream commit 9c698bff66ab4914bb3d71da7dc6112519bde23e ]
 
-After Commit 3499ba8198cad ("xen: Fix event channel callback via
-INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
-recent to a guest hang during boot.
+Ensure that the signal page contains our poison instruction to increase
+the protection against ROP attacks and also contains well defined
+contents.
 
-If the hang wasn't there, we would have ended up to call
-xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
-
-We don't need to initialize xenbus_probe() early for Arm guest.
-Therefore, the call in xen_guest_init() is now removed.
-
-After this change, there is no more external caller for xenbus_probe().
-So the function is turned to a static one. Interestingly there were two
-prototypes for it.
-
-Cc: stable@vger.kernel.org
-Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
-Reported-by: Ian Jackson <iwj@xenproject.org>
-Signed-off-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/xen/enlighten.c          |    2 --
- drivers/xen/xenbus/xenbus.h       |    1 -
- drivers/xen/xenbus/xenbus_probe.c |    2 +-
- include/xen/xenbus.h              |    2 --
- 4 files changed, 1 insertion(+), 6 deletions(-)
+ arch/arm/kernel/signal.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/arm/xen/enlighten.c
-+++ b/arch/arm/xen/enlighten.c
-@@ -370,8 +370,6 @@ static int __init xen_guest_init(void)
- 		return -ENOMEM;
- 	}
- 	gnttab_init();
--	if (!xen_initial_domain())
--		xenbus_probe();
+diff --git a/arch/arm/kernel/signal.c b/arch/arm/kernel/signal.c
+index 585edbfccf6df..2f81d3af5f9af 100644
+--- a/arch/arm/kernel/signal.c
++++ b/arch/arm/kernel/signal.c
+@@ -693,18 +693,20 @@ struct page *get_signal_page(void)
  
- 	/*
- 	 * Making sure board specific code will not set up ops for
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -115,7 +115,6 @@ int xenbus_probe_node(struct xen_bus_typ
- 		      const char *type,
- 		      const char *nodename);
- int xenbus_probe_devices(struct xen_bus_type *bus);
--void xenbus_probe(void);
+ 	addr = page_address(page);
  
- void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
++	/* Poison the entire page */
++	memset32(addr, __opcode_to_mem_arm(0xe7fddef1),
++		 PAGE_SIZE / sizeof(u32));
++
+ 	/* Give the signal return code some randomness */
+ 	offset = 0x200 + (get_random_int() & 0x7fc);
+ 	signal_return_offset = offset;
  
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -683,7 +683,7 @@ void unregister_xenstore_notifier(struct
+-	/*
+-	 * Copy signal return handlers into the vector page, and
+-	 * set sigreturn to be a pointer to these.
+-	 */
++	/* Copy signal return handlers into the page */
+ 	memcpy(addr + offset, sigreturn_codes, sizeof(sigreturn_codes));
+ 
+-	ptr = (unsigned long)addr + offset;
+-	flush_icache_range(ptr, ptr + sizeof(sigreturn_codes));
++	/* Flush out all instructions in this page */
++	ptr = (unsigned long)addr;
++	flush_icache_range(ptr, ptr + PAGE_SIZE);
+ 
+ 	return page;
  }
- EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
- 
--void xenbus_probe(void)
-+static void xenbus_probe(void)
- {
- 	xenstored_ready = 1;
- 
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -187,8 +187,6 @@ void xs_suspend_cancel(void);
- 
- struct work_struct;
- 
--void xenbus_probe(void);
--
- #define XENBUS_IS_ERR_READ(str) ({			\
- 	if (!IS_ERR(str) && strlen(str) == 0) {		\
- 		kfree(str);				\
+-- 
+2.27.0
+
 
 
