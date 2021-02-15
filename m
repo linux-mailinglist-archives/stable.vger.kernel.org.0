@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6294231BCD3
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 552D231BCD5
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230182AbhBOPg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:36:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
+        id S231334AbhBOPgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:36:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231278AbhBOPdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:33:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 003CC64E5E;
-        Mon, 15 Feb 2021 15:31:00 +0000 (UTC)
+        id S231384AbhBOPdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:33:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 716BB64E5A;
+        Mon, 15 Feb 2021 15:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403061;
-        bh=O1MOXe8XCQcuymh3Adm2ig73AnslwlHvwVXvoKD9L/k=;
+        s=korg; t=1613403064;
+        bh=XixZMLnlHvk8zaKCY/TQx/rhJuSwY/wSMAFOQEPqm8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07vy8w58y5WlNu3WEPzZO8+/CB0e0opuvxemGpOKFqUQ+ZzFFveeuIH3T0v2HO6nb
-         ca4wBLNN2kRX6mSQRAHSjTzjslGWPpSAn1PmF4NNe9Qe2Uq1ivRtT0Sz3HfNbi8ll4
-         vJ6jOH0QcaGdH0ADXeygqMKoStoLJXKX90cIS0dY=
+        b=RkqVa2+KCY6Xz6EH+hGzSNurFduyJSbZfH7fl5DZN2Yd5YbpMn5L/5J9JWzntTW3p
+         gbD4S1eq3DzCQi1hvInR/vVWOPbVoyaoGhkkAi9POSAbZHiTEn2JWMqsTqbrXyexHB
+         DHR36PQSg7PKHVmn70z9cqPbRyg+ZmAAP2fYBRKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>, intel-gfx@lists.freedesktop.org,
-        Imre Deak <imre.deak@intel.com>,
-        Thiago Macieira <gitlab@gitlab.freedesktop.org>
-Subject: [PATCH 5.10 013/104] drm/dp_mst: Dont report ports connected if nothing is attached to them
-Date:   Mon, 15 Feb 2021 16:26:26 +0100
-Message-Id: <20210215152719.895942160@linuxfoundation.org>
+        stable@vger.kernel.org, Radhey Shyam Pandey <radheys@xilinx.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 014/104] dmaengine: move channel device_node deletion to driver
+Date:   Mon, 15 Feb 2021 16:26:27 +0100
+Message-Id: <20210215152719.925684080@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -41,40 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit 873e5bb9fbd99e4a26c448b5c7af942a6d7aa60d upstream.
+commit e594443196d6e0ef3d3b30320c49b3a4d4f9a547 upstream.
 
-Reporting a port as connected if nothing is attached to them leads to
-any i2c transactions on this port trying to use an uninitialized i2c
-adapter, fix this.
+Channel device_node deletion is managed by the device driver rather than
+the dmaengine core. The deletion was accidentally introduced when making
+channel unregister dynamic. It causes xilinx_dma module to crash on unload
+as reported by Radhey. Remove chan->device_node delete in dmaengine and
+also fix up idxd driver.
 
-Let's account for this case even if branch devices have no good reason
-to report a port as plugged with their peer device type set to 'none'.
+[   42.142705] Internal error: Oops: 96000044 [#1] SMP
+[   42.147566] Modules linked in: xilinx_dma(-) clk_xlnx_clock_wizard uio_pdrv_genirq
+[   42.155139] CPU: 1 PID: 2075 Comm: rmmod Not tainted 5.10.1-00026-g3a2e6dd7a05-dirty #192
+[   42.163302] Hardware name: Enclustra XU5 SOM (DT)
+[   42.167992] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
+[   42.173996] pc : xilinx_dma_chan_remove+0x74/0xa0 [xilinx_dma]
+[   42.179815] lr : xilinx_dma_chan_remove+0x70/0xa0 [xilinx_dma]
+[   42.185636] sp : ffffffc01112bca0
+[   42.188935] x29: ffffffc01112bca0 x28: ffffff80402ea640
 
-Fixes: db1a07956968 ("drm/dp_mst: Handle SST-only branch device case")
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.5+
-Cc: intel-gfx@lists.freedesktop.org
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Reported-by: Thiago Macieira <gitlab@gitlab.freedesktop.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210201120145.350258-1-imre.deak@intel.com
+xilinx_dma_chan_remove+0x74/0xa0:
+__list_del at ./include/linux/list.h:112 (inlined by)
+__list_del_entry at./include/linux/list.h:135 (inlined by)
+list_del at ./include/linux/list.h:146 (inlined by)
+xilinx_dma_chan_remove at drivers/dma/xilinx/xilinx_dma.c:2546
+
+Fixes: e81274cd6b52 ("dmaengine: add support to dynamic register/unregister of channels")
+Reported-by: Radhey Shyam Pandey <radheys@xilinx.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Tested-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/161099092469.2495902.5064826526660062342.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable@vger.kernel.org # 5.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/dmaengine.c |    1 -
+ drivers/dma/idxd/dma.c  |    5 ++++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -4224,6 +4224,7 @@ drm_dp_mst_detect_port(struct drm_connec
+--- a/drivers/dma/dmaengine.c
++++ b/drivers/dma/dmaengine.c
+@@ -1110,7 +1110,6 @@ static void __dma_async_device_channel_u
+ 		  "%s called while %d clients hold a reference\n",
+ 		  __func__, chan->client_count);
+ 	mutex_lock(&dma_list_mutex);
+-	list_del(&chan->device_node);
+ 	device->chancnt--;
+ 	chan->dev->chan = NULL;
+ 	mutex_unlock(&dma_list_mutex);
+--- a/drivers/dma/idxd/dma.c
++++ b/drivers/dma/idxd/dma.c
+@@ -214,5 +214,8 @@ int idxd_register_dma_channel(struct idx
  
- 	switch (port->pdt) {
- 	case DP_PEER_DEVICE_NONE:
-+		break;
- 	case DP_PEER_DEVICE_MST_BRANCHING:
- 		if (!port->mcs)
- 			ret = connector_status_connected;
+ void idxd_unregister_dma_channel(struct idxd_wq *wq)
+ {
+-	dma_async_device_channel_unregister(&wq->idxd->dma_dev, &wq->dma_chan);
++	struct dma_chan *chan = &wq->dma_chan;
++
++	dma_async_device_channel_unregister(&wq->idxd->dma_dev, chan);
++	list_del(&chan->device_node);
+ }
 
 
