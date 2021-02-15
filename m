@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A99431B6F3
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 11:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8601731B6F5
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 11:18:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbhBOKRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 05:17:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56078 "EHLO
+        id S229927AbhBOKRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 05:17:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229627AbhBOKRA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 05:17:00 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D7FC0613D6
-        for <stable@vger.kernel.org>; Mon, 15 Feb 2021 02:16:19 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id g20so3478245plo.2
-        for <stable@vger.kernel.org>; Mon, 15 Feb 2021 02:16:19 -0800 (PST)
+        with ESMTP id S229627AbhBOKRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 05:17:30 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E087C061786
+        for <stable@vger.kernel.org>; Mon, 15 Feb 2021 02:16:50 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id m6so3916812pfk.1
+        for <stable@vger.kernel.org>; Mon, 15 Feb 2021 02:16:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=2P406t62nXlTbiz9uCWlYwFym3M9ekIQr7qWjeTIyck=;
-        b=IoAud8DVkF3OBLnYhZ8w9b/f01p8P+TwjFf4yA6ZCTwv5lVfq6KYEXOcR0bx5naBrJ
-         SkpMnoGaJXEhoXpQ2PMWHQBhqCnRUaqPIFWhUSw5ajkMCwjj7aB4oIEocYr3W27Lw8rs
-         rsrznIvRoAdWl35h0e7EwlaAp1BsMxyOdyhyge02QfaSHxSdP2misVDBQk0PMHez+z6/
-         4uHpT0eszx6xgV3RC0kypgn/tLTdyF7KJ2TKdT/n05TUWrC75C9QBLUcvsaz8YT5W6UH
-         BI00TOB+x1UfeLrByUx0fNeHpXDDu1nISRXuNZyTay2lVNMxufHVkiOoDSLlNkx9l8ZH
-         mqaQ==
+        bh=i5pNQFBQksZtXGqnvyn62VUWPz7d5PwrovQ812vxo70=;
+        b=r9hVtASvjfneCwqyvox8MVX9OwSVwQnj0ZHbtyvA80hKHNYL70Pl1nHEsOqtlIojEo
+         RvdxB2uy1RE9ifqAaIOM5pAd854SuCRd54jb4H1BeTJ7hdLSgyxnjMhlIOuyG5+2yxfB
+         TgjWaZiCPnzVfC4ogtLLqqWPhCOC7NYP0pjSq6sPEeicFqrSTbJuCzfg/9hnsXgqeFYW
+         Nj+mHxiYs2bphfJmajdWzeUTH74fVXwALgcQxwLyCs2nCV5zOhZ/HUjAoJB52TCScUSJ
+         u6cx005NH/fITkpJGnSM4qjCZHSpkFJMYOzX+fzfyvKZXoegxgXd+aSdPJWpksKdFfyc
+         5Cog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=2P406t62nXlTbiz9uCWlYwFym3M9ekIQr7qWjeTIyck=;
-        b=dLKtVMVygi7S5GFdZlk1H8k4Z5LAlaos1dObXN7icD+vB26gu2qhUc7/i/edplYsjQ
-         xNm58B50CRuTFNnG6Nf+7qQP8afCFtjS4y0bTViwtDVr+SLv+uvv2iEEJkVpwlh+/+7J
-         WrRykXAbAnIWWkaO7BS0P1w95r7NCS8g5JR1Nprsh7JC+fUOwTSNzWV+45mQKfblN/Pf
-         ai+XGYlLqP7s9TYzjwOIeNYscRbYiH59kvo/YyUnaZ/Cc0lcFO3mtOFMyYqXN7LAw0vZ
-         c4MQCYQrpnULH/GESBYjBuTgW8X/+YUHBgWABj8L+7GW8k8G7aw7NZSa591W3vA1w4P8
-         faig==
-X-Gm-Message-State: AOAM530SR/u+UvH9opqHdC2fcn27vOJ/yYynvhUXBphFYDx4oCm56K91
-        cRi8hLlUPj3iaou8SANPqtdANzQsvo6IuA==
-X-Google-Smtp-Source: ABdhPJwHt6gmrC9y63hqgrP5aBGsN1yFbs1kguSCdKKWmjnAL1JL8MfyA5DyBM4NTCxkZnMo89rJDw==
-X-Received: by 2002:a17:902:aa42:b029:e3:492a:7b37 with SMTP id c2-20020a170902aa42b02900e3492a7b37mr7596661plr.6.1613384178554;
-        Mon, 15 Feb 2021 02:16:18 -0800 (PST)
+        bh=i5pNQFBQksZtXGqnvyn62VUWPz7d5PwrovQ812vxo70=;
+        b=Vwsoccp7fmNE8BXcxqXBsfEVyylkRof8eKOGXM5sQrOZjOD2nZbaNlep7MTcRShEcE
+         DUI1dddUln6IIA2ObxSRGVyKCvH7Z0zyrkSk/9LBFoABAd2GmQPBtQmFr9rH433cxyqd
+         rC5Czaavy4RFDkPRIJqHZgOtHhb86Sutr6yrIj2oRA+T+iF14bgSyadypzO2pXGt2ixw
+         2M50s8/0L44NpwoYy8sJPL5vxsASW5DI0IZ2ucIelaJj2/7Eyq1VtJ+sls8Qmj5e6r8D
+         KEBHnWHOWhwaMMkK8nuOligCzzlWuLFtXzl3OFJCe3WnKLBPgXv+cu7z9os8TCMKG6aX
+         XjRA==
+X-Gm-Message-State: AOAM530dktkdcisi06zbcxNY4FxMbUQPy8qtdxb8r3bmLN63FCSbnlXP
+        H4zmtMKaZN9USuNlOokMltGmL034ItK2gg==
+X-Google-Smtp-Source: ABdhPJz/+4LwOaFbaWJk2QKIgQS8xncjENNPcR31HZNPUrQ6GeTthMpQ2fGTq8Qe0At2seCEvNxX0g==
+X-Received: by 2002:a63:884a:: with SMTP id l71mr14159225pgd.75.1613384208868;
+        Mon, 15 Feb 2021 02:16:48 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n15sm17733349pgl.31.2021.02.15.02.16.17
+        by smtp.gmail.com with ESMTPSA id 202sm18028708pfv.89.2021.02.15.02.16.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Feb 2021 02:16:18 -0800 (PST)
-Message-ID: <602a49f2.1c69fb81.83633.5559@mx.google.com>
-Date:   Mon, 15 Feb 2021 02:16:18 -0800 (PST)
+        Mon, 15 Feb 2021 02:16:48 -0800 (PST)
+Message-ID: <602a4a10.1c69fb81.9e944.6279@mx.google.com>
+Date:   Mon, 15 Feb 2021 02:16:48 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.4.257-13-g3e4bfc920ae1d
+X-Kernelci-Kernel: v4.4.257-14-gebce00858878
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: queue/4.4
 Subject: stable-rc/queue/4.4 build: 190 builds: 0 failed, 190 passed,
- 13 warnings (v4.4.257-13-g3e4bfc920ae1d)
+ 13 warnings (v4.4.257-14-gebce00858878)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -66,15 +66,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 stable-rc/queue/4.4 build: 190 builds: 0 failed, 190 passed, 13 warnings (v=
-4.4.257-13-g3e4bfc920ae1d)
+4.4.257-14-gebce00858878)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
-/kernel/v4.4.257-13-g3e4bfc920ae1d/
+/kernel/v4.4.257-14-gebce00858878/
 
 Tree: stable-rc
 Branch: queue/4.4
-Git Describe: v4.4.257-13-g3e4bfc920ae1d
-Git Commit: 3e4bfc920ae1d0cc84fed6fe311f3116e22d4145
+Git Describe: v4.4.257-14-gebce00858878
+Git Commit: ebce008588787befec059db2914d654e7ea739fc
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -137,13 +137,21 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+smatches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -157,16 +165,8 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
@@ -996,13 +996,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1026,13 +1021,18 @@ encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
