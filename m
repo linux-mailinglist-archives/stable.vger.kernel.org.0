@@ -2,83 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C2C31BB1E
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 15:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8AB331BB23
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 15:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbhBOObv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 09:31:51 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34035 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhBOObs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Feb 2021 09:31:48 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id AE35CEC4;
-        Mon, 15 Feb 2021 09:30:58 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 15 Feb 2021 09:30:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=VTF+InyvJ1i+IExFvTo0zZ2GIbm
-        UxMajMuGt1DH2D0g=; b=nErQjQnLRMZq8A/zgnQvDrcIq8lB9drZzEY624c39Sx
-        AHgkX0Mu7uDpzTBbxoWF3dKWTjxCu3vULPJvBAFeviiRpMuMYyEnVFFjm7IBvoYd
-        oWNowSXy2VtJjDlXhodflNoX615DJAVmBuXmnXcoM29+HxFUAzx7+RE6GJel2rfR
-        pRaW3NiDTRgE6DiuP+9ZR/MsTCC/MkY06mDNHgJAYONIIMlLKMV3Pgx3GIyiI3Ps
-        3WkYwK1+1cnX9OnQv3ue4exALw4p3Q2OPuO1IfLUYuAe1dzk4EqqmIoivSwK6syp
-        T9WfMwHENcAwOBqs3yKdVHQ2Fd3IcaSUnQwIx0OMf4Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VTF+In
-        yvJ1i+IExFvTo0zZ2GIbmUxMajMuGt1DH2D0g=; b=UAasazt4qrIDfv0CJtgUQp
-        8eISUDCS7p35pAPjDkdeqVUUBlYq7C6rY7MPDC/yk5AF91AvcqG/AAWJ31X69G5c
-        VV+695VJKApew1Yi+hrvynPfIkP5mESsc8TsaXdgZLZdsfpfTAqAASYaODauWNA0
-        Ea+prsSB5Msq1QAUcLVuAluDzuV4LAepOWvGaO8tpigmB0sXxdjKAXbWXBLd/Mz5
-        2k8Wcr/ARJZurra7YHlmykpVvA/b49UZA3Ou0FfGHcJz6BSHObxAB5ZboNnyj9q8
-        Xl2c6lHi/kr3F4BGwkZkBJ9GjV6BRg7ip3hPxxjKE6eZHel1RRxPnlZnrPAZakEQ
-        ==
-X-ME-Sender: <xms:oYUqYEdf1dxzdiTAtt-V6tLqrokHF2TspyFyyS5IVoCdGbLssZWRRw>
-    <xme:oYUqYP0NfP0FVYl5a8lfk0DUKUd7fBPphZH5974kRJjUscsYJOfvEcvKWsJXSH2Zd
-    1qvZSepUKWgPg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrieekgdeiudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:oYUqYFg6cV9GBNAKpBcidjPZmTiLBvFvb1l0YMSna0BbBQW-kT6C_Q>
-    <xmx:oYUqYNTvPqtVos1qhZgibTgOygnq1zvvBFmS_ZnGfLZJiogen04eTA>
-    <xmx:oYUqYOgYf00MfMxhOZoS9qy-Wg2GNLSfyxDU4IAoxF0N2U7gglEkaA>
-    <xmx:ooUqYMrgmndUSN6a_pb_Ja0nnhwCiB5qPfjohjR6dkpo3VmXSbra5A>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 657F924005D;
-        Mon, 15 Feb 2021 09:30:57 -0500 (EST)
-Date:   Mon, 15 Feb 2021 15:30:55 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     fedora.dm0@gmail.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH for 5.10] powerpc/32: Preserve cr1 in exception prolog
- stack check to fix build error
-Message-ID: <YCqFn/4YuT+445xW@kroah.com>
-References: <f6d16f3321f1dc89b77ada1c7d961fae4089766e.1613120077.git.christophe.leroy@csgroup.eu>
+        id S230021AbhBOOdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 09:33:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54818 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229934AbhBOOdC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 09:33:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3857464DF4;
+        Mon, 15 Feb 2021 14:32:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1613399541;
+        bh=wkAC5+Pz1fyPNEDU1s3uWND5jzs7Q96skLsoF5pmDvY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XZ9fhlHw2ebNfM71Rug5UflI2pWXxWLEJY+08rXCXjNAeDgQqhAyt0K9IhHTCDU7s
+         wsbGwqlowVRZ2N+DHDdfYrNLW+ET8fMu30uonh/xQBSFZiWAlMXWna0lBS57v4b65P
+         I8vKTQaoUvoFgPYxo2sIK6WMXh5MRP4y7rNpMDxk=
+Date:   Mon, 15 Feb 2021 15:32:19 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH for 5.10] vdpa_sim: fix param validation in
+ vdpasim_get_config()
+Message-ID: <YCqF891BLn5zsUwd@kroah.com>
+References: <20210211162519.215418-1-sgarzare@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f6d16f3321f1dc89b77ada1c7d961fae4089766e.1613120077.git.christophe.leroy@csgroup.eu>
+In-Reply-To: <20210211162519.215418-1-sgarzare@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 12, 2021 at 08:57:14AM +0000, Christophe Leroy wrote:
-> This is backport of 3642eb21256a ("powerpc/32: Preserve cr1 in
-> exception prolog stack check to fix build error") for kernel 5.10
-> 
-> It fixes the build failure on v5.10 reported by kernel test robot
-> and by David Michael.
-> 
-> This fix is not in Linux tree yet, it is in next branch in powerpc tree.
+On Thu, Feb 11, 2021 at 05:25:19PM +0100, Stefano Garzarella wrote:
+> Commit 65b709586e222fa6ffd4166ac7fdb5d5dad113ee upstream.
 
-Then there's nothing I can do about it until that happens :(
+No, this really is not that commit, so please do not say it is.
 
+> Before this patch, if 'offset + len' was equal to
+> sizeof(struct virtio_net_config), the entire buffer wasn't filled,
+> returning incorrect values to the caller.
+> 
+> Since 'vdpasim->config' type is 'struct virtio_net_config', we can
+> safely copy its content under this condition.
+> 
+> Commit 65b709586e22 ("vdpa_sim: add get_config callback in
+> vdpasim_dev_attr") unintentionally solved it upstream while
+> refactoring vdpa_sim.c to support multiple devices. But we don't want
+> to backport it to stable branches as it contains many changes.
+> 
+> Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
+> Cc: <stable@vger.kernel.org> # 5.10.x
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> index 6a90fdb9cbfc..8ca178d7b02f 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> @@ -572,7 +572,7 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
+>  {
+>  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>  
+> -	if (offset + len < sizeof(struct virtio_net_config))
+> +	if (offset + len <= sizeof(struct virtio_net_config))
+>  		memcpy(buf, (u8 *)&vdpasim->config + offset, len);
+>  }
+
+I'll be glad to take a one-off patch, but why can't we take the real
+upstream patch?  That is always the better long-term solution, right?
+
+thanks,
+
+greg k-h
