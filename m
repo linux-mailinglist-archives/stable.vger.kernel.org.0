@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B64B531BCF2
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C748F31BCF0
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbhBOPhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46916 "EHLO mail.kernel.org"
+        id S231441AbhBOPho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:37:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231268AbhBOPfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231274AbhBOPfw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Feb 2021 10:35:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AEF164ED1;
-        Mon, 15 Feb 2021 15:31:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC4964ECF;
+        Mon, 15 Feb 2021 15:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403120;
-        bh=q85n0vqDPsGHxnCM2Xt4ymm83fSyhLzfEC0f+a0SCj8=;
+        s=korg; t=1613403123;
+        bh=zSmgnH0JntPlV7zLbST/y+UfJ0k65tIl75VG84KosfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqX1G1pD5QNppu72ffShqQ45CY4FdLc/28mum3s6tUT5shPVj14u3Cy2EsDA68GyY
-         9X9Y3LFJdRrR7yAtFdHz9IzpiUxzW+1Vqqct51lBVairuqoiNdoBh3F0tVxeOOBcl0
-         TT8epW9ACjNCQEel1cLEbthfW4KusJTRmJ8aCEYM=
+        b=d4btxO80u2MrUleYuVPBbbLpuGEzqu0QlsyKecW+8xoPl2qfofN2DKD7U8GcgrvvI
+         RzOkypUq2VuCeXrH69VvRlX5nvO3uivwIMmmj4usbYL6eN7oIRVCAw0CAyiPBzxI0P
+         UHm89lmR+DKsjATeKNlPoHGyCOAVnsWEDXFB0DrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Victor Lu <victorchengchi.lu@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
+        Roman Li <Roman.Li@amd.com>, Anson Jacob <Anson.Jacob@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/104] drm/amd/display: Fix dc_sink kref count in emulated_link_detect
-Date:   Mon, 15 Feb 2021 16:26:47 +0100
-Message-Id: <20210215152720.588711554@linuxfoundation.org>
+Subject: [PATCH 5.10 035/104] drm/amd/display: Free atomic state after drm_atomic_commit
+Date:   Mon, 15 Feb 2021 16:26:48 +0100
+Message-Id: <20210215152720.620293842@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
 References: <20210215152719.459796636@linuxfoundation.org>
@@ -45,40 +44,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Victor Lu <victorchengchi.lu@amd.com>
 
-[ Upstream commit 3ddc818d9bb877c64f5c649beab97af86c403702 ]
+[ Upstream commit 2abaa323d744011982b20b8f3886184d56d23946 ]
 
 [why]
-prev_sink is not used anywhere else in the function and the reference to
-it from dc_link is replaced with a new dc_sink.
+drm_atomic_commit was changed so that the caller must free their
+drm_atomic_state reference on successes.
 
 [how]
-Change dc_sink_retain(prev_sink) to dc_sink_release(prev_sink).
+Add drm_atomic_commit_put after drm_atomic_commit call in
+dm_force_atomic_commit.
 
 Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
 Acked-by: Anson Jacob <Anson.Jacob@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 580880212e551..e5e05a6cb62ab 100644
+index e5e05a6cb62ab..321df20fcdb99 100644
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1792,8 +1792,8 @@ static void emulated_link_detect(struct dc_link *link)
- 	link->type = dc_connection_none;
- 	prev_sink = link->local_sink;
+@@ -7870,14 +7870,14 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
  
--	if (prev_sink != NULL)
--		dc_sink_retain(prev_sink);
-+	if (prev_sink)
-+		dc_sink_release(prev_sink);
+ 	ret = PTR_ERR_OR_ZERO(conn_state);
+ 	if (ret)
+-		goto err;
++		goto out;
  
- 	switch (link->connector_signal) {
- 	case SIGNAL_TYPE_HDMI_TYPE_A: {
+ 	/* Attach crtc to drm_atomic_state*/
+ 	crtc_state = drm_atomic_get_crtc_state(state, &disconnected_acrtc->base);
+ 
+ 	ret = PTR_ERR_OR_ZERO(crtc_state);
+ 	if (ret)
+-		goto err;
++		goto out;
+ 
+ 	/* force a restore */
+ 	crtc_state->mode_changed = true;
+@@ -7887,17 +7887,15 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
+ 
+ 	ret = PTR_ERR_OR_ZERO(plane_state);
+ 	if (ret)
+-		goto err;
+-
++		goto out;
+ 
+ 	/* Call commit internally with the state we just constructed */
+ 	ret = drm_atomic_commit(state);
+-	if (!ret)
+-		return 0;
+ 
+-err:
+-	DRM_ERROR("Restoring old state failed with %i\n", ret);
++out:
+ 	drm_atomic_state_put(state);
++	if (ret)
++		DRM_ERROR("Restoring old state failed with %i\n", ret);
+ 
+ 	return ret;
+ }
 -- 
 2.27.0
 
