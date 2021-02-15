@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DEC331BC9E
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7C431BD21
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbhBOPc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:32:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46646 "EHLO mail.kernel.org"
+        id S231649AbhBOPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:40:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231214AbhBOPbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:31:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A081664E73;
-        Mon, 15 Feb 2021 15:29:00 +0000 (UTC)
+        id S231478AbhBOPhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:37:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD08764E9E;
+        Mon, 15 Feb 2021 15:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613402941;
-        bh=ThCW5h/ivFEqJnOLqJsAg6AO9Oe0MmGyUOz/J2rwNYc=;
+        s=korg; t=1613403194;
+        bh=KCAOwNu5ccPs1lCxAQElK+NUIAZY9kh3m8TN7iNIFtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehr1V4SrFXLfajT39GvjV/92v1RSHiAViyO6N24wEwMfxNo5mWntgfbhbcHfdD1db
-         cQAQa4oCUo8gq2jiL7+mtefSuA139lmZiND3t1L6tw0JRJ1yRLz0Hsu3riuOAVvgJn
-         IZnhstduzOMOM9/dAIVEPO9DAOINjrMSS/Ecldro=
+        b=IorEXmu2uICSl4Htz8c3gQPPSoyfmr4uC1L4iFEuYjB8/2qDr9qztBAuvMHGrY/cD
+         e1R2jJTABGLzO4F5D5jAsGRFBqOZOxEctpCl/hqt2dmZPDQqJtgraJgogBu0DX7S4L
+         TKI8CafQ6AoRzEp0pjySFx27QehRgFOygx/e/Tsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/60] bpf: Check for integer overflow when using roundup_pow_of_two()
+Subject: [PATCH 5.10 063/104] net: ipa: set error code in gsi_channel_setup()
 Date:   Mon, 15 Feb 2021 16:27:16 +0100
-Message-Id: <20210215152716.249107879@linuxfoundation.org>
+Message-Id: <20210215152721.510515900@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
-References: <20210215152715.401453874@linuxfoundation.org>
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bui Quang Minh <minhquangbui99@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 6183f4d3a0a2ad230511987c6c362ca43ec0055f ]
+[ Upstream commit 1d23a56b0296d29e7047b41fe0a42a001036160d ]
 
-On 32-bit architecture, roundup_pow_of_two() can return 0 when the argument
-has upper most bit set due to resulting 1UL << 32. Add a check for this case.
+In gsi_channel_setup(), we check to see if the configuration data
+contains any information about channels that are not supported by
+the hardware.  If one is found, we abort the setup process, but
+the error code (ret) is not set in this case.  Fix this bug.
 
-Fixes: d5a3b1f69186 ("bpf: introduce BPF_MAP_TYPE_STACK_TRACE")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210127063653.3576-1-minhquangbui99@gmail.com
+Fixes: 650d1603825d8 ("soc: qcom: ipa: the generic software interface")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/20210204010655.15619-1-elder@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/stackmap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ipa/gsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
-index 173e983619d77..fba2ade28fb3a 100644
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -112,6 +112,8 @@ static struct bpf_map *stack_map_alloc(union bpf_attr *attr)
+diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
+index 4a68da7115d19..2a65efd3e8da9 100644
+--- a/drivers/net/ipa/gsi.c
++++ b/drivers/net/ipa/gsi.c
+@@ -1573,6 +1573,7 @@ static int gsi_channel_setup(struct gsi *gsi, bool legacy)
+ 		if (!channel->gsi)
+ 			continue;	/* Ignore uninitialized channels */
  
- 	/* hash table size must be power of 2 */
- 	n_buckets = roundup_pow_of_two(attr->max_entries);
-+	if (!n_buckets)
-+		return ERR_PTR(-E2BIG);
- 
- 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
- 	cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
++		ret = -EINVAL;
+ 		dev_err(gsi->dev, "channel %u not supported by hardware\n",
+ 			channel_id - 1);
+ 		channel_id = gsi->channel_count;
 -- 
 2.27.0
 
