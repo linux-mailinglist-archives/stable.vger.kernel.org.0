@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8F531BD14
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A79E31BC8F
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbhBOPjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:39:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
+        id S230413AbhBOPbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:31:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231463AbhBOPht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:37:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 456A664EA3;
-        Mon, 15 Feb 2021 15:33:11 +0000 (UTC)
+        id S230522AbhBOPau (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:30:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A5DC64E7F;
+        Mon, 15 Feb 2021 15:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403191;
-        bh=2d82ML/lsPXn5JpjMp119lFurxZ44IhVjiVuGINp/T8=;
+        s=korg; t=1613402938;
+        bh=yF46woBKIBG5B+76iINJ0iOuE3Lo+DNwSrpN42NtBzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOPUSQF8XRdhHPKp9w9xHiWjcAcJtt9WtrHpdxvjJ7dbv4z3eF0Bliq1WX0vPxkCv
-         pCcOGDOguooHw9HBNAt+ALeBJ1RMjDKlcBF3OBUd2r0uWhBpbeY/KO1SHGWdcspq/R
-         u19Q9mEwTYW+fxkg/C8dWmqU8rXZRfatkvVybFV0=
+        b=VI9mX/vPhi8R8a7sagLwiKlM0nYdAtb2NBx28t6UY+AgjVLNNdS++qNoQ2FB6Atmv
+         D+XTHyfg2kuKnvxpH2/jVFj/BdReR/p2fY5Ne+GO3ZiLXcNwxAbodcs6ChMpWrXtei
+         sULtXHFuOXRudWiswEszbISN0gFAPstAvLI36MRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Eric Anholt <eric@anholt.net>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/104] net: hdlc_x25: Return meaningful error code in x25_open
+Subject: [PATCH 5.4 27/60] drm/vc4: hvs: Fix buffer overflow with the dlist handling
 Date:   Mon, 15 Feb 2021 16:27:15 +0100
-Message-Id: <20210215152721.473422296@linuxfoundation.org>
+Message-Id: <20210215152716.218475179@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 81b8be68ef8e8915d0cc6cedd2ac425c74a24813 ]
+[ Upstream commit facd93f4285c405f9a91b05166147cb39e860666 ]
 
-It's not meaningful to pass on LAPB error codes to HDLC code or other
-parts of the system, because they will not understand the error codes.
+Commit 0a038c1c29a7 ("drm/vc4: Move LBM creation out of
+vc4_plane_mode_set()") changed the LBM allocation logic from first
+allocating the LBM memory for the plane to running mode_set,
+adding a gap in the LBM, and then running the dlist allocation filling
+that gap.
 
-Instead, use system-wide recognizable error codes.
+The gap was introduced by incrementing the dlist array index, but was
+never checking whether or not we were over the array length, leading
+eventually to memory corruptions if we ever crossed this limit.
 
-Fixes: f362e5fe0f1f ("wan/hdlc_x25: make lapb params configurable")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/20210203071541.86138-1-xie.he.0141@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+vc4_dlist_write had that logic though, and was reallocating a larger
+dlist array when reaching the end of the buffer. Let's share the logic
+between both functions.
+
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Eric Anholt <eric@anholt.net>
+Fixes: 0a038c1c29a7 ("drm/vc4: Move LBM creation out of vc4_plane_mode_set()")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210129160647.128373-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_x25.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_plane.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index f52b9fed05931..34bc53facd11c 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -171,11 +171,11 @@ static int x25_open(struct net_device *dev)
- 
- 	result = lapb_register(dev, &cb);
- 	if (result != LAPB_OK)
--		return result;
-+		return -ENOMEM;
- 
- 	result = lapb_getparms(dev, &params);
- 	if (result != LAPB_OK)
--		return result;
-+		return -EINVAL;
- 
- 	if (state(hdlc)->settings.dce)
- 		params.mode = params.mode | LAPB_DCE;
-@@ -190,7 +190,7 @@ static int x25_open(struct net_device *dev)
- 
- 	result = lapb_setparms(dev, &params);
- 	if (result != LAPB_OK)
--		return result;
-+		return -EINVAL;
- 
- 	return 0;
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index 5e5f90810acaf..363f456ea7134 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -205,7 +205,7 @@ static void vc4_plane_reset(struct drm_plane *plane)
+ 	__drm_atomic_helper_plane_reset(plane, &vc4_state->base);
  }
+ 
+-static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
++static void vc4_dlist_counter_increment(struct vc4_plane_state *vc4_state)
+ {
+ 	if (vc4_state->dlist_count == vc4_state->dlist_size) {
+ 		u32 new_size = max(4u, vc4_state->dlist_count * 2);
+@@ -220,7 +220,15 @@ static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
+ 		vc4_state->dlist_size = new_size;
+ 	}
+ 
+-	vc4_state->dlist[vc4_state->dlist_count++] = val;
++	vc4_state->dlist_count++;
++}
++
++static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
++{
++	unsigned int idx = vc4_state->dlist_count;
++
++	vc4_dlist_counter_increment(vc4_state);
++	vc4_state->dlist[idx] = val;
+ }
+ 
+ /* Returns the scl0/scl1 field based on whether the dimensions need to
+@@ -871,8 +879,10 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
+ 		 * be set when calling vc4_plane_allocate_lbm().
+ 		 */
+ 		if (vc4_state->y_scaling[0] != VC4_SCALING_NONE ||
+-		    vc4_state->y_scaling[1] != VC4_SCALING_NONE)
+-			vc4_state->lbm_offset = vc4_state->dlist_count++;
++		    vc4_state->y_scaling[1] != VC4_SCALING_NONE) {
++			vc4_state->lbm_offset = vc4_state->dlist_count;
++			vc4_dlist_counter_increment(vc4_state);
++		}
+ 
+ 		if (num_planes > 1) {
+ 			/* Emit Cb/Cr as channel 0 and Y as channel
 -- 
 2.27.0
 
