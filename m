@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C46E631BD40
-	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B369931BCB0
+	for <lists+stable@lfdr.de>; Mon, 15 Feb 2021 16:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbhBOPnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Feb 2021 10:43:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50014 "EHLO mail.kernel.org"
+        id S231396AbhBOPdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Feb 2021 10:33:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231193AbhBOPiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Feb 2021 10:38:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8E4D64EF7;
-        Mon, 15 Feb 2021 15:34:35 +0000 (UTC)
+        id S231181AbhBOPbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Feb 2021 10:31:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75B1664E9C;
+        Mon, 15 Feb 2021 15:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613403276;
-        bh=iao0bmx6bPOC+SVaz5xphs0/QOBeMOL3xzXsbgwJQ84=;
+        s=korg; t=1613402983;
+        bh=rQVoB0SuRcCAcymv+tN5U5jBlBkeADhdXhh2T8mTNus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6A9ymCARofkpNQnMwAYTr7GT4zYEb67q16uQde6EleQXVjbM6uiYUnrhLFa/fi43
-         ClEiEPln01QYLa8U+Yeo8TeoNI3Jq1M77bGKrRh82jTbVyE5V68khBHzqKckm73O/L
-         CnsBvtXF+6UsrC7ccp8LrN3V0mH3FMytCqNdzvq4=
+        b=g7sqkJHFjCNvoK4+8JP+/FB7z7B5dgdY0zCn58Ux81SNM5UNLogqbNwwU61Ydog03
+         2YpDiYaPt/PhqrT3049LCcPcV6BNPgr1Q+G8ZyVMocPfQlHzB02hqbWEEiWI8rEb80
+         AH8MQLilzcdWrhDQSGWH0Net2DgV5m3YtB1rUuLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Andre Heider <a.heider@gmail.com>,
+        stable@vger.kernel.org, Andre Heider <a.heider@gmail.com>,
         Jernej Skrabec <jernej.skrabec@siol.net>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/104] drm/sun4i: tcon: set sync polarity for tcon1 channel
+Subject: [PATCH 5.4 42/60] drm/sun4i: Fix H6 HDMI PHY configuration
 Date:   Mon, 15 Feb 2021 16:27:30 +0100
-Message-Id: <20210215152721.938702617@linuxfoundation.org>
+Message-Id: <20210215152716.714183665@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
-References: <20210215152719.459796636@linuxfoundation.org>
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+References: <20210215152715.401453874@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +43,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 50791f5d7b6a14b388f46c8885f71d1b98216d1d ]
+[ Upstream commit 6a155216c48f2f65c8dcb02c4c27549c170d24a9 ]
 
-Channel 1 has polarity bits for vsync and hsync signals but driver never
-sets them. It turns out that with pre-HDMI2 controllers seemingly there
-is no issue if polarity is not set. However, with HDMI2 controllers
-(H6) there often comes to de-synchronization due to phase shift. This
-causes flickering screen. It's safe to assume that similar issues might
-happen also with pre-HDMI2 controllers.
+As it turns out, vendor HDMI PHY driver for H6 has a pretty big table
+of predefined values for various pixel clocks. However, most of them are
+not useful/tested because they come from reference driver code. Vendor
+PHY driver is concerned with only few of those, namely 27 MHz, 74.25
+MHz, 148.5 MHz, 297 MHz and 594 MHz. These are all frequencies for
+standard CEA modes.
 
-Solve issue with setting vsync and hsync polarity. Note that display
-stacks with tcon top have polarity bits actually in tcon0 polarity
-register.
+Fix sun50i_h6_cur_ctr and sun50i_h6_phy_config with the values only for
+aforementioned frequencies.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Table sun50i_h6_mpll_cfg doesn't need to be changed because values are
+actually frequency dependent and not so much SoC dependent. See i.MX6
+documentation for explanation of those values for similar PHY.
+
+Fixes: c71c9b2fee17 ("drm/sun4i: Add support for Synopsys HDMI PHY")
 Tested-by: Andre Heider <a.heider@gmail.com>
 Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210209175900.7092-3-jernej.skrabec@siol.net
+Link: https://patchwork.freedesktop.org/patch/msgid/20210209175900.7092-5-jernej.skrabec@siol.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_tcon.c | 25 +++++++++++++++++++++++++
- drivers/gpu/drm/sun4i/sun4i_tcon.h |  6 ++++++
- 2 files changed, 31 insertions(+)
+ drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c | 26 +++++++++-----------------
+ 1 file changed, 9 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.c b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-index eaaf5d70e3529..1e643bc7e786a 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-@@ -689,6 +689,30 @@ static void sun4i_tcon1_mode_set(struct sun4i_tcon *tcon,
- 		     SUN4I_TCON1_BASIC5_V_SYNC(vsync) |
- 		     SUN4I_TCON1_BASIC5_H_SYNC(hsync));
+diff --git a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
+index 43643ad317306..a4012ec13d4b3 100644
+--- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
++++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
+@@ -104,29 +104,21 @@ static const struct dw_hdmi_mpll_config sun50i_h6_mpll_cfg[] = {
  
-+	/* Setup the polarity of multiple signals */
-+	if (tcon->quirks->polarity_in_ch0) {
-+		val = 0;
-+
-+		if (mode->flags & DRM_MODE_FLAG_PHSYNC)
-+			val |= SUN4I_TCON0_IO_POL_HSYNC_POSITIVE;
-+
-+		if (mode->flags & DRM_MODE_FLAG_PVSYNC)
-+			val |= SUN4I_TCON0_IO_POL_VSYNC_POSITIVE;
-+
-+		regmap_write(tcon->regs, SUN4I_TCON0_IO_POL_REG, val);
-+	} else {
-+		/* according to vendor driver, this bit must be always set */
-+		val = SUN4I_TCON1_IO_POL_UNKNOWN;
-+
-+		if (mode->flags & DRM_MODE_FLAG_PHSYNC)
-+			val |= SUN4I_TCON1_IO_POL_HSYNC_POSITIVE;
-+
-+		if (mode->flags & DRM_MODE_FLAG_PVSYNC)
-+			val |= SUN4I_TCON1_IO_POL_VSYNC_POSITIVE;
-+
-+		regmap_write(tcon->regs, SUN4I_TCON1_IO_POL_REG, val);
-+	}
-+
- 	/* Map output pins to channel 1 */
- 	regmap_update_bits(tcon->regs, SUN4I_TCON_GCTL_REG,
- 			   SUN4I_TCON_GCTL_IOMAP_MASK,
-@@ -1517,6 +1541,7 @@ static const struct sun4i_tcon_quirks sun8i_a83t_tv_quirks = {
- 
- static const struct sun4i_tcon_quirks sun8i_r40_tv_quirks = {
- 	.has_channel_1		= true,
-+	.polarity_in_ch0	= true,
- 	.set_mux		= sun8i_r40_tcon_tv_set_mux,
+ static const struct dw_hdmi_curr_ctrl sun50i_h6_cur_ctr[] = {
+ 	/* pixelclk    bpp8    bpp10   bpp12 */
+-	{ 25175000,  { 0x0000, 0x0000, 0x0000 }, },
+ 	{ 27000000,  { 0x0012, 0x0000, 0x0000 }, },
+-	{ 59400000,  { 0x0008, 0x0008, 0x0008 }, },
+-	{ 72000000,  { 0x0008, 0x0008, 0x001b }, },
+-	{ 74250000,  { 0x0013, 0x0013, 0x0013 }, },
+-	{ 90000000,  { 0x0008, 0x001a, 0x001b }, },
+-	{ 118800000, { 0x001b, 0x001a, 0x001b }, },
+-	{ 144000000, { 0x001b, 0x001a, 0x0034 }, },
+-	{ 180000000, { 0x001b, 0x0033, 0x0034 }, },
+-	{ 216000000, { 0x0036, 0x0033, 0x0034 }, },
+-	{ 237600000, { 0x0036, 0x0033, 0x001b }, },
+-	{ 288000000, { 0x0036, 0x001b, 0x001b }, },
+-	{ 297000000, { 0x0019, 0x001b, 0x0019 }, },
+-	{ 330000000, { 0x0036, 0x001b, 0x001b }, },
+-	{ 594000000, { 0x003f, 0x001b, 0x001b }, },
++	{ 74250000,  { 0x0013, 0x001a, 0x001b }, },
++	{ 148500000, { 0x0019, 0x0033, 0x0034 }, },
++	{ 297000000, { 0x0019, 0x001b, 0x001b }, },
++	{ 594000000, { 0x0010, 0x001b, 0x001b }, },
+ 	{ ~0UL,      { 0x0000, 0x0000, 0x0000 }, }
  };
  
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.h b/drivers/gpu/drm/sun4i/sun4i_tcon.h
-index cfbf4e6c16799..ee555318e3c2f 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.h
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.h
-@@ -153,6 +153,11 @@
- #define SUN4I_TCON1_BASIC5_V_SYNC(height)		(((height) - 1) & 0x3ff)
+ static const struct dw_hdmi_phy_config sun50i_h6_phy_config[] = {
+ 	/*pixelclk   symbol   term   vlev*/
+-	{ 74250000,  0x8009, 0x0004, 0x0232},
+-	{ 148500000, 0x8029, 0x0004, 0x0273},
+-	{ 594000000, 0x8039, 0x0004, 0x014a},
++	{ 27000000,  0x8009, 0x0007, 0x02b0 },
++	{ 74250000,  0x8009, 0x0006, 0x022d },
++	{ 148500000, 0x8029, 0x0006, 0x0270 },
++	{ 297000000, 0x8039, 0x0005, 0x01ab },
++	{ 594000000, 0x8029, 0x0000, 0x008a },
+ 	{ ~0UL,	     0x0000, 0x0000, 0x0000}
+ };
  
- #define SUN4I_TCON1_IO_POL_REG			0xf0
-+/* there is no documentation about this bit */
-+#define SUN4I_TCON1_IO_POL_UNKNOWN			BIT(26)
-+#define SUN4I_TCON1_IO_POL_HSYNC_POSITIVE		BIT(25)
-+#define SUN4I_TCON1_IO_POL_VSYNC_POSITIVE		BIT(24)
-+
- #define SUN4I_TCON1_IO_TRI_REG			0xf4
- 
- #define SUN4I_TCON_ECC_FIFO_REG			0xf8
-@@ -235,6 +240,7 @@ struct sun4i_tcon_quirks {
- 	bool	needs_de_be_mux; /* sun6i needs mux to select backend */
- 	bool    needs_edp_reset; /* a80 edp reset needed for tcon0 access */
- 	bool	supports_lvds;   /* Does the TCON support an LVDS output? */
-+	bool	polarity_in_ch0; /* some tcon1 channels have polarity bits in tcon0 pol register */
- 	u8	dclk_min_div;	/* minimum divider for TCON0 DCLK */
- 
- 	/* callback to handle tcon muxing options */
 -- 
 2.27.0
 
