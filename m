@@ -2,133 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6022B31D2C2
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 23:43:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3189031D329
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 01:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbhBPWn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 17:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44536 "EHLO
+        id S231252AbhBPXw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 18:52:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230383AbhBPWn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 17:43:27 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51617C061574
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 14:42:47 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id 189so7117485pfy.6
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 14:42:47 -0800 (PST)
+        with ESMTP id S229809AbhBPXw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 18:52:29 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC16C061756
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 15:51:48 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id b8so5924526oti.7
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 15:51:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JB/Gw4d+ZB8Fy6/4p3TkUfJuv9DiL0Vo4NGFHGsNxdo=;
-        b=ie2ydUJAPq5j9m8xoZOYHJEZwKfpD07qTfxJ9KguEW0a0WPC0DjRFBTFnxgiqB2pOO
-         Fx2dc02I+8neiaXd6xJY2i9rJEktgmrmBNb7T5qreB/up4NqC9T6kOj3JS1YHG8tRqBg
-         xxgcJCsH6LEBbUl7Xiwqq3ToeE48SaWVlPExQP5FxJXMVZTw0znh9owKUBnFkn4xmmLX
-         0+yFnvLGTE6kgbXqQyffiVePg1bMdjbdXCUZHiEMfsEa9OnR4n/tLRG6G80H4VGL1e7j
-         Ux18o3peUt1BOXU7i80JcskK6BnrdQ6vqRdp667x/grggXhbbqwRUx0rM0Gn/lbldIfz
-         lFvA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Iq1gkpVHEz387Gom/8X56uBSKGCqa4TA+SA+jctV79s=;
+        b=r5YC3E3sRUKcFQ1s5h6Gjsz/denswBuwn1idqOnNTpH8a757IuRghBvh8WDPYmdqz8
+         MBhxBLs7u9YJ8PcUAQ4qfPB8QrCX1C1CB3rKqnxTS5tb5Lwu039e7J0I/tL3ft/I38Hd
+         JZ9V669kezEqkMqbmyqtC0cYaWeFDaq1STSsuSawsjgAhYCAd2ldn8/PqAB6lXLxZjLb
+         llQEBlRaGrxGWQepaeAJj5WpB3pS25YuSVOwdD5LyXTCHbYp1oaRTInXtkfKA0cb+cRv
+         DoktPEUXm0A+NN7NLjsZS25t/qB4+bASp0Vbak3fFNhXdiViRk88v6EeKMHp7Tkz8jTp
+         r21Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JB/Gw4d+ZB8Fy6/4p3TkUfJuv9DiL0Vo4NGFHGsNxdo=;
-        b=kx5UnG2Dq5xv0eVYbtlsMF9Kpg+xntxMjEM9XHW07wfY4nZrEZtxq7IGnnDG6Vm9WP
-         l7stlNpCkRoReKfUqSnue47JNKo56g018gWxwFVGzhPT0OE9vvBCq3gWHapVsBnrG4g8
-         Q0HtYReAsY7+dm5+lPqYnBLza262SJH7lsbpP0UTDppabdMCoPnAePrKlHjj5qliBpHS
-         LsaQ8+URIlEwhiFVOcHiKXID0/2D613IfOhxAcfG9WHzWUZVYUsi72oKNvKdOUv2OgPe
-         e0b1eX4olNgwFLfMaBDrQv1bwcy79XECihu6xUDB65rVjG8R/5Svhq7NPJuYx4I7yRb8
-         s4oQ==
-X-Gm-Message-State: AOAM532xSmt7sk9Ru3FVomFWi6bVhBGS6m40WFQoSNfo+eZsMquUQff7
-        ogUwr9WQg1xYGtIlZB8t3MbBkKGm8PxSsg==
-X-Google-Smtp-Source: ABdhPJyBcxZSxawVhktj+EMaSmi8dSuaHJRWfjpmyAb5VYOJCiflgRQddkdLom2nHBkGvE5sGEdc9g==
-X-Received: by 2002:aa7:961b:0:b029:1db:532c:9030 with SMTP id q27-20020aa7961b0000b02901db532c9030mr22147348pfg.30.1613515366318;
-        Tue, 16 Feb 2021 14:42:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id cm7sm13308pjb.43.2021.02.16.14.42.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Feb 2021 14:42:45 -0800 (PST)
-Message-ID: <602c4a65.1c69fb81.a530.011c@mx.google.com>
-Date:   Tue, 16 Feb 2021 14:42:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Iq1gkpVHEz387Gom/8X56uBSKGCqa4TA+SA+jctV79s=;
+        b=H5OPH+7Bp8yZB/3N5R8Jq7dXEUGg0K5WJ88Wd+PCiDfhYMsR0i4ULbHJxkYYJcDQsJ
+         E/drjp0S46jRiMhq7xGVokNPiX7ZHT49z7enQlSbCG/SbgJbhI0B1EQvb6Grih9nJ6gb
+         PVbSmxLVC3mz+Bgt2W4LLiSTLrU1iNQc2xL7ynqOW0WJ4EQQpfdtMoYUDr7psHB3rdiu
+         11vSr33PqWHJDqy4/blkwFv7QaZ1l7vIdGBY2nz9iqS/zUN0foxbvCh7Do+J9JwkHO0X
+         5mMsw/LWkAktOWDHgU7kokFCqaHwPq7tNuGW/w+AtVYjuU3CkcKTWTtlLpXRdNvYPpCo
+         05gQ==
+X-Gm-Message-State: AOAM530EeLqJxfieOtUfcwt10BAbtFlMkzliOdWwdtTx+WOFGRFWMAL5
+        AQR7q1PUrlPKtUHM3Chdd9yVl/eVpSQSCr8gZqMOjw==
+X-Google-Smtp-Source: ABdhPJz/bQox8VXGGzo01NmrWUpOOra3c67gz0H6lLkJwv1Ew+qZyr9yBWf6EgOJVnRpfNPc2vQTQB+AnMHUaH5L6PQ=
+X-Received: by 2002:a9d:6756:: with SMTP id w22mr13978900otm.50.1613519508054;
+ Tue, 16 Feb 2021 15:51:48 -0800 (PST)
 MIME-Version: 1.0
+References: <20210209050047.1958473-1-daniel.diaz@linaro.org> <CAK7LNAR-OFSYERwX45gy=WyVkBBaUEVY_UBS0ZNj5T+B0a6+Xw@mail.gmail.com>
+In-Reply-To: <CAK7LNAR-OFSYERwX45gy=WyVkBBaUEVY_UBS0ZNj5T+B0a6+Xw@mail.gmail.com>
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Tue, 16 Feb 2021 17:51:36 -0600
+Message-ID: <CAEUSe7_W4uGU5VQw8ibxAVgQW6MjJj0=YrHd+sCKkh76vRwuyg@mail.gmail.com>
+Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Michal Marek <michal.lkml@markovi.net>,
+        Rolf Eike Beer <eb@emlix.com>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.257-24-g7f32e1cdee52
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 34 runs,
- 1 regressions (v4.4.257-24-g7f32e1cdee52)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 34 runs, 1 regressions (v4.4.257-24-g7f32e1cd=
-ee52)
+Hello!
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+Apologies for the delay -- Currently experiencing power/connectivity issues=
+.
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.257-24-g7f32e1cdee52/plan/baseline/
+On Thu, 11 Feb 2021 at 01:12, Masahiro Yamada <masahiroy@kernel.org> wrote:
+> I am wondering how "HOSTLDFLAGS_sign-file" and
+> "HOSTLDFLAGS_extract-cert" worked for you.
+> Kbuild supports HOSTLDLIBS_<target> syntax,
+> but not HOSTLDFLAGS_<target>.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.257-24-g7f32e1cdee52
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7f32e1cdee52c5db46b3b814b1d05f6966db18a8 =
+Thanks for the insight! The pointer you have provided are very
+valuable to try to fix our problem.
 
+What effectively happened was that LDFLAGS was removed, and therefore
+the gcc line did not include one -L path that's proving difficult to
+use under OpenEmbedded cross-compilations. This discussion has
+provided much light in areas that are unknown to me, but so far it
+looks like the fix will need to happen in the OE recipe and not in the
+kernel itself.
 
+Thanks and greetings!
 
-Test Regressions
----------------- =
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
 
 
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/602c185efd294b17dcaddcd0
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.257-2=
-4-g7f32e1cdee52/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.257-2=
-4-g7f32e1cdee52/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602c185efd294b1=
-7dcaddcd5
-        new failure (last pass: v4.4.257-20-gefab6e77247e)
-        2 lines
-
-    2021-02-16 19:09:13.680000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-02-16 19:09:13.698000+00:00  [   19.530853] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+> I see $(HOSTLDLIBS_$(target-stem) in scripts/Makefile.host
+> but failed to find $(HOSTLDFLAGS_$(target-stem)).
+>
+> So, presumably you will get the same result
+> (OE build error will be fixed)
+> even without HOSTLDFLAGS_sign-file
+> or HOSTLDFLAGS_extract-cert.
+>
+>
+>
+> But, I am still wondering what the correct approach is.
+>
+>
+>
+> Basically, there are two ways to link libraries
+> in non-standard paths.
+>
+>
+>
+> [1] Give linker flags via HOSTLDFLAGS
+>
+>    This is documented in Documentation/kbuild/kbuild.rst
+>
+>    HOSTLDFLAGS
+>    -----------
+>    Additional flags to be passed when linking host programs.
+>
+>
+>
+>
+> [2] Use pkg-config
+>
+>
+>
+>
+>
+>
+> OE already adopted [1].
+>
+> I think the following long lines came from HOSTLDFLAGS.
+>
+>     -isystem/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d83-r=
+0/recipe-sysroot-native/usr/include
+> \
+>     -O2 -pipe -L/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d=
+83-r0/recipe-sysroot-native/usr/lib
+> \
+>     -L/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d83-r0/reci=
+pe-sysroot-native/lib
+> \
+>     -Wl,-rpath-link,/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f=
+250d83-r0/recipe-sysroot-native/usr/lib
+> \
+>     -Wl,-rpath-link,/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f=
+250d83-r0/recipe-sysroot-native/lib
+> \
+>     -Wl,-rpath,/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d8=
+3-r0/recipe-sysroot-native/usr/lib
+> \
+>     -Wl,-rpath,/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d8=
+3-r0/recipe-sysroot-native/lib
+> \
+>     -Wl,-O1 -I/oe/build/tmp/work/MACHINE/linux/5.10+gitAUTOINC+b01f250d83=
+-r0/recipe-sysroot-native/usr/include
+> \
+>     -I ./scripts -o scripts/extract-cert \
+>
+>
+>
+>
+> But, some people are not satisfied with [1] (or do not notice it)?
+>
+>
+> Then, 2cea4a7a1885 introduced the second one [2].
+>
+> Mixing [1] and [2] perhaps confuses the build system somehow?
+>
+>
+>
+>
+> So, 2cea4a7a1885 was a problem, but
+> I do not think this patch is the right one either.
+>
+> (At least, HOSTLDFLAGS_* additions are pointless)
+>
+>
+>
+>
+> --
+> Best Regards
+> Masahiro Yamada
