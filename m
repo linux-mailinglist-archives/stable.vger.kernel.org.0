@@ -2,122 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06FA31D203
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 22:25:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17EA31D22C
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 22:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230059AbhBPVYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 16:24:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229767AbhBPVYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 16:24:55 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28EBFC061574
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 13:24:15 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id ba1so6228964plb.1
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 13:24:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+tR64mm7bMb91/vODZrIcMdbF6mqbVYi4r6Wsfrtth8=;
-        b=PyBrHc2cVWLvsrD+g/6+luNCJAe8p8jaBMes9OkFz+zcG5pwEPHnKG01V6SAyngsfL
-         pfEAm8u7dEKC9YYiPqhdCoxR83JBJu84hU2o5fx+iQu3vvHO+khLdaP+ioGsPPLJI0pe
-         8eHqaLNF2Q4fAbxrSmYxYpCL90zIvzzSm9Aj0WJPdRFVkkqoACJk6blYCO5F5SDsTkFM
-         hhnWtBGTDn1GHZlQGrpB4ARD3BftIZtyJ2Kt0p2vGs+UPD+ZUrjkfgZqxHpCzixtuABS
-         9ut4/pzAGRZ+gtlKhu9WqjoEtF4O4qZctIGa7L0lkDFG446Mp8Rc4f+iqYZ9X0cBuODA
-         YLyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+tR64mm7bMb91/vODZrIcMdbF6mqbVYi4r6Wsfrtth8=;
-        b=JannrbGMhMD8JSELQQGvUXYPjpBf8mcLt4VNzPBVXmNnaOrhO8kJF1war/x2RB0GKC
-         JfLm8EEBcYALNMeNQ4LX7U/OaFlbWK+GOD3tzsqE7kg/q7JvbuGNeWslZFKCw0k8CmZX
-         6eLRNjjDQvmysBhaDXcedXkPYrZ975RCExaIZ8Cuj5TWvJvlyEEPlMciKgIW5lL0Wi//
-         V3pwN3L7zoZUolaNbOv332yi3m/GOBb24nuQojq/K66wOM2OS0ExxT0v/pllXsC2DjG/
-         L14wWfPchFSixiUW1yHGxAIkDD2mZjqT9CdZ9g1ZJ+FsIo8gQ+XsbHvXlqW8nyk7NTRg
-         NYPA==
-X-Gm-Message-State: AOAM530BpO9lHfcEvSniHIZP9fMcmK8OCf0E1dongK2pUSzomcQ0eCUe
-        +Qm3o38cM1kCboBXRr1JvM44EWwYNR8Sag==
-X-Google-Smtp-Source: ABdhPJysJpk/XwQyw6Xa+hE3y/EUqzisk8jhZZlRdUK25VD5fDLIPBFKLvRvq3LmcHPHto12lF/88A==
-X-Received: by 2002:a17:90a:f18f:: with SMTP id bv15mr6125576pjb.51.1613510654335;
-        Tue, 16 Feb 2021 13:24:14 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u15sm5895550pfm.130.2021.02.16.13.24.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Feb 2021 13:24:13 -0800 (PST)
-Message-ID: <602c37fd.1c69fb81.3956d.bcfa@mx.google.com>
-Date:   Tue, 16 Feb 2021 13:24:13 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S230218AbhBPVgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 16:36:07 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59904 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229912AbhBPVgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 16:36:06 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 2BA151C0B9E; Tue, 16 Feb 2021 22:35:09 +0100 (CET)
+Date:   Tue, 16 Feb 2021 22:35:08 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.10 098/104] switchdev: mrp: Remove
+ SWITCHDEV_ATTR_ID_MRP_PORT_STAT
+Message-ID: <20210216213508.GA32671@amd>
+References: <20210215152719.459796636@linuxfoundation.org>
+ <20210215152722.633343806@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.221-44-g2c371b544ba26
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 65 runs,
- 1 regressions (v4.14.221-44-g2c371b544ba26)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <20210215152722.633343806@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 65 runs, 1 regressions (v4.14.221-44-g2c371b=
-544ba26)
 
-Regressions Summary
--------------------
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+Hi!
 
+> From: Horatiu Vultur <horatiu.vultur@microchip.com>
+>=20
+> commit 059d2a1004981dce19f0127dabc1b4ec927d202a upstream.
+>=20
+> Now that MRP started to use also SWITCHDEV_ATTR_ID_PORT_STP_STATE to
+> notify HW, then SWITCHDEV_ATTR_ID_MRP_PORT_STAT is not used anywhere
+> else, therefore we can remove it.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.221-44-g2c371b544ba26/plan/baseline/
+Are you sure this is suitable for 5.10 backport? Unlike mainline,
+net/bridge use is not removed, so this will cause compile problem...?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.221-44-g2c371b544ba26
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2c371b544ba26338d651db7eadf07f4129c59ea0 =
+pavel@amd:~/cip/krc$ grep -ri SWITCHDEV_ATTR_ID_MRP_PORT_STATE .
+=2E/include/net/switchdev.h:    SWITCHDEV_ATTR_ID_MRP_PORT_STATE,
+=2E/net/bridge/br_mrp_switchdev.c:		.id =3D SWITCHDEV_ATTR_ID_MRP_PORT_STAT=
+E,
+pavel@amd:~/cip/krc$ e ./net/bridge/br_mrp_switchdev.c
 
+Best regards,
+								Pavel
 
+> --- a/include/net/switchdev.h
+> +++ b/include/net/switchdev.h
+> @@ -41,7 +41,6 @@ enum switchdev_attr_id {
+>  	SWITCHDEV_ATTR_ID_BRIDGE_MC_DISABLED,
+>  	SWITCHDEV_ATTR_ID_BRIDGE_MROUTER,
+>  #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+> -	SWITCHDEV_ATTR_ID_MRP_PORT_STATE,
+>  	SWITCHDEV_ATTR_ID_MRP_PORT_ROLE,
+>  #endif
+>  };
 
-Test Regressions
----------------- =
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+iEYEARECAAYFAmAsOowACgkQMOfwapXb+vKVJQCcDIcS2WwINzf5ghcr5730FQh0
+LIUAnRcLy99KXw1KpKNj4itKHCP2Wju/
+=Z9wu
+-----END PGP SIGNATURE-----
 
-
-  Details:     https://kernelci.org/test/plan/id/602c07e7752dda54d4addcb8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-g2c371b544ba26/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-g2c371b544ba26/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/602c07e7752dda54d4add=
-cb9
-        failing since 70 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
- fail: v4.14.210-20-g5ea7913395d3) =
-
- =20
+--2fHTh5uZTiUOsy+g--
