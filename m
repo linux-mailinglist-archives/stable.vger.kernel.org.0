@@ -2,152 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CA8031CE3B
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 17:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBB031CE79
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 17:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230204AbhBPQj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 11:39:59 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48438 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229764AbhBPQjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 11:39:55 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 8B82FAB4C;
-        Tue, 16 Feb 2021 16:39:13 +0000 (UTC)
-Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
- holes in memory layout
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Mike Rapoport <rppt@kernel.org>, Mel Gorman <mgorman@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, x86@kernel.org
-References: <20210208110820.6269-1-rppt@kernel.org>
- <YCZZeAAC8VOCPhpU@dhcp22.suse.cz>
- <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
- <YCaAHI/rFp1upRLc@dhcp22.suse.cz> <20210214180016.GO242749@kernel.org>
- <YCo4Lyio1h2Heixh@dhcp22.suse.cz> <20210215212440.GA1307762@kernel.org>
- <YCuDUG89KwQNbsjA@dhcp22.suse.cz> <20210216110154.GB1307762@kernel.org>
- <b1302d8e-5380-18d1-0f55-2dfd61f470e6@suse.cz>
- <YCvEeWuU2tBUUNBG@dhcp22.suse.cz>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <caeebbcc-b6c9-624b-3eeb-591bf59f28a6@suse.cz>
-Date:   Tue, 16 Feb 2021 17:39:12 +0100
+        id S230491AbhBPQxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 11:53:32 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46836 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230097AbhBPQx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 11:53:26 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11GGXCgO147308;
+        Tue, 16 Feb 2021 11:52:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KS8Y+XGxUXIzrrjyQRSiPDJAYsSbs8BAQ7A0YAHTHDk=;
+ b=O6cGGnjc5Vscm0lqnxQcRj/MEkjzgCjfGHCpicYcBltnke2b7feh8NgoB2MrZ0NcuoyK
+ 3OTO2MktlxxclXlJtiP+JAE+48asEVnYelQsDFC5q7/3tyTqC6JECS7YarVkRLVqBeUQ
+ PIwJ3rwjkbCCkf+Aj/vG5sGe/KHqPcaG8XBXIwtUIVoM3/oP64FBtwgim0Z8rLD62nHb
+ +mCTdrdwftIoL4+WGtPyyeVU88Uul3TJQQVTD3/qxBCGlfZt5LtRVhWfkMTl9rAY0R9L
+ zTQJElv5GZaqCsSGj0q9WWyUV27s0qAjpyFSzIPfZ8gt0bHBQjcxeha3Nbuks6KlTArC OA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36rhhyh988-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Feb 2021 11:52:39 -0500
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11GGp7oA059886;
+        Tue, 16 Feb 2021 11:52:38 -0500
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36rhhyh97q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Feb 2021 11:52:38 -0500
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11GGpiFj003905;
+        Tue, 16 Feb 2021 16:52:37 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma03wdc.us.ibm.com with ESMTP id 36p6d8ypb8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Feb 2021 16:52:37 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11GGqbKU28115350
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Feb 2021 16:52:37 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A412124053;
+        Tue, 16 Feb 2021 16:52:37 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC31A124052;
+        Tue, 16 Feb 2021 16:52:36 +0000 (GMT)
+Received: from sbct-3.pok.ibm.com (unknown [9.47.158.153])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 16 Feb 2021 16:52:36 +0000 (GMT)
+Subject: Re: [PATCH v4] tpm: fix reference counting for struct tpm_chip
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
+        jarkko@kernel.org, jgg@ziepe.ca
+Cc:     stefanb@linux.vnet.ibm.com, James.Bottomley@hansenpartnership.com,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
+        stable@vger.kernel.org
+References: <1613435460-4377-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1613435460-4377-2-git-send-email-LinoSanfilippo@gmx.de>
+From:   Stefan Berger <stefanb@linux.ibm.com>
+Message-ID: <d36c324d-2f16-ed2a-7507-0d8f52da20ea@linux.ibm.com>
+Date:   Tue, 16 Feb 2021 11:52:36 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-In-Reply-To: <YCvEeWuU2tBUUNBG@dhcp22.suse.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <1613435460-4377-2-git-send-email-LinoSanfilippo@gmx.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-16_07:2021-02-16,2021-02-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 mlxlogscore=999 suspectscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1015 bulkscore=0 adultscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102160146
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2/15/21 7:31 PM, Lino Sanfilippo wrote:
+> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+>
+> The following sequence of operations results in a refcount warning:
+>
+> 1. Open device /dev/tpmrm
+> 2. Remove module tpm_tis_spi
+> 3. Write a TPM command to the file descriptor opened at step 1.
+>
+> ------------[ cut here ]------------
+> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
+> refcount_t: addition on 0; use-after-free.
+> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
+> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
+> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
+> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
+> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
+> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
+> Hardware name: BCM2711
+> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
+> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
+> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
+> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
+> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
+> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
+> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
+> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
+> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
+> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
+> Exception stack(0xc226bfa8 to 0xc226bff0)
+> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
+> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
+> bfe0: 0000006c beafe648 0001056c b6eb6944
+> ---[ end trace d4b8409def9b8b1f ]---
+>
+> The reason for this warning is the attempt to get the chip->dev reference
+> in tpm_common_write() although the reference counter is already zero.
+>
+> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
+> extra reference used to prevent a premature zero counter is never taken,
+> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
+>
+> Fix this by moving the TPM 2 character device handling from
+> tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
+> in time when the flag has been set in case of TPM2.
+>
+> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> already introduced function tpm_devs_release() to release the extra
+> reference but did not implement the required put on chip->devs that results
+> in the call of this function.
+>
+> Fix this by putting chip->devs in tpm_chip_unregister().
+>
+> Finally move the new implemenation for the TPM 2 handling into a new
+> function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
+> good case and error cases.
+>
+> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
+> Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
+> Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
+> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+> Cc: stable@vger.kernel.org
 
-On 2/16/21 2:11 PM, Michal Hocko wrote:
-> On Tue 16-02-21 13:34:56, Vlastimil Babka wrote:
->> On 2/16/21 12:01 PM, Mike Rapoport wrote:
->> >> 
->> >> I do understand that. And I am not objecting to the patch. I have to
->> >> confess I haven't digested it yet. Any changes to early memory
->> >> intialization have turned out to be subtle and corner cases only pop up
->> >> later. This is almost impossible to review just by reading the code.
->> >> That's why I am asking whether we want to address the specific VM_BUG_ON
->> >> first with something much less tricky and actually reviewable. And
->> >> that's why I am asking whether dropping the bug_on itself is safe to do
->> >> and use as a hot fix which should be easier to backport.
->> > 
->> > I can't say I'm familiar enough with migration and compaction code to say
->> > if it's ok to remove that bug_on. It does point to inconsistency in the
->> > memmap, but probably it's not important.
->> 
->> On closer look, removing the VM_BUG_ON_PAGE() in set_pfnblock_flags_mask() is
->> not safe. If we violate the zone_spans_pfn condition, it means we will write
->> outside of the pageblock bitmap for the zone, and corrupt something.
-> 
-> Isn't it enough that at least some pfn from the pageblock belongs to the
-> zone in order to have the bitmap allocated for the whole page block
-> (even if it partially belongs to a different zone)?
-> 
->> Actually
->> similar thing can happen in __get_pfnblock_flags_mask() where there's no
->> VM_BUG_ON, but there we can't corrupt memory. But we could theoretically fault
->> to do accessing some unmapped range?
->> 
->> So the checks would have to become unconditional !DEBUG_VM and return instead of
->> causing a BUG. Or we could go back one level and add some checks to
->> fast_isolate_around() to detect a page from zone that doesn't match cc->zone.
-> 
-> Thanks for looking deeper into that. This sounds like a much more
-> targeted fix to me.
 
-So, Andrea could you please check if this fixes the original
-fast_isolate_around() issue for you? With the VM_BUG_ON not removed, DEBUG_VM
-enabled, no changes to struct page initialization...
-It relies on pageblock_pfn_to_page as the rest of the compaction code.
+I know you'll post another version, but anyway:
 
-Thanks!
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
 
-----8<----
-From f5c8d7bc77d2ec0b4cfec44820ce6f602fdb3a86 Mon Sep 17 00:00:00 2001
-From: Vlastimil Babka <vbabka@suse.cz>
-Date: Tue, 16 Feb 2021 17:32:34 +0100
-Subject: [PATCH] mm, compaction: make fast_isolate_around() robust against
- pfns from a wrong zone
-
-TBD
-
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
----
- mm/compaction.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 190ccdaa6c19..b75645e4678d 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1288,7 +1288,7 @@ static void
- fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
- {
- 	unsigned long start_pfn, end_pfn;
--	struct page *page = pfn_to_page(pfn);
-+	struct page *page;
- 
- 	/* Do not search around if there are enough pages already */
- 	if (cc->nr_freepages >= cc->nr_migratepages)
-@@ -1300,7 +1300,11 @@ fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long
- 
- 	/* Pageblock boundaries */
- 	start_pfn = pageblock_start_pfn(pfn);
--	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
-+	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone));
-+
-+	page = pageblock_pfn_to_page(start_pfn, end_pfn, cc->zone);
-+	if (!page)
-+		return;
- 
- 	/* Scan before */
- 	if (start_pfn != pfn) {
-@@ -1486,7 +1490,7 @@ fast_isolate_freepages(struct compact_control *cc)
- 	}
- 
- 	cc->total_free_scanned += nr_scanned;
--	if (!page)
-+	if (!page || page_zone(page) != cc->zone)
- 		return cc->free_pfn;
- 
- 	low_pfn = page_to_pfn(page);
--- 
-2.30.0
 
