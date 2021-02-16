@@ -2,122 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7082431C76A
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 09:38:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F43231C7BB
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 10:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbhBPIgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 03:36:32 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53616 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229910AbhBPIeK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 03:34:10 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1613464402; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TYbPMLrBD6Kvf/snb6pPAKbE9WPqesCCNFflje30gLY=;
-        b=QFxKo3EaJf8BeUaY2v10WY4ktuKCaS5O0G3CvfmRrppIF/GQ4HXnWdKAdtz1bWOeQgZFKt
-        jyBxioISY5bu+tCBpQO6DaskeKBD48uTmMq0216hxINNwIKY8CLSn1ftMF+aUsh1Z78gBy
-        Uq44aCT9Yf14TpUtTWiLfldo132z628=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id E0907AD29;
-        Tue, 16 Feb 2021 08:33:21 +0000 (UTC)
-Date:   Tue, 16 Feb 2021 09:33:20 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Mel Gorman <mgorman@suse.de>, David Hildenbrand <david@redhat.com>,
+        id S229717AbhBPJFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 04:05:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229676AbhBPJDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 04:03:37 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5D3C061756
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 01:02:56 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id 7so12090000wrz.0
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 01:02:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mDlPxT1oYOHjNwYS05Ap/lIR6S8YHeXV+kKzkitrMDQ=;
+        b=P84QBlrDHp1+oLkPR3XS9Hib/6uzVaxYNFJgJqenGr84ms/syz53/GC7p+NbOLrGj+
+         gjAYBIMdPYfda69ID5AD2eRkuVj2B1WrQIcTUVNxZ1uVa30yJDdPjQOyIv8nhnYY+RKp
+         Ih5r5D2HlnPd5gTYe/+bk651yaER9bk3+HbG4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=mDlPxT1oYOHjNwYS05Ap/lIR6S8YHeXV+kKzkitrMDQ=;
+        b=ThcrrehvSGC4y/KVTQFVri+pLKU4Qq8HXO3kApFXctMiaFyLXduSR6KOt8VtxzAXwO
+         qCsCfmI8gZ5p7oZYLVcla5Ey7ezkIr1PnCjRkRnFyq6LOJbzq9TU9LhNUoDTwD1n1wA9
+         /3wDSHCRWhmLjsqCk+DNObz1elFSV2fkoFU9yKKZpPv3T8RF2bbypyeYNF98TqUqvuQf
+         /hWbm35jaFD0PKKsxxkQt7jhYg90kwPdXiJ36fZgyipV1GPB6TQ5oh6V6ohVPH0r55Ve
+         1MTefzzDd/j01+rz4WI7s2ziLL8+0+anxiJ4zdb0RulnyAUdMlP+tKEHYXM/SuIkApD0
+         9RwA==
+X-Gm-Message-State: AOAM533M3geicvwigo/VFEgYojCjbxtWq4FXtF02ZLer4rWUL9xIFeVB
+        aMHL/OFB8RLQsKxOs4i8vsRpJA==
+X-Google-Smtp-Source: ABdhPJwBcvGL69W6hWr9T1lZbW8Mml4T0IxtwvWkoZiLFcbueR7t3/ZvuIz5MALKBe6PkrAjduuzzg==
+X-Received: by 2002:adf:808c:: with SMTP id 12mr22608224wrl.139.1613466175552;
+        Tue, 16 Feb 2021 01:02:55 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id n66sm2511069wmn.25.2021.02.16.01.02.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Feb 2021 01:02:54 -0800 (PST)
+Date:   Tue, 16 Feb 2021 10:02:52 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Cyrill Gorcunov <gorcunov@gmail.com>, stable@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: Re: [PATCH v3] kcmp: Support selection of SYS_kcmp without
+ CHECKPOINT_RESTORE
+Message-ID: <YCuKPOKlvSy/WiEZ@phenom.ffwll.local>
+Mail-Followup-To: Kees Cook <keescook@chromium.org>,
         Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
- holes in memory layout
-Message-ID: <YCuDUG89KwQNbsjA@dhcp22.suse.cz>
-References: <20210208110820.6269-1-rppt@kernel.org>
- <YCZZeAAC8VOCPhpU@dhcp22.suse.cz>
- <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
- <YCaAHI/rFp1upRLc@dhcp22.suse.cz>
- <20210214180016.GO242749@kernel.org>
- <YCo4Lyio1h2Heixh@dhcp22.suse.cz>
- <20210215212440.GA1307762@kernel.org>
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Airlie <airlied@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Cyrill Gorcunov <gorcunov@gmail.com>, stable@vger.kernel.org
+References: <20210205163752.11932-1-chris@chris-wilson.co.uk>
+ <20210205220012.1983-1-chris@chris-wilson.co.uk>
+ <202102081411.73A442F17@keescook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210215212440.GA1307762@kernel.org>
+In-Reply-To: <202102081411.73A442F17@keescook>
+X-Operating-System: Linux phenom 5.7.0-1-amd64 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 15-02-21 23:24:40, Mike Rapoport wrote:
-> On Mon, Feb 15, 2021 at 10:00:31AM +0100, Michal Hocko wrote:
-> > On Sun 14-02-21 20:00:16, Mike Rapoport wrote:
-> > > On Fri, Feb 12, 2021 at 02:18:20PM +0100, Michal Hocko wrote:
+On Mon, Feb 08, 2021 at 02:12:00PM -0800, Kees Cook wrote:
+> On Fri, Feb 05, 2021 at 10:00:12PM +0000, Chris Wilson wrote:
+> > Userspace has discovered the functionality offered by SYS_kcmp and has
+> > started to depend upon it. In particular, Mesa uses SYS_kcmp for
+> > os_same_file_description() in order to identify when two fd (e.g. device
+> > or dmabuf) point to the same struct file. Since they depend on it for
+> > core functionality, lift SYS_kcmp out of the non-default
+> > CONFIG_CHECKPOINT_RESTORE into the selectable syscall category.
 > > 
-> > > We can correctly set the zone links for the reserved pages for holes in the
-> > > middle of a zone based on the architecture constraints and with only the
-> > > holes in the beginning/end of the memory will be not spanned by any
-> > > node/zone which in practice does not seem to be a problem as the VM_BUG_ON
-> > > in set_pfnblock_flags_mask() never triggered on pfn 0.
+> > Rasmus Villemoes also pointed out that systemd uses SYS_kcmp to
+> > deduplicate the per-service file descriptor store.
 > > 
-> > I really fail to see what you mean by correct zone/node for a memory
-> > range which is not associated with any real node.
-> 
-> We know architectural zone constraints, so we can have always have 1:1
-> match from pfn to zone. Node indeed will be a guess.
-
-That is true only for some zones. Also we do require those to be correct
-when the memory is managed by the page allocator. I believe we can live
-with incorrect zones when they are in holes.
-
-> > > > I am sorry, I haven't followed previous discussions. Has the removal of
-> > > > the VM_BUG_ON been considered as an immediate workaround?
-> > > 
-> > > It was never discussed, but I'm not sure it's a good idea.
-> > > 
-> > > Judging by the commit message that introduced the VM_BUG_ON (commit
-> > > 86051ca5eaf5 ("mm: fix usemap initialization")) there was yet another
-> > > inconsistency in the memory map that required a special care.
+> > Note that some distributions such as Ubuntu are already enabling
+> > CHECKPOINT_RESTORE in their configs and so, by extension, SYS_kcmp.
 > > 
-> > Can we actually explore that path before adding yet additional
-> > complexity and potentially a very involved fix for a subtle problem?
+> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/3046
+> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 > 
-> This patch was intended as a fix for inconsistency of the memory map that
-> is the root cause for triggering this VM_BUG_ON and other corner case
-> problems. 
+> Thanks!
 > 
-> The previous version [1] is less involved as it does not extend node/zone
-> spans.
+> Reviewed-by: Kees Cook <keescook@chromium.org>
 
-I do understand that. And I am not objecting to the patch. I have to
-confess I haven't digested it yet. Any changes to early memory
-intialization have turned out to be subtle and corner cases only pop up
-later. This is almost impossible to review just by reading the code.
-That's why I am asking whether we want to address the specific VM_BUG_ON
-first with something much less tricky and actually reviewable. And
-that's why I am asking whether dropping the bug_on itself is safe to do
-and use as a hot fix which should be easier to backport.
+Thanks for reviews&patch, I stuffed it into a topic branch and plan to
+send it to Linus later this week.
 
-Longterm I am definitely supporting any change which will lead to a
-fully initialized state. Whatever that means. One option would be to
-simply never allow partial page blocks or even memory sections. This
-would waste some memory but from what I have seen so far this would be
-quite small amount on very rare setups. So it might turn out as a much
-more easier and maintainable way forward.
+Cheers, Daniel
 
-> [1] https://lore.kernel.org/lkml/20210130221035.4169-3-rppt@kernel.org
+> 
+> -Kees
+> 
+> > Cc: Kees Cook <keescook@chromium.org>
+> > Cc: Andy Lutomirski <luto@amacapital.net>
+> > Cc: Will Drewry <wad@chromium.org>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: Dave Airlie <airlied@gmail.com>
+> > Cc: Daniel Vetter <daniel@ffwll.ch>
+> > Cc: Lucas Stach <l.stach@pengutronix.de>
+> > Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> > Cc: Cyrill Gorcunov <gorcunov@gmail.com>
+> > Cc: stable@vger.kernel.org
+> > Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> # DRM depends on kcmp
+> > Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk> # systemd uses kcmp
+> > 
+> > ---
+> > v2:
+> >   - Default n.
+> >   - Borrrow help message from man kcmp.
+> >   - Export get_epoll_tfile_raw_ptr() for CONFIG_KCMP
+> > v3:
+> >   - Select KCMP for CONFIG_DRM
+> > ---
+> >  drivers/gpu/drm/Kconfig                       |  3 +++
+> >  fs/eventpoll.c                                |  4 ++--
+> >  include/linux/eventpoll.h                     |  2 +-
+> >  init/Kconfig                                  | 11 +++++++++++
+> >  kernel/Makefile                               |  2 +-
+> >  tools/testing/selftests/seccomp/seccomp_bpf.c |  2 +-
+> >  6 files changed, 19 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+> > index 0973f408d75f..af6c6d214d91 100644
+> > --- a/drivers/gpu/drm/Kconfig
+> > +++ b/drivers/gpu/drm/Kconfig
+> > @@ -15,6 +15,9 @@ menuconfig DRM
+> >  	select I2C_ALGOBIT
+> >  	select DMA_SHARED_BUFFER
+> >  	select SYNC_FILE
+> > +# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
+> > +# device and dmabuf fd. Let's make sure that is available for our userspace.
+> > +	select KCMP
+> >  	help
+> >  	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+> >  	  introduced in XFree86 4.0. If you say Y here, you need to select
+> > diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+> > index a829af074eb5..3196474cbe24 100644
+> > --- a/fs/eventpoll.c
+> > +++ b/fs/eventpoll.c
+> > @@ -979,7 +979,7 @@ static struct epitem *ep_find(struct eventpoll *ep, struct file *file, int fd)
+> >  	return epir;
+> >  }
+> >  
+> > -#ifdef CONFIG_CHECKPOINT_RESTORE
+> > +#ifdef CONFIG_KCMP
+> >  static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
+> >  {
+> >  	struct rb_node *rbp;
+> > @@ -1021,7 +1021,7 @@ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd,
+> >  
+> >  	return file_raw;
+> >  }
+> > -#endif /* CONFIG_CHECKPOINT_RESTORE */
+> > +#endif /* CONFIG_KCMP */
+> >  
+> >  /**
+> >   * Adds a new entry to the tail of the list in a lockless way, i.e.
+> > diff --git a/include/linux/eventpoll.h b/include/linux/eventpoll.h
+> > index 0350393465d4..593322c946e6 100644
+> > --- a/include/linux/eventpoll.h
+> > +++ b/include/linux/eventpoll.h
+> > @@ -18,7 +18,7 @@ struct file;
+> >  
+> >  #ifdef CONFIG_EPOLL
+> >  
+> > -#ifdef CONFIG_CHECKPOINT_RESTORE
+> > +#ifdef CONFIG_KCMP
+> >  struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd, unsigned long toff);
+> >  #endif
+> >  
+> > diff --git a/init/Kconfig b/init/Kconfig
+> > index b77c60f8b963..9cc7436b2f73 100644
+> > --- a/init/Kconfig
+> > +++ b/init/Kconfig
+> > @@ -1194,6 +1194,7 @@ endif # NAMESPACES
+> >  config CHECKPOINT_RESTORE
+> >  	bool "Checkpoint/restore support"
+> >  	select PROC_CHILDREN
+> > +	select KCMP
+> >  	default n
+> >  	help
+> >  	  Enables additional kernel features in a sake of checkpoint/restore.
+> > @@ -1737,6 +1738,16 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
+> >  config ARCH_HAS_MEMBARRIER_SYNC_CORE
+> >  	bool
+> >  
+> > +config KCMP
+> > +	bool "Enable kcmp() system call" if EXPERT
+> > +	help
+> > +	  Enable the kernel resource comparison system call. It provides
+> > +	  user-space with the ability to compare two processes to see if they
+> > +	  share a common resource, such as a file descriptor or even virtual
+> > +	  memory space.
+> > +
+> > +	  If unsure, say N.
+> > +
+> >  config RSEQ
+> >  	bool "Enable rseq() system call" if EXPERT
+> >  	default y
+> > diff --git a/kernel/Makefile b/kernel/Makefile
+> > index aa7368c7eabf..320f1f3941b7 100644
+> > --- a/kernel/Makefile
+> > +++ b/kernel/Makefile
+> > @@ -51,7 +51,7 @@ obj-y += livepatch/
+> >  obj-y += dma/
+> >  obj-y += entry/
+> >  
+> > -obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
+> > +obj-$(CONFIG_KCMP) += kcmp.o
+> >  obj-$(CONFIG_FREEZER) += freezer.o
+> >  obj-$(CONFIG_PROFILING) += profile.o
+> >  obj-$(CONFIG_STACKTRACE) += stacktrace.o
+> > diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+> > index 26c72f2b61b1..1b6c7d33c4ff 100644
+> > --- a/tools/testing/selftests/seccomp/seccomp_bpf.c
+> > +++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+> > @@ -315,7 +315,7 @@ TEST(kcmp)
+> >  	ret = __filecmp(getpid(), getpid(), 1, 1);
+> >  	EXPECT_EQ(ret, 0);
+> >  	if (ret != 0 && errno == ENOSYS)
+> > -		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_CHECKPOINT_RESTORE?)");
+> > +		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_KCMP?)");
+> >  }
+> >  
+> >  TEST(mode_strict_support)
+> > -- 
+> > 2.20.1
+> > 
+> 
 > -- 
-> Sincerely yours,
-> Mike.
+> Kees Cook
 
 -- 
-Michal Hocko
-SUSE Labs
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
