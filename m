@@ -2,92 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C9131D299
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 23:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A43BE31D2AA
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 23:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbhBPW0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 17:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40844 "EHLO
+        id S230448AbhBPW3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 17:29:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230493AbhBPW0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 17:26:17 -0500
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C02C061786;
-        Tue, 16 Feb 2021 14:25:36 -0800 (PST)
-Received: by mail-lf1-x135.google.com with SMTP id f1so18500379lfu.3;
-        Tue, 16 Feb 2021 14:25:36 -0800 (PST)
+        with ESMTP id S230391AbhBPW3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 17:29:31 -0500
+Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9E7C06174A
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 14:28:50 -0800 (PST)
+Received: by mail-il1-x133.google.com with SMTP id q5so9624851ilc.10
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 14:28:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=a3fR6Ve9ApfA3U9S3BpD3B/5uX3W9BFd2HZqD0/PdZ8=;
-        b=CcBmOTWx4rOfOO2ml/nx0N0ujuOh1Je+9ZyiWKlffqIiTEcwTwAbuvhiwMh9QOxfxE
-         l/jJOrtMsJVKBJR9yj4J/FAIUsOixXDYcZDBPWCKWe85ongnmwwd7HdtSIyY6y8O2BF0
-         SJ0L9v5A7f93RRY3oshaAlXeLf6PSHX/uIxdjHp56A8/S903ylOhKu6AFyJ7ATWtUjO3
-         Gvalg23YbKGdSE1RDy8GgVswZ1FMvDvqbGeFaE0v+YsR4s3NlOjT75dTDlsczowqkMuP
-         WQdXDOfrwFCr9qj1oA9+IDq2Z8tdqFKmJNi1TMgoO/odVmefA6HqbiYcUiv39BU1WUcl
-         wM4g==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=5MpgUK3AfXz378I992/6nYc0Lpif5TyD4Ntzc7/xwew=;
+        b=B4ldjV2mbWT+qfpCBGe3YctOXdBcyMHxY/nOnOyDKbvOuHOnlH7HU/rsZw+vZ8Posh
+         tMy6j25uf7wkeL515qtEut6XUoogTlisojY3o+zeU93Hqa7sZIpuVAZuShtJvWU0z4lO
+         huj/u0Fj+Evj/+n/iei9PWV0fBjmsTOpqumAQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=a3fR6Ve9ApfA3U9S3BpD3B/5uX3W9BFd2HZqD0/PdZ8=;
-        b=ICKs0CM7kL9Ve2o4Whrj4nmuUeymCwPohFBJzN1OPH67OK+HclVfZO1edQmONu3eCQ
-         slCndE8aWJfKEukDziBP0e2ix0jLkn44LbETQOCqwoQFJvjES9hnt/IOlWaOgIREPJ6y
-         G9zkWSRK8Yo39+pjJzuYjuyviFerMcRlAukuTbwySGf44ulZilOaS37EMxqOcbr6JXmK
-         XUiyTpuJbxsBa5CmbOp9x8wFiWnswaoAfN7Iz3m034Z2YR5xbRiCH4qRmVVt2O5Lg/TZ
-         nZ/bDyb/LlgYuOfN7NHtMYZS2gEhAG1l6fTjCAO/4NYv5gajzfWwt4YYGw8gAo6Be0vJ
-         wE0g==
-X-Gm-Message-State: AOAM532DEqwS/p6a/RVP8cBEJj5xEjboJAzpGv3sUusv0gjdk9YEoj3u
-        6eNpexjY+zneadurQhRxDpo=
-X-Google-Smtp-Source: ABdhPJzjojN33CXGc02zMNdLELDHamwSH8r6REBZbOciEeRZ8HwwODGWc+lHqfms29I7Rz7j9l4kiQ==
-X-Received: by 2002:a05:6512:a8e:: with SMTP id m14mr13116313lfu.641.1613514334570;
-        Tue, 16 Feb 2021 14:25:34 -0800 (PST)
-Received: from localhost (crossness-hoof.volia.net. [93.72.107.198])
-        by smtp.gmail.com with ESMTPSA id m14sm22593lfb.43.2021.02.16.14.25.32
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Tue, 16 Feb 2021 14:25:33 -0800 (PST)
-From:   Ruslan Bilovol <ruslan.bilovol@gmail.com>
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Peter Chen <peter.chen@freescale.com>,
-        Daniel Mack <zonque@gmail.com>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 2/5] usb: gadget: f_uac1: stop playback on function disable
-Date:   Wed, 17 Feb 2021 00:24:56 +0200
-Message-Id: <1613514299-20668-3-git-send-email-ruslan.bilovol@gmail.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1613514299-20668-1-git-send-email-ruslan.bilovol@gmail.com>
-References: <1613514299-20668-1-git-send-email-ruslan.bilovol@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=5MpgUK3AfXz378I992/6nYc0Lpif5TyD4Ntzc7/xwew=;
+        b=qrQOQ7gg1KvQc29Ut135j3h4wfI5yyu5B6cgVVUp1t7OQivOqqT6b5TPNpmHYCnqme
+         3XVQG/BvmzNvVd/73mV6LFWUdww+GDou7tg/DxkWVNk1JPrnA7Xf1nleKymoVjmG65uG
+         9OY/R/EW3z9BgptSMrokDpGsQgBpWsd1W1tADRK4FKeedEUgu4GG3HNT74zNSpHwwR7H
+         Sxm3Sxjfuk9+nWf2gSOPpsEe7JjXum7fLD79CIVtR0ixNcJipblFTqI5AMikHteCbtLG
+         6hx898Yrv723zrK2jPyrubUyAh47msehPDCfgxLvfdY5a0R852EmtjbLO1pzrHKqdwlj
+         i0Tg==
+X-Gm-Message-State: AOAM5327LdSrS6Perl7wqGdyweLsVTb/dDkUNtKsIPIwUsNNHM3tTaIK
+        y7iX3TYLP01FqhdQKJOpu9jGu9pFaXITNA==
+X-Google-Smtp-Source: ABdhPJzXeidkGxIkWFPM8lNU2Bbv6GGQwyKAvsGIjmwBz0HiUWjT0CQPvOLVMX/yKD3MuodxixQCEA==
+X-Received: by 2002:a92:6d05:: with SMTP id i5mr16940038ilc.193.1613514530353;
+        Tue, 16 Feb 2021 14:28:50 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id z7sm168242iod.8.2021.02.16.14.28.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Feb 2021 14:28:49 -0800 (PST)
+Subject: Re: [PATCH 5.10 000/104] 5.10.17-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20210215152719.459796636@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <50004e24-516e-7c8a-d6ab-2befea7d7baa@linuxfoundation.org>
+Date:   Tue, 16 Feb 2021 15:28:48 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+MIME-Version: 1.0
+In-Reply-To: <20210215152719.459796636@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is missing playback stop/cleanup in case of
-gadget's ->disable callback that happens on
-events like USB host resetting or gadget disconnection
+On 2/15/21 8:26 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.17 release.
+> There are 104 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 17 Feb 2021 15:27:00 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
+Compiled and booted on my test system. No dmesg regressions.
 
-Cc: <stable@vger.kernel.org> # 4.13+
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
----
- drivers/usb/gadget/function/f_uac1.c | 1 +
- 1 file changed, 1 insertion(+)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-diff --git a/drivers/usb/gadget/function/f_uac1.c b/drivers/usb/gadget/function/f_uac1.c
-index 00d3469..560382e 100644
---- a/drivers/usb/gadget/function/f_uac1.c
-+++ b/drivers/usb/gadget/function/f_uac1.c
-@@ -499,6 +499,7 @@ static void f_audio_disable(struct usb_function *f)
- 	uac1->as_out_alt = 0;
- 	uac1->as_in_alt = 0;
- 
-+	u_audio_stop_playback(&uac1->g_audio);
- 	u_audio_stop_capture(&uac1->g_audio);
- }
- 
--- 
-1.9.1
-
+thanks,
+-- Shuah
