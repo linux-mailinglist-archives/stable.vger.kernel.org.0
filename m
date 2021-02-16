@@ -2,117 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0624931CDAC
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 17:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E08F31CE19
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 17:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230464AbhBPQMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 11:12:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50230 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230467AbhBPQLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 11:11:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3013164DF0;
-        Tue, 16 Feb 2021 16:11:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613491874;
-        bh=BnAwcr4oeUbABUoa/t/lY4qqMdgd+TgxOOqMjppumfQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SNneJQvQTK0Y5P+nVLp13bNH6IsnsFwcfMK+gdG3kcSC5gYF7q2UhuDZgf3VSGwWq
-         bh3of2l440ECX6dhSrrtcDC9AvBehFUoFgXQklIB/5TZ47d0udcABU1KugyIqQHbaH
-         o7hs925+0VTZljLrWe3DhLCWI10+0AGwVirTDRZaIAKO5UxOl23E+27BvTbLQHXy68
-         6S/n5vRS67HBCqSFk3s7tlCQKzjqaiPl6Sln3ljiDduxzxTvPQVu1ucB5LXyEz+YMc
-         NknEjR0SSS4Oea2qW/27/FtxVmvXZiAbZOv1OWCDUDMrEyvxSPv/lqVKtwbb6gcE6J
-         4rdevL1XLWV6A==
-Date:   Tue, 16 Feb 2021 18:11:02 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Lino Sanfilippo <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de,
-        stefanb@linux.vnet.ibm.com, James.Bottomley@hansenpartnership.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S229722AbhBPQdG convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 16 Feb 2021 11:33:06 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:51044 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229699AbhBPQdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 11:33:06 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-47-h1rLAFRZMNSVDB9RE5cVhw-1; Tue, 16 Feb 2021 16:31:27 +0000
+X-MC-Unique: h1rLAFRZMNSVDB9RE5cVhw-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Tue, 16 Feb 2021 16:31:26 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 16 Feb 2021 16:31:26 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Jarkko Sakkinen' <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+CC:     Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        "peterhuewe@gmx.de" <peterhuewe@gmx.de>,
+        "stefanb@linux.vnet.ibm.com" <stefanb@linux.vnet.ibm.com>,
+        "James.Bottomley@hansenpartnership.com" 
+        <James.Bottomley@hansenpartnership.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] tpm: fix reference counting for struct tpm_chip
-Message-ID: <YCvulinbuHWunTqD@kernel.org>
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v4] tpm: fix reference counting for struct tpm_chip
+Thread-Topic: [PATCH v4] tpm: fix reference counting for struct tpm_chip
+Thread-Index: AQHXBH2yJiAHL3ooWkeUp1zIrnNHeapa+MWQ
+Date:   Tue, 16 Feb 2021 16:31:26 +0000
+Message-ID: <74bbc76260594a8a8f7993ab66cca104@AcuMS.aculab.com>
 References: <1613435460-4377-1-git-send-email-LinoSanfilippo@gmx.de>
  <1613435460-4377-2-git-send-email-LinoSanfilippo@gmx.de>
- <20210216125342.GU4718@ziepe.ca>
- <YCvtF4qfG35tHM5e@kernel.org>
- <YCvuS9cIT7umOjhy@kernel.org>
+ <20210216125342.GU4718@ziepe.ca> <YCvtF4qfG35tHM5e@kernel.org>
+In-Reply-To: <YCvtF4qfG35tHM5e@kernel.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YCvuS9cIT7umOjhy@kernel.org>
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 16, 2021 at 06:09:50PM +0200, Jarkko Sakkinen wrote:
-> On Tue, Feb 16, 2021 at 06:04:42PM +0200, Jarkko Sakkinen wrote:
-> > On Tue, Feb 16, 2021 at 08:53:42AM -0400, Jason Gunthorpe wrote:
-> > > On Tue, Feb 16, 2021 at 01:31:00AM +0100, Lino Sanfilippo wrote:
-> > > >  
-> > > > +static int tpm_add_tpm2_char_device(struct tpm_chip *chip)
-> > 
-> > BTW, this naming is crap.
-> > 
-> > - 2x tpm
-> > - char is useless
-> > 
-> > -> tpm2_add_device
+...
+> > > +	get_device(&chip->dev);
+> > > +	chip->devs.release = tpm_devs_release;
+> > > +	chip->devs.devt =
+> > > +		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
 > 
-> Actually, tpm2s_add_device() add put it to tpm2-space.c.
+> Isn't this less than 100 chars?
 
-No, tpms_add_device() :-)
+Still best kept under 80 if 'reasonable'?
 
-(sorry)
+Really it is just split in the wrong place:
+	chip->devs.devt = MKDEV(MAJOR(tpm_devt),
+					chip->dev_num + TPM_NUM_DEVICES);
 
-/Jarkko
+	David
 
-> 
-> > > > +{
-> > > > +	int rc;
-> > > > +
-> > > > +	device_initialize(&chip->devs);
-> > > > +	chip->devs.parent = chip->dev.parent;
-> > > > +	chip->devs.class = tpmrm_class;
-> > > > +
-> > > > +	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-> > > > +	if (rc)
-> > > > +		goto out_put_devs;
-> > 
-> > Right, and empty line missing here.
-> > 
-> > > > +	/*
-> > > > +	 * get extra reference on main device to hold on behalf of devs.
-> > > > +	 * This holds the chip structure while cdevs is in use. The
-> > > > +	 * corresponding put is in the tpm_devs_release.
-> > > > +	 */
-> > > > +	get_device(&chip->dev);
-> > > > +	chip->devs.release = tpm_devs_release;
-> > > > +	chip->devs.devt =
-> > > > +		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> > 
-> > Isn't this less than 100 chars?
-> > 
-> > > > +	cdev_init(&chip->cdevs, &tpmrm_fops);
-> > > > +	chip->cdevs.owner = THIS_MODULE;
-> > > > +
-> > > > +	rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> > > > +	if (rc) {
-> > > > +		dev_err(&chip->devs,
-> > > > +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> > > > +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> > > > +			MINOR(chip->devs.devt), rc);
-> > > > +		goto out_put_devs;
-> > > > +	}
-> > > > +
-> > > > +	return 0;
-> > > > +
-> > > > +out_put_devs:
-> > > > +	put_device(&chip->devs);
-> > > 
-> > > I'd rather you organize this so chip->devs.release and the get_device
-> > > is always sent instead of having the possiblity for a put_device that
-> > > doesn't call release
-> > 
-> > /Jarkko
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
