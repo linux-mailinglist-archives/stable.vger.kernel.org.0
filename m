@@ -2,159 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13D431CBEA
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 15:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E0E31CC45
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 15:43:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbhBPO1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 09:27:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:50672 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230267AbhBPO1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 09:27:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613485570;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NsfAQuQEXLoLRBbDa4M48z/HfNRahv2joJ6WWM+PrFI=;
-        b=aRSxkFCzo/Tw3sIVSIYXXolEoMH+jlDHRZiQqfnSYJ3QXS5Vlx0rBXdHdpIRfEfzRtMvHd
-        6YXEgbP9Mnt3+9eEZr2jiEyPM+vhlyeWiCKFEG1S7XmFcMgUOg5yfbEPPEkALnkEjYABFl
-        L1DzDdYrKaGMKb3fukWVOQPVoGy2h8k=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-58-1PI4taZjMv6-EvsIEXcjRg-1; Tue, 16 Feb 2021 09:26:07 -0500
-X-MC-Unique: 1PI4taZjMv6-EvsIEXcjRg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9BE8E423C3;
-        Tue, 16 Feb 2021 14:25:39 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-113-212.ams2.redhat.com [10.36.113.212])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 20AA01981B;
-        Tue, 16 Feb 2021 14:25:37 +0000 (UTC)
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH for 5.10 v2 5/5] vdpa_sim: add get_config callback in vdpasim_dev_attr
-Date:   Tue, 16 Feb 2021 15:24:39 +0100
-Message-Id: <20210216142439.258713-6-sgarzare@redhat.com>
-In-Reply-To: <20210216142439.258713-1-sgarzare@redhat.com>
-References: <20210216142439.258713-1-sgarzare@redhat.com>
+        id S230117AbhBPOm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 09:42:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36198 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230131AbhBPOmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Feb 2021 09:42:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0086764DF5;
+        Tue, 16 Feb 2021 14:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613486496;
+        bh=r5SKLNl9WSrYnlql4Vrvet2zV2hcBh65M0I4PVxdgHE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PbAeZnvgaYvIPO+FoWR0coptqA/ebtkoqyxxMtKeKENkTNe/igUj4NsFpaMGBlHgq
+         rHGfLmlMBJiwhFCxT97wR5PCffhZF4lV4CcqHw3qbinKgfGWV11W1ecHVdcuWIKhuq
+         tLWBk/5v1yQ5CchszWRC7mGRHDGWstgztQoxBc02G/pZDbGLShu65GgdHoVhpO1LIo
+         K7kKRHg/0EvP72dKN7Mjm4i8QxxZVw7ih8iXmwUJvKiyDpqLbPiCv01WmafQrvS42g
+         ddgZO7kL1+V1th9Bb4Ddh9KbFvVr9QGFn9SeQMzbtgAz2mZsiEnLtoGFuJM8WLayfs
+         XF58LxpeQ6q2Q==
+From:   fdmanana@kernel.org
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org, dsterba@suse.cz,
+        Filipe Manana <fdmanana@suse.com>
+Subject: [PATCH 5.10.x] btrfs: fix crash after non-aligned direct IO write with O_DSYNC
+Date:   Tue, 16 Feb 2021 14:40:31 +0000
+Message-Id: <94663c8a2172dc96b760d356a538d45c36f46040.1613062764.git.fdmanana@suse.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 65b709586e222fa6ffd4166ac7fdb5d5dad113ee upstream.
+From: Filipe Manana <fdmanana@suse.com>
 
-The get_config callback can be used by the device to fill the
-config structure.
-The callback will be invoked in vdpasim_get_config() before copying
-bytes into caller buffer.
+Whenever we attempt to do a non-aligned direct IO write with O_DSYNC, we
+end up triggering an assertion and crashing. Example reproducer:
 
-Move vDPA-net config updates from vdpasim_set_features() in the
-new vdpasim_net_get_config() callback.
-This is safe since in vdpa_get_config() we already check that
-.set_features() callback is called before .get_config().
+  $ cat test.sh
+  #!/bin/bash
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20201215144256.155342-13-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: <stable@vger.kernel.org> # 5.10.x
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+  DEV=/dev/sdj
+  MNT=/mnt/sdj
+
+  mkfs.btrfs -f $DEV > /dev/null
+  mount $DEV $MNT
+
+  # Do a direct IO write with O_DSYNC into a non-aligned range...
+  xfs_io -f -d -s -c "pwrite -S 0xab -b 64K 1111 64K" $MNT/foobar
+
+  umount $MNT
+
+When running the reproducer an assertion fails and produces the following
+trace:
+
+  [ 2418.403134] assertion failed: !current->journal_info || flush != BTRFS_RESERVE_FLUSH_DATA, in fs/btrfs/space-info.c:1467
+  [ 2418.403745] ------------[ cut here ]------------
+  [ 2418.404306] kernel BUG at fs/btrfs/ctree.h:3286!
+  [ 2418.404862] invalid opcode: 0000 [#2] PREEMPT SMP DEBUG_PAGEALLOC PTI
+  [ 2418.405451] CPU: 1 PID: 64705 Comm: xfs_io Tainted: G      D           5.10.15-btrfs-next-87 #1
+  [ 2418.406026] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+  [ 2418.407228] RIP: 0010:assertfail.constprop.0+0x18/0x26 [btrfs]
+  [ 2418.407835] Code: e6 48 c7 (...)
+  [ 2418.409078] RSP: 0018:ffffb06080d13c98 EFLAGS: 00010246
+  [ 2418.409696] RAX: 000000000000006c RBX: ffff994c1debbf08 RCX: 0000000000000000
+  [ 2418.410302] RDX: 0000000000000000 RSI: 0000000000000027 RDI: 00000000ffffffff
+  [ 2418.410904] RBP: ffff994c21770000 R08: 0000000000000000 R09: 0000000000000000
+  [ 2418.411504] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000010000
+  [ 2418.412111] R13: ffff994c22198400 R14: ffff994c21770000 R15: 0000000000000000
+  [ 2418.412713] FS:  00007f54fd7aff00(0000) GS:ffff994d35200000(0000) knlGS:0000000000000000
+  [ 2418.413326] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ 2418.413933] CR2: 000056549596d000 CR3: 000000010b928003 CR4: 0000000000370ee0
+  [ 2418.414528] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [ 2418.415109] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [ 2418.415669] Call Trace:
+  [ 2418.416254]  btrfs_reserve_data_bytes.cold+0x22/0x22 [btrfs]
+  [ 2418.416812]  btrfs_check_data_free_space+0x4c/0xa0 [btrfs]
+  [ 2418.417380]  btrfs_buffered_write+0x1b0/0x7f0 [btrfs]
+  [ 2418.418315]  btrfs_file_write_iter+0x2a9/0x770 [btrfs]
+  [ 2418.418920]  new_sync_write+0x11f/0x1c0
+  [ 2418.419430]  vfs_write+0x2bb/0x3b0
+  [ 2418.419972]  __x64_sys_pwrite64+0x90/0xc0
+  [ 2418.420486]  do_syscall_64+0x33/0x80
+  [ 2418.420979]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [ 2418.421486] RIP: 0033:0x7f54fda0b986
+  [ 2418.421981] Code: 48 c7 c0 (...)
+  [ 2418.423019] RSP: 002b:00007ffc40569c38 EFLAGS: 00000246 ORIG_RAX: 0000000000000012
+  [ 2418.423547] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f54fda0b986
+  [ 2418.424075] RDX: 0000000000010000 RSI: 000056549595e000 RDI: 0000000000000003
+  [ 2418.424596] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000400
+  [ 2418.425119] R10: 0000000000000400 R11: 0000000000000246 R12: 00000000ffffffff
+  [ 2418.425644] R13: 0000000000000400 R14: 0000000000010000 R15: 0000000000000000
+  [ 2418.426148] Modules linked in: btrfs blake2b_generic (...)
+  [ 2418.429540] ---[ end trace ef2aeb44dc0afa34 ]---
+
+1) At btrfs_file_write_iter() we set current->journal_info to
+   BTRFS_DIO_SYNC_STUB;
+
+2) We then call __btrfs_direct_write(), which calls btrfs_direct_IO();
+
+3) We can't do the direct IO write because it starts at a non-aligned
+   offset (1111). So at btrfs_direct_IO() we return -EINVAL (coming from
+   check_direct_IO() which does the alignment check), but we leave
+   current->journal_info set to BTRFS_DIO_SYNC_STUB - we only clear it
+   at btrfs_dio_iomap_begin(), because we assume we always get there;
+
+4) Then at __btrfs_direct_write() we see that the attempt to do the
+   direct IO write was not successful, 0 bytes written, so we fallback
+   to a buffered write by calling btrfs_buffered_write();
+
+5) There we call btrfs_check_data_free_space() which in turn calls
+   btrfs_alloc_data_chunk_ondemand() and that calls
+   btrfs_reserve_data_bytes() with flush == BTRFS_RESERVE_FLUSH_DATA;
+
+6) Then at btrfs_reserve_data_bytes() we have current->journal_info set to
+   BTRFS_DIO_SYNC_STUB, therefore not NULL, and flush has the value
+   BTRFS_RESERVE_FLUSH_DATA, triggering the second assertion:
+
+  int btrfs_reserve_data_bytes(struct btrfs_fs_info *fs_info, u64 bytes,
+                               enum btrfs_reserve_flush_enum flush)
+  {
+      struct btrfs_space_info *data_sinfo = fs_info->data_sinfo;
+      int ret;
+
+      ASSERT(flush == BTRFS_RESERVE_FLUSH_DATA ||
+             flush == BTRFS_RESERVE_FLUSH_FREE_SPACE_INODE);
+      ASSERT(!current->journal_info || flush != BTRFS_RESERVE_FLUSH_DATA);
+  (...)
+
+So fix that by setting the journal to NULL whenever check_direct_IO()
+returns a failure.
+
+This bug only affects 5.10 kernels, and the regression was introduced in
+5.10-rc1 by commit 0eb79294dbe328 ("btrfs: dio iomap DSYNC workaround").
+The bug does not exist in 5.11 kernels due to commit ecfdc08b8cc65d
+("btrfs: remove dio iomap DSYNC workaround"), which depends on a large
+patchset that went into the merge window for 5.11. So this is a fix only
+for 5.10.x stable kernels, as there are people hitting this bug.
+
+Fixes: 0eb79294dbe328 ("btrfs: dio iomap DSYNC workaround")
+CC: stable@vger.kernel.org # 5.10 (and only 5.10)
+CC: David Sterba <dsterba@suse.cz>
+Bugzilla: https://bugzilla.suse.com/show_bug.cgi?id=1181605
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 35 +++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ fs/btrfs/inode.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index d9c494455156..f2ad450db547 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -69,9 +69,12 @@ static u64 vdpasim_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
- 			      (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
- 			      (1ULL << VIRTIO_NET_F_MAC);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index acc47e2ffb46..b536d21541a9 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8026,8 +8026,12 @@ ssize_t btrfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	bool relock = false;
+ 	ssize_t ret;
  
-+struct vdpasim;
-+
- struct vdpasim_dev_attr {
- 	size_t config_size;
- 	int nvqs;
-+	void (*get_config)(struct vdpasim *vdpasim, void *config);
- };
+-	if (check_direct_IO(fs_info, iter, offset))
++	if (check_direct_IO(fs_info, iter, offset)) {
++		ASSERT(current->journal_info == NULL ||
++		       current->journal_info == BTRFS_DIO_SYNC_STUB);
++		current->journal_info = NULL;
+ 		return 0;
++	}
  
- /* State of each vdpasim device */
-@@ -524,8 +527,6 @@ static u64 vdpasim_get_features(struct vdpa_device *vdpa)
- static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
--	struct virtio_net_config *config =
--		(struct virtio_net_config *)vdpasim->config;
- 
- 	/* DMA mapping must be done by driver */
- 	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
-@@ -533,16 +534,6 @@ static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
- 
- 	vdpasim->features = features & vdpasim_features;
- 
--	/* We generally only know whether guest is using the legacy interface
--	 * here, so generally that's the earliest we can set config fields.
--	 * Note: We actually require VIRTIO_F_ACCESS_PLATFORM above which
--	 * implies VIRTIO_F_VERSION_1, but let's not try to be clever here.
--	 */
--
--	config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
--	config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
--	memcpy(config->mac, macaddr_buf, ETH_ALEN);
--
- 	return 0;
- }
- 
-@@ -595,8 +586,13 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
- 
--	if (offset + len < vdpasim->dev_attr.config_size)
--		memcpy(buf, vdpasim->config + offset, len);
-+	if (offset + len > vdpasim->dev_attr.config_size)
-+		return;
-+
-+	if (vdpasim->dev_attr.get_config)
-+		vdpasim->dev_attr.get_config(vdpasim, vdpasim->config);
-+
-+	memcpy(buf, vdpasim->config + offset, len);
- }
- 
- static void vdpasim_set_config(struct vdpa_device *vdpa, unsigned int offset,
-@@ -739,12 +735,23 @@ static const struct vdpa_config_ops vdpasim_net_batch_config_ops = {
- 	.free                   = vdpasim_free,
- };
- 
-+static void vdpasim_net_get_config(struct vdpasim *vdpasim, void *config)
-+{
-+	struct virtio_net_config *net_config =
-+		(struct virtio_net_config *)config;
-+
-+	net_config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
-+	net_config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
-+	memcpy(net_config->mac, macaddr_buf, ETH_ALEN);
-+}
-+
- static int __init vdpasim_dev_init(void)
- {
- 	struct vdpasim_dev_attr dev_attr = {};
- 
- 	dev_attr.nvqs = VDPASIM_VQ_NUM;
- 	dev_attr.config_size = sizeof(struct virtio_net_config);
-+	dev_attr.get_config = vdpasim_net_get_config;
- 
- 	vdpasim_dev = vdpasim_create(&dev_attr);
- 
+ 	count = iov_iter_count(iter);
+ 	if (iov_iter_rw(iter) == WRITE) {
 -- 
-2.29.2
+2.28.0
 
