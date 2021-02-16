@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C197D31C97A
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 12:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A5FA31C9FC
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 12:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230184AbhBPLOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 06:14:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
+        id S230438AbhBPLmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 06:42:25 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44806 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229958AbhBPLN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 06:13:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2A5D64DDA;
-        Tue, 16 Feb 2021 11:13:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613473994;
-        bh=pQYs1+tTIcNj1lx0rp+/+W+tB9R6f6AkmzJh3p96beM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Mv66iFBJ50IuqDnXPVd7/UCk2a/2d5HCKcr6QGVpyJRTFgOV+/WDAbO/yX/DqfBEM
-         XJ7G+4gjf2+llhcHNXv6aAevHW5m007+nHHqjvmUVCBHlE6ypNJHzA43BuAxRS4mHo
-         WGOhYpB3k/bs8KAIK4wJdQzz1wzxk5N+aNP2QX27e9Dl/sAo1BZHKGAVkYwvI0Yqep
-         unddV1a1RZpEron3yuchcfrZGPeTnsxhEOjl/2wbVAyUZ9noTrZG9ECOzi9AgyEwwy
-         y9cn3jK8EUB98Jl6GSyWyHF/811dj6NuqbVS64pxe/dzaT4Z8pl+GTKm12bYyUIWFz
-         v9yfxXL47DOIw==
-Date:   Tue, 16 Feb 2021 13:13:02 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        id S230418AbhBPLkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Feb 2021 06:40:22 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1613475565; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8PoadPzQITp5/MNkSp8NC5Nl7aOk1hPujGeiYYsA2Dg=;
+        b=ogDC+YTURH/w4Vtcp641CBAcAJgVB/uNXAaowa6EnRos8Cvr9kTW41dNOCAxj2DEoDsSJM
+        Fn0JlrrDL4Fa+iDayNWfnweYakPlOXBQpz8Y7jxOQ0IVmgkfw6sSRoWjRlMyGVV4cTR4Pl
+        qJdy58DGF0+hgWYM3HZKmHcuHamoIvk=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E986EB08C;
+        Tue, 16 Feb 2021 11:39:24 +0000 (UTC)
+Date:   Tue, 16 Feb 2021 12:39:23 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Mel Gorman <mgorman@suse.de>, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Chris Wilson <chris@chris-wilson.co.uk>,
         "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
-        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
         Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
         "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -41,179 +41,100 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
 Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
  holes in memory layout
-Message-ID: <20210216111302.GC1307762@kernel.org>
+Message-ID: <YCuu6xosQQ9uIDUS@dhcp22.suse.cz>
 References: <20210208110820.6269-1-rppt@kernel.org>
- <5dccbc93-f260-7f14-23bc-6dee2dff6c13@redhat.com>
- <a6cf3a26-a174-abab-a5a0-6cf89ebe4af7@redhat.com>
- <20210214172906.GN242749@kernel.org>
- <c1559dcb-7953-fe08-604a-5eaf202bf662@redhat.com>
+ <YCZZeAAC8VOCPhpU@dhcp22.suse.cz>
+ <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
+ <YCaAHI/rFp1upRLc@dhcp22.suse.cz>
+ <20210214180016.GO242749@kernel.org>
+ <YCo4Lyio1h2Heixh@dhcp22.suse.cz>
+ <20210215212440.GA1307762@kernel.org>
+ <YCuDUG89KwQNbsjA@dhcp22.suse.cz>
+ <20210216110154.GB1307762@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c1559dcb-7953-fe08-604a-5eaf202bf662@redhat.com>
+In-Reply-To: <20210216110154.GB1307762@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 15, 2021 at 09:45:30AM +0100, David Hildenbrand wrote:
-> On 14.02.21 18:29, Mike Rapoport wrote:
-> > On Fri, Feb 12, 2021 at 10:56:19AM +0100, David Hildenbrand wrote:
-> > > On 12.02.21 10:55, David Hildenbrand wrote:
-> > > > On 08.02.21 12:08, Mike Rapoport wrote:
-> > > > > +#ifdef CONFIG_SPARSEMEM
-> > > > > +	/*
-> > > > > +	 * Sections in the memory map may not match actual populated
-> > > > > +	 * memory, extend the node span to cover the entire section.
-> > > > > +	 */
-> > > > > +	*start_pfn = round_down(*start_pfn, PAGES_PER_SECTION);
-> > > > > +	*end_pfn = round_up(*end_pfn, PAGES_PER_SECTION);
+On Tue 16-02-21 13:01:54, Mike Rapoport wrote:
+> On Tue, Feb 16, 2021 at 09:33:20AM +0100, Michal Hocko wrote:
+> > On Mon 15-02-21 23:24:40, Mike Rapoport wrote:
+> > > On Mon, Feb 15, 2021 at 10:00:31AM +0100, Michal Hocko wrote:
+> > > > On Sun 14-02-21 20:00:16, Mike Rapoport wrote:
+> > > > > On Fri, Feb 12, 2021 at 02:18:20PM +0100, Michal Hocko wrote:
 > > > > 
-> > > > Does that mean that we might create overlapping zones when one node
+> > > > > We can correctly set the zone links for the reserved pages for holes in the
+> > > > > middle of a zone based on the architecture constraints and with only the
+> > > > > holes in the beginning/end of the memory will be not spanned by any
+> > > > > node/zone which in practice does not seem to be a problem as the VM_BUG_ON
+> > > > > in set_pfnblock_flags_mask() never triggered on pfn 0.
+> > > > 
+> > > > I really fail to see what you mean by correct zone/node for a memory
+> > > > range which is not associated with any real node.
 > > > 
-> > > s/overlapping zones/overlapping nodes/
-> > > 
-> > > > starts in the middle of a section and the other one ends in the middle
-> > > > of a section?
-> > > 
-> > > > Could it be a problem? (e.g., would we have to look at neighboring nodes
-> > > > when making the decision to extend, and how far to extend?)
+> > > We know architectural zone constraints, so we can have always have 1:1
+> > > match from pfn to zone. Node indeed will be a guess.
 > > 
-> > Having a node end/start in a middle of a section would be a problem, but in
-> > this case I don't see a way to detect how a node should be extended :(
+> > That is true only for some zones.
 > 
-> Running QEMU with something like:
-> 
-> ...
->     -m 8G \
->     -smp sockets=2,cores=2 \
->     -object memory-backend-ram,id=bmem0,size=4160M \
->     -object memory-backend-ram,id=bmem1,size=4032M \
+> Hmm, and when is it not true?
 
-This is an interesting setup :)
+ZONE_MOVABLE, ZONE_NORMAL and ZONE_DEVICE.
+ 
+> > Also we do require those to be correct when the memory is managed by the
+> > page allocator. I believe we can live with incorrect zones when they are
+> > in holes.
+>  
+> Note that the holes Andrea reported in the first place are not ranges that
+> are not populated, but rather ranges that arch didn't report as usable,
+> i.e. there is physical memory and it perfectly fits into an existing node
+> and zone.
 
-TBH, I've tried to think what physical configuration would be problematic
-for the implicit node extension, and I had concerns about arm64 with it's
-huge section size, but it entirely slipped my mind that a VM can have
-really weird memory configuration.
+Except those are not usable so they have no clear meaning, right?
 
->     -numa node,nodeid=0,cpus=0-1,memdev=bmem0 -numa node,nodeid=1,cpus=2-3,memdev=bmem1 \
-> ...
+> > > > > > I am sorry, I haven't followed previous discussions. Has the removal of
+> > > > > > the VM_BUG_ON been considered as an immediate workaround?
+> > > > > 
+> > > > > It was never discussed, but I'm not sure it's a good idea.
+> > > > > 
+> > > > > Judging by the commit message that introduced the VM_BUG_ON (commit
+> > > > > 86051ca5eaf5 ("mm: fix usemap initialization")) there was yet another
+> > > > > inconsistency in the memory map that required a special care.
+> > > > 
+> > > > Can we actually explore that path before adding yet additional
+> > > > complexity and potentially a very involved fix for a subtle problem?
+> > > 
+> > > This patch was intended as a fix for inconsistency of the memory map that
+> > > is the root cause for triggering this VM_BUG_ON and other corner case
+> > > problems. 
+> > > 
+> > > The previous version [1] is less involved as it does not extend node/zone
+> > > spans.
+> > 
+> > I do understand that. And I am not objecting to the patch. I have to
+> > confess I haven't digested it yet. Any changes to early memory
+> > intialization have turned out to be subtle and corner cases only pop up
+> > later. This is almost impossible to review just by reading the code.
+> > That's why I am asking whether we want to address the specific VM_BUG_ON
+> > first with something much less tricky and actually reviewable. And
+> > that's why I am asking whether dropping the bug_on itself is safe to do
+> > and use as a hot fix which should be easier to backport.
 > 
-> Creates such a setup.
-> 
-> With an older kernel:
-> 
-> [    0.000000] BIOS-provided physical RAM map:
-> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
-> [    0.000000] BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000bffdffff] usable
-> [    0.000000] BIOS-e820: [mem 0x00000000bffe0000-0x00000000bfffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000023fffffff] usable
-> [...]
-> [    0.002506] ACPI: SRAT: Node 0 PXM 0 [mem 0x00000000-0x0009ffff]
-> [    0.002508] ACPI: SRAT: Node 0 PXM 0 [mem 0x00100000-0xbfffffff]
-> [    0.002509] ACPI: SRAT: Node 0 PXM 0 [mem 0x100000000-0x143ffffff]
-> [    0.002510] ACPI: SRAT: Node 1 PXM 1 [mem 0x144000000-0x23fffffff]
-> [    0.002511] NUMA: Node 0 [mem 0x00000000-0x0009ffff] + [mem 0x00100000-0xbfffffff] -> [mem 0x00000000-0xbfffffff]
-> [    0.002513] NUMA: Node 0 [mem 0x00000000-0xbfffffff] + [mem 0x100000000-0x143ffffff] -> [mem 0x00000000-0x143ffffff]
-> [    0.002519] NODE_DATA(0) allocated [mem 0x143fd5000-0x143ffffff]
-> [    0.002669] NODE_DATA(1) allocated [mem 0x23ffd2000-0x23fffcfff]
-> [    0.017947] memblock: reserved range [0x0000000000000000-0x0000000000001000] is not in memory
-> [    0.017953] memblock: reserved range [0x000000000009f000-0x0000000000100000] is not in memory
-> [    0.017956] Zone ranges:
-> [    0.017957]   DMA      [mem 0x0000000000000000-0x0000000000ffffff]
-> [    0.017958]   DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
-> [    0.017960]   Normal   [mem 0x0000000100000000-0x000000023fffffff]
-> [    0.017961]   Device   empty
-> [    0.017962] Movable zone start for each node
-> [    0.017964] Early memory node ranges
-> [    0.017965]   node   0: [mem 0x0000000000000000-0x00000000bffdffff]
-> [    0.017966]   node   0: [mem 0x0000000100000000-0x0000000143ffffff]
-> [    0.017967]   node   1: [mem 0x0000000144000000-0x000000023fffffff]
-> [    0.017969] Initmem setup node 0 [mem 0x0000000000000000-0x0000000143ffffff]
-> [    0.017971] On node 0 totalpages: 1064928
-> [    0.017972]   DMA zone: 64 pages used for memmap
-> [    0.017973]   DMA zone: 21 pages reserved
-> [    0.017974]   DMA zone: 4096 pages, LIFO batch:0
-> [    0.017994]   DMA32 zone: 12224 pages used for memmap
-> [    0.017995]   DMA32 zone: 782304 pages, LIFO batch:63
-> [    0.022281] DMA32: Zeroed struct page in unavailable ranges: 32
-> [    0.022286]   Normal zone: 4352 pages used for memmap
-> [    0.022287]   Normal zone: 278528 pages, LIFO batch:63
-> [    0.023769] Initmem setup node 1 [mem 0x0000000144000000-0x000000023fffffff]
-> [    0.023774] On node 1 totalpages: 1032192
-> [    0.023775]   Normal zone: 16128 pages used for memmap
-> [    0.023775]   Normal zone: 1032192 pages, LIFO batch:63
-> 
-> 
-> With current next/master:
-> 
-> [    0.000000] BIOS-provided physical RAM map:
-> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
-> [    0.000000] BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000bffdffff] usable
-> [    0.000000] BIOS-e820: [mem 0x00000000bffe0000-0x00000000bfffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
-> [    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000023fffffff] usable
-> [...]
-> [    0.002419] ACPI: SRAT: Node 0 PXM 0 [mem 0x00000000-0x0009ffff]
-> [    0.002421] ACPI: SRAT: Node 0 PXM 0 [mem 0x00100000-0xbfffffff]
-> [    0.002422] ACPI: SRAT: Node 0 PXM 0 [mem 0x100000000-0x143ffffff]
-> [    0.002423] ACPI: SRAT: Node 1 PXM 1 [mem 0x144000000-0x23fffffff]
-> [    0.002424] NUMA: Node 0 [mem 0x00000000-0x0009ffff] + [mem 0x00100000-0xbfffffff] -> [mem 0x00000000-0xbfffffff]
-> [    0.002426] NUMA: Node 0 [mem 0x00000000-0xbfffffff] + [mem 0x100000000-0x143ffffff] -> [mem 0x00000000-0x143ffffff]
-> [    0.002432] NODE_DATA(0) allocated [mem 0x143fd5000-0x143ffffff]
-> [    0.002583] NODE_DATA(1) allocated [mem 0x23ffd2000-0x23fffcfff]
-> [    0.017722] Zone ranges:
-> [    0.017726]   DMA      [mem 0x0000000000000000-0x0000000000ffffff]
-> [    0.017728]   DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
-> [    0.017729]   Normal   [mem 0x0000000100000000-0x000000023fffffff]
-> [    0.017731]   Device   empty
-> [    0.017732] Movable zone start for each node
-> [    0.017734] Early memory node ranges
-> [    0.017735]   node   0: [mem 0x0000000000001000-0x000000000009efff]
-> [    0.017736]   node   0: [mem 0x0000000000100000-0x00000000bffdffff]
-> [    0.017737]   node   0: [mem 0x0000000100000000-0x0000000143ffffff]
-> [    0.017738]   node   1: [mem 0x0000000144000000-0x000000023fffffff]
-> [    0.017741] Initmem setup node 0 [mem 0x0000000000000000-0x0000000147ffffff]
-> [    0.017742] On node 0 totalpages: 1064830
-> [    0.017743]   DMA zone: 64 pages used for memmap
-> [    0.017744]   DMA zone: 21 pages reserved
-> [    0.017745]   DMA zone: 3998 pages, LIFO batch:0
-> [    0.017765]   DMA zone: 98 pages in unavailable ranges
-> [    0.017766]   DMA32 zone: 12224 pages used for memmap
-> [    0.017766]   DMA32 zone: 782304 pages, LIFO batch:63
-> [    0.022042]   DMA32 zone: 32 pages in unavailable ranges
-> [    0.022046]   Normal zone: 4608 pages used for memmap
-> [    0.022047]   Normal zone: 278528 pages, LIFO batch:63
-> [    0.023601]   Normal zone: 16384 pages in unavailable ranges
-> [    0.023606] Initmem setup node 1 [mem 0x0000000140000000-0x000000023fffffff]
-> [    0.023608] On node 1 totalpages: 1032192
-> [    0.023609]   Normal zone: 16384 pages used for memmap
-> [    0.023609]   Normal zone: 1032192 pages, LIFO batch:63
-> [    0.029267]   Normal zone: 16384 pages in unavailable ranges
-> 
-> 
-> In this setup, one node ends in the middle of a section (+64MB), the
-> other one starts in the middle of the same section (+64MB).
-> 
-> After your patch, the nodes overlap (in one section)
-> 
-> I can spot that each node still has the same number of present pages and
-> that each node now has exactly 64MB unavailable pages (the extra ones spanned).
-> 
-> So at least here, it looks like the machinery is still doing the right thing?
+> I can't say I'm familiar enough with migration and compaction code to say
+> if it's ok to remove that bug_on. It does point to inconsistency in the
+> memmap, but probably it's not important.
 
-So in this setup we'll have pages in the overlapping section initialized twice
-and they will end linked to node1 which is not exactly correct, but we care
-less about the nodes than about the zones. Well, at least we don't have
-VM_BUG_ON(!node_spans_pfn()) :)
-
+Yeah, I am not really clear on that myself TBH. On one hand this cannot
+be really critical because it is a conditional assert on the debuging
+mode. Most production users do not enable it so they wouldn't learn
+about that inconsistency and maybe never notice any difference. This has
+led me to think about this to be something mostly focused on debugging.
+If that is an incorrect assumption then the VM_BUG_ON should be changed
+to something else - either a graceful failure or a real BUG_ON if that
+is really worth it.
 -- 
-Sincerely yours,
-Mike.
+Michal Hocko
+SUSE Labs
