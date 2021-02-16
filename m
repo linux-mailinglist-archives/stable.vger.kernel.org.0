@@ -2,133 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BACE31CF99
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 18:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E040C31CFB1
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 18:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbhBPRuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 12:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37638 "EHLO mail.kernel.org"
+        id S231331AbhBPRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 12:55:00 -0500
+Received: from mx2.suse.de ([195.135.220.15]:50320 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231240AbhBPRuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 12:50:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE54F64E08;
-        Tue, 16 Feb 2021 17:49:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613497765;
-        bh=YI1K3YdFbvoFfZazxpp/W/h52AmPp8oWT+kgdF1i6VI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GRSpTgNUyXd8d0aOr8semRt7oBjZYxojgdsSVOVlJJggNybOxexkqWW7qjzcDRXRa
-         yAIq8d3P7mH4KkPcSnLwhfNWj1bX/TCvsgDfr0Y+Sv+3TmfzC4mbO1RzrzZq4hkCwh
-         jUb0LNHIMAC0kx5pVdAqjhn8qFoG/mqEYpkri80F4wFGZJQcUdOxjJX29w6usPPR2K
-         mc9dseAR49XQMoIOx9xZ1BWcU2SdkR7GX8RaKLjCWZbDrYyHw0VijwDFg5jGUe5g29
-         /Q14My3SDMkKcltXFPgIsexjgY/BuHu3KObM05BFQVFhxT+UZQsyu4yApucAqpx1Rs
-         Jo7Xp40+XsIaQ==
-Date:   Tue, 16 Feb 2021 19:49:14 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Michal Hocko <mhocko@suse.com>, Mel Gorman <mgorman@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
- holes in memory layout
-Message-ID: <20210216174914.GD1307762@kernel.org>
-References: <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
- <YCaAHI/rFp1upRLc@dhcp22.suse.cz>
- <20210214180016.GO242749@kernel.org>
- <YCo4Lyio1h2Heixh@dhcp22.suse.cz>
- <20210215212440.GA1307762@kernel.org>
- <YCuDUG89KwQNbsjA@dhcp22.suse.cz>
- <20210216110154.GB1307762@kernel.org>
- <b1302d8e-5380-18d1-0f55-2dfd61f470e6@suse.cz>
- <YCvEeWuU2tBUUNBG@dhcp22.suse.cz>
- <caeebbcc-b6c9-624b-3eeb-591bf59f28a6@suse.cz>
+        id S231326AbhBPRy7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Feb 2021 12:54:59 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 639B1AB4C;
+        Tue, 16 Feb 2021 17:54:17 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 44ED2DA6EF; Tue, 16 Feb 2021 18:52:21 +0100 (CET)
+Date:   Tue, 16 Feb 2021 18:52:21 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     dsterba@suse.cz, fdmanana@kernel.org, linux-btrfs@vger.kernel.org,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>
+Subject: Re: [PATCH 5.10.x] btrfs: fix crash after non-aligned direct IO
+ write with O_DSYNC
+Message-ID: <20210216175221.GS1993@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Greg KH <gregkh@linuxfoundation.org>,
+        fdmanana@kernel.org, linux-btrfs@vger.kernel.org,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>
+References: <94663c8a2172dc96b760d356a538d45c36f46040.1613062764.git.fdmanana@suse.com>
+ <YCvbvJujcuiGcBSj@kroah.com>
+ <20210216151546.GQ1993@twin.jikos.cz>
+ <YCvmAz/gtKQwkqOc@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <caeebbcc-b6c9-624b-3eeb-591bf59f28a6@suse.cz>
+In-Reply-To: <YCvmAz/gtKQwkqOc@kroah.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Vlastimil,
+On Tue, Feb 16, 2021 at 04:34:27PM +0100, Greg KH wrote:
+> On Tue, Feb 16, 2021 at 04:15:46PM +0100, David Sterba wrote:
+> > On Tue, Feb 16, 2021 at 03:50:36PM +0100, Greg KH wrote:
+> > > On Tue, Feb 16, 2021 at 02:40:31PM +0000, fdmanana@kernel.org wrote:
+> > > As this is a one-off patch, I need the btrfs maintainers to ack this and
+> > > really justify why we can't take the larger patch or patch series here
+> > > instead, as that is almost always the correct thing to do instead.
+> > 
+> > Acked-by: David Sterba <dsterba@suse.com>
+> > 
+> > The full backport would be patches
+> > 
+> > ecfdc08b8cc6 btrfs: remove dio iomap DSYNC workaround
+> > a42fa643169d btrfs: call iomap_dio_complete() without inode_lock
+> > 502756b38093 btrfs: remove btrfs_inode::dio_sem
+> > e9adabb9712e btrfs: use shared lock for direct writes within EOF
+> > c35237063340 btrfs: push inode locking and unlocking into buffered/direct write
+> > a14b78ad06ab btrfs: introduce btrfs_inode_lock()/unlock()
+> > b8d8e1fd570a btrfs: introduce btrfs_write_check()
+> > 
+> > and maybe more.
+> > 
+> > $ git diff b8d8e1fd570a^..ecfdc08b8cc6 | diffstat
+> >  btrfs_inode.h |   10 -
+> >  ctree.h       |    8 +
+> >  file.c        |  338 +++++++++++++++++++++++++++-------------------------------
+> >  inode.c       |   96 +++++++---------
+> >  transaction.h |    1 
+> >  5 files changed, 213 insertions(+), 240 deletions(-)
+> > 
+> > That seems too much for a backport, the fix Filipe implemented is
+> > simpler and IMO qualifies as the exceptional stable-only patch.
+> 
+> Why is that too much?  For 7 patches that's a small overall diffstat.
+> And you match identically what is upstream in Linus's tree.  That means
+> over time, backporting fixing is much easier, and understanding the code
+> for everyone is simpler.
 
-On Tue, Feb 16, 2021 at 05:39:12PM +0100, Vlastimil Babka wrote:
-> 
-> 
-> So, Andrea could you please check if this fixes the original
-> fast_isolate_around() issue for you? With the VM_BUG_ON not removed, DEBUG_VM
-> enabled, no changes to struct page initialization...
-> It relies on pageblock_pfn_to_page as the rest of the compaction code.
+The changes are not trivial and touch eg. inode locking and other
+subsystems (iomap), so they're not self contained inside btrfs. And the
+list of possibly related patches is not entirely known at this moment,
+the above is an example that was obvious, but Filipe has expressed
+doubts that it's complete and I agree.
 
-Pardon my ignorance of compaction internals, but does this mean that with
-your patch we'll never call set_pfnblock_flags_mask() for a pfn in a hole?
- 
-> Thanks!
-> 
-> ----8<----
-> From f5c8d7bc77d2ec0b4cfec44820ce6f602fdb3a86 Mon Sep 17 00:00:00 2001
-> From: Vlastimil Babka <vbabka@suse.cz>
-> Date: Tue, 16 Feb 2021 17:32:34 +0100
-> Subject: [PATCH] mm, compaction: make fast_isolate_around() robust against
->  pfns from a wrong zone
-> 
-> TBD
-> 
-> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-> ---
->  mm/compaction.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/compaction.c b/mm/compaction.c
-> index 190ccdaa6c19..b75645e4678d 100644
-> --- a/mm/compaction.c
-> +++ b/mm/compaction.c
-> @@ -1288,7 +1288,7 @@ static void
->  fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
->  {
->  	unsigned long start_pfn, end_pfn;
-> -	struct page *page = pfn_to_page(pfn);
-> +	struct page *page;
->  
->  	/* Do not search around if there are enough pages already */
->  	if (cc->nr_freepages >= cc->nr_migratepages)
-> @@ -1300,7 +1300,11 @@ fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long
->  
->  	/* Pageblock boundaries */
->  	start_pfn = pageblock_start_pfn(pfn);
-> -	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
-> +	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone));
-> +
-> +	page = pageblock_pfn_to_page(start_pfn, end_pfn, cc->zone);
-> +	if (!page)
-> +		return;
->  
->  	/* Scan before */
->  	if (start_pfn != pfn) {
-> @@ -1486,7 +1490,7 @@ fast_isolate_freepages(struct compact_control *cc)
->  	}
->  
->  	cc->total_free_scanned += nr_scanned;
-> -	if (!page)
-> +	if (!page || page_zone(page) != cc->zone)
->  		return cc->free_pfn;
->  
->  	low_pfn = page_to_pfn(page);
-> -- 
-> 2.30.0
-> 
+Backporting them to 5.10.x would need same amount of testing and
+validation that the 5.11 version got during the whole development cycle.
 
--- 
-Sincerely yours,
-Mike.
+> It's almost always better to track what is in Linus's tree than to do
+> one-off patches as 95% of the time we do one-off patches they are buggy
+> and cause problems as no one else is running them.
+
+While I understand that concern in general, in this case it's trading
+changes by lots of code with a targeted fix with a reproducer, basically
+fixing the buggy error handling path.
+
+> So how about sending the above backported series instead please.
+
+Considering the risk I don't want to do that.
