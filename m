@@ -2,279 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE5831C758
-	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 09:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7082431C76A
+	for <lists+stable@lfdr.de>; Tue, 16 Feb 2021 09:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbhBPI2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 03:28:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43094 "EHLO mail.kernel.org"
+        id S229802AbhBPIgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 03:36:32 -0500
+Received: from mx2.suse.de ([195.135.220.15]:53616 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229803AbhBPI2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Feb 2021 03:28:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A5164E04;
-        Tue, 16 Feb 2021 08:27:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613464037;
-        bh=Le2Eb2HspI0V1QIwLnnFJ5M4qLTd6wfC5sgfrFaVXdo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZnibMyn0sFl9gyI6r4uUD6W0vOzg37DiSUcsVlJXH0BsQVHvEfOZSUSarU50nUhS3
-         2NrSJiTdZjwRdBy+zm7WM9+HZrLpp8YBwsvtUWQHhpa9FVorCYIlYYoLkqY8LucLj3
-         8Bi1AeZQ0C2wWSRl890DABaJCxTAsv94JcyM3ThpeU7gPl1Kz10nFsk/1YuF69zhTI
-         YcOv3oL/zFDX7KVNDxhTW4LfsNC1+FTXxMY0iCl0gIH8uw0mJzLxYzVssu2DhmCi7B
-         YOotpk4IMDoGtFuADgnWAlkUX1+JBIKXBVuFNvIDFpixXynDrcJbImrDIYdvA3Y2U0
-         q9eWcjaMKGZQA==
-Date:   Tue, 16 Feb 2021 10:27:05 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] tpm: fix reference counting for struct tpm_chip
-Message-ID: <YCuB2UGll4aU2J0z@kernel.org>
-References: <1613435460-4377-1-git-send-email-LinoSanfilippo@gmx.de>
- <1613435460-4377-2-git-send-email-LinoSanfilippo@gmx.de>
+        id S229910AbhBPIeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Feb 2021 03:34:10 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1613464402; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=TYbPMLrBD6Kvf/snb6pPAKbE9WPqesCCNFflje30gLY=;
+        b=QFxKo3EaJf8BeUaY2v10WY4ktuKCaS5O0G3CvfmRrppIF/GQ4HXnWdKAdtz1bWOeQgZFKt
+        jyBxioISY5bu+tCBpQO6DaskeKBD48uTmMq0216hxINNwIKY8CLSn1ftMF+aUsh1Z78gBy
+        Uq44aCT9Yf14TpUtTWiLfldo132z628=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E0907AD29;
+        Tue, 16 Feb 2021 08:33:21 +0000 (UTC)
+Date:   Tue, 16 Feb 2021 09:33:20 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Mel Gorman <mgorman@suse.de>, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v5 1/1] mm: refactor initialization of struct page for
+ holes in memory layout
+Message-ID: <YCuDUG89KwQNbsjA@dhcp22.suse.cz>
+References: <20210208110820.6269-1-rppt@kernel.org>
+ <YCZZeAAC8VOCPhpU@dhcp22.suse.cz>
+ <e5ce315f-64f7-75e3-b587-ad0062d5902c@redhat.com>
+ <YCaAHI/rFp1upRLc@dhcp22.suse.cz>
+ <20210214180016.GO242749@kernel.org>
+ <YCo4Lyio1h2Heixh@dhcp22.suse.cz>
+ <20210215212440.GA1307762@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1613435460-4377-2-git-send-email-LinoSanfilippo@gmx.de>
+In-Reply-To: <20210215212440.GA1307762@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 16, 2021 at 01:31:00AM +0100, Lino Sanfilippo wrote:
-> From: Lino Sanfilippo <l.sanfilippo@kunbus.com>
+On Mon 15-02-21 23:24:40, Mike Rapoport wrote:
+> On Mon, Feb 15, 2021 at 10:00:31AM +0100, Michal Hocko wrote:
+> > On Sun 14-02-21 20:00:16, Mike Rapoport wrote:
+> > > On Fri, Feb 12, 2021 at 02:18:20PM +0100, Michal Hocko wrote:
+> > 
+> > > We can correctly set the zone links for the reserved pages for holes in the
+> > > middle of a zone based on the architecture constraints and with only the
+> > > holes in the beginning/end of the memory will be not spanned by any
+> > > node/zone which in practice does not seem to be a problem as the VM_BUG_ON
+> > > in set_pfnblock_flags_mask() never triggered on pfn 0.
+> > 
+> > I really fail to see what you mean by correct zone/node for a memory
+> > range which is not associated with any real node.
 > 
-> The following sequence of operations results in a refcount warning:
-> 
-> 1. Open device /dev/tpmrm
+> We know architectural zone constraints, so we can have always have 1:1
+> match from pfn to zone. Node indeed will be a guess.
 
-Add '.' to end.
+That is true only for some zones. Also we do require those to be correct
+when the memory is managed by the page allocator. I believe we can live
+with incorrect zones when they are in holes.
 
-> 2. Remove module tpm_tis_spi
+> > > > I am sorry, I haven't followed previous discussions. Has the removal of
+> > > > the VM_BUG_ON been considered as an immediate workaround?
+> > > 
+> > > It was never discussed, but I'm not sure it's a good idea.
+> > > 
+> > > Judging by the commit message that introduced the VM_BUG_ON (commit
+> > > 86051ca5eaf5 ("mm: fix usemap initialization")) there was yet another
+> > > inconsistency in the memory map that required a special care.
+> > 
+> > Can we actually explore that path before adding yet additional
+> > complexity and potentially a very involved fix for a subtle problem?
+> 
+> This patch was intended as a fix for inconsistency of the memory map that
+> is the root cause for triggering this VM_BUG_ON and other corner case
+> problems. 
+> 
+> The previous version [1] is less involved as it does not extend node/zone
+> spans.
 
-Add '.' to end.
+I do understand that. And I am not objecting to the patch. I have to
+confess I haven't digested it yet. Any changes to early memory
+intialization have turned out to be subtle and corner cases only pop up
+later. This is almost impossible to review just by reading the code.
+That's why I am asking whether we want to address the specific VM_BUG_ON
+first with something much less tricky and actually reviewable. And
+that's why I am asking whether dropping the bug_on itself is safe to do
+and use as a hot fix which should be easier to backport.
 
-> 3. Write a TPM command to the file descriptor opened at step 1.
-> 
-> ------------[ cut here ]------------
-> WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
-> refcount_t: addition on 0; use-after-free.
-> Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
-> sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
-> brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
-> raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
-> snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
-> CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
-> Hardware name: BCM2711
-> [<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
-> [<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
-> [<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
-> [<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
-> [<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
-> [<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
-> [<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
-> [<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
-> [<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
-> [<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
-> Exception stack(0xc226bfa8 to 0xc226bff0)
-> bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
-> bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
-> bfe0: 0000006c beafe648 0001056c b6eb6944
-> ---[ end trace d4b8409def9b8b1f ]---
-> 
-> The reason for this warning is the attempt to get the chip->dev reference
-> in tpm_common_write() although the reference counter is already zero.
-> 
-> Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
-> extra reference used to prevent a premature zero counter is never taken,
-> because the required TPM_CHIP_FLAG_TPM2 flag is never set.
-> 
-> Fix this by moving the TPM 2 character device handling from
-> tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
-> in time when the flag has been set in case of TPM2.
-> 
-> Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> already introduced function tpm_devs_release() to release the extra
-> reference but did not implement the required put on chip->devs that results
-> in the call of this function.
-> 
-> Fix this by putting chip->devs in tpm_chip_unregister().
-> 
-> Finally move the new implemenation for the TPM 2 handling into a new
-> function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
-> good case and error cases.
-> 
-> Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-> Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
-> Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Lino Sanfilippo <l.sanfilippo@kunbus.com>
-> Cc: stable@vger.kernel.org
+Longterm I am definitely supporting any change which will lead to a
+fully initialized state. Whatever that means. One option would be to
+simply never allow partial page blocks or even memory sections. This
+would waste some memory but from what I have seen so far this would be
+quite small amount on very rare setups. So it might turn out as a much
+more easier and maintainable way forward.
 
-Put Cc first.
-
-> ---
->  drivers/char/tpm/tpm-chip.c | 80 ++++++++++++++++++++++++++++-----------------
->  1 file changed, 50 insertions(+), 30 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index ddaeceb..44cac3a 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -344,7 +344,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	chip->dev_num = rc;
->  
->  	device_initialize(&chip->dev);
-> -	device_initialize(&chip->devs);
->  
->  	chip->dev.class = tpm_class;
->  	chip->dev.class->shutdown_pre = tpm_class_shutdown;
-> @@ -352,39 +351,20 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	chip->dev.parent = pdev;
->  	chip->dev.groups = chip->groups;
->  
-> -	chip->devs.parent = pdev;
-> -	chip->devs.class = tpmrm_class;
-> -	chip->devs.release = tpm_devs_release;
-> -	/* get extra reference on main device to hold on
-> -	 * behalf of devs.  This holds the chip structure
-> -	 * while cdevs is in use.  The corresponding put
-> -	 * is in the tpm_devs_release (TPM2 only)
-> -	 */
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> -		get_device(&chip->dev);
-> -
->  	if (chip->dev_num == 0)
->  		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
->  	else
->  		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
->  
-> -	chip->devs.devt =
-> -		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> -
->  	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
->  	if (rc)
->  		goto out;
-> -	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-> -	if (rc)
-> -		goto out;
->  
->  	if (!pdev)
->  		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
->  
->  	cdev_init(&chip->cdev, &tpm_fops);
-> -	cdev_init(&chip->cdevs, &tpmrm_fops);
->  	chip->cdev.owner = THIS_MODULE;
-> -	chip->cdevs.owner = THIS_MODULE;
->  
->  	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
->  	if (rc) {
-> @@ -396,7 +376,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  	return chip;
->  
->  out:
-> -	put_device(&chip->devs);
->  	put_device(&chip->dev);
->  	return ERR_PTR(rc);
->  }
-> @@ -431,6 +410,46 @@ struct tpm_chip *tpmm_chip_alloc(struct device *pdev,
->  }
->  EXPORT_SYMBOL_GPL(tpmm_chip_alloc);
->  
-> +static int tpm_add_tpm2_char_device(struct tpm_chip *chip)
-> +{
-> +	int rc;
-> +
-> +	device_initialize(&chip->devs);
-> +	chip->devs.parent = chip->dev.parent;
-> +	chip->devs.class = tpmrm_class;
-> +
-> +	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-> +	if (rc)
-> +		goto out_put_devs;
-> +	/*
-> +	 * get extra reference on main device to hold on behalf of devs.
-> +	 * This holds the chip structure while cdevs is in use. The
-> +	 * corresponding put is in the tpm_devs_release.
-> +	 */
-> +	get_device(&chip->dev);
-> +	chip->devs.release = tpm_devs_release;
-> +	chip->devs.devt =
-> +		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-> +	cdev_init(&chip->cdevs, &tpmrm_fops);
-> +	chip->cdevs.owner = THIS_MODULE;
-> +
-> +	rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> +	if (rc) {
-> +		dev_err(&chip->devs,
-> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> +			MINOR(chip->devs.devt), rc);
-> +		goto out_put_devs;
-> +	}
-> +
-> +	return 0;
-> +
-> +out_put_devs:
-> +	put_device(&chip->devs);
-> +
-> +	return rc;
-> +}
-> +
->  static int tpm_add_char_device(struct tpm_chip *chip)
->  {
->  	int rc;
-> @@ -445,14 +464,9 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  	}
->  
->  	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
-> -		rc = cdev_device_add(&chip->cdevs, &chip->devs);
-> -		if (rc) {
-> -			dev_err(&chip->devs,
-> -				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-> -				dev_name(&chip->devs), MAJOR(chip->devs.devt),
-> -				MINOR(chip->devs.devt), rc);
-> -			return rc;
-> -		}
-> +		rc = tpm_add_tpm2_char_device(chip);
-> +		if (rc)
-> +			goto del_cdev;
->  	}
->  
->  	/* Make the chip available. */
-> @@ -460,6 +474,10 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
->  	mutex_unlock(&idr_lock);
->  
-> +	return 0;
-> +
-> +del_cdev:
-> +	cdev_device_del(&chip->cdev, &chip->dev);
->  	return rc;
->  }
->  
-> @@ -640,8 +658,10 @@ void tpm_chip_unregister(struct tpm_chip *chip)
->  	if (IS_ENABLED(CONFIG_HW_RANDOM_TPM))
->  		hwrng_unregister(&chip->hwrng);
->  	tpm_bios_log_teardown(chip);
-> -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> +	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
->  		cdev_device_del(&chip->cdevs, &chip->devs);
-> +		put_device(&chip->devs);
-> +	}
->  	tpm_del_char_device(chip);
->  }
->  EXPORT_SYMBOL_GPL(tpm_chip_unregister);
+> [1] https://lore.kernel.org/lkml/20210130221035.4169-3-rppt@kernel.org
 > -- 
-> 2.7.4
-> 
+> Sincerely yours,
+> Mike.
 
-Other than that, this looks good to me.
-
-If this passes testing, I can fix those nit's.
-
-I'll test this post 5.12 PR.
-
-/Jarkko
+-- 
+Michal Hocko
+SUSE Labs
