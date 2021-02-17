@@ -2,104 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E9731D32E
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 01:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B63931D3AF
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 02:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbhBPXyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Feb 2021 18:54:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59664 "EHLO
+        id S230029AbhBQBNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Feb 2021 20:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbhBPXyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 18:54:23 -0500
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE7FC061756
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 15:53:42 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id k204so13129657oih.3
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 15:53:42 -0800 (PST)
+        with ESMTP id S231563AbhBQBMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Feb 2021 20:12:48 -0500
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5596C061574;
+        Tue, 16 Feb 2021 17:12:07 -0800 (PST)
+Received: by mail-io1-xd36.google.com with SMTP id u20so12148068iot.9;
+        Tue, 16 Feb 2021 17:12:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=7YZZZa0Z9sq8S0dHPnPa5oROFnkvvg200VC3qLVC1ME=;
-        b=RnSmnHbst8FK/8ck/1v044L3LQP7/uSxvm23Lzbc2rn4IGOkaXLgNd87nRHGzjPger
-         zlB8oYx9DP/gGdxrNeHurZy9bsGOofhri2hmjd0HjmRBd2VYc/IbWucJXVkZ4zzWIJ9d
-         jIAymqZAgxSXBAPLR3DfKgguFeup49ObfZrx8SiikL9Uj9nAAWEb134DBhTgCmNnKVCk
-         FJ+TLJrr1V6Wnq7c9nk7yO33Phel0tira/u/aAozMLqbKuF2Lvw45gf9QUZGL99zAjXj
-         SBs/Z//UG9o6qnaxZC5F56btUqnBbjjL8Miipmt0Az2S9Ruwft8qF3L0H1MijJ4zeHYB
-         B5YQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=d8UdNd3nDtWSlDpG1wDbaA501Q1kxHTdjGnzgmdnFU4=;
+        b=Fdhaz04OOefejFr2lbTRdQg335nqILkUJzIIUPPiA83i/0P6SPcbGCrMrC+Oek2xcm
+         JfQFMbvchcAqOnqDkMGwDfBHZ2IPNGV4VwefgF4K/dA12J9kyKKocgKlUsvj9+k3QA8S
+         T5vOu5Fil9KsmdMuLktFymRaSMFhwBnggCCt5oje05zab7BThYz1LwG/ZmDWvFzND+f5
+         uvZS0H4MpZwNRcGHTiIHqextJ31geZuVBvUE9JZ+BTKDxTjeLBYGH3qST3WIOr7rK8HS
+         zniRZiJofUdIHKrmEpdZj+8i2cMPlTqSe7qKg/QoW/mS7/cwmB71HnyhMrvc1GCEDzgm
+         Co7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7YZZZa0Z9sq8S0dHPnPa5oROFnkvvg200VC3qLVC1ME=;
-        b=sn1j9dpi7onneEdP1pgZH43LnBmPobQMfc2kLK1cCJZfFCgzd36/AHozrP9C9XcOoY
-         sfjlvPd016xEjZmy88ykDgx+HWYPU7y0hvdAIOczVcrvFPTW1xMxpWpMZQwTAyX9ErAl
-         ha9i2zCviB5ZgZNAI4SM5WRhGQO+aDq/Do7nfi9CDsyZRWi+OjpBZ3ljHhSBY2Ji+3mv
-         saOJFcHoPizDDDQXYs8N5fz6sX2FWOu5J8L1TZAlun9sekwevf+m7W8U5ZDcBwC7ySBV
-         z415C5eUqtpkZHoOYbp0PQuDoFEGuLL/W6t+0LVF1/k72s9y+lXI5n3W7Dvg2/8ruw/i
-         b4NA==
-X-Gm-Message-State: AOAM53132CpVl0t+I8fAa1OVI+AVuyMhmVVQH3gEfO0aYaej9cckRHC/
-        FunMU2gMDOYzZ96X3/WiSvNov3lXpb7tU3djCteECg==
-X-Google-Smtp-Source: ABdhPJzkxDyN7ezhP2Gl14bsnM7Bo+Uhwem0JKrjZQtkq1K6lm6ThCe3vJwUHiH4aCthz8yzmwyqCdjjtHg5YgYMUkk=
-X-Received: by 2002:aca:1a17:: with SMTP id a23mr4047592oia.172.1613519622217;
- Tue, 16 Feb 2021 15:53:42 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=d8UdNd3nDtWSlDpG1wDbaA501Q1kxHTdjGnzgmdnFU4=;
+        b=ueNLUFtNtfkJNa3buICshyeJM9+QrPN0GVcs8R3CKNlQjLh+ccsplKJVLcYDcMzpGR
+         AKnr7WfwyFf0d2psuCQbKuhrPSSOFizN/j3coWu/JTvSM64GM0ZQvw27IgACsungKkkd
+         gyJ7pvwF2Fgl0p/22EpF8BVPwn86oVQiPBrzIhQc40+pQomHmxuBqK3GTmD3cb7tBO4s
+         Kvf0FtzuuYJZm3apJ8Bi1+fYS6AbwG0WRUM9e1P29SOrJO/GOOdTPpbcx2hBIzBg0yTM
+         FyHdAW3SHXRQyLIeEXozKxOn6lLPfTSNey6of3/+QlHI+9L9IOolt4tBybXGcOcSAJ3e
+         2+2Q==
+X-Gm-Message-State: AOAM531M/Pi6lDqQ1tzbO+wChjqqbQR4CedKT+zaGTfjboBTtkU3YuU8
+        4NCva29sYffgphemsvAu4GeoniOZLzAYvQ==
+X-Google-Smtp-Source: ABdhPJwj3iChKvtm3mmis/xlHPDt4fd5KX5rXWCiNpJ42W8cBEVPqzFUOJ1vMpCX1mE6Fvyv6VpMAg==
+X-Received: by 2002:a5d:9641:: with SMTP id d1mr18579198ios.123.1613524327215;
+        Tue, 16 Feb 2021 17:12:07 -0800 (PST)
+Received: from book ([2601:445:8200:6c90::4121])
+        by smtp.gmail.com with ESMTPSA id n7sm154245ili.79.2021.02.16.17.12.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Feb 2021 17:12:06 -0800 (PST)
+Date:   Tue, 16 Feb 2021 19:12:04 -0600
+From:   Ross Schmidt <ross.schm.dev@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/60] 5.4.99-rc1 review
+Message-ID: <20210217011204.GA4678@book>
+References: <20210215152715.401453874@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20210209050047.1958473-1-daniel.diaz@linaro.org>
- <6065587.C4oOSP4HzL@mobilepool36.emlix.com> <3314666.Em9qtOGRgX@mobilepool36.emlix.com>
- <5043253.pljLzkpU8D@mobilepool36.emlix.com>
-In-Reply-To: <5043253.pljLzkpU8D@mobilepool36.emlix.com>
-From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Date:   Tue, 16 Feb 2021 17:53:31 -0600
-Message-ID: <CAEUSe7-NA92bBDco_go6mwkdrtUsxk0H6OX0pUfpDZ0R7VKL=g@mail.gmail.com>
-Subject: Re: [PATCH] scripts: Fix linking extract-cert against libcrypto
-To:     Rolf Eike Beer <eb@emlix.com>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210215152715.401453874@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Mon, Feb 15, 2021 at 04:26:48PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.99 release.
+> There are 60 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+
+Compiled and booted with no regressions on x86_64.
+
+Tested-by: Ross Schmidt <ross.schm.dev@gmail.com>
 
 
-On Fri, 12 Feb 2021 at 01:44, Rolf Eike Beer <eb@emlix.com> wrote:
->
-> Am Donnerstag, 11. Februar 2021, 11:29:33 CET schrieb Rolf Eike Beer:
->
-> > I'm just guessing, but your build error looks like you are also
-> > cross-building the tools, which is wrong. You want them to be host-tool=
-s.
-> > So don't export PKG_CONFIG_SYSROOT_DIR, it would then try to link targe=
-t
-> > libraries into a host binary.
->
-> I have looked again how I do it:
->
-> # this is for additional _host_ .pc files
-> export PKG_CONFIG_PATH=3D${prefix}/lib/pkgconfig
->
-> Then have a target-pkg-config, so this code inside several kernel Makefil=
-es
-> will work:
->
-> PKG_CONFIG ?=3D $(CROSS_COMPILE)pkg-config
->
-> And then export your PKG_CONFIG_SYSROOT_DIR and the like inside that. I b=
-et
-> you have all of this already in place, so just remove the SYSROOT_DIR fro=
-m
-> your kernel build script and things should work.
+thanks,
 
-Thank you for your comments! I will try this in our environment in the
-upcoming days.
-
-Greetings!
-
-Daniel D=C3=ADaz
-daniel.diaz@linaro.org
+Ross
