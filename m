@@ -2,123 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 737DC31DE5F
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 18:37:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A18AF31DEAC
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 19:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbhBQRfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 12:35:44 -0500
-Received: from mx2.suse.de ([195.135.220.15]:37526 "EHLO mx2.suse.de"
+        id S231933AbhBQSA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 13:00:26 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:38786 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234417AbhBQRdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Feb 2021 12:33:52 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 40991B7C4;
-        Wed, 17 Feb 2021 17:33:09 +0000 (UTC)
-From:   Vlastimil Babka <vbabka@suse.cz>
-To:     linux-mm@kvack.org, Mel Gorman <mgorman@techsingularity.net>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH] mm, compaction: make fast_isolate_freepages() stay within zone
-Date:   Wed, 17 Feb 2021 18:33:00 +0100
-Message-Id: <20210217173300.6394-1-vbabka@suse.cz>
-X-Mailer: git-send-email 2.30.0
+        id S231856AbhBQSAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Feb 2021 13:00:25 -0500
+Received: from zn.tnic (p200300ec2f05bb00a5a1b5cb6f03bfce.dip0.t-ipconnect.de [IPv6:2003:ec:2f05:bb00:a5a1:b5cb:6f03:bfce])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id ED4941EC0402;
+        Wed, 17 Feb 2021 18:59:43 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1613584784;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=WmuQ8y/fflrvmjf86SX6xiFBOAxGxvoIY9jzq881ltE=;
+        b=VtuqqWV9FksO9bvGEz8s/uGpYsmQhciTMb5Bf5x7ZRbliGBwcMAr4OEUnISJXR69BwU8JS
+        gfteNUD430fYDD5Kj6HzYtes586+ku381MB0OWQ2UpD4sqHIPXR8P3HfmMaEIRoEW+MeMV
+        +StFS37yM89lDHr/vpDza8tR87BZG+M=
+Date:   Wed, 17 Feb 2021 18:59:39 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     x86@kernel.org, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 1/3] x86/sev-es: Introduce from_syscall_gap() helper
+Message-ID: <20210217175939.GA6479@zn.tnic>
+References: <20210217120143.6106-1-joro@8bytes.org>
+ <20210217120143.6106-2-joro@8bytes.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210217120143.6106-2-joro@8bytes.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Compaction always operates on pages from a single given zone when isolating
-both pages to migrate and freepages. Pageblock boundaries are intersected with
-zone boundaries to be safe in case zone starts or ends in the middle of
-pageblock. The use of pageblock_pfn_to_page() protects against non-contiguous
-pageblocks.
+I guess subject prefix should be "x86/traps:" but I'll fix that up while
+applying eventually.
 
-The functions fast_isolate_freepages() and fast_isolate_around() don't
-currently protect the fast freepage isolation thoroughly enough against these
-corner cases, and can result in freepage isolation operate outside of zone
-boundaries:
+On Wed, Feb 17, 2021 at 01:01:41PM +0100, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> Introduce a helper to check whether an exception came from the syscall
+> gap and use it in the SEV-ES code
+> 
+> Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
+> Cc: stable@vger.kernel.org # 5.10+
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>  arch/x86/include/asm/ptrace.h | 8 ++++++++
+>  arch/x86/kernel/traps.c       | 3 +--
+>  2 files changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
+> index d8324a236696..14854b2c4944 100644
+> --- a/arch/x86/include/asm/ptrace.h
+> +++ b/arch/x86/include/asm/ptrace.h
+> @@ -94,6 +94,8 @@ struct pt_regs {
+>  #include <asm/paravirt_types.h>
+>  #endif
+>  
+> +#include <asm/proto.h>
+> +
+>  struct cpuinfo_x86;
+>  struct task_struct;
+>  
+> @@ -175,6 +177,12 @@ static inline bool any_64bit_mode(struct pt_regs *regs)
+>  #ifdef CONFIG_X86_64
+>  #define current_user_stack_pointer()	current_pt_regs()->sp
+>  #define compat_user_stack_pointer()	current_pt_regs()->sp
+> +
+> +static inline bool from_syscall_gap(struct pt_regs *regs)
 
-- in fast_isolate_freepages() if we get a pfn from the first pageblock of a
-  zone that starts in the middle of that pageblock, 'highest' can be a pfn
-  outside of the zone. If we fail to isolate anything in this function, we
-  may then call fast_isolate_around() on a pfn outside of the zone and there
-  effectively do a set_pageblock_skip(page_to_pfn(highest)) which may currently
-  hit a VM_BUG_ON() in some configurations
-- fast_isolate_around() checks only the zone end boundary and not beginning,
-  nor that the pageblock is contiguous (with pageblock_pfn_to_page()) so it's
-  possible that we end up calling isolate_freepages_block() on a range of pfn's
-  from two different zones and end up e.g. isolating freepages under the wrong
-  zone's lock.
+rip_within_syscall_gap() sounds kinda better to me and it is more
+readable when you look at it at the usage site:
 
-This patch should fix the above issues.
+	if (rip_within_syscall_gap(regs))
+		...
 
-Fixes: 5a811889de10 ("mm, compaction: use free lists to quickly locate a migration target")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
----
- mm/compaction.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-Hi, as promised here's a fix for issues that I think exist regardless of the
-memblock stuff, but were partially exposed by that. I will see if I can manage
-to test that it does prevent the known symptoms (it should if I didn't miss
-anything).
-
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 190ccdaa6c19..22a35521e358 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1288,7 +1288,7 @@ static void
- fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
- {
- 	unsigned long start_pfn, end_pfn;
--	struct page *page = pfn_to_page(pfn);
-+	struct page *page;
- 
- 	/* Do not search around if there are enough pages already */
- 	if (cc->nr_freepages >= cc->nr_migratepages)
-@@ -1299,8 +1299,12 @@ fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long
- 		return;
- 
- 	/* Pageblock boundaries */
--	start_pfn = pageblock_start_pfn(pfn);
--	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
-+	start_pfn = max(pageblock_start_pfn(pfn), cc->zone->zone_start_pfn);
-+	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone));
-+
-+	page = pageblock_pfn_to_page(start_pfn, end_pfn, cc->zone);
-+	if (!page)
-+		return;
- 
- 	/* Scan before */
- 	if (start_pfn != pfn) {
-@@ -1402,7 +1406,8 @@ fast_isolate_freepages(struct compact_control *cc)
- 			pfn = page_to_pfn(freepage);
- 
- 			if (pfn >= highest)
--				highest = pageblock_start_pfn(pfn);
-+				highest = max(pageblock_start_pfn(pfn),
-+					      cc->zone->zone_start_pfn);
- 
- 			if (pfn >= low_pfn) {
- 				cc->fast_search_fail = 0;
-@@ -1472,7 +1477,8 @@ fast_isolate_freepages(struct compact_control *cc)
- 			} else {
- 				if (cc->direct_compaction && pfn_valid(min_pfn)) {
- 					page = pageblock_pfn_to_page(min_pfn,
--						pageblock_end_pfn(min_pfn),
-+						min(pageblock_end_pfn(min_pfn),
-+						    zone_end_pfn(cc->zone)),
- 						cc->zone);
- 					cc->free_pfn = min_pfn;
- 				}
 -- 
-2.30.0
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
