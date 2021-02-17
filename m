@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A18AF31DEAC
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 19:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E2031DEB5
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 19:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231933AbhBQSA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 13:00:26 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:38786 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231856AbhBQSAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Feb 2021 13:00:25 -0500
+        id S233054AbhBQSAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 13:00:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234667AbhBQSAs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 13:00:48 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943A5C061574;
+        Wed, 17 Feb 2021 10:00:08 -0800 (PST)
 Received: from zn.tnic (p200300ec2f05bb00a5a1b5cb6f03bfce.dip0.t-ipconnect.de [IPv6:2003:ec:2f05:bb00:a5a1:b5cb:6f03:bfce])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id ED4941EC0402;
-        Wed, 17 Feb 2021 18:59:43 +0100 (CET)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 37E1F1EC0531;
+        Wed, 17 Feb 2021 19:00:06 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1613584784;
+        t=1613584806;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=WmuQ8y/fflrvmjf86SX6xiFBOAxGxvoIY9jzq881ltE=;
-        b=VtuqqWV9FksO9bvGEz8s/uGpYsmQhciTMb5Bf5x7ZRbliGBwcMAr4OEUnISJXR69BwU8JS
-        gfteNUD430fYDD5Kj6HzYtes586+ku381MB0OWQ2UpD4sqHIPXR8P3HfmMaEIRoEW+MeMV
-        +StFS37yM89lDHr/vpDza8tR87BZG+M=
-Date:   Wed, 17 Feb 2021 18:59:39 +0100
+        bh=W/PjtAFD7kN1k373OiTnMpXJo6wSfCFewIb7shmRoAo=;
+        b=eWIvMjcR2w2Szi9tvlUj/PBm2DwWXFJEV6+2klCghZf1r9mpzHJQsSclQG/T7mwfY0uiQo
+        rMtKbbqzVOerG0czLj1WllEinByD4lSHtLn93sBH0+1z7g/qOd18ASqqXmXgniWL7fCCaj
+        U249HiTnjWRQTmgbdVAvXjFEVHgaw54=
+Date:   Wed, 17 Feb 2021 19:00:09 +0100
 From:   Borislav Petkov <bp@alien8.de>
 To:     Joerg Roedel <joro@8bytes.org>
 Cc:     x86@kernel.org, Joerg Roedel <jroedel@suse.de>,
-        stable@vger.kernel.org, hpa@zytor.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Jiri Slaby <jslaby@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>,
@@ -48,60 +50,67 @@ Cc:     x86@kernel.org, Joerg Roedel <jroedel@suse.de>,
         Arvind Sankar <nivedita@alum.mit.edu>,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 1/3] x86/sev-es: Introduce from_syscall_gap() helper
-Message-ID: <20210217175939.GA6479@zn.tnic>
+Subject: Re: [PATCH 2/3] x86/sev-es: Check if regs->sp is trusted before
+ adjusting #VC IST stack
+Message-ID: <20210217180009.GB6479@zn.tnic>
 References: <20210217120143.6106-1-joro@8bytes.org>
- <20210217120143.6106-2-joro@8bytes.org>
+ <20210217120143.6106-3-joro@8bytes.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210217120143.6106-2-joro@8bytes.org>
+In-Reply-To: <20210217120143.6106-3-joro@8bytes.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I guess subject prefix should be "x86/traps:" but I'll fix that up while
-applying eventually.
-
-On Wed, Feb 17, 2021 at 01:01:41PM +0100, Joerg Roedel wrote:
+On Wed, Feb 17, 2021 at 01:01:42PM +0100, Joerg Roedel wrote:
 > From: Joerg Roedel <jroedel@suse.de>
 > 
-> Introduce a helper to check whether an exception came from the syscall
-> gap and use it in the SEV-ES code
+> The code in the NMI handler to adjust the #VC handler IST stack is
+> needed in case an NMI hits when the #VC handler is still using its IST
+> stack.
+> But the check for this condition also needs to look if the regs->sp
+> value is trusted, meaning it was not set by user-space. Extend the
+> check to not use regs->sp when the NMI interrupted user-space code or
+> the SYSCALL gap.
 > 
+> Reported-by: Andy Lutomirski <luto@kernel.org>
 > Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
 > Cc: stable@vger.kernel.org # 5.10+
 > Signed-off-by: Joerg Roedel <jroedel@suse.de>
 > ---
->  arch/x86/include/asm/ptrace.h | 8 ++++++++
->  arch/x86/kernel/traps.c       | 3 +--
->  2 files changed, 9 insertions(+), 2 deletions(-)
+>  arch/x86/kernel/sev-es.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
-> index d8324a236696..14854b2c4944 100644
-> --- a/arch/x86/include/asm/ptrace.h
-> +++ b/arch/x86/include/asm/ptrace.h
-> @@ -94,6 +94,8 @@ struct pt_regs {
->  #include <asm/paravirt_types.h>
->  #endif
+> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+> index 84c1821819af..0df38b185d53 100644
+> --- a/arch/x86/kernel/sev-es.c
+> +++ b/arch/x86/kernel/sev-es.c
+> @@ -144,7 +144,9 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+>  	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
 >  
-> +#include <asm/proto.h>
-> +
->  struct cpuinfo_x86;
->  struct task_struct;
->  
-> @@ -175,6 +177,12 @@ static inline bool any_64bit_mode(struct pt_regs *regs)
->  #ifdef CONFIG_X86_64
->  #define current_user_stack_pointer()	current_pt_regs()->sp
->  #define compat_user_stack_pointer()	current_pt_regs()->sp
-> +
-> +static inline bool from_syscall_gap(struct pt_regs *regs)
+>  	/* Make room on the IST stack */
+> -	if (on_vc_stack(regs->sp))
+> +	if (on_vc_stack(regs->sp) &&
+> +	    !user_mode(regs) &&
+> +	    !from_syscall_gap(regs))
 
-rip_within_syscall_gap() sounds kinda better to me and it is more
-readable when you look at it at the usage site:
+Why not add those checks to on_vc_stack() directly? Because in it, you
+can say:
 
-	if (rip_within_syscall_gap(regs))
-		...
+on_vc_stack():
+
+	/* user mode rSP is not trusted */
+	if (user_mode())
+		return false;
+
+	/* ditto */
+	if (ip_within_syscall_gap())
+		return false;
+
+	...
+
+?
 
 -- 
 Regards/Gruss,
