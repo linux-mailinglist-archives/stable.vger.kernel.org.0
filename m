@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 437E031D90C
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 13:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 422FC31D90E
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 13:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232562AbhBQMDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 07:03:32 -0500
-Received: from 8bytes.org ([81.169.241.247]:55970 "EHLO theia.8bytes.org"
+        id S232574AbhBQMDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 07:03:36 -0500
+Received: from 8bytes.org ([81.169.241.247]:55998 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232584AbhBQMDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Feb 2021 07:03:00 -0500
+        id S232585AbhBQMDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Feb 2021 07:03:01 -0500
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de [84.154.220.246])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id AD110344;
-        Wed, 17 Feb 2021 13:02:08 +0100 (CET)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 36CF337C;
+        Wed, 17 Feb 2021 13:02:09 +0100 (CET)
 From:   Joerg Roedel <joro@8bytes.org>
 To:     x86@kernel.org
 Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
-        stable@vger.kernel.org, hpa@zytor.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Jiri Slaby <jslaby@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>,
@@ -38,9 +37,9 @@ Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
         Arvind Sankar <nivedita@alum.mit.edu>,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: [PATCH 1/3] x86/sev-es: Introduce from_syscall_gap() helper
-Date:   Wed, 17 Feb 2021 13:01:41 +0100
-Message-Id: <20210217120143.6106-2-joro@8bytes.org>
+Subject: [PATCH 2/3] x86/sev-es: Check if regs->sp is trusted before adjusting #VC IST stack
+Date:   Wed, 17 Feb 2021 13:01:42 +0100
+Message-Id: <20210217120143.6106-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210217120143.6106-1-joro@8bytes.org>
 References: <20210217120143.6106-1-joro@8bytes.org>
@@ -52,57 +51,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Introduce a helper to check whether an exception came from the syscall
-gap and use it in the SEV-ES code
+The code in the NMI handler to adjust the #VC handler IST stack is
+needed in case an NMI hits when the #VC handler is still using its IST
+stack.
+But the check for this condition also needs to look if the regs->sp
+value is trusted, meaning it was not set by user-space. Extend the
+check to not use regs->sp when the NMI interrupted user-space code or
+the SYSCALL gap.
 
+Reported-by: Andy Lutomirski <luto@kernel.org>
 Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
 Cc: stable@vger.kernel.org # 5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/ptrace.h | 8 ++++++++
- arch/x86/kernel/traps.c       | 3 +--
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kernel/sev-es.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
-index d8324a236696..14854b2c4944 100644
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -94,6 +94,8 @@ struct pt_regs {
- #include <asm/paravirt_types.h>
- #endif
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 84c1821819af..0df38b185d53 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -144,7 +144,9 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+ 	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
  
-+#include <asm/proto.h>
-+
- struct cpuinfo_x86;
- struct task_struct;
- 
-@@ -175,6 +177,12 @@ static inline bool any_64bit_mode(struct pt_regs *regs)
- #ifdef CONFIG_X86_64
- #define current_user_stack_pointer()	current_pt_regs()->sp
- #define compat_user_stack_pointer()	current_pt_regs()->sp
-+
-+static inline bool from_syscall_gap(struct pt_regs *regs)
-+{
-+	return (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
-+		regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
-+}
- #endif
- 
- static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 7f5aec758f0e..b4f2b4e9066d 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -694,8 +694,7 @@ asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *r
- 	 * In the SYSCALL entry path the RSP value comes from user-space - don't
- 	 * trust it and switch to the current kernel stack
- 	 */
--	if (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
--	    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
-+	if (from_syscall_gap(regs)) {
- 		sp = this_cpu_read(cpu_current_top_of_stack);
- 		goto sync;
- 	}
+ 	/* Make room on the IST stack */
+-	if (on_vc_stack(regs->sp))
++	if (on_vc_stack(regs->sp) &&
++	    !user_mode(regs) &&
++	    !from_syscall_gap(regs))
+ 		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
+ 	else
+ 		new_ist = old_ist - sizeof(old_ist);
 -- 
 2.30.0
 
