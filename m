@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF25831D919
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 13:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323A031D914
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 13:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232616AbhBQMD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 07:03:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45456 "EHLO
+        id S232598AbhBQMDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 07:03:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232604AbhBQMDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 07:03:44 -0500
-X-Greylist: delayed 164 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 17 Feb 2021 04:03:02 PST
-Received: from forwardcorp1j.mail.yandex.net (forwardcorp1j.mail.yandex.net [IPv6:2a02:6b8:0:1619::183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46527C06178A;
-        Wed, 17 Feb 2021 04:03:02 -0800 (PST)
+        with ESMTP id S232641AbhBQMDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 07:03:11 -0500
+X-Greylist: delayed 138 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 17 Feb 2021 04:02:31 PST
+Received: from forwardcorp1o.mail.yandex.net (forwardcorp1o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774A3C061786;
+        Wed, 17 Feb 2021 04:02:31 -0800 (PST)
 Received: from iva8-d077482f1536.qloud-c.yandex.net (iva8-d077482f1536.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:2f26:0:640:d077:482f])
-        by forwardcorp1j.mail.yandex.net (Yandex) with ESMTP id E82BF2E1331;
-        Wed, 17 Feb 2021 14:58:54 +0300 (MSK)
+        by forwardcorp1o.mail.yandex.net (Yandex) with ESMTP id 778F12E1541;
+        Wed, 17 Feb 2021 14:58:56 +0300 (MSK)
 Received: from iva4-f06c35e68a0a.qloud-c.yandex.net (iva4-f06c35e68a0a.qloud-c.yandex.net [2a02:6b8:c0c:152e:0:640:f06c:35e6])
-        by iva8-d077482f1536.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id yLPDcZwg70-wrxenppT;
-        Wed, 17 Feb 2021 14:58:54 +0300
+        by iva8-d077482f1536.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id XlXJk3ag59-wtxeY82n;
+        Wed, 17 Feb 2021 14:58:56 +0300
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.com; s=default;
-        t=1613563134; bh=vUwCClxuuPybLqdPXj4P31Jz2tCAVBtC1IxfWOO/Vmo=;
-        h=Message-Id:Date:Subject:To:From:Cc;
-        b=f68LnMvHOlCg6quWIKcZyZHX1xm+vHio8tQ99b5GUIsKWZL55IUH9Qq9xkdV02GIx
-         Kt3aenj8gShgJqIQ37KU2unY949lU83vp9SfBRG/xly8nM4F5jP5lZrXDH5zFBWfq2
-         qkdOjGQ7+9Xc8bYgPe9QG33aP/rVCZpLMxbFAkKc=
+        t=1613563136; bh=LuoQeMQQrtl1XmsM4uDiGZRevLihMSflRpO6W5fFyf0=;
+        h=In-Reply-To:Message-Id:References:Date:Subject:To:From:Cc;
+        b=iybY8AoBRftH99ramFuGRb5GUmT6U/wQcK1Gi1xbBbUU7TBa1/tc/Ot7KuEvV1pO7
+         U1ZgzNTf7n/OF1Tz1XJKJxD3U16PrTGUMlORyWBJcO2nEEnj+PX6ELkP/rOjz7qyA6
+         7ICJfly+A12/+0hR2VwnVkUsWxW9eq3lehDr9Q8A=
 Authentication-Results: iva8-d077482f1536.qloud-c.yandex.net; dkim=pass header.i=@yandex-team.com
 Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b080:7222::1:5])
-        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id GINHK1nK2P-wrnWtRAm;
-        Wed, 17 Feb 2021 14:58:53 +0300
+        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id GINHK1nK2P-wsnW8SHi;
+        Wed, 17 Feb 2021 14:58:55 +0300
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (Client certificate not present)
 From:   Andrey Ryabinin <arbn@yandex-team.com>
@@ -48,56 +48,41 @@ Cc:     Boris Burkov <boris@bur.io>,
         Bharata B Rao <bharata@linux.vnet.ibm.com>,
         cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
         Andrey Ryabinin <arbn@yandex-team.com>, stable@vger.kernel.org
-Subject: [PATCH 1/4] cputime,cpuacct: Include guest time in user time in cpuacct.stat
-Date:   Wed, 17 Feb 2021 15:00:01 +0300
-Message-Id: <20210217120004.7984-1-arbn@yandex-team.com>
+Subject: [PATCH 2/4] cgroup: Fix 'usage_usec' time in root's cpu.stat
+Date:   Wed, 17 Feb 2021 15:00:02 +0300
+Message-Id: <20210217120004.7984-2-arbn@yandex-team.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210217120004.7984-1-arbn@yandex-team.com>
+References: <20210217120004.7984-1-arbn@yandex-team.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cpuacct.stat in no-root cgroups shows user time without guest time
-included int it. This doesn't match with user time shown in root
-cpuacct.stat and /proc/<pid>/stat.
+Global CPUTIME_USER counter already includes CPUTIME_GUEST
+Also CPUTIME_NICE already includes CPUTIME_GUEST_NICE.
 
-Make account_guest_time() to add user time to cgroup's cpustat to
-fix this.
+Remove additions of CPUTIME_GUEST[_NICE] to total ->sum_exec_runtime
+to not account them twice.
 
-Fixes: ef12fefabf94 ("cpuacct: add per-cgroup utime/stime statistics")
+Fixes: 936f2a70f207 ("cgroup: add cpu.stat file to root cgroup")
 Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
 Cc: <stable@vger.kernel.org>
 ---
- kernel/sched/cputime.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ kernel/cgroup/rstat.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 5f611658eeab..95a9c5603d29 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -139,8 +139,6 @@ void account_user_time(struct task_struct *p, u64 cputime)
-  */
- void account_guest_time(struct task_struct *p, u64 cputime)
- {
--	u64 *cpustat = kcpustat_this_cpu->cpustat;
--
- 	/* Add guest time to process. */
- 	p->utime += cputime;
- 	account_group_user_time(p, cputime);
-@@ -148,11 +146,11 @@ void account_guest_time(struct task_struct *p, u64 cputime)
- 
- 	/* Add guest time to cpustat. */
- 	if (task_nice(p) > 0) {
--		cpustat[CPUTIME_NICE] += cputime;
--		cpustat[CPUTIME_GUEST_NICE] += cputime;
-+		task_group_account_field(p, CPUTIME_NICE, cputime);
-+		task_group_account_field(p, CPUTIME_GUEST_NICE, cputime);
- 	} else {
--		cpustat[CPUTIME_USER] += cputime;
--		cpustat[CPUTIME_GUEST] += cputime;
-+		task_group_account_field(p, CPUTIME_USER, cputime);
-+		task_group_account_field(p, CPUTIME_GUEST, cputime);
+diff --git a/kernel/cgroup/rstat.c b/kernel/cgroup/rstat.c
+index d51175cedfca..89ca9b61aa0d 100644
+--- a/kernel/cgroup/rstat.c
++++ b/kernel/cgroup/rstat.c
+@@ -421,8 +421,6 @@ static void root_cgroup_cputime(struct task_cputime *cputime)
+ 		cputime->sum_exec_runtime += user;
+ 		cputime->sum_exec_runtime += sys;
+ 		cputime->sum_exec_runtime += cpustat[CPUTIME_STEAL];
+-		cputime->sum_exec_runtime += cpustat[CPUTIME_GUEST];
+-		cputime->sum_exec_runtime += cpustat[CPUTIME_GUEST_NICE];
  	}
  }
  
