@@ -2,109 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F86631E2C1
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 23:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B1C31E307
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 00:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232735AbhBQWsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 17:48:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
+        id S232137AbhBQXcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 18:32:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233073AbhBQWqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 17:46:31 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F20C061788
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 14:45:51 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id a7so4442726iok.12
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 14:45:51 -0800 (PST)
+        with ESMTP id S232130AbhBQXcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 18:32:51 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81580C061574
+        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 15:32:11 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id t26so9524242pgv.3
+        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 15:32:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/EtfkUw3oZIbZL9grKTp0TlguZ3YnmMueDqnvSR1hLE=;
-        b=G99JtRFF1vdJjqqn/RABCm0tquMOxGy/oN/WY6kPzHzvkPQe8hZMxlQg0hgzA2aCLm
-         RHelWdYkBN/tBxpfN13BUrYDTH2GRsxVLqnEPb6P+eP+qxlDVT896QegUP6Z4R3gIRii
-         qVu98AnXgk52wPoQVXX1jeDSYthy+MjlgTWmw=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=N+6juJ0uLeym1+ZdUIeoj0WHQU/pA6PNTx5rFhIbgyI=;
+        b=Y8uVE4QIAcFKADNb3U1vzMxEEeqwICQlZ8pnhnIOPNdbXOpBXpRg0qA4jK2bl0yRvU
+         SkHS9Qx1CLmc8P2YBIg45CQ0f/ELqvBH7Twert7GT8GjZQb2ls/gtlYweZJ1bm/H5OSh
+         aVJx5CWNbWRjuah0l4T4AROe+aplov9Gv8j/7PKi8JVAD6FCxp614dzD+RGcqag6hPMv
+         JrQw6ItCA+jnKLSxq8uHpHBAd1vPtN90eyuVGYws8V0IfcEo1X++iNF2IO8u9z1GclNd
+         A67u1zn9STfeoImmprPpC0wFlvDAiKyxweRULd8L87cez0ByuOAnkI0vW0IYGNcX0xQU
+         CQzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/EtfkUw3oZIbZL9grKTp0TlguZ3YnmMueDqnvSR1hLE=;
-        b=RNS2XeifNM+Q0CNKjdqS1vEhcgD1gxyJm7RunSaOTQeRCJ4iNv7DFIRONmL50IbGYt
-         9Q0XgYWnaA3IVJLLeEX4BbVbE1+8UMv86XQwgLlLjlk6NGZAu17dsLJzRnTzxRBDtomN
-         5FyHhtXX59XHvaifo1nqgCr6V/bwKvZ/O10imNOSdVYiVv9UQ8VCn2v1wQDEaGtD9wdX
-         XllU3nmxDNeW15F/M0zrDd9NkxFyjiwVvt1Jn3jdFlW1hf8PnhEKIM/gUGFFbNLvRZXn
-         FbfzBs9lLoyP15TjLQKtWzQnSXN/7rUHCr/IlliAm+L+YrlS9pGv/edpkz9Yrl+Id33u
-         DKHA==
-X-Gm-Message-State: AOAM532BDU8NWWE/86XKqkaCR/2+7eKgl9LbOOEx2C7MUvyAHGzZYEUA
-        WAMXjrQiMWrFPeHRFuf6V0WM1f3p7ieM4Q==
-X-Google-Smtp-Source: ABdhPJylgVAULFgtptVHAUmPUexHtfoFldtftsHUnw61VU/Ievg/yJs/ECX6BTjV7Uk5u2OQUiH3Fw==
-X-Received: by 2002:a05:6638:42:: with SMTP id a2mr1635369jap.99.1613601950364;
-        Wed, 17 Feb 2021 14:45:50 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id e1sm2547255iod.17.2021.02.17.14.45.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Feb 2021 14:45:49 -0800 (PST)
-Subject: Re: [PATCH 5.10 00/54] 5.10.16-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20210211150152.885701259@linuxfoundation.org>
- <0825d0d8-0183-9653-dd74-d5921e360bb7@linuxfoundation.org>
- <YCfM/llSa65fhR4m@kroah.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <0ec4ad3c-3cbd-aa69-db3f-999f2622037d@linuxfoundation.org>
-Date:   Wed, 17 Feb 2021 15:45:48 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=N+6juJ0uLeym1+ZdUIeoj0WHQU/pA6PNTx5rFhIbgyI=;
+        b=iZjjfcGhGkPUXUiXUvS0j1P/3jabGDU085SpqJZsqzwXGnfZ+tBUNHkR4hxMEJuC3Q
+         6qnsS0HNDNuqIiJ/xpKnD6QvrUYl/yYfXvMcZ25KmIF8dcDKqJ/pX8JEB6YFftStkAfK
+         b6Nn5b4FcwSLrmnd3R1CceJ/aNvKJNCfY/P7QGPYJcPUre88DcvpWM3zR+/rzMCKaGsU
+         UEcOAixkUu0Fml1FXyo4wV6rpaVz9ggFBZKXqOTu4yJKboQBvkEdTbc8HW11xpM2BbbX
+         PzJ0PtapG+SB7g/Hueewf+QBW/gRRncdeqAP4eB7lsDGodu5FI9q7Q0Falh6hFc/szDR
+         xYqg==
+X-Gm-Message-State: AOAM531YRhdM6UdCHqhems+o7RE2zcITYXZm0bommybW+eKcP3x4KxyM
+        NQdnlyKltn5iYB0x/jYBfct9cVdZ4eUcOQ==
+X-Google-Smtp-Source: ABdhPJwuMlRn2fOdVifCcp7BOdxpccfPQHZbbpjdbXVGLMUV08lbKQPEDyb1vumuEmzOKIXjOUfkOw==
+X-Received: by 2002:a62:dd48:0:b029:1d5:e29c:621c with SMTP id w69-20020a62dd480000b02901d5e29c621cmr1508634pff.31.1613604729403;
+        Wed, 17 Feb 2021 15:32:09 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e6sm3289627pfd.5.2021.02.17.15.32.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Feb 2021 15:32:08 -0800 (PST)
+Message-ID: <602da778.1c69fb81.87249.7b15@mx.google.com>
+Date:   Wed, 17 Feb 2021 15:32:08 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YCfM/llSa65fhR4m@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.257
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 60 runs, 2 regressions (v4.9.257)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/13/21 5:58 AM, Greg Kroah-Hartman wrote:
-> On Fri, Feb 12, 2021 at 09:17:13AM -0700, Shuah Khan wrote:
->> On 2/11/21 8:01 AM, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.10.16 release.
->>> There are 54 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Sat, 13 Feb 2021 15:01:39 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.16-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
->>
->> Compiled and booted on my test system. No dmesg regressions.
->>
->> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
->>
->> Note: gdm doesn't start and no response to keyboard and mouse.
->>
->> I can ssh in and use the system. I am going debug and update you.
->> 5.4.98-rc1 and 4.9.176-rc1 are fine and no such issues.
-> 
-> Did you ever track this down?
-> 
+stable-rc/linux-4.9.y baseline: 60 runs, 2 regressions (v4.9.257)
 
-I am planning make time this week to track this down.
+Regressions Summary
+-------------------
 
-thanks,
--- Shuah
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+meson-gxbb-p200    | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
 
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.257/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.257
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      282aeb477a10d09cc5c4d73c54bb996964723f96 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+meson-gxbb-p200    | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6024699b84a41870753abe8e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.257=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.257=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6024699b84a41870753ab=
+e8f
+        new failure (last pass: v4.9.257-19-gb6978209a21b) =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/602468b57fe1c539f53abe62
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.257=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.257=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/602468b57fe1c539f53ab=
+e63
+        failing since 84 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
