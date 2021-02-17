@@ -2,143 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD7431DC49
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 16:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC42F31DC4E
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 16:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233807AbhBQPeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 10:34:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33822 "EHLO
+        id S233785AbhBQPfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 10:35:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233778AbhBQPd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 10:33:27 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42247C061786
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 07:32:46 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id d13so7601435plg.0
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 07:32:46 -0800 (PST)
+        with ESMTP id S233797AbhBQPeo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 10:34:44 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05C0C061756
+        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 07:34:28 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id c11so8617137pfp.10
+        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 07:34:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kE7mLzgqqc+6vOhYxJiqUhHI6vUz0T4aeCDVC6PmU30=;
-        b=b2qP0aVfIrVcgB8xO4ckm7QHZL+79RAzka2JYVw36Lk0gYh3+CcaMpoTvULGB3KnjV
-         z2evxWo7r63ifxXyOahnUPH2qhAbGDdInmxbxD+zLuZtGlQOoYImpA8HWgrC8xHidjrC
-         yN+p+as2K3h4pxEX8HqyqlDoQ9pQzNNkuoWVx1Q5Qp8aCsi7aMnh8wnYlJXlAMxAt3/z
-         sK+f5GeOPDdRBimcprVKJ8zp3FtwYB+hyvR7GUnq9uRWsO393v2C1HY1eRC+dEBvHTWB
-         JFmYRXffi90t/TfvyOjQUQszkdXRXFWfLO2LAynThYyENVz5bSup1abPgMk2gSu4lzUV
-         RoKg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mWjmNQoHTLFb5lu+D2BdmJ0KwFtxbtWnAudaREoZbg8=;
+        b=0vrKi1GcwiVlWN8zd6mCoeUvO2U4wkHZFF+3Lvo4yhKF5YeWoW8D1cpfXFaSyigMr3
+         Xr8GLV0nSznXl1Gz/38GQKufCXztcnTm+AHC9Zg01N8bzpUfh5kB0n9c+I1gW+DpUpi5
+         fTtTMq57m2xMgF1iZViduHmBhMNPdsGWDWUkdB2w9k4BE1WyoPsLmg7a063JQr0GzR8t
+         llj/BQ7INX0WGCj5vEIa6Pzrl3GzIMd0oM3r9eH7vzKBylMIy0N7vY5Gg8s155Hg2Rh8
+         G/CXP7Qz4IzQV0FWsQMo2iu3lxK25RuK7S0M+EjH71PiaSgH5KVtK1bNHLxJVNZa1YY3
+         p1fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kE7mLzgqqc+6vOhYxJiqUhHI6vUz0T4aeCDVC6PmU30=;
-        b=dp+O5mhLyFydT+Vcm74nqECK1LMhuBmRSVfIoqeg0Ju5+wuLol5NpB1ulsMbYKJAJ4
-         w8owyJDsWHk4BNJYwGzgo7//ZRALw/XymqdBG68eTM7DK+AQKAHYavbXpc9uo5Oewq7L
-         gOco53u/jlXL3NnUKYGuzz3xdu3PT0wma4aVd9V4gPiIFif0YwgujSNaloNGF6iaY5p1
-         iPy0OwoLwN5Fa6GtLlM9/sSiBWn4PG43sGex646i3oT1uvAd8uK3zIa8KVDYI/f0yjUX
-         6M6YDL45LJdVuVITma7DrkZnuB4qONpdxlFHr1Wak/s2Ma3cyuRYxV+iFB0e1b/T9+UO
-         Inng==
-X-Gm-Message-State: AOAM531ZAFAP0pprFDI6YX0rqD8WPeYfWCq9J7+XHZ2uYu97frdCdPbz
-        eiy+VKtopFx+r6ko7bE/uww3uw==
-X-Google-Smtp-Source: ABdhPJzdRsnShuvnl7vxNO0E4ReAVQVWkufj2Kb8+xK3S/HwZZqQZ7Qrw9qSk0mzav2oIF6Tv4aqkQ==
-X-Received: by 2002:a17:902:b610:b029:e3:2b1e:34ff with SMTP id b16-20020a170902b610b02900e32b1e34ffmr22440894pls.69.1613575965826;
-        Wed, 17 Feb 2021 07:32:45 -0800 (PST)
-Received: from localhost.bytedance.net ([139.177.225.254])
-        by smtp.gmail.com with ESMTPSA id q13sm2877921pfg.155.2021.02.17.07.32.42
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 17 Feb 2021 07:32:45 -0800 (PST)
-From:   Muchun Song <songmuchun@bytedance.com>
-To:     hannes@cmpxchg.org, mhocko@kernel.org, vdavydov.dev@gmail.com,
-        akpm@linux-foundation.org
-Cc:     cgroups@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Muchun Song <songmuchun@bytedance.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
-Subject: [PATCH v3] mm: memcontrol: fix swap undercounting in cgroup2
-Date:   Wed, 17 Feb 2021 23:32:37 +0800
-Message-Id: <20210217153237.92484-1-songmuchun@bytedance.com>
-X-Mailer: git-send-email 2.21.0 (Apple Git-122)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mWjmNQoHTLFb5lu+D2BdmJ0KwFtxbtWnAudaREoZbg8=;
+        b=SZpQpmK3ZuVgINy27Z3rdX24GceBP8o53SCdrHvYMrJH/eqLQgiEkpqk8t9l7yrXXB
+         WlZmWi1P5QcHsi1ano8tAEeeI8XTTZaQX2f3F8U4INXO5Dc7B6JdWfjgb+Cnx0ZXb2XT
+         IK5iTBmpbShiu2sPj8Aj4/oG+p6rMomyuh041igdRtlvoFNJIpQH72rTQKvNdDBwB2e9
+         KX2dmvA6dqgj8AXi/CTjswo9dcT/JsGcc3S/cJJpyHorK1dWQNjRayIr/QTNLKvwbxOz
+         n/+2qEtZiFJ2pgF2vHFpgOsyT+6pxiDw11dVa93xQ5oUrt46zLusrJ9S4Bus//BBrhpr
+         LktQ==
+X-Gm-Message-State: AOAM5315q5e+eJc/hyEFDwxVgBfzlenkCL4S8YZlcw1DbwNk4eT1n/vA
+        kr7Z3dZLCdt+UmDFg/Dr8IQEp6mQnVyxpw==
+X-Google-Smtp-Source: ABdhPJwiVEPwGefVZP6tWFCTHZXViOcgT1EUlPuUP/oyMaaoVgY5dO7QxWu54NzBhM8YvXEnDiC4PQ==
+X-Received: by 2002:aa7:93ac:0:b029:1e5:b52e:314f with SMTP id x12-20020aa793ac0000b02901e5b52e314fmr24384111pff.45.1613576066856;
+        Wed, 17 Feb 2021 07:34:26 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ob6sm2404988pjb.30.2021.02.17.07.34.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Feb 2021 07:34:26 -0800 (PST)
+Message-ID: <602d3782.1c69fb81.6d886.52ef@mx.google.com>
+Date:   Wed, 17 Feb 2021 07:34:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.16-102-g2d89c51d5e5dd
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 76 runs,
+ 2 regressions (v5.10.16-102-g2d89c51d5e5dd)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When pages are swapped in, the VM may retain the swap copy to avoid
-repeated writes in the future. It's also retained if shared pages are
-faulted back in some processes, but not in others. During that time we
-have an in-memory copy of the page, as well as an on-swap copy. Cgroup1
-and cgroup2 handle these overlapping lifetimes slightly differently
-due to the nature of how they account memory and swap:
+stable-rc/queue/5.10 baseline: 76 runs, 2 regressions (v5.10.16-102-g2d89c5=
+1d5e5dd)
 
-Cgroup1 has a unified memory+swap counter that tracks a data page
-regardless whether it's in-core or swapped out. On swapin, we transfer
-the charge from the swap entry to the newly allocated swapcache page,
-even though the swap entry might stick around for a while. That's why
-we have a mem_cgroup_uncharge_swap() call inside mem_cgroup_charge().
+Regressions Summary
+-------------------
 
-Cgroup2 tracks memory and swap as separate, independent resources and
-thus has split memory and swap counters. On swapin, we charge the
-newly allocated swapcache page as memory, while the swap slot in turn
-must remain charged to the swap counter as long as its allocated too.
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
+ig | 1          =
 
-The cgroup2 logic was broken by commit 2d1c498072de ("mm: memcontrol:
-make swap tracking an integral part of memory control"), because it
-accidentally removed the do_memsw_account() check in the branch inside
-mem_cgroup_uncharge() that was supposed to tell the difference between
-the charge transfer in cgroup1 and the separate counters in cgroup2.
+imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
+   | 1          =
 
-As a result, cgroup2 currently undercounts retained swap to varying
-degrees: swap slots are cached up to 50% of the configured limit or
-total available swap space; partially faulted back shared pages are
-only limited by physical capacity. This in turn allows cgroups to
-significantly overconsume their alloted swap space.
 
-Add the do_memsw_account() check back to fix this problem.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.16-102-g2d89c51d5e5dd/plan/baseline/
 
-Fixes: 2d1c498072de ("mm: memcontrol: make swap tracking an integral part of memory control")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: stable@vger.kernel.org # 5.8+
----
- v3:
- - Replace !cgroup_subsys_on_dfl(memory_cgrp_subsys) with do_memsw_account().
-   Thanks to Shakeel.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.16-102-g2d89c51d5e5dd
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2d89c51d5e5ddfc6ca61acafe1afc07298ad55d1 =
 
- v2:
- - update commit log and add a comment to the code. Very thanks to Johannes.
 
- mm/memcontrol.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index ed5cc78a8dbf..b5a66b98af74 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -6771,7 +6771,19 @@ int mem_cgroup_charge(struct page *page, struct mm_struct *mm, gfp_t gfp_mask)
- 	memcg_check_events(memcg, page);
- 	local_irq_enable();
- 
--	if (PageSwapCache(page)) {
-+	/*
-+	 * Cgroup1's unified memory+swap counter has been charged with the
-+	 * new swapcache page, finish the transfer by uncharging the swap
-+	 * slot. The swap slot would also get uncharged when it dies, but
-+	 * it can stick around indefinitely and we'd count the page twice
-+	 * the entire time.
-+	 *
-+	 * Cgroup2 has separate resource counters for memory and swap,
-+	 * so this is a non-issue here. Memory and swap charge lifetimes
-+	 * correspond 1:1 to page and swap slot lifetimes: we charge the
-+	 * page to memory here, and uncharge swap when the slot is freed.
-+	 */
-+	if (do_memsw_account() && PageSwapCache(page)) {
- 		swp_entry_t entry = { .val = page_private(page) };
- 		/*
- 		 * The swap entry might not get freed for a long time,
--- 
-2.11.0
+Test Regressions
+---------------- =
 
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/602cfccf3dc705bdbdaddcd5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.16-=
+102-g2d89c51d5e5dd/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-i=
+mx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.16-=
+102-g2d89c51d5e5dd/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-i=
+mx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/602cfccf3dc705bdbdadd=
+cd6
+        new failure (last pass: v5.10.16-104-g1cbf162ff83d) =
+
+ =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/602d2122ccef102002addcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.16-=
+102-g2d89c51d5e5dd/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.16-=
+102-g2d89c51d5e5dd/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/602d2122ccef102002add=
+cb2
+        new failure (last pass: v5.10.16-104-g1cbf162ff83d) =
+
+ =20
