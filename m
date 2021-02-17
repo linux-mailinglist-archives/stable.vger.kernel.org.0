@@ -2,100 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8A231D5C5
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 08:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10BE831D6CD
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 10:09:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231765AbhBQHgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 02:36:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231774AbhBQHgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 02:36:38 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C303CC061574
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 23:35:57 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id s11so15217780edd.5
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 23:35:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=irvAfDqJe1hQB3fJxlaJ3x9w9qp/XEy9b8ACpfP/PLU=;
-        b=oZ5W49D6waX776C/4idoX2bA59DknxqC+pWJZ9Rh/CXOn8/mOkLFlJPwT8sua6Tg2K
-         RvO8lI3ivR3CYpsuMIwsy+jWbYVi2i2KLS6Y7EAjEKl5A5WnY2TfNZLkKwT8KaaieT8j
-         +F1XKLMLG5vbTYBy4ng6AmjGtVdM14XXHUtq1mq+8/e6w+YUaFsl0pkr32aQxdm2cXn6
-         RMwzM2ZHWMgoitCPSqVy4VYyaZrNpgaULlXxLtJiyA5vzPW/ciIO/c3FPVLgwn1VzJbr
-         +nIxJLRg1t8pdH2BQt2Ezfoknx4HTl+2V/yFIEWSdeATQPwepfMNE+9WqsavtrBxI/UT
-         oxgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=irvAfDqJe1hQB3fJxlaJ3x9w9qp/XEy9b8ACpfP/PLU=;
-        b=AruOJCy+tOxDHQbPa8218RBAzcZdjzTvMjhKts81+VbC399THIVcG4tGfEz6WlY5qE
-         Pwq7MNHyHTns9siooZT/jTxUiS5SNv0RiQp8utvkEBFRkBSA6JOeoy+/fJ2TBgNvnk8O
-         q2q/ql+PmvRFvOamzlwsGAUfSvJJVQ2qJEC340IXdEgygtAlwp+4ZdxQmVwQJXi3q5M5
-         EQa9cXHyiijAaPbhdOW18OrYAEapUqitoVVeJ6XMigHNo+9uVQpNjVICzcbiE3fAtaxU
-         rBdL9goY0aznKTnxAPaLXFvYYvVVS4XxGMVH82EmX5POaWOqFRGySGgaFsKAW+EY5qdK
-         2b6g==
-X-Gm-Message-State: AOAM530ERQvHGLL0iSLvo5u9LpQIkB4ekfKedcp8yjIMCNB9uKvGn9Po
-        7cPScyei5h268XVmBeBCPQkI5Vztqx5sVNXMQkk=
-X-Google-Smtp-Source: ABdhPJz+GnVyR84KwFDtLgQbMrX9pms3IymwFzE8BCxTP11AT68Lxp1YWADz1dWJCaasf7NS9gqs2lJ9MFZav74uAaI=
-X-Received: by 2002:aa7:d9cb:: with SMTP id v11mr11042249eds.153.1613547355208;
- Tue, 16 Feb 2021 23:35:55 -0800 (PST)
+        id S231681AbhBQJJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 04:09:41 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45650 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231611AbhBQJJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 04:09:40 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id B9BC61C0BA3; Wed, 17 Feb 2021 10:08:57 +0100 (CET)
+Date:   Wed, 17 Feb 2021 10:08:54 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 022/104] kbuild: simplify GCC_PLUGINS enablement in
+ dummy-tools/gcc
+Message-ID: <20210217090854.GA7693@amd>
+References: <20210215152719.459796636@linuxfoundation.org>
+ <20210215152720.193592547@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a17:906:eb8a:0:0:0:0 with HTTP; Tue, 16 Feb 2021 23:35:54
- -0800 (PST)
-Reply-To: LishaHaman225@gmail.com
-From:   Miss Lisha Haman <mohamadimustafa303@gmail.com>
-Date:   Tue, 16 Feb 2021 23:35:54 -0800
-Message-ID: <CAGKiKh-KrjTTWyNLtkkYMGiXKs2mRR67Gs=BeAWR3qVm3whcaQ@mail.gmail.com>
-Subject: Hello Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Disposition: inline
+In-Reply-To: <20210215152720.193592547@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My dear I am Miss Lisha Haman 23 years of age , I am the only daughter
-to Dr Abdul Haman from France-Paris who work with (SEMAFO) the biggest
-Canadian gold producer here in West Africa Burkina Faso,
 
-Unfortunately my father was a victim on the deadliest attack by the
-jihadist On the 6 November 2019 when gunmen ambushed a convoy
-transporting workers of the Canadian mining firm Semafo, it is my sad
-moment each time I think about this, but the reason why I contacted
-you is that I have my late father receipt of deposit he made with a
-bank in abroad with my name as next of kin, The total amount deposited
-was 3.7 million United Stated dollars,
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Now I decided to travel for the money but embassy here deny me visa
-due to the Corona virus outbreak,
+Hi!
 
-I talk to the bank regarding my visa problem and they advise me to
-look for my relative trusted bank account so that they will transfer
-the total fund in there, But I am the only daughter of my father and
-have no relative to present, that is why I want to present you to the
-bank as my relative who will receive the total fund on my behalf and
-also take care of me as well,
+> From: Masahiro Yamada <masahiroy@kernel.org>
+>=20
+> [ Upstream commit f4c3b83b75b91c5059726cb91e3165cc01764ce7 ]
+>=20
+> With commit 1e860048c53e ("gcc-plugins: simplify GCC plugin-dev
+> capability test") applied, this hunk can be way simplified because
+> now scripts/gcc-plugins/Kconfig only checks plugin-version.h
 
-I attached my picture  with this mail please send me your complete
-full details such as, Your Full Name:
+AFAICT referenced commit 1e860048c53e ("gcc-plugins: simplify GCC
+plugin-dev capability test") is not present in 5.10-stable branch, so
+I believe this should not be applied, either.
 
-Home and Office Addresses:
+Best regards,
+								Pavel
+							=09
+> +++ b/scripts/dummy-tools/gcc
+> @@ -75,16 +75,12 @@ if arg_contain -S "$@"; then
+>  	fi
+>  fi
+> =20
+> -# For scripts/gcc-plugin.sh
+> +# To set GCC_PLUGINS
+>  if arg_contain -print-file-name=3Dplugin "$@"; then
+>  	plugin_dir=3D$(mktemp -d)
+> =20
+> -	sed -n 's/.*#include "\(.*\)"/\1/p' $(dirname $0)/../gcc-plugins/gcc-co=
+mmon.h |
+> -	while read header
+> -	do
+> -		mkdir -p $plugin_dir/include/$(dirname $header)
+> -		touch $plugin_dir/include/$header
+> -	done
+> +	mkdir -p $plugin_dir/include
+> +	touch $plugin_dir/include/plugin-version.h
+> =20
+>  	echo $plugin_dir
+>  	exit 0
 
-Telephone Number:
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Occupation:
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Country of Residence:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Your Bank account number where the bank will remit the fund
+iEYEARECAAYFAmAs3SUACgkQMOfwapXb+vKSpACfYY4bl1SC7VVzI3PuPxkKxAxx
+2FcAn3h9w9eXu7sX5UBeVS0NfQsJTMw0
+=Ue8t
+-----END PGP SIGNATURE-----
 
-Once I received your details, I will give you the bank contact so that
-you can contact them directly to discuss how they can transfer the
-total fund in your bank account so that you can relocate me to join
-you over there in your country,
-
-Sincerely
-
-Lisha Haman
+--9amGYk9869ThD9tj--
