@@ -2,102 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDB831D7AD
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 11:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 730AC31D7C6
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 12:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbhBQKqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 05:46:48 -0500
-Received: from foss.arm.com ([217.140.110.172]:55806 "EHLO foss.arm.com"
+        id S230428AbhBQK7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 05:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229707AbhBQKqo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Feb 2021 05:46:44 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 50CF31042;
-        Wed, 17 Feb 2021 02:45:58 -0800 (PST)
-Received: from [10.57.61.90] (unknown [10.57.61.90])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 96EDF3F73B;
-        Wed, 17 Feb 2021 02:45:55 -0800 (PST)
-Subject: Re: [PATCH] thermal: cpufreq_cooling: freq_qos_update_request()
- returns < 0 on error
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     Amit Kucheria <amitk@kernel.org>,
-        Amit Daniel Kachhap <amit.kachhap@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Javi Merino <javi.merino@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "v5 . 7+" <stable@vger.kernel.org>, linux-pm@vger.kernel.org,
+        id S230417AbhBQK7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Feb 2021 05:59:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1CE564DEC;
+        Wed, 17 Feb 2021 10:58:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1613559536;
+        bh=b1b/aNaoVehd5YPjG+c6xbLEqKnKrrXS6HoGjYZe5Ck=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uky563pW9e8RQtoRpAWXFlqKR3UhAjzIZfuIc5knaxuGTv9lgeRCupHmMGaRo4kHa
+         mtrhDvR/MPMJCK1BQwjxPzV1HktYglF39bX1G5SC4qpe/h8Bj2b5vHaJSv54WE427M
+         oBSysl+d5SMV8U0cL9oQpJhFEiSrfQlZnwm13C5I=
+Date:   Wed, 17 Feb 2021 11:58:53 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org
-References: <b2b7e84944937390256669df5a48ce5abba0c1ef.1613540713.git.viresh.kumar@linaro.org>
- <91749e19-9091-1292-b8aa-c923efa8021d@arm.com>
- <20210217103911.n34zzjttyso7dlco@vireshk-i7>
-From:   Lukasz Luba <lukasz.luba@arm.com>
-Message-ID: <0b276055-e93a-3e08-5eee-662008d8db6c@arm.com>
-Date:   Wed, 17 Feb 2021 10:45:53 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+Subject: Re: [PATCH for 5.10 v2 0/5] vdpa_sim: fix param validation in
+ vdpasim_get_config()
+Message-ID: <YCz27cywSabiGgDz@kroah.com>
+References: <20210216142439.258713-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210217103911.n34zzjttyso7dlco@vireshk-i7>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210216142439.258713-1-sgarzare@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Feb 16, 2021 at 03:24:34PM +0100, Stefano Garzarella wrote:
+> v1: https://lore.kernel.org/stable/20210211162519.215418-1-sgarzare@redhat.com/
+> 
+> v2:
+> - backport the upstream patch and related patches needed
+> 
+> Commit 65b709586e22 ("vdpa_sim: add get_config callback in
+> vdpasim_dev_attr") unintentionally solved an issue in vdpasim_get_config()
+> upstream while refactoring vdpa_sim.c to support multiple devices.
+> 
+> Before that patch, if 'offset + len' was equal to
+> sizeof(struct virtio_net_config), the entire buffer wasn't filled,
+> returning incorrect values to the caller.
+> 
+> Since 'vdpasim->config' type is 'struct virtio_net_config', we can
+> safely copy its content under this condition.
+> 
+> The minimum set of patches to backport the patch that fixes the issue, is the
+> following:
+> 
+>    423248d60d2b vdpa_sim: remove hard-coded virtq count
+>    6c6e28fe4579 vdpa_sim: add struct vdpasim_dev_attr for device attributes
+>    cf1a3b35382c vdpa_sim: store parsed MAC address in a buffer
+>    f37cbbc65178 vdpa_sim: make 'config' generic and usable for any device type
+>    65b709586e22 vdpa_sim: add get_config callback in vdpasim_dev_attr
+> 
+> The patches apply fairly cleanly. There are a few contextual differences
+> due to the lack of the other patches:
+> 
+>    $ git backport-diff -u master -r linux-5.10.y..HEAD
 
+Cool, where is 'backport-diff' from?
 
-On 2/17/21 10:39 AM, Viresh Kumar wrote:
-> On 17-02-21, 10:29, Lukasz Luba wrote:
->> On 2/17/21 5:48 AM, Viresh Kumar wrote:
->>> freq_qos_update_request() returns 1 if the effective constraint value
->>> has changed, 0 if the effective constraint value has not changed, or a
->>> negative error code on failures.
->>>
->>> The frequency constraints for CPUs can be set by different parts of the
->>> kernel. If the maximum frequency constraint set by other parts of the
->>> kernel are set at a lower value than the one corresponding to cooling
->>> state 0, then we will never be able to cool down the system as
->>> freq_qos_update_request() will keep on returning 0 and we will skip
->>> updating cpufreq_state and thermal pressure.
->>
->> To be precised, thermal pressure signal is not so important in this
->> mechanism and the 'cpufreq_state' has changed recently:
+>    Key:
+>    [----] : patches are identical
+>    [####] : number of functional differences between upstream/downstream patch
+>    [down] : patch is downstream-only
+>    The flags [FC] indicate (F)unctional and (C)ontextual differences, respectively
 > 
-> Right, I wasn't concerned only about no thermal cooling, but both
-> thermal cooling and pressure.
-> 
->> 236761f19a4f373354  thermal/drivers/cpufreq_cooling: Update cpufreq_state
->> only if state has changed
-> 
-> This moved the assignment to a more logical place for me, i.e. not to
-> do that on errors, just that the block in which it landed may not get
-> called at all :(
-> 
->>> Fix that by doing the updates even in the case where
->>> freq_qos_update_request() returns 0, as we have effectively set the
->>> constraint to a new value even if the consolidated value of the
->>> actual constraint is unchanged because of external factors.
->>>
->>> Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
->>> Reported-by: Thara Gopinath <thara.gopinath@linaro.org>
->>> Fixes: f12e4f66ab6a ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
->>
->> I'm not sure if that f12e4f is the root cause.
-> 
-> Hmm, depends on how we define the problem :)
-> 
-> If this was just about thermal-cooling not happening, then may be yes,
-> but to me it is rather about mishandled return value of
-> freq_qos_update_request() which has more than one side effects and so
-> I went for the main commit.
-> 
-> This is also important as f12e4f66ab6a got merged in 5.7 and 236761f19
-> merged in 5.11 and this patch needs to get applied in stable kernels
-> since 5.7 to fix it all.
-> 
+>    001/5:[----] [--] 'vdpa_sim: remove hard-coded virtq count'
+>    002/5:[----] [-C] 'vdpa_sim: add struct vdpasim_dev_attr for device attributes'
+>    003/5:[----] [--] 'vdpa_sim: store parsed MAC address in a buffer'
+>    004/5:[----] [-C] 'vdpa_sim: make 'config' generic and usable for any device type'
+>    005/5:[----] [-C] 'vdpa_sim: add get_config callback in vdpasim_dev_attr'
 
-'to fix it all' - I agree
+Now all applied, thanks.
+
+greg k-h
