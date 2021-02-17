@@ -2,115 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6448A31DEDC
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 19:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B1031DEDF
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 19:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232887AbhBQSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 13:10:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44750 "EHLO mail.kernel.org"
+        id S233204AbhBQSKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 13:10:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232159AbhBQSKl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Feb 2021 13:10:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3F4564EAE
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 18:10:00 +0000 (UTC)
+        id S233175AbhBQSKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Feb 2021 13:10:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF80664E42;
+        Wed, 17 Feb 2021 18:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613585401;
-        bh=L1OIdISDMiKRSiSWhaILOTGeRPn9DN0OB9U34bRhQek=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=tmjHATDWxlVbs//lCjmhXz0QNI7+Gw1Xbz5+af5khjJyi1muOTUw92d/TN1UtGt2+
-         1Z/+ybuCpbO2EuU6sV6G2o8r0rOKaIMJnntjfXGRivIE+IA4mvYi4YbzoyMI7hDer/
-         W+sMpeU/DLDaMfSZAZqoR6H7pmny3c26/AsJDPnaPUqaignJNnOMxixNqBG5+/ifts
-         CzF4JzxfYfG65uKYzuVz7Hvgsk6W8mumOCseKs0S+r2vq7S9vppmiuoK4a5bGMEgTe
-         g0nDVaEOni97kwzYuN4Nci8afgF/Ru1s3VKUKUEVwa0DQWACmxa4F/Mwiofk9/5hLe
-         afBfHjtP+JZig==
-Received: by mail-ej1-f45.google.com with SMTP id b14so17877948eju.7
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 10:10:00 -0800 (PST)
-X-Gm-Message-State: AOAM532EgJEQUjowkSAs7qb2qyOny8C1DMfjH8oHU7KX5CYhzVNDfrel
-        iK8HNCsk0o2EB5K1wnnwy+QdojktzOsNStH+wyIJXg==
-X-Google-Smtp-Source: ABdhPJzwArcpxgytNfc42oZjlVBrqCPpsnJwfz+6zR5LkK02Ldu1E4mXTepd7vnfdobtpuRYckLoG8BqletPssvhb9Y=
-X-Received: by 2002:a17:906:b356:: with SMTP id cd22mr175224ejb.253.1613585399128;
- Wed, 17 Feb 2021 10:09:59 -0800 (PST)
+        s=k20201202; t=1613585407;
+        bh=0Z0WorCxaD7BP56hnkNMqdSiCglGFGlqAwsbSLCh6m8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DomK4OPIHSzryzMWD5lTcExqL1chGXqVrXzu9LoLydAPrkFf74FsawJICKWnt1zWI
+         q/KJDAtzBK0+DcQxYKC8mRmCTx/OdNROykkMOmkda4Pt0NX1x+J4uz4QfbMAFIyyyt
+         /ldV/cm2fyYDcojGz4m2mitcaJknMpOXR66i4TBDaY+7hCMayTqa5tFicFYdsPRaEx
+         aaCqO/zycLaUsiMFLcteS6hyBTRyZxwgfuFCkTPLbkT6yTcVSbT6aPeZ+t1fCxghBV
+         HbpBcx4xDe+WnFP9gd2WEcFUm9g39+iVELWLsCMO1fDXQd6efesRCk7BD3IHzsE5W0
+         rtbd55DCpwibA==
+Date:   Wed, 17 Feb 2021 18:10:02 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Andrey Ryabinin <arbn@yandex-team.com>
+Cc:     Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        valesini@yandex-team.ru, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/amd: Fix sleeping in atomic in
+ increase_address_space()
+Message-ID: <20210217181002.GC4304@willie-the-truck>
+References: <20210217143004.19165-1-arbn@yandex-team.com>
 MIME-Version: 1.0
-References: <20210217120143.6106-1-joro@8bytes.org> <20210217120143.6106-3-joro@8bytes.org>
-In-Reply-To: <20210217120143.6106-3-joro@8bytes.org>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Wed, 17 Feb 2021 10:09:46 -0800
-X-Gmail-Original-Message-ID: <CALCETrWw-we3O4_upDoXJ4NzZHsBqNO69ht6nBp3y+QFhwPgKw@mail.gmail.com>
-Message-ID: <CALCETrWw-we3O4_upDoXJ4NzZHsBqNO69ht6nBp3y+QFhwPgKw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] x86/sev-es: Check if regs->sp is trusted before
- adjusting #VC IST stack
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     X86 ML <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        David Rientjes <rientjes@google.com>,
-        Cfir Cohen <cfir@google.com>,
-        Erdem Aktas <erdemaktas@google.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mike Stunes <mstunes@vmware.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Martin Radev <martin.b.radev@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kvm list <kvm@vger.kernel.org>,
-        Linux Virtualization <virtualization@lists.linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210217143004.19165-1-arbn@yandex-team.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 17, 2021 at 4:02 AM Joerg Roedel <joro@8bytes.org> wrote:
->
-> From: Joerg Roedel <jroedel@suse.de>
->
-> The code in the NMI handler to adjust the #VC handler IST stack is
-> needed in case an NMI hits when the #VC handler is still using its IST
-> stack.
-> But the check for this condition also needs to look if the regs->sp
-> value is trusted, meaning it was not set by user-space. Extend the
-> check to not use regs->sp when the NMI interrupted user-space code or
-> the SYSCALL gap.
->
-> Reported-by: Andy Lutomirski <luto@kernel.org>
-> Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
-> Cc: stable@vger.kernel.org # 5.10+
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+On Wed, Feb 17, 2021 at 05:30:04PM +0300, Andrey Ryabinin wrote:
+> increase_address_space() calls get_zeroed_page(gfp) under spin_lock with
+> disabled interrupts. gfp flags passed to increase_address_space() may allow
+> sleeping, so it comes to this:
+> 
+>  BUG: sleeping function called from invalid context at mm/page_alloc.c:4342
+>  in_atomic(): 1, irqs_disabled(): 1, pid: 21555, name: epdcbbf1qnhbsd8
+> 
+>  Call Trace:
+>   dump_stack+0x66/0x8b
+>   ___might_sleep+0xec/0x110
+>   __alloc_pages_nodemask+0x104/0x300
+>   get_zeroed_page+0x15/0x40
+>   iommu_map_page+0xdd/0x3e0
+>   amd_iommu_map+0x50/0x70
+>   iommu_map+0x106/0x220
+>   vfio_iommu_type1_ioctl+0x76e/0x950 [vfio_iommu_type1]
+>   do_vfs_ioctl+0xa3/0x6f0
+>   ksys_ioctl+0x66/0x70
+>   __x64_sys_ioctl+0x16/0x20
+>   do_syscall_64+0x4e/0x100
+>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+> Fix this by moving get_zeroed_page() out of spin_lock/unlock section.
+> 
+> Fixes: 754265bcab ("iommu/amd: Fix race in increase_address_space()")
+> Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+> Cc: <stable@vger.kernel.org>
 > ---
->  arch/x86/kernel/sev-es.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-> index 84c1821819af..0df38b185d53 100644
-> --- a/arch/x86/kernel/sev-es.c
-> +++ b/arch/x86/kernel/sev-es.c
-> @@ -144,7 +144,9 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
->         old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
->
->         /* Make room on the IST stack */
-> -       if (on_vc_stack(regs->sp))
-> +       if (on_vc_stack(regs->sp) &&
-> +           !user_mode(regs) &&
-> +           !from_syscall_gap(regs))
->                 new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
->         else
->
+>  drivers/iommu/amd/iommu.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
 
-Can you get rid of the linked list hack while you're at it?  This code
-is unnecessarily convoluted right now, and it seems to be just asking
-for weird bugs.  Just stash the old value in a local variable, please.
+Acked-by: Will Deacon <will@kernel.org>
 
-Meanwhile, I'm pretty sure I can break this whole scheme if the
-hypervisor is messing with us.  As a trivial example, the sequence
-SYSCALL gap -> #VC -> NMI -> #VC will go quite poorly.  Is this really
-better than just turning IST off for #VC and documenting that we are
-not secure against a malicious hypervisor yet?
-
---Andy
+Will
