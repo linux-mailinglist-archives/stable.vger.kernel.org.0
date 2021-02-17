@@ -2,117 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187E231D529
-	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 06:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8A231D5C5
+	for <lists+stable@lfdr.de>; Wed, 17 Feb 2021 08:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231150AbhBQFtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 00:49:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
+        id S231765AbhBQHgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 02:36:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbhBQFtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 00:49:46 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AADBAC061574
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 21:49:06 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id d13so6858789plg.0
-        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 21:49:06 -0800 (PST)
+        with ESMTP id S231774AbhBQHgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 02:36:38 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C303CC061574
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 23:35:57 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id s11so15217780edd.5
+        for <stable@vger.kernel.org>; Tue, 16 Feb 2021 23:35:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=emQXPuqsgdPSuXYNHs0efrSNIkqWhGSVKDhTTdUubPU=;
-        b=UM0W1EROsKnnez2p5z5LslvgyTFdH1bXFYB4C/W/MIWfs5sSfuIwm/WsNV3THSjkC8
-         q08/e7CU00IjvLsa0Um4TNuhC2WI35K1v8PDQZoHRiWwA+SQV0hDiY61WRMG5swjNemb
-         vOeuf8GHA0oSeQxmkCgWUXrH7Ow2l3icXf85rNkRJ2gvSk4YQT8IopwzMZBWEbiZnPas
-         V5uampE4auaSsVj3MrM8bO5JzeQhsmJMCgNQuqcG+9gsMSxjap/t3SUBA3+VwonfJXzq
-         93E9Uq+D0fCW/2rauj5/kmF4o8Ois6HGwreVALPqYGj/fpvET1YZyP8nejLOsnEGBTDb
-         2MXw==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=irvAfDqJe1hQB3fJxlaJ3x9w9qp/XEy9b8ACpfP/PLU=;
+        b=oZ5W49D6waX776C/4idoX2bA59DknxqC+pWJZ9Rh/CXOn8/mOkLFlJPwT8sua6Tg2K
+         RvO8lI3ivR3CYpsuMIwsy+jWbYVi2i2KLS6Y7EAjEKl5A5WnY2TfNZLkKwT8KaaieT8j
+         +F1XKLMLG5vbTYBy4ng6AmjGtVdM14XXHUtq1mq+8/e6w+YUaFsl0pkr32aQxdm2cXn6
+         RMwzM2ZHWMgoitCPSqVy4VYyaZrNpgaULlXxLtJiyA5vzPW/ciIO/c3FPVLgwn1VzJbr
+         +nIxJLRg1t8pdH2BQt2Ezfoknx4HTl+2V/yFIEWSdeATQPwepfMNE+9WqsavtrBxI/UT
+         oxgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=emQXPuqsgdPSuXYNHs0efrSNIkqWhGSVKDhTTdUubPU=;
-        b=P5QD9ZzYhSGzyVCri/DxohUn3xB44ZQrXEXVrXKe81nrMIlRmjNqWtM3Ch1XXVIBhK
-         ZYr4LKr7uQchwtNANKjDiWUNuTm3ybQINIdcdq19mHZVkwUiF3sXzHEKTzWesl2FqKsm
-         IWUxwk5sb1fKsHL7DvKwLlHBMpDDtUkDE/RwQtzC51qxuTaJAJ7UPgdqOY2+RpNdohyG
-         vmGND0vWaDbzy4IyxhiGSGUgrf26qX+IjT0s3Wgl0OUvJfIpr/mS9FBIJO0FPOWL/ebq
-         XdBGkpstrHnH8XlQdOL+osCVeIvz19zevWk7zWmIE5xjHdGwcTc8WUPYbTR6sbArLS/2
-         8rxA==
-X-Gm-Message-State: AOAM531g1Fzr+7IdskOk8BnulpSJ+ogNUFaV60JZxUS6I5dig5OeuV28
-        eMEp+WhOlDwXeBhG04nMuCUAWA==
-X-Google-Smtp-Source: ABdhPJzjKJf4FU20uEGFouwXC02tQlCg6j476G+w0mokmMJ5uCcC+odaB6FT6A4CpwEVlrVqbts2jw==
-X-Received: by 2002:a17:90a:ac09:: with SMTP id o9mr7946027pjq.191.1613540946178;
-        Tue, 16 Feb 2021 21:49:06 -0800 (PST)
-Received: from localhost ([122.172.59.240])
-        by smtp.gmail.com with ESMTPSA id j22sm803460pff.57.2021.02.16.21.49.05
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Feb 2021 21:49:05 -0800 (PST)
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Amit Daniel Kachhap <amit.kachhap@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Javi Merino <javi.merino@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Amit Kucheria <amitk@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thara Gopinath <thara.gopinath@linaro.org>
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        "v5 . 7+" <stable@vger.kernel.org>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] thermal: cpufreq_cooling: freq_qos_update_request() returns < 0 on error
-Date:   Wed, 17 Feb 2021 11:18:58 +0530
-Message-Id: <b2b7e84944937390256669df5a48ce5abba0c1ef.1613540713.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.25.0.rc1.19.g042ed3e048af
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=irvAfDqJe1hQB3fJxlaJ3x9w9qp/XEy9b8ACpfP/PLU=;
+        b=AruOJCy+tOxDHQbPa8218RBAzcZdjzTvMjhKts81+VbC399THIVcG4tGfEz6WlY5qE
+         Pwq7MNHyHTns9siooZT/jTxUiS5SNv0RiQp8utvkEBFRkBSA6JOeoy+/fJ2TBgNvnk8O
+         q2q/ql+PmvRFvOamzlwsGAUfSvJJVQ2qJEC340IXdEgygtAlwp+4ZdxQmVwQJXi3q5M5
+         EQa9cXHyiijAaPbhdOW18OrYAEapUqitoVVeJ6XMigHNo+9uVQpNjVICzcbiE3fAtaxU
+         rBdL9goY0aznKTnxAPaLXFvYYvVVS4XxGMVH82EmX5POaWOqFRGySGgaFsKAW+EY5qdK
+         2b6g==
+X-Gm-Message-State: AOAM530ERQvHGLL0iSLvo5u9LpQIkB4ekfKedcp8yjIMCNB9uKvGn9Po
+        7cPScyei5h268XVmBeBCPQkI5Vztqx5sVNXMQkk=
+X-Google-Smtp-Source: ABdhPJz+GnVyR84KwFDtLgQbMrX9pms3IymwFzE8BCxTP11AT68Lxp1YWADz1dWJCaasf7NS9gqs2lJ9MFZav74uAaI=
+X-Received: by 2002:aa7:d9cb:: with SMTP id v11mr11042249eds.153.1613547355208;
+ Tue, 16 Feb 2021 23:35:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:906:eb8a:0:0:0:0 with HTTP; Tue, 16 Feb 2021 23:35:54
+ -0800 (PST)
+Reply-To: LishaHaman225@gmail.com
+From:   Miss Lisha Haman <mohamadimustafa303@gmail.com>
+Date:   Tue, 16 Feb 2021 23:35:54 -0800
+Message-ID: <CAGKiKh-KrjTTWyNLtkkYMGiXKs2mRR67Gs=BeAWR3qVm3whcaQ@mail.gmail.com>
+Subject: Hello Dear
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-freq_qos_update_request() returns 1 if the effective constraint value
-has changed, 0 if the effective constraint value has not changed, or a
-negative error code on failures.
+My dear I am Miss Lisha Haman 23 years of age , I am the only daughter
+to Dr Abdul Haman from France-Paris who work with (SEMAFO) the biggest
+Canadian gold producer here in West Africa Burkina Faso,
 
-The frequency constraints for CPUs can be set by different parts of the
-kernel. If the maximum frequency constraint set by other parts of the
-kernel are set at a lower value than the one corresponding to cooling
-state 0, then we will never be able to cool down the system as
-freq_qos_update_request() will keep on returning 0 and we will skip
-updating cpufreq_state and thermal pressure.
+Unfortunately my father was a victim on the deadliest attack by the
+jihadist On the 6 November 2019 when gunmen ambushed a convoy
+transporting workers of the Canadian mining firm Semafo, it is my sad
+moment each time I think about this, but the reason why I contacted
+you is that I have my late father receipt of deposit he made with a
+bank in abroad with my name as next of kin, The total amount deposited
+was 3.7 million United Stated dollars,
 
-Fix that by doing the updates even in the case where
-freq_qos_update_request() returns 0, as we have effectively set the
-constraint to a new value even if the consolidated value of the
-actual constraint is unchanged because of external factors.
+Now I decided to travel for the money but embassy here deny me visa
+due to the Corona virus outbreak,
 
-Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
-Reported-by: Thara Gopinath <thara.gopinath@linaro.org>
-Fixes: f12e4f66ab6a ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
-Hi Guys,
+I talk to the bank regarding my visa problem and they advise me to
+look for my relative trusted bank account so that they will transfer
+the total fund in there, But I am the only daughter of my father and
+have no relative to present, that is why I want to present you to the
+bank as my relative who will receive the total fund on my behalf and
+also take care of me as well,
 
-This needs to go in 5.12-rc.
+I attached my picture  with this mail please send me your complete
+full details such as, Your Full Name:
 
-Thara, please give this a try and give your tested-by :).
+Home and Office Addresses:
 
- drivers/thermal/cpufreq_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Telephone Number:
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index f5af2571f9b7..10af3341e5ea 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -485,7 +485,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 	frequency = get_state_freq(cpufreq_cdev, state);
- 
- 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
--	if (ret > 0) {
-+	if (ret >= 0) {
- 		cpufreq_cdev->cpufreq_state = state;
- 		cpus = cpufreq_cdev->policy->cpus;
- 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
--- 
-2.25.0.rc1.19.g042ed3e048af
+Occupation:
 
+Country of Residence:
+
+Your Bank account number where the bank will remit the fund
+
+Once I received your details, I will give you the bank contact so that
+you can contact them directly to discuss how they can transfer the
+total fund in your bank account so that you can relocate me to join
+you over there in your country,
+
+Sincerely
+
+Lisha Haman
