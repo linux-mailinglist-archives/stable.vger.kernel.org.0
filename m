@@ -2,78 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BAA31E787
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 09:40:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA98231E7FB
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 10:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbhBRIfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 03:35:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231298AbhBRIc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 03:32:59 -0500
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C8EC061788
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 00:32:18 -0800 (PST)
-Received: by mail-il1-x134.google.com with SMTP id w1so758250ilm.12
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 00:32:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=6GftLh47M8idfd6M+5nJ9lY4AEv0noUL380A+smKx5E=;
-        b=V/lcSrfB6icAsrauzP5pp8mm4CN8EFXmSc55JzaO02xYBGMuIdMbbKSzcXq4PzN5Ou
-         18M9hf4/fNLN6GK+fdjrp9ye6S5SZrc0PRzcMulNRk19XxwkfFx/ML16gmUieLazZtL7
-         Jrx/1+NgAzwenH0TTYETHST/6OkM51ZCxlYqEDK4x2yAttaodp9ocSFccXb9HLzbBVR9
-         gwOUWMOagPiBn65SOU18Va9MvsihH8kfbdt+ANnZPhaQGEwP8WI4EX2vJBIWWwhNESxH
-         QjX/9Ff9Ndc/1WKc2Mre9DM2lAoj7W5ll65n2AXMnLK7eHT1LJjdXOJPugLX+rBIIf83
-         GwLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=6GftLh47M8idfd6M+5nJ9lY4AEv0noUL380A+smKx5E=;
-        b=U3G1bDb/kjfpOBHcPmGtxNDkom2wY5OvygizBmLXq4ddu9aSaG+cKqF/K2vy9V5k3U
-         264tHAb32kGVSfZJf/FIni8orC9XczNO2ilA89ODJdupPFfdoINBpPZ17nivk1S+XzqL
-         OwG2Z+y4CXGEo5xlm4f33df7CngzhCHlWCvEui6owTDwR0V5lDUDXN4s6pU97DI7gMTZ
-         wEEzP4Ib7x+h0+gncD6lage8jkHdrYHGFrdEqTio4Qcytwe5xP7cIWwFgrLFhm5texUV
-         m5Cg6rDGmKEDIYYP2yEt5NZENT7AAaxDEq28qC/6uJNsfi4gkOey/Ktudmac6BwlC+D9
-         Ywsw==
-X-Gm-Message-State: AOAM533e16KZHBt3zWp8Qq1A2vPwIhwgU4bXu16jmLTuNm+EZ0Yrw6Mm
-        QqNZvXiV8IgOKyxpWqBx/fSlWAnLxxxqUJFUqVI=
-X-Google-Smtp-Source: ABdhPJxACoO0EweTytBYAL5AoFEoFWjVhOge8q3WHPGnLnoXRZ1s18Fz4hWGLX82HWQtfKqJHkX5zWk9LcBWEAeZaII=
-X-Received: by 2002:a92:6c04:: with SMTP id h4mr2727492ilc.229.1613637137846;
- Thu, 18 Feb 2021 00:32:17 -0800 (PST)
+        id S231490AbhBRJZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 04:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231387AbhBRJBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Feb 2021 04:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A226146D;
+        Thu, 18 Feb 2021 08:36:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613637406;
+        bh=ig1PRDkBsfJjMTNunl5XG8hqPYLolURUKj9iYucYfEI=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=NC7dydBYMic99DW4E1gqG29vUrZfFeLKkuJ8DNFLcPuYfV9WM0Nb1S0xcjA7+H03D
+         E+nDGRBSpWSLQnLy2SuyMHMNDGxKZZV2n/SUBhqNb6Wx9aw1smiZ8SuTTCB2baqzjZ
+         y6PG3C8eU5hU/gXEs8Q6mkBUDNO3PGenPPySuYN/RkBTI/nf33IYFIaCOIO+IVNDts
+         EHhetSotUJRkhIYX/cyhYcvElmpUhmqiI4zZnP2yDiDuxhHfSieBIVouA+vQmKxtFb
+         lES2X+eyEv49Cw9UWTvu8NHJ/Sw1Qjo8OZ/N0sJU7C7OP8obp/leYEOuspKz4xy0L7
+         kh6nUQqIKajiQ==
+Date:   Thu, 18 Feb 2021 09:36:42 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jason Gerecke <killertofu@gmail.com>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: wacom: Ignore attempts to overwrite the touch_max
+ value from HID
+In-Reply-To: <20210216194154.111950-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2102180936340.28696@cbobk.fhfr.pm>
+References: <20210216194154.111950-1-jason.gerecke@wacom.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Received: by 2002:a4f:4112:0:0:0:0:0 with HTTP; Thu, 18 Feb 2021 00:32:17
- -0800 (PST)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <uusembassy@gmail.com>
-Date:   Thu, 18 Feb 2021 00:32:17 -0800
-Message-ID: <CAAFfNTauDVyPhZsniMJpsvxSYgtbC5eX8OsYgRpF4Yfj4BGQ4A@mail.gmail.com>
-Subject: Dear Friend (Assalamu Alaikum),.?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend (Assalamu Alaikum),
+On Tue, 16 Feb 2021, Jason Gerecke wrote:
 
-I came across your e-mail contact prior a private search while in need of
-your assistance. My name is Aisha  Al-Qaddafi a single Mother and a Widow
-with three Children. I am the only biological Daughter of late Libyan
-President (Late Colonel Muammar Gaddafi).
+> The `wacom_feature_mapping` function is careful to only set the the
+> touch_max value a single time, but this care does not extend to the
+> `wacom_wac_finger_event` function. In particular, if a device sends
+> multiple HID_DG_CONTACTMAX items in a single feature report, the
+> driver will end up retaining the value of last item.
+> 
+> The HID descriptor for the Cintiq Companion 2 does exactly this. It
+> incorrectly sets a "Report Count" of 2, which will cause the driver
+> to process two HID_DG_CONTACTCOUNT items. The first item has the actual
+> count, while the second item should have been declared as a constant
+> zero. The constant zero is the value the driver ends up using, however,
+> since it is the last HID_DG_CONTACTCOUNT in the report.
+> 
+>     Report ID (16),
+>     Usage (Contact Count Maximum),  ; Contact count maximum (55h, static value)
+>     Report Count (2),
+>     Logical Maximum (10),
+>     Feature (Variable),
+> 
+> To address this, we add a check that the touch_max is not already set
+> within the `wacom_wac_finger_event` function that processes the
+> HID_DG_TOUCHMAX item. We emit a warning if the value is set and ignore
+> the updated value.
+> 
+> This could potentially cause problems if there is a tablet which has
+> a similar issue but requires the last item to be used. This is unlikely,
+> however, since it would have to have a different non-zero value for
+> HID_DG_CONTACTMAX earlier in the same report, which makes no sense
+> except in the case of a firmware bug. Note that cases where the
+> HID_DG_CONTACTMAX items are in different reports is already handled
+> (and similarly ignored) by `wacom_feature_mapping` as mentioned above.
+> 
+> Link: https://github.com/linuxwacom/input-wacom/issues/223
+> Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> CC: stable@vger.kernel.org
+> ---
+>  drivers/hid/wacom_wac.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1bd0eb71559c..44d715c12f6a 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2600,7 +2600,12 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
+>  		wacom_wac->is_invalid_bt_frame = !value;
+>  		return;
+>  	case HID_DG_CONTACTMAX:
+> -		features->touch_max = value;
+> +		if (!features->touch_max) {
+> +			features->touch_max = value;
+> +		} else {
+> +			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
+> +				 "%d -> %d\n", __func__, features->touch_max, value);
+> +		}
+>  		return;
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand
-United State Dollar ($27.500.000.00 ) and i need a trusted investment
-Manager/Partner because of my current refugee status, however, I am
-interested in you for investment project assistance in your country, may be
-from there, we can build business relationship in the nearest future.
+Applied, thanks Jason.
 
-I am willing to negotiate investment/business profit sharing ratio with you
-base on the future investment earning profits.
+-- 
+Jiri Kosina
+SUSE Labs
 
-If you are willing to handle this project on my behalf kindly reply urgent
-to enable me provide you more information about the investment funds.
-
-Best Regards
-Mrs Aisha Al-Qaddafi
