@@ -2,171 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50FC431EFAC
+	by mail.lfdr.de (Postfix) with ESMTP id C2AAA31EFAD
 	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 20:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231676AbhBRTVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 14:21:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbhBRSlc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 13:41:32 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D15C06121D
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 10:40:30 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id lw17so3230187pjb.0
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 10:40:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jdlJMyxQRnZv3Xz8HTkiTgKb8hhuIr/TTuV3NKhJ4Mg=;
-        b=TN4Nyt+BYh6D13KbKph2QURTp18559CmHuIqS1IQUAVr9mzkL7QazUuUMwlA2t4zFy
-         +NDZZP7mw9SWxOoC+fWImpl8EcakadH8F/ITRbDphCdfXO0XH+eYwIcFJ51vVuM5ku1f
-         QDxJURGEHJ74woRY5GVUGT0KVmxXZBVVHMtdBBa1LOLpT2OVzl2NFhFqoqD8GARsk01O
-         ko1NmE4eO734PfD9+8NUcQxVqZBpgKNmZC4CQ69K8pCXRZJEmlAXAOMvbLVHp5lk8RDd
-         pPxPPRUG/FSf+8F26idYLDzzZGOpLP8kGIkAYcLhaPyiW0cNOcdsg07lpU7s1V9nw5A1
-         jCFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jdlJMyxQRnZv3Xz8HTkiTgKb8hhuIr/TTuV3NKhJ4Mg=;
-        b=efMv3pUReORkaObTNSAM9B4clqWS99+hdNcrVK+bxNo9nlJhcmhN4o+VET+AGrB5pt
-         asDwzv4xXgfox2u5nzxToZ3DtX/Bt8f+aqXyCqgHNOb8u0QOUAnLCvzB6E0P+hSxxxga
-         wCSvoa6h8GMAsDZ5gNj3gzN3YoBDIl8pPW0ILNORQE5IlXFOiBOxe2RcpE3Nknp9CvU9
-         3qNnTISxt61cjeF0m1DArx8A17gX5YL0YASpqmD1DHO7b6PZ51eNPYcxOfjRuK3Jbd+L
-         jOnbSeeQ38Bxzex1Xo6/ftzNTqtWXGwd6k+hQg+KIscee2yhcRroRNAEqcQzk7Y2CAMC
-         0WvQ==
-X-Gm-Message-State: AOAM533ULr+gz0+qx9aMeDfjucEAdYaUJT6rKvjysLQlBTdCTm6zBash
-        irFR5K9scEbuRtG4uCHzbEMVVjTDZCeAYw==
-X-Google-Smtp-Source: ABdhPJy9ns6nR817Ts9e5+kU2Kw7uWFWC/a9SY7cxvLl+CB/RkpWchJR6xW1Xee1V3gHBv0qYrDBAg==
-X-Received: by 2002:a17:90b:30c9:: with SMTP id hi9mr5348415pjb.81.1613673629863;
-        Thu, 18 Feb 2021 10:40:29 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e26sm7073365pfm.87.2021.02.18.10.40.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Feb 2021 10:40:29 -0800 (PST)
-Message-ID: <602eb49d.1c69fb81.c2e43.f1b7@mx.google.com>
-Date:   Thu, 18 Feb 2021 10:40:29 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S232004AbhBRTVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 14:21:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26139 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230033AbhBRSma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 13:42:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613673662;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=xkv4a0vVqkxWE+KTiUndwxwK5nqHjhjL33RCnSzbN+g=;
+        b=cAHqGXQ/YjBYtBhpr+GR2ZkywUDqVORR0Y+1T5yQwfa4J8febNWJExvGNrPvmXvOegg63n
+        6P+Kzx/YNGjqWMVfF81Sgkvdfi+wjwkQTT0seoMqLZsZQ9yOu4uHxhvr2a7IjcUD08XBYh
+        eyND2VJgLZGpxVBOHraJW2tvSAurRts=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-129-VMvTpPzIO9qoXdQ5eIK9WA-1; Thu, 18 Feb 2021 13:41:00 -0500
+X-MC-Unique: VMvTpPzIO9qoXdQ5eIK9WA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0050018449E1;
+        Thu, 18 Feb 2021 18:40:59 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B046F1042989;
+        Thu, 18 Feb 2021 18:40:58 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Dov Murik <dovmurik@linux.vnet.ibm.com>
+Subject: [PATCH] KVM: SEV: fix double locking due to incorrect backport
+Date:   Thu, 18 Feb 2021 13:40:58 -0500
+Message-Id: <20210218184058.1420763-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.221-44-gba8c335d38a7
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 75 runs,
- 2 regressions (v4.14.221-44-gba8c335d38a7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 75 runs, 2 regressions (v4.14.221-44-gba8c33=
-5d38a7)
+Fix an incorrect line in the 5.4.y and 4.19.y backports of commit
+19a23da53932bc ("Fix unsynchronized access to sev members through
+svm_register_enc_region"), first applied to 5.4.98 and 4.19.176.
 
-Regressions Summary
--------------------
+Fixes: 1e80fdc09d12 ("KVM: SVM: Pin guest memory when SEV is active")
+Reported-by: Dov Murik <dovmurik@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # 5.4.x
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/svm.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
-          =
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 296b0d7570d0..1da558f28aa5 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -7104,7 +7104,6 @@ static int svm_register_enc_region(struct kvm *kvm,
+ 	region->uaddr = range->addr;
+ 	region->size = range->size;
+ 
+-	mutex_lock(&kvm->lock);
+ 	list_add_tail(&region->list, &sev->regions_list);
+ 	mutex_unlock(&kvm->lock);
+ 
+-- 
+2.26.2
 
-panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
-          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.221-44-gba8c335d38a7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.221-44-gba8c335d38a7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ba8c335d38a7709daef881c6e683fef3a7f930c9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig           | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602e935e9d52104f45addcb2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-gba8c335d38a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-gba8c335d38a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/602e935e9d52104f45add=
-cb3
-        failing since 72 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
- fail: v4.14.210-20-g5ea7913395d3) =
-
- =
-
-
-
-platform       | arch  | lab           | compiler | defconfig           | r=
-egressions
----------------+-------+---------------+----------+---------------------+--=
-----------
-panda          | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/602e8186324859e199adde45
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-gba8c335d38a7/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--44-gba8c335d38a7/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602e8186324859e=
-199adde4a
-        new failure (last pass: v4.14.221-44-g6cf22cf83373)
-        2 lines
-
-    2021-02-18 15:02:26.942000+00:00  [   20.552459] usbcore: registered ne=
-w interface driver smsc95xx
-    2021-02-18 15:02:26.960000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/103
-    2021-02-18 15:02:26.969000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
