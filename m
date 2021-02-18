@@ -2,92 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2063431EB45
+	by mail.lfdr.de (Postfix) with ESMTP id 9211531EB46
 	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 16:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbhBRPHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 10:07:18 -0500
-Received: from esa.microchip.iphmx.com ([68.232.153.233]:36670 "EHLO
-        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230505AbhBRNiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 08:38:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1613655484; x=1645191484;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=m1IiLwGqbiTHG8Ajf+1tTZZIHKAEPqSOeQlap/U9wfs=;
-  b=DA0plEHd00kiD66XBOtJ9JXzrm+vNhG5gxEVUOMVvxZPMQi6AY79b5aV
-   YwoxtSNPuQ5MzhO5dup/gXN4iGPJDL4liNq3wPRJKG9Rr1Im6ujmBp8mm
-   2ivqUApwioyytGduPvZIngDJMmufregcD4/Ct//CiwRqAqRxsct4oBkOM
-   9bj49Sqx3agNOcidxl6CwD95sKmEZpkF5tzvs6lvPJ/6EtkfejOBsiAr/
-   eWeFFF4Sv+8a1gZhwf49IiHxauRwrW7jrj9sAwclkERT1Jnk3B4Z+PsmW
-   H1DGsBO6Z0gCTHpwOxTac8rS5SA8/8adMlpr53c87qcl9NdvP/GAPidnT
-   A==;
-IronPort-SDR: VHS7JS4ssbMIydEB/lcuoyoO2s0ERg9FuB68OmE56QZKFn6F3WJfG65+eh8mLAFCwnIuQQ0OYg
- ia7JzEOgxIxuTTWBToTeQhtPGDDH/3fyBSxNsNeGp15l6z3nvV2LrJlhRf6jKPkG/VunHYOviM
- Fx/vkiy/3McKdDZCHe29tKfPggGbd9b15eGNYhRPoHismHbmTOGufzR82/yKLlxglFejKiJvY6
- uYlXO3nf7oVo401k8m7YRiAaOv4xf47TgBEjX3Fp2DOTb6+TZOfM2FZN005/4R3clkCqoNB1MR
- /SU=
-X-IronPort-AV: E=Sophos;i="5.81,187,1610434800"; 
-   d="scan'208";a="109746287"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 18 Feb 2021 06:35:57 -0700
-Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Thu, 18 Feb 2021 06:35:56 -0700
-Received: from localhost.localdomain (10.10.115.15) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.1979.3 via Frontend Transport; Thu, 18 Feb 2021 06:35:54 -0700
-From:   <nicolas.ferre@microchip.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>
-CC:     <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Federico Pellegrin <fede@evolware.org>,
-        <stable@vger.kernel.org>,
-        "Sandeep Sheriker Mallikarjun" 
-        <sandeepsheriker.mallikarjun@microchip.com>
-Subject: [PATCH] ARM: dts: at91: sam9x60: fix mux-mask for PA7 so it can be set to A, B and C
-Date:   Thu, 18 Feb 2021 14:31:38 +0100
-Message-ID: <20210218133138.21494-1-nicolas.ferre@microchip.com>
-X-Mailer: git-send-email 2.30.0
+        id S231173AbhBRPIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 10:08:00 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21213 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232871AbhBROGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 09:06:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613657072;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DameG4NN+XhJX2cINYFl0XGxWm6k+VvwqQIKiHlU8pk=;
+        b=eznkQ5pWyWk71+N/pRDEGT/wZIvm7n23sv1AwfS8qRi8LqZTH7SURjljHGjb4R6pmTeF0I
+        nqlxsJl+4jVeOOeJA/wlq0QfQeSfZBXmQg8htkviBdzPqUY0hOT7jWLbo3rXS0MmaYZzoB
+        JfqIq2AkFEWIODZJgEzao3V6qMAElpk=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-439-z2JElaY4N0SRaC26UmdOPg-1; Thu, 18 Feb 2021 09:04:21 -0500
+X-MC-Unique: z2JElaY4N0SRaC26UmdOPg-1
+Received: by mail-ej1-f70.google.com with SMTP id 7so721208ejh.10
+        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 06:04:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=DameG4NN+XhJX2cINYFl0XGxWm6k+VvwqQIKiHlU8pk=;
+        b=kGRh5MQKQC4QUOko7r8EUBWnAT2SGVu6Qk2hRinNrsMhN+xx6ajN6whFZ1NSXgjyn7
+         nd0CQVZoke1oFo8l/z4kRCRhjjXVT+VuPEps7ZY33a3XGF+Uh7Obeai6iq0UKw8DkOCd
+         5g7rH//ziNNsY8ZCjINytn/pdhIwpldhddBrhCaisd/7meZNdx70yrw0eujPfWeg+dFf
+         gom65mnEC5T5S0CPXAr4J/WNm1KEAtul+e4WD+piudgulUU2pE8I1+fRxABMNTdK2FhZ
+         uSUn8lR8EOT+wWdWYXnh3NW4ww7z63tOj8rQAWXZcRlY/KN9FEepBLVkkLVUgAPtPfhd
+         V8bg==
+X-Gm-Message-State: AOAM532R3f6I+s1pGNiwYdcNdA9Ag46mLJNiB1p6i9CRqZ64LkglNaJf
+        6AYPfGPAYEJSCPqskBh8XyHpTHF8jkVi5NT3cjto73BiIjiZjI1KzPM4he34Unz2qPGt+TRNKIZ
+        A64MzaijM8JsMOcgn+ncfUIcZqmtSIH5VDVZYPClEq1nhcpZjjUPEDpszuUNEAXBNmfe4
+X-Received: by 2002:a17:906:7697:: with SMTP id o23mr4310540ejm.292.1613657059253;
+        Thu, 18 Feb 2021 06:04:19 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzP/zABQrXHdJhOBKCVdZ9S02vMhPi1HVFijw+J9omB3IY9JVoV3G4Wp1LvT7/TrAr9/f4RJg==
+X-Received: by 2002:a17:906:7697:: with SMTP id o23mr4310513ejm.292.1613657058956;
+        Thu, 18 Feb 2021 06:04:18 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id o8sm2814226edj.79.2021.02.18.06.04.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Feb 2021 06:04:18 -0800 (PST)
+Subject: Re: [Intel-gfx] [5.10.y regression] i915 clear-residuals mitigation
+ is causing gfx issues
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable@vger.kernel.org
+References: <fe6040b5-72a0-9882-439e-ea7fc0b3935d@redhat.com>
+ <161282685855.9448.10484374241892252440@build.alporthouse.com>
+ <f1070486-891a-8ec0-0390-b9aeb03178ce@redhat.com>
+ <161291205642.6673.10994709665368036431@build.alporthouse.com>
+ <02fd493c-957f-890d-d0ad-ebd4119f55f2@redhat.com>
+ <161296131275.7731.862746142230006325@build.alporthouse.com>
+ <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
+ <161304059194.7731.17263409378570191651@build.alporthouse.com>
+ <e00f5813-37c6-52e7-4fd3-691be9d062d9@redhat.com>
+ <96614fc1-c92d-1532-fd92-beb19e490075@redhat.com>
+Message-ID: <a20993b8-5877-b501-56f1-4048c3457b1a@redhat.com>
+Date:   Thu, 18 Feb 2021 15:04:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+In-Reply-To: <96614fc1-c92d-1532-fd92-beb19e490075@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Federico Pellegrin <fede@evolware.org>
+Hi,
 
-According to the datasheet PA7 can be set to either function A, B or
-C (see table 6-2 of DS60001579D). The previous value would permit just
-configuring with function C.
+On 2/14/21 5:00 PM, Hans de Goede wrote:
+> Hi,
+> 
+> On 2/11/21 1:26 PM, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 2/11/21 11:49 AM, Chris Wilson wrote:
 
-Signed-off-by: Federico Pellegrin <fede@evolware.org>
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Cc: <stable@vger.kernel.org> # 5.6+
-Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
----
- arch/arm/boot/dts/at91-sam9x60ek.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+<snip>
 
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index 73b6b1f89de9..4c40ae571154 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -336,7 +336,7 @@ ethernet-phy@0 {
- &pinctrl {
- 	atmel,mux-mask = <
- 			 /*	A	B	C	*/
--			 0xFFFFFE7F 0xC0E0397F 0xEF00019D	/* pioA */
-+			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
- 			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
- 			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
- 			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
--- 
-2.30.0
+>>>>> Started looking for scratch page overwrites, and found this little gem:
+>>>>> https://patchwork.freedesktop.org/patch/420436/?series=86947&rev=1
+>>>>>
+>>>>> Looks promising wrt the cause of overwriting random addresses -- and
+>>>>> I hope that is the explanation for the glitches/hangs. I have a hsw gt2
+>>>>> with gnome shell, piglit is happy, but I suspect it is all due to
+>>>>> placement and so will only occur at random.
+>>>>
+>>>> If you can give me a list of commits to cherry-pick then I can prepare
+>>>> a Fedora 5.10.y kernel which those added for the group of Fedora users
+>>>> who are hitting this to test.
+>>>
+>>> e627d5923cae ("drm/i915/gt: One more flush for Baytrail clear residuals")
+>>> d30bbd62b1bf ("drm/i915/gt: Flush before changing register state")
+>>> 1914911f4aa0 ("drm/i915/gt: Correct surface base address for renderclear")
+>>
+>> Thanks, the test-kernel is building now. I will let you know when I have
+>> heard back from the Fedora users (this will likely take 1-2 days).
+> 
+> I've heard back from 2 of the reporters who were seeing issues with 5.10.9+
+> 
+> And I'm happy to report 5.10.15 + the 3 commits mentioned above cherry-picked
+> on top fixes the graphics glitches for them.
+> 
+> So if we can get these 3 commits into 5.10.y and 5.11.y then this should be
+> resolved.
+
+Unfortunately I just got a report that 5.10.15 + the 3 extra fixes mentioned
+above is still causing issues for one user with a
+"thinkpad x230 with i5-3320M (HD Graphics 4000)"
+
+The user descibes the problem as: "still have some minor black squares popping
+up while scrolling on Firefox."
+
+I've asked this user to test 5.10.14 + the 3 reverts mentioned earlier in the
+thread and that kernel does not have this issue.
+
+Chris, any ideas / more fixes to cherry pick for testing ?
+
+Regards,
+
+Hans
 
