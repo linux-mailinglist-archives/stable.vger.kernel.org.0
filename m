@@ -2,112 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DE0B31EFB2
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 20:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1523931F049
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 20:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233731AbhBRTVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 14:21:33 -0500
-Received: from mout.gmx.net ([212.227.17.20]:42193 "EHLO mout.gmx.net"
+        id S230489AbhBRTpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 14:45:18 -0500
+Received: from mx2.suse.de ([195.135.220.15]:48290 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232818AbhBRTQA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Feb 2021 14:16:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1613675643;
-        bh=OumvlyMfMF8OuGKnB6ZFA0Vs6VIp2wW434PmpZU2Q6Q=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=ihgEJyvmqs+l/amrtE06CAB/NYjM7xkKQur7JyySpDs7c8S6UnXoi+owRCwAlGSFv
-         ArzhyF5lyUJnXpx6AZW5IhpmMlv7ZohRYFjroxupK8p0K6s3w6apcfE3J4aaPaQ1RF
-         uklIUSG67/kXSFx7ytgtmyXdLFYeMPUobzDL5fwQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.178.51] ([78.42.220.31]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1N2V0B-1lr7x60pfr-013xFj; Thu, 18
- Feb 2021 20:14:03 +0100
-Subject: Re: [PATCH RESEND v5] tpm: fix reference counting for struct tpm_chip
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-References: <1613505191-4602-1-git-send-email-LinoSanfilippo@gmx.de>
- <1613505191-4602-2-git-send-email-LinoSanfilippo@gmx.de>
- <YC2WRJfNbY22yIOn@kernel.org>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Message-ID: <5d0f7222-a9ef-809b-cd9a-86bbacb03790@gmx.de>
-Date:   Thu, 18 Feb 2021 20:13:57 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S230169AbhBRTWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Feb 2021 14:22:01 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id AC386AED2;
+        Thu, 18 Feb 2021 19:21:19 +0000 (UTC)
+Date:   Thu, 18 Feb 2021 20:21:17 +0100
+From:   Joerg Roedel <jroedel@suse.de>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Joerg Roedel <joro@8bytes.org>, X86 ML <x86@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kvm list <kvm@vger.kernel.org>,
+        Linux Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH 2/3] x86/sev-es: Check if regs->sp is trusted before
+ adjusting #VC IST stack
+Message-ID: <20210218192117.GL12716@suse.de>
+References: <20210217120143.6106-1-joro@8bytes.org>
+ <20210217120143.6106-3-joro@8bytes.org>
+ <CALCETrWw-we3O4_upDoXJ4NzZHsBqNO69ht6nBp3y+QFhwPgKw@mail.gmail.com>
+ <20210218112500.GH7302@8bytes.org>
+ <CALCETrUohqQPVTBJZZKh-pj=4aZrwDAu5UFSetj3k5pGLDPbkA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <YC2WRJfNbY22yIOn@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:7qLkTgedFEkckgxUROxL2yXb/CiegrAXFaO7P+ZZ6y332p2Kyhw
- nfvX0hLPtks4MpwkLI+MRW9XERkSVQz3zn3vpki6xAldWtvoeJ1nJZ/pF1VT+aO8xKyE4jx
- GTzOTY+QxNH+2RAgTAEk1+noK3UcRWodvfCX5At9Bhcos903jErpz2dQHfFQ/MW/N3KphhZ
- oILK+nPqG4lhDKUD656kQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:wobcJB6G+es=:69RYnVhGdD1O8pwHzqrV64
- tTpd7JJ1VCNrBI05C9qKULlr+DEbL/g0+o8SrK1r/n+rhWRn3fsKcsPrmAiCkqPnqOEp9FXBX
- 9ac9ELpnoJPblr1KjAxGG8cS5/CErq+DM/O61VzNDxZMus1V2YUQ4jjeH0VyvOXMUZJU5Vxsk
- cxYD/4mnFSr4vG0Bav9GipfJJy5yPLrj8WZYU9ghkrQq9ymqaHBlq8aCK2JmBK/8sPtO54QqP
- rXFPnaGWLfUPnIljJlxIRdEYOm6gKV1Y9IUzMjNsw8ds4LMu9ha5wMmdXIq4UAPKUD6yWnseX
- GjiaVm3M0ORlxLpg3AT1d7Ba2xxo+jnRhwFx3WaI4o0HkUVp7dL9wtaxTBdgGm4QizmpPhHNO
- ZDTWPkGXc+m/RiPyPespC1taUT268Hqpl/0koTBooYVAp8G2/qeanjftehnjtxCqeviDKmYLo
- OaXeBN+56AksoCSCP25WI49Eo7zGmj2MSUtMz53PD74Ut7IKpJTvRTKuxzCd4eJT1aYCkcLpb
- xVbkFaAQ+PqoJl2W7e3pexwuBMjTj9AumXzwqxIcvLYbjOPkBLbqRgXnyBRC5SjZDV3ubeCpU
- 0k4RS7R/bPFu0IXv94NaQtQeptOKJjaCutwduvbJzSRoSQz/rca3xy2FZjlfyfIq8Gh3F7/yC
- gORO/gG7t772vxaifOGGEGjl8eWMQ5tAG3obTnnnGlxrDKZMtsTeZ4bRZNzndq347arKRIunl
- ZZZmB+eMGL80lP0zhixLJ2C88rjkwSY3uElaDnuOEbGamJjRe0+7mz0PkMDQb161WEnhndK07
- NDP+r1+E2JWOcnacaGDen0WbYmFh9phEf/LApXSQAzuDcB5hl44XSiM6NpdDQP2VMQEjx8iT4
- 3y/6F9Qdp2JPIh1lyMMQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALCETrUohqQPVTBJZZKh-pj=4aZrwDAu5UFSetj3k5pGLDPbkA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 18, 2021 at 09:49:06AM -0800, Andy Lutomirski wrote:
+> I don't understand what this means.  The whole entry mechanism on x86
+> is structured so that we call a C function *and return from that C
+> function without longjmp-like magic* with the sole exception of
+> unwind_stack_do_exit().  This means that you can match up enters and
+> exits, and that unwind_stack_do_exit() needs to unwind correctly.  In
+> the former case, it's normal C and we can use normal local variables.
+> In the latter case, we know exactly what state we're trying to restore
+> and we can restore it directly without any linked lists or similar.
 
-Hi,
+Okay, the unwinder will likely get confused by this logic.
 
-On 17.02.21 at 23:18, Jarkko Sakkinen wrote:
+> What do you have in mind that requires a linked list?
 
->> +
->
-> /*
->  * Please describe what the heck the function does. No need for full on
->  * kdoc.
->  */
+Cases when there are multiple IST vectors besides NMI that can hit while
+the #VC handler is still on its own IST stack. #MCE comes to mind, but
+that is broken anyway. At some point #VC itself will be one of them, but
+when that happens the code will kill the machine.
+This leaves #HV in the list, and I am not sure how that is going to be
+handled yet. I think the goal is that the #HV handler is not allowed to
+cause any #VC exception. In that case the linked-list logic will not be
+needed.
 
-Ok.
+> > I don't see how this would break, can you elaborate?
+> >
+> > What I think happens is:
+> >
+> > SYSCALL gap (RSP is from userspace and untrusted)
+> >
+> >         -> #VC - Handler on #VC IST stack detects that it interrupted
+> >            the SYSCALL gap and switches to the task stack.
+> >
+> 
+> Can you point me to exactly what code you're referring to?  I spent a
+> while digging through the code and macro tangle and I can't find this.
 
->> +int tpm2_add_device(struct tpm_chip *chip)
->
-> Please, rename as tpm_devs_add for coherency sake.
->
+See the entry code in arch/x86/entry/entry_64.S, macro idtentry_vc. It
+creates the assembly code for the handler. At some point it calls
+vc_switch_off_ist(), which is a C function in arch/x86/kernel/traps.c.
+This function tries to find a new stack for the #VC handler.
 
-Sorry I confused this and renamed it wrongly. I will fix it in the next
-patch version.
+The first thing it does is checking whether the exception came from the
+SYSCALL gap and just uses the task stack in that case.
 
->> +{
->> +	int rc;
->> +
->> +	device_initialize(&chip->devs);
->> +	chip->devs.parent =3D chip->dev.parent;
->> +	chip->devs.class =3D tpmrm_class;
->
-> Empty line. Cannot recall, if I stated before.
->> +	/* +	 * get extra reference on main device to hold on behalf of devs.
->> +	 * This holds the chip structure while cdevs is in use. The
->> +	 * corresponding put is in the tpm_devs_release.
->> +	 */
->> +	get_device(&chip->dev);
->> +	chip->devs.release =3D tpm_devs_release;
->> +	chip->devs.devt =3D MKDEV(MAJOR(tpm_devt),
->> +					chip->dev_num + TPM_NUM_DEVICES);
->
-> NAK, same comment as before.
->
+Then it will check for other kernel stacks which are safe to switch
+to. If that fails it uses the fall-back stack (VC2), which will direct
+the handler to a separate function which, for now, just calls panic().
+Not safe are the entry or unknown stacks.
 
-Thx for the review, I will fix these issues.
+The function then copies pt_regs and returns the new stack pointer to
+assembly code, which then writes it to %RSP.
+
+> Unless AMD is more magic than I realize, the MOV SS bug^Wfeature means
+> that #DB is *not* always called in safe places.
+
+You are right, forgot about this. The MOV SS bug can very well
+trigger a #VC(#DB) exception from the syscall gap.
+
+> > And with SNP we need to be able to at least detect a malicious HV so we
+> > can reliably kill the guest. Otherwise the HV could potentially take
+> > control over the guest's execution flow and make it reveal its secrets.
+> 
+> True.  But is the rest of the machinery to be secure against EFLAGS.IF
+> violations and such in place yet?
+
+Not sure what you mean by EFLAGS.IF violations, probably enabling IRQs
+while in the #VC handler? The #VC handler _must_ _not_ enable IRQs
+anywhere in its call-path. If that ever happens it is a bug.
 
 Regards,
-Lino
+
+	Joerg
