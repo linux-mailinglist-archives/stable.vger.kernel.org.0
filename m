@@ -2,109 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA98231E7FB
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 10:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B0C31E7FC
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 10:27:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231490AbhBRJZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 04:25:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        id S231234AbhBRJ0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 04:26:12 -0500
+Received: from mail.jvpinto.com ([65.49.11.60]:56483 "EHLO mail.JVPinto.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231387AbhBRJBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Feb 2021 04:01:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A226146D;
-        Thu, 18 Feb 2021 08:36:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613637406;
-        bh=ig1PRDkBsfJjMTNunl5XG8hqPYLolURUKj9iYucYfEI=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=NC7dydBYMic99DW4E1gqG29vUrZfFeLKkuJ8DNFLcPuYfV9WM0Nb1S0xcjA7+H03D
-         E+nDGRBSpWSLQnLy2SuyMHMNDGxKZZV2n/SUBhqNb6Wx9aw1smiZ8SuTTCB2baqzjZ
-         y6PG3C8eU5hU/gXEs8Q6mkBUDNO3PGenPPySuYN/RkBTI/nf33IYFIaCOIO+IVNDts
-         EHhetSotUJRkhIYX/cyhYcvElmpUhmqiI4zZnP2yDiDuxhHfSieBIVouA+vQmKxtFb
-         lES2X+eyEv49Cw9UWTvu8NHJ/Sw1Qjo8OZ/N0sJU7C7OP8obp/leYEOuspKz4xy0L7
-         kh6nUQqIKajiQ==
-Date:   Thu, 18 Feb 2021 09:36:42 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Jason Gerecke <killertofu@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Ignore attempts to overwrite the touch_max
- value from HID
-In-Reply-To: <20210216194154.111950-1-jason.gerecke@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2102180936340.28696@cbobk.fhfr.pm>
-References: <20210216194154.111950-1-jason.gerecke@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S231510AbhBRJG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Feb 2021 04:06:27 -0500
+Received: from RW-EXC1.JVPinto.com (2002:ac20:10d::ac20:10d) by
+ RW-EXC1.JVPinto.com (2002:ac20:10d::ac20:10d) with Microsoft SMTP Server
+ (TLS) id 15.0.1497.2; Thu, 18 Feb 2021 01:05:31 -0800
+Received: from User (52.231.198.195) by RW-EXC1.JVPinto.com (172.32.1.13) with
+ Microsoft SMTP Server id 15.0.1497.2 via Frontend Transport; Thu, 18 Feb 2021
+ 01:05:16 -0800
+Reply-To: <ms.reem@yandex.com>
+From:   "Ms. Reem" <johnpinto@jvpinto.com>
+Subject: Hello okay
+Date:   Thu, 18 Feb 2021 09:05:30 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <d27ac7c750c347d3831ac13abdb5510c@RW-EXC1.JVPinto.com>
+To:     Undisclosed recipients:;
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 16 Feb 2021, Jason Gerecke wrote:
+Hello,
 
-> The `wacom_feature_mapping` function is careful to only set the the
-> touch_max value a single time, but this care does not extend to the
-> `wacom_wac_finger_event` function. In particular, if a device sends
-> multiple HID_DG_CONTACTMAX items in a single feature report, the
-> driver will end up retaining the value of last item.
-> 
-> The HID descriptor for the Cintiq Companion 2 does exactly this. It
-> incorrectly sets a "Report Count" of 2, which will cause the driver
-> to process two HID_DG_CONTACTCOUNT items. The first item has the actual
-> count, while the second item should have been declared as a constant
-> zero. The constant zero is the value the driver ends up using, however,
-> since it is the last HID_DG_CONTACTCOUNT in the report.
-> 
->     Report ID (16),
->     Usage (Contact Count Maximum),  ; Contact count maximum (55h, static value)
->     Report Count (2),
->     Logical Maximum (10),
->     Feature (Variable),
-> 
-> To address this, we add a check that the touch_max is not already set
-> within the `wacom_wac_finger_event` function that processes the
-> HID_DG_TOUCHMAX item. We emit a warning if the value is set and ignore
-> the updated value.
-> 
-> This could potentially cause problems if there is a tablet which has
-> a similar issue but requires the last item to be used. This is unlikely,
-> however, since it would have to have a different non-zero value for
-> HID_DG_CONTACTMAX earlier in the same report, which makes no sense
-> except in the case of a firmware bug. Note that cases where the
-> HID_DG_CONTACTMAX items are in different reports is already handled
-> (and similarly ignored) by `wacom_feature_mapping` as mentioned above.
-> 
-> Link: https://github.com/linuxwacom/input-wacom/issues/223
-> Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> CC: stable@vger.kernel.org
-> ---
->  drivers/hid/wacom_wac.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 1bd0eb71559c..44d715c12f6a 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2600,7 +2600,12 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
->  		wacom_wac->is_invalid_bt_frame = !value;
->  		return;
->  	case HID_DG_CONTACTMAX:
-> -		features->touch_max = value;
-> +		if (!features->touch_max) {
-> +			features->touch_max = value;
-> +		} else {
-> +			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
-> +				 "%d -> %d\n", __func__, features->touch_max, value);
-> +		}
->  		return;
+My name is Ms. Reem Ebrahim Al-Hashimi, I am the "Minister of state
+and Petroleum" also "Minister of State for International Cooperation"
+in UAE. I write to you on behalf of my other "three (3) colleagues"
+who has approved me to solicit for your "partnership in claiming of
+{us$47=Million}" from a Financial Home in Cambodia on their behalf and
+for our "Mutual Benefits".
 
-Applied, thanks Jason.
+The Fund {us$47=Million} is our share from the (over-invoiced) Oil/Gas
+deal with Cambodian/Vietnam Government within 2013/2014, however, we
+don't want our government to know about the fund. If this proposal
+interests you, let me know, by sending me an email and I will send to
+you detailed information on how this business would be successfully
+transacted. Be informed that nobody knows about the secret of this
+fund except us, and we know how to carry out the entire transaction.
+So I am compelled to ask, that you will stand on our behalf and
+receive this fund into any account that is solely controlled by you.
 
--- 
-Jiri Kosina
-SUSE Labs
+We will compensate you with 15% of the total amount involved as
+gratification for being our partner in this transaction. Reply to:
+ms.reem@yandex.com
 
+Regards,
+Ms. Reem.
