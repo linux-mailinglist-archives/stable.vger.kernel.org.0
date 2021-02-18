@@ -2,204 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0369A31E333
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 00:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C876931E44F
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 03:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbhBQXq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 18:46:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbhBQXq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 18:46:27 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17CEC061756
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 15:45:46 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id z9so264329pjl.5
-        for <stable@vger.kernel.org>; Wed, 17 Feb 2021 15:45:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=s6BFsJAWlHWGq0IkwYWM+ZPrYPC67lXxqBZojqe5hX8=;
-        b=JskOPP4fCeSlivJQa0b0KZzSLbMUze8pOjd96xXSm/Z5aSXX8BaW87hdj+BVXpN36s
-         OnIkQvADfOfND4P0egEX1wr3YV/dTPeWUWQ4Z+aqZZ3WEVpFJZF88f/9/I9WCJ/BZdd2
-         Qlwh5QAZGz8lTbNiMLB3RVycCgkznbAxEVVIjp/0j+T19a8q1ppJrZGh0pIXAQqNvOKu
-         U2ccRQtPGby9KnJ4WYR3zKXseopU4IBOMaeCcDkGJfwZUkiaJGRyOkkQYoBnBye8Sako
-         +oTXC3xTY5QwuiSgkpRu0p+dXuSEBptl++u8dcmerkfh3q4XjZRdPGoP14A9G1pplOZg
-         +Zxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=s6BFsJAWlHWGq0IkwYWM+ZPrYPC67lXxqBZojqe5hX8=;
-        b=MYuP40Psa61ToOX0qeY9Cy1NyU+7i0tBy+PkljEyp758ezCWPq2fI3Ohgf4G0p4Znz
-         yN1Xm5hFfrvXke0lbk9n+mL3lyt3iHfNvzV+q6rVqC0Jr6bWSdmQjdybb6KNHNtJrAtf
-         8U+BhugiWnEQ8BATKK+AURO79C6VOumkMePdK7ntXz1u9FN81eSM+i8x7Ckt8nKVm1pA
-         poUYCpNMrYHbYVwLcPXpzyVT0VuPmrlv+nCoNFfLCxPJD75oEzyir1XuGsHD0NzRITYm
-         usQD2qhHhTRq0ahxYs+/XOoTaLRmbhrdtlLHraG+dSqJOZFQYVW11A6a/xKHVJASms89
-         lBTA==
-X-Gm-Message-State: AOAM5320qSKjZH0WWk5NQaDUbHiDOsd16U6HL6qlG7SPRoMe+NOCleJu
-        Pb4UlSU5TW8Z/txStGF1Spyx2ITQO8+OKQ==
-X-Google-Smtp-Source: ABdhPJyvxKJHi7NVkiF/8GKj3pUOHKSgJRNxVsc+SJ594SpYMcmRwRSuUfWcG1Hik6m7Oe7sQsHelQ==
-X-Received: by 2002:a17:902:c083:b029:e3:46fb:8e58 with SMTP id j3-20020a170902c083b02900e346fb8e58mr1332428pld.62.1613605546054;
-        Wed, 17 Feb 2021 15:45:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h11sm3496826pfr.201.2021.02.17.15.45.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Feb 2021 15:45:45 -0800 (PST)
-Message-ID: <602daaa9.1c69fb81.a9b50.839c@mx.google.com>
-Date:   Wed, 17 Feb 2021 15:45:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229745AbhBRCYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Feb 2021 21:24:13 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:55271 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229553AbhBRCYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 21:24:12 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UOreQUc_1613615007;
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UOreQUc_1613615007)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 18 Feb 2021 10:23:28 +0800
+Subject: Re: [PATCH 1/3] virtio-blk: close udev startup race condition as
+ default groups
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     sashal@kernel.org, stable@vger.kernel.org,
+        joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com,
+        Hannes Reinecke <hare@suse.de>
+References: <20210207114656.32141-1-jefflexu@linux.alibaba.com>
+ <20210207114656.32141-2-jefflexu@linux.alibaba.com>
+ <YB/Vgb4y4Dts0Y2G@kroah.com>
+ <f466aacc-f9ca-49ca-0da8-16dc045c9000@linux.alibaba.com>
+ <6046ceef-061c-d93f-b6a1-2ce2483bec3c@linux.alibaba.com>
+ <YC0ZjUYhSCawoJ7N@kroah.com>
+From:   JeffleXu <jefflexu@linux.alibaba.com>
+Message-ID: <e436dc6e-c265-04aa-b560-84370a4c7cb4@linux.alibaba.com>
+Date:   Thu, 18 Feb 2021 10:23:27 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.17
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 116 runs, 3 regressions (v5.10.17)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <YC0ZjUYhSCawoJ7N@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 116 runs, 3 regressions (v5.10.17)
-
-Regressions Summary
--------------------
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-bcm2837-rpi-3-b          | arm64 | lab-baylibre | gcc-8    | defconfig     =
-     | 1          =
-
-imx6q-var-dt6customboard | arm   | lab-baylibre | gcc-8    | multi_v7_defco=
-nfig | 2          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.17/plan/baseline/
+On 2/17/21 9:26 PM, Greg KH wrote:
+> A: http://en.wikipedia.org/wiki/Top_post
+> Q: Were do I find info about this thing called top-posting?
+> A: Because it messes up the order in which people normally read text.
+> Q: Why is top-posting such a bad thing?
+> A: Top-posting.
+> Q: What is the most annoying thing in e-mail?
+> 
+> A: No.
+> Q: Should I include quotations after my reply?
+> 
+> http://daringfireball.net/2007/07/on_top
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.17
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      13b6016e96f628ac1cfb3c0b342911fd91c9c005 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-bcm2837-rpi-3-b          | arm64 | lab-baylibre | gcc-8    | defconfig     =
-     | 1          =
+Sorry for the inconvenience. I reply in the topmost because I reply to
+the email of myself and want to discuss something overall, i.e. if this
+issue needs to be fixed in stable tree.
 
 
-  Details:     https://kernelci.org/test/plan/id/602d72cef2e6a2000eaddd0c
+> On Wed, Feb 17, 2021 at 09:12:38PM +0800, JeffleXu wrote:
+>> Hi all,
+>>
+>> Would you please evaluate if these should be fixed in stable tree, at
+>> least for the virtio-blk scenario [1] ?
+> 
+> What is "these"?
 
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-7/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+I think I have clarified in the previous mail [1]. And yes it was
+already one week ago and the context seems a little confusing here.
+Sorry for that. In short, the symlink file '/dev/disk/by-id/XXXX' can't
+be created for virtio-blk devices, which could be fixed by [2].
+
+> 
+>> [1] commit e982c4d0a29b1d61fbe7716a8dcf8984936d6730 ("virtio-blk:
+>> modernize sysfs attribute creation")
+> 
+> Do you want this backported?
+
+Yes, better to have it backported. I can maintain the fix as a private
+patch in my 4.19 repository. I request to backport it into 4.19 stable
+tree, bacause I think 4.19 stable tree may also suffers this issue.
 
 
+>  To where?  
 
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/602d72cef2e6a200=
-0eaddd0f
-        new failure (last pass: v5.10.16-105-g643709657afaa)
-        3 lines
+At least 4.19 stable tree, though all code previous 4.20 may also
+suffers, since this is fixed in 4.20 upstream.
 
-    2021-02-17 19:44:36.469000+00:00  Connected to bcm2837-rpi-3-b console =
-[channel connected] (~$quit to exit)
-    2021-02-17 19:44:36.470000+00:00  (user:khilman) is already connected
-    2021-02-17 19:44:52.430000+00:00  =00
-    2021-02-17 19:44:52.430000+00:00  =
 
-    2021-02-17 19:44:52.430000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
-2 -0800)
-    2021-02-17 19:44:52.431000+00:00  =
+> Why?
 
-    2021-02-17 19:44:52.431000+00:00  DRAM:  948 MiB
-    2021-02-17 19:44:52.448000+00:00  RPI 3 Model B (0xa02082)
-    2021-02-17 19:44:52.531000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
-0: 1
-    2021-02-17 19:44:52.563000+00:00  Loading Environment from FAT... *** W=
-arning - bad CRC, using default environment =
+Explained in [1].
 
-    ... (401 line(s) more)  =
 
- =
+> If so, where is the working backport that you have properly tested?
+
+I want to backport the upstream patch (commit fef912bf860e and
+e982c4d0a29b).
+
+Sasha ever picked up another patch ([3]) from the same upstream patch
+set [4], and manually reorganized a little. The reason is explained in [5].
+
+These two patches (commit fef912bf860e and e982c4d0a29b) could be
+directly applied to 4.19 stable tree. But to backport these two patches,
+like Sasha said in [5], we need to revert the previous patch that Sasha
+backported, and apply the upstream version.
+
+I'm not sure if I shall send the patch (since I'm not the author of the
+upstream patch), or the maintainer apply the patch directly.
 
 
 
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-imx6q-var-dt6customboard | arm   | lab-baylibre | gcc-8    | multi_v7_defco=
-nfig | 2          =
+[1] https://www.spinics.net/lists/stable/msg442203.html
+[2] commit e982c4d0a29b1d61fbe7716a8dcf8984936d6730 ("virtio-blk:
+modernize sysfs attribute creation")
+[3]
+https://patchwork.kernel.org/project/linux-block/patch/20180905070053.26239-5-hare@suse.de/
+[4]
+https://patchwork.kernel.org/project/linux-block/cover/20180905070053.26239-1-hare@suse.de/
+[5] https://www.spinics.net/lists/stable/msg442196.html
 
-
-  Details:     https://kernelci.org/test/plan/id/602d737a3c37c27fceaddda4
-
-  Results:     3 PASS, 2 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-var-dt6customboa=
-rd.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-var-dt6customboa=
-rd.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/602d737a3c37c27=
-fceaddda8
-        new failure (last pass: v5.10.16-17-g91ae446e84dab)
-        4 lines
-
-    2021-02-17 19:50:05.627000+00:00  kern  :alert : Unhandled fault: align=
-ment exception (0x001) at 0xcec60217
-    2021-02-17 19:50:05.628000+00:00  kern  :alert : pgd =3D (ptrval)
-    2021-02-17 19:50:05.628000+00:00  kern  :alert : [<8>[   45.832020] <LA=
-VA_SIGNAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASURE=
-MENT=3D4>
-    2021-02-17 19:50:05.629000+00:00  cec60217] *pgd=3D1ec1141e(bad)   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/602d737a3c37c27=
-fceaddda9
-        new failure (last pass: v5.10.16-17-g91ae446e84dab)
-        26 lines
-
-    2021-02-17 19:50:05.679000+00:00  kern  :emerg : Process kworker/1:1 (p=
-id: 53, stack limit =3D 0x(ptrval))
-    2021-02-17 19:50:05.680000+00:00  kern  :emerg : Stack: (0xc2459eb0 to<=
-8>[   45.878575] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail U=
-NITS=3Dlines MEASUREMENT=3D26>
-    2021-02-17 19:50:05.680000+00:00   0xc245a000)
-    2021-02-17 19:50:05.680000+00:00  kern  :emerg : 9ea0<8>[   45.889652] =
-<LAVA_SIGNAL_ENDRUN 0_dmesg 735588_1.5.2.4.1>
-    2021-02-17 19:50:05.681000+00:00  :                                    =
- 1e9b10fe 4306d536 ef86abe0 cec60217   =
-
- =20
+-- 
+Thanks,
+Jeffle
