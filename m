@@ -2,101 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D38A931EDF0
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 19:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5015431EDF1
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 19:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbhBRSEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 13:04:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55456 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234275AbhBRRZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 12:25:42 -0500
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55106C061574
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 09:25:02 -0800 (PST)
-Received: by mail-qt1-x82b.google.com with SMTP id h16so1917262qth.11
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 09:25:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=S2z0NS3DiwN3dZIAClIRvfeXsAO4LOYJ64TRe3C/7o0=;
-        b=fGyGuODawCP34Rupj8caQ3zNuAQl+o4GRLAy2GWjueyzza8Uf/LmKi8FuWrad4kwbK
-         3uYRicLrbmcxTjB9fqamZqtICHbE8f8GWteh3d4Pug0/+bI+TT/rPeJ59TO4wx8slR+L
-         aCBENovfDMCYkRGkLVHXDb+dKI9c2bXvCCUWWwk8xhTclTv5zXFFB0zjLLuzr0WrLDvr
-         zdhFYtzDZSDzQHCYYOyBMrUeW+mxaTtwaxO6Fzwo8haqy4p8XAdaJJtwi4guLhpYQWEL
-         JgwQx9Y55aOuBcPCwAC/Wb1RdahPvL0xEUw5OcI0PJKyo5S1JZXEpueWaa/MTNzUTdxP
-         XpbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=S2z0NS3DiwN3dZIAClIRvfeXsAO4LOYJ64TRe3C/7o0=;
-        b=XfiYdZ366u3pWLoF68m2t/Vf4EGIHkUOa2VT5HmfE57RPTYsqQOuq5Df4NtTiqhFwN
-         yMxcobOuo1m8IVQypTBAq/mMyIHwniuDFluZgd47RaoKphI6M2vnuIwkShSJ+NTFmYpq
-         4DNOTqYTpx8bNcQDt7WDXEZGsR8NbWYTlM91ZZwYkAZ98xSh/RNHYE4th914l9r1zWmy
-         HL7cOqgWIPiZwx5VWhXFx25auOJ3ZErpLPk47knhjJIHdWTSmc/BweifeiFnJVQcG01u
-         eZehMMRw1oq2ATDydAxmzrzaxT3cxhJnA5f4dpQcxktduavdL0WOYnzgY75/qchHnkfO
-         GeqQ==
-X-Gm-Message-State: AOAM531SD7a3+MvdtNRFuPMAhsfvlknJIc+j77aQx4sIWZONyYPRHDzZ
-        EreeUyBGU+lrA9VjEg9rvs5kXg==
-X-Google-Smtp-Source: ABdhPJy9BtEVZOCDpB5CUwEUohd34bx3D9rYmCmzj3soR5Ad2+A7KHFNOLU+Cth69XIxicP/Kv3OAQ==
-X-Received: by 2002:ac8:7b4b:: with SMTP id m11mr5287461qtu.208.1613669101624;
-        Thu, 18 Feb 2021 09:25:01 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
-        by smtp.gmail.com with ESMTPSA id n4sm4362113qke.30.2021.02.18.09.25.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Feb 2021 09:25:01 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1lCn2y-00B5ZE-I2; Thu, 18 Feb 2021 13:25:00 -0400
-Date:   Thu, 18 Feb 2021 13:25:00 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        id S231294AbhBRSEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 13:04:30 -0500
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:1455 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231254AbhBRR2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 12:28:54 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B602ea3a40006>; Thu, 18 Feb 2021 09:28:04 -0800
+Received: from [10.2.58.214] (172.20.145.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 18 Feb
+ 2021 17:27:59 +0000
+From:   Zi Yan <ziy@nvidia.com>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+CC:     Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Zi Yan <ziy@nvidia.com>, Davidlohr Bueso <dbueso@suse.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        Davidlohr Bueso <dbueso@suse.de>,
         "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Oscar Salvador <osalvador@suse.de>,
         Joao Martins <joao.m.martins@oracle.com>,
-        stable@vger.kernel.org
+        <stable@vger.kernel.org>
 Subject: Re: [PATCH 1/2] hugetlb: fix update_and_free_page contig page struct
  assumption
-Message-ID: <20210218172500.GA4718@ziepe.ca>
+Date:   Thu, 18 Feb 2021 12:27:58 -0500
+X-Mailer: MailMate (1.14r5757)
+Message-ID: <19612088-4856-4BE9-A731-BB903511F352@nvidia.com>
+In-Reply-To: <20210218172500.GA4718@ziepe.ca>
 References: <20210217184926.33567-1-mike.kravetz@oracle.com>
  <20210217110252.185c7f5cd5a87c3f7b0c0144@linux-foundation.org>
  <20210218144554.GS2858050@casper.infradead.org>
+ <20210218172500.GA4718@ziepe.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210218144554.GS2858050@casper.infradead.org>
+Content-Type: multipart/signed;
+        boundary="=_MailMate_558FA73B-66C7-4EF3-8577-3AD3907969DF_=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
+X-Originating-IP: [172.20.145.6]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1613669284; bh=9i8X4BkS+6JMlt9uLwPOgCZEdNoO9x5NgxB0zDcM9zU=;
+        h=From:To:CC:Subject:Date:X-Mailer:Message-ID:In-Reply-To:
+         References:MIME-Version:Content-Type:X-Originating-IP:
+         X-ClientProxiedBy;
+        b=OdmCK3vPYH0iZUNtOEgsO9l1n48Eh99gQAK6DBapsxOS2PCsZNKmsmbicg7JXpMJg
+         eB6zvlgh1jHO0etZ9npkgt5MX2ooUL7+FPl9mBYwD0T1QafkyWzi66oiSfnNqDNUI8
+         elekzQ80xiRQHhImZHr9Khol9CQV1iuvF2xZ41Zo6muOl5p5lO8gQLznIsrgB8zLTh
+         c/ZUJh3eCH8OvwiIr1IKvkT7uEc1IrEWWVT7Y2oxr9QGZhvP6Gfs3He6zRkcX4KmNj
+         0E14XYgIQwU4ZUaMaJ4dvI7nmVjrUu6aIP4VPFFXydATrnXdYsO7UTBPKtedsbKlcZ
+         RrUvobJ2HYs/Q==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 18, 2021 at 02:45:54PM +0000, Matthew Wilcox wrote:
-> On Wed, Feb 17, 2021 at 11:02:52AM -0800, Andrew Morton wrote:
-> > On Wed, 17 Feb 2021 10:49:25 -0800 Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> > > page structs are not guaranteed to be contiguous for gigantic pages.  The
-> >
-> > June 2014.  That's a long lurk time for a bug.  I wonder if some later
-> > commit revealed it.
-> 
-> I would suggest that gigantic pages have not seen much use.  Certainly
-> performance with Intel CPUs on benchmarks that I've been involved with
-> showed lower performance with 1GB pages than with 2MB pages until quite
-> recently.
+--=_MailMate_558FA73B-66C7-4EF3-8577-3AD3907969DF_=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I suggested in another thread that maybe it is time to consider
-dropping this "feature"
+On 18 Feb 2021, at 12:25, Jason Gunthorpe wrote:
 
-If it has been slightly broken for 7 years it seems a good bet it
-isn't actually being used.
+> On Thu, Feb 18, 2021 at 02:45:54PM +0000, Matthew Wilcox wrote:
+>> On Wed, Feb 17, 2021 at 11:02:52AM -0800, Andrew Morton wrote:
+>>> On Wed, 17 Feb 2021 10:49:25 -0800 Mike Kravetz <mike.kravetz@oracle.=
+com> wrote:
+>>>> page structs are not guaranteed to be contiguous for gigantic pages.=
+  The
+>>>
+>>> June 2014.  That's a long lurk time for a bug.  I wonder if some late=
+r
+>>> commit revealed it.
+>>
+>> I would suggest that gigantic pages have not seen much use.  Certainly=
 
-The cost to fix GUP to be compatible with this will hurt normal
-GUP performance - and again, that nobody has hit this bug in GUP
-further suggests the feature isn't used..
+>> performance with Intel CPUs on benchmarks that I've been involved with=
 
-Jason 
+>> showed lower performance with 1GB pages than with 2MB pages until quit=
+e
+>> recently.
+>
+> I suggested in another thread that maybe it is time to consider
+> dropping this "feature"
+
+You mean dropping gigantic page support in hugetlb?
+
+>
+> If it has been slightly broken for 7 years it seems a good bet it
+> isn't actually being used.
+>
+> The cost to fix GUP to be compatible with this will hurt normal
+> GUP performance - and again, that nobody has hit this bug in GUP
+> further suggests the feature isn't used..
+
+A easy fix might be to make gigantic hugetlb page depends on
+CONFIG_SPARSEMEM_VMEMMAP, which guarantee all struct pages are contiguous=
+=2E
+
+
+=E2=80=94
+Best Regards,
+Yan Zi
+
+--=_MailMate_558FA73B-66C7-4EF3-8577-3AD3907969DF_=
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQJDBAEBCgAtFiEEh7yFAW3gwjwQ4C9anbJR82th+ooFAmAuo54PHHppeUBudmlk
+aWEuY29tAAoJEJ2yUfNrYfqK/24QALC+b77e4YBi0DHXfoLMxqHcTGx4G5nnkWoH
+jke0UQcm48KZ1zsNRUGaHLo7USjCjbwysuQEqfwOciYE5DwH5bHANtzqdu+MLd83
+uilXzQzBuSG1ePUnFFKJSoEV8j8JQDaz+7wFpvn0ZlHgi7HSVHgMup+/s+uGxluO
+5FiiYcwRuBjY3wApNCTc+UT908QwAGwKdY5RIDM6CWrVkYIsq7nobQA9F8JIeQ38
+bSsdz043bLAMdd5Z/XZoNEBOhk++XGuzs+2C1WY0ptC0vgH/dCE0Vvoo8KV92u3O
+MqKOBx518zeWjgRfvA7NuCn63wqHvhMHwSLiosg5Wa9dJ9Na70U0hX9065WvqU72
+294yb7wv6GqidGNl0T97hSlagtmBER1zIYm3nZxsKNL9qCnHljTYvyQv+NFYuZcW
+Y1tN5INvJwm5qrVju2YEGvC+8lo9RWKUlf8w6mpY55m6Ru/ERRmj6DesPNRr3pSY
+ajbRJmCxaOZg3f3Vhy8l4E0WpJpWHJOH8LCvQ2EAFwhDiELmYB3ZXIqje2Cvzikn
+MsD1fCzPKFb4UdcvFLhSt2ry8FboJ/LxLa2nXKWBFsONJe67yEa6TzZdkuBELcMN
+pFfaOKb64PlNcarGmpTBkxolKP6/W+1oiZFNRnJoPvln+UArPFL0uu0NqK5B03Lc
+aGUrtfH4
+=mXEE
+-----END PGP SIGNATURE-----
+
+--=_MailMate_558FA73B-66C7-4EF3-8577-3AD3907969DF_=--
