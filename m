@@ -2,127 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C876931E44F
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 03:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE5A31E680
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 07:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229745AbhBRCYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Feb 2021 21:24:13 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:55271 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229553AbhBRCYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Feb 2021 21:24:12 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UOreQUc_1613615007;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UOreQUc_1613615007)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 18 Feb 2021 10:23:28 +0800
-Subject: Re: [PATCH 1/3] virtio-blk: close udev startup race condition as
- default groups
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        joseph.qi@linux.alibaba.com, caspar@linux.alibaba.com,
-        Hannes Reinecke <hare@suse.de>
-References: <20210207114656.32141-1-jefflexu@linux.alibaba.com>
- <20210207114656.32141-2-jefflexu@linux.alibaba.com>
- <YB/Vgb4y4Dts0Y2G@kroah.com>
- <f466aacc-f9ca-49ca-0da8-16dc045c9000@linux.alibaba.com>
- <6046ceef-061c-d93f-b6a1-2ce2483bec3c@linux.alibaba.com>
- <YC0ZjUYhSCawoJ7N@kroah.com>
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <e436dc6e-c265-04aa-b560-84370a4c7cb4@linux.alibaba.com>
-Date:   Thu, 18 Feb 2021 10:23:27 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
+        id S230264AbhBRGtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 01:49:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43215 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229765AbhBRGo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 01:44:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613630581;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3/r6ZrTAwzUnNQ6cScq8XvsWgkFZQZGxH65h7veBqKs=;
+        b=X4nnZ4WX+bfoPZ/tFB2SponqtzaN3V3QSvYOXkPr/aXaM+AoRWDRb5zHC+kFs1p3bvj7ce
+        CsBevJXE8PtTlKDyvL17pXRkwhmoW+qO7vo2Wu3jRIxc6pvo5HnFkM3cGvhI3FZ2ykw4pX
+        vEGuV3sWgyH07CttZiLV6UcaOq6tMKI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-388-iyA5BtJkP3K3KF_hZhQTIw-1; Thu, 18 Feb 2021 01:39:23 -0500
+X-MC-Unique: iyA5BtJkP3K3KF_hZhQTIw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 252F180402E;
+        Thu, 18 Feb 2021 06:39:22 +0000 (UTC)
+Received: from [10.72.13.28] (ovpn-13-28.pek2.redhat.com [10.72.13.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 34F6D177F8;
+        Thu, 18 Feb 2021 06:39:16 +0000 (UTC)
+Subject: Re: [PATCH for 5.10] vdpa_sim: fix param validation in
+ vdpasim_get_config()
+To:     Stefano Garzarella <sgarzare@redhat.com>, stable@vger.kernel.org
+Cc:     virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+References: <20210211162519.215418-1-sgarzare@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <d5f8c1b7-9506-6a84-dbba-53bf21897e5f@redhat.com>
+Date:   Thu, 18 Feb 2021 14:39:15 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <YC0ZjUYhSCawoJ7N@kroah.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20210211162519.215418-1-sgarzare@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-
-On 2/17/21 9:26 PM, Greg KH wrote:
-> A: http://en.wikipedia.org/wiki/Top_post
-> Q: Were do I find info about this thing called top-posting?
-> A: Because it messes up the order in which people normally read text.
-> Q: Why is top-posting such a bad thing?
-> A: Top-posting.
-> Q: What is the most annoying thing in e-mail?
-> 
-> A: No.
-> Q: Should I include quotations after my reply?
-> 
-> http://daringfireball.net/2007/07/on_top
-
-Sorry for the inconvenience. I reply in the topmost because I reply to
-the email of myself and want to discuss something overall, i.e. if this
-issue needs to be fixed in stable tree.
-
-
-> On Wed, Feb 17, 2021 at 09:12:38PM +0800, JeffleXu wrote:
->> Hi all,
->>
->> Would you please evaluate if these should be fixed in stable tree, at
->> least for the virtio-blk scenario [1] ?
-> 
-> What is "these"?
-
-I think I have clarified in the previous mail [1]. And yes it was
-already one week ago and the context seems a little confusing here.
-Sorry for that. In short, the symlink file '/dev/disk/by-id/XXXX' can't
-be created for virtio-blk devices, which could be fixed by [2].
-
-> 
->> [1] commit e982c4d0a29b1d61fbe7716a8dcf8984936d6730 ("virtio-blk:
->> modernize sysfs attribute creation")
-> 
-> Do you want this backported?
-
-Yes, better to have it backported. I can maintain the fix as a private
-patch in my 4.19 repository. I request to backport it into 4.19 stable
-tree, bacause I think 4.19 stable tree may also suffers this issue.
+On 2021/2/12 上午12:25, Stefano Garzarella wrote:
+> Commit 65b709586e222fa6ffd4166ac7fdb5d5dad113ee upstream.
+>
+> Before this patch, if 'offset + len' was equal to
+> sizeof(struct virtio_net_config), the entire buffer wasn't filled,
+> returning incorrect values to the caller.
+>
+> Since 'vdpasim->config' type is 'struct virtio_net_config', we can
+> safely copy its content under this condition.
+>
+> Commit 65b709586e22 ("vdpa_sim: add get_config callback in
+> vdpasim_dev_attr") unintentionally solved it upstream while
+> refactoring vdpa_sim.c to support multiple devices. But we don't want
+> to backport it to stable branches as it contains many changes.
+>
+> Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
+> Cc: <stable@vger.kernel.org> # 5.10.x
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> index 6a90fdb9cbfc..8ca178d7b02f 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> @@ -572,7 +572,7 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
+>   {
+>   	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>   
+> -	if (offset + len < sizeof(struct virtio_net_config))
+> +	if (offset + len <= sizeof(struct virtio_net_config))
+>   		memcpy(buf, (u8 *)&vdpasim->config + offset, len);
+>   }
+>   
 
 
->  To where?  
-
-At least 4.19 stable tree, though all code previous 4.20 may also
-suffers, since this is fixed in 4.20 upstream.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 
-> Why?
-
-Explained in [1].
-
-
-> If so, where is the working backport that you have properly tested?
-
-I want to backport the upstream patch (commit fef912bf860e and
-e982c4d0a29b).
-
-Sasha ever picked up another patch ([3]) from the same upstream patch
-set [4], and manually reorganized a little. The reason is explained in [5].
-
-These two patches (commit fef912bf860e and e982c4d0a29b) could be
-directly applied to 4.19 stable tree. But to backport these two patches,
-like Sasha said in [5], we need to revert the previous patch that Sasha
-backported, and apply the upstream version.
-
-I'm not sure if I shall send the patch (since I'm not the author of the
-upstream patch), or the maintainer apply the patch directly.
-
-
-
-[1] https://www.spinics.net/lists/stable/msg442203.html
-[2] commit e982c4d0a29b1d61fbe7716a8dcf8984936d6730 ("virtio-blk:
-modernize sysfs attribute creation")
-[3]
-https://patchwork.kernel.org/project/linux-block/patch/20180905070053.26239-5-hare@suse.de/
-[4]
-https://patchwork.kernel.org/project/linux-block/cover/20180905070053.26239-1-hare@suse.de/
-[5] https://www.spinics.net/lists/stable/msg442196.html
-
--- 
-Thanks,
-Jeffle
