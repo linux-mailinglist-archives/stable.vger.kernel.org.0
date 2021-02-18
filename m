@@ -2,83 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B0331F118
-	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 21:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8CCE31F12B
+	for <lists+stable@lfdr.de>; Thu, 18 Feb 2021 21:41:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229763AbhBRUex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Feb 2021 15:34:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbhBRUeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 15:34:19 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7712CC061756
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 12:33:37 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id k22so1896305pll.6
-        for <stable@vger.kernel.org>; Thu, 18 Feb 2021 12:33:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=6GkVg6oPaCbOjN9yHtUy6WgUiMIl+iIxU5q/YySdGqo=;
-        b=HWrUIFsIBt63vXlTx9Fi+lqtHfKHvSqunnCmQIjmO0fDJL7GSWvmZlm0BRMwCnJPc3
-         gbo6xFLqUPzMMWqkoks6inG87DuOSa9iGf15R8guNkFY5qwVM3JI1b2FqVFPb9ve5TWq
-         bJnAFpEzsyLjDChFEZHC8GccBzFB8VDJJpf+s=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=6GkVg6oPaCbOjN9yHtUy6WgUiMIl+iIxU5q/YySdGqo=;
-        b=CLa0EAu+A5KuymGdp2WL7V9DnAQxsPtZgJlYZLFntUtT9IhRzjrcrhsSW5FwRr6i5K
-         mbHfQnh6hTlO2GHyFHC+HS3O1SiPQZFtYkipZMxkovy3ruVT3Ajy7z6DBN8rp3IWM1jr
-         Z58E4JSM0pXDKuT9fLCTdDwtCDypE0qoHJQygpCNQ8+5vygwWNDNP7gvBTT3sa9DCBSg
-         JGftYSMMeG9mtGso4xQ18be0G+RpcIF/oX7CqEs/aQ+2pUVbQWlRd6V8ur+RRGfQXh16
-         z7JbXDup7dKi8AsNTimEikPo0CCHwiWiEVz7GM18cQVhhcGNpjZ/eh0N9HOFJjNd3pkm
-         95jQ==
-X-Gm-Message-State: AOAM531CepXApsRXY5qK0TWEtvxJHy8P5YxHJ+l2BSA7lb36BxL7gjyW
-        u7swnzjcZvLsgYU9L9ITxCKj8g==
-X-Google-Smtp-Source: ABdhPJxslS5tP12p8hBRmWryZqdHGJ2VYdgG9pkwL3XgJ6NpQfX/68tVqTkWrQNGhYUSC+bBbwvZng==
-X-Received: by 2002:a17:90b:806:: with SMTP id bk6mr5614183pjb.16.1613680416959;
-        Thu, 18 Feb 2021 12:33:36 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id x20sm6993759pfi.115.2021.02.18.12.33.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Feb 2021 12:33:36 -0800 (PST)
-From:   Kees Cook <keescook@chromium.org>
-To:     Tony Luck <tony.luck@intel.com>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Jiri Bohac <jbohac@suse.cz>, Colin Cross <ccross@android.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Matteo Croce <mcroce@linux.microsoft.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: pstore: fix compression
-Date:   Thu, 18 Feb 2021 12:30:03 -0800
-Message-Id: <161368019685.305632.7880211837303066992.b4-ty@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210218111547.johvp5klpv3xrpnn@dwarf.suse.cz>
-References: <20210218111547.johvp5klpv3xrpnn@dwarf.suse.cz>
+        id S230380AbhBRUlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Feb 2021 15:41:46 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:54028 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230212AbhBRUkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Feb 2021 15:40:23 -0500
+Date:   Thu, 18 Feb 2021 20:39:40 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1613680781;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=f7uhS9/H1Kq5DnXviFTbVDNSgBtybxd6It87sw9+bfE=;
+        b=lnrUuAIphfQKTIrM+BhIJ9iuOYUm6HANiu3p6l2/eyMEsAt+q4KmCHRL8RabIVyJ1IYg1r
+        Mw8Oi9o0rdow3pw5E168uOlLUC/gV9xU8BzPE4ZAgc1f+lM9GStME947mbvAvDEgDyiy4r
+        TPe2s9YbpL5piidrqNtrbZgCeGjXs9nJpwUSvpFoCNtKyTNTTLDkTGEAGnVpGCNfC7PKYr
+        IhW63x5/g+MlTk2VoR0sY95+4WsPrqRMEer0BNeyNKJFF3/yRFSrr3la7cVoSZie5aPDfs
+        yCktITi8QiQKPzz6oappvSVk5isdzyUR6uoY+y8TUsyq5XtWR59yTreIYEnzJg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1613680781;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=f7uhS9/H1Kq5DnXviFTbVDNSgBtybxd6It87sw9+bfE=;
+        b=86iYd0wYmYZQq/lVoHACrgJaSwQZXQAm6CTpvqUY3MNilkxzIdEqgnePX7xbRGn/MQhYNq
+        Rcu1Tq+1lh1G9lAw==
+From:   "thermal-bot for Viresh Kumar" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-pm@vger.kernel.org
+To:     linux-pm@vger.kernel.org
+Subject: [thermal: thermal/next] thermal: cpufreq_cooling:
+ freq_qos_update_request() returns < 0 on error
+Cc:     "v5.7+" <stable@vger.kernel.org>,
+        Thara Gopinath <thara.gopinath@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        rui.zhang@intel.com, amitk@kernel.org
+In-Reply-To: =?utf-8?q?=3Cb2b7e84944937390256669df5a48ce5abba0c1ef=2E16135?=
+ =?utf-8?q?40713=2Egit=2Eviresh=2Ekumar=40linaro=2Eorg=3E?=
+References: =?utf-8?q?=3Cb2b7e84944937390256669df5a48ce5abba0c1ef=2E161354?=
+ =?utf-8?q?0713=2Egit=2Eviresh=2Ekumar=40linaro=2Eorg=3E?=
 MIME-Version: 1.0
+Message-ID: <161368078026.20312.13727207651031195020.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Feb 2021 12:15:47 +0100, Jiri Bohac wrote:
-> pstore_compress() and decompress_record() use a mistyped config option
-> name ("PSTORE_COMPRESSION" instead of "PSTORE_COMPRESS").
-> As a result compression and decompressionm of pstore records is always
-> disabled.
-> 
-> Use the correct config option name.
+The following commit has been merged into the thermal/next branch of thermal:
 
-Eek; thanks for the catch!
+Commit-ID:     a51afb13311cd85b2f638c691b2734622277d8f5
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git//a51afb13311cd85b2f638c691b2734622277d8f5
+Author:        Viresh Kumar <viresh.kumar@linaro.org>
+AuthorDate:    Wed, 17 Feb 2021 11:18:58 +05:30
+Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
+CommitterDate: Wed, 17 Feb 2021 18:53:19 +01:00
 
-Applied to for-next/pstore, thanks!
+thermal: cpufreq_cooling: freq_qos_update_request() returns < 0 on error
 
-[1/1] pstore: Fix typo in compression option name
-      https://git.kernel.org/kees/c/19d8e9149c27
+freq_qos_update_request() returns 1 if the effective constraint value
+has changed, 0 if the effective constraint value has not changed, or a
+negative error code on failures.
 
--- 
-Kees Cook
+The frequency constraints for CPUs can be set by different parts of the
+kernel. If the maximum frequency constraint set by other parts of the
+kernel are set at a lower value than the one corresponding to cooling
+state 0, then we will never be able to cool down the system as
+freq_qos_update_request() will keep on returning 0 and we will skip
+updating cpufreq_state and thermal pressure.
 
+Fix that by doing the updates even in the case where
+freq_qos_update_request() returns 0, as we have effectively set the
+constraint to a new value even if the consolidated value of the
+actual constraint is unchanged because of external factors.
+
+Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
+Reported-by: Thara Gopinath <thara.gopinath@linaro.org>
+Fixes: f12e4f66ab6a ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Tested-by: Lukasz Luba <lukasz.luba@arm.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Thara Gopinath<thara.gopinath@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/b2b7e84944937390256669df5a48ce5abba0c1ef.1613540713.git.viresh.kumar@linaro.org
+---
+ drivers/thermal/cpufreq_cooling.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index 612f063..ddc166e 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -441,7 +441,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	frequency = get_state_freq(cpufreq_cdev, state);
+ 
+ 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
+-	if (ret > 0) {
++	if (ret >= 0) {
+ 		cpufreq_cdev->cpufreq_state = state;
+ 		cpus = cpufreq_cdev->policy->cpus;
+ 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
