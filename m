@@ -2,63 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 223AD31FB4B
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 15:50:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C4531FC37
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 16:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbhBSOu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 09:50:28 -0500
-Received: from smtp-out.xnet.cz ([178.217.244.18]:31330 "EHLO smtp-out.xnet.cz"
+        id S229842AbhBSPl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 10:41:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47414 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229925AbhBSOt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 09:49:57 -0500
-Received: from meh.true.cz (meh.true.cz [108.61.167.218])
-        (Authenticated sender: petr@true.cz)
-        by smtp-out.xnet.cz (Postfix) with ESMTPSA id 7F09A18404;
-        Fri, 19 Feb 2021 15:49:08 +0100 (CET)
-Received: by meh.true.cz (OpenSMTPD) with ESMTP id 3ba7593b;
-        Fri, 19 Feb 2021 15:48:50 +0100 (CET)
-Date:   Fri, 19 Feb 2021 15:49:06 +0100
-From:   Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iio: chemical: scd30: fix Oops due to missing parent
- device
-Message-ID: <20210219144906.GA28573@meh.true.cz>
-Reply-To: Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
-References: <20210208223947.32344-1-ynezz@true.cz>
- <20210212191219.7b16abbb@archlinux>
+        id S229681AbhBSPl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Feb 2021 10:41:26 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1613749238; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=MHxag6mUxa0dootKy2U+lJVR2k8UiaKbpKfVyKM/EZ4=;
+        b=jjsdawg1KZYf+nItuzbxyqaXeDKHiLv6YoeaErBu4tJer4zXSytLV7xk92MixdQUnvPRED
+        iXUz6DrGfs47sGkqcF453+W0zBJW6WReMsknyI3WKg9iAusmhGukYAazPdCEFJ6k8mopm3
+        ZGwTClr2lapCAwa2bLNQ99xzaXwou3k=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 17FFFAED2;
+        Fri, 19 Feb 2021 15:40:38 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH v3 0/8] xen/events: bug fixes and some diagnostic aids
+Date:   Fri, 19 Feb 2021 16:40:22 +0100
+Message-Id: <20210219154030.10892-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210212191219.7b16abbb@archlinux>
-X-PGP-Key: https://gist.githubusercontent.com/ynezz/477f6d7a1623a591b0806699f9fc8a27/raw/a0878b8ed17e56f36ebf9e06a6b888a2cd66281b/pgp-key.pub
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jonathan Cameron <jic23@kernel.org> [2021-02-12 19:12:19]:
+The first four patches are fixes for XSA-332. The avoid WARN splats
+and a performance issue with interdomain events.
 
-Hi Jonathan,
+Patches 5 and 6 are some additions to event handling in order to add
+some per pv-device statistics to sysfs and the ability to have a per
+backend device spurious event delay control.
 
-> >  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.96+ #473
-> 
-> So, we moved this into the core a while back (to avoid exactly this sort of issue).
-> That change predates this introduction of this driver as it went in
-> in v5.8
+Patches 7 and 8 are minor fixes I had lying around.
 
-sorry for the noise, I've missed that commit 8525df47b3d1 ("iio: core:
-fix/re-introduce back parent assignment"), thank you for the hint.
+Juergen Gross (8):
+  xen/events: reset affinity of 2-level event when tearing it down
+  xen/events: don't unmask an event channel when an eoi is pending
+  xen/events: avoid handling the same event on two cpus at the same time
+  xen/netback: fix spurious event detection for common event case
+  xen/events: link interdomain events to associated xenbus device
+  xen/events: add per-xenbus device event statistics and settings
+  xen/evtchn: use smp barriers for user event ring
+  xen/evtchn: use READ/WRITE_ONCE() for accessing ring indices
 
-> So I think you've hit an issue with a backport here to an earlier kernel?
+ .../ABI/testing/sysfs-devices-xenbus          |  41 ++++
+ drivers/block/xen-blkback/xenbus.c            |   2 +-
+ drivers/net/xen-netback/interface.c           |  24 ++-
+ drivers/xen/events/events_2l.c                |  22 +-
+ drivers/xen/events/events_base.c              | 199 +++++++++++++-----
+ drivers/xen/events/events_fifo.c              |   7 -
+ drivers/xen/events/events_internal.h          |  14 +-
+ drivers/xen/evtchn.c                          |  29 ++-
+ drivers/xen/pvcalls-back.c                    |   4 +-
+ drivers/xen/xen-pciback/xenbus.c              |   2 +-
+ drivers/xen/xen-scsiback.c                    |   2 +-
+ drivers/xen/xenbus/xenbus_probe.c             |  66 ++++++
+ include/xen/events.h                          |   7 +-
+ include/xen/xenbus.h                          |   7 +
+ 14 files changed, 327 insertions(+), 99 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-devices-xenbus
 
-Indeed, I've backported it to 5.4.96 as you can see in the dmesg output above.
-I'll try to reproduce it again on 5.10 in the upcoming days.
+-- 
+2.26.2
 
-Cheers,
-
-Petr
