@@ -2,94 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 402F631FC31
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 16:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8DD31FC6E
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 16:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbhBSPl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 10:41:27 -0500
-Received: from mx2.suse.de ([195.135.220.15]:47492 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229811AbhBSPl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 10:41:26 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1613749238; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QmVbRiyGhWjgyRhmW9maPS5XeYQ8D0P7LNo1+euH3hI=;
-        b=kUPpmw0yKQA70gsRODhJFsj/8eUsG8GG0hrbpqX7y81r0C26/2h9EUbs0xUKId7cwep9Am
-        gireTmt9iiSmUipV/+ZpaGWiJ2siBWquCtwD2sAbj6VLLHfWhdZl4VbbcwKpZAGnf74FYh
-        QpyLJ4Yxuslqb5hRXglPLi6uk8bEdGY=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id C5B9AB10B;
-        Fri, 19 Feb 2021 15:40:38 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH v3 4/8] xen/netback: fix spurious event detection for common event case
-Date:   Fri, 19 Feb 2021 16:40:26 +0100
-Message-Id: <20210219154030.10892-5-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210219154030.10892-1-jgross@suse.com>
-References: <20210219154030.10892-1-jgross@suse.com>
+        id S229535AbhBSPyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 10:54:12 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:55873 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S229524AbhBSPyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Feb 2021 10:54:11 -0500
+Received: (qmail 1112983 invoked by uid 1000); 19 Feb 2021 10:53:28 -0500
+Date:   Fri, 19 Feb 2021 10:53:28 -0500
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+        airlied@linux.ie, maarten.lankhorst@linux.intel.com,
+        mripard@kernel.org, sumit.semwal@linaro.org,
+        gregkh@linuxfoundation.org, dri-devel@lists.freedesktop.org,
+        noralf@tronnes.org, Christoph Hellwig <hch@lst.de>,
+        Johan Hovold <johan@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/prime: Only call dma_map_sgtable() for devices with
+ DMA support
+Message-ID: <20210219155328.GA1111829@rowland.harvard.edu>
+References: <20210219134014.7775-1-tzimmermann@suse.de>
+ <02a45c11-fc73-1e5a-3839-30b080950af8@amd.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <02a45c11-fc73-1e5a-3839-30b080950af8@amd.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case of a common event for rx and tx queue the event should be
-regarded to be spurious if no rx and no tx requests are pending.
+On Fri, Feb 19, 2021 at 02:45:54PM +0100, Christian König wrote:
+> Well as far as I can see this is a relative clear NAK.
+> 
+> When a device can't do DMA and has no DMA mask then why it is requesting an
+> sg-table in the first place?
 
-Unfortunately the condition for testing that is wrong causing to
-decide a event being spurious if no rx OR no tx requests are
-pending.
+This may not be important for your discussion, but I'd like to give an 
+answer to the question -- at least, for the case of USB.
 
-Fix that plus using local variables for rx/tx pending indicators in
-order to split function calls and if condition.
+A USB device cannot do DMA and has no DMA mask.  Nevertheless, if you 
+want to send large amounts of bulk data to/from a USB device then using 
+an SG table is often a good way to do it.  The reason is simple: All 
+communication with a USB device has to go through a USB host controller, 
+and many (though not all) host controllers _can_ do DMA and _do_ have a 
+DMA mask.
 
-Cc: stable@vger.kernel.org
-Fixes: 23025393dbeb3b ("xen/netback: use lateeoi irq binding")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Reviewed-by: Wei Liu <wl@xen.org>
----
-V2:
-- new patch, fixing FreeBSD performance issue
----
- drivers/net/xen-netback/interface.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+The USB mass-storage and uas drivers in particular make heavy use of 
+this mechanism.
 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index acb786d8b1d8..e02a4fbb74de 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -162,13 +162,15 @@ irqreturn_t xenvif_interrupt(int irq, void *dev_id)
- {
- 	struct xenvif_queue *queue = dev_id;
- 	int old;
-+	bool has_rx, has_tx;
- 
- 	old = atomic_fetch_or(NETBK_COMMON_EOI, &queue->eoi_pending);
- 	WARN(old, "Interrupt while EOI pending\n");
- 
--	/* Use bitwise or as we need to call both functions. */
--	if ((!xenvif_handle_tx_interrupt(queue) |
--	     !xenvif_handle_rx_interrupt(queue))) {
-+	has_tx = xenvif_handle_tx_interrupt(queue);
-+	has_rx = xenvif_handle_rx_interrupt(queue);
-+
-+	if (!has_rx && !has_tx) {
- 		atomic_andnot(NETBK_COMMON_EOI, &queue->eoi_pending);
- 		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
- 	}
--- 
-2.26.2
-
+Alan Stern
