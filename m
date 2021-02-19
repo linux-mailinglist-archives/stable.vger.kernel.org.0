@@ -2,86 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C2831FE7B
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 19:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B39731FE9D
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 19:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229745AbhBSSC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 13:02:56 -0500
-Received: from mx2.suse.de ([195.135.220.15]:33552 "EHLO mx2.suse.de"
+        id S229689AbhBSSNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 13:13:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229743AbhBSSCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 13:02:55 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1613757734; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=aAcpCEvg+ZxJ5mjiDa3qT1YuqtZKVdyyU2KDk5CdNVg=;
-        b=oybHGj61U50PAluuhUb5zWlfiaO3yLjshX0sw/51ZI1fWdOod/pRn0JkA1wS3ROIxkKaMu
-        gvSyC77G8gRQA5eNwCKLrI8wObg1hchKCFBAUKUDfei0+amkZpxWRhg99kHic+CCAn5GT5
-        enuEWlYjtPA8L8D467WHS9HO/Z5/0MA=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id CBFBCABAE;
-        Fri, 19 Feb 2021 18:02:14 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 2961DDA6FC; Fri, 19 Feb 2021 19:00:17 +0100 (CET)
-From:   David Sterba <dsterba@suse.com>
-To:     stable@vger.kernel.org
-Cc:     wangyugui@e16-tech.com, David Sterba <dsterba@suse.cz>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH] btrfs: fix backport of 2175bf57dc952 in 5.10.13
-Date:   Fri, 19 Feb 2021 19:00:16 +0100
-Message-Id: <20210219180016.4759-1-dsterba@suse.com>
-X-Mailer: git-send-email 2.29.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S229658AbhBSSNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Feb 2021 13:13:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDBC364E5F;
+        Fri, 19 Feb 2021 18:13:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1613758381;
+        bh=KXbqB0AafQi08sFrypSSuGtu3K2of498qAYJkDSkMHY=;
+        h=Date:From:To:Subject:From;
+        b=0jsQnKqXPTOxGgdBb9Lm56g9cStkXqMhfa8zr21BiE/XonHCs2iAj9UXIirIgKudb
+         lwPZpU/SVeZLwr+urg4m1JLBm1GZTY/2J1MTk4aB9rpNJ/GlZTVTIwbK5CjBWupzgW
+         46sCqndFeXMRFRySIZZNnr0DQuyqg15M9KGX9BAo=
+Date:   Fri, 19 Feb 2021 10:13:00 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, ying.huang@intel.com, tobin@kernel.org,
+        stable@vger.kernel.org, rientjes@google.com, osalvador@suse.de,
+        dwagner@suse.de, dan.j.williams@intel.com, cl@linux.com,
+        cai@lca.pw, ben.widawsky@intel.com, alex.shi@linux.alibaba.com,
+        akpm@linux-foundation.org, dave.hansen@linux.intel.com
+Subject:  + mm-vmscan-restore-zone_reclaim_mode-abi.patch added to
+ -mm tree
+Message-ID: <20210219181300.JjFg6%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.cz>
 
-There's a mistake in backport of upstream commit 2175bf57dc95 ("btrfs:
-fix possible free space tree corruption with online conversion") as
-5.10.13 commit 2175bf57dc95.
+The patch titled
+     Subject: mm/vmscan: restore zone_reclaim_mode ABI
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-restore-zone_reclaim_mode-abi.patch
 
-The enum value BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED has been added to the
-wrong enum set, colliding with value of BTRFS_FS_QUOTA_ENABLE. This
-could cause problems during the tree conversion, where the quotas
-wouldn't be set up properly but the related code executed anyway due to
-the bit set.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-restore-zone_reclaim_mode-abi.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-restore-zone_reclaim_mode-abi.patch
 
-Link: https://lore.kernel.org/linux-btrfs/20210219111741.95DD.409509F4@e16-tech.com
-Reported-by: Wang Yugui <wangyugui@e16-tech.com>
-CC: stable@vger.kernel.org # 5.10.13+
-Signed-off-by: David Sterba <dsterba@suse.com>
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Dave Hansen <dave.hansen@linux.intel.com>
+Subject: mm/vmscan: restore zone_reclaim_mode ABI
+
+I went to go add a new RECLAIM_* mode for the zone_reclaim_mode sysctl. 
+Like a good kernel developer, I also went to go update the documentation. 
+I noticed that the bits in the documentation didn't match the bits in the
+#defines.
+
+The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is, however
+implicitly checked when checking 'node_reclaim_mode==0'.  The RECLAIM_ZONE
+#define was removed in a cleanup.  That, by itself is fine.
+
+But, when the bit was removed (bit 0) the _other_ bit locations also got
+changed.  That's not OK because the bit values are documented to mean one
+specific thing.  Users surely do not expect the meaning to change from
+kernel to kernel.
+
+The end result is that if someone had a script that did:
+
+	sysctl vm.zone_reclaim_mode=1
+
+it would have gone from enabling node reclaim for clean unmapped pages to
+writing out pages during node reclaim after the commit in question. 
+That's not great.
+
+Put the bits back the way they were and add a comment so something like
+this is a bit harder to do again.  Update the documentation to make it
+clear that the first bit is ignored.
+
+Link: https://lkml.kernel.org/r/20210219172555.FF0CDF23@viggo.jf.intel.com
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Fixes: 648b5cf368e0 ("mm/vmscan: remove unused RECLAIM_OFF/RECLAIM_ZONE")
+Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Christoph Lameter <cl@linux.com>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: "Tobin C. Harding" <tobin@kernel.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- fs/btrfs/ctree.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 30ea9780725f..b6884eda9ff6 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -146,9 +146,6 @@ enum {
- 	BTRFS_FS_STATE_DEV_REPLACING,
- 	/* The btrfs_fs_info created for self-tests */
- 	BTRFS_FS_STATE_DUMMY_FS_INFO,
--
--	/* Indicate that we can't trust the free space tree for caching yet */
--	BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
- };
+ Documentation/admin-guide/sysctl/vm.rst |   10 +++++-----
+ mm/vmscan.c                             |    9 +++++++--
+ 2 files changed, 12 insertions(+), 7 deletions(-)
+
+--- a/Documentation/admin-guide/sysctl/vm.rst~mm-vmscan-restore-zone_reclaim_mode-abi
++++ a/Documentation/admin-guide/sysctl/vm.rst
+@@ -983,11 +983,11 @@ that benefit from having their data cach
+ left disabled as the caching effect is likely to be more important than
+ data locality.
  
- #define BTRFS_BACKREF_REV_MAX		256
-@@ -562,6 +559,9 @@ enum {
+-zone_reclaim may be enabled if it's known that the workload is partitioned
+-such that each partition fits within a NUMA node and that accessing remote
+-memory would cause a measurable performance reduction.  The page allocator
+-will then reclaim easily reusable pages (those page cache pages that are
+-currently not used) before allocating off node pages.
++Consider enabling one or more zone_reclaim mode bits if it's known that the
++workload is partitioned such that each partition fits within a NUMA node
++and that accessing remote memory would cause a measurable performance
++reduction.  The page allocator will take additional actions before
++allocating off node pages.
  
- 	/* Indicate that the discard workqueue can service discards. */
- 	BTRFS_FS_DISCARD_RUNNING,
-+
-+	/* Indicate that we can't trust the free space tree for caching yet */
-+	BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
- };
+ Allowing zone reclaim to write out pages stops processes that are
+ writing large amounts of data from dirtying pages on other nodes. Zone
+--- a/mm/vmscan.c~mm-vmscan-restore-zone_reclaim_mode-abi
++++ a/mm/vmscan.c
+@@ -4085,8 +4085,13 @@ module_init(kswapd_init)
+  */
+ int node_reclaim_mode __read_mostly;
+ 
+-#define RECLAIM_WRITE (1<<0)	/* Writeout pages during reclaim */
+-#define RECLAIM_UNMAP (1<<1)	/* Unmap pages during reclaim */
++/*
++ * These bit locations are exposed in the vm.zone_reclaim_mode sysctl
++ * ABI.  New bits are OK, but existing bits can never change.
++ */
++#define RECLAIM_ZONE  (1<<0)   /* Run shrink_inactive_list on the zone */
++#define RECLAIM_WRITE (1<<1)   /* Writeout pages during reclaim */
++#define RECLAIM_UNMAP (1<<2)   /* Unmap pages during reclaim */
  
  /*
--- 
-2.29.2
+  * Priority for NODE_RECLAIM. This determines the fraction of pages
+_
+
+Patches currently in -mm which might be from dave.hansen@linux.intel.com are
+
+mm-vmscan-restore-zone_reclaim_mode-abi.patch
 
