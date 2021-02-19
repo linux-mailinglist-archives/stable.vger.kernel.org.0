@@ -2,99 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B57831F646
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 10:09:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 233B931F64A
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 10:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbhBSJIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 04:08:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229953AbhBSJGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 04:06:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B86F64E5C;
-        Fri, 19 Feb 2021 09:06:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613725569;
-        bh=9gCM57rLof4KH7lXmy+UmvuKw9FROg+FI9WlxlntM6k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HF6TCyaLMin7eWw4jcFe+dmeJli3eaPGNiRqFJOdifpw3v3jT+JZYAaUBeXZy74Go
-         aeiwwSMCGDPuDcaeovq08+UTBhBykv6GzjbK79+AN4G3Z294+JgpaFB6c2ldOXfDGH
-         KGoZJ2CBsqQSsqeQ3wVPGEav0wxTPIPxyuxdIew4rJ2erUfLcnJ2GE8PMM1ofzS5dy
-         hqLP0Et4AKssHZqw1fH+RJNZDAe0vFzDiJ91PXDYRg2nSQ/1VkTFxka46a4mvxtP7F
-         OjPhJ+HLcsd7zYl/fiwPqNZft4tb1qzXCfzpUGYAqjgCY16xVibPybPOMfK79UnnCy
-         7B20K57epD1kw==
-Date:   Fri, 19 Feb 2021 11:05:54 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
-        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH RESEND v5] tpm: fix reference counting for struct tpm_chip
-Message-ID: <YC9/cr9Km/jWzmon@kernel.org>
-References: <1613505191-4602-1-git-send-email-LinoSanfilippo@gmx.de>
- <1613505191-4602-2-git-send-email-LinoSanfilippo@gmx.de>
- <YC2WRJfNbY22yIOn@kernel.org>
- <5d0f7222-a9ef-809b-cd9a-86bbacb03790@gmx.de>
+        id S230144AbhBSJJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 04:09:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230001AbhBSJHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Feb 2021 04:07:11 -0500
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC3BC061756
+        for <stable@vger.kernel.org>; Fri, 19 Feb 2021 01:06:31 -0800 (PST)
+Received: by mail-ej1-x642.google.com with SMTP id n13so11149666ejx.12
+        for <stable@vger.kernel.org>; Fri, 19 Feb 2021 01:06:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=+Qmeko1Gf7lBIQ49B4TACrpk+t9MAMQrYCeoEROy8Nk=;
+        b=a4VIFUfcVRf/QdEAGVdKgRMO74OKfwR134tyxzmRfyq8U/rRPDGXT7A9Lngk7h751C
+         y3S8TsNNx/aVn2sovzocXbfkvk2jruHRO9TWuOGsFBn41+FBVLp00YdojalipEWtJsLf
+         i4FGi3zhfgRNprNBzwtepdfA5PuQCdUS2UFOi4kBESmKoXKB6Eb3QjgAnW5jITaqHnj5
+         oo26Twn7jFgVjoYBlzYw+Zb+37Bw+lbDKODDxzKQH8yHaUpuwi6UjuDr9Rsga0M3k5K9
+         4Cn41uR8WFIrLuj8PFRqbxLMCAeTX+X1QJCqdu7xEciI96UAa8sms8GuD8IUs4+A7CyJ
+         Lf4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=+Qmeko1Gf7lBIQ49B4TACrpk+t9MAMQrYCeoEROy8Nk=;
+        b=XYpalcUtDfrrQugMzO0aRRNDlWexWhnJkDVOK0/pZL8+ta+pSYvPuo5lUrBaSp+ryC
+         Of9jXDP9lKoP8m7MLPo6Y9Ch8JCsal50U5NzAtzccSOhjdiE5ReaCCpFKc/XHK4PFENm
+         xxVMGL9lJTda/qcLFR6ULVzgVP/GFPRwMlXeq5VVYFHhUa+ned7VcAv768qaJLP2FSH6
+         1BQQBR38A9cinaOWRdT/qxJmPAODdD8ZAajseFOPopmHJQfdE4/6godUqK5cW2czu3EB
+         2T1FHzvh6gZXHQm8VodNcPXS16P0oXB3tNx5XjzeunwwkzcNLL01IhIhzDILVhkNaNhh
+         j24A==
+X-Gm-Message-State: AOAM532r8Tdj4Diy32sudXFOt/b7VhK+26hRGS3rj4IPQIc+dgW8cL3K
+        EW1H/YMcMiia6qh7QBDFIS3Qb9a1L2gDfi/ACwA=
+X-Google-Smtp-Source: ABdhPJxQFgHOY4+1Dbs02fETdLgpttgwghFgQZC55FYs2YFZ1oVDAyjbKVRge08gU7/NNiG59VCy8wSf+wQTX05VjYc=
+X-Received: by 2002:a17:906:ad3:: with SMTP id z19mr5990930ejf.350.1613725589811;
+ Fri, 19 Feb 2021 01:06:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5d0f7222-a9ef-809b-cd9a-86bbacb03790@gmx.de>
+Received: by 2002:a54:2a48:0:0:0:0:0 with HTTP; Fri, 19 Feb 2021 01:06:29
+ -0800 (PST)
+Reply-To: mussaomra2017@gmail.com
+From:   Omra Musa <mussaomra2017@gmail.com>
+Date:   Fri, 19 Feb 2021 02:06:29 -0700
+Message-ID: <CAFRtM2MVs9q7Pchz2T5vXXb6PaMg1zdJVSK2KXA5wYLWgxGzKQ@mail.gmail.com>
+Subject: I NEED YOUR URGENT RESPOND.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 18, 2021 at 08:13:57PM +0100, Lino Sanfilippo wrote:
-> 
-> Hi,
-> 
-> On 17.02.21 at 23:18, Jarkko Sakkinen wrote:
-> 
-> >> +
-> >
-> > /*
-> >  * Please describe what the heck the function does. No need for full on
-> >  * kdoc.
-> >  */
-> 
-> Ok.
-> 
-> >> +int tpm2_add_device(struct tpm_chip *chip)
-> >
-> > Please, rename as tpm_devs_add for coherency sake.
-> >
-> 
-> Sorry I confused this and renamed it wrongly. I will fix it in the next
-> patch version.
-> 
-> >> +{
-> >> +	int rc;
-> >> +
-> >> +	device_initialize(&chip->devs);
-> >> +	chip->devs.parent = chip->dev.parent;
-> >> +	chip->devs.class = tpmrm_class;
-> >
-> > Empty line. Cannot recall, if I stated before.
-> >> +	/* +	 * get extra reference on main device to hold on behalf of devs.
-> >> +	 * This holds the chip structure while cdevs is in use. The
-> >> +	 * corresponding put is in the tpm_devs_release.
-> >> +	 */
-> >> +	get_device(&chip->dev);
-> >> +	chip->devs.release = tpm_devs_release;
-> >> +	chip->devs.devt = MKDEV(MAJOR(tpm_devt),
-> >> +					chip->dev_num + TPM_NUM_DEVICES);
-> >
-> > NAK, same comment as before.
-> >
-> 
-> Thx for the review, I will fix these issues.
+From Mr Omra Musa
+Bank Of Africa (B.O.A)
+Burkina Faso Ouagadougou
 
-Yeah, I mean I'm going to collect this fix anyway after rc1 has been
-released so there's a lot of time to polish small details. I.e. I'm
-doing a PR for rc2 with the fix included.
+My Dear Friend,
 
-> Regards,
-> Lino
+Please I want you to read this letter very carefully and I must
+apologize for barging this message into your mail box without any
+formal introduction due to the urgency and confidential of this issue
+and I know that this message will come to you as a surprise. Please
+this is not a joke and I will not like you to joke with it.
 
-/Jarkko
+I am Mr Omra Musa Manager in Bank Of Africa (B.O.A) Ouagadougou,
+Burkina Faso. I Hoped that you will not expose or betray this trust
+and confident that I am about to establish with you for the mutual
+benefit of you and I. This fund was deposited in our bank by Mr.
+Kattan Azmal from Jordan who died in a plane crash in 2000 Tbm 700
+aircraft on 31st July with his wife and the whole crew on board.
+
+I need your urgent assistance in transferring the sum of ($15) million
+USD into your account within 14 working banking days. This money has
+been deposited for years in our Bank without claim due to the owner of
+this fund died along with his entire family in an air crash since July
+31st 2000.
+
+The reason why i contacted you is that after the bank audit in 24th of
+November, we found out that this fund has remained unclaimed since the
+death of the deceased costumer.
+
+I want our bank to release this fund to you as the nearest person to
+our deceased customer while i come over to your country to share this
+fund with you as soon as you confirm this fund into your account and
+ask me to come over. I don't want the money to go into our Bank
+treasure as an abandoned fund. So this is the reason why i contacted
+you so that our bank will release this money to you as the next of kin
+to the deceased customer. Please I would like you to keep this
+proposal as a top secret and delete it if you are not interesting.
+
+Upon the receipt of your reply and indication of your capability, i
+will give you full details on how the business will be executed and
+also note that you will have 50% of the above mentioned sum if you
+agree to handle this business with me while 50% be for me, Because i
+don't want anyone here in our bank to know my involvement until you
+confirm this fund into your account and ask me to come over for the
+sharing as I indicated.
+
+I am looking forward to hear from you immediately for further information
+
+THE REQUESTED INFORMATION,S BELOW
+==================================
+1. FULL NAME..............
+2. TELEPHONE NUMBERS/MOBILE/FAX.......
+3. YOUR AGE......
+4. YOUR SEX.........
+5. YOUR OCCUPATION........
+6. YOUR COUNTRY AND CITY......
+7. YOUR HOME ADDRESS........
+8. MARITAL STATUS............
+
+Sincerely,
+Mr Omra Musa
+
+You can reply to my private email address at mussaomra2017@gmail.com
