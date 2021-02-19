@@ -2,234 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C5C31F63A
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 10:08:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B57831F646
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 10:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229808AbhBSJHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 04:07:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230028AbhBSJEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Feb 2021 04:04:54 -0500
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BA2C061786
-        for <stable@vger.kernel.org>; Fri, 19 Feb 2021 01:04:14 -0800 (PST)
-Received: by mail-qk1-x74a.google.com with SMTP id s184so3112990qke.18
-        for <stable@vger.kernel.org>; Fri, 19 Feb 2021 01:04:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:to:cc;
-        bh=CGR9fL8lkODALH6tI/Lf41dYAe2vopzjhEaC221RUXI=;
-        b=kjOGxDOu4NduoHkNZJ5LhJIo1OQZSg66MwJ6dXv4ytV/830xQDy3BxpsODu1gi82lt
-         Es2tAr6/Y61r3MG6prqQ0CeCon+3j9sNa8VWol2ZZHJbyB+/o+v0dZdbZnk/tpl84WAN
-         /Jb0SBvJzS5lIxRB/zcxb+5YKxmPGtUEo4fj5377N9PJCsx3oqC+rcuHshQLBd2Vq0Ff
-         drXKtsV53PYZQkbZfKQ0X4cNfu9QZab5kW+BgOmoPjznv1hvdQ9uW0VXma60ccTwrnXX
-         XP1cFxXULULLtbfrSXAezmhzqKx75LNxU6YA+XzWZZra4c2UOM6fTV6tyPaEBL1eURR8
-         dVuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :to:cc;
-        bh=CGR9fL8lkODALH6tI/Lf41dYAe2vopzjhEaC221RUXI=;
-        b=II54VmHzlVEbLBV+QeeuGeLcNOHayqZjdCoEEqv1NmGBnGVwqj8N/L+6xZcTQZcxou
-         bk4P2wXY2Lgy3qbw+k9o+MXMO95pCb1HJ5+m/HDSYfpeCwu1eWHs9XJ7ZazEjVx93WzS
-         D0Ojbv3XsAtwMHuK/i1qVCOdS81uvUkyVW25NyZavZM7QQ79/FrttNUzgheYZFSWOg6h
-         p/QPcakN/tUV4KALRBQkR5VJX3XvgKyQpYR5PcytQdoyIIJ1oTqggy6wvEV/m94imqOt
-         VdY++aBF+uedOUp8KpwF4jqRFs/e5IuZwc6LMmaDf3gJWGok2Ex9cAvS6lp92Ke2mWsc
-         ISZA==
-X-Gm-Message-State: AOAM532+4VDyfEb/Nid2YCEDvnDbxy8u8viriUvtKQhhLFMTOWiXXBf0
-        wnZn6jErs4LFcEY5CglXbc7gRv1UpFw=
-X-Google-Smtp-Source: ABdhPJwaEYLuteNjKI4wu29MPPChLxdzE3fnRY8NmQMFADSE1kd+ZCIMilia0Dl9PJK8+BdokCGT0PpotBo=
-Sender: "badhri via sendgmr" <badhri@badhri.mtv.corp.google.com>
-X-Received: from badhri.mtv.corp.google.com ([2620:15c:211:201:4940:ba9e:2dc2:a4ce])
- (user=badhri job=sendgmr) by 2002:a0c:8e8f:: with SMTP id x15mr8372883qvb.21.1613725452961;
- Fri, 19 Feb 2021 01:04:12 -0800 (PST)
-Date:   Fri, 19 Feb 2021 01:04:09 -0800
-Message-Id: <20210219090409.325492-1-badhri@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.30.0.617.g56c4b15f3c-goog
-Subject: [PATCH v2] usb: typec: tcpm: Wait for vbus discharge to VSAFE0V
- before toggling
-From:   Badhri Jagan Sridharan <badhri@google.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kyle Tso <kyletso@google.com>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S230106AbhBSJIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 04:08:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229953AbhBSJGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Feb 2021 04:06:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B86F64E5C;
+        Fri, 19 Feb 2021 09:06:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613725569;
+        bh=9gCM57rLof4KH7lXmy+UmvuKw9FROg+FI9WlxlntM6k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HF6TCyaLMin7eWw4jcFe+dmeJli3eaPGNiRqFJOdifpw3v3jT+JZYAaUBeXZy74Go
+         aeiwwSMCGDPuDcaeovq08+UTBhBykv6GzjbK79+AN4G3Z294+JgpaFB6c2ldOXfDGH
+         KGoZJ2CBsqQSsqeQ3wVPGEav0wxTPIPxyuxdIew4rJ2erUfLcnJ2GE8PMM1ofzS5dy
+         hqLP0Et4AKssHZqw1fH+RJNZDAe0vFzDiJ91PXDYRg2nSQ/1VkTFxka46a4mvxtP7F
+         OjPhJ+HLcsd7zYl/fiwPqNZft4tb1qzXCfzpUGYAqjgCY16xVibPybPOMfK79UnnCy
+         7B20K57epD1kw==
+Date:   Fri, 19 Feb 2021 11:05:54 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
+        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH RESEND v5] tpm: fix reference counting for struct tpm_chip
+Message-ID: <YC9/cr9Km/jWzmon@kernel.org>
+References: <1613505191-4602-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1613505191-4602-2-git-send-email-LinoSanfilippo@gmx.de>
+ <YC2WRJfNbY22yIOn@kernel.org>
+ <5d0f7222-a9ef-809b-cd9a-86bbacb03790@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5d0f7222-a9ef-809b-cd9a-86bbacb03790@gmx.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When vbus auto discharge is enabled, TCPM can sometimes be faster than
-the TCPC i.e. TCPM can go ahead and move the port to unattached state
-(involves disabling vbus auto discharge) before TCPC could effectively
-discharge vbus to VSAFE0V. This leaves vbus with residual charge and
-increases the decay time which prevents tsafe0v from being met.
-This change introduces a new state VBUS_DISCHARGE where the TCPM waits
-for a maximum of tSafe0V(max) for vbus to discharge to VSAFE0V before
-transitioning to unattached state and re-enable toggling. If vbus
-discharges to vsafe0v sooner, then, transition to unattached state
-happens right away.
+On Thu, Feb 18, 2021 at 08:13:57PM +0100, Lino Sanfilippo wrote:
+> 
+> Hi,
+> 
+> On 17.02.21 at 23:18, Jarkko Sakkinen wrote:
+> 
+> >> +
+> >
+> > /*
+> >  * Please describe what the heck the function does. No need for full on
+> >  * kdoc.
+> >  */
+> 
+> Ok.
+> 
+> >> +int tpm2_add_device(struct tpm_chip *chip)
+> >
+> > Please, rename as tpm_devs_add for coherency sake.
+> >
+> 
+> Sorry I confused this and renamed it wrongly. I will fix it in the next
+> patch version.
+> 
+> >> +{
+> >> +	int rc;
+> >> +
+> >> +	device_initialize(&chip->devs);
+> >> +	chip->devs.parent = chip->dev.parent;
+> >> +	chip->devs.class = tpmrm_class;
+> >
+> > Empty line. Cannot recall, if I stated before.
+> >> +	/* +	 * get extra reference on main device to hold on behalf of devs.
+> >> +	 * This holds the chip structure while cdevs is in use. The
+> >> +	 * corresponding put is in the tpm_devs_release.
+> >> +	 */
+> >> +	get_device(&chip->dev);
+> >> +	chip->devs.release = tpm_devs_release;
+> >> +	chip->devs.devt = MKDEV(MAJOR(tpm_devt),
+> >> +					chip->dev_num + TPM_NUM_DEVICES);
+> >
+> > NAK, same comment as before.
+> >
+> 
+> Thx for the review, I will fix these issues.
 
-Also, while in SNK_READY, when auto discharge is enabled, drive
-disconnect based on vbus turning off instead of Rp disappearing on
-CC pins. Rp disappearing on CC pins is almost instanteous compared
-to vbus decay.
+Yeah, I mean I'm going to collect this fix anyway after rc1 has been
+released so there's a lot of time to polish small details. I.e. I'm
+doing a PR for rc2 with the fix included.
 
-Fixes: f321a02caebd ("usb: typec: tcpm: Implement enabling Auto
-Discharge disconnect support")
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
----
-Changes since V1:
-- Add Fixes tag
----
- drivers/usb/typec/tcpm/tcpm.c | 60 +++++++++++++++++++++++++++++++----
- 1 file changed, 53 insertions(+), 7 deletions(-)
+> Regards,
+> Lino
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index be0b6469dd3d..0ed71725980f 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -62,6 +62,8 @@
- 	S(SNK_TRANSITION_SINK_VBUS),		\
- 	S(SNK_READY),				\
- 						\
-+	S(VBUS_DISCHARGE),			\
-+						\
- 	S(ACC_UNATTACHED),			\
- 	S(DEBUG_ACC_ATTACHED),			\
- 	S(AUDIO_ACC_ATTACHED),			\
-@@ -438,6 +440,9 @@ struct tcpm_port {
- 	enum tcpm_ams next_ams;
- 	bool in_ams;
- 
-+	/* Auto vbus discharge state */
-+	bool auto_vbus_discharge_enabled;
-+
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *dentry;
- 	struct mutex logbuffer_lock;	/* log buffer access lock */
-@@ -3413,6 +3418,8 @@ static int tcpm_src_attach(struct tcpm_port *port)
- 	if (port->tcpc->enable_auto_vbus_discharge) {
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
- 		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = true;
- 	}
- 
- 	ret = tcpm_set_roles(port, true, TYPEC_SOURCE, tcpm_data_role_for_source(port));
-@@ -3495,6 +3502,8 @@ static void tcpm_reset_port(struct tcpm_port *port)
- 	if (port->tcpc->enable_auto_vbus_discharge) {
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, false);
- 		tcpm_log_force(port, "Disable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = false;
- 	}
- 	port->in_ams = false;
- 	port->ams = NONE_AMS;
-@@ -3568,6 +3577,8 @@ static int tcpm_snk_attach(struct tcpm_port *port)
- 		tcpm_set_auto_vbus_discharge_threshold(port, TYPEC_PWR_MODE_USB, false, VSAFE5V);
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
- 		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = true;
- 	}
- 
- 	ret = tcpm_set_roles(port, true, TYPEC_SINK, tcpm_data_role_for_sink(port));
-@@ -3684,6 +3695,12 @@ static void run_state_machine(struct tcpm_port *port)
- 	switch (port->state) {
- 	case TOGGLING:
- 		break;
-+	case VBUS_DISCHARGE:
-+		if (port->port_type == TYPEC_PORT_SRC)
-+			tcpm_set_state(port, SRC_UNATTACHED, PD_T_SAFE_0V);
-+		else
-+			tcpm_set_state(port, SNK_UNATTACHED, PD_T_SAFE_0V);
-+		break;
- 	/* SRC states */
- 	case SRC_UNATTACHED:
- 		if (!port->non_pd_role_swap)
-@@ -4669,7 +4686,9 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 	case SRC_READY:
- 		if (tcpm_port_is_disconnected(port) ||
- 		    !tcpm_port_is_source(port)) {
--			if (port->port_type == TYPEC_PORT_SRC)
-+			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
-+				tcpm_set_state(port, VBUS_DISCHARGE, 0);
-+			else if (port->port_type == TYPEC_PORT_SRC)
- 				tcpm_set_state(port, SRC_UNATTACHED, 0);
- 			else
- 				tcpm_set_state(port, SNK_UNATTACHED, 0);
-@@ -4703,7 +4722,18 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 			tcpm_set_state(port, SNK_DEBOUNCED, 0);
- 		break;
- 	case SNK_READY:
--		if (tcpm_port_is_disconnected(port))
-+		/*
-+		 * When set_auto_vbus_discharge_threshold is enabled, CC pins go
-+		 * away before vbus decays to disconnect threshold. Allow
-+		 * disconnect to be driven by vbus disconnect when auto vbus
-+		 * discharge is enabled.
-+		 *
-+		 * EXIT condition is based primarily on vbus disconnect and CC is secondary.
-+		 * "A port that has entered into USB PD communications with the Source and
-+		 * has seen the CC voltage exceed vRd-USB may monitor the CC pin to detect
-+		 * cable disconnect in addition to monitoring VBUS.
-+		 */
-+		if (!port->auto_vbus_discharge_enabled && tcpm_port_is_disconnected(port))
- 			tcpm_set_state(port, unattached_state(port), 0);
- 		else if (!port->pd_capable &&
- 			 (cc1 != old_cc1 || cc2 != old_cc2))
-@@ -4803,9 +4833,16 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 		 */
- 		break;
- 
-+	case VBUS_DISCHARGE:
-+		/* Do nothing. Waiting for vsafe0v signal */
-+		break;
- 	default:
--		if (tcpm_port_is_disconnected(port))
--			tcpm_set_state(port, unattached_state(port), 0);
-+		if (tcpm_port_is_disconnected(port)) {
-+			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
-+				tcpm_set_state(port, VBUS_DISCHARGE, 0);
-+			else
-+				tcpm_set_state(port, unattached_state(port), 0);
-+		}
- 		break;
- 	}
- }
-@@ -4988,9 +5025,12 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
- 		break;
- 
- 	default:
--		if (port->pwr_role == TYPEC_SINK &&
--		    port->attached)
--			tcpm_set_state(port, SNK_UNATTACHED, 0);
-+		if (port->pwr_role == TYPEC_SINK && port->attached) {
-+			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
-+				tcpm_set_state(port, VBUS_DISCHARGE, 0);
-+			else
-+				tcpm_set_state(port, SNK_UNATTACHED, 0);
-+		}
- 		break;
- 	}
- }
-@@ -5012,6 +5052,12 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
- 			tcpm_set_state(port, tcpm_try_snk(port) ? SNK_TRY : SRC_ATTACHED,
- 				       PD_T_CC_DEBOUNCE);
- 		break;
-+	case VBUS_DISCHARGE:
-+		if (port->port_type == TYPEC_PORT_SRC)
-+			tcpm_set_state(port, SRC_UNATTACHED, 0);
-+		else
-+			tcpm_set_state(port, SNK_UNATTACHED, 0);
-+		break;
- 	default:
- 		break;
- 	}
--- 
-2.30.0.617.g56c4b15f3c-goog
-
+/Jarkko
