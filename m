@@ -2,162 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EACD31FC75
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 16:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3105A31FC76
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 16:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbhBSP5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 10:57:22 -0500
-Received: from mail-mw2nam12on2053.outbound.protection.outlook.com ([40.107.244.53]:41568
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229535AbhBSP5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 10:57:21 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RqV+FoPd4WuRylYpQrwpkjWG2WtOvv4G73VdckpdhaWOrm8LW/rE0MhNWtJ3O34z+lC0rmR5aQB09dEXJrfAPiBu4c+SxRAS5z9nfp7HtqiHl1MWgh8rVjOp3dpZ5n8n4qALCPNnvB238YUREIvCiu248z49sjMQKt6bL5WhQJaqNzDilkAj+NSxmMaInpbaJDLMIl/OHnYBgHd+5+zkSgHRNNcUPiFTwUyOAcI5FTBE1g379ofFZfahfon4yfg2EQdoTK1Wy5AxgZLqt2nvuavjrgqBdb+8e166uN5Ez6SUoXkJ4Z+aUr6nbUQhO/wE/4gHB8jdQLWZtj8qjnEG8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dH4Oyt+YNLBNZ2P4NVAu7snhSWhDuyHvEwvccg6frNI=;
- b=ivQ6vJy4ufUnY+U3C8yqr1f89k+OHOsdSczmkwH2Zi4S+K+4Mr7ONAzeROxeinue3NWeqfCG8MX2An6WXqTnbsnOYxA51CbhfTJhx2gZqQNNuCwSHIHdaKk239qKTYlfztmiHJbg3f35LtsePUV0O6DVLZaYGhPNAr3i0QKRpA7bGKqEx5AmTvlKhWDb0RJOnHc5Fiii0WZHCwcPKPDOZl+mB6WB6izz1WjOmxHEt+AsRBqxGMyxI/pY1+470ayodeDzLzSCOVt62D2a8fUWhNOjij/9YPX5UeD+plOaXs0Guh+lHFeViEmvjb3FT50blWY0nv1q0EjOwsr1OfrqvA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dH4Oyt+YNLBNZ2P4NVAu7snhSWhDuyHvEwvccg6frNI=;
- b=qutSZSb97WjJ8hVEVc1aJ6Cb6DhIGFK9yq26+94crAvua4tk9F3xpcGayOI/Yk8Y3LZJX0Z8DhFMK5n0yOQjz6oU6Svxh4JXiTwK1iX4rrtBnUxHgITmwfKMrP2M3soBs4Dl3ebTUiY2j2vlwI9LINfBGUskMl+ZWnh6EiizLDA=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
- by BL0PR12MB4930.namprd12.prod.outlook.com (2603:10b6:208:1c8::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.27; Fri, 19 Feb
- 2021 15:56:25 +0000
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::c1ff:dcf1:9536:a1f2]) by MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::c1ff:dcf1:9536:a1f2%2]) with mapi id 15.20.3846.038; Fri, 19 Feb 2021
- 15:56:25 +0000
-Subject: Re: [PATCH] drm/prime: Only call dma_map_sgtable() for devices with
- DMA support
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
-        airlied@linux.ie, maarten.lankhorst@linux.intel.com,
-        mripard@kernel.org, sumit.semwal@linaro.org,
-        gregkh@linuxfoundation.org, dri-devel@lists.freedesktop.org,
-        noralf@tronnes.org, Christoph Hellwig <hch@lst.de>,
-        Johan Hovold <johan@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-References: <20210219134014.7775-1-tzimmermann@suse.de>
- <02a45c11-fc73-1e5a-3839-30b080950af8@amd.com>
- <20210219155328.GA1111829@rowland.harvard.edu>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <d2d581fb-ccba-00c9-0a22-b485870256ae@amd.com>
-Date:   Fri, 19 Feb 2021 16:56:16 +0100
+        id S229639AbhBSP5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 10:57:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229587AbhBSP5W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Feb 2021 10:57:22 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53C8C061574;
+        Fri, 19 Feb 2021 07:56:40 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id 18so6265431oiz.7;
+        Fri, 19 Feb 2021 07:56:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ykv8B79fr+v5PxIlwQX7Stv9lxJFAXd5n8YLdkAVi/c=;
+        b=hs14c19qWjyzQUrbgpsJ7b1V232jGu4C5Catc08yJhHrzX0g2sGEDbyQUB19XbE1Xz
+         zZyKDINBeUBScwDgpm8OKeBsAmjcEn3GxoS2U7CgAKrUCCtH7xKcwoSTZSQUHwdH3+ev
+         Qwu4SCBWBo08SIL4Ow+4R46MYVklMsoSgN7KNE7NdryB9p/pnE1K0F/pMj7CTQWs2LsM
+         YTjM25cZeW47s4oHKlaLovaA7GHewTd4qkR/M3NgUkLHsvvlQNggk9hIAorGlmxzZ5cu
+         wmWAUbqlSH/ocoJ/+4RRPqGjlj5xhp8yPCD+Fvwu11AdUxJPihs3LyJ8qJna/CxvPaKC
+         VVyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=ykv8B79fr+v5PxIlwQX7Stv9lxJFAXd5n8YLdkAVi/c=;
+        b=Ai6KueK9ZigFYjD1fllfB4SKDvBa3yoJVnY6/iSUeePf7WrVsqHaK9PrHPd6l6Kyds
+         afzp0jdlVxkMu3f4hcl5Ol2e+lA6rK8Az1KMKyC6yi1gozu+f9EGkjHUSg8xB39qLme/
+         7gAeH6AIShkGfVrOkAa7FGbAUakm1N+ZP4FYMDYGl7fL8FYZUElVESUj9UMaGvvdHH5+
+         8lTliLZJ2m7sfI5Q1xbFxFLiSUJNQ8LZuR3kUeeNEetWXrUsNlPy8z4vlXYOnV5mklRg
+         +UnpHfDwE34oixhPpvRKJCMJX8QiZhXZss1t4+hu86PsFrNGB/wPjaoVQredEKZC1d/m
+         L6aQ==
+X-Gm-Message-State: AOAM531QI86TpU59EQWqzTWtYlnH4WTkGItKacXpZd+17/M2bBISVYW0
+        PP19p57Uik148hIuf+VxtI2SVlx9a8A=
+X-Google-Smtp-Source: ABdhPJxpKUREqULzXrt6SHkX64gdru6eWTZNsjy6pP2vPzEief1zbHzAtjElp9pFC/Zs0TAtugxyXQ==
+X-Received: by 2002:a05:6808:10ca:: with SMTP id s10mr4455744ois.33.1613750199306;
+        Fri, 19 Feb 2021 07:56:39 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o3sm1789047oou.47.2021.02.19.07.56.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Feb 2021 07:56:38 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH v2] usb: typec: tcpm: Wait for vbus discharge to VSAFE0V
+ before toggling
+To:     Badhri Jagan Sridharan <badhri@google.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kyle Tso <kyletso@google.com>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210219090409.325492-1-badhri@google.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <c0fbb198-a905-cdd0-3c6e-6af484512a5b@roeck-us.net>
+Date:   Fri, 19 Feb 2021 07:56:37 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
-In-Reply-To: <20210219155328.GA1111829@rowland.harvard.edu>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Originating-IP: [2a02:908:1252:fb60:eb81:6e66:649f:1820]
-X-ClientProxiedBy: AM3PR04CA0139.eurprd04.prod.outlook.com (2603:10a6:207::23)
- To MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [IPv6:2a02:908:1252:fb60:eb81:6e66:649f:1820] (2a02:908:1252:fb60:eb81:6e66:649f:1820) by AM3PR04CA0139.eurprd04.prod.outlook.com (2603:10a6:207::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.27 via Frontend Transport; Fri, 19 Feb 2021 15:56:22 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: e7764d59-69aa-4235-6d81-08d8d4eee8d7
-X-MS-TrafficTypeDiagnostic: BL0PR12MB4930:
-X-Microsoft-Antispam-PRVS: <BL0PR12MB4930AF20E365D4CC2D1B4D7B83849@BL0PR12MB4930.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bl4DVpjF6oqVyQBQKdGc9m5eRu57rfXKlO0eLjpHQzqHOlpsSUC98Ge8DQ3+pJMF95zaKgBM70mrg9r4twL4lamihow7YWABjvD/rZbCU1JAok/a4alpI31uGBfwoReNPRKMDOV1kFsCya5mwJXE7VXq+s0Fb3YAEgj6eDA7i9jAU2NIeDQUjJ+rhGnemKvlQw7iipee5PcR1zB9v+IK9dKVTPtLqwk3LcklwOos2En1GqPKxiftMAeDRN6ACvsCNEQOSBTHrT+j51kZQuG207E2qY5i92DauIT0Dst8XmQMDAJmi1IikXW3pVM2huQW+CPYZXDAuHC+w+11WuW9Y3kjI6RQwThaxbI8BBo32urMFjDJfnQRFDB0gHquhE+XmZny6vG/fldpQ7SRfioJaTwQXSyGOgRp8E0GexlMWtuRveNgPwPvROC0KKUP8gS5IHl+CMhmXaIVhd5WKNNf1926FvRZibFE5OnI3NUbg9x+OdmijK2QIcfZuZyhYWZwjoEt7uJ3jLOQK4nA8qEntitQqlvlsKFTpY3UrvqLMo4Wg9y2eAM8GShQM6m4N/lR+rZHGJXJ1ZicbZLlLokk42TWJ+J929qI2QvkwBZOtG4=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3775.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(376002)(366004)(136003)(346002)(396003)(36756003)(16526019)(52116002)(66476007)(8676002)(86362001)(4326008)(31696002)(316002)(5660300002)(2906002)(66556008)(7416002)(186003)(83380400001)(6916009)(6486002)(54906003)(66946007)(31686004)(478600001)(2616005)(66574015)(8936002)(6666004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?Ujd2bjhmNnJRakMzUW1oOGoxemxzdklZSTRFWlJYazNQQVZUc2RZRzk5ZUZq?=
- =?utf-8?B?OWs1SUQ0UHY2dXNXNndmR3JXRmpmMTBYUmRHK3NwN2RmSzljNEFMa0YvUHFq?=
- =?utf-8?B?L1JpeS8rbTg4YUFyUTJwNHB1SjRHWnRyM2tPT1VzZlY2U2p4ZmR2VHdGMGsr?=
- =?utf-8?B?UFpTd3Q0bUpjWUdYN2FyZ2RxN2htbWZCZ2VXaFVZWmhxTGZjVEtxcW9rYUJM?=
- =?utf-8?B?UFdMakdNZmpGT0lha0FuK1preDhaVGdhQ1dMYndIUk9YcEhTQVROci9zMkdN?=
- =?utf-8?B?Slg3LzA1VlRrMVg2bi9keEZFU0FPVjhEMkNNWitkMFhaUGxLc0NjREFLWE5U?=
- =?utf-8?B?d1dyeGlLY25xb2czN1ZTeTNLdEVaQjk4alk4RlcwNndHNEo5b1RqaGx5Y0Ir?=
- =?utf-8?B?VzB0VnNGSzM1aThpTmk5am0yeSsweGR0blhJK1NpM3FwVmhwOHpuVE5RVmJD?=
- =?utf-8?B?T1gxUjNCazY1NE4vVmwyOVVRcmdTTGlLb2FDeFhOSlRPVWxBUGZVdmxvR1pz?=
- =?utf-8?B?cXRDTWJDbjdKSWlkMzRycmdSNzI2WnZMT3VtRU14RnczanRZUkh4dS9Kd2FB?=
- =?utf-8?B?OFJzWVZkUlkvakREUm1XNnAwSm1wdnNYc3BONUEvNzl6NUcrTmJtWG5ETjc1?=
- =?utf-8?B?OTNtNHcrMVZwd1JkKzBDNFlrdUxjdFg2RWhjMUVkOWV3K09Fc1BMSUZlNkhr?=
- =?utf-8?B?aFhaeDBpMmpJWFhjeXFSNTI2UXljOHhJZ0NseWJhUm5pdk1ReUZQeXVNTVQ1?=
- =?utf-8?B?QzZscmZOM2FaR01naXpKRjNUUnlUZHRibkVsTXRQWHJpU2xpallLNnRqWURa?=
- =?utf-8?B?d0NhWlFnQ0dRSU55QTQ0QmF3QWtCVHBZSDFhY25nUGtRT3RxQklHb2xKSWQ1?=
- =?utf-8?B?UTB2ckYwb2w0Skx4a2xhd2ZMcjZtd2JpT3NpOFNZenBRTjA2L243cmhub29I?=
- =?utf-8?B?dnF6K0ZmNWwxbGVwdWdveUJuUVlxaFdaY0YvSW9HaEdXMGRkNGJLbnZlQVE3?=
- =?utf-8?B?c0pCa2x1WGFjWXdKRk01QjVwSEFTdDk3ejllZVdGN05leFB1OGhkaHcwN2lr?=
- =?utf-8?B?YkZTNUxudzRtUnJyVlNCS0pVcXJQb2o2MkZiN0l5OHJaeFUyT3pNOEVUZkxq?=
- =?utf-8?B?ajArTGovcXVoN3ZaeXJsbXVFVktoSjNuTnhXTGhQU3htS3M0M2Nva1Y5d2Ft?=
- =?utf-8?B?czVmRnFLWjVwQWRYZDc2STlseFdIZHM2MWFabzJwYXpjR082MmtBTjd5MDhS?=
- =?utf-8?B?TjUxeFNGeU1uKy9OemFDcGpPQ0FNWnA2aDhnaUl6a2JzR1FPeXcvZ3VoZmM2?=
- =?utf-8?B?OUc1dk9CYTBLYmZDMzZxblAxRHpQSWJRY2tiS08yQ0JmazRxelVKRTRqd3l6?=
- =?utf-8?B?RmJncndvV2hweUU0d05GcGwxS3JkeS9mcmpPbGNkWklSK044KzNOZ0syVjdS?=
- =?utf-8?B?MHhNUzFTR2JXQjVEMU1GbDhaWUVoZXFtR3BSaEdVNFJzZExSRFNSaVViNFZ4?=
- =?utf-8?B?dVpVWGI2Zmg1aFJGY0FXNU9FMFIyWHY0ak1ZSEFlUDhRTE5hYzNZN0N5Z0Vo?=
- =?utf-8?B?QkdkZWZ6dVowVDYyWkd3SmxTdTVRVkJNUmh6cUg0KzBJNkN4cStHTUd1ejJy?=
- =?utf-8?B?SExKOXIyY3JzZUFJMzVMRTEvZFpsSlRGeFdvNXlONTdwSyt1SkJ6eVBMbVUx?=
- =?utf-8?B?cCtGVWRUNjE5THpHMW13MkNLd283OTl1dkw2VVJ2Ym9DdVB0ZG5uZy9pZERT?=
- =?utf-8?B?QXlVSVJwcDRjc1g1WllwZUN0R2I4Lzdyc0xKZkU3U2JNU0tsMWltYXYyQjQr?=
- =?utf-8?B?ZHpyZzRJQzYxZ0h6YlJMQ09Cd2VQdVV5M1BBVjJJbGR4VGZuSnJTSVc1Vm5l?=
- =?utf-8?Q?/bHnWEW/JcQ9p?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e7764d59-69aa-4235-6d81-08d8d4eee8d7
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Feb 2021 15:56:25.1449
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Hcmr735q5+bVGxHYUTOREFZXHAckMw/sPmrMAHJEN5IX7M4W3ynZheVvd4w1RWpp
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4930
+In-Reply-To: <20210219090409.325492-1-badhri@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2/19/21 1:04 AM, Badhri Jagan Sridharan wrote:
+> When vbus auto discharge is enabled, TCPM can sometimes be faster than
+> the TCPC i.e. TCPM can go ahead and move the port to unattached state
+> (involves disabling vbus auto discharge) before TCPC could effectively
+> discharge vbus to VSAFE0V. This leaves vbus with residual charge and
+> increases the decay time which prevents tsafe0v from being met.
+> This change introduces a new state VBUS_DISCHARGE where the TCPM waits
+> for a maximum of tSafe0V(max) for vbus to discharge to VSAFE0V before
+> transitioning to unattached state and re-enable toggling. If vbus
+> discharges to vsafe0v sooner, then, transition to unattached state
+> happens right away.
+> 
+> Also, while in SNK_READY, when auto discharge is enabled, drive
+> disconnect based on vbus turning off instead of Rp disappearing on
+> CC pins. Rp disappearing on CC pins is almost instanteous compared
+> to vbus decay.
+> 
+> Fixes: f321a02caebd ("usb: typec: tcpm: Implement enabling Auto
+> Discharge disconnect support")
+> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+> ---
+> Changes since V1:
+> - Add Fixes tag
+> ---
+>  drivers/usb/typec/tcpm/tcpm.c | 60 +++++++++++++++++++++++++++++++----
+>  1 file changed, 53 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+> index be0b6469dd3d..0ed71725980f 100644
+> --- a/drivers/usb/typec/tcpm/tcpm.c
+> +++ b/drivers/usb/typec/tcpm/tcpm.c
+> @@ -62,6 +62,8 @@
+>  	S(SNK_TRANSITION_SINK_VBUS),		\
+>  	S(SNK_READY),				\
+>  						\
+> +	S(VBUS_DISCHARGE),			\
+> +						\
+>  	S(ACC_UNATTACHED),			\
+>  	S(DEBUG_ACC_ATTACHED),			\
+>  	S(AUDIO_ACC_ATTACHED),			\
+> @@ -438,6 +440,9 @@ struct tcpm_port {
+>  	enum tcpm_ams next_ams;
+>  	bool in_ams;
+>  
+> +	/* Auto vbus discharge state */
+> +	bool auto_vbus_discharge_enabled;
+> +
+>  #ifdef CONFIG_DEBUG_FS
+>  	struct dentry *dentry;
+>  	struct mutex logbuffer_lock;	/* log buffer access lock */
+> @@ -3413,6 +3418,8 @@ static int tcpm_src_attach(struct tcpm_port *port)
+>  	if (port->tcpc->enable_auto_vbus_discharge) {
+>  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
+>  		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
+> +		if (!ret)
+> +			port->auto_vbus_discharge_enabled = true;
+>  	}
+>  
+>  	ret = tcpm_set_roles(port, true, TYPEC_SOURCE, tcpm_data_role_for_source(port));
+> @@ -3495,6 +3502,8 @@ static void tcpm_reset_port(struct tcpm_port *port)
+>  	if (port->tcpc->enable_auto_vbus_discharge) {
+>  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, false);
+>  		tcpm_log_force(port, "Disable vbus discharge ret:%d", ret);
+> +		if (!ret)
+> +			port->auto_vbus_discharge_enabled = false;
+>  	}
+>  	port->in_ams = false;
+>  	port->ams = NONE_AMS;
+> @@ -3568,6 +3577,8 @@ static int tcpm_snk_attach(struct tcpm_port *port)
+>  		tcpm_set_auto_vbus_discharge_threshold(port, TYPEC_PWR_MODE_USB, false, VSAFE5V);
+>  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
+>  		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
+> +		if (!ret)
+> +			port->auto_vbus_discharge_enabled = true;
+>  	}
+>  
+>  	ret = tcpm_set_roles(port, true, TYPEC_SINK, tcpm_data_role_for_sink(port));
+> @@ -3684,6 +3695,12 @@ static void run_state_machine(struct tcpm_port *port)
+>  	switch (port->state) {
+>  	case TOGGLING:
+>  		break;
+> +	case VBUS_DISCHARGE:
+> +		if (port->port_type == TYPEC_PORT_SRC)
+> +			tcpm_set_state(port, SRC_UNATTACHED, PD_T_SAFE_0V);
+> +		else
+> +			tcpm_set_state(port, SNK_UNATTACHED, PD_T_SAFE_0V);
+> +		break;
+>  	/* SRC states */
+>  	case SRC_UNATTACHED:
+>  		if (!port->non_pd_role_swap)
+> @@ -4669,7 +4686,9 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
+>  	case SRC_READY:
+>  		if (tcpm_port_is_disconnected(port) ||
+>  		    !tcpm_port_is_source(port)) {
+> -			if (port->port_type == TYPEC_PORT_SRC)
+> +			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
+> +				tcpm_set_state(port, VBUS_DISCHARGE, 0);
+> +			else if (port->port_type == TYPEC_PORT_SRC)
+>  				tcpm_set_state(port, SRC_UNATTACHED, 0);
+>  			else
+>  				tcpm_set_state(port, SNK_UNATTACHED, 0);
 
+Unless I am missing something, the new state is only used to set the
+PD_T_SAFE_0V timeout. Is it really necessary/useful to add a new state
+just for that, while keeping the rest of if/else statements ?
+Personally I would prefer something like
+			timeout = (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v) ? PD_T_SAFE_0V : 0;
+			if (port->port_type == TYPEC_PORT_SRC)
+				tcpm_set_state(port, SRC_UNATTACHED, timeout);
+			else
+				tcpm_set_state(port, SNK_UNATTACHED, timeout);
 
-Am 19.02.21 um 16:53 schrieb Alan Stern:
-> On Fri, Feb 19, 2021 at 02:45:54PM +0100, Christian König wrote:
->> Well as far as I can see this is a relative clear NAK.
->>
->> When a device can't do DMA and has no DMA mask then why it is requesting an
->> sg-table in the first place?
-> This may not be important for your discussion, but I'd like to give an
-> answer to the question -- at least, for the case of USB.
->
-> A USB device cannot do DMA and has no DMA mask.  Nevertheless, if you
-> want to send large amounts of bulk data to/from a USB device then using
-> an SG table is often a good way to do it.  The reason is simple: All
-> communication with a USB device has to go through a USB host controller,
-> and many (though not all) host controllers _can_ do DMA and _do_ have a
-> DMA mask.
->
-> The USB mass-storage and uas drivers in particular make heavy use of
-> this mechanism.
+In this context, any idea why port_type==TYPEC_PORT_DRP results in
+SNK_UNATTACHED state ? That seems a bit odd.
 
-Yeah, I was assuming something like that would work.
+Guenter
 
-But in this case the USB device should give the host controllers device 
-structure to the dma_buf_attach function so that the sg_table can be 
-filled in with DMA addresses properly.
-
-Regards,
-Christian.
-
->
-> Alan Stern
+> @@ -4703,7 +4722,18 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
+>  			tcpm_set_state(port, SNK_DEBOUNCED, 0);
+>  		break;
+>  	case SNK_READY:
+> -		if (tcpm_port_is_disconnected(port))
+> +		/*
+> +		 * When set_auto_vbus_discharge_threshold is enabled, CC pins go
+> +		 * away before vbus decays to disconnect threshold. Allow
+> +		 * disconnect to be driven by vbus disconnect when auto vbus
+> +		 * discharge is enabled.
+> +		 *
+> +		 * EXIT condition is based primarily on vbus disconnect and CC is secondary.
+> +		 * "A port that has entered into USB PD communications with the Source and
+> +		 * has seen the CC voltage exceed vRd-USB may monitor the CC pin to detect
+> +		 * cable disconnect in addition to monitoring VBUS.
+> +		 */
+> +		if (!port->auto_vbus_discharge_enabled && tcpm_port_is_disconnected(port))
+>  			tcpm_set_state(port, unattached_state(port), 0);
+>  		else if (!port->pd_capable &&
+>  			 (cc1 != old_cc1 || cc2 != old_cc2))
+> @@ -4803,9 +4833,16 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
+>  		 */
+>  		break;
+>  
+> +	case VBUS_DISCHARGE:
+> +		/* Do nothing. Waiting for vsafe0v signal */
+> +		break;
+>  	default:
+> -		if (tcpm_port_is_disconnected(port))
+> -			tcpm_set_state(port, unattached_state(port), 0);
+> +		if (tcpm_port_is_disconnected(port)) {
+> +			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
+> +				tcpm_set_state(port, VBUS_DISCHARGE, 0);
+> +			else
+> +				tcpm_set_state(port, unattached_state(port), 0);
+> +		}
+>  		break;
+>  	}
+>  }
+> @@ -4988,9 +5025,12 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
+>  		break;
+>  
+>  	default:
+> -		if (port->pwr_role == TYPEC_SINK &&
+> -		    port->attached)
+> -			tcpm_set_state(port, SNK_UNATTACHED, 0);
+> +		if (port->pwr_role == TYPEC_SINK && port->attached) {
+> +			if (port->auto_vbus_discharge_enabled && !port->vbus_vsafe0v)
+> +				tcpm_set_state(port, VBUS_DISCHARGE, 0);
+> +			else
+> +				tcpm_set_state(port, SNK_UNATTACHED, 0);
+> +		}
+>  		break;
+>  	}
+>  }
+> @@ -5012,6 +5052,12 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
+>  			tcpm_set_state(port, tcpm_try_snk(port) ? SNK_TRY : SRC_ATTACHED,
+>  				       PD_T_CC_DEBOUNCE);
+>  		break;
+> +	case VBUS_DISCHARGE:
+> +		if (port->port_type == TYPEC_PORT_SRC)
+> +			tcpm_set_state(port, SRC_UNATTACHED, 0);
+> +		else
+> +			tcpm_set_state(port, SNK_UNATTACHED, 0);
+> +		break;
+>  	default:
+>  		break;
+>  	}
+> 
 
