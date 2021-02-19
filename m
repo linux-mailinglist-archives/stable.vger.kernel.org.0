@@ -2,79 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F38D31FD52
-	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 17:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D6431FDD9
+	for <lists+stable@lfdr.de>; Fri, 19 Feb 2021 18:27:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbhBSQmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Feb 2021 11:42:07 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:44803 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S230021AbhBSQmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Feb 2021 11:42:00 -0500
-Received: (qmail 1115516 invoked by uid 1000); 19 Feb 2021 11:41:19 -0500
-Date:   Fri, 19 Feb 2021 11:41:19 -0500
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc:     Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
-        airlied@linux.ie, maarten.lankhorst@linux.intel.com,
-        mripard@kernel.org, sumit.semwal@linaro.org,
-        gregkh@linuxfoundation.org, dri-devel@lists.freedesktop.org,
-        noralf@tronnes.org, Christoph Hellwig <hch@lst.de>,
-        Johan Hovold <johan@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/prime: Only call dma_map_sgtable() for devices with
- DMA support
-Message-ID: <20210219164119.GC1111829@rowland.harvard.edu>
-References: <20210219134014.7775-1-tzimmermann@suse.de>
- <02a45c11-fc73-1e5a-3839-30b080950af8@amd.com>
- <20210219155328.GA1111829@rowland.harvard.edu>
- <d2d581fb-ccba-00c9-0a22-b485870256ae@amd.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <d2d581fb-ccba-00c9-0a22-b485870256ae@amd.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S229784AbhBSR1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Feb 2021 12:27:42 -0500
+Received: from mga01.intel.com ([192.55.52.88]:27846 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229774AbhBSR1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Feb 2021 12:27:41 -0500
+IronPort-SDR: xRBAIFzRxiS1+NFZza2XMtcaldFs5On+TLcvoPnsBGy8w7w+qIK5lW2w42IVry9TYJpChxeTTH
+ dWsKGQSX/xDA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9900"; a="203196519"
+X-IronPort-AV: E=Sophos;i="5.81,189,1610438400"; 
+   d="scan'208";a="203196519"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2021 09:25:56 -0800
+IronPort-SDR: i86jnxvVXXy+Awa+I48RyYFBw1xpukl3obg9Bv1+XsBywag/allcLKm2s4cYlumn4uvQx8vanu
+ Gbm/wqBAmAjw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,189,1610438400"; 
+   d="scan'208";a="365276113"
+Received: from viggo.jf.intel.com (HELO localhost.localdomain) ([10.54.77.144])
+  by orsmga006.jf.intel.com with ESMTP; 19 Feb 2021 09:25:55 -0800
+Subject: [PATCH 1/3] mm/vmscan: restore zone_reclaim_mode ABI
+To:     dave@sr71.net
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>, ben.widawsky@intel.com,
+        osalvador@suse.de, rientjes@google.com, cl@linux.com,
+        alex.shi@linux.alibaba.com, dwagner@suse.de, tobin@kernel.org,
+        akpm@linux-foundation.org, ying.huang@intel.com,
+        dan.j.williams@intel.com, cai@lca.pw, stable@vger.kernel.org
+From:   Dave Hansen <dave.hansen@linux.intel.com>
+Date:   Fri, 19 Feb 2021 09:25:55 -0800
+References: <20210219172553.B1E1A317@viggo.jf.intel.com>
+In-Reply-To: <20210219172553.B1E1A317@viggo.jf.intel.com>
+Message-Id: <20210219172555.FF0CDF23@viggo.jf.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 19, 2021 at 04:56:16PM +0100, Christian König wrote:
-> 
-> 
-> Am 19.02.21 um 16:53 schrieb Alan Stern:
-> > On Fri, Feb 19, 2021 at 02:45:54PM +0100, Christian König wrote:
-> > > Well as far as I can see this is a relative clear NAK.
-> > > 
-> > > When a device can't do DMA and has no DMA mask then why it is requesting an
-> > > sg-table in the first place?
-> > This may not be important for your discussion, but I'd like to give an
-> > answer to the question -- at least, for the case of USB.
-> > 
-> > A USB device cannot do DMA and has no DMA mask.  Nevertheless, if you
-> > want to send large amounts of bulk data to/from a USB device then using
-> > an SG table is often a good way to do it.  The reason is simple: All
-> > communication with a USB device has to go through a USB host controller,
-> > and many (though not all) host controllers _can_ do DMA and _do_ have a
-> > DMA mask.
-> > 
-> > The USB mass-storage and uas drivers in particular make heavy use of
-> > this mechanism.
-> 
-> Yeah, I was assuming something like that would work.
-> 
-> But in this case the USB device should give the host controllers device
-> structure to the dma_buf_attach function so that the sg_table can be filled
-> in with DMA addresses properly.
 
-Indeed.  Although in the contexts I'm familiar with, the host controller 
-device is actually passed to routines like dma_pool_create, 
-dma_alloc_coherent, dma_map_sg, or dma_map_single.
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-Alan Stern
+I went to go add a new RECLAIM_* mode for the zone_reclaim_mode
+sysctl.  Like a good kernel developer, I also went to go update the
+documentation.  I noticed that the bits in the documentation didn't
+match the bits in the #defines.
+
+The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is,
+however implicitly checked when checking 'node_reclaim_mode==0'.
+The RECLAIM_ZONE #define was removed in a cleanup.  That, by itself
+is fine.
+
+But, when the bit was removed (bit 0) the _other_ bit locations also
+got changed.  That's not OK because the bit values are documented to
+mean one specific thing.  Users surely do not expect the meaning to
+change from kernel to kernel.
+
+The end result is that if someone had a script that did:
+
+	sysctl vm.zone_reclaim_mode=1
+
+it would have gone from enabling node reclaim for clean unmapped
+pages to writing out pages during node reclaim after the commit in
+question.  That's not great.
+
+Put the bits back the way they were and add a comment so something
+like this is a bit harder to do again.  Update the documentation to
+make it clear that the first bit is ignored.
+
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Fixes: 648b5cf368e0 ("mm/vmscan: remove unused RECLAIM_OFF/RECLAIM_ZONE")
+Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Christoph Lameter <cl@linux.com>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: "Tobin C. Harding" <tobin@kernel.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: stable@vger.kernel.org
+
+--
+
+Changes from v2:
+ * Update description to indicate that bit0 was used for clean
+   unmapped page node reclaim.
+---
+
+ b/Documentation/admin-guide/sysctl/vm.rst |   10 +++++-----
+ b/mm/vmscan.c                             |    9 +++++++--
+ 2 files changed, 12 insertions(+), 7 deletions(-)
+
+diff -puN Documentation/admin-guide/sysctl/vm.rst~mm-vmscan-restore-old-zone_reclaim_mode-abi Documentation/admin-guide/sysctl/vm.rst
+--- a/Documentation/admin-guide/sysctl/vm.rst~mm-vmscan-restore-old-zone_reclaim_mode-abi	2021-02-19 09:25:26.656663105 -0800
++++ b/Documentation/admin-guide/sysctl/vm.rst	2021-02-19 09:25:26.662663105 -0800
+@@ -983,11 +983,11 @@ that benefit from having their data cach
+ left disabled as the caching effect is likely to be more important than
+ data locality.
+ 
+-zone_reclaim may be enabled if it's known that the workload is partitioned
+-such that each partition fits within a NUMA node and that accessing remote
+-memory would cause a measurable performance reduction.  The page allocator
+-will then reclaim easily reusable pages (those page cache pages that are
+-currently not used) before allocating off node pages.
++Consider enabling one or more zone_reclaim mode bits if it's known that the
++workload is partitioned such that each partition fits within a NUMA node
++and that accessing remote memory would cause a measurable performance
++reduction.  The page allocator will take additional actions before
++allocating off node pages.
+ 
+ Allowing zone reclaim to write out pages stops processes that are
+ writing large amounts of data from dirtying pages on other nodes. Zone
+diff -puN mm/vmscan.c~mm-vmscan-restore-old-zone_reclaim_mode-abi mm/vmscan.c
+--- a/mm/vmscan.c~mm-vmscan-restore-old-zone_reclaim_mode-abi	2021-02-19 09:25:26.658663105 -0800
++++ b/mm/vmscan.c	2021-02-19 09:25:26.665663105 -0800
+@@ -4095,8 +4095,13 @@ module_init(kswapd_init)
+  */
+ int node_reclaim_mode __read_mostly;
+ 
+-#define RECLAIM_WRITE (1<<0)	/* Writeout pages during reclaim */
+-#define RECLAIM_UNMAP (1<<1)	/* Unmap pages during reclaim */
++/*
++ * These bit locations are exposed in the vm.zone_reclaim_mode sysctl
++ * ABI.  New bits are OK, but existing bits can never change.
++ */
++#define RECLAIM_ZONE  (1<<0)   /* Run shrink_inactive_list on the zone */
++#define RECLAIM_WRITE (1<<1)   /* Writeout pages during reclaim */
++#define RECLAIM_UNMAP (1<<2)   /* Unmap pages during reclaim */
+ 
+ /*
+  * Priority for NODE_RECLAIM. This determines the fraction of pages
+_
