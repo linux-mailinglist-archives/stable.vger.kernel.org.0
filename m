@@ -2,104 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19016320426
-	for <lists+stable@lfdr.de>; Sat, 20 Feb 2021 07:18:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9B932043B
+	for <lists+stable@lfdr.de>; Sat, 20 Feb 2021 07:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbhBTGSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Feb 2021 01:18:30 -0500
-Received: from mail-eopbgr1320137.outbound.protection.outlook.com ([40.107.132.137]:44384
-        "EHLO APC01-PU1-obe.outbound.protection.outlook.com"
+        id S229543AbhBTGiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Feb 2021 01:38:08 -0500
+Received: from mail-eopbgr1310127.outbound.protection.outlook.com ([40.107.131.127]:64881
+        "EHLO APC01-SG2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229470AbhBTGSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 20 Feb 2021 01:18:30 -0500
+        id S229476AbhBTGiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 20 Feb 2021 01:38:07 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OSpNWTV1nNnLHFOpJFwSFypbbWL2LdgNol+scVc86Vooot5U15zQvy0Y3gXMuHYIEDxKJPtli/ROYSGfL0D/TeL5BFwt9D3iU1CSewxlIxLMdAw1RFLsKRSVsgZ7k9RDDoR/9UgKYXY/b7oAQCvAlowlGTNOKdY6//VGssSfL1Q8lxoICBdkyAO/lHQh3dPtA7UJRdA6oFdmETn7hdqs1SOC6rBGFGfx3JmB6Uv6smgJBLSP8NCKdFVi+F9IKHN+wFpQtFIARE39058D5qjq6UpQmYNm+ku9Z2f+pUis2IWH4nHo557l8JfNI9VyOvACxsSQO651VyMiOCRRSp01Hg==
+ b=Mmwyukeuidjk//jSceoLN/q057YmVK3ShCaEV02xzOOb0Q3ytJ9ulACXTHUuF++Vcq9lJB816gLOOyvxfSLC3CCx4TYS0sULgwwD2z5Dq9yuCe5Bb2WN+1zLkjXqHyH9NGXh//9ApD9lOAr1XLWOl+PL7crljY9eUkxLCiAR5I5nmLl3bQN3YujLUPzLiFxJ8CE2ECawgs3XeBsMnaZQzy9sJvBVEAopgP5lnWnwrAVC1/zodbGSF29dBOsxPQUqP8vSiuIG5/1RhX2Y/lH5u7IRWYG1B/1lQtLpz0LQQRf74Sb5ys1w4GstYPkj5pwUDm3rqlbLhkpa6rYnbouLkA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RT0faO0HpIy2YHHHXUJxFIQT7C4OIKNyTpTTzmMkuwQ=;
- b=MlvfGETR38OjPORuQcC8uv+jkNKgpRnRhJnOSoPZfSjUA1PetA4B4l1DLUv4E3NoIn1VYzhFGeEXtJyWGCOXZWheeX2/VEAhCybB76Yu46QronxejYcExt5iy4jPK5AU1l1Umj9tr+nd0tCgjJjggE2YNpVo+E8FJme7rGuONoNsKg6SbfSKGMUx6fJS7X7R5Rn6hev4FP9nvDyiqmyeS3XZQo0ANFTbWBkRGVMBvJsxknwhAhMtFFkA8MSJ0l/sNuUxfCdEsI8FnlER1L0Fivmrxv7gK3YItSDumw1NMH2iYhMLs3ePllkwNSNjVoLzgFf94sVLcRdRqcsCahnVQA==
+ bh=tHQlEjKDMg93WT5diHuLi3g3fwjSnHSPxljt8c6q8KA=;
+ b=cY/7Kwyj98ajLcp6rMw1MBQYBvCyvJyRYOF8i06Y0+42zprz9CriaeCgpXKEC0jtRMl+uLxruo/xtJkFcfrgkDcgOGvU7GuWHeE3lStFh2G4kxc8HCZzc+I+W0WTwIxu2exRDmIo4dZLwrK8tVi8kVXGtzSra3oDp6/JV49H6gTYh8b5zpFRgk5Bk8VvgWyF+WH+dNFzLSALuQSdndGe/Zj1nIg/uVoO5z5K8eP7kbOK8CAO9N9yO9HNl9ORWl+2xdk7s/OCQjDrvS24EHaUV6s23Feo0VMQvDDEVnLY6Et88Q2kewSU0/f7i4/fqqpP2DOlLuhGs5RLRsAD5LZoZA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=cipunited.com; dmarc=pass action=none
  header.from=cipunited.com; dkim=pass header.d=cipunited.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cipunited.onmicrosoft.com; s=selector1-cipunited-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RT0faO0HpIy2YHHHXUJxFIQT7C4OIKNyTpTTzmMkuwQ=;
- b=DeYccBT2dmwSimnu3QaLb+hyIuZEh2O+RvulapNjcipaHEu+Ypvut72/VCPkMjzTZF42ZP+gFSZVgxl+YL1GinWMCfWO3zBdp8Mu1TAQgGMs5PExktsTr4fHcNaXjRPQhRzMJG7WtvIhOSeP2Zx1NF4JbQ/gAVR/jtsDXOq2rJs=
+ bh=tHQlEjKDMg93WT5diHuLi3g3fwjSnHSPxljt8c6q8KA=;
+ b=yTADh/TXRccyhO60+pV7fs8UQZlRYN3eVwhpNlgoBY8NT+I08ZNcr9vkn8N3ASVEj9IB/2jGU16QO1xqtHBSmg03whuXhg5lTuCo0eBeMebOJAqiQJW4QE6yB7GM17o+wCTUiZsRuPWslYfuRv6pps+r6Z6RWTZ74jnUp2sw/oY=
 Authentication-Results: alpha.franken.de; dkim=none (message not signed)
  header.d=none;alpha.franken.de; dmarc=none action=none
  header.from=cipunited.com;
 Received: from HKAPR04MB3956.apcprd04.prod.outlook.com (2603:1096:203:d5::13)
- by HK2PR04MB3779.apcprd04.prod.outlook.com (2603:1096:202:3a::10) with
+ by HK0PR04MB3042.apcprd04.prod.outlook.com (2603:1096:203:83::11) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.27; Sat, 20 Feb
- 2021 06:16:52 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.29; Sat, 20 Feb
+ 2021 06:36:31 +0000
 Received: from HKAPR04MB3956.apcprd04.prod.outlook.com
  ([fe80::b5d5:d70f:ed37:984c]) by HKAPR04MB3956.apcprd04.prod.outlook.com
  ([fe80::b5d5:d70f:ed37:984c%5]) with mapi id 15.20.3868.029; Sat, 20 Feb 2021
- 06:16:52 +0000
+ 06:36:31 +0000
 From:   YunQiang Su <yunqiang.su@cipunited.com>
 To:     tsbogend@alpha.franken.de, linux-mips@vger.kernel.org,
         jiaxun.yang@flygoat.com
 Cc:     stable@vger.kernel.org, YunQiang Su <yunqiang.su@cipunited.com>
-Subject: [PATCH] MIPS: use FR=1 for FPXX binary
-Date:   Sat, 20 Feb 2021 06:16:35 +0000
-Message-Id: <20210220061635.9976-1-yunqiang.su@cipunited.com>
+Subject: [PATCH v2] MIPS: use FR=0 for FPXX binary
+Date:   Sat, 20 Feb 2021 06:36:15 +0000
+Message-Id: <20210220063615.10271-1-yunqiang.su@cipunited.com>
 X-Mailer: git-send-email 2.20.1
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-Originating-IP: [60.247.76.83]
-X-ClientProxiedBy: HK2PR0401CA0004.apcprd04.prod.outlook.com
- (2603:1096:202:2::14) To HKAPR04MB3956.apcprd04.prod.outlook.com
+X-ClientProxiedBy: HKAPR03CA0022.apcprd03.prod.outlook.com
+ (2603:1096:203:c9::9) To HKAPR04MB3956.apcprd04.prod.outlook.com
  (2603:1096:203:d5::13)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (60.247.76.83) by HK2PR0401CA0004.apcprd04.prod.outlook.com (2603:1096:202:2::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.27 via Frontend Transport; Sat, 20 Feb 2021 06:16:51 +0000
+Received: from localhost.localdomain (60.247.76.83) by HKAPR03CA0022.apcprd03.prod.outlook.com (2603:1096:203:c9::9) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.10 via Frontend Transport; Sat, 20 Feb 2021 06:36:30 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ee6e414f-6453-4219-1735-08d8d5671d09
-X-MS-TrafficTypeDiagnostic: HK2PR04MB3779:
+X-MS-Office365-Filtering-Correlation-Id: 6c990e99-19a0-44ab-8314-08d8d569dc13
+X-MS-TrafficTypeDiagnostic: HK0PR04MB3042:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <HK2PR04MB37797B9F06689A58CA5EC03EF2839@HK2PR04MB3779.apcprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-Microsoft-Antispam-PRVS: <HK0PR04MB30423F75218B835BD7928317F2839@HK0PR04MB3042.apcprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3276;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0ZA3ha7DNIJyTePntzAaijuiU7pm3phqDOZsc2ACyjTYaNbDN76D5nLNnRL3kgpnRpicdMZCpS/9Fxe2QHICJ/RanY3FpKFti28yxMaGki56oG/YDvlG6x0PfOxjx9qnbHGxLjL99SJZEZLV/h+mEz/5OvhQmlggoeqdowvsbAE9xhHWnual5qxy3BYTbC8dsa6gOf2LpWeHhjIQ+3c7FjNONOjeGa47gV59TxhlKmMJyh50UNSdyBtNppVdYgVJa2d3nk/ToD2xRRjubrItY85YxzTOQ20FjspuBKX2zL+CPQ0rQ/Jn1JbpV2KDggbZ4r4EsrA+WCYAUoiEFQPIyHSH5k1mWmLSwkg0WGjlEH455+m8yeprZYotTnK4ddy1AtaedEMHS22RzKKz0RVzXLeFi96+1riOk6KaKmwLmYSahLF40Z/AVJvr35pkgPjYtdGBNKOzWm1RCWMvhZImhFtSZFx0KG759IeNoLfsR6yUryMI+k5JFNIfkQmZPyL0CgO3JeBLONIeerC/FOevC7WcY6guBGryLbHC2fX6D4Rv8DQXrpSaEu/nVhxAv8Ez2TNzKRn6NSWX7vDgI4QqJvUmej5nrx+9MFozQ6IcotlIqhyjbbeiRiJAOjUr7f5kD0HhyfSImZMErpIdsXV6Ew==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HKAPR04MB3956.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(136003)(366004)(396003)(346002)(39830400003)(8936002)(4326008)(86362001)(478600001)(1076003)(5660300002)(36756003)(2616005)(66556008)(66476007)(956004)(83380400001)(69590400012)(186003)(2906002)(16526019)(6506007)(966005)(6486002)(316002)(6512007)(66946007)(107886003)(26005)(6666004)(52116002)(8676002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?xsKv83YboToGp77LfcqLKNNK9YR/AmcJu+vef33dHbs8SwYQP793+bvnK41l?=
- =?us-ascii?Q?LRv6UZKgV1M8PyOPHUxvHTOTXODISX1VKxs3aX9oTW8p5Qy5JnK/hV0K5dkA?=
- =?us-ascii?Q?18DlSGmEnnq7muLnxx6pnxyJzxi7f6MFvUr3Y0bqiemMUafiqhw2vBefiLUD?=
- =?us-ascii?Q?bHTaw/LHKxYKneovHVw6JtAwSK9/NFpm2vdeXEK8HXGSO+m3cgcOeZfIm/gs?=
- =?us-ascii?Q?hDr8sZv3LSrfVLvDFPl3gGopsghLiMOsoOeCxnitQiJ3c0533Bx6JuclLHPP?=
- =?us-ascii?Q?7RH8PqIVj5dUpDGBaqk3OlYPJwZtv09N92bwjfIcBNFPYR0i/faidCNLu8Wz?=
- =?us-ascii?Q?0iYL5IgdLIHCx1pHODKsAJwIePXz1XzsH73Ul9ErzbaH2RkuMnjHpMjzMRHf?=
- =?us-ascii?Q?+swUChHQjRV40XJgz8dQ99tz+yCITOU9CuowXM1Ro1utOFlj/OIUyogG5XFi?=
- =?us-ascii?Q?A2Q/epHeYoRWQAJ4osprak+NGIkxM5Xt0R/D/BvjJ4nAvMKj8zivS2G71fzz?=
- =?us-ascii?Q?X+aWLVBXnZOzZhUw2WjFyjKdYRsTbPh3zAVv83sqM7o84wB9S8RSbcvhhVBB?=
- =?us-ascii?Q?78Tu94jWHYub5D8B49GpSgYLGQnE2mFOH0xfEh3/ihwZbuDcVq/mjj8KElJT?=
- =?us-ascii?Q?YJZ0mufvKmtjd+tSNFr1Q5C3VJhxPj6g6L74p6p02RV49YQHLidgqjtdOk6R?=
- =?us-ascii?Q?z+E/V1pNW3giM97hXM8DmpJ8kKeMgKKoJpzAPh4/4T0s5WBDt5WzCCEConTU?=
- =?us-ascii?Q?q5LFVau690Wqyscg79IxpUwUjajUvodCJv0Wkg8eVaZYJ3VhltHUQjXnAb+z?=
- =?us-ascii?Q?iNtY5YP7dJt7kPa6izWYViT6IjjTtFRR9v2yIVb1sx1F4MSFTTHzX4liZRNa?=
- =?us-ascii?Q?j+xWo6RBQLstIbpML0f84lktONWye82Yq8xUwycC2oGaWOBgWDTnehFOlQhm?=
- =?us-ascii?Q?X2HV+01ERBe9q/n99Rq3kj8sY8XP5TPHsTcQMOAAUTigsZIJRQC10Oc5vt0i?=
- =?us-ascii?Q?Gk7LD8WgmwPr5jfFDevQDdW2cRHn2WIfBvKC9mmLmVQJCtSQ4SFbM68dkSrx?=
- =?us-ascii?Q?+Nq1DXmSea4E6feg/pkgjOL2Zih6+czIWtJtKLttwnUAk3QMGe3oCDmH5DJZ?=
- =?us-ascii?Q?OGg6rf0P6Kwn5xwJC0AFRaT0ESi0zIxkaoSz7+3bU9CjnVVcwsFrG8y+lyE3?=
- =?us-ascii?Q?wCGvSaArho7276gr8qspURfm3hbsjF1XxjeJcFuwVKGqPdyfh87qgMh/Iw0n?=
- =?us-ascii?Q?vQb1MwRAQ25OXFBQzGDTEvtv8g8WDEwazgauVq27t3kjcCA9XAc2C3aiZ/Hn?=
- =?us-ascii?Q?MmrX0SHyYTxWkS00dd6v+le5?=
+X-Microsoft-Antispam-Message-Info: BWoIrv8t8T4v9jIg0E3nUvN8GbkY44oY+WAiXHb8rAcqo3poKqW/8RubP5tK1i6siB6078looTPf4oF74MWpjKKsN7t5UXarOx+lCgUhSywa7wjqu2BFI8s3WpC9IL7D/AFTN4O+38Ta2k0R1+nIvGRMDl+/2N9pwUgr9RcMDs3YXSYfUony1aCc4WpmPQLzsQD943vy6egZOBApFaSlE7oFDF2K/+sbh7V9t0ecPxw2yldC8CSmuXjP+a8SfgRIPpxD1EKojigzBBRyLLktPVNAnac3rU71cI+dxdvAAvc/JqefnVedeNsvMux+AYUL/kR4McCxyYTp+yhTu6J4nTnk+ZJhqok8V3g0ROPITvwRPn4+SbqCTe4cY68eRcGFLM8l8R6rZ/AG7gnFztvniMXY1B9hLeievxfxvlL3eIHseucvxva9zJMb61ZCfeJ6bmZtHMaSMQ3NFbQJsEOdqw7lsu9dLXZZhShj4CrHWW+rpZ58TYqqqPsZZrtmXYnMRL0xTXkoMAEI/GlqZf7CLoxCFHSARkhkd/goEVkHfIXNnCuNUJCi1mLbAu0ibDZtPfcws7+wTJy7HCffJhwCzFVJ/brh0beyqBT7KGvtHolrwacqAox6Kyjd77PA4oYgdlurIhis4gQ26PfPAzlzHg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HKAPR04MB3956.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(366004)(39830400003)(136003)(346002)(396003)(66476007)(2616005)(956004)(52116002)(2906002)(6506007)(8936002)(5660300002)(1076003)(4326008)(36756003)(16526019)(66946007)(6666004)(8676002)(186003)(69590400012)(6512007)(966005)(107886003)(478600001)(316002)(26005)(66556008)(6486002)(83380400001)(86362001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?uGHJdihMgwf4aPQJa0HSPFx6BA38rgj7l+c7JRjTJsjUle+3nQHbUnTABao5?=
+ =?us-ascii?Q?lm9MzT3q849cVeL++ojXCnuDHHzv0RCxo7iOsiP+nlmz2TqHB2VGBi6GTfZJ?=
+ =?us-ascii?Q?9cQ3ABy7iZMl7/+QbPZXP73BPXf0rNgBc8nFHvnNpoUDiYZxJHIIcdcIBItU?=
+ =?us-ascii?Q?ajYXamk0HwYTLAHgxxEiKUsvG2o6dsau/39dUHEszHpfgA/ZoPGXfDf0yBd6?=
+ =?us-ascii?Q?SHYx7YnfuB/IBtofPnToSCEROvUbVYBvQKkNHMPvUnm2EOhjhBd5Ss75e8t1?=
+ =?us-ascii?Q?uosUq4c++xoYbRFHMQuUV1QQGL30ZvCl/aq8vCgNKyJdZkXNZT5tb6WBgUPM?=
+ =?us-ascii?Q?7rEmZRmlsSQ34oEzDAT9Wm40RHa4roYWctOlBPGqT8IS62NLChqlAiiRakdJ?=
+ =?us-ascii?Q?kFBTPLjS4TEXqsC7ZMQZ4juRHiLA5G8lsBmsCIryK33+fXdNS4BUomEhm/5q?=
+ =?us-ascii?Q?PGVnfVLT+Vws/9aQgf3ER9P/syFKmwxd6CkTP3YZYcf67cMsFj0viDffESlF?=
+ =?us-ascii?Q?Djc5VYMuxPpdqJqeaiyOH0dh/qoITxiH4Lw65OWRY3uNPZ+Ar7jWPKpqTzCW?=
+ =?us-ascii?Q?R/S6+CCXng+koNVcqkamgEKDlflfY/Gm0E2vc18l7ThTBW49pPXQ9Nge2JwF?=
+ =?us-ascii?Q?EHMFp9XZttbGLwNGZ183fB/bx/A5CxX5OvpFzEahXIa8/DKVgDs25gTDKPmq?=
+ =?us-ascii?Q?0KAfWlu73Age6CibRPhHXIi+tYIA1JUFAZWBqxU/ykaBGArHtS26swlVCWbl?=
+ =?us-ascii?Q?nHbSTMQoPX+0MwYXNGwOAvElpUYUSNb0hl5TqYPmpUtjZhN8ISOg4YuPry8y?=
+ =?us-ascii?Q?rnvXNlkKNowkNVh5u5a8T1VKR3HnT40zdoaAQDBM/KS9L6m2/jQ2bhkDSAlB?=
+ =?us-ascii?Q?2JkdWzjOS8Zhv8m/b7GMQn6jJjGOXZYSEDKiFQ34jmP19tv53cdt74A8uQqg?=
+ =?us-ascii?Q?xMmm8Rw8dg0PVSI6jwUFAVlAVxLge4IvzJr/7CDafkGxYqG18bJPmlv50Vos?=
+ =?us-ascii?Q?wSEgQ14VPm81zNfRPw205tcguQEBKDL2KNaV/A4fUvGYukWek0fqauMSThG5?=
+ =?us-ascii?Q?UKfu/nkOTrpykWuQHKqZwB4DmHWveRaHnQ5VXx2foAiMTsutNuBJy/FzFZpk?=
+ =?us-ascii?Q?ZNNqXmwUduykohSTurk8pGNzX6gqC/TqT4qzR+mJD0+KGkIWOCndRW1/9hC9?=
+ =?us-ascii?Q?6R5gguQLclWa/6S4giW4dMfjGoSMo7Oceo4yA4BtW6dkdGK9X4ZMTAybbEgb?=
+ =?us-ascii?Q?BF2Scg6Bqv6R5mnYt1gPY8ZMi7GnkKbGlPsihkar9h0dmOj5mrpEoxhsb1Lk?=
+ =?us-ascii?Q?8z4xc1YxrEkFwm876UBfoHfG?=
 X-OriginatorOrg: cipunited.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ee6e414f-6453-4219-1735-08d8d5671d09
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6c990e99-19a0-44ab-8314-08d8d569dc13
 X-MS-Exchange-CrossTenant-AuthSource: HKAPR04MB3956.apcprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2021 06:16:52.1295
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2021 06:36:31.5136
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: e31cf5b5-ee69-4d5f-9c69-edeeda2458c0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JBcYHEDbTcnmYJs0bmwnTFX1Dz8zz3WN13TiYAQIs3byKmBTGEuTbNOMq8ZZHD+ZxRc7Qo40mwdy6qUJ4mynslU9b8P6wx28ctxOXs0AbLo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HK2PR04MB3779
+X-MS-Exchange-CrossTenant-UserPrincipalName: +SelSxm5RGEndqtGC5JfMpSdhZCyzbps05wpRt7irKeyr6Qac9C3iqcpNhjj2y+LiAR5OYPhSOLJlkRiH7OgG/5d+xMW60hrgjaKl0/E3RI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HK0PR04MB3042
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -108,10 +108,13 @@ some binary, for example the output of golang, may be mark as FPXX,
 while in fact they are still FP32.
 
 Since FPXX binary can work with both FR=1 and FR=0, we force it to
-use FR=1 here.
+use FR=0 here.
 
 https://go-review.googlesource.com/c/go/+/239217
 https://go-review.googlesource.com/c/go/+/237058
+
+v1->v2:
+	Fix bad commit message: in fact, we are switching to FR=0
 ---
  arch/mips/kernel/elf.c | 12 +++++++-----
  1 file changed, 7 insertions(+), 5 deletions(-)
