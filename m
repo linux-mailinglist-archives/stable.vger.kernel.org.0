@@ -2,140 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBBA320696
-	for <lists+stable@lfdr.de>; Sat, 20 Feb 2021 19:08:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A31320799
+	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 00:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229868AbhBTSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Feb 2021 13:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57560 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbhBTSIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Feb 2021 13:08:32 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB583C06178C;
-        Sat, 20 Feb 2021 10:07:51 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id t15so14351931wrx.13;
-        Sat, 20 Feb 2021 10:07:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=0Y/6imZkqiKGlky7c1DUrdmobXIpnCmAeb06767LwoQ=;
-        b=qzmNy4Ju/o9mJr1cDgjnsYZDz6XIt9VJ+xcBJuyQGeOwdaeAeLXeWIMNvUIxxjJlzN
-         zrqYh7YfplkW5458YtKJ4NVGQ56MtVN7+Rf6Y2uJScKKzOVI+a9IjhkqEdOfwIA5yF3N
-         48hQmkdA1nxZjXaf+eYKPOdlHPpCNU/pl/OPUF4OFh/6bLD+nt0fqUiDLqgH/f+a59b/
-         bgHMGdySsCMO/LStABWBO9JFVIdAE3b+hieBlXYjRsgvf9fIH18D/N3XKD00jFw5Tj8X
-         wmY4jdvVr84pXvPgXmiSyM4CN23TuAusO8yZXejm5x6j6he0R8HpAmd1yjtrBXMfZoIo
-         RZpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0Y/6imZkqiKGlky7c1DUrdmobXIpnCmAeb06767LwoQ=;
-        b=HJVNtuaGhbMqI8MxuvW4Ruwnx76yvB16qu7ozqFAM4B4RzglzGe6yuke+h9V+czTdH
-         I7IDDyEsX85rzOGCXTLDC0w9/JEul0ajjRmA6teDfCkNhSGBYEZsY3sbqsWedbcO7Esz
-         Jl/MRUbWxFrq1/BHbJwgIIYv2Az6L1259AyIsqIUKwvNAe0ZuBaB0AGO3+sq57eXDmQj
-         w5tmIMEMAZwp8JgJiGZgnthmiAWLcGUukxm3dM7CXdpn5H11cs00RNhSAG9V5tY5NMYi
-         eVPRyfA1BGSLLSNG2xBtGJMlAUaG9MjI4CkiV6w2lzRjSMJP7nt4lLyfkQPMhO3YJJDT
-         GtvQ==
-X-Gm-Message-State: AOAM532w1fr3sB4r+pKJZAtYAAVMf6hB0QH6TNujB6A3knE/JISXkxUn
-        Zygs1UtSzVzieI6k8EMxPn0=
-X-Google-Smtp-Source: ABdhPJytxm/V5LNfErCU2EI+ywksRRHtu/cQ3dFyeu9kyKSNEfMXl5ZRBAakiBa0mxT2dbmX0fI6MQ==
-X-Received: by 2002:a5d:6951:: with SMTP id r17mr13964867wrw.279.1613844470653;
-        Sat, 20 Feb 2021 10:07:50 -0800 (PST)
-Received: from localhost.localdomain ([148.252.132.56])
-        by smtp.gmail.com with ESMTPSA id b83sm13594918wmd.4.2021.02.20.10.07.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Feb 2021 10:07:50 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2 4/4] io_uring: wait potential ->release() on resurrect
-Date:   Sat, 20 Feb 2021 18:03:50 +0000
-Message-Id: <394bfff8aba9353db8270ecd89f590a539f82dca.1613844023.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1613844023.git.asml.silence@gmail.com>
-References: <cover.1613844023.git.asml.silence@gmail.com>
+        id S229812AbhBTXNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Feb 2021 18:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58332 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229810AbhBTXMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 20 Feb 2021 18:12:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51D9664EB8;
+        Sat, 20 Feb 2021 23:12:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613862726;
+        bh=u7qHB3S8G0lDGgctj7hnk3Ftm2wmMqZUJjxJBtDhpoc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UodP6zDtTn2rRt4+ehbVCIW17ZhEeFqUvsdVPd3AtqHA/4qMCvYrcMUfBAyvkIxxE
+         iolOJx4zAZ4rGDwpe/J1/qcEYjThxGJEEGVG0GEsEagBhf/rqGS9svyIwwikGShnNp
+         oQDyWWm8GLipj7RmEQqFLhp+q9dHupSLChJY1X5Zxo1if/4UB0tqjTzH9Q33YiYK6z
+         Pg4gPROOMnnfHDZhK7w7sh56FVWJgGSSX4ZHOuQFsKQeqW17tsnG2LT56tA9WhjzcL
+         qwLadqhl1tLgfOO4enBPGnwMxa7L8mWBhWo0nEO3aSMCEXbLPqk+ZHzRpf36rRxKhd
+         pFYAYcAcfN7SQ==
+From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+To:     Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org
+Subject: [PATCH mvebu-dt] ARM: dts: turris-omnia: configure LED[2]/INTn pin as interrupt pin
+Date:   Sun, 21 Feb 2021 00:11:44 +0100
+Message-Id: <20210220231144.32325-1-kabel@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is a short window where percpu_refs are already turned zero, but
-we try to do resurrect(). Play nicer and wait for ->release() to happen
-in this case and proceed as everything is ok. One downside for ctx refs
-is that we can ignore signal_pending() on a rare occasion, but someone
-else should check for it later if needed.
+Use the `marvell,reg-init` DT property to configure the LED[2]/INTn pin
+of the Marvell 88E1514 ethernet PHY on Turris Omnia into interrupt mode.
 
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Without this the pin is by default in LED[2] mode, and the Marvell PHY
+driver configures LED[2] into "On - Link, Blink - Activity" mode.
+
+This fixes the issue where the pca9538 GPIO/interrupt controller (which
+can't mask interrupts in HW) received too many interrupts and after a
+time started ignoring the interrupt with error message:
+  IRQ 71: nobody cared
+
+There is a work in progress to have the Marvell PHY driver support
+parsing PHY LED nodes from OF and registering the LEDs as Linux LED
+class devices. Once this is done the PHY driver can also automatically
+set the pin into INTn mode if it does not find LED[2] in OF.
+
+Until then, though, we fix this via `marvell,reg-init` DT property.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Cc: Uwe Kleine-König <uwe@kleine-koenig.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: <stable@vger.kernel.org>
+
 ---
- fs/io_uring.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b00ab7138410..ce197af2d3c6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1104,6 +1104,21 @@ static inline void io_set_resource_node(struct io_kiocb *req)
- 	}
- }
+This patch fixes bug introduced with the commit that added Turris
+Omnia's DTS (26ca8b52d6e1), but will not apply cleanly because there is
+commit 8ee4a5f4f40d which changed node name and node compatible
+property and this commit did not go into stable.
+
+So either commit 8ee4a5f4f40d has also to go into stable before this, or
+this patch has to be fixed a little in order to apply to 4.14+.
+
+Please let me know how should I handle this.
+
+---
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index 646a06420c77..b0f3fd8e1429 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -389,6 +389,7 @@ &mdio {
+ 	phy1: ethernet-phy@1 {
+ 		compatible = "ethernet-phy-ieee802.3-c22";
+ 		reg = <1>;
++		marvell,reg-init = <3 18 0 0x4985>;
  
-+static bool io_refs_resurrect(struct percpu_ref *ref, struct completion *compl)
-+{
-+	if (!percpu_ref_tryget(ref)) {
-+		/* already at zero, wait for ->release() */
-+		if (!try_wait_for_completion(compl))
-+			synchronize_rcu();
-+		return false;
-+	}
-+
-+	percpu_ref_resurrect(ref);
-+	reinit_completion(compl);
-+	percpu_ref_put(ref);
-+	return true;
-+}
-+
- static bool io_match_task(struct io_kiocb *head,
- 			  struct task_struct *task,
- 			  struct files_struct *files)
-@@ -7353,13 +7368,11 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
- 		flush_delayed_work(&ctx->rsrc_put_work);
- 
- 		ret = wait_for_completion_interruptible(&data->done);
--		if (!ret)
-+		if (!ret || !io_refs_resurrect(&data->refs, &data->done))
- 			break;
- 
--		percpu_ref_resurrect(&data->refs);
- 		io_sqe_rsrc_set_node(ctx, data, backup_node);
- 		backup_node = NULL;
--		reinit_completion(&data->done);
- 		mutex_unlock(&ctx->uring_lock);
- 		ret = io_run_task_work_sig();
- 		mutex_lock(&ctx->uring_lock);
-@@ -10094,10 +10107,8 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 
- 		mutex_lock(&ctx->uring_lock);
- 
--		if (ret) {
--			percpu_ref_resurrect(&ctx->refs);
--			goto out_quiesce;
--		}
-+		if (ret && io_refs_resurrect(&ctx->refs, &ctx->ref_comp))
-+			return ret;
- 	}
- 
- 	if (ctx->restricted) {
-@@ -10189,7 +10200,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 	if (io_register_op_must_quiesce(opcode)) {
- 		/* bring the ctx back to life */
- 		percpu_ref_reinit(&ctx->refs);
--out_quiesce:
- 		reinit_completion(&ctx->ref_comp);
- 	}
- 	return ret;
+ 		/* irq is connected to &pcawan pin 7 */
+ 	};
 -- 
-2.24.0
+2.26.2
 
