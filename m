@@ -2,99 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEEF320E56
-	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 23:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0276A320E7A
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 00:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230407AbhBUWlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Feb 2021 17:41:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53078 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230388AbhBUWlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 21 Feb 2021 17:41:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B90B464DEC;
-        Sun, 21 Feb 2021 22:40:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1613947222;
-        bh=baXjPoBQbqjfVUYjCiZRD8nOg7OnrLQQYrPT4lQChgo=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=uSxc5btfZ0mg83/kIVoO1jrg3sFcnECNFv/9gzlAZfwJFgPm086Ma+WrA7Tyh0gzR
-         mExG+9urn98IOOfUGsWqqxGtPHEPxcnAXZZva/Cxv2/jk5exl/EsnBqngcVCK9R8tP
-         8CP1VP3zhW3zmoQHGlbN3vtNtPGfob8BI+RWj1OZxA0jHxNvcoZQzgDhFpfKcW0W5I
-         0O1DN94wvkQYpMLCe/GxBRm5xN6X2qvxzMoKRUnOePeU1j7F82lJS2XDxXU8lrmsOz
-         322fjfz1zmtAuJG8zMgbE2Jvdm0urVZ3VGFZEmfbjf1ZrrTO08rJV5vaRqT3ZafMWK
-         vyDAO1bx78LTA==
-Date:   Sun, 21 Feb 2021 23:40:19 +0100
-From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
-To:     Andrew Lunn <andrew@lunn.ch>
-Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <uwe@kleine-koenig.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH mvebu-dt] ARM: dts: turris-omnia: configure LED[2]/INTn
- pin as interrupt pin
-Message-ID: <20210221234019.53284201@kernel.org>
-In-Reply-To: <YDLOOMW+VEhchh7n@lunn.ch>
-References: <20210220231144.32325-1-kabel@kernel.org>
-        <YDGlESUA6pOAm9JL@lunn.ch>
-        <20210221014756.7c444c08@kernel.org>
-        <YDLOOMW+VEhchh7n@lunn.ch>
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S231484AbhBUXFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Feb 2021 18:05:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231503AbhBUXFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Feb 2021 18:05:31 -0500
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7F7C061574
+        for <stable@vger.kernel.org>; Sun, 21 Feb 2021 15:04:50 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id d11so1632597plo.8
+        for <stable@vger.kernel.org>; Sun, 21 Feb 2021 15:04:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=p+3BTgXfyMORK9c193pjp/j5kf3pSojjCJFyfR0ngCI=;
+        b=oVhDNeHjGiL9YT+qNwGnpAeH1PDXO1cRDgbFDHNpDmbbjQmEokA6724UMaYPIwDSJs
+         zt63mTZh4Vwsk/NEdxaKZyi/b1qShhrEdwHakpwyKF/OtZH/innMDLGqJ5k+avZW2C7y
+         CQ5vnXJoNcU50e7K/TJYikBq9v5QVCaNU/RFdb2i4G119z7DjtItMR50t6i8e0KJtQvz
+         /zRTvZmfDwY4IpaGq4HDvoOp4AiPgBBhq5V/oGQi0/VCTwohHstTGusAIl+zk3TAeEQT
+         9WvDG2nmJBBWAnyRZHltc0sH5PaaWtJPbYPXQKIaCY3GLHuPmL2J6Fkxcnms5kSGv6NW
+         iC6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=p+3BTgXfyMORK9c193pjp/j5kf3pSojjCJFyfR0ngCI=;
+        b=icnefHHQsrQm904ADUcSw6EXs2SInyX5OVkgHHLw09L+jYnZeuSJI1/PwZgM2lRA0D
+         rtvADhmRI3DBVecvVd/NltigOp0IXC6c1A5taMhZsYgka8dJPihZSWjvW/9yJc5fTtkx
+         YuCTubywp64Ohoet3OS7oGGl1eWz9K1yCYM3zGOOnKnxcnt+UUAd5/AdVR6s1g8QsdZg
+         6Nm/b1FftmLcgA/DK/7mgUqNElVpaNA7DL7qMqqAPgrcMb83cq6b1r1hjOO/lDxgz6h9
+         Rk7gxT/ibOmtU9My5BiXY2WAOyJSiRNOYRQlYHGZqwBl4z5oBoXEvHQwXnkAYpiRBwB/
+         eJ4Q==
+X-Gm-Message-State: AOAM530RCr3+W2K2Ee34R6vqFtuFSEUOL9WUPAfySe1JERh5FOaoV5sr
+        4niqqpwbtQHgD90Z473+SPvpzUniCNyFyw==
+X-Google-Smtp-Source: ABdhPJxxywVRGBuEBrkUYIJifJM64Y4aaPJE/DYuVMBParWGJB+xQBx25NVOnAf+Jyc7HQg1kTQTeg==
+X-Received: by 2002:a17:902:6bca:b029:e2:c5d6:973e with SMTP id m10-20020a1709026bcab02900e2c5d6973emr19167768plt.40.1613948689976;
+        Sun, 21 Feb 2021 15:04:49 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n6sm1607150pfo.201.2021.02.21.15.04.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 21 Feb 2021 15:04:49 -0800 (PST)
+Message-ID: <6032e711.1c69fb81.d0aaa.3286@mx.google.com>
+Date:   Sun, 21 Feb 2021 15:04:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.99-1-gd50a4341411a
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 113 runs,
+ 1 regressions (v5.4.99-1-gd50a4341411a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 21 Feb 2021 22:18:48 +0100
-Andrew Lunn <andrew@lunn.ch> wrote:
+stable-rc/queue/5.4 baseline: 113 runs, 1 regressions (v5.4.99-1-gd50a43414=
+11a)
 
-> > BTW do you have some experience where pca9538 or compatible cause
-> > errors when used for interrupts? Because I am thinking about trying
-> > to update the pca953x driver to support IRQs via the gpio_chip it
-> > registers, instead of a separate irq_chip.  
-> 
-> I had a board which just died at boot with an interrupt storm. It was
-> probably a PCA9554, at least, i have that datasheet in my collection.
+Regressions Summary
+-------------------
 
-But why did an interrupt storm kill it? The interrupt handler was called
-too many times?
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
 
-> First off, the hardware needs to designed correctly. All unused pins
-> need a pull up/down since they default to inputs, and hence will
-> trigger interrupts. Or you need to make unused pins outputs before you
-> enable interrupts. And that probably goes against the design of the
-> GPIO subsystem. I don't think you actually know when a pin is unused.
 
-Omnia has proper pull ups/downs on all 8 pins on this device.
-5 of these pins are used from SFP cage, 1 as interrupt from PHY and 2
-are unused. Only the interrupt pin was causing problems because marvell
-PHY driver configured it as blink on activity LED.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.99-1-gd50a4341411a/plan/baseline/
 
-> I'm not sure i would want to touch this driver. Given how badly this
-> device implements interrupts, any board which does successfully use it
-> for interrupts might regress if you make code changes. And then you
-> are going to have to try to figure out what you actually changed and
-> why it regressed.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.99-1-gd50a4341411a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d50a4341411ad6f4ab0b9f857e15571fae324d20 =
 
-The problem in this driver is:
-- interrupt handler is called every time an input pin changes
-- not all input pins must be used as interrupt sources
-- if at least one input pin is used as an interrupt source,
-  the interrupt handler is being called on every change of every input
-  pin
-- but if the change occurs on a pin that is not used as an interrupt
-  source, the interrupt handler returns IRQ_NONE
-- a simple scenario to achieve error:
-  1. use pin P0 as interrupt source and P1 as GPIO input; other
-     pins as outputs
-  2. connect P1 to something that changes value
-  3. after 10000 changes of P1 (more if there was a change on P0 at the
-     same time) the interrupt handler will return IRQ_NONE 10000 times
-     and kernel will start ignoring interrupts from this driver because
-     it was returning IRQ_NONE
-I think this needs to be fixed in this driver. Either this function
-should return IRQ_HANDLED in this case, or there should be a third
-option to return, something like IRQ_NONE_BUT_THATS_OK
 
-Marek
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/6032b053b40261936eaddd40
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.99-1-=
+gd50a4341411a/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
+a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.99-1-=
+gd50a4341411a/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
+a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6032b053b40261936eadd=
+d41
+        failing since 93 days (last pass: v5.4.78-5-g843222460ebea, first f=
+ail: v5.4.78-13-g81acf0f7c6ec) =
+
+ =20
