@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A4A320BA8
-	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 17:12:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE868320BAE
+	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 17:19:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbhBUQMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Feb 2021 11:12:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229685AbhBUQMg (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 21 Feb 2021 11:12:36 -0500
-X-Greylist: delayed 569 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 21 Feb 2021 08:11:55 PST
-Received: from saturn.retrosnub.co.uk (saturn.retrosnub.co.uk [IPv6:2a00:1098:86::1:1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A05C061574
-        for <Stable@vger.kernel.org>; Sun, 21 Feb 2021 08:11:55 -0800 (PST)
+        id S229817AbhBUQSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Feb 2021 11:18:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229585AbhBUQSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Feb 2021 11:18:47 -0500
 Received: from archlinux (cpc108967-cmbg20-2-0-cust86.5-4.cable.virginm.net [81.101.6.87])
-        by saturn.retrosnub.co.uk (Postfix; Retrosnub mail submission) with ESMTPSA id 1EC029E008E;
-        Sun, 21 Feb 2021 16:01:41 +0000 (GMT)
-Date:   Sun, 21 Feb 2021 16:01:35 +0000
-From:   Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
-To:     linux-iio@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: Re: [PATCH] iio:adc:stm32-adc: Add HAS_IOMEM dependency
-Message-ID: <20210221160135.5437e083@archlinux>
-In-Reply-To: <20210124195034.22576-1-jic23@kernel.org>
-References: <20210124195034.22576-1-jic23@kernel.org>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22DEE64EF1;
+        Sun, 21 Feb 2021 16:18:04 +0000 (UTC)
+Date:   Sun, 21 Feb 2021 16:18:01 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] iio: adc: ab8500-gpadc: Fix off by 10 to 3
+Message-ID: <20210221161801.42532e87@archlinux>
+In-Reply-To: <20201224011700.1059659-1-linus.walleij@linaro.org>
+References: <20201224011700.1059659-1-linus.walleij@linaro.org>
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -36,40 +35,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 24 Jan 2021 19:50:34 +0000
-Jonathan Cameron <jic23@kernel.org> wrote:
+On Thu, 24 Dec 2020 02:17:00 +0100
+Linus Walleij <linus.walleij@linaro.org> wrote:
 
-> From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Fix an off by three orders of magnitude error in the AB8500
+> GPADC driver. Luckily it showed up quite quickly when trying
+> to make use of it. The processed reads were returning
+> microvolts, microamperes and microcelsius instead of millivolts,
+> milliamperes and millicelsius as advertised.
 > 
-> Seems that there are config combinations in which this driver gets enabled
-> and hence selects the MFD, but with out HAS_IOMEM getting pulled in
-> via some other route.  MFD is entirely contained in an
-> if HAS_IOMEM block, leading to the build issue in this bugzilla.
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=209889
-> 
-> Cc: <Stable@vger.kernel.org>
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Applied to the fixes-togreg branch of iio.git.
+> Cc: stable@vger.kernel.org
+> Fixes: 07063bbfa98e ("iio: adc: New driver for the AB8500 GPADC")
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+No idea why I didn't pick this up before now.  I guess I forgot it
+over xmas.
 
-Thanks
+Anyhow, now applied to the fixes-togreg branch of iio.git.
+
+Thanks,
 
 Jonathan
 
 > ---
->  drivers/iio/adc/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/iio/adc/ab8500-gpadc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-> index bf7d22fa4be2..6605c263949c 100644
-> --- a/drivers/iio/adc/Kconfig
-> +++ b/drivers/iio/adc/Kconfig
-> @@ -923,6 +923,7 @@ config STM32_ADC_CORE
->  	depends on ARCH_STM32 || COMPILE_TEST
->  	depends on OF
->  	depends on REGULATOR
-> +	depends on HAS_IOMEM
->  	select IIO_BUFFER
->  	select MFD_STM32_TIMERS
->  	select IIO_STM32_TIMER_TRIGGER
+> diff --git a/drivers/iio/adc/ab8500-gpadc.c b/drivers/iio/adc/ab8500-gpadc.c
+> index 6f9a3e2d5533..7b5212ba5501 100644
+> --- a/drivers/iio/adc/ab8500-gpadc.c
+> +++ b/drivers/iio/adc/ab8500-gpadc.c
+> @@ -918,7 +918,7 @@ static int ab8500_gpadc_read_raw(struct iio_dev *indio_dev,
+>  			return processed;
+>  
+>  		/* Return millivolt or milliamps or millicentigrades */
+> -		*val = processed * 1000;
+> +		*val = processed;
+>  		return IIO_VAL_INT;
+>  	}
+>  
 
