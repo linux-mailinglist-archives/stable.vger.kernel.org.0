@@ -2,129 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5C132083B
-	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 05:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3320320997
+	for <lists+stable@lfdr.de>; Sun, 21 Feb 2021 11:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhBUEDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Feb 2021 23:03:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42634 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229903AbhBUEDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Feb 2021 23:03:43 -0500
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974CBC061574;
-        Sat, 20 Feb 2021 20:03:03 -0800 (PST)
-Received: by mail-qk1-x72c.google.com with SMTP id h8so9605051qkk.6;
-        Sat, 20 Feb 2021 20:03:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YCBlIveawCHb5Ra4kWySdRysMcOqPyJyzUq0Stqn3vo=;
-        b=bjDx0vkPPI2UuQ5FooqKrfBugut01qTsstarmkiIzZ/WNQww6XehcCw0BjSAiI9vB/
-         KJqD1rGBdNXXEU6HQrmnMYNjLENNpoc9Mj6bCbdn/01R4mNXKuP0EXGdSThsy3CCK2lY
-         5191kMEv1n97DHvGPAqkF7Att+sYHnxml4y42skFmyehBl50I9teFSk/BZZrBlzYxeci
-         LMPl4WDKwCi9jxdBhEdeJZZsPCcFRSdGeXSgsm/cu69nTojvj+rOcj68PNLie1sZRcpu
-         cvID8XmgGGjffTnkTdR6yil+girTeFzLjPrmp0YC9XHfWEf/WTSv8DaZaNKmLk55rpOh
-         4DFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YCBlIveawCHb5Ra4kWySdRysMcOqPyJyzUq0Stqn3vo=;
-        b=DxlmRvJ85+ATPginpDomQ0kPDsastzNVuOYSUAGIFp5Kb8vE1dnQiSJH71AL4vfLNk
-         0Hu+XH9ULwI9cySsZRDS9eE8dYRRPlM9S7G/coeSZdm7MD0luHdt0t5mjj4lGjsjHGe0
-         ChLZ+FKYi9J+ngnWEPZJBLESTc6AS8+Nfjz0JinwFJt4BYqhwEdBeCS9UgM3U1gM5vQE
-         1yY8y27DXLp/5d9335auFTdFPtO56PU1bjbxIih7TEtLUjvmAst0MemYXs6+2YZiWL/P
-         IyBOpGP20OmNkWRco59BeH1SVuoMYToB6APmOK49K11/cPCueqpJcEvyg6GDRp1kjzVi
-         syFQ==
-X-Gm-Message-State: AOAM530HCk0WTUvcXa/uBOMBHCV+ZRhKgZ6kxlbH6AwNxhbmk5fZDTZZ
-        vNSSSBAw2ee9tA65EkkZfy+2emzMkD7IuH7yXOJidPN2OTiczAOL
-X-Google-Smtp-Source: ABdhPJxIaXW7yoWbfuIvKnMTGaP1xH/QZrjo6n3gyTvAH950oENna13caA41o3lGlY/Q+KZcxxXGSLh7e/ETYK9KLIw=
-X-Received: by 2002:a37:bd01:: with SMTP id n1mr16338643qkf.469.1613880182572;
- Sat, 20 Feb 2021 20:03:02 -0800 (PST)
+        id S229588AbhBUKVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Feb 2021 05:21:24 -0500
+Received: from mout.gmx.net ([212.227.17.21]:56465 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229502AbhBUKVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Feb 2021 05:21:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1613902773;
+        bh=wODiBjnT/f1js89rh/S8lYuasVsARYyh6GdrFA3yrhU=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=A0tIUFTQKnmlPC//r5ZCVnLhq+JDm5bNZWQY7CSZsN+C+YExZcKrxZPTuxA0/Qvi9
+         VwttV24CqfY5di3DH8Rd2aL9D6igzByrkedWEg4HKgEUMm4USjch43YxFfVgt5fwvj
+         NS5AArOIc2pua094vVV1ew/fGzOG7HQMVOR8cH6Q=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.178.51] ([78.42.220.31]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N7R1J-1lv6oD3aQv-017j41; Sun, 21
+ Feb 2021 11:19:32 +0100
+Subject: Re: [PATCH v6] tpm: fix reference counting for struct tpm_chip
+To:     Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, stefanb@linux.vnet.ibm.com,
+        James.Bottomley@hansenpartnership.com, David.Laight@aculab.com,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <l.sanfilippo@kunbus.com>,
+        stable@vger.kernel.org
+References: <1613680181-31920-1-git-send-email-LinoSanfilippo@gmx.de>
+ <1613680181-31920-2-git-send-email-LinoSanfilippo@gmx.de>
+ <YC+BRfvtA3n7yeaR@kernel.org>
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Message-ID: <aa2ec878-f8ea-d28b-c7c2-ecdc3d19f71e@gmx.de>
+Date:   Sun, 21 Feb 2021 11:19:28 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20210220081231.10648-1-yunqiang.su@cipunited.com> <alpine.DEB.2.21.2102201515350.2021@angie.orcam.me.uk>
-In-Reply-To: <alpine.DEB.2.21.2102201515350.2021@angie.orcam.me.uk>
-From:   YunQiang Su <wzssyqa@gmail.com>
-Date:   Sun, 21 Feb 2021 12:04:38 +0800
-Message-ID: <CAKcpw6XLnXpg_0H1is1KnaEdTqc897GUn4ubV9PkPOSj9rp92g@mail.gmail.com>
-Subject: Re: [PATCH v3] MIPS: use FR=0 for FPXX binary
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     YunQiang Su <yunqiang.su@cipunited.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <YC+BRfvtA3n7yeaR@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:tDY68+aMWOXi/OV26ccKmpyEOr/TeQn3WoE3bI5N8tH6P/hFuw0
+ nQBa5b5JUtPB6b8beQbW5BM7a6Lf4P8KODv3DLspYpwvBQ2nHA38ZUzYk2qHDlPiXMo7q6q
+ VPiGouesy5YDeXRxeaLOXIxrqX9ncKu2xzMq1FHUQXgw1llcxF2rrFs/cQo1rh20P5+kc4L
+ 1IOxWe+nB03cIua3NlLHA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:KgUuKdzeVis=:9KlqlSLf+kq82Xx1ngoruL
+ yfyLS72OofET7ldJXf0rHp9MG5HOMnK1/QwXsETWwMJejPjRo3VwHAKJ6Ag4kIrRLOJ6oH1Ls
+ 6tEdw4/LVo09swwfHzfmW2doEbxAAKTvWHeNuQuMHYyItzTTRFavKgHWce0VwjZlzCtA6HgRG
+ VaRCPw20h+o/Znu5SNp2XkOvXS9f7vPckzSHOI1+CIwp4zE9hB02XDUT2ztZszuZo1zxFlrd6
+ dtig4vtr47hefuwa+Qjvv0FW5MtvH1UAPMM7K5OQ0iePSBu+TE2YeeKfpJOYeDNzwfcnxiyre
+ aohYaIcbla/CCQegHYNlxS8cOLZqdNQb43UUuWhuDHbPi8LF7pVf7rWyQRcFVTgXvFC3k+3dv
+ g4FPoRJB0Ycc/nS750ZRVse3h6HJnDwZ1NwVIJ2Xgio4KfGO8kXguFLFmecgT6gc8Ue3KBZAj
+ 3VbX3mSPt6LatXTQr9KbzM0Hr4NbXKItj7pX6qmgyGds0mnDr1KmpL6niTlGMGYw/+FZ7UkS/
+ OWrtcR1HmcJr6Nx3GqAENzJXlhv9cAJsraCBf7MyXlJlNXrP/rwt3PlsNcbrrYl25DQw39xK9
+ BWh/5HiYhgWNp6xj99mIYA2D1VQrQE2MXuJX2PHW2olmNWuQxNgVzS/KUx3fZpE3eH0Cpvn/3
+ TCDOaIpJn5TO3ImCU3B776eWCFc3D2WZHcFL5484A5Lvhfit+tM0PD3bl8424wbGekURtPVYc
+ 7xaxeL3npAgtTaitOzvUYv79CDBm+C0e3BzxQJp5S/ABJy2+ccDU6YCX9e5eEmZAMUpi2F2GN
+ H/msTBAd8oaznu8Q4we8ZLrqOYKkSs+Otu5Mmr/3kzVs0A5zmmBsbY0YQ4Q+4ka+8k+oB71fN
+ gZifhpYTLNHG4K/aj13Q==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Maciej W. Rozycki <macro@orcam.me.uk> =E4=BA=8E2021=E5=B9=B42=E6=9C=8820=E6=
-=97=A5=E5=91=A8=E5=85=AD =E4=B8=8B=E5=8D=8810:55=E5=86=99=E9=81=93=EF=BC=9A
+
+Hi,
+
+On 19.02.21 at 10:13, Jarkko Sakkinen wrote:
+
+>> +	rc =3D cdev_device_add(&chip->cdevs, &chip->devs);
+>> +	if (rc) {
+>> +		dev_err(&chip->devs,
+>> +			"unable to cdev_device_add() %s, major %d, minor %d, err=3D%d\n",
+>> +			dev_name(&chip->devs), MAJOR(chip->devs.devt),
+>> +			MINOR(chip->devs.devt), rc);
+>> +		goto out_put_devs;
+>> +	}
+>> +
+>> +	return 0;
+>> +
+>> +out_put_devs:
 >
-> On Sat, 20 Feb 2021, YunQiang Su wrote:
+> A nit:
 >
-> > some binary, for example the output of golang, may be mark as FPXX,
-> > while in fact they are still FP32.
-> >
-> > Since FPXX binary can work with both FR=3D1 and FR=3D0, we force it to
-> > use FR=3D0 here.
+> 1. You have already del_cdev:
+> 2. Here you use a differing convention with out prefix.
 >
->  This defeats the purpose of FPXX of working with what hardware provides;
-
-Yes. It is some like a workaround.
-Should we add a new CONFIG option?
-
-> R6 has the value of FR hardwired according to the FPU configuration[1][2]=
-.
+> I'd suggest that you put err_ to both:
 >
-> > https://go-review.googlesource.com/c/go/+/239217
-> > https://go-review.googlesource.com/c/go/+/237058
+> 1. err_del_cdev
+> 2. err_put_devs
 >
->  You need to fix the compiler.  In the interim you may be able to use
-> `objcopy', `elfedit' or a similar tool to fix up the broken existing
-> binaries if required.
+> It's quite coherent what we have already:
+>
+> linux-tpmdd on =EE=82=A0 next took 8s
+> =E2=9D=AF git grep "^err_.*" drivers/char/tpm/ |  wc -l
+> 17
 >
 
-The above 2 merge request of golang are just for it.
-This patch for kernel is to support the current exists binary that we
-cannot modify.
-For example, use the kernel of Debian 11 with the userland of Debian 10.
 
-Without this workaround, then, we cannot switch on O32_FP64 support.
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D962485
+The label del_cdev is indeed a bit inconsistent with the rest of the code.
+But AFAICS out_put_devs is not:
+1. all labels in tpm2-space.c start with out_
+2. there are more hits for out_ across the whole TPM code (i.e. with the s=
+ame command
+you used above I get 31 hits for _out) than for err_.
 
->  NB I suspect there is something wrong with the linker as well, because I
-> would expect the FP mode of an input legacy object (that is one without
-> GNU attributes or MIPS abiflags) to be interpreted according to the legac=
-y
-> ABI requirements, i.e. o32 =3D> FR=3D0, n32/n64 =3D> FR=3D1, and the outp=
-ut GNU
-> attributes or MIPS abiflags set accordingly.  You need to investigate
-> further what is going on here.
-
-Yes. This is a problem that I will inveset.
+I suggest to rename del_cdev to something like out_del_cdev or maybe out_c=
+dev which
+seems to be even closer to the existing naming scheme for labels.
 
 
->
-> References:
->
-> [1] "MIPS Architecture For Programmers, Volume I-A: Introduction to the
->     MIPS64 Architecture", Imagination Technologies Ltd., Document Number:
->     MD00083, Revision 6.01, August 20, 2014, Table 6.4 "FPU Register
->     Models Availability and Compliance", p. 87
->
-> [2] "MIPSAR Architecture For Programmers Volume III: MIPS64 / microMIPS64
->     Privileged Resource Architecture", Imagination Technologies Ltd.,
->     Document Number: MD00091, Revision 6.03, December 22, 2015, Table 9.4=
-9
->     "Status Register Field Descriptions", p. 215
->
->   Maciej
+Regards,
+Lino
 
 
-
---
-YunQiang Su
