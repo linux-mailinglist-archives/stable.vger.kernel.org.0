@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F70F321638
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C871321627
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230261AbhBVMTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
+        id S230281AbhBVMSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:18:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230230AbhBVMQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230431AbhBVMQG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Feb 2021 07:16:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2816664EF5;
-        Mon, 22 Feb 2021 12:15:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83CA664F11;
+        Mon, 22 Feb 2021 12:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996146;
-        bh=JzL1R1kLFmc4+X+GW/BnLIETWiIar3H27kZ/NPvXEQk=;
+        s=korg; t=1613996149;
+        bh=U5swuH88HlSYBGibQtVeUoXo0V/IMADHqkcqixFhXfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0EPGU2FSKcreF+WS6AITwgXw3FUcl6PsZbM2/DjokCoPYs0P97Bu4nrK2oaVdntc
-         oy0yGbR3N9wDxCU10ofIlEOXFknib2hS2HUoTI82Iv5GfBH+Z/DPht7uZalNndMiEj
-         C3iWIYQwYpnu9ldlL/K3CmmoznyKbluvJESkgXnM=
+        b=y2iX3M9lFLf5/T7Z6RHYJXVxNkE3mqg3OigU3wFowGXc5jDPd1Hd+vyVYEYI67nQB
+         sEdf8BBHI8lgYvk/dleo1F4CHSDJvCtYRV07FwjhSTH0mGu17LNr9fb16aSzOTenHo
+         KYYYv3lnZUX0k+cGcukBEvsUxfDzraO/9lWnOO24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Julien Grall <jgrall@amazon.com>,
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 08/13] xen/arm: dont ignore return errors from set_phys_to_machine
-Date:   Mon, 22 Feb 2021 13:13:25 +0100
-Message-Id: <20210222121018.539342040@linuxfoundation.org>
+Subject: [PATCH 5.4 09/13] xen-blkback: dont "handle" error by BUG()
+Date:   Mon, 22 Feb 2021 13:13:26 +0100
+Message-Id: <20210222121018.744630553@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
 References: <20210222121013.583922436@linuxfoundation.org>
@@ -41,42 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 36bf1dfb8b266e089afa9b7b984217f17027bf35 upstream.
+commit 5a264285ed1cd32e26d9de4f3c8c6855e467fd63 upstream.
 
-set_phys_to_machine can fail due to lack of memory, see the kzalloc call
-in arch/arm/xen/p2m.c:__set_phys_to_machine_multi.
+In particular -ENOMEM may come back here, from set_foreign_p2m_mapping().
+Don't make problems worse, the more that handling elsewhere (together
+with map's status fields now indicating whether a mapping wasn't even
+attempted, and hence has to be considered failed) doesn't require this
+odd way of dealing with errors.
 
-Don't ignore the potential return error in set_foreign_p2m_mapping,
-returning it to the caller instead.
+This is part of XSA-362.
 
-This is part of XSA-361.
-
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/xen/p2m.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/block/xen-blkback/blkback.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -95,8 +95,10 @@ int set_foreign_p2m_mapping(struct gntta
- 	for (i = 0; i < count; i++) {
- 		if (map_ops[i].status)
- 			continue;
--		set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
--				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT);
-+		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
-+				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
-+			return -ENOMEM;
-+		}
+--- a/drivers/block/xen-blkback/blkback.c
++++ b/drivers/block/xen-blkback/blkback.c
+@@ -867,10 +867,8 @@ again:
+ 			break;
  	}
  
- 	return 0;
+-	if (segs_to_map) {
++	if (segs_to_map)
+ 		ret = gnttab_map_refs(map, NULL, pages_to_gnt, segs_to_map);
+-		BUG_ON(ret);
+-	}
+ 
+ 	/*
+ 	 * Now swizzle the MFN in our domain with the MFN from the other domain
+@@ -885,7 +883,7 @@ again:
+ 				pr_debug("invalid buffer -- could not remap it\n");
+ 				put_free_pages(ring, &pages[seg_idx]->page, 1);
+ 				pages[seg_idx]->handle = BLKBACK_INVALID_HANDLE;
+-				ret |= 1;
++				ret |= !ret;
+ 				goto next;
+ 			}
+ 			pages[seg_idx]->handle = map[new_map_idx].handle;
 
 
