@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88B2032171E
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7184732174F
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231345AbhBVMmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:42:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
+        id S231251AbhBVMqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:46:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231318AbhBVMlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:41:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E8D764EEC;
-        Mon, 22 Feb 2021 12:39:12 +0000 (UTC)
+        id S231589AbhBVMn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:43:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD3F064F09;
+        Mon, 22 Feb 2021 12:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997553;
-        bh=BVKT+OOE03fon98gOFRRv3x/EIjL2MbNpKfff9E2laE=;
+        s=korg; t=1613997652;
+        bh=CSDtcm7Chek2zItAiay6rE4CewmzYjWKNDWvgu9UV+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hz3bUooqZaBlAYRgPdDy2FVULzxC/qnM/B7NpfhFGqHFnzJfTJSPsNBqWtFMEBu/J
-         utoqKJYKjYaASsFU32nTwqz19UpkmRYhjyqqFwkUzBT1r6v9OLRaIat1VZc8vgEbCx
-         +8TLQxXnfJ/rEtsyCTin7niaGksTFvOFMJn2ASIc=
+        b=XAI5jH32RRU3sX73I36S6+vuAUpc4h+eJ9mf07Adn4idwl2PyBrojniIKQew7oTFa
+         N2c+E6RaolGqnHvbWIhkt97OwEE6Iv1p18SnmYqmMi1+f+/mQnobDaFktzwDaOK2sN
+         yjErDl1vXsuq2mrP+hI17PQ33YnELlNzwe8aUvLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 36/57] net: watchdog: hold device global xmit lock during tx disable
+        stable@vger.kernel.org,
+        syzbot+b2bf2652983d23734c5c@syzkaller.appspotmail.com,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/49] af_key: relax availability checks for skb size calculation
 Date:   Mon, 22 Feb 2021 13:36:02 +0100
-Message-Id: <20210222121030.379629059@linuxfoundation.org>
+Message-Id: <20210222121024.093544831@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-commit 3aa6bce9af0e25b735c9c1263739a5639a336ae8 upstream.
+[ Upstream commit afbc293add6466f8f3f0c3d944d85f53709c170f ]
 
-Prevent netif_tx_disable() running concurrently with dev_watchdog() by
-taking the device global xmit lock. Otherwise, the recommended:
+xfrm_probe_algs() probes kernel crypto modules and changes the
+availability of struct xfrm_algo_desc. But there is a small window
+where ealg->available and aalg->available get changed between
+count_ah_combs()/count_esp_combs() and dump_ah_combs()/dump_esp_combs(),
+in this case we may allocate a smaller skb but later put a larger
+amount of data and trigger the panic in skb_put().
 
-	netif_carrier_off(dev);
-	netif_tx_disable(dev);
+Fix this by relaxing the checks when counting the size, that is,
+skipping the test of ->available. We may waste some memory for a few
+of sizeof(struct sadb_comb), but it is still much better than a panic.
 
-driver shutdown sequence can happen after the watchdog has already
-checked carrier, resulting in possible false alarms. This is because
-netif_tx_lock() only sets the frozen bit without maintaining the locks
-on the individual queues.
-
-Fixes: c3f26a269c24 ("netdev: Fix lockdep warnings in multiqueue configurations.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+b2bf2652983d23734c5c@syzkaller.appspotmail.com
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    2 ++
- 1 file changed, 2 insertions(+)
+ net/key/af_key.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3674,6 +3674,7 @@ static inline void netif_tx_disable(stru
- 
- 	local_bh_disable();
- 	cpu = smp_processor_id();
-+	spin_lock(&dev->tx_global_lock);
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
- 
-@@ -3681,6 +3682,7 @@ static inline void netif_tx_disable(stru
- 		netif_tx_stop_queue(txq);
- 		__netif_tx_unlock(txq);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 76a008b1cbe5f..adc93329e6aac 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2933,7 +2933,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg) && aalg->available)
++		if (aalg_tmpl_set(t, aalg))
+ 			sz += sizeof(struct sadb_comb);
  	}
-+	spin_unlock(&dev->tx_global_lock);
- 	local_bh_enable();
- }
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2951,7 +2951,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
  
+-		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
++		if (!(ealg_tmpl_set(t, ealg)))
+ 			continue;
+ 
+ 		for (k = 1; ; k++) {
+@@ -2962,7 +2962,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
+ 
+-			if (aalg_tmpl_set(t, aalg) && aalg->available)
++			if (aalg_tmpl_set(t, aalg))
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
+-- 
+2.27.0
+
 
 
