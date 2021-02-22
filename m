@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B514132163F
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7390B321655
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:21:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhBVMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:19:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44936 "EHLO mail.kernel.org"
+        id S230189AbhBVMUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:20:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230434AbhBVMRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230477AbhBVMRC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Feb 2021 07:17:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94B9B64F13;
-        Mon, 22 Feb 2021 12:16:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03B9964F14;
+        Mon, 22 Feb 2021 12:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996197;
-        bh=W8Iy6YrF3A+u0xq4e5/2i4uzGfnVsC3uU6cmDFI8KcM=;
+        s=korg; t=1613996199;
+        bh=v/gQGnMSyBOWAGIrp2ZGq93+zdde1cBJ8dwXtt1HroE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZWekke1sh5EXhuR0mH+gZWXrY/rG+onUctlaZbRf0dqySxuJRM/mlOci948ETSVQ
-         HFoUOmj+6dd4WC3e+os8WeK8MoLu3Dd0QXUjLnCbvFxim+Qz0UAnIitIdtmmbVPIXA
-         /PwFpoCp6HR+fZvE5npRaHQL5hyRVLTLTWCnVk8w=
+        b=pUMeqdSisvYzCCeESrzXxEIx0txo4P5o9E6e9SRCaYiILXiQP0Q2ijyKLmZN0yR6m
+         4H6+nZxSdHBqii0R19FotItIdedq6BbZZCQDnMXCk52TftfhfQLJ+NfJFvzwCgqMWR
+         w4SucuaHVKI6gxJDBbGC9A4/U4I5HHdsWbIoOHSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/50] i2c: stm32f7: fix configuration of the digital filter
-Date:   Mon, 22 Feb 2021 13:13:16 +0100
-Message-Id: <20210222121024.896291023@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 26/50] h8300: fix PREEMPTION build, TI_PRE_COUNT undefined
+Date:   Mon, 22 Feb 2021 13:13:17 +0100
+Message-Id: <20210222121025.092457330@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
 References: <20210222121019.925481519@linuxfoundation.org>
@@ -40,59 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3d6a3d3a2a7a3a60a824e7c04e95fd50dec57812 ]
+[ Upstream commit ade9679c159d5bbe14fb7e59e97daf6062872e2b ]
 
-The digital filter related computation are present in the driver
-however the programming of the filter within the IP is missing.
-The maximum value for the DNF is wrong and should be 15 instead of 16.
+Fix a build error for undefined 'TI_PRE_COUNT' by adding it to
+asm-offsets.c.
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+  h8300-linux-ld: arch/h8300/kernel/entry.o: in function `resume_kernel': (.text+0x29a): undefined reference to `TI_PRE_COUNT'
 
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lkml.kernel.org/r/20210212021650.22740-1-rdunlap@infradead.org
+Fixes: df2078b8daa7 ("h8300: Low level entry")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/h8300/kernel/asm-offsets.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index eb7e533b0dd47..6feafebf85feb 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -49,6 +49,8 @@
- #define STM32F7_I2C_CR1_RXDMAEN			BIT(15)
- #define STM32F7_I2C_CR1_TXDMAEN			BIT(14)
- #define STM32F7_I2C_CR1_ANFOFF			BIT(12)
-+#define STM32F7_I2C_CR1_DNF_MASK		GENMASK(11, 8)
-+#define STM32F7_I2C_CR1_DNF(n)			(((n) & 0xf) << 8)
- #define STM32F7_I2C_CR1_ERRIE			BIT(7)
- #define STM32F7_I2C_CR1_TCIE			BIT(6)
- #define STM32F7_I2C_CR1_STOPIE			BIT(5)
-@@ -147,7 +149,7 @@
- #define STM32F7_I2C_MAX_SLAVE			0x2
+diff --git a/arch/h8300/kernel/asm-offsets.c b/arch/h8300/kernel/asm-offsets.c
+index 85e60509f0a83..d4b53af657c84 100644
+--- a/arch/h8300/kernel/asm-offsets.c
++++ b/arch/h8300/kernel/asm-offsets.c
+@@ -63,6 +63,9 @@ int main(void)
+ 	OFFSET(TI_FLAGS, thread_info, flags);
+ 	OFFSET(TI_CPU, thread_info, cpu);
+ 	OFFSET(TI_PRE, thread_info, preempt_count);
++#ifdef CONFIG_PREEMPTION
++	DEFINE(TI_PRE_COUNT, offsetof(struct thread_info, preempt_count));
++#endif
  
- #define STM32F7_I2C_DNF_DEFAULT			0
--#define STM32F7_I2C_DNF_MAX			16
-+#define STM32F7_I2C_DNF_MAX			15
- 
- #define STM32F7_I2C_ANALOG_FILTER_ENABLE	1
- #define STM32F7_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
-@@ -645,6 +647,13 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
- 	else
- 		stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
- 				     STM32F7_I2C_CR1_ANFOFF);
-+
-+	/* Program the Digital Filter */
-+	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_DNF_MASK);
-+	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_DNF(i2c_dev->setup.dnf));
-+
- 	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
- 			     STM32F7_I2C_CR1_PE);
+ 	return 0;
  }
 -- 
 2.27.0
