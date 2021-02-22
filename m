@@ -2,122 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C30AF321CC1
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 17:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 455A2321D0B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 17:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230310AbhBVQVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 11:21:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54594 "EHLO
+        id S230420AbhBVQdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 11:33:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231276AbhBVQVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 11:21:08 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281E5C061793
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 08:20:14 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id 75so10497789pgf.13
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 08:20:14 -0800 (PST)
+        with ESMTP id S230177AbhBVQbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 11:31:20 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 516ADC06178C
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 08:30:03 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id v22so22715580edx.13
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 08:30:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N1V19RL2Qljl3NvDZTmLgfDW95BE8LDRZ8lcDwoJVMM=;
-        b=X0kshPQoEE1OMwWNfBqrV3Q34Q8HC89HjB5WVc48e2Ih9NZy6lZArnAJQ/XIYSA8un
-         V3Qtf4yghb2xXbyGXwRsw9VpLvEIfK7pHI3stZuglzEfSzyYNMDaBcCqGRnhmCIa7zmf
-         44EjedBlnRjTYXHXNCAFMzYb5BHbAOQzhWAKz2S0bii3m9Tx3gwTsx9vtxvZ0t0pQQ87
-         1jX+de58xZpozcUp07gAfhZ6Xiahfx9Fi0v7lWMbaYtY1lqWylOzE7eBh0Uk2iuIV7ip
-         51A63e366wZfrLraIQHeYdkezY89G0bQZsSrf9lw0sBergu/C0aTwUyA6XhyViUU1LFZ
-         GSlA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iYFZQhpI9PWFICV4j9Dcg2L4iXOc1SnJH/pDiQOJqnU=;
+        b=FTApkqpOBIB0BP8YBy7a44yeNU9F8UeIhkSaI+PnH7UEnhgfNkbHGIScuM1SUMmjEB
+         RXn68yAJGjmArwGz4ludBmIoXTQoH/qS7M6/fNoxX96FooLm2LYBWppHz/eaWP6VbRep
+         CQ8RDRfwr01rNdnmTtP2+Lsa+A7d2f3txug+/Q2AriMVeRXFK0mkV0yDvC8gwCh33gPg
+         /uCUCQA4svfc7LKBZk47yDsGyXAqNY9+9mJ9k8S3UMnhI2vOa1XeQbIydfPMzejn3pdZ
+         AjVjGMrgpMar8ekJ77xWdUDOgbPtU34a156k0xAzvp2qMuvBUkzsstB3hew7gI8YFzSU
+         8KhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N1V19RL2Qljl3NvDZTmLgfDW95BE8LDRZ8lcDwoJVMM=;
-        b=ZMdu72UPau5IgrNH4v7tzFv2wWzS9eCE3EIy/fXXaLcX3Csq/0QmdTkswql25M5S58
-         oxiROzL5kFMVzpv1RthYsHbM/Fd6CybAP6oPhLoDF+mVM4pPAvcsRMuMvabHz6PNwr80
-         zo7rl8BeL+ZH4pWTOQr/yWbHfrdm1Vj61/0mbBq9hdiiQZs5cUtaTWDU1iXwn/pt+2o9
-         KC7j3iRY1KRe9TE0QuxnkCzXJrAjhYCvCuMce9P8tDD58c1z49qG+AQxGAlDIjzyv42y
-         cAiK77RDj8j8yb3iFEVaK10ZgniPtD0bNntiTNn+eRf9yrH+sis3vBQPk4Dl6bdLgXur
-         st2w==
-X-Gm-Message-State: AOAM533Fn7szjZuEQSimHVmcpMlsx8gmK//kEOuQeCyhr1IjYPIt8Rl5
-        u04EYqLvBJhR/9Nav/HLfaPkdXWncJNiuA==
-X-Google-Smtp-Source: ABdhPJxBoIyaucBglFJmH/B6DH1fQj1E6bOvFzG9JC9p3jzE2odsKJlSTXJOS+fRuC4ZSZy4Yk8nWw==
-X-Received: by 2002:a65:5643:: with SMTP id m3mr13022867pgs.91.1614010813368;
-        Mon, 22 Feb 2021 08:20:13 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y29sm13908615pff.81.2021.02.22.08.20.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Feb 2021 08:20:12 -0800 (PST)
-Message-ID: <6033d9bc.1c69fb81.5808a.dad4@mx.google.com>
-Date:   Mon, 22 Feb 2021 08:20:12 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iYFZQhpI9PWFICV4j9Dcg2L4iXOc1SnJH/pDiQOJqnU=;
+        b=NydZKE5eTpfL1VCSM5/x1RPXfor3nzQDyWtI7RoHO9d42G/ZCjayV7Ac/cCOvB/kUl
+         GZADvd9naS3mSd6oIBqZ5+uZw43lTYXdDIHsc8epPyy/MAzTIK7ujmGfbb5eMkwt0vJW
+         GryYRy5PCaN4CcSQI7FAorQdSi0UXod00WX8atLfzen6KQR3JBcWkhwvg3YZBEwHyV19
+         KfmLz/g2przKXxRTqW8JrQBGG57BTcT0AFdNvY+jTb5BtWmc5WY/B2PvYwy98ViigO/N
+         V3yaU4x8XBRdaCQtVuh9MzQcXhqmoEFrXP6/4UcTV3ubzrFpAFJIqSo2fHWKPL8cYT/n
+         pbpQ==
+X-Gm-Message-State: AOAM533qmoC4QS+Xe/PlW3edyqvCPi6SPTS6+qQ/pDaavZKrwJY6dlPb
+        cc2zDvtCz8tfACI9BczrgfMfguE5+Z39WzpHZ1V0Yg==
+X-Google-Smtp-Source: ABdhPJyjqvFdfUdvrym9hYtXMn3ZicmRz2Gyn/YWDX9lE5hsJiHhBDR8hbEC6tniszfI9M6FMcf7i+hKCoz7d1XDbI8=
+X-Received: by 2002:a05:6402:26c9:: with SMTP id x9mr23507629edd.365.1614011401515;
+ Mon, 22 Feb 2021 08:30:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.221-57-gb8d5762d3e2b
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 75 runs,
- 1 regressions (v4.14.221-57-gb8d5762d3e2b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <CA+G9fYtNOZ-G_RTq_Uedy-7wkFog2q+OWNbWd--eL+i2-OQ7NA@mail.gmail.com>
+ <CA+icZUVdpyNC=e8Cdg2bXaKdQGgkY1Te-OEXE7jaKARw0KKrCw@mail.gmail.com>
+In-Reply-To: <CA+icZUVdpyNC=e8Cdg2bXaKdQGgkY1Te-OEXE7jaKARw0KKrCw@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 22 Feb 2021 21:59:50 +0530
+Message-ID: <CA+G9fYvGgR82mwC9Kk6fKR6Cb53u02MQJffBBZ+bTp2nNxHL7A@mail.gmail.com>
+Subject: Re: clang-12: i386: Unsupported relocation type: R_386_PLT32 (4)
+To:     sedat.dilek@gmail.com
+Cc:     clang-built-linux <clang-built-linux@googlegroups.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        x86-ml <x86@kernel.org>, lkft-triage@lists.linaro.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Fangrui Song <maskray@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 75 runs, 1 regressions (v4.14.221-57-gb8d576=
-2d3e2b)
+On Mon, 22 Feb 2021 at 21:44, Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>
+> On Mon, Feb 22, 2021 at 5:08 PM Naresh Kamboju
+> <naresh.kamboju@linaro.org> wrote:
+> >
+> > While building i386 configs on stable-rc 5.10, stable-rc 5.11 branch
+> > and mainline
+> > with clang-12 these following warnings and errors were noticed.
+> >
+>
+> Hi Naresh,
+>
+> Please see commit bb73d07148c405c293e576b40af37737faf23a6a
+> ("x86/build: Treat R_386_PLT32 relocation as R_386_PC32").
+> Recently accepted into Linus Git tree.
 
-Regressions Summary
--------------------
+Can this be backported / cherry-picked into stable-rc 5.10 and stable-rc 5.11 ?
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+>
+> [1] says:
+>
+> Further info for the more interested:
+>
+>   https://github.com/ClangBuiltLinux/linux/issues/1210
+>   https://sourceware.org/bugzilla/show_bug.cgi?id=27169
+>   https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6
+>
+> Hope that helps.
+>
+> - Sedat -
+>
+> [1] https://git.kernel.org/linus/bb73d07148c405c293e576b40af37737faf23a6a
+>
+> > make --silent --keep-going --jobs=8
+> > O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=i386
+> > CROSS_COMPILE=i686-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
+> > clang'
+> >
+> > drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c:2586:9: warning: shift
+> > count >= width of type [-Wshift-count-overflow]
+> >
+> >         return hweight64(VDBOX_MASK(&i915->gt));
+> >                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from
+> > macro 'hweight64'
+> > #define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) :
+> > __arch_hweight64(w))
+> >                                                 ^~~~~~~~~~~~~~~~~~~~
+> > include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from
+> > macro '__const_hweight64'
+> > #define __const_hweight64(w) (__const_hweight32(w) +
+> > __const_hweight32((w) >> 32))
+> >                                                                            ^  ~~
+> > include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from
+> > macro '__const_hweight32'
+> > #define __const_hweight32(w) (__const_hweight16(w) +
+> > __const_hweight16((w) >> 16))
+> >                                                 ^
+> > include/asm-generic/bitops/const_hweight.h:19:48: note: expanded from
+> > macro '__const_hweight16'
+> > #define __const_hweight16(w) (__const_hweight8(w)  +
+> > __const_hweight8((w)  >> 8 ))
+> >                                                ^
+> > include/asm-generic/bitops/const_hweight.h:10:9: note: expanded from
+> > macro '__const_hweight8'
+> >          ((!!((w) & (1ULL << 0))) +     \
+> >                ^
+> > drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c:2586:9: warning: shift
+> > count >= width of type [-Wshift-count-overflow]
+> >         return hweight64(VDBOX_MASK(&i915->gt));
+> >                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > <trim>
+> >
+> > 32 warnings generated.
+> > Unsupported relocation type: R_386_PLT32 (4)
+> > make[3]: *** [arch/x86/boot/compressed/Makefile:116:
+> > arch/x86/boot/compressed/vmlinux.relocs] Error 1
+> > make[3]: *** Deleting file 'arch/x86/boot/compressed/vmlinux.relocs'
+> > make[3]: Target 'arch/x86/boot/compressed/vmlinux' not remade because of errors.
+> >
+> > Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> >
+> > Steps to reproduce:
+> > ---------------------------
+> > # TuxMake is a command line tool and Python library that provides
+> > # portable and repeatable Linux kernel builds across a variety of
+> > # architectures, toolchains, kernel configurations, and make targets.
+> > #
+> > # TuxMake supports the concept of runtimes.
+> > # See https://docs.tuxmake.org/runtimes/, for that to work it requires
+> > # that you install podman or docker on your system.
+> > #
+> > # To install tuxmake on your system globally:
+> > # sudo pip3 install -U tuxmake
+> > #
+> > # See https://docs.tuxmake.org/ for complete documentation.
+> >
+> > tuxmake --runtime podman --target-arch i386 --toolchain clang-12
+> > --kconfig defconfig  --kconfig-add
+> > https://builds.tuxbuild.com/1opxSKxZuRowPsiOsSJ0IoUOXOt/config
+> >
+> > --
+> > Linaro LKFT
+> > https://lkft.linaro.org
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.221-57-gb8d5762d3e2b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.221-57-gb8d5762d3e2b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b8d5762d3e2b8f931b0abb2b6e538edccb139f5d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6033af5eee4f4e7b90addcd6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--57-gb8d5762d3e2b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.221=
--57-gb8d5762d3e2b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6033af5eee4f4e7b90add=
-cd7
-        failing since 76 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
- fail: v4.14.210-20-g5ea7913395d3) =
-
- =20
+- Naresh
