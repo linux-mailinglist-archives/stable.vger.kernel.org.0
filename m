@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0233216E4
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7600A3216EB
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230256AbhBVMih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:38:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S230224AbhBVMjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:39:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52847 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231403AbhBVMiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:38:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B35064E84;
-        Mon, 22 Feb 2021 12:37:21 +0000 (UTC)
+        id S231417AbhBVMi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:38:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E59464EEC;
+        Mon, 22 Feb 2021 12:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997442;
-        bh=mepwJl8ex3yGfXjsesP9ua2xO4+YmjC0CPojCSA2QZI=;
+        s=korg; t=1613997444;
+        bh=U8cPoFGneXr0I11pRW4g9cJpO7WDIjhVeoVAnbhfA1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miyYxkm4fUaBzKn4eiy7ZGBEyRv7A7VriDDfo6inJMKYiYUgJCxZhmKEg0dKzZQ8w
-         3eq89mfK0BHltjDvNyYhkWvtXnEs2SZCcwGgr8NLtEQLMXJ8EEh6Air9UK4sVaxjnk
-         vKfj8rDB+PzWpdd3IcRzgrczgh3PGWwYSekq1PCA=
+        b=G7KKyF8+7ZClYKw9BA7VkFIDQqmH38YcGebqSLEuW1hn2NuUiKpWh9KRPquxZfdTj
+         RE6jIr7Jik/OtG6TDdAqEncGMNdF1Ue+cJS/scK2qKwvVdSXhCVtb7SZteEFRVGP1w
+         TqwbM898kTf86yn7yBav31nMxgPHxOynUrMkjOcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 18/57] tracing: Check length before giving out the filter buffer
-Date:   Mon, 22 Feb 2021 13:35:44 +0100
-Message-Id: <20210222121028.520298771@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
+        Julien Grall <jgrall@amazon.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 19/57] arm/xen: Dont probe xenbus as part of an early initcall
+Date:   Mon, 22 Feb 2021 13:35:45 +0100
+Message-Id: <20210222121028.593541776@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
 References: <20210222121027.174911182@linuxfoundation.org>
@@ -39,46 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Julien Grall <jgrall@amazon.com>
 
-commit b220c049d5196dd94d992dd2dc8cba1a5e6123bf upstream.
+commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
 
-When filters are used by trace events, a page is allocated on each CPU and
-used to copy the trace event fields to this page before writing to the ring
-buffer. The reason to use the filter and not write directly into the ring
-buffer is because a filter may discard the event and there's more overhead
-on discarding from the ring buffer than the extra copy.
+After Commit 3499ba8198cad ("xen: Fix event channel callback via
+INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
+recent to a guest hang during boot.
 
-The problem here is that there is no check against the size being allocated
-when using this page. If an event asks for more than a page size while being
-filtered, it will get only a page, leading to the caller writing more that
-what was allocated.
+If the hang wasn't there, we would have ended up to call
+xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
 
-Check the length of the request, and if it is more than PAGE_SIZE minus the
-header default back to allocating from the ring buffer directly. The ring
-buffer may reject the event if its too big anyway, but it wont overflow.
+We don't need to initialize xenbus_probe() early for Arm guest.
+Therefore, the call in xen_guest_init() is now removed.
 
-Link: https://lore.kernel.org/ath10k/1612839593-2308-1-git-send-email-wgong@codeaurora.org/
+After this change, there is no more external caller for xenbus_probe().
+So the function is turned to a static one. Interestingly there were two
+prototypes for it.
 
 Cc: stable@vger.kernel.org
-Fixes: 0fc1b09ff1ff4 ("tracing: Use temp buffer when filtering events")
-Reported-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
+Reported-by: Ian Jackson <iwj@xenproject.org>
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/xen/enlighten.c          |    2 --
+ drivers/xen/xenbus/xenbus.h       |    1 -
+ drivers/xen/xenbus/xenbus_probe.c |    2 +-
+ include/xen/xenbus.h              |    2 --
+ 4 files changed, 1 insertion(+), 6 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2285,7 +2285,7 @@ trace_event_buffer_lock_reserve(struct r
- 	    (entry = this_cpu_read(trace_buffered_event))) {
- 		/* Try to use the per cpu buffer first */
- 		val = this_cpu_inc_return(trace_buffered_event_cnt);
--		if (val == 1) {
-+		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
- 			trace_event_setup(entry, type, flags, pc);
- 			entry->array[0] = len;
- 			return entry;
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -392,8 +392,6 @@ static int __init xen_guest_init(void)
+ 		return -ENOMEM;
+ 	}
+ 	gnttab_init();
+-	if (!xen_initial_domain())
+-		xenbus_probe();
+ 
+ 	/*
+ 	 * Making sure board specific code will not set up ops for
+--- a/drivers/xen/xenbus/xenbus.h
++++ b/drivers/xen/xenbus/xenbus.h
+@@ -114,7 +114,6 @@ int xenbus_probe_node(struct xen_bus_typ
+ 		      const char *type,
+ 		      const char *nodename);
+ int xenbus_probe_devices(struct xen_bus_type *bus);
+-void xenbus_probe(void);
+ 
+ void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
+ 
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -674,7 +674,7 @@ void unregister_xenstore_notifier(struct
+ }
+ EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
+ 
+-void xenbus_probe(void)
++static void xenbus_probe(void)
+ {
+ 	xenstored_ready = 1;
+ 
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -187,8 +187,6 @@ void xs_suspend_cancel(void);
+ 
+ struct work_struct;
+ 
+-void xenbus_probe(void);
+-
+ #define XENBUS_IS_ERR_READ(str) ({			\
+ 	if (!IS_ERR(str) && strlen(str) == 0) {		\
+ 		kfree(str);				\
 
 
