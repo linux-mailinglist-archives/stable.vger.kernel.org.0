@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFDCB321611
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75494321608
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhBVMQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:16:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44744 "EHLO mail.kernel.org"
+        id S230356AbhBVMQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:16:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230313AbhBVMPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:15:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3A8A64F11;
-        Mon, 22 Feb 2021 12:14:44 +0000 (UTC)
+        id S230384AbhBVMPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ED3C64EDB;
+        Mon, 22 Feb 2021 12:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996085;
-        bh=QLZhJUPlZ5XpW8nAu6Vl/nSqLs2v7n280BWJj4kcnAY=;
+        s=korg; t=1613996122;
+        bh=lFXH9yD4FLpqSZmobFWj8tNlzTUfEw3WmYS6LT7yVMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy+JktBOtnzcT/0XDlERC8YifxhxiZv85u3np/LZqum47fzlG7E5v5c6jhPNYPVyL
-         y6KkW2xSbYO4/tpiR25QupXALGYdA6wKh48vUfspH+VmBY92ZH/3+ZtOpvtNuTpnOT
-         BC4moYKVX63e2CxbtBBQtms+i3bDmeYMmYux3Sjg=
+        b=IzkgumbZUmNGgtcyHRiJFEglbps07TmkUDEwRJzEvGOQ/ivGhBP7tWw/83KWWcLH1
+         zuiU0SyOQBDRI3zbJ8jFF9GSVhaXd6K7XkXDcWFZL67vCiQoZ8ImyFzguyOG3ptdhI
+         /JG0vCzAc4g6tGeDW12AxaPE2vyWeXY3MViEwTfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 23/29] xen-scsiback: dont "handle" error by BUG()
-Date:   Mon, 22 Feb 2021 13:13:17 +0100
-Message-Id: <20210222121024.688394015@linuxfoundation.org>
+        stable@vger.kernel.org, Dov Murik <dovmurik@linux.vnet.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/13] KVM: SEV: fix double locking due to incorrect backport
+Date:   Mon, 22 Feb 2021 13:13:18 +0100
+Message-Id: <20210222121016.859927439@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
-References: <20210222121019.444399883@linuxfoundation.org>
+In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
+References: <20210222121013.583922436@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,44 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 7c77474b2d22176d2bfb592ec74e0f2cb71352c9 upstream.
+Fix an incorrect line in the 5.4.y and 4.19.y backports of commit
+19a23da53932bc ("Fix unsynchronized access to sev members through
+svm_register_enc_region"), first applied to 5.4.98 and 4.19.176.
 
-In particular -ENOMEM may come back here, from set_foreign_p2m_mapping().
-Don't make problems worse, the more that handling elsewhere (together
-with map's status fields now indicating whether a mapping wasn't even
-attempted, and hence has to be considered failed) doesn't require this
-odd way of dealing with errors.
-
-This is part of XSA-362.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1e80fdc09d12 ("KVM: SVM: Pin guest memory when SEV is active")
+Reported-by: Dov Murik <dovmurik@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # 5.4.x
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-scsiback.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/xen/xen-scsiback.c
-+++ b/drivers/xen/xen-scsiback.c
-@@ -386,12 +386,12 @@ static int scsiback_gnttab_data_map_batc
- 		return 0;
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 296b0d7570d06..1da558f28aa57 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -7104,7 +7104,6 @@ static int svm_register_enc_region(struct kvm *kvm,
+ 	region->uaddr = range->addr;
+ 	region->size = range->size;
  
- 	err = gnttab_map_refs(map, NULL, pg, cnt);
--	BUG_ON(err);
- 	for (i = 0; i < cnt; i++) {
- 		if (unlikely(map[i].status != GNTST_okay)) {
- 			pr_err("invalid buffer -- could not remap it\n");
- 			map[i].handle = SCSIBACK_INVALID_HANDLE;
--			err = -ENOMEM;
-+			if (!err)
-+				err = -ENOMEM;
- 		} else {
- 			get_page(pg[i]);
- 		}
+-	mutex_lock(&kvm->lock);
+ 	list_add_tail(&region->list, &sev->regions_list);
+ 	mutex_unlock(&kvm->lock);
+ 
+-- 
+2.27.0
+
 
 
