@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE1B321673
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0E5321625
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbhBVMW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:22:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44744 "EHLO mail.kernel.org"
+        id S230209AbhBVMSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:18:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230505AbhBVMR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:17:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1342B64DA1;
-        Mon, 22 Feb 2021 12:17:09 +0000 (UTC)
+        id S230417AbhBVMQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:16:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B3D064E24;
+        Mon, 22 Feb 2021 12:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996230;
-        bh=yaSc8o3acTSEGDz1KGNQJWtUHY0muESinDksmkUeJj8=;
+        s=korg; t=1613996141;
+        bh=nd186f3BLoo6KHkxRnL67GXzCZ0OfNgDdDg4C62PUpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDt6LxAcmTaPBKjhDayFyapNtMULxhPhtFXrQOHUWonJzyp8GBk0y8GvCcbHE++ea
-         C0uWiR7oNwTkYWWfGEZ7j6au1GfriSX9OhlAZl3+TPwL61v/CqHRiyWG4Zxg0qx+Dj
-         YadCEOtdhBENSAWTp7b+Z61Al2cD55bxP7ADVuXE=
+        b=lHBHX3/7a5/BkfS/Vk4Ra1JgqtfTQS2A14tPYNgKxbdCXLhYV/CiaXnCK98L558fk
+         vtfwTNrykvXVUrNZkeGlAwuIKlsNbrbdcrohHDw6OfK8IW7+sFkHyul73XjEPUmjMJ
+         238NKcfrYjymBnVlIS8tEu+0BGqyAkuWicmg1+Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 32/50] vsock/virtio: update credit only if socket is not closed
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 06/13] Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
 Date:   Mon, 22 Feb 2021 13:13:23 +0100
-Message-Id: <20210222121025.947666099@linuxfoundation.org>
+Message-Id: <20210222121018.308403743@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
+References: <20210222121013.583922436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit ce7536bc7398e2ae552d2fabb7e0e371a9f1fe46 upstream.
+commit dbe5283605b3bc12ca45def09cc721a0a5c853a2 upstream.
 
-If the socket is closed or is being released, some resources used by
-virtio_transport_space_update() such as 'vsk->trans' may be released.
+We may not skip setting the field in the unmap structure when
+GNTMAP_device_map is in use - such an unmap would fail to release the
+respective resources (a page ref in the hypervisor). Otoh the field
+doesn't need setting at all when GNTMAP_device_map is not in use.
 
-To avoid a use after free bug we should only update the available credit
-when we are sure the socket is still open and we have the lock held.
+To record the value for unmapping, we also better don't use our local
+p2m: In particular after a subsequent change it may not have got updated
+for all the batch elements. Instead it can simply be taken from the
+respective map's results.
 
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20210208144454.84438-1-sgarzare@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+We can additionally avoid playing this game altogether for the kernel
+part of the mappings in (x86) PV mode.
+
+This is part of XSA-361.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport_common.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1033,10 +1033,10 @@ void virtio_transport_recv_pkt(struct vi
- 
- 	vsk = vsock_sk(sk);
- 
--	space_available = virtio_transport_space_update(sk, pkt);
--
- 	lock_sock(sk);
- 
-+	space_available = virtio_transport_space_update(sk, pkt);
+---
+ drivers/xen/gntdev.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -319,18 +319,25 @@ int gntdev_map_grant_pages(struct gntdev
+ 		 * to the kernel linear addresses of the struct pages.
+ 		 * These ptes are completely different from the user ptes dealt
+ 		 * with find_grant_ptes.
++		 * Note that GNTMAP_device_map isn't needed here: The
++		 * dev_bus_addr output field gets consumed only from ->map_ops,
++		 * and by not requesting it when mapping we also avoid needing
++		 * to mirror dev_bus_addr into ->unmap_ops (and holding an extra
++		 * reference to the page in the hypervisor).
+ 		 */
++		unsigned int flags = (map->flags & ~GNTMAP_device_map) |
++				     GNTMAP_host_map;
 +
- 	/* Update CID in case it has changed after a transport reset event */
- 	vsk->local_addr.svm_cid = dst.svm_cid;
+ 		for (i = 0; i < map->count; i++) {
+ 			unsigned long address = (unsigned long)
+ 				pfn_to_kaddr(page_to_pfn(map->pages[i]));
+ 			BUG_ON(PageHighMem(map->pages[i]));
  
+-			gnttab_set_map_op(&map->kmap_ops[i], address,
+-				map->flags | GNTMAP_host_map,
++			gnttab_set_map_op(&map->kmap_ops[i], address, flags,
+ 				map->grants[i].ref,
+ 				map->grants[i].domid);
+ 			gnttab_set_unmap_op(&map->kunmap_ops[i], address,
+-				map->flags | GNTMAP_host_map, -1);
++				flags, -1);
+ 		}
+ 	}
+ 
+@@ -346,17 +353,12 @@ int gntdev_map_grant_pages(struct gntdev
+ 			continue;
+ 		}
+ 
++		if (map->flags & GNTMAP_device_map)
++			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
++
+ 		map->unmap_ops[i].handle = map->map_ops[i].handle;
+ 		if (use_ptemod)
+ 			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+-#ifdef CONFIG_XEN_GRANT_DMA_ALLOC
+-		else if (map->dma_vaddr) {
+-			unsigned long bfn;
+-
+-			bfn = pfn_to_bfn(page_to_pfn(map->pages[i]));
+-			map->unmap_ops[i].dev_bus_addr = __pfn_to_phys(bfn);
+-		}
+-#endif
+ 	}
+ 	return err;
+ }
 
 
