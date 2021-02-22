@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB4D32175C
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B392321765
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230512AbhBVMqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53738 "EHLO mail.kernel.org"
+        id S231627AbhBVMrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:47:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231344AbhBVMnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:43:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD6D064F4D;
-        Mon, 22 Feb 2021 12:41:08 +0000 (UTC)
+        id S231388AbhBVMnn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:43:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B3964F0F;
+        Mon, 22 Feb 2021 12:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997669;
-        bh=PAhDxoh25r9ZRjgcNFVyer0czDoYbfLSTXvoDWJzDR4=;
+        s=korg; t=1613997671;
+        bh=mJIG4cauEhAlTta4YP7PG54Qp7Xboh/D0/9NhZokow8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZKBMqOH4m61o/+E/Lzf0vyCy8tSrbtaT+/pR+yxSovNiQ9+p0jf3kV5KbpnuFeUK
-         aP6+pTwKcHus4T6UXiHX9FwLCNtIA3Fzw0JXQHCpBI+NNsAv772FaVL0TdoAao/Az1
-         cLtOalvtiPzMy8h4mYzBlYUBZZZ0J3yu/RySp15Y=
+        b=LabTi/orLDbCpu4fv9SN4IZpAJu6FRLqyXmO7XTKHzopyNqYTKCxx99KvgftxBmWl
+         TP1qcOk5MMxyTbdo1c68/iq4NRJfoRjbnTuufz2evwfjPZaS/vm37DyoVQ7qQUj8Ci
+         YXRzJxdOAUxC52UhgZiMtrr6AWwZwjcqfSKJEiwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>,
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 19/49] tracing: Do not count ftrace events in top level enable output
-Date:   Mon, 22 Feb 2021 13:36:17 +0100
-Message-Id: <20210222121026.324576882@linuxfoundation.org>
+Subject: [PATCH 4.9 20/49] tracing: Check length before giving out the filter buffer
+Date:   Mon, 22 Feb 2021 13:36:18 +0100
+Message-Id: <20210222121026.407484582@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
 References: <20210222121022.546148341@linuxfoundation.org>
@@ -42,46 +41,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 256cfdd6fdf70c6fcf0f7c8ddb0ebd73ce8f3bc9 upstream.
+commit b220c049d5196dd94d992dd2dc8cba1a5e6123bf upstream.
 
-The file /sys/kernel/tracing/events/enable is used to enable all events by
-echoing in "1", or disabling all events when echoing in "0". To know if all
-events are enabled, disabled, or some are enabled but not all of them,
-cating the file should show either "1" (all enabled), "0" (all disabled), or
-"X" (some enabled but not all of them). This works the same as the "enable"
-files in the individule system directories (like tracing/events/sched/enable).
+When filters are used by trace events, a page is allocated on each CPU and
+used to copy the trace event fields to this page before writing to the ring
+buffer. The reason to use the filter and not write directly into the ring
+buffer is because a filter may discard the event and there's more overhead
+on discarding from the ring buffer than the extra copy.
 
-But when all events are enabled, the top level "enable" file shows "X". The
-reason is that its checking the "ftrace" events, which are special events
-that only exist for their format files. These include the format for the
-function tracer events, that are enabled when the function tracer is
-enabled, but not by the "enable" file. The check includes these events,
-which will always be disabled, and even though all true events are enabled,
-the top level "enable" file will show "X" instead of "1".
+The problem here is that there is no check against the size being allocated
+when using this page. If an event asks for more than a page size while being
+filtered, it will get only a page, leading to the caller writing more that
+what was allocated.
 
-To fix this, have the check test the event's flags to see if it has the
-"IGNORE_ENABLE" flag set, and if so, not test it.
+Check the length of the request, and if it is more than PAGE_SIZE minus the
+header default back to allocating from the ring buffer directly. The ring
+buffer may reject the event if its too big anyway, but it wont overflow.
+
+Link: https://lore.kernel.org/ath10k/1612839593-2308-1-git-send-email-wgong@codeaurora.org/
 
 Cc: stable@vger.kernel.org
-Fixes: 553552ce1796c ("tracing: Combine event filter_active and enable into single flags field")
-Reported-by: "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>
+Fixes: 0fc1b09ff1ff4 ("tracing: Use temp buffer when filtering events")
+Reported-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1105,7 +1105,8 @@ system_enable_read(struct file *filp, ch
- 	mutex_lock(&event_mutex);
- 	list_for_each_entry(file, &tr->events, list) {
- 		call = file->event_call;
--		if (!trace_event_name(call) || !call->class || !call->class->reg)
-+		if ((call->flags & TRACE_EVENT_FL_IGNORE_ENABLE) ||
-+		    !trace_event_name(call) || !call->class || !call->class->reg)
- 			continue;
- 
- 		if (system && strcmp(call->class->system, system->name) != 0)
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2090,7 +2090,7 @@ trace_event_buffer_lock_reserve(struct r
+ 	    (entry = this_cpu_read(trace_buffered_event))) {
+ 		/* Try to use the per cpu buffer first */
+ 		val = this_cpu_inc_return(trace_buffered_event_cnt);
+-		if (val == 1) {
++		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
+ 			trace_event_setup(entry, type, flags, pc);
+ 			entry->array[0] = len;
+ 			return entry;
 
 
