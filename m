@@ -2,141 +2,303 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 620F93214C8
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 12:09:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40FA73214DA
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 12:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbhBVLI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 06:08:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35660 "EHLO mail.kernel.org"
+        id S230171AbhBVLN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 06:13:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229934AbhBVLI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 06:08:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC4864E00;
-        Mon, 22 Feb 2021 11:08:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613992095;
-        bh=Gt0x8QOkAQPqnY1fGhFu2p/Oyaw0NHvv+Ng2Hl5YfzE=;
+        id S230042AbhBVLNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 06:13:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4ECE64E57;
+        Mon, 22 Feb 2021 11:12:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1613992356;
+        bh=UBJ4GSkAQS3RfYMwRXarLRhz/ujNBNXp+OkgPnrwqsY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SiPRHL5v0401gMt0GAu2PsMoc2Cv7DFCkAgiORJr5EEJymtaaovHG9FRk1K58JZ1V
-         RKHlTcQdDD5rd7rqEr8RU4l52sO3Ju6wyl1bm3/SuRVY22bGRqFgeKKIPFybHoBZ4q
-         LLKCMiBG0fkoS0XXFwzm0ytNTe/33JY072ix+GtY=
-Date:   Mon, 22 Feb 2021 12:08:11 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Matwey V. Kornilov" <matwey.kornilov@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] media: pwc: Use correct device for DMA
-Message-ID: <YDOQm7KOy06anuVj@kroah.com>
-References: <20210117110523.26757-1-matwey@sai.msu.ru>
- <YAQz9LkI7H/DiQmy@kroah.com>
- <CAJs94EaX-aP0Fz+wABti5Hj9j3=b7UQ+SFLK_TOn8XDNbmPLiA@mail.gmail.com>
- <YAQ5mEWweMwRO1z4@kroah.com>
+        b=JII4QTpCpCO2mdTlH3GqtL5diw26XUYYXnk6HtSp65LHSQZeF1+Rge4E7T+jGP4GF
+         oby9vhNeLMPZ7C/N+tccgcGpjPnalPkMMq87WEWbGheBeQeIUHCnuWENB4lxEsdbnz
+         yVzt3vwUOXW6pPrhVz/6lzE4ZcWy5/o6kNYDZtrKM6QP9UyAyCeoUY5GFJpLz6K9gU
+         2KknF33s1WmBLbH3F3ihNVVnGgbdKMmLZzjpJOCr+2zE7QOvn9inPtAfTyTLLo2MlS
+         OyW8F3UmgRVteys4mreEeFKn/HAaVKn7FBPwx5NF1qae4NWyJkGJamPumqd6h/n6B7
+         ZSixeu1PbHlRw==
+Date:   Mon, 22 Feb 2021 13:12:20 +0200
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Hildenbrand <david@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v6 1/1] mm/page_alloc.c: refactor initialization of
+ struct page for holes in memory layout
+Message-ID: <20210222111220.GH1447004@kernel.org>
+References: <20210222105728.28636-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YAQ5mEWweMwRO1z4@kroah.com>
+In-Reply-To: <20210222105728.28636-1-rppt@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 17, 2021 at 02:20:24PM +0100, Greg KH wrote:
-> On Sun, Jan 17, 2021 at 04:02:53PM +0300, Matwey V. Kornilov wrote:
-> > вс, 17 янв. 2021 г. в 15:56, Greg KH <gregkh@linuxfoundation.org>:
-> > 
-> > > On Sun, Jan 17, 2021 at 02:05:23PM +0300, Matwey V. Kornilov wrote:
-> > > > This fixes the following newly introduced warning:
-> > > >
-> > > > [   15.518253] ------------[ cut here ]------------
-> > > > [   15.518941] WARNING: CPU: 0 PID: 246 at kernel/dma/mapping.c:149
-> > > dma_map_page_attrs+0x1a8/0x1d0
-> > > > [   15.520634] Modules linked in: pwc videobuf2_vmalloc videobuf2_memops
-> > > videobuf2_v4l2 videobuf2_common videodev mc efivarfs
-> > > > [   15.522335] CPU: 0 PID: 246 Comm: v4l2-test Not tainted 5.11.0-rc1+ #1
-> > > > [   15.523281] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
-> > > 0.0.0 02/06/2015
-> > > > [   15.524438] RIP: 0010:dma_map_page_attrs+0x1a8/0x1d0
-> > > > [   15.525135] Code: 10 5b 5d 41 5c 41 5d c3 4d 89 d0 eb d7 4d 89 c8 89
-> > > e9 48 89 da e8 68 29 00 00 eb d1 48 89 f2 48 2b 50 18 48 89 d0 eb 83 0f 0b
-> > > <0f> 0b 48 c7 c0 ff ff ff ff eb b8 48 89 d9 48 8b 40 40 e8 61 69 d2
-> > > > [   15.527938] RSP: 0018:ffffa2694047bca8 EFLAGS: 00010246
-> > > > [   15.528716] RAX: 0000000000000000 RBX: 0000000000002580 RCX:
-> > > 0000000000000000
-> > > > [   15.529782] RDX: 0000000000000000 RSI: ffffcdce000ecc00 RDI:
-> > > ffffa0b4bdb888a0
-> > > > [   15.530849] RBP: 0000000000000002 R08: 0000000000000002 R09:
-> > > 0000000000000000
-> > > > [   15.531881] R10: 0000000000000004 R11: 000000000002d8c0 R12:
-> > > 0000000000000000
-> > > > [   15.532911] R13: ffffa0b4bdb88800 R14: ffffa0b483820000 R15:
-> > > ffffa0b4bdb888a0
-> > > > [   15.533942] FS:  00007fc5fbb5e4c0(0000) GS:ffffa0b4fc000000(0000)
-> > > knlGS:0000000000000000
-> > > > [   15.535141] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > > [   15.535988] CR2: 00007fc5fb6ea138 CR3: 0000000003812000 CR4:
-> > > 00000000001506f0
-> > > > [   15.537025] Call Trace:
-> > > > [   15.537425]  start_streaming+0x2e9/0x4b0 [pwc]
-> > > > [   15.538143]  vb2_start_streaming+0x5e/0x110 [videobuf2_common]
-> > > > [   15.538989]  vb2_core_streamon+0x107/0x140 [videobuf2_common]
-> > > > [   15.539831]  __video_do_ioctl+0x18f/0x4a0 [videodev]
-> > > > [   15.540670]  video_usercopy+0x13a/0x5b0 [videodev]
-> > > > [   15.541349]  ? video_put_user+0x230/0x230 [videodev]
-> > > > [   15.542096]  ? selinux_file_ioctl+0x143/0x200
-> > > > [   15.542752]  v4l2_ioctl+0x40/0x50 [videodev]
-> > > > [   15.543360]  __x64_sys_ioctl+0x89/0xc0
-> > > > [   15.543930]  do_syscall_64+0x33/0x40
-> > > > [   15.544448]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> > > > [   15.545236] RIP: 0033:0x7fc5fb671587
-> > > > [   15.545780] Code: b3 66 90 48 8b 05 11 49 2c 00 64 c7 00 26 00 00 00
-> > > 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05
-> > > <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e1 48 2c 00 f7 d8 64 89 01 48
-> > > > [   15.548486] RSP: 002b:00007fff0f71f038 EFLAGS: 00000246 ORIG_RAX:
-> > > 0000000000000010
-> > > > [   15.549578] RAX: ffffffffffffffda RBX: 0000000000000003 RCX:
-> > > 00007fc5fb671587
-> > > > [   15.550664] RDX: 00007fff0f71f060 RSI: 0000000040045612 RDI:
-> > > 0000000000000003
-> > > > [   15.551706] RBP: 0000000000000000 R08: 0000000000000000 R09:
-> > > 0000000000000000
-> > > > [   15.552738] R10: 0000000000000000 R11: 0000000000000246 R12:
-> > > 00007fff0f71f060
-> > > > [   15.553817] R13: 00007fff0f71f1d0 R14: 0000000000de1270 R15:
-> > > 0000000000000000
-> > > > [   15.554914] ---[ end trace 7be03122966c2486 ]---
-> > > >
-> > > > Fixes: 1161db6776bd ("media: usb: pwc: Don't use coherent DMA buffers
-> > > for ISO transfer")
-> > > > Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
-> > > > Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> > > > Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-> > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=210777
-> > > > Cc: stable@vger.kernel.org # v5.10+
-> > > > Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
-> > > > ---
-> > > >  drivers/media/usb/pwc/pwc-if.c | 22 +++++++++++++---------
-> > > >  1 file changed, 13 insertions(+), 9 deletions(-)
-> > >
-> > > What is the git commit id of this commit in Linus's tree?
-> > >
-> > 
-> > 
-> > It is 69c9e825e812ec6d663e64ebf14bd3bc7f37e2c7 in next/linux-next.git
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
-> 
-> We can't do anything with a patch that is not in Linus's tree, sorry.
-> Please wait for it to show up there before asking us to backport
-> something that is not already tagged with a "cc: stable" mark.
+Somehow I've managed to break the threading, the cover letter is here:
 
-Now queued up.
+https://lore.kernel.org/lkml/20210222105400.28583-1-rppt@kernel.org
 
-thanks,
+On Mon, Feb 22, 2021 at 12:57:28PM +0200, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> There could be struct pages that are not backed by actual physical memory.
+> This can happen when the actual memory bank is not a multiple of
+> SECTION_SIZE or when an architecture does not register memory holes
+> reserved by the firmware as memblock.memory.
+> 
+> Such pages are currently initialized using init_unavailable_mem() function
+> that iterates through PFNs in holes in memblock.memory and if there is a
+> struct page corresponding to a PFN, the fields of this page are set to
+> default values and it is marked as Reserved.
+> 
+> init_unavailable_mem() does not take into account zone and node the page
+> belongs to and sets both zone and node links in struct page to zero.
+> 
+> Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions
+> rather that check each PFN") the holes inside a zone were re-initialized
+> during memmap_init() and got their zone/node links right. However, after
+> that commit nothing updates the struct pages representing such holes.
+> 
+> On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+> instance in a configuration below:
+> 
+> 	# grep -A1 E820 /proc/iomem
+> 	7a17b000-7a216fff : Unknown E820 type
+> 	7a217000-7bffffff : System RAM
+> 
+> unset zone link in struct page will trigger
+> 
+> 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
+> 
+> because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+> in struct page) in the same pageblock.
+> 
+> Interleave initialization of the unavailable pages with the normal
+> initialization of memory map, so that zone and node information will be
+> properly set on struct pages that are not backed by the actual memory.
+> 
+> With this change the pages for holes inside a zone will get proper
+> zone/node links and the pages that are not spanned by any node will get
+> links to the adjacent zone/node.
+> 
+> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> Reported-by: Qian Cai <cai@lca.pw>
+> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Qian Cai <cai@lca.pw>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> ---
+>  mm/page_alloc.c | 144 ++++++++++++++++++++----------------------------
+>  1 file changed, 61 insertions(+), 83 deletions(-)
+> 
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 3e93f8b29bae..1f1db70b7789 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -6280,12 +6280,60 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+>  	}
+>  }
+>  
+> +#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+> +/*
+> + * Only struct pages that correspond to ranges defined by memblock.memory
+> + * are zeroed and initialized by going through __init_single_page() during
+> + * memmap_init_zone().
+> + *
+> + * But, there could be struct pages that correspond to holes in
+> + * memblock.memory. This can happen because of the following reasons:
+> + * - phyiscal memory bank size is not necessarily the exact multiple of the
+> + *   arbitrary section size
+> + * - early reserved memory may not be listed in memblock.memory
+> + * - memory layouts defined with memmap= kernel parameter may not align
+> + *   nicely with memmap sections
+> + *
+> + * Explicitly initialize those struct pages so that:
+> + * - PG_Reserved is set
+> + * - zone and node links point to zone and node that span the page
+> + */
+> +static u64 __meminit init_unavailable_range(unsigned long spfn,
+> +					    unsigned long epfn,
+> +					    int zone, int node)
+> +{
+> +	unsigned long pfn;
+> +	u64 pgcnt = 0;
+> +
+> +	for (pfn = spfn; pfn < epfn; pfn++) {
+> +		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+> +			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+> +				+ pageblock_nr_pages - 1;
+> +			continue;
+> +		}
+> +		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
+> +		__SetPageReserved(pfn_to_page(pfn));
+> +		pgcnt++;
+> +	}
+> +
+> +	return pgcnt;
+> +}
+> +#else
+> +static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+> +					 int zone, int node)
+> +{
+> +	return 0;
+> +}
+> +#endif
+> +
+>  void __meminit __weak memmap_init_zone(struct zone *zone)
+>  {
+>  	unsigned long zone_start_pfn = zone->zone_start_pfn;
+>  	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
+>  	int i, nid = zone_to_nid(zone), zone_id = zone_idx(zone);
+> +	static unsigned long hole_pfn = 0;
+>  	unsigned long start_pfn, end_pfn;
+> +	u64 pgcnt = 0;
+>  
+>  	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+>  		start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+> @@ -6295,7 +6343,20 @@ void __meminit __weak memmap_init_zone(struct zone *zone)
+>  			memmap_init_range(end_pfn - start_pfn, nid,
+>  					zone_id, start_pfn, zone_end_pfn,
+>  					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+> +
+> +		if (hole_pfn < start_pfn)
+> +			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+> +							zone_id, nid);
+> +		hole_pfn = end_pfn;
+>  	}
+> +
+> +	if (hole_pfn < zone_end_pfn)
+> +		pgcnt += init_unavailable_range(hole_pfn, zone_end_pfn,
+> +						zone_id, nid);
+> +
+> +	if (pgcnt)
+> +		pr_info("  %s zone: %lld pages in unavailable ranges\n",
+> +			zone->name, pgcnt);
+>  }
+>  
+>  static int zone_batchsize(struct zone *zone)
+> @@ -7092,88 +7153,6 @@ void __init free_area_init_memoryless_node(int nid)
+>  	free_area_init_node(nid);
+>  }
+>  
+> -#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+> -/*
+> - * Initialize all valid struct pages in the range [spfn, epfn) and mark them
+> - * PageReserved(). Return the number of struct pages that were initialized.
+> - */
+> -static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn)
+> -{
+> -	unsigned long pfn;
+> -	u64 pgcnt = 0;
+> -
+> -	for (pfn = spfn; pfn < epfn; pfn++) {
+> -		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+> -			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+> -				+ pageblock_nr_pages - 1;
+> -			continue;
+> -		}
+> -		/*
+> -		 * Use a fake node/zone (0) for now. Some of these pages
+> -		 * (in memblock.reserved but not in memblock.memory) will
+> -		 * get re-initialized via reserve_bootmem_region() later.
+> -		 */
+> -		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
+> -		__SetPageReserved(pfn_to_page(pfn));
+> -		pgcnt++;
+> -	}
+> -
+> -	return pgcnt;
+> -}
+> -
+> -/*
+> - * Only struct pages that are backed by physical memory are zeroed and
+> - * initialized by going through __init_single_page(). But, there are some
+> - * struct pages which are reserved in memblock allocator and their fields
+> - * may be accessed (for example page_to_pfn() on some configuration accesses
+> - * flags). We must explicitly initialize those struct pages.
+> - *
+> - * This function also addresses a similar issue where struct pages are left
+> - * uninitialized because the physical address range is not covered by
+> - * memblock.memory or memblock.reserved. That could happen when memblock
+> - * layout is manually configured via memmap=, or when the highest physical
+> - * address (max_pfn) does not end on a section boundary.
+> - */
+> -static void __init init_unavailable_mem(void)
+> -{
+> -	phys_addr_t start, end;
+> -	u64 i, pgcnt;
+> -	phys_addr_t next = 0;
+> -
+> -	/*
+> -	 * Loop through unavailable ranges not covered by memblock.memory.
+> -	 */
+> -	pgcnt = 0;
+> -	for_each_mem_range(i, &start, &end) {
+> -		if (next < start)
+> -			pgcnt += init_unavailable_range(PFN_DOWN(next),
+> -							PFN_UP(start));
+> -		next = end;
+> -	}
+> -
+> -	/*
+> -	 * Early sections always have a fully populated memmap for the whole
+> -	 * section - see pfn_valid(). If the last section has holes at the
+> -	 * end and that section is marked "online", the memmap will be
+> -	 * considered initialized. Make sure that memmap has a well defined
+> -	 * state.
+> -	 */
+> -	pgcnt += init_unavailable_range(PFN_DOWN(next),
+> -					round_up(max_pfn, PAGES_PER_SECTION));
+> -
+> -	/*
+> -	 * Struct pages that do not have backing memory. This could be because
+> -	 * firmware is using some of this memory, or for some other reasons.
+> -	 */
+> -	if (pgcnt)
+> -		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+> -}
+> -#else
+> -static inline void __init init_unavailable_mem(void)
+> -{
+> -}
+> -#endif /* !CONFIG_FLAT_NODE_MEM_MAP */
+> -
+>  #if MAX_NUMNODES > 1
+>  /*
+>   * Figure out the number of possible node ids.
+> @@ -7597,7 +7576,6 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+>  	/* Initialise every node */
+>  	mminit_verify_pageflags_layout();
+>  	setup_nr_node_ids();
+> -	init_unavailable_mem();
+>  	for_each_online_node(nid) {
+>  		pg_data_t *pgdat = NODE_DATA(nid);
+>  		free_area_init_node(nid);
+> -- 
+> 2.28.0
+> 
 
-greg k-h
+-- 
+Sincerely yours,
+Mike.
