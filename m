@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75258321786
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D2132178B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbhBVMt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:49:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S231613AbhBVMtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:49:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231446AbhBVMpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:45:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA3564F4F;
-        Mon, 22 Feb 2021 12:41:38 +0000 (UTC)
+        id S231483AbhBVMqF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:46:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B3B464F57;
+        Mon, 22 Feb 2021 12:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997699;
-        bh=j57vVxV/16lxams8bR5D0PRuyk9ypoZZaEsALguAg0w=;
+        s=korg; t=1613997701;
+        bh=ssjLo+l+SykrjKG9DQqcEgT0SrriNCxaSatxwJQ8eYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgNs23Riy37YxV0fMwCp9AuRCV/JcCw7lyl/8kwvMxUTq1YCGZyOCdT6d6kghKeRJ
-         nuiMvnI1VH6TiBNdFyybmpkE29KZ1I1NaVF88KmVL7M3fUbNfNudPwkbiC/zmxg63J
-         C1bIX6ozS+fpGlCLvmYn/II6CjQl7ZMOi/6LXI5I=
+        b=EW2zcT5GFnv4Am6CJA1Jya6AP7x9e+lzcKkc2pkqsMG1qS473rjQKqQpJNZUdRQD5
+         abXT0rRtohjPOITOY2Xj1rJFTj3HiMvOwwRamqZYa8tPPP2TrtyB5Qx2tTubD4cTGj
+         Pa3SNY5ZA7botHORtn7wL8NrO3dSRM5uz8MG0wRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 31/49] net/vmw_vsock: improve locking in vsock_connect_timeout()
-Date:   Mon, 22 Feb 2021 13:36:29 +0100
-Message-Id: <20210222121027.241105561@linuxfoundation.org>
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 32/49] net: watchdog: hold device global xmit lock during tx disable
+Date:   Mon, 22 Feb 2021 13:36:30 +0100
+Message-Id: <20210222121027.328676719@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
 References: <20210222121022.546148341@linuxfoundation.org>
@@ -41,49 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Slusarek <nslusarek@gmx.net>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-commit 3d0bc44d39bca615b72637e340317b7899b7f911 upstream.
+commit 3aa6bce9af0e25b735c9c1263739a5639a336ae8 upstream.
 
-A possible locking issue in vsock_connect_timeout() was recognized by
-Eric Dumazet which might cause a null pointer dereference in
-vsock_transport_cancel_pkt(). This patch assures that
-vsock_transport_cancel_pkt() will be called within the lock, so a race
-condition won't occur which could result in vsk->transport to be set to NULL.
+Prevent netif_tx_disable() running concurrently with dev_watchdog() by
+taking the device global xmit lock. Otherwise, the recommended:
 
-Fixes: 380feae0def7 ("vsock: cancel packets when failing to connect")
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/trinity-f8e0937a-cf0e-4d80-a76e-d9a958ba3ef1-1612535522360@3c-app-gmx-bap12
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	netif_carrier_off(dev);
+	netif_tx_disable(dev);
+
+driver shutdown sequence can happen after the watchdog has already
+checked carrier, resulting in possible false alarms. This is because
+netif_tx_lock() only sets the frozen bit without maintaining the locks
+on the individual queues.
+
+Fixes: c3f26a269c24 ("netdev: Fix lockdep warnings in multiqueue configurations.")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ include/linux/netdevice.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1121,7 +1121,6 @@ static void vsock_connect_timeout(struct
- {
- 	struct sock *sk;
- 	struct vsock_sock *vsk;
--	int cancel = 0;
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3701,6 +3701,7 @@ static inline void netif_tx_disable(stru
  
- 	vsk = container_of(work, struct vsock_sock, connect_work.work);
- 	sk = sk_vsock(vsk);
-@@ -1132,11 +1131,9 @@ static void vsock_connect_timeout(struct
- 		sk->sk_state = SS_UNCONNECTED;
- 		sk->sk_err = ETIMEDOUT;
- 		sk->sk_error_report(sk);
--		cancel = 1;
-+		vsock_transport_cancel_pkt(vsk);
+ 	local_bh_disable();
+ 	cpu = smp_processor_id();
++	spin_lock(&dev->tx_global_lock);
+ 	for (i = 0; i < dev->num_tx_queues; i++) {
+ 		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
+ 
+@@ -3708,6 +3709,7 @@ static inline void netif_tx_disable(stru
+ 		netif_tx_stop_queue(txq);
+ 		__netif_tx_unlock(txq);
  	}
- 	release_sock(sk);
--	if (cancel)
--		vsock_transport_cancel_pkt(vsk);
- 
- 	sock_put(sk);
++	spin_unlock(&dev->tx_global_lock);
+ 	local_bh_enable();
  }
+ 
 
 
