@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7600A3216EB
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C50D33216EC
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230224AbhBVMjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:39:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52847 "EHLO mail.kernel.org"
+        id S231414AbhBVMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:39:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231417AbhBVMi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:38:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E59464EEC;
-        Mon, 22 Feb 2021 12:37:23 +0000 (UTC)
+        id S231137AbhBVMia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:38:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB85864EF1;
+        Mon, 22 Feb 2021 12:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997444;
-        bh=U8cPoFGneXr0I11pRW4g9cJpO7WDIjhVeoVAnbhfA1w=;
+        s=korg; t=1613997449;
+        bh=dk5QtGwlJoFeBJsBX+EJeLTkuyrTvc4MykdhGh3NCLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7KKyF8+7ZClYKw9BA7VkFIDQqmH38YcGebqSLEuW1hn2NuUiKpWh9KRPquxZfdTj
-         RE6jIr7Jik/OtG6TDdAqEncGMNdF1Ue+cJS/scK2qKwvVdSXhCVtb7SZteEFRVGP1w
-         TqwbM898kTf86yn7yBav31nMxgPHxOynUrMkjOcc=
+        b=QqDpAvSMtMxQDWpN40q8aC8SyXARR8+XBSI38TuMfFRH5ptVzaSbW7GlKyOOhnJKi
+         3AG9dUhu1PHMZQAc4rCh0gKJdxJ7IPgwKjxVatkG4t+wHTMaCzHVXwDTIOoWGkQgmQ
+         9YYx2yJuuIAgroL1zs5d4LxUC9i3FWmSxCDsWAnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
-        Julien Grall <jgrall@amazon.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 19/57] arm/xen: Dont probe xenbus as part of an early initcall
-Date:   Mon, 22 Feb 2021 13:35:45 +0100
-Message-Id: <20210222121028.593541776@linuxfoundation.org>
+        stable@vger.kernel.org, Jaedon Shin <jaedon.shin@gmail.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Kevin Cernekee <cernekee@gmail.com>, linux-mips@linux-mips.org,
+        James Hogan <jhogan@kernel.org>
+Subject: [PATCH 4.14 20/57] MIPS: BMIPS: Fix section mismatch warning
+Date:   Mon, 22 Feb 2021 13:35:46 +0100
+Message-Id: <20210222121028.693052421@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
 References: <20210222121027.174911182@linuxfoundation.org>
@@ -42,82 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <jgrall@amazon.com>
+From: Jaedon Shin <jaedon.shin@gmail.com>
 
-commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
+commit 627f4a2bdf113ab88abc65cb505c89cbf615eae0 upstream.
 
-After Commit 3499ba8198cad ("xen: Fix event channel callback via
-INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
-recent to a guest hang during boot.
+Remove the __init annotation from bmips_cpu_setup() to avoid the
+following warning.
 
-If the hang wasn't there, we would have ended up to call
-xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
+WARNING: vmlinux.o(.text+0x35c950): Section mismatch in reference from the function brcmstb_pm_s3() to the function .init.text:bmips_cpu_setup()
+The function brcmstb_pm_s3() references
+the function __init bmips_cpu_setup().
+This is often because brcmstb_pm_s3 lacks a __init
+annotation or the annotation of bmips_cpu_setup is wrong.
 
-We don't need to initialize xenbus_probe() early for Arm guest.
-Therefore, the call in xen_guest_init() is now removed.
-
-After this change, there is no more external caller for xenbus_probe().
-So the function is turned to a static one. Interestingly there were two
-prototypes for it.
-
-Cc: stable@vger.kernel.org
-Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
-Reported-by: Ian Jackson <iwj@xenproject.org>
-Signed-off-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Kevin Cernekee <cernekee@gmail.com>
+Cc: linux-mips@linux-mips.org
+Reviewed-by: James Hogan <jhogan@kernel.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Patchwork: https://patchwork.linux-mips.org/patch/18589/
+Signed-off-by: James Hogan <jhogan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/xen/enlighten.c          |    2 --
- drivers/xen/xenbus/xenbus.h       |    1 -
- drivers/xen/xenbus/xenbus_probe.c |    2 +-
- include/xen/xenbus.h              |    2 --
- 4 files changed, 1 insertion(+), 6 deletions(-)
+ arch/mips/kernel/smp-bmips.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/xen/enlighten.c
-+++ b/arch/arm/xen/enlighten.c
-@@ -392,8 +392,6 @@ static int __init xen_guest_init(void)
- 		return -ENOMEM;
- 	}
- 	gnttab_init();
--	if (!xen_initial_domain())
--		xenbus_probe();
- 
- 	/*
- 	 * Making sure board specific code will not set up ops for
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -114,7 +114,6 @@ int xenbus_probe_node(struct xen_bus_typ
- 		      const char *type,
- 		      const char *nodename);
- int xenbus_probe_devices(struct xen_bus_type *bus);
--void xenbus_probe(void);
- 
- void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
- 
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -674,7 +674,7 @@ void unregister_xenstore_notifier(struct
+--- a/arch/mips/kernel/smp-bmips.c
++++ b/arch/mips/kernel/smp-bmips.c
+@@ -574,7 +574,7 @@ asmlinkage void __weak plat_wired_tlb_se
+ 	 */
  }
- EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
  
--void xenbus_probe(void)
-+static void xenbus_probe(void)
+-void __init bmips_cpu_setup(void)
++void bmips_cpu_setup(void)
  {
- 	xenstored_ready = 1;
- 
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -187,8 +187,6 @@ void xs_suspend_cancel(void);
- 
- struct work_struct;
- 
--void xenbus_probe(void);
--
- #define XENBUS_IS_ERR_READ(str) ({			\
- 	if (!IS_ERR(str) && strlen(str) == 0) {		\
- 		kfree(str);				\
+ 	void __iomem __maybe_unused *cbr = BMIPS_GET_CBR();
+ 	u32 __maybe_unused cfg;
 
 
