@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41AF32170A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9EA232173E
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230360AbhBVMmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:42:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
+        id S231223AbhBVMot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:44:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231462AbhBVMji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:39:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9738864F13;
-        Mon, 22 Feb 2021 12:38:21 +0000 (UTC)
+        id S231372AbhBVMmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:42:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3544A64F20;
+        Mon, 22 Feb 2021 12:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997502;
-        bh=AWJrq9CTU4jWdDExlrGjWDcFNigDcOUR4XCJyS4QyrA=;
+        s=korg; t=1613997569;
+        bh=M7tf0YXjwh9g467iZNihXYU2nRWQ8SxGzo/8yqj+BoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAgqLrnvySKxBELf2i+cg9SwdDTdlA8haxGqmde/Tn31YVdxY/u/17meU4q3T/g7m
-         1OOcO0/V1pSA+YzlpXSjR3rWCrEOiiIBqHPR0wqRlXcSFuWQAlkyLIALwRSqjl6qa+
-         UfIS71pNOPdeJ5J3CDC5MF7HsvxGzhyBEdkjjC9M=
+        b=NztszyI4sBF2DptEG2HuBysDXQCPiK8sG1we+pqmRN63XJPocUGGVDedXOlXoZzDn
+         6OCNp+k5UsPvwGEv7sEVdhV2Knucc/0thNfTo5gveXlF9msa5/C6iah4ZxKH+IqvER
+         xfnpz1YD5EdMjHaaiNO2GOVaSUnn/og5ERayNiVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        David Rientjes <rientjes@google.com>,
-        Greg Thelen <gthelen@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 43/57] tracing: Fix SKIP_STACK_VALIDATION=1 build due to bad merge with -mrecord-mcount
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 13/35] squashfs: add more sanity checks in xattr id lookup
 Date:   Mon, 22 Feb 2021 13:36:09 +0100
-Message-Id: <20210222121032.333497130@linuxfoundation.org>
+Message-Id: <20210222121019.345848793@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
+References: <20210222121013.581198717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Thelen <gthelen@google.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-commit ed7d40bc67b8353c677b38c6cdddcdc310c0f452 upstream.
+commit 506220d2ba21791314af569211ffd8870b8208fa upstream.
 
-Non gcc-5 builds with CONFIG_STACK_VALIDATION=y and
-SKIP_STACK_VALIDATION=1 fail.
-Example output:
-  /bin/sh: init/.tmp_main.o: Permission denied
+Sysbot has reported a warning where a kmalloc() attempt exceeds the
+maximum limit.  This has been identified as corruption of the xattr_ids
+count when reading the xattr id lookup table.
 
-commit 96f60dfa5819 ("trace: Use -mcount-record for dynamic ftrace"),
-added a mismatched endif.  This causes cmd_objtool to get mistakenly
-set.
+This patch adds a number of additional sanity checks to detect this
+corruption and others.
 
-Relocate endif to balance the newly added -record-mcount check.
+1. It checks for a corrupted xattr index read from the inode.  This could
+   be because the metadata block is uncompressed, or because the
+   "compression" bit has been corrupted (turning a compressed block
+   into an uncompressed block).  This would cause an out of bounds read.
 
-Link: http://lkml.kernel.org/r/20180608214746.136554-1-gthelen@google.com
+2. It checks against corruption of the xattr_ids count.  This can either
+   lead to the above kmalloc failure, or a smaller than expected
+   table to be read.
 
-Fixes: 96f60dfa5819 ("trace: Use -mcount-record for dynamic ftrace")
-Acked-by: Andi Kleen <ak@linux.intel.com>
-Tested-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Greg Thelen <gthelen@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+3. It checks the contents of the index table for corruption.
+
+[phillip@squashfs.org.uk: fix checkpatch issue]
+  Link: https://lkml.kernel.org/r/270245655.754655.1612770082682@webmail.123-reg.co.uk
+
+Link: https://lkml.kernel.org/r/20210204130249.4495-5-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+2ccea6339d368360800d@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.build |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/squashfs/xattr_id.c |   66 ++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 57 insertions(+), 9 deletions(-)
 
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -257,6 +257,7 @@ cmd_record_mcount =						\
- 	     "$(CC_FLAGS_FTRACE)" ]; then			\
- 		$(sub_cmd_record_mcount)			\
- 	fi;
-+endif # -record-mcount
- endif # CONFIG_FTRACE_MCOUNT_RECORD
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -44,10 +44,15 @@ int squashfs_xattr_lookup(struct super_b
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int block = SQUASHFS_XATTR_BLOCK(index);
+ 	int offset = SQUASHFS_XATTR_BLOCK_OFFSET(index);
+-	u64 start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++	u64 start_block;
+ 	struct squashfs_xattr_id id;
+ 	int err;
  
- ifdef CONFIG_STACK_VALIDATION
-@@ -279,7 +280,6 @@ endif
- ifdef CONFIG_RETPOLINE
-   objtool_args += --retpoline
- endif
--endif
++	if (index >= msblk->xattr_ids)
++		return -EINVAL;
++
++	start_block = le64_to_cpu(msblk->xattr_id_table[block]);
++
+ 	err = squashfs_read_metadata(sb, &id, &start_block, &offset,
+ 							sizeof(id));
+ 	if (err < 0)
+@@ -63,13 +68,17 @@ int squashfs_xattr_lookup(struct super_b
+ /*
+  * Read uncompressed xattr id lookup table indexes from disk into memory
+  */
+-__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 start,
++__le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+ 		u64 *xattr_table_start, int *xattr_ids)
+ {
+-	unsigned int len;
++	struct squashfs_sb_info *msblk = sb->s_fs_info;
++	unsigned int len, indexes;
+ 	struct squashfs_xattr_id_table *id_table;
++	__le64 *table;
++	u64 start, end;
++	int n;
  
+-	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
++	id_table = squashfs_read_table(sb, table_start, sizeof(*id_table));
+ 	if (IS_ERR(id_table))
+ 		return (__le64 *) id_table;
  
- ifdef CONFIG_MODVERSIONS
+@@ -83,13 +92,52 @@ __le64 *squashfs_read_xattr_id_table(str
+ 	if (*xattr_ids == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	/* xattr_table should be less than start */
+-	if (*xattr_table_start >= start)
++	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
++
++	/*
++	 * The computed size of the index table (len bytes) should exactly
++	 * match the table start and end points
++	 */
++	start = table_start + sizeof(*id_table);
++	end = msblk->bytes_used;
++
++	if (len != (end - start))
+ 		return ERR_PTR(-EINVAL);
+ 
+-	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
++	table = squashfs_read_table(sb, start, len);
++	if (IS_ERR(table))
++		return table;
++
++	/* table[0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed xattr id blocks.  Each entry should be less than
++	 * the next (i.e. table[0] < table[1]), and the difference between them
++	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
++	 * should be less than table_start, and again the difference
++	 * shouls be SQUASHFS_METADATA_SIZE or less.
++	 *
++	 * Finally xattr_table_start should be less than table[0].
++	 */
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= table_start || (table_start - start) > SQUASHFS_METADATA_SIZE) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	TRACE("In read_xattr_index_table, length %d\n", len);
++	if (*xattr_table_start >= le64_to_cpu(table[0])) {
++		kfree(table);
++		return ERR_PTR(-EINVAL);
++	}
+ 
+-	return squashfs_read_table(sb, start + sizeof(*id_table), len);
++	return table;
+ }
 
 
