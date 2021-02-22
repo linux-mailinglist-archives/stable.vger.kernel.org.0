@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F674321758
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75258321786
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231527AbhBVMqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:46:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
+        id S231522AbhBVMt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:49:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231635AbhBVMnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:43:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4427E64E20;
-        Mon, 22 Feb 2021 12:40:16 +0000 (UTC)
+        id S231446AbhBVMpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:45:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA3564F4F;
+        Mon, 22 Feb 2021 12:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997616;
-        bh=G1HzQO4OTyQBv4uITkzqKStVJ7xjJjTU0A8uzDKDLFo=;
+        s=korg; t=1613997699;
+        bh=j57vVxV/16lxams8bR5D0PRuyk9ypoZZaEsALguAg0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08o9dUCv9lcWdQvjKA3D/OylYQCLgul7AdeZYi/VXZlJ87MqTtj9Rf8rJBC3hMJiB
-         lDFapS8eqm7w7qwBKR1ID3iP2bk+iLMXD30WDghTIGSQKrlGh8ll4fGBOClPhxhpIj
-         08VuwRugoSt4GGqYSLe8JtnivQhCxxiT3NJ3LMOU=
+        b=KgNs23Riy37YxV0fMwCp9AuRCV/JcCw7lyl/8kwvMxUTq1YCGZyOCdT6d6kghKeRJ
+         nuiMvnI1VH6TiBNdFyybmpkE29KZ1I1NaVF88KmVL7M3fUbNfNudPwkbiC/zmxg63J
+         C1bIX6ozS+fpGlCLvmYn/II6CjQl7ZMOi/6LXI5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>, Julien Grall <julien@xen.org>
-Subject: [PATCH 4.4 33/35] xen-blkback: fix error handling in xen_blkbk_map()
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 31/49] net/vmw_vsock: improve locking in vsock_connect_timeout()
 Date:   Mon, 22 Feb 2021 13:36:29 +0100
-Message-Id: <20210222121022.346442686@linuxfoundation.org>
+Message-Id: <20210222121027.241105561@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,76 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-commit 871997bc9e423f05c7da7c9178e62dde5df2a7f8 upstream.
+commit 3d0bc44d39bca615b72637e340317b7899b7f911 upstream.
 
-The function uses a goto-based loop, which may lead to an earlier error
-getting discarded by a later iteration. Exit this ad-hoc loop when an
-error was encountered.
+A possible locking issue in vsock_connect_timeout() was recognized by
+Eric Dumazet which might cause a null pointer dereference in
+vsock_transport_cancel_pkt(). This patch assures that
+vsock_transport_cancel_pkt() will be called within the lock, so a race
+condition won't occur which could result in vsk->transport to be set to NULL.
 
-The out-of-memory error path additionally fails to fill a structure
-field looked at by xen_blkbk_unmap_prepare() before inspecting the
-handle which does get properly set (to BLKBACK_INVALID_HANDLE).
-
-Since the earlier exiting from the ad-hoc loop requires the same field
-filling (invalidation) as that on the out-of-memory path, fold both
-paths. While doing so, drop the pr_alert(), as extra log messages aren't
-going to help the situation (the kernel will log oom conditions already
-anyway).
-
-This is XSA-365.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 380feae0def7 ("vsock: cancel packets when failing to connect")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/trinity-f8e0937a-cf0e-4d80-a76e-d9a958ba3ef1-1612535522360@3c-app-gmx-bap12
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/xen-blkback/blkback.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ net/vmw_vsock/af_vsock.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/block/xen-blkback/blkback.c
-+++ b/drivers/block/xen-blkback/blkback.c
-@@ -825,8 +825,11 @@ again:
- 			pages[i]->page = persistent_gnt->page;
- 			pages[i]->persistent_gnt = persistent_gnt;
- 		} else {
--			if (get_free_page(blkif, &pages[i]->page))
--				goto out_of_memory;
-+			if (get_free_page(blkif, &pages[i]->page)) {
-+				put_free_pages(blkif, pages_to_gnt, segs_to_map);
-+				ret = -ENOMEM;
-+				goto out;
-+			}
- 			addr = vaddr(pages[i]->page);
- 			pages_to_gnt[segs_to_map] = pages[i]->page;
- 			pages[i]->persistent_gnt = NULL;
-@@ -910,15 +913,18 @@ next:
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1121,7 +1121,6 @@ static void vsock_connect_timeout(struct
+ {
+ 	struct sock *sk;
+ 	struct vsock_sock *vsk;
+-	int cancel = 0;
+ 
+ 	vsk = container_of(work, struct vsock_sock, connect_work.work);
+ 	sk = sk_vsock(vsk);
+@@ -1132,11 +1131,9 @@ static void vsock_connect_timeout(struct
+ 		sk->sk_state = SS_UNCONNECTED;
+ 		sk->sk_err = ETIMEDOUT;
+ 		sk->sk_error_report(sk);
+-		cancel = 1;
++		vsock_transport_cancel_pkt(vsk);
  	}
- 	segs_to_map = 0;
- 	last_map = map_until;
--	if (map_until != num)
-+	if (!ret && map_until != num)
- 		goto again;
+ 	release_sock(sk);
+-	if (cancel)
+-		vsock_transport_cancel_pkt(vsk);
  
--	return ret;
-+out:
-+	for (i = last_map; i < num; i++) {
-+		/* Don't zap current batch's valid persistent grants. */
-+		if(i >= last_map + segs_to_map)
-+			pages[i]->persistent_gnt = NULL;
-+		pages[i]->handle = BLKBACK_INVALID_HANDLE;
-+	}
- 
--out_of_memory:
--	pr_alert("%s: out of memory\n", __func__);
--	put_free_pages(blkif, pages_to_gnt, segs_to_map);
--	return -ENOMEM;
-+	return ret;
+ 	sock_put(sk);
  }
- 
- static int xen_blkbk_map_seg(struct pending_req *pending_req)
 
 
