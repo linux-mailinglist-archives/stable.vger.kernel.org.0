@@ -2,40 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 215B1321726
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD4C3216FB
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231476AbhBVMnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:43:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
+        id S231175AbhBVMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:40:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231332AbhBVMls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:41:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38ADA64F1E;
-        Mon, 22 Feb 2021 12:39:17 +0000 (UTC)
+        id S231415AbhBVMjI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:39:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25A8264F0D;
+        Mon, 22 Feb 2021 12:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997557;
-        bh=d0LtBcCvb0qLL4E9wW0x/QgpbTihVCDakUj+BhHtn58=;
+        s=korg; t=1613997487;
+        bh=XianCNyb7F1IUz8OjevKtLHFPZQljCtTlQt1TdwJxEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCNE/JcU1RjYw4f7QXR8sqHc28sRkdhZgryKBVpRuIyfrow7dwbTvqrt23+Pc76ur
-         PCaf27QGRH9DZOOwyGEAjdTn+FuQT/ZY0FOba34RCFGqJaz8jOScUOlO65xTFVoFHb
-         nfKOzP5HqIAaFgBA2jukVoAHMTVinmtpiP73eJaw=
+        b=PPuUsLLylHI+8n+fqFlpNFwzH+yVkLKSU3b+bISUVRcyhgBhoO0cTLIolK0J6g4jN
+         qyHt57aF3GtETh6laoRJA619WkCx9xCSAI4ZJ4y28qG7ecNfKtfP+DIcO1/USso6IA
+         Tlh2uZGgJrU87eRwZRvFTv0UVQVVn/0bmbtZQwH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        Wonhyuk Yang <vvghjk1234@gmail.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/57] memblock: do not start bottom-up allocations with kernel_end
-Date:   Mon, 22 Feb 2021 13:35:54 +0100
-Message-Id: <20210222121029.495326661@linuxfoundation.org>
+Subject: [PATCH 4.14 29/57] bpf: Check for integer overflow when using roundup_pow_of_two()
+Date:   Mon, 22 Feb 2021 13:35:55 +0100
+Message-Id: <20210222121029.612694240@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
 References: <20210222121027.174911182@linuxfoundation.org>
@@ -47,143 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
 
-[ Upstream commit 2dcb3964544177c51853a210b6ad400de78ef17d ]
+[ Upstream commit 6183f4d3a0a2ad230511987c6c362ca43ec0055f ]
 
-With kaslr the kernel image is placed at a random place, so starting the
-bottom-up allocation with the kernel_end can result in an allocation
-failure and a warning like this one:
+On 32-bit architecture, roundup_pow_of_two() can return 0 when the argument
+has upper most bit set due to resulting 1UL << 32. Add a check for this case.
 
-  hugetlb_cma: reserve 2048 MiB, up to 2048 MiB per node
-  ------------[ cut here ]------------
-  memblock: bottom-up allocation failed, memory hotremove may be affected
-  WARNING: CPU: 0 PID: 0 at mm/memblock.c:332 memblock_find_in_range_node+0x178/0x25a
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper Not tainted 5.10.0+ #1169
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  RIP: 0010:memblock_find_in_range_node+0x178/0x25a
-  Code: e9 6d ff ff ff 48 85 c0 0f 85 da 00 00 00 80 3d 9b 35 df 00 00 75 15 48 c7 c7 c0 75 59 88 c6 05 8b 35 df 00 01 e8 25 8a fa ff <0f> 0b 48 c7 44 24 20 ff ff ff ff 44 89 e6 44 89 ea 48 c7 c1 70 5c
-  RSP: 0000:ffffffff88803d18 EFLAGS: 00010086 ORIG_RAX: 0000000000000000
-  RAX: 0000000000000000 RBX: 0000000240000000 RCX: 00000000ffffdfff
-  RDX: 00000000ffffdfff RSI: 00000000ffffffea RDI: 0000000000000046
-  RBP: 0000000100000000 R08: ffffffff88922788 R09: 0000000000009ffb
-  R10: 00000000ffffe000 R11: 3fffffffffffffff R12: 0000000000000000
-  R13: 0000000000000000 R14: 0000000080000000 R15: 00000001fb42c000
-  FS:  0000000000000000(0000) GS:ffffffff88f71000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffffa080fb401000 CR3: 00000001fa80a000 CR4: 00000000000406b0
-  Call Trace:
-    memblock_alloc_range_nid+0x8d/0x11e
-    cma_declare_contiguous_nid+0x2c4/0x38c
-    hugetlb_cma_reserve+0xdc/0x128
-    flush_tlb_one_kernel+0xc/0x20
-    native_set_fixmap+0x82/0xd0
-    flat_get_apic_id+0x5/0x10
-    register_lapic_address+0x8e/0x97
-    setup_arch+0x8a5/0xc3f
-    start_kernel+0x66/0x547
-    load_ucode_bsp+0x4c/0xcd
-    secondary_startup_64_no_verify+0xb0/0xbb
-  random: get_random_bytes called from __warn+0xab/0x110 with crng_init=0
-  ---[ end trace f151227d0b39be70 ]---
-
-At the same time, the kernel image is protected with memblock_reserve(),
-so we can just start searching at PAGE_SIZE.  In this case the bottom-up
-allocation has the same chances to success as a top-down allocation, so
-there is no reason to fallback in the case of a failure.  All together it
-simplifies the logic.
-
-Link: https://lkml.kernel.org/r/20201217201214.3414100-2-guro@fb.com
-Fixes: 8fabc623238e ("powerpc: Ensure that swiotlb buffer is allocated from low memory")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Wonhyuk Yang <vvghjk1234@gmail.com>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d5a3b1f69186 ("bpf: introduce BPF_MAP_TYPE_STACK_TRACE")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210127063653.3576-1-minhquangbui99@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memblock.c | 48 ++++++------------------------------------------
- 1 file changed, 6 insertions(+), 42 deletions(-)
+ kernel/bpf/stackmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/memblock.c b/mm/memblock.c
-index e81d12c544e9f..5d36b4c549292 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -174,14 +174,6 @@ __memblock_find_range_top_down(phys_addr_t start, phys_addr_t end,
-  *
-  * Find @size free area aligned to @align in the specified range and node.
-  *
-- * When allocation direction is bottom-up, the @start should be greater
-- * than the end of the kernel image. Otherwise, it will be trimmed. The
-- * reason is that we want the bottom-up allocation just near the kernel
-- * image so it is highly likely that the allocated memory and the kernel
-- * will reside in the same node.
-- *
-- * If bottom-up allocation failed, will try to allocate memory top-down.
-- *
-  * RETURNS:
-  * Found address on success, 0 on failure.
-  */
-@@ -189,8 +181,6 @@ phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
- 					phys_addr_t align, phys_addr_t start,
- 					phys_addr_t end, int nid, ulong flags)
- {
--	phys_addr_t kernel_end, ret;
--
- 	/* pump up @end */
- 	if (end == MEMBLOCK_ALLOC_ACCESSIBLE)
- 		end = memblock.current_limit;
-@@ -198,39 +188,13 @@ phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
- 	/* avoid allocating the first page */
- 	start = max_t(phys_addr_t, start, PAGE_SIZE);
- 	end = max(start, end);
--	kernel_end = __pa_symbol(_end);
--
--	/*
--	 * try bottom-up allocation only when bottom-up mode
--	 * is set and @end is above the kernel image.
--	 */
--	if (memblock_bottom_up() && end > kernel_end) {
--		phys_addr_t bottom_up_start;
--
--		/* make sure we will allocate above the kernel */
--		bottom_up_start = max(start, kernel_end);
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index 135be433e9a0f..1d4c3fba0f8cd 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -71,6 +71,8 @@ static struct bpf_map *stack_map_alloc(union bpf_attr *attr)
  
--		/* ok, try bottom-up allocation first */
--		ret = __memblock_find_range_bottom_up(bottom_up_start, end,
--						      size, align, nid, flags);
--		if (ret)
--			return ret;
--
--		/*
--		 * we always limit bottom-up allocation above the kernel,
--		 * but top-down allocation doesn't have the limit, so
--		 * retrying top-down allocation may succeed when bottom-up
--		 * allocation failed.
--		 *
--		 * bottom-up allocation is expected to be fail very rarely,
--		 * so we use WARN_ONCE() here to see the stack trace if
--		 * fail happens.
--		 */
--		WARN_ONCE(1, "memblock: bottom-up allocation failed, memory hotunplug may be affected\n");
--	}
--
--	return __memblock_find_range_top_down(start, end, size, align, nid,
--					      flags);
-+	if (memblock_bottom_up())
-+		return __memblock_find_range_bottom_up(start, end, size, align,
-+						       nid, flags);
-+	else
-+		return __memblock_find_range_top_down(start, end, size, align,
-+						      nid, flags);
- }
+ 	/* hash table size must be power of 2 */
+ 	n_buckets = roundup_pow_of_two(attr->max_entries);
++	if (!n_buckets)
++		return ERR_PTR(-E2BIG);
  
- /**
+ 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
+ 	if (cost >= U32_MAX - PAGE_SIZE)
 -- 
 2.27.0
 
