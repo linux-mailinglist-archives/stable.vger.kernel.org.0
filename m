@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B62A532160F
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C266532163B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230457AbhBVMQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:16:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45450 "EHLO mail.kernel.org"
+        id S230482AbhBVMTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:19:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230398AbhBVMPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:15:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 400EA64F00;
-        Mon, 22 Feb 2021 12:14:30 +0000 (UTC)
+        id S230467AbhBVMQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:16:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FC4F64F02;
+        Mon, 22 Feb 2021 12:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996070;
-        bh=P8dOsg/8lT9BVQdxiQW7fh17THd0WtL4GaIUw8wy3m8=;
+        s=korg; t=1613996190;
+        bh=cMl5WW+fx0wsyVjr5ALt3IWST3sUbg5i4u6+TD+SagY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gfg0DlR0zlweW8x4hYYjkjMtH9JweUoDjDd6jvWaAc+4oy9mpK9Gh4PN+ndTMrCCO
-         TTR9qyQLBDo/CrH07O4ywUWh87t9hMhAp6ftZgnoeUb2B3w25rq3qbh/eObPgOT0uW
-         pQA/VGyVWpqMe6SahXYTE/7cqbexAuYEOxNVPl4w=
+        b=xhRHknEt9Ftfa0Ww1uiw4VGjwEVsMCEoWEFEpaW8MACQQnvWktGPyVjIEL3uARw6C
+         ArISF4eZrvG2HHK+T8gPokhDKnQ2kCOKGYo9Rf/7AX0rFhuXOwNtPl5gdP4plgW+Be
+         8RmrEjYdhBVSDtoUsYBxYgrF3XQ0McmjzHq7a7Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 19/29] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/50] netfilter: conntrack: skip identical origin tuple in same zone only
 Date:   Mon, 22 Feb 2021 13:13:13 +0100
-Message-Id: <20210222121022.671665525@linuxfoundation.org>
+Message-Id: <20210222121024.266130513@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
-References: <20210222121019.444399883@linuxfoundation.org>
+In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
+References: <20210222121019.925481519@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
+[ Upstream commit 07998281c268592963e1cd623fe6ab0270b65ae4 ]
 
-Failure of the kernel part of the mapping operation should also be
-indicated as an error to the caller, or else it may assume the
-respective kernel VA is okay to access.
+The origin skip check needs to re-test the zone. Else, we might skip
+a colliding tuple in the reply direction.
 
-Furthermore gnttab_map_refs() failing still requires recording
-successfully mapped handles, so they can be unmapped subsequently. This
-in turn requires there to be a way to tell full hypercall failure from
-partial success - preset map_op status fields such that they won't
-"happen" to look as if the operation succeeded.
+This only occurs when using 'directional zones' where origin tuples
+reside in different zones but the reply tuples share the same zone.
 
-Also again use GNTST_okay instead of implying its value (zero).
+This causes the new conntrack entry to be dropped at confirmation time
+because NAT clash resolution was elided.
 
-This is part of XSA-361.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4e35c1cb9460240 ("netfilter: nf_nat: skip nat clash resolution for same-origin entries")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c      |   17 +++++++++--------
- include/xen/grant_table.h |    1 +
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -334,21 +334,22 @@ int gntdev_map_grant_pages(struct gntdev
- 	pr_debug("map %d+%d\n", map->index, map->count);
- 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
- 			map->pages, map->count);
--	if (err)
--		return err;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index ad1da6b2fb607..1dceda3c0e759 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -1063,7 +1063,8 @@ nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
+ 			 * Let nf_ct_resolve_clash() deal with this later.
+ 			 */
+ 			if (nf_ct_tuple_equal(&ignored_conntrack->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
+-					      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple))
++					      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple) &&
++					      nf_ct_zone_equal(ct, zone, IP_CT_DIR_ORIGINAL))
+ 				continue;
  
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status) {
-+		if (map->map_ops[i].status == GNTST_okay)
-+			map->unmap_ops[i].handle = map->map_ops[i].handle;
-+		else if (!err)
- 			err = -EINVAL;
--			continue;
--		}
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
--		map->unmap_ops[i].handle = map->map_ops[i].handle;
--		if (use_ptemod)
--			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+		if (use_ptemod) {
-+			if (map->kmap_ops[i].status == GNTST_okay)
-+				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+			else if (!err)
-+				err = -EINVAL;
-+		}
- 	}
- 	return err;
- }
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
- 	map->flags = flags;
- 	map->ref = ref;
- 	map->dom = domid;
-+	map->status = 1; /* arbitrary positive value */
- }
- 
- static inline void
+ 			NF_CT_STAT_INC_ATOMIC(net, found);
+-- 
+2.27.0
+
 
 
