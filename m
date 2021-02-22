@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DD932171A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 541B3321745
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbhBVMme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52870 "EHLO mail.kernel.org"
+        id S231405AbhBVMpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:45:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230483AbhBVMlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:41:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC0F264ED6;
-        Mon, 22 Feb 2021 12:38:57 +0000 (UTC)
+        id S231448AbhBVMmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:42:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CA5564F3A;
+        Mon, 22 Feb 2021 12:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997538;
-        bh=k+uH5JhWqxcQBAXaoYHY6wyG1XuJ0CDvbMOB7XR4PUo=;
+        s=korg; t=1613997604;
+        bh=a8ainKRhLo+3BhY0XHJ8m4yKk7gb4ywNlu2ioz15J6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmWapUOKpCc/9KY8O46BolD8xrO8hB8o0t+9WfNHel8n3HkaDxO0HMko7ovBL903a
-         HvqLcEDGMdO96wqUQcCUWMYzqE3KwgfVqWaHtZzuuwj92BvnOHtDhmiB2bxWqrjtoA
-         R7koFYKj+6qhi8Ea9gc45FMwFlhuIeBdze/AC8aI=
+        b=HKq0eJyEvSWDI1rqgms48tu0we6IqKCaLbkzhwik9GRGARaK8qiGe7cPV81Mtqv5M
+         Dp1TOMGoa0e5oIHVxmetyReYx64GwKe/40JzN4RaM2WgSjGsOM69G2ony3gvaGEdbq
+         +kgM15qEYEFIbVqf4Ow8Tm/CtHvUXTurQlmJWsX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 57/57] kvm: check tlbs_dirty directly
-Date:   Mon, 22 Feb 2021 13:36:23 +0100
-Message-Id: <20210222121035.779272145@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 28/35] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+Date:   Mon, 22 Feb 2021 13:36:24 +0100
+Message-Id: <20210222121021.928348335@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
+References: <20210222121013.581198717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 88bf56d04bc3564542049ec4ec168a8b60d0b48c upstream
+commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
 
-In kvm_mmu_notifier_invalidate_range_start(), tlbs_dirty is used as:
-        need_tlb_flush |= kvm->tlbs_dirty;
-with need_tlb_flush's type being int and tlbs_dirty's type being long.
+Failure of the kernel part of the mapping operation should also be
+indicated as an error to the caller, or else it may assume the
+respective kernel VA is okay to access.
 
-It means that tlbs_dirty is always used as int and the higher 32 bits
-is useless.  We need to check tlbs_dirty in a correct way and this
-change checks it directly without propagating it to need_tlb_flush.
+Furthermore gnttab_map_refs() failing still requires recording
+successfully mapped handles, so they can be unmapped subsequently. This
+in turn requires there to be a way to tell full hypercall failure from
+partial success - preset map_op status fields such that they won't
+"happen" to look as if the operation succeeded.
 
-Note: it's _extremely_ unlikely this neglecting of higher 32 bits can
-cause problems in practice.  It would require encountering tlbs_dirty
-on a 4 billion count boundary, and KVM would need to be using shadow
-paging or be running a nested guest.
+Also again use GNTST_okay instead of implying its value (zero).
 
+This is part of XSA-361.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
 Cc: stable@vger.kernel.org
-Fixes: a4ee1ca4a36e ("KVM: MMU: delay flush all tlbs on sync_page path")
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Message-Id: <20201217154118.16497-1-jiangshanlai@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- virt/kvm/kvm_main.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -382,9 +382,8 @@ static void kvm_mmu_notifier_invalidate_
- 	 */
- 	kvm->mmu_notifier_count++;
- 	need_tlb_flush = kvm_unmap_hva_range(kvm, start, end);
--	need_tlb_flush |= kvm->tlbs_dirty;
- 	/* we've to flush the tlb before the pages can be freed */
--	if (need_tlb_flush)
-+	if (need_tlb_flush || kvm->tlbs_dirty)
- 		kvm_flush_remote_tlbs(kvm);
+---
+ drivers/xen/gntdev.c      |   17 +++++++++--------
+ include/xen/grant_table.h |    1 +
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -318,21 +318,22 @@ static int map_grant_pages(struct grant_
+ 	pr_debug("map %d+%d\n", map->index, map->count);
+ 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
+ 			map->pages, map->count);
+-	if (err)
+-		return err;
  
- 	spin_unlock(&kvm->mmu_lock);
+ 	for (i = 0; i < map->count; i++) {
+-		if (map->map_ops[i].status) {
++		if (map->map_ops[i].status == GNTST_okay)
++			map->unmap_ops[i].handle = map->map_ops[i].handle;
++		else if (!err)
+ 			err = -EINVAL;
+-			continue;
+-		}
+ 
+ 		if (map->flags & GNTMAP_device_map)
+ 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
+ 
+-		map->unmap_ops[i].handle = map->map_ops[i].handle;
+-		if (use_ptemod)
+-			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
++		if (use_ptemod) {
++			if (map->kmap_ops[i].status == GNTST_okay)
++				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
++			else if (!err)
++				err = -EINVAL;
++		}
+ 	}
+ 	return err;
+ }
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
+ 	map->flags = flags;
+ 	map->ref = ref;
+ 	map->dom = domid;
++	map->status = 1; /* arbitrary positive value */
+ }
+ 
+ static inline void
 
 
