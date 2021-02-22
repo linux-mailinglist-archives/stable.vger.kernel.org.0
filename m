@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91792321753
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 276D432173B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230477AbhBVMq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:46:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53426 "EHLO mail.kernel.org"
+        id S231658AbhBVMol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:44:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231631AbhBVMnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:43:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA52E64F0A;
-        Mon, 22 Feb 2021 12:40:56 +0000 (UTC)
+        id S231338AbhBVMmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:42:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D4AE64F2C;
+        Mon, 22 Feb 2021 12:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997657;
-        bh=SoteQDSMWgUNiOX4z7Aq5Z9QkB1yzcEbMGEVBDYbOiY=;
+        s=korg; t=1613997593;
+        bh=YFOsmi5Ootxj9TIjtEJQUafDBl1z442k+pJe9rZEhoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJFedy8Cem/R8P9JiOtI9Z9MyGj0/lhxJVQxq3C1iNZz6GW0/QTCSnMmMkLfuwBnd
-         9l0Q1mB8a/R/vNx84IXTGxdfPq+RnF1VDcgJkK0jUstDqnM1Xx1q0/HCDXeHuqi6ke
-         m4ps/K0AWloxpUvmMseN9VTmIywD2H7gQn/l40BM=
+        b=HMxB9QOBWFk0G4/M43NchZWJTaNZyKp7afjAJJnRbYeiXU3uQaI3dTGwcpoD8TUzG
+         k/av9v16BH1Ls7ZHkCNSmKpX0c5l9aucPsDD8GIwRFzp2kaxJm24aSV3nIW90hBF5K
+         yi2BcQ6NuomUZfpWISzA4z3xyX0+ushTFrlCJpBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/49] iwlwifi: pcie: add a NULL check in iwl_pcie_txq_unmap
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Tobin C. Harding" <tobin@kernel.org>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/35] lib/string: Add strscpy_pad() function
 Date:   Mon, 22 Feb 2021 13:36:04 +0100
-Message-Id: <20210222121024.513702844@linuxfoundation.org>
+Message-Id: <20210222121018.650380893@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
-References: <20210222121022.546148341@linuxfoundation.org>
+In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
+References: <20210222121013.581198717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Tobin C. Harding <tobin@kernel.org>
 
-[ Upstream commit 98c7d21f957b10d9c07a3a60a3a5a8f326a197e5 ]
+[ Upstream commit 458a3bf82df4fe1f951d0f52b1e0c1e9d5a88a3b ]
 
-I hit a NULL pointer exception in this function when the
-init flow went really bad.
+We have a function to copy strings safely and we have a function to copy
+strings and zero the tail of the destination (if source string is
+shorter than destination buffer) but we do not have a function to do
+both at once.  This means developers must write this themselves if they
+desire this functionality.  This is a chore, and also leaves us open to
+off by one errors unnecessarily.
 
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210115130252.2e8da9f2c132.I0234d4b8ddaf70aaa5028a20c863255e05bc1f84@changeid
+Add a function that calls strscpy() then memset()s the tail to zero if
+the source string is shorter than the destination buffer.
+
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Signed-off-by: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/tx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/string.h |  4 ++++
+ lib/string.c           | 47 +++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 44 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-index 174e45d78c46a..ff564198d2cef 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-@@ -676,6 +676,11 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
- 	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
- 
-+	if (!txq) {
-+		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
-+		return;
-+	}
+diff --git a/include/linux/string.h b/include/linux/string.h
+index 870268d42ae7d..7da409760cf18 100644
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -28,6 +28,10 @@ size_t strlcpy(char *, const char *, size_t);
+ #ifndef __HAVE_ARCH_STRSCPY
+ ssize_t strscpy(char *, const char *, size_t);
+ #endif
 +
- 	spin_lock_bh(&txq->lock);
- 	while (txq->write_ptr != txq->read_ptr) {
- 		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
++/* Wraps calls to strscpy()/memset(), no arch specific code required */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ extern char * strcat(char *, const char *);
+ #endif
+diff --git a/lib/string.c b/lib/string.c
+index 7f4baad6fb193..4351ec43cd6b8 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -157,11 +157,9 @@ EXPORT_SYMBOL(strlcpy);
+  * @src: Where to copy the string from
+  * @count: Size of destination buffer
+  *
+- * Copy the string, or as much of it as fits, into the dest buffer.
+- * The routine returns the number of characters copied (not including
+- * the trailing NUL) or -E2BIG if the destination buffer wasn't big enough.
+- * The behavior is undefined if the string buffers overlap.
+- * The destination buffer is always NUL terminated, unless it's zero-sized.
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always NUL terminated, unless it's zero-sized.
+  *
+  * Preferred to strlcpy() since the API doesn't require reading memory
+  * from the src string beyond the specified "count" bytes, and since
+@@ -171,8 +169,10 @@ EXPORT_SYMBOL(strlcpy);
+  *
+  * Preferred to strncpy() since it always returns a valid string, and
+  * doesn't unnecessarily force the tail of the destination buffer to be
+- * zeroed.  If the zeroing is desired, it's likely cleaner to use strscpy()
+- * with an overflow test, then just memset() the tail of the dest buffer.
++ * zeroed.  If zeroing is desired please use strscpy_pad().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
+  */
+ ssize_t strscpy(char *dest, const char *src, size_t count)
+ {
+@@ -259,6 +259,39 @@ char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
+ }
+ EXPORT_SYMBOL(stpcpy);
+ 
++/**
++ * strscpy_pad() - Copy a C-string into a sized buffer
++ * @dest: Where to copy the string to
++ * @src: Where to copy the string from
++ * @count: Size of destination buffer
++ *
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always %NUL terminated, unless it's zero-sized.
++ *
++ * If the source string is shorter than the destination buffer, zeros
++ * the tail of the destination buffer.
++ *
++ * For full explanation of why you may want to consider using the
++ * 'strscpy' functions please see the function docstring for strscpy().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
++ */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count)
++{
++	ssize_t written;
++
++	written = strscpy(dest, src, count);
++	if (written < 0 || written == count - 1)
++		return written;
++
++	memset(dest + written + 1, 0, count - written - 1);
++
++	return written;
++}
++EXPORT_SYMBOL(strscpy_pad);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
 -- 
 2.27.0
 
