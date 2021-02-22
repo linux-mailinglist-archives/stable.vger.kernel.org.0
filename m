@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA86D32172D
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 896D4321716
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbhBVMnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S231309AbhBVMma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:42:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230431AbhBVMmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:42:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C193E64F1F;
-        Mon, 22 Feb 2021 12:39:19 +0000 (UTC)
+        id S231210AbhBVMl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:41:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5907D64F02;
+        Mon, 22 Feb 2021 12:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997560;
-        bh=35LEk/4DeIen+rKOiPzl4OaHzLmbo1r1UiswDsJOXuQ=;
+        s=korg; t=1613997540;
+        bh=4HrBhgJIRgRPr9JuQrDIoTRdOmW5eiU2KLqhXKWskYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laEN1YoJyfKtwGDqrdLfhSz9/flVT+fr52l2oG7+GmKFGZ314kpUKhTN+5gak5G6k
-         qJYwo/EA0X3xjuYHsjO5Kfs/s+FH11CPnFECDCgwrQZw6mRXVgW66oZwsgOCr1/VeE
-         uFvHrHtSoZE8mAxnXDGZBevrvRaYRaOsBn/bsi50=
+        b=B6iMP+jR+7yGnUASRU4ZMAtvRpuu5UQ0cWtIyZU1nBhvPGrXzI/THQ/c+qbZlDBDf
+         v7A9LtR5OPsFakWI8gdzRKVqRpSUSOt5k5w67vvc9MiXtcGNmMvPeHfu0aZg7cNwiE
+         HxpzQPJC6Qat4vg4CQHcekkzqfKSVnNRySOkQq38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 01/35] tracing: Do not count ftrace events in top level enable output
+        stable@vger.kernel.org, Igor Druzhinin <igor.druzhinin@citrix.com>,
+        Juergen Gross <jgross@suse.com>, Wei Liu <wl@xen.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/57] xen/netback: avoid race in xenvif_rx_ring_slots_available()
 Date:   Mon, 22 Feb 2021 13:35:57 +0100
-Message-Id: <20210222121016.921263578@linuxfoundation.org>
+Message-Id: <20210222121029.839029326@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,48 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 256cfdd6fdf70c6fcf0f7c8ddb0ebd73ce8f3bc9 upstream.
+[ Upstream commit ec7d8e7dd3a59528e305a18e93f1cb98f7faf83b ]
 
-The file /sys/kernel/tracing/events/enable is used to enable all events by
-echoing in "1", or disabling all events when echoing in "0". To know if all
-events are enabled, disabled, or some are enabled but not all of them,
-cating the file should show either "1" (all enabled), "0" (all disabled), or
-"X" (some enabled but not all of them). This works the same as the "enable"
-files in the individule system directories (like tracing/events/sched/enable).
+Since commit 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
+xenvif_rx_ring_slots_available() is no longer called only from the rx
+queue kernel thread, so it needs to access the rx queue with the
+associated queue held.
 
-But when all events are enabled, the top level "enable" file shows "X". The
-reason is that its checking the "ftrace" events, which are special events
-that only exist for their format files. These include the format for the
-function tracer events, that are enabled when the function tracer is
-enabled, but not by the "enable" file. The check includes these events,
-which will always be disabled, and even though all true events are enabled,
-the top level "enable" file will show "X" instead of "1".
-
-To fix this, have the check test the event's flags to see if it has the
-"IGNORE_ENABLE" flag set, and if so, not test it.
-
-Cc: stable@vger.kernel.org
-Fixes: 553552ce1796c ("tracing: Combine event filter_active and enable into single flags field")
-Reported-by: "Yordan Karadzhov (VMware)" <y.karadz@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Igor Druzhinin <igor.druzhinin@citrix.com>
+Fixes: 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Wei Liu <wl@xen.org>
+Link: https://lore.kernel.org/r/20210202070938.7863-1-jgross@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/xen-netback/rx.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1083,7 +1083,8 @@ system_enable_read(struct file *filp, ch
- 	mutex_lock(&event_mutex);
- 	list_for_each_entry(file, &tr->events, list) {
- 		call = file->event_call;
--		if (!trace_event_name(call) || !call->class || !call->class->reg)
-+		if ((call->flags & TRACE_EVENT_FL_IGNORE_ENABLE) ||
-+		    !trace_event_name(call) || !call->class || !call->class->reg)
- 			continue;
+diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
+index f152246c7dfb7..ddfb1cfa2dd94 100644
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -38,10 +38,15 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	RING_IDX prod, cons;
+ 	struct sk_buff *skb;
+ 	int needed;
++	unsigned long flags;
++
++	spin_lock_irqsave(&queue->rx_queue.lock, flags);
  
- 		if (system && strcmp(call->class->system, system->name) != 0)
+ 	skb = skb_peek(&queue->rx_queue);
+-	if (!skb)
++	if (!skb) {
++		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+ 		return false;
++	}
+ 
+ 	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
+ 	if (skb_is_gso(skb))
+@@ -49,6 +54,8 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	if (skb->sw_hash)
+ 		needed++;
+ 
++	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++
+ 	do {
+ 		prod = queue->rx.sring->req_prod;
+ 		cons = queue->rx.req_cons;
+-- 
+2.27.0
+
 
 
