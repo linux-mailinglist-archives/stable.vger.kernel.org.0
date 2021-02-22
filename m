@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DCFE321658
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C1A321614
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbhBVMVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:21:10 -0500
+        id S230489AbhBVMRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:17:06 -0500
 Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230459AbhBVMQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:16:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9FD64DA1;
-        Mon, 22 Feb 2021 12:16:19 +0000 (UTC)
+        id S230371AbhBVMPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 912FE64EF2;
+        Mon, 22 Feb 2021 12:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996180;
-        bh=BamTYaZvGkdzZKkD4YSrebbvBsR0uV5wr67NCAblK+s=;
+        s=korg; t=1613996044;
+        bh=LqBI0T4uKzthKBRdmuCd499fYfUi0a/WI1AfKlgDRIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7DXP/nS+DmIGOUoR9fntxMnPDWGTNZrtlg7dMapLFBIlgUCn7mRpDxWC6Rxef1+P
-         Iv+Y/8esL9VgoiGs7XRZaJ785jjBA6bWLZuT89ZBXMvkOvBof60WROHuLGatxtH3ow
-         rszYtkWuIPUhnYhS5/LtkyprAn4tTEGK8xixlxI0=
+        b=jRRzFePOLw/XhXpiVBWFOiFPhpvAvuLYZSq94F7FjeanNsSwALnBBNAEYLmcHWX09
+         Y2p77Cn0296Xr95f8IJemwcIg2Sh42g4VGtdw8t0NRgFcBqrcoMDwLcDXo25ujQt/x
+         UsZrz23bw9oC+YNwZDMweVabvP2/+XQaWX6/QwzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/50] netfilter: flowtable: fix tcp and udp header checksum update
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 16/29] Xen/x86: dont bail early from clear_foreign_p2m_mapping()
 Date:   Mon, 22 Feb 2021 13:13:10 +0100
-Message-Id: <20210222121023.078460674@linuxfoundation.org>
+Message-Id: <20210222121022.357852140@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+References: <20210222121019.444399883@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 8d6bca156e47d68551750a384b3ff49384c67be3 ]
+commit a35f2ef3b7376bfd0a57f7844bd7454389aae1fc upstream.
 
-When updating the tcp or udp header checksum on port nat the function
-inet_proto_csum_replace2 with the last parameter pseudohdr as true.
-This leads to an error in the case that GRO is used and packets are
-split up in GSO. The tcp or udp checksum of all packets is incorrect.
+Its sibling (set_foreign_p2m_mapping()) as well as the sibling of its
+only caller (gnttab_map_refs()) don't clean up after themselves in case
+of error. Higher level callers are expected to do so. However, in order
+for that to really clean up any partially set up state, the operation
+should not terminate upon encountering an entry in unexpected state. It
+is particularly relevant to notice here that set_foreign_p2m_mapping()
+would skip setting up a p2m entry if its grant mapping failed, but it
+would continue to set up further p2m entries as long as their mappings
+succeeded.
 
-The error is probably masked due to the fact the most network driver
-implement tcp/udp checksum offloading. It also only happens when GRO is
-applied and not on single packets.
+Arguably down the road set_foreign_p2m_mapping() may want its page state
+related WARN_ON() also converted to an error return.
 
-The error is most visible when using a pppoe connection which is not
-triggering the tcp/udp checksum offload.
+This is part of XSA-361.
 
-Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/nf_flow_table_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/xen/p2m.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 890799c16aa41..b3957fe7eced2 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -360,7 +360,7 @@ static int nf_flow_nat_port_tcp(struct sk_buff *skb, unsigned int thoff,
- 		return -1;
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -750,17 +750,15 @@ int clear_foreign_p2m_mapping(struct gnt
+ 		unsigned long mfn = __pfn_to_mfn(page_to_pfn(pages[i]));
+ 		unsigned long pfn = page_to_pfn(pages[i]);
  
- 	tcph = (void *)(skb_network_header(skb) + thoff);
--	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, true);
-+	inet_proto_csum_replace2(&tcph->check, skb, port, new_port, false);
- 
- 	return 0;
- }
-@@ -377,7 +377,7 @@ static int nf_flow_nat_port_udp(struct sk_buff *skb, unsigned int thoff,
- 	udph = (void *)(skb_network_header(skb) + thoff);
- 	if (udph->check || skb->ip_summed == CHECKSUM_PARTIAL) {
- 		inet_proto_csum_replace2(&udph->check, skb, port,
--					 new_port, true);
-+					 new_port, false);
- 		if (!udph->check)
- 			udph->check = CSUM_MANGLED_0;
+-		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
++		if (mfn != INVALID_P2M_ENTRY && (mfn & FOREIGN_FRAME_BIT))
++			set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
++		else
+ 			ret = -EINVAL;
+-			goto out;
+-		}
+-
+-		set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
  	}
--- 
-2.27.0
-
+ 	if (kunmap_ops)
+ 		ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
+-						kunmap_ops, count);
+-out:
++						kunmap_ops, count) ?: ret;
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
 
 
