@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFFE3217A6
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A9E32172E
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231689AbhBVMwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:52:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
+        id S230501AbhBVMni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:43:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231621AbhBVMrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:47:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA57B64F6C;
-        Mon, 22 Feb 2021 12:42:17 +0000 (UTC)
+        id S231351AbhBVMmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:42:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6636164F24;
+        Mon, 22 Feb 2021 12:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997738;
-        bh=7HAX9sU+l6BNdNYSlFXNawad2Tcj2aC8xHHqNBYP1s8=;
+        s=korg; t=1613997564;
+        bh=RFq7DTiDn0hp4pdlrUCjdM60joMa//hMFSvjL3VJX6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=To62U0cIuol6hpJ1MclXrFGlCIk5yS2Try6fHwiLQcK74jNKJCLCptSl1uNku2sku
-         UGHwY+NUxDvcoINRHa37pTwcUgRMK1giLMUFes+3QOdgcht8Ev9cNmgMnWjgy0cR0t
-         tP0j3lOQ7p8JKrn4k7Hp4HLdlvkjqKNi2zdc6XyY=
+        b=kO9wAAQYFVTi5VZdTsdHfsZr9EY9+gVxiHgrSW48O4QmCBjTBg5N2tPPMIZH8nLRT
+         e8pxJLWBK7VAQsKjZkmO4mcuRkGyaZQzlUmgRNMbN155YTQCeqGAOpQBpSd150L/R3
+         q2Ij+f8+Jrd6k5FTOe5wm9UuJbNqKn/ev2+7/U8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/49] SUNRPC: Handle 0 length opaque XDR object data properly
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+b06d57ba83f604522af2@syzkaller.appspotmail.com,
+        syzbot+c021ba012da41ee9807c@syzkaller.appspotmail.com,
+        syzbot+5024636e8b5fd19f0f19@syzkaller.appspotmail.com,
+        syzbot+bcbc661df46657d0fa4f@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 11/35] squashfs: add more sanity checks in id lookup
 Date:   Mon, 22 Feb 2021 13:36:07 +0100
-Message-Id: <20210222121025.211737465@linuxfoundation.org>
+Message-Id: <20210222121018.994227717@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
-References: <20210222121022.546148341@linuxfoundation.org>
+In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
+References: <20210222121013.581198717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +44,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit e4a7d1f7707eb44fd953a31dd59eff82009d879c ]
+commit f37aa4c7366e23f91b81d00bafd6a7ab54e4a381 upstream.
 
-When handling an auth_gss downcall, it's possible to get 0-length
-opaque object for the acceptor.  In the case of a 0-length XDR
-object, make sure simple_get_netobj() fills in dest->data = NULL,
-and does not continue to kmemdup() which will set
-dest->data = ZERO_SIZE_PTR for the acceptor.
+Sysbot has reported a number of "slab-out-of-bounds reads" and
+"use-after-free read" errors which has been identified as being caused
+by a corrupted index value read from the inode.  This could be because
+the metadata block is uncompressed, or because the "compression" bit has
+been corrupted (turning a compressed block into an uncompressed block).
 
-The trace event code can handle NULL but not ZERO_SIZE_PTR for a
-string, and so without this patch the rpcgss_context trace event
-will crash the kernel as follows:
+This patch adds additional sanity checks to detect this, and the
+following corruption.
 
-[  162.887992] BUG: kernel NULL pointer dereference, address: 0000000000000010
-[  162.898693] #PF: supervisor read access in kernel mode
-[  162.900830] #PF: error_code(0x0000) - not-present page
-[  162.902940] PGD 0 P4D 0
-[  162.904027] Oops: 0000 [#1] SMP PTI
-[  162.905493] CPU: 4 PID: 4321 Comm: rpc.gssd Kdump: loaded Not tainted 5.10.0 #133
-[  162.908548] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[  162.910978] RIP: 0010:strlen+0x0/0x20
-[  162.912505] Code: 48 89 f9 74 09 48 83 c1 01 80 39 00 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 0f 1f 80 00 00 00 00 <80> 3f 00 74 10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3 31
-[  162.920101] RSP: 0018:ffffaec900c77d90 EFLAGS: 00010202
-[  162.922263] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000fffde697
-[  162.925158] RDX: 000000000000002f RSI: 0000000000000080 RDI: 0000000000000010
-[  162.928073] RBP: 0000000000000010 R08: 0000000000000e10 R09: 0000000000000000
-[  162.930976] R10: ffff8e698a590cb8 R11: 0000000000000001 R12: 0000000000000e10
-[  162.933883] R13: 00000000fffde697 R14: 000000010034d517 R15: 0000000000070028
-[  162.936777] FS:  00007f1e1eb93700(0000) GS:ffff8e6ab7d00000(0000) knlGS:0000000000000000
-[  162.940067] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  162.942417] CR2: 0000000000000010 CR3: 0000000104eba000 CR4: 00000000000406e0
-[  162.945300] Call Trace:
-[  162.946428]  trace_event_raw_event_rpcgss_context+0x84/0x140 [auth_rpcgss]
-[  162.949308]  ? __kmalloc_track_caller+0x35/0x5a0
-[  162.951224]  ? gss_pipe_downcall+0x3a3/0x6a0 [auth_rpcgss]
-[  162.953484]  gss_pipe_downcall+0x585/0x6a0 [auth_rpcgss]
-[  162.955953]  rpc_pipe_write+0x58/0x70 [sunrpc]
-[  162.957849]  vfs_write+0xcb/0x2c0
-[  162.959264]  ksys_write+0x68/0xe0
-[  162.960706]  do_syscall_64+0x33/0x40
-[  162.962238]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  162.964346] RIP: 0033:0x7f1e1f1e57df
+1. It checks against corruption of the ids count.  This can either
+   lead to a larger table to be read, or a smaller than expected
+   table to be read.
 
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+   In the case of a too large ids count, this would often have been
+   trapped by the existing sanity checks, but this patch introduces
+   a more exact check, which can identify too small values.
+
+2. It checks the contents of the index table for corruption.
+
+Link: https://lkml.kernel.org/r/20210204130249.4495-3-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+b06d57ba83f604522af2@syzkaller.appspotmail.com
+Reported-by: syzbot+c021ba012da41ee9807c@syzkaller.appspotmail.com
+Reported-by: syzbot+5024636e8b5fd19f0f19@syzkaller.appspotmail.com
+Reported-by: syzbot+bcbc661df46657d0fa4f@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/auth_gss/auth_gss_internal.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/squashfs/id.c             |   40 ++++++++++++++++++++++++++++++++--------
+ fs/squashfs/squashfs_fs_sb.h |    1 +
+ fs/squashfs/super.c          |    6 +++---
+ fs/squashfs/xattr.h          |   10 +++++++++-
+ 4 files changed, 45 insertions(+), 12 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss_internal.h b/net/sunrpc/auth_gss/auth_gss_internal.h
-index c5603242b54bf..f6d9631bd9d00 100644
---- a/net/sunrpc/auth_gss/auth_gss_internal.h
-+++ b/net/sunrpc/auth_gss/auth_gss_internal.h
-@@ -34,9 +34,12 @@ simple_get_netobj(const void *p, const void *end, struct xdr_netobj *dest)
- 	q = (const void *)((const char *)p + len);
- 	if (unlikely(q > end || q < p))
- 		return ERR_PTR(-EFAULT);
--	dest->data = kmemdup(p, len, GFP_NOFS);
--	if (unlikely(dest->data == NULL))
--		return ERR_PTR(-ENOMEM);
-+	if (len) {
-+		dest->data = kmemdup(p, len, GFP_NOFS);
-+		if (unlikely(dest->data == NULL))
-+			return ERR_PTR(-ENOMEM);
-+	} else
-+		dest->data = NULL;
- 	dest->len = len;
- 	return q;
+--- a/fs/squashfs/id.c
++++ b/fs/squashfs/id.c
+@@ -48,10 +48,15 @@ int squashfs_get_id(struct super_block *
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int block = SQUASHFS_ID_BLOCK(index);
+ 	int offset = SQUASHFS_ID_BLOCK_OFFSET(index);
+-	u64 start_block = le64_to_cpu(msblk->id_table[block]);
++	u64 start_block;
+ 	__le32 disk_id;
+ 	int err;
+ 
++	if (index >= msblk->ids)
++		return -EINVAL;
++
++	start_block = le64_to_cpu(msblk->id_table[block]);
++
+ 	err = squashfs_read_metadata(sb, &disk_id, &start_block, &offset,
+ 							sizeof(disk_id));
+ 	if (err < 0)
+@@ -69,7 +74,10 @@ __le64 *squashfs_read_id_index_table(str
+ 		u64 id_table_start, u64 next_table, unsigned short no_ids)
+ {
+ 	unsigned int length = SQUASHFS_ID_BLOCK_BYTES(no_ids);
++	unsigned int indexes = SQUASHFS_ID_BLOCKS(no_ids);
++	int n;
+ 	__le64 *table;
++	u64 start, end;
+ 
+ 	TRACE("In read_id_index_table, length %d\n", length);
+ 
+@@ -80,20 +88,36 @@ __le64 *squashfs_read_id_index_table(str
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	/*
+-	 * length bytes should not extend into the next table - this check
+-	 * also traps instances where id_table_start is incorrectly larger
+-	 * than the next table start
++	 * The computed size of the index table (length bytes) should exactly
++	 * match the table start and end points
+ 	 */
+-	if (id_table_start + length > next_table)
++	if (length != (next_table - id_table_start))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	table = squashfs_read_table(sb, id_table_start, length);
++	if (IS_ERR(table))
++		return table;
+ 
+ 	/*
+-	 * table[0] points to the first id lookup table metadata block, this
+-	 * should be less than id_table_start
++	 * table[0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed id blocks.   Each entry should be less than
++	 * the next (i.e. table[0] < table[1]), and the difference between them
++	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
++	 * should be less than id_table_start, and again the difference
++	 * should be SQUASHFS_METADATA_SIZE or less
+ 	 */
+-	if (!IS_ERR(table) && le64_to_cpu(table[0]) >= id_table_start) {
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/squashfs_fs_sb.h
++++ b/fs/squashfs/squashfs_fs_sb.h
+@@ -77,5 +77,6 @@ struct squashfs_sb_info {
+ 	unsigned int				inodes;
+ 	unsigned int				fragments;
+ 	int					xattr_ids;
++	unsigned int				ids;
+ };
+ #endif
+--- a/fs/squashfs/super.c
++++ b/fs/squashfs/super.c
+@@ -177,6 +177,7 @@ static int squashfs_fill_super(struct su
+ 	msblk->directory_table = le64_to_cpu(sblk->directory_table_start);
+ 	msblk->inodes = le32_to_cpu(sblk->inodes);
+ 	msblk->fragments = le32_to_cpu(sblk->fragments);
++	msblk->ids = le16_to_cpu(sblk->no_ids);
+ 	flags = le16_to_cpu(sblk->flags);
+ 
+ 	TRACE("Found valid superblock on %s\n", bdevname(sb->s_bdev, b));
+@@ -188,7 +189,7 @@ static int squashfs_fill_super(struct su
+ 	TRACE("Block size %d\n", msblk->block_size);
+ 	TRACE("Number of inodes %d\n", msblk->inodes);
+ 	TRACE("Number of fragments %d\n", msblk->fragments);
+-	TRACE("Number of ids %d\n", le16_to_cpu(sblk->no_ids));
++	TRACE("Number of ids %d\n", msblk->ids);
+ 	TRACE("sblk->inode_table_start %llx\n", msblk->inode_table);
+ 	TRACE("sblk->directory_table_start %llx\n", msblk->directory_table);
+ 	TRACE("sblk->fragment_table_start %llx\n",
+@@ -245,8 +246,7 @@ static int squashfs_fill_super(struct su
+ allocate_id_index_table:
+ 	/* Allocate and read id index table */
+ 	msblk->id_table = squashfs_read_id_index_table(sb,
+-		le64_to_cpu(sblk->id_table_start), next_table,
+-		le16_to_cpu(sblk->no_ids));
++		le64_to_cpu(sblk->id_table_start), next_table, msblk->ids);
+ 	if (IS_ERR(msblk->id_table)) {
+ 		ERROR("unable to read id index table\n");
+ 		err = PTR_ERR(msblk->id_table);
+--- a/fs/squashfs/xattr.h
++++ b/fs/squashfs/xattr.h
+@@ -30,8 +30,16 @@ extern int squashfs_xattr_lookup(struct
+ static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
+ 		u64 start, u64 *xattr_table_start, int *xattr_ids)
+ {
++	struct squashfs_xattr_id_table *id_table;
++
++	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
++	if (IS_ERR(id_table))
++		return (__le64 *) id_table;
++
++	*xattr_table_start = le64_to_cpu(id_table->xattr_table_start);
++	kfree(id_table);
++
+ 	ERROR("Xattrs in filesystem, these will be ignored\n");
+-	*xattr_table_start = start;
+ 	return ERR_PTR(-ENOTSUPP);
  }
--- 
-2.27.0
-
+ 
 
 
