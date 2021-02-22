@@ -2,88 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A17C321DC2
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 18:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D188321DEE
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 18:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230174AbhBVRLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 12:11:12 -0500
-Received: from mga07.intel.com ([134.134.136.100]:56929 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230379AbhBVRLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 12:11:10 -0500
-IronPort-SDR: 9pR3esMLp2LlqjdIqeJEwp4d+xTwirV3gfxwZkCiEwoXTJO7fE6efGWMiaX64wavi6Lxw1rMYL
- P0MYw/55pWfQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9903"; a="248571524"
-X-IronPort-AV: E=Sophos;i="5.81,197,1610438400"; 
-   d="scan'208";a="248571524"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2021 09:09:23 -0800
-IronPort-SDR: UYI7pOe9Ti6xsV+k3UgqhFluHEF2aBqgzG3+W/lVv8zdILt6R50KGVyaxpY835NCtl1WQHDFg+
- Ps+75/XmkjGg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,197,1610438400"; 
-   d="scan'208";a="402689444"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by orsmga008.jf.intel.com with SMTP; 22 Feb 2021 09:09:18 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 22 Feb 2021 19:09:17 +0200
-Date:   Mon, 22 Feb 2021 19:09:17 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Wayne Lin <Wayne.Lin@amd.com>
-Cc:     eryk.brol@amd.com, qingqing.zhuo@amd.com, stable@vger.kernel.org,
-        jerry.zuo@amd.com, dri-devel@lists.freedesktop.org,
-        Nicholas.Kazlauskas@amd.com
-Subject: Re: [PATCH 1/2] drm/dp_mst: Revise broadcast msg lct & lcr
-Message-ID: <YDPlPRJXVYfPZenQ@intel.com>
-References: <20210222040027.23505-1-Wayne.Lin@amd.com>
- <20210222040027.23505-2-Wayne.Lin@amd.com>
- <YDPjiz4tiMRo320Q@intel.com>
+        id S230139AbhBVRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 12:18:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38784 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230021AbhBVRS2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 12:18:28 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F824C061574;
+        Mon, 22 Feb 2021 09:17:48 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id z6so7015195pfq.0;
+        Mon, 22 Feb 2021 09:17:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=o7+96u6JAmle076F1DGWsKxvnfYFr7bF+Ts6A0Lm154=;
+        b=Ufu4zhDT4BfJbHj+WFme/6bri0L2Sf8MBH8YEmfwuvDXWQPeWzk3q5IAlVTH/GaKPD
+         KSU6OZD4iAn84vUygukaf+oEBLm/XKM/E6rPPhz1zCrsgoay2239wAyLrpbo9JD9sgXW
+         D1NWM4l+Z4hjYwD3q51F/kMVunSiSUo9QpxilvlkIdRe3bq8X94dWbbfRHMLINIxRxir
+         Ea2kt5ZfkTyIhdU6H8t8WAN/lv5oXCSsvcse2gPyq2Avul5IRCqXlONDGFr+/u55+YGw
+         0a7FGeg2ou82L4KsLiQ63708eiZ5BDm5O13M2lQNWeURxr7Oy8RHFGecHRcEnWMFxFQH
+         eLlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=o7+96u6JAmle076F1DGWsKxvnfYFr7bF+Ts6A0Lm154=;
+        b=AbbzUfj232zQ9LFM69n7KGlkZmIyz6PRy5roz/duEUmxOHdyhcfbNRY3KTmwrdcC+7
+         jfqURJQQYFloAIlygNGvBnkKfUK3hgAg3yL9yXSURHjICx0bmBU5KwzAdOZNYqhEkPRl
+         OClo6hlTAlYcfHAtLq4YN7Ht0mFjipbUHT4A4Srrg9JzEh4NAsNihWOb1OWwFgjBaid3
+         cPJnl16AClLR1PljO2hOhAT6pfwagElmdzvcocxNnXN6YmhcEB/uTEOzvnYbwgRBpl7D
+         FsoG/6/BNkK4vD6GuWY6nEDKrFQi+TPIx+oxWCPr4Q1iEQZw4zmSj9bm5Eoarf2uk6ve
+         UIkA==
+X-Gm-Message-State: AOAM532EcZH5Ew5nXhmzSFkpnI2++Ln6eVfTiyrlD02yHikmX107WUJD
+        GnkJhkAyg7ook22z52yAGXmeLRc2MK4=
+X-Google-Smtp-Source: ABdhPJyZNsGy1O2WkdpTjqjCZCnPk/UErIhCPtsTKOxUgdcJDiQ2I+gxcVTBl286jvj/k0RoJpQORQ==
+X-Received: by 2002:a05:6a00:884:b029:1b4:440f:bce7 with SMTP id q4-20020a056a000884b02901b4440fbce7mr23452204pfj.20.1614014267522;
+        Mon, 22 Feb 2021 09:17:47 -0800 (PST)
+Received: from [10.230.29.30] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id s62sm11919237pfb.148.2021.02.22.09.17.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Feb 2021 09:17:47 -0800 (PST)
+Subject: Re: [PATCH 5.10 00/29] 5.10.18-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210222121019.444399883@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <4a0fc47a-1ecb-211a-3785-a1f5166c1837@gmail.com>
+Date:   Mon, 22 Feb 2021 09:17:44 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YDPjiz4tiMRo320Q@intel.com>
-X-Patchwork-Hint: comment
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 22, 2021 at 07:02:03PM +0200, Ville Syrjälä wrote:
-> On Mon, Feb 22, 2021 at 12:00:26PM +0800, Wayne Lin wrote:
-> > [Why & How]
-> > According to DP spec, broadcast message LCT equals to 1 and LCR equals
-> > to 6. Current implementation is incorrect. Fix it.
-> > 
-> > Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/gpu/drm/drm_dp_mst_topology.c | 10 ++++++++--
-> >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > index 17dbed0a9800..713ef3b42054 100644
-> > --- a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > @@ -2727,8 +2727,14 @@ static int set_hdr_from_dst_qlock(struct drm_dp_sideband_msg_hdr *hdr,
-> >  	else
-> >  		hdr->broadcast = 0;
-> >  	hdr->path_msg = txmsg->path_msg;
-> > -	hdr->lct = mstb->lct;
-> > -	hdr->lcr = mstb->lct - 1;
-> > +	if (hdr->broadcast) {
-> > +		hdr->lct = 1;
-> > +		hdr->lcr = 6;
-> > +	} else {
-> > +		hdr->lct = mstb->lct;
-> > +		hdr->lcr = mstb->lct - 1;
-> > +	}
-> > +
-> >  	if (mstb->lct > 1)
-> >  		memcpy(hdr->rad, mstb->rad, mstb->lct / 2);
+
+
+On 2/22/2021 4:12 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.18 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> We should also do something about RAD no?
+> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 
-Just skip the RAD stuff by s/mstb->lct/hdr->lct/ here I guess?
+On ARCH_BRCMSTB using 32-bit ARM and 64-bit ARM kernels:
 
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+
+Thanks!
 -- 
-Ville Syrjälä
-Intel
+Florian
