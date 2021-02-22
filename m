@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E953215F3
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C1E32162C
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230338AbhBVMPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:15:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
+        id S230142AbhBVMTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:19:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230248AbhBVMOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:14:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDBAD64EDB;
-        Mon, 22 Feb 2021 12:13:38 +0000 (UTC)
+        id S230453AbhBVMQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:16:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3396264E41;
+        Mon, 22 Feb 2021 12:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996019;
-        bh=4oHfP0ip4vBy5gmxRB4+XOs5P0IytXOPdTKFQLWg3aU=;
+        s=korg; t=1613996158;
+        bh=lHTuqpCN9q0Am9bT48KbUky1XBGiPxeb2H75xt9xYSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OInIB+5FiBLLcRiyRub2vfWtwhUSrRRd4yiR0C5d7Ct1iOqFty44rN4Li1neM72v
-         DM57wE3geRi59fTozcST9ahd4F4oL5JoHfkg7CFQ4v8OQB22TF/s0A7DvkTvLHtQHe
-         Ne1/LWoEEATKaFkoOpmwwxETZsfCF/zoQl5kN2UQ=
+        b=e8EJJSkKBmpn54oW195DyAJBn8Yo7rvuc275cx2GlQLrQk8xuT+HxiDMBZ1imB6sY
+         bPx0pI1CfKSXHkYY0MH5XQj1+EARGqEsibG7ORc9Rq+HVqeQ0nHKO2MlobXsGG/VG+
+         Ro9lf86ptpwwEoMU7UDpuqmdA3SBrrMqUxdnI934=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>, Julien Grall <julien@xen.org>
-Subject: [PATCH 5.11 09/12] xen-blkback: fix error handling in xen_blkbk_map()
+        stable@vger.kernel.org, Victor Lu <victorchengchi.lu@amd.com>,
+        Roman Li <Roman.Li@amd.com>, Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 10/50] drm/amd/display: Free atomic state after drm_atomic_commit
 Date:   Mon, 22 Feb 2021 13:13:01 +0100
-Message-Id: <20210222121018.740916111@linuxfoundation.org>
+Message-Id: <20210222121021.952826027@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.586597942@linuxfoundation.org>
-References: <20210222121013.586597942@linuxfoundation.org>
+In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
+References: <20210222121019.925481519@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Victor Lu <victorchengchi.lu@amd.com>
 
-commit 871997bc9e423f05c7da7c9178e62dde5df2a7f8 upstream.
+[ Upstream commit 2abaa323d744011982b20b8f3886184d56d23946 ]
 
-The function uses a goto-based loop, which may lead to an earlier error
-getting discarded by a later iteration. Exit this ad-hoc loop when an
-error was encountered.
+[why]
+drm_atomic_commit was changed so that the caller must free their
+drm_atomic_state reference on successes.
 
-The out-of-memory error path additionally fails to fill a structure
-field looked at by xen_blkbk_unmap_prepare() before inspecting the
-handle which does get properly set (to BLKBACK_INVALID_HANDLE).
+[how]
+Add drm_atomic_commit_put after drm_atomic_commit call in
+dm_force_atomic_commit.
 
-Since the earlier exiting from the ad-hoc loop requires the same field
-filling (invalidation) as that on the out-of-memory path, fold both
-paths. While doing so, drop the pr_alert(), as extra log messages aren't
-going to help the situation (the kernel will log oom conditions already
-anyway).
-
-This is XSA-365.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Victor Lu <victorchengchi.lu@amd.com>
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xen-blkback/blkback.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/block/xen-blkback/blkback.c
-+++ b/drivers/block/xen-blkback/blkback.c
-@@ -794,8 +794,13 @@ again:
- 			pages[i]->persistent_gnt = persistent_gnt;
- 		} else {
- 			if (gnttab_page_cache_get(&ring->free_pages,
--						  &pages[i]->page))
--				goto out_of_memory;
-+						  &pages[i]->page)) {
-+				gnttab_page_cache_put(&ring->free_pages,
-+						      pages_to_gnt,
-+						      segs_to_map);
-+				ret = -ENOMEM;
-+				goto out;
-+			}
- 			addr = vaddr(pages[i]->page);
- 			pages_to_gnt[segs_to_map] = pages[i]->page;
- 			pages[i]->persistent_gnt = NULL;
-@@ -880,17 +885,18 @@ next:
- 	}
- 	segs_to_map = 0;
- 	last_map = map_until;
--	if (map_until != num)
-+	if (!ret && map_until != num)
- 		goto again;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 7b00e96705b6d..62a2f0491117d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4732,14 +4732,14 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
  
--	return ret;
+ 	ret = PTR_ERR_OR_ZERO(conn_state);
+ 	if (ret)
+-		goto err;
++		goto out;
+ 
+ 	/* Attach crtc to drm_atomic_state*/
+ 	crtc_state = drm_atomic_get_crtc_state(state, &disconnected_acrtc->base);
+ 
+ 	ret = PTR_ERR_OR_ZERO(crtc_state);
+ 	if (ret)
+-		goto err;
++		goto out;
+ 
+ 	/* force a restore */
+ 	crtc_state->mode_changed = true;
+@@ -4749,17 +4749,15 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
+ 
+ 	ret = PTR_ERR_OR_ZERO(plane_state);
+ 	if (ret)
+-		goto err;
 -
--out_of_memory:
--	pr_alert("%s: out of memory\n", __func__);
--	gnttab_page_cache_put(&ring->free_pages, pages_to_gnt, segs_to_map);
--	for (i = last_map; i < num; i++)
-+out:
-+	for (i = last_map; i < num; i++) {
-+		/* Don't zap current batch's valid persistent grants. */
-+		if(i >= last_map + segs_to_map)
-+			pages[i]->persistent_gnt = NULL;
- 		pages[i]->handle = BLKBACK_INVALID_HANDLE;
--	return -ENOMEM;
-+	}
-+
-+	return ret;
- }
++		goto out;
  
- static int xen_blkbk_map_seg(struct pending_req *pending_req)
+ 	/* Call commit internally with the state we just constructed */
+ 	ret = drm_atomic_commit(state);
+-	if (!ret)
+-		return 0;
+ 
+-err:
+-	DRM_ERROR("Restoring old state failed with %i\n", ret);
++out:
+ 	drm_atomic_state_put(state);
++	if (ret)
++		DRM_ERROR("Restoring old state failed with %i\n", ret);
+ 
+ 	return ret;
+ }
+-- 
+2.27.0
+
 
 
