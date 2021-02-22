@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AECC321766
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D59C321711
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbhBVMr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:47:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53774 "EHLO mail.kernel.org"
+        id S230497AbhBVMmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:42:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231346AbhBVMnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:43:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F73464F10;
-        Mon, 22 Feb 2021 12:41:13 +0000 (UTC)
+        id S230317AbhBVMlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:41:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DD9264F1C;
+        Mon, 22 Feb 2021 12:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997673;
-        bh=QUtKFAoRPJZHXQ+GnyQafka6VaqnzUHT5+fH1ToKpJ8=;
+        s=korg; t=1613997528;
+        bh=ShK4phf9eyeT5/b/ZTMuY21y299TDlP+k9nlxPQ5Oeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXALvOMJAzKGHk8yRAsZfEFPrCjIUOFG9C3UJtOS9Ol72E4xA5mzZ80uVz9PKVQqf
-         efyTmrCMn/FnNyYxTOO9/pwGDI6RS0W4lJgbDcKtK+UNyucNqE3CdrL0E5BGX2kpRi
-         b+QwzH7Ge1dyBNvQgc1OD22qH5AaJMthxe0nwG94=
+        b=KYnL4zs2jOGRxSg4/iFZH+PP0VI4v6zGJdfE4iZsBnAsNNyQDe8YhyhLa0exdCAtd
+         hfD7Plb9DHPJgYcVLyNyMD32HAQEUCGp1NZXJtDfRnKO3pZf4uCD12/ZD4IsCPJZO6
+         G8qEp3NGOx9zRUbf2bu2p84M9f2UD6ix+wWJFOQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Labriola <michael.d.labriola@gmail.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/49] ovl: skip getxattr of security labels
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>, Julien Grall <julien@xen.org>
+Subject: [PATCH 4.14 53/57] xen-blkback: fix error handling in xen_blkbk_map()
 Date:   Mon, 22 Feb 2021 13:36:19 +0100
-Message-Id: <20210222121026.477741173@linuxfoundation.org>
+Message-Id: <20210222121035.370374653@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
-References: <20210222121022.546148341@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 03fedf93593c82538b18476d8c4f0e8f8435ea70 ]
+commit 871997bc9e423f05c7da7c9178e62dde5df2a7f8 upstream.
 
-When inode has no listxattr op of its own (e.g. squashfs) vfs_listxattr
-calls the LSM inode_listsecurity hooks to list the xattrs that LSMs will
-intercept in inode_getxattr hooks.
+The function uses a goto-based loop, which may lead to an earlier error
+getting discarded by a later iteration. Exit this ad-hoc loop when an
+error was encountered.
 
-When selinux LSM is installed but not initialized, it will list the
-security.selinux xattr in inode_listsecurity, but will not intercept it
-in inode_getxattr.  This results in -ENODATA for a getxattr call for an
-xattr returned by listxattr.
+The out-of-memory error path additionally fails to fill a structure
+field looked at by xen_blkbk_unmap_prepare() before inspecting the
+handle which does get properly set (to BLKBACK_INVALID_HANDLE).
 
-This situation was manifested as overlayfs failure to copy up lower
-files from squashfs when selinux is built-in but not initialized,
-because ovl_copy_xattr() iterates the lower inode xattrs by
-vfs_listxattr() and vfs_getxattr().
+Since the earlier exiting from the ad-hoc loop requires the same field
+filling (invalidation) as that on the out-of-memory path, fold both
+paths. While doing so, drop the pr_alert(), as extra log messages aren't
+going to help the situation (the kernel will log oom conditions already
+anyway).
 
-ovl_copy_xattr() skips copy up of security labels that are indentified by
-inode_copy_up_xattr LSM hooks, but it does that after vfs_getxattr().
-Since we are not going to copy them, skip vfs_getxattr() of the security
-labels.
+This is XSA-365.
 
-Reported-by: Michael Labriola <michael.d.labriola@gmail.com>
-Tested-by: Michael Labriola <michael.d.labriola@gmail.com>
-Link: https://lore.kernel.org/linux-unionfs/2nv9d47zt7.fsf@aldarion.sourceruckus.org/
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/overlayfs/copy_up.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/block/xen-blkback/blkback.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index 299dbf59f28f8..3a583aa1fafeb 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -92,6 +92,14 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
+--- a/drivers/block/xen-blkback/blkback.c
++++ b/drivers/block/xen-blkback/blkback.c
+@@ -843,8 +843,11 @@ again:
+ 			pages[i]->page = persistent_gnt->page;
+ 			pages[i]->persistent_gnt = persistent_gnt;
+ 		} else {
+-			if (get_free_page(ring, &pages[i]->page))
+-				goto out_of_memory;
++			if (get_free_page(ring, &pages[i]->page)) {
++				put_free_pages(ring, pages_to_gnt, segs_to_map);
++				ret = -ENOMEM;
++				goto out;
++			}
+ 			addr = vaddr(pages[i]->page);
+ 			pages_to_gnt[segs_to_map] = pages[i]->page;
+ 			pages[i]->persistent_gnt = NULL;
+@@ -928,17 +931,18 @@ next:
+ 	}
+ 	segs_to_map = 0;
+ 	last_map = map_until;
+-	if (map_until != num)
++	if (!ret && map_until != num)
+ 		goto again;
  
- 		if (ovl_is_private_xattr(name))
- 			continue;
+-	return ret;
+-
+-out_of_memory:
+-	pr_alert("%s: out of memory\n", __func__);
+-	put_free_pages(ring, pages_to_gnt, segs_to_map);
+-	for (i = last_map; i < num; i++)
++out:
++	for (i = last_map; i < num; i++) {
++		/* Don't zap current batch's valid persistent grants. */
++		if(i >= last_map + segs_to_map)
++			pages[i]->persistent_gnt = NULL;
+ 		pages[i]->handle = BLKBACK_INVALID_HANDLE;
+-	return -ENOMEM;
++	}
 +
-+		error = security_inode_copy_up_xattr(name);
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
-+		if (error == 1) {
-+			error = 0;
-+			continue; /* Discard */
-+		}
- retry:
- 		size = vfs_getxattr(old, name, value, value_size);
- 		if (size == -ERANGE)
-@@ -115,13 +123,6 @@ retry:
- 			goto retry;
- 		}
++	return ret;
+ }
  
--		error = security_inode_copy_up_xattr(name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
--			error = 0;
--			continue; /* Discard */
--		}
- 		error = vfs_setxattr(new, name, value, size, 0);
- 		if (error)
- 			break;
--- 
-2.27.0
-
+ static int xen_blkbk_map_seg(struct pending_req *pending_req)
 
 
