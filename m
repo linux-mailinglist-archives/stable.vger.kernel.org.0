@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65220321743
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DD932171A
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbhBVMpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:45:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S230503AbhBVMme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:42:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231445AbhBVMmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:42:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBF5864F38;
-        Mon, 22 Feb 2021 12:40:01 +0000 (UTC)
+        id S230483AbhBVMlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:41:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC0F264ED6;
+        Mon, 22 Feb 2021 12:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997602;
-        bh=p+oW8OlV44RvJ5tEMAQrHVoWPqjBmbA2LBQUBE50Jaw=;
+        s=korg; t=1613997538;
+        bh=k+uH5JhWqxcQBAXaoYHY6wyG1XuJ0CDvbMOB7XR4PUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6YGBt4kIP6tX1lRwieRY0sBG66SHdP0pOUWAU8sUcy31Dy9I+kFtCxPgW+Shmssj
-         0GGaqFGp6c/MnXzKdJCcocVv9S5VRPnaylNzwJ8KBp1uiushKCdCXQGO1cqnG6JaNm
-         /LehIhcNp1jUZh22JzfKc/CocSwI3lLCnXA6OJWc=
+        b=jmWapUOKpCc/9KY8O46BolD8xrO8hB8o0t+9WfNHel8n3HkaDxO0HMko7ovBL903a
+         HvqLcEDGMdO96wqUQcCUWMYzqE3KwgfVqWaHtZzuuwj92BvnOHtDhmiB2bxWqrjtoA
+         R7koFYKj+6qhi8Ea9gc45FMwFlhuIeBdze/AC8aI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.4 27/35] Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
+        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 57/57] kvm: check tlbs_dirty directly
 Date:   Mon, 22 Feb 2021 13:36:23 +0100
-Message-Id: <20210222121021.837146728@linuxfoundation.org>
+Message-Id: <20210222121035.779272145@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-commit dbe5283605b3bc12ca45def09cc721a0a5c853a2 upstream.
+commit 88bf56d04bc3564542049ec4ec168a8b60d0b48c upstream
 
-We may not skip setting the field in the unmap structure when
-GNTMAP_device_map is in use - such an unmap would fail to release the
-respective resources (a page ref in the hypervisor). Otoh the field
-doesn't need setting at all when GNTMAP_device_map is not in use.
+In kvm_mmu_notifier_invalidate_range_start(), tlbs_dirty is used as:
+        need_tlb_flush |= kvm->tlbs_dirty;
+with need_tlb_flush's type being int and tlbs_dirty's type being long.
 
-To record the value for unmapping, we also better don't use our local
-p2m: In particular after a subsequent change it may not have got updated
-for all the batch elements. Instead it can simply be taken from the
-respective map's results.
+It means that tlbs_dirty is always used as int and the higher 32 bits
+is useless.  We need to check tlbs_dirty in a correct way and this
+change checks it directly without propagating it to need_tlb_flush.
 
-We can additionally avoid playing this game altogether for the kernel
-part of the mappings in (x86) PV mode.
+Note: it's _extremely_ unlikely this neglecting of higher 32 bits can
+cause problems in practice.  It would require encountering tlbs_dirty
+on a 4 billion count boundary, and KVM would need to be using shadow
+paging or be running a nested guest.
 
-This is part of XSA-361.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: a4ee1ca4a36e ("KVM: MMU: delay flush all tlbs on sync_page path")
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+Message-Id: <20201217154118.16497-1-jiangshanlai@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/xen/gntdev.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ virt/kvm/kvm_main.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -293,18 +293,25 @@ static int map_grant_pages(struct grant_
- 		 * to the kernel linear addresses of the struct pages.
- 		 * These ptes are completely different from the user ptes dealt
- 		 * with find_grant_ptes.
-+		 * Note that GNTMAP_device_map isn't needed here: The
-+		 * dev_bus_addr output field gets consumed only from ->map_ops,
-+		 * and by not requesting it when mapping we also avoid needing
-+		 * to mirror dev_bus_addr into ->unmap_ops (and holding an extra
-+		 * reference to the page in the hypervisor).
- 		 */
-+		unsigned int flags = (map->flags & ~GNTMAP_device_map) |
-+				     GNTMAP_host_map;
-+
- 		for (i = 0; i < map->count; i++) {
- 			unsigned long address = (unsigned long)
- 				pfn_to_kaddr(page_to_pfn(map->pages[i]));
- 			BUG_ON(PageHighMem(map->pages[i]));
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -382,9 +382,8 @@ static void kvm_mmu_notifier_invalidate_
+ 	 */
+ 	kvm->mmu_notifier_count++;
+ 	need_tlb_flush = kvm_unmap_hva_range(kvm, start, end);
+-	need_tlb_flush |= kvm->tlbs_dirty;
+ 	/* we've to flush the tlb before the pages can be freed */
+-	if (need_tlb_flush)
++	if (need_tlb_flush || kvm->tlbs_dirty)
+ 		kvm_flush_remote_tlbs(kvm);
  
--			gnttab_set_map_op(&map->kmap_ops[i], address,
--				map->flags | GNTMAP_host_map,
-+			gnttab_set_map_op(&map->kmap_ops[i], address, flags,
- 				map->grants[i].ref,
- 				map->grants[i].domid);
- 			gnttab_set_unmap_op(&map->kunmap_ops[i], address,
--				map->flags | GNTMAP_host_map, -1);
-+				flags, -1);
- 		}
- 	}
- 
-@@ -320,6 +327,9 @@ static int map_grant_pages(struct grant_
- 			continue;
- 		}
- 
-+		if (map->flags & GNTMAP_device_map)
-+			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
-+
- 		map->unmap_ops[i].handle = map->map_ops[i].handle;
- 		if (use_ptemod)
- 			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+ 	spin_unlock(&kvm->mmu_lock);
 
 
