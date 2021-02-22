@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E93321669
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2547321624
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbhBVMWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:22:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47022 "EHLO mail.kernel.org"
+        id S230036AbhBVMST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:18:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229943AbhBVMSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:18:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 878FD64F04;
-        Mon, 22 Feb 2021 12:17:55 +0000 (UTC)
+        id S230423AbhBVMQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:16:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4D6964F0E;
+        Mon, 22 Feb 2021 12:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996276;
-        bh=tIfRKpo12rFSkjertjK98w3AQ7aGGsWX7UqcvClpDzo=;
+        s=korg; t=1613996139;
+        bh=LpK9Ihza+oed8vI2B3sl5PL7bugz8OKZaAI56crwngE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uezwhRXfXA6F4SWlkXGhrRk+VGjmHwMTPhD07lri+5IKjQym7gq7mmUANZxaR457f
-         Ok0agisudulQDuDLQkwD71AFTTEMUgSNMukfGwkf+Leik7GERlFSc2FdCwCfLFRbE8
-         OGYj3VWNymXAToh2+TB2WcosiGsC4TopyQAHZk3I=
+        b=sbsp0imhBaIWSAaPO+BezUvK19OaUotXRgKM6keKal5QSLYBjwXL1IiOw8vnl7RWG
+         EQY+UeuZ5EngCQCl8t3u9lnmFddFs6IuaPsTfIX0G2BGUgqX4D9L3w5pBvuiwRx+v3
+         cF/nyrR1JeqKk/TuxuVvmwQrM2ad+/E9oIoZuqWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 31/50] net: watchdog: hold device global xmit lock during tx disable
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 05/13] Xen/x86: also check kernel mapping in set_foreign_p2m_mapping()
 Date:   Mon, 22 Feb 2021 13:13:22 +0100
-Message-Id: <20210222121025.797842016@linuxfoundation.org>
+Message-Id: <20210222121018.159583293@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
+References: <20210222121013.583922436@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 3aa6bce9af0e25b735c9c1263739a5639a336ae8 upstream.
+commit b512e1b077e5ccdbd6e225b15d934ab12453b70a upstream.
 
-Prevent netif_tx_disable() running concurrently with dev_watchdog() by
-taking the device global xmit lock. Otherwise, the recommended:
+We should not set up further state if either mapping failed; paying
+attention to just the user mapping's status isn't enough.
 
-	netif_carrier_off(dev);
-	netif_tx_disable(dev);
+Also use GNTST_okay instead of implying its value (zero).
 
-driver shutdown sequence can happen after the watchdog has already
-checked carrier, resulting in possible false alarms. This is because
-netif_tx_lock() only sets the frozen bit without maintaining the locks
-on the individual queues.
+This is part of XSA-361.
 
-Fixes: c3f26a269c24 ("netdev: Fix lockdep warnings in multiqueue configurations.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/netdevice.h |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3966,6 +3966,7 @@ static inline void netif_tx_disable(stru
+---
+ arch/x86/xen/p2m.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -716,7 +716,8 @@ int set_foreign_p2m_mapping(struct gntta
+ 		unsigned long mfn, pfn;
  
- 	local_bh_disable();
- 	cpu = smp_processor_id();
-+	spin_lock(&dev->tx_global_lock);
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
+ 		/* Do not add to override if the map failed. */
+-		if (map_ops[i].status)
++		if (map_ops[i].status != GNTST_okay ||
++		    (kmap_ops && kmap_ops[i].status != GNTST_okay))
+ 			continue;
  
-@@ -3973,6 +3974,7 @@ static inline void netif_tx_disable(stru
- 		netif_tx_stop_queue(txq);
- 		__netif_tx_unlock(txq);
- 	}
-+	spin_unlock(&dev->tx_global_lock);
- 	local_bh_enable();
- }
- 
+ 		if (map_ops[i].flags & GNTMAP_contains_pte) {
 
 
