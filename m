@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCCD321561
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 12:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12676321560
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 12:48:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbhBVLrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 06:47:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S230147AbhBVLqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 06:46:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230133AbhBVLql (ORCPT
+        with ESMTP id S230136AbhBVLql (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 06:46:41 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F856C06174A
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B4DC06178A
         for <stable@vger.kernel.org>; Mon, 22 Feb 2021 03:46:01 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id ds5so1053579pjb.2
+Received: by mail-pj1-x102b.google.com with SMTP id gm18so3524532pjb.1
         for <stable@vger.kernel.org>; Mon, 22 Feb 2021 03:46:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=TazFtLcmtblQrrYdvE7nxlg38vEwsd113vGoz0DxM+E=;
-        b=rBpqZuhC1ylWa8NU4JBt7WWhCepJvSLS8PMSWt14Q/KpnUjpCkvgEiFTwC6eeGA9Nk
-         BMORsj+lsO4Zp4SQxCACkIeG49NOczZaKq4K/uK8/DfV7nFpOm/1ph4mZb/luqv33yqo
-         cf6LNAli0Gcfm2muby58CUWYOi2uyWHvHUBH6JDxMb5M1ppYIH7JEKT5YdOn0tQShCAm
-         3qWbRYe/aun5zScu54ddZP0qhj8d+jVkrUYq2CrdEjFGEK5PT7oM+3Rh+ENrq95fsPE5
-         5ICezba6VOfTGFLNjIl/qcQAhz735F3Udiq1HAl7PonTwxg1C3yTQtnxQ3u1eIFA03WH
-         wmdw==
+        bh=hEa2PC4eSxbuRlZBvymlYS4wojfuX9NU86Ox3XxFv1M=;
+        b=DwN/YFTLHR3oYN6hL0N24XffIDSb45hagbL0tlZjmIbRfVcLgLRxC4Po9JmCzmRfeI
+         KZ8TD5vIz9jYiAsdoiPd4lotydj57lWiUYgOmKRVauaTrP4GlqZz5H+aFUD0+xKldwcE
+         1Ee+yJzrc8eujQlq5F7d+ZFNWpBL0sDW31BDhzn4EVOMOIkCtnTf0ZuoHCqqbJHOccix
+         dfZ5wAH894L3w6JGRqNpzarcY8s23MdLVL5SQU75cemERLDUjeP6uua/Q/XyZoRWxJKC
+         JNK5BNkuTEf02Ufh5TMfxqtkPWGUc/Pj3A5eXDS1Mc59ZV6BBCt5EA0zQLLacB159YFr
+         Ulvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=TazFtLcmtblQrrYdvE7nxlg38vEwsd113vGoz0DxM+E=;
-        b=TsB3wLmlEcf0rDq6w34fU1HIwzGtSa6OyUc7WtpeRqrHA9Xq3+iifHsj39VagiDKsk
-         1baap/4s5zQbUbor6qrBUkrzxkFLet1+eLKfhg1z7071GrNa195fvwHADfEpAUPxnNd4
-         9YbP7hx3A7N4X4aAkFcfMsoc2/KVEtt02g0hwCbvaySSpnWXV8wmy6Vx1rfCjqQUhUrL
-         CFRSIKgFhWW+WWAJYnSqhtNXzBw5pqU+/j3lfbfTmuIXVlsiY0HsQycnIcJ6b6MZT6mB
-         N9+DRvLuMLU1G7YLrX6njTM+oaJFEQKT6RLoD+IFkaOAChxgMIhQDyVgHSzjHQFYwWjj
-         0gwg==
-X-Gm-Message-State: AOAM533mPcc8S8R78m0jLuuQMbE7Tf5PCQwjNwV3Q/aK7z5bREVEZn6G
-        YVEH5DPP3wranbe1XXF/vFS9RjAorp9L0w==
-X-Google-Smtp-Source: ABdhPJxpR3SpRyxvfSVA6xkgak+CNJONQWVbITK6sVbxblTSoRGCS4xPRWv+Ky9sSR5keixKvZoDTA==
-X-Received: by 2002:a17:90a:8906:: with SMTP id u6mr23277065pjn.223.1613994360075;
+        bh=hEa2PC4eSxbuRlZBvymlYS4wojfuX9NU86Ox3XxFv1M=;
+        b=fSeeclqFoNd4F2TtY3z3QWv4xyiJqn6x9yXUEhtHvh+snZQctS4KWAP4A9skLa8OAh
+         DYBQx+8Bx1EXyq3ThT1tPm4I+IIirGQm9zm+9H01sABNiuO4gOO0QbAYYOztOqfglHRT
+         y19/IxKMbOfESMBkoMSaa7osUgf3qZxp6985HFKmMMLY3H8+tnTrz8eTPDNyo186lDsY
+         OMlZgTj/0fgmvJ/bw9Liwn1CDyU0WTN1N/BRdAftuISH55zgahXU6EE+PkZHXUWrPC14
+         kUWOxrPzOqo67flbZLcKTsPGn14VC0BrwVJQ1a4NoOlKqhAcUfmgNc3Fsbr/wDnY1K4W
+         /Mzg==
+X-Gm-Message-State: AOAM531FEEsOZZhijCUdPwGceR21qiPal4kh7rYFWpJU1yN4QneMuVQP
+        UIOipPDtorTLY35fS+0Yh7QZgkYseEMXng==
+X-Google-Smtp-Source: ABdhPJzGgmQJQWjYgAVBOAGAJopKcPXFuRe1sjYNytjwc/RXEqHzW4WQ2qhtQTME82JIu0/32C7gDQ==
+X-Received: by 2002:a17:90a:bd05:: with SMTP id y5mr7069414pjr.6.1613994360115;
         Mon, 22 Feb 2021 03:46:00 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e129sm4320591pfh.87.2021.02.22.03.45.58
+        by smtp.gmail.com with ESMTPSA id s18sm17609102pfm.129.2021.02.22.03.45.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 22 Feb 2021 03:45:59 -0800 (PST)
-Message-ID: <60339977.1c69fb81.d52c3.80b7@mx.google.com>
+Message-ID: <60339977.1c69fb81.69567.61ee@mx.google.com>
 Date:   Mon, 22 Feb 2021 03:45:59 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.257-24-g00a80f640b099
+X-Kernelci-Kernel: v4.4.257-24-g0c999edad2f9
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: queue/4.4
 Subject: stable-rc/queue/4.4 build: 190 builds: 0 failed, 190 passed,
- 13 warnings (v4.4.257-24-g00a80f640b099)
+ 13 warnings (v4.4.257-24-g0c999edad2f9)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -66,15 +66,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 stable-rc/queue/4.4 build: 190 builds: 0 failed, 190 passed, 13 warnings (v=
-4.4.257-24-g00a80f640b099)
+4.4.257-24-g0c999edad2f9)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
-/kernel/v4.4.257-24-g00a80f640b099/
+/kernel/v4.4.257-24-g0c999edad2f9/
 
 Tree: stable-rc
 Branch: queue/4.4
-Git Describe: v4.4.257-24-g00a80f640b099
-Git Commit: 00a80f640b099eb14e7284701863c13c915e28fd
+Git Describe: v4.4.257-24-g0c999edad2f9
+Git Commit: 0c999edad2f992a4f2cb0950941c1661f5296e69
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -160,13 +160,13 @@ allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -996,6 +996,16 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -1006,8 +1016,8 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1023,16 +1033,6 @@ encies (FUTEX)
 encies (FUTEX)
     warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
 encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
