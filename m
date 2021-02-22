@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAAB321639
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3F132166D
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbhBVMTr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:19:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
+        id S230225AbhBVMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:21:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230395AbhBVMQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:16:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B223764E67;
-        Mon, 22 Feb 2021 12:15:43 +0000 (UTC)
+        id S231152AbhBVMR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:17:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CADD64E61;
+        Mon, 22 Feb 2021 12:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996144;
-        bh=FStROgOlYTq5osfaBtnqOrJ1fIn4uCCEAua5WE8NwAg=;
+        s=korg; t=1613996256;
+        bh=YZ6GOVgbruHge1XWWbpHjjPHtO4T36kRZyv34rffeaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2OyXoEGoK5/QMEnNRg7/9i5iTbsIMu/fwxw8gGtbea+7Dbzc1pdceAICsx0amCq8
-         aZQFMD8QUZZw67K+YQpJppzvrGHbLRZ0w5sFj9KcZ1kFntSPZ6USO+AlDWOpTlV7TS
-         QF8XcafI07jPmCS8v+GuCUSDr1F+AYudyHp2gT8s=
+        b=G/wze34X0qHHy1ea9Sb4dJgTVXlsVdFArZYQK80jo23pOlsuoZKaq6S/yVqU959eG
+         It4VhAUzMNKP7yl+91tUQ6MPUmgn1mhudI5GCFfccWhoQkv+XTOdDyOx/4F6Z0NIL8
+         he+3a5CY8t5+ypseqdU3ll5I30Ka6BoHRNwcxB/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 07/13] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 33/50] vsock: fix locking in vsock_shutdown()
 Date:   Mon, 22 Feb 2021 13:13:24 +0100
-Message-Id: <20210222121018.448865188@linuxfoundation.org>
+Message-Id: <20210222121026.072410085@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
-References: <20210222121013.583922436@linuxfoundation.org>
+In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
+References: <20210222121019.925481519@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
+commit 1c5fae9c9a092574398a17facc31c533791ef232 upstream.
 
-Failure of the kernel part of the mapping operation should also be
-indicated as an error to the caller, or else it may assume the
-respective kernel VA is okay to access.
+In vsock_shutdown() we touched some socket fields without holding the
+socket lock, such as 'state' and 'sk_flags'.
 
-Furthermore gnttab_map_refs() failing still requires recording
-successfully mapped handles, so they can be unmapped subsequently. This
-in turn requires there to be a way to tell full hypercall failure from
-partial success - preset map_op status fields such that they won't
-"happen" to look as if the operation succeeded.
+Also, after the introduction of multi-transport, we are accessing
+'vsk->transport' in vsock_send_shutdown() without holding the lock
+and this call can be made while the connection is in progress, so
+the transport can change in the meantime.
 
-Also again use GNTST_okay instead of implying its value (zero).
+To avoid issues, we hold the socket lock when we enter in
+vsock_shutdown() and release it when we leave.
 
-This is part of XSA-361.
+Among the transports that implement the 'shutdown' callback, only
+hyperv_transport acquired the lock. Since the caller now holds it,
+we no longer take it.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/xen/gntdev.c      |   17 +++++++++--------
- include/xen/grant_table.h |    1 +
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ net/vmw_vsock/af_vsock.c         |    8 +++++---
+ net/vmw_vsock/hyperv_transport.c |    4 ----
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -344,21 +344,22 @@ int gntdev_map_grant_pages(struct gntdev
- 	pr_debug("map %d+%d\n", map->index, map->count);
- 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
- 			map->pages, map->count);
--	if (err)
--		return err;
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -816,10 +816,12 @@ static int vsock_shutdown(struct socket
+ 	 */
  
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status) {
-+		if (map->map_ops[i].status == GNTST_okay)
-+			map->unmap_ops[i].handle = map->map_ops[i].handle;
-+		else if (!err)
- 			err = -EINVAL;
--			continue;
--		}
+ 	sk = sock->sk;
++
++	lock_sock(sk);
+ 	if (sock->state == SS_UNCONNECTED) {
+ 		err = -ENOTCONN;
+ 		if (sk->sk_type == SOCK_STREAM)
+-			return err;
++			goto out;
+ 	} else {
+ 		sock->state = SS_DISCONNECTING;
+ 		err = 0;
+@@ -828,10 +830,8 @@ static int vsock_shutdown(struct socket
+ 	/* Receive and send shutdowns are treated alike. */
+ 	mode = mode & (RCV_SHUTDOWN | SEND_SHUTDOWN);
+ 	if (mode) {
+-		lock_sock(sk);
+ 		sk->sk_shutdown |= mode;
+ 		sk->sk_state_change(sk);
+-		release_sock(sk);
  
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
--		map->unmap_ops[i].handle = map->map_ops[i].handle;
--		if (use_ptemod)
--			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+		if (use_ptemod) {
-+			if (map->kmap_ops[i].status == GNTST_okay)
-+				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+			else if (!err)
-+				err = -EINVAL;
-+		}
+ 		if (sk->sk_type == SOCK_STREAM) {
+ 			sock_reset_flag(sk, SOCK_DONE);
+@@ -839,6 +839,8 @@ static int vsock_shutdown(struct socket
+ 		}
  	}
+ 
++out:
++	release_sock(sk);
  	return err;
  }
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
- 	map->flags = flags;
- 	map->ref = ref;
- 	map->dom = domid;
-+	map->status = 1; /* arbitrary positive value */
+ 
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -443,14 +443,10 @@ static void hvs_shutdown_lock_held(struc
+ 
+ static int hvs_shutdown(struct vsock_sock *vsk, int mode)
+ {
+-	struct sock *sk = sk_vsock(vsk);
+-
+ 	if (!(mode & SEND_SHUTDOWN))
+ 		return 0;
+ 
+-	lock_sock(sk);
+ 	hvs_shutdown_lock_held(vsk->trans, mode);
+-	release_sock(sk);
+ 	return 0;
  }
  
- static inline void
 
 
