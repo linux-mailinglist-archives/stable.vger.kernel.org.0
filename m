@@ -2,91 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75029321675
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07CAF3216C7
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:35:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230439AbhBVMW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:22:29 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:12564 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231182AbhBVMVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 07:21:36 -0500
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Dkh6x470jzMcf0;
-        Mon, 22 Feb 2021 20:18:49 +0800 (CST)
-Received: from [10.67.110.218] (10.67.110.218) by
- DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
- 14.3.498.0; Mon, 22 Feb 2021 20:20:38 +0800
-Subject: Re: [PATCH 4.9.257 1/1] futex: Fix OWNER_DEAD fixup
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>
-CC:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <judy.chenhui@huawei.com>, <zhangjinhao2@huawei.com>,
-        <tglx@linutronix.de>
-References: <20210222110542.3531596-1-zhengyejian1@huawei.com>
- <20210222110542.3531596-2-zhengyejian1@huawei.com>
- <20210222115424.GF376568@dell> <YDOec1kosGKKO80g@kroah.com>
-From:   "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
-Message-ID: <4f06340a-e027-f944-3248-2939639d5e07@huawei.com>
-Date:   Mon, 22 Feb 2021 20:20:38 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S230461AbhBVMeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33960 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230079AbhBVMdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 07:33:32 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7D9C061786
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 04:32:52 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id m6so6523400pfk.1
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 04:32:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=weudKI7W0S9y63SBbknp3Gpji+fj7VJcVTGyMdZ3ae0=;
+        b=hmtmrCQrAuJfsGnPHrDwPSB5RiCUIcj0zexY7VZBLXLomgwrbTxYZMDYyVayiQ9RFw
+         kjIb9vrT8hXRIXPpqLPQj7l/5rsRAtFGoun/jfPCy8dniSf+kQJ8fXO6S49J49U/gE+r
+         jfCGsrbGMo92oC5652OTvghK9enXx6PJM0sWUQ59o3goYz7kbv0H3YOOMKQIfx0iJjPd
+         umT7kb6DpkCrhBkopomoCz5zau6myUhH+02es1Q3SWkjXqg7Eayeu5bxnxfbfCRQJgCz
+         QKUAe7sX6UdLD/cJtc8JEnJFWTzbnzL56WoavSmRVJlJYBW9lfC8EZqa+GLaoiIWD6xh
+         r6BQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=weudKI7W0S9y63SBbknp3Gpji+fj7VJcVTGyMdZ3ae0=;
+        b=O9DipwDbOJIeqirvcrClgG4lTEyHF4Tmq3wAL+/h8VO8Lmc6QBf4/GtbHAmAkCBWdf
+         1OL3kTCCcyuFqt/u8U7NWKZ5+Ru1OgG8sll82q9C70UCE9laCBSW/WvJmSK3dp56GmA/
+         pwlmXS660NBY55d+0C2a+bwxRJL5NfFctSEOYgF+X/wZeV0j1rN15JEJF3iP/cXnoMFD
+         RCGOZbX2zQp8T2K+poZu4teyj9NBGUj86K3LagKQgUih91KISwLeQH/PLrQN2/BVqj7l
+         Zj2NeGULGJxac068WBvISxfyqpKT2JVfQxm03IIMdnf96KbLD1UQn4kF2IzDguaPHOXB
+         05pg==
+X-Gm-Message-State: AOAM531LGO7kbkaGHB+I4iQwExEWdWDUl+wjs/zgINhBtCGWKJn8/aX+
+        L5C9AIXy8FLZl/kax8RAK6+oj6Lz1QE9xQ==
+X-Google-Smtp-Source: ABdhPJxSh993L5ksVVHSx3JYIIlgYUBW/8ZNDXGgA6CKLuN7A7acFVBYPr/oxVQQMLbLlKCBBvdBfA==
+X-Received: by 2002:a62:cf06:0:b029:1ed:c016:1e7f with SMTP id b6-20020a62cf060000b02901edc0161e7fmr1036636pfg.78.1613997171875;
+        Mon, 22 Feb 2021 04:32:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n1sm17939352pgn.94.2021.02.22.04.32.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Feb 2021 04:32:51 -0800 (PST)
+Message-ID: <6033a473.1c69fb81.47cd2.6a87@mx.google.com>
+Date:   Mon, 22 Feb 2021 04:32:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YDOec1kosGKKO80g@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.218]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.176-39-g9ec85b6c46de
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 95 runs,
+ 1 regressions (v4.19.176-39-g9ec85b6c46de)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.19 baseline: 95 runs, 1 regressions (v4.19.176-39-g9ec85b=
+6c46de)
+
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
 
-On 2021/2/22 20:07, Greg KH wrote:
-> On Mon, Feb 22, 2021 at 11:54:24AM +0000, Lee Jones wrote:
->> On Mon, 22 Feb 2021, Zheng Yejian wrote:
->>
->>> From: Peter Zijlstra <peterz@infradead.org>
->>>
->>> commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
->>>
->>> Both Geert and DaveJ reported that the recent futex commit:
->>>
->>>    c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
->>>
->>> introduced a problem with setting OWNER_DEAD. We set the bit on an
->>> uninitialized variable and then entirely optimize it away as a
->>> dead-store.
->>>
->>> Move the setting of the bit to where it is more useful.
->>>
->>> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
->>> Reported-by: Dave Jones <davej@codemonkey.org.uk>
->>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>> Cc: Linus Torvalds <torvalds@linux-foundation.org>
->>> Cc: Paul E. McKenney <paulmck@us.ibm.com>
->>> Cc: Peter Zijlstra <peterz@infradead.org>
->>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
->>> Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
->>> Signed-off-by: Ingo Molnar <mingo@kernel.org>
->>> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
->>> ---
->>>   kernel/futex.c | 7 +++----
->>>   1 file changed, 3 insertions(+), 4 deletions(-)
->>
->> Reviewed-by: Lee Jones <lee.jones@linaro.org>
-> 
-> This does not apply to the 4.9.y tree at all right now, are you all sure
-> you got the backport correct?
-> 
-> confused,
-> 
-> greg k-h
-> .
-> 
-I make the patch basing on 282aeb477a10 ("Linux 4.9.257").
-Should I base on f0cf73f13b39 ("Linux 4.9.258-rc1")?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.176-39-g9ec85b6c46de/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.176-39-g9ec85b6c46de
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9ec85b6c46de11bb8244475c741bebe4dbe705c1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/60336a2fbeed041eabaddcb1
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.176=
+-39-g9ec85b6c46de/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.176=
+-39-g9ec85b6c46de/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60336a2fbeed041=
+eabaddcb6
+        new failure (last pass: v4.19.176-38-ge34222cb6df4)
+        2 lines
+
+    2021-02-22 08:24:10.422000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
