@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3D8321706
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B807321751
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231340AbhBVMlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:41:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
+        id S231166AbhBVMqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:46:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231454AbhBVMjd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:39:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01B6B64F0B;
-        Mon, 22 Feb 2021 12:38:11 +0000 (UTC)
+        id S231633AbhBVMnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:43:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F7BD64F0D;
+        Mon, 22 Feb 2021 12:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997492;
-        bh=dVLQvtbsKCojXjoXcwI0+T5ojVYY+xl9GaZtIR/vDes=;
+        s=korg; t=1613997659;
+        bh=B0VgdNSrgJ22491qWfCcOkmKYCUq+dZ7n2Imoclvofc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RscYSy1G8YoVgC3ki59tLtwJncu5jrJYLKgblpytYnXZBzN+rMcrJ+voXO3tRcobR
-         omd6GbASEF+hpmPFTNERs4YzCczKkcTxhCmnPv07PnMHXX32+u3gfm+85ve0ig+WQH
-         LFTw513yzv34kCeIyH4d3CToaHEnLG96d5K0THmM=
+        b=rjO/f6+o6YJbxzEOCvJmneU6iOq1PgxTOO3O82YpO1a33IpBzb7cNggHJ54eNb19x
+         6o0jlQdzmZ3N8nZFmqXCw2WPUu9gzc4Mh+D5VAiFuDcV3X4E1t2wHyDV+0UYYhrMrP
+         yC03NNA/9mgnvkIkpRg72O7dd6EzJmPHGM2wvwtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/57] i2c: stm32f7: fix configuration of the digital filter
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 07/49] iwlwifi: mvm: guard against device removal in reprobe
 Date:   Mon, 22 Feb 2021 13:36:05 +0100
-Message-Id: <20210222121030.706809562@linuxfoundation.org>
+Message-Id: <20210222121024.688887304@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 3d6a3d3a2a7a3a60a824e7c04e95fd50dec57812 ]
+[ Upstream commit 7a21b1d4a728a483f07c638ccd8610d4b4f12684 ]
 
-The digital filter related computation are present in the driver
-however the programming of the filter within the IP is missing.
-The maximum value for the DNF is wrong and should be 15 instead of 16.
+If we get into a problem severe enough to attempt a reprobe,
+we schedule a worker to do that. However, if the problem gets
+more severe and the device is actually destroyed before this
+worker has a chance to run, we use a free device. Bump up the
+reference count of the device until the worker runs to avoid
+this situation.
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
-
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210122144849.871f0892e4b2.I94819e11afd68d875f3e242b98bef724b8236f1e@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 14f60751729e7..9768921a164c0 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -42,6 +42,8 @@
- 
- /* STM32F7 I2C control 1 */
- #define STM32F7_I2C_CR1_ANFOFF			BIT(12)
-+#define STM32F7_I2C_CR1_DNF_MASK		GENMASK(11, 8)
-+#define STM32F7_I2C_CR1_DNF(n)			(((n) & 0xf) << 8)
- #define STM32F7_I2C_CR1_ERRIE			BIT(7)
- #define STM32F7_I2C_CR1_TCIE			BIT(6)
- #define STM32F7_I2C_CR1_STOPIE			BIT(5)
-@@ -95,7 +97,7 @@
- #define STM32F7_I2C_MAX_LEN			0xff
- 
- #define STM32F7_I2C_DNF_DEFAULT			0
--#define STM32F7_I2C_DNF_MAX			16
-+#define STM32F7_I2C_DNF_MAX			15
- 
- #define STM32F7_I2C_ANALOG_FILTER_ENABLE	1
- #define STM32F7_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
-@@ -543,6 +545,13 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
- 	else
- 		stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
- 				     STM32F7_I2C_CR1_ANFOFF);
-+
-+	/* Program the Digital Filter */
-+	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_DNF_MASK);
-+	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_DNF(i2c_dev->setup.dnf));
-+
- 	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
- 			     STM32F7_I2C_CR1_PE);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index 6d38eec3f9d3c..a78aaf17116e9 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1104,6 +1104,7 @@ static void iwl_mvm_reprobe_wk(struct work_struct *wk)
+ 	reprobe = container_of(wk, struct iwl_mvm_reprobe, work);
+ 	if (device_reprobe(reprobe->dev))
+ 		dev_err(reprobe->dev, "reprobe failed!\n");
++	put_device(reprobe->dev);
+ 	kfree(reprobe);
+ 	module_put(THIS_MODULE);
  }
+@@ -1202,7 +1203,7 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
+ 			module_put(THIS_MODULE);
+ 			return;
+ 		}
+-		reprobe->dev = mvm->trans->dev;
++		reprobe->dev = get_device(mvm->trans->dev);
+ 		INIT_WORK(&reprobe->work, iwl_mvm_reprobe_wk);
+ 		schedule_work(&reprobe->work);
+ 	} else if (mvm->cur_ucode == IWL_UCODE_REGULAR) {
 -- 
 2.27.0
 
