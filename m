@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F59321622
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6AA232160B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbhBVMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:18:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
+        id S230438AbhBVMQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:16:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230402AbhBVMQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:16:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B85EA64F02;
-        Mon, 22 Feb 2021 12:15:31 +0000 (UTC)
+        id S230389AbhBVMPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EED264F14;
+        Mon, 22 Feb 2021 12:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996132;
-        bh=4GNoN85a+lCNiGejDp4sLX/0HFPWgg79ZQy6vYq9j8E=;
+        s=korg; t=1613996090;
+        bh=ClW5u69acfm/AsqAy0Vj0bV5RxkRJnX2Eb5Z7iXlRPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0DmDPsnHq0KGk6zh117YqxvLYWbK1+FybWYqm++17hjNvgB0MnKR7BXKY62ez+rKW
-         YJVF8v/S5LDpQNgj9IkDysjaLDFnpw2TmDcFEX9gwu78qr9TqibPY2frDXZaJnu6Wh
-         HyJGsaxHqCfjPS52/KNOpdeyAP0y00H9OtA17g7s=
+        b=SUcgFLOiDdNHXduSINCgyf7160gqfj9B9b3Ed/HFHe6rTJGyLpuSlEtRfqanrOdEq
+         6YeYJ8F9ggzRpEdaZ4r4RZi47HeEq6JMjyzH/8Xgt/O6QXshsEVzd2smJjn9VqmK/8
+         PFoP461G6m35ECTYD8JlXqvWPhffjMOiO6RbkzP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/13] net: qrtr: Fix port ID for control messages
+        stable@vger.kernel.org,
+        syzbot+3d2c27c2b7dc2a94814d@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.10 25/29] tty: protect tty_write from odd low-level tty disciplines
 Date:   Mon, 22 Feb 2021 13:13:19 +0100
-Message-Id: <20210222121017.137917943@linuxfoundation.org>
+Message-Id: <20210222121025.239340563@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
-References: <20210222121013.583922436@linuxfoundation.org>
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+References: <20210222121019.444399883@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit ae068f561baa003d260475c3e441ca454b186726 ]
+commit 3342ff2698e9720f4040cc458a2744b2b32f5c3a upstream.
 
-The port ID for control messages was uncorrectly set with broadcast
-node ID value, causing message to be dropped on remote side since
-not passing packet filtering (cb->dst_port != QRTR_PORT_CTRL).
+Al root-caused a new warning from syzbot to the ttyprintk tty driver
+returning a write count larger than the data the tty layer actually gave
+it.  Which confused the tty write code mightily, and with the new
+iov_iter based code, caused a WARNING in iov_iter_revert().
 
-Fixes: d27e77a3de28 ("net: qrtr: Reset the node and port ID of broadcast messages")
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+syzbot correctly bisected the source of the new warning to commit
+9bb48c82aced ("tty: implement write_iter"), but the oddity goes back
+much further, it just didn't get caught by anything before.
+
+Reported-by: syzbot+3d2c27c2b7dc2a94814d@syzkaller.appspotmail.com
+Fixes: 9bb48c82aced ("tty: implement write_iter")
+Debugged-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/qrtr/qrtr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_io.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/qrtr/qrtr.c b/net/qrtr/qrtr.c
-index d6d2736ec9273..ef602976bb2c8 100644
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -187,7 +187,7 @@ static int qrtr_node_enqueue(struct qrtr_node *node, struct sk_buff *skb,
- 	hdr->src_port_id = cpu_to_le32(from->sq_port);
- 	if (to->sq_port == QRTR_PORT_CTRL) {
- 		hdr->dst_node_id = cpu_to_le32(node->nid);
--		hdr->dst_port_id = cpu_to_le32(QRTR_NODE_BCAST);
-+		hdr->dst_port_id = cpu_to_le32(QRTR_PORT_CTRL);
- 	} else {
- 		hdr->dst_node_id = cpu_to_le32(to->sq_node);
- 		hdr->dst_port_id = cpu_to_le32(to->sq_port);
--- 
-2.27.0
-
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -963,11 +963,14 @@ static inline ssize_t do_tty_write(
+ 		if (ret <= 0)
+ 			break;
+ 
++		written += ret;
++		if (ret > size)
++			break;
++
+ 		/* FIXME! Have Al check this! */
+ 		if (ret != size)
+ 			iov_iter_revert(from, size-ret);
+ 
+-		written += ret;
+ 		count -= ret;
+ 		if (!count)
+ 			break;
 
 
