@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80DFC321720
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E968332174E
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231437AbhBVMmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:42:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S231518AbhBVMqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:46:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231314AbhBVMlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:41:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B049564EF5;
-        Mon, 22 Feb 2021 12:39:07 +0000 (UTC)
+        id S231588AbhBVMn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:43:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72C8A64E2E;
+        Mon, 22 Feb 2021 12:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997548;
-        bh=mKYmuy7/RgFRiIr9NhypYXMcKoXmfk4j7pK0+rBFtYs=;
+        s=korg; t=1613997650;
+        bh=6ftuQTxLxOEPCiJuscYs+/yZHriIRkYgTWBYaNMX1ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJ3vuHCQl4+ezkRg3u7BLzB9xixMoyskpwhKSX+hunI0q7R2GpY+9C9FTUKSZbfiM
-         DznM7bshVE+4zTdjFE0RHyGUNDoZyvZDwmneuYpf2kes1Et/bNEv8oSDzqaLVvhlv6
-         c95fULv2jeudB6GFX/mjiaRVwK6QafD7L2Uu2DEQ=
+        b=gWe3A8y1sXHv6P4KEF1zrRvb5NtZzTcOM3inxWzVDgUL87yaVLvi9gj+xedE0Oue9
+         bjJlb613CqFvvAOWw7anmOSFkogtgIjhBGqUnCGt9zQRxCRkjI/RGBhybPbXxBOA61
+         +yIFiEOTfzmMwqZK5ACsl0r6EMkDwsRY5HJSfrsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 34/57] usb: dwc3: ulpi: Replace CPU-based busyloop with Protocol-based one
-Date:   Mon, 22 Feb 2021 13:36:00 +0100
-Message-Id: <20210222121030.173780756@linuxfoundation.org>
+Subject: [PATCH 4.9 03/49] remoteproc: qcom_q6v5_mss: Validate MBA firmware size before load
+Date:   Mon, 22 Feb 2021 13:36:01 +0100
+Message-Id: <20210222121023.011821363@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,96 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-commit fca3f138105727c3a22edda32d02f91ce1bf11c9 upstream
+commit e013f455d95add874f310dc47c608e8c70692ae5 upstream
 
-Originally the procedure of the ULPI transaction finish detection has been
-developed as a simple busy-loop with just decrementing counter and no
-delays. It's wrong since on different systems the loop will take a
-different time to complete. So if the system bus and CPU are fast enough
-to overtake the ULPI bus and the companion PHY reaction, then we'll get to
-take a false timeout error. Fix this by converting the busy-loop procedure
-to take the standard bus speed, address value and the registers access
-mode into account for the busy-loop delay calculation.
+The following mem abort is observed when the mba firmware size exceeds
+the allocated mba region. MBA firmware size is restricted to a maximum
+size of 1M and remaining memory region is used by modem debug policy
+firmware when available. Hence verify whether the MBA firmware size lies
+within the allocated memory region and is not greater than 1M before
+loading.
 
-Here is the way the fix works. It's known that the ULPI bus is clocked
-with 60MHz signal. In accordance with [1] the ULPI bus protocol is created
-so to spend 5 and 6 clock periods for immediate register write and read
-operations respectively, and 6 and 7 clock periods - for the extended
-register writes and reads. Based on that we can easily pre-calculate the
-time which will be needed for the controller to perform a requested IO
-operation. Note we'll still preserve the attempts counter in case if the
-DWC USB3 controller has got some internals delays.
+Err Logs:
+Unable to handle kernel paging request at virtual address
+Mem abort info:
+...
+Call trace:
+  __memcpy+0x110/0x180
+  rproc_start+0x40/0x218
+  rproc_boot+0x5b4/0x608
+  state_store+0x54/0xf8
+  dev_attr_store+0x44/0x60
+  sysfs_kf_write+0x58/0x80
+  kernfs_fop_write+0x140/0x230
+  vfs_write+0xc4/0x208
+  ksys_write+0x74/0xf8
+  __arm64_sys_write+0x24/0x30
+...
 
-[1] UTMI+ Low Pin Interface (ULPI) Specification, Revision 1.1,
-    October 20, 2004, pp. 30 - 36.
-
-Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20201210085008.13264-3-Sergey.Semin@baikalelectronics.ru
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 051fb70fd4ea4 ("remoteproc: qcom: Driver for the self-authenticating Hexagon v5")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20200722201047.12975-2-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+[sudip: manual backport to old file path]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ulpi.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/remoteproc/qcom_q6v5_pil.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/dwc3/ulpi.c
-+++ b/drivers/usb/dwc3/ulpi.c
-@@ -10,6 +10,8 @@
-  * published by the Free Software Foundation.
-  */
- 
-+#include <linux/delay.h>
-+#include <linux/time64.h>
- #include <linux/ulpi/regs.h>
- 
- #include "core.h"
-@@ -20,12 +22,22 @@
- 		DWC3_GUSB2PHYACC_ADDR(ULPI_ACCESS_EXTENDED) | \
- 		DWC3_GUSB2PHYACC_EXTEND_ADDR(a) : DWC3_GUSB2PHYACC_ADDR(a))
- 
--static int dwc3_ulpi_busyloop(struct dwc3 *dwc)
-+#define DWC3_ULPI_BASE_DELAY	DIV_ROUND_UP(NSEC_PER_SEC, 60000000L)
-+
-+static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
+--- a/drivers/remoteproc/qcom_q6v5_pil.c
++++ b/drivers/remoteproc/qcom_q6v5_pil.c
+@@ -193,6 +193,12 @@ static int q6v5_load(struct rproc *rproc
  {
-+	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
- 	unsigned int count = 1000;
- 	u32 reg;
+ 	struct q6v5 *qproc = rproc->priv;
  
-+	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
-+		ns += DWC3_ULPI_BASE_DELAY;
++	/* MBA is restricted to a maximum size of 1M */
++	if (fw->size > qproc->mba_size || fw->size > SZ_1M) {
++		dev_err(qproc->dev, "MBA firmware load failed\n");
++		return -EINVAL;
++	}
 +
-+	if (read)
-+		ns += DWC3_ULPI_BASE_DELAY;
-+
- 	while (count--) {
-+		ndelay(ns);
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
- 		if (reg & DWC3_GUSB2PHYACC_DONE)
- 			return 0;
-@@ -50,7 +62,7 @@ static int dwc3_ulpi_read(struct device
- 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
+ 	memcpy(qproc->mba_region, fw->data, fw->size);
  
--	ret = dwc3_ulpi_busyloop(dwc);
-+	ret = dwc3_ulpi_busyloop(dwc, addr, true);
- 	if (ret)
- 		return ret;
- 
-@@ -74,7 +86,7 @@ static int dwc3_ulpi_write(struct device
- 	reg |= DWC3_GUSB2PHYACC_WRITE | val;
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
- 
--	return dwc3_ulpi_busyloop(dwc);
-+	return dwc3_ulpi_busyloop(dwc, addr, false);
- }
- 
- static const struct ulpi_ops dwc3_ulpi_ops = {
+ 	return 0;
 
 
