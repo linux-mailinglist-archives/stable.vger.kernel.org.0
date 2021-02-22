@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC58D3215EC
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 438BD32163E
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230232AbhBVMOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:14:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
+        id S230509AbhBVMTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:19:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230135AbhBVMOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:14:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D155064E4B;
-        Mon, 22 Feb 2021 12:13:26 +0000 (UTC)
+        id S230492AbhBVMRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:17:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A80D360C3E;
+        Mon, 22 Feb 2021 12:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996007;
-        bh=P8dOsg/8lT9BVQdxiQW7fh17THd0WtL4GaIUw8wy3m8=;
+        s=korg; t=1613996216;
+        bh=8Q3v9KXNyoY8FwManLhHl+Kzwr834mGKxWc2c2jILPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t7svRfeFF6hrTnwvvplgmrXplhnry8hZqlJYVgLx269AKBfK3vDptfN4+mofcUEu5
-         onAEkaYp8hPHpIFklbC3G5dtO0OqmM+fD/IO4a49aoKaqtx2A0kx6KZWiGLdV9TIMa
-         21vQrsjhNZzk6bb5Jkr6aAzaoyieKW2xuPygEwWc=
+        b=qbHQcrnuIuT9V96Pf/xNLIxmnFkzdPHB0HvjwHMOzkpuilnQ6WKpfUDZxAU9Y0PiH
+         eob/8GbxtpweAeG1R4j2PC6DDpYE3kHD70JDz0sym7tnYYLnW6cJvZouISWv9exIsW
+         PY7c+rwms1LcyaIlGMm+SQmvTGvxCfgEYb48NPh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.11 04/12] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/50] platform/x86: hp-wmi: Disable tablet-mode reporting by default
 Date:   Mon, 22 Feb 2021 13:12:56 +0100
-Message-Id: <20210222121017.861311432@linuxfoundation.org>
+Message-Id: <20210222121021.390958087@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.586597942@linuxfoundation.org>
-References: <20210222121013.586597942@linuxfoundation.org>
+In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
+References: <20210222121019.925481519@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +42,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
+[ Upstream commit 67fbe02a5cebc3c653610f12e3c0424e58450153 ]
 
-Failure of the kernel part of the mapping operation should also be
-indicated as an error to the caller, or else it may assume the
-respective kernel VA is okay to access.
+Recently userspace has started making more use of SW_TABLET_MODE
+(when an input-dev reports this).
 
-Furthermore gnttab_map_refs() failing still requires recording
-successfully mapped handles, so they can be unmapped subsequently. This
-in turn requires there to be a way to tell full hypercall failure from
-partial success - preset map_op status fields such that they won't
-"happen" to look as if the operation succeeded.
+Specifically recent GNOME3 versions will:
 
-Also again use GNTST_okay instead of implying its value (zero).
+1.  When SW_TABLET_MODE is reported and is reporting 0:
+1.1 Disable accelerometer-based screen auto-rotation
+1.2 Disable automatically showing the on-screen keyboard when a
+    text-input field is focussed
 
-This is part of XSA-361.
+2.  When SW_TABLET_MODE is reported and is reporting 1:
+2.1 Ignore input-events from the builtin keyboard and touchpad
+    (this is for 360° hinges style 2-in-1s where the keyboard and
+     touchpads are accessible on the back of the tablet when folded
+     into tablet-mode)
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This means that claiming to support SW_TABLET_MODE when it does not
+actually work / reports correct values has bad side-effects.
 
+The check in the hp-wmi code which is used to decide if the input-dev
+should claim SW_TABLET_MODE support, only checks if the
+HPWMI_HARDWARE_QUERY is supported. It does *not* check if the hardware
+actually is capable of reporting SW_TABLET_MODE.
+
+This leads to the hp-wmi input-dev claiming SW_TABLET_MODE support,
+while in reality it will always report 0 as SW_TABLET_MODE value.
+This has been seen on a "HP ENVY x360 Convertible 15-cp0xxx" and
+this likely is the case on a whole lot of other HP models.
+
+This problem causes both auto-rotation and on-screen keyboard
+support to not work on affected x360 models.
+
+There is no easy fix for this, but since userspace expects
+SW_TABLET_MODE reporting to be reliable when advertised it is
+better to not claim/report SW_TABLET_MODE support at all, then
+to claim to support it while it does not work.
+
+To avoid the mentioned problems, add a new enable_tablet_mode_sw
+module-parameter which defaults to false.
+
+Note I've made this an int using the standard -1=auto, 0=off, 1=on
+triplett, with the hope that in the future we can come up with a
+better way to detect SW_TABLET_MODE support. ATM the default
+auto option just does the same as off.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1918255
+Cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mark Gross <mgross@linux.intel.com>
+Link: https://lore.kernel.org/r/20210120124941.73409-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c      |   17 +++++++++--------
- include/xen/grant_table.h |    1 +
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/platform/x86/hp-wmi.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -334,21 +334,22 @@ int gntdev_map_grant_pages(struct gntdev
- 	pr_debug("map %d+%d\n", map->index, map->count);
- 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
- 			map->pages, map->count);
--	if (err)
--		return err;
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 952544ca0d84d..93fadd4abf14d 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -45,6 +45,10 @@ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("wmi:95F24279-4D7B-4334-9387-ACCDC67EF61C");
+ MODULE_ALIAS("wmi:5FB7F034-2C63-45e9-BE91-3D44E2C707E4");
  
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status) {
-+		if (map->map_ops[i].status == GNTST_okay)
-+			map->unmap_ops[i].handle = map->map_ops[i].handle;
-+		else if (!err)
- 			err = -EINVAL;
--			continue;
--		}
++static int enable_tablet_mode_sw = -1;
++module_param(enable_tablet_mode_sw, int, 0444);
++MODULE_PARM_DESC(enable_tablet_mode_sw, "Enable SW_TABLET_MODE reporting (-1=auto, 0=no, 1=yes)");
++
+ #define HPWMI_EVENT_GUID "95F24279-4D7B-4334-9387-ACCDC67EF61C"
+ #define HPWMI_BIOS_GUID "5FB7F034-2C63-45e9-BE91-3D44E2C707E4"
  
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
+@@ -656,10 +660,12 @@ static int __init hp_wmi_input_setup(void)
+ 	}
  
--		map->unmap_ops[i].handle = map->map_ops[i].handle;
--		if (use_ptemod)
--			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+		if (use_ptemod) {
-+			if (map->kmap_ops[i].status == GNTST_okay)
-+				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+			else if (!err)
-+				err = -EINVAL;
+ 	/* Tablet mode */
+-	val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
+-	if (!(val < 0)) {
+-		__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
+-		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++	if (enable_tablet_mode_sw > 0) {
++		val = hp_wmi_hw_state(HPWMI_TABLET_MASK);
++		if (val >= 0) {
++			__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++			input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
 +		}
  	}
- 	return err;
- }
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
- 	map->flags = flags;
- 	map->ref = ref;
- 	map->dom = domid;
-+	map->status = 1; /* arbitrary positive value */
- }
  
- static inline void
+ 	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
+-- 
+2.27.0
+
 
 
