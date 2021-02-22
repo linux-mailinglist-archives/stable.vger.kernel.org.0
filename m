@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4FA321606
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC58D3215EC
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbhBVMQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:16:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
+        id S230232AbhBVMOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230374AbhBVMPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:15:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7164864F06;
-        Mon, 22 Feb 2021 12:14:08 +0000 (UTC)
+        id S230135AbhBVMOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:14:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D155064E4B;
+        Mon, 22 Feb 2021 12:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996049;
-        bh=YerzjMqBmulA0GBpFZYZStM0GF7sWv0WhZPuEf0VSI0=;
+        s=korg; t=1613996007;
+        bh=P8dOsg/8lT9BVQdxiQW7fh17THd0WtL4GaIUw8wy3m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcLH1fxWFIVYIia5vkIeeSJJvWZ6Y2zYU08RdY52vHlQiGWJTtc4Pt2eWzsTQhX5Y
-         sdHrpW5quTNvNVoVkj8lFwh4S/Eh3Jj6k9OtOvDfECjr0JY5WODSmTtbdTfbYdV9p/
-         fPFLj/0kvgFMzSUsmO9AEcHPKbdA+KIN6dl9vePE=
+        b=t7svRfeFF6hrTnwvvplgmrXplhnry8hZqlJYVgLx269AKBfK3vDptfN4+mofcUEu5
+         onAEkaYp8hPHpIFklbC3G5dtO0OqmM+fD/IO4a49aoKaqtx2A0kx6KZWiGLdV9TIMa
+         21vQrsjhNZzk6bb5Jkr6aAzaoyieKW2xuPygEwWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.10 02/29] vdpa_sim: add struct vdpasim_dev_attr for device attributes
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.11 04/12] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
 Date:   Mon, 22 Feb 2021 13:12:56 +0100
-Message-Id: <20210222121019.909446426@linuxfoundation.org>
+Message-Id: <20210222121017.861311432@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
-References: <20210222121019.444399883@linuxfoundation.org>
+In-Reply-To: <20210222121013.586597942@linuxfoundation.org>
+References: <20210222121013.586597942@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,118 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 6c6e28fe45794054410ad8cd2770af69fbe0338d upstream.
+commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
 
-vdpasim_dev_attr will contain device specific attributes. We starting
-moving the number of virtqueues (i.e. nvqs) to vdpasim_dev_attr.
+Failure of the kernel part of the mapping operation should also be
+indicated as an error to the caller, or else it may assume the
+respective kernel VA is okay to access.
 
-vdpasim_create() creates a new vDPA simulator following the device
-attributes defined in the vdpasim_dev_attr parameter.
+Furthermore gnttab_map_refs() failing still requires recording
+successfully mapped handles, so they can be unmapped subsequently. This
+in turn requires there to be a way to tell full hypercall failure from
+partial success - preset map_op status fields such that they won't
+"happen" to look as if the operation succeeded.
 
-Co-developed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20201215144256.155342-7-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Also again use GNTST_okay instead of implying its value (zero).
+
+This is part of XSA-361.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -67,11 +67,16 @@ static u64 vdpasim_features = (1ULL << V
- 			      (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
- 			      (1ULL << VIRTIO_NET_F_MAC);
+---
+ drivers/xen/gntdev.c      |   17 +++++++++--------
+ include/xen/grant_table.h |    1 +
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -334,21 +334,22 @@ int gntdev_map_grant_pages(struct gntdev
+ 	pr_debug("map %d+%d\n", map->index, map->count);
+ 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
+ 			map->pages, map->count);
+-	if (err)
+-		return err;
  
-+struct vdpasim_dev_attr {
-+	int nvqs;
-+};
-+
- /* State of each vdpasim device */
- struct vdpasim {
- 	struct vdpa_device vdpa;
- 	struct vdpasim_virtqueue *vqs;
- 	struct work_struct work;
-+	struct vdpasim_dev_attr dev_attr;
- 	/* spinlock to synchronize virtqueue state */
- 	spinlock_t lock;
- 	struct virtio_net_config config;
-@@ -80,7 +85,6 @@ struct vdpasim {
- 	u32 status;
- 	u32 generation;
- 	u64 features;
--	int nvqs;
- 	/* spinlock to synchronize iommu table */
- 	spinlock_t iommu_lock;
- };
-@@ -145,7 +149,7 @@ static void vdpasim_reset(struct vdpasim
- {
- 	int i;
+ 	for (i = 0; i < map->count; i++) {
+-		if (map->map_ops[i].status) {
++		if (map->map_ops[i].status == GNTST_okay)
++			map->unmap_ops[i].handle = map->map_ops[i].handle;
++		else if (!err)
+ 			err = -EINVAL;
+-			continue;
+-		}
  
--	for (i = 0; i < vdpasim->nvqs; i++)
-+	for (i = 0; i < vdpasim->dev_attr.nvqs; i++)
- 		vdpasim_vq_reset(&vdpasim->vqs[i]);
+ 		if (map->flags & GNTMAP_device_map)
+ 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
  
- 	spin_lock(&vdpasim->iommu_lock);
-@@ -346,7 +350,7 @@ static const struct dma_map_ops vdpasim_
- static const struct vdpa_config_ops vdpasim_net_config_ops;
- static const struct vdpa_config_ops vdpasim_net_batch_config_ops;
- 
--static struct vdpasim *vdpasim_create(void)
-+static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
- {
- 	const struct vdpa_config_ops *ops;
- 	struct vdpasim *vdpasim;
-@@ -358,11 +362,12 @@ static struct vdpasim *vdpasim_create(vo
- 	else
- 		ops = &vdpasim_net_config_ops;
- 
--	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops, VDPASIM_VQ_NUM);
-+	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops,
-+				    dev_attr->nvqs);
- 	if (!vdpasim)
- 		goto err_alloc;
- 
--	vdpasim->nvqs = VDPASIM_VQ_NUM;
-+	vdpasim->dev_attr = *dev_attr;
- 	INIT_WORK(&vdpasim->work, vdpasim_work);
- 	spin_lock_init(&vdpasim->lock);
- 	spin_lock_init(&vdpasim->iommu_lock);
-@@ -373,7 +378,7 @@ static struct vdpasim *vdpasim_create(vo
- 		goto err_iommu;
- 	set_dma_ops(dev, &vdpasim_dma_ops);
- 
--	vdpasim->vqs = kcalloc(vdpasim->nvqs, sizeof(struct vdpasim_virtqueue),
-+	vdpasim->vqs = kcalloc(dev_attr->nvqs, sizeof(struct vdpasim_virtqueue),
- 			       GFP_KERNEL);
- 	if (!vdpasim->vqs)
- 		goto err_iommu;
-@@ -396,7 +401,7 @@ static struct vdpasim *vdpasim_create(vo
- 		eth_random_addr(vdpasim->config.mac);
+-		map->unmap_ops[i].handle = map->map_ops[i].handle;
+-		if (use_ptemod)
+-			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
++		if (use_ptemod) {
++			if (map->kmap_ops[i].status == GNTST_okay)
++				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
++			else if (!err)
++				err = -EINVAL;
++		}
  	}
+ 	return err;
+ }
+--- a/include/xen/grant_table.h
++++ b/include/xen/grant_table.h
+@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
+ 	map->flags = flags;
+ 	map->ref = ref;
+ 	map->dom = domid;
++	map->status = 1; /* arbitrary positive value */
+ }
  
--	for (i = 0; i < vdpasim->nvqs; i++)
-+	for (i = 0; i < dev_attr->nvqs; i++)
- 		vringh_set_iotlb(&vdpasim->vqs[i].vring, vdpasim->iommu);
- 
- 	vdpasim->vdpa.dma_dev = dev;
-@@ -724,7 +729,11 @@ static const struct vdpa_config_ops vdpa
- 
- static int __init vdpasim_dev_init(void)
- {
--	vdpasim_dev = vdpasim_create();
-+	struct vdpasim_dev_attr dev_attr = {};
-+
-+	dev_attr.nvqs = VDPASIM_VQ_NUM;
-+
-+	vdpasim_dev = vdpasim_create(&dev_attr);
- 
- 	if (!IS_ERR(vdpasim_dev))
- 		return 0;
+ static inline void
 
 
