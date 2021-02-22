@@ -2,107 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD5F32157F
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 12:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 783CC3215A2
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbhBVLzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 06:55:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53938 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230017AbhBVLzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 06:55:09 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D60C061786
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 03:54:28 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id p3so3129014wmc.2
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 03:54:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=U+HxSePe4reaFx3rEe1zCpmNUspu1nuRn9RrICOTQAk=;
-        b=Jhfr/kRrpqIW0E+fGvODAZvYsZJDYLFuvl+C1Wwbv1mX+TK7Xao4GbM+V8Fm9fh+7y
-         U/YAXRP7XGiUyOk9tF8m1JIJF0RKqVOrwrvKcQdWFO+zrifE0bU3gjhVOTXCEOawbWx+
-         UHsmhpMhNbMCcpwZrXb9iTEHX63fWF3nlpv4FnWsckQmflV47qdqbAov1yALVdrNBIsJ
-         kzKsjq7MNM0C2LR7PhInJznj0addrPWW1Fyk+KN4kEOCdmJJ5RPNIFYiQOZjyhwkSaxd
-         BMP64Rp2lm14jBptprlzl6bsWcWsD6T0n6+C2zVdaO/CAXbSu+3qUjjDMXHWTQ9h2oLu
-         gILw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=U+HxSePe4reaFx3rEe1zCpmNUspu1nuRn9RrICOTQAk=;
-        b=EdRyXncdhsOXRID2U6JceANPg4nnuAJ1tD0T7TjWFa5YFZt0VRXg9+YwpxdbVgxwzP
-         lU0BgIevD7g6ydVDy0OTn4OCu8nC7xFPpAOcQqNCUhe5o3H8kQL2vnnyaunTcNjE2h3G
-         yRH/hXYPoY0Z7ZyZPacoE69Aay61y+qWDK5dVzb2zi0UsnlMSVCAQ/5W78N/kjZd/Acm
-         ssZaigp0WrBAUtY0WtoOkpHPOFVVPY0bHRZJSmRtXGYzvHPJVq49BSGAeFw+WidKQ2zS
-         Fc9OVBrEnJF+OQvT/WE/cJn3Om9Ex6Xvn2oUzIHaE0CSjIHmS3GW4on7FCnsI9WcopoA
-         pHsQ==
-X-Gm-Message-State: AOAM532d3vldyOI33mu9dtG5/G9M86v7RPGZFiKOGfhjTPaPg+EGTQ+m
-        mqf+p33AansKzZeHuJHS08K+iopGTtB5QQ==
-X-Google-Smtp-Source: ABdhPJzF+r+O0viVr9hiL7DPwCymq4lroZYNLfbGahHdKAGqoCj1tIPwVPnJYddIskibaa2EnR+EAg==
-X-Received: by 2002:a1c:f203:: with SMTP id s3mr19538984wmc.152.1613994867101;
-        Mon, 22 Feb 2021 03:54:27 -0800 (PST)
-Received: from dell ([91.110.221.155])
-        by smtp.gmail.com with ESMTPSA id y62sm30191077wmy.9.2021.02.22.03.54.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Feb 2021 03:54:26 -0800 (PST)
-Date:   Mon, 22 Feb 2021 11:54:24 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Zheng Yejian <zhengyejian1@huawei.com>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, judy.chenhui@huawei.com,
-        zhangjinhao2@huawei.com, tglx@linutronix.de
-Subject: Re: [PATCH 4.9.257 1/1] futex: Fix OWNER_DEAD fixup
-Message-ID: <20210222115424.GF376568@dell>
-References: <20210222110542.3531596-1-zhengyejian1@huawei.com>
- <20210222110542.3531596-2-zhengyejian1@huawei.com>
+        id S230057AbhBVMAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:00:37 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47496 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230037AbhBVMAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:00:35 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EE33BACCF;
+        Mon, 22 Feb 2021 11:59:53 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id A76A91E14ED; Mon, 22 Feb 2021 12:59:53 +0100 (CET)
+Date:   Mon, 22 Feb 2021 12:59:53 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] block: Try to handle busy underlying device on discard
+Message-ID: <20210222115953.GD19630@quack2.suse.cz>
+References: <20210222094809.21775-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210222110542.3531596-2-zhengyejian1@huawei.com>
+In-Reply-To: <20210222094809.21775-1-jack@suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Feb 2021, Zheng Yejian wrote:
+On Mon 22-02-21 10:48:09, Jan Kara wrote:
+> Commit 384d87ef2c95 ("block: Do not discard buffers under a mounted
+> filesystem") made paths issuing discard or zeroout requests to the
+> underlying device try to grab block device in exclusive mode. If that
+> failed we returned EBUSY to userspace. This however caused unexpected
+> fallout in userspace where e.g. FUSE filesystems issue discard requests
+> from userspace daemons although the device is open exclusively by the
+> kernel. Also shrinking of logical volume by LVM issues discard requests
+> to a device which may be claimed exclusively because there's another LV
+> on the same PV. So to avoid these userspace regressions, fall back to
+> invalidate_inode_pages2_range() instead of returning EBUSY to userspace
+> and return EBUSY only of that call fails as well (meaning that there's
+> indeed someone using the particular device range we are trying to
+> discard).
+> 
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=211167
+> Fixes: 384d87ef2c95 ("block: Do not discard buffers under a mounted filesystem")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-> From: Peter Zijlstra <peterz@infradead.org>
-> 
-> commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
-> 
-> Both Geert and DaveJ reported that the recent futex commit:
-> 
->   c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
-> 
-> introduced a problem with setting OWNER_DEAD. We set the bit on an
-> uninitialized variable and then entirely optimize it away as a
-> dead-store.
-> 
-> Move the setting of the bit to where it is more useful.
-> 
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Reported-by: Dave Jones <davej@codemonkey.org.uk>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Paul E. McKenney <paulmck@us.ibm.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
-> Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Before I forget: I'd like to add two tested by tags to give credit to
+people who helped with testing.
+
+Tested-by: Richard W.M. Jones <rjones@redhat.com>
+Tested-by: Andreas Klauer <Andreas.Klauer@metamorpher.de>
+
+									Honza
+
 > ---
->  kernel/futex.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
-
+>  fs/block_dev.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index 235b5042672e..c33151020bcd 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -118,13 +118,22 @@ int truncate_bdev_range(struct block_device *bdev, fmode_t mode,
+>  	if (!(mode & FMODE_EXCL)) {
+>  		int err = bd_prepare_to_claim(bdev, truncate_bdev_range);
+>  		if (err)
+> -			return err;
+> +			goto invalidate;
+>  	}
+>  
+>  	truncate_inode_pages_range(bdev->bd_inode->i_mapping, lstart, lend);
+>  	if (!(mode & FMODE_EXCL))
+>  		bd_abort_claiming(bdev, truncate_bdev_range);
+>  	return 0;
+> +
+> +invalidate:
+> +	/*
+> +	 * Someone else has handle exclusively open. Try invalidating instead.
+> +	 * The 'end' argument is inclusive so the rounding is safe.
+> +	 */
+> +	return invalidate_inode_pages2_range(bdev->bd_inode->i_mapping,
+> +					     lstart >> PAGE_SHIFT,
+> +					     lend >> PAGE_SHIFT);
+>  }
+>  EXPORT_SYMBOL(truncate_bdev_range);
+>  
+> -- 
+> 2.26.2
+> 
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
