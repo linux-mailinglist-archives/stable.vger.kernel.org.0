@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EE732176A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BBCF321714
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231630AbhBVMr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:47:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56570 "EHLO mail.kernel.org"
+        id S231411AbhBVMmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:42:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52847 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231401AbhBVMns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:43:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6F964F46;
-        Mon, 22 Feb 2021 12:40:37 +0000 (UTC)
+        id S231219AbhBVMlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:41:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B1A464EEF;
+        Mon, 22 Feb 2021 12:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997638;
-        bh=DqPe8wRoULr4RNVGmXD6I2OYreAZrv8WcbdJLjc/IFQ=;
+        s=korg; t=1613997533;
+        bh=RDAQ4yFCcAZJ92OXX7JBJgTLs9H9bazkxtbFRSElUn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wfrp7Ps/GOxLFGwx7BRx7D04BFEs5Lx0MwNgfvI7zC+UNrp6Z0zeI0gIAvpiHXnuU
-         rc+N1K7fYpLrzAtntxRP570mjyJ+tTHTHoH/Aq6jKWyhfr2YPwlmrrNfOExsFHwkp2
-         xqgZgTk3Z7QldwT8WuJzIlESM0DR2uXmynzR5RV8=
+        b=ZzxwT3N265SUJ/8dMPswOTV0ueP54fbOOuTsVYxn0qyEv8qW7Ph8gMEdykYVtfEMz
+         hip3NFmIQnSzLxRVqFLBdDKGIfgyHV/GpAMQRQGMN74dnE86RcrOzojxiPuaf82lkb
+         ABlOwXUojl7Eqayv1Fp/1Sflk5F8xN97pKq8z4FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.4 25/35] Xen/x86: dont bail early from clear_foreign_p2m_mapping()
+        stable@vger.kernel.org, John Greb <h3x4m3r0n@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 55/57] USB: Gadget Ethernet: Re-enable Jumbo frames.
 Date:   Mon, 22 Feb 2021 13:36:21 +0100
-Message-Id: <20210222121021.674569025@linuxfoundation.org>
+Message-Id: <20210222121035.642232419@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: John Greb <h3x4m3r0n@gmail.com>
 
-commit a35f2ef3b7376bfd0a57f7844bd7454389aae1fc upstream.
+commit eea52743eb5654ec6f52b0e8b4aefec952543697 upstream
 
-Its sibling (set_foreign_p2m_mapping()) as well as the sibling of its
-only caller (gnttab_map_refs()) don't clean up after themselves in case
-of error. Higher level callers are expected to do so. However, in order
-for that to really clean up any partially set up state, the operation
-should not terminate upon encountering an entry in unexpected state. It
-is particularly relevant to notice here that set_foreign_p2m_mapping()
-would skip setting up a p2m entry if its grant mapping failed, but it
-would continue to set up further p2m entries as long as their mappings
-succeeded.
+Fixes: <b3e3893e1253> ("net: use core MTU range checking")
+which patched only one of two functions used to setup the
+USB Gadget Ethernet driver, causing a serious performance
+regression in the ability to increase mtu size above 1500.
 
-Arguably down the road set_foreign_p2m_mapping() may want its page state
-related WARN_ON() also converted to an error return.
-
-This is part of XSA-361.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: John Greb <h3x4m3r0n@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/xen/p2m.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/function/u_ether.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -763,17 +763,15 @@ int clear_foreign_p2m_mapping(struct gnt
- 		unsigned long mfn = __pfn_to_mfn(page_to_pfn(pages[i]));
- 		unsigned long pfn = page_to_pfn(pages[i]);
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -850,6 +850,10 @@ struct net_device *gether_setup_name_def
+ 	net->ethtool_ops = &ops;
+ 	SET_NETDEV_DEVTYPE(net, &gadget_type);
  
--		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
-+		if (mfn != INVALID_P2M_ENTRY && (mfn & FOREIGN_FRAME_BIT))
-+			set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
-+		else
- 			ret = -EINVAL;
--			goto out;
--		}
--
--		set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
- 	}
- 	if (kunmap_ops)
- 		ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
--						kunmap_ops, count);
--out:
-+						kunmap_ops, count) ?: ret;
++	/* MTU range: 14 - 15412 */
++	net->min_mtu = ETH_HLEN;
++	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
 +
- 	return ret;
+ 	return net;
  }
- EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+ EXPORT_SYMBOL_GPL(gether_setup_name_default);
 
 
