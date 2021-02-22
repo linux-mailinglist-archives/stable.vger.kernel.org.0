@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E282832166A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0013D32164A
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231176AbhBVMWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:22:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        id S230474AbhBVMUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:20:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230245AbhBVMSe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:18:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 204A964EF5;
-        Mon, 22 Feb 2021 12:17:52 +0000 (UTC)
+        id S230071AbhBVMR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:17:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A4164F16;
+        Mon, 22 Feb 2021 12:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996273;
-        bh=EcSu6k2Cq+hzf90YArDfATrgHmc+TcSk7idHTtFlagA=;
+        s=korg; t=1613996232;
+        bh=KFpzYuWU8/cmTpjzk3Ft6G3yC2pOCP/AnwC6+FNuimI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVX+Na7VINAg4HLxxGwLJO4J7xZ6aRAWqZXdqKFD4sMq8/vSoyFlY+tcnbOb8d4Jo
-         cJQqTNPXb2O1R/wjISM1+GCsv7AK1JawsXwF5QlBxL6JfT0mKVxGAv0FMJhUhtqNgm
-         EXVglaXSKh3MMQ+JTMWuNVO2V7hfthybkGS0plUU=
+        b=T7YbfvIy+wRI7lOUazx2PzAHvfQE27kE/HjvaT0swaeLAblOBdT9DA85ZcKeMnJ/o
+         uM4D58Q3YI9CwoNJEZN0aAX8JriPOvGCoPBPgYGiDPL8qptnG4jpfdK4QVudljlzTh
+         NPc2GbQiMJ0ShLmai6LRcOsah2jthR14aU+Xrw7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 40/50] Xen/x86: dont bail early from clear_foreign_p2m_mapping()
-Date:   Mon, 22 Feb 2021 13:13:31 +0100
-Message-Id: <20210222121026.601141155@linuxfoundation.org>
+Subject: [PATCH 4.19 41/50] Xen/x86: also check kernel mapping in set_foreign_p2m_mapping()
+Date:   Mon, 22 Feb 2021 13:13:32 +0100
+Message-Id: <20210222121026.681028797@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
 References: <20210222121019.925481519@linuxfoundation.org>
@@ -41,20 +41,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Beulich <jbeulich@suse.com>
 
-commit a35f2ef3b7376bfd0a57f7844bd7454389aae1fc upstream.
+commit b512e1b077e5ccdbd6e225b15d934ab12453b70a upstream.
 
-Its sibling (set_foreign_p2m_mapping()) as well as the sibling of its
-only caller (gnttab_map_refs()) don't clean up after themselves in case
-of error. Higher level callers are expected to do so. However, in order
-for that to really clean up any partially set up state, the operation
-should not terminate upon encountering an entry in unexpected state. It
-is particularly relevant to notice here that set_foreign_p2m_mapping()
-would skip setting up a p2m entry if its grant mapping failed, but it
-would continue to set up further p2m entries as long as their mappings
-succeeded.
+We should not set up further state if either mapping failed; paying
+attention to just the user mapping's status isn't enough.
 
-Arguably down the road set_foreign_p2m_mapping() may want its page state
-related WARN_ON() also converted to an error return.
+Also use GNTST_okay instead of implying its value (zero).
 
 This is part of XSA-361.
 
@@ -65,33 +57,20 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/xen/p2m.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ arch/x86/xen/p2m.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/arch/x86/xen/p2m.c
 +++ b/arch/x86/xen/p2m.c
-@@ -746,17 +746,15 @@ int clear_foreign_p2m_mapping(struct gnt
- 		unsigned long mfn = __pfn_to_mfn(page_to_pfn(pages[i]));
- 		unsigned long pfn = page_to_pfn(pages[i]);
+@@ -708,7 +708,8 @@ int set_foreign_p2m_mapping(struct gntta
+ 		unsigned long mfn, pfn;
  
--		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
-+		if (mfn != INVALID_P2M_ENTRY && (mfn & FOREIGN_FRAME_BIT))
-+			set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
-+		else
- 			ret = -EINVAL;
--			goto out;
--		}
--
--		set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
- 	}
- 	if (kunmap_ops)
- 		ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
--						kunmap_ops, count);
--out:
-+						kunmap_ops, count) ?: ret;
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+ 		/* Do not add to override if the map failed. */
+-		if (map_ops[i].status)
++		if (map_ops[i].status != GNTST_okay ||
++		    (kmap_ops && kmap_ops[i].status != GNTST_okay))
+ 			continue;
+ 
+ 		if (map_ops[i].flags & GNTMAP_contains_pte) {
 
 
