@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14C332164B
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A34ED321641
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbhBVMUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:20:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
+        id S230483AbhBVMUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:20:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230490AbhBVMRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230288AbhBVMRK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Feb 2021 07:17:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 853B964EF5;
-        Mon, 22 Feb 2021 12:16:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55AB764F0B;
+        Mon, 22 Feb 2021 12:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996209;
-        bh=bFp7CRvYvJSwXFhazxu0Q8pohLNgE3HNjCcMCqZ4Ja8=;
+        s=korg; t=1613996213;
+        bh=Z+QihpEOL1ABFIK5wU5XzN4zY9iN2xvNRl8xzhRpQcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyC0yLzl76vYn55AcDtHwo+2B0yWTWpAHw8UfhNyuKgM3LXR8hUIdb1du8snO7YA7
-         TummqEjqd/CkmP3tMq2usXq9ah0oZrQv7ZhdZqi2iPGl/UauQyk1uRgMJNTgrNOlO5
-         dR1KTHwiMtsSLCHokFAM6lZKjiySFu16Ne/4iMyA=
+        b=ADo2gLdb77u3fGlkh+OMSoWYW1kVcn7ihYKEbuhnkV+WdJxht8trs52TDEGyMAdxn
+         MU0dfyzsdqQBluYwhXC9IN8OOH3ANzuI6x6tWZbeSqzdIfUWNGZ/EIw0XJgTHTSUQ8
+         3+6MG08T7jUd7e7CKU7/s8prONmRdPHLDKIPZkr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Jackson <iwj@xenproject.org>,
-        Julien Grall <jgrall@amazon.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 03/50] arm/xen: Dont probe xenbus as part of an early initcall
-Date:   Mon, 22 Feb 2021 13:12:54 +0100
-Message-Id: <20210222121021.029465538@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/50] arm64: dts: rockchip: Fix PCIe DT properties on rk3399
+Date:   Mon, 22 Feb 2021 13:12:55 +0100
+Message-Id: <20210222121021.193623305@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
 References: <20210222121019.925481519@linuxfoundation.org>
@@ -42,82 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <jgrall@amazon.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit c4295ab0b485b8bc50d2264bcae2acd06f25caaf upstream.
+[ Upstream commit 43f20b1c6140896916f4e91aacc166830a7ba849 ]
 
-After Commit 3499ba8198cad ("xen: Fix event channel callback via
-INTX/GSI"), xenbus_probe() will be called too early on Arm. This will
-recent to a guest hang during boot.
+It recently became apparent that the lack of a 'device_type = "pci"'
+in the PCIe root complex node for rk3399 is a violation of the PCI
+binding, as documented in IEEE Std 1275-1994. Changes to the kernel's
+parsing of the DT made such violation fatal, as drivers cannot
+probe the controller anymore.
 
-If the hang wasn't there, we would have ended up to call
-xenbus_probe() twice (the second time is in xenbus_probe_initcall()).
+Add the missing property makes the PCIe node compliant. While we
+are at it, drop the pointless linux,pci-domain property, which only
+makes sense when there are multiple host bridges.
 
-We don't need to initialize xenbus_probe() early for Arm guest.
-Therefore, the call in xen_guest_init() is now removed.
-
-After this change, there is no more external caller for xenbus_probe().
-So the function is turned to a static one. Interestingly there were two
-prototypes for it.
-
-Cc: stable@vger.kernel.org
-Fixes: 3499ba8198cad ("xen: Fix event channel callback via INTX/GSI")
-Reported-by: Ian Jackson <iwj@xenproject.org>
-Signed-off-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20210210170654.5377-1-julien@xen.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200815125112.462652-3-maz@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/xen/enlighten.c          |    2 --
- drivers/xen/xenbus/xenbus.h       |    1 -
- drivers/xen/xenbus/xenbus_probe.c |    2 +-
- include/xen/xenbus.h              |    2 --
- 4 files changed, 1 insertion(+), 6 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/xen/enlighten.c
-+++ b/arch/arm/xen/enlighten.c
-@@ -404,8 +404,6 @@ static int __init xen_guest_init(void)
- 		return -ENOMEM;
- 	}
- 	gnttab_init();
--	if (!xen_initial_domain())
--		xenbus_probe();
- 
- 	/*
- 	 * Making sure board specific code will not set up ops for
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -115,7 +115,6 @@ int xenbus_probe_node(struct xen_bus_typ
- 		      const char *type,
- 		      const char *nodename);
- int xenbus_probe_devices(struct xen_bus_type *bus);
--void xenbus_probe(void);
- 
- void xenbus_dev_changed(const char *node, struct xen_bus_type *bus);
- 
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -683,7 +683,7 @@ void unregister_xenstore_notifier(struct
- }
- EXPORT_SYMBOL_GPL(unregister_xenstore_notifier);
- 
--void xenbus_probe(void)
-+static void xenbus_probe(void)
- {
- 	xenstored_ready = 1;
- 
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -187,8 +187,6 @@ void xs_suspend_cancel(void);
- 
- struct work_struct;
- 
--void xenbus_probe(void);
--
- #define XENBUS_IS_ERR_READ(str) ({			\
- 	if (!IS_ERR(str) && strlen(str) == 0) {		\
- 		kfree(str);				\
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index f4ee7c4f83b8b..b1c1a88a1c20c 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -198,6 +198,7 @@
+ 		reg = <0x0 0xf8000000 0x0 0x2000000>,
+ 		      <0x0 0xfd000000 0x0 0x1000000>;
+ 		reg-names = "axi-base", "apb-base";
++		device_type = "pci";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+ 		#interrupt-cells = <1>;
+@@ -216,7 +217,6 @@
+ 				<0 0 0 2 &pcie0_intc 1>,
+ 				<0 0 0 3 &pcie0_intc 2>,
+ 				<0 0 0 4 &pcie0_intc 3>;
+-		linux,pci-domain = <0>;
+ 		max-link-speed = <1>;
+ 		msi-map = <0x0 &its 0x0 0x1000>;
+ 		phys = <&pcie_phy 0>, <&pcie_phy 1>,
+-- 
+2.27.0
+
 
 
