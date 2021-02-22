@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9171232161A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EC5321602
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230099AbhBVMRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:17:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
+        id S230428AbhBVMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:16:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230399AbhBVMPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:15:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D7A664F12;
-        Mon, 22 Feb 2021 12:14:32 +0000 (UTC)
+        id S230340AbhBVMPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B41B64E67;
+        Mon, 22 Feb 2021 12:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996073;
-        bh=YQRGc5ZUeibdSR2xq8N0L7mh/79nWG0Mxa3J9FETjYo=;
+        s=korg; t=1613996075;
+        bh=NU1gHsf4JE4vpBv8JPhmdDq4aUB9g67+HPkgEOn957w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLhzo4EaB8Aw3Ox+Wrh87dXCveQlwGRAcaOl93Tqs22ZYly93KqZJhg2jSG0biAz4
-         rYUpzzLe1+ILyQL8WgsE2+8/vXRbuP41hjHMnvq4LAh66N15NpRtq4E/T3AjJ1Uzsb
-         XB3ZDd9ajU8jQKo/dDj3wv+LFBzAj55XaD/76MBM=
+        b=eekwxM28vJGFs5JRi6myH8FZE8RA4+TCpEnpi/QdS9A2ImVvKW10kjUfTJAsC4hcz
+         lLfQmtrwjj4O6CILMKXwGy7pCh53McpWHCEumg5yUq0dmkQUiCuB8haRczbESNQoMe
+         SsoQpsbQTIqR45fVkQrv8D1jtcNHrTqemr9Ka9NY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-btrfs@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "stable@vger.kernel.org, dsterba@suse.cz, Filipe Manana" 
-        <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
-        Filipe Manana <fdmanana@suse.com>
-Subject: [PATCH 5.10 28/29] btrfs: fix crash after non-aligned direct IO write with O_DSYNC
-Date:   Mon, 22 Feb 2021 13:13:22 +0100
-Message-Id: <20210222121025.628566179@linuxfoundation.org>
+        stable@vger.kernel.org, "Matwey V. Kornilov" <matwey@sai.msu.ru>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 29/29] media: pwc: Use correct device for DMA
+Date:   Mon, 22 Feb 2021 13:13:23 +0100
+Message-Id: <20210222121025.844953860@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
 References: <20210222121019.444399883@linuxfoundation.org>
@@ -41,137 +40,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Matwey V. Kornilov <matwey@sai.msu.ru>
 
-Whenever we attempt to do a non-aligned direct IO write with O_DSYNC, we
-end up triggering an assertion and crashing. Example reproducer:
+commit 69c9e825e812ec6d663e64ebf14bd3bc7f37e2c7 upstream.
 
-  $ cat test.sh
-  #!/bin/bash
+This fixes the following newly introduced warning:
 
-  DEV=/dev/sdj
-  MNT=/mnt/sdj
+[   15.518253] ------------[ cut here ]------------
+[   15.518941] WARNING: CPU: 0 PID: 246 at kernel/dma/mapping.c:149 dma_map_page_attrs+0x1a8/0x1d0
+[   15.520634] Modules linked in: pwc videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc efivarfs
+[   15.522335] CPU: 0 PID: 246 Comm: v4l2-test Not tainted 5.11.0-rc1+ #1
+[   15.523281] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+[   15.524438] RIP: 0010:dma_map_page_attrs+0x1a8/0x1d0
+[   15.525135] Code: 10 5b 5d 41 5c 41 5d c3 4d 89 d0 eb d7 4d 89 c8 89 e9 48 89 da e8 68 29 00 00 eb d1 48 89 f2 48 2b 50 18 48 89 d0 eb 83 0f 0b <0f> 0b 48 c7 c0 ff ff ff ff eb b8 48 89 d9 48 8b 40 40 e8 61 69 d2
+[   15.527938] RSP: 0018:ffffa2694047bca8 EFLAGS: 00010246
+[   15.528716] RAX: 0000000000000000 RBX: 0000000000002580 RCX: 0000000000000000
+[   15.529782] RDX: 0000000000000000 RSI: ffffcdce000ecc00 RDI: ffffa0b4bdb888a0
+[   15.530849] RBP: 0000000000000002 R08: 0000000000000002 R09: 0000000000000000
+[   15.531881] R10: 0000000000000004 R11: 000000000002d8c0 R12: 0000000000000000
+[   15.532911] R13: ffffa0b4bdb88800 R14: ffffa0b483820000 R15: ffffa0b4bdb888a0
+[   15.533942] FS:  00007fc5fbb5e4c0(0000) GS:ffffa0b4fc000000(0000) knlGS:0000000000000000
+[   15.535141] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   15.535988] CR2: 00007fc5fb6ea138 CR3: 0000000003812000 CR4: 00000000001506f0
+[   15.537025] Call Trace:
+[   15.537425]  start_streaming+0x2e9/0x4b0 [pwc]
+[   15.538143]  vb2_start_streaming+0x5e/0x110 [videobuf2_common]
+[   15.538989]  vb2_core_streamon+0x107/0x140 [videobuf2_common]
+[   15.539831]  __video_do_ioctl+0x18f/0x4a0 [videodev]
+[   15.540670]  video_usercopy+0x13a/0x5b0 [videodev]
+[   15.541349]  ? video_put_user+0x230/0x230 [videodev]
+[   15.542096]  ? selinux_file_ioctl+0x143/0x200
+[   15.542752]  v4l2_ioctl+0x40/0x50 [videodev]
+[   15.543360]  __x64_sys_ioctl+0x89/0xc0
+[   15.543930]  do_syscall_64+0x33/0x40
+[   15.544448]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   15.545236] RIP: 0033:0x7fc5fb671587
+[   15.545780] Code: b3 66 90 48 8b 05 11 49 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e1 48 2c 00 f7 d8 64 89 01 48
+[   15.548486] RSP: 002b:00007fff0f71f038 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[   15.549578] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fc5fb671587
+[   15.550664] RDX: 00007fff0f71f060 RSI: 0000000040045612 RDI: 0000000000000003
+[   15.551706] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[   15.552738] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff0f71f060
+[   15.553817] R13: 00007fff0f71f1d0 R14: 0000000000de1270 R15: 0000000000000000
+[   15.554914] ---[ end trace 7be03122966c2486 ]---
 
-  mkfs.btrfs -f $DEV > /dev/null
-  mount $DEV $MNT
-
-  # Do a direct IO write with O_DSYNC into a non-aligned range...
-  xfs_io -f -d -s -c "pwrite -S 0xab -b 64K 1111 64K" $MNT/foobar
-
-  umount $MNT
-
-When running the reproducer an assertion fails and produces the following
-trace:
-
-  [ 2418.403134] assertion failed: !current->journal_info || flush != BTRFS_RESERVE_FLUSH_DATA, in fs/btrfs/space-info.c:1467
-  [ 2418.403745] ------------[ cut here ]------------
-  [ 2418.404306] kernel BUG at fs/btrfs/ctree.h:3286!
-  [ 2418.404862] invalid opcode: 0000 [#2] PREEMPT SMP DEBUG_PAGEALLOC PTI
-  [ 2418.405451] CPU: 1 PID: 64705 Comm: xfs_io Tainted: G      D           5.10.15-btrfs-next-87 #1
-  [ 2418.406026] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-  [ 2418.407228] RIP: 0010:assertfail.constprop.0+0x18/0x26 [btrfs]
-  [ 2418.407835] Code: e6 48 c7 (...)
-  [ 2418.409078] RSP: 0018:ffffb06080d13c98 EFLAGS: 00010246
-  [ 2418.409696] RAX: 000000000000006c RBX: ffff994c1debbf08 RCX: 0000000000000000
-  [ 2418.410302] RDX: 0000000000000000 RSI: 0000000000000027 RDI: 00000000ffffffff
-  [ 2418.410904] RBP: ffff994c21770000 R08: 0000000000000000 R09: 0000000000000000
-  [ 2418.411504] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000010000
-  [ 2418.412111] R13: ffff994c22198400 R14: ffff994c21770000 R15: 0000000000000000
-  [ 2418.412713] FS:  00007f54fd7aff00(0000) GS:ffff994d35200000(0000) knlGS:0000000000000000
-  [ 2418.413326] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ 2418.413933] CR2: 000056549596d000 CR3: 000000010b928003 CR4: 0000000000370ee0
-  [ 2418.414528] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [ 2418.415109] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [ 2418.415669] Call Trace:
-  [ 2418.416254]  btrfs_reserve_data_bytes.cold+0x22/0x22 [btrfs]
-  [ 2418.416812]  btrfs_check_data_free_space+0x4c/0xa0 [btrfs]
-  [ 2418.417380]  btrfs_buffered_write+0x1b0/0x7f0 [btrfs]
-  [ 2418.418315]  btrfs_file_write_iter+0x2a9/0x770 [btrfs]
-  [ 2418.418920]  new_sync_write+0x11f/0x1c0
-  [ 2418.419430]  vfs_write+0x2bb/0x3b0
-  [ 2418.419972]  __x64_sys_pwrite64+0x90/0xc0
-  [ 2418.420486]  do_syscall_64+0x33/0x80
-  [ 2418.420979]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [ 2418.421486] RIP: 0033:0x7f54fda0b986
-  [ 2418.421981] Code: 48 c7 c0 (...)
-  [ 2418.423019] RSP: 002b:00007ffc40569c38 EFLAGS: 00000246 ORIG_RAX: 0000000000000012
-  [ 2418.423547] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f54fda0b986
-  [ 2418.424075] RDX: 0000000000010000 RSI: 000056549595e000 RDI: 0000000000000003
-  [ 2418.424596] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000400
-  [ 2418.425119] R10: 0000000000000400 R11: 0000000000000246 R12: 00000000ffffffff
-  [ 2418.425644] R13: 0000000000000400 R14: 0000000000010000 R15: 0000000000000000
-  [ 2418.426148] Modules linked in: btrfs blake2b_generic (...)
-  [ 2418.429540] ---[ end trace ef2aeb44dc0afa34 ]---
-
-1) At btrfs_file_write_iter() we set current->journal_info to
-   BTRFS_DIO_SYNC_STUB;
-
-2) We then call __btrfs_direct_write(), which calls btrfs_direct_IO();
-
-3) We can't do the direct IO write because it starts at a non-aligned
-   offset (1111). So at btrfs_direct_IO() we return -EINVAL (coming from
-   check_direct_IO() which does the alignment check), but we leave
-   current->journal_info set to BTRFS_DIO_SYNC_STUB - we only clear it
-   at btrfs_dio_iomap_begin(), because we assume we always get there;
-
-4) Then at __btrfs_direct_write() we see that the attempt to do the
-   direct IO write was not successful, 0 bytes written, so we fallback
-   to a buffered write by calling btrfs_buffered_write();
-
-5) There we call btrfs_check_data_free_space() which in turn calls
-   btrfs_alloc_data_chunk_ondemand() and that calls
-   btrfs_reserve_data_bytes() with flush == BTRFS_RESERVE_FLUSH_DATA;
-
-6) Then at btrfs_reserve_data_bytes() we have current->journal_info set to
-   BTRFS_DIO_SYNC_STUB, therefore not NULL, and flush has the value
-   BTRFS_RESERVE_FLUSH_DATA, triggering the second assertion:
-
-  int btrfs_reserve_data_bytes(struct btrfs_fs_info *fs_info, u64 bytes,
-                               enum btrfs_reserve_flush_enum flush)
-  {
-      struct btrfs_space_info *data_sinfo = fs_info->data_sinfo;
-      int ret;
-
-      ASSERT(flush == BTRFS_RESERVE_FLUSH_DATA ||
-             flush == BTRFS_RESERVE_FLUSH_FREE_SPACE_INODE);
-      ASSERT(!current->journal_info || flush != BTRFS_RESERVE_FLUSH_DATA);
-  (...)
-
-So fix that by setting the journal to NULL whenever check_direct_IO()
-returns a failure.
-
-This bug only affects 5.10 kernels, and the regression was introduced in
-5.10-rc1 by commit 0eb79294dbe328 ("btrfs: dio iomap DSYNC workaround").
-The bug does not exist in 5.11 kernels due to commit ecfdc08b8cc65d
-("btrfs: remove dio iomap DSYNC workaround"), which depends on a large
-patchset that went into the merge window for 5.11. So this is a fix only
-for 5.10.x stable kernels, as there are people hitting this bug.
-
-Fixes: 0eb79294dbe328 ("btrfs: dio iomap DSYNC workaround")
-CC: stable@vger.kernel.org # 5.10 (and only 5.10)
-Acked-by: David Sterba <dsterba@suse.com>
-Bugzilla: https://bugzilla.suse.com/show_bug.cgi?id=1181605
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Fixes: 1161db6776bd ("media: usb: pwc: Don't use coherent DMA buffers for ISO transfer")
+Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/inode.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8026,8 +8026,12 @@ ssize_t btrfs_direct_IO(struct kiocb *io
- 	bool relock = false;
- 	ssize_t ret;
+---
+ drivers/media/usb/pwc/pwc-if.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+--- a/drivers/media/usb/pwc/pwc-if.c
++++ b/drivers/media/usb/pwc/pwc-if.c
+@@ -155,16 +155,17 @@ static const struct video_device pwc_tem
+ /***************************************************************************/
+ /* Private functions */
  
--	if (check_direct_IO(fs_info, iter, offset))
-+	if (check_direct_IO(fs_info, iter, offset)) {
-+		ASSERT(current->journal_info == NULL ||
-+		       current->journal_info == BTRFS_DIO_SYNC_STUB);
-+		current->journal_info = NULL;
- 		return 0;
-+	}
+-static void *pwc_alloc_urb_buffer(struct device *dev,
++static void *pwc_alloc_urb_buffer(struct usb_device *dev,
+ 				  size_t size, dma_addr_t *dma_handle)
+ {
++	struct device *dmadev = dev->bus->sysdev;
+ 	void *buffer = kmalloc(size, GFP_KERNEL);
  
- 	count = iov_iter_count(iter);
- 	if (iov_iter_rw(iter) == WRITE) {
+ 	if (!buffer)
+ 		return NULL;
+ 
+-	*dma_handle = dma_map_single(dev, buffer, size, DMA_FROM_DEVICE);
+-	if (dma_mapping_error(dev, *dma_handle)) {
++	*dma_handle = dma_map_single(dmadev, buffer, size, DMA_FROM_DEVICE);
++	if (dma_mapping_error(dmadev, *dma_handle)) {
+ 		kfree(buffer);
+ 		return NULL;
+ 	}
+@@ -172,12 +173,14 @@ static void *pwc_alloc_urb_buffer(struct
+ 	return buffer;
+ }
+ 
+-static void pwc_free_urb_buffer(struct device *dev,
++static void pwc_free_urb_buffer(struct usb_device *dev,
+ 				size_t size,
+ 				void *buffer,
+ 				dma_addr_t dma_handle)
+ {
+-	dma_unmap_single(dev, dma_handle, size, DMA_FROM_DEVICE);
++	struct device *dmadev = dev->bus->sysdev;
++
++	dma_unmap_single(dmadev, dma_handle, size, DMA_FROM_DEVICE);
+ 	kfree(buffer);
+ }
+ 
+@@ -282,6 +285,7 @@ static void pwc_frame_complete(struct pw
+ static void pwc_isoc_handler(struct urb *urb)
+ {
+ 	struct pwc_device *pdev = (struct pwc_device *)urb->context;
++	struct device *dmadev = urb->dev->bus->sysdev;
+ 	int i, fst, flen;
+ 	unsigned char *iso_buf = NULL;
+ 
+@@ -328,7 +332,7 @@ static void pwc_isoc_handler(struct urb
+ 	/* Reset ISOC error counter. We did get here, after all. */
+ 	pdev->visoc_errors = 0;
+ 
+-	dma_sync_single_for_cpu(&urb->dev->dev,
++	dma_sync_single_for_cpu(dmadev,
+ 				urb->transfer_dma,
+ 				urb->transfer_buffer_length,
+ 				DMA_FROM_DEVICE);
+@@ -379,7 +383,7 @@ static void pwc_isoc_handler(struct urb
+ 		pdev->vlast_packet_size = flen;
+ 	}
+ 
+-	dma_sync_single_for_device(&urb->dev->dev,
++	dma_sync_single_for_device(dmadev,
+ 				   urb->transfer_dma,
+ 				   urb->transfer_buffer_length,
+ 				   DMA_FROM_DEVICE);
+@@ -461,7 +465,7 @@ retry:
+ 		urb->pipe = usb_rcvisocpipe(udev, pdev->vendpoint);
+ 		urb->transfer_flags = URB_ISO_ASAP | URB_NO_TRANSFER_DMA_MAP;
+ 		urb->transfer_buffer_length = ISO_BUFFER_SIZE;
+-		urb->transfer_buffer = pwc_alloc_urb_buffer(&udev->dev,
++		urb->transfer_buffer = pwc_alloc_urb_buffer(udev,
+ 							    urb->transfer_buffer_length,
+ 							    &urb->transfer_dma);
+ 		if (urb->transfer_buffer == NULL) {
+@@ -524,7 +528,7 @@ static void pwc_iso_free(struct pwc_devi
+ 		if (urb) {
+ 			PWC_DEBUG_MEMORY("Freeing URB\n");
+ 			if (urb->transfer_buffer)
+-				pwc_free_urb_buffer(&urb->dev->dev,
++				pwc_free_urb_buffer(urb->dev,
+ 						    urb->transfer_buffer_length,
+ 						    urb->transfer_buffer,
+ 						    urb->transfer_dma);
 
 
