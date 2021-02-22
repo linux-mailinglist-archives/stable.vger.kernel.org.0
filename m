@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBCEC32163D
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0A032161B
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbhBVMTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:19:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44828 "EHLO mail.kernel.org"
+        id S230508AbhBVMRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:17:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230468AbhBVMQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:16:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 237C164E61;
-        Mon, 22 Feb 2021 12:16:26 +0000 (UTC)
+        id S230419AbhBVMPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9528B64DA1;
+        Mon, 22 Feb 2021 12:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996187;
-        bh=Me9UCrAm+DFtM6H+IUImRs+bIo7E3wmhN54KYEvUJDM=;
+        s=korg; t=1613996120;
+        bh=KsqQ3uBD8Y5BptM4jjxn9N61BQOIrL3ots6oO0SgBJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFm36ecR74Q5K4t4e5iKq8OvzhBdSsg51k44DhRbYd4OdUZEIn6fQ4c4yihSE3kvi
-         cpYcsD43P/Y8U0DIsIdEpSkI2mPf7ZJgBgeM51t0dfWl4V0pwRQBJObc+g6rhAyYOG
-         xnUEG93yqex3rRGWvJeOqAOMJo2YJi1ii1Id2od8=
+        b=P0dNkT5++jBuBb5QieffVq7SO92VNVq51o+R6kHehkWJ5IBTaCR3e+8d8cValET9V
+         /hVIUL9RzyFGs97n3nOelmL+LP0doqkaqtqNacG5pExSyHa5WXE3C9yZSJS9Dz09ho
+         CiOz1MWX627U66ixiOYKTW4LdZEQg9RXD+GEOuK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        "Song, Yoong Siang" <yoong.siang.song@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Song@vger.kernel.org
-Subject: [PATCH 4.19 21/50] net: stmmac: set TxQ mode back to DCB after disabling CBS
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 18/29] Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
 Date:   Mon, 22 Feb 2021 13:13:12 +0100
-Message-Id: <20210222121024.176474075@linuxfoundation.org>
+Message-Id: <20210222121022.521564108@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+References: <20210222121019.444399883@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit f317e2ea8c88737aa36228167b2292baef3f0430 ]
+commit dbe5283605b3bc12ca45def09cc721a0a5c853a2 upstream.
 
-When disable CBS, mode_to_use parameter is not updated even the operation
-mode of Tx Queue is changed to Data Centre Bridging (DCB). Therefore,
-when tc_setup_cbs() function is called to re-enable CBS, the operation
-mode of Tx Queue remains at DCB, which causing CBS fails to work.
+We may not skip setting the field in the unmap structure when
+GNTMAP_device_map is in use - such an unmap would fail to release the
+respective resources (a page ref in the hypervisor). Otoh the field
+doesn't need setting at all when GNTMAP_device_map is not in use.
 
-This patch updates the value of mode_to_use parameter to MTL_QUEUE_DCB
-after operation mode of Tx Queue is changed to DCB in stmmac_dma_qmode()
-callback function.
+To record the value for unmapping, we also better don't use our local
+p2m: In particular after a subsequent change it may not have got updated
+for all the batch elements. Instead it can simply be taken from the
+respective map's results.
 
-Fixes: 1f705bc61aee ("net: stmmac: Add support for CBS QDISC")
-Suggested-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Song, Yoong Siang <yoong.siang.song@intel.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/1612447396-20351-1-git-send-email-yoong.siang.song@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We can additionally avoid playing this game altogether for the kernel
+part of the mappings in (x86) PV mode.
+
+This is part of XSA-361.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/xen/gntdev.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 37c0bc699cd9c..cc1895a32b9d3 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -314,7 +314,12 @@ static int tc_setup_cbs(struct stmmac_priv *priv,
- 
- 		priv->plat->tx_queues_cfg[queue].mode_to_use = MTL_QUEUE_AVB;
- 	} else if (!qopt->enable) {
--		return stmmac_dma_qmode(priv, priv->ioaddr, queue, MTL_QUEUE_DCB);
-+		ret = stmmac_dma_qmode(priv, priv->ioaddr, queue,
-+				       MTL_QUEUE_DCB);
-+		if (ret)
-+			return ret;
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -309,18 +309,25 @@ int gntdev_map_grant_pages(struct gntdev
+ 		 * to the kernel linear addresses of the struct pages.
+ 		 * These ptes are completely different from the user ptes dealt
+ 		 * with find_grant_ptes.
++		 * Note that GNTMAP_device_map isn't needed here: The
++		 * dev_bus_addr output field gets consumed only from ->map_ops,
++		 * and by not requesting it when mapping we also avoid needing
++		 * to mirror dev_bus_addr into ->unmap_ops (and holding an extra
++		 * reference to the page in the hypervisor).
+ 		 */
++		unsigned int flags = (map->flags & ~GNTMAP_device_map) |
++				     GNTMAP_host_map;
 +
-+		priv->plat->tx_queues_cfg[queue].mode_to_use = MTL_QUEUE_DCB;
+ 		for (i = 0; i < map->count; i++) {
+ 			unsigned long address = (unsigned long)
+ 				pfn_to_kaddr(page_to_pfn(map->pages[i]));
+ 			BUG_ON(PageHighMem(map->pages[i]));
+ 
+-			gnttab_set_map_op(&map->kmap_ops[i], address,
+-				map->flags | GNTMAP_host_map,
++			gnttab_set_map_op(&map->kmap_ops[i], address, flags,
+ 				map->grants[i].ref,
+ 				map->grants[i].domid);
+ 			gnttab_set_unmap_op(&map->kunmap_ops[i], address,
+-				map->flags | GNTMAP_host_map, -1);
++				flags, -1);
+ 		}
  	}
  
- 	/* Port Transmit Rate and Speed Divider */
--- 
-2.27.0
-
+@@ -336,17 +343,12 @@ int gntdev_map_grant_pages(struct gntdev
+ 			continue;
+ 		}
+ 
++		if (map->flags & GNTMAP_device_map)
++			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
++
+ 		map->unmap_ops[i].handle = map->map_ops[i].handle;
+ 		if (use_ptemod)
+ 			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+-#ifdef CONFIG_XEN_GRANT_DMA_ALLOC
+-		else if (map->dma_vaddr) {
+-			unsigned long bfn;
+-
+-			bfn = pfn_to_bfn(page_to_pfn(map->pages[i]));
+-			map->unmap_ops[i].dev_bus_addr = __pfn_to_phys(bfn);
+-		}
+-#endif
+ 	}
+ 	return err;
+ }
 
 
