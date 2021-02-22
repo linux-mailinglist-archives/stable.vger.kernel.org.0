@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE503215E3
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:15:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441B13215FD
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbhBVMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44484 "EHLO mail.kernel.org"
+        id S230422AbhBVMPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:15:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230364AbhBVMN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:13:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA01764E2E;
-        Mon, 22 Feb 2021 12:13:14 +0000 (UTC)
+        id S230337AbhBVMPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59F6464F13;
+        Mon, 22 Feb 2021 12:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613995995;
-        bh=A/tjXZ4Qe/7L/KH0rdQM1tzfxBiExdbxX9Xvrf5SEWU=;
+        s=korg; t=1613996065;
+        bh=AXRPNFRFsMVy5AkzagRtajrSyqb8LlOJOicep2zvSFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuBYPcuFu5//obaIHqIJXRbgGDZl2HIM+NETtvbx7r1LeR1Lsmf1u5U4123ZvQEEv
-         R0vlUdWLLl58CAHKxO/x9hXdTMOK2xA7cKb0U7GRowU+0DgdfWQ1HIvy0Xn+TCRy1+
-         CMixgdpMn7ARc/zWsDZlPI2yZvkqqG6pq/CxkYIw=
+        b=IZ2QxKLufRnDXGJ8R7DnrP4u/e7F6DzoMEAKMDB+V4rUSxj5eCJ2E5MiEkRIwTvDJ
+         whoSFvaOu6GRKzJ/tVYCtv2EhXq2B6mcmW3qE5Rp+T6L1V2bkEUPvakHTZ7dOe6c6V
+         G5L9pH7IzDovlFwP9nqZ1Rc5RF2Ysbdm4e9MhTVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3d2c27c2b7dc2a94814d@syzkaller.appspotmail.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.11 10/12] tty: protect tty_write from odd low-level tty disciplines
-Date:   Mon, 22 Feb 2021 13:13:02 +0100
-Message-Id: <20210222121018.841201057@linuxfoundation.org>
+        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 09/29] net/sched: fix miss init the mru in qdisc_skb_cb
+Date:   Mon, 22 Feb 2021 13:13:03 +0100
+Message-Id: <20210222121021.654740545@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.586597942@linuxfoundation.org>
-References: <20210222121013.586597942@linuxfoundation.org>
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+References: <20210222121019.444399883@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: wenxu <wenxu@ucloud.cn>
 
-commit 3342ff2698e9720f4040cc458a2744b2b32f5c3a upstream.
+[ Upstream commit aadaca9e7c392dbf877af8cefb156199f1a67bbe ]
 
-Al root-caused a new warning from syzbot to the ttyprintk tty driver
-returning a write count larger than the data the tty layer actually gave
-it.  Which confused the tty write code mightily, and with the new
-iov_iter based code, caused a WARNING in iov_iter_revert().
+The mru in the qdisc_skb_cb should be init as 0. Only defrag packets in the
+act_ct will set the value.
 
-syzbot correctly bisected the source of the new warning to commit
-9bb48c82aced ("tty: implement write_iter"), but the oddity goes back
-much further, it just didn't get caught by anything before.
-
-Reported-by: syzbot+3d2c27c2b7dc2a94814d@syzkaller.appspotmail.com
-Fixes: 9bb48c82aced ("tty: implement write_iter")
-Debugged-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 038ebb1a713d ("net/sched: act_ct: fix miss set mru for ovs after defrag in act_ct")
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/core/dev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -962,11 +962,14 @@ static inline ssize_t do_tty_write(
- 		if (ret <= 0)
- 			break;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index da85cb9398693..210d0fce58e17 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3867,6 +3867,7 @@ sch_handle_egress(struct sk_buff *skb, int *ret, struct net_device *dev)
+ 		return skb;
  
-+		written += ret;
-+		if (ret > size)
-+			break;
-+
- 		/* FIXME! Have Al check this! */
- 		if (ret != size)
- 			iov_iter_revert(from, size-ret);
+ 	/* qdisc_skb_cb(skb)->pkt_len was already set by the caller. */
++	qdisc_skb_cb(skb)->mru = 0;
+ 	mini_qdisc_bstats_cpu_update(miniq, skb);
  
--		written += ret;
- 		count -= ret;
- 		if (!count)
- 			break;
+ 	switch (tcf_classify(skb, miniq->filter_list, &cl_res, false)) {
+@@ -4950,6 +4951,7 @@ sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
+ 	}
+ 
+ 	qdisc_skb_cb(skb)->pkt_len = skb->len;
++	qdisc_skb_cb(skb)->mru = 0;
+ 	skb->tc_at_ingress = 1;
+ 	mini_qdisc_bstats_cpu_update(miniq, skb);
+ 
+-- 
+2.27.0
+
 
 
