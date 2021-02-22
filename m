@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2B6321703
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3BF0321794
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbhBVMln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:41:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
+        id S231684AbhBVMus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:50:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230515AbhBVMjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:39:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7827264F0C;
-        Mon, 22 Feb 2021 12:38:26 +0000 (UTC)
+        id S231577AbhBVMqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:46:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CD4F64F19;
+        Mon, 22 Feb 2021 12:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997507;
-        bh=EcSu6k2Cq+hzf90YArDfATrgHmc+TcSk7idHTtFlagA=;
+        s=korg; t=1613997724;
+        bh=mKXWVJIySyeW2DYR2GVsYxGB4eiFh5S/De1yxyxounQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBBDxi7clgtIW5YxjtMgr6L6spnyJ5BG7UpfbTEbOzFrz8NChs+LjsTByDvDaQCe0
-         gjpwZMLV6xxKoR1S7bjs5OkMU4YdsimYlUpGe2x4zF8sTpTHIAmjcwXO69RHlQ3Vy6
-         5Z+Gx8LlZOzt9Rd6AUqz3853EZpaIGsFPsssIfIE=
+        b=Tu7Cva7zYX2GytBWsHZ9+s1Jt0BaI5RfcAMO6APmrCDqHUIWjVs94APUMxLrYOyGU
+         9cA4H9TrDHr5z8VfxcDVJi1Hp7vTpMZxFhAz73rU7BgM5jsmgkIILtWoW4hG7IViqm
+         isTqV694ljpfo2/9LkoiNu03uldNwKXYALqKfrxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 45/57] Xen/x86: dont bail early from clear_foreign_p2m_mapping()
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 13/49] futex: Ensure the correct return value from futex_lock_pi()
 Date:   Mon, 22 Feb 2021 13:36:11 +0100
-Message-Id: <20210222121032.644611843@linuxfoundation.org>
+Message-Id: <20210222121025.806830758@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +40,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a35f2ef3b7376bfd0a57f7844bd7454389aae1fc upstream.
+commit 12bb3f7f1b03d5913b3f9d4236a488aa7774dfe9 upstream
 
-Its sibling (set_foreign_p2m_mapping()) as well as the sibling of its
-only caller (gnttab_map_refs()) don't clean up after themselves in case
-of error. Higher level callers are expected to do so. However, in order
-for that to really clean up any partially set up state, the operation
-should not terminate upon encountering an entry in unexpected state. It
-is particularly relevant to notice here that set_foreign_p2m_mapping()
-would skip setting up a p2m entry if its grant mapping failed, but it
-would continue to set up further p2m entries as long as their mappings
-succeeded.
+In case that futex_lock_pi() was aborted by a signal or a timeout and the
+task returned without acquiring the rtmutex, but is the designated owner of
+the futex due to a concurrent futex_unlock_pi() fixup_owner() is invoked to
+establish consistent state. In that case it invokes fixup_pi_state_owner()
+which in turn tries to acquire the rtmutex again. If that succeeds then it
+does not propagate this success to fixup_owner() and futex_lock_pi()
+returns -EINTR or -ETIMEOUT despite having the futex locked.
 
-Arguably down the road set_foreign_p2m_mapping() may want its page state
-related WARN_ON() also converted to an error return.
+Return success from fixup_pi_state_owner() in all cases where the current
+task owns the rtmutex and therefore the futex and propagate it correctly
+through fixup_owner(). Fixup the other callsite which does not expect a
+positive return value.
 
-This is part of XSA-361.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[Lee: Back-ported in support of a previous futex attempt]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/p2m.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ kernel/futex.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -746,17 +746,15 @@ int clear_foreign_p2m_mapping(struct gnt
- 		unsigned long mfn = __pfn_to_mfn(page_to_pfn(pages[i]));
- 		unsigned long pfn = page_to_pfn(pages[i]);
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2322,7 +2322,7 @@ retry:
+ 		}
  
--		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
-+		if (mfn != INVALID_P2M_ENTRY && (mfn & FOREIGN_FRAME_BIT))
-+			set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
-+		else
- 			ret = -EINVAL;
--			goto out;
--		}
+ 		if (__rt_mutex_futex_trylock(&pi_state->pi_mutex)) {
+-			/* We got the lock after all, nothing to fix. */
++			/* We got the lock. pi_state is correct. Tell caller. */
+ 			return 1;
+ 		}
+ 
+@@ -2364,7 +2364,7 @@ retry:
+ 	 */
+ 	pi_state_update_owner(pi_state, newowner);
+ 
+-	return 0;
++	return argowner == current;
+ 
+ 	/*
+ 	 * To handle the page fault we need to drop the hash bucket
+@@ -2447,8 +2447,6 @@ static long futex_wait_restart(struct re
+  */
+ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+ {
+-	int ret = 0;
 -
--		set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
+ 	if (locked) {
+ 		/*
+ 		 * Got the lock. We might not be the anticipated owner if we
+@@ -2459,8 +2457,8 @@ static int fixup_owner(u32 __user *uaddr
+ 		 * stable state, anything else needs more attention.
+ 		 */
+ 		if (q->pi_state->owner != current)
+-			ret = fixup_pi_state_owner(uaddr, q, current);
+-		goto out;
++			return fixup_pi_state_owner(uaddr, q, current);
++		return 1;
  	}
- 	if (kunmap_ops)
- 		ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
--						kunmap_ops, count);
+ 
+ 	/*
+@@ -2471,10 +2469,8 @@ static int fixup_owner(u32 __user *uaddr
+ 	 * Another speculative read; pi_state->owner == current is unstable
+ 	 * but needs our attention.
+ 	 */
+-	if (q->pi_state->owner == current) {
+-		ret = fixup_pi_state_owner(uaddr, q, NULL);
+-		goto out;
+-	}
++	if (q->pi_state->owner == current)
++		return fixup_pi_state_owner(uaddr, q, NULL);
+ 
+ 	/*
+ 	 * Paranoia check. If we did not take the lock, then we should not be
+@@ -2483,8 +2479,7 @@ static int fixup_owner(u32 __user *uaddr
+ 	if (WARN_ON_ONCE(rt_mutex_owner(&q->pi_state->pi_mutex) == current))
+ 		return fixup_pi_state_owner(uaddr, q, current);
+ 
 -out:
-+						kunmap_ops, count) ?: ret;
-+
- 	return ret;
+-	return ret ? ret : locked;
++	return 0;
  }
- EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+ 
+ /**
+@@ -3106,6 +3101,11 @@ static int futex_wait_requeue_pi(u32 __u
+ 			 */
+ 			put_pi_state(q.pi_state);
+ 			spin_unlock(q.lock_ptr);
++			/*
++			 * Adjust the return value. It's either -EFAULT or
++			 * success (1) but the caller expects 0 for success.
++			 */
++			ret = ret < 0 ? ret : 0;
+ 		}
+ 	} else {
+ 		struct rt_mutex *pi_mutex;
 
 
