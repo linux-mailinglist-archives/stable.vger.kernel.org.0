@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A7F3216E1
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6CB3216E3
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231420AbhBVMi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:38:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52466 "EHLO mail.kernel.org"
+        id S230348AbhBVMic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:38:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231325AbhBVMhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:37:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF51F64E41;
-        Mon, 22 Feb 2021 12:37:09 +0000 (UTC)
+        id S231347AbhBVMhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:37:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 099DD64DF0;
+        Mon, 22 Feb 2021 12:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997430;
-        bh=T1IPVaznLNEX1x1QVRdZLEdbrEGWHR5IHvzGZTFdTd4=;
+        s=korg; t=1613997432;
+        bh=QO3SnUY4HcS43OXK9zE2UXYRBkImEmDNhfrdHWVX3fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIndmOagmjhaNgxoUkNWw1wVeO2KhXtegEs3GtTqp5pnR+N+Ew3hpnK0uHMcKoCNr
-         FcmRAVgsBugVPaqvvg7wXfTBl0o5nI2pbPu4eTgRzYq0wx5uEOP1osNuwCg7XvsM/E
-         4MQSlKpcCLwjOqeqiGoUeNiaUdmF8RErXqHjAiWw=
+        b=IwMdoFGfoXRo9VhgbgSFUYKRjlxSNhawmnv650p2oQgP/T33e5aJlrSBPk6saq2dw
+         SKdhIbJnWEbO0nD/l2vN0xwocJE0neccQbi/QgYteqTpg9ynRTPos8ceLayEfGNSGv
+         qOLkxUESAh7QetAiOjV4cPGIAIWOVoHlf9NCA4m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Chris Mason <clm@fb.com>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+b06d57ba83f604522af2@syzkaller.appspotmail.com,
+        syzbot+c021ba012da41ee9807c@syzkaller.appspotmail.com,
+        syzbot+5024636e8b5fd19f0f19@syzkaller.appspotmail.com,
+        syzbot+bcbc661df46657d0fa4f@syzkaller.appspotmail.com,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/57] memcg: fix a crash in wb_workfn when a device disappears
-Date:   Mon, 22 Feb 2021 13:35:39 +0100
-Message-Id: <20210222121028.145934079@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 14/57] squashfs: add more sanity checks in id lookup
+Date:   Mon, 22 Feb 2021 13:35:40 +0100
+Message-Id: <20210222121028.219098394@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
 References: <20210222121027.174911182@linuxfoundation.org>
@@ -43,236 +44,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit 68f23b89067fdf187763e75a56087550624fdbee ]
+commit f37aa4c7366e23f91b81d00bafd6a7ab54e4a381 upstream.
 
-Without memcg, there is a one-to-one mapping between the bdi and
-bdi_writeback structures.  In this world, things are fairly
-straightforward; the first thing bdi_unregister() does is to shutdown
-the bdi_writeback structure (or wb), and part of that writeback ensures
-that no other work queued against the wb, and that the wb is fully
-drained.
+Sysbot has reported a number of "slab-out-of-bounds reads" and
+"use-after-free read" errors which has been identified as being caused
+by a corrupted index value read from the inode.  This could be because
+the metadata block is uncompressed, or because the "compression" bit has
+been corrupted (turning a compressed block into an uncompressed block).
 
-With memcg, however, there is a one-to-many relationship between the bdi
-and bdi_writeback structures; that is, there are multiple wb objects
-which can all point to a single bdi.  There is a refcount which prevents
-the bdi object from being released (and hence, unregistered).  So in
-theory, the bdi_unregister() *should* only get called once its refcount
-goes to zero (bdi_put will drop the refcount, and when it is zero,
-release_bdi gets called, which calls bdi_unregister).
+This patch adds additional sanity checks to detect this, and the
+following corruption.
 
-Unfortunately, del_gendisk() in block/gen_hd.c never got the memo about
-the Brave New memcg World, and calls bdi_unregister directly.  It does
-this without informing the file system, or the memcg code, or anything
-else.  This causes the root wb associated with the bdi to be
-unregistered, but none of the memcg-specific wb's are shutdown.  So when
-one of these wb's are woken up to do delayed work, they try to
-dereference their wb->bdi->dev to fetch the device name, but
-unfortunately bdi->dev is now NULL, thanks to the bdi_unregister()
-called by del_gendisk().  As a result, *boom*.
+1. It checks against corruption of the ids count.  This can either
+   lead to a larger table to be read, or a smaller than expected
+   table to be read.
 
-Fortunately, it looks like the rest of the writeback path is perfectly
-happy with bdi->dev and bdi->owner being NULL, so the simplest fix is to
-create a bdi_dev_name() function which can handle bdi->dev being NULL.
-This also allows us to bulletproof the writeback tracepoints to prevent
-them from dereferencing a NULL pointer and crashing the kernel if one is
-tracing with memcg's enabled, and an iSCSI device dies or a USB storage
-stick is pulled.
+   In the case of a too large ids count, this would often have been
+   trapped by the existing sanity checks, but this patch introduces
+   a more exact check, which can identify too small values.
 
-The most common way of triggering this will be hotremoval of a device
-while writeback with memcg enabled is going on.  It was triggering
-several times a day in a heavily loaded production environment.
+2. It checks the contents of the index table for corruption.
 
-Google Bug Id: 145475544
-
-Link: https://lore.kernel.org/r/20191227194829.150110-1-tytso@mit.edu
-Link: http://lkml.kernel.org/r/20191228005211.163952-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: Chris Mason <clm@fb.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210204130249.4495-3-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: syzbot+b06d57ba83f604522af2@syzkaller.appspotmail.com
+Reported-by: syzbot+c021ba012da41ee9807c@syzkaller.appspotmail.com
+Reported-by: syzbot+5024636e8b5fd19f0f19@syzkaller.appspotmail.com
+Reported-by: syzbot+bcbc661df46657d0fa4f@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fs-writeback.c                |  2 +-
- include/linux/backing-dev.h      | 10 ++++++++++
- include/trace/events/writeback.h | 29 +++++++++++++----------------
- mm/backing-dev.c                 |  1 +
- 4 files changed, 25 insertions(+), 17 deletions(-)
+ fs/squashfs/id.c             |   40 ++++++++++++++++++++++++++++++++--------
+ fs/squashfs/squashfs_fs_sb.h |    1 +
+ fs/squashfs/super.c          |    6 +++---
+ fs/squashfs/xattr.h          |   10 +++++++++-
+ 4 files changed, 45 insertions(+), 12 deletions(-)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 384f95e1936dd..fde277be26420 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1965,7 +1965,7 @@ void wb_workfn(struct work_struct *work)
- 						struct bdi_writeback, dwork);
- 	long pages_written;
+--- a/fs/squashfs/id.c
++++ b/fs/squashfs/id.c
+@@ -48,10 +48,15 @@ int squashfs_get_id(struct super_block *
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	int block = SQUASHFS_ID_BLOCK(index);
+ 	int offset = SQUASHFS_ID_BLOCK_OFFSET(index);
+-	u64 start_block = le64_to_cpu(msblk->id_table[block]);
++	u64 start_block;
+ 	__le32 disk_id;
+ 	int err;
  
--	set_worker_desc("flush-%s", dev_name(wb->bdi->dev));
-+	set_worker_desc("flush-%s", bdi_dev_name(wb->bdi));
- 	current->flags |= PF_SWAPWRITE;
++	if (index >= msblk->ids)
++		return -EINVAL;
++
++	start_block = le64_to_cpu(msblk->id_table[block]);
++
+ 	err = squashfs_read_metadata(sb, &disk_id, &start_block, &offset,
+ 							sizeof(disk_id));
+ 	if (err < 0)
+@@ -69,7 +74,10 @@ __le64 *squashfs_read_id_index_table(str
+ 		u64 id_table_start, u64 next_table, unsigned short no_ids)
+ {
+ 	unsigned int length = SQUASHFS_ID_BLOCK_BYTES(no_ids);
++	unsigned int indexes = SQUASHFS_ID_BLOCKS(no_ids);
++	int n;
+ 	__le64 *table;
++	u64 start, end;
  
- 	if (likely(!current_is_workqueue_rescuer() ||
-diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
-index 012adec975433..c947b29380547 100644
---- a/include/linux/backing-dev.h
-+++ b/include/linux/backing-dev.h
-@@ -13,6 +13,7 @@
- #include <linux/fs.h>
- #include <linux/sched.h>
- #include <linux/blkdev.h>
-+#include <linux/device.h>
- #include <linux/writeback.h>
- #include <linux/blk-cgroup.h>
- #include <linux/backing-dev-defs.h>
-@@ -493,4 +494,13 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
- 				  (1 << WB_async_congested));
+ 	TRACE("In read_id_index_table, length %d\n", length);
+ 
+@@ -80,20 +88,36 @@ __le64 *squashfs_read_id_index_table(str
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	/*
+-	 * length bytes should not extend into the next table - this check
+-	 * also traps instances where id_table_start is incorrectly larger
+-	 * than the next table start
++	 * The computed size of the index table (length bytes) should exactly
++	 * match the table start and end points
+ 	 */
+-	if (id_table_start + length > next_table)
++	if (length != (next_table - id_table_start))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	table = squashfs_read_table(sb, id_table_start, length);
++	if (IS_ERR(table))
++		return table;
+ 
+ 	/*
+-	 * table[0] points to the first id lookup table metadata block, this
+-	 * should be less than id_table_start
++	 * table[0], table[1], ... table[indexes - 1] store the locations
++	 * of the compressed id blocks.   Each entry should be less than
++	 * the next (i.e. table[0] < table[1]), and the difference between them
++	 * should be SQUASHFS_METADATA_SIZE or less.  table[indexes - 1]
++	 * should be less than id_table_start, and again the difference
++	 * should be SQUASHFS_METADATA_SIZE or less
+ 	 */
+-	if (!IS_ERR(table) && le64_to_cpu(table[0]) >= id_table_start) {
++	for (n = 0; n < (indexes - 1); n++) {
++		start = le64_to_cpu(table[n]);
++		end = le64_to_cpu(table[n + 1]);
++
++		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
++			kfree(table);
++			return ERR_PTR(-EINVAL);
++		}
++	}
++
++	start = le64_to_cpu(table[indexes - 1]);
++	if (start >= id_table_start || (id_table_start - start) > SQUASHFS_METADATA_SIZE) {
+ 		kfree(table);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+--- a/fs/squashfs/squashfs_fs_sb.h
++++ b/fs/squashfs/squashfs_fs_sb.h
+@@ -77,5 +77,6 @@ struct squashfs_sb_info {
+ 	unsigned int				inodes;
+ 	unsigned int				fragments;
+ 	int					xattr_ids;
++	unsigned int				ids;
+ };
+ #endif
+--- a/fs/squashfs/super.c
++++ b/fs/squashfs/super.c
+@@ -176,6 +176,7 @@ static int squashfs_fill_super(struct su
+ 	msblk->directory_table = le64_to_cpu(sblk->directory_table_start);
+ 	msblk->inodes = le32_to_cpu(sblk->inodes);
+ 	msblk->fragments = le32_to_cpu(sblk->fragments);
++	msblk->ids = le16_to_cpu(sblk->no_ids);
+ 	flags = le16_to_cpu(sblk->flags);
+ 
+ 	TRACE("Found valid superblock on %pg\n", sb->s_bdev);
+@@ -187,7 +188,7 @@ static int squashfs_fill_super(struct su
+ 	TRACE("Block size %d\n", msblk->block_size);
+ 	TRACE("Number of inodes %d\n", msblk->inodes);
+ 	TRACE("Number of fragments %d\n", msblk->fragments);
+-	TRACE("Number of ids %d\n", le16_to_cpu(sblk->no_ids));
++	TRACE("Number of ids %d\n", msblk->ids);
+ 	TRACE("sblk->inode_table_start %llx\n", msblk->inode_table);
+ 	TRACE("sblk->directory_table_start %llx\n", msblk->directory_table);
+ 	TRACE("sblk->fragment_table_start %llx\n",
+@@ -244,8 +245,7 @@ static int squashfs_fill_super(struct su
+ allocate_id_index_table:
+ 	/* Allocate and read id index table */
+ 	msblk->id_table = squashfs_read_id_index_table(sb,
+-		le64_to_cpu(sblk->id_table_start), next_table,
+-		le16_to_cpu(sblk->no_ids));
++		le64_to_cpu(sblk->id_table_start), next_table, msblk->ids);
+ 	if (IS_ERR(msblk->id_table)) {
+ 		ERROR("unable to read id index table\n");
+ 		err = PTR_ERR(msblk->id_table);
+--- a/fs/squashfs/xattr.h
++++ b/fs/squashfs/xattr.h
+@@ -30,8 +30,16 @@ extern int squashfs_xattr_lookup(struct
+ static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
+ 		u64 start, u64 *xattr_table_start, int *xattr_ids)
+ {
++	struct squashfs_xattr_id_table *id_table;
++
++	id_table = squashfs_read_table(sb, start, sizeof(*id_table));
++	if (IS_ERR(id_table))
++		return (__le64 *) id_table;
++
++	*xattr_table_start = le64_to_cpu(id_table->xattr_table_start);
++	kfree(id_table);
++
+ 	ERROR("Xattrs in filesystem, these will be ignored\n");
+-	*xattr_table_start = start;
+ 	return ERR_PTR(-ENOTSUPP);
  }
  
-+extern const char *bdi_unknown_name;
-+
-+static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
-+{
-+	if (!bdi || !bdi->dev)
-+		return bdi_unknown_name;
-+	return dev_name(bdi->dev);
-+}
-+
- #endif	/* _LINUX_BACKING_DEV_H */
-diff --git a/include/trace/events/writeback.h b/include/trace/events/writeback.h
-index a8066afb4b0ef..cb2a5016247af 100644
---- a/include/trace/events/writeback.h
-+++ b/include/trace/events/writeback.h
-@@ -66,8 +66,8 @@ TRACE_EVENT(writeback_dirty_page,
- 
- 	TP_fast_assign(
- 		strscpy_pad(__entry->name,
--			    mapping ? dev_name(inode_to_bdi(mapping->host)->dev) : "(unknown)",
--			    32);
-+			    bdi_dev_name(mapping ? inode_to_bdi(mapping->host) :
-+					 NULL), 32);
- 		__entry->ino = mapping ? mapping->host->i_ino : 0;
- 		__entry->index = page->index;
- 	),
-@@ -96,8 +96,7 @@ DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
- 		struct backing_dev_info *bdi = inode_to_bdi(inode);
- 
- 		/* may be called for files on pseudo FSes w/ unregistered bdi */
--		strscpy_pad(__entry->name,
--			    bdi->dev ? dev_name(bdi->dev) : "(unknown)", 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
- 		__entry->ino		= inode->i_ino;
- 		__entry->state		= inode->i_state;
- 		__entry->flags		= flags;
-@@ -177,7 +176,7 @@ DECLARE_EVENT_CLASS(writeback_write_inode_template,
- 
- 	TP_fast_assign(
- 		strscpy_pad(__entry->name,
--			    dev_name(inode_to_bdi(inode)->dev), 32);
-+			    bdi_dev_name(inode_to_bdi(inode)), 32);
- 		__entry->ino		= inode->i_ino;
- 		__entry->sync_mode	= wbc->sync_mode;
- 		__entry->cgroup_ino	= __trace_wbc_assign_cgroup(wbc);
-@@ -220,9 +219,7 @@ DECLARE_EVENT_CLASS(writeback_work_class,
- 		__field(unsigned int, cgroup_ino)
- 	),
- 	TP_fast_assign(
--		strscpy_pad(__entry->name,
--			    wb->bdi->dev ? dev_name(wb->bdi->dev) :
--			    "(unknown)", 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
- 		__entry->nr_pages = work->nr_pages;
- 		__entry->sb_dev = work->sb ? work->sb->s_dev : 0;
- 		__entry->sync_mode = work->sync_mode;
-@@ -275,7 +272,7 @@ DECLARE_EVENT_CLASS(writeback_class,
- 		__field(unsigned int, cgroup_ino)
- 	),
- 	TP_fast_assign(
--		strscpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
- 		__entry->cgroup_ino = __trace_wb_assign_cgroup(wb);
- 	),
- 	TP_printk("bdi %s: cgroup_ino=%u",
-@@ -298,7 +295,7 @@ TRACE_EVENT(writeback_bdi_register,
- 		__array(char, name, 32)
- 	),
- 	TP_fast_assign(
--		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
- 	),
- 	TP_printk("bdi %s",
- 		__entry->name
-@@ -323,7 +320,7 @@ DECLARE_EVENT_CLASS(wbc_class,
- 	),
- 
- 	TP_fast_assign(
--		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
- 		__entry->nr_to_write	= wbc->nr_to_write;
- 		__entry->pages_skipped	= wbc->pages_skipped;
- 		__entry->sync_mode	= wbc->sync_mode;
-@@ -374,7 +371,7 @@ TRACE_EVENT(writeback_queue_io,
- 		__field(unsigned int,	cgroup_ino)
- 	),
- 	TP_fast_assign(
--		strncpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
-+		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
- 		__entry->older	= dirtied_before;
- 		__entry->age	= (jiffies - dirtied_before) * 1000 / HZ;
- 		__entry->moved	= moved;
-@@ -459,7 +456,7 @@ TRACE_EVENT(bdi_dirty_ratelimit,
- 	),
- 
- 	TP_fast_assign(
--		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
-+		strscpy_pad(__entry->bdi, bdi_dev_name(wb->bdi), 32);
- 		__entry->write_bw	= KBps(wb->write_bandwidth);
- 		__entry->avg_write_bw	= KBps(wb->avg_write_bandwidth);
- 		__entry->dirty_rate	= KBps(dirty_rate);
-@@ -524,7 +521,7 @@ TRACE_EVENT(balance_dirty_pages,
- 
- 	TP_fast_assign(
- 		unsigned long freerun = (thresh + bg_thresh) / 2;
--		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
-+		strscpy_pad(__entry->bdi, bdi_dev_name(wb->bdi), 32);
- 
- 		__entry->limit		= global_wb_domain.dirty_limit;
- 		__entry->setpoint	= (global_wb_domain.dirty_limit +
-@@ -585,7 +582,7 @@ TRACE_EVENT(writeback_sb_inodes_requeue,
- 
- 	TP_fast_assign(
- 		strscpy_pad(__entry->name,
--			    dev_name(inode_to_bdi(inode)->dev), 32);
-+			    bdi_dev_name(inode_to_bdi(inode)), 32);
- 		__entry->ino		= inode->i_ino;
- 		__entry->state		= inode->i_state;
- 		__entry->dirtied_when	= inode->dirtied_when;
-@@ -659,7 +656,7 @@ DECLARE_EVENT_CLASS(writeback_single_inode_template,
- 
- 	TP_fast_assign(
- 		strscpy_pad(__entry->name,
--			    dev_name(inode_to_bdi(inode)->dev), 32);
-+			    bdi_dev_name(inode_to_bdi(inode)), 32);
- 		__entry->ino		= inode->i_ino;
- 		__entry->state		= inode->i_state;
- 		__entry->dirtied_when	= inode->dirtied_when;
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 6fa31754eadd9..f5a5e9f82b221 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -19,6 +19,7 @@ struct backing_dev_info noop_backing_dev_info = {
- EXPORT_SYMBOL_GPL(noop_backing_dev_info);
- 
- static struct class *bdi_class;
-+const char *bdi_unknown_name = "(unknown)";
- 
- /*
-  * bdi_lock protects updates to bdi_list. bdi_list has RCU reader side
--- 
-2.27.0
-
 
 
