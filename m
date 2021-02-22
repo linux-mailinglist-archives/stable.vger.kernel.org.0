@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 066F0321736
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 055EB32171F
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231477AbhBVMoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:44:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52870 "EHLO mail.kernel.org"
+        id S231425AbhBVMmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:42:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231289AbhBVMmg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:42:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D59364F2D;
-        Mon, 22 Feb 2021 12:39:45 +0000 (UTC)
+        id S230438AbhBVMlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:41:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B3A164F18;
+        Mon, 22 Feb 2021 12:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997586;
-        bh=vwY4oJVsAOPWacoX4pBi7QpzcbEii844hqLpg8lt2B0=;
+        s=korg; t=1613997550;
+        bh=IYtOLjs4R1so+RYLicGg4TanI0IUpraLK+Ef2FaJVnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSLDJc7wcEynAnaOJKo2Sv7e0rYDDmoBQrLBVkheB52sd8w9TLk0P+nuWe7rPzEx+
-         WAkwrLe5bx/AP8wQvuqmuWeXoYa/p03BxFwo+76SpwYH+HbKvnWFjso7Ca0Iu5YEtl
-         CcoaMZ0mvKm0dfpVG+f2s2ZzOCJK1Hsl8asC5+8A=
+        b=D0ZgfX41wFARmjbL1HTe7MbtjwfdPq9rKg5fgaUoDE80dW3Tn0gsNzUOhXSMhQWj4
+         R3eineGc73WAMbChKGT1pFBQB5LdYsxRVc0X1IkEbb/8ldTggl48FWma6OPpnO68WX
+         /BxSvE2bit18U0i99HwLg6hEW9PCenl6O0lzEqOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/35] iwlwifi: mvm: guard against device removal in reprobe
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 35/57] net/vmw_vsock: improve locking in vsock_connect_timeout()
 Date:   Mon, 22 Feb 2021 13:36:01 +0100
-Message-Id: <20210222121018.192525470@linuxfoundation.org>
+Message-Id: <20210222121030.268965648@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-[ Upstream commit 7a21b1d4a728a483f07c638ccd8610d4b4f12684 ]
+commit 3d0bc44d39bca615b72637e340317b7899b7f911 upstream.
 
-If we get into a problem severe enough to attempt a reprobe,
-we schedule a worker to do that. However, if the problem gets
-more severe and the device is actually destroyed before this
-worker has a chance to run, we use a free device. Bump up the
-reference count of the device until the worker runs to avoid
-this situation.
+A possible locking issue in vsock_connect_timeout() was recognized by
+Eric Dumazet which might cause a null pointer dereference in
+vsock_transport_cancel_pkt(). This patch assures that
+vsock_transport_cancel_pkt() will be called within the lock, so a race
+condition won't occur which could result in vsk->transport to be set to NULL.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20210122144849.871f0892e4b2.I94819e11afd68d875f3e242b98bef724b8236f1e@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 380feae0def7 ("vsock: cancel packets when failing to connect")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/trinity-f8e0937a-cf0e-4d80-a76e-d9a958ba3ef1-1612535522360@3c-app-gmx-bap12
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/iwlwifi/mvm/ops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/iwlwifi/mvm/ops.c b/drivers/net/wireless/iwlwifi/mvm/ops.c
-index 13c97f665ba88..bb81261de45fa 100644
---- a/drivers/net/wireless/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/iwlwifi/mvm/ops.c
-@@ -909,6 +909,7 @@ static void iwl_mvm_reprobe_wk(struct work_struct *wk)
- 	reprobe = container_of(wk, struct iwl_mvm_reprobe, work);
- 	if (device_reprobe(reprobe->dev))
- 		dev_err(reprobe->dev, "reprobe failed!\n");
-+	put_device(reprobe->dev);
- 	kfree(reprobe);
- 	module_put(THIS_MODULE);
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1114,7 +1114,6 @@ static void vsock_connect_timeout(struct
+ {
+ 	struct sock *sk;
+ 	struct vsock_sock *vsk;
+-	int cancel = 0;
+ 
+ 	vsk = container_of(work, struct vsock_sock, connect_work.work);
+ 	sk = sk_vsock(vsk);
+@@ -1125,11 +1124,9 @@ static void vsock_connect_timeout(struct
+ 		sk->sk_state = TCP_CLOSE;
+ 		sk->sk_err = ETIMEDOUT;
+ 		sk->sk_error_report(sk);
+-		cancel = 1;
++		vsock_transport_cancel_pkt(vsk);
+ 	}
+ 	release_sock(sk);
+-	if (cancel)
+-		vsock_transport_cancel_pkt(vsk);
+ 
+ 	sock_put(sk);
  }
-@@ -991,7 +992,7 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
- 			module_put(THIS_MODULE);
- 			return;
- 		}
--		reprobe->dev = mvm->trans->dev;
-+		reprobe->dev = get_device(mvm->trans->dev);
- 		INIT_WORK(&reprobe->work, iwl_mvm_reprobe_wk);
- 		schedule_work(&reprobe->work);
- 	} else if (mvm->cur_ucode == IWL_UCODE_REGULAR) {
--- 
-2.27.0
-
 
 
