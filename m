@@ -2,100 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EF97321486
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 11:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA4B321495
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 11:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230211AbhBVKzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 05:55:16 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:12934 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbhBVKzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 05:55:12 -0500
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4DkfD25D29zjQ63;
-        Mon, 22 Feb 2021 18:53:06 +0800 (CST)
-Received: from [10.67.102.197] (10.67.102.197) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Mon, 22 Feb 2021 18:54:13 +0800
-Subject: Re: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return
- value when owner is exiting
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <sashal@kernel.org>, <tglx@linutronix.de>, <wangle6@huawei.com>,
-        <zhengyejian1@huawei.com>
-References: <20210222070328.102384-1-nixiaoming@huawei.com>
- <20210222070328.102384-2-nixiaoming@huawei.com> <YDOEZhmKqjTVxtMn@kroah.com>
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-Message-ID: <3bc570f6-f8af-b0a2-4d62-13ed4adc1f33@huawei.com>
-Date:   Mon, 22 Feb 2021 18:54:06 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.0.1
+        id S230368AbhBVK5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 05:57:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230318AbhBVK5k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 05:57:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1185364E00;
+        Mon, 22 Feb 2021 10:56:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1613991419;
+        bh=0UStbZg0k5k6msHnyoYQaF5MawOBNH9Mi5vMZxhMoqM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t3ufcZxAbm7VFQsHgKfHScSPe43Nz+KXl666n+2YrkUbBTTDXdcKItiEAFLk6mCWS
+         23b19XQj4B1LQQ2tSFxpxGwsEJUFGG5yQcoCXkrNdhebgsXitxyMJhZ9c9dTKLMVdF
+         a3blk3RRH+kUnaj/lCDLngA+AbW9TxvqUuGeAz34=
+Date:   Mon, 22 Feb 2021 11:56:57 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     manish.narani@xilinx.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] usb: gadget: u_ether: Fix MTU size
+ mismatch with RX packet" failed to apply to 4.14-stable tree
+Message-ID: <YDON+c2Iic1bVjTm@kroah.com>
+References: <1610354613231213@kroah.com>
+ <YC2ECvwJvBaZ8f/1@debian>
 MIME-Version: 1.0
-In-Reply-To: <YDOEZhmKqjTVxtMn@kroah.com>
-Content-Type: text/plain; charset="gbk"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.197]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YC2ECvwJvBaZ8f/1@debian>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/2/22 18:16, Greg KH wrote:
-> On Mon, Feb 22, 2021 at 03:03:28PM +0800, Xiaoming Ni wrote:
->> From: Thomas Gleixner<tglx@linutronix.de>
->>
->> commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
-> This commit is already in the 4.9 tree.  If the backport was incorrect,
-> say that here, and describe what went wrong and why this commit fixes
-> it.
+On Wed, Feb 17, 2021 at 09:00:58PM +0000, Sudip Mukherjee wrote:
+> Hi Greg,
 > 
-> Also state what commit this fixes as well, otherwise this changelog just
-> looks like it is being applied again to the tree, which doesn't make
-> much sense.
+> On Mon, Jan 11, 2021 at 09:43:33AM +0100, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> thanks,
-> 
-> greg k-h
-> .
+> Here is the backport along with eea52743eb56 ("USB: Gadget Ethernet: Re-enable Jumbo frames.")
+> for easy backporting. And looks like that should have been in stable by itself.
 
-I wrote a cover for it. but forgot to adjust the title of the cover:
- 
-https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
+Now queued up, thanks.
 
-
-I found a dead code in the queue/4.9 branch of the stable-rc repository.
-
-2021-02-03:
-commit c27f392040e2f6 ("futex: Provide distinct return value when
-  owner is exiting")
-	The function handle_exit_race does not exist. Therefore, the
-	change in handle_exit_race() is ignored in the patch round.
-
-2021-02-22:
-commit e55cb811e612 ("futex: Cure exit race")
-	Define the handle_exit_race() function,
-	but no branch in the function returns EBUSY.
-	As a result, dead code occurs in the attach_to_pi_owner():
-
-		int ret = handle_exit_race(uaddr, uval, p);
-		...
-		if (ret == -EBUSY)
-			*exiting = p; /* dead code */
-
-To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit 
-race"),
-or install a patch to incorporate the changes in handle_exit_race().
-
-I am unfamiliar with the processing of the stable-rc queue branch,
-and I cannot find the patch mail of the current branch in
-	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
-Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
-  return value when owner is exiting").
-  And wrote a cover (but forgot to adjust the title of the cover):
- 
-https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
-
-Thanks
-Xiaoming Ni
-
-
+greg k-h
