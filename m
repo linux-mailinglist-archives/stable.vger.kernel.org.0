@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62112321700
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED43A321760
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:49:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbhBVMlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:41:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52870 "EHLO mail.kernel.org"
+        id S231605AbhBVMrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:47:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230417AbhBVMjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:39:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BABCF64F10;
-        Mon, 22 Feb 2021 12:38:16 +0000 (UTC)
+        id S231341AbhBVMnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:43:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5789F64F4C;
+        Mon, 22 Feb 2021 12:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997497;
-        bh=X+a61uzbNQ7XdzXCaun0E2o+3WKMaHD+s0t2X+KG6VM=;
+        s=korg; t=1613997666;
+        bh=1j4bC7sPzvGyQFXvKx2pUeSYrd/Twrpp70EXC6RSFlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdbrJWatG+3BtV8Aa0xnpGXPvnlsSrdG5IFDBXZACH7fblMUT2hVy1byIAmvmHk4M
-         tUwA2vc/PlJ9UPojJxgxui6P8vpNBzZHOjH9ky8BaQme7qPppUJ4M/WGhdu2v+YUMt
-         GWPcjo3jL3lTF9YiKl/vDDWMH3L+uitzHgn1LSBQ=
+        b=EgsOBwbJbx2yoCTh70oMY0XBVNAYC5KkbRSOsopxcFLIFJUMt0LMTcl+uxzGZpNld
+         RbvMryxyRVv2W3YZYOuAgYR/Onou5kHh9OCJq3zfO65CferJ7VAaNeenp9JzF1geDQ
+         gAOYmo1l7B54TqKvha0x/ZsN4ofpjVcdCZDOu2cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AC <achirvasub@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 4.14 41/57] x86/build: Disable CET instrumentation in the kernel for 32-bit too
-Date:   Mon, 22 Feb 2021 13:36:07 +0100
-Message-Id: <20210222121031.762852146@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Tobin C. Harding" <tobin@kernel.org>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/49] lib/string: Add strscpy_pad() function
+Date:   Mon, 22 Feb 2021 13:36:08 +0100
+Message-Id: <20210222121025.280261387@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Tobin C. Harding <tobin@kernel.org>
 
-commit 256b92af784d5043eeb7d559b6d5963dcc2ecb10 upstream.
+[ Upstream commit 458a3bf82df4fe1f951d0f52b1e0c1e9d5a88a3b ]
 
-Commit
+We have a function to copy strings safely and we have a function to copy
+strings and zero the tail of the destination (if source string is
+shorter than destination buffer) but we do not have a function to do
+both at once.  This means developers must write this themselves if they
+desire this functionality.  This is a chore, and also leaves us open to
+off by one errors unnecessarily.
 
-  20bf2b378729 ("x86/build: Disable CET instrumentation in the kernel")
+Add a function that calls strscpy() then memset()s the tail to zero if
+the source string is shorter than the destination buffer.
 
-disabled CET instrumentation which gets added by default by the Ubuntu
-gcc9 and 10 by default, but did that only for 64-bit builds. It would
-still fail when building a 32-bit target. So disable CET for all x86
-builds.
-
-Fixes: 20bf2b378729 ("x86/build: Disable CET instrumentation in the kernel")
-Reported-by: AC <achirvasub@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: AC <achirvasub@gmail.com>
-Link: https://lkml.kernel.org/r/YCCIgMHkzh/xT4ex@arch-chirva.localdomain
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Signed-off-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/string.h |  4 ++++
+ lib/string.c           | 47 +++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 44 insertions(+), 7 deletions(-)
 
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -62,6 +62,9 @@ endif
- KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
- KBUILD_CFLAGS += $(call cc-option,-mno-avx,)
- 
-+# Intel CET isn't enabled in the kernel
-+KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
+diff --git a/include/linux/string.h b/include/linux/string.h
+index 42eed573ebb63..66a91f5a34499 100644
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -29,6 +29,10 @@ size_t strlcpy(char *, const char *, size_t);
+ #ifndef __HAVE_ARCH_STRSCPY
+ ssize_t strscpy(char *, const char *, size_t);
+ #endif
 +
- ifeq ($(CONFIG_X86_32),y)
-         BITS := 32
-         UTS_MACHINE := i386
-@@ -138,9 +141,6 @@ else
-         KBUILD_CFLAGS += -mno-red-zone
-         KBUILD_CFLAGS += -mcmodel=kernel
++/* Wraps calls to strscpy()/memset(), no arch specific code required */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ extern char * strcat(char *, const char *);
+ #endif
+diff --git a/lib/string.c b/lib/string.c
+index d099762a9bd60..8fe13371aed7a 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -157,11 +157,9 @@ EXPORT_SYMBOL(strlcpy);
+  * @src: Where to copy the string from
+  * @count: Size of destination buffer
+  *
+- * Copy the string, or as much of it as fits, into the dest buffer.
+- * The routine returns the number of characters copied (not including
+- * the trailing NUL) or -E2BIG if the destination buffer wasn't big enough.
+- * The behavior is undefined if the string buffers overlap.
+- * The destination buffer is always NUL terminated, unless it's zero-sized.
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always NUL terminated, unless it's zero-sized.
+  *
+  * Preferred to strlcpy() since the API doesn't require reading memory
+  * from the src string beyond the specified "count" bytes, and since
+@@ -171,8 +169,10 @@ EXPORT_SYMBOL(strlcpy);
+  *
+  * Preferred to strncpy() since it always returns a valid string, and
+  * doesn't unnecessarily force the tail of the destination buffer to be
+- * zeroed.  If the zeroing is desired, it's likely cleaner to use strscpy()
+- * with an overflow test, then just memset() the tail of the dest buffer.
++ * zeroed.  If zeroing is desired please use strscpy_pad().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
+  */
+ ssize_t strscpy(char *dest, const char *src, size_t count)
+ {
+@@ -259,6 +259,39 @@ char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
+ }
+ EXPORT_SYMBOL(stpcpy);
  
--	# Intel CET isn't enabled in the kernel
--	KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
--
-         # -funit-at-a-time shrinks the kernel .text considerably
-         # unfortunately it makes reading oopses harder.
-         KBUILD_CFLAGS += $(call cc-option,-funit-at-a-time)
++/**
++ * strscpy_pad() - Copy a C-string into a sized buffer
++ * @dest: Where to copy the string to
++ * @src: Where to copy the string from
++ * @count: Size of destination buffer
++ *
++ * Copy the string, or as much of it as fits, into the dest buffer.  The
++ * behavior is undefined if the string buffers overlap.  The destination
++ * buffer is always %NUL terminated, unless it's zero-sized.
++ *
++ * If the source string is shorter than the destination buffer, zeros
++ * the tail of the destination buffer.
++ *
++ * For full explanation of why you may want to consider using the
++ * 'strscpy' functions please see the function docstring for strscpy().
++ *
++ * Return: The number of characters copied (not including the trailing
++ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
++ */
++ssize_t strscpy_pad(char *dest, const char *src, size_t count)
++{
++	ssize_t written;
++
++	written = strscpy(dest, src, count);
++	if (written < 0 || written == count - 1)
++		return written;
++
++	memset(dest + written + 1, 0, count - written - 1);
++
++	return written;
++}
++EXPORT_SYMBOL(strscpy_pad);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
+-- 
+2.27.0
+
 
 
