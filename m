@@ -2,17 +2,17 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1AA32111B
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 08:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B54B9321119
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 08:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbhBVHE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 02:04:27 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:12630 "EHLO
+        id S229907AbhBVHEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 02:04:23 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:12631 "EHLO
         szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229996AbhBVHE0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 02:04:26 -0500
+        with ESMTP id S229902AbhBVHEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 02:04:22 -0500
 Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DkY5T4tmhz16BKd;
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DkY5T55z0z16BLJ;
         Mon, 22 Feb 2021 15:02:05 +0800 (CST)
 Received: from use12-sp2.huawei.com (10.67.189.174) by
  DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
@@ -23,10 +23,12 @@ To:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
         <tglx@linutronix.de>
 CC:     <nixiaoming@huawei.com>, <wangle6@huawei.com>,
         <zhengyejian1@huawei.com>
-Subject: [PATCH stable-rc queue/4.9 0/1] repatch 
-Date:   Mon, 22 Feb 2021 15:03:27 +0800
-Message-ID: <20210222070328.102384-1-nixiaoming@huawei.com>
+Subject: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return value when owner is exiting
+Date:   Mon, 22 Feb 2021 15:03:28 +0800
+Message-ID: <20210222070328.102384-2-nixiaoming@huawei.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210222070328.102384-1-nixiaoming@huawei.com>
+References: <20210222070328.102384-1-nixiaoming@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -36,42 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I found a dead code in the queue/4.9 branch of the stable-rc repository.
+From: Thomas Gleixner <tglx@linutronix.de>
 
-2021-02-03:
-commit c27f392040e2f6 ("futex: Provide distinct return value when
- owner is exiting")
-	The function handle_exit_race does not exist. Therefore, the
-	change in handle_exit_race() is ignored in the patch round.
+commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
 
-2021-02-22:
-commit e55cb811e612 ("futex: Cure exit race")
-	Define the handle_exit_race() function,
-	but no branch in the function returns EBUSY.
-	As a result, dead code occurs in the attach_to_pi_owner():
+attach_to_pi_owner() returns -EAGAIN for various cases:
 
-		int ret = handle_exit_race(uaddr, uval, p);
-		...
-		if (ret == -EBUSY)
-			*exiting = p; /* dead code */
+ - Owner task is exiting
+ - Futex value has changed
 
-To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit race"), 
-or install a patch to incorporate the changes in handle_exit_race().
+The caller drops the held locks (hash bucket, mmap_sem) and retries the
+operation. In case of the owner task exiting this can result in a live
+lock.
 
-I am unfamiliar with the processing of the stable-rc queue branch,
-and I cannot find the patch mail of the current branch in
-	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
-Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
- return value when owner is exiting").
+As a preparatory step for seperating those cases, provide a distinct return
+value (EBUSY) for the owner exiting case.
 
------
+No functional change.
 
-Thomas Gleixner (1):
-  futex: Provide distinct return value when owner is exiting
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20191106224556.935606117@linutronix.de
 
+[nixiaoming: Modify handle_exit_race() to avoid dead code.]
+Cc: stable@vger.kernel.org # queue/4.9
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+---
  kernel/futex.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/kernel/futex.c b/kernel/futex.c
+index b65dbb5d60bb..0fd785410150 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1207,11 +1207,11 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
+ 	u32 uval2;
+ 
+ 	/*
+-	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
+-	 * for it to finish.
++	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
++	 * caller that the alleged owner is busy.
+ 	 */
+ 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
+-		return -EAGAIN;
++		return -EBUSY;
+ 
+ 	/*
+ 	 * Reread the user space value to handle the following situation:
 -- 
 2.27.0
 
