@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276D432173B
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3D8321706
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbhBVMol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:44:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
+        id S231340AbhBVMlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:41:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231338AbhBVMmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:42:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D4AE64F2C;
-        Mon, 22 Feb 2021 12:39:52 +0000 (UTC)
+        id S231454AbhBVMjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:39:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01B6B64F0B;
+        Mon, 22 Feb 2021 12:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997593;
-        bh=YFOsmi5Ootxj9TIjtEJQUafDBl1z442k+pJe9rZEhoA=;
+        s=korg; t=1613997492;
+        bh=dVLQvtbsKCojXjoXcwI0+T5ojVYY+xl9GaZtIR/vDes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMxB9QOBWFk0G4/M43NchZWJTaNZyKp7afjAJJnRbYeiXU3uQaI3dTGwcpoD8TUzG
-         k/av9v16BH1Ls7ZHkCNSmKpX0c5l9aucPsDD8GIwRFzp2kaxJm24aSV3nIW90hBF5K
-         yi2BcQ6NuomUZfpWISzA4z3xyX0+ushTFrlCJpBA=
+        b=RscYSy1G8YoVgC3ki59tLtwJncu5jrJYLKgblpytYnXZBzN+rMcrJ+voXO3tRcobR
+         omd6GbASEF+hpmPFTNERs4YzCczKkcTxhCmnPv07PnMHXX32+u3gfm+85ve0ig+WQH
+         LFTw513yzv34kCeIyH4d3CToaHEnLG96d5K0THmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Tobin C. Harding" <tobin@kernel.org>,
-        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/35] lib/string: Add strscpy_pad() function
-Date:   Mon, 22 Feb 2021 13:36:04 +0100
-Message-Id: <20210222121018.650380893@linuxfoundation.org>
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/57] i2c: stm32f7: fix configuration of the digital filter
+Date:   Mon, 22 Feb 2021 13:36:05 +0100
+Message-Id: <20210222121030.706809562@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121013.581198717@linuxfoundation.org>
-References: <20210222121013.581198717@linuxfoundation.org>
+In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
+References: <20210222121027.174911182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,116 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobin C. Harding <tobin@kernel.org>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 458a3bf82df4fe1f951d0f52b1e0c1e9d5a88a3b ]
+[ Upstream commit 3d6a3d3a2a7a3a60a824e7c04e95fd50dec57812 ]
 
-We have a function to copy strings safely and we have a function to copy
-strings and zero the tail of the destination (if source string is
-shorter than destination buffer) but we do not have a function to do
-both at once.  This means developers must write this themselves if they
-desire this functionality.  This is a chore, and also leaves us open to
-off by one errors unnecessarily.
+The digital filter related computation are present in the driver
+however the programming of the filter within the IP is missing.
+The maximum value for the DNF is wrong and should be 15 instead of 16.
 
-Add a function that calls strscpy() then memset()s the tail to zero if
-the source string is shorter than the destination buffer.
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
 
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Signed-off-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/string.h |  4 ++++
- lib/string.c           | 47 +++++++++++++++++++++++++++++++++++-------
- 2 files changed, 44 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/string.h b/include/linux/string.h
-index 870268d42ae7d..7da409760cf18 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -28,6 +28,10 @@ size_t strlcpy(char *, const char *, size_t);
- #ifndef __HAVE_ARCH_STRSCPY
- ssize_t strscpy(char *, const char *, size_t);
- #endif
-+
-+/* Wraps calls to strscpy()/memset(), no arch specific code required */
-+ssize_t strscpy_pad(char *dest, const char *src, size_t count);
-+
- #ifndef __HAVE_ARCH_STRCAT
- extern char * strcat(char *, const char *);
- #endif
-diff --git a/lib/string.c b/lib/string.c
-index 7f4baad6fb193..4351ec43cd6b8 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -157,11 +157,9 @@ EXPORT_SYMBOL(strlcpy);
-  * @src: Where to copy the string from
-  * @count: Size of destination buffer
-  *
-- * Copy the string, or as much of it as fits, into the dest buffer.
-- * The routine returns the number of characters copied (not including
-- * the trailing NUL) or -E2BIG if the destination buffer wasn't big enough.
-- * The behavior is undefined if the string buffers overlap.
-- * The destination buffer is always NUL terminated, unless it's zero-sized.
-+ * Copy the string, or as much of it as fits, into the dest buffer.  The
-+ * behavior is undefined if the string buffers overlap.  The destination
-+ * buffer is always NUL terminated, unless it's zero-sized.
-  *
-  * Preferred to strlcpy() since the API doesn't require reading memory
-  * from the src string beyond the specified "count" bytes, and since
-@@ -171,8 +169,10 @@ EXPORT_SYMBOL(strlcpy);
-  *
-  * Preferred to strncpy() since it always returns a valid string, and
-  * doesn't unnecessarily force the tail of the destination buffer to be
-- * zeroed.  If the zeroing is desired, it's likely cleaner to use strscpy()
-- * with an overflow test, then just memset() the tail of the dest buffer.
-+ * zeroed.  If zeroing is desired please use strscpy_pad().
-+ *
-+ * Return: The number of characters copied (not including the trailing
-+ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
-  */
- ssize_t strscpy(char *dest, const char *src, size_t count)
- {
-@@ -259,6 +259,39 @@ char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
- }
- EXPORT_SYMBOL(stpcpy);
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 14f60751729e7..9768921a164c0 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -42,6 +42,8 @@
  
-+/**
-+ * strscpy_pad() - Copy a C-string into a sized buffer
-+ * @dest: Where to copy the string to
-+ * @src: Where to copy the string from
-+ * @count: Size of destination buffer
-+ *
-+ * Copy the string, or as much of it as fits, into the dest buffer.  The
-+ * behavior is undefined if the string buffers overlap.  The destination
-+ * buffer is always %NUL terminated, unless it's zero-sized.
-+ *
-+ * If the source string is shorter than the destination buffer, zeros
-+ * the tail of the destination buffer.
-+ *
-+ * For full explanation of why you may want to consider using the
-+ * 'strscpy' functions please see the function docstring for strscpy().
-+ *
-+ * Return: The number of characters copied (not including the trailing
-+ *         %NUL) or -E2BIG if the destination buffer wasn't big enough.
-+ */
-+ssize_t strscpy_pad(char *dest, const char *src, size_t count)
-+{
-+	ssize_t written;
+ /* STM32F7 I2C control 1 */
+ #define STM32F7_I2C_CR1_ANFOFF			BIT(12)
++#define STM32F7_I2C_CR1_DNF_MASK		GENMASK(11, 8)
++#define STM32F7_I2C_CR1_DNF(n)			(((n) & 0xf) << 8)
+ #define STM32F7_I2C_CR1_ERRIE			BIT(7)
+ #define STM32F7_I2C_CR1_TCIE			BIT(6)
+ #define STM32F7_I2C_CR1_STOPIE			BIT(5)
+@@ -95,7 +97,7 @@
+ #define STM32F7_I2C_MAX_LEN			0xff
+ 
+ #define STM32F7_I2C_DNF_DEFAULT			0
+-#define STM32F7_I2C_DNF_MAX			16
++#define STM32F7_I2C_DNF_MAX			15
+ 
+ #define STM32F7_I2C_ANALOG_FILTER_ENABLE	1
+ #define STM32F7_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
+@@ -543,6 +545,13 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
+ 	else
+ 		stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
+ 				     STM32F7_I2C_CR1_ANFOFF);
 +
-+	written = strscpy(dest, src, count);
-+	if (written < 0 || written == count - 1)
-+		return written;
++	/* Program the Digital Filter */
++	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
++			     STM32F7_I2C_CR1_DNF_MASK);
++	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
++			     STM32F7_I2C_CR1_DNF(i2c_dev->setup.dnf));
 +
-+	memset(dest + written + 1, 0, count - written - 1);
-+
-+	return written;
-+}
-+EXPORT_SYMBOL(strscpy_pad);
-+
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
+ 	stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
+ 			     STM32F7_I2C_CR1_PE);
+ }
 -- 
 2.27.0
 
