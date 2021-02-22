@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4401D32163A
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A619A321613
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbhBVMTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:19:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44744 "EHLO mail.kernel.org"
+        id S230203AbhBVMRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:17:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229518AbhBVMQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:16:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADFC164E83;
-        Mon, 22 Feb 2021 12:16:24 +0000 (UTC)
+        id S230370AbhBVMPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:15:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D17964EF5;
+        Mon, 22 Feb 2021 12:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613996185;
-        bh=h7ECxo7KSLQ+Cs+Nn7UsuDUa/mR25ezkyhmT5TaHxAo=;
+        s=korg; t=1613996046;
+        bh=9MYjw5+Dclh5PmOmgw5T+XVe17KC2oi9ZONvzdVVl6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muHQ0L6l/KU+L+rWiXWI2TRM7Qn41MH14XntWcXQU9c6VUoyjkqvjltT/uiV4paGX
-         jmiSsNc4rv5qES7o4kQ0dRW67zWFCYUe1L6OP7y83pNcCVonx5CUBXro3I/MjEP3gz
-         Vt8kwgn0rpVD9GEluU3jydHgYWPrbIxpm8tCTClo=
+        b=gy3pf4+X9NdlY1oa/MpjJKbB89nY3YT0CJYsQdzjdsf9cvGq3gGOlykA7yy1Nn8j9
+         B2AAdNUMPcretd0H1oYbuGHeDZ4etOeeCfGO+J3QuxOVsLUvlr2/VJQs/4hNHIlIlU
+         tPPMxKibuO6edc1cwySrBnxpdpeZbBQXhkcLdlmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Druzhinin <igor.druzhinin@citrix.com>,
-        Juergen Gross <jgross@suse.com>, Wei Liu <wl@xen.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/50] xen/netback: avoid race in xenvif_rx_ring_slots_available()
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 17/29] Xen/x86: also check kernel mapping in set_foreign_p2m_mapping()
 Date:   Mon, 22 Feb 2021 13:13:11 +0100
-Message-Id: <20210222121023.860892093@linuxfoundation.org>
+Message-Id: <20210222121022.438590607@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121019.444399883@linuxfoundation.org>
+References: <20210222121019.444399883@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit ec7d8e7dd3a59528e305a18e93f1cb98f7faf83b ]
+commit b512e1b077e5ccdbd6e225b15d934ab12453b70a upstream.
 
-Since commit 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
-xenvif_rx_ring_slots_available() is no longer called only from the rx
-queue kernel thread, so it needs to access the rx queue with the
-associated queue held.
+We should not set up further state if either mapping failed; paying
+attention to just the user mapping's status isn't enough.
 
-Reported-by: Igor Druzhinin <igor.druzhinin@citrix.com>
-Fixes: 23025393dbeb3b8b3 ("xen/netback: use lateeoi irq binding")
+Also use GNTST_okay instead of implying its value (zero).
+
+This is part of XSA-361.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Wei Liu <wl@xen.org>
-Link: https://lore.kernel.org/r/20210202070938.7863-1-jgross@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/xen-netback/rx.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/xen/p2m.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index 9b62f65b630e4..48e2006f96ce6 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -38,10 +38,15 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	RING_IDX prod, cons;
- 	struct sk_buff *skb;
- 	int needed;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -712,7 +712,8 @@ int set_foreign_p2m_mapping(struct gntta
+ 		unsigned long mfn, pfn;
  
- 	skb = skb_peek(&queue->rx_queue);
--	if (!skb)
-+	if (!skb) {
-+		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
- 		return false;
-+	}
+ 		/* Do not add to override if the map failed. */
+-		if (map_ops[i].status)
++		if (map_ops[i].status != GNTST_okay ||
++		    (kmap_ops && kmap_ops[i].status != GNTST_okay))
+ 			continue;
  
- 	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
- 	if (skb_is_gso(skb))
-@@ -49,6 +54,8 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	if (skb->sw_hash)
- 		needed++;
- 
-+	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
- 	do {
- 		prod = queue->rx.sring->req_prod;
- 		cons = queue->rx.req_cons;
--- 
-2.27.0
-
+ 		if (map_ops[i].flags & GNTMAP_contains_pte) {
 
 
