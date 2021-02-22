@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF9932170F
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1057321798
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231373AbhBVMmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:42:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S231564AbhBVMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231474AbhBVMjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:39:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22D2F64E83;
-        Mon, 22 Feb 2021 12:38:30 +0000 (UTC)
+        id S231592AbhBVMq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:46:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A03964F1C;
+        Mon, 22 Feb 2021 12:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997512;
-        bh=+oYNYpsaeV4KKAxdzcy7SUYMvSfGV5fq4rHpoj7A70U=;
+        s=korg; t=1613997729;
+        bh=v4mVMlTseaZnhl6T1nV56LIY6+wTCLEyIChR00NhFeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGr5/wifT7ivK3nMW2crBZHEXPEK2b1JX7FOnq+/geqQZqoSTlt1Lo0C//bwmNaMW
-         cwM6WJWoxeSgLX9GkbPhOW8NnN8YTypJc610L6OZaLGPFAKuvGR2UhKO9d7457qRkp
-         5LAF54btxmHjlGprS+IPRHrIJw4/MMa+NC7Uykqs=
+        b=MEKqEQ+Fe/Bh7VmFuGoLpXYT4GsgE4G0FX11LFw0iAFiG8BnbwEfYKZRtvO6LE3+i
+         1X+u35+009X3zw6Q7C+9VEQL3+fILwhcQIzSgJ7UXeLhZNi5Jrn8jkdWkZb0xvnGp2
+         8ALi5hZ71LTe6Jt/+Y7uFROBBzo2NcmS5LvN8U0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 47/57] Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
+        Stefan Liebler <stli@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 15/49] futex: Cure exit race
 Date:   Mon, 22 Feb 2021 13:36:13 +0100
-Message-Id: <20210222121034.010902487@linuxfoundation.org>
+Message-Id: <20210222121025.999623772@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210222121027.174911182@linuxfoundation.org>
-References: <20210222121027.174911182@linuxfoundation.org>
+In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
+References: <20210222121022.546148341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +46,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit dbe5283605b3bc12ca45def09cc721a0a5c853a2 upstream.
+commit da791a667536bf8322042e38ca85d55a78d3c273 upstream.
 
-We may not skip setting the field in the unmap structure when
-GNTMAP_device_map is in use - such an unmap would fail to release the
-respective resources (a page ref in the hypervisor). Otoh the field
-doesn't need setting at all when GNTMAP_device_map is not in use.
+Stefan reported, that the glibc tst-robustpi4 test case fails
+occasionally. That case creates the following race between
+sys_exit() and sys_futex_lock_pi():
 
-To record the value for unmapping, we also better don't use our local
-p2m: In particular after a subsequent change it may not have got updated
-for all the batch elements. Instead it can simply be taken from the
-respective map's results.
+ CPU0				CPU1
 
-We can additionally avoid playing this game altogether for the kernel
-part of the mappings in (x86) PV mode.
+ sys_exit()			sys_futex()
+  do_exit()			 futex_lock_pi()
+   exit_signals(tsk)		  No waiters:
+    tsk->flags |= PF_EXITING;	  *uaddr == 0x00000PID
+  mm_release(tsk)		  Set waiter bit
+   exit_robust_list(tsk) {	  *uaddr = 0x80000PID;
+      Set owner died		  attach_to_pi_owner() {
+    *uaddr = 0xC0000000;	   tsk = get_task(PID);
+   }				   if (!tsk->flags & PF_EXITING) {
+  ...				     attach();
+  tsk->flags |= PF_EXITPIDONE;	   } else {
+				     if (!(tsk->flags & PF_EXITPIDONE))
+				       return -EAGAIN;
+				     return -ESRCH; <--- FAIL
+				   }
 
-This is part of XSA-361.
+ESRCH is returned all the way to user space, which triggers the glibc test
+case assert. Returning ESRCH unconditionally is wrong here because the user
+space value has been changed by the exiting task to 0xC0000000, i.e. the
+FUTEX_OWNER_DIED bit is set and the futex PID value has been cleared. This
+is a valid state and the kernel has to handle it, i.e. taking the futex.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cure it by rereading the user space value when PF_EXITING and PF_EXITPIDONE
+is set in the task which 'owns' the futex. If the value has changed, let
+the kernel retry the operation, which includes all regular sanity checks
+and correctly handles the FUTEX_OWNER_DIED case.
+
+If it hasn't changed, then return ESRCH as there is no way to distinguish
+this case from malfunctioning user space. This happens when the exiting
+task did not have a robust list, the robust list was corrupted or the user
+space value in the futex was simply bogus.
+
+Reported-by: Stefan Liebler <stli@linux.ibm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=200467
+Link: https://lkml.kernel.org/r/20181210152311.986181245@linutronix.de
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[Lee: Required to satisfy functional dependency from futex back-port.
+ Re-add the missing handle_exit_race() parts from:
+ 3d4775df0a89 ("futex: Replace PF_EXITPIDONE with a state")]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntdev.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ kernel/futex.c |   71 ++++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 65 insertions(+), 6 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -295,18 +295,25 @@ static int map_grant_pages(struct grant_
- 		 * to the kernel linear addresses of the struct pages.
- 		 * These ptes are completely different from the user ptes dealt
- 		 * with find_grant_ptes.
-+		 * Note that GNTMAP_device_map isn't needed here: The
-+		 * dev_bus_addr output field gets consumed only from ->map_ops,
-+		 * and by not requesting it when mapping we also avoid needing
-+		 * to mirror dev_bus_addr into ->unmap_ops (and holding an extra
-+		 * reference to the page in the hypervisor).
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1201,11 +1201,67 @@ static void wait_for_owner_exiting(int r
+ 	put_task_struct(exiting);
+ }
+ 
++static int handle_exit_race(u32 __user *uaddr, u32 uval,
++			    struct task_struct *tsk)
++{
++	u32 uval2;
++
++	/*
++	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
++	 * for it to finish.
++	 */
++	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
++		return -EAGAIN;
++
++	/*
++	 * Reread the user space value to handle the following situation:
++	 *
++	 * CPU0				CPU1
++	 *
++	 * sys_exit()			sys_futex()
++	 *  do_exit()			 futex_lock_pi()
++	 *                                futex_lock_pi_atomic()
++	 *   exit_signals(tsk)		    No waiters:
++	 *    tsk->flags |= PF_EXITING;	    *uaddr == 0x00000PID
++	 *  mm_release(tsk)		    Set waiter bit
++	 *   exit_robust_list(tsk) {	    *uaddr = 0x80000PID;
++	 *      Set owner died		    attach_to_pi_owner() {
++	 *    *uaddr = 0xC0000000;	     tsk = get_task(PID);
++	 *   }				     if (!tsk->flags & PF_EXITING) {
++	 *  ...				       attach();
++	 *  tsk->futex_state =               } else {
++	 *	FUTEX_STATE_DEAD;              if (tsk->futex_state !=
++	 *					  FUTEX_STATE_DEAD)
++	 *				         return -EAGAIN;
++	 *				       return -ESRCH; <--- FAIL
++	 *				     }
++	 *
++	 * Returning ESRCH unconditionally is wrong here because the
++	 * user space value has been changed by the exiting task.
++	 *
++	 * The same logic applies to the case where the exiting task is
++	 * already gone.
++	 */
++	if (get_futex_value_locked(&uval2, uaddr))
++		return -EFAULT;
++
++	/* If the user space value has changed, try again. */
++	if (uval2 != uval)
++		return -EAGAIN;
++
++	/*
++	 * The exiting task did not have a robust list, the robust list was
++	 * corrupted or the user space value in *uaddr is simply bogus.
++	 * Give up and tell user space.
++	 */
++	return -ESRCH;
++}
++
+ /*
+  * Lookup the task for the TID provided from user space and attach to
+  * it after doing proper sanity checks.
+  */
+-static int attach_to_pi_owner(u32 uval, union futex_key *key,
++static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
+ 			      struct futex_pi_state **ps,
+ 			      struct task_struct **exiting)
+ {
+@@ -1216,12 +1272,15 @@ static int attach_to_pi_owner(u32 uval,
+ 	/*
+ 	 * We are the first waiter - try to look up the real owner and attach
+ 	 * the new pi_state to it, but bail out when TID = 0 [1]
++	 *
++	 * The !pid check is paranoid. None of the call sites should end up
++	 * with pid == 0, but better safe than sorry. Let the caller retry
+ 	 */
+ 	if (!pid)
+-		return -ESRCH;
++		return -EAGAIN;
+ 	p = futex_find_get_task(pid);
+ 	if (!p)
+-		return -ESRCH;
++		return handle_exit_race(uaddr, uval, NULL);
+ 
+ 	if (unlikely(p->flags & PF_KTHREAD)) {
+ 		put_task_struct(p);
+@@ -1240,7 +1299,7 @@ static int attach_to_pi_owner(u32 uval,
+ 		 * FUTEX_STATE_DEAD, we know that the task has finished
+ 		 * the cleanup:
  		 */
-+		unsigned int flags = (map->flags & ~GNTMAP_device_map) |
-+				     GNTMAP_host_map;
-+
- 		for (i = 0; i < map->count; i++) {
- 			unsigned long address = (unsigned long)
- 				pfn_to_kaddr(page_to_pfn(map->pages[i]));
- 			BUG_ON(PageHighMem(map->pages[i]));
+-		int ret = (p->futex_state = FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
++		int ret = handle_exit_race(uaddr, uval, p);
  
--			gnttab_set_map_op(&map->kmap_ops[i], address,
--				map->flags | GNTMAP_host_map,
-+			gnttab_set_map_op(&map->kmap_ops[i], address, flags,
- 				map->grants[i].ref,
- 				map->grants[i].domid);
- 			gnttab_set_unmap_op(&map->kunmap_ops[i], address,
--				map->flags | GNTMAP_host_map, -1);
-+				flags, -1);
- 		}
- 	}
+ 		raw_spin_unlock_irq(&p->pi_lock);
+ 		/*
+@@ -1306,7 +1365,7 @@ static int lookup_pi_state(u32 __user *u
+ 	 * We are the first waiter - try to look up the owner based on
+ 	 * @uval and attach to it.
+ 	 */
+-	return attach_to_pi_owner(uval, key, ps, exiting);
++	return attach_to_pi_owner(uaddr, uval, key, ps, exiting);
+ }
  
-@@ -322,6 +329,9 @@ static int map_grant_pages(struct grant_
- 			continue;
- 		}
+ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+@@ -1422,7 +1481,7 @@ static int futex_lock_pi_atomic(u32 __us
+ 	 * attach to the owner. If that fails, no harm done, we only
+ 	 * set the FUTEX_WAITERS bit in the user space variable.
+ 	 */
+-	return attach_to_pi_owner(uval, key, ps, exiting);
++	return attach_to_pi_owner(uaddr, newval, key, ps, exiting);
+ }
  
-+		if (map->flags & GNTMAP_device_map)
-+			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
-+
- 		map->unmap_ops[i].handle = map->map_ops[i].handle;
- 		if (use_ptemod)
- 			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+ /**
 
 
