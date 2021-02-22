@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA9132179C
-	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F3032179D
+	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbhBVMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:51:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57106 "EHLO mail.kernel.org"
+        id S231131AbhBVMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:51:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230177AbhBVMrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 07:47:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A89064F02;
-        Mon, 22 Feb 2021 12:42:22 +0000 (UTC)
+        id S231642AbhBVMr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 07:47:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F217564ED6;
+        Mon, 22 Feb 2021 12:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997743;
-        bh=a8ainKRhLo+3BhY0XHJ8m4yKk7gb4ywNlu2ioz15J6Q=;
+        s=korg; t=1613997745;
+        bh=2bV1NEy8CSRb65DEixnFCzFY2OXImZad6yk6BkGmN1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=disfU3YRHuVxemeXdekgWikWpRGenSQuzn/yFF2K6olHyb7VdIyy17kR0xYWK26Gx
-         mL9FNH9AazatrTOW122cCYMZF+V/PTh7Edbh08q4nMTx4jm6e2bw7W8XBeuuG08HOH
-         7o9lHIZTWcgUrIEBJJ8CmjMG76sNPY2gkr68Xx5g=
+        b=RVdLY9J3yFo3w4b9kYC5AeAPc9Jtd7c/Nwa0hDWW6mDe9UgdsqfOaMNpq/ffwX/LV
+         vTO/djJORczxwURKIr6YrLyw1TcOCJ4FsNwgSnOs+yVWcexySS7Y0URb83xiDdNdPF
+         tvLGJBnRxaXlVaKfloACIM+rSXJxzNVPQ6sUeNdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        stable@vger.kernel.org,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Julien Grall <jgrall@amazon.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 42/49] Xen/gntdev: correct error checking in gntdev_map_grant_pages()
-Date:   Mon, 22 Feb 2021 13:36:40 +0100
-Message-Id: <20210222121028.013549050@linuxfoundation.org>
+Subject: [PATCH 4.9 43/49] xen/arm: dont ignore return errors from set_phys_to_machine
+Date:   Mon, 22 Feb 2021 13:36:41 +0100
+Message-Id: <20210222121028.071563885@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
 References: <20210222121022.546148341@linuxfoundation.org>
@@ -39,77 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-commit ebee0eab08594b2bd5db716288a4f1ae5936e9bc upstream.
+commit 36bf1dfb8b266e089afa9b7b984217f17027bf35 upstream.
 
-Failure of the kernel part of the mapping operation should also be
-indicated as an error to the caller, or else it may assume the
-respective kernel VA is okay to access.
+set_phys_to_machine can fail due to lack of memory, see the kzalloc call
+in arch/arm/xen/p2m.c:__set_phys_to_machine_multi.
 
-Furthermore gnttab_map_refs() failing still requires recording
-successfully mapped handles, so they can be unmapped subsequently. This
-in turn requires there to be a way to tell full hypercall failure from
-partial success - preset map_op status fields such that they won't
-"happen" to look as if the operation succeeded.
-
-Also again use GNTST_okay instead of implying its value (zero).
+Don't ignore the potential return error in set_foreign_p2m_mapping,
+returning it to the caller instead.
 
 This is part of XSA-361.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/gntdev.c      |   17 +++++++++--------
- include/xen/grant_table.h |    1 +
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ arch/arm/xen/p2m.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -318,21 +318,22 @@ static int map_grant_pages(struct grant_
- 	pr_debug("map %d+%d\n", map->index, map->count);
- 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
- 			map->pages, map->count);
--	if (err)
--		return err;
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status) {
-+		if (map->map_ops[i].status == GNTST_okay)
-+			map->unmap_ops[i].handle = map->map_ops[i].handle;
-+		else if (!err)
- 			err = -EINVAL;
--			continue;
--		}
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
--		map->unmap_ops[i].handle = map->map_ops[i].handle;
--		if (use_ptemod)
--			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+		if (use_ptemod) {
-+			if (map->kmap_ops[i].status == GNTST_okay)
-+				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+			else if (!err)
-+				err = -EINVAL;
+--- a/arch/arm/xen/p2m.c
++++ b/arch/arm/xen/p2m.c
+@@ -93,8 +93,10 @@ int set_foreign_p2m_mapping(struct gntta
+ 	for (i = 0; i < count; i++) {
+ 		if (map_ops[i].status)
+ 			continue;
+-		set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
+-				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT);
++		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
++				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
++			return -ENOMEM;
 +		}
  	}
- 	return err;
- }
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_gran
- 	map->flags = flags;
- 	map->ref = ref;
- 	map->dom = domid;
-+	map->status = 1; /* arbitrary positive value */
- }
  
- static inline void
+ 	return 0;
 
 
