@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FB432179E
+	by mail.lfdr.de (Postfix) with ESMTP id BAF4E32179F
 	for <lists+stable@lfdr.de>; Mon, 22 Feb 2021 13:52:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231424AbhBVMva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 07:51:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56562 "EHLO mail.kernel.org"
+        id S231159AbhBVMvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 07:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231660AbhBVMrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231661AbhBVMrd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 22 Feb 2021 07:47:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B82564F04;
-        Mon, 22 Feb 2021 12:42:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6EAE64F1A;
+        Mon, 22 Feb 2021 12:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1613997747;
-        bh=aVtwxMQ0yET8MYZsd8pC53W+SekETh83OMG7Vad2+pA=;
+        s=korg; t=1613997750;
+        bh=0ZL2nzoF7r9zTwQRSQ5KBgXhCXIS6ATrdSC1cJocPgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFJ77q7561ycjKv3VPMdzxkpINP5voyePAC4W5Da2QQzHoC6qyFIddL2aWWZIa9WX
-         qvuxr7CTHLF7IKuLzRIUm116euhXCFK+pbcp5nk2ryPSM6xQj7rvpzOgFMYuPf/MMy
-         zpwGHt/88Ud8/Lcx2VAIwbBqYLgaIujLqHg/z5FM=
+        b=ZDFwDEMqxJFdJFxKpejwBpeXtgC4Y9PTiwES3myL3ro4pCkPtvZf4TC5P/80UGRcP
+         2xEPI+OtLXJES7bUyFzfLIKpeGwZtgoIueHccfY+U8PxIeDmq/AcVzktu9MaSx5Npz
+         ut/6yze/ae26RlWLvrbsYdvK2RtvN3LPdQPda6oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 44/49] xen-blkback: dont "handle" error by BUG()
-Date:   Mon, 22 Feb 2021 13:36:42 +0100
-Message-Id: <20210222121028.145787329@linuxfoundation.org>
+Subject: [PATCH 4.9 45/49] xen-netback: dont "handle" error by BUG()
+Date:   Mon, 22 Feb 2021 13:36:43 +0100
+Message-Id: <20210222121028.219098483@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210222121022.546148341@linuxfoundation.org>
 References: <20210222121022.546148341@linuxfoundation.org>
@@ -41,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Beulich <jbeulich@suse.com>
 
-commit 5a264285ed1cd32e26d9de4f3c8c6855e467fd63 upstream.
+commit 3194a1746e8aabe86075fd3c5e7cf1f4632d7f16 upstream.
 
 In particular -ENOMEM may come back here, from set_foreign_p2m_mapping().
 Don't make problems worse, the more that handling elsewhere (together
@@ -58,31 +58,25 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkback/blkback.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/xen-netback/netback.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/block/xen-blkback/blkback.c
-+++ b/drivers/block/xen-blkback/blkback.c
-@@ -860,10 +860,8 @@ again:
- 			break;
- 	}
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -1328,13 +1328,11 @@ int xenvif_tx_action(struct xenvif_queue
+ 		return 0;
  
--	if (segs_to_map) {
-+	if (segs_to_map)
- 		ret = gnttab_map_refs(map, NULL, pages_to_gnt, segs_to_map);
+ 	gnttab_batch_copy(queue->tx_copy_ops, nr_cops);
+-	if (nr_mops != 0) {
++	if (nr_mops != 0)
+ 		ret = gnttab_map_refs(queue->tx_map_ops,
+ 				      NULL,
+ 				      queue->pages_to_map,
+ 				      nr_mops);
 -		BUG_ON(ret);
 -	}
  
- 	/*
- 	 * Now swizzle the MFN in our domain with the MFN from the other domain
-@@ -878,7 +876,7 @@ again:
- 				pr_debug("invalid buffer -- could not remap it\n");
- 				put_free_pages(ring, &pages[seg_idx]->page, 1);
- 				pages[seg_idx]->handle = BLKBACK_INVALID_HANDLE;
--				ret |= 1;
-+				ret |= !ret;
- 				goto next;
- 			}
- 			pages[seg_idx]->handle = map[new_map_idx].handle;
+ 	work_done = xenvif_tx_submit(queue);
+ 
 
 
