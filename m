@@ -2,86 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1991F322BAC
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 14:49:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95ADE322BCE
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232077AbhBWNso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 08:48:44 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:14311 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbhBWNsn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 08:48:43 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B603507920003>; Tue, 23 Feb 2021 05:48:02 -0800
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 23 Feb
- 2021 13:48:02 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
- Transport; Tue, 23 Feb 2021 13:48:02 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <stable@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 00/50] 4.19.177-rc1 review
-In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
-References: <20210222121019.925481519@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S231814AbhBWOAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 09:00:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60876 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230019AbhBWOAc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Feb 2021 09:00:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D23F64E4B;
+        Tue, 23 Feb 2021 13:59:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614088791;
+        bh=xrLlyLBz4iUe57fRQfL8r17GCFFYdouFFW2MZKUTqr0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ErU6Pc2n9iwj+1V2kP4ZcVbZejRgqLMmBEITs/4di3ydG/HBRHyNJtlDzxgqg/vFg
+         g4d6nzBx6QnPGpMviZJF9IAwWmc7BhRzwsq0udelvcXVB7XAI6zXrONe/ZuPoXQr71
+         KiuDA3UrWSWpLRu8mDBuzUjByBpbe7irRmf2kEMQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.11.1
+Date:   Tue, 23 Feb 2021 14:59:47 +0100
+Message-Id: <1614088759150127@kroah.com>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Message-ID: <f4c2928bfb484d18a7bd8b0f03704024@HQMAIL111.nvidia.com>
-Date:   Tue, 23 Feb 2021 13:48:02 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1614088083; bh=287xmrnB+gY9roZMmmvHXUNMCrtweoqoJfCmSR7XMyA=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=a9SFmHvrpvgP8q0ZOp+6/NNjC3KL/6mZZojKpPYesu4s3OYpe23LoMLnXhrsj400l
-         c6FdJx1jwudlPPVFgcWa+F92NpWBv/NfjrhUlLh88nmPj90szhYDbHqf+P7ENo3RkO
-         Y/NLa3RlVjqT8Dd/BJ+AsmFl6eM54dZvSQFOZvt2bm09fSXbbo5jGGP9g5XDw8DtcN
-         YwtQdcbUJF/Uafjqi9QsW3R+WKBz45nFPer6LLNksrKKd5LRsBkvObpLFBuj914eVQ
-         5gfJroNyU4ro449K8dQlm7xJ+7amqqJPuWCN8DnQWwkPhldNBNvEiCMtUaaNbhX8R3
-         jLLklLSEKi/+w==
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Feb 2021 13:12:51 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.177 release.
-> There are 50 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.177-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+I'm announcing the release of the 5.11.1 kernel.
 
-All tests passing for Tegra ...
+All users of the 5.11 kernel series must upgrade.
 
-Test results for stable-v4.19:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+The updated 5.11.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.11.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Linux version:	4.19.177-rc1-g413fa3cdbf28
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+thanks,
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+greg k-h
 
-Jon
+------------
+
+ Makefile                            |    2 -
+ arch/arm/xen/p2m.c                  |    6 +++--
+ arch/x86/xen/p2m.c                  |   15 ++++++--------
+ drivers/block/xen-blkback/blkback.c |   32 +++++++++++++++++--------------
+ drivers/bluetooth/btusb.c           |   20 +++++--------------
+ drivers/media/usb/pwc/pwc-if.c      |   22 ++++++++++++---------
+ drivers/net/xen-netback/netback.c   |    4 ---
+ drivers/tty/tty_io.c                |    5 +++-
+ drivers/xen/gntdev.c                |   37 +++++++++++++++++++-----------------
+ drivers/xen/xen-scsiback.c          |    4 +--
+ include/xen/grant_table.h           |    1 
+ 11 files changed, 77 insertions(+), 71 deletions(-)
+
+Greg Kroah-Hartman (1):
+      Linux 5.11.1
+
+Jan Beulich (8):
+      Xen/x86: don't bail early from clear_foreign_p2m_mapping()
+      Xen/x86: also check kernel mapping in set_foreign_p2m_mapping()
+      Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
+      Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+      xen-blkback: don't "handle" error by BUG()
+      xen-netback: don't "handle" error by BUG()
+      xen-scsiback: don't "handle" error by BUG()
+      xen-blkback: fix error handling in xen_blkbk_map()
+
+Linus Torvalds (1):
+      tty: protect tty_write from odd low-level tty disciplines
+
+Matwey V. Kornilov (1):
+      media: pwc: Use correct device for DMA
+
+Stefano Stabellini (1):
+      xen/arm: don't ignore return errors from set_phys_to_machine
+
+Trent Piepho (1):
+      Bluetooth: btusb: Always fallback to alt 1 for WBS
+
