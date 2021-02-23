@@ -2,176 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D3C323055
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 19:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 532B432306F
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 19:17:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233745AbhBWSMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 13:12:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbhBWSMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 13:12:40 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC8DC061574
-        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 10:11:59 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id l18so2506576pji.3
-        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 10:11:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GXYQt2Wpqe+2YTHd1+lBTQ7XzqdgDXwNxj5Nszc2O5Q=;
-        b=DRoEjRNh7MGTtB/KnwY+yiBa+4Klk0jzpiYM8T6Jtl1jxTRknoLYxZ81OEoAn5yUlD
-         hCkgmsyLOfXgC70m0010lysji68iqDHrERNs9qVLpV0ZR9vNKyXOXN0AAqVGUJrYAojf
-         rEwcUbIhXBtxa2uAWZsvrWqK3a3OX9kMSJTAQXQ0Gu4snx+752sbhLzmZWlZ6IaQwj/G
-         h9/eQ42ojxJ7E/4e+8H4cxTSwhr13HTcrT1uvXGmoLxsFRRLJ6tbcziM5oQtc8UGOFDx
-         NdCCiH3KOlHeHQi6LFS2Z+qsIO1X06jKWD2E39JBZdNmgRNXKKiHHMwOaGdRds0i9i2J
-         9qaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GXYQt2Wpqe+2YTHd1+lBTQ7XzqdgDXwNxj5Nszc2O5Q=;
-        b=pbfVnWKgw+CeRsfVU4L0ZlllcW2M0PLFPD/svlUJmlMcX2dmihkmH4ohMgHDXIe5jN
-         zQmt8ZmuZrdPq1z4tm0gBbHovY+HbbdS8JYUV70DaRULtAL+XGGnLdiFn17b8rVvquBF
-         dglEu3irNYPWTnUaC7VKP9UqpPE6+wGuKtDhjt5p44y+4DymvrQEGN3mIAaHBgXIE1gL
-         NHycyg0i5CA/73itHsjY/GYH0VweHRzQKdsXZLH11THukeAp8KZ0jviE3R/8wallYkwe
-         ZyhftS8LAGOKPZKpgAsjoZrs8mNYE8Fm5yI2kKxbA192bIuSfp7cj92dhSwe9q8cxo7w
-         dRyA==
-X-Gm-Message-State: AOAM5320mmjDuEifUd62nTNwNLHZxWyHdc0OoDkL/Itv5S8j/IPHKo0v
-        KSFh3Iu/cGPR6kn0gyegZ9H4LkKYZ/VxDA==
-X-Google-Smtp-Source: ABdhPJwWFliUWtUXxCKowc4NGKV4GsuLRXC37uGQTjAuhioICgntQ+SAmgkS4yGp56/yix7Ri9o9fQ==
-X-Received: by 2002:a17:90a:f493:: with SMTP id bx19mr17303537pjb.213.1614103919279;
-        Tue, 23 Feb 2021 10:11:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a9sm4062680pjq.17.2021.02.23.10.11.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Feb 2021 10:11:59 -0800 (PST)
-Message-ID: <6035456f.1c69fb81.5467.7e5d@mx.google.com>
-Date:   Tue, 23 Feb 2021 10:11:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233843AbhBWSP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 13:15:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55642 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233888AbhBWSPz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Feb 2021 13:15:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2169764E24;
+        Tue, 23 Feb 2021 18:15:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614104115;
+        bh=YTPW0+A1gFd+PueT0UIv5DVxtreZ1h/YnUkjM+KgzGg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rDKXFP1vNC35x0DrH3lKYg4zDu2VeEBfjl88YHGpGcFsgE6YW96X5NLG5nrfAE71f
+         OeIhv4BoT9Vika0PjFBBcP1B65XndCzNU19RJR8MhW9rLmhADGvz6n4TG95DwdZmn5
+         u0fjf2AusQhNqLipQXaxUAMJ/l4Vv6CUVtj3Na4AYn86V02/0YSyUFB5a9Gq2D19WF
+         i8ZN7y3iqx3+UNE6l18a24sRueAiQPEZ+AaIXurntL3y4DXpIc/zm0HtShJK0Ne/TF
+         suZ80ARhZEzxWGFOYW20HP59e0WfeoS+u7lHV5zjc54fwvGbgcFuyieJGvcn1ZW0mS
+         7x/1C4/uBkHmQ==
+From:   Andy Lutomirski <luto@kernel.org>
+To:     x86@kernel.org
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v2 2/3] x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls
+Date:   Tue, 23 Feb 2021 10:15:09 -0800
+Message-Id: <04713c6be5ab45357e3406c42d382536f52a64c6.1614104065.git.luto@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1614104065.git.luto@kernel.org>
+References: <cover.1614104065.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.222
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 73 runs, 3 regressions (v4.14.222)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 73 runs, 3 regressions (v4.14.222)
+On a 32-bit fast syscall that fails to read its arguments from user
+memory, the kernel currently does syscall exit work but not
+syscall entry work.  This confuses audit and ptrace.  For example:
 
-Regressions Summary
--------------------
+    $ ./tools/testing/selftests/x86/syscall_arg_fault_32
+    ...
+    strace: pid 264258: entering, ptrace_syscall_info.op == 2
+    ...
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-fsl-ls2088a-rdb | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
+This is a minimal fix intended for ease of backporting.  A more
+complete cleanup is coming.
 
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+Cc: stable@vger.kernel.org
+Fixes: 0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ arch/x86/entry/common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-meson-gxm-q200  | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index 0904f5676e4d..cf4dcf346ca8 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -128,7 +128,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_regs *regs)
+ 		regs->ax = -EFAULT;
+ 
+ 		instrumentation_end();
+-		syscall_exit_to_user_mode(regs);
++		local_irq_disable();
++		exit_to_user_mode();
+ 		return false;
+ 	}
+ 
+-- 
+2.29.2
 
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.222/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.222
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      3242aa3a635c0958671ee1e4b0958dcc7c4e5c79 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-fsl-ls2088a-rdb | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60350ea7f594bb2db4addcb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60350ea7f594bb2db4add=
-cba
-        new failure (last pass: v4.14.221) =
-
- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60350f2b1dab51215caddcc5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60350f2b1dab51215cadd=
-cc6
-        failing since 326 days (last pass: v4.14.172, first fail: v4.14.175=
-) =
-
- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200  | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60350ea41c5fe4c20eaddcbb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.222/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60350ea41c5fe4c20eadd=
-cbc
-        failing since 30 days (last pass: v4.14.216, first fail: v4.14.217) =
-
- =20
