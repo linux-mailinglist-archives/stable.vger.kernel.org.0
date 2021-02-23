@@ -2,73 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A32E322C8C
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB56322C93
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbhBWOkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 09:40:13 -0500
-Received: from pegase1.c-s.fr ([93.17.236.30]:61430 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229886AbhBWOkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Feb 2021 09:40:10 -0500
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4DlMBc1zF8z9v03w;
-        Tue, 23 Feb 2021 15:39:20 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id GvmprBS3eRvr; Tue, 23 Feb 2021 15:39:20 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4DlMBc0wYkz9v03t;
-        Tue, 23 Feb 2021 15:39:20 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id CC93A8B81F;
-        Tue, 23 Feb 2021 15:39:21 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id hGfLDZpiA6Q7; Tue, 23 Feb 2021 15:39:21 +0100 (CET)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 1520C8B80B;
-        Tue, 23 Feb 2021 15:39:21 +0100 (CET)
-Subject: Re: [PATCH for 5.10] powerpc/32: Preserve cr1 in exception prolog
- stack check to fix build error
-To:     Greg KH <greg@kroah.com>
-Cc:     fedora.dm0@gmail.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-References: <f6d16f3321f1dc89b77ada1c7d961fae4089766e.1613120077.git.christophe.leroy@csgroup.eu>
- <YCqFn/4YuT+445xW@kroah.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <d0b1ff43-59e0-29a4-1bd0-47bcfff8effa@csgroup.eu>
-Date:   Tue, 23 Feb 2021 15:39:20 +0100
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S231983AbhBWOli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 09:41:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53649 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231523AbhBWOlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:41:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614091210;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6yTY/vPD19Elz7ZrYsYyd2okOff2AH6M76I4vHcyMx8=;
+        b=fkX2eAurUqWyg+CWDhiL69GCpGpkWi3CsxPsRoEkEJKOIQAVVHu/Nz5/+exVTSf3qWvpCR
+        b0dJA/g0IF8GEATGuMidlcajBB4dDQuiE0FpJjK8t9i+3Kbc3YRs9CD0SC5Pvtonzmn/DC
+        BXf7hw7LIpRQt7dFG1i+g2ko+tYlPRo=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-148-ud-UM_hTOxeLW3odEEE-lQ-1; Tue, 23 Feb 2021 09:39:54 -0500
+X-MC-Unique: ud-UM_hTOxeLW3odEEE-lQ-1
+Received: by mail-qk1-f198.google.com with SMTP id i11so11754260qkn.21
+        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 06:39:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=6yTY/vPD19Elz7ZrYsYyd2okOff2AH6M76I4vHcyMx8=;
+        b=VG5b3sCxuPhKtGkahoiX+teZVk8D50yxwnV/XvNd5h8LVrc1mTQB2Ng35mRugp61/r
+         Sw+zqktZ1oRUlWwTzxQ6qQLRPwTz5nrpvh/Zq4E8AX88HPBkHG7n1mkMuDt5Q+/F+7Jt
+         qGk74i2sVFRnQnW+F9Xr72T+AdC9c8cb5upC7duHPx+sDbm8qUgSYV/FBKKkPtVCRK3g
+         Po4TkIRLsb7j5uYffpe+RBp6TW1FNNHQ4j6xbbYGyh3DEGLOl7DbVirNLF/AWGvB2kkk
+         x0ArfaoKsRcFpzmq2de/Vf3+ZBqw2o9e23fS6w5+tln19EkKc0vayuIXavWLJ+Y4KvJI
+         viHA==
+X-Gm-Message-State: AOAM533bTcuHg+9O8nRiO8T4DGQYcrk+XtU+FIOzdKAJwga0XQt545ZI
+        TB7Ix6D2oXSgZ6A3ObRdYR31FecIkla/7nh/CYU6gjVPPLVytora8Zoxu2szWuHuXnlO+WeoZUU
+        czGofoeLJrhyORxqn/+LNPLGGI0AW5BsJHj/6aT2ZBX0+MjSL9ze+3VX/zR9yuOY=
+X-Received: by 2002:ac8:70ce:: with SMTP id g14mr4859057qtp.297.1614091193757;
+        Tue, 23 Feb 2021 06:39:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzv8bN6MNquo1jGL/fVslpXBJQiYoUqw9O5hOq8jrxc3Ssv2oGxE+KGcHa7ABf9JSxsK9FNyw==
+X-Received: by 2002:ac8:70ce:: with SMTP id g14mr4859020qtp.297.1614091193399;
+        Tue, 23 Feb 2021 06:39:53 -0800 (PST)
+Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
+        by smtp.gmail.com with ESMTPSA id d17sm15161843qkc.40.2021.02.23.06.39.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Feb 2021 06:39:53 -0800 (PST)
+Subject: Re: [PATCHv3] firmware: stratix10-svc: reset
+ COMMAND_RECONFIG_FLAG_PARTIAL to 0
+To:     richard.gong@linux.intel.com, gregkh@linuxfoundation.org,
+        "mdf@kernel.org" <mdf@kernel.org>, Wu Hao <hao.wu@intel.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Richard Gong <richard.gong@intel.com>,
+        "# 5 . 9+" <stable@vger.kernel.org>
+References: <1614089759-12658-1-git-send-email-richard.gong@linux.intel.com>
+From:   Tom Rix <trix@redhat.com>
+Message-ID: <0993ec07-1424-256a-512d-3455c7a5db41@redhat.com>
+Date:   Tue, 23 Feb 2021 06:39:51 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <YCqFn/4YuT+445xW@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1614089759-12658-1-git-send-email-richard.gong@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Richard,
+
+I see this is for stable.
+
+Your mainline patchset looks ok with me, has it been accepted yet for mainline ?
+
+Reviewed-by: Tom Rix <trix@redhat.com>
 
 
-Le 15/02/2021 à 15:30, Greg KH a écrit :
-> On Fri, Feb 12, 2021 at 08:57:14AM +0000, Christophe Leroy wrote:
->> This is backport of 3642eb21256a ("powerpc/32: Preserve cr1 in
->> exception prolog stack check to fix build error") for kernel 5.10
->>
->> It fixes the build failure on v5.10 reported by kernel test robot
->> and by David Michael.
->>
->> This fix is not in Linux tree yet, it is in next branch in powerpc tree.
-> 
-> Then there's nothing I can do about it until that happens :(
-> 
+On 2/23/21 6:15 AM, richard.gong@linux.intel.com wrote:
+> From: Richard Gong <richard.gong@intel.com>
+>
+> Clean up COMMAND_RECONFIG_FLAG_PARTIAL flag by resetting it to 0, which
+> aligns with the firmware settings.
+>
+> Cc: <stable@vger.kernel.org> # 5.9+
+> Fixes: 36847f9e3e56 ("firmware: stratix10-svc: correct reconfig flag and timeout values")
+> Signed-off-by: Richard Gong <richard.gong@intel.com>
+> ---
+> v3: correct the missing item in the Fixes subject line
+> v2: add tag Cc: <stable@vger.kernel.org> # 5.9+
+>     add 'Fixes: ... ' line in the comment
+> ---
+>  include/linux/firmware/intel/stratix10-svc-client.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/include/linux/firmware/intel/stratix10-svc-client.h b/include/linux/firmware/intel/stratix10-svc-client.h
+> index a93d859..f843c6a 100644
+> --- a/include/linux/firmware/intel/stratix10-svc-client.h
+> +++ b/include/linux/firmware/intel/stratix10-svc-client.h
+> @@ -56,7 +56,7 @@
+>   * COMMAND_RECONFIG_FLAG_PARTIAL:
+>   * Set to FPGA configuration type (full or partial).
+>   */
+> -#define COMMAND_RECONFIG_FLAG_PARTIAL	1
+> +#define COMMAND_RECONFIG_FLAG_PARTIAL	0
+>  
+>  /**
+>   * Timeout settings for service clients:
 
-It now is in Linus' tree, see 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3642eb21256a317ac14e9ed560242c6d20cf06d9
-
-Thanks
-Christophe
