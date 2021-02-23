@@ -2,113 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 345AF322CAB
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3ED322CB4
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:48:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbhBWOo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 09:44:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:44028 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230498AbhBWOoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:44:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614091409;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=LpYOhXHGVxU0xOZjyTmBsPRLytwkVqdBdOt50mvBPSs=;
-        b=ZTGabHmZGr7cz0qu9xrYcykW3jAP88qBmRJNbMwOhMxQoqNz9XpfF0dPO80KJ4lStrz2cI
-        Ia17DOFTlueUOogLNQqqW13unaVPq07RvtHRTg+L81TrTOggGAY0GsYaPhzc3/KMNP2XlL
-        BZoVDQoUrLLXKKUYe2REBSEA0F8WUgA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-342-8S5jRRWLPqObCUaM2wahPQ-1; Tue, 23 Feb 2021 09:42:57 -0500
-X-MC-Unique: 8S5jRRWLPqObCUaM2wahPQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC7CB814304;
-        Tue, 23 Feb 2021 14:42:55 +0000 (UTC)
-Received: from krava (unknown [10.40.192.54])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 6284760CDE;
-        Tue, 23 Feb 2021 14:42:54 +0000 (UTC)
-Date:   Tue, 23 Feb 2021 15:42:53 +0100
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Kun-Chuan Hsieh <jetswayss@gmail.com>
-Cc:     ast@kernel.org, bpf@vger.kernel.org, jolsa@kernel.org,
-        andrii@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] tools/resolve_btfids: Fix build error with older host
- toolchains
-Message-ID: <YDUUbRJ1waVyoO+f@krava>
-References: <20210223012001.1452676-1-jetswayss@gmail.com>
+        id S232651AbhBWOrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 09:47:46 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:8508 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232671AbhBWOrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:47:42 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B603515650000>; Tue, 23 Feb 2021 06:47:01 -0800
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 23 Feb
+ 2021 14:47:00 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Tue, 23 Feb 2021 14:47:00 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <stable@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/13] 5.4.100-rc1 review
+In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
+References: <20210222121013.583922436@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210223012001.1452676-1-jetswayss@gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Message-ID: <8bf31a259854471a8c448905f47ebcb1@HQMAIL105.nvidia.com>
+Date:   Tue, 23 Feb 2021 14:47:00 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1614091621; bh=AxrKOpoBYM4qDNQwsmAX+A/hT6CSc0tcopQVCggtSN0=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=EgzAaQgIMTO2lQLRxpomkohF9xERtIq/CgqfgiThd4muoMx9bgMsoHB67qLP22kOX
+         h/7eA3Ts0pC+lKOT3p7Xl6EZ9nk6uSlR5sytdVg5PnTmjHS9v/UoeTPUvC51tkcP3W
+         zQ0WFqy7+sItUwKD2Ankop92bTU3IpgPkZ1XYhFkVH79KW273tIRiBa1/OYEPjabxz
+         B9YtDmfMfc6TsS/Rw84whXmCkr4XkYpdZLBZCfFZLz7tLfkcrmmTW+oxgXvhruopKx
+         DHKkahoOvQFIGQMHW2jgtqta4EDjFgAC+TwGk1K5YZNvUetkrvpVenltTxdYbaFeU2
+         1vCsngmfG10EQ==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 01:20:01AM +0000, Kun-Chuan Hsieh wrote:
-> Older versions of libelf cannot recognize the compressed section.
-
-so it's the SHF_COMPRESSED value the build fails on?
-
-maybe we could do just this:
-
-#ifndef SHF_COMPRESSED
- #define SHF_COMPRESSED      (1 << 11)  /* Section with compressed data. */
-#endif
-
-jirka
-
-> However, it's only required to fix the compressed section info when
-> compiling with CONFIG_DEBUG_INFO_COMPRESSED flag is set.
+On Mon, 22 Feb 2021 13:13:17 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.100 release.
+> There are 13 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Only compile the compressed_section_fix function when necessary will make
-> it easier to enable the BTF function. Since the tool resolve_btfids is
-> compiled with host toolchain. The host toolchain might be older than the
-> cross compile toolchain.
+> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> Anything received after that time might be too late.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
-> ---
->  tools/bpf/resolve_btfids/main.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.100-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-> index 7409d7860aa6..ad40346c6631 100644
-> --- a/tools/bpf/resolve_btfids/main.c
-> +++ b/tools/bpf/resolve_btfids/main.c
-> @@ -260,6 +260,7 @@ static struct btf_id *add_symbol(struct rb_root *root, char *name, size_t size)
->  	return btf_id__add(root, id, false);
->  }
->  
-> +#ifdef CONFIG_DEBUG_INFO_COMPRESSED
->  /*
->   * The data of compressed section should be aligned to 4
->   * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
-> @@ -292,6 +293,7 @@ static int compressed_section_fix(Elf *elf, Elf_Scn *scn, GElf_Shdr *sh)
->  	}
->  	return 0;
->  }
-> +#endif
->  
->  static int elf_collect(struct object *obj)
->  {
-> @@ -370,8 +372,10 @@ static int elf_collect(struct object *obj)
->  			obj->efile.idlist_addr  = sh.sh_addr;
->  		}
->  
-> +#ifdef CONFIG_DEBUG_INFO_COMPRESSED
->  		if (compressed_section_fix(elf, scn, &sh))
->  			return -1;
-> +#endif
->  	}
->  
->  	return 0;
-> -- 
-> 2.25.1
+> thanks,
 > 
+> greg k-h
 
+Failures detected for Tegra ...
+
+Test results for stable-v5.4:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    57 tests:	56 pass, 1 fail
+
+Linux version:	5.4.100-rc1-gb467dd44a81c
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Test failures:	tegra210-p2371-2180: tegra-audio-hda-playback.sh
+
+
+Jon
