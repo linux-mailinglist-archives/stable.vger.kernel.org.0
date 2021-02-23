@@ -2,76 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96B933222D6
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 00:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F19B3222F0
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 01:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbhBVX5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 18:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40088 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231656AbhBVX5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 18:57:42 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCAEC06174A
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 15:57:02 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id m22so8568801lfg.5
-        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 15:57:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=o8XmHJuqm6GAV6sy5fGrRX2i8hInLVNmSeVAA8voUfg=;
-        b=Uzw7upNZN+BpJQNDmmZzOnUKnDgEe4xc7wVlr0LtTa8xk2i7gk+05vXSmAoHrGk1mv
-         8XalADmL/1RNX9Xwa0sDZZn/ZH6B9sdQsbPOCnm07Q1de3UbuuBeioMX0a3P5CWLZbgy
-         hT7i8HuGM2LyOtIk8707rDLSkEcVOAliXjlpniepqxMdbZ2qPcFUqkJCxa4CwBq83X5S
-         MPXAsERJ6XdU7SeGNNea8S+1qT0LD+DXRv1OUP1Hv4FXZRHOaT/zUj96UBEYyvTQShXp
-         ykGyLxz4MbCtYxI3k9DU8eb0BkSKvkDBczi6jod6+kPqWlQTWvJdXWQWDIo8oZdD10TX
-         4gPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=o8XmHJuqm6GAV6sy5fGrRX2i8hInLVNmSeVAA8voUfg=;
-        b=qzo66EezGBAJzMaJUPcRpphJrwIvDndWl9JvbFBgJEtMxYRdy0rf+6UtvA7DzMOtrL
-         U2aW7//O1A32j0HQFo3Up32Tek9Z9YhV7YSHFJsQPWE7kG24hgwSVbPsN1FLfNfIHgXo
-         9LEr7h5oEVJ9ePGcno2SzfTbPwudlxBQ03Oks4dNupNkQJt8KpqkmPLEgAMTxF+gf3/T
-         tr37RpdF9WAI5BG9YL8lKAlgvmZvdFDAa25gaGgpOTsLPoOG97y0tE5D2Wm8yudMGPBa
-         g0oqeE2eesMo/nRm6grstHG5i5qV031S1yJyp7unK0HPlOMionUcBlDvGzCUg5ZBTwqK
-         Es7g==
-X-Gm-Message-State: AOAM530vJSHiE8UoxW7emPe0j8dqVzINu1spzNjTDId44pZqEBaDhJhS
-        vgxRM9dYUIcsl+t0qfwoLusjk049nNbmonJw8ecpZA==
-X-Google-Smtp-Source: ABdhPJwHZgSXOLoV890kcnE4t5AaOd59afNXytrz7BeSEFotFpTE+yH/0SMRPGldtr/Rip5yblXwpJYSnVfdBxvZ8Cs=
-X-Received: by 2002:a19:70e:: with SMTP id 14mr14444457lfh.157.1614038220290;
- Mon, 22 Feb 2021 15:57:00 -0800 (PST)
+        id S229902AbhBWAK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 19:10:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57464 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229501AbhBWAK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 19:10:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED49E601FF;
+        Tue, 23 Feb 2021 00:10:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614039017;
+        bh=aUWRhREIoI4Ot8y8zjIOgpAt3Pq6EOt5+NuB98SlsS0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ybxj1TmDEx6C2TWQh7GLd3EKBQdyknc/il2n1rDl0EMjma5dLY/RXyyzJ2De4mOdO
+         7SFHPIaL2gTIjIgdhOVDYYySXIemE+hzCs11xe1Labfm943yRL2V14Xk4JVi70o7uD
+         RmQbv+Qs5jhIC9xCgieD7Ks5PwxuPNnzitegPx96EZ64sowI7i+tupgcqahHe3goae
+         Nj0W3pBvNty3yjF1wnLjs4F7nxRXiech0rcgmhBrd0qsAG+uSgYvGi4rvKyc7nD9ML
+         z5J6brSh3KwgixP4TnR1IOAhPdXgX+DAZiyJnUftR4JPZAMFgWdPMdBQwtJjmBErWm
+         MCezOvYbKwa5w==
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     "Paul E . McKenney" <paulmck@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Stable <stable@vger.kernel.org>,
+        Joel Fernandes <joel@joelfernandes.org>
+Subject: [PATCH 00/13] rcu/nocb updates v2 
+Date:   Tue, 23 Feb 2021 01:09:58 +0100
+Message-Id: <20210223001011.127063-1-frederic@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20201224011700.1059659-1-linus.walleij@linaro.org> <20210221161801.42532e87@archlinux>
-In-Reply-To: <20210221161801.42532e87@archlinux>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 23 Feb 2021 00:56:49 +0100
-Message-ID: <CACRpkdYyUWpxm3SbSL13gD5jtxabvV4UAo5fGk_BzvObRfviGw@mail.gmail.com>
-Subject: Re: [PATCH] iio: adc: ab8500-gpadc: Fix off by 10 to 3
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     linux-iio <linux-iio@vger.kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 21, 2021 at 5:18 PM Jonathan Cameron <jic23@kernel.org> wrote:
-> On Thu, 24 Dec 2020 02:17:00 +0100
-> Linus Walleij <linus.walleij@linaro.org> wrote:
+It's a v2 of the previous set (https://lore.kernel.org/lkml/20210128171222.131380-1-frederic@kernel.org/)
+minus the patches already applied in rcu/dev. And this is based on 
+latest rcu/dev.
 
-> No idea why I didn't pick this up before now.  I guess I forgot it
-> over xmas.
->
-> Anyhow, now applied to the fixes-togreg branch of iio.git.
+Changelog since v1:
 
-Such things happen, was just gonna poke you about it,
-thanks a lot!
+"rcu/nocb: Fix potential missed nocb_timer rearm"
+	* Remove nocb_defer_wakeup reset from do_nocb_deferred_wakeup_common() (paulmck)
+	* Only reset/del if the timer is actually armed
+	* Add secondary potential cause for missed rearm in the changelog
 
-Yours,
-Linus Walleij
+"rcu/nocb: Disable bypass when CPU isn't completely offloaded"
+	* Improve comments on state machine (paulmck)
+	* Add comment (a full quote from Paul) explaining why early flush is enough (paulmck)
+	* Move sanity check to the very end of deoffloading (paulmck)
+	* Clarify some comments about nocb locking on de-offloading (paulmck)
+
+"rcu/nocb: Remove stale comment above rcu_segcblist_offload()"
+	* New patch, reported by (paulmck)
+
+"rcu/nocb: Merge nocb_timer to the rdp leader"
+	* Remove rcu_running_nocb_timer() and its use in rcu_rdp_is_offloaded()
+	  debugging since the timer doesn't refer to any rdp offloading anymore.
+	* Only delete nocb_timer when armed, in nocb_gp_wait()
+	* Clarify some comments about nocb locking on de-offloading (paulmck)
+	* Remove stale code "re-enabling" nocb timer on offloading. Not necessary
+	  anymore and even buggy.
+
+"timer: Revert "timer: Add timer_curr_running()""
+	* New patch
+
+git://git.kernel.org/pub/scm/linux/kernel/git/frederic/linux-dynticks.git
+	rcu/dev-v2
+
+HEAD: 925ee3076eb694db893e2c6664d90ad8fb9cb6e5
+
+Thanks,
+	Frederic
+---
+
+Frederic Weisbecker (13):
+      rcu/nocb: Fix potential missed nocb_timer rearm
+      rcu/nocb: Disable bypass when CPU isn't completely offloaded
+      rcu/nocb: Remove stale comment above rcu_segcblist_offload()
+      rcu/nocb: Move trace_rcu_nocb_wake() calls outside nocb_lock when possible
+      rcu/nocb: Merge nocb_timer to the rdp leader
+      timer: Revert "timer: Add timer_curr_running()"
+      rcu/nocb: Directly call __wake_nocb_gp() from bypass timer
+      rcu/nocb: Allow de-offloading rdp leader
+      rcu/nocb: Cancel nocb_timer upon nocb_gp wakeup
+      rcu/nocb: Delete bypass_timer upon nocb_gp wakeup
+      rcu/nocb: Only cancel nocb timer if not polling
+      rcu/nocb: Prepare for finegrained deferred wakeup
+      rcu/nocb: Unify timers
+
+
+ include/linux/rcu_segcblist.h |   7 +-
+ include/linux/timer.h         |   2 -
+ include/trace/events/rcu.h    |   1 +
+ kernel/rcu/rcu_segcblist.c    |   3 +-
+ kernel/rcu/tree.c             |   2 +-
+ kernel/rcu/tree.h             |   9 +-
+ kernel/rcu/tree_plugin.h      | 233 +++++++++++++++++++++++-------------------
+ kernel/time/timer.c           |  14 ---
+ 8 files changed, 141 insertions(+), 130 deletions(-)
