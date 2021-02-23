@@ -2,118 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86ED7322CE2
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62057322D23
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 16:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232447AbhBWOw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 09:52:56 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:12567 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232908AbhBWOwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:52:39 -0500
-Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DlMQX3Hl4zMYLm;
-        Tue, 23 Feb 2021 22:49:40 +0800 (CST)
-Received: from [10.67.110.218] (10.67.110.218) by
- DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 23 Feb 2021 22:51:30 +0800
-Subject: Re: [PATCH 4.9.257 1/1] futex: Fix OWNER_DEAD fixup
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     Lee Jones <lee.jones@linaro.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <judy.chenhui@huawei.com>,
-        <zhangjinhao2@huawei.com>, <tglx@linutronix.de>
-References: <20210222110542.3531596-1-zhengyejian1@huawei.com>
- <20210222110542.3531596-2-zhengyejian1@huawei.com>
- <20210222115424.GF376568@dell> <YDOec1kosGKKO80g@kroah.com>
- <4f06340a-e027-f944-3248-2939639d5e07@huawei.com>
- <YDOlOd9aHQzVCXkk@kroah.com>
- <42af110f-f492-c11c-397c-e0b5018d9263@huawei.com>
- <YDT8dsm6XFmfUEi7@kroah.com>
-From:   "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
-Message-ID: <a3d3e1e5-8956-e1db-840b-40b60e302d69@huawei.com>
-Date:   Tue, 23 Feb 2021 22:51:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S231410AbhBWPHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 10:07:25 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:10571 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229886AbhBWPHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 10:07:23 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B603519fc0000>; Tue, 23 Feb 2021 07:06:36 -0800
+Received: from [10.26.49.8] (172.20.145.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 23 Feb
+ 2021 15:06:33 +0000
+Subject: Re: [PATCH 5.4 00/13] 5.4.100-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+References: <20210222121013.583922436@linuxfoundation.org>
+ <8bf31a259854471a8c448905f47ebcb1@HQMAIL105.nvidia.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <81009a52-c35c-ccd2-a430-171b9828216d@nvidia.com>
+Date:   Tue, 23 Feb 2021 15:06:31 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <YDT8dsm6XFmfUEi7@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-GB
+In-Reply-To: <8bf31a259854471a8c448905f47ebcb1@HQMAIL105.nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.218]
-X-CFilter-Loop: Reflected
+X-Originating-IP: [172.20.145.6]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1614092796; bh=my+tGRPriaVbCMwWorG/+eI+yWCNqMzMwkYZDKaeUyA=;
+        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
+         MIME-Version:In-Reply-To:Content-Type:Content-Language:
+         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+        b=TOb9kwF47foUkc/wU+2cxtabB5QtBxNcU4QzvosHR0Ap0A1AHpavL0mLDscGD7HO2
+         fSIEgLRDySWH9JRt0wCSJQN0a88aiweYnEuUaa/W2lyrh5pGSSv2i6IvR6QhfahXWB
+         mb0O0MMqZintramutXXEZWNOvymSnkXTSDO23MnMAg992HPwhf/VSSWes0Gwnxfhsu
+         FN5apCy+Lez4TX5PEzKtXhA3FPvMAA9ee/UJzdl/tqZW1YRtS8WxA8fQg96amSQdZb
+         PbJMCaMIpL3qUOKWXwzily3OdF3nHPArCqiyrtShG9QDGi2VQR7VEgzWkgeUu+Ifpp
+         bEshEhhOd+Lag==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-
-On 2021/2/23 21:00, Greg KH wrote:
-> On Mon, Feb 22, 2021 at 09:11:43PM +0800, Zhengyejian (Zetta) wrote:
+On 23/02/2021 14:47, Jon Hunter wrote:
+> On Mon, 22 Feb 2021 13:13:17 +0100, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 5.4.100 release.
+>> There are 13 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
 >>
+>> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+>> Anything received after that time might be too late.
 >>
->> On 2021/2/22 20:36, Greg KH wrote:
->>> On Mon, Feb 22, 2021 at 08:20:38PM +0800, Zhengyejian (Zetta) wrote:
->>>>
->>>>
->>>> On 2021/2/22 20:07, Greg KH wrote:
->>>>> On Mon, Feb 22, 2021 at 11:54:24AM +0000, Lee Jones wrote:
->>>>>> On Mon, 22 Feb 2021, Zheng Yejian wrote:
->>>>>>
->>>>>>> From: Peter Zijlstra <peterz@infradead.org>
->>>>>>>
->>>>>>> commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
->>>>>>>
->>>>>>> Both Geert and DaveJ reported that the recent futex commit:
->>>>>>>
->>>>>>>      c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
->>>>>>>
->>>>>>> introduced a problem with setting OWNER_DEAD. We set the bit on an
->>>>>>> uninitialized variable and then entirely optimize it away as a
->>>>>>> dead-store.
->>>>>>>
->>>>>>> Move the setting of the bit to where it is more useful.
->>>>>>>
->>>>>>> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
->>>>>>> Reported-by: Dave Jones <davej@codemonkey.org.uk>
->>>>>>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->>>>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>>>>>> Cc: Linus Torvalds <torvalds@linux-foundation.org>
->>>>>>> Cc: Paul E. McKenney <paulmck@us.ibm.com>
->>>>>>> Cc: Peter Zijlstra <peterz@infradead.org>
->>>>>>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>>>>>> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
->>>>>>> Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
->>>>>>> Signed-off-by: Ingo Molnar <mingo@kernel.org>
->>>>>>> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
->>>>>>> ---
->>>>>>>     kernel/futex.c | 7 +++----
->>>>>>>     1 file changed, 3 insertions(+), 4 deletions(-)
->>>>>>
->>>>>> Reviewed-by: Lee Jones <lee.jones@linaro.org>
->>>>>
->>>>> This does not apply to the 4.9.y tree at all right now, are you all sure
->>>>> you got the backport correct?
->>>>>
->>>>> confused,
->>>>>
->>>>> greg k-h
->>>>> .
->>>>>
->>>> I make the patch basing on 282aeb477a10 ("Linux 4.9.257").
->>>> Should I base on f0cf73f13b39 ("Linux 4.9.258-rc1")?
->>>
->>> Yes please as I think this is already there.
->>>
->>> How about just waiting for the next release to come out, I will push out
->>> the 4.4 and 4.9 -rc releases right now as well to give everyone a chance
->>> to sync up properly.
->> Ok, I will rebase this patch then.
+>> The whole patch series can be found in one patch at:
+>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.100-rc1.gz
+>> or in the git tree and branch at:
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
 > 
-> Great, can you try 4.9.258?
+> Failures detected for Tegra ...
+> 
+> Test results for stable-v5.4:
+>     12 builds:	12 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     57 tests:	56 pass, 1 fail
+> 
+> Linux version:	5.4.100-rc1-gb467dd44a81c
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
+> 
+> Test failures:	tegra210-p2371-2180: tegra-audio-hda-playback.sh
 
-I'm very glad to.
-Rebased patch is ready:
- 
-https://lore.kernel.org/lkml/20210223144151.916675-1-zhengyejian1@huawei.com/
 
-Zheng Yejian
+You can ignore the above failure. This is an intermittent failure we
+have been observing on this board and is not new to this -rc. This has
+been fixed by the following mainline and has been tagged for stable.
+
+commit 1e0ca5467445bc1f41a9e403d6161a22f313dae7
+Author: Sameer Pujar <spujar@nvidia.com>
+Date:   Thu Jan 7 10:36:10 2021 +0530
+
+    arm64: tegra: Add power-domain for Tegra210 HDA
+
+Usually, I try to filter out these known issues, but missed this one.
+Anyway, for Tegra ...
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Cheers
+Jon
+
+-- 
+nvpublic
