@@ -2,108 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7444322D57
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 16:21:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBB3322DA4
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 16:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbhBWPUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 10:20:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39882 "EHLO
+        id S233035AbhBWPgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 10:36:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbhBWPT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 10:19:58 -0500
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51F6C061794
-        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 07:18:58 -0800 (PST)
-Received: by mail-lj1-x22a.google.com with SMTP id u4so63467981ljh.6
-        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 07:18:58 -0800 (PST)
+        with ESMTP id S229886AbhBWPgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 10:36:31 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D7AC06174A
+        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 07:35:49 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id d2so2167697pjs.4
+        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 07:35:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gQTPFz0KpYE2dWkk3abN3T0OszgB57hAvGOE8ZYtgAA=;
-        b=o+//MZFFfHtdHG0DGPb2hEKrGlrSgOgpcvlv8EkAotugJY4tPbXDcnXMc/VzRl1B3v
-         8Se2eEU44z6Q2HXZys/VPsHf2iTTAXagOhaMxbzKf/kYTJgl/71uLPYbBHMQVhMIiqf6
-         lXh+kxA8+09dEncWcHnEJKWScOXu2/9+AcCwK4jrjBqPzowQtoohRQyVHx7jfl3vv4Fs
-         Fijdk/U3Vezsc6EkpisJM7UVqdp7xiKs5x6ThOTcy4dnDSq/zFQA67Frm2NFaB8YAD1Q
-         Mclf3NnaduBtsQcwblXZrVEVZ3XJAYcht0XC3zb/ADdnOxPytBSC2EUz+zidmXWF86UY
-         bhHQ==
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=BnLhbV4q8sdnFkZjnko1LKGxrL0kXwy4HCD3zJOfD4k=;
+        b=e1aOH4lowSAqlV7nJxM5AJOOrXdop1pnqlXYB6/tmt2DOmu9BDsYecM5EQi8qOHgD+
+         G1ZGGTakAqN8i4Zq4zsfB0xoh3Sj7o2GCaqOsnj9rHhrXE8ztr2Z5lMK/YZIluQWJuo1
+         aqJhSjEM8IcSgnX6iF8Hq1qIUetFL+So604VONxxvHi7tOMeywsh9jIUifeGI1HBIWb4
+         bXfqK/b4+cHyGlROe5xlRNlud8+B8enGZaBlckVQte2t9Vh8EKjNTbNf6/MIa5weonC7
+         d/WHaHEfyJpuE6uZ1XP+AT/yae7AyLCASwamMLTaE27Pio0ZnwLlxDmTIPKSSi9CoOz8
+         Dwuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gQTPFz0KpYE2dWkk3abN3T0OszgB57hAvGOE8ZYtgAA=;
-        b=rUcBBgQzCs27nfQOa87hOx3Kiye0DDewNq3Y7SnX0b0qO+QXSLb+7tTIHQWL3Eujuf
-         mXVOe2m5ieMd0QhDJ6Ktgvy954WsTEEp4q9tRyRvwj3ZZSdiioaKG5ZLH5sH40gBHIme
-         atRgaVEInuUO89AEBlrgH5PzkJPDyaRk9Mj617PopvEHkSkYYlgS2k7Pe/GkqZo3OCLd
-         7V3y6POHF3lEBr3YPBaFAwYIu2uIuzhquB9FkHvDYJFd3rqmfOt2OmvNngMo/JhBvMdq
-         QH14EgrSiB0KDU0XJ6gHiuy3+XR5RxbRj7LZpxWF7nvFWnJ0TnP6VC3g9t1AvOzWBfwB
-         1J2Q==
-X-Gm-Message-State: AOAM530w9xDn2l6Rd9hSe/l5I7uG8jQOk3ykN22AW7CJ+EM4OTOyQYKA
-        tISEZCFjVLBVYfis9oFc9px9L7YqkDaBtl/n4aje6g==
-X-Google-Smtp-Source: ABdhPJytWIbvd5HdX9yo4bjjPo/hvJHu1yFtuH+7/DLHUFKLmC0yaai2hO26aAUsmhtGLUPJJv5KQJLr6A7968Nlm1M=
-X-Received: by 2002:a2e:5c02:: with SMTP id q2mr15091026ljb.81.1614093537053;
- Tue, 23 Feb 2021 07:18:57 -0800 (PST)
-MIME-Version: 1.0
-References: <20210223091101.42150-1-songmuchun@bytedance.com>
-In-Reply-To: <20210223091101.42150-1-songmuchun@bytedance.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Tue, 23 Feb 2021 07:18:46 -0800
-Message-ID: <CALvZod6=TYHPC3g3RzX84KeR8p74RH5PdbT+aNy+m5n2Yboskw@mail.gmail.com>
-Subject: Re: [PATCH] mm: memcontrol: fix get_active_memcg return value
-To:     Muchun Song <songmuchun@bytedance.com>, stable@vger.kernel.org
-Cc:     Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>,
-        Cgroups <cgroups@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=BnLhbV4q8sdnFkZjnko1LKGxrL0kXwy4HCD3zJOfD4k=;
+        b=T2vB7dyDb/7x98ka3TrCk62pS+zNxx4B6EAW6m6r1fIQ+sic8Hr3N/vXNTS2DkKHuQ
+         x+6ZDBQgKw+BJvuFKYPKlvpwgJHJr7m+VL4rKN8wowopx6aHZaGh8M50qUljV/IymRlg
+         RCdq5ljU05tTkJKW0ywCTa0dEIuVbJApEIK4GeQMgm+vZdEhgQTsLCQrJLHurNKKyemE
+         CgBpyRXcSEVYJjn/xgFLIgKZAh3IWJKjG0YIT+S9wMpv692SBl3p9sNqQG5qNaxwITf0
+         IQieC8Fv2wIkgYnURpmF5/vLH5o7Mj8qYUr1OiYiEJvvZHsAt1PECRFVvZxZrrQyOjIU
+         QbtQ==
+X-Gm-Message-State: AOAM531/mqaQ6sYMqnb9a/YTABU3TO3ULKuQNa0qv6NIODnu84Rg6Ie0
+        EX7yMllQj8I83K0TgIVIRrQ1tg==
+X-Google-Smtp-Source: ABdhPJyOjf5KjBka3sjuuTJblzjYJPNhq3qQWCL4Ka/HLlJMZ5H6zRe97rFfZcGYUueSudAaVChZlA==
+X-Received: by 2002:a17:90a:1a16:: with SMTP id 22mr30322559pjk.34.1614094549345;
+        Tue, 23 Feb 2021 07:35:49 -0800 (PST)
+Received: from ?IPv6:2601:646:c200:1ef2:2488:1c5a:27b:935? ([2601:646:c200:1ef2:2488:1c5a:27b:935])
+        by smtp.gmail.com with ESMTPSA id t18sm683718pjs.6.2021.02.23.07.35.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Feb 2021 07:35:48 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From:   Andy Lutomirski <luto@amacapital.net>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH 2/3] x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls
+Date:   Tue, 23 Feb 2021 07:35:47 -0800
+Message-Id: <AA835AD1-31C1-4C8A-AEFF-F0D1DD2C834C@amacapital.net>
+References: <YDTm8Q/cvBcfzhPn@hirez.programming.kicks-ass.net>
+Cc:     Andy Lutomirski <luto@kernel.org>, x86@kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+In-Reply-To: <YDTm8Q/cvBcfzhPn@hirez.programming.kicks-ass.net>
+To:     Peter Zijlstra <peterz@infradead.org>
+X-Mailer: iPhone Mail (18D52)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 1:14 AM Muchun Song <songmuchun@bytedance.com> wrote:
->
-> We use a global percpu int_active_memcg variable to store the remote
-> memcg when we are in the interrupt context. But get_active_memcg always
-> return the current->active_memcg or root_mem_cgroup. The remote memcg
-> (set in the interrupt context) is ignored. This is not what we want.
-> So fix it.
->
-> Fixes: 37d5985c003d ("mm: kmem: prepare remote memcg charging infra for interrupt contexts")
-> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 
-Good catch.
-Cc: stable@vger.kernel.org
 
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+> On Feb 23, 2021, at 3:29 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+>=20
+> =EF=BB=BFOn Mon, Feb 22, 2021 at 09:50:28PM -0800, Andy Lutomirski wrote:
+>> On a 32-bit fast syscall that fails to read its arguments from user
+>> memory, the kernel currently does syscall exit work but not
+>> syscall exit work.  This would confuse audit and ptrace.
+>>=20
+>> This is a minimal fix intended for ease of backporting.  A more
+>> complete cleanup is coming.
+>>=20
+>> Cc: stable@vger.kernel.org
+>> Fixes: 0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
+>> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>> ---
+>> arch/x86/entry/common.c | 3 ++-
+>> 1 file changed, 2 insertions(+), 1 deletion(-)
+>>=20
+>> diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+>> index 0904f5676e4d..cf4dcf346ca8 100644
+>> --- a/arch/x86/entry/common.c
+>> +++ b/arch/x86/entry/common.c
+>> @@ -128,7 +128,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_re=
+gs *regs)
+>>        regs->ax =3D -EFAULT;
+>>=20
+>>        instrumentation_end();
+>> -        syscall_exit_to_user_mode(regs);
+>> +        local_irq_disable();
+>> +        exit_to_user_mode();
+>>        return false;
+>>    }
+>=20
+> I'm confused, twice. Once by your Changelog, and second by the actual
+> patch. Shouldn't every return to userspace pass through
+> exit_to_user_mode_prepare() ? We shouldn't ignore NEED_RESCHED or
+> NOTIFY_RESUME, both of which can be set I think, even if the SYSCALL
+> didn't actually do anything.
 
-> ---
->  mm/memcontrol.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
->
-> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> index be6bc5044150..bbe25655f7eb 100644
-> --- a/mm/memcontrol.c
-> +++ b/mm/memcontrol.c
-> @@ -1061,13 +1061,9 @@ static __always_inline struct mem_cgroup *get_active_memcg(void)
->
->         rcu_read_lock();
->         memcg = active_memcg();
-> -       if (memcg) {
-> -               /* current->active_memcg must hold a ref. */
-> -               if (WARN_ON_ONCE(!css_tryget(&memcg->css)))
-> -                       memcg = root_mem_cgroup;
-> -               else
-> -                       memcg = current->active_memcg;
-> -       }
-> +       /* remote memcg must hold a ref. */
-> +       if (memcg && WARN_ON_ONCE(!css_tryget(&memcg->css)))
-> +               memcg = root_mem_cgroup;
->         rcu_read_unlock();
->
->         return memcg;
-> --
-> 2.11.0
->
+
+Aaaaahhhhhh!  There are too many of these functions. I=E2=80=99ll poke aroun=
+d. I=E2=80=99ll also try to figure out why I didn=E2=80=99t catch this in te=
+sting.=
