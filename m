@@ -2,80 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8CD322C9D
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D6F322CA2
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232258AbhBWOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 09:42:12 -0500
-Received: from smtp65.ord1c.emailsrvr.com ([108.166.43.65]:47156 "EHLO
-        smtp65.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232424AbhBWOmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:42:11 -0500
+        id S232705AbhBWOmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 09:42:20 -0500
+Received: from smtp64.ord1c.emailsrvr.com ([108.166.43.64]:48435 "EHLO
+        smtp64.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232520AbhBWOmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 09:42:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1614090678;
-        bh=Xg0XQm948RnX2mNORkN4jWNpvOmAQ4uZEFklw4yFCGI=;
+        s=20190130-41we5z8j; t=1614090680;
+        bh=ne9eCIiP9mnrfz4MCNNjieytJZ8uysslHZ0TYlQTC0w=;
         h=From:To:Subject:Date:From;
-        b=GgSTc8byGc3+Pnf9S76Xu3nWqXnc8UAB38b9l+3Ta/1r1AeTjXN3TtT1/cStAmtNe
-         UIcMD65pKY2G2SYmcVsvguTFqR/xUMEyOghGbJBcItK/IhgpfssD6LsHmAqZidwnkl
-         q5YBIJ2gV2jpB815ziytvb6/py4FA1KcPaBDDDJ4=
+        b=hlzX4YSn4+JeaSn/0604xXsnksJYR+4P3VvSHy7VTkfOeT8Cj2t4HEgls64cXB/EC
+         RNVu/MEck2xIHFl1ANJVc2i5vBP/fDtT8+sII04V/pY54wdyQeXe+sbLyN6k/BRWNf
+         DZXgH5OODM6gkUmmQHd0zSlhSij03arnZzFuLXBw=
 X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp1.relay.ord1c.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 132DA2019E;
-        Tue, 23 Feb 2021 09:31:17 -0500 (EST)
+Received: by smtp1.relay.ord1c.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 3A1AE20158;
+        Tue, 23 Feb 2021 09:31:19 -0500 (EST)
 From:   Ian Abbott <abbotti@mev.co.uk>
 To:     devel@driverdev.osuosl.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ian Abbott <abbotti@mev.co.uk>,
         H Hartley Sweeten <hsweeten@visionengravers.com>,
         stable@vger.kernel.org
-Subject: [PATCH 01/14] staging: comedi: addi_apci_1032: Fix endian problem for COS sample
-Date:   Tue, 23 Feb 2021 14:30:42 +0000
-Message-Id: <20210223143055.257402-2-abbotti@mev.co.uk>
+Subject: [PATCH 02/14] staging: comedi: addi_apci_1500: Fix endian problem for command sample
+Date:   Tue, 23 Feb 2021 14:30:43 +0000
+Message-Id: <20210223143055.257402-3-abbotti@mev.co.uk>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210223143055.257402-1-abbotti@mev.co.uk>
 References: <20210223143055.257402-1-abbotti@mev.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Classification-ID: a7362777-437e-4132-9c26-de9af4db62d3-2-1
+X-Classification-ID: a7362777-437e-4132-9c26-de9af4db62d3-3-1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Change-Of-State (COS) subdevice supports Comedi asynchronous
-commands to read 16-bit change-of-state values.  However, the interrupt
-handler is calling `comedi_buf_write_samples()` with the address of a
-32-bit integer `&s->state`.  On bigendian architectures, it will copy 2
-bytes from the wrong end of the 32-bit integer.  Fix it by transferring
-the value via a 16-bit integer.
+The digital input subdevice supports Comedi asynchronous commands that
+read interrupt status information.  This uses 16-bit Comedi samples (of
+which only the bottom 8 bits contain status information).  However, the
+interrupt handler is calling `comedi_buf_write_samples()` with the
+address of a 32-bit variable `unsigned int status`.  On a bigendian
+machine, this will copy 2 bytes from the wrong end of the variable.  Fix
+it by changing the type of the variable to `unsigned short`.
 
-Fixes: 6bb45f2b0c86 ("staging: comedi: addi_apci_1032: use comedi_buf_write_samples()"
-Cc: <stable@vger.kernel.org> # 3.19+
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../staging/comedi/drivers/addi_apci_1500.c    | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/comedi/drivers/addi_apci_1032.c b/drivers/staging/comedi/drivers/addi_apci_1032.c
-index 35b75f0c9200..81a246fbcc01 100644
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -260,6 +260,7 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
- 	struct apci1032_private *devpriv = dev->private;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
+index 11efb21555e3..b04c15dcfb57 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -208,7 +208,7 @@ static irqreturn_t apci1500_interrupt(int irq, void *d)
+ 	struct comedi_device *dev = d;
+ 	struct apci1500_private *devpriv = dev->private;
  	struct comedi_subdevice *s = dev->read_subdev;
- 	unsigned int ctrl;
-+	unsigned short val;
+-	unsigned int status = 0;
++	unsigned short status = 0;
+ 	unsigned int val;
  
- 	/* check interrupt is from this device */
- 	if ((inl(devpriv->amcc_iobase + AMCC_OP_REG_INTCSR) &
-@@ -275,7 +276,8 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
- 	outl(ctrl & ~APCI1032_CTRL_INT_ENA, dev->iobase + APCI1032_CTRL_REG);
- 
- 	s->state = inl(dev->iobase + APCI1032_STATUS_REG) & 0xffff;
--	comedi_buf_write_samples(s, &s->state, 1);
-+	val = s->state;
-+	comedi_buf_write_samples(s, &val, 1);
+ 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
+@@ -238,14 +238,14 @@ static irqreturn_t apci1500_interrupt(int irq, void *d)
+ 	 *
+ 	 *    Mask     Meaning
+ 	 * ----------  ------------------------------------------
+-	 * 0x00000001  Event 1 has occurred
+-	 * 0x00000010  Event 2 has occurred
+-	 * 0x00000100  Counter/timer 1 has run down (not implemented)
+-	 * 0x00001000  Counter/timer 2 has run down (not implemented)
+-	 * 0x00010000  Counter 3 has run down (not implemented)
+-	 * 0x00100000  Watchdog has run down (not implemented)
+-	 * 0x01000000  Voltage error
+-	 * 0x10000000  Short-circuit error
++	 * 0b00000001  Event 1 has occurred
++	 * 0b00000010  Event 2 has occurred
++	 * 0b00000100  Counter/timer 1 has run down (not implemented)
++	 * 0b00001000  Counter/timer 2 has run down (not implemented)
++	 * 0b00010000  Counter 3 has run down (not implemented)
++	 * 0b00100000  Watchdog has run down (not implemented)
++	 * 0b01000000  Voltage error
++	 * 0b10000000  Short-circuit error
+ 	 */
+ 	comedi_buf_write_samples(s, &status, 1);
  	comedi_handle_events(dev, s);
- 
- 	/* enable the interrupt */
 -- 
 2.30.0
 
