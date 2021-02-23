@@ -2,100 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 619533227DB
+	by mail.lfdr.de (Postfix) with ESMTP id D20EA3227DC
 	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 10:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbhBWJbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 04:31:32 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:36014 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231314AbhBWJ3n (ORCPT
+        id S231274AbhBWJbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 04:31:33 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:53574 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231688AbhBWJ3n (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 04:29:43 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UPM39J1_1614072539;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UPM39J1_1614072539)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UPLlpEN_1614072540;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UPLlpEN_1614072540)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 23 Feb 2021 17:29:00 +0800
+          Tue, 23 Feb 2021 17:29:01 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org
 Cc:     stable@vger.kernel.org, joseph.qi@linux.alibaba.com,
         jefflexu@linux.alibaba.com, hare@suse.com
-Subject: [PATCH v2 4.19 0/6] close udev startup race condition for several devices
-Date:   Tue, 23 Feb 2021 17:28:53 +0800
-Message-Id: <20210223092859.17033-1-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 4.19 1/6] Revert "zram: close udev startup race condition as default groups"
+Date:   Tue, 23 Feb 2021 17:28:54 +0800
+Message-Id: <20210223092859.17033-2-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210223092859.17033-1-jefflexu@linux.alibaba.com>
+References: <20210223092859.17033-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please refer to v1 ([1]) and background ([2]) for more details.
+This reverts commit 9e07f4e243791e00a4086ad86e573705cf7b2c65.
 
-As Sasha suggested in [3], revert commit 9e07f4e24379 ("zram: close udev
-startup race condition as default groups") first, and then apply the
-original patch set.
+The original commit is actually a "merged" fix of [1] and [2], as
+described in [3]. Since now we have more fixes that rely on [1], revert
+this commit first, and then get the original [1] and [2] merged.
 
-- patch 5: fix the issue of zram that the original commit (9e07f4e24379)
-wants to fix
-- patch 6: fix the issue of virtio-blk ([2])
-- patch 3/4: I have not occured with these two issues in real world. Put
-  here just for completeness.
+[1] fef912bf860e, block: genhd: add 'groups' argument to device_add_disk
+[2] 98af4d4df889, zram: register default groups with device_add_disk()
+[3] https://www.spinics.net/lists/stable/msg442196.html
 
-This patch set is for 4.19, though it shall be backported to
-4.4/4.9/4.14/4.19. Send this patch set out first for more feedbacks.
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+---
+ drivers/block/zram/zram_drv.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-I have only tested the issue of virtio-blk though.
-
-[1] https://lore.kernel.org/stable/20210207114656.32141-1-jefflexu@linux.alibaba.com/
-[2] https://lore.kernel.org/stable/f466aacc-f9ca-49ca-0da8-16dc045c9000@linux.alibaba.com/
-[3] https://lore.kernel.org/stable/20210207224612.GY4035784@sasha-vm/
-
-Hannes Reinecke (5):
-  block: genhd: add 'groups' argument to device_add_disk
-  nvme: register ns_id attributes as default sysfs groups
-  aoe: register default groups with device_add_disk()
-  zram: register default groups with device_add_disk()
-  virtio-blk: modernize sysfs attribute creation
-
-Jeffle Xu (1):
-  Revert "zram: close udev startup race condition as default groups"
-
- arch/um/drivers/ubd_kern.c          |   2 +-
- block/genhd.c                       |  19 +++--
- drivers/block/aoe/aoe.h             |   1 -
- drivers/block/aoe/aoeblk.c          |  21 ++----
- drivers/block/aoe/aoedev.c          |   1 -
- drivers/block/floppy.c              |   2 +-
- drivers/block/mtip32xx/mtip32xx.c   |   2 +-
- drivers/block/ps3disk.c             |   2 +-
- drivers/block/ps3vram.c             |   2 +-
- drivers/block/rsxx/dev.c            |   2 +-
- drivers/block/skd_main.c            |   2 +-
- drivers/block/sunvdc.c              |   2 +-
- drivers/block/virtio_blk.c          |  68 ++++++++++--------
- drivers/block/xen-blkfront.c        |   2 +-
- drivers/block/zram/zram_drv.c       |   4 +-
- drivers/ide/ide-cd.c                |   2 +-
- drivers/ide/ide-gd.c                |   2 +-
- drivers/memstick/core/ms_block.c    |   2 +-
- drivers/memstick/core/mspro_block.c |   2 +-
- drivers/mmc/core/block.c            |   2 +-
- drivers/mtd/mtd_blkdevs.c           |   2 +-
- drivers/nvdimm/blk.c                |   2 +-
- drivers/nvdimm/btt.c                |   2 +-
- drivers/nvdimm/pmem.c               |   2 +-
- drivers/nvme/host/core.c            |  21 +++---
- drivers/nvme/host/lightnvm.c        | 105 ++++++++++++----------------
- drivers/nvme/host/multipath.c       |  15 ++--
- drivers/nvme/host/nvme.h            |  10 +--
- drivers/s390/block/dasd_genhd.c     |   2 +-
- drivers/s390/block/dcssblk.c        |   2 +-
- drivers/s390/block/scm_blk.c        |   2 +-
- drivers/scsi/sd.c                   |   2 +-
- drivers/scsi/sr.c                   |   2 +-
- include/linux/genhd.h               |   5 +-
- 34 files changed, 147 insertions(+), 169 deletions(-)
-
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 52850c10165e..dfc53619dcdd 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1644,11 +1644,6 @@ static const struct attribute_group zram_disk_attr_group = {
+ 	.attrs = zram_disk_attrs,
+ };
+ 
+-static const struct attribute_group *zram_disk_attr_groups[] = {
+-	&zram_disk_attr_group,
+-	NULL,
+-};
+-
+ /*
+  * Allocate and initialize new zram device. the function returns
+  * '>= 0' device_id upon success, and negative value otherwise.
+@@ -1729,15 +1724,24 @@ static int zram_add(void)
+ 
+ 	zram->disk->queue->backing_dev_info->capabilities |=
+ 			(BDI_CAP_STABLE_WRITES | BDI_CAP_SYNCHRONOUS_IO);
+-	disk_to_dev(zram->disk)->groups = zram_disk_attr_groups;
+ 	add_disk(zram->disk);
+ 
++	ret = sysfs_create_group(&disk_to_dev(zram->disk)->kobj,
++				&zram_disk_attr_group);
++	if (ret < 0) {
++		pr_err("Error creating sysfs group for device %d\n",
++				device_id);
++		goto out_free_disk;
++	}
+ 	strlcpy(zram->compressor, default_compressor, sizeof(zram->compressor));
+ 
+ 	zram_debugfs_register(zram);
+ 	pr_info("Added device: %s\n", zram->disk->disk_name);
+ 	return device_id;
+ 
++out_free_disk:
++	del_gendisk(zram->disk);
++	put_disk(zram->disk);
+ out_free_queue:
+ 	blk_cleanup_queue(queue);
+ out_free_idr:
+@@ -1766,6 +1770,16 @@ static int zram_remove(struct zram *zram)
+ 	mutex_unlock(&bdev->bd_mutex);
+ 
+ 	zram_debugfs_unregister(zram);
++	/*
++	 * Remove sysfs first, so no one will perform a disksize
++	 * store while we destroy the devices. This also helps during
++	 * hot_remove -- zram_reset_device() is the last holder of
++	 * ->init_lock, no later/concurrent disksize_store() or any
++	 * other sysfs handlers are possible.
++	 */
++	sysfs_remove_group(&disk_to_dev(zram->disk)->kobj,
++			&zram_disk_attr_group);
++
+ 	/* Make sure all the pending I/O are finished */
+ 	fsync_bdev(bdev);
+ 	zram_reset_device(zram);
 -- 
 2.27.0
 
