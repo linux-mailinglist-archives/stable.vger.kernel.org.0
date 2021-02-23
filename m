@@ -2,154 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB9C322895
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 11:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A05F23228A9
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 11:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232414AbhBWKIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 05:08:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55446 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232299AbhBWKHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Feb 2021 05:07:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA91864E3F;
-        Tue, 23 Feb 2021 10:07:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614074830;
-        bh=ldsGlNDSWjObH//AcaVyVQQKhLO6Y4NGrLkEEk/X1Fw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RbK9+nibc62xkE6KYKhOYU2/DAkFZdXP5FAppKjVSO6+bAQ8rT49E2p0xz70sCeKg
-         CanSZRBIKjopRCmoFauqzMQO0ahgfBqdp8OLhf0HTOKAW81Nxdxkhmue1lA1H/BzZR
-         E1j2euU99oiLWUta8OltH4Yb/me+UivaK/b5Z8anO04LeWlMlYBTyz7lCOQHlMLBZC
-         0w5Zuterro0K5aVcTIJMfrcLBv3ADFpNNDGovuYZjU8s5chhvSmiIX9eDYtKhoYAxY
-         ywKIbb4g9ghAeaVChMmr7wxqQ1MGUc+a6/2DforsrqiCRDlnPOkdIUtmDFFHn1dJWs
-         jbbpF1r2ITpww==
-Date:   Tue, 23 Feb 2021 12:06:59 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
-        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v6 1/1] mm/page_alloc.c: refactor initialization of
- struct page for holes in memory layout
-Message-ID: <20210223100659.GJ1447004@kernel.org>
-References: <20210222105728.28636-1-rppt@kernel.org>
- <a7f70da1-6733-967f-4d1d-92d23b95a753@redhat.com>
- <20210223094802.GI1447004@kernel.org>
- <aafa291d-ced4-2e4d-f9c4-be99e9394c0c@redhat.com>
+        id S232467AbhBWKM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 05:12:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232365AbhBWKLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 05:11:43 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A867C06178A
+        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 02:11:03 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id e13so30447648ejl.8
+        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 02:11:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=JczxKF/UVhFH+ht01ZpfRi7LHgcA15d/I8GTQFGKlp8=;
+        b=C3NwQmXlrncR0De6qbxYwsIQzTQ5k8sthatWiVx/3t67qgzBYFKtRfSox5BL5TWja4
+         VUeV+lBugrJFXgD6doR1yemmtdn+8y7XJgg0ChlPo7Mq/Hxv7HxNmLXIyp+8J716hMxX
+         n0scFkdj/69m0hWn950W3V+gmtD4sOMZePGNsNVVPAV5uSw/wYHVKtHQbXE6DSNvXytA
+         uz7c5oYDQ+ZRwMMbm1cmfhrrJxKZ+KS6uButx/1QRZBPO7cJjIwxx06vzsUNVLy7k26K
+         EkgXxo/KH2w5KACSB27AhVCzFu4nLqsKxaeijICxWnOLduW4GyklNg8rcb8AyNXkVtUO
+         UscQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=JczxKF/UVhFH+ht01ZpfRi7LHgcA15d/I8GTQFGKlp8=;
+        b=pZhZ0OKhD/zO4gKHze6/YGepdOE3VWtPVeqxWNYTV8RlnrC7ureKkK3AKPfBH/Xzum
+         0DhiobpdqNIDyLIZcYAVVTmNGmpy7kAkNU8AwY2Z604cFIijlAEs8Oi4i01OW6w16gPl
+         Gz+tZwMrKNar4Gqv1w6JUUZuCzHLN4ktgD19bZyW4L+xCpAFc9EY2gOwtFI5PNy0l4iJ
+         oMsaiD8GyfRHlQGP8Y4R9Lmu3CuvspZY1w31pnn0hlcv1gCKVmdDtTrTrocmSFrnnid4
+         JP5vPZvGZBbSjUiK5VuCXMRygdTHozVCBMXNkNH4nHMH6njbeYsM7zPxBMU73OxQ6PWU
+         HSZg==
+X-Gm-Message-State: AOAM5326RGwmivblMNkeekLbF31DQ48qEtrIQ9bi6A9HOQbTwwlD1GDE
+        XQQ3p0CIAw8Swc08mtUDU4YidFEwJhNd1bUY1mo82w==
+X-Google-Smtp-Source: ABdhPJz8oK13TwhCjrB0QfY/FNlegXcsFcuxacbb9QQFDopfytKNKtQLdq0VRCkx1Wa3LlvL0hdFoQGtMExTka+MlWA=
+X-Received: by 2002:a17:906:d155:: with SMTP id br21mr25088477ejb.503.1614075061628;
+ Tue, 23 Feb 2021 02:11:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aafa291d-ced4-2e4d-f9c4-be99e9394c0c@redhat.com>
+References: <20210222121019.925481519@linuxfoundation.org>
+In-Reply-To: <20210222121019.925481519@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 23 Feb 2021 15:40:50 +0530
+Message-ID: <CA+G9fYuSWesDE3g2XP7+1tPW8Wv4gYp1-3recQakasg7se0+9Q@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/50] 4.19.177-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 10:49:44AM +0100, David Hildenbrand wrote:
-> On 23.02.21 10:48, Mike Rapoport wrote:
-> > On Tue, Feb 23, 2021 at 09:04:19AM +0100, David Hildenbrand wrote:
-> > > On 22.02.21 11:57, Mike Rapoport wrote:
-> > > > From: Mike Rapoport <rppt@linux.ibm.com>
-> > > > 
-> > > > There could be struct pages that are not backed by actual physical memory.
-> > > > This can happen when the actual memory bank is not a multiple of
-> > > > SECTION_SIZE or when an architecture does not register memory holes
-> > > > reserved by the firmware as memblock.memory.
-> > > > 
-> > > > Such pages are currently initialized using init_unavailable_mem() function
-> > > > that iterates through PFNs in holes in memblock.memory and if there is a
-> > > > struct page corresponding to a PFN, the fields of this page are set to
-> > > > default values and it is marked as Reserved.
-> > > > 
-> > > > init_unavailable_mem() does not take into account zone and node the page
-> > > > belongs to and sets both zone and node links in struct page to zero.
-> > > > 
-> > > > Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions
-> > > > rather that check each PFN") the holes inside a zone were re-initialized
-> > > > during memmap_init() and got their zone/node links right. However, after
-> > > > that commit nothing updates the struct pages representing such holes.
-> > > > 
-> > > > On a system that has firmware reserved holes in a zone above ZONE_DMA, for
-> > > > instance in a configuration below:
-> > > > 
-> > > > 	# grep -A1 E820 /proc/iomem
-> > > > 	7a17b000-7a216fff : Unknown E820 type
-> > > > 	7a217000-7bffffff : System RAM
-> > > > 
-> > > > unset zone link in struct page will trigger
-> > > > 
-> > > > 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
-> > > > 
-> > > > because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
-> > > > in struct page) in the same pageblock.
-> > > > 
-> > > > Interleave initialization of the unavailable pages with the normal
-> > > > initialization of memory map, so that zone and node information will be
-> > > > properly set on struct pages that are not backed by the actual memory.
-> > > > 
-> > > > With this change the pages for holes inside a zone will get proper
-> > > > zone/node links and the pages that are not spanned by any node will get
-> > > > links to the adjacent zone/node.
-> > > 
-> > > Does this include pages in the last section has handled by ...
-> > > ...
-> > > > -	/*
-> > > > -	 * Early sections always have a fully populated memmap for the whole
-> > > > -	 * section - see pfn_valid(). If the last section has holes at the
-> > > > -	 * end and that section is marked "online", the memmap will be
-> > > > -	 * considered initialized. Make sure that memmap has a well defined
-> > > > -	 * state.
-> > > > -	 */
-> > > > -	pgcnt += init_unavailable_range(PFN_DOWN(next),
-> > > > -					round_up(max_pfn, PAGES_PER_SECTION));
-> > > > -
-> > > 
-> > > ^ this code?
-> > > 
-> > > Or how is that case handled now?
-> > 
-> > Hmm, now it's clamped to node_end_pfn/zone_end_pfn, so in your funny example with
-> > 
-> >      -object memory-backend-ram,id=bmem0,size=4160M \
-> >      -object memory-backend-ram,id=bmem1,size=4032M \
-> > 
-> > this is not handled :(
-> > 
-> > But it will be handled with this on top:
-> > 
-> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > index 29bbd08b8e63..6c9b490f5a8b 100644
-> > --- a/mm/page_alloc.c
-> > +++ b/mm/page_alloc.c
-> > @@ -6350,9 +6350,12 @@ void __meminit __weak memmap_init_zone(struct zone *zone)
-> >   		hole_pfn = end_pfn;
-> >   	}
-> > -	if (hole_pfn < zone_end_pfn)
-> > -		pgcnt += init_unavailable_range(hole_pfn, zone_end_pfn,
-> > +#ifdef CONFIG_SPARSEMEM
-> > +	end_pfn = round_up(zone_end_pfn, PAGES_PER_SECTION);
-> > +	if (hole_pfn < end_pfn)
-> > +		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
-> >   						zone_id, nid);
-> > +#endif
-> >   	if (pgcnt)
-> >   		pr_info("  %s zone: %lld pages in unavailable ranges\n",
-> > 
-> 
-> 
-> Also, just wondering, will PFN 0 still get initialized?
+On Mon, 22 Feb 2021 at 17:47, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.177 release.
+> There are 50 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.177-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes, it gets 0,0 links, but it is still outside node/zone span.
 
--- 
-Sincerely yours,
-Mike.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.177-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 413fa3cdbf28627d28d937d9ac27b1d184c24711
+git describe: v4.19.176-51-g413fa3cdbf28
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.176-51-g413fa3cdbf28
+
+No regressions (compared to build v4.19.176-37-ga4346d5d945c)
+
+No fixes (compared to build v4.19.176-37-ga4346d5d945c)
+
+Ran 49321 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* fwts
+* kselftest-bpf
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-cve-tests
+* ltp-open-posix-tests
+* rcutorture
+* ssuite
+* network-basic-tests
+* kselftest-android
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* kselftest-
+* kselftest-kexec
+* kselftest-vm
+* kselftest-x86
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
