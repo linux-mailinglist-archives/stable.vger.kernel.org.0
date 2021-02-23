@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21493222F5
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 01:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E93813222F7
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 01:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbhBWALF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 19:11:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57586 "EHLO mail.kernel.org"
+        id S231605AbhBWALL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 19:11:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230135AbhBWALF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 19:11:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B29F064E4D;
-        Tue, 23 Feb 2021 00:10:22 +0000 (UTC)
+        id S231228AbhBWALI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Feb 2021 19:11:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B04964E4A;
+        Tue, 23 Feb 2021 00:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614039024;
-        bh=ww2mfcAB+JE3IriRx+9asqPmLIAPsKaCJ8eDjOZaLhc=;
+        s=k20201202; t=1614039027;
+        bh=+xHRpZfRZlMH4BcSafsfZN/+p8jTkcZfN6LHiFtt/Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyf5q5JGJxw2x7OIVX3a4AlR16G2tF1mfJlZZvXFAvvvzPRdZamaApEA7rbJfUa4K
-         wzo6WIUHot2HPR465LUH5tNyCG3SqXw1aJjSkPdf0drCHeT+YopQ54HmHAvwj3VZTW
-         c+hUn0rLMz7A9znamUetlXl+5XI6rfPykGdIlI879Kco2+O86vCEIKdL0VtpfrJnaV
-         5OGbEZ+kNLlVFyIMGn54oHNBdmajJZt+qMxo4H+235xY2deZf0k8wElLEJX9uDx/Vy
-         k/upHWDN8HkFmH5txaxjAt0wah7Iz8BQk8fUdDcXYza+t44whSuAGHMOyLD6lrN42u
-         tRn2P36gWeAdQ==
+        b=Qzdqni6xyRNYGzF+VkZAyEV2qBKZNlOZb7K8fudbu8aBkrjOUIBbl/4xbMrdBJTFN
+         godX+6AqeHGDnHMjANxpdCygoGLvVPGNyReUbW5D/wgVBiVaisPGGRrD4pqQJCBEpZ
+         w4c75Fk41+mmFkbuN/8OKyxnE6JqSmXm1ZZNUos2VUrvM5gQbxSTBb6WC7wDkMzXPi
+         7r7IK89SyTsUTkftpF20PlQEVfWT9vyp2mCXsBQmEqWEPY7Niyi3CkplYITN9BqQfk
+         FwaSJFiqP093NjRE39Wjw6uQsHYjqA3EuWlBXZwwm1jTNOJKoGKIxEVE7caMisMbwE
+         LxRe3QC/dnebA==
 From:   Frederic Weisbecker <frederic@kernel.org>
 To:     "Paul E . McKenney" <paulmck@kernel.org>
 Cc:     LKML <linux-kernel@vger.kernel.org>,
@@ -34,9 +34,9 @@ Cc:     LKML <linux-kernel@vger.kernel.org>,
         Josh Triplett <josh@joshtriplett.org>,
         Stable <stable@vger.kernel.org>,
         Joel Fernandes <joel@joelfernandes.org>
-Subject: [PATCH 03/13] rcu/nocb: Remove stale comment above rcu_segcblist_offload()
-Date:   Tue, 23 Feb 2021 01:10:01 +0100
-Message-Id: <20210223001011.127063-4-frederic@kernel.org>
+Subject: [PATCH 04/13] rcu/nocb: Move trace_rcu_nocb_wake() calls outside nocb_lock when possible
+Date:   Tue, 23 Feb 2021 01:10:02 +0100
+Message-Id: <20210223001011.127063-5-frederic@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210223001011.127063-1-frederic@kernel.org>
 References: <20210223001011.127063-1-frederic@kernel.org>
@@ -46,11 +46,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Remove stale comment claiming that the cblist must be empty before
-changing the offloading state. This applied when the offloaded state was
-defined exclusively on boot.
+Those tracing calls don't need to be under the nocb lock. Move them
+outside.
 
-Reported-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Cc: Josh Triplett <josh@joshtriplett.org>
 Cc: Lai Jiangshan <jiangshanlai@gmail.com>
@@ -58,23 +56,45 @@ Cc: Joel Fernandes <joel@joelfernandes.org>
 Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
 Cc: Boqun Feng <boqun.feng@gmail.com>
 ---
- kernel/rcu/rcu_segcblist.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/rcu/tree_plugin.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/rcu/rcu_segcblist.c b/kernel/rcu/rcu_segcblist.c
-index 7f181c9675f7..aaa111237b60 100644
---- a/kernel/rcu/rcu_segcblist.c
-+++ b/kernel/rcu/rcu_segcblist.c
-@@ -261,8 +261,7 @@ void rcu_segcblist_disable(struct rcu_segcblist *rsclp)
- }
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index 924fa3d1df0d..587df271d640 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1715,9 +1715,9 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
  
- /*
-- * Mark the specified rcu_segcblist structure as offloaded.  This
-- * structure must be empty.
-+ * Mark the specified rcu_segcblist structure as offloaded.
-  */
- void rcu_segcblist_offload(struct rcu_segcblist *rsclp, bool offload)
- {
+ 	lockdep_assert_held(&rdp->nocb_lock);
+ 	if (!READ_ONCE(rdp_gp->nocb_gp_kthread)) {
++		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
+ 				    TPS("AlreadyAwake"));
+-		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		return false;
+ 	}
+ 
+@@ -1967,9 +1967,9 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
+ 	// If we are being polled or there is no kthread, just leave.
+ 	t = READ_ONCE(rdp->nocb_gp_kthread);
+ 	if (rcu_nocb_poll || !t) {
++		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
+ 				    TPS("WakeNotPoll"));
+-		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		return;
+ 	}
+ 	// Need to actually to a wakeup.
+@@ -2004,8 +2004,8 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
+ 					   TPS("WakeOvfIsDeferred"));
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 	} else {
++		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("WakeNot"));
+-		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 	}
+ 	return;
+ }
 -- 
 2.25.1
 
