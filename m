@@ -2,116 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4FF3225F6
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 07:33:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1221A322652
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 08:19:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231490AbhBWGc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 01:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39872 "EHLO
+        id S229999AbhBWHSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 02:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbhBWGcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 01:32:47 -0500
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316B1C061574;
-        Mon, 22 Feb 2021 22:32:07 -0800 (PST)
-Received: by mail-yb1-xb30.google.com with SMTP id m188so15370219yba.13;
-        Mon, 22 Feb 2021 22:32:07 -0800 (PST)
+        with ESMTP id S231822AbhBWHRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 02:17:42 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE237C06178B
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 23:17:01 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id r17so6615081ejy.13
+        for <stable@vger.kernel.org>; Mon, 22 Feb 2021 23:17:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DPPscTRk33SoDLbqxxX5n926bhjPDJW+amwIenmHvyA=;
-        b=K/Wu4dqAMv7OubSmBWaPVPpEuDqYmqHJxLChgnVAjNpm2x7Ms8kdYTQfTbz5OG1W0n
-         lRilE+wdSaGYP4lEL3fXl8FXgZLF25UAT2+lhynrohfX1YwhG6BtP7iod550Pha4Lr/e
-         AqkS7wB92WJ26CSwn1JNTx6BIvbMODIcdAt7cFlUGf3QWIlrLZaUfkLqK8U9Toh6Cyv7
-         /OPqCkauf1rsMpe3eVcZWfGFq/oEgm30t5Z/cjRNY+ys0zcklPgw9+Q4Sbx7CNNS7zkT
-         qcouQY4U3fUeaTb9TCh62gejrzAfqfJuauZ3TmQHwhSsviA6kK9Fih6wXXdjL/ZdPC0A
-         I/OQ==
+         :cc:content-transfer-encoding;
+        bh=tLbaD828ROUJrbj6tRy23GS8yufUa2khXUxH/puHPtI=;
+        b=F5TNCKjrp8ESnoVA6ZWXuxk6nCe1Ef/2H/d6zzsBHwljCr3Dsuh80j0hWHjgfDLAGs
+         UheDwb2dj2p7DdtBGfQ0rLt+DKCDwx2dOBzRW88scjPA9UHVpolA8twBNVzsiMFfL57+
+         KGnKn+0kYzuBW6OonFB6N/6ExE4/eJpFy3UC9iz6NjXA6dY7gDMx7Oh3PAetN/GA8hYO
+         YCyHPerwIsdN0mZZYkTfAasN4wIyZ7sWJ/PFjKfiFjNyPujzV5c6gu+SkPa4trQE9XX5
+         H1IJKK7YY7D373cEG+8yNNOkACLQIwUu7suzAQMetM0fVCq69VFOfcECYNogVkBVPThu
+         g71g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DPPscTRk33SoDLbqxxX5n926bhjPDJW+amwIenmHvyA=;
-        b=RWqJfBK91MGQdCCcYfQpd6EECmwGjbU572uKTXRIM4zkphVfoamFvUQKIN/aWMBjOf
-         JhDTTrGbjV9spU6+wA6DcpgWxNfnL9Tz+kYJ+kHAtQcCXL02r3n/gJQm2gsxEPZ/Cefz
-         VX9+JyWmCuJRclynF2KozDn4WNUMMOTakS7xzxCF2kBQZ8WTm9eLdhlQwDE6xgXpoqhi
-         qi5dtGk2aigeqch3DRGVhOaQVrjTyQ0LPo3AVjzOgcRz5mmDwtPSim7fsVkCKkPixI4k
-         wZjfv8+fM9RqOOnRudez+vc8DIAQ6iFTqZy0E3spzUvErvQWRW6nZkyLrQXbNtp0b6ql
-         vTGA==
-X-Gm-Message-State: AOAM531n4xkajFEXXdykZ5ZBAQxd2kPUhlKX7DnkNyLD2wLUOvErb6jD
-        b3hwxmo1GLnS54vLiX08NHPbeziMGuk4mDxD1Yt0TUsnims=
-X-Google-Smtp-Source: ABdhPJxI7yg/dvu5J2zWZclsj5rUafi3AkfCZSlub/B+OgDLZ9zXTLvBEwpONYIlTzFzNJMR8k36cGKzO2Ddt1RRocQ=
-X-Received: by 2002:a25:abb2:: with SMTP id v47mr37404236ybi.425.1614061926389;
- Mon, 22 Feb 2021 22:32:06 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tLbaD828ROUJrbj6tRy23GS8yufUa2khXUxH/puHPtI=;
+        b=lE8vnzvI7vvveAClVzwH7nH0a5HbqzHIcFfkRa3cIYgOqRAV/GCRc/FIV0ZUhMf48O
+         3hZZ4mCLcZDCFmPYw9j4AKiRztFoKoJm0BAHIMBnmBts7ztaXym0IMJb/IpjKPwV+N1Z
+         O7cVCzPHhNKfitmDyLbUGJIgucAOSs96k77OMKetGS/EijDTDYDSvyyNkGmrlP5hdgku
+         UGKfdVEW53vbJcT0f4Ew4tR1a8ITFxNCjlg3rtzjSCMnytWUwe7FPL86bUsquRrt45ot
+         YVy17LfnPlfqnPL0GsjFScfviWaNeX9kWR1rFiG9J4DbLXh3KspiWMd+I7xORgdEENNY
+         SX+w==
+X-Gm-Message-State: AOAM533A7EUdOUJ4mruN26q05pDlZ5PFzXqfUp+hMs3LAGN1hygkaiZx
+        7ej8fiiyqx9KSKy+Xy563O2zZl16WFEAjOCB+b0B1Q==
+X-Google-Smtp-Source: ABdhPJwR4dR2313jAV5Q60+zbgHaxDnNhnO4yBzi9B7jS5hkn19x3uy9Nh0yj7vjpCfLabZ3VOICIBbz/GJvbiAeJHU=
+X-Received: by 2002:a17:906:4c85:: with SMTP id q5mr24291742eju.375.1614064619821;
+ Mon, 22 Feb 2021 23:16:59 -0800 (PST)
 MIME-Version: 1.0
-References: <20210223012001.1452676-1-jetswayss@gmail.com>
-In-Reply-To: <20210223012001.1452676-1-jetswayss@gmail.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Mon, 22 Feb 2021 22:31:55 -0800
-Message-ID: <CAEf4BzZ_UkGGjRCa6js9J8kDgXkK+Fi91rRQ7U4Hy0t01aovOA@mail.gmail.com>
-Subject: Re: [PATCH] tools/resolve_btfids: Fix build error with older host toolchains
-To:     Kun-Chuan Hsieh <jetswayss@gmail.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>, bpf <bpf@vger.kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        linux- stable <stable@vger.kernel.org>
+References: <20210222121013.583922436@linuxfoundation.org>
+In-Reply-To: <20210222121013.583922436@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 23 Feb 2021 12:46:48 +0530
+Message-ID: <CA+G9fYv_37qTVD_ag+_wPQFrbou9i-OmrJUmQw99OKUSVPkJHg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/13] 5.4.100-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 22, 2021 at 5:20 PM Kun-Chuan Hsieh <jetswayss@gmail.com> wrote:
+On Mon, 22 Feb 2021 at 17:46, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Older versions of libelf cannot recognize the compressed section.
-> However, it's only required to fix the compressed section info when
-> compiling with CONFIG_DEBUG_INFO_COMPRESSED flag is set.
+> This is the start of the stable review cycle for the 5.4.100 release.
+> There are 13 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.100-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Is it possible to detect (at compilation time or at run time) if
-libelf supports compressed ELF sections instead?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
->
-> Only compile the compressed_section_fix function when necessary will make
-> it easier to enable the BTF function. Since the tool resolve_btfids is
-> compiled with host toolchain. The host toolchain might be older than the
-> cross compile toolchain.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
-> ---
->  tools/bpf/resolve_btfids/main.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-> index 7409d7860aa6..ad40346c6631 100644
-> --- a/tools/bpf/resolve_btfids/main.c
-> +++ b/tools/bpf/resolve_btfids/main.c
-> @@ -260,6 +260,7 @@ static struct btf_id *add_symbol(struct rb_root *root, char *name, size_t size)
->         return btf_id__add(root, id, false);
->  }
->
-> +#ifdef CONFIG_DEBUG_INFO_COMPRESSED
->  /*
->   * The data of compressed section should be aligned to 4
->   * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
-> @@ -292,6 +293,7 @@ static int compressed_section_fix(Elf *elf, Elf_Scn *scn, GElf_Shdr *sh)
->         }
->         return 0;
->  }
-> +#endif
->
->  static int elf_collect(struct object *obj)
->  {
-> @@ -370,8 +372,10 @@ static int elf_collect(struct object *obj)
->                         obj->efile.idlist_addr  = sh.sh_addr;
->                 }
->
-> +#ifdef CONFIG_DEBUG_INFO_COMPRESSED
->                 if (compressed_section_fix(elf, scn, &sh))
->                         return -1;
-> +#endif
->         }
->
->         return 0;
-> --
-> 2.25.1
->
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.4.100-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: b467dd44a81c97f9d99fbab61ef081f35e824773
+git describe: v5.4.99-15-gb467dd44a81c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.99-15-gb467dd44a81c
+
+No regressions (compared to build v5.4.99)
+
+No fixes (compared to build v5.4.99)
+
+
+Ran 50146 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* v4l2-compliance
+* fwts
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* kselftest-kexec
+* kselftest-vm
+* kselftest-x86
+* ltp-open-posix-tests
+* kvm-unit-tests
+* rcutorture
+* ssuite
+* timesync-off
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
