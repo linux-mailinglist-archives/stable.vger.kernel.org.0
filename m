@@ -2,82 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1F63227D2
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 10:30:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 619533227DB
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 10:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230439AbhBWJab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 04:30:31 -0500
-Received: from esa2.hc3370-68.iphmx.com ([216.71.145.153]:51329 "EHLO
-        esa2.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232338AbhBWJ2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 04:28:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=citrix.com; s=securemail; t=1614072512;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=elkiEyw/x+p4Mzp82r1PU6gv61RdX2VzYrI0EcXBgiE=;
-  b=eqEccJJBKQpSd2e8VyT0zHZJLliOTtawknOrTNw9y22VO/7wJmybd6gr
-   lvX2jRKqsCdMDQmBMtPaJ85Mp95iwEd8YuJaKkKZJTGcqVX1OK8IHn/aj
-   rju+2Iyvh8SEwRHL29X09P8q1f72uyKmPpdwlU3BIYpu3qj4JgPvRp0R4
-   U=;
-Authentication-Results: esa2.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
-IronPort-SDR: r+v2a+pAcLkDXkvtq+LmVooxIXl9Yi1OFFOUqXQVl7OPoBQ/F1wR39/aL26u9L65xhinLzNmzD
- IkM5sCEPjCfpmf9zzrGZh3QpaL3V+Q5QWq+TyAXm2mwA4eOOjMRr16+CUyDyewQEuJfODY5MbN
- wFE9A627oR/uIUpbMpS8JESAt4rQ0ZHYTeHTVyqMz0CtZl4/Eu4i5+crISP29PhiJDm9wpiP9E
- 8gWCC28x4GMlXuCPvXKvUr/Ak6638Jo/O1FCh/AH4ug72oJzWRID7AuaDHkXLapWfmKY7SqObb
- oGk=
-X-SBRS: 5.1
-X-MesageID: 37826829
-X-Ironport-Server: esa2.hc3370-68.iphmx.com
-X-Remote-IP: 162.221.158.21
-X-Policy: $RELAYED
-X-IronPort-AV: E=Sophos;i="5.81,199,1610427600"; 
-   d="scan'208";a="37826829"
-Subject: Re: [PATCH v3 2/8] xen/events: don't unmask an event channel when an
- eoi is pending
-To:     Juergen Gross <jgross@suse.com>, <xen-devel@lists.xenproject.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        <stable@vger.kernel.org>, Julien Grall <julien@xen.org>
-References: <20210219154030.10892-1-jgross@suse.com>
- <20210219154030.10892-3-jgross@suse.com>
-From:   Ross Lagerwall <ross.lagerwall@citrix.com>
-Message-ID: <d368a948-17d6-4e64-110e-bede3158f49f@citrix.com>
-Date:   Tue, 23 Feb 2021 09:26:49 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S230414AbhBWJbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 04:31:32 -0500
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:36014 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231314AbhBWJ3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 04:29:43 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UPM39J1_1614072539;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UPM39J1_1614072539)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 23 Feb 2021 17:29:00 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     gregkh@linuxfoundation.org, sashal@kernel.org
+Cc:     stable@vger.kernel.org, joseph.qi@linux.alibaba.com,
+        jefflexu@linux.alibaba.com, hare@suse.com
+Subject: [PATCH v2 4.19 0/6] close udev startup race condition for several devices
+Date:   Tue, 23 Feb 2021 17:28:53 +0800
+Message-Id: <20210223092859.17033-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20210219154030.10892-3-jgross@suse.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-02-19 15:40, Juergen Gross wrote:
-> An event channel should be kept masked when an eoi is pending for it.
-> When being migrated to another cpu it might be unmasked, though.
-> 
-> In order to avoid this keep three different flags for each event channel
-> to be able to distinguish "normal" masking/unmasking from eoi related
-> masking/unmasking and temporary masking. The event channel should only
-> be able to generate an interrupt if all flags are cleared.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 54c9de89895e0a36047 ("xen/events: add a new late EOI evtchn framework")
-> Reported-by: Julien Grall <julien@xen.org>
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+Please refer to v1 ([1]) and background ([2]) for more details.
 
-I tested this patch series backported to a 4.19 kernel and found that
-when doing a reboot loop of Windows with PV drivers, occasionally it will
-end up in a state with some event channels pending and masked in dom0
-which breaks networking in the guest.
+As Sasha suggested in [3], revert commit 9e07f4e24379 ("zram: close udev
+startup race condition as default groups") first, and then apply the
+original patch set.
 
-The issue seems to have been introduced with this patch, though at first
-glance it appears correct. I haven't yet looked into why it is happening.
-Have you seen anything like this with this patch?
+- patch 5: fix the issue of zram that the original commit (9e07f4e24379)
+wants to fix
+- patch 6: fix the issue of virtio-blk ([2])
+- patch 3/4: I have not occured with these two issues in real world. Put
+  here just for completeness.
 
-Thanks,
-Ross
+This patch set is for 4.19, though it shall be backported to
+4.4/4.9/4.14/4.19. Send this patch set out first for more feedbacks.
+
+I have only tested the issue of virtio-blk though.
+
+[1] https://lore.kernel.org/stable/20210207114656.32141-1-jefflexu@linux.alibaba.com/
+[2] https://lore.kernel.org/stable/f466aacc-f9ca-49ca-0da8-16dc045c9000@linux.alibaba.com/
+[3] https://lore.kernel.org/stable/20210207224612.GY4035784@sasha-vm/
+
+Hannes Reinecke (5):
+  block: genhd: add 'groups' argument to device_add_disk
+  nvme: register ns_id attributes as default sysfs groups
+  aoe: register default groups with device_add_disk()
+  zram: register default groups with device_add_disk()
+  virtio-blk: modernize sysfs attribute creation
+
+Jeffle Xu (1):
+  Revert "zram: close udev startup race condition as default groups"
+
+ arch/um/drivers/ubd_kern.c          |   2 +-
+ block/genhd.c                       |  19 +++--
+ drivers/block/aoe/aoe.h             |   1 -
+ drivers/block/aoe/aoeblk.c          |  21 ++----
+ drivers/block/aoe/aoedev.c          |   1 -
+ drivers/block/floppy.c              |   2 +-
+ drivers/block/mtip32xx/mtip32xx.c   |   2 +-
+ drivers/block/ps3disk.c             |   2 +-
+ drivers/block/ps3vram.c             |   2 +-
+ drivers/block/rsxx/dev.c            |   2 +-
+ drivers/block/skd_main.c            |   2 +-
+ drivers/block/sunvdc.c              |   2 +-
+ drivers/block/virtio_blk.c          |  68 ++++++++++--------
+ drivers/block/xen-blkfront.c        |   2 +-
+ drivers/block/zram/zram_drv.c       |   4 +-
+ drivers/ide/ide-cd.c                |   2 +-
+ drivers/ide/ide-gd.c                |   2 +-
+ drivers/memstick/core/ms_block.c    |   2 +-
+ drivers/memstick/core/mspro_block.c |   2 +-
+ drivers/mmc/core/block.c            |   2 +-
+ drivers/mtd/mtd_blkdevs.c           |   2 +-
+ drivers/nvdimm/blk.c                |   2 +-
+ drivers/nvdimm/btt.c                |   2 +-
+ drivers/nvdimm/pmem.c               |   2 +-
+ drivers/nvme/host/core.c            |  21 +++---
+ drivers/nvme/host/lightnvm.c        | 105 ++++++++++++----------------
+ drivers/nvme/host/multipath.c       |  15 ++--
+ drivers/nvme/host/nvme.h            |  10 +--
+ drivers/s390/block/dasd_genhd.c     |   2 +-
+ drivers/s390/block/dcssblk.c        |   2 +-
+ drivers/s390/block/scm_blk.c        |   2 +-
+ drivers/scsi/sd.c                   |   2 +-
+ drivers/scsi/sr.c                   |   2 +-
+ include/linux/genhd.h               |   5 +-
+ 34 files changed, 147 insertions(+), 169 deletions(-)
+
+-- 
+2.27.0
+
