@@ -2,318 +2,319 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A36C1322305
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 01:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A3632236D
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 02:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbhBWAMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Feb 2021 19:12:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57988 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232002AbhBWALv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Feb 2021 19:11:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55ECE64EC1;
-        Tue, 23 Feb 2021 00:10:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614039050;
-        bh=lSs2SjBHiHAEFRCFThiXQ4SdNqq4gkZh2PN7m3em8kM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AczR6r6/0z+zVVn3Ud0cJ0x4ynb+9azGPDzu9486S2mERkZxa52DZzN5zZUxfnzKh
-         zw4SUAwG5ygW/G8oJivdLvLfCEECW1r+t2FeROR8fhqBUapQiLEItQQt5pB3Fg3axt
-         S9aQK7TcKKoZ41fJwHWez+Y1NbEt4Ipk13S2YZE1hvarRMRkm1y0xkjTw9owuwVp5f
-         id834fZoYOpYoW2LwtEfkfTx63aWEcWneDZDLGqUu90E4CQ8j1TWjQv/VJVPxzSdPA
-         U51t/Zlv0XxYv7PDvxWWBRM+ZS1tIL7aBT/Jd1ksr1ATO1/PnRtrEtcvaLtSrJ2QCq
-         LUBV9rt8/OKkQ==
-From:   Frederic Weisbecker <frederic@kernel.org>
-To:     "Paul E . McKenney" <paulmck@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        id S230467AbhBWBRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Feb 2021 20:17:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:20204 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229961AbhBWBRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Feb 2021 20:17:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614042967;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Z06oP2BonMtvWqkjwE3/34hVf9FcpnpURlORAYi8j3g=;
+        b=Y0FvxUpStx1Wmvy32yiHIWUfOZaN7BVAYEAGHHwEY3O2qeP6Ze99rTLxPWsa6e8voijeyk
+        jjNe0ReMJtHpktc2oX0/ryTkKqhIXUT9xQuZBrzahoE0OBxXPQmfK+OTgW62S88043BDjT
+        wCx2MxXxceK2WHwOgYLa2wsnVOtIxBQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-402-jP6MU6_jNrOzD0wXp7FWHA-1; Mon, 22 Feb 2021 20:16:03 -0500
+X-MC-Unique: jP6MU6_jNrOzD0wXp7FWHA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A5F12107ACF6;
+        Tue, 23 Feb 2021 01:16:00 +0000 (UTC)
+Received: from localhost (ovpn-12-41.pek2.redhat.com [10.72.12.41])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 72A306091A;
+        Tue, 23 Feb 2021 01:15:56 +0000 (UTC)
+Date:   Tue, 23 Feb 2021 09:15:54 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Hildenbrand <david@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Stable <stable@vger.kernel.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: [PATCH 13/13] rcu/nocb: Unify timers
-Date:   Tue, 23 Feb 2021 01:10:11 +0100
-Message-Id: <20210223001011.127063-14-frederic@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210223001011.127063-1-frederic@kernel.org>
-References: <20210223001011.127063-1-frederic@kernel.org>
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v6 1/1] mm/page_alloc.c: refactor initialization of
+ struct page for holes in memory layout
+Message-ID: <20210223011554.GP2871@MiWiFi-R3L-srv>
+References: <20210222105728.28636-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210222105728.28636-1-rppt@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now that nocb_timer and nocb_bypass_timer have become very similar,
-merge them together. A new RCU_NOCB_WAKE_BYPASS wake level is introduced.
-As a result, timers perform all kinds of deferred wake ups but other
-deferred wakeup callsites only handle non-bypass wakeups in order not
-to wake up rcuo too early.
+On 02/22/21 at 12:57pm, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> There could be struct pages that are not backed by actual physical memory.
+> This can happen when the actual memory bank is not a multiple of
+> SECTION_SIZE or when an architecture does not register memory holes
+> reserved by the firmware as memblock.memory.
+> 
+> Such pages are currently initialized using init_unavailable_mem() function
+> that iterates through PFNs in holes in memblock.memory and if there is a
+> struct page corresponding to a PFN, the fields of this page are set to
+> default values and it is marked as Reserved.
+> 
+> init_unavailable_mem() does not take into account zone and node the page
+> belongs to and sets both zone and node links in struct page to zero.
+> 
+> Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions
+> rather that check each PFN") the holes inside a zone were re-initialized
 
-The timer also performs the full barrier all the time to order
-timer_pending() and callback enqueue although the path performing
-RCU_NOCB_WAKE_FORCE that makes use of it is debatable. It should also
-test against the rdp leader instead of the current rdp.
+Yeah, and the old code re-initialized the unavailable memory in a
+implicit and confusing way. This patch does it explicitly in the similar
+way to make it basically consistent with the old code. This looks great
+to me.
 
-The permanent full barrier shouldn't bring visible overhead since the
-timers almost never fire.
+> during memmap_init() and got their zone/node links right. However, after
+> that commit nothing updates the struct pages representing such holes.
+> 
+> On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+> instance in a configuration below:
+> 
+> 	# grep -A1 E820 /proc/iomem
+> 	7a17b000-7a216fff : Unknown E820 type
+> 	7a217000-7bffffff : System RAM
+> 
+> unset zone link in struct page will trigger
+> 
+> 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
+> 
+> because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+> in struct page) in the same pageblock.
+> 
+> Interleave initialization of the unavailable pages with the normal
+> initialization of memory map, so that zone and node information will be
+> properly set on struct pages that are not backed by the actual memory.
+> 
+> With this change the pages for holes inside a zone will get proper
+> zone/node links and the pages that are not spanned by any node will get
+> links to the adjacent zone/node.
 
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
----
- include/trace/events/rcu.h |  1 +
- kernel/rcu/tree.h          |  6 +--
- kernel/rcu/tree_plugin.h   | 92 ++++++++++++++++----------------------
- 3 files changed, 43 insertions(+), 56 deletions(-)
+Thanks for spending so much effort with patience to fix this.
 
-diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
-index 5fc29400e1a2..c16cb7d78f51 100644
---- a/include/trace/events/rcu.h
-+++ b/include/trace/events/rcu.h
-@@ -278,6 +278,7 @@ TRACE_EVENT_RCU(rcu_exp_funnel_lock,
-  * "WakeNot": Don't wake rcuo kthread.
-  * "WakeNotPoll": Don't wake rcuo kthread because it is polling.
-  * "WakeOvfIsDeferred": Wake rcuo kthread later, CB list is huge.
-+ * "WakeBypassIsDeferred": Wake rcuo kthread later, bypass list is contended.
-  * "WokeEmpty": rcuo CB kthread woke to find empty list.
-  */
- TRACE_EVENT_RCU(rcu_nocb_wake,
-diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
-index 2510e86265c1..9a16487edfca 100644
---- a/kernel/rcu/tree.h
-+++ b/kernel/rcu/tree.h
-@@ -218,7 +218,6 @@ struct rcu_data {
- 
- 	/* The following fields are used by GP kthread, hence own cacheline. */
- 	raw_spinlock_t nocb_gp_lock ____cacheline_internodealigned_in_smp;
--	struct timer_list nocb_bypass_timer; /* Force nocb_bypass flush. */
- 	u8 nocb_gp_sleep;		/* Is the nocb GP thread asleep? */
- 	u8 nocb_gp_bypass;		/* Found a bypass on last scan? */
- 	u8 nocb_gp_gp;			/* GP to wait for on last scan? */
-@@ -258,8 +257,9 @@ struct rcu_data {
- 
- /* Values for nocb_defer_wakeup field in struct rcu_data. */
- #define RCU_NOCB_WAKE_NOT	0
--#define RCU_NOCB_WAKE		1
--#define RCU_NOCB_WAKE_FORCE	2
-+#define RCU_NOCB_WAKE_BYPASS	1
-+#define RCU_NOCB_WAKE		2
-+#define RCU_NOCB_WAKE_FORCE	3
- 
- #define RCU_JIFFIES_TILL_FORCE_QS (1 + (HZ > 250) + (HZ > 500))
- 					/* For jiffies_till_first_fqs and */
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index e0420e3b30e6..6bf35a1fe68e 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -1711,8 +1711,6 @@ static bool __wake_nocb_gp(struct rcu_data *rdp_gp,
- 		del_timer(&rdp_gp->nocb_timer);
- 	}
- 
--	del_timer(&rdp_gp->nocb_bypass_timer);
--
- 	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
- 		WRITE_ONCE(rdp_gp->nocb_gp_sleep, false);
- 		needwake = true;
-@@ -1750,10 +1748,19 @@ static void wake_nocb_gp_defer(struct rcu_data *rdp, int waketype,
- 
- 	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
- 
--	if (rdp_gp->nocb_defer_wakeup == RCU_NOCB_WAKE_NOT)
--		mod_timer(&rdp_gp->nocb_timer, jiffies + 1);
--	if (rdp_gp->nocb_defer_wakeup < waketype)
-+	/*
-+	 * Bypass wakeup overrides previous deferments. In case
-+	 * of callback storm, no need to wake up too early.
-+	 */
-+	if (waketype == RCU_NOCB_WAKE_BYPASS) {
-+		mod_timer(&rdp_gp->nocb_timer, jiffies + 2);
- 		WRITE_ONCE(rdp_gp->nocb_defer_wakeup, waketype);
-+	} else {
-+		if (rdp_gp->nocb_defer_wakeup < RCU_NOCB_WAKE)
-+			mod_timer(&rdp_gp->nocb_timer, jiffies + 1);
-+		if (rdp_gp->nocb_defer_wakeup < waketype)
-+			WRITE_ONCE(rdp_gp->nocb_defer_wakeup, waketype);
-+	}
- 
- 	raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
- 
-@@ -2005,7 +2012,7 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
- 		smp_mb(); /* Enqueue before timer_pending(). */
- 		if ((rdp->nocb_cb_sleep ||
- 		     !rcu_segcblist_ready_cbs(&rdp->cblist)) &&
--		    !timer_pending(&rdp->nocb_bypass_timer)) {
-+		    !timer_pending(&rdp->nocb_timer)) {
- 			rcu_nocb_unlock_irqrestore(rdp, flags);
- 			wake_nocb_gp_defer(rdp, RCU_NOCB_WAKE_FORCE,
- 					   TPS("WakeOvfIsDeferred"));
-@@ -2020,19 +2027,6 @@ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_alldone,
- 	return;
- }
- 
--/* Wake up the no-CBs GP kthread to flush ->nocb_bypass. */
--static void do_nocb_bypass_wakeup_timer(struct timer_list *t)
--{
--	unsigned long flags;
--	struct rcu_data *rdp = from_timer(rdp, t, nocb_bypass_timer);
--
--	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("Timer"));
--
--	raw_spin_lock_irqsave(&rdp->nocb_gp_lock, flags);
--	smp_mb__after_spinlock(); /* Timer expire before wakeup. */
--	__wake_nocb_gp(rdp, rdp, false, flags);
--}
--
- /*
-  * Check if we ignore this rdp.
-  *
-@@ -2185,19 +2179,12 @@ static void nocb_gp_wait(struct rcu_data *my_rdp)
- 	my_rdp->nocb_gp_bypass = bypass;
- 	my_rdp->nocb_gp_gp = needwait_gp;
- 	my_rdp->nocb_gp_seq = needwait_gp ? wait_gp_seq : 0;
--	if (bypass) {
--		if (!rcu_nocb_poll) {
--			raw_spin_lock_irqsave(&my_rdp->nocb_gp_lock, flags);
--			// Avoid race with first bypass CB.
--			if (my_rdp->nocb_defer_wakeup > RCU_NOCB_WAKE_NOT) {
--				WRITE_ONCE(my_rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
--				del_timer(&my_rdp->nocb_timer);
--			}
--			// At least one child with non-empty ->nocb_bypass, so set
--			// timer in order to avoid stranding its callbacks.
--			mod_timer(&my_rdp->nocb_bypass_timer, j + 2);
--			raw_spin_unlock_irqrestore(&my_rdp->nocb_gp_lock, flags);
--		}
-+
-+	if (bypass && !rcu_nocb_poll) {
-+		// At least one child with non-empty ->nocb_bypass, so set
-+		// timer in order to avoid stranding its callbacks.
-+		wake_nocb_gp_defer(my_rdp, RCU_NOCB_WAKE_BYPASS,
-+				   TPS("WakeBypassIsDeferred"));
- 	}
- 	if (rcu_nocb_poll) {
- 		/* Polling, so trace if first poll in the series. */
-@@ -2221,8 +2208,6 @@ static void nocb_gp_wait(struct rcu_data *my_rdp)
- 	}
- 	if (!rcu_nocb_poll) {
- 		raw_spin_lock_irqsave(&my_rdp->nocb_gp_lock, flags);
--		if (bypass)
--			del_timer(&my_rdp->nocb_bypass_timer);
- 		if (my_rdp->nocb_defer_wakeup > RCU_NOCB_WAKE_NOT) {
- 			WRITE_ONCE(my_rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
- 			del_timer(&my_rdp->nocb_timer);
-@@ -2370,16 +2355,14 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp, int level)
- }
- 
- /* Do a deferred wakeup of rcu_nocb_kthread(). */
--static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp,
--					   int level)
-+static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp_gp,
-+					   struct rcu_data *rdp, int level,
-+					   unsigned long flags)
-+	__releases(rdp_gp->nocb_gp_lock)
- {
--	unsigned long flags;
- 	int ndw;
--	struct rcu_data *rdp_gp = rdp->nocb_gp_rdp;
- 	int ret;
- 
--	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
--
- 	if (!rcu_nocb_need_deferred_wakeup(rdp_gp, level)) {
- 		raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
- 		return false;
-@@ -2395,9 +2378,15 @@ static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp,
- /* Do a deferred wakeup of rcu_nocb_kthread() from a timer handler. */
- static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
- {
-+	unsigned long flags;
- 	struct rcu_data *rdp = from_timer(rdp, t, nocb_timer);
- 
--	do_nocb_deferred_wakeup_common(rdp, RCU_NOCB_WAKE);
-+	WARN_ON_ONCE(rdp->nocb_gp_rdp != rdp);
-+	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("Timer"));
-+
-+	raw_spin_lock_irqsave(&rdp->nocb_gp_lock, flags);
-+	smp_mb__after_spinlock(); /* Timer expire before wakeup. */
-+	do_nocb_deferred_wakeup_common(rdp, rdp, RCU_NOCB_WAKE_BYPASS, flags);
- }
- 
- /*
-@@ -2407,12 +2396,14 @@ static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
-  */
- static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
- {
--	if (!rdp->nocb_gp_rdp)
-+	unsigned long flags;
-+	struct rcu_data *rdp_gp = rdp->nocb_gp_rdp;
-+
-+	if (!rdp_gp || !rcu_nocb_need_deferred_wakeup(rdp_gp, RCU_NOCB_WAKE))
- 		return false;
- 
--	if (rcu_nocb_need_deferred_wakeup(rdp->nocb_gp_rdp, RCU_NOCB_WAKE))
--		return do_nocb_deferred_wakeup_common(rdp, RCU_NOCB_WAKE);
--	return false;
-+	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
-+	return do_nocb_deferred_wakeup_common(rdp_gp, rdp, RCU_NOCB_WAKE, flags);
- }
- 
- void rcu_nocb_flush_deferred_wakeup(void)
-@@ -2655,7 +2646,6 @@ static void __init rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp)
- 	raw_spin_lock_init(&rdp->nocb_bypass_lock);
- 	raw_spin_lock_init(&rdp->nocb_gp_lock);
- 	timer_setup(&rdp->nocb_timer, do_nocb_deferred_wakeup_timer, 0);
--	timer_setup(&rdp->nocb_bypass_timer, do_nocb_bypass_wakeup_timer, 0);
- 	rcu_cblist_init(&rdp->nocb_bypass);
- }
- 
-@@ -2814,13 +2804,12 @@ static void show_rcu_nocb_gp_state(struct rcu_data *rdp)
- {
- 	struct rcu_node *rnp = rdp->mynode;
- 
--	pr_info("nocb GP %d %c%c%c%c%c%c %c[%c%c] %c%c:%ld rnp %d:%d %lu %c CPU %d%s\n",
-+	pr_info("nocb GP %d %c%c%c%c%c %c[%c%c] %c%c:%ld rnp %d:%d %lu %c CPU %d%s\n",
- 		rdp->cpu,
- 		"kK"[!!rdp->nocb_gp_kthread],
- 		"lL"[raw_spin_is_locked(&rdp->nocb_gp_lock)],
- 		"dD"[!!rdp->nocb_defer_wakeup],
- 		"tT"[timer_pending(&rdp->nocb_timer)],
--		"bB"[timer_pending(&rdp->nocb_bypass_timer)],
- 		"sS"[!!rdp->nocb_gp_sleep],
- 		".W"[swait_active(&rdp->nocb_gp_wq)],
- 		".W"[swait_active(&rnp->nocb_gp_wq[0])],
-@@ -2841,7 +2830,6 @@ static void show_rcu_nocb_state(struct rcu_data *rdp)
- 	char bufr[20];
- 	struct rcu_segcblist *rsclp = &rdp->cblist;
- 	bool waslocked;
--	bool wastimer;
- 	bool wassleep;
- 
- 	if (rdp->nocb_gp_rdp == rdp)
-@@ -2878,15 +2866,13 @@ static void show_rcu_nocb_state(struct rcu_data *rdp)
- 		return;
- 
- 	waslocked = raw_spin_is_locked(&rdp->nocb_gp_lock);
--	wastimer = timer_pending(&rdp->nocb_bypass_timer);
- 	wassleep = swait_active(&rdp->nocb_gp_wq);
--	if (!rdp->nocb_gp_sleep && !waslocked && !wastimer && !wassleep)
-+	if (!rdp->nocb_gp_sleep && !waslocked && !wassleep)
- 		return;  /* Nothing untowards. */
- 
--	pr_info("   nocb GP activity on CB-only CPU!!! %c%c%c%c %c\n",
-+	pr_info("   nocb GP activity on CB-only CPU!!! %c%c%c %c\n",
- 		"lL"[waslocked],
- 		"dD"[!!rdp->nocb_defer_wakeup],
--		"tT"[wastimer],
- 		"sS"[!!rdp->nocb_gp_sleep],
- 		".W"[wassleep]);
- }
--- 
-2.25.1
+Reviewed-by: Baoquan He <bhe@redhat.com>
+
+> 
+> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> Reported-by: Qian Cai <cai@lca.pw>
+> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Qian Cai <cai@lca.pw>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> ---
+>  mm/page_alloc.c | 144 ++++++++++++++++++++----------------------------
+>  1 file changed, 61 insertions(+), 83 deletions(-)
+> 
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 3e93f8b29bae..1f1db70b7789 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -6280,12 +6280,60 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+>  	}
+>  }
+>  
+> +#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+> +/*
+> + * Only struct pages that correspond to ranges defined by memblock.memory
+> + * are zeroed and initialized by going through __init_single_page() during
+> + * memmap_init_zone().
+> + *
+> + * But, there could be struct pages that correspond to holes in
+> + * memblock.memory. This can happen because of the following reasons:
+> + * - phyiscal memory bank size is not necessarily the exact multiple of the
+> + *   arbitrary section size
+> + * - early reserved memory may not be listed in memblock.memory
+> + * - memory layouts defined with memmap= kernel parameter may not align
+> + *   nicely with memmap sections
+> + *
+> + * Explicitly initialize those struct pages so that:
+> + * - PG_Reserved is set
+> + * - zone and node links point to zone and node that span the page
+> + */
+> +static u64 __meminit init_unavailable_range(unsigned long spfn,
+> +					    unsigned long epfn,
+> +					    int zone, int node)
+> +{
+> +	unsigned long pfn;
+> +	u64 pgcnt = 0;
+> +
+> +	for (pfn = spfn; pfn < epfn; pfn++) {
+> +		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+> +			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+> +				+ pageblock_nr_pages - 1;
+> +			continue;
+> +		}
+> +		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
+> +		__SetPageReserved(pfn_to_page(pfn));
+> +		pgcnt++;
+> +	}
+> +
+> +	return pgcnt;
+> +}
+> +#else
+> +static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+> +					 int zone, int node)
+> +{
+> +	return 0;
+> +}
+> +#endif
+> +
+>  void __meminit __weak memmap_init_zone(struct zone *zone)
+>  {
+>  	unsigned long zone_start_pfn = zone->zone_start_pfn;
+>  	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
+>  	int i, nid = zone_to_nid(zone), zone_id = zone_idx(zone);
+> +	static unsigned long hole_pfn = 0;
+>  	unsigned long start_pfn, end_pfn;
+> +	u64 pgcnt = 0;
+>  
+>  	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+>  		start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+> @@ -6295,7 +6343,20 @@ void __meminit __weak memmap_init_zone(struct zone *zone)
+>  			memmap_init_range(end_pfn - start_pfn, nid,
+>  					zone_id, start_pfn, zone_end_pfn,
+>  					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+> +
+> +		if (hole_pfn < start_pfn)
+> +			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+> +							zone_id, nid);
+> +		hole_pfn = end_pfn;
+>  	}
+> +
+> +	if (hole_pfn < zone_end_pfn)
+> +		pgcnt += init_unavailable_range(hole_pfn, zone_end_pfn,
+> +						zone_id, nid);
+> +
+> +	if (pgcnt)
+> +		pr_info("  %s zone: %lld pages in unavailable ranges\n",
+> +			zone->name, pgcnt);
+>  }
+>  
+>  static int zone_batchsize(struct zone *zone)
+> @@ -7092,88 +7153,6 @@ void __init free_area_init_memoryless_node(int nid)
+>  	free_area_init_node(nid);
+>  }
+>  
+> -#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+> -/*
+> - * Initialize all valid struct pages in the range [spfn, epfn) and mark them
+> - * PageReserved(). Return the number of struct pages that were initialized.
+> - */
+> -static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn)
+> -{
+> -	unsigned long pfn;
+> -	u64 pgcnt = 0;
+> -
+> -	for (pfn = spfn; pfn < epfn; pfn++) {
+> -		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+> -			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+> -				+ pageblock_nr_pages - 1;
+> -			continue;
+> -		}
+> -		/*
+> -		 * Use a fake node/zone (0) for now. Some of these pages
+> -		 * (in memblock.reserved but not in memblock.memory) will
+> -		 * get re-initialized via reserve_bootmem_region() later.
+> -		 */
+> -		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
+> -		__SetPageReserved(pfn_to_page(pfn));
+> -		pgcnt++;
+> -	}
+> -
+> -	return pgcnt;
+> -}
+> -
+> -/*
+> - * Only struct pages that are backed by physical memory are zeroed and
+> - * initialized by going through __init_single_page(). But, there are some
+> - * struct pages which are reserved in memblock allocator and their fields
+> - * may be accessed (for example page_to_pfn() on some configuration accesses
+> - * flags). We must explicitly initialize those struct pages.
+> - *
+> - * This function also addresses a similar issue where struct pages are left
+> - * uninitialized because the physical address range is not covered by
+> - * memblock.memory or memblock.reserved. That could happen when memblock
+> - * layout is manually configured via memmap=, or when the highest physical
+> - * address (max_pfn) does not end on a section boundary.
+> - */
+> -static void __init init_unavailable_mem(void)
+> -{
+> -	phys_addr_t start, end;
+> -	u64 i, pgcnt;
+> -	phys_addr_t next = 0;
+> -
+> -	/*
+> -	 * Loop through unavailable ranges not covered by memblock.memory.
+> -	 */
+> -	pgcnt = 0;
+> -	for_each_mem_range(i, &start, &end) {
+> -		if (next < start)
+> -			pgcnt += init_unavailable_range(PFN_DOWN(next),
+> -							PFN_UP(start));
+> -		next = end;
+> -	}
+> -
+> -	/*
+> -	 * Early sections always have a fully populated memmap for the whole
+> -	 * section - see pfn_valid(). If the last section has holes at the
+> -	 * end and that section is marked "online", the memmap will be
+> -	 * considered initialized. Make sure that memmap has a well defined
+> -	 * state.
+> -	 */
+> -	pgcnt += init_unavailable_range(PFN_DOWN(next),
+> -					round_up(max_pfn, PAGES_PER_SECTION));
+> -
+> -	/*
+> -	 * Struct pages that do not have backing memory. This could be because
+> -	 * firmware is using some of this memory, or for some other reasons.
+> -	 */
+> -	if (pgcnt)
+> -		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+> -}
+> -#else
+> -static inline void __init init_unavailable_mem(void)
+> -{
+> -}
+> -#endif /* !CONFIG_FLAT_NODE_MEM_MAP */
+> -
+>  #if MAX_NUMNODES > 1
+>  /*
+>   * Figure out the number of possible node ids.
+> @@ -7597,7 +7576,6 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+>  	/* Initialise every node */
+>  	mminit_verify_pageflags_layout();
+>  	setup_nr_node_ids();
+> -	init_unavailable_mem();
+>  	for_each_online_node(nid) {
+>  		pg_data_t *pgdat = NODE_DATA(nid);
+>  		free_area_init_node(nid);
+> -- 
+> 2.28.0
+> 
 
