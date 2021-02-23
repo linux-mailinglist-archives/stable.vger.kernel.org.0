@@ -2,122 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 803E4322B13
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 14:05:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C9C322B15
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 14:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232759AbhBWNDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 08:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48144 "EHLO mail.kernel.org"
+        id S232819AbhBWNDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 08:03:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232845AbhBWNBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Feb 2021 08:01:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE6F36146D;
-        Tue, 23 Feb 2021 13:00:23 +0000 (UTC)
+        id S232628AbhBWNBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Feb 2021 08:01:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EEB764DDC;
+        Tue, 23 Feb 2021 13:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614085224;
-        bh=jmhbM/Q86DGpet7rFtpBwvtw5vAoO8WhXHDnS9HOGZo=;
+        s=korg; t=1614085241;
+        bh=jvQBh1cg6VWyXfOI5dlSbRLSK0idsVo3C3s1i6qN+b4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CuGjiL32Bmtk/nhFGkkkoUkSW2pGW5a7Q8SawW7dD81Ia8YznqVxu5oeeu+pbg+K8
-         dSAZniXVWK7ZE2gLZ8UehJnH+sd0Un4ju3HyTmEVA7YQFy7te6hSB5ZsYvLvx5MaHT
-         PHXDNGgh3PMS2u3BY6MIrHi74KEwGLajj258rd5c=
-Date:   Tue, 23 Feb 2021 14:00:22 +0100
+        b=th6Qu/n21YW2qGUQgC7y3pF+RRr6QmLocnhZYavIph+Vg4DC0J4jESBbZoOtzhWX0
+         kNn4mnHMwAjTce96bTFJa1F/ZewNrAjKjvIh7Zih7CYUUnbU/ms/rWQ3PjRsE+hwgZ
+         RydQdTQx+ZeDQByxfm0OiBkEMIqcAuh7nxX93GUs=
+Date:   Tue, 23 Feb 2021 14:00:38 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Xiaoming Ni <nixiaoming@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        sashal@kernel.org, tglx@linutronix.de, wangle6@huawei.com,
-        zhengyejian1@huawei.com
-Subject: Re: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return
- value when owner is exiting
-Message-ID: <YDT8ZsMqVqihECoE@kroah.com>
-References: <20210222070328.102384-1-nixiaoming@huawei.com>
- <20210222070328.102384-2-nixiaoming@huawei.com>
- <YDOEZhmKqjTVxtMn@kroah.com>
- <3bc570f6-f8af-b0a2-4d62-13ed4adc1f33@huawei.com>
- <YDOe9GNivoHQphQc@kroah.com>
- <76f6a446-41db-3b7a-dcab-a85d0841654f@huawei.com>
+To:     "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
+Cc:     Lee Jones <lee.jones@linaro.org>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, judy.chenhui@huawei.com,
+        zhangjinhao2@huawei.com, tglx@linutronix.de
+Subject: Re: [PATCH 4.9.257 1/1] futex: Fix OWNER_DEAD fixup
+Message-ID: <YDT8dsm6XFmfUEi7@kroah.com>
+References: <20210222110542.3531596-1-zhengyejian1@huawei.com>
+ <20210222110542.3531596-2-zhengyejian1@huawei.com>
+ <20210222115424.GF376568@dell>
+ <YDOec1kosGKKO80g@kroah.com>
+ <4f06340a-e027-f944-3248-2939639d5e07@huawei.com>
+ <YDOlOd9aHQzVCXkk@kroah.com>
+ <42af110f-f492-c11c-397c-e0b5018d9263@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <76f6a446-41db-3b7a-dcab-a85d0841654f@huawei.com>
+In-Reply-To: <42af110f-f492-c11c-397c-e0b5018d9263@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 22, 2021 at 10:11:37PM +0800, Xiaoming Ni wrote:
-> On 2021/2/22 20:09, Greg KH wrote:
-> > On Mon, Feb 22, 2021 at 06:54:06PM +0800, Xiaoming Ni wrote:
-> > > On 2021/2/22 18:16, Greg KH wrote:
-> > > > On Mon, Feb 22, 2021 at 03:03:28PM +0800, Xiaoming Ni wrote:
-> > > > > From: Thomas Gleixner<tglx@linutronix.de>
+On Mon, Feb 22, 2021 at 09:11:43PM +0800, Zhengyejian (Zetta) wrote:
+> 
+> 
+> On 2021/2/22 20:36, Greg KH wrote:
+> > On Mon, Feb 22, 2021 at 08:20:38PM +0800, Zhengyejian (Zetta) wrote:
+> > > 
+> > > 
+> > > On 2021/2/22 20:07, Greg KH wrote:
+> > > > On Mon, Feb 22, 2021 at 11:54:24AM +0000, Lee Jones wrote:
+> > > > > On Mon, 22 Feb 2021, Zheng Yejian wrote:
 > > > > > 
-> > > > > commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
-> > > > This commit is already in the 4.9 tree.  If the backport was incorrect,
-> > > > say that here, and describe what went wrong and why this commit fixes
-> > > > it.
+> > > > > > From: Peter Zijlstra <peterz@infradead.org>
+> > > > > > 
+> > > > > > commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
+> > > > > > 
+> > > > > > Both Geert and DaveJ reported that the recent futex commit:
+> > > > > > 
+> > > > > >     c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> > > > > > 
+> > > > > > introduced a problem with setting OWNER_DEAD. We set the bit on an
+> > > > > > uninitialized variable and then entirely optimize it away as a
+> > > > > > dead-store.
+> > > > > > 
+> > > > > > Move the setting of the bit to where it is more useful.
+> > > > > > 
+> > > > > > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > > > > > Reported-by: Dave Jones <davej@codemonkey.org.uk>
+> > > > > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > > > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > > > > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > > > > > Cc: Paul E. McKenney <paulmck@us.ibm.com>
+> > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > > > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > > > > Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> > > > > > Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
+> > > > > > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > > > > > Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> > > > > > ---
+> > > > > >    kernel/futex.c | 7 +++----
+> > > > > >    1 file changed, 3 insertions(+), 4 deletions(-)
+> > > > > 
+> > > > > Reviewed-by: Lee Jones <lee.jones@linaro.org>
 > > > > 
-> > > > Also state what commit this fixes as well, otherwise this changelog just
-> > > > looks like it is being applied again to the tree, which doesn't make
-> > > > much sense.
+> > > > This does not apply to the 4.9.y tree at all right now, are you all sure
+> > > > you got the backport correct?
 > > > > 
-> > > > thanks,
+> > > > confused,
 > > > > 
 > > > > greg k-h
 > > > > .
-> > > 
-> > > I wrote a cover for it. but forgot to adjust the title of the cover:
-> > > 
-> > > https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
-> > > 
-> > > 
-> > > I found a dead code in the queue/4.9 branch of the stable-rc repository.
-> > > 
-> > > 2021-02-03:
-> > > commit c27f392040e2f6 ("futex: Provide distinct return value when
-> > >   owner is exiting")
-> > > 	The function handle_exit_race does not exist. Therefore, the
-> > > 	change in handle_exit_race() is ignored in the patch round.
-> > > 
-> > > 2021-02-22:
-> > > commit e55cb811e612 ("futex: Cure exit race")
-> > > 	Define the handle_exit_race() function,
-> > > 	but no branch in the function returns EBUSY.
-> > > 	As a result, dead code occurs in the attach_to_pi_owner():
-> > > 
-> > > 		int ret = handle_exit_race(uaddr, uval, p);
-> > > 		...
-> > > 		if (ret == -EBUSY)
-> > > 			*exiting = p; /* dead code */
-> > > 
-> > > To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit
-> > > race"),
-> > > or install a patch to incorporate the changes in handle_exit_race().
-> > > 
-> > > I am unfamiliar with the processing of the stable-rc queue branch,
-> > > and I cannot find the patch mail of the current branch in
-> > > 	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
-> > > Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
-> > >   return value when owner is exiting").
-> > >   And wrote a cover (but forgot to adjust the title of the cover):
-> > > 
-> > > https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
+> > > > 
+> > > I make the patch basing on 282aeb477a10 ("Linux 4.9.257").
+> > > Should I base on f0cf73f13b39 ("Linux 4.9.258-rc1")?
 > > 
-> > So this is a "fixup" patch, right?
+> > Yes please as I think this is already there.
 > > 
-> > Please clearly label it as such in your patch description and resend
-> > this as what is here I can not apply at all.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > .
-> > 
-> Thank you for your guidance.
-> I have updated the patch description and resent the patch based on
-> v4.9.258-rc1
-> https://lore.kernel.org/lkml/20210222125352.110124-1-nixiaoming@huawei.com/
+> > How about just waiting for the next release to come out, I will push out
+> > the 4.4 and 4.9 -rc releases right now as well to give everyone a chance
+> > to sync up properly.
+> Ok, I will rebase this patch then.
 
-Can you please try 4.9.258 and let me know if this is still needed or
-not?
+Great, can you try 4.9.258?
 
 thanks,
 
