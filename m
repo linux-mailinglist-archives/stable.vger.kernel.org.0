@@ -2,444 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 990A2322BD0
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C1AA322BD1
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 15:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbhBWOAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 09:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60930 "EHLO mail.kernel.org"
+        id S232536AbhBWOAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 09:00:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232278AbhBWOAl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Feb 2021 09:00:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A22D964D9A;
-        Tue, 23 Feb 2021 13:59:58 +0000 (UTC)
+        id S232342AbhBWOAm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Feb 2021 09:00:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E42964E5C;
+        Tue, 23 Feb 2021 14:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614088799;
-        bh=SMuzWZQBLm0yr6dP5xJ5jrYATy7nyANv3gLaOiCyk3g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODahFT0IEJTfjb9olbekbnmX2qw1USnELuQbnsLujBP5UyNEho0+qzBLQmT2bLfhB
-         IZGKjDkrb3HYjk7ZWxYMR9acwdQksLaBJyttG1Kmkb38imbvWfv6knNmpyL9qP/YhO
-         yxXeifusk5g7UhiQFPYQzdzf99TZv77DamDDIxyI=
+        s=korg; t=1614088801;
+        bh=K1M72ddrvgiIbVfo2NJxljpq/Bex51dQRb49Hq/gVO4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0nWiujSzKKH3d9meBsQN/vBNeqMKK7aVXfyw7xaMAJPt27HYaFdFgSvghszPOr6HL
+         fFTH4DfQ833gBTtaiFBm+3Jv94b0mhaCX5Z4ut6RCH1A2IuGt0uxpjZF89naSPnHOd
+         pvkyeBn4Fp+5G1tVXSKzNgWEeBWgjgqvtjmBCLd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.11.1
-Date:   Tue, 23 Feb 2021 14:59:48 +0100
-Message-Id: <1614088759133243@kroah.com>
+Subject: Linux 4.4.258
+Date:   Tue, 23 Feb 2021 14:59:55 +0100
+Message-Id: <1614088795172206@kroah.com>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <1614088759150127@kroah.com>
-References: <1614088759150127@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index de1acaefe87e..0b9ae470a714 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 11
--SUBLEVEL = 0
-+SUBLEVEL = 1
- EXTRAVERSION =
- NAME = 💕 Valentine's Day Edition 💕
- 
-diff --git a/arch/arm/xen/p2m.c b/arch/arm/xen/p2m.c
-index e52950a43f2e..fd6e3aafe272 100644
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -95,8 +95,10 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
- 	for (i = 0; i < count; i++) {
- 		if (map_ops[i].status)
- 			continue;
--		set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
--				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT);
-+		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
-+				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
-+			return -ENOMEM;
-+		}
- 	}
- 
- 	return 0;
-diff --git a/arch/x86/xen/p2m.c b/arch/x86/xen/p2m.c
-index 3301875dd196..b5949e5a83ec 100644
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -712,7 +712,8 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
- 		unsigned long mfn, pfn;
- 
- 		/* Do not add to override if the map failed. */
--		if (map_ops[i].status)
-+		if (map_ops[i].status != GNTST_okay ||
-+		    (kmap_ops && kmap_ops[i].status != GNTST_okay))
- 			continue;
- 
- 		if (map_ops[i].flags & GNTMAP_contains_pte) {
-@@ -750,17 +751,15 @@ int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
- 		unsigned long mfn = __pfn_to_mfn(page_to_pfn(pages[i]));
- 		unsigned long pfn = page_to_pfn(pages[i]);
- 
--		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
-+		if (mfn != INVALID_P2M_ENTRY && (mfn & FOREIGN_FRAME_BIT))
-+			set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
-+		else
- 			ret = -EINVAL;
--			goto out;
--		}
--
--		set_phys_to_machine(pfn, INVALID_P2M_ENTRY);
- 	}
- 	if (kunmap_ops)
- 		ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
--						kunmap_ops, count);
--out:
-+						kunmap_ops, count) ?: ret;
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
-diff --git a/drivers/block/xen-blkback/blkback.c b/drivers/block/xen-blkback/blkback.c
-index 9ebf53903d7b..da16121140ca 100644
---- a/drivers/block/xen-blkback/blkback.c
-+++ b/drivers/block/xen-blkback/blkback.c
-@@ -794,8 +794,13 @@ static int xen_blkbk_map(struct xen_blkif_ring *ring,
- 			pages[i]->persistent_gnt = persistent_gnt;
- 		} else {
- 			if (gnttab_page_cache_get(&ring->free_pages,
--						  &pages[i]->page))
--				goto out_of_memory;
-+						  &pages[i]->page)) {
-+				gnttab_page_cache_put(&ring->free_pages,
-+						      pages_to_gnt,
-+						      segs_to_map);
-+				ret = -ENOMEM;
-+				goto out;
-+			}
- 			addr = vaddr(pages[i]->page);
- 			pages_to_gnt[segs_to_map] = pages[i]->page;
- 			pages[i]->persistent_gnt = NULL;
-@@ -811,10 +816,8 @@ static int xen_blkbk_map(struct xen_blkif_ring *ring,
- 			break;
- 	}
- 
--	if (segs_to_map) {
-+	if (segs_to_map)
- 		ret = gnttab_map_refs(map, NULL, pages_to_gnt, segs_to_map);
--		BUG_ON(ret);
--	}
- 
- 	/*
- 	 * Now swizzle the MFN in our domain with the MFN from the other domain
-@@ -830,7 +833,7 @@ static int xen_blkbk_map(struct xen_blkif_ring *ring,
- 				gnttab_page_cache_put(&ring->free_pages,
- 						      &pages[seg_idx]->page, 1);
- 				pages[seg_idx]->handle = BLKBACK_INVALID_HANDLE;
--				ret |= 1;
-+				ret |= !ret;
- 				goto next;
- 			}
- 			pages[seg_idx]->handle = map[new_map_idx].handle;
-@@ -882,17 +885,18 @@ static int xen_blkbk_map(struct xen_blkif_ring *ring,
- 	}
- 	segs_to_map = 0;
- 	last_map = map_until;
--	if (map_until != num)
-+	if (!ret && map_until != num)
- 		goto again;
- 
--	return ret;
--
--out_of_memory:
--	pr_alert("%s: out of memory\n", __func__);
--	gnttab_page_cache_put(&ring->free_pages, pages_to_gnt, segs_to_map);
--	for (i = last_map; i < num; i++)
-+out:
-+	for (i = last_map; i < num; i++) {
-+		/* Don't zap current batch's valid persistent grants. */
-+		if(i >= last_map + segs_to_map)
-+			pages[i]->persistent_gnt = NULL;
- 		pages[i]->handle = BLKBACK_INVALID_HANDLE;
--	return -ENOMEM;
-+	}
-+
-+	return ret;
- }
- 
- static int xen_blkbk_map_seg(struct pending_req *pending_req)
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 03b83aa91277..1b690164ab5b 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -506,7 +506,6 @@ static const struct dmi_system_id btusb_needs_reset_resume_table[] = {
- #define BTUSB_HW_RESET_ACTIVE	12
- #define BTUSB_TX_WAIT_VND_EVT	13
- #define BTUSB_WAKEUP_DISABLE	14
--#define BTUSB_USE_ALT1_FOR_WBS	15
- 
- struct btusb_data {
- 	struct hci_dev       *hdev;
-@@ -1736,15 +1735,12 @@ static void btusb_work(struct work_struct *work)
- 				new_alts = data->sco_num;
- 			}
- 		} else if (data->air_mode == HCI_NOTIFY_ENABLE_SCO_TRANSP) {
--			/* Check if Alt 6 is supported for Transparent audio */
--			if (btusb_find_altsetting(data, 6)) {
--				data->usb_alt6_packet_flow = true;
--				new_alts = 6;
--			} else if (test_bit(BTUSB_USE_ALT1_FOR_WBS, &data->flags)) {
--				new_alts = 1;
--			} else {
--				bt_dev_err(hdev, "Device does not support ALT setting 6");
--			}
-+			/* Bluetooth USB spec recommends alt 6 (63 bytes), but
-+			 * many adapters do not support it.  Alt 1 appears to
-+			 * work for all adapters that do not have alt 6, and
-+			 * which work with WBS at all.
-+			 */
-+			new_alts = btusb_find_altsetting(data, 6) ? 6 : 1;
- 		}
- 
- 		if (btusb_switch_alt_setting(hdev, new_alts) < 0)
-@@ -4548,10 +4544,6 @@ static int btusb_probe(struct usb_interface *intf,
- 		 * (DEVICE_REMOTE_WAKEUP)
- 		 */
- 		set_bit(BTUSB_WAKEUP_DISABLE, &data->flags);
--		if (btusb_find_altsetting(data, 1))
--			set_bit(BTUSB_USE_ALT1_FOR_WBS, &data->flags);
--		else
--			bt_dev_err(hdev, "Device does not support ALT setting 1");
- 	}
- 
- 	if (!reset)
-diff --git a/drivers/media/usb/pwc/pwc-if.c b/drivers/media/usb/pwc/pwc-if.c
-index 61869636ec61..5e3339cc31c0 100644
---- a/drivers/media/usb/pwc/pwc-if.c
-+++ b/drivers/media/usb/pwc/pwc-if.c
-@@ -155,16 +155,17 @@ static const struct video_device pwc_template = {
- /***************************************************************************/
- /* Private functions */
- 
--static void *pwc_alloc_urb_buffer(struct device *dev,
-+static void *pwc_alloc_urb_buffer(struct usb_device *dev,
- 				  size_t size, dma_addr_t *dma_handle)
- {
-+	struct device *dmadev = dev->bus->sysdev;
- 	void *buffer = kmalloc(size, GFP_KERNEL);
- 
- 	if (!buffer)
- 		return NULL;
- 
--	*dma_handle = dma_map_single(dev, buffer, size, DMA_FROM_DEVICE);
--	if (dma_mapping_error(dev, *dma_handle)) {
-+	*dma_handle = dma_map_single(dmadev, buffer, size, DMA_FROM_DEVICE);
-+	if (dma_mapping_error(dmadev, *dma_handle)) {
- 		kfree(buffer);
- 		return NULL;
- 	}
-@@ -172,12 +173,14 @@ static void *pwc_alloc_urb_buffer(struct device *dev,
- 	return buffer;
- }
- 
--static void pwc_free_urb_buffer(struct device *dev,
-+static void pwc_free_urb_buffer(struct usb_device *dev,
- 				size_t size,
- 				void *buffer,
- 				dma_addr_t dma_handle)
- {
--	dma_unmap_single(dev, dma_handle, size, DMA_FROM_DEVICE);
-+	struct device *dmadev = dev->bus->sysdev;
-+
-+	dma_unmap_single(dmadev, dma_handle, size, DMA_FROM_DEVICE);
- 	kfree(buffer);
- }
- 
-@@ -282,6 +285,7 @@ static void pwc_frame_complete(struct pwc_device *pdev)
- static void pwc_isoc_handler(struct urb *urb)
- {
- 	struct pwc_device *pdev = (struct pwc_device *)urb->context;
-+	struct device *dmadev = urb->dev->bus->sysdev;
- 	int i, fst, flen;
- 	unsigned char *iso_buf = NULL;
- 
-@@ -328,7 +332,7 @@ static void pwc_isoc_handler(struct urb *urb)
- 	/* Reset ISOC error counter. We did get here, after all. */
- 	pdev->visoc_errors = 0;
- 
--	dma_sync_single_for_cpu(&urb->dev->dev,
-+	dma_sync_single_for_cpu(dmadev,
- 				urb->transfer_dma,
- 				urb->transfer_buffer_length,
- 				DMA_FROM_DEVICE);
-@@ -379,7 +383,7 @@ static void pwc_isoc_handler(struct urb *urb)
- 		pdev->vlast_packet_size = flen;
- 	}
- 
--	dma_sync_single_for_device(&urb->dev->dev,
-+	dma_sync_single_for_device(dmadev,
- 				   urb->transfer_dma,
- 				   urb->transfer_buffer_length,
- 				   DMA_FROM_DEVICE);
-@@ -461,7 +465,7 @@ static int pwc_isoc_init(struct pwc_device *pdev)
- 		urb->pipe = usb_rcvisocpipe(udev, pdev->vendpoint);
- 		urb->transfer_flags = URB_ISO_ASAP | URB_NO_TRANSFER_DMA_MAP;
- 		urb->transfer_buffer_length = ISO_BUFFER_SIZE;
--		urb->transfer_buffer = pwc_alloc_urb_buffer(&udev->dev,
-+		urb->transfer_buffer = pwc_alloc_urb_buffer(udev,
- 							    urb->transfer_buffer_length,
- 							    &urb->transfer_dma);
- 		if (urb->transfer_buffer == NULL) {
-@@ -524,7 +528,7 @@ static void pwc_iso_free(struct pwc_device *pdev)
- 		if (urb) {
- 			PWC_DEBUG_MEMORY("Freeing URB\n");
- 			if (urb->transfer_buffer)
--				pwc_free_urb_buffer(&urb->dev->dev,
-+				pwc_free_urb_buffer(urb->dev,
- 						    urb->transfer_buffer_length,
- 						    urb->transfer_buffer,
- 						    urb->transfer_dma);
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index bc3421d14576..423667b83751 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -1342,13 +1342,11 @@ int xenvif_tx_action(struct xenvif_queue *queue, int budget)
- 		return 0;
- 
- 	gnttab_batch_copy(queue->tx_copy_ops, nr_cops);
--	if (nr_mops != 0) {
-+	if (nr_mops != 0)
- 		ret = gnttab_map_refs(queue->tx_map_ops,
- 				      NULL,
- 				      queue->pages_to_map,
- 				      nr_mops);
--		BUG_ON(ret);
--	}
- 
- 	work_done = xenvif_tx_submit(queue);
- 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 816e709afa56..082da38762fc 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -962,11 +962,14 @@ static inline ssize_t do_tty_write(
- 		if (ret <= 0)
- 			break;
- 
-+		written += ret;
-+		if (ret > size)
-+			break;
-+
- 		/* FIXME! Have Al check this! */
- 		if (ret != size)
- 			iov_iter_revert(from, size-ret);
- 
--		written += ret;
- 		count -= ret;
- 		if (!count)
- 			break;
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index a36b71286bcf..5447c5156b2e 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -309,44 +309,47 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
- 		 * to the kernel linear addresses of the struct pages.
- 		 * These ptes are completely different from the user ptes dealt
- 		 * with find_grant_ptes.
-+		 * Note that GNTMAP_device_map isn't needed here: The
-+		 * dev_bus_addr output field gets consumed only from ->map_ops,
-+		 * and by not requesting it when mapping we also avoid needing
-+		 * to mirror dev_bus_addr into ->unmap_ops (and holding an extra
-+		 * reference to the page in the hypervisor).
- 		 */
-+		unsigned int flags = (map->flags & ~GNTMAP_device_map) |
-+				     GNTMAP_host_map;
-+
- 		for (i = 0; i < map->count; i++) {
- 			unsigned long address = (unsigned long)
- 				pfn_to_kaddr(page_to_pfn(map->pages[i]));
- 			BUG_ON(PageHighMem(map->pages[i]));
- 
--			gnttab_set_map_op(&map->kmap_ops[i], address,
--				map->flags | GNTMAP_host_map,
-+			gnttab_set_map_op(&map->kmap_ops[i], address, flags,
- 				map->grants[i].ref,
- 				map->grants[i].domid);
- 			gnttab_set_unmap_op(&map->kunmap_ops[i], address,
--				map->flags | GNTMAP_host_map, -1);
-+				flags, -1);
- 		}
- 	}
- 
- 	pr_debug("map %d+%d\n", map->index, map->count);
- 	err = gnttab_map_refs(map->map_ops, use_ptemod ? map->kmap_ops : NULL,
- 			map->pages, map->count);
--	if (err)
--		return err;
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status) {
-+		if (map->map_ops[i].status == GNTST_okay)
-+			map->unmap_ops[i].handle = map->map_ops[i].handle;
-+		else if (!err)
- 			err = -EINVAL;
--			continue;
--		}
- 
--		map->unmap_ops[i].handle = map->map_ops[i].handle;
--		if (use_ptemod)
--			map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
--#ifdef CONFIG_XEN_GRANT_DMA_ALLOC
--		else if (map->dma_vaddr) {
--			unsigned long bfn;
-+		if (map->flags & GNTMAP_device_map)
-+			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
--			bfn = pfn_to_bfn(page_to_pfn(map->pages[i]));
--			map->unmap_ops[i].dev_bus_addr = __pfn_to_phys(bfn);
-+		if (use_ptemod) {
-+			if (map->kmap_ops[i].status == GNTST_okay)
-+				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-+			else if (!err)
-+				err = -EINVAL;
- 		}
--#endif
- 	}
- 	return err;
- }
-diff --git a/drivers/xen/xen-scsiback.c b/drivers/xen/xen-scsiback.c
-index 862162dca33c..9cd4fe8ce680 100644
---- a/drivers/xen/xen-scsiback.c
-+++ b/drivers/xen/xen-scsiback.c
-@@ -386,12 +386,12 @@ static int scsiback_gnttab_data_map_batch(struct gnttab_map_grant_ref *map,
- 		return 0;
- 
- 	err = gnttab_map_refs(map, NULL, pg, cnt);
--	BUG_ON(err);
- 	for (i = 0; i < cnt; i++) {
- 		if (unlikely(map[i].status != GNTST_okay)) {
- 			pr_err("invalid buffer -- could not remap it\n");
- 			map[i].handle = SCSIBACK_INVALID_HANDLE;
--			err = -ENOMEM;
-+			if (!err)
-+				err = -ENOMEM;
- 		} else {
- 			get_page(pg[i]);
- 		}
-diff --git a/include/xen/grant_table.h b/include/xen/grant_table.h
-index b9c937b3a149..0b1182a3cf41 100644
---- a/include/xen/grant_table.h
-+++ b/include/xen/grant_table.h
-@@ -157,6 +157,7 @@ gnttab_set_map_op(struct gnttab_map_grant_ref *map, phys_addr_t addr,
- 	map->flags = flags;
- 	map->ref = ref;
- 	map->dom = domid;
-+	map->status = 1; /* arbitrary positive value */
- }
- 
- static inline void
+I'm announcing the release of the 4.4.258 kernel.
+
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                |    9 +++-
+ arch/arm/xen/p2m.c                      |    6 +-
+ arch/h8300/kernel/asm-offsets.c         |    3 +
+ arch/x86/Makefile                       |    6 +-
+ arch/x86/xen/p2m.c                      |   15 +++----
+ drivers/block/xen-blkback/blkback.c     |   28 +++++++------
+ drivers/net/wireless/iwlwifi/mvm/ops.c  |    3 -
+ drivers/net/wireless/iwlwifi/pcie/tx.c  |    5 ++
+ drivers/net/xen-netback/netback.c       |    4 -
+ drivers/scsi/qla2xxx/qla_tmpl.c         |    9 ++--
+ drivers/scsi/qla2xxx/qla_tmpl.h         |    2 
+ drivers/usb/dwc3/ulpi.c                 |   20 +++++++--
+ drivers/xen/gntdev.c                    |   33 ++++++++++------
+ drivers/xen/xen-scsiback.c              |    4 -
+ fs/fs-writeback.c                       |    2 
+ fs/squashfs/export.c                    |   41 ++++++++++++++++---
+ fs/squashfs/id.c                        |   40 +++++++++++++++----
+ fs/squashfs/squashfs_fs_sb.h            |    1 
+ fs/squashfs/super.c                     |    6 +-
+ fs/squashfs/xattr.h                     |   10 ++++
+ fs/squashfs/xattr_id.c                  |   66 +++++++++++++++++++++++++++-----
+ include/linux/backing-dev.h             |   10 ++++
+ include/linux/ftrace.h                  |    4 +
+ include/linux/netdevice.h               |    2 
+ include/linux/string.h                  |    4 +
+ include/linux/sunrpc/xdr.h              |    3 -
+ include/trace/events/writeback.h        |   35 ++++++++--------
+ include/xen/grant_table.h               |    1 
+ kernel/trace/ftrace.c                   |    2 
+ kernel/trace/trace_events.c             |    3 -
+ lib/string.c                            |   47 +++++++++++++++++++---
+ mm/backing-dev.c                        |    1 
+ mm/memblock.c                           |   49 ++---------------------
+ net/key/af_key.c                        |    6 +-
+ net/netfilter/xt_recent.c               |   12 ++++-
+ net/sunrpc/auth_gss/auth_gss.c          |   30 --------------
+ net/sunrpc/auth_gss/auth_gss_internal.h |   45 +++++++++++++++++++++
+ net/sunrpc/auth_gss/gss_krb5_mech.c     |   31 ---------------
+ net/vmw_vsock/af_vsock.c                |    8 ++-
+ scripts/Makefile.build                  |    3 +
+ virt/kvm/kvm_main.c                     |    3 -
+ 41 files changed, 388 insertions(+), 224 deletions(-)
+
+Andi Kleen (1):
+      trace: Use -mcount-record for dynamic ftrace
+
+Arun Easi (1):
+      scsi: qla2xxx: Fix crash during driver load on big endian machines
+
+Borislav Petkov (1):
+      x86/build: Disable CET instrumentation in the kernel for 32-bit too
+
+Cong Wang (1):
+      af_key: relax availability checks for skb size calculation
+
+Dave Wysochanski (2):
+      SUNRPC: Move simple_get_bytes and simple_get_netobj into private header
+      SUNRPC: Handle 0 length opaque XDR object data properly
+
+Edwin Peer (1):
+      net: watchdog: hold device global xmit lock during tx disable
+
+Emmanuel Grumbach (1):
+      iwlwifi: pcie: add a NULL check in iwl_pcie_txq_unmap
+
+Felipe Balbi (1):
+      usb: dwc3: ulpi: fix checkpatch warning
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.258
+
+Greg Thelen (1):
+      tracing: Fix SKIP_STACK_VALIDATION=1 build due to bad merge with -mrecord-mcount
+
+Jan Beulich (8):
+      Xen/x86: don't bail early from clear_foreign_p2m_mapping()
+      Xen/x86: also check kernel mapping in set_foreign_p2m_mapping()
+      Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()
+      Xen/gntdev: correct error checking in gntdev_map_grant_pages()
+      xen-blkback: don't "handle" error by BUG()
+      xen-netback: don't "handle" error by BUG()
+      xen-scsiback: don't "handle" error by BUG()
+      xen-blkback: fix error handling in xen_blkbk_map()
+
+Johannes Berg (1):
+      iwlwifi: mvm: guard against device removal in reprobe
+
+Jozsef Kadlecsik (1):
+      netfilter: xt_recent: Fix attempt to update deleted entry
+
+Lai Jiangshan (1):
+      kvm: check tlbs_dirty directly
+
+Phillip Lougher (3):
+      squashfs: add more sanity checks in id lookup
+      squashfs: add more sanity checks in inode lookup
+      squashfs: add more sanity checks in xattr id lookup
+
+Qian Cai (1):
+      include/trace/events/writeback.h: fix -Wstringop-truncation warnings
+
+Randy Dunlap (1):
+      h8300: fix PREEMPTION build, TI_PRE_COUNT undefined
+
+Roman Gushchin (1):
+      memblock: do not start bottom-up allocations with kernel_end
+
+Serge Semin (1):
+      usb: dwc3: ulpi: Replace CPU-based busyloop with Protocol-based one
+
+Stefano Garzarella (1):
+      vsock: fix locking in vsock_shutdown()
+
+Stefano Stabellini (1):
+      xen/arm: don't ignore return errors from set_phys_to_machine
+
+Steven Rostedt (VMware) (2):
+      tracing: Do not count ftrace events in top level enable output
+      fgraph: Initialize tracing_graph_pause at task creation
+
+Theodore Ts'o (1):
+      memcg: fix a crash in wb_workfn when a device disappears
+
+Tobin C. Harding (1):
+      lib/string: Add strscpy_pad() function
+
+Vasily Gorbik (1):
+      tracing: Avoid calling cc-option -mrecord-mcount for every Makefile
+
