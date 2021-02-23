@@ -2,137 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7627D322901
-	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 11:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 833EF322924
+	for <lists+stable@lfdr.de>; Tue, 23 Feb 2021 11:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhBWKsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 05:48:52 -0500
-Received: from mailout1.w1.samsung.com ([210.118.77.11]:63131 "EHLO
-        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231410AbhBWKsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 05:48:50 -0500
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20210223104756euoutp013bd71413915b2d5c6c1acf9159108f93~mWrslg9qZ3062930629euoutp01i
-        for <stable@vger.kernel.org>; Tue, 23 Feb 2021 10:47:56 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20210223104756euoutp013bd71413915b2d5c6c1acf9159108f93~mWrslg9qZ3062930629euoutp01i
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1614077276;
-        bh=O18C7NkrVUWOEXXqkIut9+cUmQ4gaqnLQQ/SVXsnk28=;
-        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
-        b=CstA0S+nuB4zTK47VHs2cu3k/6k0dzkVIH2APTnxg0Kh9yF///F22ZaNiwW8ATC+q
-         8gUOWIudZoTZUd1nYiTsXhkjzH8Gp2TmApa8T4ZYB26JoCeqIsEhrfDwFVAu2ALLBM
-         Z8tEFnAPMsfFJC0Q2jmMPOkISsQv3gcOF0dPmM/I=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20210223104756eucas1p17c2ef81948ba50b3030d516ff7bcdde4~mWrsdThNO2852828528eucas1p1R;
-        Tue, 23 Feb 2021 10:47:56 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges2new.samsung.com (EUCPMTA) with SMTP id FC.61.44805.C5DD4306; Tue, 23
-        Feb 2021 10:47:56 +0000 (GMT)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210223104755eucas1p2cbacf24a50c0a2ff0098a6a2e45beb58~mWrr1qcAx2396623966eucas1p2I;
-        Tue, 23 Feb 2021 10:47:55 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210223104755eusmtrp289c505fe6d85712a4ad06fe5617db20e~mWrr0-PHh2053320533eusmtrp2J;
-        Tue, 23 Feb 2021 10:47:55 +0000 (GMT)
-X-AuditID: cbfec7f4-b37ff7000000af05-d3-6034dd5ce89d
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id B8.5D.16282.B5DD4306; Tue, 23
-        Feb 2021 10:47:55 +0000 (GMT)
-Received: from [106.210.134.141] (unknown [106.210.134.141]) by
-        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20210223104755eusmtip1b6ecabb9ce0ad0d1fb6cd9605e141e16~mWrrbHxIB2343923439eusmtip1N;
-        Tue, 23 Feb 2021 10:47:55 +0000 (GMT)
-Subject: Re: [PATCH v2 1/6] ASoC: samsung: tm2_wm5510: fix check of of_parse
- return value
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        alsa-devel@alsa-project.org
-Cc:     tiwai@suse.de, broonie@kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-From:   Sylwester Nawrocki <s.nawrocki@samsung.com>
-Message-ID: <2c96aa88-2a53-3eca-e9d7-24ea9afe63a7@samsung.com>
-Date:   Tue, 23 Feb 2021 11:47:54 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0)
-        Gecko/20100101 Thunderbird/78.7.1
+        id S231596AbhBWK73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Feb 2021 05:59:29 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34452 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230459AbhBWK71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Feb 2021 05:59:27 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id B9FF8AC1D;
+        Tue, 23 Feb 2021 10:58:45 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     daniel@ffwll.ch, airlied@linux.ie,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
+        noralf@tronnes.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Johan Hovold <johan@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: [PATCH v3] drm: Use USB controller's DMA mask when importing dmabufs
+Date:   Tue, 23 Feb 2021 11:58:42 +0100
+Message-Id: <20210223105842.27011-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-In-Reply-To: <20210222213306.22654-2-pierre-louis.bossart@linux.intel.com>
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprGKsWRmVeSWpSXmKPExsWy7djPc7oxd00SDFbOYrG4cvEQk8XUh0/Y
-        LM6f38Bu8ev/MyaLBRsfMVq83PyGyYHNY8PnJjaPTas62TzmnQz02Hy62uPzJrkA1igum5TU
-        nMyy1CJ9uwSujK4rv1gKrnJVHH96nK2B8QtHFyMnh4SAicTSy8cYuxi5OIQEVjBKTNsxjwUk
-        ISTwhVHi/kJ2iMRnRol1B1YwdzFygHV8fxkPEV/OKPGqbQYrhPORUaJlzxqwbmGBaIk11zYx
-        g9giAnESy7+cZwexmQXSJDac/w9WwyZgKNF7tI8RxOYVsJO4vHQFK4jNIqAqsfvsdbB6UYEk
-        ib+/bzJB1AhKnJz5BKyXU8BL4vOiKYwQM8Ulbj2ZzwRhy0tsfzuHGeQgCYErHBI/j31jg/jT
-        RWL6szZGCFtY4tXxLewQtozE/50gzSANzYwSPbtvs0M4E4D+P74AqsNa4s65X2wg/zMLaEqs
-        36UPEXaUeHVqFRMkWPgkbrwVhDiCT2LStunQ0OKV6GgTgqhWkfi9ajoThC0l0f3kP8sERqVZ
-        SF6bheSdWUjemYWwdwEjyypG8dTS4tz01GKjvNRyveLE3OLSvHS95PzcTYzApHP63/EvOxiX
-        v/qod4iRiYPxEKMEB7OSCC/bXaMEId6UxMqq1KL8+KLSnNTiQ4zSHCxK4rxJW9bECwmkJ5ak
-        ZqemFqQWwWSZODilGpg8Ml7YXNy/0IB3dlja83OeL+dm5btJb1yxPYz3fk/kZOvQurYVpsWP
-        uq/tu1b3aIPo79isHx9u7zGMfnN5TX3Q/8p2S+F7QilclzMtvmh+m1Qlcduh4PhMxbJ7rNmO
-        jAs5RFLyFnHLBK08JecqesTBmme1iPxlvUPidtfnh1ns4b0qud26cv7UY6E/Fh0Qs2hzcM66
-        Yc724x+Ty+f/D3m0HgS8PjdpZSvXieLz4vFXZP3OBspXXToibtFX63BEI+fc+tKi+zcnPrd/
-        dNTqFI+jvPTWR36cVY+UNlXbyLLKPLMMn62ceOBp1Ukvx/KS73J3nBWErd1kZ66/4bVJVP14
-        oo5xnYtEe8sZiWOz2pRYijMSDbWYi4oTAd0sRWSpAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrOIsWRmVeSWpSXmKPExsVy+t/xu7rRd00SDO6el7S4cvEQk8XUh0/Y
-        LM6f38Bu8ev/MyaLBRsfMVq83PyGyYHNY8PnJjaPTas62TzmnQz02Hy62uPzJrkA1ig9m6L8
-        0pJUhYz84hJbpWhDCyM9Q0sLPSMTSz1DY/NYKyNTJX07m5TUnMyy1CJ9uwS9jK4rv1gKrnJV
-        HH96nK2B8QtHFyMHh4SAicT3l/FdjFwcQgJLGSVae+6zQcSlJOa3KHUxcgKZwhJ/rnWxQdS8
-        Z5ToPfCTFSQhLBAtsebaJmYQW0QgTmL3wkMsIDazQJrEvpcn2UBsIYG7jBLfLySB2GwChhK9
-        R/sYQWxeATuJy0tXgM1hEVCV2H32OjuILSqQJLF++k0miBpBiZMzn4DN5BTwkvi8aAojxHx1
-        iT/zLjFD2OISt57MZ4Kw5SW2v53DPIFRaBaS9llIWmYhaZmFpGUBI8sqRpHU0uLc9NxiI73i
-        xNzi0rx0veT83E2MwBjbduznlh2MK1991DvEyMTBeIhRgoNZSYSX7a5RghBvSmJlVWpRfnxR
-        aU5q8SFGU6B/JjJLiSbnA6M8ryTe0MzA1NDEzNLA1NLMWEmc1+TImnghgfTEktTs1NSC1CKY
-        PiYOTqkGJhYGhRUHU8XWrpOWWfF+7lMF75X3e5fOFVXMO7GhmEkzm9uk4PHmGQVSJ4L/LLzv
-        avlfWr0t+aVJgT/T0y8Konnbp0wrSxJ1nFp4RuSQpFyamNaVgIIwtrlrtnV+/ngw+9n192qv
-        bpTsPODT83GDweNcNbe6kh+xu+oO9MxdUdthXBAtcu5u417VYLFOs1/Tf4kevf5hwUMTP+kI
-        kaDeyEV867O3bBIVr+5I2P7/kXhFonSejGPbrivKX0xZLXcvnfBunX9nh71v1vvJfIF955yn
-        t35+Hqjw3fKcmnDa6tzac8tmbbAoMQhkO5KutHdlxftA3iNWH5e5cwVcV3p732md955wvl/3
-        2+JUzNPmK7EUZyQaajEXFScCAPLdrwo6AwAA
-X-CMS-MailID: 20210223104755eucas1p2cbacf24a50c0a2ff0098a6a2e45beb58
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20210222213325eucas1p18611358dee29234661ceeac6ac29ce52
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20210222213325eucas1p18611358dee29234661ceeac6ac29ce52
-References: <20210222213306.22654-1-pierre-louis.bossart@linux.intel.com>
-        <CGME20210222213325eucas1p18611358dee29234661ceeac6ac29ce52@eucas1p1.samsung.com>
-        <20210222213306.22654-2-pierre-louis.bossart@linux.intel.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22.02.2021 22:33, Pierre-Louis Bossart wrote:
-> cppcheck warning:
-> 
-> sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
-> reassigned a value before the old one has been
-> used. [redundantAssignment]
->  ret = devm_snd_soc_register_component(dev, &tm2_component,
->      ^
-> sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
->   ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
->       ^
-> sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
->  ret = devm_snd_soc_register_component(dev, &tm2_component,
->      ^
-> 
-> The args is a stack variable, so it could have junk (uninitialized)
-> therefore args.np could have a non-NULL and random value even though
-> property was missing. Later could trigger invalid pointer dereference.
-> 
-> This patch provides the correct fix, there's no need to check for
-> args.np because args.np won't be initialized on errors.
-> 
-> Fixes: 75fa6833aef3 ("ASoC: samsung: tm2_wm5110: check of_parse return value")
-> Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2board")
-> Cc: <stable@vger.kernel.org>
-> Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
-> Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+USB devices cannot perform DMA and hence have no dma_mask set in their
+device structure. Importing dmabuf into a USB-based driver fails, which
+break joining and mirroring of display in X11.
 
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+For USB devices, pick the associated USB controller as attachment device,
+so that it can perform DMA. If the DMa controller does not support DMA
+transfers, we're aout of luck and cannot import.
 
-Thank you for fixing all those issues.
+Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
+instance of struct drm_driver.
+
+Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
+
+v3:
+	* drop gem_create_object
+	* use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
+v2:
+	* move fix to importer side (Christian, Daniel)
+	* update SHMEM and CMA helpers for new PRIME callbacks
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devices")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org> # v5.10+
+---
+ drivers/gpu/drm/drm_prime.c        | 36 ++++++++++++++++++++++++++++++
+ drivers/gpu/drm/tiny/gm12u320.c    |  2 +-
+ drivers/gpu/drm/udl/udl_drv.c      |  2 +-
+ include/drm/drm_gem_shmem_helper.h | 13 +++++++++++
+ include/drm/drm_prime.h            |  5 +++++
+ 5 files changed, 56 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+index 2a54f86856af..9015850f2160 100644
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -29,6 +29,7 @@
+ #include <linux/export.h>
+ #include <linux/dma-buf.h>
+ #include <linux/rbtree.h>
++#include <linux/usb.h>
+
+ #include <drm/drm.h>
+ #include <drm/drm_drv.h>
+@@ -1055,3 +1056,38 @@ void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg)
+ 	dma_buf_put(dma_buf);
+ }
+ EXPORT_SYMBOL(drm_prime_gem_destroy);
++
++/**
++ * drm_gem_prime_import_usb - helper library implementation of the import callback for USB devices
++ * @dev: drm_device to import into
++ * @dma_buf: dma-buf object to import
++ *
++ * This is an implementation of drm_gem_prime_import() for USB-based devices.
++ * USB devices cannot perform DMA directly. This function selects the USB host
++ * controller as DMA device instead. Drivers can use this as their
++ * &drm_driver.gem_prime_import implementation.
++ *
++ * See also drm_gem_prime_import().
++ */
++#ifdef CONFIG_USB
++struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev,
++						struct dma_buf *dma_buf)
++{
++	struct usb_device *udev;
++	struct device *usbhost;
++
++	if (dev->dev->bus != &usb_bus_type)
++		return ERR_PTR(-ENODEV);
++
++	udev = interface_to_usbdev(to_usb_interface(dev->dev));
++	if (!udev->bus)
++		return ERR_PTR(-ENODEV);
++
++	usbhost = udev->bus->controller;
++	if (!usbhost || !usbhost->dma_mask)
++		return ERR_PTR(-ENODEV);
++
++	return drm_gem_prime_import_dev(dev, dma_buf, usbhost);
++}
++EXPORT_SYMBOL(drm_gem_prime_import_usb);
++#endif
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 0b4f4f2af1ef..99e7bd36a220 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -611,7 +611,7 @@ static const struct drm_driver gm12u320_drm_driver = {
+ 	.minor		 = DRIVER_MINOR,
+
+ 	.fops		 = &gm12u320_fops,
+-	DRM_GEM_SHMEM_DRIVER_OPS,
++	DRM_GEM_SHMEM_DRIVER_OPS_USB,
+ };
+
+ static const struct drm_mode_config_funcs gm12u320_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_drv.c
+index 9269092697d8..2db483b2b199 100644
+--- a/drivers/gpu/drm/udl/udl_drv.c
++++ b/drivers/gpu/drm/udl/udl_drv.c
+@@ -39,7 +39,7 @@ static const struct drm_driver driver = {
+
+ 	/* GEM hooks */
+ 	.fops = &udl_driver_fops,
+-	DRM_GEM_SHMEM_DRIVER_OPS,
++	DRM_GEM_SHMEM_DRIVER_OPS_USB,
+
+ 	.name = DRIVER_NAME,
+ 	.desc = DRIVER_DESC,
+diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+index 434328d8a0d9..09d12f632cad 100644
+--- a/include/drm/drm_gem_shmem_helper.h
++++ b/include/drm/drm_gem_shmem_helper.h
+@@ -162,4 +162,17 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_object *obj);
+ 	.gem_prime_mmap		= drm_gem_prime_mmap, \
+ 	.dumb_create		= drm_gem_shmem_dumb_create
+
++#ifdef CONFIG_USB
++/**
++ * DRM_GEM_SHMEM_DRIVER_OPS_USB - Default shmem GEM operations for USB devices
++ *
++ * This macro provides a shortcut for setting the shmem GEM operations in
++ * the &drm_driver structure. Drivers for USB-based devices should use this
++ * macro instead of &DRM_GEM_SHMEM_DRIVER_OPS.
++ */
++#define DRM_GEM_SHMEM_DRIVER_OPS_USB \
++	DRM_GEM_SHMEM_DRIVER_OPS, \
++	.gem_prime_import = drm_gem_prime_import_usb
++#endif
++
+ #endif /* __DRM_GEM_SHMEM_HELPER_H__ */
+diff --git a/include/drm/drm_prime.h b/include/drm/drm_prime.h
+index 54f2c58305d2..b42e07edd9e6 100644
+--- a/include/drm/drm_prime.h
++++ b/include/drm/drm_prime.h
+@@ -110,4 +110,9 @@ int drm_prime_sg_to_page_array(struct sg_table *sgt, struct page **pages,
+ int drm_prime_sg_to_dma_addr_array(struct sg_table *sgt, dma_addr_t *addrs,
+ 				   int max_pages);
+
++#ifdef CONFIG_USB
++struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev,
++						struct dma_buf *dma_buf);
++#endif
++
+ #endif /* __DRM_PRIME_H__ */
+--
+2.30.1
+
