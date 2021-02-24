@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B245323D84
+	by mail.lfdr.de (Postfix) with ESMTP id CC190323D85
 	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236106AbhBXNNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:13:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
+        id S234764AbhBXNNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:13:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235712AbhBXNFC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235710AbhBXNFC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 08:05:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B088B64F7B;
-        Wed, 24 Feb 2021 12:54:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDA2864F7E;
+        Wed, 24 Feb 2021 12:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171242;
-        bh=CbtLJBjPW04CHToB/xRnlOVVoQA1aptjneT2df6DPJo=;
+        s=k20201202; t=1614171243;
+        bh=nmhDbiLN8SzIZcd7G6hoQrejKrrv37qolNba8EO8YvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOZIBCsQsHtsPSTOPvKnCYVGLrEkPkXv3aBRysRKmJ0Alh8gbqPSMAOfk2/VnYZOS
-         h2VN38ngfaBK5W2okWN8gfConNsKv3AusKgBtnneTz18Lra3emxeONrssYJNbuk0mI
-         FkAkQcpGhQI0tKs4gV8k53ov7Uw0M64nv834UCwXb4ZZPf4se4sA1q7rLueeCKUokH
-         WyAUD7FBBbdoUdiZ8BZfb8z4+RubSY8TsM8wIGek4TYURiO9QT6gS+CIoPdXpIydRI
-         QEfDLjAd2dXnmbwdtMXC9fiUEGL4Gy29f3NVsNWeAI177SX3fpsYMVFN6XkfGypGoE
-         w94s98LsZ0VGw==
+        b=nZZ7TxMR+fWHUiWtMqUjN2mGUaWlOFsLYOiZv161wMgBSAsDDRapENvrYSLDa3sCX
+         aj0GSFIIKp3un3kaYzuX1jlopNKdMU1P/aaZiH5Mr4vYOFD+DRKSXZBSLSsfpnAkKm
+         c/5RVQ7lu8gUzd75lnOTAWxDg4iM63v/YTXo21fPrp5WMKbkzqsSib3qgev4hBTzfU
+         YCi3j+KMsrnGxCzoSh8A+VVWANUFGoV6i7dJqoHgp2lw+td96dYSWEv+AhLKVGgjOq
+         mddVumyfwnXlrZExowrcjzrak3zNeHGz1F5s6Fwx7DXInfCYiWQmo2RGjyZcY/V9dB
+         oVlUo7dx2AG0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/40] crypto: tcrypt - avoid signed overflow in byte count
-Date:   Wed, 24 Feb 2021 07:53:16 -0500
-Message-Id: <20210224125340.483162-16-sashal@kernel.org>
+Cc:     Defang Bo <bodefang@126.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 17/40] drm/amdgpu: Add check to prevent IH overflow
+Date:   Wed, 24 Feb 2021 07:53:17 -0500
+Message-Id: <20210224125340.483162-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125340.483162-1-sashal@kernel.org>
 References: <20210224125340.483162-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,82 +45,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Defang Bo <bodefang@126.com>
 
-[ Upstream commit 303fd3e1c771077e32e96e5788817f025f0067e2 ]
+[ Upstream commit e4180c4253f3f2da09047f5139959227f5cf1173 ]
 
-The signed long type used for printing the number of bytes processed in
-tcrypt benchmarks limits the range to -/+ 2 GiB, which is not sufficient
-to cover the performance of common accelerated ciphers such as AES-NI
-when benchmarked with sec=1. So switch to u64 instead.
+Similar to commit <b82175750131>("drm/amdgpu: fix IH overflow on Vega10 v2").
+When an ring buffer overflow happens the appropriate bit is set in the WPTR
+register which is also written back to memory. But clearing the bit in the
+WPTR doesn't trigger another memory writeback.
 
-While at it, fix up a missing printk->pr_cont conversion in the AEAD
-benchmark.
+So what can happen is that we end up processing the buffer overflow over and
+over again because the bit is never cleared. Resulting in a random system
+lockup because of an infinite loop in an interrupt handler.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Defang Bo <bodefang@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/tcrypt.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/cz_ih.c      | 37 ++++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/iceland_ih.c | 36 +++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/tonga_ih.c   | 37 ++++++++++++++++---------
+ 3 files changed, 71 insertions(+), 39 deletions(-)
 
-diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index 83ad0b1fab30a..0cece1f883ebe 100644
---- a/crypto/tcrypt.c
-+++ b/crypto/tcrypt.c
-@@ -198,8 +198,8 @@ static int test_mb_aead_jiffies(struct test_mb_aead_data *data, int enc,
- 			goto out;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/cz_ih.c b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+index 1dca0cabc326a..13520d173296f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cz_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+@@ -193,19 +193,30 @@ static u32 cz_ih_get_wptr(struct amdgpu_device *adev,
  
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
- out:
- 	kfree(rc);
-@@ -468,8 +468,8 @@ static int test_aead_jiffies(struct aead_request *req, int enc,
- 			return ret;
- 	}
- 
--	printk("%d operations in %d seconds (%ld bytes)\n",
--	       bcount, secs, (long)bcount * blen);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+	        bcount, secs, (u64)bcount * blen);
- 	return 0;
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
  }
  
-@@ -759,8 +759,8 @@ static int test_mb_ahash_jiffies(struct test_mb_ahash_data *data, int blen,
- 			goto out;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+index a13dd9a51149a..7d165f024f072 100644
+--- a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+@@ -193,19 +193,29 @@ static u32 iceland_ih_get_wptr(struct amdgpu_device *adev,
  
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
- out:
- 	kfree(rc);
-@@ -1196,8 +1196,8 @@ static int test_mb_acipher_jiffies(struct test_mb_skcipher_data *data, int enc,
- 			goto out;
- 	}
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
+ }
  
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
+diff --git a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+index e40140bf6699c..db0a3bda13fbe 100644
+--- a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+@@ -195,19 +195,30 @@ static u32 tonga_ih_get_wptr(struct amdgpu_device *adev,
  
- out:
- 	kfree(rc);
-@@ -1434,8 +1434,8 @@ static int test_acipher_jiffies(struct skcipher_request *req, int enc,
- 			return ret;
- 	}
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount, secs, (long)bcount * blen);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount, secs, (u64)bcount * blen);
- 	return 0;
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++out:
+ 	return (wptr & ih->ptr_mask);
  }
  
 -- 
