@@ -2,221 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5400323E04
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:26:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B538323E36
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbhBXNXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:23:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231809AbhBXNS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:18:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C45764FBA;
-        Wed, 24 Feb 2021 12:56:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171374;
-        bh=BvfUVNlmW6hpcqof91JmPyLE9pKH75gTqzb99INrfgg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAnz02cYmhtsuXqcPmq/v3LLc2Lu8LfC84Q6df8Ei2aILcTKfIb2iOkBaZA0GkhAx
-         yt1n6e+XtL2WhUYxssg5O888qcOp61GJoEB6YRS8ZZ8HRCTJjwKOIYrQFLviPYY0wF
-         y8JD6S4jy775Xv/tNS9wba2yZIHEl/nqxW2Jtk0w+lpdIWS4v4q81trchw86qHzjkk
-         Iie+dS7riWQdUk46f9qxzogWR9y3/Gmc+2h5DKsK4bIwisaX77nQrZ3aS+H4CZE5w1
-         euCxyn+D9H7hjqGmHM4Dwxh3Ywvwv1Ccm1YXQNegPazsn/gyWcmjo4GD0O6hrpcl0A
-         GNiU/YvXKZQjQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 11/11] tomoyo: ignore data race while checking quota
-Date:   Wed, 24 Feb 2021 07:55:59 -0500
-Message-Id: <20210224125600.484437-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210224125600.484437-1-sashal@kernel.org>
-References: <20210224125600.484437-1-sashal@kernel.org>
+        id S232536AbhBXN0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:26:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235403AbhBXNT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:19:56 -0500
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68755C0617A9
+        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 05:18:33 -0800 (PST)
+Received: by mail-ot1-x32c.google.com with SMTP id b16so2113740otq.1
+        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 05:18:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Hz6BWGl7qa7h/rRrM/u0WCVRkmbtUFWO0Cr4wwVxXjY=;
+        b=Wr+r6Gd6YiIT1RvRDMDejiuUXKyYgtB2MpoPj2b3REeXwS40+RrCjZUkwACLoxf4gT
+         o/rd+peXH6NGy7ycvrW70vh8mQurSQ/vf+UMMP76QGzUIz1Pi2kWv8rzW8VtAg1Dee7L
+         vyz3DndX9AuiBZgEYka2INaLRiEWG2EtSKVpz3YAkcynhPoftCHahRAyncfPSDHwOeW5
+         XAiKbA7+VyGED1P7TFv1qLzL862DrDR1hbfdhloNhb6vcV52ldsNWrFtoggj9scep0pM
+         5JVPjjg8yfHJZz0h8N+X2c8yyHEZro/iAVijjJOCxfyMKfsoXdiHmt41njDkst7xY33l
+         dCiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Hz6BWGl7qa7h/rRrM/u0WCVRkmbtUFWO0Cr4wwVxXjY=;
+        b=QhgdGDkZQuxqzErELr/ltPJxVD31WdwgiPg9h/+nnh2OhATwtmTcOi2tmrO6BrVLJO
+         GE7ORL6oYfKv+mkKeZcKLwpSVSxad4WQWm37xsB2cnxTzjBc9OeRrs2yAO2e6WSDxtio
+         JDf0WQ1hH/GuAoUO8a+HCUJF4m2U8Gdz3OuHBZ42oDxNQolDtKYbefrjuDucuK7GPjfc
+         C7SXU+EF5nS8A0BioFLQ5eCFYl06sVcDyW1bTKPmcK+e10G3n/ejt031fv2StTtzP86U
+         MMdhGyFRqpq1Xk0zrhxlkiQHCLN4tS1OxMfRrBp8YTaVfxxIzSo7rQZmQ7ivyb7V2CMD
+         1PTQ==
+X-Gm-Message-State: AOAM531sZ081xEIGdoHXpc06Q3u9gzdxeK8JGwsxcx8G1peBugGj3TR2
+        7YjTgCl8eALvn/PgrNvgOZbPNA==
+X-Google-Smtp-Source: ABdhPJz/cyH96Ef6ooNYUXuVy7sefqG5p5mJLZudZuy+rwZK1FGd75K1lFTGrg2zpDdPT0u1O1oQHw==
+X-Received: by 2002:a9d:6958:: with SMTP id p24mr12470520oto.297.1614172712725;
+        Wed, 24 Feb 2021 05:18:32 -0800 (PST)
+Received: from winterfell.papolivre.org (winterfell.papolivre.org. [2600:3c00::f03c:91ff:fe69:3960])
+        by smtp.gmail.com with ESMTPSA id w4sm378114ool.44.2021.02.24.05.18.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Feb 2021 05:18:32 -0800 (PST)
+Received: from localhost (unknown [IPv6:2001:1284:f016:4cfd:27e0:441e:870:6787])
+        by winterfell.papolivre.org (Postfix) with ESMTPSA id 1C7821C2F43;
+        Wed, 24 Feb 2021 10:18:30 -0300 (-03)
+From:   Antonio Terceiro <antonio.terceiro@linaro.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        He Zhe <zhe.he@windriver.com>, stable@vger.kernel.org
+Subject: [PATCH] perf: fix ccache usage in $(CC) when generating arch errno table
+Date:   Wed, 24 Feb 2021 10:00:46 -0300
+Message-Id: <20210224130046.346977-1-antonio.terceiro@linaro.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+This was introduced by commit e4ffd066ff440a57097e9140fa9e16ceef905de8.
 
-[ Upstream commit 5797e861e402fff2bedce4ec8b7c89f4248b6073 ]
+Assuming the first word of $(CC) is the actual compiler breaks usage
+like CC="ccache gcc": the script ends up calling ccache directly with
+gcc arguments, what fails. Instead of getting the first word, just
+remove from $(CC) any word that starts with a "-". This maintains the
+spirit of the original patch, while not breaking ccache users.
 
-syzbot is reporting that tomoyo's quota check is racy [1]. But this check
-is tolerant of some degree of inaccuracy. Thus, teach KCSAN to ignore
-this data race.
-
-[1] https://syzkaller.appspot.com/bug?id=999533deec7ba6337f8aa25d8bd1a4d5f7e50476
-
-Reported-by: syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Antonio Terceiro <antonio.terceiro@linaro.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: He Zhe <zhe.he@windriver.com>
+CC: stable@vger.kernel.org
 ---
- security/tomoyo/file.c    | 16 ++++++++--------
- security/tomoyo/network.c |  8 ++++----
- security/tomoyo/util.c    | 24 ++++++++++++------------
- 3 files changed, 24 insertions(+), 24 deletions(-)
+ tools/perf/Makefile.perf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/tomoyo/file.c b/security/tomoyo/file.c
-index 2367b100cc62d..6c57be9d53898 100644
---- a/security/tomoyo/file.c
-+++ b/security/tomoyo/file.c
-@@ -355,13 +355,13 @@ static bool tomoyo_merge_path_acl(struct tomoyo_acl_info *a,
- {
- 	u16 * const a_perm = &container_of(a, struct tomoyo_path_acl, head)
- 		->perm;
--	u16 perm = *a_perm;
-+	u16 perm = READ_ONCE(*a_perm);
- 	const u16 b_perm = container_of(b, struct tomoyo_path_acl, head)->perm;
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index 5345ac70cd83..9bfc725db608 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -607,7 +607,7 @@ arch_errno_hdr_dir := $(srctree)/tools
+ arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
  
-@@ -427,14 +427,14 @@ static bool tomoyo_merge_mkdev_acl(struct tomoyo_acl_info *a,
- {
- 	u8 *const a_perm = &container_of(a, struct tomoyo_mkdev_acl,
- 					 head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_mkdev_acl, head)
- 		->perm;
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
+ $(arch_errno_name_array): $(arch_errno_tbl)
+-	$(Q)$(SHELL) '$(arch_errno_tbl)' $(firstword $(CC)) $(arch_errno_hdr_dir) > $@
++	$(Q)$(SHELL) '$(arch_errno_tbl)' '$(patsubst -%,,$(CC))' $(arch_errno_hdr_dir) > $@
  
-@@ -504,13 +504,13 @@ static bool tomoyo_merge_path2_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path2_acl, head)
- 		->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path2_acl, head)->perm;
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -639,14 +639,14 @@ static bool tomoyo_merge_path_number_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path_number_acl,
- 					  head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path_number_acl, head)
- 		->perm;
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-diff --git a/security/tomoyo/network.c b/security/tomoyo/network.c
-index 97527710a72a5..facb8409768d3 100644
---- a/security/tomoyo/network.c
-+++ b/security/tomoyo/network.c
-@@ -232,14 +232,14 @@ static bool tomoyo_merge_inet_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_inet_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_inet_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -258,14 +258,14 @@ static bool tomoyo_merge_unix_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_unix_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_unix_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
-index b974a6997d7f8..e7ae94d28202e 100644
---- a/security/tomoyo/util.c
-+++ b/security/tomoyo/util.c
-@@ -1038,30 +1038,30 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
- 		u8 i;
- 		if (ptr->is_deleted)
- 			continue;
-+		/*
-+		 * Reading perm bitmap might race with tomoyo_merge_*() because
-+		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
-+		 * max_learning_entry parameter by a few entries does not harm.
-+		 */
- 		switch (ptr->type) {
- 		case TOMOYO_TYPE_PATH_ACL:
--			perm = container_of(ptr, struct tomoyo_path_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH2_ACL:
--			perm = container_of(ptr, struct tomoyo_path2_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path2_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH_NUMBER_ACL:
--			perm = container_of(ptr, struct tomoyo_path_number_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_number_acl, head)
-+				  ->perm);
- 			break;
- 		case TOMOYO_TYPE_MKDEV_ACL:
--			perm = container_of(ptr, struct tomoyo_mkdev_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_INET_ACL:
--			perm = container_of(ptr, struct tomoyo_inet_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_inet_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_UNIX_ACL:
--			perm = container_of(ptr, struct tomoyo_unix_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_unix_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
- 			perm = 0;
+ sync_file_range_arrays := $(beauty_outdir)/sync_file_range_arrays.c
+ sync_file_range_tbls := $(srctree)/tools/perf/trace/beauty/sync_file_range.sh
 -- 
-2.27.0
+2.30.1
 
