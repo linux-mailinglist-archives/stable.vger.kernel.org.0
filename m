@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4EBE323D38
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47EB8323D45
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235734AbhBXNGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:06:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55504 "EHLO mail.kernel.org"
+        id S235776AbhBXNGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:06:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232662AbhBXNAG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:00:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2EFF64F59;
-        Wed, 24 Feb 2021 12:52:59 +0000 (UTC)
+        id S234220AbhBXNBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:01:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 154FA64F55;
+        Wed, 24 Feb 2021 12:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171180;
-        bh=ql/00Tt/UMNspFd4ec+a17ZdvGybos9XggczOxBzqpw=;
+        s=k20201202; t=1614171181;
+        bh=K8dwfFm/TdUYzwZc+jo9YtmQHmUkC5qz03JyYqKPZ94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIN5BzDvVuCGhR0Yxx2skEPeaknRMsfxJHgRfyinhcc+8OMhl6tfD0HwFSi0vOkX/
-         WttI/MdEDoD7gwVgQJ1/2DmW9FJRhMUf1NT9k+XCfTDZj/RLF97h8pak28qIlfYjlb
-         mCbVZ/jvOUa5PumXybsR9M2pDPjSSFfqfjjeo44bwPZDO6fIiR7k2hGdc7j7e4j57y
-         xxcGZUUyxxUPWF1+P/EJaN2CdvOQ/1n0wbetBDNI0hpHCTD+nV1uC5kWbEHameG1U/
-         kMHqIjGGKbVFDrmNQWt+3ReHTLjoyctglhj+e3cGvZo5WQjcF6CkhE0+nAgSgq9eJf
-         ySJrax2Ss5LZg==
+        b=lT0XhP2xdt/Gg7tIeFSX5iOURqlutHPEEKs3gfLnXxkllvYGa54Kiag3/aGIH+HhS
+         MEAgSz13XwZ2gHcRgIRo+5MtwumOYdNZ5Xa6XBvD88JuimE90NFDz/SRJ4DFOyYpo1
+         RQLQufqAdWbw6CvCdegx/X0KLoZQvYxJOQgerdx7qLXsDfqejtoWhr9YKOkxo0Uyje
+         wZFqJsChW0fQ6L1Gs0lRZjHYZqGX/OPZM0WV/shOMxusMd+3rbHiNuY8agcbkxMWa+
+         T0aJ206T7R2B1SFDOu1VvbZMPlq4gERfE2ZbemQsxNtAm7XGF2fgbCpvyKASpWNNAl
+         V5rqQCLZwMR4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Leng <lengchao@huawei.com>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 36/56] nvme-core: add cancel tagset helpers
-Date:   Wed, 24 Feb 2021 07:51:52 -0500
-Message-Id: <20210224125212.482485-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 37/56] nvme-rdma: add clean action for failed reconnection
+Date:   Wed, 24 Feb 2021 07:51:53 -0500
+Message-Id: <20210224125212.482485-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
@@ -43,63 +43,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Leng <lengchao@huawei.com>
 
-[ Upstream commit 2547906982e2e6a0d42f8957f55af5bb51a7e55f ]
+[ Upstream commit 958dc1d32c80566f58d18f05ef1f05bd32d172c1 ]
 
-Add nvme_cancel_tagset and nvme_cancel_admin_tagset for tear down and
-reconnection error handling.
+A crash happens when inject failed reconnection.
+If reconnect failed after start io queues, the queues will be unquiesced
+and new requests continue to be delivered. Reconnection error handling
+process directly free queues without cancel suspend requests. The
+suppend request will time out, and then crash due to use the queue
+after free.
+
+Add sync queues and cancel suppend requests for reconnection error
+handling.
 
 Signed-off-by: Chao Leng <lengchao@huawei.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 20 ++++++++++++++++++++
- drivers/nvme/host/nvme.h |  2 ++
- 2 files changed, 22 insertions(+)
+ drivers/nvme/host/rdma.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 4ec5f05dabe1d..e1e574ecf031b 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -351,6 +351,26 @@ bool nvme_cancel_request(struct request *req, void *data, bool reserved)
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 493ed7ba86ed2..fd2b4dbe9d160 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -919,12 +919,16 @@ static int nvme_rdma_configure_admin_queue(struct nvme_rdma_ctrl *ctrl,
+ 
+ 	error = nvme_init_identify(&ctrl->ctrl);
+ 	if (error)
+-		goto out_stop_queue;
++		goto out_quiesce_queue;
+ 
+ 	return 0;
+ 
++out_quiesce_queue:
++	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
++	blk_sync_queue(ctrl->ctrl.admin_q);
+ out_stop_queue:
+ 	nvme_rdma_stop_queue(&ctrl->queues[0]);
++	nvme_cancel_admin_tagset(&ctrl->ctrl);
+ out_cleanup_queue:
+ 	if (new)
+ 		blk_cleanup_queue(ctrl->ctrl.admin_q);
+@@ -1001,8 +1005,10 @@ static int nvme_rdma_configure_io_queues(struct nvme_rdma_ctrl *ctrl, bool new)
+ 
+ out_wait_freeze_timed_out:
+ 	nvme_stop_queues(&ctrl->ctrl);
++	nvme_sync_io_queues(&ctrl->ctrl);
+ 	nvme_rdma_stop_io_queues(ctrl);
+ out_cleanup_connect_q:
++	nvme_cancel_tagset(&ctrl->ctrl);
+ 	if (new)
+ 		blk_cleanup_queue(ctrl->ctrl.connect_q);
+ out_free_tag_set:
+@@ -1144,10 +1150,18 @@ static int nvme_rdma_setup_ctrl(struct nvme_rdma_ctrl *ctrl, bool new)
+ 	return 0;
+ 
+ destroy_io:
+-	if (ctrl->ctrl.queue_count > 1)
++	if (ctrl->ctrl.queue_count > 1) {
++		nvme_stop_queues(&ctrl->ctrl);
++		nvme_sync_io_queues(&ctrl->ctrl);
++		nvme_rdma_stop_io_queues(ctrl);
++		nvme_cancel_tagset(&ctrl->ctrl);
+ 		nvme_rdma_destroy_io_queues(ctrl, new);
++	}
+ destroy_admin:
++	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
++	blk_sync_queue(ctrl->ctrl.admin_q);
+ 	nvme_rdma_stop_queue(&ctrl->queues[0]);
++	nvme_cancel_admin_tagset(&ctrl->ctrl);
+ 	nvme_rdma_destroy_admin_queue(ctrl, new);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(nvme_cancel_request);
- 
-+void nvme_cancel_tagset(struct nvme_ctrl *ctrl)
-+{
-+	if (ctrl->tagset) {
-+		blk_mq_tagset_busy_iter(ctrl->tagset,
-+				nvme_cancel_request, ctrl);
-+		blk_mq_tagset_wait_completed_request(ctrl->tagset);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(nvme_cancel_tagset);
-+
-+void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl)
-+{
-+	if (ctrl->admin_tagset) {
-+		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
-+				nvme_cancel_request, ctrl);
-+		blk_mq_tagset_wait_completed_request(ctrl->admin_tagset);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(nvme_cancel_admin_tagset);
-+
- bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
- 		enum nvme_ctrl_state new_state)
- {
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 567f7ad18a91c..f843540cc238e 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -571,6 +571,8 @@ static inline bool nvme_is_aen_req(u16 qid, __u16 command_id)
- 
- void nvme_complete_rq(struct request *req);
- bool nvme_cancel_request(struct request *req, void *data, bool reserved);
-+void nvme_cancel_tagset(struct nvme_ctrl *ctrl);
-+void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl);
- bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
- 		enum nvme_ctrl_state new_state);
- bool nvme_wait_reset(struct nvme_ctrl *ctrl);
 -- 
 2.27.0
 
