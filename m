@@ -2,72 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83DCB324236
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 17:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB3F324250
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 17:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233931AbhBXQfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 11:35:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34524 "EHLO mail.kernel.org"
+        id S235483AbhBXQmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 11:42:11 -0500
+Received: from foss.arm.com ([217.140.110.172]:39334 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235260AbhBXQdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 11:33:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B280A64EA4;
-        Wed, 24 Feb 2021 16:32:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614184369;
-        bh=P1zqM95tua8umI/SEFGYX/6BnqFv13eKW5KD+RTSkyE=;
-        h=Subject:From:To:Cc:Date:From;
-        b=W1ZOsPXk7zIecZaR/ZDWzGVQ8PMimU+4mjPABBK7NTLcM4BPwR8XoTKBM+SH6Imi7
-         JJnKuGSaquTmVrMP9+n5vJv6r6dGGtabwV8EC6EtATAlIGvTpbkk1REtDlkYiC4Q1I
-         Rp0mGXw9Gbj2mHboxEXJyPTPhBrx97FqWM4kPVHKvDvPNbNHO2j9IQUUBrUwNd23zd
-         r0g+whWM/0T2G1EQwBZQHYyphF3cNxjMlDQmmyjZUfPCgGXktfMp7U62TNGIlnFmPJ
-         CWEB/iBW0eSbiQr1BzxGrzusLXewRMVAp25Cd31VPgr2WlIfJqp9A7MzLD0qs0LmJd
-         PPZ7xVcLGSFWA==
-Message-ID: <d461df79aac53a77de3ebae08543c5ca9c6660cb.camel@kernel.org>
-Subject: ceph: downgrade warning from mdsmap decode to debug
-From:   Jeff Layton <jlayton@kernel.org>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     Luis Henriques <lhenriques@suse.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Frank Schilder <frans@dtu.dk>
-Date:   Wed, 24 Feb 2021 11:32:47 -0500
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        id S235518AbhBXQkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 11:40:08 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1077731B;
+        Wed, 24 Feb 2021 08:39:17 -0800 (PST)
+Received: from [192.168.1.179] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0028D3F70D;
+        Wed, 24 Feb 2021 08:39:15 -0800 (PST)
+Subject: Re: [PATCH 1/2] drm/shmem-helper: Check for purged buffers in fault
+ handler
+To:     Neil Roberts <nroberts@igalia.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+References: <20210223155125.199577-1-nroberts@igalia.com>
+ <20210223155125.199577-2-nroberts@igalia.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <3b720672-d21d-dde5-4d7d-c2c8cd00c4b5@arm.com>
+Date:   Wed, 24 Feb 2021 16:39:32 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210223155125.199577-2-nroberts@igalia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, we'd like to request that you pull this commit into stable kernels. 
-It's a trivial patch that just downgrades a (harmless) kernel warning
-message to debug level. The warning can be very chatty in some
-situations, and it'd be nice to silence it.
+On 23/02/2021 15:51, Neil Roberts wrote:
+> When a buffer is madvised as not needed and then purged, any attempts to
+> access the buffer from user-space should cause a bus fault. This patch
+> adds a check for that.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 17acb9f35ed7 ("drm/shmem: Add madvise state and purge helpers")
+> Signed-off-by: Neil Roberts <nroberts@igalia.com>
 
------------------------------8<-------------------------------
+Reviewed-by: Steven Price <steven.price@arm.com>
 
-commit ccd1acdf1c49b835504b235461fd24e2ed826764
-Author: Luis Henriques <lhenriques@suse.de>
-Date:   Thu Nov 12 11:25:32 2020 +0000
-
-    ceph: downgrade warning from mdsmap decode to debug
-    
-    While the MDS cluster is unstable and changing state the client may get
-    mdsmap updates that will trigger warnings:
-    
-      [144692.478400] ceph: mdsmap_decode got incorrect state(up:standby-replay)
-      [144697.489552] ceph: mdsmap_decode got incorrect state(up:standby-replay)
-      [144697.489580] ceph: mdsmap_decode got incorrect state(up:standby-replay)
-    
-    This patch downgrades these warnings to debug, as they may flood the logs
-    if the cluster is unstable for a while.
-    
-    Signed-off-by: Luis Henriques <lhenriques@suse.de>
-    Reviewed-by: Jeff Layton <jlayton@kernel.org>
-    Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-
-
-Thanks!
--- 
-Jeff Layton <jlayton@kernel.org>
+> ---
+>   drivers/gpu/drm/drm_gem_shmem_helper.c | 18 ++++++++++++++----
+>   1 file changed, 14 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index 9825c378dfa6..b26139b1dc35 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -525,14 +525,24 @@ static vm_fault_t drm_gem_shmem_fault(struct vm_fault *vmf)
+>   	struct drm_gem_object *obj = vma->vm_private_data;
+>   	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
+>   	loff_t num_pages = obj->size >> PAGE_SHIFT;
+> +	vm_fault_t ret;
+>   	struct page *page;
+>   
+> -	if (vmf->pgoff >= num_pages || WARN_ON_ONCE(!shmem->pages))
+> -		return VM_FAULT_SIGBUS;
+> +	mutex_lock(&shmem->pages_lock);
+> +
+> +	if (vmf->pgoff >= num_pages ||
+> +	    WARN_ON_ONCE(!shmem->pages) ||
+> +	    shmem->madv < 0) {
+> +		ret = VM_FAULT_SIGBUS;
+> +	} else {
+> +		page = shmem->pages[vmf->pgoff];
+>   
+> -	page = shmem->pages[vmf->pgoff];
+> +		ret = vmf_insert_page(vma, vmf->address, page);
+> +	}
+>   
+> -	return vmf_insert_page(vma, vmf->address, page);
+> +	mutex_unlock(&shmem->pages_lock);
+> +
+> +	return ret;
+>   }
+>   
+>   static void drm_gem_shmem_vm_open(struct vm_area_struct *vma)
+> 
 
