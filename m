@@ -2,80 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5D53244E0
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 21:07:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDD93244E8
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 21:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbhBXUGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 15:06:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56140 "EHLO mail.kernel.org"
+        id S235368AbhBXUId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 15:08:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234906AbhBXUFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 15:05:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31F4764F11;
-        Wed, 24 Feb 2021 20:04:23 +0000 (UTC)
+        id S235372AbhBXUIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 15:08:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9964764E60;
+        Wed, 24 Feb 2021 20:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1614197063;
-        bh=G31EBYnGYWA+9ziOs13ui7hLFTA9Ds66VuzLUR1+Iv4=;
+        s=korg; t=1614197271;
+        bh=/PowuA+liQXKosAi5ro+HSU9tErdU/1suZR4xdRManE=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=si5bUio5hFqsEjKRig7n4vmR60gzC42liNYSxQ6OQc3feQk003GyrD0TmiSURD3DK
-         NqjymUnrfzPZHB1usvHOdEf13vscSZfoeV6hQINEKMuno0e5H0/KG4D1aFDvMsr/Te
-         MmT+prNuBlA4QG+t3+FVRVtGntzQenx+rTuRsyWI=
-Date:   Wed, 24 Feb 2021 12:04:22 -0800
+        b=jvOjdcmzKa5aBOYZ+fyNyBW2hJVjNkQRdaXh/D8Ntd5ODyhnrYVOoJZCPIgYkJoDf
+         FRxeEIVvTk/8EqZvTBtX1BG7fxOuBTsl2KR9+Q9jHRU8oWrLD3xK5z17aBkWM3CFt6
+         trWjNffznm0i3evCunxpUI93ScH6chRbhfWhMKjo=
+Date:   Wed, 24 Feb 2021 12:07:50 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, guro@fb.com, hannes@cmpxchg.org,
-        linux-mm@kvack.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        shakeelb@google.com, songmuchun@bytedance.com,
+To:     aarcange@redhat.com, akpm@linux-foundation.org, dbueso@suse.de,
+        joao.m.martins@oracle.com, kirill.shutemov@linux.intel.com,
+        linux-mm@kvack.org, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, osalvador@suse.de,
         stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vdavydov.dev@gmail.com
-Subject:  [patch 074/173] mm: memcontrol: fix get_active_memcg
- return value
-Message-ID: <20210224200422.mMBuJs4L_%akpm@linux-foundation.org>
+        willy@infradead.org, ziy@nvidia.com
+Subject:  [patch 130/173] hugetlb: fix update_and_free_page contig
+ page struct assumption
+Message-ID: <20210224200750.Dfh-Co_Ux%akpm@linux-foundation.org>
 In-Reply-To: <20210224115824.1e289a6895087f10c41dd8d6@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: memcontrol: fix get_active_memcg return value
+=46rom: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: hugetlb: fix update_and_free_page contig page struct assumption
 
-We use a global percpu int_active_memcg variable to store the remote memcg
-when we are in the interrupt context.  But get_active_memcg always return
-the current->active_memcg or root_mem_cgroup.  The remote memcg (set in
-the interrupt context) is ignored.  This is not what we want.  So fix it.
+page structs are not guaranteed to be contiguous for gigantic pages.  The
+routine update_and_free_page can encounter a gigantic page, yet it assumes
+page structs are contiguous when setting page flags in subpages.
 
-Link: https://lkml.kernel.org/r/20210223091101.42150-1-songmuchun@bytedance.com
-Fixes: 37d5985c003d ("mm: kmem: prepare remote memcg charging infra for interrupt contexts")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+If update_and_free_page encounters non-contiguous page structs, we can see
+=E2=80=9CBUG: Bad page state in process =E2=80=A6=E2=80=9D errors.
+
+Non-contiguous page structs are generally not an issue.  However, they can
+exist with a specific kernel configuration and hotplug operations.  For
+example: Configure the kernel with CONFIG_SPARSEMEM and
+!CONFIG_SPARSEMEM_VMEMMAP.  Then, hotplug add memory for the area where
+the gigantic page will be allocated.  Zi Yan outlined steps to reproduce
+here [1].
+
+[1] https://lore.kernel.org/linux-mm/16F7C58B-4D79-41C5-9B64-A1A1628F4AF2@n=
+vidia.com/
+
+Link: https://lkml.kernel.org/r/20210217184926.33567-1-mike.kravetz@oracle.=
+com
+Fixes: 944d9fec8d7a ("hugetlb: add support for gigantic page allocation at =
+runtime")
+Signed-off-by: Zi Yan <ziy@nvidia.com>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Davidlohr Bueso <dbueso@suse.de>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Joao Martins <joao.m.martins@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memcontrol.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ mm/hugetlb.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/mm/memcontrol.c~mm-memcontrol-fix-get_active_memcg-return-value
-+++ a/mm/memcontrol.c
-@@ -1061,13 +1061,9 @@ static __always_inline struct mem_cgroup
- 
- 	rcu_read_lock();
- 	memcg = active_memcg();
--	if (memcg) {
--		/* current->active_memcg must hold a ref. */
--		if (WARN_ON_ONCE(!css_tryget(&memcg->css)))
--			memcg = root_mem_cgroup;
--		else
--			memcg = current->active_memcg;
--	}
-+	/* remote memcg must hold a ref. */
-+	if (memcg && WARN_ON_ONCE(!css_tryget(&memcg->css)))
-+		memcg = root_mem_cgroup;
- 	rcu_read_unlock();
- 
- 	return memcg;
+--- a/mm/hugetlb.c~hugetlb-fix-update_and_free_page-contig-page-struct-assu=
+mption
++++ a/mm/hugetlb.c
+@@ -1321,14 +1321,16 @@ static inline void destroy_compound_giga
+ static void update_and_free_page(struct hstate *h, struct page *page)
+ {
+ 	int i;
++	struct page *subpage =3D page;
+=20
+ 	if (hstate_is_gigantic(h) && !gigantic_page_runtime_supported())
+ 		return;
+=20
+ 	h->nr_huge_pages--;
+ 	h->nr_huge_pages_node[page_to_nid(page)]--;
+-	for (i =3D 0; i < pages_per_huge_page(h); i++) {
+-		page[i].flags &=3D ~(1 << PG_locked | 1 << PG_error |
++	for (i =3D 0; i < pages_per_huge_page(h);
++	     i++, subpage =3D mem_map_next(subpage, page, i)) {
++		subpage->flags &=3D ~(1 << PG_locked | 1 << PG_error |
+ 				1 << PG_referenced | 1 << PG_dirty |
+ 				1 << PG_active | 1 << PG_private |
+ 				1 << PG_writeback);
 _
