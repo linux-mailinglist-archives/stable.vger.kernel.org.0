@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD0C323DA3
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1879323DA4
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236178AbhBXNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236183AbhBXNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Feb 2021 08:14:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235779AbhBXNGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:06:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F33864F6F;
-        Wed, 24 Feb 2021 12:54:18 +0000 (UTC)
+        id S235787AbhBXNGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:06:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF2B664F7D;
+        Wed, 24 Feb 2021 12:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171259;
-        bh=aILvyt+thfgO51TYEgG0XK1pq4MMRzLdDyiGFATa0g8=;
+        s=k20201202; t=1614171260;
+        bh=nKJ8bs6eZo5oG6d+iNK2SZm+nxCIR0ubWf8VjELzdZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0YUz9bBsD/IQnTXsbnlOGH3N6GMi+kvDlLClmT/A2GKFaR1xmXH/Q9nVuiMU9KeD
-         Mp8cBS191WAuhwc6Wcr2Qe7cgNmCxWM6977ZQHDQz5QE1AiHIpfTdkwZomADZ5ASY7
-         iWEaFW8s0R5ykeAZgwOYBp5DF78vY07Twxq0UwsVWu2VJWXhoFdnC1dwqMmEmO8hIu
-         gijt64NpimTbxSUKY9Otel0rDDLVgy4O0bb0pkooPXiXQKd/4xLpxOMlbemQtwNpGo
-         mFJLRUICrkPzGohtNCBt/W8hcjt7tUQAMKfmbMQoQtXlPVj37LGneZ7cWUOcbjk8v1
-         ZnuHBwGe4Gf/Q==
+        b=BD3BoEIgeLEFYAkU70PLYHqrNC4P7B+eKLepezLTSBXoLWiaTE7sEuE0tvl1U2F2g
+         EbwPJxQ7iUey5XufcWzm2jC6DUcxs98/h9n/mjWNSdT31dD2d/6OfsujDXL5gFSopm
+         jzEtSKcg9B0ud40kQ5DNjUKdN8NOzatu1jfwu5+ZsSXT7m2VPgZnllOReZ5yfrZvQE
+         97j5HenfT1XcaHHUNCbD5mT8gWpjija4Xsr+2ZhOWVtMWHJxdcqzX7Ojfen8OJvsT6
+         uxHOnbSh3zpVpO70bI6/+sfnPf3vErtwzdNSL4OMUmLsgXg7Henfu4TdJ7+b3X09I4
+         wA56TY4Jrvh2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
-        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 29/40] smackfs: restrict bytes count in smackfs write functions
-Date:   Wed, 24 Feb 2021 07:53:29 -0500
-Message-Id: <20210224125340.483162-29-sashal@kernel.org>
+Cc:     "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Juan Vazquez <juvazq@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 30/40] Drivers: hv: vmbus: Resolve race condition in vmbus_onoffer_rescind()
+Date:   Wed, 24 Feb 2021 07:53:30 -0500
+Message-Id: <20210224125340.483162-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125340.483162-1-sashal@kernel.org>
 References: <20210224125340.483162-1-sashal@kernel.org>
@@ -44,111 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
 
-[ Upstream commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 ]
+[ Upstream commit e4d221b42354b2e2ddb9187a806afb651eee2cda ]
 
-syzbot found WARNINGs in several smackfs write operations where
-bytes count is passed to memdup_user_nul which exceeds
-GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
+An erroneous or malicious host could send multiple rescind messages for
+a same channel.  In vmbus_onoffer_rescind(), the guest maps the channel
+ID to obtain a pointer to the channel object and it eventually releases
+such object and associated data.  The host could time rescind messages
+and lead to an use-after-free.  Add a new flag to the channel structure
+to make sure that only one instance of vmbus_onoffer_rescind() can get
+the reference to the channel object.
 
-Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
-smk_write_net6addr accepts any label or -DELETE. I couldn't find
-any general rule for other label lengths except SMK_LABELLEN,
-SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
-
-Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
-Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
-
-Here is a quick way to reproduce the WARNING:
-python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
-
-Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Reported-by: Juan Vazquez <juvazq@microsoft.com>
+Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20201209070827.29335-6-parri.andrea@gmail.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/hv/channel_mgmt.c | 12 ++++++++++++
+ include/linux/hyperv.h    |  1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 9c4308077574c..5e75ff2e1b14f 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -1163,7 +1163,7 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 452307c79e4b9..dd4e890cf1b1d 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -1048,6 +1048,18 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
  
- 	data = memdup_user_nul(buf, count);
-@@ -1423,7 +1423,7 @@ static ssize_t smk_write_net6addr(struct file *file, const char __user *buf,
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
+ 	mutex_lock(&vmbus_connection.channel_mutex);
+ 	channel = relid2channel(rescind->child_relid);
++	if (channel != NULL) {
++		/*
++		 * Guarantee that no other instance of vmbus_onoffer_rescind()
++		 * has got a reference to the channel object.  Synchronize on
++		 * &vmbus_connection.channel_mutex.
++		 */
++		if (channel->rescind_ref) {
++			mutex_unlock(&vmbus_connection.channel_mutex);
++			return;
++		}
++		channel->rescind_ref = true;
++	}
+ 	mutex_unlock(&vmbus_connection.channel_mutex);
  
- 	data = memdup_user_nul(buf, count);
-@@ -1830,6 +1830,10 @@ static ssize_t smk_write_ambient(struct file *file, const char __user *buf,
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
+ 	if (channel == NULL) {
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 67d9b5a374600..51e2134b32a21 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -734,6 +734,7 @@ struct vmbus_channel {
+ 	u8 monitor_bit;
  
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2001,6 +2005,9 @@ static ssize_t smk_write_onlycap(struct file *file, const char __user *buf,
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
+ 	bool rescind; /* got rescind msg */
++	bool rescind_ref; /* got rescind msg, got channel reference */
+ 	struct completion rescind_event;
  
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2088,6 +2095,9 @@ static ssize_t smk_write_unconfined(struct file *file, const char __user *buf,
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2643,6 +2653,10 @@ static ssize_t smk_write_syslog(struct file *file, const char __user *buf,
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2735,10 +2749,13 @@ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
- 		return -EPERM;
- 
- 	/*
-+	 * No partial write.
- 	 * Enough data must be present.
- 	 */
- 	if (*ppos != 0)
- 		return -EINVAL;
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ 	u32 ringbuffer_gpadlhandle;
 -- 
 2.27.0
 
