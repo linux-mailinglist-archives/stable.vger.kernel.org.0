@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18990323DA0
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:19:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD0C323DA3
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:19:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236171AbhBXNOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:14:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58404 "EHLO mail.kernel.org"
+        id S236178AbhBXNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:14:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234274AbhBXNGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:06:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39A9964F7A;
-        Wed, 24 Feb 2021 12:54:17 +0000 (UTC)
+        id S235779AbhBXNGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:06:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F33864F6F;
+        Wed, 24 Feb 2021 12:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171258;
-        bh=mfpC2G/lYpLPoOo7qlHWx/awCf2xVxfrw+kl0AagUG8=;
+        s=k20201202; t=1614171259;
+        bh=aILvyt+thfgO51TYEgG0XK1pq4MMRzLdDyiGFATa0g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgwi7q4zsW5lLWKkv1aAVE4Jnd2qYrOubVWYg6iEYzygRUFIO8TPzgkd+lOM5UUrE
-         01HwrHvpmpYMub7yonMzCeuOGdgzriWHqpNMw5yz3RjiRZWCOuqpAWB7GKEM0DQmuH
-         N8rySD43pOi6Ww0OuwoaizLzmZsfXJUE8bJmKvY/JV0zrO7rjVy9HqceXM5qeY0fNX
-         tSETwMCwjY2QTl3H+PW6qyu9k2tZKepyAHp7wMdorEqzAWiE9zk75z/0hMZIqPNBEo
-         9HTUl/Ezu+hrgDC/AUCilqloaPuHtntHrVCTEwmtPEO0zgiGjz6zfOhkcT+SEdW3Yt
-         m+T0O1/Y0efjg==
+        b=X0YUz9bBsD/IQnTXsbnlOGH3N6GMi+kvDlLClmT/A2GKFaR1xmXH/Q9nVuiMU9KeD
+         Mp8cBS191WAuhwc6Wcr2Qe7cgNmCxWM6977ZQHDQz5QE1AiHIpfTdkwZomADZ5ASY7
+         iWEaFW8s0R5ykeAZgwOYBp5DF78vY07Twxq0UwsVWu2VJWXhoFdnC1dwqMmEmO8hIu
+         gijt64NpimTbxSUKY9Otel0rDDLVgy4O0bb0pkooPXiXQKd/4xLpxOMlbemQtwNpGo
+         mFJLRUICrkPzGohtNCBt/W8hcjt7tUQAMKfmbMQoQtXlPVj37LGneZ7cWUOcbjk8v1
+         ZnuHBwGe4Gf/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Leng <lengchao@huawei.com>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 28/40] nvme-tcp: add clean action for failed reconnection
-Date:   Wed, 24 Feb 2021 07:53:28 -0500
-Message-Id: <20210224125340.483162-28-sashal@kernel.org>
+Cc:     Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
+        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 29/40] smackfs: restrict bytes count in smackfs write functions
+Date:   Wed, 24 Feb 2021 07:53:29 -0500
+Message-Id: <20210224125340.483162-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125340.483162-1-sashal@kernel.org>
 References: <20210224125340.483162-1-sashal@kernel.org>
@@ -41,79 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Leng <lengchao@huawei.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-[ Upstream commit 70a99574a79f1cd4dc7ad56ea37be40844bfb97b ]
+[ Upstream commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 ]
 
-If reconnect failed after start io queues, the queues will be unquiesced
-and new requests continue to be delivered. Reconnection error handling
-process directly free queues without cancel suspend requests. The
-suppend request will time out, and then crash due to use the queue
-after free.
+syzbot found WARNINGs in several smackfs write operations where
+bytes count is passed to memdup_user_nul which exceeds
+GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
 
-Add sync queues and cancel suppend requests for reconnection error
-handling.
+Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
+smk_write_net6addr accepts any label or -DELETE. I couldn't find
+any general rule for other label lengths except SMK_LABELLEN,
+SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
 
-Signed-off-by: Chao Leng <lengchao@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
+Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
+
+Here is a quick way to reproduce the WARNING:
+python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
+
+Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ security/smack/smackfs.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index a554021e1ab92..77a3c488ec120 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1710,8 +1710,10 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 9c4308077574c..5e75ff2e1b14f 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -1163,7 +1163,7 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- out_wait_freeze_timed_out:
- 	nvme_stop_queues(ctrl);
-+	nvme_sync_io_queues(ctrl);
- 	nvme_tcp_stop_io_queues(ctrl);
- out_cleanup_connect_q:
-+	nvme_cancel_tagset(ctrl);
- 	if (new)
- 		blk_cleanup_queue(ctrl->connect_q);
- out_free_tag_set:
-@@ -1773,12 +1775,16 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
+ 	data = memdup_user_nul(buf, count);
+@@ -1423,7 +1423,7 @@ static ssize_t smk_write_net6addr(struct file *file, const char __user *buf,
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- 	error = nvme_init_identify(ctrl);
- 	if (error)
--		goto out_stop_queue;
-+		goto out_quiesce_queue;
+ 	data = memdup_user_nul(buf, count);
+@@ -1830,6 +1830,10 @@ static ssize_t smk_write_ambient(struct file *file, const char __user *buf,
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
  
- 	return 0;
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2001,6 +2005,9 @@ static ssize_t smk_write_onlycap(struct file *file, const char __user *buf,
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
  
-+out_quiesce_queue:
-+	blk_mq_quiesce_queue(ctrl->admin_q);
-+	blk_sync_queue(ctrl->admin_q);
- out_stop_queue:
- 	nvme_tcp_stop_queue(ctrl, 0);
-+	nvme_cancel_admin_tagset(ctrl);
- out_cleanup_queue:
- 	if (new)
- 		blk_cleanup_queue(ctrl->admin_q);
-@@ -1892,10 +1898,18 @@ static int nvme_tcp_setup_ctrl(struct nvme_ctrl *ctrl, bool new)
- 	return 0;
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2088,6 +2095,9 @@ static ssize_t smk_write_unconfined(struct file *file, const char __user *buf,
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
  
- destroy_io:
--	if (ctrl->queue_count > 1)
-+	if (ctrl->queue_count > 1) {
-+		nvme_stop_queues(ctrl);
-+		nvme_sync_io_queues(ctrl);
-+		nvme_tcp_stop_io_queues(ctrl);
-+		nvme_cancel_tagset(ctrl);
- 		nvme_tcp_destroy_io_queues(ctrl, new);
-+	}
- destroy_admin:
-+	blk_mq_quiesce_queue(ctrl->admin_q);
-+	blk_sync_queue(ctrl->admin_q);
- 	nvme_tcp_stop_queue(ctrl, 0);
-+	nvme_cancel_admin_tagset(ctrl);
- 	nvme_tcp_destroy_admin_queue(ctrl, new);
- 	return ret;
- }
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2643,6 +2653,10 @@ static ssize_t smk_write_syslog(struct file *file, const char __user *buf,
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2735,10 +2749,13 @@ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
+ 		return -EPERM;
+ 
+ 	/*
++	 * No partial write.
+ 	 * Enough data must be present.
+ 	 */
+ 	if (*ppos != 0)
+ 		return -EINVAL;
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
+ 
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
 -- 
 2.27.0
 
