@@ -2,109 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B538323E36
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE01323E0B
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:26:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbhBXN0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:26:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
+        id S236144AbhBXNYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:24:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235403AbhBXNT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:19:56 -0500
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68755C0617A9
-        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 05:18:33 -0800 (PST)
-Received: by mail-ot1-x32c.google.com with SMTP id b16so2113740otq.1
-        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 05:18:33 -0800 (PST)
+        with ESMTP id S233489AbhBXNSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:18:40 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8964C06178B;
+        Wed, 24 Feb 2021 05:16:09 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id j9so2470614edp.1;
+        Wed, 24 Feb 2021 05:16:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Hz6BWGl7qa7h/rRrM/u0WCVRkmbtUFWO0Cr4wwVxXjY=;
-        b=Wr+r6Gd6YiIT1RvRDMDejiuUXKyYgtB2MpoPj2b3REeXwS40+RrCjZUkwACLoxf4gT
-         o/rd+peXH6NGy7ycvrW70vh8mQurSQ/vf+UMMP76QGzUIz1Pi2kWv8rzW8VtAg1Dee7L
-         vyz3DndX9AuiBZgEYka2INaLRiEWG2EtSKVpz3YAkcynhPoftCHahRAyncfPSDHwOeW5
-         XAiKbA7+VyGED1P7TFv1qLzL862DrDR1hbfdhloNhb6vcV52ldsNWrFtoggj9scep0pM
-         5JVPjjg8yfHJZz0h8N+X2c8yyHEZro/iAVijjJOCxfyMKfsoXdiHmt41njDkst7xY33l
-         dCiQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Ybq7RMjn9hsdU3yUVvJeduTNiXaxFp9VeeC1XcARtv8=;
+        b=kK6Ceh9V43eJSJbZIYNJyliPkn06F05XmgT9o2Ly6bCeiWTU2vbOcaocEF6JDRj2va
+         msZZIjz6DAvd5tEbkFUaty74DUhxQzrSmErn0lIc+ioLi8pz4GXnSotGpDrNg5dUbgTH
+         5d27wwMxsPFxFYDgIUXOmyHxZz5oDEBIkv5A9s6uZqoVNRG4AR8LDZHMSM+QegJqQNv3
+         feQGIHdK124gMqU5LdXW+p+YPqLhT8vMfOhnYNeYuaq5Kh9vIoDc2ZM3otMC5gRbMt6D
+         xvQUzG+uKuPRJfzKKUm2AOCZw1Bjf0zZBjZ1pBETs7gDve2a/dqJ7kCdqZsWMCYgXupX
+         adhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Hz6BWGl7qa7h/rRrM/u0WCVRkmbtUFWO0Cr4wwVxXjY=;
-        b=QhgdGDkZQuxqzErELr/ltPJxVD31WdwgiPg9h/+nnh2OhATwtmTcOi2tmrO6BrVLJO
-         GE7ORL6oYfKv+mkKeZcKLwpSVSxad4WQWm37xsB2cnxTzjBc9OeRrs2yAO2e6WSDxtio
-         JDf0WQ1hH/GuAoUO8a+HCUJF4m2U8Gdz3OuHBZ42oDxNQolDtKYbefrjuDucuK7GPjfc
-         C7SXU+EF5nS8A0BioFLQ5eCFYl06sVcDyW1bTKPmcK+e10G3n/ejt031fv2StTtzP86U
-         MMdhGyFRqpq1Xk0zrhxlkiQHCLN4tS1OxMfRrBp8YTaVfxxIzSo7rQZmQ7ivyb7V2CMD
-         1PTQ==
-X-Gm-Message-State: AOAM531sZ081xEIGdoHXpc06Q3u9gzdxeK8JGwsxcx8G1peBugGj3TR2
-        7YjTgCl8eALvn/PgrNvgOZbPNA==
-X-Google-Smtp-Source: ABdhPJz/cyH96Ef6ooNYUXuVy7sefqG5p5mJLZudZuy+rwZK1FGd75K1lFTGrg2zpDdPT0u1O1oQHw==
-X-Received: by 2002:a9d:6958:: with SMTP id p24mr12470520oto.297.1614172712725;
-        Wed, 24 Feb 2021 05:18:32 -0800 (PST)
-Received: from winterfell.papolivre.org (winterfell.papolivre.org. [2600:3c00::f03c:91ff:fe69:3960])
-        by smtp.gmail.com with ESMTPSA id w4sm378114ool.44.2021.02.24.05.18.32
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Ybq7RMjn9hsdU3yUVvJeduTNiXaxFp9VeeC1XcARtv8=;
+        b=kzfMQeoW6PM6DUTduhL9q5hGIRgDUYI6rpUeb+Q8yjpMrHINC7Ruo2vTWEDTJbv+DI
+         jR+enK12MuA3JJJyqKWE2yNF7jfgz11JTDjpfhujfMyzF2VEX1ipCp0+VPfpSNF0sF8X
+         2ztnH/3iX+UMMMUMZpTk3uSpXA2oP8ZOEhGeurjGiEOzPrJCr2WTIKXNPqUN8djzIT3I
+         HaJkw/U4LYGl8u1KAP3pIJAFatLEe9tAX3xqX4NfQ3dx0G2OqeTrV0s0hERHBtphTWrP
+         eJkhyBikX8RZ14V/fT1u2S0RY6OfKjqYMIZeYgx6kNY2q43cSP+DHqL0exJ0Z1zuS9Lt
+         8RxQ==
+X-Gm-Message-State: AOAM532WyDpaeB732976gn+anl+Q3fhtgnZmXpd1P/+5L1QBVvDJa+2R
+        rk3BPXs+KNwt+B1/zL7KyLM=
+X-Google-Smtp-Source: ABdhPJxrxEufi/KWDHe/kkJ3+G5EZOGQ68uGrFF4/06H9HCi+wPfjfqx7Pd/Ui6Tj+aGWcck6fk6Ow==
+X-Received: by 2002:a50:bf47:: with SMTP id g7mr32569077edk.323.1614172568363;
+        Wed, 24 Feb 2021 05:16:08 -0800 (PST)
+Received: from anparri (host-82-59-6-76.retail.telecomitalia.it. [82.59.6.76])
+        by smtp.gmail.com with ESMTPSA id a26sm1638418edm.15.2021.02.24.05.16.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 05:18:32 -0800 (PST)
-Received: from localhost (unknown [IPv6:2001:1284:f016:4cfd:27e0:441e:870:6787])
-        by winterfell.papolivre.org (Postfix) with ESMTPSA id 1C7821C2F43;
-        Wed, 24 Feb 2021 10:18:30 -0300 (-03)
-From:   Antonio Terceiro <antonio.terceiro@linaro.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        He Zhe <zhe.he@windriver.com>, stable@vger.kernel.org
-Subject: [PATCH] perf: fix ccache usage in $(CC) when generating arch errno table
-Date:   Wed, 24 Feb 2021 10:00:46 -0300
-Message-Id: <20210224130046.346977-1-antonio.terceiro@linaro.org>
-X-Mailer: git-send-email 2.30.1
+        Wed, 24 Feb 2021 05:16:08 -0800 (PST)
+Date:   Wed, 24 Feb 2021 14:16:00 +0100
+From:   Andrea Parri <parri.andrea@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Juan Vazquez <juvazq@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.11 50/67] Drivers: hv: vmbus: Initialize memory
+ to be sent to the host
+Message-ID: <20210224131457.GA1920@anparri>
+References: <20210224125026.481804-1-sashal@kernel.org>
+ <20210224125026.481804-50-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210224125026.481804-50-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This was introduced by commit e4ffd066ff440a57097e9140fa9e16ceef905de8.
+On Wed, Feb 24, 2021 at 07:50:08AM -0500, Sasha Levin wrote:
+> From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+> 
+> [ Upstream commit e99c4afbee07e9323e9191a20b24d74dbf815bdf ]
+> 
+> __vmbus_open() and vmbus_teardown_gpadl() do not inizialite the memory
+> for the vmbus_channel_open_channel and the vmbus_channel_gpadl_teardown
+> objects they allocate respectively.  These objects contain padding bytes
+> and fields that are left uninitialized and that are later sent to the
+> host, potentially leaking guest data.  Zero initialize such fields to
+> avoid leaking sensitive information to the host.
+> 
+> Reported-by: Juan Vazquez <juvazq@microsoft.com>
+> Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+> Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+> Link: https://lore.kernel.org/r/20201209070827.29335-2-parri.andrea@gmail.com
+> Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Assuming the first word of $(CC) is the actual compiler breaks usage
-like CC="ccache gcc": the script ends up calling ccache directly with
-gcc arguments, what fails. Instead of getting the first word, just
-remove from $(CC) any word that starts with a "-". This maintains the
-spirit of the original patch, while not breaking ccache users.
+Sasha - This patch is one of a group of patches where a Linux guest running on
+Hyper-V will start assuming that hypervisor behavior might be malicious, and
+guards against such behavior.  Because this is a new assumption, these patches
+are more properly treated as new functionality rather than as bug fixes.  So I
+would propose that we *not* bring such patches back to stable branches.
 
-Signed-off-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: He Zhe <zhe.he@windriver.com>
-CC: stable@vger.kernel.org
----
- tools/perf/Makefile.perf | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
+  Andrea
 
-diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index 5345ac70cd83..9bfc725db608 100644
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -607,7 +607,7 @@ arch_errno_hdr_dir := $(srctree)/tools
- arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
- 
- $(arch_errno_name_array): $(arch_errno_tbl)
--	$(Q)$(SHELL) '$(arch_errno_tbl)' $(firstword $(CC)) $(arch_errno_hdr_dir) > $@
-+	$(Q)$(SHELL) '$(arch_errno_tbl)' '$(patsubst -%,,$(CC))' $(arch_errno_hdr_dir) > $@
- 
- sync_file_range_arrays := $(beauty_outdir)/sync_file_range_arrays.c
- sync_file_range_tbls := $(srctree)/tools/perf/trace/beauty/sync_file_range.sh
--- 
-2.30.1
 
+> ---
+>  drivers/hv/channel.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
+> index 6fb0c76bfbf81..0bd202de79600 100644
+> --- a/drivers/hv/channel.c
+> +++ b/drivers/hv/channel.c
+> @@ -618,7 +618,7 @@ static int __vmbus_open(struct vmbus_channel *newchannel,
+>  		goto error_clean_ring;
+>  
+>  	/* Create and init the channel open message */
+> -	open_info = kmalloc(sizeof(*open_info) +
+> +	open_info = kzalloc(sizeof(*open_info) +
+>  			   sizeof(struct vmbus_channel_open_channel),
+>  			   GFP_KERNEL);
+>  	if (!open_info) {
+> @@ -745,7 +745,7 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
+>  	unsigned long flags;
+>  	int ret;
+>  
+> -	info = kmalloc(sizeof(*info) +
+> +	info = kzalloc(sizeof(*info) +
+>  		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
+>  	if (!info)
+>  		return -ENOMEM;
+> -- 
+> 2.27.0
+> 
