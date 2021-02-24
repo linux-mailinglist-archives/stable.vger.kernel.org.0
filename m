@@ -2,87 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F80323876
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 09:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B826C3238A5
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 09:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230386AbhBXISR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 03:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60660 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233096AbhBXISG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 03:18:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6342C64ED3;
-        Wed, 24 Feb 2021 08:17:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614154645;
-        bh=+Y6M8zi3WpHqcpNLoi4OfIpSK0p2w0lclMYUSsfIOew=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ko970AHhSQm1lPY1xrCvkNe1jRnhw0NBXl1Tsf+4GJirHXkET5YVdWpXodS/9OlvK
-         GIgomtGsJAnv30DchP1ttEJjJnBYo7QJIiLta/xV+h4yEnOfnsRorFc4h4jpOd0Qvz
-         gTksFCPjqA3CevU5XJaYMPVissizQ2bU4pV2wlrM=
-Date:   Wed, 24 Feb 2021 09:17:21 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Krishnamraju Eraparaju <krishna2@chelsio.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, bharat@chelsio.com
-Subject: Re: backport of dma_virt_ops related fixes to 5.10.y kernels
-Message-ID: <YDYLkR+Cq4pFCy/7@kroah.com>
-References: <20210219095510.GA24256@chelsio.com>
- <YC+VSJEzXdWdYITx@kroah.com>
- <20210219183823.GA26562@chelsio.com>
+        id S233743AbhBXIa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 03:30:56 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:34734 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233146AbhBXIax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 03:30:53 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5BA741C0B81; Wed, 24 Feb 2021 09:29:55 +0100 (CET)
+Date:   Wed, 24 Feb 2021 09:29:54 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5.10 03/29] vdpa_sim: store parsed MAC address in a buffer
+Message-ID: <20210224082954.GB8058@amd>
+References: <20210222121019.444399883@linuxfoundation.org>
+ <20210222121020.153222666@linuxfoundation.org>
+ <20210222195414.GA24405@amd>
+ <20210223080655.ps7ujvgvs6wtlszf@steredhat>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
 Content-Disposition: inline
-In-Reply-To: <20210219183823.GA26562@chelsio.com>
+In-Reply-To: <20210223080655.ps7ujvgvs6wtlszf@steredhat>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 20, 2021 at 12:08:25AM +0530, Krishnamraju Eraparaju wrote:
-> On Friday, February 02/19/21, 2021 at 11:39:04 +0100, Greg KH wrote:
-> > On Fri, Feb 19, 2021 at 03:25:12PM +0530, Krishnamraju Eraparaju wrote:
-> > > Hi All,
-> > > 
-> > > Below commits needs to be backported to 5.10.y kernels to avoid NULL
-> > > pointer deref panic(while trying to access 'numa_node' from NULL
-> > > 'dma_device'), @ Line:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/nvme/host/rdma.c?h=v5.10.17#n863)
-> > > 
-> > > commit:22dd4c707673129ed17e803b4bf68a567b2731db 
-> > > commit:8ecfca68dc4cbee1272a0161e3f2fb9387dc6930
-> > 
-> > So just these 2 commits?  In which order?
-> > 
-> > > The panic is observed at nvme host(provider/transport being SoftiWARP),
-> > > while perfroming "nvme discover".
-> > > 
-> > > Hence, please backport the below patch series to '5.10.y' kernel.
-> > >  "https://lore.kernel.org/linux-iommu/20201106181941.1878556-1-hch@lst.de/"
-> > 
-> > What are the git commit ids of these patches in Linus's tree and have
-> > you tested them to ensure that they work?  Why this 10 patch series and
-> > not the 2 above?  Or is this a different request?
-> > 
-> > confused,
-> Hi Greg,
-> 
-> Sorry for the confusion, I didn't know that I can request for the
-> backport of selected patches in a patch series.
-> As I don't have much background & testing feasability of other patches,
-> I request you to backport only below two patches(same order as below):
-> 
-> commit#1:8ecfca68dc4cbee1272a0161e3f2fb9387dc6930
-> RDMA: Lift ibdev_to_node from rds to common code
-> author:	Christoph Hellwig <hch@lst.de>
-> 
-> commit#2:22dd4c707673129ed17e803b4bf68a567b2731db
-> nvme-rdma: Use ibdev_to_node instead of dereferencing ->dma_device
-> author:	Christoph Hellwig <hch@lst.de>
-> 
-> And I belive these two patches has no dependency with other patches in
-> the series. I've tested, it's working fine.
 
-Now queued up, thanks.
+--ZoaI/ZTpAVc4A5k6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+Hi!
+
+> >>+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >>@@ -42,6 +42,8 @@ static char *macaddr;
+> >> module_param(macaddr, charp, 0);
+> >> MODULE_PARM_DESC(macaddr, "Ethernet MAC address");
+> >>
+> >>+u8 macaddr_buf[ETH_ALEN];
+> >>+
+> >
+> >Should this be static?
+>=20
+> Yes, there is already a patch [1] queued by Michael but not yet upstream.
+> When it will be merged upstream I will make sure it will be backported.
+
+Having it in mainline is enough, I don't really think it causes
+anything user-visible, so it does not need to be in stable.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--ZoaI/ZTpAVc4A5k6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmA2DoIACgkQMOfwapXb+vLgNACgj1vpwEzOIwV7Y/g16yUsIzIt
+nXAAoLMothbUEz/o+N8pICvYVwEgfNz7
+=HZ2x
+-----END PGP SIGNATURE-----
+
+--ZoaI/ZTpAVc4A5k6--
