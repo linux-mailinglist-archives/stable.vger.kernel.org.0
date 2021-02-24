@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6F6323DF3
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C473E323DF8
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236471AbhBXNUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:20:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
+        id S236482AbhBXNU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:20:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235961AbhBXNIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:08:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 603AC64F1A;
-        Wed, 24 Feb 2021 12:54:43 +0000 (UTC)
+        id S235964AbhBXNIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:08:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D545364F8E;
+        Wed, 24 Feb 2021 12:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171284;
-        bh=oc9sH3FfW3m1d/SVziZlMlsUu6QxbNnyO4xlIynqzMc=;
+        s=k20201202; t=1614171286;
+        bh=CCqdpOu3K99nJmGWX5W+5aQ/E+5eRmCTNEUWMi9F4EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNlud/HtW7T7Z4f0zLMT2XGnXQ10gqRW4PdlxMDZZp6mbnJnLZswYC7xt1xuCz6H/
-         oZ3443VsdZZatYAS2n01nOsGCH7xQtpvjMN/LU6wYX37HjhSVLd0BbFMBO6HA25Ku5
-         HbKAvcc1W+Q40kajCG0dm+OZ/YFgbyfWcKbqZmihxssm5tVWX31tTZ0s9v9DNnO0++
-         bsYoj8qOVaqTT5n7Rv28GxBOCq+yymoTSzoVfeP25eucCqgE2/rRZx/wc85mMWzXMO
-         JavwUbeb8DIQ3jNLiXpOypz6ryJvXWwSZv79HsFDz5QzZbM3fxCq1/YvNyoAC2BMYh
-         80nT4ECt2TLmg==
+        b=PyW0NtVrZyI96LMFGSuilM30PaIzr6FUInKpReeW5ImDEYwvqy05HjZCCtrpjk8jS
+         JB6D0oSd10inmJRe30umLnoxm4G4llEciKFh1XUmCRY/ZkveTQTFCiZvI7e7xQLXjb
+         nNViKl5MpWlnH6QIQseL9ESzu2Vu3RpJdwmDJwv2AGiYLcbMxfM7XaJbobtfbVH8rz
+         pL6t9rYUiN/vCdesniWItGp1CgE1hdkdICIJ9/owtwNPXVJq+tSlS+iVDHTBHPsXT9
+         1MQz1l7KbRhj1A2sQPddG87cUQBxZf4DRrdgJ9eAW6sHnP9lPw6yVueL59zJgXTrx5
+         8MZcydNio04ZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miaoqing Pan <miaoqing@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/26] ath10k: fix wmi mgmt tx queue full due to race condition
-Date:   Wed, 24 Feb 2021 07:54:15 -0500
-Message-Id: <20210224125435.483539-7-sashal@kernel.org>
+Cc:     Fangrui Song <maskray@google.com>, Arnd Bergmann <arnd@arndb.de>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 08/26] x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+Date:   Wed, 24 Feb 2021 07:54:16 -0500
+Message-Id: <20210224125435.483539-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125435.483539-1-sashal@kernel.org>
 References: <20210224125435.483539-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,88 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Fangrui Song <maskray@google.com>
 
-[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
+[ Upstream commit bb73d07148c405c293e576b40af37737faf23a6a ]
 
-Failed to transmit wmi management frames:
+This is similar to commit
 
-[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
-[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
-[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
-[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
+  b21ebf2fb4cd ("x86: Treat R_X86_64_PLT32 as R_X86_64_PC32")
 
-This issue is caused by race condition between skb_dequeue and
-__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
-different lock: ar->data_lock vs list->lock, the result is no protection.
-So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
-running concurrently on different CPUs, there appear to be a rare corner
-cases when the queue length is 1,
+but for i386. As far as the kernel is concerned, R_386_PLT32 can be
+treated the same as R_386_PC32.
 
-  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
-					next=list
-					prev=list
-  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
-  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
-  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
-  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
-  skb->next  = skb->prev = NULL;	list->qlen++;
-  WRITE_ONCE(next->prev, prev);
-  WRITE_ONCE(prev->next, next);
+R_386_PLT32/R_X86_64_PLT32 are PC-relative relocation types which
+can only be used by branches. If the referenced symbol is defined
+externally, a PLT will be used.
 
-If the instruction ‘next = skb->next’ is executed before
-‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
-old ‘next’ pointer, but the length is still added by one. The final
-result is the length of the queue will reach the maximum value but
-the queue is empty.
+R_386_PC32/R_X86_64_PC32 are PC-relative relocation types which can be
+used by address taking operations and branches. If the referenced symbol
+is defined externally, a copy relocation/canonical PLT entry will be
+created in the executable.
 
-So remove ar->data_lock, and use 'skb_queue_tail' instead of
-'__skb_queue_tail' to prevent the potential race condition. Also switch
-to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
+On x86-64, there is no PIC vs non-PIC PLT distinction and an
+R_X86_64_PLT32 relocation is produced for both `call/jmp foo` and
+`call/jmp foo@PLT` with newer (2018) GNU as/LLVM integrated assembler.
+This avoids canonical PLT entries (st_shndx=0, st_value!=0).
 
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
+On i386, there are 2 types of PLTs, PIC and non-PIC. Currently,
+the GCC/GNU as convention is to use R_386_PC32 for non-PIC PLT and
+R_386_PLT32 for PIC PLT. Copy relocations/canonical PLT entries
+are possible ABI issues but GCC/GNU as will likely keep the status
+quo because (1) the ABI is legacy (2) the change will drop a GNU
+ld diagnostic for non-default visibility ifunc in shared objects.
 
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
+clang-12 -fno-pic (since [1]) can emit R_386_PLT32 for compiler
+generated function declarations, because preventing canonical PLT
+entries is weighed over the rare ifunc diagnostic.
+
+Further info for the more interested:
+
+  https://github.com/ClangBuiltLinux/linux/issues/1210
+  https://sourceware.org/bugzilla/show_bug.cgi?id=27169
+  https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6 [1]
+
+ [ bp: Massage commit message. ]
+
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Link: https://lkml.kernel.org/r/20210127205600.1227437-1-maskray@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ arch/x86/kernel/module.c |  1 +
+ arch/x86/tools/relocs.c  | 12 ++++++++----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index faaca7fe9ad1e..f32d35e03708f 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3567,23 +3567,16 @@ bool ath10k_mac_tx_frm_has_freq(struct ath10k *ar)
- static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
- {
- 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
--	int ret = 0;
--
--	spin_lock_bh(&ar->data_lock);
+diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
+index 6645f123419c6..9f0be2c7e3466 100644
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -126,6 +126,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
+ 			*location += sym->st_value;
+ 			break;
+ 		case R_386_PC32:
++		case R_386_PLT32:
+ 			/* Add the value, subtract its position */
+ 			*location += sym->st_value - (uint32_t)location;
+ 			break;
+diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
+index 3a6c8ebc8032e..aa046d46ff8ff 100644
+--- a/arch/x86/tools/relocs.c
++++ b/arch/x86/tools/relocs.c
+@@ -841,9 +841,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
+ 	case R_386_PC32:
+ 	case R_386_PC16:
+ 	case R_386_PC8:
++	case R_386_PLT32:
+ 		/*
+-		 * NONE can be ignored and PC relative relocations don't
+-		 * need to be adjusted.
++		 * NONE can be ignored and PC relative relocations don't need
++		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
++		 * be treated the same way as R_386_PC32.
+ 		 */
+ 		break;
  
--	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
-+	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
- 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
--		ret = -ENOSPC;
--		goto unlock;
-+		return -ENOSPC;
- 	}
+@@ -884,9 +886,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
+ 	case R_386_PC32:
+ 	case R_386_PC16:
+ 	case R_386_PC8:
++	case R_386_PLT32:
+ 		/*
+-		 * NONE can be ignored and PC relative relocations don't
+-		 * need to be adjusted.
++		 * NONE can be ignored and PC relative relocations don't need
++		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
++		 * be treated the same way as R_386_PC32.
+ 		 */
+ 		break;
  
--	__skb_queue_tail(q, skb);
-+	skb_queue_tail(q, skb);
- 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
- 
--unlock:
--	spin_unlock_bh(&ar->data_lock);
--
--	return ret;
-+	return 0;
- }
- 
- static enum ath10k_mac_tx_path
 -- 
 2.27.0
 
