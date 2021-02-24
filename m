@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A80323D02
+	by mail.lfdr.de (Postfix) with ESMTP id 72A90323D01
 	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235239AbhBXNBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:01:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
+        id S235216AbhBXNBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:01:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235393AbhBXMzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:55:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC0664F25;
-        Wed, 24 Feb 2021 12:51:38 +0000 (UTC)
+        id S235402AbhBXMzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:55:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDD5864F27;
+        Wed, 24 Feb 2021 12:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171099;
-        bh=shqryU7hJ2qNSrXUSFc9Fi45Y5aWIOG2FZ+KPuQFMdg=;
+        s=k20201202; t=1614171100;
+        bh=rzJ+MgPneSw4WzQ5AVOBAiFhwQBZg63ogCP4HtzvObA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KN0XJlo6452PByZVm/rHG+gK7M/CbBWUTc4NHv0nZ1+OjCipcuGZAAqb9WBKWLj7m
-         NIpiZLG74NjDBtHAoJJigtnBKg0GoGwENoKnH9hJwpjEoEOTF2f6S0egfggJR5CBIs
-         MnNRZYkEvzQhBZjX696JiC1NffZpvqiz7H8MmQuuj7EPWY0RS9ffKsdp/sTsj5PZMm
-         hJ7wuHLbOgbwtTxZolmOceIFR4aQFUeTtkDZEx+AvTKa0ND9ufxq9Uo7BNArryBA6X
-         xpUGeS8J+dlZNG++59DfBDtLtwtfkEAFLI4HbznSrsje8dFNhGdf2dvcANl+2zS7DM
-         7PwxiIfJrViAg==
+        b=V3SM4uWgUZP7yKsVkb0PvfICowwoWKOkTLbU7C6ehkr29eeAF5N7ucS6GyHRwC08r
+         r2VixzX7JXaIA+RQdqkreLOXssjz8Z57HATG+TiEF0bv4TkI8AbFrU4IpEKt2wTcI9
+         hF+ti+iS4T8WFNZZw8N1tvXevE1Vddbl64HuBksjJL9IgH8lkDUpQ71WSw6pBmKA5h
+         v6LrNhS6zU69Hbl0zaepVy/3y9omVM361ytr9+Lf9Sk0Xj9fHFyw29SBM9j5VnC0U5
+         AKJCrwE/bhHYBAx6thkpAYlLMofnTrpifFEUniuyPZLLkbl50NMzzN7eZI98/xRu54
+         hnaWPgnxN8b5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 54/67] btrfs: make btrfs_start_delalloc_root's nr argument a long
-Date:   Wed, 24 Feb 2021 07:50:12 -0500
-Message-Id: <20210224125026.481804-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 55/67] btrfs: only let one thread pre-flush delayed refs in commit
+Date:   Wed, 24 Feb 2021 07:50:13 -0500
+Message-Id: <20210224125026.481804-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
@@ -43,112 +43,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 9db4dc241e87fccd8301357d5ef908f40b50f2e3 ]
+[ Upstream commit e19eb11f4f3d3b0463cd897016064a79cb6d8c6d ]
 
-It's currently u64 which gets instantly translated either to LONG_MAX
-(if U64_MAX is passed) or cast to an unsigned long (which is in fact,
-wrong because writeback_control::nr_to_write is a signed, long type).
+I've been running a stress test that runs 20 workers in their own
+subvolume, which are running an fsstress instance with 4 threads per
+worker, which is 80 total fsstress threads.  In addition to this I'm
+running balance in the background as well as creating and deleting
+snapshots.  This test takes around 12 hours to run normally, going
+slower and slower as the test goes on.
 
-Just convert the function's argument to be long time which obviates the
-need to manually convert u64 value to a long. Adjust all call sites
-which pass U64_MAX to pass LONG_MAX. Finally ensure that in
-shrink_delalloc the u64 is converted to a long without overflowing,
-resulting in a negative number.
+The reason for this is because fsstress is running fsync sometimes, and
+because we're messing with block groups we often fall through to
+btrfs_commit_transaction, so will often have 20-30 threads all calling
+btrfs_commit_transaction at the same time.
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+These all get stuck contending on the extent tree while they try to run
+delayed refs during the initial part of the commit.
+
+This is suboptimal, really because the extent tree is a single point of
+failure we only want one thread acting on that tree at once to reduce
+lock contention.
+
+Fix this by making the flushing mechanism a bit operation, to make it
+easy to use test_and_set_bit() in order to make sure only one task does
+this initial flush.
+
+Once we're into the transaction commit we only have one thread doing
+delayed ref running, it's just this initial pre-flush that is
+problematic.  With this patch my stress test takes around 90 minutes to
+run, instead of 12 hours.
+
+The memory barrier is not necessary for the flushing bit as it's
+ordered, unlike plain int. The transaction state accessed in
+btrfs_should_end_transaction could be affected by that too as it's not
+always used under transaction lock. Upon Nikolay's analysis in [1]
+it's not necessary:
+
+  In should_end_transaction it's read without holding any locks. (U)
+
+  It's modified in btrfs_cleanup_transaction without holding the
+  fs_info->trans_lock (U), but the STATE_ERROR flag is going to be set.
+
+  set in cleanup_transaction under fs_info->trans_lock (L)
+  set in btrfs_commit_trans to COMMIT_START under fs_info->trans_lock.(L)
+  set in btrfs_commit_trans to COMMIT_DOING under fs_info->trans_lock.(L)
+  set in btrfs_commit_trans to COMMIT_UNBLOCK under
+  fs_info->trans_lock.(L)
+
+  set in btrfs_commit_trans to COMMIT_COMPLETED without locks but at this
+  point the transaction is finished and fs_info->running_trans is NULL (U
+  but irrelevant).
+
+  So by the looks of it we can have a concurrent READ race with a WRITE,
+  due to reads not taking a lock. In this case what we want to ensure is
+  we either see new or old state. I consulted with Will Deacon and he said
+  that in such a case we'd want to annotate the accesses to ->state with
+  (READ|WRITE)_ONCE so as to avoid a theoretical tear, in this case I
+  don't think this could happen but I imagine at some point KCSAN would
+  flag such an access as racy (which it is).
+
+[1] https://lore.kernel.org/linux-btrfs/e1fd5cc1-0f28-f670-69f4-e9958b4964e6@suse.com
+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[ add comments regarding memory barrier ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h       | 2 +-
- fs/btrfs/dev-replace.c | 2 +-
- fs/btrfs/inode.c       | 6 +++---
- fs/btrfs/ioctl.c       | 2 +-
- fs/btrfs/space-info.c  | 3 ++-
- 5 files changed, 8 insertions(+), 7 deletions(-)
+ fs/btrfs/delayed-ref.h | 12 ++++++------
+ fs/btrfs/transaction.c | 32 +++++++++++++++-----------------
+ 2 files changed, 21 insertions(+), 23 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 4debdbdde2abb..81fde2d0327df 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3100,7 +3100,7 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 			       u32 min_type);
+diff --git a/fs/btrfs/delayed-ref.h b/fs/btrfs/delayed-ref.h
+index 1c977e6d45dc3..52364ea322d67 100644
+--- a/fs/btrfs/delayed-ref.h
++++ b/fs/btrfs/delayed-ref.h
+@@ -135,6 +135,11 @@ struct btrfs_delayed_data_ref {
+ 	u64 offset;
+ };
  
- int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
--int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
-+int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, long nr,
- 			       bool in_reclaim_context);
- int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
- 			      unsigned int extra_bits,
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index 324f646d6e5e2..bc73f798ce3a8 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -715,7 +715,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	 * flush all outstanding I/O and inode extent mappings before the
- 	 * copy operation is declared as being finished
- 	 */
--	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
-+	ret = btrfs_start_delalloc_roots(fs_info, LONG_MAX, false);
- 	if (ret) {
- 		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
- 		return ret;
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a8e0a6b038d3e..3a02b17f76eb7 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9486,11 +9486,11 @@ int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
- 	return start_delalloc_inodes(root, &wbc, true, false);
- }
++enum btrfs_delayed_ref_flags {
++	/* Indicate that we are flushing delayed refs for the commit */
++	BTRFS_DELAYED_REFS_FLUSHING,
++};
++
+ struct btrfs_delayed_ref_root {
+ 	/* head ref rbtree */
+ 	struct rb_root_cached href_root;
+@@ -158,12 +163,7 @@ struct btrfs_delayed_ref_root {
  
--int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
-+int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, long nr,
- 			       bool in_reclaim_context)
+ 	u64 pending_csums;
+ 
+-	/*
+-	 * set when the tree is flushing before a transaction commit,
+-	 * used by the throttling code to decide if new updates need
+-	 * to be run right away
+-	 */
+-	int flushing;
++	unsigned long flags;
+ 
+ 	u64 run_delayed_start;
+ 
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index fbf93067642ac..3cced84752178 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -909,9 +909,8 @@ bool btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
  {
- 	struct writeback_control wbc = {
--		.nr_to_write = (nr == U64_MAX) ? LONG_MAX : (unsigned long)nr,
-+		.nr_to_write = nr,
- 		.sync_mode = WB_SYNC_NONE,
- 		.range_start = 0,
- 		.range_end = LLONG_MAX,
-@@ -9512,7 +9512,7 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
- 		 * Reset nr_to_write here so we know that we're doing a full
- 		 * flush.
- 		 */
--		if (nr == U64_MAX)
-+		if (nr == LONG_MAX)
- 			wbc.nr_to_write = LONG_MAX;
+ 	struct btrfs_transaction *cur_trans = trans->transaction;
  
- 		root = list_first_entry(&splice, struct btrfs_root,
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index dde49a791f3e2..e26df790988ba 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -4951,7 +4951,7 @@ long btrfs_ioctl(struct file *file, unsigned int
- 	case BTRFS_IOC_SYNC: {
- 		int ret;
+-	smp_mb();
+ 	if (cur_trans->state >= TRANS_STATE_COMMIT_START ||
+-	    cur_trans->delayed_refs.flushing)
++	    test_bit(BTRFS_DELAYED_REFS_FLUSHING, &cur_trans->delayed_refs.flags))
+ 		return true;
  
--		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
-+		ret = btrfs_start_delalloc_roots(fs_info, LONG_MAX, false);
- 		if (ret)
- 			return ret;
- 		ret = btrfs_sync_fs(inode->i_sb, 1);
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index e8347461c8ddd..84fb94e78a8ff 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -532,7 +532,8 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ 	return should_end_transaction(trans);
+@@ -2043,23 +2042,22 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
+ 	btrfs_trans_release_metadata(trans);
+ 	trans->block_rsv = NULL;
  
- 	loops = 0;
- 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
--		u64 nr_pages = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
-+		u64 temp = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
-+		long nr_pages = min_t(u64, temp, LONG_MAX);
+-	/* make a pass through all the delayed refs we have so far
+-	 * any runnings procs may add more while we are here
+-	 */
+-	ret = btrfs_run_delayed_refs(trans, 0);
+-	if (ret) {
+-		btrfs_end_transaction(trans);
+-		return ret;
+-	}
+-
+-	cur_trans = trans->transaction;
+-
+ 	/*
+-	 * set the flushing flag so procs in this transaction have to
+-	 * start sending their work down.
++	 * We only want one transaction commit doing the flushing so we do not
++	 * waste a bunch of time on lock contention on the extent root node.
+ 	 */
+-	cur_trans->delayed_refs.flushing = 1;
+-	smp_wmb();
++	if (!test_and_set_bit(BTRFS_DELAYED_REFS_FLUSHING,
++			      &cur_trans->delayed_refs.flags)) {
++		/*
++		 * Make a pass through all the delayed refs we have so far.
++		 * Any running threads may add more while we are here.
++		 */
++		ret = btrfs_run_delayed_refs(trans, 0);
++		if (ret) {
++			btrfs_end_transaction(trans);
++			return ret;
++		}
++	}
  
- 		btrfs_start_delalloc_roots(fs_info, nr_pages, true);
+ 	btrfs_create_pending_block_groups(trans);
  
 -- 
 2.27.0
