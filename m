@@ -2,117 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59049324397
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:12:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF01324393
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:12:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234443AbhBXSLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 13:11:04 -0500
-Received: from mx2.suse.de ([195.135.220.15]:40464 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233640AbhBXSLD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 13:11:03 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id D10B2AAAE;
-        Wed, 24 Feb 2021 18:10:20 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id DBF5ADA7B0; Wed, 24 Feb 2021 19:08:20 +0100 (CET)
-Date:   Wed, 24 Feb 2021 19:08:20 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.11 55/67] btrfs: only let one thread pre-flush
- delayed refs in commit
-Message-ID: <20210224180820.GY1993@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-References: <20210224125026.481804-1-sashal@kernel.org>
- <20210224125026.481804-55-sashal@kernel.org>
+        id S233871AbhBXSKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 13:10:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47806 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232700AbhBXSKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 13:10:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614190130;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DAP/4+bo7rMPoBzDXwzNHiMou9v/EWvyN52pN1kejRI=;
+        b=SYBbaTSXX0bpj8U375KgeRGsOdV94tiK+FRXZ02fEfMZZlAEdaH+57AQh1y70Tzyy/9fV6
+        xBX4FZ6Awx+Lt9m2tLpXx4kqj6v6BUFo7loZj56h97fqPcOoJjd92Q1SHVYScLD1UWMFp0
+        /Ubw9/aOL1Xu+t6uAUyPqFBYCEUV5o4=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-117-FlsqrvFiOkueULoL0SDNFA-1; Wed, 24 Feb 2021 13:08:48 -0500
+X-MC-Unique: FlsqrvFiOkueULoL0SDNFA-1
+Received: by mail-qt1-f197.google.com with SMTP id h13so2232167qti.21
+        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 10:08:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
+         :in-reply-to:references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=DAP/4+bo7rMPoBzDXwzNHiMou9v/EWvyN52pN1kejRI=;
+        b=Zpomxe91mSbCdtliCZ23bBn6jkXTPbLOjR5NUi1KOPvmZBCPWe2CHAyMybdS9Mkdna
+         Q7itm27HR4i5gsUcGejkXYTO7HO8lMSaGgGoHvUXL6BI4dY9A39w0hG6b3kFN+BT1pJP
+         gMzqMtki3+n7hCU+S+2dBU1Zz6lBW4b31TRHQJJG0FacqUpJMrLb0vEFBAKwY7hvD3IG
+         SmeC63+E9GwKI3OL0/cTPVEcfHvWsbsToe3VElFDSHU/jvOWKVA3pdDIfwy8qfoiGPMu
+         C6O+3h2ixIj+/jhflc3yAaIEZwUlrf8vbop022qY62qJGCJ4FjxR5rQ0PTBX1zYYEKCT
+         hC6A==
+X-Gm-Message-State: AOAM532eOAmMZwGtGo1Ez1COw0DcQB1wOI1e3Ov/poQjfLw3S3SkvS6u
+        vNajnDJyEbSYdOWJl4bxoFUCynLTj7qKfQOXW/TpcorD7ZyMrfrO5uBCqy8ary9R96D4ftX61j6
+        GlVisC9DFTi1dPCqn
+X-Received: by 2002:ae9:ec17:: with SMTP id h23mr31041206qkg.193.1614190127842;
+        Wed, 24 Feb 2021 10:08:47 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyOiPoU8eUpYjHTThc7Exq6uyWIxcAuV5WGFv/iTh/FdLngbd0IEMYKc96a/MGLQrJ4qjrufQ==
+X-Received: by 2002:ae9:ec17:: with SMTP id h23mr31041187qkg.193.1614190127691;
+        Wed, 24 Feb 2021 10:08:47 -0800 (PST)
+Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id g186sm893793qke.0.2021.02.24.10.08.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Feb 2021 10:08:47 -0800 (PST)
+Message-ID: <10aa57cb1a982cbc07195319580bc9604961f186.camel@redhat.com>
+Subject: Re: [PATCH v2 0/2] Set CLEAR_PAYLOAD_ID_TABLE as broadcast request
+From:   Lyude Paul <lyude@redhat.com>
+Reply-To: lyude@redhat.com
+To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org
+Cc:     ville.syrjala@linux.intel.com, stable@vger.kernel.org,
+        Nicholas.Kazlauskas@amd.com, harry.wentland@amd.com,
+        jerry.zuo@amd.com, eryk.brol@amd.com, qingqing.zhuo@amd.com
+Date:   Wed, 24 Feb 2021 13:08:46 -0500
+In-Reply-To: <20210224101521.6713-1-Wayne.Lin@amd.com>
+References: <20210224101521.6713-1-Wayne.Lin@amd.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210224125026.481804-55-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 24, 2021 at 07:50:13AM -0500, Sasha Levin wrote:
-> From: Josef Bacik <josef@toxicpanda.com>
-> 
-> [ Upstream commit e19eb11f4f3d3b0463cd897016064a79cb6d8c6d ]
-> 
-> I've been running a stress test that runs 20 workers in their own
-> subvolume, which are running an fsstress instance with 4 threads per
-> worker, which is 80 total fsstress threads.  In addition to this I'm
-> running balance in the background as well as creating and deleting
-> snapshots.  This test takes around 12 hours to run normally, going
-> slower and slower as the test goes on.
-> 
-> The reason for this is because fsstress is running fsync sometimes, and
-> because we're messing with block groups we often fall through to
-> btrfs_commit_transaction, so will often have 20-30 threads all calling
-> btrfs_commit_transaction at the same time.
-> 
-> These all get stuck contending on the extent tree while they try to run
-> delayed refs during the initial part of the commit.
-> 
-> This is suboptimal, really because the extent tree is a single point of
-> failure we only want one thread acting on that tree at once to reduce
-> lock contention.
-> 
-> Fix this by making the flushing mechanism a bit operation, to make it
-> easy to use test_and_set_bit() in order to make sure only one task does
-> this initial flush.
-> 
-> Once we're into the transaction commit we only have one thread doing
-> delayed ref running, it's just this initial pre-flush that is
-> problematic.  With this patch my stress test takes around 90 minutes to
-> run, instead of 12 hours.
-> 
-> The memory barrier is not necessary for the flushing bit as it's
-> ordered, unlike plain int. The transaction state accessed in
-> btrfs_should_end_transaction could be affected by that too as it's not
-> always used under transaction lock. Upon Nikolay's analysis in [1]
-> it's not necessary:
-> 
->   In should_end_transaction it's read without holding any locks. (U)
-> 
->   It's modified in btrfs_cleanup_transaction without holding the
->   fs_info->trans_lock (U), but the STATE_ERROR flag is going to be set.
-> 
->   set in cleanup_transaction under fs_info->trans_lock (L)
->   set in btrfs_commit_trans to COMMIT_START under fs_info->trans_lock.(L)
->   set in btrfs_commit_trans to COMMIT_DOING under fs_info->trans_lock.(L)
->   set in btrfs_commit_trans to COMMIT_UNBLOCK under
->   fs_info->trans_lock.(L)
-> 
->   set in btrfs_commit_trans to COMMIT_COMPLETED without locks but at this
->   point the transaction is finished and fs_info->running_trans is NULL (U
->   but irrelevant).
-> 
->   So by the looks of it we can have a concurrent READ race with a WRITE,
->   due to reads not taking a lock. In this case what we want to ensure is
->   we either see new or old state. I consulted with Will Deacon and he said
->   that in such a case we'd want to annotate the accesses to ->state with
->   (READ|WRITE)_ONCE so as to avoid a theoretical tear, in this case I
->   don't think this could happen but I imagine at some point KCSAN would
->   flag such an access as racy (which it is).
-> 
-> [1] https://lore.kernel.org/linux-btrfs/e1fd5cc1-0f28-f670-69f4-e9958b4964e6@suse.com
-> 
-> Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> [ add comments regarding memory barrier ]
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+also - I meant to reply to v2, not v1 :). Just so you don't worry that I pushed
+the wrong patch series version
 
-Please drop this patch from autosel queue, it's part of a larger series
-that reworks flushing and is not a standalone fix.
+On Wed, 2021-02-24 at 18:15 +0800, Wayne Lin wrote:
+> While testing MST hotplug events on daisy chain monitors, find out
+> that CLEAR_PAYLOAD_ID_TABLE is not broadcasted and payload id table
+> is not reset. Dig in deeper and find out two parts needed to be fixed.
+> 
+> 1. Link_Count_Total & Link_Count_Remaining of Broadcast message are
+> incorrect. Should set lct=1 & lcr=6
+> 2. CLEAR_PAYLOAD_ID_TABLE request message is not set as path broadcast
+> request message. Should fix this.
+> 
+> Changes since v1:
+> *Refer to the suggestion from Ville Syrjala. While preparing hdr-rad,
+> take broadcast case into consideration.
+> 
+> Wayne Lin (2):
+>   drm/dp_mst: Revise broadcast msg lct & lcr
+>   drm/dp_mst: Set CLEAR_PAYLOAD_ID_TABLE as broadcast
+> 
+>  drivers/gpu/drm/drm_dp_mst_topology.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
+> 
+> --
+> 2.17.1
+> 
+
+-- 
+Sincerely,
+   Lyude Paul (she/her)
+   Software Engineer at Red Hat
+   
+Note: I deal with a lot of emails and have a lot of bugs on my plate. If you've
+asked me a question, are waiting for a review/merge on a patch, etc. and I
+haven't responded in a while, please feel free to send me another email to check
+on my status. I don't bite!
+
