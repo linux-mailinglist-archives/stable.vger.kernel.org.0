@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75218323D74
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:15:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1476323D63
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:11:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234840AbhBXNLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:11:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55392 "EHLO mail.kernel.org"
+        id S234319AbhBXNJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235439AbhBXNCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:02:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0758064F62;
-        Wed, 24 Feb 2021 12:53:25 +0000 (UTC)
+        id S235221AbhBXNDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:03:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8FF164F5A;
+        Wed, 24 Feb 2021 12:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171206;
-        bh=bS1ca47Xff6ruCUQ5UDq+dE6bxOTHi4o/rL821qdKUs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7lLroU3RjL6/Y5QrErYWKEXQwpNVGTBN91ZG2ax09Iu8Z6RcTLHZHPvRp5N9cl45
-         e+4I77BkAGPI1XkPwC1F4mjc9yU3/reerUL0qcg7ih/RwuhK8QdSmEB8OEmgi5mSd7
-         N/vn0R+BIQgxYE6R2T/jJB1qIWQV+XLyRSmsxTZjv/FKC7sNykJktGn2Fq2nf1Y8LA
-         v4kcgzHah6FpU5BsLvgYIeGOPRcYqYKeS8gtz0MvKUwob5rGy2VfYMrECpzwljrMzW
-         b+QXmY8g19Rg1HqXTlebxbe9Wb+ydyv3BuTCESVXcYPHUbIurf2m2YbmmBkpY71HQ6
-         VLzuDP6L3c4pA==
+        s=k20201202; t=1614171222;
+        bh=p+lxkQWic3CI9G0twMBf/txJ+MWfriResU2klUeS94A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JphrkeRDpqQcxN4OJuXGIpzlmEqWCsV5SjPGgOHeG+kYZWsdGPJU6DWtDI4rMpDLP
+         bLPUP88A/5MV6DefdHvr6Hc1oVuqNa9lgAUU68Iyu/LhTl0aMSEdr5Javej2ozZc6a
+         Jmx5q8I69RPlaWMDtphEJvEtjai0VUNCiDLLSuz6fCS3NOCSpYVYmg4OotSGxpPItP
+         ulcQ9te4OTAKgmc4URWCea8HtkzNo/i36swdFF2ihOLkPh0lUKSfzRag5lXmZxt0Qi
+         jU0EJvyyHwun4nZjH1IbGOv2WFGGwLqZGM5xZqj2oo9QkDfzKZ99fXuyuLbYLnbRuV
+         7N8BQMA2klfjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 56/56] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
-Date:   Wed, 24 Feb 2021 07:52:12 -0500
-Message-Id: <20210224125212.482485-56-sashal@kernel.org>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.4 01/40] staging: fwserial: Fix error handling in fwserial_create
+Date:   Wed, 24 Feb 2021 07:53:01 -0500
+Message-Id: <20210224125340.483162-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
-References: <20210224125212.482485-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,53 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit c58947af08aedbdee0fce5ea6e6bf3e488ae0e2c ]
+[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
 
-The Acer One S1002 tablet is using an analog mic on IN1 and has
-its jack-detect connected to JD2_IN4N, instead of using the default
-IN3 for its internal mic and JD1_IN4P for jack-detect.
+When fw_core_add_address_handler() fails, we need to destroy
+the port by tty_port_destroy(). Also we need to unregister
+the address handler by fw_core_remove_address_handler() on
+failure.
 
-Note it is also using AIF2 instead of AIF1 which is somewhat unusual,
-this is correctly advertised in the ACPI CHAN package, so the speakers
-do work without the quirk.
-
-Add a quirk for the mic and jack-detect settings.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-5-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/staging/fwserial/fwserial.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 626677fa1b5c0..3af4cb87032ce 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -402,6 +402,19 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Acer One 10 S1002 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "One S1002"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_SSP0_AIF2 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
+index aec0f19597a94..4df6e3c1ea96c 100644
+--- a/drivers/staging/fwserial/fwserial.c
++++ b/drivers/staging/fwserial/fwserial.c
+@@ -2189,6 +2189,7 @@ static int fwserial_create(struct fw_unit *unit)
+ 		err = fw_core_add_address_handler(&port->rx_handler,
+ 						  &fw_high_memory_region);
+ 		if (err) {
++			tty_port_destroy(&port->port);
+ 			kfree(port);
+ 			goto free_ports;
+ 		}
+@@ -2271,6 +2272,7 @@ static int fwserial_create(struct fw_unit *unit)
+ 
+ free_ports:
+ 	for (--i; i >= 0; --i) {
++		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
+ 		tty_port_destroy(&serial->ports[i]->port);
+ 		kfree(serial->ports[i]);
+ 	}
 -- 
 2.27.0
 
