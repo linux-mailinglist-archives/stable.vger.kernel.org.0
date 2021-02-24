@@ -2,168 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2CF3243D5
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB363243DF
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbhBXShv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 13:37:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60688 "EHLO mail.kernel.org"
+        id S230386AbhBXSmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 13:42:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230494AbhBXShv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 13:37:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D162464EFA;
-        Wed, 24 Feb 2021 18:37:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614191829;
-        bh=oAYwh/6jkguj7oUJFr2rthanOZklrU7hUEqlB+XDtGg=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=SCFD/lPyMC5k28mEX01AgV4kJL+pVIJuJZ84PGqvlg4z9Quu/7SBssi3O05Q6LEWN
-         rohgTrxeOX8Nwhc95OFrxBuEixfn+pEjWz4u3ATFMQD3dlQYuk8pn7RsWt6S9FeyhJ
-         w3jJ5BEQ2eAvU5g4nBHAIKhnYGAkYZmz+nl82o9tLwqJ5Cl+FCIymke+EVfE0PiKYM
-         v7HEceiYiFNHLgb+5doxQnVYGxe0e/2ru1hEi9YNOaGCcQXTijvWlCvYaxYfrMnEmA
-         Cuw8xRhHxKOYhQUynJc7kt+ddkXWKcMlsSZH4KhjRJ+05dEtR5KaiVBr3twlLxwXz8
-         G4kjuQWYccBqg==
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id 5AA7235229C6; Wed, 24 Feb 2021 10:37:09 -0800 (PST)
-Date:   Wed, 24 Feb 2021 10:37:09 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Frederic Weisbecker <frederic@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Stable <stable@vger.kernel.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 01/13] rcu/nocb: Fix potential missed nocb_timer rearm
-Message-ID: <20210224183709.GI2743@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20210223001011.127063-1-frederic@kernel.org>
- <20210223001011.127063-2-frederic@kernel.org>
+        id S230121AbhBXSmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 13:42:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EB1E64F0A;
+        Wed, 24 Feb 2021 18:41:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614192089;
+        bh=qK9cBJPeBguUEFK39sRXoqL7yHhb+vKcwJvAMrS3PH4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=suAbYDPtq9h3oWNRez1vNrg7aoUK4knN4VAUZJ9bcGbyI4cOqC9yeFzpaYrCji3xU
+         XcLCbmFQkUBn3pzU41W8JRNNluamxXGwAdt+LfQXfqoqkMBwycwQ31deS8ok9CngL/
+         XC7C0AGbaVM9WnPshykK3WcNDF6wRHa3YPrkTpcU=
+Date:   Wed, 24 Feb 2021 19:41:26 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/29] 5.10.18-rc1 review
+Message-ID: <YDad1miYwhy5OM0H@kroah.com>
+References: <20210222121019.444399883@linuxfoundation.org>
+ <cf54c3f403cb4355bac81437c44d34a0@HQMAIL107.nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210223001011.127063-2-frederic@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <cf54c3f403cb4355bac81437c44d34a0@HQMAIL107.nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 01:09:59AM +0100, Frederic Weisbecker wrote:
-> Two situations can cause a missed nocb timer rearm:
+On Tue, Feb 23, 2021 at 02:49:53PM +0000, Jon Hunter wrote:
+> On Mon, 22 Feb 2021 13:12:54 +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.18 release.
+> > There are 29 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.18-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> 1) rdp(CPU A) queues its nocb timer. The grace period elapses before
->    the timer get a chance to fire. The nocb_gp kthread is awaken by
->    rdp(CPU B). The nocb_cb kthread for rdp(CPU A) is awaken and
->    process the callbacks, again before the nocb_timer for CPU A get a
->    chance to fire. rdp(CPU A) queues a callback and wakes up nocb_gp
->    kthread, cancelling the pending nocb_timer without resetting the
->    corresponding nocb_defer_wakeup.
-
-As discussed offlist, expanding the above scenario results in this
-sequence of steps:
-
-1.	There are no callbacks queued for any CPU covered by CPU 0-2's
-	->nocb_gp_kthread.
-
-2.	CPU 0 enqueues its first callback with interrupts disabled, and
-	thus must defer awakening its ->nocb_gp_kthread.  It therefore
-	queues its rcu_data structure's ->nocb_timer.
-
-3.	CPU 1, which shares the same ->nocb_gp_kthread, also enqueues a
-	callback, but with interrupts enabled, allowing it to directly
-	awaken the ->nocb_gp_kthread.
-
-4.	The newly awakened ->nocb_gp_kthread associates both CPU 0's
-	and CPU 1's callbacks with a future grace period and arranges
-	for that grace period to be started.
-
-5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
-	future grace period.
-
-6.	This grace period elapses before the CPU 0's timer fires.
-	This is normally improbably given that the timer is set for only
-	one jiffy, but timers can be delayed.  Besides, it is possible
-	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
-
-7.	The grace period ends, so rcu_gp_kthread awakens the
-	->nocb_gp_kthread, which in turn awakens both CPU 0's and
-	CPU 1's ->nocb_cb_kthread.
-
-8.	CPU 0's ->nocb_cb_kthread invokes its callback.
-
-9.	Note that neither kthread updated any ->nocb_timer state,
-	so CPU 0's ->nocb_defer_wakeup is still set to either
-	RCU_NOCB_WAKE or RCU_NOCB_WAKE_FORCE.
-
-10.	CPU 0 enqueues its second callback, again with interrupts
-	disabled, and thus must again defer awakening its
-	->nocb_gp_kthread.  However, ->nocb_defer_wakeup prevents
-	CPU 0 from queueing the timer.
-
-So far so good, but why isn't the timer still queued from back in step 2?
-What am I missing here?  Either way, could you please update the commit
-logs to tell the full story?  At some later time, you might be very
-happy that you did.  ;-)
-
-							Thanx, Paul
-
-> 2) The "nocb_bypass_timer" ends up calling wake_nocb_gp() which deletes
->    the pending "nocb_timer" (note they are not the same timers) for the
->    given rdp without resetting the matching state stored in nocb_defer
->    wakeup.
+> All tests passing for Tegra ...
 > 
-> On both situations, a future call_rcu() on that rdp may be fooled and
-> think the timer is armed when it's not, missing a deferred nocb_gp
-> wakeup.
+> Test results for stable-v5.10:
+>     12 builds:	12 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     65 tests:	65 pass, 0 fail
 > 
-> Case 1) is very unlikely due to timing constraint (the timer fires after
-> 1 jiffy) but still possible in theory. Case 2) is more likely to happen.
-> But in any case such scenario require the CPU to spend a long time
-> within a kernel thread without exiting to idle or user space, which is
-> a pretty exotic behaviour.
+> Linux version:	5.10.18-rc1-g905cc0ddef72
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
 > 
-> Fix this with resetting rdp->nocb_defer_wakeup everytime we disarm the
-> timer.
-> 
-> Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
-> Cc: Stable <stable@vger.kernel.org>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-> Cc: Joel Fernandes <joel@joelfernandes.org>
-> Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-> Cc: Boqun Feng <boqun.feng@gmail.com>
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> ---
->  kernel/rcu/tree_plugin.h | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-> index 2ec9d7f55f99..dd0dc66c282d 100644
-> --- a/kernel/rcu/tree_plugin.h
-> +++ b/kernel/rcu/tree_plugin.h
-> @@ -1720,7 +1720,11 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
->  		rcu_nocb_unlock_irqrestore(rdp, flags);
->  		return false;
->  	}
-> -	del_timer(&rdp->nocb_timer);
-> +
-> +	if (READ_ONCE(rdp->nocb_defer_wakeup) > RCU_NOCB_WAKE_NOT) {
-> +		WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
-> +		del_timer(&rdp->nocb_timer);
-> +	}
->  	rcu_nocb_unlock_irqrestore(rdp, flags);
->  	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
->  	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
-> @@ -2349,7 +2353,6 @@ static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
->  		return false;
->  	}
->  	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
-> -	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
->  	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
->  	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
->  
-> -- 
-> 2.25.1
-> 
+> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Thanks for testing them all and letting me know.
+
+greg k-h
