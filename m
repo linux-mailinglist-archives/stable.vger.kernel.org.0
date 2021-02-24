@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7E8323D98
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3E7323D60
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234379AbhBXNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:13:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
+        id S232778AbhBXNI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:08:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235264AbhBXNBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:01:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5949F64EDB;
-        Wed, 24 Feb 2021 12:53:10 +0000 (UTC)
+        id S235279AbhBXNBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:01:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D19F464F0F;
+        Wed, 24 Feb 2021 12:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171191;
-        bh=Z+OT7BVGZF2g7XOW2Xo18LOxN6+Qp+hxBcM7qlt/2ZM=;
+        s=k20201202; t=1614171192;
+        bh=95OhmrsHd187ZEFzLgEb3J9NBS5se0IR+XVuZpxLees=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHxTHrIQtpTN1l/97mSe06LdDbKPJflcILCRok7Q2PWAlIgwX1NscSv6i/J3Irw1j
-         NWiirFYoRO0gGWyEnJKUF17Bnqrb9A02Y5pbfRC9nUyFM7lYmDFF7zczCa7fPl/Gxa
-         3TAOrxh/JBJwDyDPrmBK67pp9Aqbmz9kODLNKgEdQjP6xanM25XA/C3LmpeVDzsoZk
-         dR8Fp7SfY3EU4Be5+Dxts7krNtUTqWsyFN1aMIC8TIjkcmNI/rKxbHvic40lGdFzvw
-         DESpFzWlLq4WnK7IW/weeLT1HLcUcB4uzucyO6359+tUSfkna+pH8EXYOPEjgIXGAH
-         GGP9gxMlW/yAQ==
+        b=uHEVxm2BAOVmmLtbXbFE8mYt3i9wVhMjoOQ4fKCuDt4yoPSOQKWbCGlrwZeg1h4Bn
+         xU1ol5UMeDQ4x3DZ/6oaSjGTDaPxzcWuLKuJGCvjKaljCGQL7OIy2MIRTKFGNoFAbc
+         /grFlzXKB4BHMR+PRLEEn/GDMWJUj0dofkkzZSeSs8Sw/Baqf+ZZk0ZNSNOxSbutgZ
+         T0rGGSZB8VHz/5Lwe1Z2l9HT2QOPC8MxPJkFJxcHrbGJvjTVL8+wVOMbt9JymHtaIb
+         2dRn4578D6Yj6amjFH8uEOr6DyAwUf2Mq48wM4TStDy1DU+xuJbjs5Dsapu4PQI/rV
+         x6sthCD0ZpBbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 44/56] btrfs: make btrfs_start_delalloc_root's nr argument a long
-Date:   Wed, 24 Feb 2021 07:52:00 -0500
-Message-Id: <20210224125212.482485-44-sashal@kernel.org>
+Cc:     Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 45/56] drm/amdgpu: enable only one high prio compute queue
+Date:   Wed, 24 Feb 2021 07:52:01 -0500
+Message-Id: <20210224125212.482485-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,113 +45,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit 9db4dc241e87fccd8301357d5ef908f40b50f2e3 ]
+[ Upstream commit 8c0225d79273968a65e73a4204fba023ae02714d ]
 
-It's currently u64 which gets instantly translated either to LONG_MAX
-(if U64_MAX is passed) or cast to an unsigned long (which is in fact,
-wrong because writeback_control::nr_to_write is a signed, long type).
+For high priority compute to work properly we need to enable
+wave limiting on gfx pipe. Wave limiting is done through writing
+into mmSPI_WCL_PIPE_PERCENT_GFX register. Enable only one high
+priority compute queue to avoid race condition between multiple
+high priority compute queues writing that register simultaneously.
 
-Just convert the function's argument to be long time which obviates the
-need to manually convert u64 value to a long. Adjust all call sites
-which pass U64_MAX to pass LONG_MAX. Finally ensure that in
-shrink_delalloc the u64 is converted to a long without overflowing,
-resulting in a negative number.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h       | 2 +-
- fs/btrfs/dev-replace.c | 2 +-
- fs/btrfs/inode.c       | 6 +++---
- fs/btrfs/ioctl.c       | 2 +-
- fs/btrfs/space-info.c  | 3 ++-
- 5 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 15 ++++++++-------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h |  2 +-
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c  |  6 ++----
+ drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c   |  6 ++----
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c   |  7 ++-----
+ 5 files changed, 15 insertions(+), 21 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 30ea9780725ff..2d1cec2e7f754 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3004,7 +3004,7 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 			       u32 min_type);
- 
- int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
--int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
-+int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, long nr,
- 			       bool in_reclaim_context);
- int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
- 			      unsigned int extra_bits,
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index d297804631829..711b24613c22b 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -703,7 +703,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	 * flush all outstanding I/O and inode extent mappings before the
- 	 * copy operation is declared as being finished
- 	 */
--	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
-+	ret = btrfs_start_delalloc_roots(fs_info, LONG_MAX, false);
- 	if (ret) {
- 		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
- 		return ret;
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index acc47e2ffb46b..b0770288fdcdd 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9485,11 +9485,11 @@ int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
- 	return start_delalloc_inodes(root, &wbc, true, false);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+index c485ec86804e5..034a0f3b4c660 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+@@ -193,15 +193,16 @@ static bool amdgpu_gfx_is_multipipe_capable(struct amdgpu_device *adev)
  }
  
--int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
-+int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, long nr,
- 			       bool in_reclaim_context)
+ bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
+-					       int pipe, int queue)
++					       struct amdgpu_ring *ring)
  {
- 	struct writeback_control wbc = {
--		.nr_to_write = (nr == U64_MAX) ? LONG_MAX : (unsigned long)nr,
-+		.nr_to_write = nr,
- 		.sync_mode = WB_SYNC_NONE,
- 		.range_start = 0,
- 		.range_end = LLONG_MAX,
-@@ -9511,7 +9511,7 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
- 		 * Reset nr_to_write here so we know that we're doing a full
- 		 * flush.
- 		 */
--		if (nr == U64_MAX)
-+		if (nr == LONG_MAX)
- 			wbc.nr_to_write = LONG_MAX;
+-	bool multipipe_policy = amdgpu_gfx_is_multipipe_capable(adev);
+-	int cond;
+-	/* Policy: alternate between normal and high priority */
+-	cond = multipipe_policy ? pipe : queue;
+-
+-	return ((cond % 2) != 0);
++	/* Policy: use 1st queue as high priority compute queue if we
++	 * have more than one compute queue.
++	 */
++	if (adev->gfx.num_compute_rings > 1 &&
++	    ring == &adev->gfx.compute_ring[0])
++		return true;
  
- 		root = list_first_entry(&splice, struct btrfs_root,
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index bd46e107f955e..5122961b35f41 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -4940,7 +4940,7 @@ long btrfs_ioctl(struct file *file, unsigned int
- 	case BTRFS_IOC_SYNC: {
- 		int ret;
++	return false;
+ }
  
--		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
-+		ret = btrfs_start_delalloc_roots(fs_info, LONG_MAX, false);
- 		if (ret)
- 			return ret;
- 		ret = btrfs_sync_fs(inode->i_sb, 1);
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index e8347461c8ddd..84fb94e78a8ff 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -532,7 +532,8 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ void amdgpu_gfx_compute_queue_acquire(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
+index f353a5b71804e..6e0cba6f4bdcd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
+@@ -373,7 +373,7 @@ void amdgpu_queue_mask_bit_to_mec_queue(struct amdgpu_device *adev, int bit,
+ bool amdgpu_gfx_is_mec_queue_enabled(struct amdgpu_device *adev, int mec,
+ 				     int pipe, int queue);
+ bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
+-					       int pipe, int queue);
++					       struct amdgpu_ring *ring);
+ int amdgpu_gfx_me_queue_to_bit(struct amdgpu_device *adev, int me,
+ 			       int pipe, int queue);
+ void amdgpu_gfx_bit_to_me_queue(struct amdgpu_device *adev, int bit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 4ebb43e090999..4cc83b399b66b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -4334,8 +4334,7 @@ static int gfx_v10_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	r = amdgpu_ring_init(adev, ring, 1024,
+@@ -6361,8 +6360,7 @@ static void gfx_v10_0_compute_mqd_set_priority(struct amdgpu_ring *ring, struct
+ 	struct amdgpu_device *adev = ring->adev;
  
- 	loops = 0;
- 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
--		u64 nr_pages = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
-+		u64 temp = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
-+		long nr_pages = min_t(u64, temp, LONG_MAX);
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+index c36258d56b445..f2f603fa0288d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+@@ -1915,8 +1915,7 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
  
- 		btrfs_start_delalloc_roots(fs_info, nr_pages, true);
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_RING_PRIO_DEFAULT;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	r = amdgpu_ring_init(adev, ring, 1024,
+@@ -4434,8 +4433,7 @@ static void gfx_v8_0_mqd_set_priority(struct amdgpu_ring *ring, struct vi_mqd *m
+ 	struct amdgpu_device *adev = ring->adev;
  
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 957c12b727676..fa843bda70ba3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2228,8 +2228,7 @@ static int gfx_v9_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	return amdgpu_ring_init(adev, ring, 1024,
+@@ -3384,9 +3383,7 @@ static void gfx_v9_0_mqd_set_priority(struct amdgpu_ring *ring, struct v9_mqd *m
+ 	struct amdgpu_device *adev = ring->adev;
+ 
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev,
+-							      ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
 -- 
 2.27.0
 
