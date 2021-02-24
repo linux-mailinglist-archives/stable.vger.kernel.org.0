@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EB13240B0
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 16:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C8F323E0C
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbhBXPUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 10:20:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43064 "EHLO mail.kernel.org"
+        id S236577AbhBXNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:24:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236729AbhBXNqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:46:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FF3764FC0;
-        Wed, 24 Feb 2021 12:56:11 +0000 (UTC)
+        id S233153AbhBXNSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D1964FB9;
+        Wed, 24 Feb 2021 12:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171372;
-        bh=iFp58vQo6D05AilguJHqcVbj7g9C3NUuku8bwt18B0o=;
+        s=k20201202; t=1614171373;
+        bh=Gj61W6SCBn79uBZTL+r1z1mv3nUY3GqC9fehAEkl9GU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfxHHDanJqZIAtv5r5c9dkG+ZjQ42xp6o0j3vI/zucXXAyjDcBK8GEXLF/Ye/znk8
-         Kf26CIaKJ+jhnwxXFRTI0vDu6rDalrLhQvy9CAupgJlP/Grgv6jtaz6fGsByIGzouP
-         TIP3kIKzFvhireFCrtt1biJU1J+pcQX+GIUm9c6It9SI2+sFn0KCYtKyKLn8/muZoq
-         RGj/QwVev+t03nMjawWogfN6G9guI9O4O6MzszxD5YId9LvuR+upKA4Q0WwRopwC5G
-         odibb/bVoQFNUaqoX9zNIsRgmMt0UrG3F4P4H/ONlvYE8ZeeJSkK/lBSgs4tAZ5LMd
-         NdYBFF/+S/dDw==
+        b=AXUnTh68RX45Rr8E7c7byJQ6KHiKus88usQ75XywOI1w1JiHFNK4mTejEPyPDodxK
+         zFFLxvNDp99qJErh7HcoYVsy5KObZIWiu1voRCKRKX2/I0cpP43zLY88fuI6WhdSoy
+         5yg5xOOD0cU4jGygIHUDT4H0fH7tR/PRjcbi1i/Z2U4Ukl1I7cNdzHsvQUIHcWsaph
+         UOCWpI3UoCLQvS3b6uczc1SkHgw84ZBRcjKJd4o40toaie1djO97YCiQ0nrBHyluKg
+         5OvzkcJY7zxsbt9qnf+XSbUnOZZDfZU70zuxvmR/XTb+tuBOpI/E4mP6lhy3UUUE9m
+         NBQWH2l0e/TOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Gromm <christian.gromm@microchip.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.4 09/11] staging: most: sound: add sanity check for function argument
-Date:   Wed, 24 Feb 2021 07:55:57 -0500
-Message-Id: <20210224125600.484437-9-sashal@kernel.org>
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/11] media: uvcvideo: Allow entities with no pads
+Date:   Wed, 24 Feb 2021 07:55:58 -0500
+Message-Id: <20210224125600.484437-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125600.484437-1-sashal@kernel.org>
 References: <20210224125600.484437-1-sashal@kernel.org>
@@ -43,35 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gromm <christian.gromm@microchip.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 45b754ae5b82949dca2b6e74fa680313cefdc813 ]
+[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
 
-This patch checks the function parameter 'bytes' before doing the
-subtraction to prevent memory corruption.
+Avoid an underflow while calculating the number of inputs for entities
+with zero pads.
 
-Signed-off-by: Christian Gromm <christian.gromm@microchip.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/1612282865-21846-1-git-send-email-christian.gromm@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/aim-sound/sound.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/most/aim-sound/sound.c b/drivers/staging/most/aim-sound/sound.c
-index 9c645801cff4d..532ec0f7100eb 100644
---- a/drivers/staging/most/aim-sound/sound.c
-+++ b/drivers/staging/most/aim-sound/sound.c
-@@ -92,6 +92,8 @@ static void swap_copy24(u8 *dest, const u8 *source, unsigned int bytes)
- {
- 	unsigned int i = 0;
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index f353ab569b8e4..def22b7fef9cb 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -869,7 +869,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 	unsigned int i;
  
-+	if (bytes < 2)
-+		return;
- 	while (i < bytes - 2) {
- 		dest[i] = source[i + 2];
- 		dest[i + 1] = source[i + 1];
+ 	extra_size = roundup(extra_size, sizeof(*entity->pads));
+-	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
++	if (num_pads)
++		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
++	else
++		num_inputs = 0;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
+ 	entity = kzalloc(size, GFP_KERNEL);
+@@ -885,7 +888,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 
+ 	for (i = 0; i < num_inputs; ++i)
+ 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
+-	if (!UVC_ENTITY_IS_OTERM(entity))
++	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
+ 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
+ 
+ 	entity->bNrInPins = num_inputs;
 -- 
 2.27.0
 
