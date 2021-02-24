@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A90323D01
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3772B323CF2
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235216AbhBXNBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:01:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S232851AbhBXM7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:59:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235402AbhBXMzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:55:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDD5864F27;
-        Wed, 24 Feb 2021 12:51:39 +0000 (UTC)
+        id S235403AbhBXMzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:55:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C3064F2D;
+        Wed, 24 Feb 2021 12:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171100;
-        bh=rzJ+MgPneSw4WzQ5AVOBAiFhwQBZg63ogCP4HtzvObA=;
+        s=k20201202; t=1614171102;
+        bh=Gg6NcWIzyEBcUOAtqMpftaxuy4mEWFiYhnCneGwvdc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3SM4uWgUZP7yKsVkb0PvfICowwoWKOkTLbU7C6ehkr29eeAF5N7ucS6GyHRwC08r
-         r2VixzX7JXaIA+RQdqkreLOXssjz8Z57HATG+TiEF0bv4TkI8AbFrU4IpEKt2wTcI9
-         hF+ti+iS4T8WFNZZw8N1tvXevE1Vddbl64HuBksjJL9IgH8lkDUpQ71WSw6pBmKA5h
-         v6LrNhS6zU69Hbl0zaepVy/3y9omVM361ytr9+Lf9Sk0Xj9fHFyw29SBM9j5VnC0U5
-         AKJCrwE/bhHYBAx6thkpAYlLMofnTrpifFEUniuyPZLLkbl50NMzzN7eZI98/xRu54
-         hnaWPgnxN8b5Q==
+        b=d7Dus+JjL4hUMeMHxQCQ8YamDWH0xXrk2iBZSpQ/PYbGgQF8Uzu7bLBygAmew4Kum
+         yjHe+I0BR5wgIx7+Nystde0PmBuzB8ZpLJtfSudexVW5O02Mf4D76OD09bptAsdw+6
+         z3I3/gKslvKKA2IfoDoEtuH5413xvXMKT3R5SyhFUrdJ6kRmkDsAfVnvSKZDaQJNK+
+         BUyJQXkeZouuvWC7tbQxbYZg8N0QpcwkZOTY/FvzIXTeJS6akJlxTT2ug3EuSa4XT2
+         a+W/qdmIasT3sf9E/DCGft7zn2dITYO54O1ptkm6GENrXv697rQ668MAo2ijccVTji
+         ZkX21BVEjLk8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 55/67] btrfs: only let one thread pre-flush delayed refs in commit
-Date:   Wed, 24 Feb 2021 07:50:13 -0500
-Message-Id: <20210224125026.481804-55-sashal@kernel.org>
+Cc:     Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.11 56/67] drm/amdgpu: enable only one high prio compute queue
+Date:   Wed, 24 Feb 2021 07:50:14 -0500
+Message-Id: <20210224125026.481804-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,162 +45,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit e19eb11f4f3d3b0463cd897016064a79cb6d8c6d ]
+[ Upstream commit 8c0225d79273968a65e73a4204fba023ae02714d ]
 
-I've been running a stress test that runs 20 workers in their own
-subvolume, which are running an fsstress instance with 4 threads per
-worker, which is 80 total fsstress threads.  In addition to this I'm
-running balance in the background as well as creating and deleting
-snapshots.  This test takes around 12 hours to run normally, going
-slower and slower as the test goes on.
+For high priority compute to work properly we need to enable
+wave limiting on gfx pipe. Wave limiting is done through writing
+into mmSPI_WCL_PIPE_PERCENT_GFX register. Enable only one high
+priority compute queue to avoid race condition between multiple
+high priority compute queues writing that register simultaneously.
 
-The reason for this is because fsstress is running fsync sometimes, and
-because we're messing with block groups we often fall through to
-btrfs_commit_transaction, so will often have 20-30 threads all calling
-btrfs_commit_transaction at the same time.
-
-These all get stuck contending on the extent tree while they try to run
-delayed refs during the initial part of the commit.
-
-This is suboptimal, really because the extent tree is a single point of
-failure we only want one thread acting on that tree at once to reduce
-lock contention.
-
-Fix this by making the flushing mechanism a bit operation, to make it
-easy to use test_and_set_bit() in order to make sure only one task does
-this initial flush.
-
-Once we're into the transaction commit we only have one thread doing
-delayed ref running, it's just this initial pre-flush that is
-problematic.  With this patch my stress test takes around 90 minutes to
-run, instead of 12 hours.
-
-The memory barrier is not necessary for the flushing bit as it's
-ordered, unlike plain int. The transaction state accessed in
-btrfs_should_end_transaction could be affected by that too as it's not
-always used under transaction lock. Upon Nikolay's analysis in [1]
-it's not necessary:
-
-  In should_end_transaction it's read without holding any locks. (U)
-
-  It's modified in btrfs_cleanup_transaction without holding the
-  fs_info->trans_lock (U), but the STATE_ERROR flag is going to be set.
-
-  set in cleanup_transaction under fs_info->trans_lock (L)
-  set in btrfs_commit_trans to COMMIT_START under fs_info->trans_lock.(L)
-  set in btrfs_commit_trans to COMMIT_DOING under fs_info->trans_lock.(L)
-  set in btrfs_commit_trans to COMMIT_UNBLOCK under
-  fs_info->trans_lock.(L)
-
-  set in btrfs_commit_trans to COMMIT_COMPLETED without locks but at this
-  point the transaction is finished and fs_info->running_trans is NULL (U
-  but irrelevant).
-
-  So by the looks of it we can have a concurrent READ race with a WRITE,
-  due to reads not taking a lock. In this case what we want to ensure is
-  we either see new or old state. I consulted with Will Deacon and he said
-  that in such a case we'd want to annotate the accesses to ->state with
-  (READ|WRITE)_ONCE so as to avoid a theoretical tear, in this case I
-  don't think this could happen but I imagine at some point KCSAN would
-  flag such an access as racy (which it is).
-
-[1] https://lore.kernel.org/linux-btrfs/e1fd5cc1-0f28-f670-69f4-e9958b4964e6@suse.com
-
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-[ add comments regarding memory barrier ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-ref.h | 12 ++++++------
- fs/btrfs/transaction.c | 32 +++++++++++++++-----------------
- 2 files changed, 21 insertions(+), 23 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 15 ++++++++-------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h |  2 +-
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c  |  6 ++----
+ drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c   |  6 ++----
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c   |  7 ++-----
+ 5 files changed, 15 insertions(+), 21 deletions(-)
 
-diff --git a/fs/btrfs/delayed-ref.h b/fs/btrfs/delayed-ref.h
-index 1c977e6d45dc3..52364ea322d67 100644
---- a/fs/btrfs/delayed-ref.h
-+++ b/fs/btrfs/delayed-ref.h
-@@ -135,6 +135,11 @@ struct btrfs_delayed_data_ref {
- 	u64 offset;
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+index cd2c676a2797c..8e0a6c62322ec 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+@@ -193,15 +193,16 @@ static bool amdgpu_gfx_is_multipipe_capable(struct amdgpu_device *adev)
+ }
  
-+enum btrfs_delayed_ref_flags {
-+	/* Indicate that we are flushing delayed refs for the commit */
-+	BTRFS_DELAYED_REFS_FLUSHING,
-+};
-+
- struct btrfs_delayed_ref_root {
- 	/* head ref rbtree */
- 	struct rb_root_cached href_root;
-@@ -158,12 +163,7 @@ struct btrfs_delayed_ref_root {
- 
- 	u64 pending_csums;
- 
--	/*
--	 * set when the tree is flushing before a transaction commit,
--	 * used by the throttling code to decide if new updates need
--	 * to be run right away
--	 */
--	int flushing;
-+	unsigned long flags;
- 
- 	u64 run_delayed_start;
- 
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index fbf93067642ac..3cced84752178 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -909,9 +909,8 @@ bool btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
+ bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
+-					       int pipe, int queue)
++					       struct amdgpu_ring *ring)
  {
- 	struct btrfs_transaction *cur_trans = trans->transaction;
- 
--	smp_mb();
- 	if (cur_trans->state >= TRANS_STATE_COMMIT_START ||
--	    cur_trans->delayed_refs.flushing)
-+	    test_bit(BTRFS_DELAYED_REFS_FLUSHING, &cur_trans->delayed_refs.flags))
- 		return true;
- 
- 	return should_end_transaction(trans);
-@@ -2043,23 +2042,22 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	btrfs_trans_release_metadata(trans);
- 	trans->block_rsv = NULL;
- 
--	/* make a pass through all the delayed refs we have so far
--	 * any runnings procs may add more while we are here
--	 */
--	ret = btrfs_run_delayed_refs(trans, 0);
--	if (ret) {
--		btrfs_end_transaction(trans);
--		return ret;
--	}
+-	bool multipipe_policy = amdgpu_gfx_is_multipipe_capable(adev);
+-	int cond;
+-	/* Policy: alternate between normal and high priority */
+-	cond = multipipe_policy ? pipe : queue;
 -
--	cur_trans = trans->transaction;
--
- 	/*
--	 * set the flushing flag so procs in this transaction have to
--	 * start sending their work down.
-+	 * We only want one transaction commit doing the flushing so we do not
-+	 * waste a bunch of time on lock contention on the extent root node.
- 	 */
--	cur_trans->delayed_refs.flushing = 1;
--	smp_wmb();
-+	if (!test_and_set_bit(BTRFS_DELAYED_REFS_FLUSHING,
-+			      &cur_trans->delayed_refs.flags)) {
-+		/*
-+		 * Make a pass through all the delayed refs we have so far.
-+		 * Any running threads may add more while we are here.
-+		 */
-+		ret = btrfs_run_delayed_refs(trans, 0);
-+		if (ret) {
-+			btrfs_end_transaction(trans);
-+			return ret;
-+		}
-+	}
+-	return ((cond % 2) != 0);
++	/* Policy: use 1st queue as high priority compute queue if we
++	 * have more than one compute queue.
++	 */
++	if (adev->gfx.num_compute_rings > 1 &&
++	    ring == &adev->gfx.compute_ring[0])
++		return true;
  
- 	btrfs_create_pending_block_groups(trans);
++	return false;
+ }
  
+ void amdgpu_gfx_compute_queue_acquire(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
+index 6b5a8f4642cc9..72dbcd2bc6a63 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
+@@ -380,7 +380,7 @@ void amdgpu_queue_mask_bit_to_mec_queue(struct amdgpu_device *adev, int bit,
+ bool amdgpu_gfx_is_mec_queue_enabled(struct amdgpu_device *adev, int mec,
+ 				     int pipe, int queue);
+ bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
+-					       int pipe, int queue);
++					       struct amdgpu_ring *ring);
+ int amdgpu_gfx_me_queue_to_bit(struct amdgpu_device *adev, int me,
+ 			       int pipe, int queue);
+ void amdgpu_gfx_bit_to_me_queue(struct amdgpu_device *adev, int bit,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index d86b42a365601..972ffbdf4949c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -4494,8 +4494,7 @@ static int gfx_v10_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	r = amdgpu_ring_init(adev, ring, 1024,
+@@ -6547,8 +6546,7 @@ static void gfx_v10_0_compute_mqd_set_priority(struct amdgpu_ring *ring, struct
+ 	struct amdgpu_device *adev = ring->adev;
+ 
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+index 37639214cbbbd..b0284c4659ba5 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
+@@ -1923,8 +1923,7 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
+ 
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_RING_PRIO_DEFAULT;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	r = amdgpu_ring_init(adev, ring, 1024,
+@@ -4442,8 +4441,7 @@ static void gfx_v8_0_mqd_set_priority(struct amdgpu_ring *ring, struct vi_mqd *m
+ 	struct amdgpu_device *adev = ring->adev;
+ 
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 5f4805e4d04ac..3e800193a604b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2228,8 +2228,7 @@ static int gfx_v9_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
+ 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
+ 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
+ 		+ ring->pipe;
+-	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
+-							    ring->queue) ?
++	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+ 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
+ 	/* type-2 packets are deprecated on MEC, use type-3 instead */
+ 	return amdgpu_ring_init(adev, ring, 1024,
+@@ -3391,9 +3390,7 @@ static void gfx_v9_0_mqd_set_priority(struct amdgpu_ring *ring, struct v9_mqd *m
+ 	struct amdgpu_device *adev = ring->adev;
+ 
+ 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+-		if (amdgpu_gfx_is_high_priority_compute_queue(adev,
+-							      ring->pipe,
+-							      ring->queue)) {
++		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+ 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+ 			mqd->cp_hqd_queue_priority =
+ 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
 -- 
 2.27.0
 
