@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 815EA323DCD
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:23:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759F2323DDB
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234882AbhBXNTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:19:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
+        id S235489AbhBXNUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:20:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234150AbhBXNIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:08:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E43964F14;
-        Wed, 24 Feb 2021 12:55:04 +0000 (UTC)
+        id S234546AbhBXNKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:10:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C9764FA3;
+        Wed, 24 Feb 2021 12:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171305;
-        bh=1YK8oSAN7rQInznGmAOuKCx15FokfzKFU8CdTji2RAI=;
+        s=k20201202; t=1614171306;
+        bh=yQAgMDyITst9g0NyJRGTB4/GSgpl4NRKvwYNCcA0daU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fReEpa4kIta+8XZk2FBo645tG9yRa7B7bRdjU28Y0y54efYR+VDhc2HLHpGwWbTQS
-         D0y3QZpLNTmkEUaHcyOPJCZOlXnclKQ/oo2C12CXQC6DzqYZcpyHayNZRUbh/enP46
-         mKBRBZ6ww5Vu03gJoX8V5ziedWJd2RXahTfBsXBv6jUGpfY4q2sM64Aml3Faqxoq5o
-         XxFjOFFhqg7zgzgLT022liGrvDEtnsWkyDehT6QbTLWnYq1VrkHY1ekSoO18PwB/I7
-         8JpVhSsm/C6S6Y944ZvbWdn6koH24ryPoSFN2/eqkWKvlJeqzZAv7t0H3/y2uoO1Fm
-         xj8SRYEV5/8KQ==
+        b=HN5x+Xk6x/cf5hYFTQjaBxbztRlSwJfaLnhqVesRyXFjCZ1ObMrYj3qFTBnnj9aqU
+         KFxBx//vKT+OZxag7fF8P5H/lS+Y65bu/f3YdlYgXP72853DeosDMaevxFwtoQQow2
+         XxGTY1z2rDmhUcXENGrB2TmxkvJjPVdarwXQRXcYJl6CsGlGb9BAJrvNpPJYcGWYHA
+         62meBoQ4CrmTKr3+Svl4DNIu3t1lcol82qX6jZbxPcFqplvPu2WtwLgLGIbdaTqm8o
+         YYlbVYZLZVQ5nJ3KKkpw8BfEuhLTfe4icQlcfPRaYwc6X6KxLOS9LDVef3+iTkRdwf
+         XrglrnnefZJmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/26] parisc: Bump 64-bit IRQ stack size to 64 KB
-Date:   Wed, 24 Feb 2021 07:54:31 -0500
-Message-Id: <20210224125435.483539-23-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 24/26] ASoC: Intel: bytcr_rt5640: Add quirk for the Estar Beauty HD MID 7316R tablet
+Date:   Wed, 24 Feb 2021 07:54:32 -0500
+Message-Id: <20210224125435.483539-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125435.483539-1-sashal@kernel.org>
 References: <20210224125435.483539-1-sashal@kernel.org>
@@ -42,39 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 31680c1d1595a59e17c14ec036b192a95f8e5f4a ]
+[ Upstream commit bdea43fc0436c9e98fdfe151c2ed8a3fc7277404 ]
 
-Bump 64-bit IRQ stack size to 64 KB.
+The Estar Beauty HD MID 7316R tablet almost fully works with out default
+settings. The only problem is that it has only 1 speaker so any sounds
+only playing on the right channel get lost.
 
-I had a kernel IRQ stack overflow on the mx3210 debian buildd machine.  This patch increases the
-64-bit IRQ stack size to 64 KB.  The 64-bit stack size needs to be larger than the 32-bit stack
-size since registers are twice as big.
+Add a quirk for this model using the default settings + MONO_SPEAKER.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210216213555.36555-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/irq.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/intel/boards/bytcr_rt5640.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
-index 0ca254085a662..c152c30c2d06d 100644
---- a/arch/parisc/kernel/irq.c
-+++ b/arch/parisc/kernel/irq.c
-@@ -380,7 +380,11 @@ static inline int eirr_to_irq(unsigned long eirr)
- /*
-  * IRQ STACK - used for irq handler
-  */
-+#ifdef CONFIG_64BIT
-+#define IRQ_STACK_SIZE      (4096 << 4) /* 64k irq stack size */
-+#else
- #define IRQ_STACK_SIZE      (4096 << 3) /* 32k irq stack size */
-+#endif
- 
- union irq_stack_union {
- 	unsigned long stack[IRQ_STACK_SIZE/sizeof(unsigned long)];
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index ec630127ef2f3..4dd1941d4147f 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -510,6 +510,16 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_MONO_SPEAKER |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Estar Beauty HD MID 7316R */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Estar"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 -- 
 2.27.0
 
