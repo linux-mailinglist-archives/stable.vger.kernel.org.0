@@ -2,87 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8248323BCE
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 13:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9F4323BFC
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 13:41:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbhBXMQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:16:37 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:7414 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232564AbhBXMQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 07:16:36 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B6036437c0002>; Wed, 24 Feb 2021 04:15:56 -0800
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 24 Feb
- 2021 12:15:55 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
- Transport; Wed, 24 Feb 2021 12:15:55 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <stable@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.11 00/12] 5.11.1-rc1 review
-In-Reply-To: <20210222121013.586597942@linuxfoundation.org>
-References: <20210222121013.586597942@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S233431AbhBXMlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:41:02 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:12951 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231822AbhBXMlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 07:41:02 -0500
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4DlwTJ0jnNzjQ53;
+        Wed, 24 Feb 2021 20:39:00 +0800 (CST)
+Received: from [10.67.102.197] (10.67.102.197) by
+ DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
+ 14.3.498.0; Wed, 24 Feb 2021 20:40:08 +0800
+Subject: Re: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return
+ value when owner is exiting
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <sashal@kernel.org>, <tglx@linutronix.de>, <wangle6@huawei.com>,
+        <zhengyejian1@huawei.com>
+References: <20210222070328.102384-1-nixiaoming@huawei.com>
+ <20210222070328.102384-2-nixiaoming@huawei.com> <YDOEZhmKqjTVxtMn@kroah.com>
+ <3bc570f6-f8af-b0a2-4d62-13ed4adc1f33@huawei.com>
+ <YDOe9GNivoHQphQc@kroah.com>
+ <76f6a446-41db-3b7a-dcab-a85d0841654f@huawei.com>
+ <YDT8ZsMqVqihECoE@kroah.com>
+ <2e8cf845-30ee-22c2-428a-b56e03cb49e4@huawei.com>
+ <YDYEjmfcykR3achs@kroah.com>
+From:   Xiaoming Ni <nixiaoming@huawei.com>
+Message-ID: <0b9d35bd-12a9-22f2-e08e-b3e8f0d268dd@huawei.com>
+Date:   Wed, 24 Feb 2021 20:40:08 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.0.1
 MIME-Version: 1.0
-Message-ID: <c38a6ba670854c5e80160872b12fb5a0@HQMAIL107.nvidia.com>
-Date:   Wed, 24 Feb 2021 12:15:55 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1614168956; bh=ubQXNKBjBdT50uTBmfGvF/XeQm4mQAjg8RhnOs70Pqc=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=kHMWzQQ2j/v+l5ZOfJk+8J8ZD3/n4qINDBdYGqXoJIpHeNPHQGDJ36I39zm4BVd1p
-         vjJCh7ZXOUgO0wg46xiqzt1ekc21l3X/7GFD6RyOtm+zeFOADrg3nHt5sMguChFfkh
-         kVAe8FxVyTioYCDjcP6PRodUToIVhtr6H2MRnZY1aBs/SjnVJ5EBDd73fsO729wPMa
-         jcs7FuHBeUR+Upvm2MzwWxmJCF6rhqmEG3CbczLti3evoJKYsnZlKgr3EAKkmD83wm
-         gZKCY2bJvGnwvhFWHyC0YW/ffQ2wCFsLlCutwniSZi8Oxu2plThEHOX+RI8IUz6EIH
-         S5cm5x55t8F1g==
+In-Reply-To: <YDYEjmfcykR3achs@kroah.com>
+Content-Type: text/plain; charset="gbk"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.197]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Feb 2021 13:12:52 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.11.1 release.
-> There are 12 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2021/2/24 15:47, Greg KH wrote:
+> On Wed, Feb 24, 2021 at 09:41:01AM +0800, Xiaoming Ni wrote:
+>> On 2021/2/23 21:00, Greg KH wrote:
+>>> On Mon, Feb 22, 2021 at 10:11:37PM +0800, Xiaoming Ni wrote:
+>>>> On 2021/2/22 20:09, Greg KH wrote:
+>>>>> On Mon, Feb 22, 2021 at 06:54:06PM +0800, Xiaoming Ni wrote:
+>>>>>> On 2021/2/22 18:16, Greg KH wrote:
+>>>>>>> On Mon, Feb 22, 2021 at 03:03:28PM +0800, Xiaoming Ni wrote:
+>>>>>>>> From: Thomas Gleixner<tglx@linutronix.de>
+>>>>>>>>
+>>>>>>>> commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
+>>>>>>> This commit is already in the 4.9 tree.  If the backport was incorrect,
+>>>>>>> say that here, and describe what went wrong and why this commit fixes
+>>>>>>> it.
+>>>>>>>
+>>>>>>> Also state what commit this fixes as well, otherwise this changelog just
+>>>>>>> looks like it is being applied again to the tree, which doesn't make
+>>>>>>> much sense.
+>>>>>>>
+>>>>>>> thanks,
+>>>>>>>
+>>>>>>> greg k-h
+>>>>>>> .
+>>>>>>
+>>>>>> I wrote a cover for it. but forgot to adjust the title of the cover:
+>>>>>>
+>>>>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
+>>>>>>
+>>>>>>
+>>>>>> I found a dead code in the queue/4.9 branch of the stable-rc repository.
+>>>>>>
+>>>>>> 2021-02-03:
+>>>>>> commit c27f392040e2f6 ("futex: Provide distinct return value when
+>>>>>>     owner is exiting")
+>>>>>> 	The function handle_exit_race does not exist. Therefore, the
+>>>>>> 	change in handle_exit_race() is ignored in the patch round.
+>>>>>>
+>>>>>> 2021-02-22:
+>>>>>> commit e55cb811e612 ("futex: Cure exit race")
+>>>>>> 	Define the handle_exit_race() function,
+>>>>>> 	but no branch in the function returns EBUSY.
+>>>>>> 	As a result, dead code occurs in the attach_to_pi_owner():
+>>>>>>
+>>>>>> 		int ret = handle_exit_race(uaddr, uval, p);
+>>>>>> 		...
+>>>>>> 		if (ret == -EBUSY)
+>>>>>> 			*exiting = p; /* dead code */
+>>>>>>
+>>>>>> To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit
+>>>>>> race"),
+>>>>>> or install a patch to incorporate the changes in handle_exit_race().
+>>>>>>
+>>>>>> I am unfamiliar with the processing of the stable-rc queue branch,
+>>>>>> and I cannot find the patch mail of the current branch in
+>>>>>> 	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
+>>>>>> Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
+>>>>>>     return value when owner is exiting").
+>>>>>>     And wrote a cover (but forgot to adjust the title of the cover):
+>>>>>>
+>>>>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
+>>>>>
+>>>>> So this is a "fixup" patch, right?
+>>>>>
+>>>>> Please clearly label it as such in your patch description and resend
+>>>>> this as what is here I can not apply at all.
+>>>>>
+>>>>> thanks,
+>>>>>
+>>>>> greg k-h
+>>>>> .
+>>>>>
+>>>> Thank you for your guidance.
+>>>> I have updated the patch description and resent the patch based on
+>>>> v4.9.258-rc1
+>>>> https://lore.kernel.org/lkml/20210222125352.110124-1-nixiaoming@huawei.com/
+>>>
+>>> Can you please try 4.9.258 and let me know if this is still needed or
+>>> not?
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>> .
+>>>
+>> The dead code problem still exists in V4.9.258. No conflict occurs during my
+>> patch integration. Do I need to correct the version number marked in the cc
+>> table in the patch and resend the patch?
 > 
-> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
-> and the diffstat can be found below.
+> Please do.
 > 
 > thanks,
 > 
 > greg k-h
+> .
+> 
+I have resend the patch based on v4.9.258.
+link:
+https://lore.kernel.org/lkml/20210224100923.51315-1-nixiaoming@huawei.com/
 
-All tests passing for Tegra ...
+Thanks
 
-Test results for stable-v5.11:
-    12 builds:	12 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    65 tests:	65 pass, 0 fail
+Xiaoming Ni
 
-Linux version:	5.11.1-rc1-g6380656c9227
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
