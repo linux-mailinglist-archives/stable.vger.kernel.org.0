@@ -2,133 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D16A8323567
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 02:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C423236DA
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 06:29:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbhBXBl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Feb 2021 20:41:58 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:12949 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231981AbhBXBl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Feb 2021 20:41:57 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4Dldrp5sW5zjPZd;
-        Wed, 24 Feb 2021 09:39:54 +0800 (CST)
-Received: from [10.67.102.197] (10.67.102.197) by
- DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 24 Feb 2021 09:41:01 +0800
-Subject: Re: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return
- value when owner is exiting
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <sashal@kernel.org>, <tglx@linutronix.de>, <wangle6@huawei.com>,
-        <zhengyejian1@huawei.com>
-References: <20210222070328.102384-1-nixiaoming@huawei.com>
- <20210222070328.102384-2-nixiaoming@huawei.com> <YDOEZhmKqjTVxtMn@kroah.com>
- <3bc570f6-f8af-b0a2-4d62-13ed4adc1f33@huawei.com>
- <YDOe9GNivoHQphQc@kroah.com>
- <76f6a446-41db-3b7a-dcab-a85d0841654f@huawei.com>
- <YDT8ZsMqVqihECoE@kroah.com>
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-Message-ID: <2e8cf845-30ee-22c2-428a-b56e03cb49e4@huawei.com>
-Date:   Wed, 24 Feb 2021 09:41:01 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.0.1
+        id S233693AbhBXF3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 00:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233585AbhBXF3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 00:29:09 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8007C061574;
+        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id o6so560700pjf.5;
+        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hi+AZFYgCXbYt2WMhW/I8Ur+lvFGHwgs4K8iNAqVuQ8=;
+        b=r4yFDs1Y24MbSbSh6W9/Vbaj4iskoM7h9rnUs5fX7Ugo8eOBKrz3Uk0WmLoY8xrgrR
+         V57STqJyN8WwWEUj4KguJ0htbAqul/cPWt5Wb+kDe6aCUZQGCuq67z8m/I16mm69Cijx
+         w8lpR1Uy/TxQbSEEhmuAxBgMHfaL4XHpsHAfbkRO51kVE9vAMdoaXYO57P5acLDPU3D8
+         QkDqEdsPzj4BKZ+cRRPrnhvkLGqgSsMP5s5ZtMpg91o9nDb+Ot0laWijO0wmx7TnIfAu
+         5nPugtf+jDRAnmKSFg/tDtzugG/iqeC3gJ6WEsjMib6wxiAlWggOFLaRde2BLXi8axqP
+         O3HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hi+AZFYgCXbYt2WMhW/I8Ur+lvFGHwgs4K8iNAqVuQ8=;
+        b=jdcclAu8RaDeSEL/Id1p25hXZMM/hvdjMgl/moOWC9YdpaC5L0q4FQPHUR3TfOAEfI
+         voCit8EAdWcLeOhYX6mu+9+ZO9uG8snxNOrvjjM2eQcLhU9kamAomf2Vdi6gghdOdVvO
+         BPoTxdZAUPZKF3hy/9Crx0j9Aw1y+oslFs4OQum1bXxykbUhuKhmXLSjfZYyluHDTOSG
+         bNm/52IGE7+L+9soTxasdz5REJSndJvbwi1YfPBEHiawsbzlMWFIbfehQH4iEb9uDJkc
+         VEvtSgoApY74sLxI32ZQbmsrL2uSIykZCToFj0RUmAV/EPOtSZYaGPGuMdPuP+eA+bU3
+         1OmA==
+X-Gm-Message-State: AOAM533M4O7+XlfO606zGqFXYt6axsEWU+6nh4wKGwgmOrdaP2vXddwh
+        ydzLdpDD8ZaZqsdkimR9b5fc9JFWrcEyUA==
+X-Google-Smtp-Source: ABdhPJwh7E55NwVg7SB/yPu5NMeSWBtHE3B+15k+Moq13uQxrVGcjp4MKHyPwRn9RPFC6j0rGiSO0w==
+X-Received: by 2002:a17:90a:517:: with SMTP id h23mr2656543pjh.108.1614144509229;
+        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
+Received: from localhost.localdomain (host-61-70-202-235.static.kbtelecom.net. [61.70.202.235])
+        by smtp.googlemail.com with ESMTPSA id w13sm6631693pjg.0.2021.02.23.21.28.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Feb 2021 21:28:28 -0800 (PST)
+From:   Kun-Chuan Hsieh <jetswayss@gmail.com>
+To:     ast@kernel.org
+Cc:     bpf@vger.kernel.org, jolsa@kernel.org, andrii@kernel.org,
+        Kun-Chuan Hsieh <jetswayss@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2] tools/resolve_btfids: Fix build error with older host toolchains
+Date:   Wed, 24 Feb 2021 05:27:52 +0000
+Message-Id: <20210224052752.5284-1-jetswayss@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <YDT8ZsMqVqihECoE@kroah.com>
-Content-Type: text/plain; charset="gbk"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.197]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/2/23 21:00, Greg KH wrote:
-> On Mon, Feb 22, 2021 at 10:11:37PM +0800, Xiaoming Ni wrote:
->> On 2021/2/22 20:09, Greg KH wrote:
->>> On Mon, Feb 22, 2021 at 06:54:06PM +0800, Xiaoming Ni wrote:
->>>> On 2021/2/22 18:16, Greg KH wrote:
->>>>> On Mon, Feb 22, 2021 at 03:03:28PM +0800, Xiaoming Ni wrote:
->>>>>> From: Thomas Gleixner<tglx@linutronix.de>
->>>>>>
->>>>>> commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
->>>>> This commit is already in the 4.9 tree.  If the backport was incorrect,
->>>>> say that here, and describe what went wrong and why this commit fixes
->>>>> it.
->>>>>
->>>>> Also state what commit this fixes as well, otherwise this changelog just
->>>>> looks like it is being applied again to the tree, which doesn't make
->>>>> much sense.
->>>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>>>> .
->>>>
->>>> I wrote a cover for it. but forgot to adjust the title of the cover:
->>>>
->>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
->>>>
->>>>
->>>> I found a dead code in the queue/4.9 branch of the stable-rc repository.
->>>>
->>>> 2021-02-03:
->>>> commit c27f392040e2f6 ("futex: Provide distinct return value when
->>>>    owner is exiting")
->>>> 	The function handle_exit_race does not exist. Therefore, the
->>>> 	change in handle_exit_race() is ignored in the patch round.
->>>>
->>>> 2021-02-22:
->>>> commit e55cb811e612 ("futex: Cure exit race")
->>>> 	Define the handle_exit_race() function,
->>>> 	but no branch in the function returns EBUSY.
->>>> 	As a result, dead code occurs in the attach_to_pi_owner():
->>>>
->>>> 		int ret = handle_exit_race(uaddr, uval, p);
->>>> 		...
->>>> 		if (ret == -EBUSY)
->>>> 			*exiting = p; /* dead code */
->>>>
->>>> To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit
->>>> race"),
->>>> or install a patch to incorporate the changes in handle_exit_race().
->>>>
->>>> I am unfamiliar with the processing of the stable-rc queue branch,
->>>> and I cannot find the patch mail of the current branch in
->>>> 	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
->>>> Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
->>>>    return value when owner is exiting").
->>>>    And wrote a cover (but forgot to adjust the title of the cover):
->>>>
->>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
->>>
->>> So this is a "fixup" patch, right?
->>>
->>> Please clearly label it as such in your patch description and resend
->>> this as what is here I can not apply at all.
->>>
->>> thanks,
->>>
->>> greg k-h
->>> .
->>>
->> Thank you for your guidance.
->> I have updated the patch description and resent the patch based on
->> v4.9.258-rc1
->> https://lore.kernel.org/lkml/20210222125352.110124-1-nixiaoming@huawei.com/
-> 
-> Can you please try 4.9.258 and let me know if this is still needed or
-> not?
-> 
-> thanks,
-> 
-> greg k-h
-> .
-> 
-The dead code problem still exists in V4.9.258. No conflict occurs 
-during my patch integration. Do I need to correct the version number 
-marked in the cc table in the patch and resend the patch?
+Older libelf.h and glibc elf.h might not yet define the ELF compression
+types.
 
-Thanks
-Xiaoming Ni
+Checking and defining SHF_COMPRESSED fix the build error when compiling
+with older toolchains. Also, the tool resolve_btfids is compiled with host
+toolchain. The host toolchain is more likely to be older than the cross
+compile toolchain.
+
+Cc: stable@vger.kernel.org
+
+Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
+---
+ tools/bpf/resolve_btfids/main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+index 7409d7860aa6..80d966cfcaa1 100644
+--- a/tools/bpf/resolve_btfids/main.c
++++ b/tools/bpf/resolve_btfids/main.c
+@@ -260,6 +260,11 @@ static struct btf_id *add_symbol(struct rb_root *root, char *name, size_t size)
+ 	return btf_id__add(root, id, false);
+ }
+ 
++/* Older libelf.h and glibc elf.h might not yet define the ELF compression types. */
++#ifndef SHF_COMPRESSED
++#define SHF_COMPRESSED (1 << 11) /* Section with compressed data. */
++#endif
++
+ /*
+  * The data of compressed section should be aligned to 4
+  * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
+-- 
+2.25.1
+
