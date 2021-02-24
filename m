@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45057323CC7
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:05:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE5D323CCB
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235392AbhBXMzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:55:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50132 "EHLO mail.kernel.org"
+        id S235416AbhBXMzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:55:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235221AbhBXMwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:52:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2012764F22;
-        Wed, 24 Feb 2021 12:51:15 +0000 (UTC)
+        id S235309AbhBXMxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:53:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82C9664F17;
+        Wed, 24 Feb 2021 12:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171076;
-        bh=asoP4vmNUIKzTu/WQvAJHOSjOZC5arPbeF1w0w2Iw3M=;
+        s=k20201202; t=1614171077;
+        bh=KEDINILQi3pz6Ke559AABCODkCCCuukFluJrY1hQkjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXehoa2M8EG1QDmCfTcMBeZ6I4aUvWYcoBgXf599cDzlVqcdxWSjS/cfNerwyU4J5
-         ItnTEKdYxcNS+fbVpOBNU33KsIP4GYp13daXpUxXBRWtXfazb4MdfbAF6G/CfUqu2P
-         hp3e2SBrB2E5dRLqRGFXplpr8FLHGJRu5d38GkNvGG/g9VBnoyj3O94lTx1xbucunZ
-         Cncha98H1Y2e4YhEqgZWO96UV2ENNdgnG3BIaFiu4JxJzDiihMUntXKRwn0798emtt
-         KCGlU8GywQG23g1HUsyYfjeayb4FMLYg+rkKO7f8GWWf8B+qCWZW+SLQA/W2b3S5an
-         +T0pnkEucHR3Q==
+        b=jFqrEXqrRmR7kBIH9GDEdQfAEeQV4bs/UZj7TtuOmhgetuYD81pyktqOLg1AFIWEi
+         0E57FFi5gYrnyqVjvDmlkP08EAFiYK9k59a7gGVtPI4UrymmrjIJ2dbde/VXuaUB4x
+         7B3Cn0mmCivLi/LxroPriGWh0eDoGkXEC4H/LW+fG2sI1jTjZ0hvVbgKDVs1w6QSTK
+         0ygU3co1DhEcO9DjTPsGn3VV3SrSRGxipvZpHRhobobwv7c2xtBYY0uT7YRDD92rcf
+         3NjQsOoosUMTqs5ZbqnrMNDfxnSs4UT1IIlGAbBExIMXXXgnVIle3Pgt09aQETHO+2
+         2wBZNQ9CYXUzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jingwen Chen <Jingwen.Chen2@amd.com>, Monk Liu <monk.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 36/67] drm/amd/amdgpu: add error handling to amdgpu_virt_read_pf2vf_data
-Date:   Wed, 24 Feb 2021 07:49:54 -0500
-Message-Id: <20210224125026.481804-36-sashal@kernel.org>
+Cc:     Sean Young <sean@mess.org>,
+        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 37/67] media: mceusb: sanity check for prescaler value
+Date:   Wed, 24 Feb 2021 07:49:55 -0500
+Message-Id: <20210224125026.481804-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
@@ -43,46 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingwen Chen <Jingwen.Chen2@amd.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 64dcf2f01d59cf9fad19b1a387bd39736a8f4d69 ]
+[ Upstream commit 9dec0f48a75e0dadca498002d25ef4e143e60194 ]
 
-[Why]
-when vram lost happened in guest, try to write vram can lead to
-kernel stuck.
+prescaler larger than 8 would mean the carrier is at most 152Hz,
+which does not make sense for IR carriers.
 
-[How]
-When the readback data is invalid, don't do write work, directly
-reschedule a new work.
-
-Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Reviewed-by: Monk Liu<monk.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-index 2d51b7694d1fd..572153d08ad11 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -560,10 +560,14 @@ static int amdgpu_virt_write_vf2pf_data(struct amdgpu_device *adev)
- static void amdgpu_virt_update_vf2pf_work_item(struct work_struct *work)
- {
- 	struct amdgpu_device *adev = container_of(work, struct amdgpu_device, virt.vf2pf_work.work);
-+	int ret;
- 
--	amdgpu_virt_read_pf2vf_data(adev);
-+	ret = amdgpu_virt_read_pf2vf_data(adev);
-+	if (ret)
-+		goto out;
- 	amdgpu_virt_write_vf2pf_data(adev);
- 
-+out:
- 	schedule_delayed_work(&(adev->virt.vf2pf_work), adev->virt.vf2pf_update_interval_ms);
- }
- 
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index f1dbd059ed087..43d356251d051 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -701,11 +701,18 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
+ 				data[0], data[1]);
+ 			break;
+ 		case MCE_RSP_EQIRCFS:
++			if (!data[0] && !data[1]) {
++				dev_dbg(dev, "%s: no carrier", inout);
++				break;
++			}
++			// prescaler should make sense
++			if (data[0] > 8)
++				break;
+ 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
+ 						   (data[1] + 1), 10);
+ 			if (!period)
+ 				break;
+-			carrier = (1000 * 1000) / period;
++			carrier = USEC_PER_SEC / period;
+ 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
+ 				 inout, carrier, period);
+ 			break;
 -- 
 2.27.0
 
