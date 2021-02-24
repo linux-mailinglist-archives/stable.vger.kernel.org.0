@@ -2,133 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 848BC323715
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 07:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C117E323719
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 07:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbhBXGAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 01:00:09 -0500
-Received: from mx2.suse.de ([195.135.220.15]:55424 "EHLO mx2.suse.de"
+        id S234029AbhBXGDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 01:03:07 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56212 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233311AbhBXGAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 01:00:09 -0500
+        id S233997AbhBXGDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 01:03:06 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 6F8EDADCD;
-        Wed, 24 Feb 2021 05:59:27 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 37B9BADCD;
+        Wed, 24 Feb 2021 06:02:25 +0000 (UTC)
 Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
  dmabufs
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>, hdegoede@redhat.com,
+To:     Alan Stern <stern@rowland.harvard.edu>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>, airlied@linux.ie,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Oliver Neukum <oneukum@suse.com>,
+        Christoph Hellwig <hch@lst.de>, christian.koenig@amd.com,
+        hdegoede@redhat.com, Thomas Gleixner <tglx@linutronix.de>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
         Johan Hovold <johan@kernel.org>,
-        dri-devel@lists.freedesktop.org, christian.koenig@amd.com,
-        airlied@linux.ie, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        sean@poorly.run, Christoph Hellwig <hch@lst.de>
+        sean@poorly.run
 References: <20210223105842.27011-1-tzimmermann@suse.de>
- <s5hh7m2vqyd.wl-tiwai@suse.de> <f4452070-bab1-35ad-69aa-d020a4a3a5b7@suse.de>
- <20210223160054.GC1261797@rowland.harvard.edu> <YDU7naIDtg5IM0Sz@kroah.com>
+ <YDTk3L3gNxDE3YrC@kroah.com> <20210223154507.GA1261797@rowland.harvard.edu>
 From:   Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <d255a6c8-4348-3aef-b410-415566418f4c@suse.de>
-Date:   Wed, 24 Feb 2021 06:59:25 +0100
+Message-ID: <c89dd869-917c-1842-2173-f582edd02a8f@suse.de>
+Date:   Wed, 24 Feb 2021 07:02:23 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <YDU7naIDtg5IM0Sz@kroah.com>
+In-Reply-To: <20210223154507.GA1261797@rowland.harvard.edu>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0"
+ boundary="9R1rP065BsfpzaNZwDlog0BklX7NyfEXg"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0
-Content-Type: multipart/mixed; boundary="2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS";
+--9R1rP065BsfpzaNZwDlog0BklX7NyfEXg
+Content-Type: multipart/mixed; boundary="LTzFOk77qcvmY6gh1Piqj2tQH9AdjwTOW";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Greg KH <gregkh@linuxfoundation.org>,
- Alan Stern <stern@rowland.harvard.edu>
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>, hdegoede@redhat.com,
+To: Alan Stern <stern@rowland.harvard.edu>,
+ Greg KH <gregkh@linuxfoundation.org>
+Cc: Mathias Nyman <mathias.nyman@linux.intel.com>, airlied@linux.ie,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Oliver Neukum <oneukum@suse.com>, Johan Hovold <johan@kernel.org>,
- dri-devel@lists.freedesktop.org, christian.koenig@amd.com, airlied@linux.ie,
- stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, sean@poorly.run,
- Christoph Hellwig <hch@lst.de>
-Message-ID: <d255a6c8-4348-3aef-b410-415566418f4c@suse.de>
+ Oliver Neukum <oneukum@suse.com>, Christoph Hellwig <hch@lst.de>,
+ christian.koenig@amd.com, hdegoede@redhat.com,
+ Thomas Gleixner <tglx@linutronix.de>, dri-devel@lists.freedesktop.org,
+ stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, sean@poorly.run
+Message-ID: <c89dd869-917c-1842-2173-f582edd02a8f@suse.de>
 Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
  dmabufs
 References: <20210223105842.27011-1-tzimmermann@suse.de>
- <s5hh7m2vqyd.wl-tiwai@suse.de> <f4452070-bab1-35ad-69aa-d020a4a3a5b7@suse.de>
- <20210223160054.GC1261797@rowland.harvard.edu> <YDU7naIDtg5IM0Sz@kroah.com>
-In-Reply-To: <YDU7naIDtg5IM0Sz@kroah.com>
+ <YDTk3L3gNxDE3YrC@kroah.com> <20210223154507.GA1261797@rowland.harvard.edu>
+In-Reply-To: <20210223154507.GA1261797@rowland.harvard.edu>
 
---2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS
+--LTzFOk77qcvmY6gh1Piqj2tQH9AdjwTOW
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
 Hi
 
-Am 23.02.21 um 18:30 schrieb Greg KH:
-> On Tue, Feb 23, 2021 at 11:00:54AM -0500, Alan Stern wrote:
->> On Tue, Feb 23, 2021 at 03:06:07PM +0100, Thomas Zimmermann wrote:
->>> Hi
->>>
->>> Am 23.02.21 um 14:44 schrieb Takashi Iwai:
->>
->>>> Aside from the discussion whether this "workaround" is needed, the u=
-se
->>>> of udev->bus->controller here looks a bit suspicious.  As the old US=
-B
->>>> code (before the commit 6eb0233ec2d0) indicated, it was rather
->>>> usb->bus->sysdev that was used for the DMA mask, and it's also the o=
-ne
->>>> most of USB core code refers to.  A similar question came up while
->>>> fixing the same kind of bug in the media subsystem, and we concluded=
-
->>>> that bus->sysdev is a better choice.
->>>
->>> Good to hear that we're not the only ones affected by this. Wrt the o=
-riginal
->>> code, using sysdev makes even more sense.
->>
->> Hmmm, I had forgotten about this.  So DMA masks aren't inherited after=
-
->> all, thanks to commit 6eb0233ec2d0.  That leas me to wonder how well
->> usb-storage is really working these days...
->>
->> The impression I get is that Greg would like the USB core to export a
->> function which takes struct usb_interface * as argument and returns th=
-e
->> appropriate DMA mask value.  Then instead of messing around with USB
->> internals, drm_gem_prime_import_usb could just call this new function.=
-
->>
->> Adding such a utility function would be a sufficiently small change th=
-at
->> it could go into the -stable kernels with no trouble.
+Am 23.02.21 um 16:45 schrieb Alan Stern:
+> On Tue, Feb 23, 2021 at 12:19:56PM +0100, Greg KH wrote:
+>> On Tue, Feb 23, 2021 at 11:58:42AM +0100, Thomas Zimmermann wrote:
 >=20
-> Yes, sorry for not being clear, that is what I think would make the mos=
-t
-> sense, then all USB drivers could use it easily and it can be changed i=
-n
-> one location if the DMA logic ever changes.
+>>> --- a/drivers/gpu/drm/drm_prime.c
+>>> +++ b/drivers/gpu/drm/drm_prime.c
+>>> @@ -29,6 +29,7 @@
+>>>   #include <linux/export.h>
+>>>   #include <linux/dma-buf.h>
+>>>   #include <linux/rbtree.h>
+>>> +#include <linux/usb.h>
+>>>
+>>>   #include <drm/drm.h>
+>>>   #include <drm/drm_drv.h>
+>>> @@ -1055,3 +1056,38 @@ void drm_prime_gem_destroy(struct drm_gem_obje=
+ct *obj, struct sg_table *sg)
+>>>   	dma_buf_put(dma_buf);
+>>>   }
+>>>   EXPORT_SYMBOL(drm_prime_gem_destroy);
+>>> +
+>>> +/**
+>>> + * drm_gem_prime_import_usb - helper library implementation of the i=
+mport callback for USB devices
+>>> + * @dev: drm_device to import into
+>>> + * @dma_buf: dma-buf object to import
+>>> + *
+>>> + * This is an implementation of drm_gem_prime_import() for USB-based=
+ devices.
+>>> + * USB devices cannot perform DMA directly. This function selects th=
+e USB host
+>>> + * controller as DMA device instead. Drivers can use this as their
+>>> + * &drm_driver.gem_prime_import implementation.
+>>> + *
+>>> + * See also drm_gem_prime_import().
+>>> + */
+>>> +#ifdef CONFIG_USB
+>>> +struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *d=
+ev,
+>>> +						struct dma_buf *dma_buf)
+>>> +{
+>>> +	struct usb_device *udev;
+>>> +	struct device *usbhost;
+>>> +
+>>> +	if (dev->dev->bus !=3D &usb_bus_type)
+>>> +		return ERR_PTR(-ENODEV);
+>>> +
+>>> +	udev =3D interface_to_usbdev(to_usb_interface(dev->dev));
+>>> +	if (!udev->bus)
+>>> +		return ERR_PTR(-ENODEV);
+>>> +
+>>> +	usbhost =3D udev->bus->controller;
+>>> +	if (!usbhost || !usbhost->dma_mask)
+>>> +		return ERR_PTR(-ENODEV);
+>=20
+> Thomas, I doubt that you have to go through all of this.  The
+> usb-storage driver, for instance, just uses the equivalent of
+> dev->dev->dma_mask.  Even though USB devices don't do DMA themselves,
+> the DMA mask value is inherited from the parent host controller's devic=
+e
+> struct.
+>=20
+> Have you tried doing this?
 
-We can certainly do that. Thanks for clarifying. I'll send out an=20
-updated patch soon.
+But it's the field that is now NULL, isn't it? :S How does usb-storage=20
+get away with this?
 
 Best regards
 Thomas
 
 >=20
-> thanks,
+>> If individual USB drivers need access to this type of thing, shouldn't=
+
+>> that be done in the USB core itself?
+>>
+>> {hint, yes}
+>>
+>> There shouldn't be anything "special" about a DRM driver that needs th=
+is
+>> vs. any other driver that might want to know about DMA things related =
+to
+>> a specific USB device.  Why isn't this an issue with the existing
+>> storage or v4l USB devices?
 >=20
-> greg k-h
+> If Thomas finds that the approach I outlined above works, then the rest=
+
+> of this email thread becomes moot.  :-)
+>=20
+> Alan Stern
 > _______________________________________________
 > dri-devel mailing list
 > dri-devel@lists.freedesktop.org
@@ -144,27 +175,27 @@ Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
 Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS--
+--LTzFOk77qcvmY6gh1Piqj2tQH9AdjwTOW--
 
---nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0
+--9R1rP065BsfpzaNZwDlog0BklX7NyfEXg
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA16z0FAwAAAAAACgkQlh/E3EQov+CB
-jBAAg/yUvEfw4VHrUbO3gk2kOiCv+LAGGzNy8/AW08efUqHujd8Ky0TokfO5Nt1kzl8PVkLbuaJZ
-xLCk7215ihobbLNdzPWiaQH+8hNLJD5VGTsuS9zMnZ77WBrhxxk85rY16w9dzKUhZmlBKMQ8lfx1
-4Q3jx+KTlguHBF5cCRfGp9Yw5pcQtWm4MHWsuKV3uQtqv+FRGfI8HSW0iklENkV9rJPNOc0N4FNf
-4hKUOobo/6zbqso302e/l+HyAE4TIlRq94y3kJCY5XVK3zBIIQpVpfz7uNRE4kZpaNfxCGjdSLLl
-2Zedw8eTETIRtX0513u1V1rbUJV6aGTi2Q6cVjwiVkchyKHNAU4whcPcELwklDfZVzTv1lOqtp/Q
-99OigNNDGIc5ApMFoXPyCScQdKaOG2NKbda/CePI8DmEKCZiJHrVDxsAMKqvV4P0q/4mrzTmHg2E
-mzKuvJKLZgtoL/pUof22krffahoctfeqyNtmiZi1SkYzCylcFhv4bIReK8DPnmVP4oG5QjFJhnlz
-Kog4j0tXrNY2fwVZZQGvEx7joU/gVOlxNY6BfaKbvybvzr3qb0CRvVcl7bMYo7u60seXuddPmMVT
-NxC6pbeKdLRYnhyGbqvIpEg6s+TBUGnlhpyBejl2WyV2t81hKoQexQIIx/CwFF99OEUCKAlw10tY
-D1A=
-=/LxH
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA16+8FAwAAAAAACgkQlh/E3EQov+CX
+zw/9H1giViFUGZ+0IB/8QsFFclpkiS67GMyI+1cxaO1LACfXNcAhruQkyxuiWST4TpKeErGrx1HO
+b/HJe4yC4wvqnUyKyLpH1uizkZ0WhjYJdgjKsJX+VSlbLm9E216tiw05EYlseR3zerGWys6H60J8
+n8JZ6A/PH55BuvkFxbcsW7TNJyzZOvFvyauM4NOCIxHQhZGjaifDhif6/8WsK/9Tscz0vIUv7int
+GNAePinNOTkjc4aMQy0NPp2SpajrPHAJFVKL6/A6TJVpp081joLFMNiLymavv9qjF+aD3aXCYZJo
+D8o5S2VGyRz8uJ6wFt8mqVRCqL58Qn2J2oFbQIKkrbkHNBjolQRs7AJApNH3m8jN/VQScdyZweJO
+J2y9n8qBN6wGM+Vko53KD5kHRLSKqVnbuWuyK0rVT/w53ru2xLdSOe6xjXw4IKm0T0SVYJEfGm1b
+agmanWU9PBKCGF+xIDBKq4M037F3a+Si7eh0SUdI4IO4YDCsVJbH8K+rZfaRUbkB222HiE+/ZOPD
+Yw3jQCVLQ1L53eKTq6HkN43vCXJl9oOoCRx6skbe0QU/GcRmdNygpQfAATJqNpT610DYvSMpoeza
+9xU9MKsY8aNo/S/7LyksTPZVaEht4ocVttCB/xxYSGaB4jQ52TIqkl4leVyLRaCG9PafY/03ifOJ
++zw=
+=LMJ3
 -----END PGP SIGNATURE-----
 
---nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0--
+--9R1rP065BsfpzaNZwDlog0BklX7NyfEXg--
