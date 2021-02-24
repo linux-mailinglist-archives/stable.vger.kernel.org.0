@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90509323DC7
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:22:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624BE323DD1
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234728AbhBXNSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:18:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S234968AbhBXNTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:19:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233311AbhBXNIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233607AbhBXNIh (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 08:08:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3D9E64FA1;
-        Wed, 24 Feb 2021 12:54:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B51364F99;
+        Wed, 24 Feb 2021 12:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171293;
-        bh=1jNlxEy8lwJt8einyl+TyR4jYcw2sx3SQc6GezmFQmY=;
+        s=k20201202; t=1614171295;
+        bh=WVR7ZEEdctUFWw35chEKS8UARPxWGQ6zEVR3cUJTFnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4vZA7wz9mG1rfEuXkQNOips0jsn+84++GFlHWbTLUerFOdg5kSuW91QQ/PHZTL6I
-         YQlOQVXAKU4xM8NM6pFmjdUetleHimvEkVRkDRnus7ghPvYNcBBu13LG2Ifuk8KCxa
-         xEkSu+7XYTC3pUtd30nNPCUaK9oVda8ruB68z6pLYfgY5PEd1xuvNzJF9jcV0NBMQT
-         m+Z3oYqo+KVR2cF7zaBvkcDb3VMFdEY4xqyQNMopBpKB2lubj7SmD8/sm2abOP1LUU
-         +nu4+yDsgTOgypXROZM0WPvcnROJCfhhSnr8BR1w/ilcCQwh1qqEwK4DpB0dn8NvGq
-         X/odeumGeg35A==
+        b=OG3Pc1BToATOqRf2KzSMfDnk2iFG09zfuCYtH1M9aDGx2RG6kKLXNx9gAro0oOTt/
+         UD1DbLZTLmNL4mpC9doxWf5JzFjTnh6//OtnxZyyVKKic7/055Pwn7/IFVONUTjo7G
+         MrAmNjbKGn5yfMwsR+BZSntstjLwcUKSfdCs9uMWbm+c5uRfe6ufFsvoyGjaeMCGzd
+         uvjhYui0cFr75Gy+0+PPCTvKf4sqcKCBaiLxevqM/m4aTJxXtuyBJ36kOvu8FHsd3V
+         JR/h1S0ftaPTCBiYtKPtHrZC/jz6lrAxdAuRRAKMqeet1uCRl4sWxMbj9URIUZETr3
+         +3bsA88T5rYOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Anson Jacob <anson.jacob@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 14/26] drm/amd/display: Guard against NULL pointer deref when get_i2c_info fails
-Date:   Wed, 24 Feb 2021 07:54:22 -0500
-Message-Id: <20210224125435.483539-14-sashal@kernel.org>
+Cc:     Sean Young <sean@mess.org>,
+        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/26] media: mceusb: sanity check for prescaler value
+Date:   Wed, 24 Feb 2021 07:54:23 -0500
+Message-Id: <20210224125435.483539-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125435.483539-1-sashal@kernel.org>
 References: <20210224125435.483539-1-sashal@kernel.org>
@@ -46,44 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 44a09e3d95bd2b7b0c224100f78f335859c4e193 ]
+[ Upstream commit 9dec0f48a75e0dadca498002d25ef4e143e60194 ]
 
-[Why]
-If the BIOS table is invalid or corrupt then get_i2c_info can fail
-and we dereference a NULL pointer.
+prescaler larger than 8 would mean the carrier is at most 152Hz,
+which does not make sense for IR carriers.
 
-[How]
-Check that ddc_pin is not NULL before using it and log an error if it
-is because this is unexpected.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Anson Jacob <anson.jacob@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/rc/mceusb.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index fa0e6c8e2447c..e3bedf4cc9c03 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -1124,6 +1124,11 @@ static bool construct(
- 		goto ddc_create_fail;
- 	}
- 
-+	if (!link->ddc->ddc_pin) {
-+		DC_ERROR("Failed to get I2C info for connector!\n");
-+		goto ddc_create_fail;
-+	}
-+
- 	link->ddc_hw_inst =
- 		dal_ddc_get_line(
- 			dal_ddc_service_get_ddc_pin(link->ddc));
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index f1dfb84094328..845583e2af4d5 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -685,11 +685,18 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
+ 				data[0], data[1]);
+ 			break;
+ 		case MCE_RSP_EQIRCFS:
++			if (!data[0] && !data[1]) {
++				dev_dbg(dev, "%s: no carrier", inout);
++				break;
++			}
++			// prescaler should make sense
++			if (data[0] > 8)
++				break;
+ 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
+ 						   (data[1] + 1), 10);
+ 			if (!period)
+ 				break;
+-			carrier = (1000 * 1000) / period;
++			carrier = USEC_PER_SEC / period;
+ 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
+ 				 inout, carrier, period);
+ 			break;
 -- 
 2.27.0
 
