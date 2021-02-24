@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C8F323E0C
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:26:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5400323E04
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236577AbhBXNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:24:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
+        id S235054AbhBXNXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:23:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233153AbhBXNSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:18:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D1964FB9;
-        Wed, 24 Feb 2021 12:56:12 +0000 (UTC)
+        id S231809AbhBXNS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:18:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C45764FBA;
+        Wed, 24 Feb 2021 12:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171373;
-        bh=Gj61W6SCBn79uBZTL+r1z1mv3nUY3GqC9fehAEkl9GU=;
+        s=k20201202; t=1614171374;
+        bh=BvfUVNlmW6hpcqof91JmPyLE9pKH75gTqzb99INrfgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AXUnTh68RX45Rr8E7c7byJQ6KHiKus88usQ75XywOI1w1JiHFNK4mTejEPyPDodxK
-         zFFLxvNDp99qJErh7HcoYVsy5KObZIWiu1voRCKRKX2/I0cpP43zLY88fuI6WhdSoy
-         5yg5xOOD0cU4jGygIHUDT4H0fH7tR/PRjcbi1i/Z2U4Ukl1I7cNdzHsvQUIHcWsaph
-         UOCWpI3UoCLQvS3b6uczc1SkHgw84ZBRcjKJd4o40toaie1djO97YCiQ0nrBHyluKg
-         5OvzkcJY7zxsbt9qnf+XSbUnOZZDfZU70zuxvmR/XTb+tuBOpI/E4mP6lhy3UUUE9m
-         NBQWH2l0e/TOg==
+        b=OAnz02cYmhtsuXqcPmq/v3LLc2Lu8LfC84Q6df8Ei2aILcTKfIb2iOkBaZA0GkhAx
+         yt1n6e+XtL2WhUYxssg5O888qcOp61GJoEB6YRS8ZZ8HRCTJjwKOIYrQFLviPYY0wF
+         y8JD6S4jy775Xv/tNS9wba2yZIHEl/nqxW2Jtk0w+lpdIWS4v4q81trchw86qHzjkk
+         Iie+dS7riWQdUk46f9qxzogWR9y3/Gmc+2h5DKsK4bIwisaX77nQrZ3aS+H4CZE5w1
+         euCxyn+D9H7hjqGmHM4Dwxh3Ywvwv1Ccm1YXQNegPazsn/gyWcmjo4GD0O6hrpcl0A
+         GNiU/YvXKZQjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/11] media: uvcvideo: Allow entities with no pads
-Date:   Wed, 24 Feb 2021 07:55:58 -0500
-Message-Id: <20210224125600.484437-10-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 11/11] tomoyo: ignore data race while checking quota
+Date:   Wed, 24 Feb 2021 07:55:59 -0500
+Message-Id: <20210224125600.484437-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125600.484437-1-sashal@kernel.org>
 References: <20210224125600.484437-1-sashal@kernel.org>
@@ -43,46 +43,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
+[ Upstream commit 5797e861e402fff2bedce4ec8b7c89f4248b6073 ]
 
-Avoid an underflow while calculating the number of inputs for entities
-with zero pads.
+syzbot is reporting that tomoyo's quota check is racy [1]. But this check
+is tolerant of some degree of inaccuracy. Thus, teach KCSAN to ignore
+this data race.
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[1] https://syzkaller.appspot.com/bug?id=999533deec7ba6337f8aa25d8bd1a4d5f7e50476
+
+Reported-by: syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ security/tomoyo/file.c    | 16 ++++++++--------
+ security/tomoyo/network.c |  8 ++++----
+ security/tomoyo/util.c    | 24 ++++++++++++------------
+ 3 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index f353ab569b8e4..def22b7fef9cb 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -869,7 +869,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 	unsigned int i;
+diff --git a/security/tomoyo/file.c b/security/tomoyo/file.c
+index 2367b100cc62d..6c57be9d53898 100644
+--- a/security/tomoyo/file.c
++++ b/security/tomoyo/file.c
+@@ -355,13 +355,13 @@ static bool tomoyo_merge_path_acl(struct tomoyo_acl_info *a,
+ {
+ 	u16 * const a_perm = &container_of(a, struct tomoyo_path_acl, head)
+ 		->perm;
+-	u16 perm = *a_perm;
++	u16 perm = READ_ONCE(*a_perm);
+ 	const u16 b_perm = container_of(b, struct tomoyo_path_acl, head)->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
  
- 	extra_size = roundup(extra_size, sizeof(*entity->pads));
--	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
-+	if (num_pads)
-+		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
-+	else
-+		num_inputs = 0;
- 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
- 	     + num_inputs;
- 	entity = kzalloc(size, GFP_KERNEL);
-@@ -885,7 +888,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+@@ -427,14 +427,14 @@ static bool tomoyo_merge_mkdev_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 *const a_perm = &container_of(a, struct tomoyo_mkdev_acl,
+ 					 head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_mkdev_acl, head)
+ 		->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
  
- 	for (i = 0; i < num_inputs; ++i)
- 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
--	if (!UVC_ENTITY_IS_OTERM(entity))
-+	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
- 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
+@@ -504,13 +504,13 @@ static bool tomoyo_merge_path2_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm = &container_of(a, struct tomoyo_path2_acl, head)
+ 		->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_path2_acl, head)->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
  
- 	entity->bNrInPins = num_inputs;
+@@ -639,14 +639,14 @@ static bool tomoyo_merge_path_number_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm = &container_of(a, struct tomoyo_path_number_acl,
+ 					  head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_path_number_acl, head)
+ 		->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+diff --git a/security/tomoyo/network.c b/security/tomoyo/network.c
+index 97527710a72a5..facb8409768d3 100644
+--- a/security/tomoyo/network.c
++++ b/security/tomoyo/network.c
+@@ -232,14 +232,14 @@ static bool tomoyo_merge_inet_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm =
+ 		&container_of(a, struct tomoyo_inet_acl, head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_inet_acl, head)->perm;
+ 
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+@@ -258,14 +258,14 @@ static bool tomoyo_merge_unix_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm =
+ 		&container_of(a, struct tomoyo_unix_acl, head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_unix_acl, head)->perm;
+ 
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
+index b974a6997d7f8..e7ae94d28202e 100644
+--- a/security/tomoyo/util.c
++++ b/security/tomoyo/util.c
+@@ -1038,30 +1038,30 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
+ 		u8 i;
+ 		if (ptr->is_deleted)
+ 			continue;
++		/*
++		 * Reading perm bitmap might race with tomoyo_merge_*() because
++		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
++		 * max_learning_entry parameter by a few entries does not harm.
++		 */
+ 		switch (ptr->type) {
+ 		case TOMOYO_TYPE_PATH_ACL:
+-			perm = container_of(ptr, struct tomoyo_path_acl, head)
+-				->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_PATH2_ACL:
+-			perm = container_of(ptr, struct tomoyo_path2_acl, head)
+-				->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path2_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_PATH_NUMBER_ACL:
+-			perm = container_of(ptr, struct tomoyo_path_number_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path_number_acl, head)
++				  ->perm);
+ 			break;
+ 		case TOMOYO_TYPE_MKDEV_ACL:
+-			perm = container_of(ptr, struct tomoyo_mkdev_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_INET_ACL:
+-			perm = container_of(ptr, struct tomoyo_inet_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_inet_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_UNIX_ACL:
+-			perm = container_of(ptr, struct tomoyo_unix_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_unix_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
+ 			perm = 0;
 -- 
 2.27.0
 
