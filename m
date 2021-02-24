@@ -2,120 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29D7324181
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 17:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D27324182
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 17:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233866AbhBXP7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 10:59:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235857AbhBXPaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 10:30:46 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D45D4C061574
-        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 07:30:03 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id f8so1394346plg.5
-        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 07:30:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Rl0QdY/UVEim9so7pPs/fGcKH/l4UHUXa2EpamEeXw8=;
-        b=1XS6dO8XJWTuDk3RQJtz8Ff6bPXzrvEqMb7m80+1Bz+w/IHhwC79fpmrH+V7IAfrlk
-         NXgyeU9v0tW7cJavnF1SG9YvVo1EU8om8CNAHCq5QR0z9pRTgynWYWu1TXrTX+QD35Zz
-         erWIQn4bXwPQAeFluwz8Fl5qInjrJFx5fDHnq1fOGxsEl9RsSiD9W7Jg9er172FLyx++
-         3aX6WqARCGTfdqHpfsWN08ee/+ZdHDfGGeMTZMQyEhJ10YjewBrR7FazTG2/RAYZv2X3
-         NAcy7nN2UwYMu70InG7BHoLIt8FVYzQ8NGYRPGD6vHfTnrbBQjfAIbALX1JBSXR1L9xR
-         oVNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Rl0QdY/UVEim9so7pPs/fGcKH/l4UHUXa2EpamEeXw8=;
-        b=h0VSM2w+mWvRUnllS9Mbd3ygj9FJdaQsOwBKAJKdbik8YsPSm1dmOtmsZjjzmbgsjk
-         vdNz3zCjJfWe1hEpLRkO7wEfCgMFHtbLy/SwhxRutX/wSbPY2fVDk/nPkb68gcMBo0jb
-         HCEKM+woDUPoFI1ratSrPCAEQoFI4cwVTtmTikEC/rgyApr1+FijWaS4xtW8LPZ0rOEl
-         jwXvYdVzoBU8LnBFzkc/m0W5UsR86EUIfAjjac/Sffg8kap6BBhy/e2geq11J8Qm+S3C
-         QYvrH7xARFezpTeM8B3kRuy3e4/xmTW8/W/i9w7M8yuomyutC/j1P3bnC9c7H0Gr67uv
-         766g==
-X-Gm-Message-State: AOAM531Dq1irTxm06RLN+e4avZfrAKxTa/xk3OKTWyngVYuYD8BZZgQo
-        y4mrUyRXEqgDJhLbXtwE/kv8rG5Sdh/bww==
-X-Google-Smtp-Source: ABdhPJwZd9LPfX1/96dRxztxoaPlMk+xNATMPa8pV8B1FkLKG0MjI4oDUyRc1gqVaAMARCiuRhdxnA==
-X-Received: by 2002:a17:90a:4306:: with SMTP id q6mr4969188pjg.138.1614180603012;
-        Wed, 24 Feb 2021 07:30:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h20sm3006646pfv.164.2021.02.24.07.30.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 07:30:02 -0800 (PST)
-Message-ID: <603670fa.1c69fb81.6451c.61d8@mx.google.com>
-Date:   Wed, 24 Feb 2021 07:30:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S234344AbhBXP7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 10:59:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53546 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232008AbhBXPlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 10:41:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E78064ED4;
+        Wed, 24 Feb 2021 15:40:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614181210;
+        bh=zpbZSJ3n3/UQqrQj84VRvoG9ZEiWEcOUrHhFFU5TqVg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TroD82eFVaO62rdCY73XmFb46J9O6dXemfwDFKmcshbAcbvRrD9hu25kvSYRxl7bs
+         s2JpM4JIgBZtIAY04bR5QE/x1rJgk+X11S5WvRwuUr8lowy+Ln/pJVDjSWi+jDdfVa
+         jGPGVcs2h2kV04CoMtSB0i6x9MuWzX4SPqDIO7ET8rwZCxnfioLT+xi3DzhpJKCivl
+         26VVB0MnilQHpFQOqdWUotLGGaMmKPXS9iH9VeH1WQD+YLgHqv84Vf8tZF8KqreKZB
+         wlOEd4lU5D6OQZZrJRe2cIxjgAAVj6YiGk9FO7X2u19nNNedm3GlPBEiozfImBW68t
+         ikcoa5+909O9g==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Hildenbrand <david@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?q?=C5=81ukasz=20Majczak?= <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+Subject: [PATCH v7 0/1] mm: fix initialization of struct page for holes in  memory layout
+Date:   Wed, 24 Feb 2021 17:39:49 +0200
+Message-Id: <20210224153950.20789-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.18-6-g7931b7eb2357
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 115 runs,
- 1 regressions (v5.10.18-6-g7931b7eb2357)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 115 runs, 1 regressions (v5.10.18-6-g7931b7e=
-b2357)
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Regressions Summary
--------------------
+Hi,
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+@Andrew, this is based on v5.11-mmotm-2021-02-18-18-29 with the previous
+version reverted
 
+Commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather
+that check each PFN") exposed several issues with the memory map
+initialization and these patches fix those issues.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.18-6-g7931b7eb2357/plan/baseline/
+Initially there were crashes during compaction that Qian Cai reported back
+in April [1]. It seemed back then that the problem was fixed, but a few
+weeks ago Andrea Arcangeli hit the same bug [2] and there was an additional
+discussion at [3].
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.18-6-g7931b7eb2357
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7931b7eb23577235bd95925606a5d3722858d558 =
+I didn't appreciate variety of ways BIOSes can report memory in the first
+megabyte, so previous versions of this set caused all kinds of troubles.
 
+The last version that implicitly extended node/zone to cover the complete
+section might also have unexpected side effects, so this time I'm trying to
+move in forward in baby steps.
 
+This is mostly a return to the fist version that simply merges
+init_unavailable_pages() into memmap_init() so that the only effective
+change would be more sensible zone/node links in unavailable struct pages.
 
-Test Regressions
----------------- =
+For now, I've dropped the patch that tried to make ZONE_DMA to span pfn 0
+because it didn't cause any issues for really long time and there are way
+to many hidden mines around this.
 
+I have an ugly workaround for "pfn 0" issue that IMHO is the safest way to
+deal with it until it could be gradually fixed properly:
 
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/commit/?h=meminit/pfn0&id=90272f37151c6e1bc2610997310c51f4e984cf2f
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+v7:
+* add handling of section end that span beyond the populated zones
 
+v6: https://lore.kernel.org/lkml/20210222105728.28636-1-rppt@kernel.org
+* only interleave initialization of unavailable pages in memmap_init(), so
+that it is essentially includes init_unavailable_pages().
 
-  Details:     https://kernelci.org/test/plan/id/60363cbc0219ddd658addcbf
+v5: https://lore.kernel.org/lkml/20210208110820.6269-1-rppt@kernel.org
+* extend node/zone spans to cover complete sections, this allows to interleave
+  the initialization of unavailable pages with "normal" memory map init.
+* drop modifications to x86 early setup
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.18-=
-6-g7931b7eb2357/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.18-=
-6-g7931b7eb2357/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+v4: https://lore.kernel.org/lkml/20210130221035.4169-1-rppt@kernel.org/
+* make sure pages in the range 0 - start_pfn_of_lowest_zone are initialized
+  even if an architecture hides them from the generic mm
+* finally make pfn 0 on x86 to be a part of memory visible to the generic
+  mm as reserved memory.
 
+v3: https://lore.kernel.org/lkml/20210111194017.22696-1-rppt@kernel.org
+* use architectural zone constraints to set zone links for struct pages
+  corresponding to the holes
+* drop implicit update of memblock.memory
+* add a patch that sets pfn 0 to E820_TYPE_RAM on x86
 
+v2: https://lore.kernel.org/lkml/20201209214304.6812-1-rppt@kernel.org/):
+* added patch that adds all regions in memblock.reserved that do not
+overlap with memblock.memory to memblock.memory in the beginning of
+free_area_init()
 
-  * baseline.login: https://kernelci.org/test/case/id/60363cbc0219ddd658add=
-cc0
-        failing since 1 day (last pass: v5.10.17-29-g1b13e2554bc40, first f=
-ail: v5.10.17-29-g17962b3a67b5) =
+[1] https://lore.kernel.org/lkml/8C537EB7-85EE-4DCF-943E-3CC0ED0DF56D@lca.pw
+[2] https://lore.kernel.org/lkml/20201121194506.13464-1-aarcange@redhat.com
+[3] https://lore.kernel.org/mm-commits/20201206005401.qKuAVgOXr%akpm@linux-foundation.org
 
- =20
+Mike Rapoport (1):
+  mm/page_alloc.c: refactor initialization of struct page for holes in
+    memory layout
+
+ mm/page_alloc.c | 147 +++++++++++++++++++++---------------------------
+ 1 file changed, 64 insertions(+), 83 deletions(-)
+
+-- 
+2.28.0
+
