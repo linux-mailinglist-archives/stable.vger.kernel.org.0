@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21827323D29
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B86323D2D
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235709AbhBXNFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
+        id S235725AbhBXNFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:05:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235617AbhBXM7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:59:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A5E764F06;
-        Wed, 24 Feb 2021 12:52:36 +0000 (UTC)
+        id S232616AbhBXM70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:59:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 980E064F3E;
+        Wed, 24 Feb 2021 12:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171157;
-        bh=C55yUIEY+idJC3u7aYC0wzE6M5fLtSGNPtLbMb/VWI0=;
+        s=k20201202; t=1614171158;
+        bh=aGhCcj+6Y/ojFL5utpomFTPLVXUsMXnUhjfGyb09gdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWUdzvZLBypuwsfmJAY2Uou9VwBw5HnqQylBUUEqulkITJ4qTkGC1d2cj2OBKfBMz
-         DItNi00fTuexpgWfL6IOHfRGn4tvzfQLuTinY1V5WCvkBRoj4MPagvHtJzIk+lDbd2
-         pqu6PJkrpLnBtOhX9TGTzcIMQAJf2Z5E42nV41DjgV1HxFBlFQcd5ToKXwA4lNhiaQ
-         ptATpAh4qsSb0JM5a3WIxPk9sg2rJoCEUMGsXjaWv23IpRkt/vU3kwWexJ/2IiOM3M
-         jU9vZwmVGVB9ZJ08miDNLQRFLuclhSrxRYavJFR3NpWE51gFzvfc997YSWCV9kBYf7
-         cocKQ313XU8BA==
+        b=Fey7qpZcxXf75a1q7gSH501K3/SUmncfpNWAQ23hp5IUSi3N3Z1KpusoCOT084d4J
+         7GcSYjgBoY33D1urUpyavd9vTVUBPJlnFNVz1YhPNKyS7DJW6Cdo9jYie+uhhqT7Dd
+         Pha/BMU2YKgNZiPXJLd1OJTrZ+FjsJluDMjK+5ZV5WErWgXv9mcLsFA/+kUejaV767
+         LR0/qYiKyEUz+W6MuO6OHgfPD1q+UdiWUtA641gsu5aNqrbNKQOrYRY9gbu9pGZUu6
+         PiqvFcXqmBlDWMW8U/4cdX6e4G1iGKu2xS9tPj69l5ldV91QcYaJYeQ5421JCHgcOT
+         myk9Ya5St1fgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Tian Tao <tiantao6@hisilicon.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 18/56] brcmfmac: Add DMI nvram filename quirk for Voyo winpad A15 tablet
-Date:   Wed, 24 Feb 2021 07:51:34 -0500
-Message-Id: <20210224125212.482485-18-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 19/56] drm/hisilicon: Fix use-after-free
+Date:   Wed, 24 Feb 2021 07:51:35 -0500
+Message-Id: <20210224125212.482485-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
@@ -45,66 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Tian Tao <tiantao6@hisilicon.com>
 
-[ Upstream commit a338c874d3d9d2463f031e89ae14942929b93db6 ]
+[ Upstream commit c855af2f9c5c60760fd1bed7889a81bc37d2591d ]
 
-The Voyo winpad A15 tablet contains quite generic names in the sys_vendor
-and product_name DMI strings, without this patch brcmfmac will try to load:
-rcmfmac4330-sdio.To be filled by O.E.M.-To be filled by O.E.M..txt
-as nvram file which is a bit too generic.
+Fix the problem of dev being released twice.
+------------[ cut here ]------------
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 75 PID: 15700 at lib/refcount.c:28 refcount_warn_saturate+0xd4/0x150
+CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
+Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
+pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+pc : refcount_warn_saturate+0xd4/0x150
+lr : refcount_warn_saturate+0xd4/0x150
+sp : ffff2028150cbc00
+x29: ffff2028150cbc00 x28: ffff2028150121c0
+x27: 0000000000000000 x26: 0000000000000000
+x25: 0000000000000000 x24: 0000000000000003
+x23: 0000000000000000 x22: ffff2028150cbc90
+x21: ffff2020038a30a8 x20: ffff2028150cbc90
+x19: ffff0020cd938020 x18: 0000000000000010
+x17: 0000000000000000 x16: 0000000000000000
+x15: ffffffffffffffff x14: ffff2028950cb88f
+x13: ffff2028150cb89d x12: 0000000000000000
+x11: 0000000005f5e0ff x10: ffff2028150cb800
+x9 : 00000000ffffffd0 x8 : 75203b776f6c6672
+x7 : ffff800011a6f7c8 x6 : 0000000000000001
+x5 : 0000000000000000 x4 : 0000000000000000
+x3 : 0000000000000000 x2 : ffff202ffe2f9dc0
+x1 : ffffa02fecf40000 x0 : 0000000000000026
+Call trace:
+ refcount_warn_saturate+0xd4/0x150
+ devm_drm_dev_init_release+0x50/0x70
+ devm_action_release+0x20/0x30
+ release_nodes+0x13c/0x218
+ devres_release_all+0x80/0x170
+ device_release_driver_internal+0x128/0x1f0
+ driver_detach+0x6c/0xe0
+ bus_remove_driver+0x74/0x100
+ driver_unregister+0x34/0x60
+ pci_unregister_driver+0x24/0xd8
+ hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
+ __arm64_sys_delete_module+0x1fc/0x2d0
+ el0_svc_common.constprop.3+0xa8/0x188
+ do_el0_svc+0x80/0xa0
+ el0_sync_handler+0x8c/0xb0
+ el0_sync+0x15c/0x180
+CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
+Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
+Call trace:
+ dump_backtrace+0x0/0x208
+ show_stack+0x2c/0x40
+ dump_stack+0xd8/0x10c
+ __warn+0xac/0x128
+ report_bug+0xcc/0x180
+ bug_handler+0x24/0x78
+ call_break_hook+0x80/0xa0
+ brk_handler+0x28/0x68
+ do_debug_exception+0x9c/0x148
+ el1_sync_handler+0x7c/0x128
+ el1_sync+0x80/0x100
+ refcount_warn_saturate+0xd4/0x150
+ devm_drm_dev_init_release+0x50/0x70
+ devm_action_release+0x20/0x30
+ release_nodes+0x13c/0x218
+ devres_release_all+0x80/0x170
+ device_release_driver_internal+0x128/0x1f0
+ driver_detach+0x6c/0xe0
+ bus_remove_driver+0x74/0x100
+ driver_unregister+0x34/0x60
+ pci_unregister_driver+0x24/0xd8
+ hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
+ __arm64_sys_delete_module+0x1fc/0x2d0
+ el0_svc_common.constprop.3+0xa8/0x188
+ do_el0_svc+0x80/0xa0
+ el0_sync_handler+0x8c/0xb0
+ el0_sync+0x15c/0x180
+---[ end trace 00718630d6e5ff18 ]---
 
-Add a DMI quirk so that a unique and clearly identifiable nvram file name
-is used on the Voyo winpad A15 tablet.
-
-While preparing a matching linux-firmware update I noticed that the nvram
-is identical to the nvram used on the Prowise-PT301 tablet, so the new DMI
-quirk entry simply points to the already existing Prowise-PT301 nvram file.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210129171413.139880-2-hdegoede@redhat.com
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1607941973-32287-1-git-send-email-tiantao6@hisilicon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/broadcom/brcm80211/brcmfmac/dmi.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-index 824a79f243830..6d5188b78f2de 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-@@ -44,6 +44,14 @@ static const struct brcmf_dmi_data predia_basic_data = {
- 	BRCM_CC_43341_CHIP_ID, 2, "predia-basic"
- };
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index 085d1b2fa8c0a..d3485f742acc2 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -368,7 +368,6 @@ static void hibmc_pci_remove(struct pci_dev *pdev)
  
-+/* Note the Voyo winpad A15 tablet uses the same Ampak AP6330 module, with the
-+ * exact same nvram file as the Prowise-PT301 tablet. Since the nvram for the
-+ * Prowise-PT301 is already in linux-firmware we just point to that here.
-+ */
-+static const struct brcmf_dmi_data voyo_winpad_a15_data = {
-+	BRCM_CC_4330_CHIP_ID, 4, "Prowise-PT301"
-+};
-+
- static const struct dmi_system_id dmi_platform_data[] = {
- 	{
- 		/* ACEPC T8 Cherry Trail Z8350 mini PC */
-@@ -125,6 +133,16 @@ static const struct dmi_system_id dmi_platform_data[] = {
- 		},
- 		.driver_data = (void *)&predia_basic_data,
- 	},
-+	{
-+		/* Voyo winpad A15 tablet */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS date */
-+			DMI_MATCH(DMI_BIOS_DATE, "11/20/2014"),
-+		},
-+		.driver_data = (void *)&voyo_winpad_a15_data,
-+	},
- 	{}
- };
+ 	drm_dev_unregister(dev);
+ 	hibmc_unload(dev);
+-	drm_dev_put(dev);
+ }
  
+ static struct pci_device_id hibmc_pci_table[] = {
 -- 
 2.27.0
 
