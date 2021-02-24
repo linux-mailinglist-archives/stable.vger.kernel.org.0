@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE59D323D49
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19434323D25
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:07:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235794AbhBXNG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55204 "EHLO mail.kernel.org"
+        id S235703AbhBXNE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235505AbhBXM6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:58:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 647B364F03;
-        Wed, 24 Feb 2021 12:52:26 +0000 (UTC)
+        id S235522AbhBXM62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:58:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0278364F3D;
+        Wed, 24 Feb 2021 12:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171147;
-        bh=PzedoDyaDMMsI/dtCeYqc/Rj7GBfCTq/VNdQzQkdc5g=;
+        s=k20201202; t=1614171148;
+        bh=AEA0TivEeWIBQ/CGxrcAKSVYGt3GdJdT+AactO/OM5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8HT+6XqInnvR41NVNA1dOz5BcGB03aFB0/zjoSOB+6+bxDvI2RGw9zcsQyjtVJf5
-         iFt/n/JSl3gHtvBm7ZTktiF5SO/fz/Y+kGejoWhoMspue+lmd00cVYOntZD1suox+n
-         rmKnq8ENBBJQqlTrVm4K+nCsG40ng2PWDPPdVafPSJ7btlMTNhMAa76AXrSPdnrB69
-         OE+sxRrKNimsGKeseHCEKNzZz1IHce2VfK47LYwwvC+DmoLP4vPnlDHSuT9rrt+nUg
-         4of7z4XPlnexpCBawJKDhus3tLaU6cc5V8jPmiKf7qE17Rbq6Zrjm42Lr/EJ8ffRs5
-         FuxJuBKG1q1CA==
+        b=g+KY27z/ADgsMgf41gV9soXNqprH+lxeykDh9nv6NSjxTDH333jDH3WwHNTSIuH7S
+         X++K3W58cTQuvuVSpyKEm/EjAbYf8V13zhWccywVqd2iovGXOWnSNiqq0XMqCUvp+y
+         JbZV2j5Bjxjbu9jiO99BFpUsyIRYl7MorcJHaVdVB5nsQQETh9QGZOw4nAZV4WlyM7
+         SMBfB7qXr2bAJ6p+LhjzMs/xlKeNr9lWB9PgxVG059QE/kLk8ZTjzx5Cl/p57i5bGc
+         L6krSF6PoNOEfR8wyEBxZCRr++V2He7x6td8JJTFJIKfPVZ9Dtj8INOtQGePqjinBO
+         /EdazObpEoxuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fangrui Song <maskray@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 11/56] x86/build: Treat R_386_PLT32 relocation as R_386_PC32
-Date:   Wed, 24 Feb 2021 07:51:27 -0500
-Message-Id: <20210224125212.482485-11-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 12/56] net: sfp: add mode quirk for GPON module Ubiquiti U-Fiber Instant
+Date:   Wed, 24 Feb 2021 07:51:28 -0500
+Message-Id: <20210224125212.482485-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,109 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit bb73d07148c405c293e576b40af37737faf23a6a ]
+[ Upstream commit f0b4f847673299577c29b71d3f3acd3c313d81b7 ]
 
-This is similar to commit
+The Ubiquiti U-Fiber Instant SFP GPON module has nonsensical information
+stored in its EEPROM. It claims to support all transceiver types including
+10G Ethernet. Clear all claimed modes and set only 1000baseX_Full, which is
+the only one supported.
 
-  b21ebf2fb4cd ("x86: Treat R_X86_64_PLT32 as R_X86_64_PC32")
+This module has also phys_id set to SFF, and the SFP subsystem currently
+does not allow to use SFP modules detected as SFFs. Add exception for this
+module so it can be detected as supported.
 
-but for i386. As far as the kernel is concerned, R_386_PLT32 can be
-treated the same as R_386_PC32.
+This change finally allows to detect and use SFP GPON module Ubiquiti
+U-Fiber Instant on Linux system.
 
-R_386_PLT32/R_X86_64_PLT32 are PC-relative relocation types which
-can only be used by branches. If the referenced symbol is defined
-externally, a PLT will be used.
+EEPROM content of this SFP module is (where XX is serial number):
 
-R_386_PC32/R_X86_64_PC32 are PC-relative relocation types which can be
-used by address taking operations and branches. If the referenced symbol
-is defined externally, a copy relocation/canonical PLT entry will be
-created in the executable.
+00: 02 04 0b ff ff ff ff ff ff ff ff 03 0c 00 14 c8    ???........??.??
+10: 00 00 00 00 55 42 4e 54 20 20 20 20 20 20 20 20    ....UBNT
+20: 20 20 20 20 00 18 e8 29 55 46 2d 49 4e 53 54 41        .??)UF-INSTA
+30: 4e 54 20 20 20 20 20 20 34 20 20 20 05 1e 00 36    NT      4   ??.6
+40: 00 06 00 00 55 42 4e 54 XX XX XX XX XX XX XX XX    .?..UBNTXXXXXXXX
+50: 20 20 20 20 31 34 30 31 32 33 20 20 60 80 02 41        140123  `??A
 
-On x86-64, there is no PIC vs non-PIC PLT distinction and an
-R_X86_64_PLT32 relocation is produced for both `call/jmp foo` and
-`call/jmp foo@PLT` with newer (2018) GNU as/LLVM integrated assembler.
-This avoids canonical PLT entries (st_shndx=0, st_value!=0).
-
-On i386, there are 2 types of PLTs, PIC and non-PIC. Currently,
-the GCC/GNU as convention is to use R_386_PC32 for non-PIC PLT and
-R_386_PLT32 for PIC PLT. Copy relocations/canonical PLT entries
-are possible ABI issues but GCC/GNU as will likely keep the status
-quo because (1) the ABI is legacy (2) the change will drop a GNU
-ld diagnostic for non-default visibility ifunc in shared objects.
-
-clang-12 -fno-pic (since [1]) can emit R_386_PLT32 for compiler
-generated function declarations, because preventing canonical PLT
-entries is weighed over the rare ifunc diagnostic.
-
-Further info for the more interested:
-
-  https://github.com/ClangBuiltLinux/linux/issues/1210
-  https://sourceware.org/bugzilla/show_bug.cgi?id=27169
-  https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6 [1]
-
- [ bp: Massage commit message. ]
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210127205600.1227437-1-maskray@google.com
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/module.c |  1 +
- arch/x86/tools/relocs.c  | 12 ++++++++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/phy/sfp-bus.c | 15 +++++++++++++++
+ drivers/net/phy/sfp.c     | 17 +++++++++++++++--
+ 2 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 34b153cbd4acb..5e9a34b5bd741 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -114,6 +114,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 			*location += sym->st_value;
- 			break;
- 		case R_386_PC32:
-+		case R_386_PLT32:
- 			/* Add the value, subtract its position */
- 			*location += sym->st_value - (uint32_t)location;
- 			break;
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index ce7188cbdae58..1c3a1962cade6 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -867,9 +867,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index 58014feedf6c8..fb954e8141802 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -44,6 +44,17 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
+ 	phylink_set(modes, 2500baseX_Full);
+ }
  
-@@ -910,9 +912,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
++static void sfp_quirk_ubnt_uf_instant(const struct sfp_eeprom_id *id,
++				      unsigned long *modes)
++{
++	/* Ubiquiti U-Fiber Instant module claims that support all transceiver
++	 * types including 10G Ethernet which is not truth. So clear all claimed
++	 * modes and set only one mode which module supports: 1000baseX_Full.
++	 */
++	phylink_zero(modes);
++	phylink_set(modes, 1000baseX_Full);
++}
++
+ static const struct sfp_quirk sfp_quirks[] = {
+ 	{
+ 		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
+@@ -63,6 +74,10 @@ static const struct sfp_quirk sfp_quirks[] = {
+ 		.vendor = "HUAWEI",
+ 		.part = "MA5671A",
+ 		.modes = sfp_quirk_2500basex,
++	}, {
++		.vendor = "UBNT",
++		.part = "UF-INSTANT",
++		.modes = sfp_quirk_ubnt_uf_instant,
+ 	},
+ };
  
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index 34aa196b7465c..d8a809cf20c15 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -272,8 +272,21 @@ static const struct sff_data sff_data = {
+ 
+ static bool sfp_module_supported(const struct sfp_eeprom_id *id)
+ {
+-	return id->base.phys_id == SFF8024_ID_SFP &&
+-	       id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP;
++	if (id->base.phys_id == SFF8024_ID_SFP &&
++	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP)
++		return true;
++
++	/* SFP GPON module Ubiquiti U-Fiber Instant has in its EEPROM stored
++	 * phys id SFF instead of SFP. Therefore mark this module explicitly
++	 * as supported based on vendor name and pn match.
++	 */
++	if (id->base.phys_id == SFF8024_ID_SFF_8472 &&
++	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP &&
++	    !memcmp(id->base.vendor_name, "UBNT            ", 16) &&
++	    !memcmp(id->base.vendor_pn, "UF-INSTANT      ", 16))
++		return true;
++
++	return false;
+ }
+ 
+ static const struct sff_data sfp_data = {
 -- 
 2.27.0
 
