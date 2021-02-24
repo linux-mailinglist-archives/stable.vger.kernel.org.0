@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62133323CD3
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4FDE323CD2
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235454AbhBXM40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:56:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50300 "EHLO mail.kernel.org"
+        id S235441AbhBXM4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:56:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233311AbhBXMxh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235324AbhBXMxh (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 07:53:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF3764DAF;
-        Wed, 24 Feb 2021 12:51:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B48D564EDD;
+        Wed, 24 Feb 2021 12:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171085;
-        bh=wmPTz/Z+8VLI3N2noswwUlvlvKWvtkX+qXjt5MCWKWw=;
+        s=k20201202; t=1614171086;
+        bh=n2t/uc5ZxGBO0vRl39m8JivSlLwT/t9BtbiI+dqzzGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BA3YFQ3zGTm4sMH9I7PRxWHJL9nbj9MPKofDvHTXxkeKoa9uVYLembBlkOzM1KP7i
-         sTGU/OM/pocQSabVtuoKGSIpnzdIWcUJ4ahu7f5K8sKF3z0G9XUOcH7eQExQjfOKW1
-         7SWKpzUR3hxRWUOiOmiMNq7xloE6iiBPyYtSlVaupQOdOwZ689soqBcszwbr5dGmij
-         UieaIGXDloQ8z/dWd8pGK5Y4dY2wp+IuC5ybf8cMCLQvFOALw7ddB8dNme/KEa/vLr
-         7d0s6Y1Z5uiOTQOZzUZVoggRbHxG2lIPu4jGqI2TLE8ALkHHdx0oKDy7p+KRHaCIQq
-         YaGCN0pV8YGcQ==
+        b=WNfpHJmrvRnPTGnftJV+dPSCkfu0zdQnapL6zjhyerVgjpbs7p8VuNWOwxkZjNctX
+         oPaXjNnufe/hmQlNYEblw8+yFOEl8QIYhnAYfvvrfASe9SmUHd59UIm65/DzJCwAn/
+         XgJ0oirNdz2cIajXwWHST2shK/rv4+fJEfaMLL8FHtwJ3Zir3PFx/wvEMAuZ1tLzs/
+         +KJafWij3WzrFEqTtU6W76fxa6iuyKSSeMpRBzxcz6N87O670icoIwgifZZXRG9WPD
+         QCYXC41hkn1ED8Cz5kCHFH2If1EbGbTY4kSBBgM8eFDXbdGfEpqzOt7i7ux9I62pi3
+         EGvXyVxUMBNCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 43/67] tomoyo: ignore data race while checking quota
-Date:   Wed, 24 Feb 2021 07:50:01 -0500
-Message-Id: <20210224125026.481804-43-sashal@kernel.org>
+Cc:     Chao Leng <lengchao@huawei.com>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.11 44/67] nvme-core: add cancel tagset helpers
+Date:   Wed, 24 Feb 2021 07:50:02 -0500
+Message-Id: <20210224125026.481804-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
@@ -43,184 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Chao Leng <lengchao@huawei.com>
 
-[ Upstream commit 5797e861e402fff2bedce4ec8b7c89f4248b6073 ]
+[ Upstream commit 2547906982e2e6a0d42f8957f55af5bb51a7e55f ]
 
-syzbot is reporting that tomoyo's quota check is racy [1]. But this check
-is tolerant of some degree of inaccuracy. Thus, teach KCSAN to ignore
-this data race.
+Add nvme_cancel_tagset and nvme_cancel_admin_tagset for tear down and
+reconnection error handling.
 
-[1] https://syzkaller.appspot.com/bug?id=999533deec7ba6337f8aa25d8bd1a4d5f7e50476
-
-Reported-by: syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/tomoyo/file.c    | 16 ++++++++--------
- security/tomoyo/network.c |  8 ++++----
- security/tomoyo/util.c    | 24 ++++++++++++------------
- 3 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/nvme/host/core.c | 20 ++++++++++++++++++++
+ drivers/nvme/host/nvme.h |  2 ++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/security/tomoyo/file.c b/security/tomoyo/file.c
-index 051f7297877cb..1e6077568fdec 100644
---- a/security/tomoyo/file.c
-+++ b/security/tomoyo/file.c
-@@ -362,14 +362,14 @@ static bool tomoyo_merge_path_acl(struct tomoyo_acl_info *a,
- {
- 	u16 * const a_perm = &container_of(a, struct tomoyo_path_acl, head)
- 		->perm;
--	u16 perm = *a_perm;
-+	u16 perm = READ_ONCE(*a_perm);
- 	const u16 b_perm = container_of(b, struct tomoyo_path_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f13eb4ded95fa..129e2b6bd6d3f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -371,6 +371,26 @@ bool nvme_cancel_request(struct request *req, void *data, bool reserved)
  }
+ EXPORT_SYMBOL_GPL(nvme_cancel_request);
  
-@@ -437,7 +437,7 @@ static bool tomoyo_merge_mkdev_acl(struct tomoyo_acl_info *a,
++void nvme_cancel_tagset(struct nvme_ctrl *ctrl)
++{
++	if (ctrl->tagset) {
++		blk_mq_tagset_busy_iter(ctrl->tagset,
++				nvme_cancel_request, ctrl);
++		blk_mq_tagset_wait_completed_request(ctrl->tagset);
++	}
++}
++EXPORT_SYMBOL_GPL(nvme_cancel_tagset);
++
++void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl)
++{
++	if (ctrl->admin_tagset) {
++		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
++				nvme_cancel_request, ctrl);
++		blk_mq_tagset_wait_completed_request(ctrl->admin_tagset);
++	}
++}
++EXPORT_SYMBOL_GPL(nvme_cancel_admin_tagset);
++
+ bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
+ 		enum nvme_ctrl_state new_state)
  {
- 	u8 *const a_perm = &container_of(a, struct tomoyo_mkdev_acl,
- 					 head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_mkdev_acl, head)
- 		->perm;
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 88a6b97247f50..a72f071810910 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -576,6 +576,8 @@ static inline bool nvme_is_aen_req(u16 qid, __u16 command_id)
  
-@@ -445,7 +445,7 @@ static bool tomoyo_merge_mkdev_acl(struct tomoyo_acl_info *a,
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -517,14 +517,14 @@ static bool tomoyo_merge_path2_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path2_acl, head)
- 		->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path2_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -655,7 +655,7 @@ static bool tomoyo_merge_path_number_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path_number_acl,
- 					  head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path_number_acl, head)
- 		->perm;
- 
-@@ -663,7 +663,7 @@ static bool tomoyo_merge_path_number_acl(struct tomoyo_acl_info *a,
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-diff --git a/security/tomoyo/network.c b/security/tomoyo/network.c
-index f9ff121d7e1eb..a89ed55d85d41 100644
---- a/security/tomoyo/network.c
-+++ b/security/tomoyo/network.c
-@@ -233,14 +233,14 @@ static bool tomoyo_merge_inet_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_inet_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_inet_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -259,14 +259,14 @@ static bool tomoyo_merge_unix_acl(struct tomoyo_acl_info *a,
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_unix_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_unix_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
-index 176b803ebcfc9..e89cac913583c 100644
---- a/security/tomoyo/util.c
-+++ b/security/tomoyo/util.c
-@@ -1058,30 +1058,30 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
- 
- 		if (ptr->is_deleted)
- 			continue;
-+		/*
-+		 * Reading perm bitmap might race with tomoyo_merge_*() because
-+		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
-+		 * max_learning_entry parameter by a few entries does not harm.
-+		 */
- 		switch (ptr->type) {
- 		case TOMOYO_TYPE_PATH_ACL:
--			perm = container_of(ptr, struct tomoyo_path_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH2_ACL:
--			perm = container_of(ptr, struct tomoyo_path2_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path2_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH_NUMBER_ACL:
--			perm = container_of(ptr, struct tomoyo_path_number_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_number_acl, head)
-+				  ->perm);
- 			break;
- 		case TOMOYO_TYPE_MKDEV_ACL:
--			perm = container_of(ptr, struct tomoyo_mkdev_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_INET_ACL:
--			perm = container_of(ptr, struct tomoyo_inet_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_inet_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_UNIX_ACL:
--			perm = container_of(ptr, struct tomoyo_unix_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_unix_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
- 			perm = 0;
+ void nvme_complete_rq(struct request *req);
+ bool nvme_cancel_request(struct request *req, void *data, bool reserved);
++void nvme_cancel_tagset(struct nvme_ctrl *ctrl);
++void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl);
+ bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
+ 		enum nvme_ctrl_state new_state);
+ bool nvme_wait_reset(struct nvme_ctrl *ctrl);
 -- 
 2.27.0
 
