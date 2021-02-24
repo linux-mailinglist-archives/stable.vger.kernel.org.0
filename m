@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69F5323DDC
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0DEE323DD9
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235560AbhBXNUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:20:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59338 "EHLO mail.kernel.org"
+        id S235447AbhBXNUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:20:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234502AbhBXNKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234512AbhBXNKf (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 08:10:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 619B864F1D;
-        Wed, 24 Feb 2021 12:55:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9245E64F17;
+        Wed, 24 Feb 2021 12:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171316;
-        bh=iBv5ViuTK+Xjuj/aIOqm3WuIkIabTmaz0NgoSaadXCk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cz5wKtQErV/1bKVL24cIoorkcG70vhlsRjokrN9QRMvs83PAbFHM58Ix17o/Gz7lI
-         LLpBG6PI0IYcjnFb5uzh8JmyeVDZ7AQKfgG3L6IaCEC8FLbouuDJiCPrJon0rSWcM+
-         Z1Pd/xYUOsGrzmmy68KaGtM8EFf4LWrWNXtSSLDm3PettcLykITI8WpT98p3FXwu4r
-         VecYxm8r3GVRKXjjutx7HXcG1nyxaJN5e0nvkuSSjUYPOVxATw3pp2NOybAz6XcTg/
-         Lbcz7QRRhYHLtsns2inHMYR603rHk84g893Neu6ohdOI+V5F/KJolsoWhS33Yjc1vU
-         QbNlO2ACHVM6A==
+        s=k20201202; t=1614171317;
+        bh=1sXhuTMiFjtE+lIfb216D51DthNs277ic1ADs1lRTY8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pvyVMkaEb0XYrw3OsnBDs5K7A7mZxndnlfi0M4qLnEVX/+Y46wPGDk0qnXFLqQrlx
+         HjnLnZ+t6vtb4/J6/otbGfOUTXj8naDQrzUagKCqsZGrUJE/TF9NGpDw4q4bPDdyUN
+         gxPDUOLagC8n/B3ACI+rA+ySryvZ2Piu1OQ8FMOWk269gwbB2bks6GytnAem3F2SS8
+         zksW/1aOKgXZCu79+QBNTvg8GG8HfSpFe2fsf3M9eybNAVmZAiPWXRJ0q0q87Wu46r
+         cawShcDg0JjIAj/Apg0soDNv7qKSpgQgG7YciV10w8icGPZLKmcb3Qfv2DhyXvukdH
+         wugg9qXD5q8Lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 01/16] staging: fwserial: Fix error handling in fwserial_create
-Date:   Wed, 24 Feb 2021 07:54:58 -0500
-Message-Id: <20210224125514.483935-1-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/16] x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+Date:   Wed, 24 Feb 2021 07:54:59 -0500
+Message-Id: <20210224125514.483935-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210224125514.483935-1-sashal@kernel.org>
+References: <20210224125514.483935-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,43 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
+[ Upstream commit 4b2d8ca9208be636b30e924b1cbcb267b0740c93 ]
 
-When fw_core_add_address_handler() fails, we need to destroy
-the port by tty_port_destroy(). Also we need to unregister
-the address handler by fw_core_remove_address_handler() on
-failure.
+On this system the M.2 PCIe WiFi card isn't detected after reboot, only
+after cold boot. reboot=pci fixes this behavior. In [0] the same issue
+is described, although on another system and with another Intel WiFi
+card. In case it's relevant, both systems have Celeron CPUs.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a PCI reboot quirk on affected systems until a more generic fix is
+available.
+
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=202399
+
+ [ bp: Massage commit message. ]
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/1524eafd-f89c-cfa4-ed70-0bde9e45eec9@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fwserial/fwserial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/reboot.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index 41a49c8194e50..b19c46bd2557c 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -2249,6 +2249,7 @@ static int fwserial_create(struct fw_unit *unit)
- 		err = fw_core_add_address_handler(&port->rx_handler,
- 						  &fw_high_memory_region);
- 		if (err) {
-+			tty_port_destroy(&port->port);
- 			kfree(port);
- 			goto free_ports;
- 		}
-@@ -2331,6 +2332,7 @@ static int fwserial_create(struct fw_unit *unit)
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index b7663a1f89ee5..77e4a41eed989 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -477,6 +477,15 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
+ 		},
+ 	},
  
- free_ports:
- 	for (--i; i >= 0; --i) {
-+		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
- 		tty_port_destroy(&serial->ports[i]->port);
- 		kfree(serial->ports[i]);
- 	}
++	{	/* PCIe Wifi card isn't detected after reboot otherwise */
++		.callback = set_pci_reboot,
++		.ident = "Zotac ZBOX CI327 nano",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
++		},
++	},
++
+ 	/* Sony */
+ 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
+ 		.callback = set_bios_reboot,
 -- 
 2.27.0
 
