@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CED6323CB5
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D41323CC9
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:05:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233842AbhBXMxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:53:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50210 "EHLO mail.kernel.org"
+        id S234279AbhBXMzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:55:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235200AbhBXMwb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:52:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E3B64F13;
-        Wed, 24 Feb 2021 12:51:01 +0000 (UTC)
+        id S235257AbhBXMwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:52:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5869664F14;
+        Wed, 24 Feb 2021 12:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171062;
-        bh=MujD0LlhJccQMLu8B5pHIBrjM6vOnk8ruXzVCvlOZLc=;
+        s=k20201202; t=1614171064;
+        bh=uyV4Fsd/5vmg6wt4KA9Es4ZqNqkil7DPubeM55oQoRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tql8D1vxxQtk3L1ahYlw34XVpN/Vaov8AAhFE34o3/aj5a3eCG+UutThcIlLu64dD
-         xVcyciYMMMdU3OYbqPyeUHVQt62f+TUPT1Co+4zAIp4gZSfDXytWvfrGTW4v6Bhd6x
-         P6RqcEN06pF9slSV5/NN1rtM2IEYCsTDLc1vHWNFWdVIw0hwwvPrUqRN2IKdKXdF0+
-         8AwlOvNtp9iKt0IW6owyqmkc3DgrDxD3IYbY1nT95+1/dqAwvEgYlREtI75ncU7x4F
-         mwX1yUzgBnlnB8pbfzIhNjjFlpCDG7minHgdoXdXVUIZoKclvpwTasb9iL+vdCSfAF
-         /yQ4J0hlqqPZQ==
+        b=RNCnPuJ4kJgnRfMkr20O17PpAYLcskYP7nba2uAUDkZv7ues26jHLnTpfAuH4EwTb
+         h3d7t2QoxgrXPGd0v6jitFyNJaXMgfbbUl4ATfX6LCMORo7av8VjF3wW9cSsL73+OM
+         OF2GfBwENu4c3mToo7N8lEHnntzs+KfWeDwKbj2zs3AG9tVctXULP16Ed8uhcuCZcg
+         arFCTC3V1lZc+PnSOshWapdrCKHkJQHhliNUWu4M0KI77J5Fi/2hAK7n/nzqGs8mLH
+         FnvrYwYMgQGu/yB9q2d7zZ+9YsypB7kmucSENhRzDwDUz5IETAHcxnY6KqPYrSikQy
+         rH7yW/eCg0u0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zqiang <qiang.zhang@windriver.com>,
-        syzbot+c9e365d7f450e8aa615d@syzkaller.appspotmail.com,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 26/67] udlfb: Fix memory leak in dlfb_usb_probe
-Date:   Wed, 24 Feb 2021 07:49:44 -0500
-Message-Id: <20210224125026.481804-26-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+36315852ece4132ec193@syzkaller.appspotmail.com,
+        kernel test robot <lkp@intel.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        jfs-discussion@lists.sourceforge.net,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 27/67] JFS: more checks for invalid superblock
+Date:   Wed, 24 Feb 2021 07:49:45 -0500
+Message-Id: <20210224125026.481804-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
@@ -44,62 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5c0e4110f751934e748a66887c61f8e73805f0f9 ]
+[ Upstream commit 3bef198f1b17d1bb89260bad947ef084c0a2d1a6 ]
 
-The dlfb_alloc_urb_list function is called in dlfb_usb_probe function,
-after that if an error occurs, the dlfb_free_urb_list function need to
-be called.
+syzbot is feeding invalid superblock data to JFS for mount testing.
+JFS does not check several of the fields -- just assumes that they
+are good since the JFS_MAGIC and version fields are good.
 
-BUG: memory leak
-unreferenced object 0xffff88810adde100 (size 32):
-  comm "kworker/1:0", pid 17, jiffies 4294947788 (age 19.520s)
-  hex dump (first 32 bytes):
-    10 30 c3 0d 81 88 ff ff c0 fa 63 12 81 88 ff ff  .0........c.....
-    00 30 c3 0d 81 88 ff ff 80 d1 3a 08 81 88 ff ff  .0........:.....
-  backtrace:
-    [<0000000019512953>] kmalloc include/linux/slab.h:552 [inline]
-    [<0000000019512953>] kzalloc include/linux/slab.h:664 [inline]
-    [<0000000019512953>] dlfb_alloc_urb_list drivers/video/fbdev/udlfb.c:1892 [inline]
-    [<0000000019512953>] dlfb_usb_probe.cold+0x289/0x988 drivers/video/fbdev/udlfb.c:1704
-    [<0000000072160152>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<00000000a8d6726f>] really_probe+0x159/0x480 drivers/base/dd.c:554
-    [<00000000c3ce4b0e>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
-    [<00000000e942e01c>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
-    [<00000000de0a5a5c>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
-    [<00000000463fbcb4>] __device_attach+0x122/0x250 drivers/base/dd.c:912
-    [<00000000b881a711>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
-    [<00000000364bbda5>] device_add+0x5ac/0xc30 drivers/base/core.c:2936
-    [<00000000eecca418>] usb_set_configuration+0x9de/0xb90 drivers/usb/core/message.c:2159
-    [<00000000edfeca2d>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<000000001830872b>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<00000000a8d6726f>] really_probe+0x159/0x480 drivers/base/dd.c:554
-    [<00000000c3ce4b0e>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
-    [<00000000e942e01c>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
-    [<00000000de0a5a5c>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+In this case (syzbot reproducer), we have s_l2bsize == 0xda0c,
+pad == 0xf045, and s_state == 0x50, all of which are invalid IMO.
+Having s_l2bsize == 0xda0c causes this UBSAN warning:
+  UBSAN: shift-out-of-bounds in fs/jfs/jfs_mount.c:373:25
+  shift exponent -9716 is negative
 
-Reported-by: syzbot+c9e365d7f450e8aa615d@syzkaller.appspotmail.com
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201215063022.16746-1-qiang.zhang@windriver.com
+s_l2bsize can be tested for correctness. pad can be tested for non-0
+and punted. s_state can be tested for its valid values and punted.
+
+Do those 3 tests and if any of them fails, report the superblock as
+invalid/corrupt and let fsck handle it.
+
+With this patch, chkSuper() says this when JFS_DEBUG is enabled:
+  jfs_mount: Mount Failure: superblock is corrupt!
+  Mount JFS Failure: -22
+  jfs_mount failed w/return code = -22
+
+The obvious problem with this method is that next week there could
+be another syzbot test that uses different fields for invalid values,
+this making this like a game of whack-a-mole.
+
+syzkaller link: https://syzkaller.appspot.com/bug?extid=36315852ece4132ec193
+
+Reported-by: syzbot+36315852ece4132ec193@syzkaller.appspotmail.com
+Reported-by: kernel test robot <lkp@intel.com> # v2
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Cc: jfs-discussion@lists.sourceforge.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/udlfb.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/jfs/jfs_filsys.h |  1 +
+ fs/jfs/jfs_mount.c  | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/video/fbdev/udlfb.c b/drivers/video/fbdev/udlfb.c
-index f9b3c1cb9530f..b9cdd02c10009 100644
---- a/drivers/video/fbdev/udlfb.c
-+++ b/drivers/video/fbdev/udlfb.c
-@@ -1017,6 +1017,7 @@ static void dlfb_ops_destroy(struct fb_info *info)
- 	}
- 	vfree(dlfb->backing_buffer);
- 	kfree(dlfb->edid);
-+	dlfb_free_urb_list(dlfb);
- 	usb_put_dev(dlfb->udev);
- 	kfree(dlfb);
+diff --git a/fs/jfs/jfs_filsys.h b/fs/jfs/jfs_filsys.h
+index 1e899298f7f00..b5d702df7111a 100644
+--- a/fs/jfs/jfs_filsys.h
++++ b/fs/jfs/jfs_filsys.h
+@@ -268,5 +268,6 @@
+ 				 * fsck() must be run to repair
+ 				 */
+ #define	FM_EXTENDFS 0x00000008	/* file system extendfs() in progress */
++#define	FM_STATE_MAX 0x0000000f	/* max value of s_state */
  
+ #endif				/* _H_JFS_FILSYS */
+diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
+index 2935d4c776ec7..5d7d7170c03c0 100644
+--- a/fs/jfs/jfs_mount.c
++++ b/fs/jfs/jfs_mount.c
+@@ -37,6 +37,7 @@
+ #include <linux/fs.h>
+ #include <linux/buffer_head.h>
+ #include <linux/blkdev.h>
++#include <linux/log2.h>
+ 
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+@@ -366,6 +367,15 @@ static int chkSuper(struct super_block *sb)
+ 	sbi->bsize = bsize;
+ 	sbi->l2bsize = le16_to_cpu(j_sb->s_l2bsize);
+ 
++	/* check some fields for possible corruption */
++	if (sbi->l2bsize != ilog2((u32)bsize) ||
++	    j_sb->pad != 0 ||
++	    le32_to_cpu(j_sb->s_state) > FM_STATE_MAX) {
++		rc = -EINVAL;
++		jfs_err("jfs_mount: Mount Failure: superblock is corrupt!");
++		goto out;
++	}
++
+ 	/*
+ 	 * For now, ignore s_pbsize, l2bfactor.  All I/O going through buffer
+ 	 * cache.
 -- 
 2.27.0
 
