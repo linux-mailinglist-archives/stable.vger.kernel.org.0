@@ -2,87 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C304323E3B
+	by mail.lfdr.de (Postfix) with ESMTP id 7D164323E3C
 	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234517AbhBXN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39842 "EHLO
+        id S234418AbhBXN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:28:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236432AbhBXNUm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:20:42 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8D6C061574;
-        Wed, 24 Feb 2021 05:19:23 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id d8so3015009ejc.4;
-        Wed, 24 Feb 2021 05:19:23 -0800 (PST)
+        with ESMTP id S236485AbhBXNVH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:21:07 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76ED5C06178A;
+        Wed, 24 Feb 2021 05:20:09 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id lr13so2985544ejb.8;
+        Wed, 24 Feb 2021 05:20:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=T8vKWox1z8PK0XVn5zyALzpg2C9Em5deMKrbzZZg5Zo=;
-        b=h/RjM/KU1WkN71EG4hLlf52GxLbjESNN3ptRra+T7dPTWbBvsdlHK/6EFhngrUyk+m
-         n5P2m1gplxOSyVyNDeUfEwpRodw0obsEzp7qWEZ6/YEDL5hiaEBC8g7bIHXrwzLSE6ZZ
-         4lBW41HQdAgX8g/eFtWxNeQ5vgPMBEjFbkHhNon9n2h+Hjsz7GM318WhcmTojoXZgGMm
-         UnIMKePHJY22D8HRJHLzCGuJ6jWKNJAnwxXn2ziqgOi9g+d5Sl0igpMGAPstEQhIRRcZ
-         l4s+ijArxYELefo2w4OJJo5Df2+qTzVp7PV+nezSS7e0Z4L+z8DwrFHbRMd2WJ70gRxo
-         ZAXQ==
+        bh=pkahlOf/pP28CNyWC5Y+WgZbLG+WwMP1KrVJxBevxWc=;
+        b=I7ajJMexZRa8jOCydZguMJEq2YMI4OqPY5TtjJjh5GFY+UEVQT39BflKJbyvZTUM7v
+         y91W8wKb3LnQalPFGbnA0Noheo37CvNOu7Jmr3xgS9u4BZVn55iMRBl6UL2MU16tDOIF
+         hv6VJdRM2bB+t2lQQOAEd0b/p2T1+tM9S1BTbM6UKW3ljqvdVjLvLaJoBBcc0D0K2SMI
+         8BXWuP/4kaFAIf5rvmnq1CmUeNQ+O/bFv9tMYcuqDdIxwaY9ZincmguRz+4B0ym6yEzu
+         mqzkdqJM01TZ93oUaCmNmAfFA90H+8LLOXAnm1pTQGaAo4+/BRN1ulsSOkGM/qKy7uQd
+         LW8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=T8vKWox1z8PK0XVn5zyALzpg2C9Em5deMKrbzZZg5Zo=;
-        b=W1i376kba8U9mXb64e4vQmDXCxp42ytCRy07Lqc5TwU733AqPOJgjv/LeKOaiuyHr2
-         yXhOdYQ1a0lJVCT/dfxJawRrmKgwTW1IezygDu94AAuP1340/apiVjIB+qoBMCnv/ZAz
-         dzaWT6b9kTPL+pfCGsExzha+xTO8SSl2Nwu+dTN01iUxkfrU5GExmYbnrvricm4Kd7QN
-         +MuFW1gWZzWfv8wu/DSadfPKtx5uKYKvapnZ6XJy5+sfsT2E9yt94wkVwa7kA3DhnmUY
-         5oJdmPtVJo423YxXVcbXW+M/7Y7TGmlNsCISAPs3QLDvLxLIk5rCi04uIoNidCOKzqMo
-         x+7w==
-X-Gm-Message-State: AOAM531pd0sZC7Ete5S5dGadC8+T/xBjWFH2wlGByPhX6FWKOZwWV4yn
-        9dR/wJ+P47HrqPZckJrZGFKABtPLWV/JEg==
-X-Google-Smtp-Source: ABdhPJwb/7Bjqh2bUtHoyLPMeAoywBuzyuCcya/O5QXPLGdpoZPePTEl/8bFKAVSSw/u+Mp8x89gvw==
-X-Received: by 2002:a17:906:81cf:: with SMTP id e15mr21907567ejx.131.1614172762401;
-        Wed, 24 Feb 2021 05:19:22 -0800 (PST)
+        bh=pkahlOf/pP28CNyWC5Y+WgZbLG+WwMP1KrVJxBevxWc=;
+        b=RSr0vHnca4Of2PWVCdD7NKUP4ySu57p8g2HAmjJOmKStI1+sHIXV/kUgi1lV0J848q
+         t0DvX4aABiZQtMkG6JA7dwjYoo66qpCIsgEtPL+eAYp9p8/46zkjDY/PNQECs7vztaq+
+         IWFfdcalu/P1z+y9BjkqG+2Qec31R470qiCupY1yo9EldKm2f/f2s+ZTAJB/tTnRF9rL
+         wLfs5HxKAdUTNb6h3N3cluB2etl46LZrQ3beK21fJWOcAQ+IQFdXK5+8gktuYNylG7XO
+         0H0n5B566emFnc2YNgSUQhJGIx+KZisO7OVemF78jwuFprnJzGWllqeX9VpOredoj1oi
+         6TdA==
+X-Gm-Message-State: AOAM530pXtHFMMxuuURn7ZyCl/g4YZUNwSiMWVf0Qs9fwVVa2zU5Tyo7
+        tgaxOg7kL7U3YmGE87uX4gXtoJYL1nM4vA==
+X-Google-Smtp-Source: ABdhPJwhMgl88RINOG5oHJwFZKYnCbmcwIU7+WFcgyOHfPeQaqcMjUJjeYbn7pLle1DBCk0oByOp5Q==
+X-Received: by 2002:a17:906:30da:: with SMTP id b26mr30614615ejb.376.1614172808077;
+        Wed, 24 Feb 2021 05:20:08 -0800 (PST)
 Received: from anparri (host-82-59-6-76.retail.telecomitalia.it. [82.59.6.76])
-        by smtp.gmail.com with ESMTPSA id x25sm1326489ejc.27.2021.02.24.05.19.21
+        by smtp.gmail.com with ESMTPSA id br22sm1332637ejb.117.2021.02.24.05.20.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 05:19:22 -0800 (PST)
-Date:   Wed, 24 Feb 2021 14:19:19 +0100
+        Wed, 24 Feb 2021 05:20:07 -0800 (PST)
+Date:   Wed, 24 Feb 2021 14:20:05 +0100
 From:   Andrea Parri <parri.andrea@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Juan Vazquez <juvazq@microsoft.com>,
         Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 40/56] Drivers: hv: vmbus: Initialize memory
- to be sent to the host
-Message-ID: <20210224131919.GC1920@anparri>
+Subject: Re: [PATCH AUTOSEL 5.10 41/56] Drivers: hv: vmbus: Resolve race
+ condition in vmbus_onoffer_rescind()
+Message-ID: <20210224132005.GD1920@anparri>
 References: <20210224125212.482485-1-sashal@kernel.org>
- <20210224125212.482485-40-sashal@kernel.org>
+ <20210224125212.482485-41-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210224125212.482485-40-sashal@kernel.org>
+In-Reply-To: <20210224125212.482485-41-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 24, 2021 at 07:51:56AM -0500, Sasha Levin wrote:
+On Wed, Feb 24, 2021 at 07:51:57AM -0500, Sasha Levin wrote:
 > From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
 > 
-> [ Upstream commit e99c4afbee07e9323e9191a20b24d74dbf815bdf ]
+> [ Upstream commit e4d221b42354b2e2ddb9187a806afb651eee2cda ]
 > 
-> __vmbus_open() and vmbus_teardown_gpadl() do not inizialite the memory
-> for the vmbus_channel_open_channel and the vmbus_channel_gpadl_teardown
-> objects they allocate respectively.  These objects contain padding bytes
-> and fields that are left uninitialized and that are later sent to the
-> host, potentially leaking guest data.  Zero initialize such fields to
-> avoid leaking sensitive information to the host.
+> An erroneous or malicious host could send multiple rescind messages for
+> a same channel.  In vmbus_onoffer_rescind(), the guest maps the channel
+> ID to obtain a pointer to the channel object and it eventually releases
+> such object and associated data.  The host could time rescind messages
+> and lead to an use-after-free.  Add a new flag to the channel structure
+> to make sure that only one instance of vmbus_onoffer_rescind() can get
+> the reference to the channel object.
 > 
 > Reported-by: Juan Vazquez <juvazq@microsoft.com>
 > Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
 > Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-> Link: https://lore.kernel.org/r/20201209070827.29335-2-parri.andrea@gmail.com
+> Link: https://lore.kernel.org/r/20201209070827.29335-6-parri.andrea@gmail.com
 > Signed-off-by: Wei Liu <wei.liu@kernel.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
@@ -92,31 +93,45 @@ Same here.
 
 
 > ---
->  drivers/hv/channel.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/hv/channel_mgmt.c | 12 ++++++++++++
+>  include/linux/hyperv.h    |  1 +
+>  2 files changed, 13 insertions(+)
 > 
-> diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-> index fbdda9938039a..f9f04b5cd303f 100644
-> --- a/drivers/hv/channel.c
-> +++ b/drivers/hv/channel.c
-> @@ -548,7 +548,7 @@ static int __vmbus_open(struct vmbus_channel *newchannel,
->  		goto error_clean_ring;
+> diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+> index 1d44bb635bb84..a9f58840f85dc 100644
+> --- a/drivers/hv/channel_mgmt.c
+> +++ b/drivers/hv/channel_mgmt.c
+> @@ -1049,6 +1049,18 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 >  
->  	/* Create and init the channel open message */
-> -	open_info = kmalloc(sizeof(*open_info) +
-> +	open_info = kzalloc(sizeof(*open_info) +
->  			   sizeof(struct vmbus_channel_open_channel),
->  			   GFP_KERNEL);
->  	if (!open_info) {
-> @@ -674,7 +674,7 @@ int vmbus_teardown_gpadl(struct vmbus_channel *channel, u32 gpadl_handle)
->  	unsigned long flags;
->  	int ret;
+>  	mutex_lock(&vmbus_connection.channel_mutex);
+>  	channel = relid2channel(rescind->child_relid);
+> +	if (channel != NULL) {
+> +		/*
+> +		 * Guarantee that no other instance of vmbus_onoffer_rescind()
+> +		 * has got a reference to the channel object.  Synchronize on
+> +		 * &vmbus_connection.channel_mutex.
+> +		 */
+> +		if (channel->rescind_ref) {
+> +			mutex_unlock(&vmbus_connection.channel_mutex);
+> +			return;
+> +		}
+> +		channel->rescind_ref = true;
+> +	}
+>  	mutex_unlock(&vmbus_connection.channel_mutex);
 >  
-> -	info = kmalloc(sizeof(*info) +
-> +	info = kzalloc(sizeof(*info) +
->  		       sizeof(struct vmbus_channel_gpadl_teardown), GFP_KERNEL);
->  	if (!info)
->  		return -ENOMEM;
+>  	if (channel == NULL) {
+> diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+> index 1ce131f29f3b4..376f0f9e19650 100644
+> --- a/include/linux/hyperv.h
+> +++ b/include/linux/hyperv.h
+> @@ -786,6 +786,7 @@ struct vmbus_channel {
+>  	u8 monitor_bit;
+>  
+>  	bool rescind; /* got rescind msg */
+> +	bool rescind_ref; /* got rescind msg, got channel reference */
+>  	struct completion rescind_event;
+>  
+>  	u32 ringbuffer_gpadlhandle;
 > -- 
 > 2.27.0
 > 
