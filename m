@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A21F323D43
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441AC323D37
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234487AbhBXNGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54608 "EHLO mail.kernel.org"
+        id S231833AbhBXNFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:05:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230019AbhBXM7R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:59:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E11B564F4C;
-        Wed, 24 Feb 2021 12:52:43 +0000 (UTC)
+        id S232363AbhBXM7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:59:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3997264F46;
+        Wed, 24 Feb 2021 12:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171164;
-        bh=LSqG/AgBKzhrBYsEh38qHjLpJTdNkRR67jS3bAEubLI=;
+        s=k20201202; t=1614171166;
+        bh=nmhDbiLN8SzIZcd7G6hoQrejKrrv37qolNba8EO8YvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gE7v9nKiN58KRclPAh8vX91IGr5OU2diKHUoQRIFmNB++7Qqlp1OhqHEGFo7Z0SYm
-         z35cgzYaklnXLol4+UWvhH0WKNieMSdVLYaHjpnWeBr+oddiYsgh01HH8QNC/9rm3m
-         EzUCWRCwn15a/o+3VBZ/YO6SSruq7QfmSLHI+kaRwqxKNQNx5c4xh/ZFnsvWSM6c4Q
-         1YtGQDAAtd6JVi/3LpJtRbmt1f/k/HAjQEZ7tEN2QLoRZWXNgDHXaPS88x5zRVA7BW
-         qSqA6ASWrZDgabLl2K0IUe9MV/+QuX3sIOTFx2nEfTnZ5AoNCWOZiERoO/y2o0fovG
-         7l4t3WSzNH/8A==
+        b=X8L6VnrbPDY7T3t5iGLM45pBkdM+L0IewJaTH+p5nn/CgXaToktKV0B4USpMEK97J
+         s/vKq2jdWJPS0vUvSQxdlp9yVPJdtphAmXFX6p+TgGuZCM01zizyHTyU5bmp0FUYSX
+         TJxAl/0MjvCnZsHfyV1hf8xvnx6EQgo6Xtgdw3P/FrfTqHQYRs1YOTjM0uhcyWajCw
+         0FHicX7K143dpuW9CpkEefkl//Nlb+hFkYMnYiEO3Doi8q0Af3+klTmuSSR64AhNZ7
+         Y18QVBrkliAY7t0/8zlwCNoLHpFE/5Ljn9CRY7JeRayx7sQUXY1CCwrlGBivUtLNLw
+         x89clfRubwwGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 24/56] sched/core: Allow try_invoke_on_locked_down_task() with irqs disabled
-Date:   Wed, 24 Feb 2021 07:51:40 -0500
-Message-Id: <20210224125212.482485-24-sashal@kernel.org>
+Cc:     Defang Bo <bodefang@126.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 25/56] drm/amdgpu: Add check to prevent IH overflow
+Date:   Wed, 24 Feb 2021 07:51:41 -0500
+Message-Id: <20210224125212.482485-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,62 +45,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Defang Bo <bodefang@126.com>
 
-[ Upstream commit 1b7af295541d75535374325fd617944534853919 ]
+[ Upstream commit e4180c4253f3f2da09047f5139959227f5cf1173 ]
 
-The try_invoke_on_locked_down_task() function currently requires
-that interrupts be enabled, but it is called with interrupts
-disabled from rcu_print_task_stall(), resulting in an "IRQs not
-enabled as expected" diagnostic.  This commit therefore updates
-try_invoke_on_locked_down_task() to use raw_spin_lock_irqsave() instead
-of raw_spin_lock_irq(), thus allowing use from either context.
+Similar to commit <b82175750131>("drm/amdgpu: fix IH overflow on Vega10 v2").
+When an ring buffer overflow happens the appropriate bit is set in the WPTR
+register which is also written back to memory. But clearing the bit in the
+WPTR doesn't trigger another memory writeback.
 
-Link: https://lore.kernel.org/lkml/000000000000903d5805ab908fc4@google.com/
-Link: https://lore.kernel.org/lkml/20200928075729.GC2611@hirez.programming.kicks-ass.net/
-Reported-by: syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+So what can happen is that we end up processing the buffer overflow over and
+over again because the bit is never cleared. Resulting in a random system
+lockup because of an infinite loop in an interrupt handler.
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Defang Bo <bodefang@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/cz_ih.c      | 37 ++++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/iceland_ih.c | 36 +++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/tonga_ih.c   | 37 ++++++++++++++++---------
+ 3 files changed, 71 insertions(+), 39 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 77aa0e788b9b7..269165bf440af 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2989,7 +2989,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
+diff --git a/drivers/gpu/drm/amd/amdgpu/cz_ih.c b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+index 1dca0cabc326a..13520d173296f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cz_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+@@ -193,19 +193,30 @@ static u32 cz_ih_get_wptr(struct amdgpu_device *adev,
  
- /**
-  * try_invoke_on_locked_down_task - Invoke a function on task in fixed state
-- * @p: Process for which the function is to be invoked.
-+ * @p: Process for which the function is to be invoked, can be @current.
-  * @func: Function to invoke.
-  * @arg: Argument to function.
-  *
-@@ -3007,12 +3007,11 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
-  */
- bool try_invoke_on_locked_down_task(struct task_struct *p, bool (*func)(struct task_struct *t, void *arg), void *arg)
- {
--	bool ret = false;
- 	struct rq_flags rf;
-+	bool ret = false;
- 	struct rq *rq;
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
--	lockdep_assert_irqs_enabled();
--	raw_spin_lock_irq(&p->pi_lock);
-+	raw_spin_lock_irqsave(&p->pi_lock, rf.flags);
- 	if (p->on_rq) {
- 		rq = __task_rq_lock(p, &rf);
- 		if (task_rq(p) == rq)
-@@ -3029,7 +3028,7 @@ bool try_invoke_on_locked_down_task(struct task_struct *p, bool (*func)(struct t
- 				ret = func(p, arg);
- 		}
- 	}
--	raw_spin_unlock_irq(&p->pi_lock);
-+	raw_spin_unlock_irqrestore(&p->pi_lock, rf.flags);
- 	return ret;
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
+ }
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+index a13dd9a51149a..7d165f024f072 100644
+--- a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+@@ -193,19 +193,29 @@ static u32 iceland_ih_get_wptr(struct amdgpu_device *adev,
+ 
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
+ }
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+index e40140bf6699c..db0a3bda13fbe 100644
+--- a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+@@ -195,19 +195,30 @@ static u32 tonga_ih_get_wptr(struct amdgpu_device *adev,
+ 
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++out:
+ 	return (wptr & ih->ptr_mask);
  }
  
 -- 
