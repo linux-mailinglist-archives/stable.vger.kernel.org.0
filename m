@@ -2,151 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9F4323BFC
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 13:41:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE668323BFE
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 13:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbhBXMlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:41:02 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:12951 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbhBXMlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 07:41:02 -0500
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4DlwTJ0jnNzjQ53;
-        Wed, 24 Feb 2021 20:39:00 +0800 (CST)
-Received: from [10.67.102.197] (10.67.102.197) by
- DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 24 Feb 2021 20:40:08 +0800
-Subject: Re: [PATCH stable-rc queue/4.9 1/1] futex: Provide distinct return
- value when owner is exiting
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <sashal@kernel.org>, <tglx@linutronix.de>, <wangle6@huawei.com>,
-        <zhengyejian1@huawei.com>
-References: <20210222070328.102384-1-nixiaoming@huawei.com>
- <20210222070328.102384-2-nixiaoming@huawei.com> <YDOEZhmKqjTVxtMn@kroah.com>
- <3bc570f6-f8af-b0a2-4d62-13ed4adc1f33@huawei.com>
- <YDOe9GNivoHQphQc@kroah.com>
- <76f6a446-41db-3b7a-dcab-a85d0841654f@huawei.com>
- <YDT8ZsMqVqihECoE@kroah.com>
- <2e8cf845-30ee-22c2-428a-b56e03cb49e4@huawei.com>
- <YDYEjmfcykR3achs@kroah.com>
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-Message-ID: <0b9d35bd-12a9-22f2-e08e-b3e8f0d268dd@huawei.com>
-Date:   Wed, 24 Feb 2021 20:40:08 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.0.1
+        id S233404AbhBXMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:41:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60388 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231822AbhBXMlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 07:41:25 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3378C061574
+        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 04:40:44 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id u14so1761017wri.3
+        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 04:40:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=HRhPlj1aHRVOi3gs8JuQx5ujbUeXgIsk53nwDPobfIc=;
+        b=d0H+6s84LfrmhCxlKqm9iuAtf7AbWv9MNiz05h0L717TsS98FBZv0zG8WyGXGe1v3O
+         pWUzo4LTRiNWdGOdO8E8SW8zqdunCe9JWRAxLh7Y5m+2ha7iEA5LXIJcwNF7ULANohTO
+         cE74c57Zp1mn6ekgF0B2h66H9BPNknjcmelT1JLfot7gkdnkgBcDveQFQIyhv/YMpMt8
+         dXSEGx+W/gWdeJgh1/Jme6hH+RGH8Z1NpMlDqBg8iNVs34a9CjPsby3qLhiNfbIS5P7B
+         UADTB9ERyTOGXJoVPld+NTQnhcoHmKxufgh6JkK9uYT57OJZoHazMOXFa9+HF//SdJ5I
+         oMHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=HRhPlj1aHRVOi3gs8JuQx5ujbUeXgIsk53nwDPobfIc=;
+        b=AQGvIroMD8RGRg4brf39lPd/S0i+hqpJC1REvQpeNqqeyruJx6p1i8UEGbbW73PJfa
+         1GEhmNLDEFyH5h9WWqSVJ0p7IyAaa7DADShFq/8dtVCVElY1mPD/ZR49xUKQDrORKUOx
+         Ia15zmNasDxqFJanC9ozugT1OVshbjpTqQUz1yKGhprmEt2z0ab+XkLRPN/R8QshkmqD
+         RZsCfjVh/vUJCKoeQMhTTdHik3seosNXMSIwmw1hKouZweh2/r0RE7yM9EUiY/vLogmB
+         oO4avJYe03h14ilPGBHiSdHdnuZgiX4sb0W6fqYcVGi+UFjUUgh541TnFFs2BSTOxO1v
+         pAQQ==
+X-Gm-Message-State: AOAM531unGep//kfgmEtVw3AgkAiXtYDAt/VXFdiANO9SBnRkXtMID80
+        j0y3ELea3gd6XA6Ex+NMfbm2509J6kuO75+FB1P6CQ==
+X-Google-Smtp-Source: ABdhPJzAf/QssqSJWTXQC9OJJ/N4aJn/AEnU3jtc2sPlav4EU3paeRaAIdayhaZXt+dVFhqKzgGMUV5f3CNGZjZh6ZY=
+X-Received: by 2002:a5d:4521:: with SMTP id j1mr4780729wra.354.1614170443428;
+ Wed, 24 Feb 2021 04:40:43 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <YDYEjmfcykR3achs@kroah.com>
-Content-Type: text/plain; charset="gbk"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.197]
-X-CFilter-Loop: Reflected
+References: <20200811202631.3603-1-alyssa.rosenzweig@collabora.com> <161411675671.3338515.9688232276427844069.b4-ty@sntech.de>
+In-Reply-To: <161411675671.3338515.9688232276427844069.b4-ty@sntech.de>
+From:   Daniel Stone <daniel@fooishbar.org>
+Date:   Wed, 24 Feb 2021 12:40:32 +0000
+Message-ID: <CAPj87rPpw8wjCW8d51KKJvbZt3MOERnt-=hh66qCBXYuOMVk+A@mail.gmail.com>
+Subject: Re: [PATCH] drm/rockchip: Require the YTR modifier for AFBC
+To:     Heiko Stuebner <heiko@sntech.de>
+Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Daniel Stone <daniels@collabora.com>,
+        Sandy Huang <hjc@rock-chips.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        linux-rockchip <linux-rockchip@lists.infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/2/24 15:47, Greg KH wrote:
-> On Wed, Feb 24, 2021 at 09:41:01AM +0800, Xiaoming Ni wrote:
->> On 2021/2/23 21:00, Greg KH wrote:
->>> On Mon, Feb 22, 2021 at 10:11:37PM +0800, Xiaoming Ni wrote:
->>>> On 2021/2/22 20:09, Greg KH wrote:
->>>>> On Mon, Feb 22, 2021 at 06:54:06PM +0800, Xiaoming Ni wrote:
->>>>>> On 2021/2/22 18:16, Greg KH wrote:
->>>>>>> On Mon, Feb 22, 2021 at 03:03:28PM +0800, Xiaoming Ni wrote:
->>>>>>>> From: Thomas Gleixner<tglx@linutronix.de>
->>>>>>>>
->>>>>>>> commit ac31c7ff8624409ba3c4901df9237a616c187a5d upstream.
->>>>>>> This commit is already in the 4.9 tree.  If the backport was incorrect,
->>>>>>> say that here, and describe what went wrong and why this commit fixes
->>>>>>> it.
->>>>>>>
->>>>>>> Also state what commit this fixes as well, otherwise this changelog just
->>>>>>> looks like it is being applied again to the tree, which doesn't make
->>>>>>> much sense.
->>>>>>>
->>>>>>> thanks,
->>>>>>>
->>>>>>> greg k-h
->>>>>>> .
->>>>>>
->>>>>> I wrote a cover for it. but forgot to adjust the title of the cover:
->>>>>>
->>>>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
->>>>>>
->>>>>>
->>>>>> I found a dead code in the queue/4.9 branch of the stable-rc repository.
->>>>>>
->>>>>> 2021-02-03:
->>>>>> commit c27f392040e2f6 ("futex: Provide distinct return value when
->>>>>>     owner is exiting")
->>>>>> 	The function handle_exit_race does not exist. Therefore, the
->>>>>> 	change in handle_exit_race() is ignored in the patch round.
->>>>>>
->>>>>> 2021-02-22:
->>>>>> commit e55cb811e612 ("futex: Cure exit race")
->>>>>> 	Define the handle_exit_race() function,
->>>>>> 	but no branch in the function returns EBUSY.
->>>>>> 	As a result, dead code occurs in the attach_to_pi_owner():
->>>>>>
->>>>>> 		int ret = handle_exit_race(uaddr, uval, p);
->>>>>> 		...
->>>>>> 		if (ret == -EBUSY)
->>>>>> 			*exiting = p; /* dead code */
->>>>>>
->>>>>> To fix the dead code, modify the commit e55cb811e612 ("futex: Cure exit
->>>>>> race"),
->>>>>> or install a patch to incorporate the changes in handle_exit_race().
->>>>>>
->>>>>> I am unfamiliar with the processing of the stable-rc queue branch,
->>>>>> and I cannot find the patch mail of the current branch in
->>>>>> 	https://lore.kernel.org/lkml/?q=%22futex%3A+Cure+exit+race%22
->>>>>> Therefore, I re-integrated commit ac31c7ff8624 ("futex: Provide distinct
->>>>>>     return value when owner is exiting").
->>>>>>     And wrote a cover (but forgot to adjust the title of the cover):
->>>>>>
->>>>>> https://lore.kernel.org/lkml/20210222070328.102384-1-nixiaoming@huawei.com/
->>>>>
->>>>> So this is a "fixup" patch, right?
->>>>>
->>>>> Please clearly label it as such in your patch description and resend
->>>>> this as what is here I can not apply at all.
->>>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>>>> .
->>>>>
->>>> Thank you for your guidance.
->>>> I have updated the patch description and resent the patch based on
->>>> v4.9.258-rc1
->>>> https://lore.kernel.org/lkml/20210222125352.110124-1-nixiaoming@huawei.com/
->>>
->>> Can you please try 4.9.258 and let me know if this is still needed or
->>> not?
->>>
->>> thanks,
->>>
->>> greg k-h
->>> .
->>>
->> The dead code problem still exists in V4.9.258. No conflict occurs during my
->> patch integration. Do I need to correct the version number marked in the cc
->> table in the patch and resend the patch?
-> 
-> Please do.
-> 
-> thanks,
-> 
-> greg k-h
-> .
-> 
-I have resend the patch based on v4.9.258.
-link:
-https://lore.kernel.org/lkml/20210224100923.51315-1-nixiaoming@huawei.com/
+On Tue, 23 Feb 2021 at 21:49, Heiko Stuebner <heiko@sntech.de> wrote:
+> On Tue, 11 Aug 2020 16:26:31 -0400, Alyssa Rosenzweig wrote:
+> > The AFBC decoder used in the Rockchip VOP assumes the use of the
+> > YUV-like colourspace transform (YTR). YTR is lossless for RGB(A)
+> > buffers, which covers the RGBA8 and RGB565 formats supported in
+> > vop_convert_afbc_format. Use of YTR is signaled with the
+> > AFBC_FORMAT_MOD_YTR modifier, which prior to this commit was missing. As
+> > such, a producer would have to generate buffers that do not use YTR,
+> > which the VOP would erroneously decode as YTR, leading to severe visual
+> > corruption.
+>
+> Applied, thanks!
+>
+> [1/1] drm/rockchip: Require the YTR modifier for AFBC
+>       commit: 0de764474e6e0a74bd75715fed227d82dcda054c
 
-Thanks
-
-Xiaoming Ni
-
-
+Thanks Heiko!
