@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B52CD323D3E
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DE2323D3F
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235755AbhBXNGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:06:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55392 "EHLO mail.kernel.org"
+        id S235762AbhBXNGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:06:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233025AbhBXNAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 08:00:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D75664F56;
-        Wed, 24 Feb 2021 12:52:56 +0000 (UTC)
+        id S232933AbhBXNAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 08:00:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5488A64F51;
+        Wed, 24 Feb 2021 12:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171176;
-        bh=n5JcjEhi872PhCEaGoFNpYBHWSow5ZMF50i74ogSC3k=;
+        s=k20201202; t=1614171178;
+        bh=AaYwK7U5/luAilvTTYeEecAeOxeWJqu0AbysVc8VOaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRAyip9bsEYxJmPE07Q/7A0dj+4Sqd3AGfE8Pb/TNDgahza5Da3jPibTTEJRwA+Qn
-         LDoXdYgY8FYmvvzRqaXbr612RjX9J+SmkEYW830UuwHV4qmoTqhqqD4W5+zSalLvcz
-         3vKYcdXZGz8+6pT/Jtm0AH5wtdNv6f4essgf+Lvar4QTSi4GoWy1ihfQnh2UHj82S9
-         2uHquGn0o1zCwOdOQVRFLHpRwKO5MBJ9NsYImlkS36U3i4+vja6KqfvOb6N6y+vq/V
-         LItn80U3z6/4dh6SXbF/5MfghzfA4Ah0Xd0kN9TFH20ZLiSXaOK3m91r2Pbqc5A6Vl
-         wM4kAvB2iR40g==
+        b=U0RThQTkpfNAG9/4zF1+ZKxq/3NhYGJl870ZNywdMJp2qmekQtpW+K6TGN2iqpgUW
+         O0VgKOiWUNQ2IOLQ7DBm9BffVBFNBU4oaufnni72Hk5QjHZSYO4hwcNu3eUQP2xrcW
+         VejBgPu+DdnM//MXz6MfsltbG6M8jA/lXutOqhwXrHb4mBUA4OdfD/VcYO9HvmmmI5
+         GwDWE+2KlkFnPpJUumLG3szpvn2por7GAGwG9/2XCl2CPn4C4A4zs9TRpPbKjdrzXv
+         UY9g4OITqytCdgyMlB+0m7V2wasH+NAFfXX8i1K+PyDICa/dhzuM+eYZGKYLWTuhiB
+         iLo/09j20zc/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 33/56] f2fs: handle unallocated section and zone on pinned/atgc
-Date:   Wed, 24 Feb 2021 07:51:49 -0500
-Message-Id: <20210224125212.482485-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 34/56] f2fs: fix to set/clear I_LINKABLE under i_lock
+Date:   Wed, 24 Feb 2021 07:51:50 -0500
+Message-Id: <20210224125212.482485-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
@@ -42,41 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 632faca72938f9f63049e48a8c438913828ac7a9 ]
+[ Upstream commit 46085f37fc9e12d5c3539fb768b5ad7951e72acf ]
 
-If we have large section/zone, unallocated segment makes them corrupted.
+fsstress + fault injection test case reports a warning message as
+below:
 
-E.g.,
+WARNING: CPU: 13 PID: 6226 at fs/inode.c:361 inc_nlink+0x32/0x40
+Call Trace:
+ f2fs_init_inode_metadata+0x25c/0x4a0 [f2fs]
+ f2fs_add_inline_entry+0x153/0x3b0 [f2fs]
+ f2fs_add_dentry+0x75/0x80 [f2fs]
+ f2fs_do_add_link+0x108/0x160 [f2fs]
+ f2fs_rename2+0x6ab/0x14f0 [f2fs]
+ vfs_rename+0x70c/0x940
+ do_renameat2+0x4d8/0x4f0
+ __x64_sys_renameat2+0x4b/0x60
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  - Pinned file:       -1 119304647 119304647
-  - ATGC   data:       -1 119304647 119304647
+Following race case can cause this:
+Thread A				Kworker
+- f2fs_rename
+ - f2fs_create_whiteout
+  - __f2fs_tmpfile
+   - f2fs_i_links_write
+    - f2fs_mark_inode_dirty_sync
+     - mark_inode_dirty_sync
+					- writeback_single_inode
+					 - __writeback_single_inode
+					  - spin_lock(&inode->i_lock)
+   - inode->i_state |= I_LINKABLE
+					  - inode->i_state &= ~dirty
+					  - spin_unlock(&inode->i_lock)
+ - f2fs_add_link
+  - f2fs_do_add_link
+   - f2fs_add_dentry
+    - f2fs_add_inline_entry
+     - f2fs_init_inode_metadata
+      - f2fs_i_links_write
+       - inc_nlink
+        - WARN_ON(!(inode->i_state & I_LINKABLE))
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Fix to add i_lock to avoid i_state update race condition.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/namei.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
-index e81eb0748e2a9..229814b4f4a6c 100644
---- a/fs/f2fs/segment.h
-+++ b/fs/f2fs/segment.h
-@@ -101,11 +101,11 @@ static inline void sanity_check_seg_type(struct f2fs_sb_info *sbi,
- #define BLKS_PER_SEC(sbi)					\
- 	((sbi)->segs_per_sec * (sbi)->blocks_per_seg)
- #define GET_SEC_FROM_SEG(sbi, segno)				\
--	((segno) / (sbi)->segs_per_sec)
-+	(((segno) == -1) ? -1: (segno) / (sbi)->segs_per_sec)
- #define GET_SEG_FROM_SEC(sbi, secno)				\
- 	((secno) * (sbi)->segs_per_sec)
- #define GET_ZONE_FROM_SEC(sbi, secno)				\
--	((secno) / (sbi)->secs_per_zone)
-+	(((secno) == -1) ? -1: (secno) / (sbi)->secs_per_zone)
- #define GET_ZONE_FROM_SEG(sbi, segno)				\
- 	GET_ZONE_FROM_SEC(sbi, GET_SEC_FROM_SEG(sbi, segno))
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 8fa37d1434de1..5f7ab4f113224 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -854,7 +854,11 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
+ 
+ 	if (whiteout) {
+ 		f2fs_i_links_write(inode, false);
++
++		spin_lock(&inode->i_lock);
+ 		inode->i_state |= I_LINKABLE;
++		spin_unlock(&inode->i_lock);
++
+ 		*whiteout = inode;
+ 	} else {
+ 		d_tmpfile(dentry, inode);
+@@ -1040,7 +1044,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		err = f2fs_add_link(old_dentry, whiteout);
+ 		if (err)
+ 			goto put_out_dir;
++
++		spin_lock(&whiteout->i_lock);
+ 		whiteout->i_state &= ~I_LINKABLE;
++		spin_unlock(&whiteout->i_lock);
++
+ 		iput(whiteout);
+ 	}
  
 -- 
 2.27.0
