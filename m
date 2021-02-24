@@ -2,96 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C423236DA
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 06:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 848BC323715
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 07:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233693AbhBXF3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 00:29:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52662 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233585AbhBXF3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 00:29:09 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8007C061574;
-        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id o6so560700pjf.5;
-        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hi+AZFYgCXbYt2WMhW/I8Ur+lvFGHwgs4K8iNAqVuQ8=;
-        b=r4yFDs1Y24MbSbSh6W9/Vbaj4iskoM7h9rnUs5fX7Ugo8eOBKrz3Uk0WmLoY8xrgrR
-         V57STqJyN8WwWEUj4KguJ0htbAqul/cPWt5Wb+kDe6aCUZQGCuq67z8m/I16mm69Cijx
-         w8lpR1Uy/TxQbSEEhmuAxBgMHfaL4XHpsHAfbkRO51kVE9vAMdoaXYO57P5acLDPU3D8
-         QkDqEdsPzj4BKZ+cRRPrnhvkLGqgSsMP5s5ZtMpg91o9nDb+Ot0laWijO0wmx7TnIfAu
-         5nPugtf+jDRAnmKSFg/tDtzugG/iqeC3gJ6WEsjMib6wxiAlWggOFLaRde2BLXi8axqP
-         O3HQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hi+AZFYgCXbYt2WMhW/I8Ur+lvFGHwgs4K8iNAqVuQ8=;
-        b=jdcclAu8RaDeSEL/Id1p25hXZMM/hvdjMgl/moOWC9YdpaC5L0q4FQPHUR3TfOAEfI
-         voCit8EAdWcLeOhYX6mu+9+ZO9uG8snxNOrvjjM2eQcLhU9kamAomf2Vdi6gghdOdVvO
-         BPoTxdZAUPZKF3hy/9Crx0j9Aw1y+oslFs4OQum1bXxykbUhuKhmXLSjfZYyluHDTOSG
-         bNm/52IGE7+L+9soTxasdz5REJSndJvbwi1YfPBEHiawsbzlMWFIbfehQH4iEb9uDJkc
-         VEvtSgoApY74sLxI32ZQbmsrL2uSIykZCToFj0RUmAV/EPOtSZYaGPGuMdPuP+eA+bU3
-         1OmA==
-X-Gm-Message-State: AOAM533M4O7+XlfO606zGqFXYt6axsEWU+6nh4wKGwgmOrdaP2vXddwh
-        ydzLdpDD8ZaZqsdkimR9b5fc9JFWrcEyUA==
-X-Google-Smtp-Source: ABdhPJwh7E55NwVg7SB/yPu5NMeSWBtHE3B+15k+Moq13uQxrVGcjp4MKHyPwRn9RPFC6j0rGiSO0w==
-X-Received: by 2002:a17:90a:517:: with SMTP id h23mr2656543pjh.108.1614144509229;
-        Tue, 23 Feb 2021 21:28:29 -0800 (PST)
-Received: from localhost.localdomain (host-61-70-202-235.static.kbtelecom.net. [61.70.202.235])
-        by smtp.googlemail.com with ESMTPSA id w13sm6631693pjg.0.2021.02.23.21.28.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Feb 2021 21:28:28 -0800 (PST)
-From:   Kun-Chuan Hsieh <jetswayss@gmail.com>
-To:     ast@kernel.org
-Cc:     bpf@vger.kernel.org, jolsa@kernel.org, andrii@kernel.org,
-        Kun-Chuan Hsieh <jetswayss@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2] tools/resolve_btfids: Fix build error with older host toolchains
-Date:   Wed, 24 Feb 2021 05:27:52 +0000
-Message-Id: <20210224052752.5284-1-jetswayss@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S233711AbhBXGAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 01:00:09 -0500
+Received: from mx2.suse.de ([195.135.220.15]:55424 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233311AbhBXGAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 01:00:09 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 6F8EDADCD;
+        Wed, 24 Feb 2021 05:59:27 +0000 (UTC)
+Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
+ dmabufs
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>, hdegoede@redhat.com,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>,
+        dri-devel@lists.freedesktop.org, christian.koenig@amd.com,
+        airlied@linux.ie, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        sean@poorly.run, Christoph Hellwig <hch@lst.de>
+References: <20210223105842.27011-1-tzimmermann@suse.de>
+ <s5hh7m2vqyd.wl-tiwai@suse.de> <f4452070-bab1-35ad-69aa-d020a4a3a5b7@suse.de>
+ <20210223160054.GC1261797@rowland.harvard.edu> <YDU7naIDtg5IM0Sz@kroah.com>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <d255a6c8-4348-3aef-b410-415566418f4c@suse.de>
+Date:   Wed, 24 Feb 2021 06:59:25 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YDU7naIDtg5IM0Sz@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Older libelf.h and glibc elf.h might not yet define the ELF compression
-types.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0
+Content-Type: multipart/mixed; boundary="2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Greg KH <gregkh@linuxfoundation.org>,
+ Alan Stern <stern@rowland.harvard.edu>
+Cc: Mathias Nyman <mathias.nyman@linux.intel.com>, hdegoede@redhat.com,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Oliver Neukum <oneukum@suse.com>, Johan Hovold <johan@kernel.org>,
+ dri-devel@lists.freedesktop.org, christian.koenig@amd.com, airlied@linux.ie,
+ stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, sean@poorly.run,
+ Christoph Hellwig <hch@lst.de>
+Message-ID: <d255a6c8-4348-3aef-b410-415566418f4c@suse.de>
+Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
+ dmabufs
+References: <20210223105842.27011-1-tzimmermann@suse.de>
+ <s5hh7m2vqyd.wl-tiwai@suse.de> <f4452070-bab1-35ad-69aa-d020a4a3a5b7@suse.de>
+ <20210223160054.GC1261797@rowland.harvard.edu> <YDU7naIDtg5IM0Sz@kroah.com>
+In-Reply-To: <YDU7naIDtg5IM0Sz@kroah.com>
 
-Checking and defining SHF_COMPRESSED fix the build error when compiling
-with older toolchains. Also, the tool resolve_btfids is compiled with host
-toolchain. The host toolchain is more likely to be older than the cross
-compile toolchain.
+--2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Cc: stable@vger.kernel.org
+Hi
 
-Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
----
- tools/bpf/resolve_btfids/main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Am 23.02.21 um 18:30 schrieb Greg KH:
+> On Tue, Feb 23, 2021 at 11:00:54AM -0500, Alan Stern wrote:
+>> On Tue, Feb 23, 2021 at 03:06:07PM +0100, Thomas Zimmermann wrote:
+>>> Hi
+>>>
+>>> Am 23.02.21 um 14:44 schrieb Takashi Iwai:
+>>
+>>>> Aside from the discussion whether this "workaround" is needed, the u=
+se
+>>>> of udev->bus->controller here looks a bit suspicious.  As the old US=
+B
+>>>> code (before the commit 6eb0233ec2d0) indicated, it was rather
+>>>> usb->bus->sysdev that was used for the DMA mask, and it's also the o=
+ne
+>>>> most of USB core code refers to.  A similar question came up while
+>>>> fixing the same kind of bug in the media subsystem, and we concluded=
 
-diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-index 7409d7860aa6..80d966cfcaa1 100644
---- a/tools/bpf/resolve_btfids/main.c
-+++ b/tools/bpf/resolve_btfids/main.c
-@@ -260,6 +260,11 @@ static struct btf_id *add_symbol(struct rb_root *root, char *name, size_t size)
- 	return btf_id__add(root, id, false);
- }
- 
-+/* Older libelf.h and glibc elf.h might not yet define the ELF compression types. */
-+#ifndef SHF_COMPRESSED
-+#define SHF_COMPRESSED (1 << 11) /* Section with compressed data. */
-+#endif
-+
- /*
-  * The data of compressed section should be aligned to 4
-  * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
--- 
-2.25.1
+>>>> that bus->sysdev is a better choice.
+>>>
+>>> Good to hear that we're not the only ones affected by this. Wrt the o=
+riginal
+>>> code, using sysdev makes even more sense.
+>>
+>> Hmmm, I had forgotten about this.  So DMA masks aren't inherited after=
 
+>> all, thanks to commit 6eb0233ec2d0.  That leas me to wonder how well
+>> usb-storage is really working these days...
+>>
+>> The impression I get is that Greg would like the USB core to export a
+>> function which takes struct usb_interface * as argument and returns th=
+e
+>> appropriate DMA mask value.  Then instead of messing around with USB
+>> internals, drm_gem_prime_import_usb could just call this new function.=
+
+>>
+>> Adding such a utility function would be a sufficiently small change th=
+at
+>> it could go into the -stable kernels with no trouble.
+>=20
+> Yes, sorry for not being clear, that is what I think would make the mos=
+t
+> sense, then all USB drivers could use it easily and it can be changed i=
+n
+> one location if the DMA logic ever changes.
+
+We can certainly do that. Thanks for clarifying. I'll send out an=20
+updated patch soon.
+
+Best regards
+Thomas
+
+>=20
+> thanks,
+>=20
+> greg k-h
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--2IhysdsNLPfWsRC8nPxLKdv1wUERlTOmS--
+
+--nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA16z0FAwAAAAAACgkQlh/E3EQov+CB
+jBAAg/yUvEfw4VHrUbO3gk2kOiCv+LAGGzNy8/AW08efUqHujd8Ky0TokfO5Nt1kzl8PVkLbuaJZ
+xLCk7215ihobbLNdzPWiaQH+8hNLJD5VGTsuS9zMnZ77WBrhxxk85rY16w9dzKUhZmlBKMQ8lfx1
+4Q3jx+KTlguHBF5cCRfGp9Yw5pcQtWm4MHWsuKV3uQtqv+FRGfI8HSW0iklENkV9rJPNOc0N4FNf
+4hKUOobo/6zbqso302e/l+HyAE4TIlRq94y3kJCY5XVK3zBIIQpVpfz7uNRE4kZpaNfxCGjdSLLl
+2Zedw8eTETIRtX0513u1V1rbUJV6aGTi2Q6cVjwiVkchyKHNAU4whcPcELwklDfZVzTv1lOqtp/Q
+99OigNNDGIc5ApMFoXPyCScQdKaOG2NKbda/CePI8DmEKCZiJHrVDxsAMKqvV4P0q/4mrzTmHg2E
+mzKuvJKLZgtoL/pUof22krffahoctfeqyNtmiZi1SkYzCylcFhv4bIReK8DPnmVP4oG5QjFJhnlz
+Kog4j0tXrNY2fwVZZQGvEx7joU/gVOlxNY6BfaKbvybvzr3qb0CRvVcl7bMYo7u60seXuddPmMVT
+NxC6pbeKdLRYnhyGbqvIpEg6s+TBUGnlhpyBejl2WyV2t81hKoQexQIIx/CwFF99OEUCKAlw10tY
+D1A=
+=/LxH
+-----END PGP SIGNATURE-----
+
+--nQudoPuhcJk4FGGLnlplbxIzg0LF3nFC0--
