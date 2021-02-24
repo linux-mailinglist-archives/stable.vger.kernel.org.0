@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06174323CCE
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55214323CD5
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235424AbhBXMzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 07:55:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50148 "EHLO mail.kernel.org"
+        id S235467AbhBXM4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 07:56:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235317AbhBXMxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 07:53:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D097064F16;
-        Wed, 24 Feb 2021 12:51:17 +0000 (UTC)
+        id S235318AbhBXMx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 07:53:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E02B64E6F;
+        Wed, 24 Feb 2021 12:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171078;
-        bh=ft1+jyJEByQFMktY6awt1dNLeoWTW6Oo1qBOu7mh04s=;
+        s=k20201202; t=1614171080;
+        bh=5FRFP9k1Mntu5LWmW8GwmTW4VHnH0q5xY7ZN85ANt3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoFD3MOj7soTJ4pQ6s2FaiMDsW64uOOWmlsHNPdy3Qug/O8gFDOvSKcwq1WSFACDK
-         JSSHrAmUpxvEMYJezdCMQZlNXdlfoSe0eZRLakBqjdSF4o6HDY4MUUeo6f2tQjNK6V
-         Z4TubT8ipaF6DhJtQdyo8J6elaB+994+rD+wWzKmYu4+Pd8ZHS7SwMtqcPzMpkm7fW
-         7gbI4zGmTnnbgPed7zVNYAZeK3dtNcm852Yx3lZsjMPnG5RMsOUYBSyeN0AFSTBVwe
-         eKbLH7RDAG0sQ1Kn2coahZDSlGBHXJWvuQBqy7FXHyIaphRnFPVmlmyI5NQsX9qH8Z
-         epCL0kOXTKlaw==
+        b=DekUo6Kjm9CId33VdXndc9qlGZNnK/ND0cq8ouZkEElOzIEGN7GKlgFR+KhL5bciX
+         6CQfVBivwBS9dlyTmvPFPQbQbVMzKQz6Eao31lQm4kOgTAQUbdpw+fDz2JOYW95TNH
+         ergV4r4t8xoNfT+8m+6XY8JHlFzxrNrpHN519srQax3RIx7l8LB9SWkmL1EHWkmvXi
+         8ZzxgJVmj/c2QAk4z4EsKJQR4s77LLxxkCm6T7dG/IktRf2ftIWB3Yk6ZvZ4vVBcEB
+         bxNSe9/hMnf0VazWAoz3g1vjqMnG8frtlHGK6q9igUKwPXneaIyfe2TSa5xTLEc6Xg
+         /soCgRHPV+Z8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        syzbot+42d8c7c3d3e594b34346@syzkaller.appspotmail.com,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        syzbot+b4d54814b339b5c6bbd4@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 38/67] media: v4l2-ctrls.c: fix shift-out-of-bounds in std_validate
-Date:   Wed, 24 Feb 2021 07:49:56 -0500
-Message-Id: <20210224125026.481804-38-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 39/67] media: zr364xx: fix memory leaks in probe()
+Date:   Wed, 24 Feb 2021 07:49:57 -0500
+Message-Id: <20210224125026.481804-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125026.481804-1-sashal@kernel.org>
 References: <20210224125026.481804-1-sashal@kernel.org>
@@ -43,35 +45,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 048c96e28674f15c0403deba2104ffba64544a06 ]
+[ Upstream commit ea354b6ddd6f09be29424f41fa75a3e637fea234 ]
 
-If a menu has more than 64 items, then don't check menu_skip_mask
-for items 65 and up.
+Syzbot discovered that the probe error handling doesn't clean up the
+resources allocated in zr364xx_board_init().  There are several
+related bugs in this code so I have re-written the error handling.
 
+1)  Introduce a new function zr364xx_board_uninit() which cleans up
+    the resources in zr364xx_board_init().
+2)  In zr364xx_board_init() if the call to zr364xx_start_readpipe()
+    fails then release the "cam->buffer.frame[i].lpvbits" memory
+    before returning.  This way every function either allocates
+    everything successfully or it cleans up after itself.
+3)  Re-write the probe function so that each failure path goto frees
+    the most recent allocation.  That way we don't free anything
+    before it has been allocated and we can also verify that
+    everything is freed.
+4)  Originally, in the probe function the "cam->v4l2_dev.release"
+    pointer was set to "zr364xx_release" near the start but I moved
+    that assignment to the end, after everything had succeeded.  The
+    release function was never actually called during the probe cleanup
+    process, but with this change I wanted to make it clear that we
+    don't want to call zr364xx_release() until everything is
+    allocated successfully.
+
+Next I re-wrote the zr364xx_release() function.  Ideally this would
+have been a simple matter of copy and pasting the cleanup code from
+probe and adding an additional call to video_unregister_device().  But
+there are a couple quirks to note.
+
+1)  The probe function does not call videobuf_mmap_free() and I don't
+    know where the videobuf_mmap is allocated.  I left the code as-is to
+    avoid introducing a bug in code I don't understand.
+2)  The zr364xx_board_uninit() has a call to zr364xx_stop_readpipe()
+    which is a change from the original behavior with regards to
+    unloading the driver.  Calling zr364xx_stop_readpipe() on a stopped
+    pipe is not a problem so this is safe and is potentially a bugfix.
+
+Reported-by: syzbot+b4d54814b339b5c6bbd4@syzkaller.appspotmail.com
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: syzbot+42d8c7c3d3e594b34346@syzkaller.appspotmail.com
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/zr364xx/zr364xx.c | 49 ++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 5cbe0ffbf501f..9dc151431a5c6 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2165,7 +2165,8 @@ static int std_validate(const struct v4l2_ctrl *ctrl, u32 idx,
- 	case V4L2_CTRL_TYPE_INTEGER_MENU:
- 		if (ptr.p_s32[idx] < ctrl->minimum || ptr.p_s32[idx] > ctrl->maximum)
- 			return -ERANGE;
--		if (ctrl->menu_skip_mask & (1ULL << ptr.p_s32[idx]))
-+		if (ptr.p_s32[idx] < BITS_PER_LONG_LONG &&
-+		    (ctrl->menu_skip_mask & BIT_ULL(ptr.p_s32[idx])))
- 			return -EINVAL;
- 		if (ctrl->type == V4L2_CTRL_TYPE_MENU &&
- 		    ctrl->qmenu[ptr.p_s32[idx]][0] == '\0')
+diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
+index 1e1c6b4d1874b..d29b861367ea7 100644
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -1181,15 +1181,11 @@ static int zr364xx_open(struct file *file)
+ 	return err;
+ }
+ 
+-static void zr364xx_release(struct v4l2_device *v4l2_dev)
++static void zr364xx_board_uninit(struct zr364xx_camera *cam)
+ {
+-	struct zr364xx_camera *cam =
+-		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
+ 	unsigned long i;
+ 
+-	v4l2_device_unregister(&cam->v4l2_dev);
+-
+-	videobuf_mmap_free(&cam->vb_vidq);
++	zr364xx_stop_readpipe(cam);
+ 
+ 	/* release sys buffers */
+ 	for (i = 0; i < FRAMES; i++) {
+@@ -1200,9 +1196,19 @@ static void zr364xx_release(struct v4l2_device *v4l2_dev)
+ 		cam->buffer.frame[i].lpvbits = NULL;
+ 	}
+ 
+-	v4l2_ctrl_handler_free(&cam->ctrl_handler);
+ 	/* release transfer buffer */
+ 	kfree(cam->pipe->transfer_buffer);
++}
++
++static void zr364xx_release(struct v4l2_device *v4l2_dev)
++{
++	struct zr364xx_camera *cam =
++		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
++
++	videobuf_mmap_free(&cam->vb_vidq);
++	v4l2_ctrl_handler_free(&cam->ctrl_handler);
++	zr364xx_board_uninit(cam);
++	v4l2_device_unregister(&cam->v4l2_dev);
+ 	kfree(cam);
+ }
+ 
+@@ -1376,11 +1382,14 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
+ 	/* start read pipe */
+ 	err = zr364xx_start_readpipe(cam);
+ 	if (err)
+-		goto err_free;
++		goto err_free_frames;
+ 
+ 	DBG(": board initialized\n");
+ 	return 0;
+ 
++err_free_frames:
++	for (i = 0; i < FRAMES; i++)
++		vfree(cam->buffer.frame[i].lpvbits);
+ err_free:
+ 	kfree(cam->pipe->transfer_buffer);
+ 	cam->pipe->transfer_buffer = NULL;
+@@ -1409,12 +1418,10 @@ static int zr364xx_probe(struct usb_interface *intf,
+ 	if (!cam)
+ 		return -ENOMEM;
+ 
+-	cam->v4l2_dev.release = zr364xx_release;
+ 	err = v4l2_device_register(&intf->dev, &cam->v4l2_dev);
+ 	if (err < 0) {
+ 		dev_err(&udev->dev, "couldn't register v4l2_device\n");
+-		kfree(cam);
+-		return err;
++		goto free_cam;
+ 	}
+ 	hdl = &cam->ctrl_handler;
+ 	v4l2_ctrl_handler_init(hdl, 1);
+@@ -1423,7 +1430,7 @@ static int zr364xx_probe(struct usb_interface *intf,
+ 	if (hdl->error) {
+ 		err = hdl->error;
+ 		dev_err(&udev->dev, "couldn't register control\n");
+-		goto fail;
++		goto unregister;
+ 	}
+ 	/* save the init method used by this camera */
+ 	cam->method = id->driver_info;
+@@ -1496,7 +1503,7 @@ static int zr364xx_probe(struct usb_interface *intf,
+ 	if (!cam->read_endpoint) {
+ 		err = -ENOMEM;
+ 		dev_err(&intf->dev, "Could not find bulk-in endpoint\n");
+-		goto fail;
++		goto unregister;
+ 	}
+ 
+ 	/* v4l */
+@@ -1507,10 +1514,11 @@ static int zr364xx_probe(struct usb_interface *intf,
+ 
+ 	/* load zr364xx board specific */
+ 	err = zr364xx_board_init(cam);
+-	if (!err)
+-		err = v4l2_ctrl_handler_setup(hdl);
+ 	if (err)
+-		goto fail;
++		goto unregister;
++	err = v4l2_ctrl_handler_setup(hdl);
++	if (err)
++		goto board_uninit;
+ 
+ 	spin_lock_init(&cam->slock);
+ 
+@@ -1525,16 +1533,21 @@ static int zr364xx_probe(struct usb_interface *intf,
+ 	err = video_register_device(&cam->vdev, VFL_TYPE_VIDEO, -1);
+ 	if (err) {
+ 		dev_err(&udev->dev, "video_register_device failed\n");
+-		goto fail;
++		goto free_handler;
+ 	}
++	cam->v4l2_dev.release = zr364xx_release;
+ 
+ 	dev_info(&udev->dev, DRIVER_DESC " controlling device %s\n",
+ 		 video_device_node_name(&cam->vdev));
+ 	return 0;
+ 
+-fail:
++free_handler:
+ 	v4l2_ctrl_handler_free(hdl);
++board_uninit:
++	zr364xx_board_uninit(cam);
++unregister:
+ 	v4l2_device_unregister(&cam->v4l2_dev);
++free_cam:
+ 	kfree(cam);
+ 	return err;
+ }
 -- 
 2.27.0
 
