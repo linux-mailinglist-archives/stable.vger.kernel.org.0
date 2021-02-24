@@ -2,110 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1A9324387
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59049324397
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 19:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbhBXSHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 13:07:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34142 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233732AbhBXSHk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 13:07:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614189973;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=toxhg0cmaDLsC5HXvtt/9Q6frW8bNQ4QoBennLsllvk=;
-        b=Uu1Fk9Eps9NmaEvkdThH0PtRx2pEu6+lpGTNQVZaDilWQzag1CkK/qH5QNitWPrxeUti+7
-        48qsIocoNmZGM5k65eCw434jxiQuAgXeBYSZxWwsZa2P9wIpHNm7icBNpHE1GsTMCFF65a
-        sU6ZUAMkPEVuTNdidMt6gUW193tZLWo=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-354-D1mPnk93PhCFcN9EDt2xAg-1; Wed, 24 Feb 2021 13:06:12 -0500
-X-MC-Unique: D1mPnk93PhCFcN9EDt2xAg-1
-Received: by mail-qt1-f200.google.com with SMTP id l1so2262917qtv.2
-        for <stable@vger.kernel.org>; Wed, 24 Feb 2021 10:06:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
-         :in-reply-to:references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=toxhg0cmaDLsC5HXvtt/9Q6frW8bNQ4QoBennLsllvk=;
-        b=W/8eKbeXC8E/nqmaz96keCY3NWQYHRTBMSjkB6ynrs+pYx9u6xVLpzYBBLXy719fAn
-         mqQJ40KszRztxCKG65YF+k4GY+2HqNQxcSUmH1OssbDvblUW8E3GmGMahu5d3VawXoL+
-         ZxI0pPtgmAaNBYZMchp/1+Fq1Z67g/NLb+0LDIwXv+Jk7vw6HwaWG70yQeMR5H6fZ5Rq
-         z/9cVhNxyC6uCQCtYZM2XlvsNDUc6497nrbIznENKgGOm9ct12K7bDVrdmOKyrGi9O0h
-         Nbc3+zo2hVzv5/iATd4R+7VUoSr8Mxmh5vDFIpsmGuhZ2fL67HrtLWqrW3APyjEX2TUm
-         jURQ==
-X-Gm-Message-State: AOAM530aZ40vUOT8uvBFhHYfebhLNcRitC5Swk6X7y7UdG0xUkONISQU
-        OdVVh8DFYKXnOIqRw+tJuQT84MTQ84DEUKwmBkPuyuh4vt/rKtDRg57I4m3VeKydynCHshykFc1
-        cdhuSO/J8XM+KFYDu
-X-Received: by 2002:aed:2c85:: with SMTP id g5mr5616531qtd.306.1614189971750;
-        Wed, 24 Feb 2021 10:06:11 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxJwe+mRTTlP+grZsk6m2cwXYETqnTRPylzZOnv4KQT3mbXpASK44Fyx+/0UBtQmUKuE5N5fw==
-X-Received: by 2002:aed:2c85:: with SMTP id g5mr5616519qtd.306.1614189971551;
-        Wed, 24 Feb 2021 10:06:11 -0800 (PST)
-Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
-        by smtp.gmail.com with ESMTPSA id 18sm1672101qtw.70.2021.02.24.10.06.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 10:06:10 -0800 (PST)
-Message-ID: <cbb963ec0b2fb93ddbc81f83e5e6eba4264b9a5c.camel@redhat.com>
-Subject: Re: [PATCH 0/2] Set CLEAR_PAYLOAD_ID_TABLE as broadcast request
-From:   Lyude Paul <lyude@redhat.com>
-Reply-To: lyude@redhat.com
-To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Nicholas.Kazlauskas@amd.com,
-        harry.wentland@amd.com, jerry.zuo@amd.com, eryk.brol@amd.com,
-        qingqing.zhuo@amd.com
-Date:   Wed, 24 Feb 2021 13:06:09 -0500
-In-Reply-To: <20210222040027.23505-1-Wayne.Lin@amd.com>
-References: <20210222040027.23505-1-Wayne.Lin@amd.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        id S234443AbhBXSLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 13:11:04 -0500
+Received: from mx2.suse.de ([195.135.220.15]:40464 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233640AbhBXSLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 13:11:03 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id D10B2AAAE;
+        Wed, 24 Feb 2021 18:10:20 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id DBF5ADA7B0; Wed, 24 Feb 2021 19:08:20 +0100 (CET)
+Date:   Wed, 24 Feb 2021 19:08:20 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.11 55/67] btrfs: only let one thread pre-flush
+ delayed refs in commit
+Message-ID: <20210224180820.GY1993@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+References: <20210224125026.481804-1-sashal@kernel.org>
+ <20210224125026.481804-55-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210224125026.481804-55-sashal@kernel.org>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ooh, nice catches! For the whole series this is:
-
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-
-I will go ahead and push these to drm-misc-next
-
-On Mon, 2021-02-22 at 12:00 +0800, Wayne Lin wrote:
-> While testing MST hotplug events on daisy chain monitors, find out
-> that CLEAR_PAYLOAD_ID_TABLE is not broadcasted and payload id table
-> is not reset. Dig in deeper and find out two parts needed to be fixed.
+On Wed, Feb 24, 2021 at 07:50:13AM -0500, Sasha Levin wrote:
+> From: Josef Bacik <josef@toxicpanda.com>
 > 
-> 1. Link_Count_Total & Link_Count_Remaining of Broadcast message are
-> incorrect. Should set lct=1 & lcr=6
-> 2. CLEAR_PAYLOAD_ID_TABLE request message is not set as path broadcast
-> request message. Should fix this.
+> [ Upstream commit e19eb11f4f3d3b0463cd897016064a79cb6d8c6d ]
 > 
-> Wayne Lin (2):
->   drm/dp_mst: Revise broadcast msg lct & lcr
->   drm/dp_mst: Set CLEAR_PAYLOAD_ID_TABLE as broadcast
+> I've been running a stress test that runs 20 workers in their own
+> subvolume, which are running an fsstress instance with 4 threads per
+> worker, which is 80 total fsstress threads.  In addition to this I'm
+> running balance in the background as well as creating and deleting
+> snapshots.  This test takes around 12 hours to run normally, going
+> slower and slower as the test goes on.
 > 
->  drivers/gpu/drm/drm_dp_mst_topology.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+> The reason for this is because fsstress is running fsync sometimes, and
+> because we're messing with block groups we often fall through to
+> btrfs_commit_transaction, so will often have 20-30 threads all calling
+> btrfs_commit_transaction at the same time.
 > 
-> --
-> 2.17.1
+> These all get stuck contending on the extent tree while they try to run
+> delayed refs during the initial part of the commit.
 > 
+> This is suboptimal, really because the extent tree is a single point of
+> failure we only want one thread acting on that tree at once to reduce
+> lock contention.
+> 
+> Fix this by making the flushing mechanism a bit operation, to make it
+> easy to use test_and_set_bit() in order to make sure only one task does
+> this initial flush.
+> 
+> Once we're into the transaction commit we only have one thread doing
+> delayed ref running, it's just this initial pre-flush that is
+> problematic.  With this patch my stress test takes around 90 minutes to
+> run, instead of 12 hours.
+> 
+> The memory barrier is not necessary for the flushing bit as it's
+> ordered, unlike plain int. The transaction state accessed in
+> btrfs_should_end_transaction could be affected by that too as it's not
+> always used under transaction lock. Upon Nikolay's analysis in [1]
+> it's not necessary:
+> 
+>   In should_end_transaction it's read without holding any locks. (U)
+> 
+>   It's modified in btrfs_cleanup_transaction without holding the
+>   fs_info->trans_lock (U), but the STATE_ERROR flag is going to be set.
+> 
+>   set in cleanup_transaction under fs_info->trans_lock (L)
+>   set in btrfs_commit_trans to COMMIT_START under fs_info->trans_lock.(L)
+>   set in btrfs_commit_trans to COMMIT_DOING under fs_info->trans_lock.(L)
+>   set in btrfs_commit_trans to COMMIT_UNBLOCK under
+>   fs_info->trans_lock.(L)
+> 
+>   set in btrfs_commit_trans to COMMIT_COMPLETED without locks but at this
+>   point the transaction is finished and fs_info->running_trans is NULL (U
+>   but irrelevant).
+> 
+>   So by the looks of it we can have a concurrent READ race with a WRITE,
+>   due to reads not taking a lock. In this case what we want to ensure is
+>   we either see new or old state. I consulted with Will Deacon and he said
+>   that in such a case we'd want to annotate the accesses to ->state with
+>   (READ|WRITE)_ONCE so as to avoid a theoretical tear, in this case I
+>   don't think this could happen but I imagine at some point KCSAN would
+>   flag such an access as racy (which it is).
+> 
+> [1] https://lore.kernel.org/linux-btrfs/e1fd5cc1-0f28-f670-69f4-e9958b4964e6@suse.com
+> 
+> Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ add comments regarding memory barrier ]
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
--- 
-Sincerely,
-   Lyude Paul (she/her)
-   Software Engineer at Red Hat
-   
-Note: I deal with a lot of emails and have a lot of bugs on my plate. If you've
-asked me a question, are waiting for a review/merge on a patch, etc. and I
-haven't responded in a while, please feel free to send me another email to check
-on my status. I don't bite!
-
+Please drop this patch from autosel queue, it's part of a larger series
+that reworks flushing and is not a standalone fix.
