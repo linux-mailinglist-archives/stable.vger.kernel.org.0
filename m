@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D5C323D1D
+	by mail.lfdr.de (Postfix) with ESMTP id 91978323D1E
 	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235679AbhBXNEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:04:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
+        id S235687AbhBXNEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235531AbhBXM6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235532AbhBXM6d (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 07:58:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E4A64F3F;
-        Wed, 24 Feb 2021 12:52:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C036964F40;
+        Wed, 24 Feb 2021 12:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171151;
-        bh=wwMo0pdUmecDKwcm6c57J39Oepyme73T+Tc5wPhpHE4=;
+        s=k20201202; t=1614171152;
+        bh=1qi2WOnyjUkqhF6El67q7UMDFB1yuxLPg7/v12qY0BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9/C/bhh5t0du/jk47gkpYcBe8sBbNzwcIsMLmY82O0zGbYejShLn1djcFkJU4i1G
-         EtHxD7BgutCbwJRqunfw541sLb3IeZ47SHNn83iFb7RA8m3bsOOayoy480e2uogIBz
-         wlB+91ENFlyRKau+oWmZQ78g+4Fp+la+H1/WFHdBD7+wMsEf56pzfEC3DxkwWuirmS
-         nWNzTJLbIx/S2RIIHBPqfcZgNZ3xwDZnnUxbMxnLDdIQdOtr5SOq6cqxPRCGpgot3P
-         H/+aiqddZsK6u5c6p1q3Y04jx2BX+XOGQRIPEADuYDy11Ft09z9HYuVpk7HVVVFSVp
-         Otfx15XogsHPQ==
+        b=UnWF2g37CJgbZWYT4HD2jk3/7Kp5UnDRIVI2W9z4DeIcKrhLVe67RBIEL+7prFgFi
+         o9SXK2r/ohnNmqY3IQs/S5PF5EE3JLgyDbh8w8rWcvuv/56O2l4B+W0zWis1zM42bJ
+         pKERfUJmDy7v1XXe6pGvR9Ywj9raAmkc1F/3Bd6ftjetWtv79Z+YrWIXaCYtl4TaT4
+         Y4xLoljwAQ/27MeAO6xl1+MO+NFa1wvUbGWzEh5WI1Y99sOQ4i2n2vXF3lukUC2Qah
+         MqItF5eSzKgTW4ordXmP7Lr9AUhIJHNnnCO6RvkoYuQY7TgNipP9UxmC/YHqwVhw8S
+         rn7/hYoQswX5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gopal Tiwari <gtiwari@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/56] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
-Date:   Wed, 24 Feb 2021 07:51:30 -0500
-Message-Id: <20210224125212.482485-14-sashal@kernel.org>
+Cc:     Christian Gromm <christian.gromm@microchip.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.10 15/56] staging: most: sound: add sanity check for function argument
+Date:   Wed, 24 Feb 2021 07:51:31 -0500
+Message-Id: <20210224125212.482485-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125212.482485-1-sashal@kernel.org>
 References: <20210224125212.482485-1-sashal@kernel.org>
@@ -43,54 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gopal Tiwari <gtiwari@redhat.com>
+From: Christian Gromm <christian.gromm@microchip.com>
 
-[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
+[ Upstream commit 45b754ae5b82949dca2b6e74fa680313cefdc813 ]
 
-kernel panic trace looks like:
+This patch checks the function parameter 'bytes' before doing the
+subtraction to prevent memory corruption.
 
- #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
- #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
-    [exception RIP: amp_read_loc_assoc_final_data+63]
-    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
-    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
-    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
-    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
-    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
-    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
- #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
- #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
-
-hcon->amp_mgr seems NULL triggered kernel panic in following line inside
-function amp_read_loc_assoc_final_data
-
-        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
-
-Fixed by checking NULL for mgr.
-
-Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Christian Gromm <christian.gromm@microchip.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/1612282865-21846-1-git-send-email-christian.gromm@microchip.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/amp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/most/sound/sound.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
-index 9c711f0dfae35..be2d469d6369d 100644
---- a/net/bluetooth/amp.c
-+++ b/net/bluetooth/amp.c
-@@ -297,6 +297,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
- 	struct hci_request req;
- 	int err;
+diff --git a/drivers/staging/most/sound/sound.c b/drivers/staging/most/sound/sound.c
+index 8a449ab9bdce4..b7666a7b1760a 100644
+--- a/drivers/staging/most/sound/sound.c
++++ b/drivers/staging/most/sound/sound.c
+@@ -96,6 +96,8 @@ static void swap_copy24(u8 *dest, const u8 *source, unsigned int bytes)
+ {
+ 	unsigned int i = 0;
  
-+	if (!mgr)
++	if (bytes < 2)
 +		return;
-+
- 	cp.phy_handle = hcon->handle;
- 	cp.len_so_far = cpu_to_le16(0);
- 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
+ 	while (i < bytes - 2) {
+ 		dest[i] = source[i + 2];
+ 		dest[i + 1] = source[i + 1];
 -- 
 2.27.0
 
