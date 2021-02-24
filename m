@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77317323DE0
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D315E323DDE
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236039AbhBXNUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:20:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
+        id S235629AbhBXNUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:20:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235289AbhBXNLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235317AbhBXNLR (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 08:11:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E30F64ED4;
-        Wed, 24 Feb 2021 12:55:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98A3564FA6;
+        Wed, 24 Feb 2021 12:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171324;
-        bh=yaJKN2m7unVgBkTZpQRD8MKdszMywNTFfQE5CECuCeY=;
+        s=k20201202; t=1614171325;
+        bh=9f9+E1nDpPpKhWKIgBN6Py5wg1Vs4kD8KDFjDfwNc+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LIQKFlpom+kp5BeldDm43sd0a8D5F/n1iuDjiZFKIORD5Q/LHBNP4zgSFy+U/G783
-         MeLIBTjsqYzfAnbJlJ3alJX723FKMoAI5vW3wKexrXih7PQ2OeI+y4qhQ92ALROhjV
-         7A56cPSW1Dk8PNbn8KmVcuE05knNIuBiG/ng0FQ7hog5GWUmjo23UWzUek3jXTmvad
-         aY8E+XY0SXiZJYR3dHd512vrjiI1e6Jf2DtQBoLK4ZBuGUhwUmiAFDY1egEtFcxTEl
-         g5KQPsJlh4v10xiTrLO5qBFNd8vs0Tsp2UpEFRjd00qMDWRIZeNfM5wGfhhPW/eSFY
-         s24r3q3TUquWw==
+        b=QzVuRxZEVsnKjIHqj31rT0u4bg76zaGIOop697d+2ITitHjfK52VRbi6b/OmhW4Lp
+         btUTFeXviBjTuxDjpnCZD4WTjexc4U/TcagFdDzLXx3UoapV1TPKZCIX999n7URpDy
+         i4+TJrJP7aVFdAzi2s7nkKqG2m1COBKgipp01BxzukRtOt1tPL0nQNR3+07JJA5jbX
+         r9KXrqVg5i8ZEuvNxwMW6bDODWg0i5P5X40/oReV5slAqc8IMNaUn8V1iYpswdsAih
+         u3T8O/7g0e+UpjvxCHayAZYVvkGejfNA4bAqbUIYtHe9v0AULakAEbaWP0l063JcUG
+         TBIWp1pKj3vRQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fangrui Song <maskray@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
+Cc:     Gopal Tiwari <gtiwari@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 07/16] x86/build: Treat R_386_PLT32 relocation as R_386_PC32
-Date:   Wed, 24 Feb 2021 07:55:04 -0500
-Message-Id: <20210224125514.483935-7-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/16] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+Date:   Wed, 24 Feb 2021 07:55:05 -0500
+Message-Id: <20210224125514.483935-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125514.483935-1-sashal@kernel.org>
 References: <20210224125514.483935-1-sashal@kernel.org>
@@ -46,109 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Gopal Tiwari <gtiwari@redhat.com>
 
-[ Upstream commit bb73d07148c405c293e576b40af37737faf23a6a ]
+[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
 
-This is similar to commit
+kernel panic trace looks like:
 
-  b21ebf2fb4cd ("x86: Treat R_X86_64_PLT32 as R_X86_64_PC32")
+ #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
+ #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
+    [exception RIP: amp_read_loc_assoc_final_data+63]
+    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
+    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
+    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
+    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
+    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
+ #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
+ #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
 
-but for i386. As far as the kernel is concerned, R_386_PLT32 can be
-treated the same as R_386_PC32.
+hcon->amp_mgr seems NULL triggered kernel panic in following line inside
+function amp_read_loc_assoc_final_data
 
-R_386_PLT32/R_X86_64_PLT32 are PC-relative relocation types which
-can only be used by branches. If the referenced symbol is defined
-externally, a PLT will be used.
+        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
 
-R_386_PC32/R_X86_64_PC32 are PC-relative relocation types which can be
-used by address taking operations and branches. If the referenced symbol
-is defined externally, a copy relocation/canonical PLT entry will be
-created in the executable.
+Fixed by checking NULL for mgr.
 
-On x86-64, there is no PIC vs non-PIC PLT distinction and an
-R_X86_64_PLT32 relocation is produced for both `call/jmp foo` and
-`call/jmp foo@PLT` with newer (2018) GNU as/LLVM integrated assembler.
-This avoids canonical PLT entries (st_shndx=0, st_value!=0).
-
-On i386, there are 2 types of PLTs, PIC and non-PIC. Currently,
-the GCC/GNU as convention is to use R_386_PC32 for non-PIC PLT and
-R_386_PLT32 for PIC PLT. Copy relocations/canonical PLT entries
-are possible ABI issues but GCC/GNU as will likely keep the status
-quo because (1) the ABI is legacy (2) the change will drop a GNU
-ld diagnostic for non-default visibility ifunc in shared objects.
-
-clang-12 -fno-pic (since [1]) can emit R_386_PLT32 for compiler
-generated function declarations, because preventing canonical PLT
-entries is weighed over the rare ifunc diagnostic.
-
-Further info for the more interested:
-
-  https://github.com/ClangBuiltLinux/linux/issues/1210
-  https://sourceware.org/bugzilla/show_bug.cgi?id=27169
-  https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6 [1]
-
- [ bp: Massage commit message. ]
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210127205600.1227437-1-maskray@google.com
+Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/module.c |  1 +
- arch/x86/tools/relocs.c  | 12 ++++++++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ net/bluetooth/amp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index f58336af095c9..1ccfe6bb9122e 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -126,6 +126,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 			*location += sym->st_value;
- 			break;
- 		case R_386_PC32:
-+		case R_386_PLT32:
- 			/* Add the value, subtract its position */
- 			*location += sym->st_value - (uint32_t)location;
- 			break;
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index 220e97841e494..c58b631781233 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -840,9 +840,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
+diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
+index ebcab5bbadd7e..9f645a1d0202d 100644
+--- a/net/bluetooth/amp.c
++++ b/net/bluetooth/amp.c
+@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
+ 	struct hci_request req;
+ 	int err;
  
-@@ -883,9 +885,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
- 
++	if (!mgr)
++		return;
++
+ 	cp.phy_handle = hcon->handle;
+ 	cp.len_so_far = cpu_to_le16(0);
+ 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
 -- 
 2.27.0
 
