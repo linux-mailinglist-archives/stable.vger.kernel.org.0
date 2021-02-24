@@ -2,72 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E33B323E38
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C440323E4E
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233331AbhBXN1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:27:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
+        id S232363AbhBXNba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:31:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbhBXNWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:22:23 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B918BC06174A;
-        Wed, 24 Feb 2021 05:21:41 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id r17so2968924ejy.13;
-        Wed, 24 Feb 2021 05:21:41 -0800 (PST)
+        with ESMTP id S233506AbhBXNWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 08:22:44 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1B8C061786;
+        Wed, 24 Feb 2021 05:22:03 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id g5so3037578ejt.2;
+        Wed, 24 Feb 2021 05:22:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=WDf8bNlXwDREMw2fYtgvyNKs51Rez3p9DgY25iabkKk=;
-        b=UbthsDrfAXxLG0Ih3qnLP3LLslxy/TACKjN/AnLLlOGJ1SlJbUB1a9xL6k9bKHtbeZ
-         sK19xPjppJcRJYixSaTO7tDYKpxSmIzNM1m4GSQaVFCeLj7nupAC2zQLMQs9K5l5xL5R
-         ZEdxS9/4hzM1pY5vKZ5rhfFmY42RK/aMCTucRM8LSksEXXT2gGEvI9Jobl2ssXs8OnVc
-         hU3LBJpTbFwpUT4fpgwDzIFsU76GOX5kFxigh0LboXTyRIdX8IYpXevZsTxUzySfkbue
-         DGcwKUFo9nlYtEmPXOHHju3kV/sFI85nfbxLoR+C5dCGPCK/WoOwyfBfbyj+g0g+wb/m
-         IcUQ==
+        bh=CvhA11ta/4vzj4ouldymPVpRfP0/mY+iYxkvuMBKfpA=;
+        b=SAP0fmmEpE/bH/Rd8n+r/YtTNkX8OTlKXzXL5CmoqwH/PItTK2GMJzbkRRS4P4WhpS
+         Ozbwt7pnufBPBrS7OrgLyi6Hlzc13YkUHerWmK8n/bf00NB4me7hwGC6C0sp5CYSqtNP
+         jQ4SktnNzBBRUuDJWVq2wr37d0KPEdMR9B4TYMLX53RoQTbTTJi5CcHg071rHq5hOLDd
+         Yp4vTEFyyOGboGMeB4fmRwsyjG5MpI3HNoiXdB5je93btfZ93+Ry+bxNBSQ3L5oz3kUF
+         DCx79iqs6DxLgpBKRqC+cNNDZjI7fObATj9uEHpTQT1zgL1H6kbEpbwsHRI7CrG4syl7
+         e/RQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=WDf8bNlXwDREMw2fYtgvyNKs51Rez3p9DgY25iabkKk=;
-        b=OCfmXr3lFGRisgCZpkoLaUyzyX7x5hczau4vW8IDaVanWTMuJHakwSUMF3WPfcO1aT
-         xa2qLhXKfjfEecb3fEhCfT4zrLIlh8ORBxyJylECtwIgAysoLjlDiCqCrINCeCM17cgD
-         6ubcG5Tbk9097CReBVU9Fx1R6N6+Ea6EYjX5Nf2Q3sJf2AASh76kIvdFIT0Nfs42ubgp
-         zmF9PDfxNRzT9rRuxHctNxr8YWpqze835DhOKuzQoge0qek+E8brDdZybLAkHgxbDFcJ
-         wg0mRTC//YZ+gcIUhAkck+eLfZ0l8V8vNcWnCyrk7hvBQFbvTM8r9L4TqyUJnDv48djP
-         85lw==
-X-Gm-Message-State: AOAM532kPWnJohtJAV6LUKanea8dYXUdCU1mlP23CmOZyVA58dRqr6Wz
-        KdLrWbtx9EyNYzOnCDodZpY=
-X-Google-Smtp-Source: ABdhPJwh6Gknd4P3KUjnqmnTzkZbf1deMW7BQeP7kBImLg8i1BN1fFWBO2GjpmdqF/shVI0D2WrwhA==
-X-Received: by 2002:a17:906:e0cb:: with SMTP id gl11mr19837093ejb.87.1614172900384;
-        Wed, 24 Feb 2021 05:21:40 -0800 (PST)
+        bh=CvhA11ta/4vzj4ouldymPVpRfP0/mY+iYxkvuMBKfpA=;
+        b=dUEJF1n5KYp5ovLh/YBPkcgsd7C/9GUucnqUoyu9I9gY0gqteXS3KOrYpMJzAb1BTo
+         1x0yKHjkmLZDqSZIfrSInMtjliYcmAp9GQ09eYlWDgxnXW3/NlPgaXO84kPUWLIHHdJo
+         T3HgMnH9cTArbJt4cWte63s7g3CPhj/LBrCvK3LnI2fuP//MlvNV3MHiZqup/dPri0qe
+         JTutCcE98euLMUXZrHs5fFgD6jECHFMt0Ubi/1WmZMmAWGXO1Y9ojFQHBqLriUqkk3Rq
+         4Tg+Ygs7agBmhJFG4PqwljN4yrbqgINwoHcxsq+SDb5P5IvB5zzZ6v9P0dka6XD1Jh6T
+         yHMg==
+X-Gm-Message-State: AOAM532AjsbnSlSrjhMp/G5t4mnsXG2eZTfWbJ4h9QTJs/gz2rZsnbd2
+        AT4t5p7NYszVKgemopg1EDA=
+X-Google-Smtp-Source: ABdhPJyG7sz265zT+79Ofx2whRj2nvW/2SeU/kXeevg9td41JL8swhnVwwK2+Z4NDjBgPE4Ho8d6Jg==
+X-Received: by 2002:a17:906:4e57:: with SMTP id g23mr2457018ejw.47.1614172922578;
+        Wed, 24 Feb 2021 05:22:02 -0800 (PST)
 Received: from anparri (host-82-59-6-76.retail.telecomitalia.it. [82.59.6.76])
-        by smtp.gmail.com with ESMTPSA id fi5sm1290151ejc.43.2021.02.24.05.21.39
+        by smtp.gmail.com with ESMTPSA id cb14sm1282414ejb.82.2021.02.24.05.22.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 05:21:40 -0800 (PST)
-Date:   Wed, 24 Feb 2021 14:21:33 +0100
+        Wed, 24 Feb 2021 05:22:02 -0800 (PST)
+Date:   Wed, 24 Feb 2021 14:22:00 +0100
 From:   Andrea Parri <parri.andrea@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Juan Vazquez <juvazq@microsoft.com>,
         Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 21/26] Drivers: hv: vmbus: Resolve race
+Subject: Re: [PATCH AUTOSEL 4.14 15/16] Drivers: hv: vmbus: Resolve race
  condition in vmbus_onoffer_rescind()
-Message-ID: <20210224132133.GA2031@anparri>
-References: <20210224125435.483539-1-sashal@kernel.org>
- <20210224125435.483539-21-sashal@kernel.org>
+Message-ID: <20210224132200.GB2031@anparri>
+References: <20210224125514.483935-1-sashal@kernel.org>
+ <20210224125514.483935-15-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210224125435.483539-21-sashal@kernel.org>
+In-Reply-To: <20210224125514.483935-15-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 24, 2021 at 07:54:29AM -0500, Sasha Levin wrote:
+On Wed, Feb 24, 2021 at 07:55:12AM -0500, Sasha Levin wrote:
 > From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
 > 
 > [ Upstream commit e4d221b42354b2e2ddb9187a806afb651eee2cda ]
@@ -98,10 +98,10 @@ Same here.
 >  2 files changed, 13 insertions(+)
 > 
 > diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-> index 7920b0d7e35a7..1322e799938af 100644
+> index 5bf633c15cd4b..6ddda97030628 100644
 > --- a/drivers/hv/channel_mgmt.c
 > +++ b/drivers/hv/channel_mgmt.c
-> @@ -954,6 +954,18 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
+> @@ -942,6 +942,18 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 >  
 >  	mutex_lock(&vmbus_connection.channel_mutex);
 >  	channel = relid2channel(rescind->child_relid);
@@ -121,10 +121,10 @@ Same here.
 >  
 >  	if (channel == NULL) {
 > diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-> index 35461d49d3aee..59525fe25abde 100644
+> index 63cd81e5610d1..22e2c2d75361e 100644
 > --- a/include/linux/hyperv.h
 > +++ b/include/linux/hyperv.h
-> @@ -736,6 +736,7 @@ struct vmbus_channel {
+> @@ -710,6 +710,7 @@ struct vmbus_channel {
 >  	u8 monitor_bit;
 >  
 >  	bool rescind; /* got rescind msg */
