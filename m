@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D6F323DCB
-	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF41323DC8
+	for <lists+stable@lfdr.de>; Wed, 24 Feb 2021 14:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234815AbhBXNTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 08:19:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58436 "EHLO mail.kernel.org"
+        id S234753AbhBXNSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 08:18:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234103AbhBXNIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234112AbhBXNIk (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Feb 2021 08:08:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A0BF64F9E;
-        Wed, 24 Feb 2021 12:54:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D93464F10;
+        Wed, 24 Feb 2021 12:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614171298;
-        bh=jsqqPb9DXofZgOnQ9AAwrQBlYq22ff7hsEVbWseEDWc=;
+        s=k20201202; t=1614171300;
+        bh=rxFk4IJfwyIsOo132xiwLCKmsrp6jZ81JqfH0aKVHcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhOKr6c9tiQP8L7nFqj1Ep0B9y45RY9fQAH1iG6OpXqp+l3/aSWpDdPnApDEbS0Ex
-         U6z+1ijYt2u7LZ74ZLJMFYbnC6BvFIrr26+tQxMvh0alNGH6dz4cJO+r8E0/Nz9b+Z
-         u7L9wjY8N0OR2dmLPZJbPQYRitpeQz0lmbM9LabHuZTy6qrQcm0OdV7EukcIB88FNb
-         NaCTvqU/LsINx4tXcubKuDNPurK8YFyCGbZpGhD+CeJISpG/3/rnCElWOgncL8WR6v
-         drb2DNqi7XoRF3sWf1Xxp7kn7ApLa40ZNyEkfaeUIsW8xHnXEtOavEREfr4iHzlHkT
-         qO5+THfefuc5Q==
+        b=OXeLHB4WptHYyg5ZQLg6530y+VmCiPT8snj8mJ2t7b8YR3ortOGoImrt2ldEQyVh6
+         VTQdl0wmg0wU9lzVYCXTsXgDhmjFdXCww4qudAvPI6a7YOOqvFDTM3v7tCNTRkcQAa
+         k3wwPlNru8O2QAbeESufr8w8D24C8Oqx9Dp9CLSFdLtIc7OpNl3/pVVwQLHu/RfHrR
+         dP+K0gQNGmnmKMqTPqQMeglNwz4mOLrd2556MJgNaX94HbaIb6tf1xphqiBPmho7y5
+         Us44VgFrFsL6SB7Q5Ar+Vg11yn1pZntsuAuYcj6zAiRLsO32gTNDjsksq65QW4H9xS
+         ZXLpuF2QrE/ag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 18/26] f2fs: fix to set/clear I_LINKABLE under i_lock
-Date:   Wed, 24 Feb 2021 07:54:26 -0500
-Message-Id: <20210224125435.483539-18-sashal@kernel.org>
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/26] tomoyo: ignore data race while checking quota
+Date:   Wed, 24 Feb 2021 07:54:27 -0500
+Message-Id: <20210224125435.483539-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210224125435.483539-1-sashal@kernel.org>
 References: <20210224125435.483539-1-sashal@kernel.org>
@@ -42,86 +43,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 46085f37fc9e12d5c3539fb768b5ad7951e72acf ]
+[ Upstream commit 5797e861e402fff2bedce4ec8b7c89f4248b6073 ]
 
-fsstress + fault injection test case reports a warning message as
-below:
+syzbot is reporting that tomoyo's quota check is racy [1]. But this check
+is tolerant of some degree of inaccuracy. Thus, teach KCSAN to ignore
+this data race.
 
-WARNING: CPU: 13 PID: 6226 at fs/inode.c:361 inc_nlink+0x32/0x40
-Call Trace:
- f2fs_init_inode_metadata+0x25c/0x4a0 [f2fs]
- f2fs_add_inline_entry+0x153/0x3b0 [f2fs]
- f2fs_add_dentry+0x75/0x80 [f2fs]
- f2fs_do_add_link+0x108/0x160 [f2fs]
- f2fs_rename2+0x6ab/0x14f0 [f2fs]
- vfs_rename+0x70c/0x940
- do_renameat2+0x4d8/0x4f0
- __x64_sys_renameat2+0x4b/0x60
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[1] https://syzkaller.appspot.com/bug?id=999533deec7ba6337f8aa25d8bd1a4d5f7e50476
 
-Following race case can cause this:
-Thread A				Kworker
-- f2fs_rename
- - f2fs_create_whiteout
-  - __f2fs_tmpfile
-   - f2fs_i_links_write
-    - f2fs_mark_inode_dirty_sync
-     - mark_inode_dirty_sync
-					- writeback_single_inode
-					 - __writeback_single_inode
-					  - spin_lock(&inode->i_lock)
-   - inode->i_state |= I_LINKABLE
-					  - inode->i_state &= ~dirty
-					  - spin_unlock(&inode->i_lock)
- - f2fs_add_link
-  - f2fs_do_add_link
-   - f2fs_add_dentry
-    - f2fs_add_inline_entry
-     - f2fs_init_inode_metadata
-      - f2fs_i_links_write
-       - inc_nlink
-        - WARN_ON(!(inode->i_state & I_LINKABLE))
-
-Fix to add i_lock to avoid i_state update race condition.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ security/tomoyo/file.c    | 16 ++++++++--------
+ security/tomoyo/network.c |  8 ++++----
+ security/tomoyo/util.c    | 24 ++++++++++++------------
+ 3 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index 8617e742d0878..e20a0f9e68455 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -772,7 +772,11 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
+diff --git a/security/tomoyo/file.c b/security/tomoyo/file.c
+index 2a374b4da8f5c..cbe0dc87bb919 100644
+--- a/security/tomoyo/file.c
++++ b/security/tomoyo/file.c
+@@ -356,13 +356,13 @@ static bool tomoyo_merge_path_acl(struct tomoyo_acl_info *a,
+ {
+ 	u16 * const a_perm = &container_of(a, struct tomoyo_path_acl, head)
+ 		->perm;
+-	u16 perm = *a_perm;
++	u16 perm = READ_ONCE(*a_perm);
+ 	const u16 b_perm = container_of(b, struct tomoyo_path_acl, head)->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
  
- 	if (whiteout) {
- 		f2fs_i_links_write(inode, false);
-+
-+		spin_lock(&inode->i_lock);
- 		inode->i_state |= I_LINKABLE;
-+		spin_unlock(&inode->i_lock);
-+
- 		*whiteout = inode;
- 	} else {
- 		d_tmpfile(dentry, inode);
-@@ -966,7 +970,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		err = f2fs_add_link(old_dentry, whiteout);
- 		if (err)
- 			goto put_out_dir;
-+
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state &= ~I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		iput(whiteout);
- 	}
+@@ -428,14 +428,14 @@ static bool tomoyo_merge_mkdev_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 *const a_perm = &container_of(a, struct tomoyo_mkdev_acl,
+ 					 head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_mkdev_acl, head)
+ 		->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
  
+@@ -505,13 +505,13 @@ static bool tomoyo_merge_path2_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm = &container_of(a, struct tomoyo_path2_acl, head)
+ 		->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_path2_acl, head)->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+@@ -640,14 +640,14 @@ static bool tomoyo_merge_path_number_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm = &container_of(a, struct tomoyo_path_number_acl,
+ 					  head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_path_number_acl, head)
+ 		->perm;
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+diff --git a/security/tomoyo/network.c b/security/tomoyo/network.c
+index 9094f4b3b367b..2ea0da6e5180f 100644
+--- a/security/tomoyo/network.c
++++ b/security/tomoyo/network.c
+@@ -233,14 +233,14 @@ static bool tomoyo_merge_inet_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm =
+ 		&container_of(a, struct tomoyo_inet_acl, head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_inet_acl, head)->perm;
+ 
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+@@ -259,14 +259,14 @@ static bool tomoyo_merge_unix_acl(struct tomoyo_acl_info *a,
+ {
+ 	u8 * const a_perm =
+ 		&container_of(a, struct tomoyo_unix_acl, head)->perm;
+-	u8 perm = *a_perm;
++	u8 perm = READ_ONCE(*a_perm);
+ 	const u8 b_perm = container_of(b, struct tomoyo_unix_acl, head)->perm;
+ 
+ 	if (is_delete)
+ 		perm &= ~b_perm;
+ 	else
+ 		perm |= b_perm;
+-	*a_perm = perm;
++	WRITE_ONCE(*a_perm, perm);
+ 	return !perm;
+ }
+ 
+diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
+index d3d9d9f1edb04..16d488f963b12 100644
+--- a/security/tomoyo/util.c
++++ b/security/tomoyo/util.c
+@@ -1020,30 +1020,30 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
+ 		u8 i;
+ 		if (ptr->is_deleted)
+ 			continue;
++		/*
++		 * Reading perm bitmap might race with tomoyo_merge_*() because
++		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
++		 * max_learning_entry parameter by a few entries does not harm.
++		 */
+ 		switch (ptr->type) {
+ 		case TOMOYO_TYPE_PATH_ACL:
+-			perm = container_of(ptr, struct tomoyo_path_acl, head)
+-				->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_PATH2_ACL:
+-			perm = container_of(ptr, struct tomoyo_path2_acl, head)
+-				->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path2_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_PATH_NUMBER_ACL:
+-			perm = container_of(ptr, struct tomoyo_path_number_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_path_number_acl, head)
++				  ->perm);
+ 			break;
+ 		case TOMOYO_TYPE_MKDEV_ACL:
+-			perm = container_of(ptr, struct tomoyo_mkdev_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_INET_ACL:
+-			perm = container_of(ptr, struct tomoyo_inet_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_inet_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_UNIX_ACL:
+-			perm = container_of(ptr, struct tomoyo_unix_acl,
+-					    head)->perm;
++			data_race(perm = container_of(ptr, struct tomoyo_unix_acl, head)->perm);
+ 			break;
+ 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
+ 			perm = 0;
 -- 
 2.27.0
 
