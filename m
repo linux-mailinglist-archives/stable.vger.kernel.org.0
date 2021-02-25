@@ -2,194 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83391325894
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 22:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486D83258C0
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 22:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234081AbhBYVYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 16:24:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S234302AbhBYVhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 16:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233960AbhBYVY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 16:24:28 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687A9C06174A
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:23:48 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id e10so6410509wro.12
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:23:48 -0800 (PST)
+        with ESMTP id S234141AbhBYVhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 16:37:02 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B80C061788;
+        Thu, 25 Feb 2021 13:36:15 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id h4so4671686pgf.13;
+        Thu, 25 Feb 2021 13:36:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=uxVQ1dg2nqhX8SNUvSx/CFwCMMBlF2nfp3347F+VDtY=;
-        b=PAAxWsfRQaqHyQHVBsZcTfsHYcam3D/lZHov192trhSuyuWHOeTHssyDHro6GZ1m41
-         +mFE0/jr5ucIxRTGCDmwunY1W8iaG9fuzEefRedUsYYuaPrTLEI/X3eWfpsK5/RDUPGl
-         bp9CJuDtTl/UGLYsNHOZ3+vffNr/sHgqxTY/igHpqQySJlkauOjkWwZvVCdvtvSYK8Wb
-         D7RopBFC/jUAbbN0h+F4tcvb1LsvYNuM5O9SrOfPClwaY0AqdO1xWYJrok9bL4NCqSSC
-         DklWYigl3CEN2MFsqscOCRCg5Q6dsdiBEm8DGC2rOOAVWwP3pvsR3ugKKt9sopmhTSB0
-         hLEQ==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=gvaWQnEWct6fpKfCa7T/5XaaZi/ox2GWt7/ncZyXPl8=;
+        b=DROKf6iFbQFfQgGuU8TzV+XRA6//TJOBFm7TqVuZx8dKyI5aH9siAnL332CM5YrqNi
+         n4q7gI+3sI/aJY4XEMmno1BzrlGnzMVzw8Ilfk3992m2ExjVFMwrLv1eHpOugkNXYCk3
+         WT/GSSfNH6hwTxilRme8T7CiLJMnmQ7lxURrSWoutkJ095j027yB44KtZT7SjBqAIVms
+         QcmwJ2ulCvT0fSryMFVX4liS1062uBkp2J6jZk3D0bTBt1MH+cDCtFhYYhFFH5KGUc62
+         SbuJHE7ums96mnboUq/etQbAdJD2v+d5HVJ8FFNvPn7D0pOQENNPkKdrEnGSGNtVY/qz
+         hiBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=uxVQ1dg2nqhX8SNUvSx/CFwCMMBlF2nfp3347F+VDtY=;
-        b=srB1XGw5m6tLlcneYMW+OstP/ylp5+S97ISM/xGGcfEPQeXqd5Z2MuC43TJnMXNPpc
-         s7jwFG/YXHkyL3VewVQSPnvI8FWTPZRODTCrTRQMvvNNl5l7a8ASEvpIOUyzmFCIPgeU
-         Tl1CXpaedZD80MbGOTkyk2I9DfGh+SMIii4TOX5aBNpuOauu8JNVnpOGGF01TKyjKMw7
-         A3HZuYGKg6pEt+jkOnd1KdfrdKiG/72eQ4nyfUp5QksIJlMCVXPfysT92boWe18Cnj07
-         CM9tKlZmD3g1o+/uI6MNgk5TxD0iEVqFG5uCrLf285dNZ470M1XhpX4p2z6fjyaWS3sP
-         lRYg==
-X-Gm-Message-State: AOAM5304hH6n8MKwkgy4v7vf6d1698VXQDN5+Kyzq1Qgxm5YswGZZwmq
-        GY6NYxKoH9kduqtru8ACIxM=
-X-Google-Smtp-Source: ABdhPJzQ5YlLo33xI6bURCHVBnHZRYD+YCCLimQibZKvpvL7oBafeaEZweIqce9eJPt5giT5vq/Vcg==
-X-Received: by 2002:adf:f841:: with SMTP id d1mr5322608wrq.36.1614288227234;
-        Thu, 25 Feb 2021 13:23:47 -0800 (PST)
-Received: from debian (host-2-98-59-96.as13285.net. [2.98.59.96])
-        by smtp.gmail.com with ESMTPSA id n186sm8854440wmn.22.2021.02.25.13.23.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Feb 2021 13:23:46 -0800 (PST)
-Date:   Thu, 25 Feb 2021 21:23:44 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     dan.j.williams@intel.com, colyli@suse.com, dave.jiang@intel.com,
-        ira.weiny@intel.com, rpalethorpe@suse.com, stable@vger.kernel.org,
-        vishal.l.verma@intel.com
-Subject: Re: FAILED: patch "[PATCH] libnvdimm/dimm: Avoid race between probe
- and" failed to apply to 4.19-stable tree
-Message-ID: <YDgVYCKzK8zNt3Jy@debian>
-References: <1612779897191109@kroah.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=gvaWQnEWct6fpKfCa7T/5XaaZi/ox2GWt7/ncZyXPl8=;
+        b=B9Fw0/7Qxv6QfLGCB1hgv6s/0U+l0099ytVyXJKBczPqG8FldBg4M2sFk6/6d+pVY8
+         NTHLXwTeAWMoKsEv93ZEX/wxOOr4CJj3w/gMuxXCyNiO4iE7dtf63bZtc9Co5kEcwoUv
+         4tCaECU1yYoQHhdV8+/JxBCszCygqugUCpQ1I1O2XrsbIAbIFKLiYG/pLV+jm8Ojx+qE
+         5PBmmpSAGZez/7eUYL0ZW3vucIenWrnTfdbWZV+MgBMl2mRxr47Y1Vqm2xTSImXvtAp2
+         sbYpuXm7oOXt2hSLfkAe7cbgz+w7T6WnwayBIiDiibZI13zZoo4cVBXiAdgcZouGpSVC
+         tLeg==
+X-Gm-Message-State: AOAM531NIzObn2rs0UQjGLDIBsEJdMIg05JgmLYI7LdXuivahjY54L5+
+        OQ0fUzgy36nXfMgwXVajfNwzzEuRkKI=
+X-Google-Smtp-Source: ABdhPJzfxoR7+zNSllT4pPOU52nuC/dqqsC2ZBVVUkRko442QW03g2DQ10F3jLsn0VuQWmhYMp6hUg==
+X-Received: by 2002:a65:690a:: with SMTP id s10mr4720085pgq.162.1614288974338;
+        Thu, 25 Feb 2021 13:36:14 -0800 (PST)
+Received: from [10.230.29.30] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id e21sm6496880pgv.74.2021.02.25.13.36.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Feb 2021 13:36:13 -0800 (PST)
+Subject: Re: [PATCH 5.10 00/23] 5.10.19-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210225092516.531932232@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <98c41989-3c79-d77f-3d3d-85db91750178@gmail.com>
+Date:   Thu, 25 Feb 2021 13:35:54 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="KFEKECFtOqNiUDDD"
-Content-Disposition: inline
-In-Reply-To: <1612779897191109@kroah.com>
+In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---KFEKECFtOqNiUDDD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi Greg,
-
-On Mon, Feb 08, 2021 at 11:24:57AM +0100, gregkh@linuxfoundation.org wrote:
+On 2/25/2021 1:53 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.19 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Responses should be made by Sat, 27 Feb 2021 09:25:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.19-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Here is the backport. Will apply to all branches till 4.4-stable.
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM:
 
---
-Regards
-Sudip
-
---KFEKECFtOqNiUDDD
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-libnvdimm-dimm-Avoid-race-between-probe-and-availabl.patch"
-
-From 49a07391dd8bef6e40bb44ca5636dd429f86e81a Mon Sep 17 00:00:00 2001
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Mon, 1 Feb 2021 16:20:40 -0800
-Subject: [PATCH] libnvdimm/dimm: Avoid race between probe and
- available_slots_show()
-
-commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream
-
-Richard reports that the following test:
-
-(while true; do
-     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
- done) &
-
-while true; do
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
-     done
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
-     done
- done
-
-...fails with a crash signature like:
-
-    divide error: 0000 [#1] SMP KASAN PTI
-    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
-    [..]
-    Call Trace:
-     available_slots_show+0x4e/0x120 [libnvdimm]
-     dev_attr_show+0x42/0x80
-     ? memset+0x20/0x40
-     sysfs_kf_seq_show+0x218/0x410
-
-The root cause is that available_slots_show() consults driver-data, but
-fails to synchronize against device-unbind setting up a TOCTOU race to
-access uninitialized memory.
-
-Validate driver-data under the device-lock.
-
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Coly Li <colyli@suse.com>
-Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
-Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-[sudip: use device_lock()]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/nvdimm/dimm_devs.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/nvdimm/dimm_devs.c b/drivers/nvdimm/dimm_devs.c
-index 863cabc35215..f0e0e3b42c91 100644
---- a/drivers/nvdimm/dimm_devs.c
-+++ b/drivers/nvdimm/dimm_devs.c
-@@ -359,16 +359,16 @@ static ssize_t state_show(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RO(state);
- 
--static ssize_t available_slots_show(struct device *dev,
--		struct device_attribute *attr, char *buf)
-+static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
- {
--	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
-+	struct device *dev;
- 	ssize_t rc;
- 	u32 nfree;
- 
- 	if (!ndd)
- 		return -ENXIO;
- 
-+	dev = ndd->dev;
- 	nvdimm_bus_lock(dev);
- 	nfree = nd_label_nfree(ndd);
- 	if (nfree - 1 > nfree) {
-@@ -380,6 +380,18 @@ static ssize_t available_slots_show(struct device *dev,
- 	nvdimm_bus_unlock(dev);
- 	return rc;
- }
-+
-+static ssize_t available_slots_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	ssize_t rc;
-+
-+	device_lock(dev);
-+	rc = __available_slots_show(dev_get_drvdata(dev), buf);
-+	device_unlock(dev);
-+
-+	return rc;
-+}
- static DEVICE_ATTR_RO(available_slots);
- 
- static struct attribute *nvdimm_attributes[] = {
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.30.0
-
-
---KFEKECFtOqNiUDDD--
+Florian
