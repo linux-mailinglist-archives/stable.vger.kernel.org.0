@@ -2,97 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 486D83258C0
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 22:37:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7BC3258D5
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 22:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234302AbhBYVhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 16:37:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60794 "EHLO
+        id S233127AbhBYVj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 16:39:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234141AbhBYVhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 16:37:02 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B80C061788;
-        Thu, 25 Feb 2021 13:36:15 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id h4so4671686pgf.13;
-        Thu, 25 Feb 2021 13:36:15 -0800 (PST)
+        with ESMTP id S234165AbhBYVjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 16:39:53 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53B0C061756
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:39:10 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id l12so6666246wry.2
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:39:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=gvaWQnEWct6fpKfCa7T/5XaaZi/ox2GWt7/ncZyXPl8=;
-        b=DROKf6iFbQFfQgGuU8TzV+XRA6//TJOBFm7TqVuZx8dKyI5aH9siAnL332CM5YrqNi
-         n4q7gI+3sI/aJY4XEMmno1BzrlGnzMVzw8Ilfk3992m2ExjVFMwrLv1eHpOugkNXYCk3
-         WT/GSSfNH6hwTxilRme8T7CiLJMnmQ7lxURrSWoutkJ095j027yB44KtZT7SjBqAIVms
-         QcmwJ2ulCvT0fSryMFVX4liS1062uBkp2J6jZk3D0bTBt1MH+cDCtFhYYhFFH5KGUc62
-         SbuJHE7ums96mnboUq/etQbAdJD2v+d5HVJ8FFNvPn7D0pOQENNPkKdrEnGSGNtVY/qz
-         hiBA==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=RKlk+S7U+iGlFCsfzUlcqhvFkWf9gTjST6OuEL8Hf+E=;
+        b=QRhaJ15StATCRpNoOCXYalx3Jq//c2l3wxIPSHCx2ZUx7PhPBRcHjSo2KfFraDnR+i
+         lW56JkiLTBtb17dN2HGv4Q17VinKVhaOjXvn+SrEwrPsnZkbjbS9UNr4p7yC/Njr+9Dr
+         jo+na/UIZgZvTi1kbO90y4pJLRMlow7NLDhiTVhG039Bgh6Gg6g51bxkhup5OJCo4kiq
+         BO2ctKIpSDhlKkPVVF1vSwqx+ABYkQeFBAOI8T1eCpK0kovuXE1Jx0F79Gg7P35IwVTE
+         2CiGjoxIFqOvRjaqpUPi3bLpRuw9ArdcJmoRSNYPg9N7BlPk6n+d1qOigoae9KxRedKf
+         ENIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gvaWQnEWct6fpKfCa7T/5XaaZi/ox2GWt7/ncZyXPl8=;
-        b=B9Fw0/7Qxv6QfLGCB1hgv6s/0U+l0099ytVyXJKBczPqG8FldBg4M2sFk6/6d+pVY8
-         NTHLXwTeAWMoKsEv93ZEX/wxOOr4CJj3w/gMuxXCyNiO4iE7dtf63bZtc9Co5kEcwoUv
-         4tCaECU1yYoQHhdV8+/JxBCszCygqugUCpQ1I1O2XrsbIAbIFKLiYG/pLV+jm8Ojx+qE
-         5PBmmpSAGZez/7eUYL0ZW3vucIenWrnTfdbWZV+MgBMl2mRxr47Y1Vqm2xTSImXvtAp2
-         sbYpuXm7oOXt2hSLfkAe7cbgz+w7T6WnwayBIiDiibZI13zZoo4cVBXiAdgcZouGpSVC
-         tLeg==
-X-Gm-Message-State: AOAM531NIzObn2rs0UQjGLDIBsEJdMIg05JgmLYI7LdXuivahjY54L5+
-        OQ0fUzgy36nXfMgwXVajfNwzzEuRkKI=
-X-Google-Smtp-Source: ABdhPJzfxoR7+zNSllT4pPOU52nuC/dqqsC2ZBVVUkRko442QW03g2DQ10F3jLsn0VuQWmhYMp6hUg==
-X-Received: by 2002:a65:690a:: with SMTP id s10mr4720085pgq.162.1614288974338;
-        Thu, 25 Feb 2021 13:36:14 -0800 (PST)
-Received: from [10.230.29.30] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id e21sm6496880pgv.74.2021.02.25.13.36.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Feb 2021 13:36:13 -0800 (PST)
-Subject: Re: [PATCH 5.10 00/23] 5.10.19-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210225092516.531932232@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <98c41989-3c79-d77f-3d3d-85db91750178@gmail.com>
-Date:   Thu, 25 Feb 2021 13:35:54 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.0
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=RKlk+S7U+iGlFCsfzUlcqhvFkWf9gTjST6OuEL8Hf+E=;
+        b=D8lNypeixcz8etGJL4ceXLwvwTLPIrXAl0iJY3T9DpoUBOUcYHDZy4K6/yMo6zqYl5
+         PYmOrQwBkWCHk7FBy1F3d7idWkckzObrWkf7GjhfZncFv67TqMkCD/T1+anCTDOwjaKB
+         FYiyBd31mG5rmKC4Ok8Zw2QUXKHgbCnMJWOyVwkXSQRF2Yb8oEjH5ofOT41KvkFtFnyj
+         aFYd7ab097qBEUfXWPc+OxOi+rY38/vVZ9raKi+e47MjjTGAJmPfPzumAhfXXqFl+B/J
+         cNV0aDViRh9R3tGTmyydo+Cz7tZjDRlfUaeXU5aYe5W7jUVGXgJWuM5QafTMJLryf3Uv
+         wr9w==
+X-Gm-Message-State: AOAM533w/EexhdcMdOGyrp/4lbATOqlrNeTM4RM9UznPUnWg1zE/H0OC
+        Mr4fK7k978LaC9u7OtxH7D3L8kzKi5f/H8jJ
+X-Google-Smtp-Source: ABdhPJzdAThJkYc4rPFOWntXUuVU0UzkKHnBBdJqg7bHtBbcxjDrGGNA7TWI/nrBrSLCjNlAVLQGMA==
+X-Received: by 2002:adf:e791:: with SMTP id n17mr5905wrm.322.1614289149567;
+        Thu, 25 Feb 2021 13:39:09 -0800 (PST)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id c3sm10930247wrw.80.2021.02.25.13.39.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Feb 2021 13:39:08 -0800 (PST)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Thu, 25 Feb 2021 22:39:07 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Airlie <airlied@linux.ie>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>, Johan Hovold <johan@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sean Paul <sean@poorly.run>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
+ dmabufs
+Message-ID: <YDgY+4dE4y231eYF@eldamar.lan>
+References: <20210223105842.27011-1-tzimmermann@suse.de>
+ <YDTk3L3gNxDE3YrC@kroah.com>
+ <YDTrDAlcFH/7/7DD@phenom.ffwll.local>
+ <YDTu4ugLo23APyaM@kroah.com>
+ <CAKMK7uG67eHEFOCJBJCtwFbwoUWQsER4DNBKRp6e75uywvF1pw@mail.gmail.com>
+ <YDT0GIJEhWRp0w5F@kroah.com>
+ <9b1e0c9b-2337-d76b-4870-72fbe8495fd2@suse.de>
+ <YDT+pusRy3/JpmRR@kroah.com>
+ <YDf0JdIUJU74J4PJ@debian>
 MIME-Version: 1.0
-In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YDf0JdIUJU74J4PJ@debian>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
+On Thu, Feb 25, 2021 at 07:01:57PM +0000, Sudip Mukherjee wrote:
+> On Tue, Feb 23, 2021 at 02:09:58PM +0100, Greg KH wrote:
+> > On Tue, Feb 23, 2021 at 01:51:09PM +0100, Thomas Zimmermann wrote:
+> > > Hi
+> > > 
+> > > Am 23.02.21 um 13:24 schrieb Greg KH:
+> > > > On Tue, Feb 23, 2021 at 01:14:30PM +0100, Daniel Vetter wrote:
+> > > > > On Tue, Feb 23, 2021 at 1:02 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > > > > 
+> > > > > > On Tue, Feb 23, 2021 at 12:46:20PM +0100, Daniel Vetter wrote:
+> > > > > > > On Tue, Feb 23, 2021 at 12:19:56PM +0100, Greg KH wrote:
+> > > > > > > > On Tue, Feb 23, 2021 at 11:58:42AM +0100, Thomas Zimmermann wrote:
+> > > > > > > > > USB devices cannot perform DMA and hence have no dma_mask set in their
+> > > > > > > > > device structure. Importing dmabuf into a USB-based driver fails, which
+> > > > > > > > > break joining and mirroring of display in X11.
+> > > > > > > > > 
+> > > > > > > > > For USB devices, pick the associated USB controller as attachment device,
+> > > > > > > > > so that it can perform DMA. If the DMa controller does not support DMA
+> > > > > > > > > transfers, we're aout of luck and cannot import.
+> > > > > > > > > 
+> > > > > > > > > Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
+> > > > > > > > > instance of struct drm_driver.
+> > > > > > > > > 
+> > > > > > > > > Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
+> > > > > > > > > 
+> > > > > > > > > v3:
+> > > > > > > > >    * drop gem_create_object
+> > > > > > > > >    * use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
+> > > > > > > > > v2:
+> > > > > > > > >    * move fix to importer side (Christian, Daniel)
+> > > > > > > > >    * update SHMEM and CMA helpers for new PRIME callbacks
+> > > > > > > > > 
+> > > > > > > > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > > > > > > Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devices")
+> > > > > > > > > Cc: Christoph Hellwig <hch@lst.de>
+> > > > > > > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > > > > > Cc: Johan Hovold <johan@kernel.org>
+> > > > > > > > > Cc: Alan Stern <stern@rowland.harvard.edu>
+> > > > > > > > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > > > > > > > Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> > > > > > > > > Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+> > > > > > > > > Cc: Oliver Neukum <oneukum@suse.com>
+> > > > > > > > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > > > > > > > Cc: <stable@vger.kernel.org> # v5.10+
+> > > > > > > > > ---
+> <snip>
+> > > > > > > > 
+> > > > > > > > There shouldn't be anything "special" about a DRM driver that needs this
+> > > > > > > > vs. any other driver that might want to know about DMA things related to
+> > > > > > > > a specific USB device.  Why isn't this an issue with the existing
+> > > > > > > > storage or v4l USB devices?
+> > > > > > > 
+> > > > > > > The trouble is that this is a regression fix for 5.9, because the dma-api
+> > > > > > > got more opinionated about what it allows. The proper fix is a lot more
+> > > > > > > invasive (we essentially need to rework the drm_prime.c to allow dma-buf
+> > > > > > > importing for just cpu access), and that's a ton more invasive than just a
+> > > > > > > small patch with can stuff into stable kernels.
+> > > > > > > 
+> > > > > > > This here is ugly, but it should at least get rid of black screens again.
+> > > > > > > 
+> > > > > > > I think solid FIXME comment explaining the situation would be good.
+> > > > > > 
+> > > > > > Why can't I take a USB patch for a regression fix?  Is drm somehow
+> > > > > > stand-alone that you make changes here that should belong in other
+> > > > > > subsystems?
+> > > > > > 
+> > > > > > {hint, it shouldn't be}
+> > > > > > 
+> > > > > > When you start poking in the internals of usb controller structures,
+> > > > > > that logic belongs in the USB core for all drivers to use, not in a
+> > > > > > random tiny subsystem where no USB developer will ever notice it?  :)
+> > > > > 
+> > > > > Because the usb fix isn't the right fix here, it's just the duct-tape.
+> > > > > We don't want to dig around in these internals, it's just a convenient
+> > > > > way to shut up the dma-api until drm has sorted out its confusion.
+> > > > > 
+> > > > > We can polish the turd if you want, but the thing is, it's still a turd ...
+> > > > > 
+> > > > > The right fix is to change drm_prime.c code to not call dma_map_sg
+> > > > > when we don't need it. The problem is that roughly 3 layers of code
+> > > > > (drm_prime, dma-buf, gem shmem helpers) are involved. Plus, since
+> > > > > drm_prime is shared by all drm drivers, all other drm drivers are
+> > > > > impacted too. We're not going to be able to cc: stable that kind of
+> > > > > stuff. Thomas actually started with that series, until I pointed out
+> > > > > how bad things really are.
+> > > > > 
+> > > > > And before you ask: The dma-api change makes sense, and dma-api vs drm
+> > > > > relations are strained since years, so we're not going ask for some
+> > > > > hack there for our abuse to paper over the regression. I've been in
+> > > > > way too many of those threads, only result is shouting and failed
+> > > > > anger management.
+> > > > 
+> > > > Let's do it right.  If this is a regression from 5.9, it isn't a huge
+> > > > one as that kernel was released last October.  I don't like to see this
+> > > > messing around with USB internals in non-USB-core code please.
+> > > 
+> > > I get
+> > > 
+> > >  > git tag --contains 6eb0233ec2d0
+> > >  ...
+> > >  v5.10-rc1
+> > >  ...
+> > 
+> > Ah, I thought you said 5.9 was when the problem happened, ok, yes, 5.10
+> > is slow to get out to a lot of distros that do not update frequently :(
+> 
+> iiuc, Debian Bullseye release will be having v5.10.y.
+> 
+> Ben ?
 
-On 2/25/2021 1:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.19 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 27 Feb 2021 09:25:06 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.19-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+That is correct, Debian bullseye will ship with 5.10.y.
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Regards,
+Salvatore
