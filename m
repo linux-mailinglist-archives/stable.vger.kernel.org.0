@@ -2,176 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFEA5324B9D
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDA8324BCD
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:14:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233603AbhBYH6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 02:58:01 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38030 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233018AbhBYH6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 02:58:00 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 23591B08C;
-        Thu, 25 Feb 2021 07:57:18 +0000 (UTC)
-Subject: Re: [PATCH v4] drm: Use USB controller's DMA mask when importing
- dmabufs
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     airlied@linux.ie, gregkh@linuxfoundation.org,
-        Christoph Hellwig <hch@lst.de>, hdegoede@redhat.com,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
-        sean@poorly.run, christian.koenig@amd.com
-References: <20210224092304.29932-1-tzimmermann@suse.de>
- <20210224152153.GA1307460@rowland.harvard.edu>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <b44307cf-25f9-acd0-eb35-92e8716205de@suse.de>
-Date:   Thu, 25 Feb 2021 08:57:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S233946AbhBYIKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 03:10:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235551AbhBYIKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 03:10:15 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DD1C061788
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 00:09:34 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id w11so4269670wrr.10
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 00:09:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=RiN2cMKC+xppmO732DXmQGbrhZydASnzlrEnedGOXzk=;
+        b=uz8UY5WABQ1HPTdrd0DwD7/+9T18JDPE2qP3nlNToxyH4/CNdzlBOcl2wcOiAm2xl+
+         kZN1T1vKaXZm3l47Y281/BtBFbFvYHfZgkHvWkoTJFjK5B/dsvzaAgPnYXdKxbVXGt5D
+         nNMu5mbuhLBdgGYoGJDIAbe3UxU46BXq061ppegxYHvA5n3/KrnR9HgL47p1FZkruNdA
+         ZlNTKkeR1qgn81R10e1GLC76t8bx34rJJ0AtimZWYl7N9iogYF7cxwva0VxGFdY0tasd
+         LiqiVcjGrjcnXYZXKVO72rCdrjgzXZvpTHGxuJO6eI1TjEdk/F5kI+gkcZt0Sr6ezEEc
+         D59w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=RiN2cMKC+xppmO732DXmQGbrhZydASnzlrEnedGOXzk=;
+        b=lJfBFy6CcjhlD471zUxmn0r8ZrF3bKS0qIrWbxcq5nDn1VxYMlHoL8DlqNY8pnLgOO
+         E3pYe/goGmdDEvb6oeaXmlKgarC9Si61fbuGD86cS4z/1tMIwuv5Uma8j1pm0/9p5PXA
+         P9FpX2ukkLhPXSRMaiX22iRcCSTR/Ma2y94mO4iBYV3V34R3XEWgqjvYTivq3apxlm4R
+         qn1uPzDWfdQn2Wden3+j7/vHq/tZtUh2n+j+2D/Fu+hVPS+GGb9gBKGczS8Oqow9jq6T
+         5WOkhTGJFXEmoPKoUAByox8niYJADJxkEAC/Vc6+zy4cJziLhk8NSQurqQjsFddc5PS2
+         0WqA==
+X-Gm-Message-State: AOAM532BS6q/YcJ+o8ikYts6FagISTXWuzzu2MttvlAzhUNlnZSp8FJS
+        bkDYPbqCG7EV0xi7WAS+NJsp5d5wPKeJXw==
+X-Google-Smtp-Source: ABdhPJxpeMmvf6CphQDye6ONrdfqLu2AHEXTJlN9fCIJ9VGJ3RJAsLyNggV8hsXDMhQ/CGWZm4KksQ==
+X-Received: by 2002:a05:6000:89:: with SMTP id m9mr2113738wrx.3.1614240573667;
+        Thu, 25 Feb 2021 00:09:33 -0800 (PST)
+Received: from dell ([91.110.221.155])
+        by smtp.gmail.com with ESMTPSA id h17sm6676991wrt.74.2021.02.25.00.09.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Feb 2021 00:09:32 -0800 (PST)
+Date:   Thu, 25 Feb 2021 08:09:30 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tglx@linutronix.de,
+        cj.chengjian@huawei.com, judy.chenhui@huawei.com,
+        zhangjinhao2@huawei.com
+Subject: Re: [PATCH 4.9.y 1/1] futex: Fix OWNER_DEAD fixup
+Message-ID: <20210225080930.GB641347@dell>
+References: <20210223144151.916675-1-zhengyejian1@huawei.com>
+ <20210223144151.916675-2-zhengyejian1@huawei.com>
+ <20210224111915.GA641347@dell>
+ <09cd79ce-291a-1750-6954-ecde0a6bdfcf@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20210224152153.GA1307460@rowland.harvard.edu>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="vjnhpo50sTL5wnAPxWRkNpywRp0PNO5oy"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <09cd79ce-291a-1750-6954-ecde0a6bdfcf@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---vjnhpo50sTL5wnAPxWRkNpywRp0PNO5oy
-Content-Type: multipart/mixed; boundary="wxHLQCOJvWeAOKLrtkkef0y1hUwdZR2oz";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: airlied@linux.ie, gregkh@linuxfoundation.org,
- Christoph Hellwig <hch@lst.de>, hdegoede@redhat.com,
- dri-devel@lists.freedesktop.org, stable@vger.kernel.org, sean@poorly.run,
- christian.koenig@amd.com
-Message-ID: <b44307cf-25f9-acd0-eb35-92e8716205de@suse.de>
-Subject: Re: [PATCH v4] drm: Use USB controller's DMA mask when importing
- dmabufs
-References: <20210224092304.29932-1-tzimmermann@suse.de>
- <20210224152153.GA1307460@rowland.harvard.edu>
-In-Reply-To: <20210224152153.GA1307460@rowland.harvard.edu>
+On Thu, 25 Feb 2021, Zhengyejian (Zetta) wrote:
 
---wxHLQCOJvWeAOKLrtkkef0y1hUwdZR2oz
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+> 
+> 
+> On 2021/2/24 19:19, Lee Jones wrote:
+> > On Tue, 23 Feb 2021, Zheng Yejian wrote:
+> > 
+> > > From: Peter Zijlstra <peterz@infradead.org>
+> > > 
+> > > commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
+> > > 
+> > > Both Geert and DaveJ reported that the recent futex commit:
+> > > 
+> > >    c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> > > 
+> > > introduced a problem with setting OWNER_DEAD. We set the bit on an
+> > > uninitialized variable and then entirely optimize it away as a
+> > > dead-store.
+> > > 
+> > > Move the setting of the bit to where it is more useful.
+> > > 
+> > > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > > Reported-by: Dave Jones <davej@codemonkey.org.uk>
+> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > > Cc: Paul E. McKenney <paulmck@us.ibm.com>
+> > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> > > Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
+> > > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > > Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> > 
+> > Why have you dropped my Reviewed-by?
+> > 
+> Really sorry. I thought that a changed patchset needs another review.
+> Then I do need to append your Reviewed-by and send a "V2" patchset, Do I?
 
-Hi
+No need.  I won't hold up merging just for that.
 
-Am 24.02.21 um 16:21 schrieb Alan Stern:
-> On Wed, Feb 24, 2021 at 10:23:04AM +0100, Thomas Zimmermann wrote:
->> USB devices cannot perform DMA and hence have no dma_mask set in their=
+Just bear in mind that you should apply and carry forward *-by tags
+unless there have been significant/functional changes.
 
->> device structure. Therefore importing dmabuf into a USB-based driver
->> fails, which breaks joining and mirroring of display in X11.
->>
->> For USB devices, pick the associated USB controller as attachment devi=
-ce.
->> This allows the DRM import helpers to perform the DMA setup. If the DM=
-A
->> controller does not support DMA transfers, we're out of luck and canno=
-t
->> import. Our current USB-based DRM drivers don't use DMA, so the actual=
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
 
->> DMA device is not important.
->>
->> Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
->> instance of struct drm_driver.
->>
->> Tested by joining/mirroring displays of udl and radeon un der Gnome/X1=
-1.
->>
->> v4:
->> 	* implement workaround with USB helper functions (Greg)
->> 	* use struct usb_device->bus->sysdev as DMA device (Takashi)
->> v3:
->> 	* drop gem_create_object
->> 	* use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
->> v2:
->> 	* move fix to importer side (Christian, Daniel)
->> 	* update SHMEM and CMA helpers for new PRIME callbacks
->>
->> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->> Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devic=
-es")
->> Cc: Christoph Hellwig <hch@lst.de>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: <stable@vger.kernel.org> # v5.10+
->> ---
->=20
->> +struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *de=
-v,
->> +						struct dma_buf *dma_buf)
->> +{
->> +	struct usb_device *udev;
->> +	struct device *dmadev;
->> +	struct drm_gem_object *obj;
->> +
->> +	if (!dev_is_usb(dev->dev))
->> +		return ERR_PTR(-ENODEV);
->> +	udev =3D interface_to_usbdev(to_usb_interface(dev->dev));
->> +
->> +	dmadev =3D usb_get_dma_device(udev);
->=20
-> You can do it this way if you want, but I think usb_get_dma_device woul=
-d
-> be easier to use if its argument was a pointer to struct usb_interface
-> or (even better) a pointer to a usb_interface's embedded struct device.=
+> > > ---
+> > >   kernel/futex.c | 6 +++---
+> > >   1 file changed, 3 insertions(+), 3 deletions(-)
+> > > 
+> > > diff --git a/kernel/futex.c b/kernel/futex.c
+> > > index b65dbb5d60bb..604d1cb9839d 100644
+> > > --- a/kernel/futex.c
+> > > +++ b/kernel/futex.c
+> > > @@ -2424,9 +2424,6 @@ static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+> > >   	int err = 0;
+> > >   	oldowner = pi_state->owner;
+> > > -	/* Owner died? */
+> > > -	if (!pi_state->owner)
+> > > -		newtid |= FUTEX_OWNER_DIED;
+> > >   	/*
+> > >   	 * We are here because either:
+> > > @@ -2484,6 +2481,9 @@ static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+> > >   	}
+> > >   	newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
+> > > +	/* Owner died? */
+> > > +	if (!pi_state->owner)
+> > > +		newtid |= FUTEX_OWNER_DIED;
+> > >   	if (get_futex_value_locked(&uval, uaddr))
+> > >   		goto handle_fault;
+> > 
 
-> Then you wouldn't need to compute udev, and the same would be true for
-> other callers.
-
-It seemed natural to me to use usb_device, because it contains the bus=20
-pointer. But maybe a little wrapper for usb_interface in the header file =
-
-makes things easier to read. I'll wait a bit for other reviews to come in=
-=2E
-
-Best regards
-Thomas
-
->=20
-> Alan Stern
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---wxHLQCOJvWeAOKLrtkkef0y1hUwdZR2oz--
-
---vjnhpo50sTL5wnAPxWRkNpywRp0PNO5oy
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA3WFoFAwAAAAAACgkQlh/E3EQov+AW
-rA//d9s3mcmUe+mJ1042oCb91xDD87WYaCvBv12WReWd6ewdidi+SQJtOI+MqIiv41aediIW8vVo
-VG0hEi8Et0jsQ8nFdgNX1JWBYd/j9thlNznfzozbGI+GOyk+Ub32OU5wzDRZahJx6FVcSOEGLx7f
-Jula2SoIlnwjJ1k/uGAuo227Z5nkB7bPCIARolj/ZFlVjGTCYKcSPW4y8a8cyrI3Nu9ApnZgtr90
-6tLT7Wm+Pfe7QPq6NRk7EIz0msofRFNQUlcAxUfNqHn6JVBFaInl+DQ7PXd+nddvK4Prp4TaxlaU
-sYliW525X87Da8qzSn8cVkDC05EophjOiU1LtP9royIBeLvLMGhuCRRl49WMp6W3RWMCKjvQ3w2M
-idbU4h9FmoCvJqE0SJykZ4KazfneifBPxO/4DvcbWuQz2B/oFSKgGb8kbn+YXsV2UCPfBJ0kHsC/
-wHD+LKMNrUlvY4D/vhw5VjHNnsjc1LUCg+fLiJeozLOFKZgwSWEcJv4EsqtUTMZioL2cQU5s358b
-i12c4SzsjOj+o61WOH3+isUZ0sRKQun9d4vIsc1+PlE/2A3ZG8i4cpptD+6KVvxkCQa6dKX6V6Th
-gUS0FCoWKLrEHJPFc9qc5hoP2DkN0VMWezrhB77LQ8dMsL+Bq1RMavBHitTH8/xMgU4j8x1m4Bxg
-aVY=
-=wmHp
------END PGP SIGNATURE-----
-
---vjnhpo50sTL5wnAPxWRkNpywRp0PNO5oy--
+-- 
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
