@@ -2,113 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAD432540A
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 17:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD1B325413
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 17:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233225AbhBYQvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 11:51:50 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:52931 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233454AbhBYQuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 11:50:02 -0500
-Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 3220AAFC;
-        Thu, 25 Feb 2021 11:49:15 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute7.internal (MEProxy); Thu, 25 Feb 2021 11:49:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=cuAQURJdnfSgehNwqoZk1C/1YBf
-        RDgosoa7HMN3+99M=; b=NVV8IVnKUCdyez/2KHwR8UOkjaDSmanqd3E33w1kFsr
-        Sw34LaOmm/7oe/E6b8wAmOUPKn4rUMJIuzeyqWalCgKUYupGwIxWrzi8TUyu4uFL
-        tf3UuFYcvXERsZNmXejkAkyVWcqvGCwXtgFTB44uQNEl6ggQ6GH+kT0piYN+HfDw
-        Lphbug6Zx4cZUt3KiyZTyl32HieS/jJDTVYMrfoGZEL52ZcDqVbJSTi2YZEyfFb0
-        jKgTEX6XlXkmI0Fi7g1cwOgW+P06t+6MQ37C4GUM1PmcaJhSh1pCvt7SavUojb3i
-        8zjofSneb1MNvly5P3RYybN3ppbZGMeXQ5/wb7duvbQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cuAQUR
-        JdnfSgehNwqoZk1C/1YBfRDgosoa7HMN3+99M=; b=kRJtWZ6HDijMQL9cp6CxhS
-        qOl1UMUjIrHlE/D6w0f218HRPmQUoMkiuzmjvz4037Vrj7n/sHe+vn4KCG7WgYpK
-        vPnRc8NrJtHgf9ZARvBk4lGCe12nl6i26nesAX6C7Y1EcrZt1VyB4dXuvAofqyO8
-        Wd2gZBGaQIVCtXvt0hirThb/Je1xAOCFbdRlViNAo6rsReLr3pDglBApPtk0r4o1
-        zxpHn96fQIgD0loMwQM1Su5WbeRebNOxM4E7qz9alCzPwfkilBffrIEPAUc85ylC
-        kfivvBpIdfjkL3OM0b41cspZHNIAa6i1Jc0l2tKQ7Jm+exNN7NHGQ8i4T6FDLJvg
-        ==
-X-ME-Sender: <xms:CdU3YJhQOi6bPBWvtyfxwYR9u77XlV8inMMZYueH0E0UhHnprgsE7A>
-    <xme:CdU3YABMf6v_20BWGfCThOthB-2oMeARuqrTFrvKCNKav3hsM9hy3NpuS2qu_cv3h
-    Sr0Vtw48dKiET1ARhs>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrkeelgdeliecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesghdtreertddtvdenucfhrhhomhepofgrgihimhgv
-    ucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrghtth
-    gvrhhnpeelkeeghefhuddtleejgfeljeffheffgfeijefhgfeufefhtdevteegheeiheeg
-    udenucfkphepledtrdekledrieekrdejieenucevlhhushhtvghrufhiiigvpedtnecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehmrgigihhmvgestggvrhhnohdrthgvtghh
-X-ME-Proxy: <xmx:CdU3YCfd8Nv10qBBCpRZ6miJuhrm4ctV0DZwYGqgs1x5QEfhkfXSpQ>
-    <xmx:CdU3YAcpWF-v3oYu-1fIt6yE7B5pT6J3qSDHA2Lj0THx769vAqSykA>
-    <xmx:CdU3YOiuhHOun0-CbMJjXrQS1oLBVXjCE5N-cHro0wppHb8kKGme_Q>
-    <xmx:CtU3YMNwiWR3KwEW_QtMlfDdROYJ4eEM0W58PduR2fIa9DMeNTYgIw>
-Received: from localhost (lfbn-tou-1-1502-76.w90-89.abo.wanadoo.fr [90.89.68.76])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 93D4E1080067;
-        Thu, 25 Feb 2021 11:49:13 -0500 (EST)
-Date:   Thu, 25 Feb 2021 17:49:11 +0100
-From:   Maxime Ripard <maxime@cerno.tech>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        stable@vger.kernel.org,
-        syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com
-Subject: Re: [PATCH] drm/compat: Clear bounce structures
-Message-ID: <20210225164911.k2bwswyivied36i5@gilmour>
-References: <20210222100643.400935-1-daniel.vetter@ffwll.ch>
+        id S233659AbhBYQx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 11:53:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55744 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233374AbhBYQvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 11:51:13 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D20EC06174A
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 08:50:32 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id o6so3867735pjf.5
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 08:50:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=d+dQFDPw2hN+017lEeCUYd0iXcxmTekddSI6goBA7W0=;
+        b=wdOo/ZRw1DvbB7tK8caPR4z/59L89Mbq0d7rFyeaD4HseVC/ic0FKQQ8C7Mmlvr13k
+         f0za3xxJSEYYJ3UMh8asGTArf7TGPZXUT+STUzlF3SRAo5MCwrqALiqeMMci/86MZAhE
+         IzWpHzX4P+UV/JU10Wq9dexx67q48cBRDSAqESDZMfw2WhQIEV7bFqu/kU3tBTDveIrv
+         sPOdJoZQbIEuM1QyjYLK3EFxAQqQicRUzJyVT9LA1CTRLueSHlD0pAVPr0vN2Dhf8dUB
+         y/bQjpvRIGN4ROWcnvGQU4oFUNAa/Vn0KnW91G1awfgmFRz6DNEtfzLrQHoFsVZaY30t
+         VcMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=d+dQFDPw2hN+017lEeCUYd0iXcxmTekddSI6goBA7W0=;
+        b=enfmkYew50OqRL7v00aYKv1pudC9B7jhB1ijES4EeXXRTe/6tweixS8ALaCiip+tlt
+         IvlDioeNHL8w4msbNKFigYLzb47ATq+3LItqmm1njA5q55aaDNV9HUQ0usDsANucdqth
+         8/8tyh/HkMpkGS6j1obnHggSsIRinBTsBrIxgBcWl9k/obCDnh+YrAy4KjxZ68eSc57c
+         E5cZd/bkUV3OdJtq8iTlXjp50zOehyW7X6Dj5cSsw1rZ7CgvrjhAb0I9PtkIG3nn4Axq
+         ldIgwsUNcvD1jUi62wqROZ/Eud7blJn4nOS4j2C0ioGWzVcVHRyg9+oZeQhDhemaIuIT
+         dNTw==
+X-Gm-Message-State: AOAM531C9ucznXhHnVZq58rhFm9NqheSq1N/yil0NeWopCSMJQ65ntmW
+        KJLqsveHGTbnC3jlHFXmWmKxTjLvgjBCsQ==
+X-Google-Smtp-Source: ABdhPJxM/6Q7SOPDHgMSaJqux7aY7/AIyWZbQ4JrBQvLhtJDLSeOR3iESEbqtbDFqfnSFbsHawz8zw==
+X-Received: by 2002:a17:90a:7e8f:: with SMTP id j15mr3967588pjl.223.1614271831446;
+        Thu, 25 Feb 2021 08:50:31 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q7sm6641299pjr.13.2021.02.25.08.50.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Feb 2021 08:50:31 -0800 (PST)
+Message-ID: <6037d557.1c69fb81.17512.e24a@mx.google.com>
+Date:   Thu, 25 Feb 2021 08:50:31 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="to5j3sdi4ygdh66q"
-Content-Disposition: inline
-In-Reply-To: <20210222100643.400935-1-daniel.vetter@ffwll.ch>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.100-18-g981a14c3f325
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 100 runs,
+ 1 regressions (v5.4.100-18-g981a14c3f325)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.4.y baseline: 100 runs, 1 regressions (v5.4.100-18-g981a1=
+4c3f325)
 
---to5j3sdi4ygdh66q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-On Mon, Feb 22, 2021 at 11:06:43AM +0100, Daniel Vetter wrote:
-> Some of them have gaps, or fields we don't clear. Native ioctl code
-> does full copies plus zero-extends on size mismatch, so nothing can
-> leak. But compat is more hand-rolled so need to be careful.
->=20
-> None of these matter for performance, so just memset.
->=20
-> Also I didn't fix up the CONFIG_DRM_LEGACY or CONFIG_DRM_AGP ioctl, those
-> are security holes anyway.
->=20
-> Reported-by: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com # vbla=
-nk ioctl
-> Cc: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
 
-Maxime
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.100-18-g981a14c3f325/plan/baseline/
 
---to5j3sdi4ygdh66q
-Content-Type: application/pgp-signature; name="signature.asc"
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.100-18-g981a14c3f325
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      981a14c3f32577a8b2c1d21b17f134b14d41c89a =
 
------BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCYDfVBwAKCRDj7w1vZxhR
-xe5PAP0f5XHtUCcC/Qvx5dzE+wAYFK8EvdJ+HJxByv0h2TCa3AD8DtkQmUtBpgjI
-7ZXCtqX4GggrmLOTfU5RQ3ICfer8dwY=
-=FxUz
------END PGP SIGNATURE-----
 
---to5j3sdi4ygdh66q--
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/6037a109197155bc06addcc6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.100=
+-18-g981a14c3f325/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.100=
+-18-g981a14c3f325/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6037a109197155bc06add=
+cc7
+        failing since 97 days (last pass: v5.4.77-152-ga3746663c3479, first=
+ fail: v5.4.78) =
+
+ =20
