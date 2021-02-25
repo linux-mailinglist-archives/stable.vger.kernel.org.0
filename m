@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2B6324D60
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1534F324D61
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233866AbhBYJ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 04:58:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34228 "EHLO mail.kernel.org"
+        id S234469AbhBYJ6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 04:58:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235598AbhBYJ4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:56:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F00E64F11;
-        Thu, 25 Feb 2021 09:54:22 +0000 (UTC)
+        id S235601AbhBYJ4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:56:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 048B664F12;
+        Thu, 25 Feb 2021 09:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246864;
-        bh=JgJTsMKTkN9T9S2tFVLy/QvE+tfyY7nMcom9gBDkhGo=;
+        s=korg; t=1614246867;
+        bh=UEDpM2iNq1Jh298bEQH9lI2lZIkdVnRfLGHTU/RCeyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xtU8t+4EtLtj1EECEiuWrs2xySnzzVl3AQUhARPO4xsxmDyvUQUBSLuPAHMDM2nM3
-         tUBZOenRS15lJDnSQyx02p9PeufVaK2MvMWHsydqN+2l664q3L1jdpZjdMU+m3Gl6S
-         vYMxCM1UIddxqt4tnPOFDWjsc3p+wBBC0CLodSns=
+        b=1LbII0DNa6xFsmVvp8/WvfEadQvdCuoC0KdqHPR4W03PmfI3340uIzyCp7ZHfmeYL
+         6wMAZmYdO2d42VYC8SiWihflvW1tSIPRFhUX5q/OlToAxI52BJn4nXBPa++RuLqrmi
+         tA//1ZEBt5NmCOu6l4pqbICXcMIBaJ4xUhBLC5lE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Hepple <bob.hepple@gmail.com>,
-        Thomas Hebb <tommyhebb@gmail.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.11 08/12] hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
-Date:   Thu, 25 Feb 2021 10:53:42 +0100
-Message-Id: <20210225092515.384564423@linuxfoundation.org>
+        stable@vger.kernel.org, Zdenek Kaspar <zkaspar82@gmail.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.11 09/12] KVM: x86: Zap the oldest MMU pages, not the newest
+Date:   Thu, 25 Feb 2021 10:53:43 +0100
+Message-Id: <20210225092515.434032433@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
 References: <20210225092515.015261674@linuxfoundation.org>
@@ -41,47 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 4008bc7d39537bb3be166d8a3129c4980e1dd7dc upstream.
+commit 8fc517267fb28576dfca2380cc2497a2454b8fae upstream.
 
-It has been reported[0] that the Dell XPS 15 L502X exhibits similar
-freezing behavior to the other systems[1] on this blacklist. The issue
-was exposed by a prior change of mine to automatically load
-dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
-this model to the blacklist.
+Walk the list of MMU pages in reverse in kvm_mmu_zap_oldest_mmu_pages().
+The list is FIFO, meaning new pages are inserted at the head and thus
+the oldest pages are at the tail.  Using a "forward" iterator causes KVM
+to zap MMU pages that were just added, which obliterates guest
+performance once the max number of shadow MMU pages is reached.
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=211081
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=195751
-
-Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS models")
+Fixes: 6b82ef2c9cf1 ("KVM: x86/mmu: Batch zap MMU pages when recycling oldest pages")
+Reported-by: Zdenek Kaspar <zkaspar82@gmail.com>
 Cc: stable@vger.kernel.org
-Reported-by: Bob Hepple <bob.hepple@gmail.com>
-Tested-by: Bob Hepple <bob.hepple@gmail.com>
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210113205030.3481307-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/dell-smm-hwmon.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklis
- 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
- 		},
- 	},
-+	{
-+		.ident = "Dell XPS 15 L502X",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
-+		},
-+	},
- 	{ }
- };
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -2417,7 +2417,7 @@ static unsigned long kvm_mmu_zap_oldest_
+ 		return 0;
  
+ restart:
+-	list_for_each_entry_safe(sp, tmp, &kvm->arch.active_mmu_pages, link) {
++	list_for_each_entry_safe_reverse(sp, tmp, &kvm->arch.active_mmu_pages, link) {
+ 		/*
+ 		 * Don't zap active root pages, the page itself can't be freed
+ 		 * and zapping it will just force vCPUs to realloc and reload.
 
 
