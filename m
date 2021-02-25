@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238D0324D57
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 10:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 503D2324D75
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235285AbhBYJ5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 04:57:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
+        id S234858AbhBYKBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:01:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235539AbhBYJzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:55:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1904264F0A;
-        Thu, 25 Feb 2021 09:54:13 +0000 (UTC)
+        id S232821AbhBYJ66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:58:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EA5E64F16;
+        Thu, 25 Feb 2021 09:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246854;
+        s=korg; t=1614246899;
         bh=pEPTaD8+y1rHGyYy1dz0FtMGuda2XQ33mIeEeVCXDE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=To/hpwsWvr3qefSyBkZXeiBDGKlSC0CANl38gRfVHbH0C4aTjuhi3MfWihrKNKcaa
-         UMV/FDAf8X39/QFooXDd73AwidOTRnJwpqCIKpnGJrv9woPtSlUWsVMR12eJgPHmI6
-         AmVl4U6M47kvgB1kRoyzekT5gA+/8BLrk/menybY=
+        b=ALyDQdUF41llEQNwdw+MHGEm+LOt8aSmblHKzTj3Gdu90O+M/keHzGyqGUPeV2rm+
+         i6GYbKK+eljaf1NYFYbdcPVXKivyqcMD8wF6mSwYAyKb/MdA43uyC1azMmtLXEnCAh
+         Kk1VSEmj5ORItOtIDntZFkqqxc0/OGSmK83XFwrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Anton Altaparmakov <anton@tuxera.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 05/12] ntfs: check for valid standard information attribute
+Subject: [PATCH 5.10 08/23] ntfs: check for valid standard information attribute
 Date:   Thu, 25 Feb 2021 10:53:39 +0100
-Message-Id: <20210225092515.261565343@linuxfoundation.org>
+Message-Id: <20210225092516.936771047@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
-References: <20210225092515.015261674@linuxfoundation.org>
+In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
+References: <20210225092516.531932232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
