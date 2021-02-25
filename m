@@ -2,171 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FDF324D63
+	by mail.lfdr.de (Postfix) with ESMTP id 72A57324D64
 	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234587AbhBYJ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 04:59:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S233117AbhBYJ7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 04:59:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235607AbhBYJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235610AbhBYJ4v (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Feb 2021 04:56:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5087964F10;
-        Thu, 25 Feb 2021 09:54:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A243C64F0E;
+        Thu, 25 Feb 2021 09:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246873;
-        bh=f/tX6EFH6nEyy2X0fMxIgqpM2ysFjlf3JoQu3ia94G0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YNUlMpNZJJvy02zYN54jCAqYDJJpokfplqizzwxfGHOqSTnDlL426XMd/L0as+hce
-         ZUAzWSM1E1eyHOmiqoSNjGgFyAxivnQrJXi8GsgQm9A3nk02gCY5iCHUGkwXhyEXX0
-         Pt8Ji+8eVLFdqhK2O/+dNX4DXRTJyXK+Bpiu/BC0=
+        s=korg; t=1614246870;
+        bh=2wo8AbEXmn9+tACyGxCQgrWKlUDMAjztRuZqvG+JXG4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=X2kglI4Wvwr25ornEIAE8NLbiwPf8gLLdsPgCMqqezNV4eL+btQLua1Kqg3ipDGOj
+         XT5ZW+p7ALbBKVZQ1jU010egXM82M/ImFs2GkfET87ljN/6b1CY9Wp2nUksm8TE7cB
+         qdnWiR7UKgetOdfWCMjsn4okb2reOJtnL6vHh96Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.10 00/23] 5.10.19-rc1 review
-Date:   Thu, 25 Feb 2021 10:53:31 +0100
-Message-Id: <20210225092516.531932232@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 01/23] bpf: Fix truncation handling for mod32 dst reg wrt zero
+Date:   Thu, 25 Feb 2021 10:53:32 +0100
+Message-Id: <20210225092516.605892798@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-MIME-Version: 1.0
+In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
+References: <20210225092516.531932232@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.10.19-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.19-rc1
-X-KernelTest-Deadline: 2021-02-27T09:25+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.19 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-Responses should be made by Sat, 27 Feb 2021 09:25:06 +0000.
-Anything received after that time might be too late.
+commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.19-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+Recently noticed that when mod32 with a known src reg of 0 is performed,
+then the dst register is 32-bit truncated in verifier:
 
-thanks,
+  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+  0: (b7) r0 = 0
+  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
+  1: (b7) r1 = -1
+  2: R0_w=inv0 R1_w=inv-1 R10=fp0
+  2: (b4) w2 = -1
+  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
+  3: (9c) w1 %= w0
+  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  4: (b7) r0 = 1
+  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  5: (1d) if r1 == r2 goto pc+1
+   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: (b7) r0 = 2
+  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  7: (95) exit
+  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
+  7: (95) exit
 
-greg k-h
+However, as a runtime result, we get 2 instead of 1, meaning the dst
+register does not contain (u32)-1 in this case. The reason is fairly
+straight forward given the 0 test leaves the dst register as-is:
 
--------------
-Pseudo-Shortlog of commits:
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+1
+   4: (9c) w1 %= w0
+   5: (b7) r0 = 1
+   6: (1d) if r1 == r2 goto pc+1
+   7: (b7) r0 = 2
+   8: (95) exit
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.19-rc1
+This was originally not an issue given the dst register was marked as
+completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
+("bpf: fix 32-bit ALU op verification") the verifier casts the register
+output to 32 bit, and hence it becomes 32 bit unknown. Note that for
+the case where the src register is unknown, the dst register is marked
+64 bit unknown. After the fix, the register is truncated by the runtime
+and the test passes:
 
-Rong Chen <rong.a.chen@intel.com>
-    scripts/recordmcount.pl: support big endian for ARCH sh
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+2
+   4: (9c) w1 %= w0
+   5: (05) goto pc+1
+   6: (bc) w1 = w1
+   7: (b7) r0 = 1
+   8: (1d) if r1 == r2 goto pc+1
+   9: (b7) r0 = 2
+  10: (95) exit
 
-Masahiro Yamada <masahiroy@kernel.org>
-    kbuild: fix CONFIG_TRIM_UNUSED_KSYMS build for ppc64
+Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
+has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
 
-Shyam Prasad N <sprasad@microsoft.com>
-    cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
+  mod32:                            mod64:
 
-Raju Rangoju <rajur@chelsio.com>
-    cxgb4: Add new T6 PCI device id 0x6092
+  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
+  (9c) w1 %= w0                     (9f) r1 %= r0
+  (05) goto pc+1
+  (bc) w1 = w1
 
-Christoph Schemmel <christoph.schemmel@gmail.com>
-    NET: usb: qmi_wwan: Adding support for Cinterion MV31
+Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/bpf/verifier.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Quanyang Wang <quanyang.wang@windriver.com>
-    drm/xlnx: fix kmemleak by sending vblank_event in atomic_disable
-
-Sean Christopherson <seanjc@google.com>
-    KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
-
-Paolo Bonzini <pbonzini@redhat.com>
-    mm: provide a saner PTE walking API for modules
-
-Paolo Bonzini <pbonzini@redhat.com>
-    KVM: do not assume PTE is writable after follow_pfn
-
-Christoph Hellwig <hch@lst.de>
-    mm: simplify follow_pte{,pmd}
-
-Christoph Hellwig <hch@lst.de>
-    mm: unexport follow_pte_pmd
-
-Sean Christopherson <seanjc@google.com>
-    KVM: x86: Zap the oldest MMU pages, not the newest
-
-Thomas Hebb <tommyhebb@gmail.com>
-    hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
-
-Sameer Pujar <spujar@nvidia.com>
-    arm64: tegra: Add power-domain for Tegra210 HDA
-
-Hui Wang <hui.wang@canonical.com>
-    Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
-
-Rustam Kovhaev <rkovhaev@gmail.com>
-    ntfs: check for valid standard information attribute
-
-Luis Henriques <lhenriques@suse.de>
-    ceph: downgrade warning from mdsmap decode to debug
-
-Stefan Ursella <stefan.ursella@wolfvision.net>
-    usb: quirks: add quirk to start video capture on ELMO L-12F document camera reliable
-
-Johan Hovold <johan@kernel.org>
-    USB: quirks: sort quirk entries
-
-Christoph Hellwig <hch@lst.de>
-    nvme-rdma: Use ibdev_to_node instead of dereferencing ->dma_device
-
-Christoph Hellwig <hch@lst.de>
-    RDMA: Lift ibdev_to_node from rds to common code
-
-Will McVicker <willmcvicker@google.com>
-    HID: make arrays usage and value to be the same
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix truncation handling for mod32 dst reg wrt zero
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm64/boot/dts/nvidia/tegra210.dtsi           |  1 +
- arch/x86/kvm/mmu/mmu.c                             |  2 +-
- drivers/bluetooth/btusb.c                          |  7 +++
- drivers/gpu/drm/xlnx/zynqmp_disp.c                 | 15 +++---
- drivers/hid/hid-core.c                             |  6 +--
- drivers/hwmon/dell-smm-hwmon.c                     |  7 +++
- drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h |  1 +
- drivers/net/usb/qmi_wwan.c                         |  1 +
- drivers/nvme/host/rdma.c                           |  2 +-
- drivers/usb/core/quirks.c                          |  9 ++--
- fs/ceph/mdsmap.c                                   |  4 +-
- fs/cifs/connect.c                                  |  1 +
- fs/dax.c                                           | 10 ++--
- fs/ntfs/inode.c                                    |  6 +++
- include/linux/mm.h                                 |  8 +--
- include/rdma/ib_verbs.h                            | 13 +++++
- kernel/bpf/verifier.c                              | 10 ++--
- mm/memory.c                                        | 57 ++++++++++++----------
- net/rds/ib.h                                       |  7 ---
- scripts/gen_autoksyms.sh                           |  3 ++
- scripts/recordmcount.pl                            |  6 ++-
- virt/kvm/kvm_main.c                                | 17 +++++--
- 23 files changed, 127 insertions(+), 70 deletions(-)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -10869,7 +10869,7 @@ static int fixup_bpf_calls(struct bpf_ve
+ 			bool isdiv = BPF_OP(insn->code) == BPF_DIV;
+ 			struct bpf_insn *patchlet;
+ 			struct bpf_insn chk_and_div[] = {
+-				/* Rx div 0 -> 0 */
++				/* [R,W]x div 0 -> 0 */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JNE | BPF_K, insn->src_reg,
+ 					     0, 2, 0),
+@@ -10878,16 +10878,18 @@ static int fixup_bpf_calls(struct bpf_ve
+ 				*insn,
+ 			};
+ 			struct bpf_insn chk_and_mod[] = {
+-				/* Rx mod 0 -> Rx */
++				/* [R,W]x mod 0 -> [R,W]x */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JEQ | BPF_K, insn->src_reg,
+-					     0, 1, 0),
++					     0, 1 + (is64 ? 0 : 1), 0),
+ 				*insn,
++				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
++				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
+ 			};
+ 
+ 			patchlet = isdiv ? chk_and_div : chk_and_mod;
+ 			cnt = isdiv ? ARRAY_SIZE(chk_and_div) :
+-				      ARRAY_SIZE(chk_and_mod);
++				      ARRAY_SIZE(chk_and_mod) - (is64 ? 2 : 0);
+ 
+ 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
+ 			if (!new_prog)
 
 
