@@ -2,86 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2870324809
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 01:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F9432483B
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 02:03:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236422AbhBYAs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 19:48:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236421AbhBYAs4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Feb 2021 19:48:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 684EA6146B;
-        Thu, 25 Feb 2021 00:48:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614214096;
-        bh=P6YhKinu23PkPP/k4EIifcZhpqaz7+hAFMZPWD9ydqw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YnciVnY0U5Lq9txw9Utq5s5oIj/cjMLXbwnMAK2V9DohXcNKzS8uCHJUQhznFjpca
-         SOt4TnUjtzN0nUxG/3R5/RvH1c4lFEBzxDOSQlGddaihTng6zuMFANX0l2VswfN/2n
-         lMKDxUZqdfTDvPBMvQYlxBMIdFEVV9Ozi9AyuErQVfs/8V/ex8knfPBDHSWuF6CxiC
-         hEOsWkVWLMeb7vPosjtLQDcONJ+D5oQCVBrVzZzWZj2JRwHDLJCvYne4YLP7a5jCkh
-         pQi0YTcX7K8JFWbABg3BfX2guAOLVmqb26SvHsQRYUa5c8fUrWleJiCuyLauiNbved
-         onePSotlk5WBg==
-Date:   Thu, 25 Feb 2021 01:48:13 +0100
-From:   Frederic Weisbecker <frederic@kernel.org>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Stable <stable@vger.kernel.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 01/13] rcu/nocb: Fix potential missed nocb_timer rearm
-Message-ID: <20210225004813.GB12431@lothringen>
-References: <20210223001011.127063-1-frederic@kernel.org>
- <20210223001011.127063-2-frederic@kernel.org>
- <20210224183709.GI2743@paulmck-ThinkPad-P72>
- <20210224220606.GA3179@lothringen>
- <20210225001425.GL2743@paulmck-ThinkPad-P72>
+        id S233383AbhBYBDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 20:03:11 -0500
+Received: from mo-csw-fb1516.securemx.jp ([210.130.202.172]:36872 "EHLO
+        mo-csw-fb.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236661AbhBYBCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 20:02:50 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Wed, 24 Feb 2021 20:02:49 EST
+Received: by mo-csw-fb.securemx.jp (mx-mo-csw-fb1516) id 11P0u8m3015405; Thu, 25 Feb 2021 09:56:08 +0900
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id 11P0s9nv029449; Thu, 25 Feb 2021 09:54:09 +0900
+X-Iguazu-Qid: 34tMMPQaG01V1mlNrh
+X-Iguazu-QSIG: v=2; s=0; t=1614214449; q=34tMMPQaG01V1mlNrh; m=2WaOZv6s36zREBVzYHZddgJmaqBd7W+toOolwdOMvjY=
+Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
+        by relay.securemx.jp (mx-mr1512) id 11P0s83l030166
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Thu, 25 Feb 2021 09:54:08 +0900
+Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id 706E41000D3;
+        Thu, 25 Feb 2021 09:54:08 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 11P0s7Pg001054;
+        Thu, 25 Feb 2021 09:54:08 +0900
+From:   Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     netdev@vger.kernel.org, jesse.brandeburg@intel.com,
+        anthony.l.nguyen@intel.com, daichi1.fukui@toshiba.co.jp,
+        nobuhiro1.iwamatsu@toshiba.co.jp,
+        Corinna Vinschen <vinschen@redhat.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>
+Subject: [PATCH v4.4.y, v4.9.y] igb: Remove incorrect "unexpected SYS WRAP" log message
+Date:   Thu, 25 Feb 2021 09:54:06 +0900
+X-TSB-HOP: ON
+Message-Id: <20210225005406.530767-1-punit1.agrawal@toshiba.co.jp>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210225001425.GL2743@paulmck-ThinkPad-P72>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 24, 2021 at 04:14:25PM -0800, Paul E. McKenney wrote:
-> On Wed, Feb 24, 2021 at 11:06:06PM +0100, Frederic Weisbecker wrote:
-> > I managed to recollect some pieces of my brain. So keep the above but
-> > let's change the point 10:
-> > 
-> > 10.     CPU 0 enqueues its second callback, this time with interrupts
-> >  	enabled so it can wake directly	->nocb_gp_kthread.
-> > 	It does so with calling __wake_nocb_gp() which also cancels the
-> > 	pending timer that got queued in step 2. But that doesn't reset
-> > 	CPU 0's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
-> > 	So CPU 0's ->nocb_defer_wakeup and CPU 0's ->nocb_timer are now
-> > 	desynchronized.
-> > 
-> > 11.	->nocb_gp_kthread associates the callback queued in 10 with a new
-> > 	grace period, arrange for it to start and sleeps on it.
-> > 
-> > 12.     The grace period ends, ->nocb_gp_kthread awakens and wakes up
-> > 	CPU 0's ->nocb_cb_kthread which invokes the callback queued in 10.
-> > 
-> > 13.	CPU 0 enqueues its third callback, this time with interrupts
-> > 	disabled so it tries to queue a deferred wakeup. However
-> > 	->nocb_defer_wakeup has a stalled RCU_NOCB_WAKE value which prevents
-> > 	the CPU 0's ->nocb_timer, that got cancelled in 10, from being armed.
-> > 
-> > 14.     CPU 0 has its pending callback and it may go unnoticed until
-> >         some other CPU ever wakes up ->nocb_gp_kthread or CPU 0 ever calls
-> > 	an explicit deferred wake up caller like idle entry.
-> > 
-> > I hope I'm not missing something this time...
-> 
-> Thank you, that does sound plausible.  I guess I can see how rcutorture
-> might have missed this one!
+From: Corinna Vinschen <vinschen@redhat.com>
 
-I must admit it requires a lot of stars to be aligned :-)
+commit 2643e6e90210e16c978919617170089b7c2164f7 upstream
 
-Thanks.
+TSAUXC.DisableSystime is never set, so SYSTIM runs into a SYS WRAP
+every 1100 secs on 80580/i350/i354 (40 bit SYSTIM) and every 35000
+secs on 80576 (45 bit SYSTIM).
+
+This wrap event sets the TSICR.SysWrap bit unconditionally.
+
+However, checking TSIM at interrupt time shows that this event does not
+actually cause the interrupt.  Rather, it's just bycatch while the
+actual interrupt is caused by, for instance, TSICR.TXTS.
+
+The conclusion is that the SYS WRAP is actually expected, so the
+"unexpected SYS WRAP" message is entirely bogus and just helps to
+confuse users.  Drop it.
+
+Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
+Acked-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+---
+[ Due to confusion about stable rules for networking the request was
+mistakenly sent to netdev only[0]. Apologies if you're seeing this
+again. ]
+
+Hi,
+
+A customer reported that the following message appears in the kernel
+logs every 1100s -
+
+    igb 0000:01:00.1: unexpected SYS WRAP
+
+As the systems have large uptimes the messages are crowding the logs.
+
+The message was dropped in 
+commit 2643e6e90210e16c ("igb: Remove incorrect "unexpected SYS WRAP" log message")
+in v4.14.
+
+Please consider applying to patch to v4.4 and v4.9 stable kernels - it
+applies cleanly to both the trees.
+
+Thanks,
+Punit
+
+[0] https://lore.kernel.org/netdev/20210210013448.2116413-1-punit1.agrawal@toshiba.co.jp/
+
+ drivers/net/ethernet/intel/igb/igb_main.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index a4aa4d10ca70..682f52760898 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -5421,8 +5421,6 @@ static void igb_tsync_interrupt(struct igb_adapter *adapter)
+ 		event.type = PTP_CLOCK_PPS;
+ 		if (adapter->ptp_caps.pps)
+ 			ptp_clock_event(adapter->ptp_clock, &event);
+-		else
+-			dev_err(&adapter->pdev->dev, "unexpected SYS WRAP");
+ 		ack |= TSINTR_SYS_WRAP;
+ 	}
+ 
+-- 
+2.29.2
+
