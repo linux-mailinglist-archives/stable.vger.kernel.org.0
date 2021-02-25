@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEAF5324D6B
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F66B324D58
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 10:58:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbhBYKAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:00:20 -0500
+        id S235425AbhBYJ54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 04:57:56 -0500
 Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233964AbhBYJ6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:58:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 250A964F19;
-        Thu, 25 Feb 2021 09:54:52 +0000 (UTC)
+        id S235442AbhBYJzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:55:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DEAC64F06;
+        Thu, 25 Feb 2021 09:54:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246893;
+        s=korg; t=1614246851;
         bh=DZ0xcnks63hkG0sZOQbcAvAOYB9mcIuUFP7X3UMXmCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DALWmvmaCntWfJz5hGjFq79tSEeI2YpsHvTVLxXlnAH0NNc7YHyk+iqSYgR2Lb/PZ
-         A+S9S0aP6sSNCK2dKVngkw28xNO5oQUC0vcfREnGAb6xggsOVIAXGnqquERVvp79SB
-         WzeQgkXPdNPJI/aSVKOiUmCZBolbgSeRHha6zai8=
+        b=X2Gu1+/aPkTkc4eRedMmAn8LoyJHx/AfxwSNUPrgoi0eq9QKvQJ+JPZczHFEi9JE2
+         WjS6Prattk8EvLkX4gSq+yM0yLgOERgU5JVM8z5D0HE+p6VUvSXLu3/TAZjyZ767vy
+         rL1i6A7kuUKypBgSPF0qh4FVgJtPyaDDDkxhC0b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Stefan Ursella <stefan.ursella@wolfvision.net>
-Subject: [PATCH 5.10 06/23] usb: quirks: add quirk to start video capture on ELMO L-12F document camera reliable
-Date:   Thu, 25 Feb 2021 10:53:37 +0100
-Message-Id: <20210225092516.840545073@linuxfoundation.org>
+Subject: [PATCH 5.11 04/12] usb: quirks: add quirk to start video capture on ELMO L-12F document camera reliable
+Date:   Thu, 25 Feb 2021 10:53:38 +0100
+Message-Id: <20210225092515.222204941@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
-References: <20210225092516.531932232@linuxfoundation.org>
+In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
+References: <20210225092515.015261674@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
