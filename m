@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C4F324D85
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0DD1324D99
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232778AbhBYKCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:02:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35150 "EHLO mail.kernel.org"
+        id S234017AbhBYKG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:06:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233734AbhBYJ7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:59:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D47F64F21;
-        Thu, 25 Feb 2021 09:55:28 +0000 (UTC)
+        id S232918AbhBYKBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 05:01:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E31B664EF5;
+        Thu, 25 Feb 2021 09:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246929;
-        bh=fCAN+h/NbCmdQzE9+XALKEyd32GFbAckkQ2+ot+svxg=;
+        s=korg; t=1614246975;
+        bh=srkatT/Yg2o8OLBz5KTiNuiDHyWK/S92iCI2IuwqaHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrBCS3u4Bcanu181zS9TSN7QgEFHlv6X4MVwNoi9YHfhf0vzYFwEfD3d6FK8eMbNC
-         Sz9NdMByHxNp1HP5H1Yps5imbPM8Z0UcRxN7E3KDjncN3JervexMmS23WAEr1ybxXn
-         DWUcMir7PMh11D5VNmtLe/I280qxzWIaqx6t4VPw=
+        b=TET8vrqyKeNNWK+lfkmQQgn+3X5VsWClUb3q0q3s7ChCvKqhAgRui5AZrwv4/khMb
+         XnTlzr+1klNidW79ZgRxJFcp+Fm4ZfusKzAu9uBD9Xov8q4C4FuTeIfN9+3HLtQ2mh
+         uJwlIjCoNm28iCyqu3x/bZ1dHU6ixS3A5lVpT/As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Schemmel <christoph.schemmel@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/23] NET: usb: qmi_wwan: Adding support for Cinterion MV31
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 05/17] ntfs: check for valid standard information attribute
 Date:   Thu, 25 Feb 2021 10:53:50 +0100
-Message-Id: <20210225092517.445568197@linuxfoundation.org>
+Message-Id: <20210225092515.270200484@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
-References: <20210225092516.531932232@linuxfoundation.org>
+In-Reply-To: <20210225092515.001992375@linuxfoundation.org>
+References: <20210225092515.001992375@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Schemmel <christoph.schemmel@gmail.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit a4dc7eee9106a9d2a6e08b442db19677aa9699c7 ]
+commit 4dfe6bd94959222e18d512bdf15f6bf9edb9c27c upstream.
 
-Adding support for Cinterion MV31 with PID 0x00B7.
+Mounting a corrupted filesystem with NTFS resulted in a kernel crash.
 
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 11 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b7 Rev=04.14
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion USB Mobile Broadband
-S:  SerialNumber=b3246eed
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+We should check for valid STANDARD_INFORMATION attribute offset and length
+before trying to access it
 
-Signed-off-by: Christoph Schemmel <christoph.schemmel@gmail.com>
-Link: https://lore.kernel.org/r/20210202084523.4371-1-christoph.schemmel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210217155930.1506815-1-rkovhaev@gmail.com
+Link: https://syzkaller.appspot.com/bug?extid=c584225dabdea2f71969
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reported-by: syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com
+Tested-by: syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ntfs/inode.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index ce73df4c137ea..b223536e07bed 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1332,6 +1332,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},	/* Cinterion PHxx,PXxx (2 RmNet) */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},	/* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
- 	{QMI_QUIRK_SET_DTR(0x1e2d, 0x00b0, 4)},	/* Cinterion CLS8 */
-+	{QMI_FIXED_INTF(0x1e2d, 0x00b7, 0)},	/* Cinterion MV31 RmNet */
- 	{QMI_FIXED_INTF(0x413c, 0x81a2, 8)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{QMI_FIXED_INTF(0x413c, 0x81a3, 8)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{QMI_FIXED_INTF(0x413c, 0x81a4, 8)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
--- 
-2.27.0
-
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -628,6 +628,12 @@ static int ntfs_read_locked_inode(struct
+ 	}
+ 	a = ctx->attr;
+ 	/* Get the standard information attribute value. */
++	if ((u8 *)a + le16_to_cpu(a->data.resident.value_offset)
++			+ le32_to_cpu(a->data.resident.value_length) >
++			(u8 *)ctx->mrec + vol->mft_record_size) {
++		ntfs_error(vi->i_sb, "Corrupt standard information attribute in inode.");
++		goto unm_err_out;
++	}
+ 	si = (STANDARD_INFORMATION*)((u8*)a +
+ 			le16_to_cpu(a->data.resident.value_offset));
+ 
 
 
