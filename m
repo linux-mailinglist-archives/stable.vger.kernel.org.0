@@ -2,121 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27583254E7
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 18:54:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A40C63254F7
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 18:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232926AbhBYRyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 12:54:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40966 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233207AbhBYRyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 12:54:04 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 645DBC061574
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 09:53:23 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id z5so4121080pfe.3
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 09:53:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6V6QUFmIHozcExEOUUCJu84dcf6Uy0PeqeV03Xf1m9E=;
-        b=Pfz/mGnkJb6qu3dKOEjADssdGHF+8+YkJu3Ia2znm8kx9Icvm0uDtNUYgEzYPYkuVo
-         Ik6cimRxulcS6Bi9zn0asrTaH0ur5Kq6XBgIT3P3Cqhly9uDvqCFot4PXtfllSJL8Ane
-         uqTe6FNq6fZPrV6ofkpyt4e7A/6F3Xfhjq5Z5G/vsoL++5x/2iBxbaJJxZjEqY75A02n
-         0f+EI7jsH7CtF8CR6KWKpy24+LYoCggbfhMpkTHXP6E98Xb/YVr0EwaHGCKQ4w1n8pRe
-         nd+kmV2DHrnVtAHfOFUuQ5s66WB8WvNyrVAREVuuJG74IX2yj7nHcIGULwmkXWPXb+RE
-         qSYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6V6QUFmIHozcExEOUUCJu84dcf6Uy0PeqeV03Xf1m9E=;
-        b=AjCuVEW2nRWiXNhOv4wZbj90UCrUASmT0k5nF8EI9RbO/nL2U+ZJSOZVQUjK0s+NOA
-         7h3cff7TN46c9Ydb77g4U2QCpns3G3PxRS7QJ4H/O6N9HItmitzoiLCtjx8WM2HMfj/V
-         D7odH/VV0fZLyg7tuLhXngr4VnpTbSMdT1Q2O0Uv/DWgmxvo4eU5hjUSuomTec1fKrrr
-         9Rdznbr1MwBtaC/JlyVk8vEvBfVaK1SjNu+9Rux4sHOtllgJFn5UdNNxP76r0FqdJErO
-         3WA0PDVcc4QYWqNbn9apJhu1KnjQafOWIIYsoZ5fFIePvA4Jn1YtyNUbEuzvo2Xtq2mm
-         4DKg==
-X-Gm-Message-State: AOAM531JiWAeL4TjoXL74/eZLgfm6iYrPM4EbJj4V5AOI6CAdJIsSRPB
-        4TnJtKIzO2GT9IUCbySL+JY1eWoMYkTkFw==
-X-Google-Smtp-Source: ABdhPJyiNftWWjnr7bYUgfLsAZIYijFzfLKaxT13crrT7j//dcm9d2bXyHsU6UNXSpP4LwxmFeG8jA==
-X-Received: by 2002:aa7:90c4:0:b029:1ed:2937:a9aa with SMTP id k4-20020aa790c40000b02901ed2937a9aamr4417041pfk.8.1614275602730;
-        Thu, 25 Feb 2021 09:53:22 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c8sm6717145pjv.18.2021.02.25.09.53.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Feb 2021 09:53:22 -0800 (PST)
-Message-ID: <6037e412.1c69fb81.c0cd0.e282@mx.google.com>
-Date:   Thu, 25 Feb 2021 09:53:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S230330AbhBYR4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 12:56:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27157 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233329AbhBYR4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 12:56:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614275678;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=byOfTija5+suCvG20txiiotsxrvATo8BhNy2ZFJ78Pk=;
+        b=X2qPIqWZuCAOyNh05r1X2O1HMCotAmpfrEWRUip8iQFxKwt5XmOsugyK6C8EC5CiZChrjH
+        X0XZ4YM7BPHTGNLGPe2juPBB1BE40M6stbgaiwnyX+kCGvWcR2Gx4WId5rvRWHj9V5+spi
+        AIatUCy4UuCf/TSaq01f5cuj5Dkagf0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-595-aGNrTLL-NNSZVLIgLJIO3g-1; Thu, 25 Feb 2021 12:54:19 -0500
+X-MC-Unique: aGNrTLL-NNSZVLIgLJIO3g-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C09853CE8;
+        Thu, 25 Feb 2021 17:54:16 +0000 (UTC)
+Received: from [10.36.114.58] (ovpn-114-58.ams2.redhat.com [10.36.114.58])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D24365D9D2;
+        Thu, 25 Feb 2021 17:54:11 +0000 (UTC)
+Subject: Re: [PATCH v7 1/1] mm/page_alloc.c: refactor initialization of struct
+ page for holes in memory layout
+To:     Mike Rapoport <rppt@linux.ibm.com>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org, x86@kernel.org
+References: <20210224153950.20789-1-rppt@kernel.org>
+ <20210224153950.20789-2-rppt@kernel.org>
+ <515b4abf-ff07-a43a-ac2e-132c33681886@redhat.com>
+ <20210225170629.GE1854360@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <2c7ad47f-f545-8716-5fa2-7d3173141f76@redhat.com>
+Date:   Thu, 25 Feb 2021 18:54:10 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.18-24-g6ffb943c0e01
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 107 runs,
- 1 regressions (v5.10.18-24-g6ffb943c0e01)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210225170629.GE1854360@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 107 runs, 1 regressions (v5.10.18-24-g6ffb=
-943c0e01)
+On 25.02.21 18:06, Mike Rapoport wrote:
+> On Thu, Feb 25, 2021 at 04:59:06PM +0100, David Hildenbrand wrote:
+>> On 24.02.21 16:39, Mike Rapoport wrote:
+>>> From: Mike Rapoport <rppt@linux.ibm.com>
+>>>
+>>> There could be struct pages that are not backed by actual physical memory.
+>>> This can happen when the actual memory bank is not a multiple of
+>>> SECTION_SIZE or when an architecture does not register memory holes
+>>> reserved by the firmware as memblock.memory.
+>>>
+>>> Such pages are currently initialized using init_unavailable_mem() function
+>>> that iterates through PFNs in holes in memblock.memory and if there is a
+>>> struct page corresponding to a PFN, the fields of this page are set to
+>>> default values and it is marked as Reserved.
+>>>
+>>> init_unavailable_mem() does not take into account zone and node the page
+>>> belongs to and sets both zone and node links in struct page to zero.
+>>>
+>>> Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions
+>>> rather that check each PFN") the holes inside a zone were re-initialized
+>>> during memmap_init() and got their zone/node links right. However, after
+>>> that commit nothing updates the struct pages representing such holes.
+>>>
+>>> On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+>>> instance in a configuration below:
+>>>
+>>> 	# grep -A1 E820 /proc/iomem
+>>> 	7a17b000-7a216fff : Unknown E820 type
+>>> 	7a217000-7bffffff : System RAM
+>>>
+>>> unset zone link in struct page will trigger
+>>>
+>>> 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
+>>>
+>>> because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+>>> in struct page) in the same pageblock.
+>>>
+>>> Interleave initialization of the unavailable pages with the normal
+>>> initialization of memory map, so that zone and node information will be
+>>> properly set on struct pages that are not backed by the actual memory.
+>>>
+>>> With this change the pages for holes inside a zone will get proper
+>>> zone/node links and the pages that are not spanned by any node will get
+>>> links to the adjacent zone/node.
+>>>
+>>> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+>>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+>>> Reported-by: Qian Cai <cai@lca.pw>
+>>> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+>>> Reviewed-by: Baoquan He <bhe@redhat.com>
+>>> ---
+>>>    mm/page_alloc.c | 147 +++++++++++++++++++++---------------------------
+>>>    1 file changed, 64 insertions(+), 83 deletions(-)
+>>>
+>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>>> index 3e93f8b29bae..a11a9acde708 100644
+>>> --- a/mm/page_alloc.c
+>>> +++ b/mm/page_alloc.c
+>>> @@ -6280,12 +6280,60 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+>>>    	}
+>>>    }
+>>> +#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+>>> +/*
+>>> + * Only struct pages that correspond to ranges defined by memblock.memory
+>>> + * are zeroed and initialized by going through __init_single_page() during
+>>> + * memmap_init_zone().
+>>> + *
+>>> + * But, there could be struct pages that correspond to holes in
+>>> + * memblock.memory. This can happen because of the following reasons:
+>>> + * - phyiscal memory bank size is not necessarily the exact multiple of the
+>>> + *   arbitrary section size
+>>> + * - early reserved memory may not be listed in memblock.memory
+>>> + * - memory layouts defined with memmap= kernel parameter may not align
+>>> + *   nicely with memmap sections
+>>> + *
+>>> + * Explicitly initialize those struct pages so that:
+>>> + * - PG_Reserved is set
+>>> + * - zone and node links point to zone and node that span the page
+>>> + */
+>>> +static u64 __meminit init_unavailable_range(unsigned long spfn,
+>>> +					    unsigned long epfn,
+>>> +					    int zone, int node)
+>>> +{
+>>> +	unsigned long pfn;
+>>> +	u64 pgcnt = 0;
+>>> +
+>>> +	for (pfn = spfn; pfn < epfn; pfn++) {
+>>> +		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+>>> +			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+>>> +				+ pageblock_nr_pages - 1;
+>>> +			continue;
+>>> +		}
+>>> +		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
+>>> +		__SetPageReserved(pfn_to_page(pfn));
+>>> +		pgcnt++;
+>>> +	}
+>>> +
+>>> +	return pgcnt;
+>>> +}
+>>> +#else
+>>> +static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+>>> +					 int zone, int node)
+>>> +{
+>>> +	return 0;
+>>> +}
+>>> +#endif
+>>> +
+>>>    void __meminit __weak memmap_init_zone(struct zone *zone)
+>>>    {
+>>>    	unsigned long zone_start_pfn = zone->zone_start_pfn;
+>>>    	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
+>>>    	int i, nid = zone_to_nid(zone), zone_id = zone_idx(zone);
+>>> +	static unsigned long hole_pfn = 0;
+>>>    	unsigned long start_pfn, end_pfn;
+>>> +	u64 pgcnt = 0;
+>>>    	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+>>>    		start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+>>> @@ -6295,7 +6343,23 @@ void __meminit __weak memmap_init_zone(struct zone *zone)
+>>>    			memmap_init_range(end_pfn - start_pfn, nid,
+>>>    					zone_id, start_pfn, zone_end_pfn,
+>>>    					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+>>> +
+>>> +		if (hole_pfn < start_pfn)
+>>> +			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+>>> +							zone_id, nid);
+>>> +		hole_pfn = end_pfn;
+>>>    	}
+>>> +
+>>> +#ifdef CONFIG_SPARSEMEM
+>>> +	end_pfn = round_up(zone_end_pfn, PAGES_PER_SECTION);
+>>> +	if (hole_pfn < end_pfn)
+>>> +		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
+>>> +						zone_id, nid);
+>>
+>> We might still double-initialize PFNs when two zones overlap within a
+>> section, correct?
+> 
+> You mean that a section crosses zones boundary?
+> I don't think it's that important.
+> 
+>> This might worth documenting - also, you might want to
+>> take some of the original comment the accompanied this code.
+> 
+> The original comment was not exactly right, I believe the comment above
+> init_unavailable_range() better describes what's going on there.
 
-Regressions Summary
--------------------
+Ah, okay - as long as it's documented I'm happy :)
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+-- 
+Thanks,
 
+David / dhildenb
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.18-24-g6ffb943c0e01/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.18-24-g6ffb943c0e01
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6ffb943c0e01d843a06842f9a7bcfc008e10a6d2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6037ac979bbf8d8ee2addcb4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-8-24-g6ffb943c0e01/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p=
-200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-8-24-g6ffb943c0e01/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p=
-200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6037ac979bbf8d8ee2add=
-cb5
-        new failure (last pass: v5.10.18) =
-
- =20
