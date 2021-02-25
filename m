@@ -2,99 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90D80325468
+	by mail.lfdr.de (Postfix) with ESMTP id 20696325467
 	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 18:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231326AbhBYRMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231721AbhBYRMb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 25 Feb 2021 12:12:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhBYRMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 12:12:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FAC364EB7;
-        Thu, 25 Feb 2021 17:11:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614273108;
-        bh=n8uLJw43X+qDZY8YywYDV90h9+kiQjUwlZR/Y7VjDcU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ndr63J4VX7PmwVLZHzjy9JmHuuRJugC5JkcqjAmCMdiLf0AkN5dRxVraHgEbFCCPF
-         G1T6BgRiriTQyK18VlsLxKAWA8qj4AZlx8yDafDzvHdmNl2sXEhouTu552pOGGMeNL
-         9BgTtBFUZBoKVV7ebhlGA6F1ejTrDRC5d0+75iGQ=
-Date:   Thu, 25 Feb 2021 18:11:45 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, olteanv@gmail.com, sashal@kernel.org
-Subject: Re: [PATCH stable 0/8] net: dsa: b53: Correct learning for
- standalone ports
-Message-ID: <YDfaUaaoc+u3HCDC@kroah.com>
-References: <20210225010853.946338-1-f.fainelli@gmail.com>
- <YDdcvkQQoAs2yc3C@kroah.com>
- <7d32ff3e-eea7-90ac-a458-348b07410f85@gmail.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60312 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231326AbhBYRMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 12:12:30 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F1E2C06174A
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 09:11:49 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id u11so3521511plg.13
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 09:11:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Yw04ABUPGBDS3wvJbBEBEQ357kzXP9l7GwjwDbRO5s0=;
+        b=d2MQYbxQ1qK2zVu+F8JtEOtLTZyKxinRZDWtk3rvqeRUkff3Rx0uYgrshQD6a1GJGR
+         ceGSksAI3sF/d+y9XTZUhS0fGnx9rrLqMjgwTsyGpC0kjSEzHvzL2W0xiVEXVudDryxU
+         x+pV7ztG3xrekaqhUwhF/UwK3Co/KZK9eVAaM40OEiPQ1ywxLnAiUJo/xZRU1Ro+jn1i
+         OHTBNu5SOglkmiIqSWoYvlLVqHzcSJIUIVdm7EWNDUBcB05Pdke5CvxWx25kt6pKLCe6
+         Nc89ygGKwakXah5GZA2JqvJPvMJger6vABv/18pseDuda0BFrUjWpPU8u8uCHhc8xLzX
+         mrtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Yw04ABUPGBDS3wvJbBEBEQ357kzXP9l7GwjwDbRO5s0=;
+        b=irz7uaVdN4xmlL7EEAQGTwpAoauOjErgxK9HrAQLDzoHocJ+vb5qC4hqu6aTY+wn7P
+         WN2SsbjSG5M5m8p3awF0R8fAL/NxXYG+lJKzFmAhLKLnES1Hv+73qtBZrm2ASE/+TFeo
+         1EgxoGjxiXZxVSjhDkbiFbi4qRy9eM3wKFaQUW2uhi5Zv2Ejesy2FM0ahf8Aoz+QwBpj
+         EEug/rJp4aGn4FgDQAEZc+adlMEDkgdVGLb81VFz3dNSqYA71yAFDq0oKXQTM3RFHNkf
+         vpyW+e9NDrjVHReXA+84ZKGqbxCdsXtNGHCFzWDfuBDHSKNQ7iVrD8zadcoAv5slR7mE
+         b0Sg==
+X-Gm-Message-State: AOAM53202rNQfEVtzkqGP1sJUjch1pVQDX2X2t08K6BEDmM9gNES4mXp
+        wFn+oRJ10c7KqZLaKvFV+52eZJ4+UPghcQ==
+X-Google-Smtp-Source: ABdhPJwJSzC1s6JfYNAGdImKcwfCUTgBNARzLmTBmWW+q5aCCLHvCz23XGfw2qEVmCWqwbzuOsxKkA==
+X-Received: by 2002:a17:90a:72c4:: with SMTP id l4mr4354446pjk.52.1614273108598;
+        Thu, 25 Feb 2021 09:11:48 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h123sm4749789pfe.115.2021.02.25.09.11.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Feb 2021 09:11:48 -0800 (PST)
+Message-ID: <6037da54.1c69fb81.e9cb1.a6b2@mx.google.com>
+Date:   Thu, 25 Feb 2021 09:11:48 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7d32ff3e-eea7-90ac-a458-348b07410f85@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.258-9-ge98ce504074a7
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 44 runs,
+ 1 regressions (v4.9.258-9-ge98ce504074a7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 08:53:22AM -0800, Florian Fainelli wrote:
-> 
-> 
-> On 2/25/2021 12:15 AM, Greg KH wrote:
-> > On Wed, Feb 24, 2021 at 05:08:53PM -0800, Florian Fainelli wrote:
-> >> From: Florian Fainelli <florian.fainelli@broadcom.com>
-> >>
-> >> Hi Greg, Sasha, Jaakub and David,
-> >>
-> >> This patch series contains backports for a change that recently made it
-> >> upstream as:
-> >>
-> >> commit f3f9be9c58085d11f4448ec199bf49dc2f9b7fb9
-> >> Merge: 18755e270666 f9b3827ee66c
-> >> Author: Jakub Kicinski <kuba@kernel.org>
-> >> Date:   Tue Feb 23 12:23:06 2021 -0800
-> >>
-> >>     Merge branch 'net-dsa-learning-fixes-for-b53-bcm_sf2'
-> > 
-> > That is a merge commit, not a "real" commit.
-> > 
-> > What is the upstream git commit id for this?
-> 
-> The commit upstream is f9b3827ee66cfcf297d0acd6ecf33653a5f297ef ("net:
-> dsa: b53: Support setting learning on port") it may still only be in
-> netdev-net/master at this point, though it will likely reach Linus' tree
-> soon.
+stable-rc/linux-4.9.y baseline: 44 runs, 1 regressions (v4.9.258-9-ge98ce50=
+4074a7)
 
-Ah, I can't do anything with them until that hits Linus's tree, you know
-this :)
+Regressions Summary
+-------------------
 
-> >> The way this was fixed in the netdev group's net tree is slightly
-> >> different from how it should be backported to stable trees which is why
-> >> you will find a patch for each branch in the thread started by this
-> >> cover letter.
-> >>
-> >> Let me know if this does not apply for some reason. The changes from 4.9
-> >> through 4.19 are nearly identical and then from 5.4 through 5.11 are
-> >> about the same.
-> > 
-> > Thanks for the backports, but I still need a real git id to match these
-> > up with :)
-> 
-> You should have it in the Fixes: tag of each patch which all point to
-> when the bug dates back to when the driver was introduced. Let me know
-> if you need me to tag the patches differently.
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
 
-The fixes: tag shows what id this patch fixes, not the git id of this
-specific patch, like all stable patches show in their changelog text.
 
-That's the id I need.  I'll just wait until this hits Linus's tree
-before worrying about it.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.258-9-ge98ce504074a7/plan/baseline/
 
-thanks,
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.258-9-ge98ce504074a7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e98ce504074a75070c405546b8f52b5474ed5c78 =
 
-greg k-h
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig | regressi=
+ons
+-------------------+-------+--------------+----------+-----------+---------=
+---
+r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6037a8c4d46f0459f1addcb7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.258=
+-9-ge98ce504074a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.258=
+-9-ge98ce504074a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6037a8c4d46f0459f1add=
+cb8
+        failing since 99 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
