@@ -2,132 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5330A325928
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 23:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3526B325945
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 23:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233644AbhBYV7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 16:59:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
+        id S233077AbhBYWLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 17:11:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbhBYV7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 16:59:39 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B929C061574
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:58:59 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id u187so3947917wmg.4
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 13:58:59 -0800 (PST)
+        with ESMTP id S231326AbhBYWLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 17:11:06 -0500
+Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D8FC06174A
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 14:10:26 -0800 (PST)
+Received: by mail-oo1-xc2d.google.com with SMTP id h38so1752609ooi.8
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 14:10:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=iTiwlERwF64zshsIIMkKk8/wv4RuW04Rr3/QxObwIbA=;
-        b=OE+Nso0xZ3Z0U2goU/o9NGtQgJcBjUfIeNrDHLZsqkTuE3Rb1yP4NC8hu0yXDdVotN
-         TAHg85oDQlEb0U32bQ/qx/34P4vnExTg2nvMiKBzGBU+b2eUfi4ev3evxGZm0Q9KvmW2
-         ayGDv6n3HujzTourTYBqBJep1RqWtS9wIt6dYTTIFAVo6fVxEgNhu4IW5jKOPEnyDVy4
-         dWoGJvRYix9a90eXiJZYD9Fkdt7AoUlD/a18aw1CUmYc9KUzEZmU4BIOvmQM8A7rBjh+
-         mBMiK5zNio26FTZOvAY6Q0WtYHkGxpZ5IXkSeaX8VnuZyH4i8f1o3OQ441YD2to6Z8MI
-         1tYQ==
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=XftgnINPlZladalQTpsNpLP7SzZjkVelTIAPHwuTdz0=;
+        b=XZ5ciB9UzSIx+tCoL4w7eDTZwtIhMPAvJmzyJKh3vWFmrVGk6paAKnXmvJKmkIX0qj
+         bbhOapbuKX0PqRxffOHpAsc+VnBJIdQzFimA7xw4EIEdszxbBCzxln4ZU53g9xZVTAw/
+         k52a/vQaaN4g7nMUkMHosu+Bp/cfV1Q5uNjZWFLNRFWjc5/mxS24S5KeN0JPvfH/iLVV
+         GV5NCN8fIsEy/XQChA/JKttcRdmSPFERNT55z1t9sRHyBbp33fQxGV/ogi8iUde0EZPR
+         jfMXTI/lhZx1MXAPX3c6XPQIZljWqUpCfUo+CoRvsbqzK8j6ZQf6HbcIHmQFyol01gsB
+         +RVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=iTiwlERwF64zshsIIMkKk8/wv4RuW04Rr3/QxObwIbA=;
-        b=a/HTV/JmTg+HBAUhyZ/ZV9xTDeG3J2j6cqRq0oaDbbrjE6ih1rWrrYUQWtNfM5zYh4
-         gieh1Jplsix9eWKuLd8YRVCzPkrtCbx9qNjqkfGH09S0w1ySWWq57gsC0AxI0DYDXhBj
-         uNmsCoVH+ZOWA4tIZihqDGsftpQELJhf65VkT15SAM9FzmhnnG0HAF+2wt/d2BtFNLr6
-         JwuoGIoBU5opQQAY1zeJsNysS1ldA4TfqZu2FF8wEvthExDcqtuQccBEi2GPBDtDR6pu
-         JHMANPDfLoRIcYGcNzbsu96JLDInAgiAUP9v0u4OOeQuc1mAVMyT2NeD7//imbQFbk+2
-         lbhg==
-X-Gm-Message-State: AOAM533D5jGZOQeLDu3/pg+xIExO16a4mx9fDOxGWiVBPEpmGOE8mqXu
-        M33feN0nfPhDjwSjddQT0Jat36RiUpOU6AHEayg=
-X-Google-Smtp-Source: ABdhPJwCEA0EkOwkdXoFGJmbPFJaPUIHfRzaMkDBAQogiVPJgSTWwu2dofTpeIZhANWOVEcrSRaflA==
-X-Received: by 2002:a1c:f604:: with SMTP id w4mr381721wmc.39.1614290337833;
-        Thu, 25 Feb 2021 13:58:57 -0800 (PST)
-Received: from debian (host-2-98-59-96.as13285.net. [2.98.59.96])
-        by smtp.gmail.com with ESMTPSA id d17sm10911245wrv.93.2021.02.25.13.58.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Feb 2021 13:58:57 -0800 (PST)
-Date:   Thu, 25 Feb 2021 21:58:55 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     yoshihiro.shimoda.uh@renesas.com, stable@vger.kernel.org,
-        tho.vu.wh@renesas.com
-Subject: Re: FAILED: patch "[PATCH] usb: renesas_usbhs: Clear pipe running
- flag in" failed to apply to 4.14-stable tree
-Message-ID: <YDgdn7E9Nx5GMxkq@debian>
-References: <161277841922126@kroah.com>
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=XftgnINPlZladalQTpsNpLP7SzZjkVelTIAPHwuTdz0=;
+        b=oUf4eKpRmuxfG2I1R4MMPxIEVU3+MVQAfZkfX1pggrc+04liUCvmd9KT+RwnN00fDy
+         6iOStGA/NqZKhOYvbwV5y8CCJ4VtTXO9g8IDqQ2o7tgaTww/PdQ5jNv0MuZJROWO7kbY
+         BlqQm0V0aWak7x67lRT5vrurfzaTL5sHNhKpnEY1pDzG3CqOuhwIqb4+ZZdghvbb4vSe
+         cqHPVscme/fUTOva6Y7OuFhsaf9XMICpg7LyULSJYj4XqfHteH+yC1kWT/+Nfo236HaD
+         5Zlt9jMIHaJph+yxekX8K2xBgyNMru6DF5kIElVJSg3/zh9ZWfvusgWNKi7pvUnC59K8
+         hRNQ==
+X-Gm-Message-State: AOAM533wS83nIZAbuTJc4wncGfn/Vdr4C89hS1LQhW8KVlwaOEK5f9NC
+        ssbIT2MZA04JPdrLdNquBLEH/QaMyzazmmVcSqk=
+X-Google-Smtp-Source: ABdhPJyKJr1tvlxDeltEmZUbIjA7KzOLQ+RwNCjIP+ithw9dTSWHPMVcngNVZzf8MxIBUdrIDSPRoWvwElGdnM0FW38=
+X-Received: by 2002:a4a:751a:: with SMTP id j26mr74678ooc.68.1614291025759;
+ Thu, 25 Feb 2021 14:10:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="PXZavNPVIOr263xB"
-Content-Disposition: inline
-In-Reply-To: <161277841922126@kroah.com>
+Sender: nadiaemaan50@gmail.com
+Received: by 2002:ac9:3dc5:0:0:0:0:0 with HTTP; Thu, 25 Feb 2021 14:10:25
+ -0800 (PST)
+From:   "Mrs. Nadia Emaan" <mrsnadiaemaan50@gmail.com>
+Date:   Thu, 25 Feb 2021 22:10:25 +0000
+X-Google-Sender-Auth: KfG12YwBg9Jj-VI948UI5OarsYU
+Message-ID: <CAO1QzD3s+VS=EdDuzKmPNB+nN3CTVMykCQUFwe_V48vmpH7i-Q@mail.gmail.com>
+Subject: May the peace of Almighty God be with You;;
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+May God Bless you,
 
---PXZavNPVIOr263xB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Greg,
-
-On Mon, Feb 08, 2021 at 11:00:19AM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-
-Here is the backport. Will apply to all branches till 4.4-stable.
-
---
-Regards
-Sudip
-
---PXZavNPVIOr263xB
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-usb-renesas_usbhs-Clear-pipe-running-flag-in-usbhs_p.patch"
-
-From 5f0d0919f09f86b4b1365d46d9f7ddaa0ad3c15a Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Mon, 1 Feb 2021 21:47:20 +0900
-Subject: [PATCH] usb: renesas_usbhs: Clear pipe running flag in
- usbhs_pkt_pop()
-
-commit 9917f0e3cdba7b9f1a23f70e3f70b1a106be54a8 upstream
-
-Should clear the pipe running flag in usbhs_pkt_pop(). Otherwise,
-we cannot use this pipe after dequeue was called while the pipe was
-running.
-
-Fixes: 8355b2b3082d ("usb: renesas_usbhs: fix the behavior of some usbhs_pkt_handle")
-Reported-by: Tho Vu <tho.vu.wh@renesas.com>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1612183640-8898-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/usb/renesas_usbhs/fifo.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/usb/renesas_usbhs/fifo.c b/drivers/usb/renesas_usbhs/fifo.c
-index 4a486fa5473e..3637d5edab74 100644
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -137,6 +137,8 @@ struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
- 			usbhsf_dma_unmap(pkt);
- 		}
- 
-+		usbhs_pipe_running(pipe, 0);
-+
- 		__usbhsf_pkt_del(pkt);
- 	}
- 
--- 
-2.30.0
+I am contacting you through this means because I need your urgent
+assistance and also help me to carry a charity project in your
+country. I found your email address as a true child of God for past
+few days now that I have been praying to know if you are really the
+chosen one for this great charity project, according to God's
+direction, after all prayers I am convinced, and I have decided to
+contact you. Please, i want you use the funds for the Lord's work,
+with confidence, read and respond now.
 
 
---PXZavNPVIOr263xB--
+My name is Faroul Nadia Emaan, a widow, but currently based in West
+Africa since my life with my late husband, who was a businessman in
+this country before dying some years ago. We were married to many
+years without a child. He died after a brief illness that lasted only
+six days and I myself have been suffering from an ovarian cancer
+disease. At this moment I am about to finish the race in this way
+because the disease has reached a very bad stage, without any family
+member and without children. I hope you do not expose or betray this
+trust and I am sure that I am about to trust you for the mutual
+benefit of orphans and the less privileged. I have some funds that I
+inherited from my late husband, the total sum of ($ 12,500,000.00)
+deposited at a bank here in Burkina Faso. After knowing my current
+state of health, I decided to trust you with this fund, believing that
+you will use it in the way I will instruct here.
+
+
+you will use this $12.5 Million for public benefit as follows;
+
+1. Establish An Orphanage Home To Help The Orphanages Children.
+2. Build A Hospital To Help The Poor.
+3. Build A Nursing Home For Elderly People Need Care & Meal.
+
+You will named them after my late husband.Therefore, I need you to
+help me and claim this money and use it for charities, for orphanages
+and provide justice and help to the poor, needy and to promote the
+words of God and the effort to maintain the house of God, according to
+the bible in the book of. Jeremiah 22: 15-16, without minding our
+different religions.
+
+It will be a pleasure to compensate with 40% percent of the total
+money for your effort in handling the transaction, while 60% of the
+money will go to charity project.
+
+All I need from you is sincerity and ability to complete the task of
+God without any failure. It will be my pleasure to see that the bank
+has finally released and transferred the fund to your bank account in
+the country, even before I die here in the hospital, due to my current
+state of health, everything must be processed as soon as possible.
+
+I am waiting for your immediate response, if you are only interested
+in obtaining more details about the transaction and execution of this
+humanitarian project for the glory and honor of God.
+
+Sorry if you received this letter in your spam, is due to recent
+connection/network error here in the country.
+
+Please I am waiting for your urgent reply now.
+
+May God Bless you,
+Faroul Nadia Emaan.
