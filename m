@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BC7324D7B
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 755E3324D8D
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234106AbhBYKB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35126 "EHLO mail.kernel.org"
+        id S233077AbhBYKFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:05:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233791AbhBYJ72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:59:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3776E64F1E;
-        Thu, 25 Feb 2021 09:55:17 +0000 (UTC)
+        id S233906AbhBYKAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 05:00:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12A2A64F27;
+        Thu, 25 Feb 2021 09:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246917;
-        bh=dc+mqs92eqr14fLxaCWbl3fx8EdlXbDOtaLnJ4ct3ic=;
+        s=korg; t=1614246940;
+        bh=+dFbSvhutgh3rVwiAQeL/gyECsMD5Liiov7nf/WWzvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoM6pJTEFo9KaU8edrRwxltCsZ94QejhsHXgo856bFx1KxZUKYrCbpHQdg/3UMCx9
-         tOlWa7dn6X436VaDCZ+E8iCcWFy0G+s5jcKw0SllNIt+mkjqwUHL7a3PvQvpmmXDBQ
-         5v8n8O5piCEJpIpZqO6K6IyvhjD/iEUFfOfnu6PE=
+        b=aeCDOZhJMj63bQ0l4wvQWMBAYPnuOGV2AwMbawK+2SWuBIA2+puWWF0lpxd2tYGTP
+         EI1XIPvc5D2q71lqjBV32GCzMKNAhOH8oYKa49nxNlC+K1N8DWfRiohg9JftomMvkj
+         DDuIr+9PWX+rS9x/iuRryWNP3DlBPjumbx2Q444Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Stevens <stevensd@google.com>,
-        3pvd@google.com, Jann Horn <jannh@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 15/23] KVM: do not assume PTE is writable after follow_pfn
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 01/17] bpf: Fix truncation handling for mod32 dst reg wrt zero
 Date:   Thu, 25 Feb 2021 10:53:46 +0100
-Message-Id: <20210225092517.255507506@linuxfoundation.org>
+Message-Id: <20210225092515.077853835@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
-References: <20210225092516.531932232@linuxfoundation.org>
+In-Reply-To: <20210225092515.001992375@linuxfoundation.org>
+References: <20210225092515.001992375@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,85 +42,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
+commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
 
-In order to convert an HVA to a PFN, KVM usually tries to use
-the get_user_pages family of functinso.  This however is not
-possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
+Recently noticed that when mod32 with a known src reg of 0 is performed,
+then the dst register is 32-bit truncated in verifier:
 
-In doing this however KVM loses the information on whether the
-PFN is writable.  That is usually not a problem because the main
-use of VM_IO vmas with KVM is for BARs in PCI device assignment,
-however it is a bug.  To fix it, use follow_pte and check pte_write
-while under the protection of the PTE lock.  The information can
-be used to fail hva_to_pfn_remapped or passed back to the
-caller via *writable.
+  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+  0: (b7) r0 = 0
+  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
+  1: (b7) r1 = -1
+  2: R0_w=inv0 R1_w=inv-1 R10=fp0
+  2: (b4) w2 = -1
+  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
+  3: (9c) w1 %= w0
+  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  4: (b7) r0 = 1
+  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  5: (1d) if r1 == r2 goto pc+1
+   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: (b7) r0 = 2
+  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  7: (95) exit
+  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
+  7: (95) exit
 
-Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try to fix
-up page faults before giving up", 2016-07-05); however, even older version
-have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
-Handle vma regions with no backing page", 2008-07-20), as they also did
-not check whether the PFN was writable.
+However, as a runtime result, we get 2 instead of 1, meaning the dst
+register does not contain (u32)-1 in this case. The reason is fairly
+straight forward given the 0 test leaves the dst register as-is:
 
-Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
-Reported-by: David Stevens <stevensd@google.com>
-Cc: 3pvd@google.com
-Cc: Jann Horn <jannh@google.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+1
+   4: (9c) w1 %= w0
+   5: (b7) r0 = 1
+   6: (1d) if r1 == r2 goto pc+1
+   7: (b7) r0 = 2
+   8: (95) exit
+
+This was originally not an issue given the dst register was marked as
+completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
+("bpf: fix 32-bit ALU op verification") the verifier casts the register
+output to 32 bit, and hence it becomes 32 bit unknown. Note that for
+the case where the src register is unknown, the dst register is marked
+64 bit unknown. After the fix, the register is truncated by the runtime
+and the test passes:
+
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+2
+   4: (9c) w1 %= w0
+   5: (05) goto pc+1
+   6: (bc) w1 = w1
+   7: (b7) r0 = 1
+   8: (1d) if r1 == r2 goto pc+1
+   9: (b7) r0 = 2
+  10: (95) exit
+
+Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
+has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
+
+  mod32:                            mod64:
+
+  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
+  (9c) w1 %= w0                     (9f) r1 %= r0
+  (05) goto pc+1
+  (bc) w1 = w1
+
+Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ kernel/bpf/verifier.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1889,9 +1889,11 @@ static int hva_to_pfn_remapped(struct vm
- 			       kvm_pfn_t *p_pfn)
- {
- 	unsigned long pfn;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	int r;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -9005,7 +9005,7 @@ static int fixup_bpf_calls(struct bpf_ve
+ 			bool isdiv = BPF_OP(insn->code) == BPF_DIV;
+ 			struct bpf_insn *patchlet;
+ 			struct bpf_insn chk_and_div[] = {
+-				/* Rx div 0 -> 0 */
++				/* [R,W]x div 0 -> 0 */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JNE | BPF_K, insn->src_reg,
+ 					     0, 2, 0),
+@@ -9014,16 +9014,18 @@ static int fixup_bpf_calls(struct bpf_ve
+ 				*insn,
+ 			};
+ 			struct bpf_insn chk_and_mod[] = {
+-				/* Rx mod 0 -> Rx */
++				/* [R,W]x mod 0 -> [R,W]x */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JEQ | BPF_K, insn->src_reg,
+-					     0, 1, 0),
++					     0, 1 + (is64 ? 0 : 1), 0),
+ 				*insn,
++				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
++				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
+ 			};
  
--	r = follow_pfn(vma, addr, &pfn);
-+	r = follow_pte(vma->vm_mm, addr, NULL, &ptep, NULL, &ptl);
- 	if (r) {
- 		/*
- 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
-@@ -1906,14 +1908,19 @@ static int hva_to_pfn_remapped(struct vm
- 		if (r)
- 			return r;
+ 			patchlet = isdiv ? chk_and_div : chk_and_mod;
+ 			cnt = isdiv ? ARRAY_SIZE(chk_and_div) :
+-				      ARRAY_SIZE(chk_and_mod);
++				      ARRAY_SIZE(chk_and_mod) - (is64 ? 2 : 0);
  
--		r = follow_pfn(vma, addr, &pfn);
-+		r = follow_pte(vma->vm_mm, addr, NULL, &ptep, NULL, &ptl);
- 		if (r)
- 			return r;
-+	}
- 
-+	if (write_fault && !pte_write(*ptep)) {
-+		pfn = KVM_PFN_ERR_RO_FAULT;
-+		goto out;
- 	}
- 
- 	if (writable)
--		*writable = true;
-+		*writable = pte_write(*ptep);
-+	pfn = pte_pfn(*ptep);
- 
- 	/*
- 	 * Get a reference here because callers of *hva_to_pfn* and
-@@ -1928,6 +1935,8 @@ static int hva_to_pfn_remapped(struct vm
- 	 */ 
- 	kvm_get_pfn(pfn);
- 
-+out:
-+	pte_unmap_unlock(ptep, ptl);
- 	*p_pfn = pfn;
- 	return 0;
- }
+ 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
+ 			if (!new_prog)
 
 
