@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F4B325784
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 21:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D55A325795
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 21:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbhBYUYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 15:24:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45098 "EHLO
+        id S231881AbhBYU0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 15:26:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbhBYUYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 15:24:12 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041C5C061574
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 12:23:32 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id i7so5559382wmb.0
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 12:23:31 -0800 (PST)
+        with ESMTP id S229769AbhBYU0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 15:26:07 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A2A2C0617A7
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 12:24:56 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id u14so6520080wri.3
+        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 12:24:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=AhXr7DjjdaI+jwKpkEi5+BHuksjY5Ycgj9e0a94OAjU=;
-        b=tVRznXNV1rLldBKlILLol5f4FsVdmBu4k7jeKRsrznpE7QQDUqowpe0GBx+XJDLr6L
-         gt12mk/pbUJzlmTn53ovtg82zhYYsDDEVnKNKGRER93G2WmzZS/vgKWKogng4wgjkaSt
-         ALJnnn6T3vHK79cyaKZgnXR55ufivrGifXvfLbvjyR8VkDqbFXh/nLoPFLjA6VtrR9ep
-         P1nBd8uDFZK8GQ1HNKz166qv+AY/xsSq8PRSALeTgJrlHCDTOa2+zuxLMetNA+ilnNYH
-         jLD6wD88fWeZ4kXkiw8OLnCLGpKXeTmT/Qz/fFK4ieU3+gRbJ+9TboFVxZpOLJ3FUvlI
-         L+fw==
+        bh=iwGtlAUuIKR+rZXJDTEFSvuFv/CHTMQw+T4I/d+1wmM=;
+        b=XrIYHvPnIcKnH6ULbTwbvSwOiAurGJgu7IOkl+9TcU7HF086Ax9Q+duc6LHcbNmdSV
+         qU9bpB8Ls5ebWomPKz5cxA4U0i4zCIimJEC4FNtp5cAVMX5SI/BbjsOcjb7EAwWr+NY2
+         6rC1Sl8ckK8iwYENiW5dMxTco6yoQ0NXAw/N6oXoXBwuv7L7Y66TWbqcy9ys/q/V5GL0
+         aiWDm2GD/jV2xFGRJJGddT5W/MeQWAQHNeheZVK+fe+XWlQBlAF+LO4qw123iS5WHf/2
+         Q7D+cqR7CSZA0cyHtwwzI/QaDEepuk1tnfyM+RqOyzSXQvv98qZ1Ou8fbFiVrI6wyrpa
+         Gy4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=AhXr7DjjdaI+jwKpkEi5+BHuksjY5Ycgj9e0a94OAjU=;
-        b=Ay+NKdF/k9KrXUkmr7mHuiAIo1woAxzTBngqxNnNkbvqI5gsXZm4i0opTHzI35FxQ6
-         cjBWN9CskNmxmOt90cwIjmqBP3O8Yw7irhMYEA3ReepFisnLDCSfnM1ISdfoOMWIAt2S
-         iQVt6V/XhqBvSzxJZ9bRHF0TV81bWApEaTyZx4V3L0PMt04q6WQNNe6aWebbBJ9xdmHA
-         O9wXucqkjJjwJ+UsNv87gXsyW9G1Qi5AjNrhYthnhoYYa70fZrofgh0dXdP+KFS5vrUl
-         Ahmr8k/AyTsVu7SC1ttNjEin/6bmy3umAKiRNwydd2kn/wiX2AfaAmJCoL4T4jnxmw7P
-         LWDA==
-X-Gm-Message-State: AOAM532ix/Is2nyB405CtHjSF+pCCeK6C27AsCnsUvr2O6mJlonzQ4ZP
-        I8DQsmRvS1V262q689lsY9A=
-X-Google-Smtp-Source: ABdhPJyVilyrKadMoVQ0zKNHmRhk03kQxVrDSTd/ZnzAA40SGHMgTc6LKIxTaYFKf16BivSO6f2a9w==
-X-Received: by 2002:a7b:cd98:: with SMTP id y24mr121541wmj.23.1614284610786;
-        Thu, 25 Feb 2021 12:23:30 -0800 (PST)
+        bh=iwGtlAUuIKR+rZXJDTEFSvuFv/CHTMQw+T4I/d+1wmM=;
+        b=KV298/UNWjTOhQr09gVbsbySUNddKBTU3jI2kHG9kUxuYef9k5mmAQ5XbiUMPgyKTu
+         yhb7clH9KBQNCJ7OR1348zLY12ZhWxPNekR5/JSlxKS4oNUMVSnegJ7Ty3mzy43mV3tr
+         lBCLojlw5cwkzIDESgXbSlTCtcHkksGaxBexsPFEW7ocwrqej4+YB9Iz1xRYmYCB4DDs
+         hkKwzOCUI1Mmi+TKArQq/UrLU0mBle2v3vDXb7g5domg2fAjuUcj5mP466IpMUdlq1Kb
+         acD7IBpalbHGnDLBzGxrP4AAbFs1DXp1frOYzRwTSaDFVpFX+bPDotjG0nZF1S47HAzc
+         chJw==
+X-Gm-Message-State: AOAM533ZfQuOUZ3/SKMCfYsZh6DlffyOk5zTieEY7K0DFkwiTLrcZMjU
+        HIWxa3fZtDgCnt3Ba/jMm1M=
+X-Google-Smtp-Source: ABdhPJwh6Eh4lFqMdlqb+o2Q89UPbw2Nkzgtxe571BCvfV5lUUdvJroTb/RtnFGMNVSOkV/cYfxmKQ==
+X-Received: by 2002:a05:6000:1841:: with SMTP id c1mr5075146wri.278.1614284695049;
+        Thu, 25 Feb 2021 12:24:55 -0800 (PST)
 Received: from debian (host-2-98-59-96.as13285.net. [2.98.59.96])
-        by smtp.gmail.com with ESMTPSA id h22sm9881179wmb.36.2021.02.25.12.23.29
+        by smtp.gmail.com with ESMTPSA id o9sm9028127wmc.8.2021.02.25.12.24.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Feb 2021 12:23:30 -0800 (PST)
-Date:   Thu, 25 Feb 2021 20:23:28 +0000
+        Thu, 25 Feb 2021 12:24:54 -0800 (PST)
+Date:   Thu, 25 Feb 2021 20:24:52 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     songmuchun@bytedance.com, akpm@linux-foundation.org,
@@ -55,27 +55,27 @@ Cc:     songmuchun@bytedance.com, akpm@linux-foundation.org,
         osalvador@suse.de, shy828301@gmail.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
 Subject: Re: FAILED: patch "[PATCH] mm: hugetlb: fix a race between freeing
- and dissolving the" failed to apply to 4.9-stable tree
-Message-ID: <YDgHQK+hu+24vDwM@debian>
-References: <161278206919633@kroah.com>
+ and dissolving the" failed to apply to 4.4-stable tree
+Message-ID: <YDgHlEEifKxKKPb/@debian>
+References: <161278206820815@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="+7lpLZCDCYXjztLb"
+Content-Type: multipart/mixed; boundary="aVGQJ8ZYtiyi9Pq8"
 Content-Disposition: inline
-In-Reply-To: <161278206919633@kroah.com>
+In-Reply-To: <161278206820815@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---+7lpLZCDCYXjztLb
+--aVGQJ8ZYtiyi9Pq8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Feb 08, 2021 at 12:01:09PM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Feb 08, 2021 at 12:01:08PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.9-stable tree.
+> The patch below does not apply to the 4.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -86,12 +86,12 @@ Here is the backport.
 Regards
 Sudip
 
---+7lpLZCDCYXjztLb
+--aVGQJ8ZYtiyi9Pq8
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment;
 	filename="0001-mm-hugetlb-fix-a-race-between-freeing-and-dissolving.patch"
 
-From f881ad15d3564df36863ebbbc408dd814efffd25 Mon Sep 17 00:00:00 2001
+From 9585297e3f6ce7aafd72f7625c0eb6f2279558d2 Mon Sep 17 00:00:00 2001
 From: Muchun Song <songmuchun@bytedance.com>
 Date: Thu, 4 Feb 2021 18:32:06 -0800
 Subject: [PATCH] mm: hugetlb: fix a race between freeing and dissolving the
@@ -145,7 +145,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 39 insertions(+)
 
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 5a16d892c891..98b6c91dab9d 100644
+index dc877712ef1f..2f1779e37e5b 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
 @@ -66,6 +66,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
@@ -170,7 +170,7 @@ index 5a16d892c891..98b6c91dab9d 100644
  /* Forward declaration */
  static int hugetlb_acct_memory(struct hstate *h, long delta);
  
-@@ -863,6 +878,7 @@ static void enqueue_huge_page(struct hstate *h, struct page *page)
+@@ -841,6 +856,7 @@ static void enqueue_huge_page(struct hstate *h, struct page *page)
  	list_move(&page->lru, &h->hugepage_freelists[nid]);
  	h->free_huge_pages++;
  	h->free_huge_pages_node[nid]++;
@@ -178,7 +178,7 @@ index 5a16d892c891..98b6c91dab9d 100644
  }
  
  static struct page *dequeue_huge_page_node(struct hstate *h, int nid)
-@@ -880,6 +896,7 @@ static struct page *dequeue_huge_page_node(struct hstate *h, int nid)
+@@ -858,6 +874,7 @@ static struct page *dequeue_huge_page_node(struct hstate *h, int nid)
  		return NULL;
  	list_move(&page->lru, &h->hugepage_activelist);
  	set_page_refcounted(page);
@@ -186,7 +186,7 @@ index 5a16d892c891..98b6c91dab9d 100644
  	h->free_huge_pages--;
  	h->free_huge_pages_node[nid]--;
  	return page;
-@@ -1292,6 +1309,7 @@ static void prep_new_huge_page(struct hstate *h, struct page *page, int nid)
+@@ -1266,6 +1283,7 @@ static void prep_new_huge_page(struct hstate *h, struct page *page, int nid)
  	set_hugetlb_cgroup(page, NULL);
  	h->nr_huge_pages++;
  	h->nr_huge_pages_node[nid]++;
@@ -194,18 +194,16 @@ index 5a16d892c891..98b6c91dab9d 100644
  	spin_unlock(&hugetlb_lock);
  	put_page(page); /* free it into the hugepage allocator */
  }
-@@ -1455,6 +1473,7 @@ static int dissolve_free_huge_page(struct page *page)
+@@ -1424,11 +1442,32 @@ static int free_pool_huge_page(struct hstate *h, nodemask_t *nodes_allowed,
+  */
+ static void dissolve_free_huge_page(struct page *page)
  {
- 	int rc = 0;
- 
 +retry:
  	spin_lock(&hugetlb_lock);
  	if (PageHuge(page) && !page_count(page)) {
  		struct page *head = compound_head(page);
-@@ -1464,6 +1483,26 @@ static int dissolve_free_huge_page(struct page *page)
- 			rc = -EBUSY;
- 			goto out;
- 		}
+ 		struct hstate *h = page_hstate(head);
+ 		int nid = page_to_nid(head);
 +
 +		/*
 +		 * We should make sure that the page is already on the free list
@@ -233,4 +231,4 @@ index 5a16d892c891..98b6c91dab9d 100644
 2.30.0
 
 
---+7lpLZCDCYXjztLb--
+--aVGQJ8ZYtiyi9Pq8--
