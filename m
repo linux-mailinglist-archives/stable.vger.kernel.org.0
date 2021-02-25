@@ -2,199 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E0BD325602
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 20:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A12325603
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 20:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbhBYTCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 14:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233496AbhBYTCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 14:02:44 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56331C061574
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 11:02:04 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id r3so6295956wro.9
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 11:02:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=R04SCbc3J2s6YGY6KTLqQ7dJLw7RfMlWnwJ0ZBxrr/A=;
-        b=FcYamvVNhIttALmwinTG0BfvveZd/yBRYBN//4NW5hd8rU/hV1xxIHccU5RESjCeRb
-         hZ2aLjMT4dMXcgqG9KW48eW5lRJqPnkGrhaGBrnBssj0U3M6Ls+csqDQAOucI4RCctWI
-         sLdvKXnD097OdJpmfj9kiVrOIcnFNcRLJAYzoM/pFfhRU5WbczoyQp2PqHL6AKftUK7+
-         p3EixcHJlmALpr1P5ZRMIjCpNZ4vf423GnpNd+iARqGOesx3ukvGe+985cGFhs2Airml
-         vmw9QI90G12Q4DsVB1NSeVDeL/LgDXOB+75mojcl466eGOHJFlyZNDeyY1k+wmF4NQPM
-         IKKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=R04SCbc3J2s6YGY6KTLqQ7dJLw7RfMlWnwJ0ZBxrr/A=;
-        b=DC+1Jos6ijOpV0HZiQ3V6FI7giD+x7wlZZjvujKVaRzgRKI3R8+bvWfC3LLkvu0nxu
-         fUZ7Tzpi2QHkibT3MOzRuRPkT3YslLyYkljAshSY1jRyXw1lRESBxN7rg4CJqAGHaqp8
-         5DMnjrg4/pJghvZ1h/GeT6fmv2X75YAhPxYu/yC+VMAVdEGVZwAvxm8ZP/XjWy4Om6Dh
-         soFleuLbQG0MPfhnBGo9jmls0oZ3PU4KFE+NhHxVIMmnvhdX1Pvrvu2yAm+ul7rrj5n+
-         veKUd8W0oMG0B7k+qjS+EPWXQ3IsvDpeJqbxI2C7QKD+hbxweZVYU7X4wvE5IwkD4EsZ
-         WOcg==
-X-Gm-Message-State: AOAM533twOFiggQa50sZ571jWPoyx+uWljVOshFojRQm/HQi7hWqEDBm
-        HpH770t9OmDLLZW2XUnkvhg=
-X-Google-Smtp-Source: ABdhPJxk25RGRPLVZhS8dIoWYL89+5XVazQbdxVKKeCGmetyLUCZO5Oi36KP0AaM2heny3nLG3zS2Q==
-X-Received: by 2002:a5d:4bc1:: with SMTP id l1mr5074737wrt.396.1614279723057;
-        Thu, 25 Feb 2021 11:02:03 -0800 (PST)
-Received: from debian ([2.98.59.96])
-        by smtp.gmail.com with ESMTPSA id g17sm8289306wru.60.2021.02.25.11.02.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Feb 2021 11:02:02 -0800 (PST)
-Date:   Thu, 25 Feb 2021 19:01:57 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Airlie <airlied@linux.ie>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Oliver Neukum <oneukum@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>, Johan Hovold <johan@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sean Paul <sean@poorly.run>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Subject: Re: [PATCH v3] drm: Use USB controller's DMA mask when importing
- dmabufs
-Message-ID: <YDf0JdIUJU74J4PJ@debian>
-References: <20210223105842.27011-1-tzimmermann@suse.de>
- <YDTk3L3gNxDE3YrC@kroah.com>
- <YDTrDAlcFH/7/7DD@phenom.ffwll.local>
- <YDTu4ugLo23APyaM@kroah.com>
- <CAKMK7uG67eHEFOCJBJCtwFbwoUWQsER4DNBKRp6e75uywvF1pw@mail.gmail.com>
- <YDT0GIJEhWRp0w5F@kroah.com>
- <9b1e0c9b-2337-d76b-4870-72fbe8495fd2@suse.de>
- <YDT+pusRy3/JpmRR@kroah.com>
+        id S231960AbhBYTDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 14:03:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49484 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233025AbhBYTDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 14:03:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D4FD64EFA;
+        Thu, 25 Feb 2021 19:03:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614279789;
+        bh=mqRATAtny9DcsR1CdJJNpoJ/uwWCFDvyI0SopqofvyY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=u4hT3ugYzLnd8M6gdo71afj/JH5CaQWhiNmm5uCGyfAy4thc+ErElqhOp3EiRy8cx
+         aIcWAssFjmTdfbxJYzge/PDYrBzU4y8t61MqK3I8SOdenhjQAwv27RulAVpVgX5HNs
+         GBHCw7R1SfKIrX+sXy8ZPy4Q6C4EzVu4VbQBaDt77Ssj1OhGe4dM1UP13vuyGptd/y
+         cjRhJmirUsk1wwnGAXWkbcFSD5HOAwH0Ag3ztMYcYfyXoIHvoyzY4lv/aDw/TPLokm
+         ZtvSyJZ/IvTBrIe73xbwHQBM5awHnkoDRhGsOaJwHw1/h+25bt7fvN9rek2rUAOQtJ
+         wVmFQYA3KQdhQ==
+Received: by pali.im (Postfix)
+        id DC322760; Thu, 25 Feb 2021 20:03:06 +0100 (CET)
+Date:   Thu, 25 Feb 2021 20:03:06 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.11 16/67] net: sfp: add mode quirk for GPON
+ module Ubiquiti U-Fiber Instant
+Message-ID: <20210225190306.65jnl557vvs6d7o3@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YDT+pusRy3/JpmRR@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210224125026.481804-16-sashal@kernel.org>
+ <20210224125212.482485-12-sashal@kernel.org>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 02:09:58PM +0100, Greg KH wrote:
-> On Tue, Feb 23, 2021 at 01:51:09PM +0100, Thomas Zimmermann wrote:
-> > Hi
-> > 
-> > Am 23.02.21 um 13:24 schrieb Greg KH:
-> > > On Tue, Feb 23, 2021 at 01:14:30PM +0100, Daniel Vetter wrote:
-> > > > On Tue, Feb 23, 2021 at 1:02 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > 
-> > > > > On Tue, Feb 23, 2021 at 12:46:20PM +0100, Daniel Vetter wrote:
-> > > > > > On Tue, Feb 23, 2021 at 12:19:56PM +0100, Greg KH wrote:
-> > > > > > > On Tue, Feb 23, 2021 at 11:58:42AM +0100, Thomas Zimmermann wrote:
-> > > > > > > > USB devices cannot perform DMA and hence have no dma_mask set in their
-> > > > > > > > device structure. Importing dmabuf into a USB-based driver fails, which
-> > > > > > > > break joining and mirroring of display in X11.
-> > > > > > > > 
-> > > > > > > > For USB devices, pick the associated USB controller as attachment device,
-> > > > > > > > so that it can perform DMA. If the DMa controller does not support DMA
-> > > > > > > > transfers, we're aout of luck and cannot import.
-> > > > > > > > 
-> > > > > > > > Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
-> > > > > > > > instance of struct drm_driver.
-> > > > > > > > 
-> > > > > > > > Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
-> > > > > > > > 
-> > > > > > > > v3:
-> > > > > > > >    * drop gem_create_object
-> > > > > > > >    * use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
-> > > > > > > > v2:
-> > > > > > > >    * move fix to importer side (Christian, Daniel)
-> > > > > > > >    * update SHMEM and CMA helpers for new PRIME callbacks
-> > > > > > > > 
-> > > > > > > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> > > > > > > > Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devices")
-> > > > > > > > Cc: Christoph Hellwig <hch@lst.de>
-> > > > > > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > > > > > Cc: Johan Hovold <johan@kernel.org>
-> > > > > > > > Cc: Alan Stern <stern@rowland.harvard.edu>
-> > > > > > > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > > > > > > Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> > > > > > > > Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-> > > > > > > > Cc: Oliver Neukum <oneukum@suse.com>
-> > > > > > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > > > > > Cc: <stable@vger.kernel.org> # v5.10+
-> > > > > > > > ---
-<snip>
-> > > > > > > 
-> > > > > > > There shouldn't be anything "special" about a DRM driver that needs this
-> > > > > > > vs. any other driver that might want to know about DMA things related to
-> > > > > > > a specific USB device.  Why isn't this an issue with the existing
-> > > > > > > storage or v4l USB devices?
-> > > > > > 
-> > > > > > The trouble is that this is a regression fix for 5.9, because the dma-api
-> > > > > > got more opinionated about what it allows. The proper fix is a lot more
-> > > > > > invasive (we essentially need to rework the drm_prime.c to allow dma-buf
-> > > > > > importing for just cpu access), and that's a ton more invasive than just a
-> > > > > > small patch with can stuff into stable kernels.
-> > > > > > 
-> > > > > > This here is ugly, but it should at least get rid of black screens again.
-> > > > > > 
-> > > > > > I think solid FIXME comment explaining the situation would be good.
-> > > > > 
-> > > > > Why can't I take a USB patch for a regression fix?  Is drm somehow
-> > > > > stand-alone that you make changes here that should belong in other
-> > > > > subsystems?
-> > > > > 
-> > > > > {hint, it shouldn't be}
-> > > > > 
-> > > > > When you start poking in the internals of usb controller structures,
-> > > > > that logic belongs in the USB core for all drivers to use, not in a
-> > > > > random tiny subsystem where no USB developer will ever notice it?  :)
-> > > > 
-> > > > Because the usb fix isn't the right fix here, it's just the duct-tape.
-> > > > We don't want to dig around in these internals, it's just a convenient
-> > > > way to shut up the dma-api until drm has sorted out its confusion.
-> > > > 
-> > > > We can polish the turd if you want, but the thing is, it's still a turd ...
-> > > > 
-> > > > The right fix is to change drm_prime.c code to not call dma_map_sg
-> > > > when we don't need it. The problem is that roughly 3 layers of code
-> > > > (drm_prime, dma-buf, gem shmem helpers) are involved. Plus, since
-> > > > drm_prime is shared by all drm drivers, all other drm drivers are
-> > > > impacted too. We're not going to be able to cc: stable that kind of
-> > > > stuff. Thomas actually started with that series, until I pointed out
-> > > > how bad things really are.
-> > > > 
-> > > > And before you ask: The dma-api change makes sense, and dma-api vs drm
-> > > > relations are strained since years, so we're not going ask for some
-> > > > hack there for our abuse to paper over the regression. I've been in
-> > > > way too many of those threads, only result is shouting and failed
-> > > > anger management.
-> > > 
-> > > Let's do it right.  If this is a regression from 5.9, it isn't a huge
-> > > one as that kernel was released last October.  I don't like to see this
-> > > messing around with USB internals in non-USB-core code please.
-> > 
-> > I get
-> > 
-> >  > git tag --contains 6eb0233ec2d0
-> >  ...
-> >  v5.10-rc1
-> >  ...
+On Wednesday 24 February 2021 07:49:34 Sasha Levin wrote:
+> From: Pali Rohár <pali@kernel.org>
 > 
-> Ah, I thought you said 5.9 was when the problem happened, ok, yes, 5.10
-> is slow to get out to a lot of distros that do not update frequently :(
+> [ Upstream commit f0b4f847673299577c29b71d3f3acd3c313d81b7 ]
 
-iiuc, Debian Bullseye release will be having v5.10.y.
+Hello! This commit requires also commit~1 from that patch series:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=426c6cbc409cbda9ab1a9dbf15d3c2ef947eb8c1
 
-Ben ?
+Without it kernel cannot read EEPROM from Ubiquiti U-Fiber Instant
+module and therefore the hook based on EEPROM data which is below would
+not be applied.
 
+> The Ubiquiti U-Fiber Instant SFP GPON module has nonsensical information
+> stored in its EEPROM. It claims to support all transceiver types including
+> 10G Ethernet. Clear all claimed modes and set only 1000baseX_Full, which is
+> the only one supported.
+> 
+> This module has also phys_id set to SFF, and the SFP subsystem currently
+> does not allow to use SFP modules detected as SFFs. Add exception for this
+> module so it can be detected as supported.
+> 
+> This change finally allows to detect and use SFP GPON module Ubiquiti
+> U-Fiber Instant on Linux system.
+> 
+> EEPROM content of this SFP module is (where XX is serial number):
+> 
+> 00: 02 04 0b ff ff ff ff ff ff ff ff 03 0c 00 14 c8    ???........??.??
+> 10: 00 00 00 00 55 42 4e 54 20 20 20 20 20 20 20 20    ....UBNT
+> 20: 20 20 20 20 00 18 e8 29 55 46 2d 49 4e 53 54 41        .??)UF-INSTA
+> 30: 4e 54 20 20 20 20 20 20 34 20 20 20 05 1e 00 36    NT      4   ??.6
+> 40: 00 06 00 00 55 42 4e 54 XX XX XX XX XX XX XX XX    .?..UBNTXXXXXXXX
+> 50: 20 20 20 20 31 34 30 31 32 33 20 20 60 80 02 41        140123  `??A
+> 
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/net/phy/sfp-bus.c | 15 +++++++++++++++
+>  drivers/net/phy/sfp.c     | 17 +++++++++++++++--
+>  2 files changed, 30 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+> index 20b91f5dfc6ed..4cf874fb5c5b4 100644
+> --- a/drivers/net/phy/sfp-bus.c
+> +++ b/drivers/net/phy/sfp-bus.c
+> @@ -44,6 +44,17 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
+>  	phylink_set(modes, 2500baseX_Full);
+>  }
+>  
+> +static void sfp_quirk_ubnt_uf_instant(const struct sfp_eeprom_id *id,
+> +				      unsigned long *modes)
+> +{
+> +	/* Ubiquiti U-Fiber Instant module claims that support all transceiver
+> +	 * types including 10G Ethernet which is not truth. So clear all claimed
+> +	 * modes and set only one mode which module supports: 1000baseX_Full.
+> +	 */
+> +	phylink_zero(modes);
+> +	phylink_set(modes, 1000baseX_Full);
+> +}
+> +
+>  static const struct sfp_quirk sfp_quirks[] = {
+>  	{
+>  		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
+> @@ -63,6 +74,10 @@ static const struct sfp_quirk sfp_quirks[] = {
+>  		.vendor = "HUAWEI",
+>  		.part = "MA5671A",
+>  		.modes = sfp_quirk_2500basex,
+> +	}, {
+> +		.vendor = "UBNT",
+> +		.part = "UF-INSTANT",
+> +		.modes = sfp_quirk_ubnt_uf_instant,
+>  	},
+>  };
+>  
+> diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+> index 91d74c1a920ab..804295ad8a044 100644
+> --- a/drivers/net/phy/sfp.c
+> +++ b/drivers/net/phy/sfp.c
+> @@ -273,8 +273,21 @@ static const struct sff_data sff_data = {
+>  
+>  static bool sfp_module_supported(const struct sfp_eeprom_id *id)
+>  {
+> -	return id->base.phys_id == SFF8024_ID_SFP &&
+> -	       id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP;
+> +	if (id->base.phys_id == SFF8024_ID_SFP &&
+> +	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP)
+> +		return true;
+> +
+> +	/* SFP GPON module Ubiquiti U-Fiber Instant has in its EEPROM stored
+> +	 * phys id SFF instead of SFP. Therefore mark this module explicitly
+> +	 * as supported based on vendor name and pn match.
+> +	 */
+> +	if (id->base.phys_id == SFF8024_ID_SFF_8472 &&
+> +	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP &&
+> +	    !memcmp(id->base.vendor_name, "UBNT            ", 16) &&
+> +	    !memcmp(id->base.vendor_pn, "UF-INSTANT      ", 16))
+> +		return true;
+> +
+> +	return false;
+>  }
+>  
+>  static const struct sff_data sfp_data = {
+> -- 
+> 2.27.0
+> 
 
---
-Regards
-Sudip
+On Wednesday 24 February 2021 07:51:28 Sasha Levin wrote:
+> From: Pali Rohár <pali@kernel.org>
+> 
+> [ Upstream commit f0b4f847673299577c29b71d3f3acd3c313d81b7 ]
+> 
+> The Ubiquiti U-Fiber Instant SFP GPON module has nonsensical information
+> stored in its EEPROM. It claims to support all transceiver types including
+> 10G Ethernet. Clear all claimed modes and set only 1000baseX_Full, which is
+> the only one supported.
+> 
+> This module has also phys_id set to SFF, and the SFP subsystem currently
+> does not allow to use SFP modules detected as SFFs. Add exception for this
+> module so it can be detected as supported.
+> 
+> This change finally allows to detect and use SFP GPON module Ubiquiti
+> U-Fiber Instant on Linux system.
+> 
+> EEPROM content of this SFP module is (where XX is serial number):
+> 
+> 00: 02 04 0b ff ff ff ff ff ff ff ff 03 0c 00 14 c8    ???........??.??
+> 10: 00 00 00 00 55 42 4e 54 20 20 20 20 20 20 20 20    ....UBNT
+> 20: 20 20 20 20 00 18 e8 29 55 46 2d 49 4e 53 54 41        .??)UF-INSTA
+> 30: 4e 54 20 20 20 20 20 20 34 20 20 20 05 1e 00 36    NT      4   ??.6
+> 40: 00 06 00 00 55 42 4e 54 XX XX XX XX XX XX XX XX    .?..UBNTXXXXXXXX
+> 50: 20 20 20 20 31 34 30 31 32 33 20 20 60 80 02 41        140123  `??A
+> 
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/net/phy/sfp-bus.c | 15 +++++++++++++++
+>  drivers/net/phy/sfp.c     | 17 +++++++++++++++--
+>  2 files changed, 30 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+> index 58014feedf6c8..fb954e8141802 100644
+> --- a/drivers/net/phy/sfp-bus.c
+> +++ b/drivers/net/phy/sfp-bus.c
+> @@ -44,6 +44,17 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
+>  	phylink_set(modes, 2500baseX_Full);
+>  }
+>  
+> +static void sfp_quirk_ubnt_uf_instant(const struct sfp_eeprom_id *id,
+> +				      unsigned long *modes)
+> +{
+> +	/* Ubiquiti U-Fiber Instant module claims that support all transceiver
+> +	 * types including 10G Ethernet which is not truth. So clear all claimed
+> +	 * modes and set only one mode which module supports: 1000baseX_Full.
+> +	 */
+> +	phylink_zero(modes);
+> +	phylink_set(modes, 1000baseX_Full);
+> +}
+> +
+>  static const struct sfp_quirk sfp_quirks[] = {
+>  	{
+>  		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
+> @@ -63,6 +74,10 @@ static const struct sfp_quirk sfp_quirks[] = {
+>  		.vendor = "HUAWEI",
+>  		.part = "MA5671A",
+>  		.modes = sfp_quirk_2500basex,
+> +	}, {
+> +		.vendor = "UBNT",
+> +		.part = "UF-INSTANT",
+> +		.modes = sfp_quirk_ubnt_uf_instant,
+>  	},
+>  };
+>  
+> diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+> index 34aa196b7465c..d8a809cf20c15 100644
+> --- a/drivers/net/phy/sfp.c
+> +++ b/drivers/net/phy/sfp.c
+> @@ -272,8 +272,21 @@ static const struct sff_data sff_data = {
+>  
+>  static bool sfp_module_supported(const struct sfp_eeprom_id *id)
+>  {
+> -	return id->base.phys_id == SFF8024_ID_SFP &&
+> -	       id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP;
+> +	if (id->base.phys_id == SFF8024_ID_SFP &&
+> +	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP)
+> +		return true;
+> +
+> +	/* SFP GPON module Ubiquiti U-Fiber Instant has in its EEPROM stored
+> +	 * phys id SFF instead of SFP. Therefore mark this module explicitly
+> +	 * as supported based on vendor name and pn match.
+> +	 */
+> +	if (id->base.phys_id == SFF8024_ID_SFF_8472 &&
+> +	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP &&
+> +	    !memcmp(id->base.vendor_name, "UBNT            ", 16) &&
+> +	    !memcmp(id->base.vendor_pn, "UF-INSTANT      ", 16))
+> +		return true;
+> +
+> +	return false;
+>  }
+>  
+>  static const struct sff_data sfp_data = {
+> -- 
+> 2.27.0
+> 
+
