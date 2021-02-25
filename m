@@ -2,157 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B183256D6
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 20:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6667232571D
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 20:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233738AbhBYTix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 14:38:53 -0500
-Received: from foss.arm.com ([217.140.110.172]:48204 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234339AbhBYTgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 14:36:50 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 483A8139F;
-        Thu, 25 Feb 2021 11:36:05 -0800 (PST)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 803C03F70D;
-        Thu, 25 Feb 2021 11:36:03 -0800 (PST)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org, mathieu.poirier@linaro.org,
-        mike.leach@linaro.org, anshuman.khandual@arm.com,
-        leo.yan@linaro.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>
-Subject: [PATCH v4 04/19] kvm: arm64: nvhe: Save the SPE context early
-Date:   Thu, 25 Feb 2021 19:35:28 +0000
-Message-Id: <20210225193543.2920532-5-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20210225193543.2920532-1-suzuki.poulose@arm.com>
-References: <20210225193543.2920532-1-suzuki.poulose@arm.com>
+        id S233637AbhBYTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 14:54:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234561AbhBYTwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 14:52:35 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2CCC06174A;
+        Thu, 25 Feb 2021 11:51:55 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id r19so6907101otk.2;
+        Thu, 25 Feb 2021 11:51:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=tqfUxA6R0Jrx7pcOgZodqULc/pmXOpkn7mAUe+P1S0s=;
+        b=Zd6Ut6WR9cbY5JsRWLmEZt8joJAvfku/Ujvfv0IYspQviqTbPtSTv6r5pwLxJ+mFCK
+         uFORVx/E4/Bq+OhdfenzYPOqbOAMaI9EDaOAhE+L9SX/Bz555WUL5dShkVNNh9VScvFd
+         IMnInxpsVCMDJQS9t7x4q9BoQKQzM+DMf3mY9DNzxMMwnHuS9Vp7KUBj1jJcqPgmnsfC
+         RbKB1lWzvFxD53NrdW1T6FcjF/SxgGJ6xrwk8PCIdm6zB1IvI3f8QswkW1dHjQKUj0XU
+         5OKHlfJDbY/3qQ6UHnN/mRfKIyQR8ebwbi8NQ7UOYoXw7kUzRF7USILVdZjSVi8CbjvN
+         hoDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tqfUxA6R0Jrx7pcOgZodqULc/pmXOpkn7mAUe+P1S0s=;
+        b=Z837fyhpHxq8g/ME9WhUUubNlGJ+kYY2Tu2R+eaYH7a1RcNylYdwxPomAN9zoQufm7
+         fWQ4BN+/nD1WJk2be38Ze0j0MN5e+sUwBw/frGX86cCRmtnp+OaPZ9R02TPW4odqSLQa
+         pqZT/pC5NB2ekU/yXB3Iv3dGIC4DxUvp2EW7UfdLBiVb0OscaEPF2M7iCRPRAWA++1UE
+         MDmrlIPmjrfky/DONkzvJsUIHMJPAQF/Z5D/B2GUtI+n5Q/PMvGDf1zYRQTuWDVQdkhX
+         3enH3DIjEAXjqwl+vCp3L6yLmGXip3MmxPUpNt5m4uqDp0AJk4wF0aoPWtaPce92tIto
+         M+5g==
+X-Gm-Message-State: AOAM533ipRsNMw28EBzTgsjrtLPoIa3riveA8U8oYeXDyBMnP7HZ+GOg
+        ZmfD2uM116Dh9bFl6PY3NZPdet3qVUc=
+X-Google-Smtp-Source: ABdhPJwOr1A17hv3cHh5EavsWUGohrhEm8hYGxXdXYJDug1w06qKmVdCOo880/Y1m65yzQE7fXUIEQ==
+X-Received: by 2002:a9d:7a52:: with SMTP id z18mr3657144otm.106.1614282714586;
+        Thu, 25 Feb 2021 11:51:54 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o20sm1258466oor.14.2021.02.25.11.51.53
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 25 Feb 2021 11:51:53 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 25 Feb 2021 11:51:51 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/17] 5.4.101-rc1 review
+Message-ID: <20210225195151.GA107964@roeck-us.net>
+References: <20210225092515.001992375@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210225092515.001992375@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The nvhe hyp saves the SPE context, flushing any unwritten
-data before we switch to the guest. But this operation is
-performed way too late, because :
-  - The ownership of the SPE is transferred to EL2. i.e,
-    using EL2 translations. (MDCR_EL2_E2PB == 0)
-  - The guest Stage1 is loaded.
+On Thu, Feb 25, 2021 at 10:53:45AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.101 release.
+> There are 17 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 27 Feb 2021 09:25:06 +0000.
+> Anything received after that time might be too late.
+> 
 
-Thus the flush could use the host EL1 virtual address,
-but use the EL2 translations instead. Fix this by
-moving the SPE context save early.
-i.e, Save the context before we load the guest stage1
-and before we change the ownership to EL2.
+Build results:
+	total: 157 pass: 157 fail: 0
+Qemu test results:
+	total: 429 pass: 429 fail: 0
 
-The restore path is doing the right thing.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Fixes: 014c4c77aad7 ("KVM: arm64: Improve debug register save/restore flow")
-Cc: stable@vger.kernel.org
-Cc: Christoffer Dall <christoffer.dall@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
-New patch.
----
- arch/arm64/include/asm/kvm_hyp.h   |  5 +++++
- arch/arm64/kvm/hyp/nvhe/debug-sr.c | 12 ++++++++++--
- arch/arm64/kvm/hyp/nvhe/switch.c   | 12 +++++++++++-
- 3 files changed, 26 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
-index c0450828378b..385bd7dd3d39 100644
---- a/arch/arm64/include/asm/kvm_hyp.h
-+++ b/arch/arm64/include/asm/kvm_hyp.h
-@@ -83,6 +83,11 @@ void sysreg_restore_guest_state_vhe(struct kvm_cpu_context *ctxt);
- void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
- void __debug_switch_to_host(struct kvm_vcpu *vcpu);
- 
-+#ifdef __KVM_NVHE_HYPERVISOR__
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+#endif
-+
- void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
- void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/debug-sr.c b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-index 91a711aa8382..f401724f12ef 100644
---- a/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-+++ b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-@@ -58,16 +58,24 @@ static void __debug_restore_spe(u64 pmscr_el1)
- 	write_sysreg_s(pmscr_el1, SYS_PMSCR_EL1);
- }
- 
--void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	/* Disable and flush SPE data generation */
- 	__debug_save_spe(&vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_guest_common(vcpu);
- }
- 
--void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	__debug_restore_spe(vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_host_common(vcpu);
- }
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-index f3d0e9eca56c..10eed66136a0 100644
---- a/arch/arm64/kvm/hyp/nvhe/switch.c
-+++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-@@ -192,6 +192,15 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	pmu_switch_needed = __pmu_switch_to_guest(host_ctxt);
- 
- 	__sysreg_save_state_nvhe(host_ctxt);
-+	/*
-+	 * For nVHE, we must save and disable any SPE
-+	 * buffers, as the translation regime is going
-+	 * to be loaded with that of the guest. And we must
-+	 * save host context for SPE, before we change the
-+	 * ownership to EL2 (via MDCR_EL2_E2PB == 0)  and before
-+	 * we load guest Stage1.
-+	 */
-+	__debug_save_host_buffers_nvhe(vcpu);
- 
- 	__adjust_pc(vcpu);
- 
-@@ -234,11 +243,12 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
- 		__fpsimd_save_fpexc32(vcpu);
- 
-+	__debug_switch_to_host(vcpu);
- 	/*
- 	 * This must come after restoring the host sysregs, since a non-VHE
- 	 * system may enable SPE here and make use of the TTBRs.
- 	 */
--	__debug_switch_to_host(vcpu);
-+	__debug_restore_host_buffers_nvhe(vcpu);
- 
- 	if (pmu_switch_needed)
- 		__pmu_switch_to_host(host_ctxt);
--- 
-2.24.1
-
+Guenter
