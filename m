@@ -2,124 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAFA325543
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 19:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 615DB32558E
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 19:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbhBYSLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 13:11:54 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47360 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231604AbhBYSKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 13:10:49 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11PI30Wn104618;
-        Thu, 25 Feb 2021 13:09:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=C3lzRoPlPSGab7GqbUjKyBLhrcC8c0Q2sdpDOySpEsk=;
- b=V4q+8dFd7CV91+dSZMpAUlEmFU0hY18oMyWfnlUzPQavqfB/cBuiOb+OZuvG/bjZi4SB
- 2i1OClhuP1tRUnQBBH7DCz7a//X0DXKW6x5hmpyTC+thdJxkypnysY3VaNChsWnUPDOc
- w0FsLq+Dk2fMN4F1l6ltsSdiOQpQkBnKn9uA/6Kd3F1ZBrqum9wQY17wyMEDQQoLmb/r
- lmFkk8FUa5dssLyUWjknWaes3dVGdROgdtLzSvekye4Hm9niIR1EZSOoURhPFN+5S53K
- bLq9rnUo5+5nRyJteQi93oJV7rYvdYvNKRb/yIRTQiM2reX/xzLp52xLjIKb3qK6o0cT KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36xdpwykym-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Feb 2021 13:09:46 -0500
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11PI3Ns8105600;
-        Thu, 25 Feb 2021 13:09:45 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36xdpwykxb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Feb 2021 13:09:45 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11PI2DT6024141;
-        Thu, 25 Feb 2021 18:09:43 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 36tsph4nxd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Feb 2021 18:09:42 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11PI9eu230146960
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 25 Feb 2021 18:09:40 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 629644204B;
-        Thu, 25 Feb 2021 18:09:40 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2440642042;
-        Thu, 25 Feb 2021 18:09:38 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.145.51.238])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 25 Feb 2021 18:09:38 +0000 (GMT)
-Date:   Thu, 25 Feb 2021 20:09:35 +0200
-From:   Mike Rapoport <rppt@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        =?utf-8?Q?=C5=81ukasz?= Majczak <lma@semihalf.com>,
-        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
-        Qian Cai <cai@lca.pw>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>, stable <stable@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>
-Subject: Re: [PATCH v7 1/1] mm/page_alloc.c: refactor initialization of
- struct page for holes in memory layout
-Message-ID: <20210225180935.GI1854360@linux.ibm.com>
-References: <20210224153950.20789-1-rppt@kernel.org>
- <20210224153950.20789-2-rppt@kernel.org>
- <515b4abf-ff07-a43a-ac2e-132c33681886@redhat.com>
- <20210225170629.GE1854360@linux.ibm.com>
- <CAHk-=wj-0TeNTNhn+r8c9n76uy8ZiYw03AnXz3hyDZ_rQu35Uw@mail.gmail.com>
+        id S233245AbhBYSd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 13:33:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233732AbhBYSbw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 13:31:52 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 858A3C061786;
+        Thu, 25 Feb 2021 10:31:08 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id t9so4026117pjl.5;
+        Thu, 25 Feb 2021 10:31:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=YV1fWHtw2C61QMiLwr9hI51XV3MLWr2gQO7xjRtkvb0=;
+        b=fWlEAyo/WYYLmGgp3hZwQpDEOxNJvWvnUGDtGPlA9zCnBatwbfKi/XT+sVS8dyE4xl
+         ck5FcB/9VHBSCijvLYNOjQKm6IPISegYRqIt6X5//7gKUxVoDP3yI8+Ww/pWTjU6V9U5
+         /DdOVQZc6tVkgjdYpRgK7vZcuGRXwrT0Dqs2NNYw/TqiKVvNWcxvBt6CBfh0/Z32bhqi
+         NmLFHHH89bVvc7I3Uwiy+zUt1C5hb+tFwO4T7++IAsfhhGSj2K5MPsUh1qkkJLpEuEpz
+         b6mo0TAkb/2SZ8cSyBkOCY46VFWNZHJrJLS9MOqbI/qNDA9Sn+iwaHIAV/EV578IWg+Z
+         nDFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=YV1fWHtw2C61QMiLwr9hI51XV3MLWr2gQO7xjRtkvb0=;
+        b=ABknWvyM1hEjI9OLWpE+8A4LecUr1m7tbXUbyDLnwQkr4aP8DarS+QxGoVU7/ia72u
+         ClPa65qvm1M/YiC2rq9EA/eAO8cdmJTH71vS7H1gcTTpsmeZd1Z1BDaMkS2vs6zs9as9
+         Jk+EvA3wU32wWLzFeo8vr8sB8+ljJS2IuATPBKxzhdPaDUwHOrBnNtygyPVWRpl6n4RY
+         91KFIV6QIqJH1Ue1F21Produ3BxE96/JG5tpt9qMOYfTFvL6dknRosxeZdT1n+FEddku
+         IXw2wQAKyIKLbq71NQYx0a9KNrUpTg9MWmSgseXbKGWoidOX+Tfwks4n0wUkXPBI0Rzs
+         uUmg==
+X-Gm-Message-State: AOAM531nIt11KmuEo8fywKCRBIFyckXY4Nq0sWjpgOyLVVzDgFIKpghR
+        1P189/37/ucVaHNi/6FBA2k=
+X-Google-Smtp-Source: ABdhPJxClqo5O77l2F11J1fAbwrSkP+iEGqg+r6crye40gf4yPM8wiuY1gltGyJF6c90lkfTtpCbeA==
+X-Received: by 2002:a17:90a:d149:: with SMTP id t9mr4407644pjw.43.1614277867860;
+        Thu, 25 Feb 2021 10:31:07 -0800 (PST)
+Received: from [10.230.29.30] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id a2sm7027920pfi.64.2021.02.25.10.31.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Feb 2021 10:31:07 -0800 (PST)
+Subject: Re: [PATCH stable 0/8] net: dsa: b53: Correct learning for standalone
+ ports
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, olteanv@gmail.com, sashal@kernel.org
+References: <20210225010853.946338-1-f.fainelli@gmail.com>
+ <YDdcvkQQoAs2yc3C@kroah.com> <7d32ff3e-eea7-90ac-a458-348b07410f85@gmail.com>
+ <YDfaUaaoc+u3HCDC@kroah.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <29532b28-e30d-aa17-14ce-e518105d7447@gmail.com>
+Date:   Thu, 25 Feb 2021 10:31:03 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wj-0TeNTNhn+r8c9n76uy8ZiYw03AnXz3hyDZ_rQu35Uw@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-25_10:2021-02-24,2021-02-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- suspectscore=0 malwarescore=0 impostorscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 mlxscore=0 clxscore=1015 phishscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102250138
+In-Reply-To: <YDfaUaaoc+u3HCDC@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 09:54:34AM -0800, Linus Torvalds wrote:
-> On Thu, Feb 25, 2021 at 9:07 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
-> >
-> > >
-> > > We might still double-initialize PFNs when two zones overlap within a
-> > > section, correct?
-> >
-> > You mean that a section crosses zones boundary?
-> > I don't think it's that important.
+
+
+On 2/25/2021 9:11 AM, Greg KH wrote:
+> On Thu, Feb 25, 2021 at 08:53:22AM -0800, Florian Fainelli wrote:
+>>
+>>
+>> On 2/25/2021 12:15 AM, Greg KH wrote:
+>>> On Wed, Feb 24, 2021 at 05:08:53PM -0800, Florian Fainelli wrote:
+>>>> From: Florian Fainelli <florian.fainelli@broadcom.com>
+>>>>
+>>>> Hi Greg, Sasha, Jaakub and David,
+>>>>
+>>>> This patch series contains backports for a change that recently made it
+>>>> upstream as:
+>>>>
+>>>> commit f3f9be9c58085d11f4448ec199bf49dc2f9b7fb9
+>>>> Merge: 18755e270666 f9b3827ee66c
+>>>> Author: Jakub Kicinski <kuba@kernel.org>
+>>>> Date:   Tue Feb 23 12:23:06 2021 -0800
+>>>>
+>>>>     Merge branch 'net-dsa-learning-fixes-for-b53-bcm_sf2'
+>>>
+>>> That is a merge commit, not a "real" commit.
+>>>
+>>> What is the upstream git commit id for this?
+>>
+>> The commit upstream is f9b3827ee66cfcf297d0acd6ecf33653a5f297ef ("net:
+>> dsa: b53: Support setting learning on port") it may still only be in
+>> netdev-net/master at this point, though it will likely reach Linus' tree
+>> soon.
 > 
-> What if there was a memory allocation in between that could allocate
-> the once-initialized page?
+> Ah, I can't do anything with them until that hits Linus's tree, you know
+> this :)
 
-Can't happen because this code runs before any allocation is possible and
-it is single threaded.
- 
-> Maybe it can't happen, or is not an issue for some other reason, but
-> this code has been fragile and had a ton of subtle issues, so maybe
-> worth documenting (or explaining here why it's just not relevant)
+Yes, that was a tad too quick.
 
-Ok, I'll do another pass on the comments in the code.
+> 
+>>>> The way this was fixed in the netdev group's net tree is slightly
+>>>> different from how it should be backported to stable trees which is why
+>>>> you will find a patch for each branch in the thread started by this
+>>>> cover letter.
+>>>>
+>>>> Let me know if this does not apply for some reason. The changes from 4.9
+>>>> through 4.19 are nearly identical and then from 5.4 through 5.11 are
+>>>> about the same.
+>>>
+>>> Thanks for the backports, but I still need a real git id to match these
+>>> up with :)
+>>
+>> You should have it in the Fixes: tag of each patch which all point to
+>> when the bug dates back to when the driver was introduced. Let me know
+>> if you need me to tag the patches differently.
+> 
+> The fixes: tag shows what id this patch fixes, not the git id of this
+> specific patch, like all stable patches show in their changelog text.
+> 
+> That's the id I need.  I'll just wait until this hits Linus's tree
+> before worrying about it.
 
->           Linus
-
+Looks like I found an issue that will need fixing in netdev-net/master
+as well, so I will resubmit in due time when the commits reach Linus'
+tree. Sorry for the noise.
 -- 
-Sincerely yours,
-Mike.
+Florian
