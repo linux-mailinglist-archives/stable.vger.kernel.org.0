@@ -2,61 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BDD5325082
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 14:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCB132509B
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 14:42:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233153AbhBYN3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 08:29:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbhBYN2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 08:28:45 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82DEC061574
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 05:28:03 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id mm21so8579917ejb.12
-        for <stable@vger.kernel.org>; Thu, 25 Feb 2021 05:28:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=tGxddNv/Si2wB03sHKwOUJOsRjg0p0LakVdqO89PdHs=;
-        b=o3mmBAet10iPIvwnGoMoey43bSrQukMQubk9NzpB2W3x0piq+zrFNaV6QOpYlxrOHQ
-         zQibA3nRNVgc38kodszLpOT/OWdEHZgFhXR9M4J8TvuTrFIlbRZt5aq/wAdV29EjZ/l1
-         /hBrHdbxCc1EyC3acvaM8r3r8iTe5csv/D3/LUwyzw8sPx/Bt1l90Rbq7WGw7HtmLelq
-         1KSOZDmevn7ckPdlT/7GufGwJkJiohmHxwoO6OZkRo1LlvIMW+3FZwtWuMQG/HKMyFrb
-         F2OdUGpNXYpnEBvZ1YhkayVNeQNRDlKW7hxuhWwOov2i9Z4hmCeXxIw5x2vZA+yRRtA8
-         uxhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=tGxddNv/Si2wB03sHKwOUJOsRjg0p0LakVdqO89PdHs=;
-        b=MdrZHXdzUJr5/4PyB7ibdMOcSLxIvMRa5gnYdBloouApT+7yE3V5d+a5aB/yVZTNPt
-         Uy3IsAlww35ukqY7KCTY8ve65JMUbU2jsRyIJ9bOUH2T4M/XuY6SDwDC0E1sEmkyIz+0
-         wDmqYwZ1so99fMcXvNT3knAB+pbBT1Z0S4qdN6PnbJBAmB262PrrlpStGHhRsm003C5r
-         egEkFDLl7rJ66hMlIqPV4+t4hLd0mctnlwsRnM5+JM6fxTtAe5Uj3mAnqpQPX0N4nl8Z
-         ervpByesGxs817XSYXkyJ4MSQXM3T5hYCrSEhfPfrCfalDq/RCek2T4EIO7JuJI8bF1f
-         ducw==
-X-Gm-Message-State: AOAM530E6lxQTO9aErp6I6rhUnF5S1FV9oAQJwyPULamwNlaaRKWeh4t
-        3fiRQevymJCJAt0H+bqd0Hv4gmjmhQUn+vwLt7c=
-X-Google-Smtp-Source: ABdhPJw25bV/BR0NTy1wdcwI9Kku/huPM5jrytTYyZDPvLspRyJGALsd8B3GYFfFlUSUIknWToC/mYIwiETK3w1sO/8=
-X-Received: by 2002:a17:906:6d04:: with SMTP id m4mr2560549ejr.262.1614259682658;
- Thu, 25 Feb 2021 05:28:02 -0800 (PST)
+        id S230166AbhBYNhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 08:37:17 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:50122 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229644AbhBYNhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 08:37:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614260149;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=TqbClLww0jYsrZPj0F6LBKw/kskLLANoye0Js1zpjAI=;
+        b=DCaSlULe7M/pL9qUIwCshKASB68EDmRtmcLw2dLXqpIWg+viedRyr3HdT42EzPvEAWiweZ
+        x160Z9TiiK8qtimlY49mx7aBykvrXi4jQ/ln11cXw6u4lVKoEhAzrzoXGHMPdtiIUrlnmf
+        Ul/GtXondJibD6v7n1naVVhvGaoalKE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-174-3iVgiyz5Ov-PynIaYkdF3Q-1; Thu, 25 Feb 2021 08:35:47 -0500
+X-MC-Unique: 3iVgiyz5Ov-PynIaYkdF3Q-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E5A691936B60;
+        Thu, 25 Feb 2021 13:35:46 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-2.ams2.redhat.com [10.36.112.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 262DA6A900;
+        Thu, 25 Feb 2021 13:35:45 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH stable 0/1] Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
+Date:   Thu, 25 Feb 2021 14:35:44 +0100
+Message-Id: <20210225133545.86680-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Received: by 2002:a55:a6c2:0:b029:cd:a000:8a5a with HTTP; Thu, 25 Feb 2021
- 05:28:01 -0800 (PST)
-Reply-To: hkmohammedh@gmail.com
-From:   Mohammed Hossain <rw202249@gmail.com>
-Date:   Thu, 25 Feb 2021 13:28:01 +0000
-Message-ID: <CAFF-1zTEPzi8Adz+BedQ9u8PPj96qOPVvWAWkn5CLo96RBmitw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
+
+Here is a cherry-pick of a bluetooth fix which just landed in Linus' tree.
+
+A lot of users are complaining about this:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=210681
+
+It would be good if we can get this added to the 5.10.y and 5.11.y series.
+Older kernels are not affected unless the commit mentioned by the Fixes
+tag was backported.
+
+I've based this cherry-pick on top of 5.10.y, it should also apply cleanly
+to 5.11.y.
+
+Regards,
+
+Hans
+
+
+Hui Wang (1):
+  Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
+
+ drivers/bluetooth/btusb.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
 -- 
-I have an proposal for you get back for more details
-Regards
-Mohammed Hossain
+2.30.1
+
