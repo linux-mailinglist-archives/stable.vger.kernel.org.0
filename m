@@ -2,90 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC44324BDA
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820EF324BDC
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234361AbhBYIPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 03:15:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37466 "EHLO mail.kernel.org"
+        id S235605AbhBYIQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 03:16:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230142AbhBYIP0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 03:15:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DEEE64E4D;
-        Thu, 25 Feb 2021 08:14:44 +0000 (UTC)
+        id S233001AbhBYIQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 03:16:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50B2A64E20;
+        Thu, 25 Feb 2021 08:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614240885;
-        bh=FIIQYrMd3eyKYvYbHiSlBA2eMZvZBmVNWEKSpp/O1YA=;
+        s=korg; t=1614240961;
+        bh=+u3cp1lmOAXIi0NxPbTp9wmhsfShRK28whSVTGPGfqw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Nc4LCXLGzTOqXNJY/X9CKnP/p2uTNpjpMfz2ZGQuSo/DYbhTyBwVzNBl9hEVVIei5
-         Ex4h6TN1N47xWpM6hOZQ9iRcgu44jKs1v8te9EDCl6gtzhNiv5NOj0LzC5XOyegIut
-         ZUx4v47kh1cXFyFvrYTJFE+OK7eGSX012P0v+xnk=
-Date:   Thu, 25 Feb 2021 09:14:42 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 04/35] iwlwifi: pcie: add a NULL check in
- iwl_pcie_txq_unmap
-Message-ID: <YDdccs3OacohZgFr@kroah.com>
-References: <20210222121013.581198717@linuxfoundation.org>
- <20210222121017.933649049@linuxfoundation.org>
- <20210225060446.auoymjxg5cuzlism@toshiba.co.jp>
+        b=E30e1dYHhRYrP6Litfeah9aKiIAdm1UcSDN95zX05PjqzLViUao7onNx95OksgbkQ
+         04d/csNHQ9AnReIgMRoKIeKr/gpzrpfWWoz4+FTEg0mpYoGlAaptZeB6Dqq21igfTs
+         3csKknzQcq8nHOpvFD0o5JyE1qhpvIcJi9b2Fak8=
+Date:   Thu, 25 Feb 2021 09:15:58 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     netdev@vger.kernel.org,
+        Florian Fainelli <florian.fainelli@broadcom.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, olteanv@gmail.com, sashal@kernel.org
+Subject: Re: [PATCH stable 0/8] net: dsa: b53: Correct learning for
+ standalone ports
+Message-ID: <YDdcvkQQoAs2yc3C@kroah.com>
+References: <20210225010853.946338-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210225060446.auoymjxg5cuzlism@toshiba.co.jp>
+In-Reply-To: <20210225010853.946338-1-f.fainelli@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 03:04:46PM +0900, Nobuhiro Iwamatsu wrote:
-> Hi,
+On Wed, Feb 24, 2021 at 05:08:53PM -0800, Florian Fainelli wrote:
+> From: Florian Fainelli <florian.fainelli@broadcom.com>
 > 
-> Sorry for the report after the release.
+> Hi Greg, Sasha, Jaakub and David,
 > 
-> On Mon, Feb 22, 2021 at 01:36:00PM +0100, Greg Kroah-Hartman wrote:
-> > From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-> > 
-> > [ Upstream commit 98c7d21f957b10d9c07a3a60a3a5a8f326a197e5 ]
-> > 
-> > I hit a NULL pointer exception in this function when the
-> > init flow went really bad.
-> > 
-> > Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-> > Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> > Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-> > Link: https://lore.kernel.org/r/iwlwifi.20210115130252.2e8da9f2c132.I0234d4b8ddaf70aaa5028a20c863255e05bc1f84@changeid
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  drivers/net/wireless/iwlwifi/pcie/tx.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
-> > index 8dfe6b2bc7031..cb03c2855019b 100644
-> > --- a/drivers/net/wireless/iwlwifi/pcie/tx.c
-> > +++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
-> > @@ -585,6 +585,11 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
-> >  	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
-> >  	struct iwl_queue *q = &txq->q;
-> >  
-> > +	if (!txq) {
-> > +		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
-> > +		return;
-> > +	}
-> > +
+> This patch series contains backports for a change that recently made it
+> upstream as:
 > 
-> I think that this fix is not enough.
-> If txq is NULL, an error will occur with "struct iwl_queue * q = & txq->q;".
-> The following changes are required.
+> commit f3f9be9c58085d11f4448ec199bf49dc2f9b7fb9
+> Merge: 18755e270666 f9b3827ee66c
+> Author: Jakub Kicinski <kuba@kernel.org>
+> Date:   Tue Feb 23 12:23:06 2021 -0800
+> 
+>     Merge branch 'net-dsa-learning-fixes-for-b53-bcm_sf2'
 
-Is this a 4.4-only thing, or is this issue also in Linus's tree as well?
-If Linus's tree, please submit this as a normal patch so we can apply it
-there first.
+That is a merge commit, not a "real" commit.
 
-thanks,
+What is the upstream git commit id for this?
+
+> The way this was fixed in the netdev group's net tree is slightly
+> different from how it should be backported to stable trees which is why
+> you will find a patch for each branch in the thread started by this
+> cover letter.
+> 
+> Let me know if this does not apply for some reason. The changes from 4.9
+> through 4.19 are nearly identical and then from 5.4 through 5.11 are
+> about the same.
+
+Thanks for the backports, but I still need a real git id to match these
+up with :)
 
 greg k-h
