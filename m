@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BB1324D9E
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2B32324D93
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhBYKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:07:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S232923AbhBYKGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:06:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233451AbhBYKBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 05:01:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08E8264ECE;
-        Thu, 25 Feb 2021 09:55:57 +0000 (UTC)
+        id S234920AbhBYKBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 05:01:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B94CD64F2C;
+        Thu, 25 Feb 2021 09:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246958;
-        bh=UBu0Do1tJBKsqNSF6lz//geyXMo1BLqDEoi/eFKxZ9s=;
+        s=korg; t=1614246961;
+        bh=/wGOeZzOWLx4B9iOccDB08VpQRLxgPY3+sVDTQkG1rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Icpe2lAauT+gh84zCiiicbbkZUx1VjyoHj7ZBtxZrSjPaOcROmpHE+ART8pH/A37e
-         n5qB95SOrcURiZpBOLREN6/IREJI9fklOrFLHCc6MvcZ9lCUFog6l3aquYZTnLMD8n
-         Xjw6qu/C7FP0js6NHkacOsPicGu3lNewe7s6KVNA=
+        b=0Vjc2lu8q0ctVYzxWPJcAMDV0ITUf4xFiuawLIkXxhByYaKE2a+LFiWaCPV3o4+2C
+         feMQ8f/o7TUqjEyerBoIyLVhLenSn+zHE/ihcYh6bqnTu0yNeIiI8hjc2n6hv8f7hO
+         x/5dVUseTc7unFHDtax+xGJz/PyCYtmoKoockxOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/17] cxgb4: Add new T6 PCI device id 0x6092
-Date:   Thu, 25 Feb 2021 10:54:00 +0100
-Message-Id: <20210225092515.744986744@linuxfoundation.org>
+Subject: [PATCH 5.4 16/17] cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
+Date:   Thu, 25 Feb 2021 10:54:01 +0100
+Message-Id: <20210225092515.794059137@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210225092515.001992375@linuxfoundation.org>
 References: <20210225092515.001992375@linuxfoundation.org>
@@ -40,30 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit 3401e4aa43a540881cc97190afead650e709c418 ]
+[ Upstream commit a738c93fb1c17e386a09304b517b1c6b2a6a5a8b ]
 
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
-Link: https://lore.kernel.org/r/20210202182511.8109-1-rajur@chelsio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+While debugging another issue today, Steve and I noticed that if a
+subdir for a file share is already mounted on the client, any new
+mount of any other subdir (or the file share root) of the same share
+results in sharing the cifs superblock, which e.g. can result in
+incorrect device name.
+
+While setting prefix path for the root of a cifs_sb,
+CIFS_MOUNT_USE_PREFIX_PATH flag should also be set.
+Without it, prepath is not even considered in some places,
+and output of "mount" and various /proc/<>/*mount* related
+options can be missing part of the device name.
+
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h | 1 +
+ fs/cifs/connect.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h b/drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h
-index 0c5373462cedb..0b1b5f9c67d47 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_pci_id_tbl.h
-@@ -219,6 +219,7 @@ CH_PCI_DEVICE_ID_TABLE_DEFINE_BEGIN
- 	CH_PCI_ID_TABLE_FENTRY(0x6089), /* Custom T62100-KR */
- 	CH_PCI_ID_TABLE_FENTRY(0x608a), /* Custom T62100-CR */
- 	CH_PCI_ID_TABLE_FENTRY(0x608b), /* Custom T6225-CR */
-+	CH_PCI_ID_TABLE_FENTRY(0x6092), /* Custom T62100-CR-LOM */
- CH_PCI_DEVICE_ID_TABLE_DEFINE_END;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index ab9eeb5ff8e57..67c2e6487479a 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -4198,6 +4198,7 @@ int cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
+ 		cifs_sb->prepath = kstrdup(pvolume_info->prepath, GFP_KERNEL);
+ 		if (cifs_sb->prepath == NULL)
+ 			return -ENOMEM;
++		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_USE_PREFIX_PATH;
+ 	}
  
- #endif /* __T4_PCI_ID_TBL_H__ */
+ 	return 0;
 -- 
 2.27.0
 
