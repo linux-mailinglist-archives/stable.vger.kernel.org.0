@@ -2,291 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB4932572C
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 20:59:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D3D32573C
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 21:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233556AbhBYT5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 14:57:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233896AbhBYT4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 14:56:09 -0500
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C1DC061786;
-        Thu, 25 Feb 2021 11:55:29 -0800 (PST)
-Received: by mail-ot1-x332.google.com with SMTP id f33so6869450otf.11;
-        Thu, 25 Feb 2021 11:55:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=0Dytvsc8zWPRMSQ847JJlzJEMRLaqkQDJJ2u/OtR25c=;
-        b=Bny90Ro/M+t6asxTKGGEP65cNx31ghXR+K0kRu5BPAga7LcuxM7AMk+VSCLkpsPtpF
-         F34XtTbnq2QojCertRZQAcaGWTq9KU0xKo6qAELyXczWrl7BuhYJDLQy9kl4WBTk/6zK
-         dRZFMlkqX0w6/gpG1IIQtr+nspOJgXZi+yzAPNvjSkZbK19gg4a70sjrbe+tVHrElh+7
-         ubHlglG4Ym5WAptUFvwdfC2lchJ9uLrfKuIJHP9hXCSy4M/7AGpzTJkTLNFx2ad8c/r6
-         3mW3MPqbO5PGpwO99EFvzwjZl+nAvUH/nJHftymMaAyMYRwJ8QDa+GWN+pkUjsXZ6jK5
-         NC8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=0Dytvsc8zWPRMSQ847JJlzJEMRLaqkQDJJ2u/OtR25c=;
-        b=etmxg6VJahHAG/PzPp5oeryUpAHJ5DHBkpaSlb0pJJ9btEiHlFUuIIzp1zVKFrL+Mw
-         1sZtERYnZkPZFdWdeEKJ3bEwIrU/Nj0Hrcz5UAOFHC+pL7ALKvV7nVfO8h0yjwXmm880
-         qUh6EnN5Fv634XFnzRlJld6946TMLeagVEfL3awF6C16W19Vs75vJMNdath1Var765cN
-         b9QvpcTvvxtsZdz8uP1SR4fn8iUs62lBxx3IxP3LrB00pELFeQ5d1yqZ68nyQZVPP2oY
-         Y+bnLXoCzLGIH6xgMfNLbGIlZ0XtM5jqAoZO1QGAWzLrfHjguXH/jyzUcIA+DAdn4Poz
-         04LQ==
-X-Gm-Message-State: AOAM533oo5tbqB2scAQdCAvKaeQQdNjgJlkZt4MXkNgpZBDwEbK9xqjc
-        IchCwk2PX1tmTbULGzHRdt8=
-X-Google-Smtp-Source: ABdhPJzahuRDh2kzEJJ/rZkFxgXSCw8V+p/klWM96blVX99m9KwGRt1UKfruGojRUjwAa5FspiITBA==
-X-Received: by 2002:a9d:1429:: with SMTP id h38mr3704608oth.135.1614282928753;
-        Thu, 25 Feb 2021 11:55:28 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j100sm1286166otj.66.2021.02.25.11.55.27
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 25 Feb 2021 11:55:28 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 25 Feb 2021 11:55:27 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Badhri Jagan Sridharan <badhri@google.com>
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3] usb: typec: tcpm: Wait for vbus discharge to VSAFE0V
- before toggling
-Message-ID: <20210225195527.GA108032@roeck-us.net>
-References: <20210225101104.1680697-1-badhri@google.com>
+        id S233614AbhBYUDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 15:03:44 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28822 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233043AbhBYUDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 15:03:43 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11PK2tWa125298;
+        Thu, 25 Feb 2021 15:02:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3exAcU5W64AGjWhduBTxXEz55GVrwXwkpJlhpXule84=;
+ b=galtFfBZIqMXAVCbOlbV4RitcALJDLd2vnTejETPtCv6CKLBYo8SYxlpamMipOp2PBk6
+ yvRwaRNOIwAYkAzmgdraYO3rychYskeYh1kGrH/beTOUPMuwv4H3GlIm3qJdOEOjD2+3
+ uu14RrjUKBvYpxWxUHoyIR7DImW0f/lRq77QG2y2XJWpxxWqi+sQ4F+PpWFbA8PrOqMJ
+ +Cqjldw0Q2lOhN8G9tGmniXjvTDf4N6H3esW9pcAN3JHYs7MHbat8nMBbwznFIw/CC1V
+ X+sOjfwZZ67H1/eCY0DET9i/1W6AqoZ2YjelxlHbYaMkisFi8PP50O4kK9brPnqDbTkc 5w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36xfcjx5fk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Feb 2021 15:02:54 -0500
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11PJX2vx190461;
+        Thu, 25 Feb 2021 15:02:46 -0500
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36xfcjx5f5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Feb 2021 15:02:46 -0500
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11PJoMYO001197;
+        Thu, 25 Feb 2021 20:02:45 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02wdc.us.ibm.com with ESMTP id 36tt29h7ff-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Feb 2021 20:02:45 +0000
+Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11PK2ikR21496110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 25 Feb 2021 20:02:44 GMT
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5F472BE058;
+        Thu, 25 Feb 2021 20:02:44 +0000 (GMT)
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 02EF1BE051;
+        Thu, 25 Feb 2021 20:02:42 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.150.254])
+        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu, 25 Feb 2021 20:02:42 +0000 (GMT)
+Subject: Re: [PATCH v2 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+References: <20210216011547.22277-1-akrowiak@linux.ibm.com>
+ <20210216011547.22277-2-akrowiak@linux.ibm.com>
+ <20210223104805.6a8d1872.pasic@linux.ibm.com>
+ <63bb0d61-efcd-315b-5a1a-0ef4d99600f4@linux.ibm.com>
+ <20210225122824.467b8ed9.pasic@linux.ibm.com>
+ <f5d5cbab-2181-2a95-8a87-b21d05405936@linux.ibm.com>
+ <0cebaf32-776c-62c5-b7a7-d0e8afb02ceb@linux.ibm.com>
+ <20210225163507.45c3391f.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <12db0317-810c-419f-275f-0cd4e5516cf7@linux.ibm.com>
+Date:   Thu, 25 Feb 2021 15:02:42 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210225101104.1680697-1-badhri@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20210225163507.45c3391f.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-25_11:2021-02-24,2021-02-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ mlxlogscore=999 mlxscore=0 adultscore=0 impostorscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102250152
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 02:11:04AM -0800, Badhri Jagan Sridharan wrote:
-> When vbus auto discharge is enabled, TCPM can sometimes be faster than
-> the TCPC i.e. TCPM can go ahead and move the port to unattached state
-> (involves disabling vbus auto discharge) before TCPC could effectively
-> discharge vbus to VSAFE0V. This leaves vbus with residual charge and
-> increases the decay time which prevents tsafe0v from being met.
-> This change makes TCPM waits for a maximum of tSafe0V(max) for vbus
-> to discharge to VSAFE0V before transitioning to unattached state
-> and re-enable toggling. If vbus discharges to vsafe0v sooner, then,
-> transition to unattached state
-> happens right away.
-> 
-> Also, while in SNK_READY, when auto discharge is enabled, drive
-> disconnect based on vbus turning off instead of Rp disappearing on
-> CC pins. Rp disappearing on CC pins is almost instanteous compared
-> to vbus decay.
-> 
-> Sink detach:
-> [  541.703058] CC1: 3 -> 0, CC2: 0 -> 0 [state SNK_READY, polarity 0, disconnected]
-> [  541.703331] Setting voltage/current limit 5000 mV 0 mA
-> [  541.727235] VBUS on
-> [  541.749650] VBUS off
-> [  541.749653] pending state change SNK_READY -> SNK_UNATTACHED @ 650 ms [rev3 NONE_AMS]
-> [  541.749944] VBUS VSAFE0V
-> [  541.749945] state change SNK_READY -> SNK_UNATTACHED [rev3 NONE_AMS]
-> [  541.750806] Disable vbus discharge ret:0
-> [  541.907345] Start toggling
-> [  541.922799] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
-> 
-> Source detach:
-> [ 2555.310414] state change SRC_SEND_CAPABILITIES -> SRC_READY [rev3 POWER_NEGOTIATION]
-> [ 2555.310675] AMS POWER_NEGOTIATION finished
-> [ 2555.310679] cc:=3
-> [ 2593.645886] CC1: 0 -> 0, CC2: 2 -> 0 [state SRC_READY, polarity 1, disconnected]
-> [ 2593.645919] pending state change SRC_READY -> SNK_UNATTACHED @ 650 ms [rev3 NONE_AMS]
-> [ 2593.648419] VBUS off
-> [ 2593.648960] VBUS VSAFE0V
-> [ 2593.648965] state change SRC_READY -> SNK_UNATTACHED [rev3 NONE_AMS]
-> [ 2593.649962] Disable vbus discharge ret:0
-> [ 2593.890322] Start toggling
-> [ 2593.925663] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0,
-> 
-> Fixes: f321a02caebd ("usb: typec: tcpm: Implement enabling Auto
-> Discharge disconnect support")
-> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Guenter
+On 2/25/21 10:35 AM, Halil Pasic wrote:
+> On Thu, 25 Feb 2021 10:25:24 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> On 2/25/21 8:53 AM, Tony Krowiak wrote:
+>>>
+>>> On 2/25/21 6:28 AM, Halil Pasic wrote:
+>>>> On Wed, 24 Feb 2021 22:28:50 -0500
+>>>> Tony Krowiak<akrowiak@linux.ibm.com>  wrote:
+>>>>   
+>>>>>>>     static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+>>>>>>>     {
+>>>>>>> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>>>>>>> -	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+>>>>>>> -	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+>>>>>>> -	kvm_put_kvm(matrix_mdev->kvm);
+>>>>>>> -	matrix_mdev->kvm = NULL;
+>>>>>>> +	struct kvm *kvm;
+>>>>>>> +
+>>>>>>> +	if (matrix_mdev->kvm) {
+>>>>>>> +		kvm = matrix_mdev->kvm;
+>>>>>>> +		kvm_get_kvm(kvm);
+>>>>>>> +		matrix_mdev->kvm = NULL;
+>>>>>> I think if there were two threads dong the unset in parallel, one
+>>>>>> of them could bail out and carry on before the cleanup is done. But
+>>>>>> since nothing much happens in release after that, I don't see an
+>>>>>> immediate problem.
+>>>>>>
+>>>>>> Another thing to consider is, that setting ->kvm to NULL arms
+>>>>>> vfio_ap_mdev_remove()...
+>>>>> I'm not entirely sure what you mean by this, but my
+>>>>> assumption is that you are talking about the check
+>>>>> for matrix_mdev->kvm != NULL at the start of
+>>>>> that function.
+>>>> Yes I was talking about the check
+>>>>
+>>>> static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>>>> {
+>>>>           struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>>                                                                                   
+>>>>           if (matrix_mdev->kvm)
+>>>>                   return -EBUSY;
+>>>> ...
+>>>>           kfree(matrix_mdev);
+>>>> ...
+>>>> }
+>>>>
+>>>> As you see, we bail out if kvm is still set, otherwise we clean up the
+>>>> matrix_mdev which includes kfree-ing it. And vfio_ap_mdev_remove() is
+>>>> initiated via the sysfs, i.e. can be initiated at any time. If we were
+>>>> to free matrix_mdev in mdev_remove() and then carry on with kvm_unset()
+>>>> with mutex_lock(&matrix_dev->lock); that would be bad.
+>>> I agree.
+>>>   
+>>>>   
+>>>>> The reason
+>>>>> matrix_mdev->kvm is set to NULL before giving up
+>>>>> the matrix_dev->lock is so that functions that check
+>>>>> for the presence of the matrix_mdev->kvm pointer,
+>>>>> such as assign_adapter_store() - will exit if they get
+>>>>> control while the masks are being cleared.
+>>>> I disagree!
+>>>>
+>>>> static ssize_t assign_adapter_store(struct device *dev,
+>>>>                                       struct device_attribute *attr,
+>>>>                                       const char *buf, size_t count)
+>>>> {
+>>>>           int ret;
+>>>>           unsigned long apid;
+>>>>           struct mdev_device *mdev = mdev_from_dev(dev);
+>>>>           struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>>                                                                                   
+>>>>           /* If the guest is running, disallow assignment of adapter */
+>>>>           if (matrix_mdev->kvm)
+>>>>                   return -EBUSY;
+>>>>
+>>>> We bail out when kvm != NULL, so having it set to NULL while the
+>>>> mask are being cleared will make these not bail out.
+>>> You are correct, I am an idiot.
+>>>   
+>>>>> So what we have
+>>>>> here is a catch-22; in other words, we have the case
+>>>>> you pointed out above and the cases related to
+>>>>> assigning/unassigning adapters, domains and
+>>>>> control domains which should exit when a guest
+>>>>> is running.
+>>>> See above.
+>>> Ditto.
+>>>   
+>>>>> I may have an idea to resolve this. Suppose we add:
+>>>>>
+>>>>> struct ap_matrix_mdev {
+>>>>>        ...
+>>>>>        bool kvm_busy;
+>>>>>        ...
+>>>>> }
+>>>>>
+>>>>> This flag will be set to true at the start of both the
+>>>>> vfio_ap_mdev_set_kvm() and vfio_ap_mdev_unset_kvm()
+>>>>> and set to false at the end. The assignment/unassignment
+>>>>> and remove callback functions can test this flag and
+>>>>> return -EBUSY if the flag is true. That will preclude assigning
+>>>>> or unassigning adapters, domains and control domains when
+>>>>> the KVM pointer is being set/unset. Likewise, removal of the
+>>>>> mediated device will also be prevented while the KVM pointer
+>>>>> is being set/unset.
+>>>>>
+>>>>> In the case of the PQAP handler function, it can wait for the
+>>>>> set/unset of the KVM pointer as follows:
+>>>>>
+>>>>> /while (matrix_mdev->kvm_busy) {//
+>>>>> //        mutex_unlock(&matrix_dev->lock);//
+>>>>> //        msleep(100);//
+>>>>> //        mutex_lock(&matrix_dev->lock);//
+>>>>> //}//
+>>>>> //
+>>>>> //if (!matrix_mdev->kvm)//
+>>>>> //        goto out_unlock;
+>>>>>
+>>>>> /What say you?
+>>>>> //
+>>>> I'm not sure. Since I disagree with your analysis above it is difficult
+>>>> to deal with the conclusion. I'm not against decoupling the tracking of
+>>>> the state of the mdev_matrix device from the value of the kvm pointer. I
+>>>> think we should first get a common understanding of the problem, before
+>>>> we proceed to the solution.
+>>> Regardless of my brain fog regarding the testing of the
+>>> matrix_mdev->kvm pointer, I stand by what I stated
+>>> in the paragraphs just before the code snippet.
+>>>
+>>> The problem is there are 10 functions that depend upon
+>>> the value of the matrix_mdev->kvm pointer that can get
+>>> control while the pointer is being set/unset and the
+>>> matrix_dev->lock is given up to set/clear the masks:
+>> * vfio_ap_irq_enable: called by handle_pqap() when AQIC is intercepted
+>> * vfio_ap_irq_disable: called by handle_pqap() when AQIC is intercepted
+>> * assign_adapter_store: sysfs
+>> * unassign_adapter_store: sysfs
+>> * assign_domain_store: sysfs
+>> * unassign_domain_store: sysfs
+>> * assign__control_domain_store: sysfs
+>> * unassign_control_domain_store: sysfs
+>> * vfio_ap_mdev_remove: sysfs
+>> * vfio_ap_mdev_release: mdev fd closed by userspace (i.e., qemu)If we
+>> add the proposed flag to indicate when the matrix_mdev->kvm
+> Something is strange with this email. It is basically the same email
+> as the previous one, just broken, or?
 
-> ---
-> Changes since V1:
-> - Add Fixes tag
-> 
-> Changes since V2:
-> - Remove VBUS_DISCHARGE state as preferred by Guenter Roeck
-> ---
->  drivers/usb/typec/tcpm/tcpm.c | 75 ++++++++++++++++++++++++++++++-----
->  1 file changed, 65 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> index be0b6469dd3d..8469c37a59e1 100644
-> --- a/drivers/usb/typec/tcpm/tcpm.c
-> +++ b/drivers/usb/typec/tcpm/tcpm.c
-> @@ -438,6 +438,9 @@ struct tcpm_port {
->  	enum tcpm_ams next_ams;
->  	bool in_ams;
->  
-> +	/* Auto vbus discharge status */
-> +	bool auto_vbus_discharge_enabled;
-> +
->  #ifdef CONFIG_DEBUG_FS
->  	struct dentry *dentry;
->  	struct mutex logbuffer_lock;	/* log buffer access lock */
-> @@ -507,6 +510,9 @@ static const char * const pd_rev[] = {
->  	(tcpm_port_is_sink(port) && \
->  	((port)->cc1 == TYPEC_CC_RP_3_0 || (port)->cc2 == TYPEC_CC_RP_3_0))
->  
-> +#define tcpm_wait_for_discharge(port) \
-> +	(((port)->auto_vbus_discharge_enabled && !(port)->vbus_vsafe0v) ? PD_T_SAFE_0V : 0)
-> +
->  static enum tcpm_state tcpm_default_state(struct tcpm_port *port)
->  {
->  	if (port->port_type == TYPEC_PORT_DRP) {
-> @@ -3413,6 +3419,8 @@ static int tcpm_src_attach(struct tcpm_port *port)
->  	if (port->tcpc->enable_auto_vbus_discharge) {
->  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
->  		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-> +		if (!ret)
-> +			port->auto_vbus_discharge_enabled = true;
->  	}
->  
->  	ret = tcpm_set_roles(port, true, TYPEC_SOURCE, tcpm_data_role_for_source(port));
-> @@ -3495,6 +3503,8 @@ static void tcpm_reset_port(struct tcpm_port *port)
->  	if (port->tcpc->enable_auto_vbus_discharge) {
->  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, false);
->  		tcpm_log_force(port, "Disable vbus discharge ret:%d", ret);
-> +		if (!ret)
-> +			port->auto_vbus_discharge_enabled = false;
->  	}
->  	port->in_ams = false;
->  	port->ams = NONE_AMS;
-> @@ -3568,6 +3578,8 @@ static int tcpm_snk_attach(struct tcpm_port *port)
->  		tcpm_set_auto_vbus_discharge_threshold(port, TYPEC_PWR_MODE_USB, false, VSAFE5V);
->  		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
->  		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-> +		if (!ret)
-> +			port->auto_vbus_discharge_enabled = true;
->  	}
->  
->  	ret = tcpm_set_roles(port, true, TYPEC_SINK, tcpm_data_role_for_sink(port));
-> @@ -4670,9 +4682,9 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
->  		if (tcpm_port_is_disconnected(port) ||
->  		    !tcpm_port_is_source(port)) {
->  			if (port->port_type == TYPEC_PORT_SRC)
-> -				tcpm_set_state(port, SRC_UNATTACHED, 0);
-> +				tcpm_set_state(port, SRC_UNATTACHED, tcpm_wait_for_discharge(port));
->  			else
-> -				tcpm_set_state(port, SNK_UNATTACHED, 0);
-> +				tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
->  		}
->  		break;
->  	case SNK_UNATTACHED:
-> @@ -4703,7 +4715,23 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
->  			tcpm_set_state(port, SNK_DEBOUNCED, 0);
->  		break;
->  	case SNK_READY:
-> -		if (tcpm_port_is_disconnected(port))
-> +		/*
-> +		 * EXIT condition is based primarily on vbus disconnect and CC is secondary.
-> +		 * "A port that has entered into USB PD communications with the Source and
-> +		 * has seen the CC voltage exceed vRd-USB may monitor the CC pin to detect
-> +		 * cable disconnect in addition to monitoring VBUS.
-> +		 *
-> +		 * A port that is monitoring the CC voltage for disconnect (but is not in
-> +		 * the process of a USB PD PR_Swap or USB PD FR_Swap) shall transition to
-> +		 * Unattached.SNK within tSinkDisconnect after the CC voltage remains below
-> +		 * vRd-USB for tPDDebounce."
-> +		 *
-> +		 * When set_auto_vbus_discharge_threshold is enabled, CC pins go
-> +		 * away before vbus decays to disconnect threshold. Allow
-> +		 * disconnect to be driven by vbus disconnect when auto vbus
-> +		 * discharge is enabled.
-> +		 */
-> +		if (!port->auto_vbus_discharge_enabled && tcpm_port_is_disconnected(port))
->  			tcpm_set_state(port, unattached_state(port), 0);
->  		else if (!port->pd_capable &&
->  			 (cc1 != old_cc1 || cc2 != old_cc2))
-> @@ -4802,9 +4830,13 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
->  		 * Ignore CC changes here.
->  		 */
->  		break;
-> -
->  	default:
-> -		if (tcpm_port_is_disconnected(port))
-> +		/*
-> +		 * While acting as sink and auto vbus discharge is enabled, Allow disconnect
-> +		 * to be driven by vbus disconnect.
-> +		 */
-> +		if (tcpm_port_is_disconnected(port) && !(port->pwr_role == TYPEC_SINK &&
-> +							 port->auto_vbus_discharge_enabled))
->  			tcpm_set_state(port, unattached_state(port), 0);
->  		break;
->  	}
-> @@ -4968,8 +5000,16 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
->  	case SRC_TRANSITION_SUPPLY:
->  	case SRC_READY:
->  	case SRC_WAIT_NEW_CAPABILITIES:
-> -		/* Force to unattached state to re-initiate connection */
-> -		tcpm_set_state(port, SRC_UNATTACHED, 0);
-> +		/*
-> +		 * Force to unattached state to re-initiate connection.
-> +		 * DRP port should move to Unattached.SNK instead of Unattached.SRC if
-> +		 * sink removed. Although sink removal here is due to source's vbus collapse,
-> +		 * treat it the same way for consistency.
-> +		 */
-> +		if (port->port_type == TYPEC_PORT_SRC)
-> +			tcpm_set_state(port, SRC_UNATTACHED, tcpm_wait_for_discharge(port));
-> +		else
-> +			tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
->  		break;
->  
->  	case PORT_RESET:
-> @@ -4988,9 +5028,8 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
->  		break;
->  
->  	default:
-> -		if (port->pwr_role == TYPEC_SINK &&
-> -		    port->attached)
-> -			tcpm_set_state(port, SNK_UNATTACHED, 0);
-> +		if (port->pwr_role == TYPEC_SINK && port->attached)
-> +			tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
->  		break;
->  	}
->  }
-> @@ -5012,7 +5051,23 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
->  			tcpm_set_state(port, tcpm_try_snk(port) ? SNK_TRY : SRC_ATTACHED,
->  				       PD_T_CC_DEBOUNCE);
->  		break;
-> +	case SRC_STARTUP:
-> +	case SRC_SEND_CAPABILITIES:
-> +	case SRC_SEND_CAPABILITIES_TIMEOUT:
-> +	case SRC_NEGOTIATE_CAPABILITIES:
-> +	case SRC_TRANSITION_SUPPLY:
-> +	case SRC_READY:
-> +	case SRC_WAIT_NEW_CAPABILITIES:
-> +		if (port->auto_vbus_discharge_enabled) {
-> +			if (port->port_type == TYPEC_PORT_SRC)
-> +				tcpm_set_state(port, SRC_UNATTACHED, 0);
-> +			else
-> +				tcpm_set_state(port, SNK_UNATTACHED, 0);
-> +		}
-> +		break;
->  	default:
-> +		if (port->pwr_role == TYPEC_SINK && port->auto_vbus_discharge_enabled)
-> +			tcpm_set_state(port, SNK_UNATTACHED, 0);
->  		break;
->  	}
->  }
-> -- 
-> 2.30.0.617.g56c4b15f3c-goog
-> 
+the previous email was rejected for the kernel addresses because
+I used bulleted lists which aren't acceptable. The kernel email addresses
+accept text-only, so I replaced the bulleted list with the above.
+
+>
+>>> pointer is in flux, then we can check that before allowing the functions
+>>> in the list above to proceed.
+>>>   
+>>>> Regards,
+>>>> Halil
+>>>   
+
