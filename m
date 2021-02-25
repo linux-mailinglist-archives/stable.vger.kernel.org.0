@@ -2,122 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5944324A65
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 07:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 653F4324A8E
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 07:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbhBYGIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 01:08:31 -0500
-Received: from mo-csw1116.securemx.jp ([210.130.202.158]:42432 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235268AbhBYGHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 01:07:19 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1116) id 11P64puQ011283; Thu, 25 Feb 2021 15:04:51 +0900
-X-Iguazu-Qid: 2wGqzdZmdYxMsWacDZ
-X-Iguazu-QSIG: v=2; s=0; t=1614233091; q=2wGqzdZmdYxMsWacDZ; m=fCyXxvB60ezjAlgzby/zURou/Yw/+qDszJJYTl9GSwE=
-Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
-        by relay.securemx.jp (mx-mr1111) id 11P64oU5003934
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Thu, 25 Feb 2021 15:04:50 +0900
-Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id EA3D71000D4;
-        Thu, 25 Feb 2021 15:04:49 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.toshiba.co.jp  with ESMTP id 11P64nT3000776;
-        Thu, 25 Feb 2021 15:04:49 +0900
-Date:   Thu, 25 Feb 2021 15:04:46 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 04/35] iwlwifi: pcie: add a NULL check in
- iwl_pcie_txq_unmap
-X-TSB-HOP: ON
-Message-ID: <20210225060446.auoymjxg5cuzlism@toshiba.co.jp>
-References: <20210222121013.581198717@linuxfoundation.org>
- <20210222121017.933649049@linuxfoundation.org>
+        id S232723AbhBYGb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 01:31:26 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:13377 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233536AbhBYGb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 01:31:26 -0500
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DmNBr0G4dz7kKg;
+        Thu, 25 Feb 2021 14:28:04 +0800 (CST)
+Received: from [10.67.110.218] (10.67.110.218) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Thu, 25 Feb 2021 14:29:33 +0800
+Subject: Re: [PATCH 4.9.y 1/1] futex: Fix OWNER_DEAD fixup
+To:     Lee Jones <lee.jones@linaro.org>
+CC:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <tglx@linutronix.de>,
+        <cj.chengjian@huawei.com>, <judy.chenhui@huawei.com>,
+        <zhangjinhao2@huawei.com>
+References: <20210223144151.916675-1-zhengyejian1@huawei.com>
+ <20210223144151.916675-2-zhengyejian1@huawei.com>
+ <20210224111915.GA641347@dell>
+From:   "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
+Message-ID: <09cd79ce-291a-1750-6954-ecde0a6bdfcf@huawei.com>
+Date:   Thu, 25 Feb 2021 14:29:34 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210222121017.933649049@linuxfoundation.org>
+In-Reply-To: <20210224111915.GA641347@dell>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.218]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-Sorry for the report after the release.
 
-On Mon, Feb 22, 2021 at 01:36:00PM +0100, Greg Kroah-Hartman wrote:
-> From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+On 2021/2/24 19:19, Lee Jones wrote:
+> On Tue, 23 Feb 2021, Zheng Yejian wrote:
 > 
-> [ Upstream commit 98c7d21f957b10d9c07a3a60a3a5a8f326a197e5 ]
+>> From: Peter Zijlstra <peterz@infradead.org>
+>>
+>> commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
+>>
+>> Both Geert and DaveJ reported that the recent futex commit:
+>>
+>>    c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+>>
+>> introduced a problem with setting OWNER_DEAD. We set the bit on an
+>> uninitialized variable and then entirely optimize it away as a
+>> dead-store.
+>>
+>> Move the setting of the bit to where it is more useful.
+>>
+>> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>> Reported-by: Dave Jones <davej@codemonkey.org.uk>
+>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+>> Cc: Paul E. McKenney <paulmck@us.ibm.com>
+>> Cc: Peter Zijlstra <peterz@infradead.org>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+>> Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
+>> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+>> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 > 
-> I hit a NULL pointer exception in this function when the
-> init flow went really bad.
+> Why have you dropped my Reviewed-by?
 > 
-> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-> Link: https://lore.kernel.org/r/iwlwifi.20210115130252.2e8da9f2c132.I0234d4b8ddaf70aaa5028a20c863255e05bc1f84@changeid
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/wireless/iwlwifi/pcie/tx.c | 5 +++++
->  1 file changed, 5 insertions(+)
+Really sorry. I thought that a changed patchset needs another review.
+Then I do need to append your Reviewed-by and send a "V2" patchset, Do I?
+
+>> ---
+>>   kernel/futex.c | 6 +++---
+>>   1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/kernel/futex.c b/kernel/futex.c
+>> index b65dbb5d60bb..604d1cb9839d 100644
+>> --- a/kernel/futex.c
+>> +++ b/kernel/futex.c
+>> @@ -2424,9 +2424,6 @@ static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+>>   	int err = 0;
+>>   
+>>   	oldowner = pi_state->owner;
+>> -	/* Owner died? */
+>> -	if (!pi_state->owner)
+>> -		newtid |= FUTEX_OWNER_DIED;
+>>   
+>>   	/*
+>>   	 * We are here because either:
+>> @@ -2484,6 +2481,9 @@ static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+>>   	}
+>>   
+>>   	newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
+>> +	/* Owner died? */
+>> +	if (!pi_state->owner)
+>> +		newtid |= FUTEX_OWNER_DIED;
+>>   
+>>   	if (get_futex_value_locked(&uval, uaddr))
+>>   		goto handle_fault;
 > 
-> diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
-> index 8dfe6b2bc7031..cb03c2855019b 100644
-> --- a/drivers/net/wireless/iwlwifi/pcie/tx.c
-> +++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
-> @@ -585,6 +585,11 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
->  	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
->  	struct iwl_queue *q = &txq->q;
->  
-> +	if (!txq) {
-> +		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
-> +		return;
-> +	}
-> +
-
-I think that this fix is not enough.
-If txq is NULL, an error will occur with "struct iwl_queue * q = & txq->q;".
-The following changes are required.
-
-diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
-index cb03c2855019b7..7584796131fa41 100644
---- a/drivers/net/wireless/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
-@@ -583,13 +583,15 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
- {
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
- 	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
--	struct iwl_queue *q = &txq->q;
-+	struct iwl_queue *q;
- 
- 	if (!txq) {
- 		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
- 		return;
- 	}
- 
-+	q = &txq->q;
-+
- 	spin_lock_bh(&txq->lock);
- 	while (q->write_ptr != q->read_ptr) {
- 		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
-
-
-
->  	spin_lock_bh(&txq->lock);
->  	while (q->write_ptr != q->read_ptr) {
->  		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
-> -- 
-> 2.27.0
-> 
-> 
-
-Best regards,
-  Nobuhiro
