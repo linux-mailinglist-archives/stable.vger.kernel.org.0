@@ -2,191 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C4D324864
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 02:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A0D3248E4
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 03:33:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236779AbhBYBMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Feb 2021 20:12:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52188 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236717AbhBYBLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Feb 2021 20:11:44 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A003BC061794;
-        Wed, 24 Feb 2021 17:10:48 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id x129so2505008pfx.7;
-        Wed, 24 Feb 2021 17:10:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=+QAzmdz2J3myHOyB8tlALQV+gjhvFNmvosUKr/OQ9fw=;
-        b=a9Nvc3+Ure+Lcv9JHro+nYtgB+VeAwdp6JxFTLuv0FFB9cUOKbZI8YYXiBB+wxHWEM
-         er7zuUdrxUMPNPr315K2DoP4BbQNqUDjzJlT5D5syObjZ7X9yjvzdBiBPYLB4rwtwR1s
-         gE6TebOOxK8HS7nmGW9OPC0CvB0xaXTArmWgx80T3p43OM6Rx8WnbgN04mD/BNfB6+21
-         G4KvCYSsjOL6I4GnMhxX9HgLVdF14LsrJyBLP9pw7DCngA9iN8wlJk4AhKm9x2HgGjO9
-         tTo/gcgJ0FSevfKUUmcm9GFU4mAmLb+MODbR+kY04dyyy/reju9nLNESZiDWVQTcNqug
-         E8Mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=+QAzmdz2J3myHOyB8tlALQV+gjhvFNmvosUKr/OQ9fw=;
-        b=slEXn29kJtwDDBRF5rxbwv62CGttaEh4AmPMA3XhCu6O5mYB0QdBO6n/GiW0gDJNd1
-         SgFgOpr1TZakJtG0hjSbZ35h3NiiVhA1EdXSsTHBwEcitbMrTBWjZOmxeD3+VB9j3SsQ
-         igpM+W7alLpiRptG6OBEG6O43crnd1glqSKIEydWWSXmBvYjpgUyyYoFRwYpyJQfxCfK
-         L0jAHWIXwazxMGyArElAHutSolYlzgpnG7UM3tudtvDmoOCaeoneee1/VhIJcZg3DdPB
-         ncvKTobns/DdA5hTi4Buv2AVzbwozCep5Ck+qp0/oNDe1yx041gUDmCF+8G61YkpuAE7
-         P6lQ==
-X-Gm-Message-State: AOAM531WVrlQyECzPORN286lp7kvcA92lo6CWw0njcEMwkaysaqytf4y
-        J6vB56yUiUjtgaoE3BbJmVsxQnSYLqs=
-X-Google-Smtp-Source: ABdhPJxnIm3Uzl26X0Jq+pOUUEfqCS5RfV4D/+pBox91cGs/HnPB+5r9Ks0z7uTvg+xbKu+EENTOcg==
-X-Received: by 2002:aa7:8f15:0:b029:1ed:9356:a9e with SMTP id x21-20020aa78f150000b02901ed93560a9emr689228pfr.73.1614215447719;
-        Wed, 24 Feb 2021 17:10:47 -0800 (PST)
-Received: from stbirv-lnx-3.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id z11sm3503010pgk.65.2021.02.24.17.10.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Feb 2021 17:10:46 -0800 (PST)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     netdev@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org (open list), stable@vger.kernel.org,
-        gregkh@linuxfoundation.org, olteanv@gmail.com, sashal@kernel.org
-Subject: [PATCH stable-5.11.y] net: dsa: b53: Correct learning for standalone ports
-Date:   Wed, 24 Feb 2021 17:09:56 -0800
-Message-Id: <20210225010956.946545-8-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210225010956.946545-1-f.fainelli@gmail.com>
-References: <20210225010853.946338-1-f.fainelli@gmail.com>
- <20210225010956.946545-1-f.fainelli@gmail.com>
+        id S235267AbhBYCdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Feb 2021 21:33:22 -0500
+Received: from mail-mw2nam12on2078.outbound.protection.outlook.com ([40.107.244.78]:62784
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234012AbhBYCdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Feb 2021 21:33:20 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WUINbJktJyktuwDqNHHaN7eJ0hGX5OEiHbD257YYAJZQ8GEtVd3CpQd4TPKR29hD73Vu+Ka9OgVmJDNADKzxh+RMf0MkuEtsfZYCTZjPpcum0seNLqA+qfrVBJ0wRQ+xtUhvSUQLT1lL28FwXd4ODAT75f5XvSYoW9ARlmLfXvkdFffDGv32o028D+BT5YOZ9/CXGgaY9j8kim5HGx87PxBWqUrOiNKIrQdEg/ovfNgQG2bg9jkE2ANyXSwCtkSM43tu6qQy6Oaxej/ws7QeWoixb/JZLWABvD6EbrC6KTkLm5oSxxWZ8QH3deamfmECCJ+fvxE6/bbfI8X+CHrMBg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zrGacAg2KMSeLERA18QjLBOzjT4L7F1WNi5Z1BGhyaI=;
+ b=M47PnxQtC008jBZ/OH56Qyc1w19YhE62fr7MsW1D44mehaGpSln1/s87bdmhYhICJ4PYK8vWPyef5rElSLS7Ux7eTR6BlTit1OdqEsouXbsfhHmdOYIA2nIJYgdezEru09RM7LpIv86geBZZ0LkwCeAWkDSmXz/2PfVVWwtIpmsEe6E5QIFPn6cxAGtdHqlm7SJWTvFgM4qS7U8fV7B3g2MH014GHO3LG4ATInD/LNwEs37vqqdi51XC0ddH2LYp87Oozqn6UIhYSVihOyDHpjqotyEqS+7NdWM8JqgNHpBUuTdKV/Jh81AZV8nC2+nY7xAEHV3Fl+PXlWDitVQBIQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zrGacAg2KMSeLERA18QjLBOzjT4L7F1WNi5Z1BGhyaI=;
+ b=Nx0LWy1rXQvpag5pdEVAKkiluW54ZqGSTH/xf9w8SA8GZlv+Agr6MzLd6/x9boUh3gGYpZEKJrxl97GwfuxA2nQnlqxgHNVhYYKEdXqtb2i/Zamu5r0lE7mtQYwaBYshJ62991grST8l6WDcSXO+PxSsjeWCjVNxk/hw66bIFkk=
+Received: from BN8PR12MB4770.namprd12.prod.outlook.com (2603:10b6:408:a1::30)
+ by BN8PR12MB3362.namprd12.prod.outlook.com (2603:10b6:408:44::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.38; Thu, 25 Feb
+ 2021 02:32:28 +0000
+Received: from BN8PR12MB4770.namprd12.prod.outlook.com
+ ([fe80::2054:faac:dec5:d93]) by BN8PR12MB4770.namprd12.prod.outlook.com
+ ([fe80::2054:faac:dec5:d93%6]) with mapi id 15.20.3868.033; Thu, 25 Feb 2021
+ 02:32:28 +0000
+From:   "Lin, Wayne" <Wayne.Lin@amd.com>
+To:     "lyude@redhat.com" <lyude@redhat.com>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+CC:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
+        "Wentland, Harry" <Harry.Wentland@amd.com>,
+        "Zuo, Jerry" <Jerry.Zuo@amd.com>, "Brol, Eryk" <Eryk.Brol@amd.com>,
+        "Zhuo, Qingqing" <Qingqing.Zhuo@amd.com>
+Subject: RE: [PATCH v2 0/2] Set CLEAR_PAYLOAD_ID_TABLE as broadcast request
+Thread-Topic: [PATCH v2 0/2] Set CLEAR_PAYLOAD_ID_TABLE as broadcast request
+Thread-Index: AQHXCpY0DEYRJMD5VUGE2cXXmPgsRqpnmwMAgACLtQA=
+Date:   Thu, 25 Feb 2021 02:32:27 +0000
+Message-ID: <BN8PR12MB4770EFCCD1B4D0D363B95FC9FC9E9@BN8PR12MB4770.namprd12.prod.outlook.com>
+References: <20210224101521.6713-1-Wayne.Lin@amd.com>
+ <10aa57cb1a982cbc07195319580bc9604961f186.camel@redhat.com>
+In-Reply-To: <10aa57cb1a982cbc07195319580bc9604961f186.camel@redhat.com>
+Accept-Language: en-US, zh-TW
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ActionId=0dbf33d4-f1d5-48d8-935b-3e78014334bf;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ContentBits=0;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Enabled=true;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Method=Privileged;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Name=Public_0;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SetDate=2021-02-25T02:29:21Z;MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=amd.com;
+x-originating-ip: [165.204.134.249]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: f8846ce0-ea59-457c-2cc5-08d8d9359809
+x-ms-traffictypediagnostic: BN8PR12MB3362:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BN8PR12MB336284557FDEF715B1EF9EC8FC9E9@BN8PR12MB3362.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: Xm/xzY19GPRwI6kRBS4LyUJqdP9WLKWlt7GAYaCxMXPxXMG0VkHYyBAaIJMcXi2+YnO1akysJ57tNC4DKtCFdDt90zpRJVj7IfRVHBFS4ZIzUOcqcFPAruJKcg7X3FrycY+3/QcuSQBunRSEyq9qDHhbbFFw1Oqeb8MA1G0XatzigOg5kz3eZmuNhqFz/LInGOWdpDAYY0cU7uZ/yAw7X6qCbAWOfOPxQ5CmQZ4iMskVzVHMTSeayNCNlpSgIZGXuilz5rS3jD3f/1QeY98lzxAHfMa/grimIZIKrfWco7QBzq9n73Xm75G0a8LvmS6LBmhPfngE/gyrHRzUMmAXh+QoLBem51Kb8S6m3hRlT7gk98PVfhDOPLk6m3Tr7Mp6snfAAVa7AHBQRhbLqXOXd6NkM2O5SgElbZsdMAK5wkZTeVLtrEUWA20yjziMA/3ORKt2AqBvkZKN1n6NlEGiFYQkAgJIDHtd7mA3HnoZvfv2Bgr9COmDxbNrnN8SnIKymQlmgG0sDNgwB2FMdygDrg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB4770.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(39860400002)(346002)(366004)(396003)(136003)(55016002)(83380400001)(66476007)(76116006)(66946007)(4326008)(52536014)(110136005)(33656002)(9686003)(316002)(64756008)(7696005)(71200400001)(478600001)(86362001)(66446008)(54906003)(66556008)(5660300002)(8936002)(6506007)(53546011)(2906002)(186003)(26005)(8676002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: =?utf-8?B?QWFXd29vTDhMZ3d6RlNRQUpNYUZlZkYxSjFUZ3hlMUQwWlpuRTNicnM2aGZV?=
+ =?utf-8?B?UHhPLzlsMWdwQzg1T0RSVXN6dEVLZ3piSG5ZT1pnOFpueEVuT0RlbmthbmNP?=
+ =?utf-8?B?aE1wNG12bURRYktYNEN0ZE9wazJydkx3WHIyL00rQWNhZHhTMStLUXNwSUxM?=
+ =?utf-8?B?eHdNNEVMdlBGRFZXdUgxVElRaE9SZnBxWEE1dWZ1NEN2RnIrTjZJZ3A2akY2?=
+ =?utf-8?B?b1RpM29qakpLNTVuUGd4N3pmb3VnNUpady9vaWlGTnErSlJyTFJLSlA0WDlx?=
+ =?utf-8?B?emZ3MEh4eW9qRm9idm52dkFYV3hmS2ExUEg2MUg3YmtVbm5DVm1WeStXQ1hN?=
+ =?utf-8?B?M2JVd0VQMHNzeGZocGZtS1U0QTlpVWY0UDBDQW1YTDE0WWZtamIvSHJmUW1W?=
+ =?utf-8?B?QjVqTEUyZU1nQ3ZlOUpPcmtBZ3hGUTlrVExkWlgyWXZLczBxbjQ3Z2lBWDR3?=
+ =?utf-8?B?c1NtN1hJbnlMYlZySVZ1VStXRllNQ2ZOZ2Z3NnVMZXFjNEpDQVlhMlQwcUpO?=
+ =?utf-8?B?Yll6QzZRSzVDcEhOUENxbHkvK0s1RVdYd0FHd2dxTVFhL1R6QW9rS1N0cHFw?=
+ =?utf-8?B?ektkSHNPaldQNlVzcjVKUzc4N1FlQ2wvTWlFcjhvUGRtS0lsRmQvaUM1dkZt?=
+ =?utf-8?B?Y2hZcWlQSlRVNzBJeEVpRFI3ZTdYd1A1UjNDSCs0UEhUZ0VsZEJUczE1eDFU?=
+ =?utf-8?B?RFZFdDNIdUNxWlhTaVB3WTFCUEYzcjNvV3NJbVBkb201QXlYeGxnUDAwalNL?=
+ =?utf-8?B?NFFMeEFlR2hYZFVNM1VDSkVQQzQ5NmtySk8xNVQzUHkwaEZDcDRRcU9jR3Jp?=
+ =?utf-8?B?d0FxeFIxdW10anp1cDVuOW9OS2o4d1JPUE9yYnI5VmN4WGxZTXd0K1RQQjFJ?=
+ =?utf-8?B?Uzg0L0MxWHdZcW5pZk5wZXg1VEVTOGJqYWpkc0RSRDVrMVNmSzZUMGYzc01k?=
+ =?utf-8?B?eU95TW1KYmpzSzJzRjBXK3FVRmY2V3NiT1FjWEpleGVjVzR5dWQ1b0VZREhy?=
+ =?utf-8?B?d0xlczd6OVd3TFJRRkdMR3duQnB5Y2JyQ083UWRUTlBwY0lOWXRtZ3BoVEdy?=
+ =?utf-8?B?Y1VyR1QvZitCSXFLV1JScWIvR2ZjWlpHNUJpRzJYY2ZZbGQ2UHlwOURKUEF4?=
+ =?utf-8?B?WXVSV01rbGM4amNYYXVmSjgrSGtTVG96SFU4VmpXSnVvbkNOam9sS1Uyb3pL?=
+ =?utf-8?B?S0k4emJ5a3RsS2J2b2pPQ3I0YWJyOENkYU9iYXV2UENPcmNMdWN0U3MvSVFx?=
+ =?utf-8?B?c0VzZVpSRXllaHJ1UUJ5ZEticGpueitCK1RzY2RqeEF5dkFiand1MldSQzZL?=
+ =?utf-8?B?ZGpQRGFCZXFKVDExL0c5MzRXMzVWOWU3a0E3aEtYQmJqelJUVDRTZnUzbHUw?=
+ =?utf-8?B?aEZuUlE2b2NxSDE4OVlxM3ZkQllZOUI0dVV2bUsyZ0JSL2VaWEUwUG4rRzJE?=
+ =?utf-8?B?aXR6ckU3UTNkU080ZmFwSk9VeFRxR1RrRnlxSWltcTVhUStPUnhDVzRVZXk3?=
+ =?utf-8?B?d0JQKy9LTDN4MGhtZ3lmb0N0YUhvSkFVUVRpNmVjSE1GQSt2VVlOQVlWajlC?=
+ =?utf-8?B?L2NCNmE2RDROL0o3b0t6cS9uTHFSTmFodkVoRDVZUkRPTkY3Y3p4T1FzNFhD?=
+ =?utf-8?B?ZnZQdlR3aXFGbTBFNjJLb3ZZdEFoQzdoYzBRVThRZ1ZUeFhQclYrbEhUTkRF?=
+ =?utf-8?B?VDVSdlZ2NWtmQzE5bGZ3WHQwN044eGlncnJKUWpGSjFQNThvMGpXL296MGZa?=
+ =?utf-8?Q?KA8TsC89Ckq5OEbGSzQ7vYjBeRC5EvfzQUm3qhf?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB4770.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f8846ce0-ea59-457c-2cc5-08d8d9359809
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Feb 2021 02:32:27.9087
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 6HVBd5Jsgnc9VHljJB+rQywT5chL0fmxhPkFvocNYluW4ce7Ejul4FcKVLhNIXVQJD6Km/UNgMZ2ySlc85NXYg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3362
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Standalone ports should not have learning enabled since all the frames
-are always copied to the CPU port. This is particularly important in
-case an user-facing port intentionally spoofs the CPU port's MAC
-address. With learning enabled we would end up with the switch having
-incorrectly learned the address of the CPU port which typically results
-in a complete break down of network connectivity until the address
-learned ages out and gets re-learned, from the correct port this time.
-
-There was no control of the BR_LEARNING flag until upstream commit
-4098ced4680a485c5953f60ac63dff19f3fb3d42 ("Merge branch 'brport-flags'")
-which is why we default to enabling learning when the ports gets added
-as a bridge member.
-
-Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- drivers/net/dsa/b53/b53_common.c | 18 ++++++++++++++++++
- drivers/net/dsa/b53/b53_regs.h   |  1 +
- drivers/net/dsa/bcm_sf2.c        | 15 +--------------
- 3 files changed, 20 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 95c7fa171e35..f504b6858ed2 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -510,6 +510,19 @@ void b53_imp_vlan_setup(struct dsa_switch *ds, int cpu_port)
- }
- EXPORT_SYMBOL(b53_imp_vlan_setup);
- 
-+static void b53_port_set_learning(struct b53_device *dev, int port,
-+				  bool learning)
-+{
-+	u16 reg;
-+
-+	b53_read16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, &reg);
-+	if (learning)
-+		reg &= ~BIT(port);
-+	else
-+		reg |= BIT(port);
-+	b53_write16(dev, B53_CTRL_PAGE, B53_DIS_LEARNING, reg);
-+}
-+
- int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- {
- 	struct b53_device *dev = ds->priv;
-@@ -523,6 +536,7 @@ int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy)
- 	cpu_port = dsa_to_port(ds, port)->cpu_dp->index;
- 
- 	b53_br_egress_floods(ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- 
- 	if (dev->ops->irq_enable)
- 		ret = dev->ops->irq_enable(dev, port);
-@@ -656,6 +670,7 @@ static void b53_enable_cpu_port(struct b53_device *dev, int port)
- 	b53_brcm_hdr_setup(dev->ds, port);
- 
- 	b53_br_egress_floods(dev->ds, port, true, true);
-+	b53_port_set_learning(dev, port, false);
- }
- 
- static void b53_enable_mib(struct b53_device *dev)
-@@ -1839,6 +1854,8 @@ int b53_br_join(struct dsa_switch *ds, int port, struct net_device *br)
- 	b53_write16(dev, B53_PVLAN_PAGE, B53_PVLAN_PORT_MASK(port), pvlan);
- 	dev->ports[port].vlan_ctl_mask = pvlan;
- 
-+	b53_port_set_learning(dev, port, true);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(b53_br_join);
-@@ -1886,6 +1903,7 @@ void b53_br_leave(struct dsa_switch *ds, int port, struct net_device *br)
- 		vl->untag |= BIT(port) | BIT(cpu_port);
- 		b53_set_vlan_entry(dev, pvid, vl);
- 	}
-+	b53_port_set_learning(dev, port, false);
- }
- EXPORT_SYMBOL(b53_br_leave);
- 
-diff --git a/drivers/net/dsa/b53/b53_regs.h b/drivers/net/dsa/b53/b53_regs.h
-index c90985c294a2..b2c539a42154 100644
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -115,6 +115,7 @@
- #define B53_UC_FLOOD_MASK		0x32
- #define B53_MC_FLOOD_MASK		0x34
- #define B53_IPMC_FLOOD_MASK		0x36
-+#define B53_DIS_LEARNING		0x3c
- 
- /*
-  * Override Ports 0-7 State on devices with xMII interfaces (8 bit)
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 445226720ff2..edb0a1027b38 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -222,23 +222,10 @@ static int bcm_sf2_port_setup(struct dsa_switch *ds, int port,
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
- 
--	/* Enable learning */
--	reg = core_readl(priv, CORE_DIS_LEARN);
--	reg &= ~BIT(port);
--	core_writel(priv, reg, CORE_DIS_LEARN);
--
- 	/* Enable Broadcom tags for that port if requested */
--	if (priv->brcm_tag_mask & BIT(port)) {
-+	if (priv->brcm_tag_mask & BIT(port))
- 		b53_brcm_hdr_setup(ds, port);
- 
--		/* Disable learning on ASP port */
--		if (port == 7) {
--			reg = core_readl(priv, CORE_DIS_LEARN);
--			reg |= BIT(port);
--			core_writel(priv, reg, CORE_DIS_LEARN);
--		}
--	}
--
- 	/* Configure Traffic Class to QoS mapping, allow each priority to map
- 	 * to a different queue number
- 	 */
--- 
-2.25.1
-
+W0FNRCBQdWJsaWMgVXNlXQ0KDQpUaGFua3MgTHl1ZGUhDQoNClJlZ2FyZHMsDQpXYXluZQ0KDQo+
+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEx5dWRlIFBhdWwgPGx5dWRlQHJl
+ZGhhdC5jb20+DQo+IFNlbnQ6IFRodXJzZGF5LCBGZWJydWFyeSAyNSwgMjAyMSAyOjA5IEFNDQo+
+IFRvOiBMaW4sIFdheW5lIDxXYXluZS5MaW5AYW1kLmNvbT47IGRyaS1kZXZlbEBsaXN0cy5mcmVl
+ZGVza3RvcC5vcmcNCj4gQ2M6IHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tOyBzdGFibGVA
+dmdlci5rZXJuZWwub3JnOyBLYXpsYXVza2FzLCBOaWNob2xhcyA8TmljaG9sYXMuS2F6bGF1c2th
+c0BhbWQuY29tPjsgV2VudGxhbmQsIEhhcnJ5DQo+IDxIYXJyeS5XZW50bGFuZEBhbWQuY29tPjsg
+WnVvLCBKZXJyeSA8SmVycnkuWnVvQGFtZC5jb20+OyBCcm9sLCBFcnlrIDxFcnlrLkJyb2xAYW1k
+LmNvbT47IFpodW8sIFFpbmdxaW5nDQo+IDxRaW5ncWluZy5aaHVvQGFtZC5jb20+DQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0ggdjIgMC8yXSBTZXQgQ0xFQVJfUEFZTE9BRF9JRF9UQUJMRSBhcyBicm9h
+ZGNhc3QgcmVxdWVzdA0KPg0KPiBhbHNvIC0gSSBtZWFudCB0byByZXBseSB0byB2Miwgbm90IHYx
+IDopLiBKdXN0IHNvIHlvdSBkb24ndCB3b3JyeSB0aGF0IEkgcHVzaGVkIHRoZSB3cm9uZyBwYXRj
+aCBzZXJpZXMgdmVyc2lvbg0KPg0KPiBPbiBXZWQsIDIwMjEtMDItMjQgYXQgMTg6MTUgKzA4MDAs
+IFdheW5lIExpbiB3cm90ZToNCj4gPiBXaGlsZSB0ZXN0aW5nIE1TVCBob3RwbHVnIGV2ZW50cyBv
+biBkYWlzeSBjaGFpbiBtb25pdG9ycywgZmluZCBvdXQNCj4gPiB0aGF0IENMRUFSX1BBWUxPQURf
+SURfVEFCTEUgaXMgbm90IGJyb2FkY2FzdGVkIGFuZCBwYXlsb2FkIGlkIHRhYmxlIGlzDQo+ID4g
+bm90IHJlc2V0LiBEaWcgaW4gZGVlcGVyIGFuZCBmaW5kIG91dCB0d28gcGFydHMgbmVlZGVkIHRv
+IGJlIGZpeGVkLg0KPiA+DQo+ID4gMS4gTGlua19Db3VudF9Ub3RhbCAmIExpbmtfQ291bnRfUmVt
+YWluaW5nIG9mIEJyb2FkY2FzdCBtZXNzYWdlIGFyZQ0KPiA+IGluY29ycmVjdC4gU2hvdWxkIHNl
+dCBsY3Q9MSAmIGxjcj02IDIuIENMRUFSX1BBWUxPQURfSURfVEFCTEUgcmVxdWVzdA0KPiA+IG1l
+c3NhZ2UgaXMgbm90IHNldCBhcyBwYXRoIGJyb2FkY2FzdCByZXF1ZXN0IG1lc3NhZ2UuIFNob3Vs
+ZCBmaXggdGhpcy4NCj4gPg0KPiA+IENoYW5nZXMgc2luY2UgdjE6DQo+ID4gKlJlZmVyIHRvIHRo
+ZSBzdWdnZXN0aW9uIGZyb20gVmlsbGUgU3lyamFsYS4gV2hpbGUgcHJlcGFyaW5nIGhkci1yYWQs
+DQo+ID4gdGFrZSBicm9hZGNhc3QgY2FzZSBpbnRvIGNvbnNpZGVyYXRpb24uDQo+ID4NCj4gPiBX
+YXluZSBMaW4gKDIpOg0KPiA+ICAgZHJtL2RwX21zdDogUmV2aXNlIGJyb2FkY2FzdCBtc2cgbGN0
+ICYgbGNyDQo+ID4gICBkcm0vZHBfbXN0OiBTZXQgQ0xFQVJfUEFZTE9BRF9JRF9UQUJMRSBhcyBi
+cm9hZGNhc3QNCj4gPg0KPiA+ICBkcml2ZXJzL2dwdS9kcm0vZHJtX2RwX21zdF90b3BvbG9neS5j
+IHwgMTcgKysrKysrKysrKysrLS0tLS0NCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEyIGluc2VydGlv
+bnMoKyksIDUgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiAtLQ0KPiA+IDIuMTcuMQ0KPiA+DQo+DQo+
+IC0tDQo+IFNpbmNlcmVseSwNCj4gICAgTHl1ZGUgUGF1bCAoc2hlL2hlcikNCj4gICAgU29mdHdh
+cmUgRW5naW5lZXIgYXQgUmVkIEhhdA0KPg0KPiBOb3RlOiBJIGRlYWwgd2l0aCBhIGxvdCBvZiBl
+bWFpbHMgYW5kIGhhdmUgYSBsb3Qgb2YgYnVncyBvbiBteSBwbGF0ZS4gSWYgeW91J3ZlIGFza2Vk
+IG1lIGEgcXVlc3Rpb24sIGFyZSB3YWl0aW5nIGZvciBhIHJldmlldy9tZXJnZSBvbiBhDQo+IHBh
+dGNoLCBldGMuIGFuZCBJIGhhdmVuJ3QgcmVzcG9uZGVkIGluIGEgd2hpbGUsIHBsZWFzZSBmZWVs
+IGZyZWUgdG8gc2VuZCBtZSBhbm90aGVyIGVtYWlsIHRvIGNoZWNrIG9uIG15IHN0YXR1cy4gSSBk
+b24ndCBiaXRlIQ0KDQo=
