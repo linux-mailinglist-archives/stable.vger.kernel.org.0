@@ -2,138 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 615DB32558E
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 19:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF523255B6
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 19:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbhBYSd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 13:33:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49094 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233732AbhBYSbw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 13:31:52 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 858A3C061786;
-        Thu, 25 Feb 2021 10:31:08 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id t9so4026117pjl.5;
-        Thu, 25 Feb 2021 10:31:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YV1fWHtw2C61QMiLwr9hI51XV3MLWr2gQO7xjRtkvb0=;
-        b=fWlEAyo/WYYLmGgp3hZwQpDEOxNJvWvnUGDtGPlA9zCnBatwbfKi/XT+sVS8dyE4xl
-         ck5FcB/9VHBSCijvLYNOjQKm6IPISegYRqIt6X5//7gKUxVoDP3yI8+Ww/pWTjU6V9U5
-         /DdOVQZc6tVkgjdYpRgK7vZcuGRXwrT0Dqs2NNYw/TqiKVvNWcxvBt6CBfh0/Z32bhqi
-         NmLFHHH89bVvc7I3Uwiy+zUt1C5hb+tFwO4T7++IAsfhhGSj2K5MPsUh1qkkJLpEuEpz
-         b6mo0TAkb/2SZ8cSyBkOCY46VFWNZHJrJLS9MOqbI/qNDA9Sn+iwaHIAV/EV578IWg+Z
-         nDFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YV1fWHtw2C61QMiLwr9hI51XV3MLWr2gQO7xjRtkvb0=;
-        b=ABknWvyM1hEjI9OLWpE+8A4LecUr1m7tbXUbyDLnwQkr4aP8DarS+QxGoVU7/ia72u
-         ClPa65qvm1M/YiC2rq9EA/eAO8cdmJTH71vS7H1gcTTpsmeZd1Z1BDaMkS2vs6zs9as9
-         Jk+EvA3wU32wWLzFeo8vr8sB8+ljJS2IuATPBKxzhdPaDUwHOrBnNtygyPVWRpl6n4RY
-         91KFIV6QIqJH1Ue1F21Produ3BxE96/JG5tpt9qMOYfTFvL6dknRosxeZdT1n+FEddku
-         IXw2wQAKyIKLbq71NQYx0a9KNrUpTg9MWmSgseXbKGWoidOX+Tfwks4n0wUkXPBI0Rzs
-         uUmg==
-X-Gm-Message-State: AOAM531nIt11KmuEo8fywKCRBIFyckXY4Nq0sWjpgOyLVVzDgFIKpghR
-        1P189/37/ucVaHNi/6FBA2k=
-X-Google-Smtp-Source: ABdhPJxClqo5O77l2F11J1fAbwrSkP+iEGqg+r6crye40gf4yPM8wiuY1gltGyJF6c90lkfTtpCbeA==
-X-Received: by 2002:a17:90a:d149:: with SMTP id t9mr4407644pjw.43.1614277867860;
-        Thu, 25 Feb 2021 10:31:07 -0800 (PST)
-Received: from [10.230.29.30] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id a2sm7027920pfi.64.2021.02.25.10.31.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Feb 2021 10:31:07 -0800 (PST)
-Subject: Re: [PATCH stable 0/8] net: dsa: b53: Correct learning for standalone
- ports
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, olteanv@gmail.com, sashal@kernel.org
-References: <20210225010853.946338-1-f.fainelli@gmail.com>
- <YDdcvkQQoAs2yc3C@kroah.com> <7d32ff3e-eea7-90ac-a458-348b07410f85@gmail.com>
- <YDfaUaaoc+u3HCDC@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <29532b28-e30d-aa17-14ce-e518105d7447@gmail.com>
-Date:   Thu, 25 Feb 2021 10:31:03 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.0
+        id S233938AbhBYSlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 13:41:01 -0500
+Received: from mx2.suse.de ([195.135.220.15]:55406 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231881AbhBYSji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 13:39:38 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 3F599AC6E;
+        Thu, 25 Feb 2021 18:38:45 +0000 (UTC)
+To:     Mike Rapoport <rppt@linux.ibm.com>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Hildenbrand <david@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?Q?=c5=81ukasz_Majczak?= <lma@semihalf.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Qian Cai <cai@lca.pw>,
+        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org, x86@kernel.org
+References: <20210224153950.20789-1-rppt@kernel.org>
+ <20210224153950.20789-2-rppt@kernel.org>
+ <a4b2ba7e-96a5-6a75-dad7-626d054f9e8b@suse.cz>
+ <20210225180521.GH1854360@linux.ibm.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v7 1/1] mm/page_alloc.c: refactor initialization of struct
+ page for holes in memory layout
+Message-ID: <a458a933-91c7-9fb5-d7f8-b9a7af93a11c@suse.cz>
+Date:   Thu, 25 Feb 2021 19:38:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <YDfaUaaoc+u3HCDC@kroah.com>
+In-Reply-To: <20210225180521.GH1854360@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2/25/2021 9:11 AM, Greg KH wrote:
-> On Thu, Feb 25, 2021 at 08:53:22AM -0800, Florian Fainelli wrote:
->>
->>
->> On 2/25/2021 12:15 AM, Greg KH wrote:
->>> On Wed, Feb 24, 2021 at 05:08:53PM -0800, Florian Fainelli wrote:
->>>> From: Florian Fainelli <florian.fainelli@broadcom.com>
->>>>
->>>> Hi Greg, Sasha, Jaakub and David,
->>>>
->>>> This patch series contains backports for a change that recently made it
->>>> upstream as:
->>>>
->>>> commit f3f9be9c58085d11f4448ec199bf49dc2f9b7fb9
->>>> Merge: 18755e270666 f9b3827ee66c
->>>> Author: Jakub Kicinski <kuba@kernel.org>
->>>> Date:   Tue Feb 23 12:23:06 2021 -0800
->>>>
->>>>     Merge branch 'net-dsa-learning-fixes-for-b53-bcm_sf2'
->>>
->>> That is a merge commit, not a "real" commit.
->>>
->>> What is the upstream git commit id for this?
->>
->> The commit upstream is f9b3827ee66cfcf297d0acd6ecf33653a5f297ef ("net:
->> dsa: b53: Support setting learning on port") it may still only be in
->> netdev-net/master at this point, though it will likely reach Linus' tree
->> soon.
+On 2/25/21 7:05 PM, Mike Rapoport wrote:
+> On Thu, Feb 25, 2021 at 06:51:53PM +0100, Vlastimil Babka wrote:
+>> > 
+>> > unset zone link in struct page will trigger
+>> > 
+>> > 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
+>> 
+>> ... in set_pfnblock_flags_mask() when called with a struct page from the
+>> "Unknown E820 type" range.
 > 
-> Ah, I can't do anything with them until that hits Linus's tree, you know
-> this :)
-
-Yes, that was a tad too quick.
-
+> "... in set_pfnblock_flags_mask() when called with a struct page from a range
+> other than E820_TYPE_RAM"
 > 
->>>> The way this was fixed in the netdev group's net tree is slightly
->>>> different from how it should be backported to stable trees which is why
->>>> you will find a patch for each branch in the thread started by this
->>>> cover letter.
->>>>
->>>> Let me know if this does not apply for some reason. The changes from 4.9
->>>> through 4.19 are nearly identical and then from 5.4 through 5.11 are
->>>> about the same.
->>>
->>> Thanks for the backports, but I still need a real git id to match these
->>> up with :)
->>
->> You should have it in the Fixes: tag of each patch which all point to
->> when the bug dates back to when the driver was introduced. Let me know
->> if you need me to tag the patches differently.
-> 
-> The fixes: tag shows what id this patch fixes, not the git id of this
-> specific patch, like all stable patches show in their changelog text.
-> 
-> That's the id I need.  I'll just wait until this hits Linus's tree
-> before worrying about it.
+> then :)
 
-Looks like I found an issue that will need fixing in netdev-net/master
-as well, so I will resubmit in due time when the commits reach Linus'
-tree. Sorry for the noise.
--- 
-Florian
+Better :)
+
+>> > because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+>> > in struct page) in the same pageblock.
+>> 
+>> I would say "there are apparently pages" ... "and ZONE_DMA does not span this range"
+> 
+> I'd rephrase it differently, something like
+> 
+> "because there are pages in the range of ZONE_DMA32 but the unset zone link
+> in struct page makes them appear as a part of ZONE_DMA"
+
+Much better, thanks!
+
+>> > Interleave initialization of the unavailable pages with the normal
+>> > initialization of memory map, so that zone and node information will be
+>> > properly set on struct pages that are not backed by the actual memory.
+>> > 
+>> > With this change the pages for holes inside a zone will get proper
+>> > zone/node links and the pages that are not spanned by any node will get
+>> > links to the adjacent zone/node.
+>> 
+>> What if two zones are adjacent? I.e. if the hole was at a boundary between two
+>> zones.
+> 
+> What do you mean by "adjacent zones"? If there is a hole near the zone
+> boundary, zone span would be clamped to exclude the hole.
+
+Yeah, zone span should exclude those pages, but you still somehow handle them?
+That's how I read "pages that are not spanned by any node will get links to the
+adjacent zone/node."
+So is it always a unique zone/node can be determined?
+
+Let's say we have:
+
+<memory on node 0>
+---- pageblock boundary ----
+<more memory on node 0>
+<a hole>
+<memory on node 1>
+---- pageblock boundary ----
+
+Now I hope such configurations don't really exist :) But if we simulated them in
+QEMU, what would be the linkage in struct pages in that hole?
+
