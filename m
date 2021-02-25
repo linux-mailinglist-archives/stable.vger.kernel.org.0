@@ -2,106 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DEA324BE6
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:19:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F2E324BEE
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235806AbhBYISu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 03:18:50 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:53193 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235637AbhBYISr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 03:18:47 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 8EF312C0;
-        Thu, 25 Feb 2021 03:17:58 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Thu, 25 Feb 2021 03:17:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=qt+vntldzwyeMOu10ICDLcV+PMh
-        3Jo+VnYJ5MArvW1E=; b=lTaK1RxOWJbr5v3GpRGfbr/SrPHeKDaC5vimhKvYF8V
-        R91yQvxODJV4JxzEmaQWZLrAocvxkW8TmU7C2CE4wAFRZMOd05dYH4ieJ1Yte5T/
-        cDI1l8QpTtTtLdbqka2eq8/6Fr6yk6ycih2N6dUnUp7MbqEdCVP2pmTqg9Km0Nby
-        BvpxkqWRcx0U4Po3Vb3VXy65nvZ2t1gJ/dfPbiXlbgP3phyyWFTMO+bcXFzZ1/do
-        D5sJQxshBH3bRXQFnSSExvHukAH7ORRQ8N5C5dGdzgmx6WxDTwejE3Mbyf+6wo4i
-        GDtASt6lJFmHWxDWHkWEB3RGK9oQrBSbSvmyv6nm7hA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qt+vnt
-        ldzwyeMOu10ICDLcV+PMh3Jo+VnYJ5MArvW1E=; b=YBU2keiRAyYXEnTMs6zhLH
-        YHSsrKLrT26eyIxG3+JlxBbvo3yRQQbcRKeLKiOPyZky/2I4GZaa1GaXAXY5zyol
-        KYqq6a6eN/SJKMgOtYPPBtRptvWaC0Wa975ge2LMRgaZRTo+uSe8/QgF+kOxXVmH
-        UTIOK/XeFuHQRUjINs6ukU6CaBKFb0PJeW3NGyuH0lNszcimLTIvpczPDb4QmKDI
-        gAX08VWMGV8xvOXTyzCMByTHfOfIDVpoNA3U6aedUfZlqg3lv78aRgJAZFXeIebz
-        6gMtuFVy6SCsY8ICWphA8/VLNXdl2ukAeIX1pw+7407Ywn5ONgcjbbmtzbRtIfZQ
-        ==
-X-ME-Sender: <xms:NV03YPAVkSS0Z6MOKCi0sjsOAhLw-D95-QF8HCQjiD4K1EhYIUwTwQ>
-    <xme:NV03YFgTsoxD4NNrVTMwAczVPdz1fdRTf26YsvDDqR5QdSo0eGZWIKb-rfiZWcEWf
-    4iAJoC36VBIGQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrkeekgdduudeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:NV03YKmkswGwJOiEjKDD7YPCStd2qSg5ZPX0IYFZ77dgAsGW7bEYwQ>
-    <xmx:NV03YBxeHL7stO0u5a-bI5Gm4uuCRpAZywAvr1pqskQR3Hba-lFsbA>
-    <xmx:NV03YET-tLSVGzKZPvvANJTb1x5f8I6__A7YQ8zeL_OzmVV2bGSP6g>
-    <xmx:Nl03YJQjp9P5TCrZ2UZj-UWGFUPAAOZWZ7muSGT-S8OI6_s6d5KvOw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0648924005E;
-        Thu, 25 Feb 2021 03:17:56 -0500 (EST)
-Date:   Thu, 25 Feb 2021 09:17:54 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
-        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
-        daichi1.fukui@toshiba.co.jp, nobuhiro1.iwamatsu@toshiba.co.jp,
-        Corinna Vinschen <vinschen@redhat.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>
-Subject: Re: [PATCH v4.4.y, v4.9.y] igb: Remove incorrect "unexpected SYS
- WRAP" log message
-Message-ID: <YDddMnkytDS76mYN@kroah.com>
-References: <20210225005406.530767-1-punit1.agrawal@toshiba.co.jp>
+        id S233001AbhBYIVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 03:21:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235637AbhBYIVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 03:21:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 746F464E20;
+        Thu, 25 Feb 2021 08:20:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614241257;
+        bh=iMeoBjzeFfpbu7+tl/5FrzCPg2irHTLYGC43/ajtGFU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=K3SNhUAIzyEjLv2Tg11FSv3fzaLqsKphLp9zZ+OqKd21eie6RKsWoSlwNDzuEPA9V
+         RpGSkZ3ILF2jg3H9VflfMtE5LscQ3i93CJrtSwBCvuE6KkZtWCDdmRCvfDuETyc/oc
+         bEVOSuK8YJ2cWfliIlbc5S8ihVfmd36rYRhhIaSI=
+Date:   Thu, 25 Feb 2021 09:20:54 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/13] 5.4.100-rc1 review
+Message-ID: <YDdd5lMwU3O1t1Nb@kroah.com>
+References: <20210222121013.583922436@linuxfoundation.org>
+ <8bf31a259854471a8c448905f47ebcb1@HQMAIL105.nvidia.com>
+ <81009a52-c35c-ccd2-a430-171b9828216d@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210225005406.530767-1-punit1.agrawal@toshiba.co.jp>
+In-Reply-To: <81009a52-c35c-ccd2-a430-171b9828216d@nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 09:54:06AM +0900, Punit Agrawal wrote:
-> From: Corinna Vinschen <vinschen@redhat.com>
+On Tue, Feb 23, 2021 at 03:06:31PM +0000, Jon Hunter wrote:
 > 
-> commit 2643e6e90210e16c978919617170089b7c2164f7 upstream
+> On 23/02/2021 14:47, Jon Hunter wrote:
+> > On Mon, 22 Feb 2021 13:13:17 +0100, Greg Kroah-Hartman wrote:
+> >> This is the start of the stable review cycle for the 5.4.100 release.
+> >> There are 13 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, please
+> >> let me know.
+> >>
+> >> Responses should be made by Wed, 24 Feb 2021 12:07:46 +0000.
+> >> Anything received after that time might be too late.
+> >>
+> >> The whole patch series can be found in one patch at:
+> >> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.100-rc1.gz
+> >> or in the git tree and branch at:
+> >> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> >> and the diffstat can be found below.
+> >>
+> >> thanks,
+> >>
+> >> greg k-h
+> > 
+> > Failures detected for Tegra ...
+> > 
+> > Test results for stable-v5.4:
+> >     12 builds:	12 pass, 0 fail
+> >     26 boots:	26 pass, 0 fail
+> >     57 tests:	56 pass, 1 fail
+> > 
+> > Linux version:	5.4.100-rc1-gb467dd44a81c
+> > Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+> >                 tegra194-p2972-0000, tegra20-ventana,
+> >                 tegra210-p2371-2180, tegra210-p3450-0000,
+> >                 tegra30-cardhu-a04
+> > 
+> > Test failures:	tegra210-p2371-2180: tegra-audio-hda-playback.sh
 > 
-> TSAUXC.DisableSystime is never set, so SYSTIM runs into a SYS WRAP
-> every 1100 secs on 80580/i350/i354 (40 bit SYSTIM) and every 35000
-> secs on 80576 (45 bit SYSTIM).
 > 
-> This wrap event sets the TSICR.SysWrap bit unconditionally.
+> You can ignore the above failure. This is an intermittent failure we
+> have been observing on this board and is not new to this -rc. This has
+> been fixed by the following mainline and has been tagged for stable.
 > 
-> However, checking TSIM at interrupt time shows that this event does not
-> actually cause the interrupt.  Rather, it's just bycatch while the
-> actual interrupt is caused by, for instance, TSICR.TXTS.
+> commit 1e0ca5467445bc1f41a9e403d6161a22f313dae7
+> Author: Sameer Pujar <spujar@nvidia.com>
+> Date:   Thu Jan 7 10:36:10 2021 +0530
 > 
-> The conclusion is that the SYS WRAP is actually expected, so the
-> "unexpected SYS WRAP" message is entirely bogus and just helps to
-> confuse users.  Drop it.
+>     arm64: tegra: Add power-domain for Tegra210 HDA
 > 
-> Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-> Acked-by: Jacob Keller <jacob.e.keller@intel.com>
-> Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-> Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-> ---
-> [ Due to confusion about stable rules for networking the request was
-> mistakenly sent to netdev only[0]. Apologies if you're seeing this
-> again. ]
+> Usually, I try to filter out these known issues, but missed this one.
+> Anyway, for Tegra ...
 
-No signed-off-by: from you?  :(
+Now queued that patch up, thanks.
 
+greg k-h
