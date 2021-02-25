@@ -2,100 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540A0324C16
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 515EF324C3A
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 09:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbhBYIcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 03:32:39 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52467 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235859AbhBYIci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 03:32:38 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.west.internal (Postfix) with ESMTP id 2225CB11;
-        Thu, 25 Feb 2021 03:31:33 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Thu, 25 Feb 2021 03:31:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wDHqr1
-        0VRxxNmcAPAHsbeS+HCvS8V0AWXqY3iFiVblw=; b=nQc2iMGSR/5blmcX2ggAss
-        TKIlbOKBCEhuYY93l+iuIrQXZU3SxKSG+yrzdisEB6DP6VW9Ln0cVAuifgwFJ34p
-        yUnXabRGgcQ0tTM5e0q9i0eqIHVX9cwM3tumJEmmnyhoUSsHWR7Y5RmDeMvCNHBc
-        4RzJgqI2iG4qDdvsdHN38UBtg2jrDjLgjtj/NY3ft33KkpuWv6mgtw1KnL87k02i
-        qSWIP9YH4r3V65PbCoIWxa/3HTE73TSQjH9zT4gzKC1XM3Uu5TDIx4gUSRPHZP72
-        0NWK4kRugnYOZyDdohqkl2jcpIy87qsr2jq082GRH5BXVhtLVBUYNBgQrekLM7tg
-        ==
-X-ME-Sender: <xms:ZGA3YL23sVmHpRLOCxKjTKF9fIhcfC7l-_I6kfZa5HculoFJhqh5nQ>
-    <xme:ZGA3YKCKcIyaPc-Med7l-7QEVcswT1cLmc1sJfIDukF7uqxtAEzJ6x5aPKOewGrCL
-    fjcarMqLBNg4w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrkeekgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:ZGA3YIy7GxXutA_fEwZ4Ydd5oPcc_itylxOGxdnpJBM6BNhGLkmhHg>
-    <xmx:ZGA3YImPCfY5DJzxMUGf9_poUZC11RG36ZOssJ20nCh0FjEOG-PI2g>
-    <xmx:ZGA3YNE8Uoj78KA1QKzmzBhyGdu11NhcKafekptB3IT_M2pZe2kWfA>
-    <xmx:ZGA3YLlhr3qL4k2c309oNlHcdzKTFUONlXP_gQQTwVhDfy8xlMhStG7JeiY>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4542B108005C;
-        Thu, 25 Feb 2021 03:31:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: x86: Set so called 'reserved CR3 bits in LM mask' at" failed to apply to 5.11-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Feb 2021 09:31:22 +0100
-Message-ID: <1614241882121167@kroah.com>
+        id S235990AbhBYItq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 03:49:46 -0500
+Received: from mo-csw1116.securemx.jp ([210.130.202.158]:60952 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232177AbhBYItj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Feb 2021 03:49:39 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1116) id 11P8lG6L026829; Thu, 25 Feb 2021 17:47:16 +0900
+X-Iguazu-Qid: 2wGra9XxFUulKTwMxY
+X-Iguazu-QSIG: v=2; s=0; t=1614242836; q=2wGra9XxFUulKTwMxY; m=3LZse+GcVvgYq21VFTdnN2QhZC92Dp5MRMb2uEy9Y9k=
+Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
+        by relay.securemx.jp (mx-mr1113) id 11P8lF6k012947
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Thu, 25 Feb 2021 17:47:15 +0900
+Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id 6D1BD1000DD;
+        Thu, 25 Feb 2021 17:47:15 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.toshiba.co.jp  with ESMTP id 11P8lE3N005672;
+        Thu, 25 Feb 2021 17:47:15 +0900
+Date:   Thu, 25 Feb 2021 17:47:13 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.4 04/35] iwlwifi: pcie: add a NULL check in
+ iwl_pcie_txq_unmap
+X-TSB-HOP: ON
+Message-ID: <20210225084713.msqf5bqh7j42l6jm@toshiba.co.jp>
+References: <20210222121013.581198717@linuxfoundation.org>
+ <20210222121017.933649049@linuxfoundation.org>
+ <20210225060446.auoymjxg5cuzlism@toshiba.co.jp>
+ <YDdccs3OacohZgFr@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="mret2h7hhsygveq2"
+Content-Disposition: inline
+In-Reply-To: <YDdccs3OacohZgFr@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--mret2h7hhsygveq2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+Hi,
 
-greg k-h
+On Thu, Feb 25, 2021 at 09:14:42AM +0100, Greg Kroah-Hartman wrote:
+> On Thu, Feb 25, 2021 at 03:04:46PM +0900, Nobuhiro Iwamatsu wrote:
+> > Hi,
+> > 
+> > Sorry for the report after the release.
+> > 
+> > On Mon, Feb 22, 2021 at 01:36:00PM +0100, Greg Kroah-Hartman wrote:
+> > > From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+> > > 
+> > > [ Upstream commit 98c7d21f957b10d9c07a3a60a3a5a8f326a197e5 ]
+> > > 
+> > > I hit a NULL pointer exception in this function when the
+> > > init flow went really bad.
+> > > 
+> > > Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+> > > Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> > > Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> > > Link: https://lore.kernel.org/r/iwlwifi.20210115130252.2e8da9f2c132.I0234d4b8ddaf70aaa5028a20c863255e05bc1f84@changeid
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  drivers/net/wireless/iwlwifi/pcie/tx.c | 5 +++++
+> > >  1 file changed, 5 insertions(+)
+> > > 
+> > > diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
+> > > index 8dfe6b2bc7031..cb03c2855019b 100644
+> > > --- a/drivers/net/wireless/iwlwifi/pcie/tx.c
+> > > +++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
+> > > @@ -585,6 +585,11 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
+> > >  	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
+> > >  	struct iwl_queue *q = &txq->q;
+> > >  
+> > > +	if (!txq) {
+> > > +		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
+> > > +		return;
+> > > +	}
+> > > +
+> > 
+> > I think that this fix is not enough.
+> > If txq is NULL, an error will occur with "struct iwl_queue * q = & txq->q;".
+> > The following changes are required.
+> 
+> Is this a 4.4-only thing, or is this issue also in Linus's tree as well?
+> If Linus's tree, please submit this as a normal patch so we can apply it
+> there first.
 
------------------- original commit in Linus's tree ------------------
+I did not have enough explanation.
 
-From f156abec725f945f9884bc6a5bd0dccb5aac16a8 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 3 Feb 2021 16:01:06 -0800
-Subject: [PATCH] KVM: x86: Set so called 'reserved CR3 bits in LM mask' at
- vCPU reset
+This issue is only 4.4.y tree. The same patch has been applied to the
+other trees, but with the correct fixes.
+Also this issue is not in Linus's tree. This is due to incorrect fixes
+in this commit.
 
-Set cr3_lm_rsvd_bits, which is effectively an invalid GPA mask, at vCPU
-reset.  The reserved bits check needs to be done even if userspace never
-configures the guest's CPUID model.
+I attached a patch for this issue.
 
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Best regards,
+  Nobuhiro
+
+--mret2h7hhsygveq2
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-iwlwifi-pcie-fix-to-correct-null-check.patch"
+
+From 85913eb9a7b61e2baae3818e69afe79b76e122d2 Mon Sep 17 00:00:00 2001
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Date: Thu, 25 Feb 2021 17:30:47 +0900
+Subject: [PATCH] iwlwifi: pcie: fix to correct null check
+
+The fixes made in commit: 4ae5798004d8 ("iwlwifi: pcie: add a NULL check in
+iwl_pcie_txq_unmap") is not enough. This still have problems with null
+references. This provides the correct fix.
+Also, this is a problem only in 4.4.y. This patch has been applied to
+other LTS trees, but with the correct fixes.
+
+Fixes: 4ae5798004d8 ("iwlwifi: pcie: add a NULL check in iwl_pcie_txq_unmap")
 Cc: stable@vger.kernel.org
-Fixes: 0107973a80ad ("KVM: x86: Introduce cr3_lm_rsvd_bits in kvm_vcpu_arch")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210204000117.3303214-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/net/wireless/iwlwifi/pcie/tx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 838ce5e9814b..10414a78b951 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10080,6 +10080,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 	fx_init(vcpu);
+diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
+index cb03c2855019..7584796131fa 100644
+--- a/drivers/net/wireless/iwlwifi/pcie/tx.c
++++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
+@@ -583,13 +583,15 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
+ {
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+ 	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
+-	struct iwl_queue *q = &txq->q;
++	struct iwl_queue *q;
  
- 	vcpu->arch.maxphyaddr = cpuid_query_maxphyaddr(vcpu);
-+	vcpu->arch.cr3_lm_rsvd_bits = rsvd_bits(cpuid_maxphyaddr(vcpu), 63);
+ 	if (!txq) {
+ 		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
+ 		return;
+ 	}
  
- 	vcpu->arch.pat = MSR_IA32_CR_PAT_DEFAULT;
- 
++	q = &txq->q;
++
+ 	spin_lock_bh(&txq->lock);
+ 	while (q->write_ptr != q->read_ptr) {
+ 		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
+-- 
+2.30.0.rc2
 
+
+--mret2h7hhsygveq2--
