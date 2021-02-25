@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C40A324D5E
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75947324D71
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbhBYJ6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 04:58:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
+        id S234444AbhBYKA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:00:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235313AbhBYJ4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:56:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 121E264F0C;
-        Thu, 25 Feb 2021 09:54:19 +0000 (UTC)
+        id S233502AbhBYJ6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:58:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7594064F14;
+        Thu, 25 Feb 2021 09:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246860;
-        bh=7k9QtFurMaugxdaYCJsxt+ILbD9L2vCCc3qV3SAQVKw=;
+        s=korg; t=1614246880;
+        bh=JgJTsMKTkN9T9S2tFVLy/QvE+tfyY7nMcom9gBDkhGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+SpCdHW3s1ZXjhCHQBmi0P+lqcFKUBOPvx4C1RFgfXdXRPr0Ro8lYXDfDptMLwP+
-         7WRX16xUeW4Fh9/nVfncOmzw8L4f4JZnH5qR83TdQPlvi0xxYaQDk10DKx7bxI5z9z
-         xncAoia8SPFj3X3k38LVyvJBVXmrzFykN8yfV+f0=
+        b=K1ALLHwYaCThM6MdxiFgx22b7FbdNJBsrLlcCVg08wVdcV9zYd50GgnZJafoEauwz
+         9c9RHWsbyDp3CyL25b3zcYxjulkpL0+biI12uThShYrwMefH3aaXkpMyQBVSgeH+ae
+         bUfxhx8XBVHQ0zNKiR5YKY/I5B8BzV/iO8Np7WZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.11 07/12] arm64: tegra: Add power-domain for Tegra210 HDA
-Date:   Thu, 25 Feb 2021 10:53:41 +0100
-Message-Id: <20210225092515.346943075@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Hepple <bob.hepple@gmail.com>,
+        Thomas Hebb <tommyhebb@gmail.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.10 11/23] hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
+Date:   Thu, 25 Feb 2021 10:53:42 +0100
+Message-Id: <20210225092517.071550881@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
-References: <20210225092515.015261674@linuxfoundation.org>
+In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
+References: <20210225092516.531932232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit 1e0ca5467445bc1f41a9e403d6161a22f313dae7 upstream.
+commit 4008bc7d39537bb3be166d8a3129c4980e1dd7dc upstream.
 
-HDA initialization is failing occasionally on Tegra210 and following
-print is observed in the boot log. Because of this probe() fails and
-no sound card is registered.
+It has been reported[0] that the Dell XPS 15 L502X exhibits similar
+freezing behavior to the other systems[1] on this blacklist. The issue
+was exposed by a prior change of mine to automatically load
+dell_smm_hwmon on a wider set of XPS models. To fix the regression, add
+this model to the blacklist.
 
-  [16.800802] tegra-hda 70030000.hda: no codecs found!
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=211081
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=195751
 
-Codecs request a state change and enumeration by the controller. In
-failure cases this does not seem to happen as STATETS register reads 0.
-
-The problem seems to be related to the HDA codec dependency on SOR
-power domain. If it is gated during HDA probe then the failure is
-observed. Building Tegra HDA driver into kernel image avoids this
-failure but does not completely address the dependency part. Fix this
-problem by adding 'power-domains' DT property for Tegra210 HDA. Note
-that Tegra186 and Tegra194 HDA do this already.
-
-Fixes: 742af7e7a0a1 ("arm64: tegra: Add Tegra210 support")
-Depends-on: 96d1f078ff0 ("arm64: tegra: Add SOR power-domain for Tegra210")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: b8a13e5e8f37 ("hwmon: (dell-smm) Use one DMI match for all XPS models")
+Cc: stable@vger.kernel.org
+Reported-by: Bob Hepple <bob.hepple@gmail.com>
+Tested-by: Bob Hepple <bob.hepple@gmail.com>
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/a09eea7616881d40d2db2fb5fa2770dc6166bdae.1611456351.git.tommyhebb@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra210.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/dell-smm-hwmon.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-@@ -997,6 +997,7 @@
- 			 <&tegra_car 128>, /* hda2hdmi */
- 			 <&tegra_car 111>; /* hda2codec_2x */
- 		reset-names = "hda", "hda2hdmi", "hda2codec_2x";
-+		power-domains = <&pd_sor>;
- 		status = "disabled";
- 	};
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklis
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
+ 		},
+ 	},
++	{
++		.ident = "Dell XPS 15 L502X",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
++		},
++	},
+ 	{ }
+ };
  
 
 
