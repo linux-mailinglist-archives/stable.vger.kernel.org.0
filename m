@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A7E324D68
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C40A324D5E
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234808AbhBYKAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:00:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33382 "EHLO mail.kernel.org"
+        id S233455AbhBYJ6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 04:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235441AbhBYJ56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 04:57:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C0C64F0F;
-        Thu, 25 Feb 2021 09:54:36 +0000 (UTC)
+        id S235313AbhBYJ4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:56:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 121E264F0C;
+        Thu, 25 Feb 2021 09:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246877;
+        s=korg; t=1614246860;
         bh=7k9QtFurMaugxdaYCJsxt+ILbD9L2vCCc3qV3SAQVKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1N3v+iK2LCwPWnQxIfbOQz0mpnQKFrCgg9LarD3OtBYEKmeiwYgooqqtWyLxM8ah
-         untJsiGxKE/y0j741L0ga/cuB0ETUFJ7zPQo17PylRfJjV+D8sW0lPP414LWCZjiFO
-         ZK8whpsKnIU5LM73ZpmJD0KfhRZJ4C+71KQOzNGo=
+        b=J+SpCdHW3s1ZXjhCHQBmi0P+lqcFKUBOPvx4C1RFgfXdXRPr0Ro8lYXDfDptMLwP+
+         7WRX16xUeW4Fh9/nVfncOmzw8L4f4JZnH5qR83TdQPlvi0xxYaQDk10DKx7bxI5z9z
+         xncAoia8SPFj3X3k38LVyvJBVXmrzFykN8yfV+f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
         Jon Hunter <jonathanh@nvidia.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.10 10/23] arm64: tegra: Add power-domain for Tegra210 HDA
+Subject: [PATCH 5.11 07/12] arm64: tegra: Add power-domain for Tegra210 HDA
 Date:   Thu, 25 Feb 2021 10:53:41 +0100
-Message-Id: <20210225092517.032099820@linuxfoundation.org>
+Message-Id: <20210225092515.346943075@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
-References: <20210225092516.531932232@linuxfoundation.org>
+In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
+References: <20210225092515.015261674@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
