@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F44324D94
-	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4064324D74
+	for <lists+stable@lfdr.de>; Thu, 25 Feb 2021 11:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbhBYKGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 05:06:16 -0500
+        id S234634AbhBYKBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 05:01:14 -0500
 Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234563AbhBYKBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 05:01:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FEE064F2F;
-        Thu, 25 Feb 2021 09:56:08 +0000 (UTC)
+        id S235522AbhBYJ7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 04:59:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6BEE64E90;
+        Thu, 25 Feb 2021 09:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614246969;
-        bh=BViO87cLdkLb4nnIj22hLyjnw+zpQKuNU92oSogE66s=;
+        s=korg; t=1614246923;
+        bh=Sm3SnJimB+QalovorrvuEiMROo1SuO2blGO3LBqtqso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzoYHmYibWF/U0IdZNRFXPGs5gRfVqPGqryaQTqHL7N9WRXLI1Qs4Spg9G/8EaPNb
-         trjYYRz2fSRVFPt2LKm5jwtQvM7Z0cEMdjTmribXUOZrQwzlWG7dUo5a7+s1GBULKt
-         dgkAKRihcfutqTVD0ZDN0bpBGW3ZWsDo1O88Hfto=
+        b=oPLbp5sm9CQ2Bi0BVasJPEAd3dhNj5Q2xH7ME59dfaSVkq7I8HLQroI6qTPL0VPnZ
+         ethXfCs5RH52JFVwYloUoav087n3pNXuOJuR2Bh2JWUG1HTI63I/t1V1Xupfpu8tv7
+         SZGcWBVbVAHGH1VcHYbBs9zYvUsowz82PFeKO7Xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 03/17] USB: quirks: sort quirk entries
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 17/23] KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
 Date:   Thu, 25 Feb 2021 10:53:48 +0100
-Message-Id: <20210225092515.175465337@linuxfoundation.org>
+Message-Id: <20210225092517.352823951@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210225092515.001992375@linuxfoundation.org>
-References: <20210225092515.001992375@linuxfoundation.org>
+In-Reply-To: <20210225092516.531932232@linuxfoundation.org>
+References: <20210225092516.531932232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 43861d29c0810a70792bf69d37482efb7bb6677d upstream.
+commit a9545779ee9e9e103648f6f2552e73cfe808d0f4 upstream.
 
-Move the last entry to its proper place to maintain the VID/PID sort
-order.
+Use kvm_pfn_t, a.k.a. u64, for the local 'pfn' variable when retrieving
+a so called "remapped" hva/pfn pair.  In theory, the hva could resolve to
+a pfn in high memory on a 32-bit kernel.
+
+This bug was inadvertantly exposed by commit bd2fae8da794 ("KVM: do not
+assume PTE is writable after follow_pfn"), which added an error PFN value
+to the mix, causing gcc to comlain about overflowing the unsigned long.
+
+  arch/x86/kvm/../../../virt/kvm/kvm_main.c: In function ‘hva_to_pfn_remapped’:
+  include/linux/kvm_host.h:89:30: error: conversion from ‘long long unsigned int’
+                                  to ‘long unsigned int’ changes value from
+                                  ‘9218868437227405314’ to ‘2’ [-Werror=overflow]
+   89 | #define KVM_PFN_ERR_RO_FAULT (KVM_PFN_ERR_MASK + 2)
+      |                              ^
+virt/kvm/kvm_main.c:1935:9: note: in expansion of macro ‘KVM_PFN_ERR_RO_FAULT’
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210210111746.13360-1-johan@kernel.org
+Fixes: add6a0cd1c5b ("KVM: MMU: try to fix up page faults before giving up")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210208201940.1258328-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ virt/kvm/kvm_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -415,6 +415,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
- 			USB_QUIRK_STRING_FETCH_255 },
- 
-+	/* novation SoundControl XL */
-+	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
-+
- 	/* Huawei 4G LTE module */
- 	{ USB_DEVICE(0x12d1, 0x15bb), .driver_info =
- 			USB_QUIRK_DISCONNECT_SUSPEND },
-@@ -495,9 +498,6 @@ static const struct usb_device_id usb_qu
- 	/* INTEL VALUE SSD */
- 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
- 
--	/* novation SoundControl XL */
--	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
--
- 	{ }  /* terminating entry must be last */
- };
- 
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1888,7 +1888,7 @@ static int hva_to_pfn_remapped(struct vm
+ 			       bool write_fault, bool *writable,
+ 			       kvm_pfn_t *p_pfn)
+ {
+-	unsigned long pfn;
++	kvm_pfn_t pfn;
+ 	pte_t *ptep;
+ 	spinlock_t *ptl;
+ 	int r;
 
 
