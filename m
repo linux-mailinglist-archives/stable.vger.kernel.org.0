@@ -2,99 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2273268FD
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 22:00:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0083268CB
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 21:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229989AbhBZUzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 15:55:10 -0500
-Received: from outbound-gw.openxchange.ahost.me ([94.136.40.163]:41646 "EHLO
-        outbound-gw.openxchange.ahost.me" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229949AbhBZUzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 15:55:08 -0500
-X-Greylist: delayed 2657 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Feb 2021 15:55:08 EST
-Received: from localhost ([127.0.0.1] helo=outbound-gw.openxchange.ahost.me)
-        by outbound-gw.openxchange.ahost.me with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94)
-        (envelope-from <phillip@squashfs.org.uk>)
-        id 1lFjQZ-0001DC-Ua; Fri, 26 Feb 2021 20:09:31 +0000
-Date:   Fri, 26 Feb 2021 20:09:31 +0000 (GMT)
-From:   Phillip Lougher <phillip@squashfs.org.uk>
-To:     Sean Nyekjaer <sean@geanix.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-ID: <1911592520.1810343.1614370171896@webmail.123-reg.co.uk>
-In-Reply-To: <20210226092903.1473545-1-sean@geanix.com>
-References: <20210226092903.1473545-1-sean@geanix.com>
-Subject: Re: [PATCH] squashfs: fix inode lookup sanity checks
+        id S230024AbhBZUd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 15:33:58 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:42752 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229618AbhBZUd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 15:33:57 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 29B5B1C0B8A; Fri, 26 Feb 2021 21:33:13 +0100 (CET)
+Date:   Fri, 26 Feb 2021 21:33:12 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>, airlied@linux.ie,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
+        noralf@tronnes.org, stern@rowland.harvard.edu,
+        dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: Re: [PATCH v5] drm: Use USB controller's DMA mask when importing
+ dmabufs
+Message-ID: <20210226203312.GA3379@duo.ucw.cz>
+References: <20210226092648.4584-1-tzimmermann@suse.de>
+ <YDkBuu0AhZy+C/Y/@phenom.ffwll.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
-X-Mailer: Open-Xchange Mailer v7.10.3-Rev30
-X-Originating-IP: 82.69.79.175
-X-Originating-Client: com.openexchange.ox.gui.dhtml
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+In-Reply-To: <YDkBuu0AhZy+C/Y/@phenom.ffwll.local>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-> On 26/02/2021 09:29 Sean Nyekjaer <sean@geanix.com> wrote:
-> 
->  
-> When mouting a squashfs image created without inode compression it
-> fails with: "unable to read inode lookup table"
-> 
-> It turns out that the BLOCK_OFFSET is missing when checking
-> the SQUASHFS_METADATA_SIZE agaist the actual size.
-> 
-> Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
-> CC: stable@vger.kernel.org
-> Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+Hi!
 
-> ---
->  fs/squashfs/export.c      | 8 ++++++--
->  fs/squashfs/squashfs_fs.h | 1 +
->  2 files changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/squashfs/export.c b/fs/squashfs/export.c
-> index eb02072d28dd..723763746238 100644
-> --- a/fs/squashfs/export.c
-> +++ b/fs/squashfs/export.c
-> @@ -152,14 +152,18 @@ __le64 *squashfs_read_inode_lookup_table(struct super_block *sb,
->  		start = le64_to_cpu(table[n]);
->  		end = le64_to_cpu(table[n + 1]);
->  
-> -		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-> +		if (start >= end
-> +		    || (end - start) >
-> +		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
->  			kfree(table);
->  			return ERR_PTR(-EINVAL);
->  		}
->  	}
->  
->  	start = le64_to_cpu(table[indexes - 1]);
-> -	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
-> +	if (start >= lookup_table_start ||
-> +	    (lookup_table_start - start) >
-> +	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
->  		kfree(table);
->  		return ERR_PTR(-EINVAL);
->  	}
-> diff --git a/fs/squashfs/squashfs_fs.h b/fs/squashfs/squashfs_fs.h
-> index 8d64edb80ebf..b3fdc8212c5f 100644
-> --- a/fs/squashfs/squashfs_fs.h
-> +++ b/fs/squashfs/squashfs_fs.h
-> @@ -17,6 +17,7 @@
->  
->  /* size of metadata (inode and directory) blocks */
->  #define SQUASHFS_METADATA_SIZE		8192
-> +#define SQUASHFS_BLOCK_OFFSET		2
->  
->  /* default size of block device I/O */
->  #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
-> -- 
-> 2.29.2
+
+> > +	struct device *dmadev;
+> > +	struct drm_gem_object *obj;
+> > +
+> > +	if (!dev_is_usb(dev->dev))
+> > +		return ERR_PTR(-ENODEV);
+> > +
+> > +	dmadev =3D usb_intf_get_dma_device(to_usb_interface(dev->dev));
+> > +	if (drm_WARN_ONCE(dev, !dmadev, "buffer sharing not supported"))
+> > +		return ERR_PTR(-ENODEV);
+> > +
+> > +	obj =3D drm_gem_prime_import_dev(dev, dma_buf, dmadev);
+> > +
+> > +	put_device(dmadev);
+>=20
+> Just realized there's another can of worms here because dma_buf_attach
+> does not refcount the struct device. But the dma_buf can easily outlive
+> the underlying device, at least right now.
+>=20
+> We should probably require that devices get rid of all their mappings in
+> their hotunplug code.
+>=20
+> Ofc now that we pick some random other device struct this gets kinda
+> worse.
+>=20
+> Anyway, also just another pre-existing condition that we should worry
+> about here. It's all still a very bad hack.
+
+This is actually regression fix if I understand this correctly. Bug
+means udl is unusable, so that's kind of bad.
+
+Should we revert the original commit causing this while this get
+sorted out?
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYDlbCAAKCRAw5/Bqldv6
+8j4pAJ4pMO1Nkx0d7xHie+0D2+0Scx6kHgCeOO4KKjPOZuK7ZRg1nTfB7wz7+Rc=
+=n8h1
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--
