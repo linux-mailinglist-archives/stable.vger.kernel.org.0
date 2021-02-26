@@ -2,348 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1561325E8B
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 09:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070BD325E93
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 09:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbhBZIAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 03:00:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52370 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229526AbhBZIAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 03:00:33 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id DD4F3AAAE;
-        Fri, 26 Feb 2021 07:59:51 +0000 (UTC)
-Subject: Re: [PATCH v4] drm: Use USB controller's DMA mask when importing
- dmabufs
-To:     daniel@ffwll.ch, airlied@linux.ie,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        sumit.semwal@linaro.org, christian.koenig@amd.com,
-        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
-        noralf@tronnes.org, stern@rowland.harvard.edu
-Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Christoph Hellwig <hch@lst.de>
-References: <20210224092304.29932-1-tzimmermann@suse.de>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <ab79a3a7-2659-2dd2-889d-e2356a1b8176@suse.de>
-Date:   Fri, 26 Feb 2021 08:59:50 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S229449AbhBZIBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 03:01:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230132AbhBZIB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 03:01:27 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2908BC061756
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 00:00:47 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id d2so9799765edq.10
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 00:00:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=+cCnvqPl/AB2g/rBCqOWO+msBf4tIh3Bh6qIDLBPfpE=;
+        b=JsAvrIKlM3pL20nlLL0BGEAkMQ3GUpsDs0XoRGguz27yaqnCrbkbOF9kproZLnThBV
+         5E+hiLimH0JGxTQ7lO4zwbefzp7zDJ3blbEg3Q7s4Dv6yX2x69aEnlq4OKdpTVSf+X4h
+         iJjSipoy6nTbZpZr7K6o97b3oP+XpIknAERMe8K5YnH0mmQufDu+S7GhPX30jeHE9UhD
+         eN1QZOsgF3imwOK3dFkI50oJCYmDNPl4odkxgz+WODdlUKNSCGyhMXpzUpUpz1+tVY2X
+         Af19VZthnhkhZc3zn5zLBcHHRylF7vHPugX9g5QMbBDKNPyW80BCw/BFiuxBkNVubT+f
+         PY8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+cCnvqPl/AB2g/rBCqOWO+msBf4tIh3Bh6qIDLBPfpE=;
+        b=sO5pb1qpFaneWxrhSme8KAEgnxrBKIf9aNWGjUa1QTHyxosYuRtZrTZC6CWN6BVf1f
+         e4gV3nfODTkXbgWLc6S7pCwxm//d+QMhkgQJXei8AgcVA8hLzTVR8kIOV3AWSP+CHCv3
+         TQ2s6iN4OCVHcpOELCHtFxGqAYES8rztfZ9GLoIArlVAgLFszYUsgTuP0CDb5Rjjn9j4
+         Uorjv7dDyq2ZCKO/T1LRGqAE/dfAPXLLMhbMChPSiOCUQY0OR0OdjOM4d3xTFwil4RF/
+         R3bSnQki6KCdx/5hvdbq/4bkP8utvgIsjmXQ0tx+vyVcRJ9f4gYJmDULCLZ82Ou0u9LG
+         AALg==
+X-Gm-Message-State: AOAM531aR8F5eF+2RvC08XAwEQd9H0KtT6/NqYpEAfhb7PWYE8TqCQTf
+        qdjs+KyYpChgJnZobAA7ZD5fw1AAt90guRu5ohIrWw==
+X-Google-Smtp-Source: ABdhPJy+9ukdO4/4f4X7C9KDKCtQDucXdj3+WjwRZkYshjkjwzKOaFEWBvOHrT9uAZCURYIRIPxV2ImOkm21opowz2c=
+X-Received: by 2002:aa7:cb0d:: with SMTP id s13mr1870001edt.221.1614326445786;
+ Fri, 26 Feb 2021 00:00:45 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20210224092304.29932-1-tzimmermann@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="6e9K8dMXU0lJ77IHXdrcRYc7Zhg3KhCLW"
+References: <20210225092515.015261674@linuxfoundation.org>
+In-Reply-To: <20210225092515.015261674@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 26 Feb 2021 13:30:34 +0530
+Message-ID: <CA+G9fYu-UQxh+TppNVU88wWcLtBgrB-FseSf-MdGN02EAkd5aA@mail.gmail.com>
+Subject: Re: [PATCH 5.11 00/12] 5.11.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---6e9K8dMXU0lJ77IHXdrcRYc7Zhg3KhCLW
-Content-Type: multipart/mixed; boundary="Dq8wcrgO1lNZQieHaRiYicMoWZ1kNSVEY";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org, sumit.semwal@linaro.org, christian.koenig@amd.com,
- gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
- noralf@tronnes.org, stern@rowland.harvard.edu
-Cc: stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
- Christoph Hellwig <hch@lst.de>
-Message-ID: <ab79a3a7-2659-2dd2-889d-e2356a1b8176@suse.de>
-Subject: Re: [PATCH v4] drm: Use USB controller's DMA mask when importing
- dmabufs
-References: <20210224092304.29932-1-tzimmermann@suse.de>
-In-Reply-To: <20210224092304.29932-1-tzimmermann@suse.de>
+On Thu, 25 Feb 2021 at 15:24, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.11.2 release.
+> There are 12 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 27 Feb 2021 09:25:06 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.11.2-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.11.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---Dq8wcrgO1lNZQieHaRiYicMoWZ1kNSVEY
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
 
-Greg, do you have comments on this patch?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Am 24.02.21 um 10:23 schrieb Thomas Zimmermann:
-> USB devices cannot perform DMA and hence have no dma_mask set in their
-> device structure. Therefore importing dmabuf into a USB-based driver
-> fails, which breaks joining and mirroring of display in X11.
->=20
-> For USB devices, pick the associated USB controller as attachment devic=
-e.
-> This allows the DRM import helpers to perform the DMA setup. If the DMA=
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-> controller does not support DMA transfers, we're out of luck and cannot=
+Summary
+------------------------------------------------------------------------
 
-> import. Our current USB-based DRM drivers don't use DMA, so the actual
-> DMA device is not important.
->=20
-> Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
-> instance of struct drm_driver.
->=20
-> Tested by joining/mirroring displays of udl and radeon un der Gnome/X11=
-=2E
->=20
-> v4:
-> 	* implement workaround with USB helper functions (Greg)
-> 	* use struct usb_device->bus->sysdev as DMA device (Takashi)
-> v3:
-> 	* drop gem_create_object
-> 	* use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
-> v2:
-> 	* move fix to importer side (Christian, Daniel)
-> 	* update SHMEM and CMA helpers for new PRIME callbacks
->=20
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB device=
-s")
-> Cc: Christoph Hellwig <hch@lst.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: <stable@vger.kernel.org> # v5.10+
-> ---
->   drivers/gpu/drm/drm_prime.c        | 38 +++++++++++++++++++++++++++++=
-+
->   drivers/gpu/drm/tiny/gm12u320.c    |  2 +-
->   drivers/gpu/drm/udl/udl_drv.c      |  2 +-
->   drivers/usb/core/usb.c             | 29 +++++++++++++++++++++++
->   include/drm/drm_gem_shmem_helper.h | 13 ++++++++++
->   include/drm/drm_prime.h            |  5 ++++
->   include/linux/usb.h                |  3 +++
->   7 files changed, 90 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-> index 2a54f86856af..15c82088ab4c 100644
-> --- a/drivers/gpu/drm/drm_prime.c
-> +++ b/drivers/gpu/drm/drm_prime.c
-> @@ -29,6 +29,7 @@
->   #include <linux/export.h>
->   #include <linux/dma-buf.h>
->   #include <linux/rbtree.h>
-> +#include <linux/usb.h>
->  =20
->   #include <drm/drm.h>
->   #include <drm/drm_drv.h>
-> @@ -1055,3 +1056,40 @@ void drm_prime_gem_destroy(struct drm_gem_object=
- *obj, struct sg_table *sg)
->   	dma_buf_put(dma_buf);
->   }
->   EXPORT_SYMBOL(drm_prime_gem_destroy);
-> +
-> +/**
-> + * drm_gem_prime_import_usb - helper library implementation of the imp=
-ort callback for USB devices
-> + * @dev: drm_device to import into
-> + * @dma_buf: dma-buf object to import
-> + *
-> + * This is an implementation of drm_gem_prime_import() for USB-based d=
-evices.
-> + * USB devices cannot perform DMA directly. This function selects the =
-USB host
-> + * controller as DMA device instead. Drivers can use this as their
-> + * &drm_driver.gem_prime_import implementation.
-> + *
-> + * See also drm_gem_prime_import().
-> + */
-> +#ifdef CONFIG_USB
-> +struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev=
-,
-> +						struct dma_buf *dma_buf)
-> +{
-> +	struct usb_device *udev;
-> +	struct device *dmadev;
-> +	struct drm_gem_object *obj;
-> +
-> +	if (!dev_is_usb(dev->dev))
-> +		return ERR_PTR(-ENODEV);
-> +	udev =3D interface_to_usbdev(to_usb_interface(dev->dev));
-> +
-> +	dmadev =3D usb_get_dma_device(udev);
-> +	if (drm_WARN_ONCE(dev, !dmadev, "buffer sharing not supported"))
-> +		return ERR_PTR(-ENODEV);
-> +
-> +	obj =3D drm_gem_prime_import_dev(dev, dma_buf, dmadev);
-> +
-> +	put_device(dmadev);
-> +
-> +	return obj;
-> +}
-> +EXPORT_SYMBOL(drm_gem_prime_import_usb);
-> +#endif
-> diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm1=
-2u320.c
-> index 0b4f4f2af1ef..99e7bd36a220 100644
-> --- a/drivers/gpu/drm/tiny/gm12u320.c
-> +++ b/drivers/gpu/drm/tiny/gm12u320.c
-> @@ -611,7 +611,7 @@ static const struct drm_driver gm12u320_drm_driver =
-=3D {
->   	.minor		 =3D DRIVER_MINOR,
->  =20
->   	.fops		 =3D &gm12u320_fops,
-> -	DRM_GEM_SHMEM_DRIVER_OPS,
-> +	DRM_GEM_SHMEM_DRIVER_OPS_USB,
->   };
->  =20
->   static const struct drm_mode_config_funcs gm12u320_mode_config_funcs =
-=3D {
-> diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_dr=
-v.c
-> index 9269092697d8..2db483b2b199 100644
-> --- a/drivers/gpu/drm/udl/udl_drv.c
-> +++ b/drivers/gpu/drm/udl/udl_drv.c
-> @@ -39,7 +39,7 @@ static const struct drm_driver driver =3D {
->  =20
->   	/* GEM hooks */
->   	.fops =3D &udl_driver_fops,
-> -	DRM_GEM_SHMEM_DRIVER_OPS,
-> +	DRM_GEM_SHMEM_DRIVER_OPS_USB,
->  =20
->   	.name =3D DRIVER_NAME,
->   	.desc =3D DRIVER_DESC,
-> diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
-> index 8f07b0516100..253bf71780fd 100644
-> --- a/drivers/usb/core/usb.c
-> +++ b/drivers/usb/core/usb.c
-> @@ -748,6 +748,35 @@ void usb_put_intf(struct usb_interface *intf)
->   }
->   EXPORT_SYMBOL_GPL(usb_put_intf);
->  =20
-> +/**
-> + * usb_get_dma_device - acquire a reference on the usb device's DMA en=
-dpoint
-> + * @udev: usb device
-> + *
-> + * While a USB device cannot perform DMA operations by itself, many US=
-B
-> + * controllers can. A call to usb_get_dma_device() returns the DMA end=
-point
-> + * for the given USB device, if any. The returned device structure sho=
-uld be
-> + * released with put_device().
-> + *
-> + * Returns: A reference to the usb device's DMA endpoint; or NULL if n=
-one
-> + *          exists.
-> + */
-> +struct device *usb_get_dma_device(struct usb_device *udev)
-> +{
-> +	struct device *dmadev;
-> +
-> +	if (!udev->bus)
-> +		return NULL;
-> +
-> +	dmadev =3D get_device(udev->bus->sysdev);
-> +	if (!dmadev || !dmadev->dma_mask) {
-> +		put_device(dmadev);
-> +		return NULL;
-> +	}
-> +
-> +	return dmadev;
-> +}
-> +EXPORT_SYMBOL_GPL(usb_get_dma_device);
-> +
->   /*			USB device locking
->    *
->    * USB devices and interfaces are locked using the semaphore in their=
+kernel: 5.11.2-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.11.y
+git commit: 68eabe17bf08272cb338564500da7be0d4aad9a5
+git describe: v5.11.1-13-g68eabe17bf08
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11=
+.y/build/v5.11.1-13-g68eabe17bf08
 
-> diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_s=
-hmem_helper.h
-> index 434328d8a0d9..09d12f632cad 100644
-> --- a/include/drm/drm_gem_shmem_helper.h
-> +++ b/include/drm/drm_gem_shmem_helper.h
-> @@ -162,4 +162,17 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struc=
-t drm_gem_object *obj);
->   	.gem_prime_mmap		=3D drm_gem_prime_mmap, \
->   	.dumb_create		=3D drm_gem_shmem_dumb_create
->  =20
-> +#ifdef CONFIG_USB
-> +/**
-> + * DRM_GEM_SHMEM_DRIVER_OPS_USB - Default shmem GEM operations for USB=
- devices
-> + *
-> + * This macro provides a shortcut for setting the shmem GEM operations=
- in
-> + * the &drm_driver structure. Drivers for USB-based devices should use=
- this
-> + * macro instead of &DRM_GEM_SHMEM_DRIVER_OPS.
-> + */
-> +#define DRM_GEM_SHMEM_DRIVER_OPS_USB \
-> +	DRM_GEM_SHMEM_DRIVER_OPS, \
-> +	.gem_prime_import =3D drm_gem_prime_import_usb
-> +#endif
-> +
->   #endif /* __DRM_GEM_SHMEM_HELPER_H__ */
-> diff --git a/include/drm/drm_prime.h b/include/drm/drm_prime.h
-> index 54f2c58305d2..b42e07edd9e6 100644
-> --- a/include/drm/drm_prime.h
-> +++ b/include/drm/drm_prime.h
-> @@ -110,4 +110,9 @@ int drm_prime_sg_to_page_array(struct sg_table *sgt=
-, struct page **pages,
->   int drm_prime_sg_to_dma_addr_array(struct sg_table *sgt, dma_addr_t *=
-addrs,
->   				   int max_pages);
->  =20
-> +#ifdef CONFIG_USB
-> +struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev=
-,
-> +						struct dma_buf *dma_buf);
-> +#endif
-> +
->   #endif /* __DRM_PRIME_H__ */
-> diff --git a/include/linux/usb.h b/include/linux/usb.h
-> index 7d72c4e0713c..a9bd698c8839 100644
-> --- a/include/linux/usb.h
-> +++ b/include/linux/usb.h
-> @@ -711,6 +711,7 @@ struct usb_device {
->   	unsigned use_generic_driver:1;
->   };
->   #define	to_usb_device(d) container_of(d, struct usb_device, dev)
-> +#define dev_is_usb(d)	((d)->bus =3D=3D &usb_bus_type)
->  =20
->   static inline struct usb_device *interface_to_usbdev(struct usb_inter=
-face *intf)
->   {
-> @@ -746,6 +747,8 @@ extern int usb_lock_device_for_reset(struct usb_dev=
-ice *udev,
->   extern int usb_reset_device(struct usb_device *dev);
->   extern void usb_queue_reset_device(struct usb_interface *dev);
->  =20
-> +extern struct device *usb_get_dma_device(struct usb_device *udev);
-> +
->   #ifdef CONFIG_ACPI
->   extern int usb_acpi_set_power_state(struct usb_device *hdev, int inde=
-x,
->   	bool enable);
->=20
+No regressions (compared to build v5.11-13-g6380656c9227)
+
+
+No fixes (compared to build v5.11-13-g6380656c9227)
+
+
+Ran 46115 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-64k_page_size
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-bpf
+* kselftest-intel_pstate
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* v4l2-compliance
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* kselftest-android
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lkdtm
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* kvm-unit-tests
+* fwts
+* kunit
+* rcutorture
 
 --=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---Dq8wcrgO1lNZQieHaRiYicMoWZ1kNSVEY--
-
---6e9K8dMXU0lJ77IHXdrcRYc7Zhg3KhCLW
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA4qnYFAwAAAAAACgkQlh/E3EQov+An
-hQ/+KwccQGtHg+1C4ng+lrWHQimvio7WKE6DnapDgBOeusDM6xOUB17hfkSjQpU2D/kmzwqTIxNK
-6v6baIBrI3QSXuX8+4I5W/tngl+41zFNMYE2tld6u+8MkXqNf4M9d2E4OH37Bhy2MfD2omavYPMg
-AY9JQz/tiOkim7O2E31xChmaTQ2zB9dinZI/ze1E8JWyr9s98AGTPV5q8ZJ2khlpRZjCNzSGZh1F
-5D5768pDqFYb6sRbmDwl+IPit5n97hOT2PUoNY1EOQ7dRkhg0GrsSD6GKKvVmQiaYu2KCY9aDaqu
-djmVHUKOC1eNOxR5Ep2zeYbLkPDIebzQ9oFownH5FPBsjvLpl85j0U68CbNe0p6Eh9AUM91UMWVD
-BghvL3jfbzjE2LaG6jMtWivSMW2B3peRRab6JQcrqdzwGrMKDamqkdc5l804ojoOBxRHLobvCI4g
-O9rbFvWhxI2Zf5wV5flknu1b7PUiBe53hJHZoszcihVtXQvi/xiReNnBMZZ2KEY1nHx/PJADekKp
-sNC7o2bn2F32d3EobKDJRD6tLEv9CdSQnDOK2aIZg53hgxSWc/VYDPPQoFSfysuN9UsBgj1YQfbr
-8rXFvzZH+hfP3N+iZ4AKKttSWTEUUHPFvoxG+ijgg7K91UQyM+FTz+VYCN0C7ZrBFTuXV3tneij4
-Lbg=
-=SEjD
------END PGP SIGNATURE-----
-
---6e9K8dMXU0lJ77IHXdrcRYc7Zhg3KhCLW--
+Linaro LKFT
+https://lkft.linaro.org
