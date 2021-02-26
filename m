@@ -2,86 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA5032673F
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 20:11:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2273268FD
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 22:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbhBZTKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 14:10:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41400 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229698AbhBZTKe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 14:10:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 749E264F2A;
-        Fri, 26 Feb 2021 19:09:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614366593;
-        bh=/3kxvNjF1Sa6PvBx3RXF1h02Nby9cgLfYpaVKzVpAHA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g1RggvNwBNhbCc5ssFMm2vxNfTJlB0kvlnk+YR9bDkipJaXmMb8I/4jNc9nIyhsH1
-         UBYjVSP94H/mA0nC1/CV37mOn+NojiurYwIlc+cwl1jtDnplnngbkOO3TuzjWd/DTg
-         tgETwyXZoMYedsdOn3g7YCfNvrTJGaSlgn9naFFPdTa6VDce06TeQZA7I04wNtPAgX
-         fhwD4zogLil4j5O6JRL0LUmjEtdBIqX3lZ/u7yyILzv96NuCW7YvkLEOXF7DL3gEKC
-         cugK+6qIO/xDNVit0NnynTAsy05OnHKY4h3f8/P4vLMn1JwqB06sxZ5yyqLETqdXvI
-         RxC9fqnhSwZtg==
-Date:   Fri, 26 Feb 2021 14:09:52 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Nicolai Stange <nstange@suse.de>
-Subject: Re: [PATCH 4.9 STABLE] mm, thp: make do_huge_pmd_wp_page() lock page
- for testing mapcount
-Message-ID: <20210226190952.GC473487@sasha-vm>
-References: <26569718-050f-fc90-e3ac-79edfaae9ac7@suse.cz>
- <20210226162200.20548-1-vbabka@suse.cz>
+        id S229989AbhBZUzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 15:55:10 -0500
+Received: from outbound-gw.openxchange.ahost.me ([94.136.40.163]:41646 "EHLO
+        outbound-gw.openxchange.ahost.me" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229949AbhBZUzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 15:55:08 -0500
+X-Greylist: delayed 2657 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Feb 2021 15:55:08 EST
+Received: from localhost ([127.0.0.1] helo=outbound-gw.openxchange.ahost.me)
+        by outbound-gw.openxchange.ahost.me with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <phillip@squashfs.org.uk>)
+        id 1lFjQZ-0001DC-Ua; Fri, 26 Feb 2021 20:09:31 +0000
+Date:   Fri, 26 Feb 2021 20:09:31 +0000 (GMT)
+From:   Phillip Lougher <phillip@squashfs.org.uk>
+To:     Sean Nyekjaer <sean@geanix.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <1911592520.1810343.1614370171896@webmail.123-reg.co.uk>
+In-Reply-To: <20210226092903.1473545-1-sean@geanix.com>
+References: <20210226092903.1473545-1-sean@geanix.com>
+Subject: Re: [PATCH] squashfs: fix inode lookup sanity checks
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20210226162200.20548-1-vbabka@suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+Importance: Normal
+X-Mailer: Open-Xchange Mailer v7.10.3-Rev30
+X-Originating-IP: 82.69.79.175
+X-Originating-Client: com.openexchange.ox.gui.dhtml
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 26, 2021 at 05:22:00PM +0100, Vlastimil Babka wrote:
->Jann reported [1] a race between __split_huge_pmd_locked() and
->page_trans_huge_map_swapcount() which can result in a page to be reused
->instead of COWed. This was later assigned CVE-2020-29368.
->
->This was fixed by commit c444eb564fb1 ("mm: thp: make the THP mapcount atomic
->against __split_huge_pmd_locked()") by doing the split under the page lock,
->while all users of page_trans_huge_map_swapcount() were already also under page
->lock. The fix was backported also to 4.9 stable series.
->
->When testing the backport on a 4.12 based kernel, Nicolai noticed the POC from
->[1] still reproduces after backporting c444eb564fb1 and identified a missing
->page lock in do_huge_pmd_wp_page() around the call to
->page_trans_huge_mapcount(). The page lock was only added in ba3c4ce6def4 ("mm,
->THP, swap: make reuse_swap_page() works for THP swapped out") in 4.14. The
->commit also wrapped page_trans_huge_mapcount() into
->page_trans_huge_map_swapcount() for the purposes of COW decisions.
->
->I have verified that 4.9.y indeed also reproduces with the POC. Backporting
->ba3c4ce6def4 alone however is not possible as it's part of a larger effort of
->optimizing THP swapping, which would be risky to backport fully.
->
->Therefore this 4.9-stable-only patch just wraps page_trans_huge_mapcount()
->in page_trans_huge_mapcount() under page lock the same way as ba3c4ce6def4
->does, but without the page_trans_huge_map_swapcount() part. Other callers
->of page_trans_huge_mapcount() are all under page lock already. I have verified
->the POC no longer reproduces afterwards.
->
->[1] https://bugs.chromium.org/p/project-zero/issues/detail?id=2045
->
->Reported-by: Nicolai Stange <nstange@suse.de>
->Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 
-Queued up, thanks!
+> On 26/02/2021 09:29 Sean Nyekjaer <sean@geanix.com> wrote:
+> 
+>  
+> When mouting a squashfs image created without inode compression it
+> fails with: "unable to read inode lookup table"
+> 
+> It turns out that the BLOCK_OFFSET is missing when checking
+> the SQUASHFS_METADATA_SIZE agaist the actual size.
+> 
+> Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Sean Nyekjaer <sean@geanix.com>
 
--- 
-Thanks,
-Sasha
+Acked-by: Phillip Lougher <phillip@squashfs.org.uk>
+
+> ---
+>  fs/squashfs/export.c      | 8 ++++++--
+>  fs/squashfs/squashfs_fs.h | 1 +
+>  2 files changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/squashfs/export.c b/fs/squashfs/export.c
+> index eb02072d28dd..723763746238 100644
+> --- a/fs/squashfs/export.c
+> +++ b/fs/squashfs/export.c
+> @@ -152,14 +152,18 @@ __le64 *squashfs_read_inode_lookup_table(struct super_block *sb,
+>  		start = le64_to_cpu(table[n]);
+>  		end = le64_to_cpu(table[n + 1]);
+>  
+> -		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
+> +		if (start >= end
+> +		    || (end - start) >
+> +		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+>  			kfree(table);
+>  			return ERR_PTR(-EINVAL);
+>  		}
+>  	}
+>  
+>  	start = le64_to_cpu(table[indexes - 1]);
+> -	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
+> +	if (start >= lookup_table_start ||
+> +	    (lookup_table_start - start) >
+> +	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
+>  		kfree(table);
+>  		return ERR_PTR(-EINVAL);
+>  	}
+> diff --git a/fs/squashfs/squashfs_fs.h b/fs/squashfs/squashfs_fs.h
+> index 8d64edb80ebf..b3fdc8212c5f 100644
+> --- a/fs/squashfs/squashfs_fs.h
+> +++ b/fs/squashfs/squashfs_fs.h
+> @@ -17,6 +17,7 @@
+>  
+>  /* size of metadata (inode and directory) blocks */
+>  #define SQUASHFS_METADATA_SIZE		8192
+> +#define SQUASHFS_BLOCK_OFFSET		2
+>  
+>  /* default size of block device I/O */
+>  #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
+> -- 
+> 2.29.2
