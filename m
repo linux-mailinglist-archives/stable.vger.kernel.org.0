@@ -2,102 +2,419 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7175332610F
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 11:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AEE326110
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 11:14:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230112AbhBZKM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 05:12:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
+        id S230144AbhBZKNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 05:13:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230490AbhBZKLD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 05:11:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE40964EF0;
-        Fri, 26 Feb 2021 10:10:19 +0000 (UTC)
+        id S231265AbhBZKLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Feb 2021 05:11:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB3F64EC4;
+        Fri, 26 Feb 2021 10:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614334221;
-        bh=cCvpOeiBxcsD5SgG0hnI/5Z7zIF1il7xvNNp26HhUzk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dHzVaGndLq4habhKyemec6/5t/kl3dOP8CAEZqVTC7wpoKau6CPiKLbvefjme984d
-         A40qwa+yQnJHX3CW7+IeWgLqOPCPfGSymz0lqnf8zdmc6HRST0ql3WG6gTDt+25mhU
-         kE6VHHz2YSwhorol5MEcid0nyWwHrGMDufH97ie4=
+        s=korg; t=1614334226;
+        bh=+mNH2qImqS16iTkPCuUdphG5AABHHQ6i0NkxW9WGRRk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SMNcnUCJC0C3IGrm4h8il1loz0MWH2iVe5qRan9hBpHSvmkQ10pbvsUAgZ3USIorL
+         X3qBrRLLBpERCOOKqWlZmvXZkv4KhcZ9eaGz/Z4fDDcFgvMnNq0IO/BENlqql1k+bv
+         1Hw8j1Z4o7ZykBv4kAh6JBAugtzphQHOdoVFme6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.11.2
-Date:   Fri, 26 Feb 2021 11:10:14 +0100
-Message-Id: <1614334214168@kroah.com>
+Subject: Re: Linux 5.11.2
+Date:   Fri, 26 Feb 2021 11:10:15 +0100
+Message-Id: <161433421487244@kroah.com>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <1614334214168@kroah.com>
+References: <1614334214168@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.11.2 kernel.
-
-All users of the 5.11 kernel series must upgrade.
-
-The updated 5.11.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.11.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                 |    2 -
- arch/arm64/boot/dts/nvidia/tegra210.dtsi |    1 
- arch/s390/pci/pci_mmio.c                 |    4 +--
- arch/x86/kvm/mmu/mmu.c                   |    2 -
- drivers/bluetooth/btusb.c                |    7 +++++
- drivers/hid/hid-core.c                   |    6 ++--
- drivers/hwmon/dell-smm-hwmon.c           |    7 +++++
- drivers/usb/core/quirks.c                |    9 ++++--
- fs/dax.c                                 |    5 ++-
- fs/ntfs/inode.c                          |    6 ++++
- include/linux/mm.h                       |    6 +++-
- kernel/bpf/verifier.c                    |   10 ++++---
- mm/memory.c                              |   41 +++++++++++++++++++++++++++----
- virt/kvm/kvm_main.c                      |   17 +++++++++---
- 14 files changed, 96 insertions(+), 27 deletions(-)
-
-Daniel Borkmann (1):
-      bpf: Fix truncation handling for mod32 dst reg wrt zero
-
-Greg Kroah-Hartman (1):
-      Linux 5.11.2
-
-Hui Wang (1):
-      Bluetooth: btusb: Some Qualcomm Bluetooth adapters stop working
-
-Johan Hovold (1):
-      USB: quirks: sort quirk entries
-
-Paolo Bonzini (2):
-      KVM: do not assume PTE is writable after follow_pfn
-      mm: provide a saner PTE walking API for modules
-
-Rustam Kovhaev (1):
-      ntfs: check for valid standard information attribute
-
-Sameer Pujar (1):
-      arm64: tegra: Add power-domain for Tegra210 HDA
-
-Sean Christopherson (2):
-      KVM: x86: Zap the oldest MMU pages, not the newest
-      KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
-
-Stefan Ursella (1):
-      usb: quirks: add quirk to start video capture on ELMO L-12F document camera reliable
-
-Thomas Hebb (1):
-      hwmon: (dell-smm) Add XPS 15 L502X to fan control blacklist
-
-Will McVicker (1):
-      HID: make arrays usage and value to be the same
-
+diff --git a/Makefile b/Makefile
+index 0b9ae470a714..617be9fd59ce 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 11
+-SUBLEVEL = 1
++SUBLEVEL = 2
+ EXTRAVERSION =
+ NAME = 💕 Valentine's Day Edition 💕
+ 
+diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+index 4fbf8c15b0a1..fd33b4d28ef3 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -997,6 +997,7 @@ hda@70030000 {
+ 			 <&tegra_car 128>, /* hda2hdmi */
+ 			 <&tegra_car 111>; /* hda2codec_2x */
+ 		reset-names = "hda", "hda2hdmi", "hda2codec_2x";
++		power-domains = <&pd_sor>;
+ 		status = "disabled";
+ 	};
+ 
+diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+index 18f2d10c3176..474617b88648 100644
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -170,7 +170,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+ 	if (!(vma->vm_flags & VM_WRITE))
+ 		goto out_unlock_mmap;
+ 
+-	ret = follow_pte(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
++	ret = follow_pte(vma->vm_mm, mmio_addr, &ptep, &ptl);
+ 	if (ret)
+ 		goto out_unlock_mmap;
+ 
+@@ -311,7 +311,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
+ 	if (!(vma->vm_flags & VM_WRITE))
+ 		goto out_unlock_mmap;
+ 
+-	ret = follow_pte(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
++	ret = follow_pte(vma->vm_mm, mmio_addr, &ptep, &ptl);
+ 	if (ret)
+ 		goto out_unlock_mmap;
+ 
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 6d16481aa29d..ed861245ecf0 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -2417,7 +2417,7 @@ static unsigned long kvm_mmu_zap_oldest_mmu_pages(struct kvm *kvm,
+ 		return 0;
+ 
+ restart:
+-	list_for_each_entry_safe(sp, tmp, &kvm->arch.active_mmu_pages, link) {
++	list_for_each_entry_safe_reverse(sp, tmp, &kvm->arch.active_mmu_pages, link) {
+ 		/*
+ 		 * Don't zap active root pages, the page itself can't be freed
+ 		 * and zapping it will just force vCPUs to realloc and reload.
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 1b690164ab5b..da57c561642c 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -4065,6 +4065,13 @@ static int btusb_setup_qca(struct hci_dev *hdev)
+ 			info = &qca_devices_table[i];
+ 	}
+ 	if (!info) {
++		/* If the rom_version is not matched in the qca_devices_table
++		 * and the high ROM version is not zero, we assume this chip no
++		 * need to load the rampatch and nvm.
++		 */
++		if (ver_rom & ~0xffffU)
++			return 0;
++
+ 		bt_dev_err(hdev, "don't support firmware rome 0x%x", ver_rom);
+ 		return -ENODEV;
+ 	}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 56172fe6995c..8a8b2b982f83 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -90,7 +90,7 @@ EXPORT_SYMBOL_GPL(hid_register_report);
+  * Register a new field for this report.
+  */
+ 
+-static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
++static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages)
+ {
+ 	struct hid_field *field;
+ 
+@@ -101,7 +101,7 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
+ 
+ 	field = kzalloc((sizeof(struct hid_field) +
+ 			 usages * sizeof(struct hid_usage) +
+-			 values * sizeof(unsigned)), GFP_KERNEL);
++			 usages * sizeof(unsigned)), GFP_KERNEL);
+ 	if (!field)
+ 		return NULL;
+ 
+@@ -300,7 +300,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
+ 	usages = max_t(unsigned, parser->local.usage_index,
+ 				 parser->global.report_count);
+ 
+-	field = hid_register_field(report, usages, parser->global.report_count);
++	field = hid_register_field(report, usages);
+ 	if (!field)
+ 		return 0;
+ 
+diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
+index ec448f5f2dc3..73b9db9e3aab 100644
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -1159,6 +1159,13 @@ static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
+ 		},
+ 	},
++	{
++		.ident = "Dell XPS 15 L502X",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
++		},
++	},
+ 	{ }
+ };
+ 
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 1b4eb7046b07..6ade3daf7858 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -391,6 +391,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
+ 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
+ 
++	/* ELMO L-12F document camera */
++	{ USB_DEVICE(0x09a1, 0x0028), .driver_info = USB_QUIRK_DELAY_CTRL_MSG },
++
+ 	/* Broadcom BCM92035DGROM BT dongle */
+ 	{ USB_DEVICE(0x0a5c, 0x2021), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
+@@ -415,6 +418,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
+ 			USB_QUIRK_STRING_FETCH_255 },
+ 
++	/* novation SoundControl XL */
++	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* Huawei 4G LTE module */
+ 	{ USB_DEVICE(0x12d1, 0x15bb), .driver_info =
+ 			USB_QUIRK_DISCONNECT_SUSPEND },
+@@ -495,9 +501,6 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
+-	/* novation SoundControl XL */
+-	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
+-
+ 	{ }  /* terminating entry must be last */
+ };
+ 
+diff --git a/fs/dax.c b/fs/dax.c
+index 26d5dcd2d69e..b3d27fdc6775 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -810,11 +810,12 @@ static void dax_entry_mkclean(struct address_space *mapping, pgoff_t index,
+ 		address = pgoff_address(index, vma);
+ 
+ 		/*
+-		 * Note because we provide range to follow_pte it will call
++		 * follow_invalidate_pte() will use the range to call
+ 		 * mmu_notifier_invalidate_range_start() on our behalf before
+ 		 * taking any lock.
+ 		 */
+-		if (follow_pte(vma->vm_mm, address, &range, &ptep, &pmdp, &ptl))
++		if (follow_invalidate_pte(vma->vm_mm, address, &range, &ptep,
++					  &pmdp, &ptl))
+ 			continue;
+ 
+ 		/*
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index f7e4cbc26eaf..be4ff9386ec0 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -629,6 +629,12 @@ static int ntfs_read_locked_inode(struct inode *vi)
+ 	}
+ 	a = ctx->attr;
+ 	/* Get the standard information attribute value. */
++	if ((u8 *)a + le16_to_cpu(a->data.resident.value_offset)
++			+ le32_to_cpu(a->data.resident.value_length) >
++			(u8 *)ctx->mrec + vol->mft_record_size) {
++		ntfs_error(vi->i_sb, "Corrupt standard information attribute in inode.");
++		goto unm_err_out;
++	}
+ 	si = (STANDARD_INFORMATION*)((u8*)a +
+ 			le16_to_cpu(a->data.resident.value_offset));
+ 
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ecdf8a8cd6ae..24b292fce8e5 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1658,9 +1658,11 @@ void free_pgd_range(struct mmu_gather *tlb, unsigned long addr,
+ 		unsigned long end, unsigned long floor, unsigned long ceiling);
+ int
+ copy_page_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma);
++int follow_invalidate_pte(struct mm_struct *mm, unsigned long address,
++			  struct mmu_notifier_range *range, pte_t **ptepp,
++			  pmd_t **pmdpp, spinlock_t **ptlp);
+ int follow_pte(struct mm_struct *mm, unsigned long address,
+-		struct mmu_notifier_range *range, pte_t **ptepp, pmd_t **pmdpp,
+-		spinlock_t **ptlp);
++	       pte_t **ptepp, spinlock_t **ptlp);
+ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
+ 	unsigned long *pfn);
+ int follow_phys(struct vm_area_struct *vma, unsigned long address,
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 37581919e050..20babdd06278 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11006,7 +11006,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
+ 			bool isdiv = BPF_OP(insn->code) == BPF_DIV;
+ 			struct bpf_insn *patchlet;
+ 			struct bpf_insn chk_and_div[] = {
+-				/* Rx div 0 -> 0 */
++				/* [R,W]x div 0 -> 0 */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JNE | BPF_K, insn->src_reg,
+ 					     0, 2, 0),
+@@ -11015,16 +11015,18 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
+ 				*insn,
+ 			};
+ 			struct bpf_insn chk_and_mod[] = {
+-				/* Rx mod 0 -> Rx */
++				/* [R,W]x mod 0 -> [R,W]x */
+ 				BPF_RAW_INSN((is64 ? BPF_JMP : BPF_JMP32) |
+ 					     BPF_JEQ | BPF_K, insn->src_reg,
+-					     0, 1, 0),
++					     0, 1 + (is64 ? 0 : 1), 0),
+ 				*insn,
++				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
++				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
+ 			};
+ 
+ 			patchlet = isdiv ? chk_and_div : chk_and_mod;
+ 			cnt = isdiv ? ARRAY_SIZE(chk_and_div) :
+-				      ARRAY_SIZE(chk_and_mod);
++				      ARRAY_SIZE(chk_and_mod) - (is64 ? 2 : 0);
+ 
+ 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
+ 			if (!new_prog)
+diff --git a/mm/memory.c b/mm/memory.c
+index feff48e1465a..985dac0958dc 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4709,9 +4709,9 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
+ }
+ #endif /* __PAGETABLE_PMD_FOLDED */
+ 
+-int follow_pte(struct mm_struct *mm, unsigned long address,
+-	       struct mmu_notifier_range *range, pte_t **ptepp, pmd_t **pmdpp,
+-	       spinlock_t **ptlp)
++int follow_invalidate_pte(struct mm_struct *mm, unsigned long address,
++			  struct mmu_notifier_range *range, pte_t **ptepp,
++			  pmd_t **pmdpp, spinlock_t **ptlp)
+ {
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+@@ -4776,6 +4776,34 @@ int follow_pte(struct mm_struct *mm, unsigned long address,
+ 	return -EINVAL;
+ }
+ 
++/**
++ * follow_pte - look up PTE at a user virtual address
++ * @mm: the mm_struct of the target address space
++ * @address: user virtual address
++ * @ptepp: location to store found PTE
++ * @ptlp: location to store the lock for the PTE
++ *
++ * On a successful return, the pointer to the PTE is stored in @ptepp;
++ * the corresponding lock is taken and its location is stored in @ptlp.
++ * The contents of the PTE are only stable until @ptlp is released;
++ * any further use, if any, must be protected against invalidation
++ * with MMU notifiers.
++ *
++ * Only IO mappings and raw PFN mappings are allowed.  The mmap semaphore
++ * should be taken for read.
++ *
++ * KVM uses this function.  While it is arguably less bad than ``follow_pfn``,
++ * it is not a good general-purpose API.
++ *
++ * Return: zero on success, -ve otherwise.
++ */
++int follow_pte(struct mm_struct *mm, unsigned long address,
++	       pte_t **ptepp, spinlock_t **ptlp)
++{
++	return follow_invalidate_pte(mm, address, NULL, ptepp, NULL, ptlp);
++}
++EXPORT_SYMBOL_GPL(follow_pte);
++
+ /**
+  * follow_pfn - look up PFN at a user virtual address
+  * @vma: memory mapping
+@@ -4784,6 +4812,9 @@ int follow_pte(struct mm_struct *mm, unsigned long address,
+  *
+  * Only IO mappings and raw PFN mappings are allowed.
+  *
++ * This function does not allow the caller to read the permissions
++ * of the PTE.  Do not use it.
++ *
+  * Return: zero and the pfn at @pfn on success, -ve otherwise.
+  */
+ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
+@@ -4796,7 +4827,7 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
+ 	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+ 		return ret;
+ 
+-	ret = follow_pte(vma->vm_mm, address, NULL, &ptep, NULL, &ptl);
++	ret = follow_pte(vma->vm_mm, address, &ptep, &ptl);
+ 	if (ret)
+ 		return ret;
+ 	*pfn = pte_pfn(*ptep);
+@@ -4817,7 +4848,7 @@ int follow_phys(struct vm_area_struct *vma,
+ 	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+ 		goto out;
+ 
+-	if (follow_pte(vma->vm_mm, address, NULL, &ptep, NULL, &ptl))
++	if (follow_pte(vma->vm_mm, address, &ptep, &ptl))
+ 		goto out;
+ 	pte = *ptep;
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 8367d88ce39b..2caba2828982 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1903,10 +1903,12 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 			       bool write_fault, bool *writable,
+ 			       kvm_pfn_t *p_pfn)
+ {
+-	unsigned long pfn;
++	kvm_pfn_t pfn;
++	pte_t *ptep;
++	spinlock_t *ptl;
+ 	int r;
+ 
+-	r = follow_pfn(vma, addr, &pfn);
++	r = follow_pte(vma->vm_mm, addr, &ptep, &ptl);
+ 	if (r) {
+ 		/*
+ 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
+@@ -1921,14 +1923,19 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 		if (r)
+ 			return r;
+ 
+-		r = follow_pfn(vma, addr, &pfn);
++		r = follow_pte(vma->vm_mm, addr, &ptep, &ptl);
+ 		if (r)
+ 			return r;
++	}
+ 
++	if (write_fault && !pte_write(*ptep)) {
++		pfn = KVM_PFN_ERR_RO_FAULT;
++		goto out;
+ 	}
+ 
+ 	if (writable)
+-		*writable = true;
++		*writable = pte_write(*ptep);
++	pfn = pte_pfn(*ptep);
+ 
+ 	/*
+ 	 * Get a reference here because callers of *hva_to_pfn* and
+@@ -1943,6 +1950,8 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 	 */ 
+ 	kvm_get_pfn(pfn);
+ 
++out:
++	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn = pfn;
+ 	return 0;
+ }
