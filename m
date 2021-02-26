@@ -2,98 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B101B32603A
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 10:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53E2326022
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 10:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230375AbhBZJir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 04:38:47 -0500
-Received: from first.geanix.com ([116.203.34.67]:34444 "EHLO first.geanix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229618AbhBZJi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 04:38:29 -0500
-X-Greylist: delayed 469 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Feb 2021 04:38:27 EST
-Received: from zen.. (unknown [185.17.218.86])
-        by first.geanix.com (Postfix) with ESMTPSA id 3BA0210234E1;
-        Fri, 26 Feb 2021 09:29:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1614331794; bh=vcrmu95vnJRJusz0UYr/l1XS/6bCR87a3Z2nnZWR1ME=;
-        h=From:To:Cc:Subject:Date;
-        b=cJhtUC6/dYjkxU4y+B79V0P2IOMKu1xcgHE5AYLQkoCIzwjvL8EMz25FEiaTmSCt6
-         2jgKTxJI1XN3ya6Zrx22Uom2W0vpsaI/W8f+1B/K20rtdvxMdgU9kBEp/t8qmS+iSn
-         VIEbP3ja4BEe552iertDMbVH2cmhvSH2itu8HXXYfDhrZ1hDAby9NrXYiIPbDM8xLx
-         pWbEcjiLY+YAfNxlxelsyiwZAeBXfRbm87oVMMmbzHBmEztqUpuLzlqHZCBazfDvgV
-         +ne0doLVUl9hgGct/Dn2z2ykVc/fF7Yo/G5cJP0Bi4Uodd7Xm0S5V2y7dLM48TJRWm
-         MYB92YqjH1GRQ==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     Phillip Lougher <phillip@squashfs.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Sean Nyekjaer <sean@geanix.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] squashfs: fix inode lookup sanity checks
-Date:   Fri, 26 Feb 2021 10:29:03 +0100
-Message-Id: <20210226092903.1473545-1-sean@geanix.com>
-X-Mailer: git-send-email 2.29.2
+        id S229526AbhBZJeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 04:34:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229967AbhBZJdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 04:33:04 -0500
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3D5C061756
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 01:32:23 -0800 (PST)
+Received: by mail-lj1-x22d.google.com with SMTP id c8so9825351ljd.12
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 01:32:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=2j0v9/++oo1nREjYMkhdHiO+3+LGu2RSZ2BTupmAla4=;
+        b=ophkVSbst+ACqsyZFIiOp79lI2xxUl3LTnFt38oEalw/lQhYiComoPd8ijpD3Cvs6b
+         cFI7zSVaYrOq61d/V5+i1JkNmr12hiKpRSEHr8gR2wlCsNdpDrIPUUifibpC9lQQcpxE
+         t9/zYhSgsN90TVSI7GkaQZAVAJv9gO6s0+VjYYrmiEKzpztvbp0MvHtOxsoGtakVk3Aw
+         JF/9bzvQPT+ot3SJpxr7RlkFzvYbf8wW4FBT4L2IiWmOtvZ59g3SUWHN8yM/IHwbrAxc
+         fJhbQ0mnqFDXqitVUA7ghcrSxSJSlVWsZrjdYYpLp9s/mZyFpo9kQ1CxIfR9f0b1yRFJ
+         S2Ug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=2j0v9/++oo1nREjYMkhdHiO+3+LGu2RSZ2BTupmAla4=;
+        b=IGMeR70XcQlGbDtEJSaf7oKHRi1f/rXWy3yHDi3Qmn44zMkfnRHuxv95Kx7GXn+Mkz
+         aweSigQGJe4H3fWYU5vyz9sMvgfzejMVA6hHImI3IclVOUxJ9Ub5rKrVvag/3zsZH8Gv
+         eVch2tK6sq1WZTymYRm/xu4iDz3msRU47Mn7uSmyfdOhWyt8MOAmPlnUnq+vYlGopeUY
+         PB1P8rQmCYlanbCS6AOLQHZddtUKoxmc3vkPRx9zWNEpZEhVZiSucMGN0maytsSma/+R
+         2TpPSr6jjTo8VobPWmEWiG5krOSYA48Mzk1/+hkihSMT4+8833D7KE3wxH7a6GkycMg2
+         1Ewg==
+X-Gm-Message-State: AOAM532dc2dVbteZcVrT8Nuk2h0gWGZFqlVBSGEiC1T3scPhf3cfngJ/
+        pTF67ggkPy5l/20xWMp8MfMp4B7a8fdWWC11Nnimikrl5bnrFw==
+X-Google-Smtp-Source: ABdhPJxLOkSkEiUl2P7/vAViwKIgnITzNFziDn2z3wSwQ8KotDtSrVgAn+bJD8uGHGxHDbB8+J8Yr1MI0QZIhnT3tPA=
+X-Received: by 2002:a2e:b01a:: with SMTP id y26mr1205089ljk.442.1614331941504;
+ Fri, 26 Feb 2021 01:32:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on 93bd6fdb21b5
+References: <20210224081652.587785-1-sumit.garg@linaro.org>
+ <20210225155607.634snzzq3w62kpkn@maple.lan> <CAFA6WYMYDNk2S=7crfYsrbP7XONTA-ytEypoqeo1GTpxf8NhAQ@mail.gmail.com>
+ <YDij234n3KAxWuXf@kroah.com>
+In-Reply-To: <YDij234n3KAxWuXf@kroah.com>
+From:   Sumit Garg <sumit.garg@linaro.org>
+Date:   Fri, 26 Feb 2021 15:02:09 +0530
+Message-ID: <CAFA6WYOij9-o35CVeZxi94+x8_cTpfXORmhn5YpfOgz0a-Ertg@mail.gmail.com>
+Subject: Re: [PATCH] kgdb: Fix to kill breakpoints on initmem after boot
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Daniel Thompson <daniel.thompson@linaro.org>,
+        kgdb-bugreport@lists.sourceforge.net,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Peter Zijlstra <peterz@infradead.org>, stefan.saecherl@fau.de,
+        qy15sije@cip.cs.fau.de,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When mouting a squashfs image created without inode compression it
-fails with: "unable to read inode lookup table"
+On Fri, 26 Feb 2021 at 13:01, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Feb 26, 2021 at 12:32:07PM +0530, Sumit Garg wrote:
+> > + stable ML
+> >
+> > On Thu, 25 Feb 2021 at 21:26, Daniel Thompson
+> > <daniel.thompson@linaro.org> wrote:
+> > >
+> > > On Wed, Feb 24, 2021 at 01:46:52PM +0530, Sumit Garg wrote:
+> > > > Currently breakpoints in kernel .init.text section are not handled
+> > > > correctly while allowing to remove them even after corresponding pa=
+ges
+> > > > have been freed.
+> > > >
+> > > > Fix it via killing .init.text section breakpoints just prior to ini=
+tmem
+> > > > pages being freed.
+> > > >
+> > > > Suggested-by: Doug Anderson <dianders@chromium.org>
+> > > > Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+> > >
+> > > I saw Andrew has picked this one up. That's ok for me:
+> > > Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+> > >
+> > > I already enriched kgdbtest to cover this (and they pass) so I guess
+> > > this is also:
+> > > Tested-by: Daniel Thompson <daniel.thompson@linaro.org>
+> > >
+> >
+> > Thanks Daniel.
+> >
+> > > BTW this is not Cc:ed to stable and I do wonder if it crosses the
+> > > threshold to be considered a fix rather than a feature. Normally I
+> > > consider adding safety rails for kgdb to be a new feature but, in thi=
+s
+> > > case, the problem would easily ensnare an inexperienced developer who=
+ is
+> > > doing nothing more than debugging their own driver (assuming they
+> > > correctly marked their probe function as .init) so I think this weigh=
+s
+> > > in favour of being a fix.
+> > >
+> >
+> > Makes sense, Cc:ed stable.
+>
+>
+> <formletter>
+>
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.ht=
+ml
+> for how to do this properly.
+>
+> </formletter>
 
-It turns out that the BLOCK_OFFSET is missing when checking
-the SQUASHFS_METADATA_SIZE agaist the actual size.
+Thanks for the pointer, let me wait for this patch to land in Linus=E2=80=
+=99
+tree and then will drop a mail to stable@vger.kernel.org.
 
-Fixes: eabac19e40c0 ("squashfs: add more sanity checks in inode lookup")
-CC: stable@vger.kernel.org
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
----
- fs/squashfs/export.c      | 8 ++++++--
- fs/squashfs/squashfs_fs.h | 1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/squashfs/export.c b/fs/squashfs/export.c
-index eb02072d28dd..723763746238 100644
---- a/fs/squashfs/export.c
-+++ b/fs/squashfs/export.c
-@@ -152,14 +152,18 @@ __le64 *squashfs_read_inode_lookup_table(struct super_block *sb,
- 		start = le64_to_cpu(table[n]);
- 		end = le64_to_cpu(table[n + 1]);
- 
--		if (start >= end || (end - start) > SQUASHFS_METADATA_SIZE) {
-+		if (start >= end
-+		    || (end - start) >
-+		    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 			kfree(table);
- 			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
- 	start = le64_to_cpu(table[indexes - 1]);
--	if (start >= lookup_table_start || (lookup_table_start - start) > SQUASHFS_METADATA_SIZE) {
-+	if (start >= lookup_table_start ||
-+	    (lookup_table_start - start) >
-+	    (SQUASHFS_METADATA_SIZE + SQUASHFS_BLOCK_OFFSET)) {
- 		kfree(table);
- 		return ERR_PTR(-EINVAL);
- 	}
-diff --git a/fs/squashfs/squashfs_fs.h b/fs/squashfs/squashfs_fs.h
-index 8d64edb80ebf..b3fdc8212c5f 100644
---- a/fs/squashfs/squashfs_fs.h
-+++ b/fs/squashfs/squashfs_fs.h
-@@ -17,6 +17,7 @@
- 
- /* size of metadata (inode and directory) blocks */
- #define SQUASHFS_METADATA_SIZE		8192
-+#define SQUASHFS_BLOCK_OFFSET		2
- 
- /* default size of block device I/O */
- #ifdef CONFIG_SQUASHFS_4K_DEVBLK_SIZE
--- 
-2.29.2
-
+-Sumit
