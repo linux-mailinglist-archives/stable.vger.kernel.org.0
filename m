@@ -2,139 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A443265CE
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 17:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 895F03265D3
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 17:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbhBZQod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 11:44:33 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:46363 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S230170AbhBZQo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 11:44:26 -0500
-Received: (qmail 1394367 invoked by uid 1000); 26 Feb 2021 11:43:42 -0500
-Date:   Fri, 26 Feb 2021 11:43:42 -0500
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     daniel@ffwll.ch, airlied@linux.ie,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        sumit.semwal@linaro.org, christian.koenig@amd.com,
-        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
-        noralf@tronnes.org, dri-devel@lists.freedesktop.org,
-        Pavel Machek <pavel@ucw.cz>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-Subject: Re: [PATCH v5] drm: Use USB controller's DMA mask when importing
- dmabufs
-Message-ID: <20210226164342.GC1392547@rowland.harvard.edu>
-References: <20210226092648.4584-1-tzimmermann@suse.de>
+        id S230147AbhBZQqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 11:46:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230153AbhBZQq0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 11:46:26 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3369C061574
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 08:45:44 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id b21so4933676eja.4
+        for <stable@vger.kernel.org>; Fri, 26 Feb 2021 08:45:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=DojgA1h6wATiJ9TAke0CxKa3MfeqhMpOo1OSOYMkLOo=;
+        b=hoPktV39XrJaeJfLdkVsGeGyR30lu2JF/xhvPoDDByyh2VO89l0GtMO9GMGFqYMBgt
+         a0iZ079m9h5JLZCnDMo5KFN1GNxyygjQMnS8sfPT1/i0U4aUvjdR3Anqx0cotbAhh7Ty
+         eFa1QGQOBI6Cd9ZzZQ4ODAIUgzX4+ya5uLAVpt94NsODWbMXz29ymEMzFTsH6uVDCXHN
+         1F5KPQ9G2L0FmnoirWAe9ZwXjGXIPoh3xMrfLKYH2WNQEkVzl0Ay9bLyV5h05YKmDjb3
+         Rfnff++/PjOzpSSuLdI5R8j+s3rQ/6pTIU6PPDvQnCbeiPv2aAdQkxFNYIHmTKwkXJyv
+         /cXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=DojgA1h6wATiJ9TAke0CxKa3MfeqhMpOo1OSOYMkLOo=;
+        b=YuVLsuDuN7wDpvehAQ/As0KncSaOiI6VFBs87QsxfXoMeUQFbMEAukC1Jkxfi741cz
+         ayzde+GIhx87eSehTt2yLLp8WhkDCfvIn7t5bLBJlYUEcKQegUENMsyxZM2A/xhJKDZz
+         nKqmq79Ldh5pjc47thY3umxO43Amt9Spz6vGyfvsMPSqcnJwewzY+9E+3ps4nDsdEK7K
+         XmfAi2nvNOB9g39waRiIVoKli+u9/NAaT+fmuUhy6HWNNKb3nzg2h/l8AFt9CnhnOCbG
+         T6ONF3MrKuGe3m/7HAf4WBGc6gfO84fjXvknCbKuHhCLq4MGWACkKe3wfKbRDAGWAXn4
+         dASw==
+X-Gm-Message-State: AOAM532KR81k8JAf4PakLKvQuwiu32HAqQKzQsg1HGF265x9UWD7DCRS
+        rx+PqScybP1HCQ1TfZSXTWa0oa3ff43MhGxNFGA=
+X-Google-Smtp-Source: ABdhPJxnZfXVKv7HLGdU6e6m+/DCysBNukDRFdBy93t4te8dTLKCtIfY4ncOq5E6jpdXpVvSuD/w9Q7v1EiOjJTpS7E=
+X-Received: by 2002:a17:906:8593:: with SMTP id v19mr4466883ejx.32.1614357943289;
+ Fri, 26 Feb 2021 08:45:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210226092648.4584-1-tzimmermann@suse.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:a54:2051:0:0:0:0:0 with HTTP; Fri, 26 Feb 2021 08:45:42
+ -0800 (PST)
+Reply-To: sroomf70@gmail.com
+From:   "Prof. Dr Diane" <ais90909090@gmail.com>
+Date:   Fri, 26 Feb 2021 17:45:42 +0100
+Message-ID: <CACAcoAcbtME7LHBqUBReqREC1UKOXNOeg1Q4w7Gq1ROGGRdoLw@mail.gmail.com>
+Subject: Good Day,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 26, 2021 at 10:26:47AM +0100, Thomas Zimmermann wrote:
-> USB devices cannot perform DMA and hence have no dma_mask set in their
-> device structure. Therefore importing dmabuf into a USB-based driver
-> fails, which breaks joining and mirroring of display in X11.
-> 
-> For USB devices, pick the associated USB controller as attachment device.
-> This allows the DRM import helpers to perform the DMA setup. If the DMA
-> controller does not support DMA transfers, we're out of luck and cannot
-> import. Our current USB-based DRM drivers don't use DMA, so the actual
-> DMA device is not important.
-> 
-> Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
-> instance of struct drm_driver.
-> 
-> Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
-> 
-> v5:
-> 	* provide a helper for USB interfaces (Alan)
-> 	* add FIXME item to documentation and TODO list (Daniel)
+-- 
+From Prof. Dr Diane, have you Receive the Fund that was paid to your
+account? please, do not hesitate to reply as soon as possible as to
+enable this Bank make the balance transfer into your nominated
+account. awaiting your urgent notification.
 
-> --- a/drivers/usb/core/usb.c
-> +++ b/drivers/usb/core/usb.c
-> @@ -748,6 +748,37 @@ void usb_put_intf(struct usb_interface *intf)
->  }
->  EXPORT_SYMBOL_GPL(usb_put_intf);
->  
-> +/**
-> + * usb_get_dma_device - acquire a reference on the usb device's DMA endpoint
-> + * @udev: usb device
-> + *
-> + * While a USB device cannot perform DMA operations by itself, many USB
-> + * controllers can. A call to usb_get_dma_device() returns the DMA endpoint
-> + * for the given USB device, if any. The returned device structure should be
-> + * released with put_device().
-> + *
-> + * See also usb_intf_get_dma_device().
-> + *
-> + * Returns: A reference to the usb device's DMA endpoint; or NULL if none
-> + *          exists.
-> + */
-> +struct device *usb_get_dma_device(struct usb_device *udev)
-> +{
-> +	struct device *dmadev;
-> +
-> +	if (!udev->bus)
-> +		return NULL;
-> +
-> +	dmadev = get_device(udev->bus->sysdev);
-> +	if (!dmadev || !dmadev->dma_mask) {
-> +		put_device(dmadev);
-> +		return NULL;
-> +	}
-> +
-> +	return dmadev;
-> +}
-> +EXPORT_SYMBOL_GPL(usb_get_dma_device);
-
-There's no point making this a separate function, since it has no
-callers of its own.  Just make usb_intf_get_dma_device the only new
-function.
-
-> --- a/include/linux/usb.h
-> +++ b/include/linux/usb.h
-> @@ -711,6 +711,7 @@ struct usb_device {
->  	unsigned use_generic_driver:1;
->  };
->  #define	to_usb_device(d) container_of(d, struct usb_device, dev)
-> +#define dev_is_usb(d)	((d)->bus == &usb_bus_type)
->  
->  static inline struct usb_device *interface_to_usbdev(struct usb_interface *intf)
->  {
-> @@ -746,6 +747,29 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
->  extern int usb_reset_device(struct usb_device *dev);
->  extern void usb_queue_reset_device(struct usb_interface *dev);
->  
-> +extern struct device *usb_get_dma_device(struct usb_device *udev);
-> +
-> +/**
-> + * usb_intf_get_dma_device - acquire a reference on the usb interface's DMA endpoint
-> + * @intf: the usb interface
-> + *
-> + * While a USB device cannot perform DMA operations by itself, many USB
-> + * controllers can. A call to usb_intf_get_dma_device() returns the DMA endpoint
-> + * for the given USB interface, if any. The returned device structure should be
-> + * released with put_device().
-> + *
-> + * See also usb_get_dma_device().
-> + *
-> + * Returns: A reference to the usb interface's DMA endpoint; or NULL if none
-> + *          exists.
-> + */
-> +static inline struct device *usb_intf_get_dma_device(struct usb_interface *intf)
-> +{
-> +	if (!intf)
-> +		return NULL;
-
-Why would intf ever be NULL?
-
-> +	return usb_get_dma_device(interface_to_usbdev(intf));
-> +}
-
-Alan Stern
+Best regards
+Prof. Dr Diane
+Head of Foreign Operation
