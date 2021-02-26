@@ -2,163 +2,323 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C16F8325ED9
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 09:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD1832600D
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 10:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbhBZIXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 03:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57584 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbhBZIXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Feb 2021 03:23:09 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E78AC06174A;
-        Fri, 26 Feb 2021 00:22:29 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id e9so2890442pjs.2;
-        Fri, 26 Feb 2021 00:22:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Lf0RP6AWNkPsAQL2oVEp2TVD1wy1RanwfgCPUOayM4c=;
-        b=WKwkhyilQl5a9kG7HMphFNeig60dCMgmpHKLWrlXVfCzatiOlKxm0F021oFRNuVWb/
-         kiCIjl95ej7pQJkubLQhPb4OMIbqQEfOFhSdGS2k9ZFy8sMZc5yQ98w1NFGJVGyZGshp
-         PXQSDP3brGIDyklcO0uxBtuGFbwiMAmfXOs2cSw8PRQBN5NWikRKG8Ep/OfvTgN0Boua
-         NA7Xvvc8B+IB6EnCPy8nPiNaLpz0EJS962UUotRwLPLZvTjbxkkhn1dUv2IQN35GkCpb
-         HMnqHTRwXh8Wts2GCH/3QgxKdTPvvpBKpo1s+5T7BkVp1z756HHOTUFRyfZ7btUMdQz1
-         +VqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Lf0RP6AWNkPsAQL2oVEp2TVD1wy1RanwfgCPUOayM4c=;
-        b=KHqe1VzeWEfaQxy7RIIjkNjVg1Wxx0pO1ABYPIwTiN1tTaRFsVHVN/fANCd5BCWGg6
-         pYEtbE7PtzmDLObxv/0/awbEXjF128hk7R0YQ2W5J860WBFJkRC6BFSmY6hhe7I2nuHB
-         MPPnNpI8MAhYfREc3MH6KfRixml9bmZOG25k/7tQbpodJBG+IvRE58yYKmk7jMpxD26T
-         wztqtsi12QU3q1D5ROrSDLj4vDgOAKqLC4Zo76unvA7Zyxza+8xurnk/gO+FL9p3q0d6
-         gqzWVe8qnefLoqTzIPY0cXgjID3KXIVlJ1S5E1k8isiobt0iQeHcIqYtjDvibTkL1CWn
-         oaQg==
-X-Gm-Message-State: AOAM532XPvLDDyOwRfii1MfiRiR4uTNpb79ozV3pmgoCmWlYrsDdRQ39
-        3FBCd1vMtvq2ounORd1zO58=
-X-Google-Smtp-Source: ABdhPJwmYYiFXfn3Bh/XIs5iYnRmfPWYauleaeHa5rh2vi33lsGkIC+YLcNfpzIC8wr2qDgAcmLIFg==
-X-Received: by 2002:a17:90a:df12:: with SMTP id gp18mr2294256pjb.25.1614327748552;
-        Fri, 26 Feb 2021 00:22:28 -0800 (PST)
-Received: from octofox.hsd1.ca.comcast.net (c-24-130-92-200.hsd1.ca.comcast.net. [24.130.92.200])
-        by smtp.gmail.com with ESMTPSA id c6sm9020138pfc.94.2021.02.26.00.22.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Feb 2021 00:22:27 -0800 (PST)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] xtensa: move coprocessor_flush to the .text section
-Date:   Fri, 26 Feb 2021 00:22:19 -0800
-Message-Id: <20210226082219.8224-1-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.20.1
+        id S231137AbhBZJ3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 04:29:34 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56014 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230362AbhBZJ1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Feb 2021 04:27:32 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 61464ACD9;
+        Fri, 26 Feb 2021 09:26:50 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     daniel@ffwll.ch, airlied@linux.ie,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
+        noralf@tronnes.org, stern@rowland.harvard.edu
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Pavel Machek <pavel@ucw.cz>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: [PATCH v5] drm: Use USB controller's DMA mask when importing dmabufs
+Date:   Fri, 26 Feb 2021 10:26:47 +0100
+Message-Id: <20210226092648.4584-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-coprocessor_flush is not a part of fast exception handlers, but it uses
-parts of fast coprocessor handling code that's why it's in the same
-source file. It uses call0 opcode to invoke those parts so there are no
-limitations on their relative location, but the rest of the code calls
-coprocessor_flush with call8 and that doesn't work when vectors are
-placed in a different gigabyte-aligned area than the rest of the kernel.
+USB devices cannot perform DMA and hence have no dma_mask set in their
+device structure. Therefore importing dmabuf into a USB-based driver
+fails, which breaks joining and mirroring of display in X11.
 
-Move coprocessor_flush from the .exception.text section to the .text so
-that it's reachable from the rest of the kernel with call8.
+For USB devices, pick the associated USB controller as attachment device.
+This allows the DRM import helpers to perform the DMA setup. If the DMA
+controller does not support DMA transfers, we're out of luck and cannot
+import. Our current USB-based DRM drivers don't use DMA, so the actual
+DMA device is not important.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
+instance of struct drm_driver.
+
+Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
+
+v5:
+	* provide a helper for USB interfaces (Alan)
+	* add FIXME item to documentation and TODO list (Daniel)
+v4:
+	* implement workaround with USB helper functions (Greg)
+	* use struct usb_device->bus->sysdev as DMA device (Takashi)
+v3:
+	* drop gem_create_object
+	* use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
+v2:
+	* move fix to importer side (Christian, Daniel)
+	* update SHMEM and CMA helpers for new PRIME callbacks
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devices")
+Tested-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Christian König <christian.koenig@amd.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org> # v5.10+
 ---
- arch/xtensa/kernel/coprocessor.S | 64 ++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 31 deletions(-)
+ Documentation/gpu/todo.rst         | 15 ++++++++++
+ drivers/gpu/drm/drm_prime.c        | 45 ++++++++++++++++++++++++++++++
+ drivers/gpu/drm/tiny/gm12u320.c    |  2 +-
+ drivers/gpu/drm/udl/udl_drv.c      |  2 +-
+ drivers/usb/core/usb.c             | 31 ++++++++++++++++++++
+ include/drm/drm_gem_shmem_helper.h | 16 +++++++++++
+ include/drm/drm_prime.h            |  5 ++++
+ include/linux/usb.h                | 24 ++++++++++++++++
+ 8 files changed, 138 insertions(+), 2 deletions(-)
 
-diff --git a/arch/xtensa/kernel/coprocessor.S b/arch/xtensa/kernel/coprocessor.S
-index c426b846beef..45cc0ae0af6f 100644
---- a/arch/xtensa/kernel/coprocessor.S
-+++ b/arch/xtensa/kernel/coprocessor.S
-@@ -99,37 +99,6 @@
- 	LOAD_CP_REGS_TAB(6)
- 	LOAD_CP_REGS_TAB(7)
+diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
+index f872d3d33218..c185e0a2951e 100644
+--- a/Documentation/gpu/todo.rst
++++ b/Documentation/gpu/todo.rst
+@@ -617,6 +617,21 @@ Contact: Daniel Vetter
  
--/*
-- * coprocessor_flush(struct thread_info*, index)
-- *                             a2        a3
-- *
-- * Save coprocessor registers for coprocessor 'index'.
-- * The register values are saved to or loaded from the coprocessor area 
-- * inside the task_info structure.
-- *
-- * Note that this function doesn't update the coprocessor_owner information!
-- *
-- */
--
--ENTRY(coprocessor_flush)
--
--	/* reserve 4 bytes on stack to save a0 */
--	abi_entry(4)
--
--	s32i	a0, a1, 0
--	movi	a0, .Lsave_cp_regs_jump_table
--	addx8	a3, a3, a0
--	l32i	a4, a3, 4
--	l32i	a3, a3, 0
--	add	a2, a2, a4
--	beqz	a3, 1f
--	callx0	a3
--1:	l32i	a0, a1, 0
--
--	abi_ret(4)
--
--ENDPROC(coprocessor_flush)
--
- /*
-  * Entry condition:
-  *
-@@ -245,6 +214,39 @@ ENTRY(fast_coprocessor)
+ Level: Intermediate
  
- ENDPROC(fast_coprocessor)
- 
-+	.text
++Remove automatic page mapping from dma-buf importing
++----------------------------------------------------
 +
-+/*
-+ * coprocessor_flush(struct thread_info*, index)
-+ *                             a2        a3
++When importing dma-bufs, the dma-buf and PRIME frameworks automatically map
++imported pages into the importer's DMA area. This is a problem for USB devices,
++which do not support DMA operations. By default, importing fails for USB
++devices. USB-based drivers work around this problem by employing
++drm_gem_prime_import_usb(). To fix the issue, automatic page mappings should
++be removed from the buffer-sharing code.
++
++Contact: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
++
++Level: Advanced
++
++
+ Better Testing
+ ==============
+ 
+diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+index 2a54f86856af..59013bb1cd4b 100644
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -29,6 +29,7 @@
+ #include <linux/export.h>
+ #include <linux/dma-buf.h>
+ #include <linux/rbtree.h>
++#include <linux/usb.h>
+ 
+ #include <drm/drm.h>
+ #include <drm/drm_drv.h>
+@@ -1055,3 +1056,47 @@ void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg)
+ 	dma_buf_put(dma_buf);
+ }
+ EXPORT_SYMBOL(drm_prime_gem_destroy);
++
++/**
++ * drm_gem_prime_import_usb - helper library implementation of the import callback for USB devices
++ * @dev: drm_device to import into
++ * @dma_buf: dma-buf object to import
 + *
-+ * Save coprocessor registers for coprocessor 'index'.
-+ * The register values are saved to or loaded from the coprocessor area
-+ * inside the task_info structure.
++ * This is an implementation of drm_gem_prime_import() for USB-based devices.
++ * USB devices cannot perform DMA directly. This function selects the USB host
++ * controller as DMA device instead. Drivers can use this as their
++ * &drm_driver.gem_prime_import implementation.
 + *
-+ * Note that this function doesn't update the coprocessor_owner information!
++ * See also drm_gem_prime_import().
 + *
++ * FIXME: The dma-buf framework expects to map the exported pages into
++ *        the importer's DMA area. USB devices don't support DMA, and
++ *        importing would fail. Foir the time being, this function provides
++ *        a workaround by using the USB controller's DMA area. The real
++ *        solution is to remove page-mapping operations from the dma-buf
++ *        framework.
++ *
++ * Returns: A GEM object on success, or a pointer-encoder errno value otherwise.
 + */
++#ifdef CONFIG_USB
++struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev,
++						struct dma_buf *dma_buf)
++{
++	struct device *dmadev;
++	struct drm_gem_object *obj;
 +
-+ENTRY(coprocessor_flush)
++	if (!dev_is_usb(dev->dev))
++		return ERR_PTR(-ENODEV);
 +
-+	/* reserve 4 bytes on stack to save a0 */
-+	abi_entry(4)
++	dmadev = usb_intf_get_dma_device(to_usb_interface(dev->dev));
++	if (drm_WARN_ONCE(dev, !dmadev, "buffer sharing not supported"))
++		return ERR_PTR(-ENODEV);
 +
-+	s32i	a0, a1, 0
-+	movi	a0, .Lsave_cp_regs_jump_table
-+	addx8	a3, a3, a0
-+	l32i	a4, a3, 4
-+	l32i	a3, a3, 0
-+	add	a2, a2, a4
-+	beqz	a3, 1f
-+	callx0	a3
-+1:	l32i	a0, a1, 0
++	obj = drm_gem_prime_import_dev(dev, dma_buf, dmadev);
 +
-+	abi_ret(4)
++	put_device(dmadev);
 +
-+ENDPROC(coprocessor_flush)
-+
- 	.data
++	return obj;
++}
++EXPORT_SYMBOL(drm_gem_prime_import_usb);
++#endif
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 0b4f4f2af1ef..99e7bd36a220 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -611,7 +611,7 @@ static const struct drm_driver gm12u320_drm_driver = {
+ 	.minor		 = DRIVER_MINOR,
  
- ENTRY(coprocessor_owner)
+ 	.fops		 = &gm12u320_fops,
+-	DRM_GEM_SHMEM_DRIVER_OPS,
++	DRM_GEM_SHMEM_DRIVER_OPS_USB,
+ };
+ 
+ static const struct drm_mode_config_funcs gm12u320_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_drv.c
+index 9269092697d8..2db483b2b199 100644
+--- a/drivers/gpu/drm/udl/udl_drv.c
++++ b/drivers/gpu/drm/udl/udl_drv.c
+@@ -39,7 +39,7 @@ static const struct drm_driver driver = {
+ 
+ 	/* GEM hooks */
+ 	.fops = &udl_driver_fops,
+-	DRM_GEM_SHMEM_DRIVER_OPS,
++	DRM_GEM_SHMEM_DRIVER_OPS_USB,
+ 
+ 	.name = DRIVER_NAME,
+ 	.desc = DRIVER_DESC,
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 8f07b0516100..5e07921e87ba 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -748,6 +748,37 @@ void usb_put_intf(struct usb_interface *intf)
+ }
+ EXPORT_SYMBOL_GPL(usb_put_intf);
+ 
++/**
++ * usb_get_dma_device - acquire a reference on the usb device's DMA endpoint
++ * @udev: usb device
++ *
++ * While a USB device cannot perform DMA operations by itself, many USB
++ * controllers can. A call to usb_get_dma_device() returns the DMA endpoint
++ * for the given USB device, if any. The returned device structure should be
++ * released with put_device().
++ *
++ * See also usb_intf_get_dma_device().
++ *
++ * Returns: A reference to the usb device's DMA endpoint; or NULL if none
++ *          exists.
++ */
++struct device *usb_get_dma_device(struct usb_device *udev)
++{
++	struct device *dmadev;
++
++	if (!udev->bus)
++		return NULL;
++
++	dmadev = get_device(udev->bus->sysdev);
++	if (!dmadev || !dmadev->dma_mask) {
++		put_device(dmadev);
++		return NULL;
++	}
++
++	return dmadev;
++}
++EXPORT_SYMBOL_GPL(usb_get_dma_device);
++
+ /*			USB device locking
+  *
+  * USB devices and interfaces are locked using the semaphore in their
+diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+index 434328d8a0d9..ea8144f33c1f 100644
+--- a/include/drm/drm_gem_shmem_helper.h
++++ b/include/drm/drm_gem_shmem_helper.h
+@@ -162,4 +162,20 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_object *obj);
+ 	.gem_prime_mmap		= drm_gem_prime_mmap, \
+ 	.dumb_create		= drm_gem_shmem_dumb_create
+ 
++#ifdef CONFIG_USB
++/**
++ * DRM_GEM_SHMEM_DRIVER_OPS_USB - Default shmem GEM operations for USB devices
++ *
++ * This macro provides a shortcut for setting the shmem GEM operations in
++ * the &drm_driver structure. Drivers for USB-based devices should use this
++ * macro instead of &DRM_GEM_SHMEM_DRIVER_OPS.
++ *
++ * FIXME: Support USB devices with default SHMEM driver ops. See the
++ *        documentation of drm_gem_prime_import_usb() for details.
++ */
++#define DRM_GEM_SHMEM_DRIVER_OPS_USB \
++	DRM_GEM_SHMEM_DRIVER_OPS, \
++	.gem_prime_import = drm_gem_prime_import_usb
++#endif
++
+ #endif /* __DRM_GEM_SHMEM_HELPER_H__ */
+diff --git a/include/drm/drm_prime.h b/include/drm/drm_prime.h
+index 54f2c58305d2..b42e07edd9e6 100644
+--- a/include/drm/drm_prime.h
++++ b/include/drm/drm_prime.h
+@@ -110,4 +110,9 @@ int drm_prime_sg_to_page_array(struct sg_table *sgt, struct page **pages,
+ int drm_prime_sg_to_dma_addr_array(struct sg_table *sgt, dma_addr_t *addrs,
+ 				   int max_pages);
+ 
++#ifdef CONFIG_USB
++struct drm_gem_object *drm_gem_prime_import_usb(struct drm_device *dev,
++						struct dma_buf *dma_buf);
++#endif
++
+ #endif /* __DRM_PRIME_H__ */
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index 7d72c4e0713c..e6e0acf6a193 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -711,6 +711,7 @@ struct usb_device {
+ 	unsigned use_generic_driver:1;
+ };
+ #define	to_usb_device(d) container_of(d, struct usb_device, dev)
++#define dev_is_usb(d)	((d)->bus == &usb_bus_type)
+ 
+ static inline struct usb_device *interface_to_usbdev(struct usb_interface *intf)
+ {
+@@ -746,6 +747,29 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
+ extern int usb_reset_device(struct usb_device *dev);
+ extern void usb_queue_reset_device(struct usb_interface *dev);
+ 
++extern struct device *usb_get_dma_device(struct usb_device *udev);
++
++/**
++ * usb_intf_get_dma_device - acquire a reference on the usb interface's DMA endpoint
++ * @intf: the usb interface
++ *
++ * While a USB device cannot perform DMA operations by itself, many USB
++ * controllers can. A call to usb_intf_get_dma_device() returns the DMA endpoint
++ * for the given USB interface, if any. The returned device structure should be
++ * released with put_device().
++ *
++ * See also usb_get_dma_device().
++ *
++ * Returns: A reference to the usb interface's DMA endpoint; or NULL if none
++ *          exists.
++ */
++static inline struct device *usb_intf_get_dma_device(struct usb_interface *intf)
++{
++	if (!intf)
++		return NULL;
++	return usb_get_dma_device(interface_to_usbdev(intf));
++}
++
+ #ifdef CONFIG_ACPI
+ extern int usb_acpi_set_power_state(struct usb_device *hdev, int index,
+ 	bool enable);
 -- 
-2.20.1
+2.30.1
 
