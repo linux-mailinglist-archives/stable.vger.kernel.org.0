@@ -2,164 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ED2325B34
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 02:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7843C325B3C
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 02:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbhBZBTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Feb 2021 20:19:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50196 "EHLO mail.kernel.org"
+        id S230081AbhBZBXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Feb 2021 20:23:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229953AbhBZBSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Feb 2021 20:18:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E654C64EFA;
-        Fri, 26 Feb 2021 01:18:31 +0000 (UTC)
+        id S230095AbhBZBWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Feb 2021 20:22:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E5D864EE4;
+        Fri, 26 Feb 2021 01:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1614302312;
-        bh=7fPrW9lQi6WK+ERSMk9fOQf7ZFDZTTfqz+iYdejlxho=;
+        s=korg; t=1614302547;
+        bh=jKB901BQIYoU4zp3CyOHUYXxA7nUUV5QF+6E8s0LEXI=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=A0BZz2wDuEeM5CEvfQBLzkah/CVKyS8gxZUlvPLYXtBfNOy1A4RWPGpPZO1jLDoOV
-         rJOyDPMqJAdvG24ruIPylOJhWqwn3VGgdGmGXC63xk5GP14AY4dz1dqZjOwCIo2OPJ
-         ez8WxAJQwyE8P0QSicY+x1CSBcqxA6tk3FWN9DBI=
-Date:   Thu, 25 Feb 2021 17:18:31 -0800
+        b=CVW8kwEXCaX/Te74zcCKz52B9zSiXKwxrkrf2jb4462CsYracict7PBK4jy+mp+47
+         aQYEePpiJmP0CUunumddXqQRrGE6aMOw3NhcFFaM5+Zk8if1EdkVW+WWN1ZQZta455
+         Uf399bRYY2VuQxEVj4717sDMg+xtbxMdVj91/iZ4=
+Date:   Thu, 25 Feb 2021 17:22:25 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org, minchan@kernel.org,
-        mm-commits@vger.kernel.org, sergey.senozhatsky@gmail.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        wu-yan@tcl.com
-Subject:  [patch 050/118] zsmalloc: account the number of compacted
- pages correctly
-Message-ID: <20210226011831.CV7rry-jF%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, corbet@lwn.net,
+        dave.hansen@linux.intel.com, davem@davemloft.net,
+        linux-mm@kvack.org, lucien.xin@gmail.com, luto@kernel.org,
+        marcelo.leitner@gmail.com, mingo@redhat.com,
+        mm-commits@vger.kernel.org, neilb@suse.de, nhorman@tuxdriver.com,
+        peterz@infradead.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        vyasevich@gmail.com
+Subject:  [patch 112/118] seq_file: document how per-entry
+ resources are managed.
+Message-ID: <20210226012225.-bfePYsH9%akpm@linux-foundation.org>
 In-Reply-To: <20210225171452.713967e96554bb6a53e44a19@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rokudo Yan <wu-yan@tcl.com>
-Subject: zsmalloc: account the number of compacted pages correctly
+From: NeilBrown <neilb@suse.de>
+Subject: seq_file: document how per-entry resources are managed.
 
-There exists multiple path may do zram compaction concurrently.
-1. auto-compaction triggered during memory reclaim
-2. userspace utils write zram<id>/compaction node
+Patch series "Fix some seq_file users that were recently broken".
 
-So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
-But pages_compacted is a per zsmalloc pool variable and modification
-of the variable is not serialized(through under class->lock).
-There are two issues here:
-1. the pages_compacted may not equal to total number of pages
-freed(due to concurrently add).
-2. zs_shrinker_scan may not return the correct number of pages
-freed(issued by current shrinker).
+A recent change to seq_file broke some users which were using seq_file
+in a non-"standard" way ...  though the "standard" isn't documented, so
+they can be excused.  The result is a possible leak - of memory in one
+case, of references to a 'transport' in the other.
 
-The fix is simple:
-1. account the number of pages freed in zs_compact locally.
-2. use actomic variable pages_compacted to accumulate total number.
+These three patches:
+ 1/ document and explain the problem
+ 2/ fix the problem user in x86
+ 3/ fix the problem user in net/sctp
 
-Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
-Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
-Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+
+This patch (of 3):
+
+Users of seq_file will sometimes find it convenient to take a resource,
+such as a lock or memory allocation, in the ->start or ->next operations. 
+These are per-entry resources, distinct from per-session resources which
+are taken in ->start and released in ->stop.
+
+The preferred management of these is release the resource on the
+subsequent call to ->next or ->stop.
+
+However prior to Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file
+iteration code and interface") it happened that ->show would always be
+called after ->start or ->next, and a few users chose to release the
+resource in ->show.
+
+This is no longer reliable.  Since the mentioned commit, ->next will
+always come after a successful ->show (to ensure m->index is updated
+correctly), so the original ordering cannot be maintained.
+
+This patch updates the documentation to clearly state the required
+behaviour.  Other patches will fix the few problematic users.
+
+[akpm@linux-foundation.org: fix typo, per Willy]
+Link: https://lkml.kernel.org/r/161248518659.21478.2484341937387294998.stgit@noble1
+Link: https://lkml.kernel.org/r/161248539020.21478.3147971477400875336.stgit@noble1
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+Signed-off-by: NeilBrown <neilb@suse.de>
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/block/zram/zram_drv.c |    2 +-
- include/linux/zsmalloc.h      |    2 +-
- mm/zsmalloc.c                 |   17 +++++++++++------
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ Documentation/filesystems/seq_file.rst |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/block/zram/zram_drv.c~zsmalloc-account-the-number-of-compacted-pages-correctly
-+++ a/drivers/block/zram/zram_drv.c
-@@ -1081,7 +1081,7 @@ static ssize_t mm_stat_show(struct devic
- 			zram->limit_pages << PAGE_SHIFT,
- 			max_used << PAGE_SHIFT,
- 			(u64)atomic64_read(&zram->stats.same_pages),
--			pool_stats.pages_compacted,
-+			atomic_long_read(&pool_stats.pages_compacted),
- 			(u64)atomic64_read(&zram->stats.huge_pages),
- 			(u64)atomic64_read(&zram->stats.huge_pages_since));
- 	up_read(&zram->init_lock);
---- a/include/linux/zsmalloc.h~zsmalloc-account-the-number-of-compacted-pages-correctly
-+++ a/include/linux/zsmalloc.h
-@@ -35,7 +35,7 @@ enum zs_mapmode {
+--- a/Documentation/filesystems/seq_file.rst~seq_file-document-how-per-entry-resources-are-managed
++++ a/Documentation/filesystems/seq_file.rst
+@@ -217,6 +217,12 @@ between the calls to start() and stop(),
+ is a reasonable thing to do. The seq_file code will also avoid taking any
+ other locks while the iterator is active.
  
- struct zs_pool_stats {
- 	/* How many pages were migrated (freed) */
--	unsigned long pages_compacted;
-+	atomic_long_t pages_compacted;
- };
- 
- struct zs_pool;
---- a/mm/zsmalloc.c~zsmalloc-account-the-number-of-compacted-pages-correctly
-+++ a/mm/zsmalloc.c
-@@ -2212,11 +2212,13 @@ static unsigned long zs_can_compact(stru
- 	return obj_wasted * class->pages_per_zspage;
- }
- 
--static void __zs_compact(struct zs_pool *pool, struct size_class *class)
-+static unsigned long __zs_compact(struct zs_pool *pool,
-+				  struct size_class *class)
- {
- 	struct zs_compact_control cc;
- 	struct zspage *src_zspage;
- 	struct zspage *dst_zspage = NULL;
-+	unsigned long pages_freed = 0;
- 
- 	spin_lock(&class->lock);
- 	while ((src_zspage = isolate_zspage(class, true))) {
-@@ -2246,7 +2248,7 @@ static void __zs_compact(struct zs_pool
- 		putback_zspage(class, dst_zspage);
- 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
- 			free_zspage(pool, class, src_zspage);
--			pool->stats.pages_compacted += class->pages_per_zspage;
-+			pages_freed += class->pages_per_zspage;
- 		}
- 		spin_unlock(&class->lock);
- 		cond_resched();
-@@ -2257,12 +2259,15 @@ static void __zs_compact(struct zs_pool
- 		putback_zspage(class, src_zspage);
- 
- 	spin_unlock(&class->lock);
++The iterater value returned by start() or next() is guaranteed to be
++passed to a subsequent next() or stop() call.  This allows resources
++such as locks that were taken to be reliably released.  There is *no*
++guarantee that the iterator will be passed to show(), though in practice
++it often will be.
 +
-+	return pages_freed;
- }
  
- unsigned long zs_compact(struct zs_pool *pool)
- {
- 	int i;
- 	struct size_class *class;
-+	unsigned long pages_freed = 0;
- 
- 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
- 		class = pool->size_class[i];
-@@ -2270,10 +2275,11 @@ unsigned long zs_compact(struct zs_pool
- 			continue;
- 		if (class->index != i)
- 			continue;
--		__zs_compact(pool, class);
-+		pages_freed += __zs_compact(pool, class);
- 	}
-+	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
- 
--	return pool->stats.pages_compacted;
-+	return pages_freed;
- }
- EXPORT_SYMBOL_GPL(zs_compact);
- 
-@@ -2290,13 +2296,12 @@ static unsigned long zs_shrinker_scan(st
- 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
- 			shrinker);
- 
--	pages_freed = pool->stats.pages_compacted;
- 	/*
- 	 * Compact classes and calculate compaction delta.
- 	 * Can run concurrently with a manually triggered
- 	 * (by user) compaction.
- 	 */
--	pages_freed = zs_compact(pool) - pages_freed;
-+	pages_freed = zs_compact(pool);
- 
- 	return pages_freed ? pages_freed : SHRINK_STOP;
- }
+ Formatted output
+ ================
 _
