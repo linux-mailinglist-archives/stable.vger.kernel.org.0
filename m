@@ -2,112 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D5D326578
-	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 17:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A443265CE
+	for <lists+stable@lfdr.de>; Fri, 26 Feb 2021 17:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbhBZQXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Feb 2021 11:23:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54466 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230019AbhBZQXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Feb 2021 11:23:13 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 44B4CAB8C;
-        Fri, 26 Feb 2021 16:22:28 +0000 (UTC)
-From:   Vlastimil Babka <vbabka@suse.cz>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nicolai Stange <nstange@suse.de>
-Subject: [PATCH 4.9 STABLE] mm, thp: make do_huge_pmd_wp_page() lock page for testing mapcount
-Date:   Fri, 26 Feb 2021 17:22:00 +0100
-Message-Id: <20210226162200.20548-1-vbabka@suse.cz>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <26569718-050f-fc90-e3ac-79edfaae9ac7@suse.cz>
-References: <26569718-050f-fc90-e3ac-79edfaae9ac7@suse.cz>
+        id S230198AbhBZQod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Feb 2021 11:44:33 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:46363 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S230170AbhBZQo0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Feb 2021 11:44:26 -0500
+Received: (qmail 1394367 invoked by uid 1000); 26 Feb 2021 11:43:42 -0500
+Date:   Fri, 26 Feb 2021 11:43:42 -0500
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     Thomas Zimmermann <tzimmermann@suse.de>
+Cc:     daniel@ffwll.ch, airlied@linux.ie,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
+        noralf@tronnes.org, dri-devel@lists.freedesktop.org,
+        Pavel Machek <pavel@ucw.cz>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: Re: [PATCH v5] drm: Use USB controller's DMA mask when importing
+ dmabufs
+Message-ID: <20210226164342.GC1392547@rowland.harvard.edu>
+References: <20210226092648.4584-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210226092648.4584-1-tzimmermann@suse.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jann reported [1] a race between __split_huge_pmd_locked() and
-page_trans_huge_map_swapcount() which can result in a page to be reused
-instead of COWed. This was later assigned CVE-2020-29368.
+On Fri, Feb 26, 2021 at 10:26:47AM +0100, Thomas Zimmermann wrote:
+> USB devices cannot perform DMA and hence have no dma_mask set in their
+> device structure. Therefore importing dmabuf into a USB-based driver
+> fails, which breaks joining and mirroring of display in X11.
+> 
+> For USB devices, pick the associated USB controller as attachment device.
+> This allows the DRM import helpers to perform the DMA setup. If the DMA
+> controller does not support DMA transfers, we're out of luck and cannot
+> import. Our current USB-based DRM drivers don't use DMA, so the actual
+> DMA device is not important.
+> 
+> Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
+> instance of struct drm_driver.
+> 
+> Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
+> 
+> v5:
+> 	* provide a helper for USB interfaces (Alan)
+> 	* add FIXME item to documentation and TODO list (Daniel)
 
-This was fixed by commit c444eb564fb1 ("mm: thp: make the THP mapcount atomic
-against __split_huge_pmd_locked()") by doing the split under the page lock,
-while all users of page_trans_huge_map_swapcount() were already also under page
-lock. The fix was backported also to 4.9 stable series.
+> --- a/drivers/usb/core/usb.c
+> +++ b/drivers/usb/core/usb.c
+> @@ -748,6 +748,37 @@ void usb_put_intf(struct usb_interface *intf)
+>  }
+>  EXPORT_SYMBOL_GPL(usb_put_intf);
+>  
+> +/**
+> + * usb_get_dma_device - acquire a reference on the usb device's DMA endpoint
+> + * @udev: usb device
+> + *
+> + * While a USB device cannot perform DMA operations by itself, many USB
+> + * controllers can. A call to usb_get_dma_device() returns the DMA endpoint
+> + * for the given USB device, if any. The returned device structure should be
+> + * released with put_device().
+> + *
+> + * See also usb_intf_get_dma_device().
+> + *
+> + * Returns: A reference to the usb device's DMA endpoint; or NULL if none
+> + *          exists.
+> + */
+> +struct device *usb_get_dma_device(struct usb_device *udev)
+> +{
+> +	struct device *dmadev;
+> +
+> +	if (!udev->bus)
+> +		return NULL;
+> +
+> +	dmadev = get_device(udev->bus->sysdev);
+> +	if (!dmadev || !dmadev->dma_mask) {
+> +		put_device(dmadev);
+> +		return NULL;
+> +	}
+> +
+> +	return dmadev;
+> +}
+> +EXPORT_SYMBOL_GPL(usb_get_dma_device);
 
-When testing the backport on a 4.12 based kernel, Nicolai noticed the POC from
-[1] still reproduces after backporting c444eb564fb1 and identified a missing
-page lock in do_huge_pmd_wp_page() around the call to
-page_trans_huge_mapcount(). The page lock was only added in ba3c4ce6def4 ("mm,
-THP, swap: make reuse_swap_page() works for THP swapped out") in 4.14. The
-commit also wrapped page_trans_huge_mapcount() into
-page_trans_huge_map_swapcount() for the purposes of COW decisions.
+There's no point making this a separate function, since it has no
+callers of its own.  Just make usb_intf_get_dma_device the only new
+function.
 
-I have verified that 4.9.y indeed also reproduces with the POC. Backporting
-ba3c4ce6def4 alone however is not possible as it's part of a larger effort of
-optimizing THP swapping, which would be risky to backport fully.
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -711,6 +711,7 @@ struct usb_device {
+>  	unsigned use_generic_driver:1;
+>  };
+>  #define	to_usb_device(d) container_of(d, struct usb_device, dev)
+> +#define dev_is_usb(d)	((d)->bus == &usb_bus_type)
+>  
+>  static inline struct usb_device *interface_to_usbdev(struct usb_interface *intf)
+>  {
+> @@ -746,6 +747,29 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
+>  extern int usb_reset_device(struct usb_device *dev);
+>  extern void usb_queue_reset_device(struct usb_interface *dev);
+>  
+> +extern struct device *usb_get_dma_device(struct usb_device *udev);
+> +
+> +/**
+> + * usb_intf_get_dma_device - acquire a reference on the usb interface's DMA endpoint
+> + * @intf: the usb interface
+> + *
+> + * While a USB device cannot perform DMA operations by itself, many USB
+> + * controllers can. A call to usb_intf_get_dma_device() returns the DMA endpoint
+> + * for the given USB interface, if any. The returned device structure should be
+> + * released with put_device().
+> + *
+> + * See also usb_get_dma_device().
+> + *
+> + * Returns: A reference to the usb interface's DMA endpoint; or NULL if none
+> + *          exists.
+> + */
+> +static inline struct device *usb_intf_get_dma_device(struct usb_interface *intf)
+> +{
+> +	if (!intf)
+> +		return NULL;
 
-Therefore this 4.9-stable-only patch just wraps page_trans_huge_mapcount()
-in page_trans_huge_mapcount() under page lock the same way as ba3c4ce6def4
-does, but without the page_trans_huge_map_swapcount() part. Other callers
-of page_trans_huge_mapcount() are all under page lock already. I have verified
-the POC no longer reproduces afterwards.
+Why would intf ever be NULL?
 
-[1] https://bugs.chromium.org/p/project-zero/issues/detail?id=2045
+> +	return usb_get_dma_device(interface_to_usbdev(intf));
+> +}
 
-Reported-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
----
- mm/huge_memory.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 05ca01ef97f7..14cd0ef33b62 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1022,6 +1022,19 @@ int do_huge_pmd_wp_page(struct fault_env *fe, pmd_t orig_pmd)
- 	 * We can only reuse the page if nobody else maps the huge page or it's
- 	 * part.
- 	 */
-+	if (!trylock_page(page)) {
-+		get_page(page);
-+		spin_unlock(fe->ptl);
-+		lock_page(page);
-+		spin_lock(fe->ptl);
-+		if (unlikely(!pmd_same(*fe->pmd, orig_pmd))) {
-+			unlock_page(page);
-+			put_page(page);
-+			goto out_unlock;
-+		}
-+		put_page(page);
-+	}
-+
- 	if (page_trans_huge_mapcount(page, NULL) == 1) {
- 		pmd_t entry;
- 		entry = pmd_mkyoung(orig_pmd);
-@@ -1029,8 +1042,10 @@ int do_huge_pmd_wp_page(struct fault_env *fe, pmd_t orig_pmd)
- 		if (pmdp_set_access_flags(vma, haddr, fe->pmd, entry,  1))
- 			update_mmu_cache_pmd(vma, fe->address, fe->pmd);
- 		ret |= VM_FAULT_WRITE;
-+		unlock_page(page);
- 		goto out_unlock;
- 	}
-+	unlock_page(page);
- 	get_page(page);
- 	spin_unlock(fe->ptl);
- alloc:
--- 
-2.30.1
-
+Alan Stern
