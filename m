@@ -2,90 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E8132751F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 00:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75AD2327507
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 00:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231185AbhB1XLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Feb 2021 18:11:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40666 "EHLO
+        id S230503AbhB1XC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Feb 2021 18:02:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbhB1XK7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 18:10:59 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD1EC06174A;
-        Sun, 28 Feb 2021 15:10:19 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id bm21so6032280ejb.4;
-        Sun, 28 Feb 2021 15:10:19 -0800 (PST)
+        with ESMTP id S230439AbhB1XCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 18:02:55 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9072C06174A
+        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 15:02:15 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id u11so8726438plg.13
+        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 15:02:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wdxemGBy4u4SaMjaDQDpqTi0AcRXyjzG6DEYFc4fJWY=;
-        b=TC5ZxJiYcJnAR6DNazwFrjmw0QYBNQsYxt7nvbT0zVx744R7RKUCmxNFiptYCl8nUk
-         nycT3ydDClpQQTgqFI0TlxIpuNA+XQ2GPzHBQ0uqwdgzytp+4948VyiR0Bhe1/BhmDbu
-         NLnizk1AnqIRKi6K9KktXSDSUzzQ7DZ40oopV+26aVrMp6NTYxApW0GRskZ9a2uSjyFN
-         uc3YO4Dq6zYi59Ljt8cVtJgQi/9Bc6Ckl7g41isKlyobXr0ojp0cT6EtxpeK6F2cbNBL
-         gWGGtY1rGBLuIiaB35bn7s6EChJYw1I8JnSpDdDKDJ8+Uo6pz2lWc/7WbKg6odXfWTjt
-         rt0g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=T8xHofX3JMTL3It/ojI5HLcGBb/AFTFXPBaAnOJbeXw=;
+        b=UcEpr0ZCs2EvZ5MhQ1oNDDnTiXoU3QPZfPZGJ5kMMebIU7XzdyiL2t6+VBGmmctOuU
+         VrARtxlE195Zx2vleJMtzmCsIKOajudAPNQnjcyifVgPiS8jRM9YXwo6NycOV/347TgI
+         3nmUqI4qb+3uB8tA6Jt8pMBBbgJmSaiFjRF6W8xo+xTxj+Ud4kWQ2RL85R++0t3OHYp2
+         ot4dkSCmO4Qu9unMYHBg62MftwiFX6O1RGiZmsKyF6OKVWRZxLKywpsq9InF297qpeie
+         KfZPwTp7ga1KQQmgPHPbj4nQWdY7d4ZdagU+mhDSsW8+hQg36lLH0uVNv6JaUhr3fIGh
+         zfGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wdxemGBy4u4SaMjaDQDpqTi0AcRXyjzG6DEYFc4fJWY=;
-        b=l/McWCfhz84AL8Jy6QQC7rkUOK8e9ThJYp1hluA0mpZoFOv4Gy4wE/zaS9gSQOlrpt
-         e3TLadfYjdDG8NP2f3sRg8/btVDxhVl53IoMTgjRrCmRF2E99a+3xRvttFd+FGYiB6U+
-         iFhM74Q7I5bYaNy+FLthWODtUmU53e6Ym0ZoHNKsTqYIGbS9U1ZJ+SawptnW3W0IOqkF
-         hM6QSq/PBztqiJoR5j2zX/26N/MWhDAGo7a1mZLomeuNROHtXShT7qTTehI4PmO2nk/3
-         ilAysVEcCZTstpK+BP8hcgaAbySglJXMWcMFxKfUJvnuIc7Gry0wM63Y1tXzB0lcd/oo
-         IO0Q==
-X-Gm-Message-State: AOAM532mz1RCA/NjDimkUz1AVRwbTx7Midph/ddde0VpSDCBCsYD378S
-        lLuJ/a3z36Tpppg/H3wogmZcAXE1CZA=
-X-Google-Smtp-Source: ABdhPJwS0btJKYVpA+Ovf535h7FGg54S2ASq/ImH7vMDej4WPkIOnOeRfSY+/yYNhtBIM4KTwxPBKA==
-X-Received: by 2002:a17:906:3444:: with SMTP id d4mr13200598ejb.410.1614553817920;
-        Sun, 28 Feb 2021 15:10:17 -0800 (PST)
-Received: from Ansuel-xps.localdomain (host-79-26-248-106.retail.telecomitalia.it. [79.26.248.106])
-        by smtp.googlemail.com with ESMTPSA id r24sm6048132edw.11.2021.02.28.15.10.16
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=T8xHofX3JMTL3It/ojI5HLcGBb/AFTFXPBaAnOJbeXw=;
+        b=Co4T4CydJqlHtnOZGxbh+oysy8aeJBWxUbrbDdPYPqgrLAGLAU30RjsrWpHE1whZYT
+         Q6V+Wj2JwXb/aHclHFcWsIUGjT9nV6I69Lh9uW5my9sCk7j6CpV5qVeu49SvFlNGlVJ5
+         8oAiW8aFNkzqe74TvFtsLsl6vfE7AiNcI9QyEjr0fTFORfPajQXjZ4yWqHcgL6DF/vDu
+         Ljv7q+ba9WuJUm4vgqOTFCYxfaBNDpqHA7o3EmGu4otkdKMQl8rHb3dDjcw/ciEOrcRO
+         TEXfb8KjMPQH0+DQK31KQxY7aQ77htsEu0BnkFd6QfEJn6kDauKxusV/fRcupZKXNULW
+         QvTA==
+X-Gm-Message-State: AOAM533Y6Gys1RnT8zrYsopYr3cf7mjGIwUTSZTckRbzf0Y2YmmTtXl/
+        DTyZPecM9hsSE2xsIoqlvBRi2aM/lfgwPQ==
+X-Google-Smtp-Source: ABdhPJwuqmHAmcBB6TZjoSNAa34YfcrQyu+qse+SX9RRoDLTCrT7YYkqcepqZoWpjgMFUoO/Pot5cg==
+X-Received: by 2002:a17:902:a985:b029:e3:8796:a128 with SMTP id bh5-20020a170902a985b02900e38796a128mr12585505plb.81.1614553335095;
+        Sun, 28 Feb 2021 15:02:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j1sm15346238pjf.26.2021.02.28.15.02.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Feb 2021 15:10:17 -0800 (PST)
-From:   Ansuel Smith <ansuelsmth@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ansuel Smith <ansuelsmth@gmail.com>, stable@vger.kernel.org,
-        Russell King <linux@armlinux.org.uk>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH] arm: Enlarge IO_SPACE_LIMIT needed for some SoC
-Date:   Sun, 28 Feb 2021 15:44:04 +0100
-Message-Id: <20210228144405.24979-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.30.0
+        Sun, 28 Feb 2021 15:02:14 -0800 (PST)
+Message-ID: <603c20f6.1c69fb81.536dd.3723@mx.google.com>
+Date:   Sun, 28 Feb 2021 15:02:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.177-24-g44c7eca98a48c
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 85 runs,
+ 1 regressions (v4.19.177-24-g44c7eca98a48c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ipq8064 SoC requires larger IO_SPACE_LIMIT or second and third pci port
-fails to register the IO addresses and connected device doesn't work.
+stable-rc/linux-4.19.y baseline: 85 runs, 1 regressions (v4.19.177-24-g44c7=
+eca98a48c)
 
-Cc: <stable@vger.kernel.org> # 4.9+
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
----
- arch/arm/include/asm/io.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Regressions Summary
+-------------------
 
-diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
-index fc748122f1e0..6f3e89f08bd8 100644
---- a/arch/arm/include/asm/io.h
-+++ b/arch/arm/include/asm/io.h
-@@ -197,7 +197,7 @@ void __iomem *pci_remap_cfgspace(resource_size_t res_cookie, size_t size);
- #ifdef CONFIG_NEED_MACH_IO_H
- #include <mach/io.h>
- #elif defined(CONFIG_PCI)
--#define IO_SPACE_LIMIT	((resource_size_t)0xfffff)
-+#define IO_SPACE_LIMIT	((resource_size_t)0xffffff)
- #define __io(a)		__typesafe_io(PCI_IO_VIRT_BASE + ((a) & IO_SPACE_LIMIT))
- #else
- #define __io(a)		__typesafe_io((a) & IO_SPACE_LIMIT)
--- 
-2.30.0
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.177-24-g44c7eca98a48c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.177-24-g44c7eca98a48c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      44c7eca98a48cbe850dc8c5f80fa9cfa14808e52 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603bee5fbfedad3d27addceb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+77-24-g44c7eca98a48c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-=
+q200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+77-24-g44c7eca98a48c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-=
+q200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603bee5fbfedad3d27add=
+cec
+        new failure (last pass: v4.19.177) =
+
+ =20
