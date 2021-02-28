@@ -2,204 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8687832728B
-	for <lists+stable@lfdr.de>; Sun, 28 Feb 2021 14:59:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2741327299
+	for <lists+stable@lfdr.de>; Sun, 28 Feb 2021 15:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbhB1N7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Feb 2021 08:59:02 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53853 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229654AbhB1N7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 08:59:01 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 1FF4A71C;
-        Sun, 28 Feb 2021 08:57:17 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 28 Feb 2021 08:57:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1PEA9w
-        TcZ9uAgcplnCkblHLSSD60sDlrF8ili+jvs/M=; b=FwHAXO1Q89MrkkCLy4uVUc
-        TID9tGw0IK55d/UcC3vchaXT9Dg8itwo+Z4FYb1Vbr0SB4cFl3jVF6zpDGoAy4T3
-        XKObSEP0excNhIX4xrzN1UuRHthg9QYht6EQ/QhXxfmVBJk5qHG6xVdVWGi5g5bv
-        JfW4qd+lZniCnY5f9srvqKzxedlbh5vsfoEpYpg1hzYa/CEYNF3QF2yR3dhMQYbD
-        x2HwKVDwNFV1/oLYqAKNiP0OxyLkpvIE8pL6/1U083TBqyp/uWnvQxLPEZkSJIUl
-        tNJD+OvxHe3+mBUo9i6OHBZkhbJrhh9++hgiiF1XhNjk4FjwPh4YswTLl9raSo6g
-        ==
-X-ME-Sender: <xms:PKE7YGkveozMNNEy7jWkY7xOAVHnNbrfSBvd8s3Hv3uYE73LMM5Luw>
-    <xme:PKE7YN2hYKFF8PGS-XndvKPH7eM8xwK0w5PpLhy-HsbvV_1LGKdlhYmwEht9gchpI
-    0qT5Rz7P3d42g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleeigdeitdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:PKE7YErRrVxdra_Vt_TAUFy2f-_tl0Nvc8EhXnPQFuHRuRtEHfbOjA>
-    <xmx:PKE7YKkEJgHNXXQ91fdU4MWyz6hvmbUtbM5wvG8tdsycfK04fqIZkA>
-    <xmx:PKE7YE2Wb7uYpWO46cM0oIrpyBg-PcraTi6sKtHggIGSOpY2ElxpDg>
-    <xmx:PKE7YBwXvx11qK2JsNAV__CECtKusdoOGGEiAeLN4uPght5sZNOvp9dMTGM>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6D9571080054;
-        Sun, 28 Feb 2021 08:57:16 -0500 (EST)
-Subject: FAILED: patch "[PATCH] zsmalloc: account the number of compacted pages correctly" failed to apply to 4.14-stable tree
-To:     wu-yan@tcl.com, akpm@linux-foundation.org, minchan@kernel.org,
-        sergey.senozhatsky@gmail.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Feb 2021 14:57:09 +0100
-Message-ID: <161452062913468@kroah.com>
+        id S230140AbhB1O3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Feb 2021 09:29:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230139AbhB1O3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 09:29:51 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45F2C06174A
+        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 06:29:10 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id u187so9321847wmg.4
+        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 06:29:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qCy+l4W0SN+Qr0q0h1Kr4cn7PGq4wjNf/wKoSbiwHDE=;
+        b=l+7csCuZQGg74lRO/aOwfa+azvIzyT13bs+7tEu51cqSR2+YvGM30NAa+8yIwlOIhg
+         WRBongyXfTw3qdsbNBhUq8mLclr7VH5G0Krt/dNhPCb0PKFPLEIUMzXsjzXo92DS3/At
+         Kx16EKbTlFiD2fWYYMpoTsoBFaKg9C76RRTN6/DIEiXSNi0MBAULu/q0E9PDYL4mp6sR
+         uZr3ai/kDpbNMOxVwB03GOvglhpyYY8BfCJugOR5+cap3cdNSv8EHNaVprlDXE3k7lcO
+         y1+MP3dlCtntLCrwOZfdzFWcYjLPS5Q9NAjL2XsPAqFA/LhTcnkAW+J2f+RQX2R5rVhk
+         WKlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qCy+l4W0SN+Qr0q0h1Kr4cn7PGq4wjNf/wKoSbiwHDE=;
+        b=oVtvaAfR0SfO4QF7dHYx1srPUqO1OInND95pvAmKlrvGgTIr4zLuYw6CTnFhFmGDyx
+         FzrpSwj7EZxNoMBulG3m4A3GGns/cpj5haiG0V3j49i61WNR+Zkv6unQt05NLPM7/VQu
+         x5o2ChMwdUTDdZ3KJPjtLtFdBh2Y4rZ1jPEdW1wlcdvjLIr526hKecpU4mXQ+3Gaf/9Q
+         cndWcWojvWIxJcSma8L5rH7v2r1pGTsGvoBJVCM/uoqw9oi6evdw51E4LVtMvG123zIn
+         jfjpE1P6WP3/Qz/U2XPBBaPvX+AiRg9G31lNzew3R+kn85c0HKDbgqGJjgzCziR7lGAO
+         Vs7w==
+X-Gm-Message-State: AOAM533jj2nt+mOujpvVOuiiBG6d33qno1bLcwrW+xDgfBsnJbQQ3Cmk
+        iFL6e8GP27vRU+AEUB/YgbjZ0/Y6to0=
+X-Google-Smtp-Source: ABdhPJyL5GhlUaJX6hs8PLE0HB6OEqb+oGhN+EkR5+6gYZBYI2Eqeg667g8cA3rHPnT/OjlOG4OfKQ==
+X-Received: by 2002:a1c:730a:: with SMTP id d10mr11276577wmb.53.1614522549407;
+        Sun, 28 Feb 2021 06:29:09 -0800 (PST)
+Received: from archlinux.localnet (80.142.94.90.dynamic.jazztel.es. [90.94.142.80])
+        by smtp.gmail.com with ESMTPSA id f126sm7245178wmf.17.2021.02.28.06.29.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Feb 2021 06:29:08 -0800 (PST)
+From:   Diego Calleja <diegocg@gmail.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: -stable regression in Intel graphics, introduced in Linux 5.10.9
+Date:   Sun, 28 Feb 2021 15:29:07 +0100
+Message-ID: <3423617.kz1aARBMGD@archlinux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+There is a regression in Linux 5.10.9 that does not happen in 5.10.8. It is still there as
+of 5.11.1
 
-thanks,
+This regression consists in graphics artifacts that will *only* start appearing after resuming
+from suspend. They don't happen immediately after resuming from suspend either, but
+after some minutes.
 
-greg k-h
+My system has integrated intel graphics
+00:02.0 VGA compatible controller: Intel Corporation 4th Generation Core Processor Family Integrated Graphics Controller (rev 06) (prog-if 00 [VGA controller])                                            
+CPU: Intel(R) Core(TM) i3-4170T CPU @ 3.20GHz
 
------------------- original commit in Linus's tree ------------------
+For reference, this is the list of i915 commits that went into 5.10.9.
 
-From 2395928158059b8f9858365fce7713ce7fef62e4 Mon Sep 17 00:00:00 2001
-From: Rokudo Yan <wu-yan@tcl.com>
-Date: Thu, 25 Feb 2021 17:18:31 -0800
-Subject: [PATCH] zsmalloc: account the number of compacted pages correctly
 
-There exists multiple path may do zram compaction concurrently.
-1. auto-compaction triggered during memory reclaim
-2. userspace utils write zram<id>/compaction node
+commit ecca0c675bdecebdeb2f2eb76fb33520c441dacf
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Jan 11 22:52:19 2021 +0000
 
-So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
-But pages_compacted is a per zsmalloc pool variable and modification
-of the variable is not serialized(through under class->lock).
-There are two issues here:
-1. the pages_compacted may not equal to total number of pages
-freed(due to concurrently add).
-2. zs_shrinker_scan may not return the correct number of pages
-freed(issued by current shrinker).
+    drm/i915/gt: Restore clear-residual mitigations for Ivybridge, Baytrail
+    
+    commit 09aa9e45863e9e25dfbf350bae89fc3c2964482c upstream.
 
-The fix is simple:
-1. account the number of pages freed in zs_compact locally.
-2. use actomic variable pages_compacted to accumulate total number.
 
-Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
-Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
-Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+commit de3f572607c29f7fdd1bfd754646d08e32db0249
+Author: Imre Deak <imre.deak@intel.com>
+Date:   Wed Dec 9 17:39:52 2020 +0200
 
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index d7018543842e..a711a2e2a794 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -1081,7 +1081,7 @@ static ssize_t mm_stat_show(struct device *dev,
- 			zram->limit_pages << PAGE_SHIFT,
- 			max_used << PAGE_SHIFT,
- 			(u64)atomic64_read(&zram->stats.same_pages),
--			pool_stats.pages_compacted,
-+			atomic_long_read(&pool_stats.pages_compacted),
- 			(u64)atomic64_read(&zram->stats.huge_pages),
- 			(u64)atomic64_read(&zram->stats.huge_pages_since));
- 	up_read(&zram->init_lock);
-diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
-index 4807ca4d52e0..2a430e713ce5 100644
---- a/include/linux/zsmalloc.h
-+++ b/include/linux/zsmalloc.h
-@@ -35,7 +35,7 @@ enum zs_mapmode {
- 
- struct zs_pool_stats {
- 	/* How many pages were migrated (freed) */
--	unsigned long pages_compacted;
-+	atomic_long_t pages_compacted;
- };
- 
- struct zs_pool;
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index cf0ed0e4e911..1518732f95c3 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -2212,11 +2212,13 @@ static unsigned long zs_can_compact(struct size_class *class)
- 	return obj_wasted * class->pages_per_zspage;
- }
- 
--static void __zs_compact(struct zs_pool *pool, struct size_class *class)
-+static unsigned long __zs_compact(struct zs_pool *pool,
-+				  struct size_class *class)
- {
- 	struct zs_compact_control cc;
- 	struct zspage *src_zspage;
- 	struct zspage *dst_zspage = NULL;
-+	unsigned long pages_freed = 0;
- 
- 	spin_lock(&class->lock);
- 	while ((src_zspage = isolate_zspage(class, true))) {
-@@ -2246,7 +2248,7 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 		putback_zspage(class, dst_zspage);
- 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
- 			free_zspage(pool, class, src_zspage);
--			pool->stats.pages_compacted += class->pages_per_zspage;
-+			pages_freed += class->pages_per_zspage;
- 		}
- 		spin_unlock(&class->lock);
- 		cond_resched();
-@@ -2257,12 +2259,15 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 		putback_zspage(class, src_zspage);
- 
- 	spin_unlock(&class->lock);
-+
-+	return pages_freed;
- }
- 
- unsigned long zs_compact(struct zs_pool *pool)
- {
- 	int i;
- 	struct size_class *class;
-+	unsigned long pages_freed = 0;
- 
- 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
- 		class = pool->size_class[i];
-@@ -2270,10 +2275,11 @@ unsigned long zs_compact(struct zs_pool *pool)
- 			continue;
- 		if (class->index != i)
- 			continue;
--		__zs_compact(pool, class);
-+		pages_freed += __zs_compact(pool, class);
- 	}
-+	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
- 
--	return pool->stats.pages_compacted;
-+	return pages_freed;
- }
- EXPORT_SYMBOL_GPL(zs_compact);
- 
-@@ -2290,13 +2296,12 @@ static unsigned long zs_shrinker_scan(struct shrinker *shrinker,
- 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
- 			shrinker);
- 
--	pages_freed = pool->stats.pages_compacted;
- 	/*
- 	 * Compact classes and calculate compaction delta.
- 	 * Can run concurrently with a manually triggered
- 	 * (by user) compaction.
- 	 */
--	pages_freed = zs_compact(pool) - pages_freed;
-+	pages_freed = zs_compact(pool);
- 
- 	return pages_freed ? pages_freed : SHRINK_STOP;
- }
+    drm/i915/icl: Fix initing the DSI DSC power refcount during HW readout
+    
+    commit 2af5268180410b874fc06be91a1b2fbb22b1be0c upstream.
+
+
+commit 54c9246a47fa8559c3ec6da2048e976a4b8750f6
+Author: Hans de Goede <hdegoede@redhat.com>
+Date:   Wed Nov 18 13:40:58 2020 +0100
+
+    drm/i915/dsi: Use unconditional msleep for the panel_on_delay when there is no reset-deassert MIPI-sequence
+    
+    commit 00cb645fd7e29bdd20967cd20fa8f77bcdf422f9 upstream.
+
+
+commit 0a34addcdbd9e03e3f3d09bcd5a1719d90b2d637
+Author: Jani Nikula <jani.nikula@intel.com>
+Date:   Fri Jan 8 17:28:41 2021 +0200
+
+    drm/i915/backlight: fix CPU mode backlight takeover on LPT
+    
+    commit bb83d5fb550bb7db75b29e6342417fda2bbb691c upstream.
+
+
+commit 48b8c6689efa7cd65a72f620940a4f234b944b73
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Jan 11 22:52:18 2021 +0000
+
+    drm/i915/gt: Limit VFE threads based on GT
+    
+    commit ffaf97899c4a58b9fefb11534f730785443611a8 upstream.
+
+
+commit 481e27f050732b8c680f26287dd44967fddf9a79
+Author: Chris Wilson <chris@chris-wilson.co.uk>
+Date:   Mon Jan 11 22:52:20 2021 +0000
+
+    drm/i915: Allow the sysadmin to override security mitigations
+    
+    commit 984cadea032b103c5824a5f29d0a36b3e9df6333 upstream.
+
+
+Regards
+
 
