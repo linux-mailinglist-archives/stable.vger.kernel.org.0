@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D92328B47
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C39A328BF0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239972AbhCAScE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:32:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
+        id S240451AbhCASnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:43:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239493AbhCASXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:23:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48EB065152;
-        Mon,  1 Mar 2021 17:05:34 +0000 (UTC)
+        id S239884AbhCASge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:36:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFF86515F;
+        Mon,  1 Mar 2021 17:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618334;
-        bh=FRn/djkj2XzjQICjGk8g9A6VWLu7udUT0KMixWv6uRM=;
+        s=korg; t=1614618376;
+        bh=UfUsa/lOK20JuQNr8gx/xvo2TRA05HXh+cOF8uRAUtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGxB6KS/3tmQRUu8nV5RMjC0mKCoNeKJPXbkY7pfP/Q5VqF+B+VUHYm/1nahcxY8m
-         ROSVsY+tPcTEKRo35dgBBob0XQFxDXDAD8HmylwLenHjJCGtUKzN1YuuVPyHi/KqSh
-         WIu9ezHKL1RonekYKqROv/apoB1E3WbTedotTHl0=
+        b=nxQ+TVc694mIk6pqoWIlzBBu4Qvv56yXUlsdwIw9uA3Io70YPCyak9F6xVFSEJ5/+
+         z5rSqCpLbaDMfp2cscansnp1N1XGOoZ+eF50cdJDswajGH5Mah6oaCSGPSdV0Tk3lJ
+         K4wbpJc6DRBLE8gxTpefMcy/8OFlCTEstE2qzaA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/663] ARM: dts: exynos: correct PMIC interrupt trigger level on Odroid XU3 family
-Date:   Mon,  1 Mar 2021 17:04:40 +0100
-Message-Id: <20210301161143.385253404@linuxfoundation.org>
+Subject: [PATCH 5.10 035/663] memory: mtk-smi: Fix PM usage counter unbalance in mtk_smi ops
+Date:   Mon,  1 Mar 2021 17:04:43 +0100
+Message-Id: <20210301161143.532523321@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,36 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 3e7d9a583a24f7582c6bc29a0d4d624feedbc2f9 ]
+[ Upstream commit a2d522ff0f5cc26915c4ccee9457fd4b4e1edc48 ]
 
-The Samsung PMIC datasheets describe the interrupt line as active low
-with a requirement of acknowledge from the CPU.  The falling edge
-interrupt will mostly work but it's not correct.
+pm_runtime_get_sync will increment pm usage counter
+even it failed. Forgetting to putting operation will
+result in reference leak here. We fix it by replacing
+it with pm_runtime_resume_and_get to keep usage counter
+balanced.
 
-Fixes: aac4e0615341 ("ARM: dts: odroidxu3: Enable wake alarm of S2MPS11 RTC")
+Fixes: 4f0a1a1ae3519 ("memory: mtk-smi: Invoke pm runtime_callback to enable clocks")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201123102118.3866195-1-zhangqilong3@huawei.com
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20201210212903.216728-6-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5422-odroid-core.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memory/mtk-smi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5422-odroid-core.dtsi b/arch/arm/boot/dts/exynos5422-odroid-core.dtsi
-index b1cf9414ce17f..d51c1d8620a09 100644
---- a/arch/arm/boot/dts/exynos5422-odroid-core.dtsi
-+++ b/arch/arm/boot/dts/exynos5422-odroid-core.dtsi
-@@ -509,7 +509,7 @@
- 		samsung,s2mps11-acokb-ground;
+diff --git a/drivers/memory/mtk-smi.c b/drivers/memory/mtk-smi.c
+index 691e4c344cf84..75f8e0f60d81d 100644
+--- a/drivers/memory/mtk-smi.c
++++ b/drivers/memory/mtk-smi.c
+@@ -130,7 +130,7 @@ static void mtk_smi_clk_disable(const struct mtk_smi *smi)
  
- 		interrupt-parent = <&gpx0>;
--		interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
-+		interrupts = <4 IRQ_TYPE_LEVEL_LOW>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&s2mps11_irq>;
+ int mtk_smi_larb_get(struct device *larbdev)
+ {
+-	int ret = pm_runtime_get_sync(larbdev);
++	int ret = pm_runtime_resume_and_get(larbdev);
  
+ 	return (ret < 0) ? ret : 0;
+ }
+@@ -366,7 +366,7 @@ static int __maybe_unused mtk_smi_larb_resume(struct device *dev)
+ 	int ret;
+ 
+ 	/* Power on smi-common. */
+-	ret = pm_runtime_get_sync(larb->smi_common_dev);
++	ret = pm_runtime_resume_and_get(larb->smi_common_dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to pm get for smi-common(%d).\n", ret);
+ 		return ret;
 -- 
 2.27.0
 
