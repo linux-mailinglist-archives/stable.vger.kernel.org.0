@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D09F328F35
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6E4328F11
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241906AbhCATro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:47:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
+        id S241777AbhCATmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:42:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235798AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B233650FF;
-        Mon,  1 Mar 2021 17:02:07 +0000 (UTC)
+        id S242092AbhCATfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:35:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F41F26528E;
+        Mon,  1 Mar 2021 17:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618127;
-        bh=/GNukFuwCRa0uUC0gEumB/aw0yyP/dXMPMVsIshgH3w=;
+        s=korg; t=1614619894;
+        bh=TH1FbZt92s+UcTZJK66IxQhicJvP3lj3ntXyCPqj3kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N75IpE6YggtJxqrWEMM2vMUEHvPVb5K0N5EGjFiFjm6+stH6vLpH/xGdw6Ca76veC
-         Bz8NErqn82BN84CUiTed5b3LOoPm+vmgmm0+UVbXsBFJVA7mHEzEEFqsTtkLz4G1H2
-         98Z0wQpbmgfRC7FAfH0zvvPq1lu9CaNHxz8v3kAo=
+        b=LFm86x7sfIT43Cw6CoCEwX7TglcAo0X+h+scWLJKAGjjGgzVocw09sN3VIP8jy1nP
+         +TgXawbitmyhqB5WeN9LH1N5cKoyUJVCRW6S6yi8BBnpWHzxASu43EgLxnKPoXb2ZQ
+         bXEHKV4AgW4D06fUSYbgw93ZYQ+3Xe4vaSkYiUOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 316/340] um: mm: check more comprehensively for stub changes
-Date:   Mon,  1 Mar 2021 17:14:20 +0100
-Message-Id: <20210301161103.841774870@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+da4fe66aaadd3c2e2d1c@syzkaller.appspotmail.com,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH 5.10 618/663] exfat: fix shift-out-of-bounds in exfat_fill_super()
+Date:   Mon,  1 Mar 2021 17:14:26 +0100
+Message-Id: <20210301161212.419641486@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +42,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Namjae Jeon <namjae.jeon@samsung.com>
 
-commit 47da29763ec9a153b9b685bff9db659e4e09e494 upstream.
+commit 78c276f5495aa53a8beebb627e5bf6a54f0af34f upstream.
 
-If userspace tries to change the stub, we need to kill it,
-because otherwise it can escape the virtual machine. In a
-few cases the stub checks weren't good, e.g. if userspace
-just tries to
+syzbot reported a warning which could cause shift-out-of-bounds issue.
 
-	mmap(0x100000 - 0x1000, 0x3000, ...)
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x183/0x22e lib/dump_stack.c:120
+ ubsan_epilogue lib/ubsan.c:148 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x432/0x4d0 lib/ubsan.c:395
+ exfat_read_boot_sector fs/exfat/super.c:471 [inline]
+ __exfat_fill_super fs/exfat/super.c:556 [inline]
+ exfat_fill_super+0x2acb/0x2d00 fs/exfat/super.c:624
+ get_tree_bdev+0x406/0x630 fs/super.c:1291
+ vfs_get_tree+0x86/0x270 fs/super.c:1496
+ do_new_mount fs/namespace.c:2881 [inline]
+ path_mount+0x1937/0x2c50 fs/namespace.c:3211
+ do_mount fs/namespace.c:3224 [inline]
+ __do_sys_mount fs/namespace.c:3432 [inline]
+ __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3409
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-it could succeed to get a new private/anonymous mapping
-replacing the stubs. Fix this by checking everywhere, and
-checking for _overlap_, not just direct changes.
+exfat specification describe sect_per_clus_bits field of boot sector
+could be at most 25 - sect_size_bits and at least 0. And sect_size_bits
+can also affect this calculation, It also needs validation.
+This patch add validation for sect_per_clus_bits and sect_size_bits
+field of boot sector.
 
-Cc: stable@vger.kernel.org
-Fixes: 3963333fe676 ("uml: cover stubs with a VMA")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 719c1e182916 ("exfat: add super block operations")
+Cc: stable@vger.kernel.org # v5.9+
+Reported-by: syzbot+da4fe66aaadd3c2e2d1c@syzkaller.appspotmail.com
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/kernel/tlb.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/exfat/exfat_raw.h |    4 ++++
+ fs/exfat/super.c     |   31 ++++++++++++++++++++++++++-----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
---- a/arch/um/kernel/tlb.c
-+++ b/arch/um/kernel/tlb.c
-@@ -126,6 +126,9 @@ static int add_mmap(unsigned long virt,
- 	struct host_vm_op *last;
- 	int fd = -1, ret = 0;
+--- a/fs/exfat/exfat_raw.h
++++ b/fs/exfat/exfat_raw.h
+@@ -77,6 +77,10 @@
  
-+	if (virt + len > STUB_START && virt < STUB_END)
-+		return -EINVAL;
+ #define EXFAT_FILE_NAME_LEN		15
+ 
++#define EXFAT_MIN_SECT_SIZE_BITS		9
++#define EXFAT_MAX_SECT_SIZE_BITS		12
++#define EXFAT_MAX_SECT_PER_CLUS_BITS(x)		(25 - (x)->sect_size_bits)
 +
- 	if (hvc->userspace)
- 		fd = phys_mapping(phys, &offset);
- 	else
-@@ -163,7 +166,7 @@ static int add_munmap(unsigned long addr
- 	struct host_vm_op *last;
- 	int ret = 0;
+ /* EXFAT: Main and Backup Boot Sector (512 bytes) */
+ struct boot_sector {
+ 	__u8	jmp_boot[BOOTSEC_JUMP_BOOT_LEN];
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -381,8 +381,7 @@ static int exfat_calibrate_blocksize(str
+ {
+ 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
  
--	if ((addr >= STUB_START) && (addr < STUB_END))
-+	if (addr + len > STUB_START && addr < STUB_END)
+-	if (!is_power_of_2(logical_sect) ||
+-	    logical_sect < 512 || logical_sect > 4096) {
++	if (!is_power_of_2(logical_sect)) {
+ 		exfat_err(sb, "bogus logical sector size %u", logical_sect);
+ 		return -EIO;
+ 	}
+@@ -451,6 +450,25 @@ static int exfat_read_boot_sector(struct
  		return -EINVAL;
+ 	}
  
- 	if (hvc->index != 0) {
-@@ -193,6 +196,9 @@ static int add_mprotect(unsigned long ad
- 	struct host_vm_op *last;
- 	int ret = 0;
- 
-+	if (addr + len > STUB_START && addr < STUB_END)
++	/*
++	 * sect_size_bits could be at least 9 and at most 12.
++	 */
++	if (p_boot->sect_size_bits < EXFAT_MIN_SECT_SIZE_BITS ||
++	    p_boot->sect_size_bits > EXFAT_MAX_SECT_SIZE_BITS) {
++		exfat_err(sb, "bogus sector size bits : %u\n",
++				p_boot->sect_size_bits);
 +		return -EINVAL;
++	}
 +
- 	if (hvc->index != 0) {
- 		last = &hvc->ops[hvc->index - 1];
- 		if ((last->type == MPROTECT) &&
-@@ -433,6 +439,10 @@ void flush_tlb_page(struct vm_area_struc
- 	struct mm_id *mm_id;
++	/*
++	 * sect_per_clus_bits could be at least 0 and at most 25 - sect_size_bits.
++	 */
++	if (p_boot->sect_per_clus_bits > EXFAT_MAX_SECT_PER_CLUS_BITS(p_boot)) {
++		exfat_err(sb, "bogus sectors bits per cluster : %u\n",
++				p_boot->sect_per_clus_bits);
++		return -EINVAL;
++	}
++
+ 	sbi->sect_per_clus = 1 << p_boot->sect_per_clus_bits;
+ 	sbi->sect_per_clus_bits = p_boot->sect_per_clus_bits;
+ 	sbi->cluster_size_bits = p_boot->sect_per_clus_bits +
+@@ -477,16 +495,19 @@ static int exfat_read_boot_sector(struct
+ 	sbi->used_clusters = EXFAT_CLUSTERS_UNTRACKED;
  
- 	address &= PAGE_MASK;
+ 	/* check consistencies */
+-	if (sbi->num_FAT_sectors << p_boot->sect_size_bits <
+-	    sbi->num_clusters * 4) {
++	if ((u64)sbi->num_FAT_sectors << p_boot->sect_size_bits <
++	    (u64)sbi->num_clusters * 4) {
+ 		exfat_err(sb, "bogus fat length");
+ 		return -EINVAL;
+ 	}
 +
-+	if (address >= STUB_START && address < STUB_END)
-+		goto kill;
+ 	if (sbi->data_start_sector <
+-	    sbi->FAT1_start_sector + sbi->num_FAT_sectors * p_boot->num_fats) {
++	    (u64)sbi->FAT1_start_sector +
++	    (u64)sbi->num_FAT_sectors * p_boot->num_fats) {
+ 		exfat_err(sb, "bogus data start sector");
+ 		return -EINVAL;
+ 	}
 +
- 	pgd = pgd_offset(mm, address);
- 	if (!pgd_present(*pgd))
- 		goto kill;
+ 	if (sbi->vol_flags & VOLUME_DIRTY)
+ 		exfat_warn(sb, "Volume was not properly unmounted. Some data may be corrupt. Please run fsck.");
+ 	if (sbi->vol_flags & MEDIA_FAILURE)
 
 
