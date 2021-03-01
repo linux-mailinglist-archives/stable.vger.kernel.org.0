@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DEA3284F0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3BA63284F4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:49:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234696AbhCAQpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:45:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
+        id S233332AbhCAQqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:46:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234868AbhCAQih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:38:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6AE764F79;
-        Mon,  1 Mar 2021 16:27:39 +0000 (UTC)
+        id S234878AbhCAQij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:38:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B66E964F7E;
+        Mon,  1 Mar 2021 16:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616060;
-        bh=d3YUXZztKby0D0Q3ZtM+QVD+Ro0KFageUqKkSOCjukY=;
+        s=korg; t=1614616063;
+        bh=A8lt2b85apJASLVv9bUs5V/vytqUG/OE5vRNzANxHvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYvkq55CT4zFZFxnpaomre+BepKpxEJCpLofrWZBpn+26TjHiVzZM0x88mXZOUoJd
-         dTYjZpaVAocPRdcNNcfAJ72xMImnHcHuvq5WPQVIARQOlM7x3injQ9pt6XUxY/tJrW
-         +paBBSsYYikx73f6UEemhd8NW6E6EFAu+M0SPGUw=
+        b=BvssY6fq0NOi4LsLAv6ruNEal5F6FjYqzGOAa6DFO4AEh/qQZgVaLhvbYGjyXscYw
+         TosmHeaiyJ0AdAdx74lY49luVC93TqviZ5xF/Kei/WkGMPz/i+gWecAgrm9nB805Vf
+         D+7NxQiEa0k33vbBVxJvTr/aDujtMdgiZTFHsmjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/176] cpufreq: brcmstb-avs-cpufreq: Fix resource leaks in ->remove()
-Date:   Mon,  1 Mar 2021 17:11:33 +0100
-Message-Id: <20210301161021.973430389@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, Ferry Toth <fntoth@gmail.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.14 021/176] usb: gadget: u_audio: Free requests only after callback
+Date:   Mon,  1 Mar 2021 17:11:34 +0100
+Message-Id: <20210301161022.027433902@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -41,36 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit 3657f729b6fb5f2c0bf693742de2dcd49c572aa1 ]
+[ Upstream commit 7de8681be2cde9f6953d3be1fa6ce05f9fe6e637 ]
 
-If 'cpufreq_unregister_driver()' fails, just WARN and continue, so that
-other resources are freed.
+As per the kernel doc for usb_ep_dequeue(), it states that "this
+routine is asynchronous, that is, it may return before the completion
+routine runs". And indeed since v5.0 the dwc3 gadget driver updated
+its behavior to place dequeued requests on to a cancelled list to be
+given back later after the endpoint is stopped.
 
-Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-[ Viresh: Updated Subject ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+The free_ep() was incorrectly assuming that a request was ready to
+be freed after calling dequeue which results in a use-after-free
+in dwc3 when it traverses its cancelled list. Fix this by moving
+the usb_ep_free_request() call to the callback itself in case the
+ep is disabled.
+
+Fixes: eb9fecb9e69b0 ("usb: gadget: f_uac2: split out audio core")
+Reported-and-tested-by: Ferry Toth <fntoth@gmail.com>
+Reviewed-and-tested-by: Peter Chen <peter.chen@nxp.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20210118084642.322510-2-jbrunet@baylibre.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/brcmstb-avs-cpufreq.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/gadget/function/u_audio.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-index 39c462711eae0..815dd7c33e469 100644
---- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
-+++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-@@ -1033,8 +1033,7 @@ static int brcm_avs_cpufreq_remove(struct platform_device *pdev)
- 	int ret;
+diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
+index d3a639297e060..0370a1314b88a 100644
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -98,7 +98,12 @@ static void u_audio_iso_complete(struct usb_ep *ep, struct usb_request *req)
+ 	struct snd_uac_chip *uac = prm->uac;
  
- 	ret = cpufreq_unregister_driver(&brcm_avs_driver);
--	if (ret)
--		return ret;
-+	WARN_ON(ret);
+ 	/* i/f shutting down */
+-	if (!prm->ep_enabled || req->status == -ESHUTDOWN)
++	if (!prm->ep_enabled) {
++		usb_ep_free_request(ep, req);
++		return;
++	}
++
++	if (req->status == -ESHUTDOWN)
+ 		return;
  
- 	brcm_avs_cpufreq_debug_exit(pdev);
+ 	/*
+@@ -360,8 +365,14 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
  
+ 	for (i = 0; i < params->req_number; i++) {
+ 		if (prm->ureq[i].req) {
+-			usb_ep_dequeue(ep, prm->ureq[i].req);
+-			usb_ep_free_request(ep, prm->ureq[i].req);
++			if (usb_ep_dequeue(ep, prm->ureq[i].req))
++				usb_ep_free_request(ep, prm->ureq[i].req);
++			/*
++			 * If usb_ep_dequeue() cannot successfully dequeue the
++			 * request, the request will be freed by the completion
++			 * callback.
++			 */
++
+ 			prm->ureq[i].req = NULL;
+ 		}
+ 	}
 -- 
 2.27.0
 
