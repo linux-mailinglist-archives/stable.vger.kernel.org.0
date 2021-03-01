@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAF9328B33
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB92328B30
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235853AbhCASaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:30:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39702 "EHLO mail.kernel.org"
+        id S239651AbhCASaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:30:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239767AbhCASWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:22:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCDE64EF6;
-        Mon,  1 Mar 2021 17:48:25 +0000 (UTC)
+        id S239770AbhCASWv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:22:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3FBD64F06;
+        Mon,  1 Mar 2021 17:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620906;
-        bh=NP3V9bJSxJVrUfD7ylki9PJtQgKbVi9XOmuaKyyls1w=;
+        s=korg; t=1614620917;
+        bh=bIc0N4zkEpzsYuYllFhHuEhyHmNPdVnmw5J1qvhdeWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKEX7vmRh8olhYa17idf1rh3shz//aH2pmzeSctVb2QoAXDcgPQXSnDF5VKfMHL7t
-         TpM1/Fws9ORee7Jhv0DAehrGzKJ2WNfswu9STVNni4GZWDcbbQsiWKQb0qk2b2sLGi
-         iI1xfCk8E/RH9sm01ROHj+RlDT6hCgNlxTN8EokY=
+        b=VO0mtLfvENyS7jmsf5ZcOOz0TwB0q7FKn8PP8eceD18c4oLPlFWh/CLLs8dMqw0qI
+         LZAQ1uWiReqyhvPXJO+1mwX7Cfro/Mn9G8XxdC6+m7gRjpH1DUi9FjZ2czzp3KJb0i
+         A2A+AbFptxLEhpT/xW0cJKHgx2OLyqTxkqGXV3Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 322/775] HID: core: detect and skip invalid inputs to snto32()
-Date:   Mon,  1 Mar 2021 17:08:10 +0100
-Message-Id: <20210301161217.528022693@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 326/775] dmaengine: owl-dma: Fix a resource leak in the remove function
+Date:   Mon,  1 Mar 2021 17:08:14 +0100
+Message-Id: <20210301161217.729343289@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,49 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a0312af1f94d13800e63a7d0a66e563582e39aec ]
+[ Upstream commit 1f0a16f04113f9f0ab0c8e6d3abe661edab549e6 ]
 
-Prevent invalid (0, 0) inputs to hid-core's snto32() function.
+A 'dma_pool_destroy()' call is missing in the remove function.
+Add it.
 
-Maybe it is just the dummy device here that is causing this, but
-there are hundreds of calls to snto32(0, 0). Having n (bits count)
-of 0 is causing the current UBSAN trap with a shift value of
-0xffffffff (-1, or n - 1 in this function).
+This call is already made in the error handling path of the probe function.
 
-Either of the value to shift being 0 or the bits count being 0 can be
-handled by just returning 0 to the caller, avoiding the following
-complex shift + OR operations:
-
-	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
-
-Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 47e20577c24d ("dmaengine: Add Actions Semi Owl family S900 DMA driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201212162535.95727-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/owl-dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8a8b2b982f83c..097cb1ee31268 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1307,6 +1307,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);
+diff --git a/drivers/dma/owl-dma.c b/drivers/dma/owl-dma.c
+index 9fede32641e9e..04202d75f4eed 100644
+--- a/drivers/dma/owl-dma.c
++++ b/drivers/dma/owl-dma.c
+@@ -1245,6 +1245,7 @@ static int owl_dma_remove(struct platform_device *pdev)
+ 	owl_dma_free(od);
  
- static s32 snto32(__u32 value, unsigned n)
- {
-+	if (!value || !n)
-+		return 0;
-+
- 	switch (n) {
- 	case 8:  return ((__s8)value);
- 	case 16: return ((__s16)value);
+ 	clk_disable_unprepare(od->clk);
++	dma_pool_destroy(od->lli_pool);
+ 
+ 	return 0;
+ }
 -- 
 2.27.0
 
