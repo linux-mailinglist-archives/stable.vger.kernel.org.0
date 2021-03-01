@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4963286AC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59ED43286B0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237745AbhCARNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:13:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37624 "EHLO mail.kernel.org"
+        id S237776AbhCARNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237416AbhCARIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237430AbhCARIQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:08:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AAD264F84;
-        Mon,  1 Mar 2021 16:41:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02C3764F82;
+        Mon,  1 Mar 2021 16:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616860;
-        bh=YyTHEuz6RU/h9FmF6w3ELdgLeTU/s4aq1zXyAaVA+RI=;
+        s=korg; t=1614616863;
+        bh=gGnf96rWAn+vW4HHRwWuuPkalKpOOMB+USCk1pWsxEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ym7Xe6gSVrFv5H1J+Bpxeaf2rR50KqC9AErwtbP3e5yJLV6RGApwziKaE5UBWICM8
-         8jr60kNWuWFLGnGOJMOq8cFj6XnZtQWlV+xE8wGsMiVH1ihxdg/FjkRvhiR32gzLpk
-         hNRV+340pxHF+Tg2qRCsTTPqoxBltTc1b13XsXZs=
+        b=rbHd+717AIbumLiILfXxwcjtsP9fOyNR8Hw8hbfi7vU+9avDOb34AL6VYf38PI6WF
+         LbQOa1h9mISLHKdH6ySMwasLWU7YUWdfL4c+6Rxy9nC2dQc5dgpQj5eKjq2LZaQecQ
+         MhOiqL4uEaWoWFLKZgtXpEdckRjoEuqB8gd3j12s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Quentin Perret <qperret@google.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/247] of/fdt: Make sure no-map does not remove already reserved regions
-Date:   Mon,  1 Mar 2021 17:12:19 +0100
-Message-Id: <20210301161037.501769976@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 120/247] power: reset: at91-sama5d2_shdwc: fix wkupdbc mask
+Date:   Mon,  1 Mar 2021 17:12:20 +0100
+Message-Id: <20210301161037.551640403@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,77 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 8a5a75e5e9e55de1cef5d83ca3589cb4899193ef ]
+[ Upstream commit 95aa21a3f1183260db1b0395e03df5bebc5ed641 ]
 
-If the device tree is incorrectly configured, and attempts to
-define a "no-map" reserved memory that overlaps with the kernel
-data/code, the kernel would crash quickly after boot, with no
-obvious clue about the nature of the issue.
+According to datasheet WKUPDBC mask is b/w bits 26..24.
 
-For example, this would happen if we have the kernel mapped at
-these addresses (from /proc/iomem):
-40000000-41ffffff : System RAM
-  40080000-40dfffff : Kernel code
-  40e00000-411fffff : reserved
-  41200000-413e0fff : Kernel data
-
-And we declare a no-map shared-dma-pool region at a fixed address
-within that range:
-mem_reserved: mem_region {
-	compatible = "shared-dma-pool";
-	reg = <0 0x40000000 0 0x01A00000>;
-	no-map;
-};
-
-To fix this, when removing memory regions at early boot (which is
-what "no-map" regions do), we need to make sure that the memory
-is not already reserved. If we do, __reserved_mem_reserve_reg
-will throw an error:
-[    0.000000] OF: fdt: Reserved memory: failed to reserve memory
-   for node 'mem_region': base 0x0000000040000000, size 26 MiB
-and the code that will try to use the region should also fail,
-later on.
-
-We do not do anything for non-"no-map" regions, as memblock
-explicitly allows reserved regions to overlap, and the commit
-that this fixes removed the check for that precise reason.
-
-[ qperret: fixed conflicts caused by the usage of memblock_mark_nomap ]
-
-Fixes: 094cb98179f19b7 ("of/fdt: memblock_reserve /memreserve/ regions in the case of partial overlap")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Link: https://lore.kernel.org/r/20210115114544.1830068-3-qperret@google.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: f80cb48843987 ("power: reset: at91-shdwc: add new shutdown controller driver")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/power/reset/at91-sama5d2_shdwc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index aa15e5d183c18..21160a08ead4b 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1172,8 +1172,16 @@ int __init __weak early_init_dt_mark_hotplug_memory_arch(u64 base, u64 size)
- int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
- 					phys_addr_t size, bool nomap)
- {
--	if (nomap)
-+	if (nomap) {
-+		/*
-+		 * If the memory is already reserved (by another region), we
-+		 * should not allow it to be marked nomap.
-+		 */
-+		if (memblock_is_region_reserved(base, size))
-+			return -EBUSY;
-+
- 		return memblock_mark_nomap(base, size);
-+	}
- 	return memblock_reserve(base, size);
- }
+diff --git a/drivers/power/reset/at91-sama5d2_shdwc.c b/drivers/power/reset/at91-sama5d2_shdwc.c
+index d9493e893d64e..7cf59e764ef28 100644
+--- a/drivers/power/reset/at91-sama5d2_shdwc.c
++++ b/drivers/power/reset/at91-sama5d2_shdwc.c
+@@ -36,7 +36,7 @@
+ 
+ #define AT91_SHDW_MR	0x04		/* Shut Down Mode Register */
+ #define AT91_SHDW_WKUPDBC_SHIFT	24
+-#define AT91_SHDW_WKUPDBC_MASK	GENMASK(31, 16)
++#define AT91_SHDW_WKUPDBC_MASK	GENMASK(26, 24)
+ #define AT91_SHDW_WKUPDBC(x)	(((x) << AT91_SHDW_WKUPDBC_SHIFT) \
+ 						& AT91_SHDW_WKUPDBC_MASK)
  
 -- 
 2.27.0
