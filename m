@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E89B1328F29
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 287A5328F47
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239991AbhCATqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:46:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50864 "EHLO mail.kernel.org"
+        id S242325AbhCATsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:48:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237492AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B003764FCA;
-        Mon,  1 Mar 2021 17:44:11 +0000 (UTC)
+        id S241727AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:38:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAFF86535C;
+        Mon,  1 Mar 2021 17:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620652;
-        bh=BhJs3vM23hPT4HWIOtKESG+hIvMj9t2GghvX/kZ4ORc=;
+        s=korg; t=1614620749;
+        bh=SSc8GLXlm7HhK6xNSHtQLAZX1Tr3IpNZTYFogMx6lZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxJoWie4lBltsi0pv0/bmq7+LUUwj7jgA9aaDvzo1wMRnP5Ube8gU2bLRdwNqdSrm
-         KmP8Ptedux+Xlp9ihYYvuEBuA/fWn+6z3eSgZLIbvwEHZ0vTvUow+6r0YgwgF0ahpl
-         bth7JrgEttcX+PpAEl/PxNsGahUPoEgv2zixPkRA=
+        b=SU1u5uqdvHNpmNr4I1Mg9kVORUX4cmRL/byFvKV3rLLL0ie6e6eG11y4FZQqp4gb6
+         pMvjnzFmcbbWKtEFl3wTNJRCJiksYMeRZBVr1MrDbMvZPamZP+PIciDGGFEa//AM1w
+         MxTygdlDwxb9l6hFAGXpl/KKo3vKT+ZAF5M5uwd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Quentin Perret <qperret@google.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 229/775] media: mtk-vcodec: fix argument used when DEBUG is defined
-Date:   Mon,  1 Mar 2021 17:06:37 +0100
-Message-Id: <20210301161212.944148475@linuxfoundation.org>
+Subject: [PATCH 5.11 235/775] sched/eas: Dont update misfit status if the task is pinned
+Date:   Mon,  1 Mar 2021 17:06:43 +0100
+Message-Id: <20210301161213.241697214@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,54 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit a04e187d231086a1313fd635ac42bdbc997137ad ]
+[ Upstream commit 0ae78eec8aa64e645866e75005162603a77a0f49 ]
 
-When DEBUG is defined this error occurs
+If the task is pinned to a cpu, setting the misfit status means that
+we'll unnecessarily continuously attempt to migrate the task but fail.
 
-drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c:306:41:
-  error: ‘i’ undeclared (first use in this function)
-  mtk_v4l2_debug(2, "reg[%d] base=0x%p", i, dev->reg_base[VENC_SYS]);
+This continuous failure will cause the balance_interval to increase to
+a high value, and eventually cause unnecessary significant delays in
+balancing the system when real imbalance happens.
 
-Reviewing the old line
+Caught while testing uclamp where rt-app calibration loop was pinned to
+cpu 0, shortly after which we spawn another task with high util_clamp
+value. The task was failing to migrate after over 40ms of runtime due to
+balance_interval unnecessary expanded to a very high value from the
+calibration loop.
 
-	mtk_v4l2_debug(2, "reg[%d] base=0x%p", i, dev->reg_base[i]);
+Not done here, but it could be useful to extend the check for pinning to
+verify that the affinity of the task has a cpu that fits. We could end
+up in a similar situation otherwise.
 
-All the i's need to be changed to VENC_SYS.
-Fix a similar error for VENC_LT_SYS.
-
-Fixes: 0dc4b3286125 ("media: mtk-vcodec: venc: support SCP firmware")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 3b1baa6496e6 ("sched/fair: Add 'group_misfit_task' load-balance type")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Quentin Perret <qperret@google.com>
+Acked-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210119120755.2425264-1-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-index dfb42e19bf813..be3842e6ca475 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-@@ -303,7 +303,7 @@ static int mtk_vcodec_probe(struct platform_device *pdev)
- 		ret = PTR_ERR((__force void *)dev->reg_base[VENC_SYS]);
- 		goto err_res;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 6918adaf74150..bbc78794224ac 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4060,7 +4060,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 	if (!static_branch_unlikely(&sched_asym_cpucapacity))
+ 		return;
+ 
+-	if (!p) {
++	if (!p || p->nr_cpus_allowed == 1) {
+ 		rq->misfit_task_load = 0;
+ 		return;
  	}
--	mtk_v4l2_debug(2, "reg[%d] base=0x%p", i, dev->reg_base[VENC_SYS]);
-+	mtk_v4l2_debug(2, "reg[%d] base=0x%p", VENC_SYS, dev->reg_base[VENC_SYS]);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (res == NULL) {
-@@ -332,7 +332,7 @@ static int mtk_vcodec_probe(struct platform_device *pdev)
- 			ret = PTR_ERR((__force void *)dev->reg_base[VENC_LT_SYS]);
- 			goto err_res;
- 		}
--		mtk_v4l2_debug(2, "reg[%d] base=0x%p", i, dev->reg_base[VENC_LT_SYS]);
-+		mtk_v4l2_debug(2, "reg[%d] base=0x%p", VENC_LT_SYS, dev->reg_base[VENC_LT_SYS]);
- 
- 		dev->enc_lt_irq = platform_get_irq(pdev, 1);
- 		irq_set_status_flags(dev->enc_lt_irq, IRQ_NOAUTOEN);
 -- 
 2.27.0
 
