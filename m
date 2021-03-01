@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D82DF328473
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E7332855E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbhCAQfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:35:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
+        id S236013AbhCAQxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231700AbhCAQaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:30:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 445F9601FC;
-        Mon,  1 Mar 2021 16:24:10 +0000 (UTC)
+        id S232878AbhCAQqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:46:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E40764FA1;
+        Mon,  1 Mar 2021 16:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615851;
-        bh=jkeBrFo3ytL1w4k2gpPM27L2Rp+PzUve5ynQNjgpbyw=;
+        s=korg; t=1614616321;
+        bh=Kaiaq37bxYU3CE8A/02j6FI2Xjs9Nt0iMdwy6IywPzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WqxgW/TSLaT3wOULS6KuJFfwkc4SQDxqhUkDrPVWcRYhnaT3i9KiEAD9Fc6X79K1k
-         OdfSy677xt+tKNe+5BDmMJJ8+U9ib8zBOUR+r4U6WYzywJzpIQfuuWx15IVnemkUAI
-         Nu4j3iuZ9wiJoJMgaeZpuFiuG0OSt7EDtOYG0lWI=
+        b=DMCq3EKatE6K7yvbPq7IMDxZmTh0RzW5nwtPXEuAGwC9ZN9EmWvBgosiFFFGcgNbg
+         84tqOnIGaMommmgBGhd7xqLKLzED4flIFhYA4foCg7RtvzC1Zqv7bzBU+tcxKjubgT
+         dzxKqwtioZgAIPP5/ToMQpncHJRvq3b7TgTZ+eVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Dawid Lukwinski <dawid.lukwinski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 083/134] ocfs2: fix a use after free on error
+Subject: [PATCH 4.14 111/176] i40e: Fix overwriting flow control settings during driver loading
 Date:   Mon,  1 Mar 2021 17:13:04 +0100
-Message-Id: <20210301161017.653437372@linuxfoundation.org>
+Message-Id: <20210301161026.496379737@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,58 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-[ Upstream commit c57d117f2b2f2a19b570c36f2819ef8d8210af20 ]
+[ Upstream commit 4cdb9f80dcd46aab3c0020b4a6920c22735c5d6e ]
 
-The error handling in this function frees "reg" but it is still on the
-"o2hb_all_regions" list so it will lead to a use after freew.  Joseph Qi
-points out that we need to clear the bit in the "o2hb_region_bitmap" as
-well
+During driver loading flow control settings were written to FW
+using a variable which was always zero, since it was being set
+only by ethtool. This behavior has been corrected and driver
+no longer overwrites the default FW/NVM settings.
 
-Link: https://lkml.kernel.org/r/YBk4M6HUG8jB/jc7@mwanda
-Fixes: 1cf257f51191 ("ocfs2: fix memory leak")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 373149fc99a0 ("i40e: Decrease the scope of rtnl lock")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/cluster/heartbeat.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 27 ---------------------
+ 1 file changed, 27 deletions(-)
 
-diff --git a/fs/ocfs2/cluster/heartbeat.c b/fs/ocfs2/cluster/heartbeat.c
-index 5e8709aa1e7ec..89c71d32dc05b 100644
---- a/fs/ocfs2/cluster/heartbeat.c
-+++ b/fs/ocfs2/cluster/heartbeat.c
-@@ -2155,7 +2155,7 @@ static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *g
- 			o2hb_nego_timeout_handler,
- 			reg, NULL, &reg->hr_handler_list);
- 	if (ret)
--		goto free;
-+		goto remove_item;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index f4475cbf8ce86..3f43e4f0d3b17 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7185,7 +7185,6 @@ static int i40e_reset(struct i40e_pf *pf)
+ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ {
+ 	struct i40e_hw *hw = &pf->hw;
+-	u8 set_fc_aq_fail = 0;
+ 	i40e_status ret;
+ 	u32 val;
+ 	int v;
+@@ -7263,13 +7262,6 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 			 i40e_stat_str(&pf->hw, ret),
+ 			 i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
  
- 	ret = o2net_register_handler(O2HB_NEGO_APPROVE_MSG, reg->hr_key,
- 			sizeof(struct o2hb_nego_msg),
-@@ -2174,6 +2174,12 @@ static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *g
+-	/* make sure our flow control settings are restored */
+-	ret = i40e_set_fc(&pf->hw, &set_fc_aq_fail, true);
+-	if (ret)
+-		dev_dbg(&pf->pdev->dev, "setting flow control: ret = %s last_status = %s\n",
+-			i40e_stat_str(&pf->hw, ret),
+-			i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
+-
+ 	/* Rebuild the VSIs and VEBs that existed before reset.
+ 	 * They are still in our local switch element arrays, so only
+ 	 * need to rebuild the switch model in the HW.
+@@ -11286,7 +11278,6 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	int err;
+ 	u32 val;
+ 	u32 i;
+-	u8 set_fc_aq_fail;
  
- unregister_handler:
- 	o2net_unregister_handler_list(&reg->hr_handler_list);
-+remove_item:
-+	spin_lock(&o2hb_live_lock);
-+	list_del(&reg->hr_all_item);
-+	if (o2hb_global_heartbeat_active())
-+		clear_bit(reg->hr_region_num, o2hb_region_bitmap);
-+	spin_unlock(&o2hb_live_lock);
- free:
- 	kfree(reg);
- 	return ERR_PTR(ret);
+ 	err = pci_enable_device_mem(pdev);
+ 	if (err)
+@@ -11555,24 +11546,6 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		goto err_vsis;
+ 	}
+ 
+-	/* Make sure flow control is set according to current settings */
+-	err = i40e_set_fc(hw, &set_fc_aq_fail, true);
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_GET)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on get_phy_cap\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_SET)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on set_phy_config\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_UPDATE)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on get_link_info\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-
+ 	/* if FDIR VSI was set up, start it now */
+ 	for (i = 0; i < pf->num_alloc_vsi; i++) {
+ 		if (pf->vsi[i] && pf->vsi[i]->type == I40E_VSI_FDIR) {
 -- 
 2.27.0
 
