@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4E5328E46
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8A0328D48
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241588AbhCAT1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:27:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
+        id S241113AbhCATIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:08:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241552AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B2BE64DED;
-        Mon,  1 Mar 2021 17:47:38 +0000 (UTC)
+        id S240829AbhCATEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:04:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 076FB64F19;
+        Mon,  1 Mar 2021 17:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620859;
-        bh=eCYmHukBaD3Mmz+JfEzIQKfcTJC9IGGpJqg0KxGywGI=;
+        s=korg; t=1614620938;
+        bh=+IA0ZHPuzJBaqRZ9zOCHZV/2j0Z4VkXmvnvo/PPdHEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fw5RE7yesZ2Fnlb7D8jRrkSDajdo0PvtuQg9vU6g+0tF5se1dR5iKu0waK/jkEM1
-         fKN3EIMQU80Wyh5IwoSp9rDKuPA6u+TBAI2zp/r8bZSknYboh2olGbzz8LNCp9eg9C
-         vPZgr9T0ApitghGDwWkzTx/25jVDg8KJq1/CC68s=
+        b=lOm+zfKeAF5M634WoBb6gO4RNygFBTIzxVZKCwO6UuKNzmnZ+uCOi3j3GO7SKjCCV
+         0ADrHkqlHwZk7BZJg9BI1Ft4+s3CkNUW3P5mNN/Ju/QAWQp+khR2yNM4G+o4R//UMq
+         rlV0R8RNuBSC3lCdaVkbkIeEX5yvumZWJIRj50fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 298/775] ubifs: Fix error return code in alloc_wbufs()
-Date:   Mon,  1 Mar 2021 17:07:46 +0100
-Message-Id: <20210301161216.352028497@linuxfoundation.org>
+Subject: [PATCH 5.11 304/775] Input: imx_keypad - add dependency on HAS_IOMEM
+Date:   Mon,  1 Mar 2021 17:07:52 +0100
+Message-Id: <20210301161216.641677153@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,38 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 42119dbe571eb419dae99b81dd20fa42f47464e1 ]
+[ Upstream commit f5cace4b93d736cef348211ae0814cabdd26d86a ]
 
-Fix to return PTR_ERR() error code from the error handling case instead
-fo 0 in function alloc_wbufs(), as done elsewhere in this function.
+devm_platform_ioremap_resource() depends on CONFIG_HAS_IOMEM, so let's add
+it to the dependencies when COMPILE_TEST is enabled.
 
-Fixes: 6a98bc4614de ("ubifs: Add authentication nodes to journal")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: c8834032ffe2 ("Input: imx_keypad - add COMPILE_TEST support")
+Link: https://lore.kernel.org/r/X9llpA3w1zlZCHXU@google.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/super.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
-index 138b9426c6c18..ddb2ca636c93d 100644
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -838,8 +838,10 @@ static int alloc_wbufs(struct ubifs_info *c)
- 		c->jheads[i].wbuf.jhead = i;
- 		c->jheads[i].grouped = 1;
- 		c->jheads[i].log_hash = ubifs_hash_get_desc(c);
--		if (IS_ERR(c->jheads[i].log_hash))
-+		if (IS_ERR(c->jheads[i].log_hash)) {
-+			err = PTR_ERR(c->jheads[i].log_hash);
- 			goto out;
-+		}
- 	}
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 2b321c17054ad..94eab82086b27 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -446,7 +446,7 @@ config KEYBOARD_MPR121
  
- 	/*
+ config KEYBOARD_SNVS_PWRKEY
+ 	tristate "IMX SNVS Power Key Driver"
+-	depends on ARCH_MXC || COMPILE_TEST
++	depends on ARCH_MXC || (COMPILE_TEST && HAS_IOMEM)
+ 	depends on OF
+ 	help
+ 	  This is the snvs powerkey driver for the Freescale i.MX application
 -- 
 2.27.0
 
