@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E49532889B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC1C32889D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238611AbhCARnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58228 "EHLO mail.kernel.org"
+        id S238630AbhCARnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232847AbhCARfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:35:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F5F264FB6;
-        Mon,  1 Mar 2021 16:54:19 +0000 (UTC)
+        id S236958AbhCARfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:35:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EBDF64FB8;
+        Mon,  1 Mar 2021 16:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617660;
-        bh=ATnTuk9UMyv/ldTfadnANYnaU2kqXy6VFluMSyIsI1Y=;
+        s=korg; t=1614617663;
+        bh=NdPjm/sp0kpByO+D4zxa+oJ6LkSr0cOqLLD3Cu9+Whw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bEBZUttWOnLG5Vjmx4SGxAAvqvagjsRhma3ekkQw8AfZ8FRYfEOREXSHtssRG9M2
-         TWWKtNF7zpq6cULj2TWZWVytUM8H30vQeR97d6tGwzkkhZZJTCql9rBSUjVk7RdLFu
-         LWyZQ/NksFwoBwqQaFGNoTDrdqxOm7I0QnXWDj0A=
+        b=CzfGWN/kt0uyedHwZ0fye51NBJOdoCz1jVy4a7/9gR87jylhRR1J9YL0mQ27NReQz
+         vkup0cyOgKY2TaDNmiqMkuFRgIoEoFpCGzn5Cda9x0gDcpKA74wjENT+o1FsWxA5G8
+         qGI8OKy/xNCGAmyVEgk/XKhQpZ0bFIqe3NjYsZJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 151/340] clk: sunxi-ng: h6: Fix clock divider range on some clocks
-Date:   Mon,  1 Mar 2021 17:11:35 +0100
-Message-Id: <20210301161055.749231181@linuxfoundation.org>
+Subject: [PATCH 5.4 152/340] regulator: axp20x: Fix reference cout leak
+Date:   Mon,  1 Mar 2021 17:11:36 +0100
+Message-Id: <20210301161055.798658853@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,65 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 04ef679591c76571a9e7d5ca48316cc86fa0ef12 ]
+[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
 
-While comparing clocks between the H6 and H616, some of the M factor
-ranges were found to be wrong: the manual says they are only covering
-two bits [1:0], but our code had "5" in the number-of-bits field.
+Decrements the reference count of device node and its child node.
 
-By writing 0xff into that register in U-Boot and via FEL, it could be
-confirmed that bits [4:2] are indeed masked off, so the manual is right.
-
-Change to number of bits in the affected clock's description.
-
-Fixes: 524353ea480b ("clk: sunxi-ng: add support for the Allwinner H6 CCU")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210118000912.28116-1-andre.przywara@arm.com
+Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun50i-h6.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/regulator/axp20x-regulator.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-h6.c b/drivers/clk/sunxi-ng/ccu-sun50i-h6.c
-index 183dd350cce95..2f00f1b7b9c00 100644
---- a/drivers/clk/sunxi-ng/ccu-sun50i-h6.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun50i-h6.c
-@@ -228,7 +228,7 @@ static const char * const psi_ahb1_ahb2_parents[] = { "osc24M", "osc32k",
- static SUNXI_CCU_MP_WITH_MUX(psi_ahb1_ahb2_clk, "psi-ahb1-ahb2",
- 			     psi_ahb1_ahb2_parents,
- 			     0x510,
--			     0, 5,	/* M */
-+			     0, 2,	/* M */
- 			     8, 2,	/* P */
- 			     24, 2,	/* mux */
- 			     0);
-@@ -237,19 +237,19 @@ static const char * const ahb3_apb1_apb2_parents[] = { "osc24M", "osc32k",
- 						       "psi-ahb1-ahb2",
- 						       "pll-periph0" };
- static SUNXI_CCU_MP_WITH_MUX(ahb3_clk, "ahb3", ahb3_apb1_apb2_parents, 0x51c,
--			     0, 5,	/* M */
-+			     0, 2,	/* M */
- 			     8, 2,	/* P */
- 			     24, 2,	/* mux */
- 			     0);
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index aefc351bfed59..86a3c2dd05848 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -1072,7 +1072,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
+ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ {
+ 	struct device_node *np, *regulators;
+-	int ret;
++	int ret = 0;
+ 	u32 dcdcfreq = 0;
  
- static SUNXI_CCU_MP_WITH_MUX(apb1_clk, "apb1", ahb3_apb1_apb2_parents, 0x520,
--			     0, 5,	/* M */
-+			     0, 2,	/* M */
- 			     8, 2,	/* P */
- 			     24, 2,	/* mux */
- 			     0);
+ 	np = of_node_get(pdev->dev.parent->of_node);
+@@ -1087,13 +1087,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
+-			return ret;
+ 		}
+-
+ 		of_node_put(regulators);
+ 	}
  
- static SUNXI_CCU_MP_WITH_MUX(apb2_clk, "apb2", ahb3_apb1_apb2_parents, 0x524,
--			     0, 5,	/* M */
-+			     0, 2,	/* M */
- 			     8, 2,	/* P */
- 			     24, 2,	/* mux */
- 			     0);
+-	return 0;
++	of_node_put(np);
++	return ret;
+ }
+ 
+ static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
