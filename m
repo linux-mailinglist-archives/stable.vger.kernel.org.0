@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6463284C8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2762E3285CE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbhCAQnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:43:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43236 "EHLO mail.kernel.org"
+        id S232354AbhCAQ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:59:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232952AbhCAQgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:36:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 409BA64F6B;
-        Mon,  1 Mar 2021 16:26:18 +0000 (UTC)
+        id S236183AbhCAQxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:53:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2280564F2D;
+        Mon,  1 Mar 2021 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615978;
-        bh=Ufwgbib4tnmfpKGDOy+QmSp0NroTZgDRb+4rXYsHuSo=;
+        s=korg; t=1614616452;
+        bh=zsJLBzVCRHREkfNwSrGlTpep6kVC51aCL/mSW45vNiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=no972zj+3gPmH9mxRzx7bddYkkVw6gwh8LYkM6YGoVP+87HXVeS77MKqCMhld0bnU
-         9NeoP/0b64tFzpcV3ejNeN+TTDWrAykesWMAr7RwxQXs344lUaPySUOIMDcz1rfOvG
-         6PABoKxEN5jBgH/xWDDZNoyyw+ZvgHrnRqwZG/gA=
+        b=1Cf06taKQfH/QCSf8aM3gVrjl9w647t+Z4kFHERBjVmnxZOBPuTO2+jbb+ykoKWvs
+         m1CyrvE7ZmVs8VT7PlSbStmhpWPuL5JncVQhM1Gz8U1/q6VkfScq68ob1L4Q1HPVSr
+         9hS9by+95zOns3qtaYN0IRrg81BrwQRyxxumusNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 127/134] futex: fix dead code in attach_to_pi_owner()
+        stable@vger.kernel.org, Tho Vu <tho.vu.wh@renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 155/176] usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()
 Date:   Mon,  1 Mar 2021 17:13:48 +0100
-Message-Id: <20210301161019.841984983@linuxfoundation.org>
+Message-Id: <20210301161028.714397990@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-The handle_exit_race() function is defined in commit 9c3f39860367
- ("futex: Cure exit race"), which never returns -EBUSY. This results
-in a small piece of dead code in the attach_to_pi_owner() function:
+commit 9917f0e3cdba7b9f1a23f70e3f70b1a106be54a8 upstream
 
-	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
-	...
-	if (ret == -EBUSY)
-		*exiting = p; /* dead code */
+Should clear the pipe running flag in usbhs_pkt_pop(). Otherwise,
+we cannot use this pipe after dequeue was called while the pipe was
+running.
 
-The return value -EBUSY is added to handle_exit_race() in upsteam
-commit ac31c7ff8624409 ("futex: Provide distinct return value when
-owner is exiting"). This commit was incorporated into v4.9.255, before
-the function handle_exit_race() was introduced, whitout Modify
-handle_exit_race().
-
-To fix dead code, extract the change of handle_exit_race() from
-commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
- is exiting"), re-incorporated.
-
-Lee writes:
-
-This commit takes the remaining functional snippet of:
-
- ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
-
-... and is the correct fix for this issue.
-
-
-Fixes: 9c3f39860367 ("futex: Cure exit race")
-Cc: stable@vger.kernel.org # v4.9.258
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 8355b2b3082d ("usb: renesas_usbhs: fix the behavior of some usbhs_pkt_handle")
+Reported-by: Tho Vu <tho.vu.wh@renesas.com>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1612183640-8898-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/renesas_usbhs/fifo.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1207,11 +1207,11 @@ static int handle_exit_race(u32 __user *
- 	u32 uval2;
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -137,6 +137,8 @@ struct usbhs_pkt *usbhs_pkt_pop(struct u
+ 			usbhsf_dma_unmap(pkt);
+ 		}
  
- 	/*
--	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
--	 * for it to finish.
-+	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
-+	 * caller that the alleged owner is busy.
- 	 */
- 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
--		return -EAGAIN;
-+		return -EBUSY;
++		usbhs_pipe_running(pipe, 0);
++
+ 		__usbhsf_pkt_del(pkt);
+ 	}
  
- 	/*
- 	 * Reread the user space value to handle the following situation:
 
 
