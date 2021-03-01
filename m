@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D319132877F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB1F3287BA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238276AbhCARYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:24:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37350 "EHLO mail.kernel.org"
+        id S238479AbhCAR2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237347AbhCARSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237001AbhCARSx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:18:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F7D65052;
-        Mon,  1 Mar 2021 16:47:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D2B864F94;
+        Mon,  1 Mar 2021 16:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617234;
-        bh=7xC4iiMmZejp3ZwjMd4Sr6JX15PfpU1FJ+v4WJcqEw4=;
+        s=korg; t=1614617236;
+        bh=Kl2srq+s1fv7dBcZVtxYhNEQhHnpnNFfLFRL2ZF2LOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4mI2TtVVhd/VqiBN2DlUV1VPhVsZjPyNe+BFWhnMdmcd3ZAvV6BcCgG2MQv/puLS
-         ZjFHQ8jV+Z+K93nnNYHOT/RxBkDKAhTM9+MWQjAeGJ3Qj7Z8Cxmdg6aT8uiK22dSdU
-         BVZbyJ1mbnBnrlUiphc0ca6sgrWrdexalUExRR/4=
+        b=Lw8jv0LXEDPQjosDhKjtv5Ynfli/GJqd+OClLosFB/nSVFSKxy32Orn3m9feueIbd
+         Favj249NN+4sdbK4Vu8cBieAE70mrMnH9w+UckQA8FvjKKkkbi1oBGsc8XR0wpFGEh
+         A6YgLaM/JirZS7bZlFUreT2LCxEIHr6dKrd8n3S4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.19 224/247] module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for undefined symbols
-Date:   Mon,  1 Mar 2021 17:14:04 +0100
-Message-Id: <20210301161042.653694736@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 225/247] mmc: sdhci-esdhc-imx: fix kernel panic when remove module
+Date:   Mon,  1 Mar 2021 17:14:05 +0100
+Message-Id: <20210301161042.703910180@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,80 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Frank Li <Frank.Li@nxp.com>
 
-commit ebfac7b778fac8b0e8e92ec91d0b055f046b4604 upstream.
+commit a56f44138a2c57047f1ea94ea121af31c595132b upstream.
 
-clang-12 -fno-pic (since
-https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6)
-can emit `call __stack_chk_fail@PLT` instead of `call __stack_chk_fail`
-on x86.  The two forms should have identical behaviors on x86-64 but the
-former causes GNU as<2.37 to produce an unreferenced undefined symbol
-_GLOBAL_OFFSET_TABLE_.
+In sdhci_esdhc_imx_remove() the SDHCI_INT_STATUS in read. Under some
+circumstances, this may be done while the device is runtime suspended,
+triggering the below splat.
 
-(On x86-32, there is an R_386_PC32 vs R_386_PLT32 difference but the
-linker behavior is identical as far as Linux kernel is concerned.)
+Fix the problem by adding a pm_runtime_get_sync(), before reading the
+register, which will turn on clocks etc making the device accessible again.
 
-Simply ignore _GLOBAL_OFFSET_TABLE_ for now, like what
-scripts/mod/modpost.c:ignore_undef_symbol does. This also fixes the
-problem for gcc/clang -fpie and -fpic, which may emit `call foo@PLT` for
-external function calls on x86.
+[ 1811.323148] mmc1: card aaaa removed
+[ 1811.347483] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
+[ 1811.354988] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core [last unloaded: mmc_core]
+[ 1811.365726] CPU: 0 PID: 3464 Comm: rmmod Not tainted 5.10.1-sd-99871-g53835a2e8186 #5
+[ 1811.373559] Hardware name: Freescale i.MX8DXL EVK (DT)
+[ 1811.378705] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
+[ 1811.384723] pc : sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
+[ 1811.391090] lr : platform_drv_remove+0x2c/0x50
+[ 1811.395536] sp : ffff800012c7bcb0
+[ 1811.398855] x29: ffff800012c7bcb0 x28: ffff00002c72b900
+[ 1811.404181] x27: 0000000000000000 x26: 0000000000000000
+[ 1811.409497] x25: 0000000000000000 x24: 0000000000000000
+[ 1811.414814] x23: ffff0000042b3890 x22: ffff800009127120
+[ 1811.420131] x21: ffff00002c4c9580 x20: ffff0000042d0810
+[ 1811.425456] x19: ffff0000042d0800 x18: 0000000000000020
+[ 1811.430773] x17: 0000000000000000 x16: 0000000000000000
+[ 1811.436089] x15: 0000000000000004 x14: ffff000004019c10
+[ 1811.441406] x13: 0000000000000000 x12: 0000000000000020
+[ 1811.446723] x11: 0101010101010101 x10: 7f7f7f7f7f7f7f7f
+[ 1811.452040] x9 : fefefeff6364626d x8 : 7f7f7f7f7f7f7f7f
+[ 1811.457356] x7 : 78725e6473607372 x6 : 0000000080808080
+[ 1811.462673] x5 : 0000000000000000 x4 : 0000000000000000
+[ 1811.467990] x3 : ffff800011ac1cb0 x2 : 0000000000000000
+[ 1811.473307] x1 : ffff8000091214d4 x0 : ffff8000133a0030
+[ 1811.478624] Call trace:
+[ 1811.481081]  sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
+[ 1811.487098]  platform_drv_remove+0x2c/0x50
+[ 1811.491198]  __device_release_driver+0x188/0x230
+[ 1811.495818]  driver_detach+0xc0/0x14c
+[ 1811.499487]  bus_remove_driver+0x5c/0xb0
+[ 1811.503413]  driver_unregister+0x30/0x60
+[ 1811.507341]  platform_driver_unregister+0x14/0x20
+[ 1811.512048]  sdhci_esdhc_imx_driver_exit+0x1c/0x3a8 [sdhci_esdhc_imx]
+[ 1811.518495]  __arm64_sys_delete_module+0x19c/0x230
+[ 1811.523291]  el0_svc_common.constprop.0+0x78/0x1a0
+[ 1811.528086]  do_el0_svc+0x24/0x90
+[ 1811.531405]  el0_svc+0x14/0x20
+[ 1811.534461]  el0_sync_handler+0x1a4/0x1b0
+[ 1811.538474]  el0_sync+0x174/0x180
+[ 1811.541801] Code: a9025bf5 f9403e95 f9400ea0 9100c000 (b9400000)
+[ 1811.547902] ---[ end trace 3fb1a3bd48ff7be5 ]---
 
-Note: ld -z defs and dynamic loaders do not error for unreferenced
-undefined symbols so the module loader is reading too much.  If we ever
-need to ignore more symbols, the code should be refactored to ignore
-unreferenced symbols.
-
-Cc: <stable@vger.kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1250
-Link: https://sourceware.org/bugzilla/show_bug.cgi?id=27178
-Reported-by: Marco Elver <elver@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Marco Elver <elver@google.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Cc: stable@vger.kernel.org # v4.0+
+Link: https://lore.kernel.org/r/20210210181933.29263-1-Frank.Li@nxp.com
+[Ulf: Clarified the commit message a bit]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/module.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2274,6 +2274,21 @@ static int verify_export_symbols(struct
- 	return 0;
- }
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1370,9 +1370,10 @@ static int sdhci_esdhc_imx_remove(struct
+ 	struct sdhci_host *host = platform_get_drvdata(pdev);
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
+-	int dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
++	int dead;
  
-+static bool ignore_undef_symbol(Elf_Half emachine, const char *name)
-+{
-+	/*
-+	 * On x86, PIC code and Clang non-PIC code may have call foo@PLT. GNU as
-+	 * before 2.37 produces an unreferenced _GLOBAL_OFFSET_TABLE_ on x86-64.
-+	 * i386 has a similar problem but may not deserve a fix.
-+	 *
-+	 * If we ever have to ignore many symbols, consider refactoring the code to
-+	 * only warn if referenced by a relocation.
-+	 */
-+	if (emachine == EM_386 || emachine == EM_X86_64)
-+		return !strcmp(name, "_GLOBAL_OFFSET_TABLE_");
-+	return false;
-+}
-+
- /* Change all symbols so that st_value encodes the pointer directly. */
- static int simplify_symbols(struct module *mod, const struct load_info *info)
- {
-@@ -2319,8 +2334,10 @@ static int simplify_symbols(struct modul
- 				break;
- 			}
+ 	pm_runtime_get_sync(&pdev->dev);
++	dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
+ 	pm_runtime_disable(&pdev->dev);
+ 	pm_runtime_put_noidle(&pdev->dev);
  
--			/* Ok if weak.  */
--			if (!ksym && ELF_ST_BIND(sym[i].st_info) == STB_WEAK)
-+			/* Ok if weak or ignored.  */
-+			if (!ksym &&
-+			    (ELF_ST_BIND(sym[i].st_info) == STB_WEAK ||
-+			     ignore_undef_symbol(info->hdr->e_machine, name)))
- 				break;
- 
- 			ret = PTR_ERR(ksym) ?: -ENOENT;
 
 
