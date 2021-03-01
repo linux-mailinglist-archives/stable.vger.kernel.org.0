@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4463284C9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A8A3285D4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:00:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235145AbhCAQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:43:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41538 "EHLO mail.kernel.org"
+        id S236036AbhCAQ7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:59:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232781AbhCAQgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:36:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 405D964F3F;
-        Mon,  1 Mar 2021 16:26:35 +0000 (UTC)
+        id S236373AbhCAQyB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:54:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A86B164F37;
+        Mon,  1 Mar 2021 16:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615995;
-        bh=vADTKI8wPLnKUNC2dzoozutChBFw9DZD3N3wCUHYUAg=;
+        s=korg; t=1614616470;
+        bh=hLQdPGdyDSLs7frkDv+7h/8So63/0xPN9wOeDrnkm0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWX9cOzYZqnmr304TFEjn0SqYGZDdfzi8mo+4P7kbxk8I2yPk0Qgx1QiZ+C6HD3LP
-         w0GH++cRqk84cU2PhBdzxqwt35NijNNDf1rDEAOKbRG8SmEGu7FMl1oE+GOBxzgz86
-         aUpbCRZQlF8OQWpOuiVr8gnBVDBllMueQm2icgVk=
+        b=jRb0pBlRdkzrItw+fKrsIbGdHdbs4wtSnrD/CcrWy+qILPsJf0ECj5pKraw19CHnD
+         86lJYKZhVpykoXUVun7KFXBYot7CvL7BV8ZsI5POtnKHCwz8de9bOBoK+aYeb2n0Uu
+         0JRM0HlHF0KLOCoVpGwSd+An23QRTAGJS0tewN7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 103/134] btrfs: fix reloc root leak with 0 ref reloc roots on recovery
-Date:   Mon,  1 Mar 2021 17:13:24 +0100
-Message-Id: <20210301161018.637561519@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 132/176] USB: serial: mos7720: fix error code in mos7720_write()
+Date:   Mon,  1 Mar 2021 17:13:25 +0100
+Message-Id: <20210301161027.542684196@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c78a10aebb275c38d0cfccae129a803fe622e305 upstream.
+commit fea7372cbc40869876df0f045e367f6f97a1666c upstream.
 
-When recovering a relocation, if we run into a reloc root that has 0
-refs we simply add it to the reloc_control->reloc_roots list, and then
-clean it up later.  The problem with this is __del_reloc_root() doesn't
-do anything if the root isn't in the radix tree, which in this case it
-won't be because we never call __add_reloc_root() on the reloc_root.
+This code should return -ENOMEM if the kmalloc() fails but instead
+it returns success.
 
-This exit condition simply isn't correct really.  During normal
-operation we can remove ourselves from the rb tree and then we're meant
-to clean up later at merge_reloc_roots() time, and this happens
-correctly.  During recovery we're depending on free_reloc_roots() to
-drop our references, but we're short-circuiting.
-
-Fix this by continuing to check if we're on the list and dropping
-ourselves from the reloc_control root list and dropping our reference
-appropriately.  Change the corresponding BUG_ON() to an ASSERT() that
-does the correct thing if we aren't in the rb tree.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/relocation.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/serial/mos7720.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1335,9 +1335,7 @@ static void __del_reloc_root(struct btrf
- 			RB_CLEAR_NODE(&node->rb_node);
- 		}
- 		spin_unlock(&rc->reloc_root_tree.lock);
--		if (!node)
--			return;
--		BUG_ON((struct btrfs_root *)node->data != root);
-+		ASSERT(!node || (struct btrfs_root *)node->data == root);
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -1252,8 +1252,10 @@ static int mos7720_write(struct tty_stru
+ 	if (urb->transfer_buffer == NULL) {
+ 		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
+ 					       GFP_ATOMIC);
+-		if (!urb->transfer_buffer)
++		if (!urb->transfer_buffer) {
++			bytes_sent = -ENOMEM;
+ 			goto exit;
++		}
  	}
+ 	transfer_size = min(count, URB_TRANSFER_BUFFER_SIZE);
  
- 	spin_lock(&root->fs_info->trans_lock);
 
 
