@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B79328F3B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE07328E9F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242033AbhCATsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+        id S242012AbhCATeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:34:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236214AbhCATgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 099BB65161;
-        Mon,  1 Mar 2021 17:06:39 +0000 (UTC)
+        id S241718AbhCAT25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:28:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50B8D64F7A;
+        Mon,  1 Mar 2021 17:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618400;
-        bh=sCzjkdrr6Y45yA0JMQmtMSyd+YvWcVn5SQKCQctTfxE=;
+        s=korg; t=1614618408;
+        bh=GBYnIhzviYEskKBCbud2gg9Box+OSWeHeuOJIooZhPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EW5K/xRDypQ0xYRvNaLp4Fg0YhdwD4RDYGPkeavdIldtrth9u+EjJsaPin+b2zP+o
-         Gj7cBTjM3HAx/P9imL98NG4grFfeTlg0gnx13yxU8t2m/7bEoU1ohRvlDDVat80fE9
-         0Bv2bJut3o/K4Py5BVUBDQ+/gCLnG/pdSJKMOBBg=
+        b=gk5+InolwbdO4o2cdy0ZMloiVo6o1v7qWmyOYdQn7Pnor0rCd5Imtkk/vTOIbKPWs
+         JHMNhhX2xu3YUI/xCSKUZOugR7NK+8Y3rDe8VqY1fEguV1BeQeTtp0ewu1wqFxAy1X
+         QaF2HmYmGvkmOiefDcz6Qu3GKuVphGj7MympNwPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jupeng Zhong <zhongjupeng@yulong.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/663] Bluetooth: btusb: Fix memory leak in btusb_mtk_wmt_recv
-Date:   Mon,  1 Mar 2021 17:05:22 +0100
-Message-Id: <20210301161145.395535693@linuxfoundation.org>
+Subject: [PATCH 5.10 077/663] arm64: dts: meson: fix broken wifi node for Khadas VIM3L
+Date:   Mon,  1 Mar 2021 17:05:25 +0100
+Message-Id: <20210301161145.545939473@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,73 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jupeng Zhong <zhongjupeng@yulong.com>
+From: Artem Lapkin <email2tema@gmail.com>
 
-[ Upstream commit de71a6cb4bf24d8993b9ca90d1ddb131b60251a1 ]
+[ Upstream commit 39be8f441f78908e97ff913571e10ec03387a63a ]
 
-In btusb_mtk_wmt_recv if skb_clone fails, the alocated skb should be
-released.
+move &sd_emmc_a ... from /* */ commented area, because cant load wifi fw
+without sd-uhs-sdr50 option on VIM3L
 
-Omit the labels “err_out” and “err_free_skb” in this function
-implementation so that the desired exception handling code
-would be directly specified in the affected if branches.
+[   11.686590] brcmfmac: brcmf_chip_cores_check: CPU core not detected
+[   11.696382] brcmfmac: brcmf_sdio_probe_attach: brcmf_chip_attach failed!
+[   11.706240] brcmfmac: brcmf_sdio_probe: brcmf_sdio_probe_attach failed
+[   11.715890] brcmfmac: brcmf_ops_sdio_probe: F2 error, probe failed -19...
+[   13.718424] brcmfmac: brcmf_chip_recognition: chip backplane type 15 is not supported
 
-Fixes: a1c49c434e15 ("btusb: Add protocol support for MediaTek MT7668U USB devices")
-Signed-off-by: Jupeng Zhong <zhongjupeng@yulong.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Artem Lapkin <art@khadas.com>
+Fixes: f1bb924e8f5b ("arm64: dts: meson: fix mmc0 tuning error on Khadas VIM3")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/20210129085041.1408540-1-art@khadas.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 1c942869baacc..2953b96b3ceda 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2827,7 +2827,7 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 		skb = bt_skb_alloc(HCI_WMT_MAX_EVENT_SIZE, GFP_ATOMIC);
- 		if (!skb) {
- 			hdev->stat.err_rx++;
--			goto err_out;
-+			return;
- 		}
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+index 4b517ca720597..06de0b1ce7267 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
+@@ -89,13 +89,12 @@
+ 	status = "okay";
+ };
  
- 		hci_skb_pkt_type(skb) = HCI_EVENT_PKT;
-@@ -2845,13 +2845,18 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 		 */
- 		if (test_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags)) {
- 			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
--			if (!data->evt_skb)
--				goto err_out;
-+			if (!data->evt_skb) {
-+				kfree_skb(skb);
-+				return;
-+			}
- 		}
+-&sd_emmc_a {
+-	sd-uhs-sdr50;
+-};
+-
+ &usb {
+ 	phys = <&usb2_phy0>, <&usb2_phy1>;
+ 	phy-names = "usb2-phy0", "usb2-phy1";
+ };
+  */
  
- 		err = hci_recv_frame(hdev, skb);
--		if (err < 0)
--			goto err_free_skb;
-+		if (err < 0) {
-+			kfree_skb(data->evt_skb);
-+			data->evt_skb = NULL;
-+			return;
-+		}
- 
- 		if (test_and_clear_bit(BTUSB_TX_WAIT_VND_EVT,
- 				       &data->flags)) {
-@@ -2860,11 +2865,6 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 			wake_up_bit(&data->flags,
- 				    BTUSB_TX_WAIT_VND_EVT);
- 		}
--err_out:
--		return;
--err_free_skb:
--		kfree_skb(data->evt_skb);
--		data->evt_skb = NULL;
- 		return;
- 	} else if (urb->status == -ENOENT) {
- 		/* Avoid suspend failed when usb_kill_urb */
++&sd_emmc_a {
++	sd-uhs-sdr50;
++};
 -- 
 2.27.0
 
