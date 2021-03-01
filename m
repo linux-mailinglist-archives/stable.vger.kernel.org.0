@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09315328612
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A71432861E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:05:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236955AbhCARDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:03:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59158 "EHLO mail.kernel.org"
+        id S234247AbhCAREA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:04:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236168AbhCAQ6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:58:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56F8064FD7;
-        Mon,  1 Mar 2021 16:36:36 +0000 (UTC)
+        id S236218AbhCAQ6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:58:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E7F364E5C;
+        Mon,  1 Mar 2021 16:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616597;
-        bh=qtdWE0eSQAk6aunNhppWgdFTnIAOv1hk3BbPYWeySrY=;
+        s=korg; t=1614616600;
+        bh=rSvHlhggAZe04gRVTcpJ0oGO9VlYZ+vEe8e9RBkReao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVb5dKb/GZ+RfBsmSndzpc2HR6IYP9fvlaZBLdhmxMLfQrx3NDRuFMn3wm8Co9o2d
-         ZSNrTqds6b6+lVs1shl6ogYaQmuaH7WQJKHcEdWOqjmi1t/epVJ6z1RGoX4PXszoeQ
-         EK82awe9zRor9mXKA1khi40Td0qVK5mTjgveg7pI=
+        b=loEZhZGpf14YjdG9hJXf4HCBRt1X8McWrOlzDnvl6yS8AEsY/i2d8nkV4HgvQJTHV
+         HGUf1YpO+u31kh0OW2uQhmvEVw3YDuQcYpUkm7TBrLHxlZ47T89aEM/Yspoh2mvWXP
+         CrIqV7hF0Gc/li/xNWUqB+pNMpuzlltPJ7wGHXjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bart Van Assche <bvanassche@acm.org>,
         Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [PATCH 4.19 008/247] block: add helper for checking if queue is registered
-Date:   Mon,  1 Mar 2021 17:10:28 +0100
-Message-Id: <20210301161032.100161958@linuxfoundation.org>
+Subject: [PATCH 4.19 009/247] block: split .sysfs_lock into two locks
+Date:   Mon,  1 Mar 2021 17:10:29 +0100
+Message-Id: <20210301161032.151529529@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -45,79 +45,498 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Lei <ming.lei@redhat.com>
 
-commit 58c898ba370e68d39470cd0d932b524682c1f9be upstream.
+commit cecf5d87ff2035127bb5a9ee054d0023a4a7cad3 upstream.
 
-There are 4 users which check if queue is registered, so add one helper
-to check it.
+The kernfs built-in lock of 'kn->count' is held in sysfs .show/.store
+path. Meantime, inside block's .show/.store callback, q->sysfs_lock is
+required.
+
+However, when mq & iosched kobjects are removed via
+blk_mq_unregister_dev() & elv_unregister_queue(), q->sysfs_lock is held
+too. This way causes AB-BA lock because the kernfs built-in lock of
+'kn-count' is required inside kobject_del() too, see the lockdep warning[1].
+
+On the other hand, it isn't necessary to acquire q->sysfs_lock for
+both blk_mq_unregister_dev() & elv_unregister_queue() because
+clearing REGISTERED flag prevents storing to 'queue/scheduler'
+from being happened. Also sysfs write(store) is exclusive, so no
+necessary to hold the lock for elv_unregister_queue() when it is
+called in switching elevator path.
+
+So split .sysfs_lock into two: one is still named as .sysfs_lock for
+covering sync .store, the other one is named as .sysfs_dir_lock
+for covering kobjects and related status change.
+
+sysfs itself can handle the race between add/remove kobjects and
+showing/storing attributes under kobjects. For switching scheduler
+via storing to 'queue/scheduler', we use the queue flag of
+QUEUE_FLAG_REGISTERED with .sysfs_lock for avoiding the race, then
+we can avoid to hold .sysfs_lock during removing/adding kobjects.
+
+[1]  lockdep warning
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    5.3.0-rc3-00044-g73277fc75ea0 #1380 Not tainted
+    ------------------------------------------------------
+    rmmod/777 is trying to acquire lock:
+    00000000ac50e981 (kn->count#202){++++}, at: kernfs_remove_by_name_ns+0x59/0x72
+
+    but task is already holding lock:
+    00000000fb16ae21 (&q->sysfs_lock){+.+.}, at: blk_unregister_queue+0x78/0x10b
+
+    which lock already depends on the new lock.
+
+    the existing dependency chain (in reverse order) is:
+
+    -> #1 (&q->sysfs_lock){+.+.}:
+           __lock_acquire+0x95f/0xa2f
+           lock_acquire+0x1b4/0x1e8
+           __mutex_lock+0x14a/0xa9b
+           blk_mq_hw_sysfs_show+0x63/0xb6
+           sysfs_kf_seq_show+0x11f/0x196
+           seq_read+0x2cd/0x5f2
+           vfs_read+0xc7/0x18c
+           ksys_read+0xc4/0x13e
+           do_syscall_64+0xa7/0x295
+           entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+    -> #0 (kn->count#202){++++}:
+           check_prev_add+0x5d2/0xc45
+           validate_chain+0xed3/0xf94
+           __lock_acquire+0x95f/0xa2f
+           lock_acquire+0x1b4/0x1e8
+           __kernfs_remove+0x237/0x40b
+           kernfs_remove_by_name_ns+0x59/0x72
+           remove_files+0x61/0x96
+           sysfs_remove_group+0x81/0xa4
+           sysfs_remove_groups+0x3b/0x44
+           kobject_del+0x44/0x94
+           blk_mq_unregister_dev+0x83/0xdd
+           blk_unregister_queue+0xa0/0x10b
+           del_gendisk+0x259/0x3fa
+           null_del_dev+0x8b/0x1c3 [null_blk]
+           null_exit+0x5c/0x95 [null_blk]
+           __se_sys_delete_module+0x204/0x337
+           do_syscall_64+0xa7/0x295
+           entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+    other info that might help us debug this:
+
+     Possible unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(&q->sysfs_lock);
+                                   lock(kn->count#202);
+                                   lock(&q->sysfs_lock);
+      lock(kn->count#202);
+
+     *** DEADLOCK ***
+
+    2 locks held by rmmod/777:
+     #0: 00000000e69bd9de (&lock){+.+.}, at: null_exit+0x2e/0x95 [null_blk]
+     #1: 00000000fb16ae21 (&q->sysfs_lock){+.+.}, at: blk_unregister_queue+0x78/0x10b
+
+    stack backtrace:
+    CPU: 0 PID: 777 Comm: rmmod Not tainted 5.3.0-rc3-00044-g73277fc75ea0 #1380
+    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS ?-20180724_192412-buildhw-07.phx4
+    Call Trace:
+     dump_stack+0x9a/0xe6
+     check_noncircular+0x207/0x251
+     ? print_circular_bug+0x32a/0x32a
+     ? find_usage_backwards+0x84/0xb0
+     check_prev_add+0x5d2/0xc45
+     validate_chain+0xed3/0xf94
+     ? check_prev_add+0xc45/0xc45
+     ? mark_lock+0x11b/0x804
+     ? check_usage_forwards+0x1ca/0x1ca
+     __lock_acquire+0x95f/0xa2f
+     lock_acquire+0x1b4/0x1e8
+     ? kernfs_remove_by_name_ns+0x59/0x72
+     __kernfs_remove+0x237/0x40b
+     ? kernfs_remove_by_name_ns+0x59/0x72
+     ? kernfs_next_descendant_post+0x7d/0x7d
+     ? strlen+0x10/0x23
+     ? strcmp+0x22/0x44
+     kernfs_remove_by_name_ns+0x59/0x72
+     remove_files+0x61/0x96
+     sysfs_remove_group+0x81/0xa4
+     sysfs_remove_groups+0x3b/0x44
+     kobject_del+0x44/0x94
+     blk_mq_unregister_dev+0x83/0xdd
+     blk_unregister_queue+0xa0/0x10b
+     del_gendisk+0x259/0x3fa
+     ? disk_events_poll_msecs_store+0x12b/0x12b
+     ? check_flags+0x1ea/0x204
+     ? mark_held_locks+0x1f/0x7a
+     null_del_dev+0x8b/0x1c3 [null_blk]
+     null_exit+0x5c/0x95 [null_blk]
+     __se_sys_delete_module+0x204/0x337
+     ? free_module+0x39f/0x39f
+     ? blkcg_maybe_throttle_current+0x8a/0x718
+     ? rwlock_bug+0x62/0x62
+     ? __blkcg_punt_bio_submit+0xd0/0xd0
+     ? trace_hardirqs_on_thunk+0x1a/0x20
+     ? mark_held_locks+0x1f/0x7a
+     ? do_syscall_64+0x4c/0x295
+     do_syscall_64+0xa7/0x295
+     entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    RIP: 0033:0x7fb696cdbe6b
+    Code: 73 01 c3 48 8b 0d 1d 20 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 008
+    RSP: 002b:00007ffec9588788 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+    RAX: ffffffffffffffda RBX: 0000559e589137c0 RCX: 00007fb696cdbe6b
+    RDX: 000000000000000a RSI: 0000000000000800 RDI: 0000559e58913828
+    RBP: 0000000000000000 R08: 00007ffec9587701 R09: 0000000000000000
+    R10: 00007fb696d4eae0 R11: 0000000000000206 R12: 00007ffec95889b0
+    R13: 00007ffec95896b3 R14: 0000559e58913260 R15: 0000559e589137c0
 
 Cc: Christoph Hellwig <hch@infradead.org>
 Cc: Hannes Reinecke <hare@suse.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>
 Cc: Mike Snitzer <snitzer@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
 Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+(jwang:cherry picked from commit cecf5d87ff2035127bb5a9ee054d0023a4a7cad3,
+adjust ctx for 4,19)
 Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-sysfs.c      |    4 ++--
- block/blk-wbt.c        |    2 +-
- block/elevator.c       |    2 +-
- include/linux/blkdev.h |    1 +
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ block/blk-core.c       |    1 
+ block/blk-mq-sysfs.c   |   12 ++++-----
+ block/blk-sysfs.c      |   44 +++++++++++++++++++++++-------------
+ block/blk.h            |    2 -
+ block/elevator.c       |   59 ++++++++++++++++++++++++++++++++++++++++---------
+ include/linux/blkdev.h |    1 
+ 6 files changed, 86 insertions(+), 33 deletions(-)
 
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1059,6 +1059,7 @@ struct request_queue *blk_alloc_queue_no
+ 	mutex_init(&q->blk_trace_mutex);
+ #endif
+ 	mutex_init(&q->sysfs_lock);
++	mutex_init(&q->sysfs_dir_lock);
+ 	spin_lock_init(&q->__queue_lock);
+ 
+ 	if (!q->mq_ops)
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -264,7 +264,7 @@ void blk_mq_unregister_dev(struct device
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i;
+ 
+-	lockdep_assert_held(&q->sysfs_lock);
++	lockdep_assert_held(&q->sysfs_dir_lock);
+ 
+ 	queue_for_each_hw_ctx(q, hctx, i)
+ 		blk_mq_unregister_hctx(hctx);
+@@ -312,7 +312,7 @@ int __blk_mq_register_dev(struct device
+ 	int ret, i;
+ 
+ 	WARN_ON_ONCE(!q->kobj.parent);
+-	lockdep_assert_held(&q->sysfs_lock);
++	lockdep_assert_held(&q->sysfs_dir_lock);
+ 
+ 	ret = kobject_add(&q->mq_kobj, kobject_get(&dev->kobj), "%s", "mq");
+ 	if (ret < 0)
+@@ -358,7 +358,7 @@ void blk_mq_sysfs_unregister(struct requ
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i;
+ 
+-	mutex_lock(&q->sysfs_lock);
++	mutex_lock(&q->sysfs_dir_lock);
+ 	if (!q->mq_sysfs_init_done)
+ 		goto unlock;
+ 
+@@ -366,7 +366,7 @@ void blk_mq_sysfs_unregister(struct requ
+ 		blk_mq_unregister_hctx(hctx);
+ 
+ unlock:
+-	mutex_unlock(&q->sysfs_lock);
++	mutex_unlock(&q->sysfs_dir_lock);
+ }
+ 
+ int blk_mq_sysfs_register(struct request_queue *q)
+@@ -374,7 +374,7 @@ int blk_mq_sysfs_register(struct request
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i, ret = 0;
+ 
+-	mutex_lock(&q->sysfs_lock);
++	mutex_lock(&q->sysfs_dir_lock);
+ 	if (!q->mq_sysfs_init_done)
+ 		goto unlock;
+ 
+@@ -385,7 +385,7 @@ int blk_mq_sysfs_register(struct request
+ 	}
+ 
+ unlock:
+-	mutex_unlock(&q->sysfs_lock);
++	mutex_unlock(&q->sysfs_dir_lock);
+ 
+ 	return ret;
+ }
 --- a/block/blk-sysfs.c
 +++ b/block/blk-sysfs.c
-@@ -896,7 +896,7 @@ int blk_register_queue(struct gendisk *d
+@@ -892,6 +892,7 @@ int blk_register_queue(struct gendisk *d
+ 	int ret;
+ 	struct device *dev = disk_to_dev(disk);
+ 	struct request_queue *q = disk->queue;
++	bool has_elevator = false;
+ 
  	if (WARN_ON(!q))
  		return -ENXIO;
- 
--	WARN_ONCE(test_bit(QUEUE_FLAG_REGISTERED, &q->queue_flags),
-+	WARN_ONCE(blk_queue_registered(q),
+@@ -899,7 +900,6 @@ int blk_register_queue(struct gendisk *d
+ 	WARN_ONCE(blk_queue_registered(q),
  		  "%s is registering an already registered queue\n",
  		  kobject_name(&dev->kobj));
- 	queue_flag_set_unlocked(QUEUE_FLAG_REGISTERED, q);
-@@ -973,7 +973,7 @@ void blk_unregister_queue(struct gendisk
- 		return;
- 
- 	/* Return early if disk->queue was never registered. */
--	if (!test_bit(QUEUE_FLAG_REGISTERED, &q->queue_flags))
-+	if (!blk_queue_registered(q))
- 		return;
+-	queue_flag_set_unlocked(QUEUE_FLAG_REGISTERED, q);
  
  	/*
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -708,7 +708,7 @@ void wbt_enable_default(struct request_q
- 		return;
+ 	 * SCSI probing may synchronously create and destroy a lot of
+@@ -920,8 +920,7 @@ int blk_register_queue(struct gendisk *d
+ 	if (ret)
+ 		return ret;
  
- 	/* Queue not registered? Maybe shutting down... */
--	if (!test_bit(QUEUE_FLAG_REGISTERED, &q->queue_flags))
-+	if (!blk_queue_registered(q))
- 		return;
+-	/* Prevent changes through sysfs until registration is completed. */
+-	mutex_lock(&q->sysfs_lock);
++	mutex_lock(&q->sysfs_dir_lock);
  
- 	if ((q->mq_ops && IS_ENABLED(CONFIG_BLK_WBT_MQ)) ||
+ 	ret = kobject_add(&q->kobj, kobject_get(&dev->kobj), "%s", "queue");
+ 	if (ret < 0) {
+@@ -934,26 +933,36 @@ int blk_register_queue(struct gendisk *d
+ 		blk_mq_debugfs_register(q);
+ 	}
+ 
+-	kobject_uevent(&q->kobj, KOBJ_ADD);
+-
+-	wbt_enable_default(q);
+-
+-	blk_throtl_register_queue(q);
+-
++	/*
++	 * The flag of QUEUE_FLAG_REGISTERED isn't set yet, so elevator
++	 * switch won't happen at all.
++	 */
+ 	if (q->request_fn || (q->mq_ops && q->elevator)) {
+-		ret = elv_register_queue(q);
++		ret = elv_register_queue(q, false);
+ 		if (ret) {
+-			mutex_unlock(&q->sysfs_lock);
+-			kobject_uevent(&q->kobj, KOBJ_REMOVE);
++			mutex_unlock(&q->sysfs_dir_lock);
+ 			kobject_del(&q->kobj);
+ 			blk_trace_remove_sysfs(dev);
+ 			kobject_put(&dev->kobj);
+ 			return ret;
+ 		}
++		has_elevator = true;
+ 	}
++
++	mutex_lock(&q->sysfs_lock);
++	blk_queue_flag_set(QUEUE_FLAG_REGISTERED, q);
++	wbt_enable_default(q);
++	blk_throtl_register_queue(q);
++
++	/* Now everything is ready and send out KOBJ_ADD uevent */
++	kobject_uevent(&q->kobj, KOBJ_ADD);
++	if (has_elevator)
++		kobject_uevent(&q->elevator->kobj, KOBJ_ADD);
++	mutex_unlock(&q->sysfs_lock);
++
+ 	ret = 0;
+ unlock:
+-	mutex_unlock(&q->sysfs_lock);
++	mutex_unlock(&q->sysfs_dir_lock);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(blk_register_queue);
+@@ -968,6 +977,7 @@ EXPORT_SYMBOL_GPL(blk_register_queue);
+ void blk_unregister_queue(struct gendisk *disk)
+ {
+ 	struct request_queue *q = disk->queue;
++	bool has_elevator;
+ 
+ 	if (WARN_ON(!q))
+ 		return;
+@@ -982,25 +992,27 @@ void blk_unregister_queue(struct gendisk
+ 	 * concurrent elv_iosched_store() calls.
+ 	 */
+ 	mutex_lock(&q->sysfs_lock);
+-
+ 	blk_queue_flag_clear(QUEUE_FLAG_REGISTERED, q);
++	has_elevator = !!q->elevator;
++	mutex_unlock(&q->sysfs_lock);
+ 
++	mutex_lock(&q->sysfs_dir_lock);
+ 	/*
+ 	 * Remove the sysfs attributes before unregistering the queue data
+ 	 * structures that can be modified through sysfs.
+ 	 */
+ 	if (q->mq_ops)
+ 		blk_mq_unregister_dev(disk_to_dev(disk), q);
+-	mutex_unlock(&q->sysfs_lock);
+ 
+ 	kobject_uevent(&q->kobj, KOBJ_REMOVE);
+ 	kobject_del(&q->kobj);
+ 	blk_trace_remove_sysfs(disk_to_dev(disk));
+ 
+ 	mutex_lock(&q->sysfs_lock);
+-	if (q->request_fn || (q->mq_ops && q->elevator))
++	if (q->request_fn || has_elevator)
+ 		elv_unregister_queue(q);
+ 	mutex_unlock(&q->sysfs_lock);
++	mutex_unlock(&q->sysfs_dir_lock);
+ 
+ 	kobject_put(&disk_to_dev(disk)->kobj);
+ }
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -244,7 +244,7 @@ int elevator_init_mq(struct request_queu
+ int elevator_switch_mq(struct request_queue *q,
+ 			      struct elevator_type *new_e);
+ void elevator_exit(struct request_queue *, struct elevator_queue *);
+-int elv_register_queue(struct request_queue *q);
++int elv_register_queue(struct request_queue *q, bool uevent);
+ void elv_unregister_queue(struct request_queue *q);
+ 
+ struct hd_struct *__disk_get_part(struct gendisk *disk, int partno);
 --- a/block/elevator.c
 +++ b/block/elevator.c
-@@ -1083,7 +1083,7 @@ static int __elevator_change(struct requ
- 	struct elevator_type *e;
+@@ -833,13 +833,16 @@ static struct kobj_type elv_ktype = {
+ 	.release	= elevator_release,
+ };
  
- 	/* Make sure queue is not in the middle of being removed */
--	if (!test_bit(QUEUE_FLAG_REGISTERED, &q->queue_flags))
-+	if (!blk_queue_registered(q))
- 		return -ENOENT;
+-int elv_register_queue(struct request_queue *q)
++/*
++ * elv_register_queue is called from either blk_register_queue or
++ * elevator_switch, elevator switch is prevented from being happen
++ * in the two paths, so it is safe to not hold q->sysfs_lock.
++ */
++int elv_register_queue(struct request_queue *q, bool uevent)
+ {
+ 	struct elevator_queue *e = q->elevator;
+ 	int error;
  
- 	/*
+-	lockdep_assert_held(&q->sysfs_lock);
+-
+ 	error = kobject_add(&e->kobj, &q->kobj, "%s", "iosched");
+ 	if (!error) {
+ 		struct elv_fs_entry *attr = e->type->elevator_attrs;
+@@ -850,26 +853,36 @@ int elv_register_queue(struct request_qu
+ 				attr++;
+ 			}
+ 		}
+-		kobject_uevent(&e->kobj, KOBJ_ADD);
++		if (uevent)
++			kobject_uevent(&e->kobj, KOBJ_ADD);
++
++		mutex_lock(&q->sysfs_lock);
+ 		e->registered = 1;
+ 		if (!e->uses_mq && e->type->ops.sq.elevator_registered_fn)
+ 			e->type->ops.sq.elevator_registered_fn(q);
++		mutex_unlock(&q->sysfs_lock);
+ 	}
+ 	return error;
+ }
+ 
++/*
++ * elv_unregister_queue is called from either blk_unregister_queue or
++ * elevator_switch, elevator switch is prevented from being happen
++ * in the two paths, so it is safe to not hold q->sysfs_lock.
++ */
+ void elv_unregister_queue(struct request_queue *q)
+ {
+-	lockdep_assert_held(&q->sysfs_lock);
+-
+ 	if (q) {
+ 		struct elevator_queue *e = q->elevator;
+ 
+ 		kobject_uevent(&e->kobj, KOBJ_REMOVE);
+ 		kobject_del(&e->kobj);
++
++		mutex_lock(&q->sysfs_lock);
+ 		e->registered = 0;
+ 		/* Re-enable throttling in case elevator disabled it */
+ 		wbt_enable_default(q);
++		mutex_unlock(&q->sysfs_lock);
+ 	}
+ }
+ 
+@@ -940,10 +953,32 @@ int elevator_switch_mq(struct request_qu
+ 	lockdep_assert_held(&q->sysfs_lock);
+ 
+ 	if (q->elevator) {
+-		if (q->elevator->registered)
++		if (q->elevator->registered) {
++			mutex_unlock(&q->sysfs_lock);
++
++			/*
++			 * Concurrent elevator switch can't happen becasue
++			 * sysfs write is always exclusively on same file.
++			 *
++			 * Also the elevator queue won't be freed after
++			 * sysfs_lock is released becasue kobject_del() in
++			 * blk_unregister_queue() waits for completion of
++			 * .store & .show on its attributes.
++			 */
+ 			elv_unregister_queue(q);
++
++			mutex_lock(&q->sysfs_lock);
++		}
+ 		ioc_clear_queue(q);
+ 		elevator_exit(q, q->elevator);
++
++		/*
++		 * sysfs_lock may be dropped, so re-check if queue is
++		 * unregistered. If yes, don't switch to new elevator
++		 * any more
++		 */
++		if (!blk_queue_registered(q))
++			return 0;
+ 	}
+ 
+ 	ret = blk_mq_init_sched(q, new_e);
+@@ -951,7 +986,11 @@ int elevator_switch_mq(struct request_qu
+ 		goto out;
+ 
+ 	if (new_e) {
+-		ret = elv_register_queue(q);
++		mutex_unlock(&q->sysfs_lock);
++
++		ret = elv_register_queue(q, true);
++
++		mutex_lock(&q->sysfs_lock);
+ 		if (ret) {
+ 			elevator_exit(q, q->elevator);
+ 			goto out;
+@@ -1047,7 +1086,7 @@ static int elevator_switch(struct reques
+ 	if (err)
+ 		goto fail_init;
+ 
+-	err = elv_register_queue(q);
++	err = elv_register_queue(q, true);
+ 	if (err)
+ 		goto fail_register;
+ 
+@@ -1067,7 +1106,7 @@ fail_init:
+ 	/* switch failed, restore and re-register old elevator */
+ 	if (old) {
+ 		q->elevator = old;
+-		elv_register_queue(q);
++		elv_register_queue(q, true);
+ 		blk_queue_bypass_end(q);
+ 	}
+ 
 --- a/include/linux/blkdev.h
 +++ b/include/linux/blkdev.h
-@@ -743,6 +743,7 @@ bool blk_queue_flag_test_and_clear(unsig
- #define blk_queue_quiesced(q)	test_bit(QUEUE_FLAG_QUIESCED, &(q)->queue_flags)
- #define blk_queue_pm_only(q)	atomic_read(&(q)->pm_only)
- #define blk_queue_fua(q)	test_bit(QUEUE_FLAG_FUA, &(q)->queue_flags)
-+#define blk_queue_registered(q)	test_bit(QUEUE_FLAG_REGISTERED, &(q)->queue_flags)
+@@ -637,6 +637,7 @@ struct request_queue {
+ 	struct delayed_work	requeue_work;
  
- extern void blk_set_pm_only(struct request_queue *q);
- extern void blk_clear_pm_only(struct request_queue *q);
+ 	struct mutex		sysfs_lock;
++	struct mutex		sysfs_dir_lock;
+ 
+ 	int			bypass_depth;
+ 	atomic_t		mq_freeze_depth;
 
 
