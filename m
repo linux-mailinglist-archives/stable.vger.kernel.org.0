@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C46328E11
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C6F328CE1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235459AbhCATXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:23:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S235040AbhCATBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:01:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241381AbhCATSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7214F650A8;
-        Mon,  1 Mar 2021 17:35:14 +0000 (UTC)
+        id S236742AbhCASyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:54:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F16D650A5;
+        Mon,  1 Mar 2021 17:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620115;
-        bh=Ib+O6VyKtjt9mhkikt5TKSiVl49VwODOJHG74tYHrxM=;
+        s=korg; t=1614620096;
+        bh=1GfRdhj7jWDgfq6pmdHMfsCIR4d51gaglmodvJ2pnng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3R/HTGTl+mLGP9i+T31nxGyzdRKmzXPyeICc39C3n1/f1nGk938HtduXlr7gGjZb
-         dzKTa9rd5BHgK1A64APn0+UBACu/+jlB850SRTf/a1xM52rrmREBfB5D4w2PsEViWa
-         UyEEx9WzQCKPvD7YU5xAC2+U7cb6wbf/ZBqq69q0=
+        b=zM99sPkIstHZdXgTZ6OiK3W7YK1MNhp9UjfgcupTI6ypwlGYe1Mk6G7fnjOzmMobR
+         AI/Tk2tiOFmRm0ISBfZiTPXE3De4mncFwqUsJs0qKUEr4XbSWT0N+zFT8CWdzJHJON
+         GwDsYsVAMs9Y2A2oW6Q0BWhHwpf+oXdajYnORTMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Pan <jacob.jun.pan@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>
-Subject: [PATCH 5.11 005/775] driver core: auxiliary bus: Fix calling stage for auxiliary bus init
-Date:   Mon,  1 Mar 2021 17:02:53 +0100
-Message-Id: <20210301161201.966965928@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 028/775] arm64: dts: renesas: beacon: Fix audio-1.8V pin enable
+Date:   Mon,  1 Mar 2021 17:03:16 +0100
+Message-Id: <20210301161203.111903669@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,138 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 471b12c43f376d5203dbff0e91316eea11f6f4df upstream.
+[ Upstream commit 5a5da0b758b327b727c5392d7f11e046e113a195 ]
 
-When the auxiliary device code is built into the kernel, it can be executed
-before the auxiliary bus is registered. This causes bus->p to be not
-allocated and triggers a NULL pointer dereference when the auxiliary bus
-device gets added with bus_add_device(). Call the auxiliary_bus_init()
-under driver_init() so the bus is initialized before devices.
+The fact the audio worked at all was a coincidence because the wrong
+gpio enable was used.  Use the correct GPIO pin to ensure its operation.
 
-Below is the kernel splat for the bug:
-[ 1.948215] BUG: kernel NULL pointer dereference, address: 0000000000000060
-[ 1.950670] #PF: supervisor read access in kernel mode
-[ 1.950670] #PF: error_code(0x0000) - not-present page
-[ 1.950670] PGD 0
-[ 1.950670] Oops: 0000 1 SMP NOPTI
-[ 1.950670] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.0-intel-nextsvmtest+ #2205
-[ 1.950670] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 1.950670] RIP: 0010:bus_add_device+0x64/0x140
-[ 1.950670] Code: 00 49 8b 75 20 48 89 df e8 59 a1 ff ff 41 89 c4 85 c0 75 7b 48 8b 53 50 48 85 d2 75 03 48 8b 13 49 8b 85 a0 00 00 00 48 89 de <48> 8
-78 60 48 83 c7 18 e8 ef d9 a9 ff 41 89 c4 85 c0 75 45 48 8b
-[ 1.950670] RSP: 0000:ff46032ac001baf8 EFLAGS: 00010246
-[ 1.950670] RAX: 0000000000000000 RBX: ff4597f7414aa680 RCX: 0000000000000000
-[ 1.950670] RDX: ff4597f74142bbc0 RSI: ff4597f7414aa680 RDI: ff4597f7414aa680
-[ 1.950670] RBP: ff46032ac001bb10 R08: 0000000000000044 R09: 0000000000000228
-[ 1.950670] R10: ff4597f741141b30 R11: ff4597f740182a90 R12: 0000000000000000
-[ 1.950670] R13: ffffffffa5e936c0 R14: 0000000000000000 R15: 0000000000000000
-[ 1.950670] FS: 0000000000000000(0000) GS:ff4597f7bba00000(0000) knlGS:0000000000000000
-[ 1.950670] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1.950670] CR2: 0000000000000060 CR3: 000000002140c001 CR4: 0000000000f71ef0
-[ 1.950670] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1.950670] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
-[ 1.950670] PKRU: 55555554
-[ 1.950670] Call Trace:
-[ 1.950670] device_add+0x3ee/0x850
-[ 1.950670] __auxiliary_device_add+0x47/0x60
-[ 1.950670] idxd_pci_probe+0xf77/0x1180
-[ 1.950670] local_pci_probe+0x4a/0x90
-[ 1.950670] pci_device_probe+0xff/0x1b0
-[ 1.950670] really_probe+0x1cf/0x440
-[ 1.950670] ? rdinit_setup+0x31/0x31
-[ 1.950670] driver_probe_device+0xe8/0x150
-[ 1.950670] device_driver_attach+0x58/0x60
-[ 1.950670] __driver_attach+0x8f/0x150
-[ 1.950670] ? device_driver_attach+0x60/0x60
-[ 1.950670] ? device_driver_attach+0x60/0x60
-[ 1.950670] bus_for_each_dev+0x79/0xc0
-[ 1.950670] ? kmem_cache_alloc_trace+0x323/0x430
-[ 1.950670] driver_attach+0x1e/0x20
-[ 1.950670] bus_add_driver+0x154/0x1f0
-[ 1.950670] driver_register+0x70/0xc0
-[ 1.950670] __pci_register_driver+0x54/0x60
-[ 1.950670] idxd_init_module+0xe2/0xfc
-[ 1.950670] ? idma64_platform_driver_init+0x19/0x19
-[ 1.950670] do_one_initcall+0x4a/0x1e0
-[ 1.950670] kernel_init_freeable+0x1fc/0x25c
-[ 1.950670] ? rest_init+0xba/0xba
-[ 1.950670] kernel_init+0xe/0x116
-[ 1.950670] ret_from_fork+0x1f/0x30
-[ 1.950670] Modules linked in:
-[ 1.950670] CR2: 0000000000000060
-[ 1.950670] --[ end trace cd7d1b226d3ca901 ]--
-
-Fixes: 7de3697e9cbd ("Add auxiliary bus support")
-Reported-by: Jacob Pan <jacob.jun.pan@intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Dave Ertman <david.m.ertman@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210210201611.1611074-1-dave.jiang@intel.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a1d8a344f1ca ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20201213183759.223246-6-aford173@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/auxiliary.c |   13 +++----------
- drivers/base/base.h      |    5 +++++
- drivers/base/init.c      |    1 +
- 3 files changed, 9 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/base/auxiliary.c
-+++ b/drivers/base/auxiliary.c
-@@ -15,6 +15,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/string.h>
- #include <linux/auxiliary_bus.h>
-+#include "base.h"
+diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
+index e66b5b36e4894..759734b7715bd 100644
+--- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
++++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
+@@ -150,7 +150,7 @@
+ 		regulator-name = "audio-1.8V";
+ 		regulator-min-microvolt = <1800000>;
+ 		regulator-max-microvolt = <1800000>;
+-		gpio = <&gpio_exp2 7 GPIO_ACTIVE_HIGH>;
++		gpio = <&gpio_exp4 1 GPIO_ACTIVE_HIGH>;
+ 		enable-active-high;
+ 	};
  
- static const struct auxiliary_device_id *auxiliary_match_id(const struct auxiliary_device_id *id,
- 							    const struct auxiliary_device *auxdev)
-@@ -260,19 +261,11 @@ void auxiliary_driver_unregister(struct
- }
- EXPORT_SYMBOL_GPL(auxiliary_driver_unregister);
- 
--static int __init auxiliary_bus_init(void)
-+void __init auxiliary_bus_init(void)
- {
--	return bus_register(&auxiliary_bus_type);
-+	WARN_ON(bus_register(&auxiliary_bus_type));
- }
- 
--static void __exit auxiliary_bus_exit(void)
--{
--	bus_unregister(&auxiliary_bus_type);
--}
--
--module_init(auxiliary_bus_init);
--module_exit(auxiliary_bus_exit);
--
- MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("Auxiliary Bus");
- MODULE_AUTHOR("David Ertman <david.m.ertman@intel.com>");
---- a/drivers/base/base.h
-+++ b/drivers/base/base.h
-@@ -119,6 +119,11 @@ static inline int hypervisor_init(void)
- extern int platform_bus_init(void);
- extern void cpu_dev_init(void);
- extern void container_dev_init(void);
-+#ifdef CONFIG_AUXILIARY_BUS
-+extern void auxiliary_bus_init(void);
-+#else
-+static inline void auxiliary_bus_init(void) { }
-+#endif
- 
- struct kobject *virtual_device_parent(struct device *dev);
- 
---- a/drivers/base/init.c
-+++ b/drivers/base/init.c
-@@ -32,6 +32,7 @@ void __init driver_init(void)
- 	 */
- 	of_core_init();
- 	platform_bus_init();
-+	auxiliary_bus_init();
- 	cpu_dev_init();
- 	memory_dev_init();
- 	container_dev_init();
+-- 
+2.27.0
+
 
 
