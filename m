@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02528328A28
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF16328A56
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239480AbhCASNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
+        id S239428AbhCASPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:15:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239005AbhCASGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:06:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D6B2651C1;
-        Mon,  1 Mar 2021 17:16:40 +0000 (UTC)
+        id S234167AbhCASI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:08:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBFCA64F15;
+        Mon,  1 Mar 2021 17:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619000;
-        bh=Svf5BILYAtUMthJrbY0LePRpllH1fup+lK7StA/jaEo=;
+        s=korg; t=1614620968;
+        bh=PQXUObPHYbOUtVOA8cLHfSlOLlr6g2svlv4ZfR9liq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plnnaows/bfywNrlM4WKTwtZhZlUyT7g1uVYuuNaRISMEIc0yDPRfK8+QMIC5p5SA
-         JdKvyZ5nrSChq8pg/BvwCsUfX5xQoH41g4U6khEvIByX8sroP6Z8aDthftxpPYw1pG
-         yBCPkPt8Xd+MOQ4f6NBUrkt+lE7Ca7iBLElTfgSY=
+        b=e09ZuJqK6ZIOEoPwN9o0gsk2ECb3lUqv0ReUOxagwir0TUeQRXovi72g8k0OJMbd0
+         ZT58E09H18bT18NnMkz2xFDlQMePyneDbE3MH+hxhO+3niXxuK8z7Vp98cAYnnGMaY
+         HDrk+4XJv8pK93JeKxSq7Lc7aKG13/hhMEQwTmgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 265/663] arm64: dts: qcom: qrb5165-rb5: fix pm8009 regulators
-Date:   Mon,  1 Mar 2021 17:08:33 +0100
-Message-Id: <20210301161154.923965926@linuxfoundation.org>
+Subject: [PATCH 5.11 346/775] RDMA/rtrs-srv: Init wr_cnt as 1
+Date:   Mon,  1 Mar 2021 17:08:34 +0100
+Message-Id: <20210301161218.720662441@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit c3da02421230639bf6ee5462b70b58f5b7f3b7c6 ]
+[ Upstream commit 6f5d1b3016d650f351e65c645a5eee5394547dd0 ]
 
-Fix pm8009 compatibility string to reference pm8009 revision specific to
-sm8250 platform. Also add S2 regulator to be used for qca639x.
+Fix up wr_avail accounting. if wr_cnt is 0, then we do SIGNAL for first
+wr, in completion we add queue_depth back, which is not right in the
+sense of tracking for available wr.
 
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: b1d2674e6121 ("arm64: dts: qcom: Add basic devicetree support for QRB5165 RB5")
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20201231122348.637917-5-dmitry.baryshkov@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So fix it by init wr_cnt to 1.
+
+Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20201217141915.56989-19-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/qrb5165-rb5.dts | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/qrb5165-rb5.dts b/arch/arm64/boot/dts/qcom/qrb5165-rb5.dts
-index 1528a865f1f8e..949fee6949e61 100644
---- a/arch/arm64/boot/dts/qcom/qrb5165-rb5.dts
-+++ b/arch/arm64/boot/dts/qcom/qrb5165-rb5.dts
-@@ -114,7 +114,7 @@
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index f59731c5a96a3..d017ede304b76 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -1604,7 +1604,7 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 	con->c.cm_id = cm_id;
+ 	con->c.sess = &sess->s;
+ 	con->c.cid = cid;
+-	atomic_set(&con->wr_cnt, 0);
++	atomic_set(&con->wr_cnt, 1);
  
- &apps_rsc {
- 	pm8009-rpmh-regulators {
--		compatible = "qcom,pm8009-rpmh-regulators";
-+		compatible = "qcom,pm8009-1-rpmh-regulators";
- 		qcom,pmic-id = "f";
- 
- 		vdd-s1-supply = <&vph_pwr>;
-@@ -123,6 +123,13 @@
- 		vdd-l5-l6-supply = <&vreg_bob>;
- 		vdd-l7-supply = <&vreg_s4a_1p8>;
- 
-+		vreg_s2f_0p95: smps2 {
-+			regulator-name = "vreg_s2f_0p95";
-+			regulator-min-microvolt = <900000>;
-+			regulator-max-microvolt = <952000>;
-+			regulator-initial-mode = <RPMH_REGULATOR_MODE_AUTO>;
-+		};
-+
- 		vreg_l1f_1p1: ldo1 {
- 			regulator-name = "vreg_l1f_1p1";
- 			regulator-min-microvolt = <1104000>;
+ 	if (con->c.cid == 0) {
+ 		/*
 -- 
 2.27.0
 
