@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5E3328B39
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C972328C6E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239453AbhCASbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:31:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40750 "EHLO mail.kernel.org"
+        id S240560AbhCASwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:52:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235849AbhCASXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:23:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 971A765261;
-        Mon,  1 Mar 2021 17:28:41 +0000 (UTC)
+        id S239699AbhCASoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:44:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE44165245;
+        Mon,  1 Mar 2021 17:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619722;
-        bh=lJlcJo5vjrIG2dfiBblGpI5tolIwegM+Ah7c4SbmBTA=;
+        s=korg; t=1614619656;
+        bh=7xUrZFdMAtN2wsS3VAoBK781D+1J90NzztFq0SFnIKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztJ4RiXQuLLmi1jvzY9uzkwqstvpJesOXAAcEZq5phlqDxdklufL6/dpi17AN+hoZ
-         YhV6UtFQgszRxFKaVtiEOqmagTkBAH7fJ/SjVIJnwgylsTSHvWS9UHDzKoK9T08YGM
-         OiVnLEBEBK/+d8Os4La3phbYHPcLEN1/lnEvSm1U=
+        b=o3h1eYhYmGTEMQc21THetr8vIqlUsU/X3smSOfNd8Yhsj/MiKTWw5bAJsZ6QoPggt
+         ncRdXA495vs8H9PhHm0l5NDnANNGyB3UCkD0Xv6UIk6icaUw892IKUWodzQkTaQvNN
+         BOdvNfO6j5DtXd0hj2cGPz0jP7qx4qEcX7ibvDj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@ger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.10 527/663] tpm_tis: Clean up locality release
-Date:   Mon,  1 Mar 2021 17:12:55 +0100
-Message-Id: <20210301161207.917410944@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 534/663] btrfs: abort the transaction if we fail to inc ref in btrfs_copy_root
+Date:   Mon,  1 Mar 2021 17:13:02 +0100
+Message-Id: <20210301161208.272848308@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,95 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit e42acf104d6e0bd7ccd2f09103d5be5e6d3c637c upstream.
+commit 867ed321f90d06aaba84e2c91de51cd3038825ef upstream.
 
-The current release locality code seems to be based on the
-misunderstanding that the TPM interrupts when a locality is released:
-it doesn't, only when the locality is acquired.
+While testing my error handling patches, I added a error injection site
+at btrfs_inc_extent_ref, to validate the error handling I added was
+doing the correct thing.  However I hit a pretty ugly corruption while
+doing this check, with the following error injection stack trace:
 
-Furthermore, there seems to be no point in waiting for the locality to
-be released.  All it does is penalize the last TPM user.  However, if
-there's no next TPM user, this is a pointless wait and if there is a
-next TPM user, they'll pay the penalty waiting for the new locality
-(or possibly not if it's the same as the old locality).
+btrfs_inc_extent_ref
+  btrfs_copy_root
+    create_reloc_root
+      btrfs_init_reloc_root
+	btrfs_record_root_in_trans
+	  btrfs_start_transaction
+	    btrfs_update_inode
+	      btrfs_update_time
+		touch_atime
+		  file_accessed
+		    btrfs_file_mmap
 
-Fix the code by making release_locality as simple write to release
-with no waiting for completion.
+This is because we do not catch the error from btrfs_inc_extent_ref,
+which in practice would be ENOMEM, which means we lose the extent
+references for a root that has already been allocated and inserted,
+which is the problem.  Fix this by aborting the transaction if we fail
+to do the reference modification.
 
-Cc: stable@ger.kernel.org
-Fixes: 33bafe90824b ("tpm_tis: verify locality released before returning from release_locality")
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   47 ----------------------------------------
- 1 file changed, 1 insertion(+), 46 deletions(-)
+ fs/btrfs/ctree.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -135,58 +135,13 @@ static bool check_locality(struct tpm_ch
- 	return false;
- }
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -221,9 +221,10 @@ int btrfs_copy_root(struct btrfs_trans_h
+ 		ret = btrfs_inc_ref(trans, root, cow, 1);
+ 	else
+ 		ret = btrfs_inc_ref(trans, root, cow, 0);
+-
+-	if (ret)
++	if (ret) {
++		btrfs_abort_transaction(trans, ret);
+ 		return ret;
++	}
  
--static bool locality_inactive(struct tpm_chip *chip, int l)
--{
--	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	int rc;
--	u8 access;
--
--	rc = tpm_tis_read8(priv, TPM_ACCESS(l), &access);
--	if (rc < 0)
--		return false;
--
--	if ((access & (TPM_ACCESS_VALID | TPM_ACCESS_ACTIVE_LOCALITY))
--	    == TPM_ACCESS_VALID)
--		return true;
--
--	return false;
--}
--
- static int release_locality(struct tpm_chip *chip, int l)
- {
- 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	unsigned long stop, timeout;
--	long rc;
- 
- 	tpm_tis_write8(priv, TPM_ACCESS(l), TPM_ACCESS_ACTIVE_LOCALITY);
- 
--	stop = jiffies + chip->timeout_a;
--
--	if (chip->flags & TPM_CHIP_FLAG_IRQ) {
--again:
--		timeout = stop - jiffies;
--		if ((long)timeout <= 0)
--			return -1;
--
--		rc = wait_event_interruptible_timeout(priv->int_queue,
--						      (locality_inactive(chip, l)),
--						      timeout);
--
--		if (rc > 0)
--			return 0;
--
--		if (rc == -ERESTARTSYS && freezing(current)) {
--			clear_thread_flag(TIF_SIGPENDING);
--			goto again;
--		}
--	} else {
--		do {
--			if (locality_inactive(chip, l))
--				return 0;
--			tpm_msleep(TPM_TIMEOUT);
--		} while (time_before(jiffies, stop));
--	}
--	return -1;
-+	return 0;
- }
- 
- static int request_locality(struct tpm_chip *chip, int l)
+ 	btrfs_mark_buffer_dirty(cow);
+ 	*cow_ret = cow;
 
 
