@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A47DD328E1B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B11328E1C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241542AbhCATYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:24:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
+        id S236268AbhCATYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241305AbhCATS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C13C6502D;
-        Mon,  1 Mar 2021 17:14:23 +0000 (UTC)
+        id S241286AbhCATS4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:18:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AA7C64F8A;
+        Mon,  1 Mar 2021 17:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618864;
-        bh=VN2LbeV/k1u+KdN4BD9jvO/bu9VE5JQM0K8KvunqV7I=;
+        s=korg; t=1614618905;
+        bh=33YRk7hgs0ttCmBGsad2rzAIxUcYvHo0kfjQ23DuSyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7I1RDz00ovmaX1zf47DypbHiKgEBkxWxV1W7UU8TcmvsMPI/XyeWjuZpPKtAL4Em
-         JJn3GALyFTnlCM4NqnlE4Gyz5Su59ietePYy3v/aLBVBadASXQhog3VJH5a9bz/Wis
-         QCaJ5Z03QtGxHiAjJQy5Tj547q/sInVSrbuCN3Os=
+        b=BuEP8Ecs8+Npu/Reg+j/HXdvTN2k+jjWZJ9NPRKEZe6/zxEZ8aea0jPbVCXz+c2dM
+         i/Uepo4S5SeOyePBoU4JN0/IehE056iejx2/uYDrXC4WyNjg7tXRTvAM3fAowqB0/L
+         LFCEdUfYm4pFrDCDS/WGloRt/x8lA8eX15226Sw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Dom Cobley <popcornmix@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 228/663] s390/zcrypt: return EIO when msg retry limit reached
-Date:   Mon,  1 Mar 2021 17:07:56 +0100
-Message-Id: <20210301161153.084985218@linuxfoundation.org>
+Subject: [PATCH 5.10 230/663] drm/vc4: hdmi: Fix register offset with longer CEC messages
+Date:   Mon,  1 Mar 2021 17:07:58 +0100
+Message-Id: <20210301161153.188297086@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,98 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit d39fae45c97c67b1b4da04773f2bb5a2f29088c4 ]
+[ Upstream commit 4a59ed546c0511f01a4bf6b886fe34b6cce2513f ]
 
-When a msg is retried because the lower ap layer returns -EAGAIN
-there is a retry limit (currently 10). When this limit is reached
-the last return code from the lower layer is returned, causing
-the userspace to get -1 on the ioctl with errno EAGAIN.
+The code prior to 311e305fdb4e ("drm/vc4: hdmi: Implement a register
+layout abstraction") was relying on the fact that the register offset
+was incremented by 4 for each readl call. That worked since the register
+width is 4 bytes.
 
-This EAGAIN is misleading here. After 10 retry attempts the
-userspace should receive a clear failure indication like EINVAL
-or EIO or ENODEV. However, the reason why these retries all
-fail is unclear. On an invalid message EINVAL would be returned
-by the lower layer, and if devices go away or are not available
-an ENODEV is seen. So this patch now reworks the retry loops
-to return EIO to userspace when the retry limit is reached.
+However, since that commit the HDMI_READ macro is now taking an enum,
+and the offset doesn't increment by 4 but 1 now. Divide the index by 4
+to fix this.
 
-Fixes: 91ffc519c199 ("s390/zcrypt: introduce msg tracking in zcrypt functions")
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 311e305fdb4e ("drm/vc4: hdmi: Implement a register layout abstraction")
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-4-maxime@cerno.tech
+(cherry picked from commit e9c9481f373eb7344f9e973eb28fc6e9d0f46485)
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/zcrypt_api.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index f60f9fb252142..3b9eda311c273 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -1438,6 +1438,8 @@ static int icarsamodexpo_ioctl(struct ap_perms *perms, unsigned long arg)
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc) {
- 		ZCRYPT_DBF(DBF_DEBUG, "ioctl ICARSAMODEXPO rc=%d\n", rc);
- 		return rc;
-@@ -1481,6 +1483,8 @@ static int icarsacrt_ioctl(struct ap_perms *perms, unsigned long arg)
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc) {
- 		ZCRYPT_DBF(DBF_DEBUG, "ioctl ICARSACRT rc=%d\n", rc);
- 		return rc;
-@@ -1524,6 +1528,8 @@ static int zsecsendcprb_ioctl(struct ap_perms *perms, unsigned long arg)
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc)
- 		ZCRYPT_DBF(DBF_DEBUG, "ioctl ZSENDCPRB rc=%d status=0x%x\n",
- 			   rc, xcRB.status);
-@@ -1568,6 +1574,8 @@ static int zsendep11cprb_ioctl(struct ap_perms *perms, unsigned long arg)
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc)
- 		ZCRYPT_DBF(DBF_DEBUG, "ioctl ZSENDEP11CPRB rc=%d\n", rc);
- 	if (copy_to_user(uxcrb, &xcrb, sizeof(xcrb)))
-@@ -1744,6 +1752,8 @@ static long trans_modexpo32(struct ap_perms *perms, struct file *filp,
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc)
- 		return rc;
- 	return put_user(mex64.outputdatalength,
-@@ -1795,6 +1805,8 @@ static long trans_modexpo_crt32(struct ap_perms *perms, struct file *filp,
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	if (rc)
- 		return rc;
- 	return put_user(crt64.outputdatalength,
-@@ -1865,6 +1877,8 @@ static long trans_xcRB32(struct ap_perms *perms, struct file *filp,
- 			if (rc == -EAGAIN)
- 				tr.again_counter++;
- 		} while (rc == -EAGAIN && tr.again_counter < TRACK_AGAIN_MAX);
-+	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
-+		rc = -EIO;
- 	xcRB32.reply_control_blk_length = xcRB64.reply_control_blk_length;
- 	xcRB32.reply_data_length = xcRB64.reply_data_length;
- 	xcRB32.status = xcRB64.status;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 1b2b5e3986ebd..f58098d2dc1d5 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1313,13 +1313,20 @@ static irqreturn_t vc4_cec_irq_handler_thread(int irq, void *priv)
+ 
+ static void vc4_cec_read_msg(struct vc4_hdmi *vc4_hdmi, u32 cntrl1)
+ {
++	struct drm_device *dev = vc4_hdmi->connector.dev;
+ 	struct cec_msg *msg = &vc4_hdmi->cec_rx_msg;
+ 	unsigned int i;
+ 
+ 	msg->len = 1 + ((cntrl1 & VC4_HDMI_CEC_REC_WRD_CNT_MASK) >>
+ 					VC4_HDMI_CEC_REC_WRD_CNT_SHIFT);
++
++	if (msg->len > 16) {
++		drm_err(dev, "Attempting to read too much data (%d)\n", msg->len);
++		return;
++	}
++
+ 	for (i = 0; i < msg->len; i += 4) {
+-		u32 val = HDMI_READ(HDMI_CEC_RX_DATA_1 + i);
++		u32 val = HDMI_READ(HDMI_CEC_RX_DATA_1 + (i >> 2));
+ 
+ 		msg->msg[i] = val & 0xff;
+ 		msg->msg[i + 1] = (val >> 8) & 0xff;
+@@ -1412,11 +1419,17 @@ static int vc4_hdmi_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
+ 				      u32 signal_free_time, struct cec_msg *msg)
+ {
+ 	struct vc4_hdmi *vc4_hdmi = cec_get_drvdata(adap);
++	struct drm_device *dev = vc4_hdmi->connector.dev;
+ 	u32 val;
+ 	unsigned int i;
+ 
++	if (msg->len > 16) {
++		drm_err(dev, "Attempting to transmit too much data (%d)\n", msg->len);
++		return -ENOMEM;
++	}
++
+ 	for (i = 0; i < msg->len; i += 4)
+-		HDMI_WRITE(HDMI_CEC_TX_DATA_1 + i,
++		HDMI_WRITE(HDMI_CEC_TX_DATA_1 + (i >> 2),
+ 			   (msg->msg[i]) |
+ 			   (msg->msg[i + 1] << 8) |
+ 			   (msg->msg[i + 2] << 16) |
 -- 
 2.27.0
 
