@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD963289E1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF491328994
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238583AbhCASHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:07:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
+        id S232396AbhCAR7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:59:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237911AbhCASBi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:01:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26A9264E13;
-        Mon,  1 Mar 2021 17:46:50 +0000 (UTC)
+        id S236508AbhCARyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:54:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E67264F1D;
+        Mon,  1 Mar 2021 17:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620811;
-        bh=uw18soxiEtcKB9GcffwrVw95126M26GGnv5NU7uwFyY=;
+        s=korg; t=1614620946;
+        bh=Jybc4OSgugDEd+WnNlYBs51KPhRzswDmRbeEr8mZtRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KiaHmln1+Dc0ujZTR/VVN98RrhYK+PbkUz4nMjap06kkb05wrdV3LJ5/LFb5OpbD
-         41vhTnB5KQzpKQD8RKUyGgnxMfQCcP6ohTmFeZn0zoxgTQIMkHJpY5xu/XYnMjMer6
-         +RROUuXcsmYmRve/4B/75WU3S0GFJmicqX+dbAOk=
+        b=GZpjGLj8FWB4nswArVeyBzL09wlqgPV5GJl6nbrJRhqa3Mb4yqWMfvuVuArDn+gMq
+         tNSsTn9lo+4oSuUeJNSqICuomINjF9YbxFAKEgf7CHspuKB0RT9ciODHkReNtgDONU
+         JCgxd3Cb2WTvXYlZ3aq2p361x9hQyrPJBFYOcDP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 288/775] nvmet: remove extra variable in identify ns
-Date:   Mon,  1 Mar 2021 17:07:36 +0100
-Message-Id: <20210301161215.852116642@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 297/775] ubifs: replay: Fix high stack usage, again
+Date:   Mon,  1 Mar 2021 17:07:45 +0100
+Message-Id: <20210301161216.303024093@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,106 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3c7b224f1956ed232b24ed2eb2c54e4476c6acb2 ]
+[ Upstream commit 410b6de702ef84fea6e7abcb6620ef8bfc112fae ]
 
-We remove the extra local variable struct nvmet_ns in
-nvmet_execute_identify_ns() since req already has ns member that can be
-reused, this also eliminates the explicit call to nvmet_put_namespace()
-which is already present in the request completion path.
+An earlier commit moved out some functions to not be inlined by gcc, but
+after some other rework to remove one of those, clang started inlining
+the other one and ran into the same problem as gcc did before:
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+fs/ubifs/replay.c:1174:5: error: stack frame size of 1152 bytes in function 'ubifs_replay_journal' [-Werror,-Wframe-larger-than=]
+
+Mark the function as noinline_for_stack to ensure it doesn't happen
+again.
+
+Fixes: f80df3851246 ("ubifs: use crypto_shash_tfm_digest()")
+Fixes: eb66eff6636d ("ubifs: replay: Fix high stack usage")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/admin-cmd.c | 31 +++++++++++++++----------------
- 1 file changed, 15 insertions(+), 16 deletions(-)
+ fs/ubifs/replay.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-index dc1ea468b182b..de6aaa4c96e53 100644
---- a/drivers/nvme/target/admin-cmd.c
-+++ b/drivers/nvme/target/admin-cmd.c
-@@ -469,7 +469,6 @@ out:
- static void nvmet_execute_identify_ns(struct nvmet_req *req)
+diff --git a/fs/ubifs/replay.c b/fs/ubifs/replay.c
+index 79801c9a5b874..0f8a6a16421b4 100644
+--- a/fs/ubifs/replay.c
++++ b/fs/ubifs/replay.c
+@@ -559,7 +559,9 @@ static int is_last_bud(struct ubifs_info *c, struct ubifs_bud *bud)
+ }
+ 
+ /* authenticate_sleb_hash is split out for stack usage */
+-static int authenticate_sleb_hash(struct ubifs_info *c, struct shash_desc *log_hash, u8 *hash)
++static int noinline_for_stack
++authenticate_sleb_hash(struct ubifs_info *c,
++		       struct shash_desc *log_hash, u8 *hash)
  {
- 	struct nvmet_ctrl *ctrl = req->sq->ctrl;
--	struct nvmet_ns *ns;
- 	struct nvme_id_ns *id;
- 	u16 status = 0;
+ 	SHASH_DESC_ON_STACK(hash_desc, c->hash_tfm);
  
-@@ -486,20 +485,21 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 	}
- 
- 	/* return an all zeroed buffer if we can't find an active namespace */
--	ns = nvmet_find_namespace(ctrl, req->cmd->identify.nsid);
--	if (!ns) {
-+	req->ns = nvmet_find_namespace(ctrl, req->cmd->identify.nsid);
-+	if (!req->ns) {
- 		status = NVME_SC_INVALID_NS;
- 		goto done;
- 	}
- 
--	nvmet_ns_revalidate(ns);
-+	nvmet_ns_revalidate(req->ns);
- 
- 	/*
- 	 * nuse = ncap = nsze isn't always true, but we have no way to find
- 	 * that out from the underlying device.
- 	 */
--	id->ncap = id->nsze = cpu_to_le64(ns->size >> ns->blksize_shift);
--	switch (req->port->ana_state[ns->anagrpid]) {
-+	id->ncap = id->nsze =
-+		cpu_to_le64(req->ns->size >> req->ns->blksize_shift);
-+	switch (req->port->ana_state[req->ns->anagrpid]) {
- 	case NVME_ANA_INACCESSIBLE:
- 	case NVME_ANA_PERSISTENT_LOSS:
- 		break;
-@@ -508,8 +508,8 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 		break;
-         }
- 
--	if (ns->bdev)
--		nvmet_bdev_set_limits(ns->bdev, id);
-+	if (req->ns->bdev)
-+		nvmet_bdev_set_limits(req->ns->bdev, id);
- 
- 	/*
- 	 * We just provide a single LBA format that matches what the
-@@ -523,25 +523,24 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 	 * controllers, but also with any other user of the block device.
- 	 */
- 	id->nmic = (1 << 0);
--	id->anagrpid = cpu_to_le32(ns->anagrpid);
-+	id->anagrpid = cpu_to_le32(req->ns->anagrpid);
- 
--	memcpy(&id->nguid, &ns->nguid, sizeof(id->nguid));
-+	memcpy(&id->nguid, &req->ns->nguid, sizeof(id->nguid));
- 
--	id->lbaf[0].ds = ns->blksize_shift;
-+	id->lbaf[0].ds = req->ns->blksize_shift;
- 
--	if (ctrl->pi_support && nvmet_ns_has_pi(ns)) {
-+	if (ctrl->pi_support && nvmet_ns_has_pi(req->ns)) {
- 		id->dpc = NVME_NS_DPC_PI_FIRST | NVME_NS_DPC_PI_LAST |
- 			  NVME_NS_DPC_PI_TYPE1 | NVME_NS_DPC_PI_TYPE2 |
- 			  NVME_NS_DPC_PI_TYPE3;
- 		id->mc = NVME_MC_EXTENDED_LBA;
--		id->dps = ns->pi_type;
-+		id->dps = req->ns->pi_type;
- 		id->flbas = NVME_NS_FLBAS_META_EXT;
--		id->lbaf[0].ms = cpu_to_le16(ns->metadata_size);
-+		id->lbaf[0].ms = cpu_to_le16(req->ns->metadata_size);
- 	}
- 
--	if (ns->readonly)
-+	if (req->ns->readonly)
- 		id->nsattr |= (1 << 0);
--	nvmet_put_namespace(ns);
- done:
- 	if (!status)
- 		status = nvmet_copy_to_sgl(req, 0, id, sizeof(*id));
 -- 
 2.27.0
 
