@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0961329115
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57728329113
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243219AbhCAUS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:18:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40996 "EHLO mail.kernel.org"
+        id S243202AbhCAUSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:18:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242762AbhCAULP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:11:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9730E653C5;
-        Mon,  1 Mar 2021 18:00:49 +0000 (UTC)
+        id S242746AbhCAULL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:11:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4422A653C4;
+        Mon,  1 Mar 2021 18:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621650;
-        bh=oCbJPvxO4T7vfm3QoLHt9Botuq1qSJEGsBxnrwOxZd8=;
+        s=korg; t=1614621652;
+        bh=vECg71OdLYb6BWu20tvI4ASHsdC1oTfKl3rNIK7U3ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PviGdYb85qALcxE1N573Y1xbEviLp2N48og5ATP6MN9FXcrcyNwp3M4pwXXFwiU2E
-         XJ2C2gVmg7PtnDQVwsDGt+E4eWQPw1EE3cESi+AZLTNmi81OyMuiLSQqT0dy4M2g0e
-         L0jcQcl9P0xSh/k3Xj/cE6jVZ92QQoudokZQg/3A=
+        b=ACOQYIRMsZrkW9FXFs0nD0bYm505K77fFYiGQm2JVBrf4lA0KWK6nrlXPnW6qGi04
+         SjNd48paXk/zFvttCA9BbLv3gxF8rCBY0geLp2Hkd/ti6WaxKkmwQBAvuy+ACQIoP8
+         nTYDuc/GSWktt9FypULsjrs07p11UUxB14UiOkO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongxiang Lou <louhongxiang@huawei.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Christoph Hellwig <hch@lst.de>,
         Vlastimil Babka <vbabka@suse.cz>,
-        Michel Lespinasse <walken@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Brian Geffon <bgeffon@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 563/775] mm/rmap: fix potential pte_unmap on an not mapped pte
-Date:   Mon,  1 Mar 2021 17:12:11 +0100
-Message-Id: <20210301161229.297092374@linuxfoundation.org>
+Subject: [PATCH 5.11 564/775] proc: use kvzalloc for our kernel buffer
+Date:   Mon,  1 Mar 2021 17:12:12 +0100
+Message-Id: <20210301161229.341196365@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -55,54 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 5d5d19eda6b0ee790af89c45e3f678345be6f50f ]
+[ Upstream commit 4508943794efdd94171549c0bd52810e2f4ad9fe ]
 
-For PMD-mapped page (usually THP), pvmw->pte is NULL.  For PTE-mapped THP,
-pvmw->pte is mapped.  But for HugeTLB pages, pvmw->pte is not mapped and
-set to the relevant page table entry.  So in page_vma_mapped_walk_done(),
-we may do pte_unmap() for HugeTLB pte which is not mapped.  Fix this by
-checking pvmw->page against PageHuge before trying to do pte_unmap().
+Since
 
-Link: https://lkml.kernel.org/r/20210127093349.39081-1-linmiaohe@huawei.com
-Fixes: ace71a19cec5 ("mm: introduce page_vma_mapped_walk()")
-Signed-off-by: Hongxiang Lou <louhongxiang@huawei.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michel Lespinasse <walken@google.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: Brian Geffon <bgeffon@google.com>
+  sysctl: pass kernel pointers to ->proc_handler
+
+we have been pre-allocating a buffer to copy the data from the proc
+handlers into, and then copying that to userspace.  The problem is this
+just blindly kzalloc()'s the buffer size passed in from the read, which in
+the case of our 'cat' binary was 64kib.  Order-4 allocations are not
+awesome, and since we can potentially allocate up to our maximum order, so
+use kvzalloc for these buffers.
+
+[willy@infradead.org: changelog tweaks]
+
+Link: https://lkml.kernel.org/r/6345270a2c1160b89dd5e6715461f388176899d1.1612972413.git.josef@toxicpanda.com
+Fixes: 32927393dc1c ("sysctl: pass kernel pointers to ->proc_handler")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+CC: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rmap.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/proc/proc_sysctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/rmap.h b/include/linux/rmap.h
-index 70085ca1a3fc9..def5c62c93b3b 100644
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -213,7 +213,8 @@ struct page_vma_mapped_walk {
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index d2018f70d1fae..070d2df8ab9cf 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -571,7 +571,7 @@ static ssize_t proc_sys_call_handler(struct kiocb *iocb, struct iov_iter *iter,
+ 	error = -ENOMEM;
+ 	if (count >= KMALLOC_MAX_SIZE)
+ 		goto out;
+-	kbuf = kzalloc(count + 1, GFP_KERNEL);
++	kbuf = kvzalloc(count + 1, GFP_KERNEL);
+ 	if (!kbuf)
+ 		goto out;
  
- static inline void page_vma_mapped_walk_done(struct page_vma_mapped_walk *pvmw)
- {
--	if (pvmw->pte)
-+	/* HugeTLB pte is set to the relevant page table entry without pte_mapped. */
-+	if (pvmw->pte && !PageHuge(pvmw->page))
- 		pte_unmap(pvmw->pte);
- 	if (pvmw->ptl)
- 		spin_unlock(pvmw->ptl);
+@@ -600,7 +600,7 @@ static ssize_t proc_sys_call_handler(struct kiocb *iocb, struct iov_iter *iter,
+ 
+ 	error = count;
+ out_free_buf:
+-	kfree(kbuf);
++	kvfree(kbuf);
+ out:
+ 	sysctl_head_finish(head);
+ 
 -- 
 2.27.0
 
