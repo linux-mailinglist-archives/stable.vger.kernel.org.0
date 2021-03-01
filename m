@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F5A3288BA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FDE73288C2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238818AbhCARnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        id S238888AbhCARns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238865AbhCARjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:39:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D15664FC1;
-        Mon,  1 Mar 2021 16:56:01 +0000 (UTC)
+        id S234491AbhCARkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:40:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51033650BB;
+        Mon,  1 Mar 2021 16:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617762;
-        bh=6JljrjbqFNtzi9qI077mRgAsGYw0Ub6NmU7EzQY+wD0=;
+        s=korg; t=1614617764;
+        bh=8sL4AFsE+x96L0BIrsKoPl59xh6HIOq39mxsLQQru2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9XtobJaFWehsPtO4jVL2VwI4qFpZprKMgXYx6gmK1cELa3Nlx6EafKmeMtnJUumX
-         c+bDuUGvYq7+w8hDL+HKQeIL4gr9Z66WQc8OBRqllTSmpNaDckILmvwFpNid86KFqJ
-         Jn6DhlYyyR9zOFGciMZsAESBmWNfQWaMbpZzI0Wo=
+        b=bqrKTD/jw7yqgsO3D5mnRzqn3l46W9uulsxGq/CZCxJry4J8JrCCJ8ySmv/zaH0F7
+         OfNybR0RpB8jLEO8bCK8afTzwdrg0dasYKzGCBq5/PESVdoGwv3zxRuyxC2TOJipAl
+         1IE6ncrWWxcx/HWebnrr1n/gJjc9Nc2AApRTj2cE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Yi Zhang <yi.zhang@redhat.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 187/340] RDMA/hns: Fixed wrong judgments in the goto branch
-Date:   Mon,  1 Mar 2021 17:12:11 +0100
-Message-Id: <20210301161057.514672640@linuxfoundation.org>
+Subject: [PATCH 5.4 188/340] RDMA/siw: Fix calculation of tx_valid_cpus size
+Date:   Mon,  1 Mar 2021 17:12:12 +0100
+Message-Id: <20210301161057.563781269@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,37 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit bb74fe7e81c8b2b65c6a351a247fdb9a969cbaec ]
+[ Upstream commit 429fa9698957d1a910535ce5e33aedf5adfdabc1 ]
 
-When an error occurs, the qp_table must be cleared, regardless of whether
-the SRQ feature is enabled.
+The size of tx_valid_cpus was calculated under the assumption that the
+numa nodes identifiers are continuous, which is not the case in all archs
+as this could lead to the following panic when trying to access an invalid
+tx_valid_cpus index, avoid the following panic by using nr_node_ids
+instead of num_online_nodes() to allocate the tx_valid_cpus size.
 
-Fixes: 5c1f167af112 ("RDMA/hns: Init SRQ table for hip08")
-Link: https://lore.kernel.org/r/1611997090-48820-5-git-send-email-liweihang@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
+   Kernel attempted to read user page (8) - exploit attempt? (uid: 0)
+   BUG: Kernel NULL pointer dereference on read at 0x00000008
+   Faulting instruction address: 0xc0080000081b4a90
+   Oops: Kernel access of bad area, sig: 11 [#1]
+   LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+   Modules linked in: siw(+) rfkill rpcrdma ib_isert iscsi_target_mod ib_iser libiscsi scsi_transport_iscsi ib_srpt target_core_mod ib_srp scsi_transport_srp ib_ipoib rdma_ucm sunrpc ib_umad rdma_cm ib_cm iw_cm i40iw ib_uverbs ib_core i40e ses enclosure scsi_transport_sas ipmi_powernv ibmpowernv at24 ofpart ipmi_devintf regmap_i2c ipmi_msghandler powernv_flash uio_pdrv_genirq uio mtd opal_prd zram ip_tables xfs libcrc32c sd_mod t10_pi ast i2c_algo_bit drm_vram_helper drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec drm_ttm_helper ttm drm vmx_crypto aacraid drm_panel_orientation_quirks dm_mod
+   CPU: 40 PID: 3279 Comm: modprobe Tainted: G        W      X --------- ---  5.11.0-0.rc4.129.eln108.ppc64le #2
+   NIP:  c0080000081b4a90 LR: c0080000081b4a2c CTR: c0000000007ce1c0
+   REGS: c000000027fa77b0 TRAP: 0300   Tainted: G        W      X --------- ---   (5.11.0-0.rc4.129.eln108.ppc64le)
+   MSR:  9000000002009033 <SF,HV,VEC,EE,ME,IR,DR,RI,LE>  CR: 44224882  XER: 00000000
+   CFAR: c0000000007ce200 DAR: 0000000000000008 DSISR: 40000000 IRQMASK: 0
+   GPR00: c0080000081b4a2c c000000027fa7a50 c0080000081c3900 0000000000000040
+   GPR04: c000000002023080 c000000012e1c300 000020072ad70000 0000000000000001
+   GPR08: c000000001726068 0000000000000008 0000000000000008 c0080000081b5758
+   GPR12: c0000000007ce1c0 c0000007fffc3000 00000001590b1e40 0000000000000000
+   GPR16: 0000000000000000 0000000000000001 000000011ad68fc8 00007fffcc09c5c8
+   GPR20: 0000000000000008 0000000000000000 00000001590b2850 00000001590b1d30
+   GPR24: 0000000000043d68 000000011ad67a80 000000011ad67a80 0000000000100000
+   GPR28: c000000012e1c300 c0000000020271c8 0000000000000001 c0080000081bf608
+   NIP [c0080000081b4a90] siw_init_cpulist+0x194/0x214 [siw]
+   LR [c0080000081b4a2c] siw_init_cpulist+0x130/0x214 [siw]
+   Call Trace:
+   [c000000027fa7a50] [c0080000081b4a2c] siw_init_cpulist+0x130/0x214 [siw] (unreliable)
+   [c000000027fa7a90] [c0080000081b4e68] siw_init_module+0x40/0x2a0 [siw]
+   [c000000027fa7b30] [c0000000000124f4] do_one_initcall+0x84/0x2e0
+   [c000000027fa7c00] [c000000000267ffc] do_init_module+0x7c/0x350
+   [c000000027fa7c90] [c00000000026a180] __do_sys_init_module+0x210/0x250
+   [c000000027fa7db0] [c0000000000387e4] system_call_exception+0x134/0x230
+   [c000000027fa7e10] [c00000000000d660] system_call_common+0xf0/0x27c
+   Instruction dump:
+   40810044 3d420000 e8bf0000 e88a82d0 3d420000 e90a82c8 792a1f24 7cc4302a
+   7d2642aa 79291f24 7d25482a 7d295214 <7d4048a8> 7d4a3b78 7d4049ad 40c2fff4
+
+Fixes: bdcf26bf9b3a ("rdma/siw: network and RDMA core interface")
+Link: https://lore.kernel.org/r/20210201112922.141085-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/sw/siw/siw_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_main.c b/drivers/infiniband/hw/hns/hns_roce_main.c
-index b5d196c119eec..f23a341400c06 100644
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -848,8 +848,7 @@ static int hns_roce_setup_hca(struct hns_roce_dev *hr_dev)
- 	return 0;
+diff --git a/drivers/infiniband/sw/siw/siw_main.c b/drivers/infiniband/sw/siw/siw_main.c
+index fb66d67572787..dbbf8c6c16d38 100644
+--- a/drivers/infiniband/sw/siw/siw_main.c
++++ b/drivers/infiniband/sw/siw/siw_main.c
+@@ -134,7 +134,7 @@ static struct {
  
- err_qp_table_free:
--	if (hr_dev->caps.flags & HNS_ROCE_CAP_FLAG_SRQ)
--		hns_roce_cleanup_qp_table(hr_dev);
-+	hns_roce_cleanup_qp_table(hr_dev);
+ static int siw_init_cpulist(void)
+ {
+-	int i, num_nodes = num_possible_nodes();
++	int i, num_nodes = nr_node_ids;
  
- err_cq_table_free:
- 	hns_roce_cleanup_cq_table(hr_dev);
+ 	memset(siw_tx_thread, 0, sizeof(siw_tx_thread));
+ 
 -- 
 2.27.0
 
