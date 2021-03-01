@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3419328EA8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE5A328EED
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242058AbhCATfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:35:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S238772AbhCATkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:40:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241864AbhCAT3a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF69D65028;
-        Mon,  1 Mar 2021 17:45:23 +0000 (UTC)
+        id S241561AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:32:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0751A65190;
+        Mon,  1 Mar 2021 17:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620724;
-        bh=frr9Q74IdcFPXnlqXg0YiQVMnua1tYVFcXImVBBl0h0=;
+        s=korg; t=1614618675;
+        bh=aCzIOW8nxMmO1Kpwz8TKbV75oBREFmR3a8tv0qBT4qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efgfKUNKlMqlzZOBn8b+yMbLFQkIYrFeg2eg85oX8J1SgCD+vqMhk0y4KhtY8kyAs
-         eRp3q5YTsMsYx4XxOyWUK5cyafdghI9sPURqvTLwgSFMsq5rQyh6HRqzjhcUZKpdqE
-         ZdtM9ShWPYCLn2KRggLIeavIoF9hSMfP92jdDyeo=
+        b=SobEYYuZz1UnNjxy6+6nJgKc35dyq5k0buFpqoeDuAlPoPM8C5OLLp0OSVJ6bJH4z
+         qXMlIxehWdVByLz00fec6TyheXFMb3zqNNtuXNTCchKvh5HvHBLGQrbetx3LNNmGEu
+         r2aZ0aRls0tZqbRfIGY+acyzgMRHpyfHvSjG/QN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 256/775] ASoC: qcom: Fix typo error in HDMI regmap config callbacks
+Subject: [PATCH 5.10 176/663] media: imx7: csi: Fix regression for parallel cameras on i.MX6UL
 Date:   Mon,  1 Mar 2021 17:07:04 +0100
-Message-Id: <20210301161214.285808997@linuxfoundation.org>
+Message-Id: <20210301161150.495935813@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit e681b1a6d706b4e54c3847bb822531b4660234f3 ]
+[ Upstream commit 9bac67214fbf4b5f23463f7742ccf69bfe684cbd ]
 
-Had a typo in lpass platform driver that resulted in crash
-during suspend/resume with an HDMI dongle connected.
+Commit 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as
+a CSI mux") made an incorrect assumption that for imx7-media-csi,
+the bound subdev must always be a CSI mux. On i.MX6UL/i.MX6ULL there
+is no CSI mux at all, so do not return an error when the entity is not a
+video mux and assign the IMX_MEDIA_GRP_ID_CSI_MUX group id only when
+appropriate.
 
-The regmap read/write/volatile regesters validation callbacks in lpass-cpu
-were using MI2S rdma_channels count instead of hdmi_rdma_channels.
+This is the same approach as done in imx-media-csi.c and it fixes the
+csi probe regression on i.MX6UL.
 
-This typo error causing to read registers from the regmap beyond the length
-of the mapping created by ioremap().
+Tested on a imx6ull-evk board.
 
-This fix avoids the need for reducing number hdmi_rdma_channels,
-which is done in
-commit 7dfe20ee92f6 ("ASoC: qcom: Fix number of HDMI RDMA channels on sc7180").
-So reverting the same.
-
-Fixes: 7cb37b7bd0d3c ("ASoC: qcom: Add support for lpass hdmi driver")
-Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
-Link: https://lore.kernel.org/r/20210202062727.22469-1-srivasam@codeaurora.org
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as a CSI mux")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c    | 8 ++++----
- sound/soc/qcom/lpass-sc7180.c | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/media/imx/imx7-media-csi.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index 73ca24c0a08b7..8e5415c9234f1 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -594,7 +594,7 @@ static bool lpass_hdmi_regmap_writeable(struct device *dev, unsigned int reg)
- 			return true;
- 	}
+diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
+index a3f3df9017046..31e36168f9d0f 100644
+--- a/drivers/staging/media/imx/imx7-media-csi.c
++++ b/drivers/staging/media/imx/imx7-media-csi.c
+@@ -1164,12 +1164,12 @@ static int imx7_csi_notify_bound(struct v4l2_async_notifier *notifier,
+ 	struct imx7_csi *csi = imx7_csi_notifier_to_dev(notifier);
+ 	struct media_pad *sink = &csi->sd.entity.pads[IMX7_CSI_PAD_SINK];
  
--	for (i = 0; i < v->rdma_channels; ++i) {
-+	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
- 		if (reg == LPAIF_HDMI_RDMACTL_REG(v, i))
- 			return true;
- 		if (reg == LPAIF_HDMI_RDMABASE_REG(v, i))
-@@ -640,7 +640,7 @@ static bool lpass_hdmi_regmap_readable(struct device *dev, unsigned int reg)
- 	if (reg == LPASS_HDMITX_APP_IRQSTAT_REG(v))
- 		return true;
+-	/* The bound subdev must always be the CSI mux */
+-	if (WARN_ON(sd->entity.function != MEDIA_ENT_F_VID_MUX))
+-		return -ENXIO;
+-
+-	/* Mark it as such via its group id */
+-	sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
++	/*
++	 * If the subdev is a video mux, it must be one of the CSI
++	 * muxes. Mark it as such via its group id.
++	 */
++	if (sd->entity.function == MEDIA_ENT_F_VID_MUX)
++		sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
  
--	for (i = 0; i < v->rdma_channels; ++i) {
-+	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
- 		if (reg == LPAIF_HDMI_RDMACTL_REG(v, i))
- 			return true;
- 		if (reg == LPAIF_HDMI_RDMABASE_REG(v, i))
-@@ -667,7 +667,7 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
- 	if (reg == LPASS_HDMI_TX_LEGACY_ADDR(v))
- 		return true;
- 
--	for (i = 0; i < v->rdma_channels; ++i) {
-+	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
- 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
- 			return true;
- 	}
-@@ -817,7 +817,7 @@ int asoc_qcom_lpass_cpu_platform_probe(struct platform_device *pdev)
- 		}
- 
- 		lpass_hdmi_regmap_config.max_register = LPAIF_HDMI_RDMAPER_REG(variant,
--					variant->hdmi_rdma_channels);
-+					variant->hdmi_rdma_channels - 1);
- 		drvdata->hdmiif_map = devm_regmap_init_mmio(dev, drvdata->hdmiif,
- 					&lpass_hdmi_regmap_config);
- 		if (IS_ERR(drvdata->hdmiif_map)) {
-diff --git a/sound/soc/qcom/lpass-sc7180.c b/sound/soc/qcom/lpass-sc7180.c
-index 735c9dac28f26..8c168d3c589e9 100644
---- a/sound/soc/qcom/lpass-sc7180.c
-+++ b/sound/soc/qcom/lpass-sc7180.c
-@@ -171,7 +171,7 @@ static struct lpass_variant sc7180_data = {
- 	.rdma_channels		= 5,
- 	.hdmi_rdma_reg_base		= 0x64000,
- 	.hdmi_rdma_reg_stride	= 0x1000,
--	.hdmi_rdma_channels		= 3,
-+	.hdmi_rdma_channels		= 4,
- 	.dmactl_audif_start	= 1,
- 	.wrdma_reg_base		= 0x18000,
- 	.wrdma_reg_stride	= 0x1000,
+ 	return v4l2_create_fwnode_links_to_pad(sd, sink);
+ }
 -- 
 2.27.0
 
