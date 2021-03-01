@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 211FF3284F5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:49:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 476163284FB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234811AbhCAQqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:46:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41608 "EHLO mail.kernel.org"
+        id S232373AbhCAQrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:47:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234882AbhCAQik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:38:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E07D64EBA;
-        Mon,  1 Mar 2021 16:27:51 +0000 (UTC)
+        id S234883AbhCAQil (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:38:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 118C064F81;
+        Mon,  1 Mar 2021 16:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616071;
-        bh=9C6+IPy5X9CMBpKwitTwHcBMHQyXZOIFeLOxXhm9Kls=;
+        s=korg; t=1614616074;
+        bh=WZ9y26hqcfgFPJZRlWq0ClgPnV9Q7Ttvyjmwf0JIESI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGeONh3BVz17wtptgl44kRYEhhvGnM527Cq5V8Bx1mEJobfAilvrNXTEbX3DaiSAN
-         5/GFva6tnwpJLdH3C9Yv0jOhZFA7tHuS9EQooDzZQWtwOuPDoYpEnM8uFgB7uxaA9a
-         pVSidUEAhjgre0o1jAEd1qvg8Vc/aNw332L3kWxc=
+        b=fQv6khDSoF9/XtS4FE3SoDsvJm3rSJtwlxxH4hy5Pn9RQwWDAercja4BO3B81moX+
+         Iv6mBxKr4XJ8rFSsfV2DB3++XBJBQy5tLmRTz2IkNm78a6pgQ8AGELwupNTtGqFVOQ
+         3XYVEgx5UgIuQixKCfL5A8qTTjYDDVJYdWx+6xPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Douglas Anderson <dianders@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 024/176] ARM: dts: Configure missing thermal interrupt for 4430
-Date:   Mon,  1 Mar 2021 17:11:37 +0100
-Message-Id: <20210301161022.172450714@linuxfoundation.org>
+Subject: [PATCH 4.14 025/176] usb: dwc2: Do not update data length if it is 0 on inbound transfers
+Date:   Mon,  1 Mar 2021 17:11:38 +0100
+Message-Id: <20210301161022.223877718@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -46,50 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 44f416879a442600b006ef7dec3a6dc98bcf59c6 ]
+[ Upstream commit 415fa1c7305dedbb345e2cc8ac91769bc1c83f1a ]
 
-We have gpio_86 wired internally to the bandgap thermal shutdown
-interrupt on 4430 like we have it on 4460 according to the TRM.
-This can be found easily by searching for TSHUT.
+The DWC2 documentation states that transfers with zero data length should
+set the number of packets to 1 and the transfer length to 0. This is not
+currently the case for inbound transfers: the transfer length is set to
+the maximum packet length. This can have adverse effects if the chip
+actually does transfer data as it is programmed to do. Follow chip
+documentation and keep the transfer length set to 0 in that situation.
 
-For some reason the thermal shutdown interrupt was never added
-for 4430, let's add it. I believe this is needed for the thermal
-shutdown interrupt handler ti_bandgap_tshut_irq_handler() to call
-orderly_poweroff().
-
-Fixes: aa9bb4bb8878 ("arm: dts: add omap4430 thermal data")
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Eduardo Valentin <edubezval@gmail.com>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 56f5b1cff22a1 ("staging: Core files for the DWC2 driver")
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20210113112052.17063-2-nsaenzjulienne@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap443x.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc2/hcd.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
-index 03c8ad91ddac9..5b4aa8f38e8e8 100644
---- a/arch/arm/boot/dts/omap443x.dtsi
-+++ b/arch/arm/boot/dts/omap443x.dtsi
-@@ -35,10 +35,12 @@
- 	};
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index e6f8825835b06..ef7f3b013fcba 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -1490,19 +1490,20 @@ static void dwc2_hc_start_transfer(struct dwc2_hsotg *hsotg,
+ 			if (num_packets > max_hc_pkt_count) {
+ 				num_packets = max_hc_pkt_count;
+ 				chan->xfer_len = num_packets * chan->max_packet;
++			} else if (chan->ep_is_in) {
++				/*
++				 * Always program an integral # of max packets
++				 * for IN transfers.
++				 * Note: This assumes that the input buffer is
++				 * aligned and sized accordingly.
++				 */
++				chan->xfer_len = num_packets * chan->max_packet;
+ 			}
+ 		} else {
+ 			/* Need 1 packet for transfer length of 0 */
+ 			num_packets = 1;
+ 		}
  
- 	ocp {
-+		/* 4430 has only gpio_86 tshut and no talert interrupt */
- 		bandgap: bandgap@4a002260 {
- 			reg = <0x4a002260 0x4
- 			       0x4a00232C 0x4>;
- 			compatible = "ti,omap4430-bandgap";
-+			gpios = <&gpio3 22 GPIO_ACTIVE_HIGH>;
- 
- 			#thermal-sensor-cells = <0>;
- 		};
+-		if (chan->ep_is_in)
+-			/*
+-			 * Always program an integral # of max packets for IN
+-			 * transfers
+-			 */
+-			chan->xfer_len = num_packets * chan->max_packet;
+-
+ 		if (chan->ep_type == USB_ENDPOINT_XFER_INT ||
+ 		    chan->ep_type == USB_ENDPOINT_XFER_ISOC)
+ 			/*
 -- 
 2.27.0
 
