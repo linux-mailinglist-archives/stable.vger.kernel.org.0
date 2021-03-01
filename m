@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0C8328D41
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7603D328E3F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241089AbhCATIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:08:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
+        id S240769AbhCAT0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:26:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241002AbhCATDQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:03:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93D7D65334;
-        Mon,  1 Mar 2021 17:45:40 +0000 (UTC)
+        id S241058AbhCATVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:21:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C426E64DD3;
+        Mon,  1 Mar 2021 17:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620741;
-        bh=fTP304i9ax/AbNYsUn+Nye1KCND9LW/UqsX0IHRsYmQ=;
+        s=korg; t=1614620856;
+        bh=Zx9LDLiJDNi9Yp+SxQtDzp5TmEwpvydW9I5sVx36m6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXcfacm1BBIXEc3rh4wdW9uKpYgFPP9VCyZa5ZXgvJVdxdfCYKHtdYbrQLfOEgY73
-         47gE7sj3KFsmTcyVsCfuF9Ldka/waJBCRLPgyUFKv0i9xaJm0yi8OwmbSZVCnhOhqE
-         a8aEU83RHEJ5wVpbzbNLC2s0lpo+5R42Yzy2Zs50=
+        b=TH4K+y8cwejo4i/tu3fpMaXXpxrgQTeMS9Ql+GquoX2tj+evD1tx9KXL4x4IxKGo8
+         xBfvEmgvQS9pwCR+gigYsZ8asQE8v50871oeun+FmVPdeV4sRjE9b6IYS5mFwSFYdo
+         GKSu4Gp+u6DmgwFEV87htgrYOiO5Ee3q+VPdYwGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 261/775] ASoC: Intel: sof_sdw: add missing TGL_HDMI quirk for Dell SKU 0A5E
-Date:   Mon,  1 Mar 2021 17:07:09 +0100
-Message-Id: <20210301161214.535166914@linuxfoundation.org>
+Subject: [PATCH 5.11 264/775] locking/lockdep: Avoid unmatched unlock
+Date:   Mon,  1 Mar 2021 17:07:12 +0100
+Message-Id: <20210301161214.673830138@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,38 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit f12bbc50f3b14c9b8ed902c6d1da980dd5addcce ]
+[ Upstream commit 7f82e631d236cafd28518b998c6d4d8dc2ef68f6 ]
 
-We missed adding the TGL_HDMI quirk which is very much needed to
-expose the 4 display pipelines and will be required on TGL topologies.
+Commit f6f48e180404 ("lockdep: Teach lockdep about "USED" <- "IN-NMI"
+inversions") overlooked that print_usage_bug() releases the graph_lock
+and called it without the graph lock held.
 
-Fixes: 9ad9bc59dde10 ('ASoC: Intel: sof_sdw: set proper flags for Dell TGL-H SKU 0A5E')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210204203312.27112-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f6f48e180404 ("lockdep: Teach lockdep about "USED" <- "IN-NMI" inversions")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Link: https://lkml.kernel.org/r/YBfkuyIfB1+VRxXP@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 3 ++-
+ kernel/locking/lockdep.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 6d0d6ef711e0f..29b6bba3d4257 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -73,7 +73,8 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
- 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A5E")
- 		},
--		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_RT711_JD_SRC_JD2 |
- 					SOF_RT715_DAI_ID_FIX |
- 					SOF_SDW_FOUR_SPK),
- 	},
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index bdaf4829098c0..780012eb2f3fe 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3707,7 +3707,7 @@ static void
+ print_usage_bug(struct task_struct *curr, struct held_lock *this,
+ 		enum lock_usage_bit prev_bit, enum lock_usage_bit new_bit)
+ {
+-	if (!debug_locks_off_graph_unlock() || debug_locks_silent)
++	if (!debug_locks_off() || debug_locks_silent)
+ 		return;
+ 
+ 	pr_warn("\n");
+@@ -3748,6 +3748,7 @@ valid_state(struct task_struct *curr, struct held_lock *this,
+ 	    enum lock_usage_bit new_bit, enum lock_usage_bit bad_bit)
+ {
+ 	if (unlikely(hlock_class(this)->usage_mask & (1 << bad_bit))) {
++		graph_unlock();
+ 		print_usage_bug(curr, this, bad_bit, new_bit);
+ 		return 0;
+ 	}
 -- 
 2.27.0
 
