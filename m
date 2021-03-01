@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B80328BA3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41776328C57
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240244AbhCASiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
+        id S233660AbhCAStv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:49:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235375AbhCAS3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:29:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 719386535B;
-        Mon,  1 Mar 2021 17:45:51 +0000 (UTC)
+        id S240206AbhCASmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D13D61494;
+        Mon,  1 Mar 2021 17:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620752;
-        bh=EnBmsuJYKSpZiuhUD6hO6qDSM8ZcOC22+RqBoIHyr/w=;
+        s=korg; t=1614618626;
+        bh=7wUmMVJ0RbdIwCGphAS4ZZkkYvMw+d3aBUfmuLZDRNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz6RS4ONceO/Agy3vzq+c/n0NuNsqCCV6ud2uKc01RSHBWHs3iHPrYdVgWsrccKVR
-         Me6xKGgNYM6gcWvRy5iGUea0APKIcwbArIADPR6/4RkFmp6XdHSuiNg/A89oOAgBZ/
-         euhp4ImCrbFh8gczXsT2i3Vo/e5WG/ECLCPQ3WtQ=
+        b=TZMsPfJjXMYru8Wzxv4ZS2jy/aSk5X7He82QGsWCLgXhs9FBoeQbNmdxj1EqQy//f
+         8ayChIAoPmprQcIyzKYMzeoxQ99fwmTwHLYtnzsLkWz1JGfFpiWvMygqTRW0+lHqmJ
+         zh3fdk57N1l4BGHcS8oHGkxLgPZB8yPjOoBl52YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daeho Jeong <daehojeong@google.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 236/775] f2fs: fix null page reference in redirty_blocks
+Subject: [PATCH 5.10 156/663] MIPS: lantiq: Explicitly compare LTQ_EBU_PCC_ISTAT against 0
 Date:   Mon,  1 Mar 2021 17:06:44 +0100
-Message-Id: <20210301161213.291220418@linuxfoundation.org>
+Message-Id: <20210301161149.487648830@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daeho Jeong <daehojeong@google.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit df0736d70c4fa6ed711ba103b61880fe72bb4777 ]
+[ Upstream commit c6f2a9e17b9bef7677caddb1626c2402f3e9d2bd ]
 
-By Colin's static analysis, we found out there is a null page reference
-under low memory situation in redirty_blocks. I've made the page finding
-loop stop immediately and return an error not to cause further memory
-pressure when we run into a failure to find a page under low memory
-condition.
+When building xway_defconfig with clang:
 
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Fixes: 5fdb322ff2c2 ("f2fs: add F2FS_IOC_DECOMPRESS_FILE and F2FS_IOC_COMPRESS_FILE")
-Reviewed-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+arch/mips/lantiq/irq.c:305:48: error: use of logical '&&' with constant
+operand [-Werror,-Wconstant-logical-operand]
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                      ^ ~~~~~~~~~~~~~~~~~
+arch/mips/lantiq/irq.c:305:48: note: use '&' for a bitwise operation
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                      ^~
+                                                      &
+arch/mips/lantiq/irq.c:305:48: note: remove constant to silence this
+warning
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                     ~^~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+Explicitly compare the constant LTQ_EBU_PCC_ISTAT against 0 to fix the
+warning. Additionally, remove the unnecessary parentheses as this is a
+simple conditional statement and shorthand '== 0' to '!'.
+
+Fixes: 3645da0276ae ("OF: MIPS: lantiq: implement irq_domain support")
+Link: https://github.com/ClangBuiltLinux/linux/issues/807
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index f585545277d77..cd62b0d3369ab 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -4043,8 +4043,10 @@ static int redirty_blocks(struct inode *inode, pgoff_t page_idx, int len)
+diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
+index df8eed3875f6d..43c2f271e6ab4 100644
+--- a/arch/mips/lantiq/irq.c
++++ b/arch/mips/lantiq/irq.c
+@@ -302,7 +302,7 @@ static void ltq_hw_irq_handler(struct irq_desc *desc)
+ 	generic_handle_irq(irq_linear_revmap(ltq_domain, hwirq));
  
- 	for (i = 0; i < page_len; i++, redirty_idx++) {
- 		page = find_lock_page(mapping, redirty_idx);
--		if (!page)
--			ret = -ENOENT;
-+		if (!page) {
-+			ret = -ENOMEM;
-+			break;
-+		}
- 		set_page_dirty(page);
- 		f2fs_put_page(page, 1);
- 		f2fs_put_page(page, 0);
+ 	/* if this is a EBU irq, we need to ack it or get a deadlock */
+-	if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
++	if (irq == LTQ_ICU_EBU_IRQ && !module && LTQ_EBU_PCC_ISTAT != 0)
+ 		ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_PCC_ISTAT) | 0x10,
+ 			LTQ_EBU_PCC_ISTAT);
+ }
 -- 
 2.27.0
 
