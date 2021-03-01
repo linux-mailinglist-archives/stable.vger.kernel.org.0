@@ -2,33 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C00329187
+	by mail.lfdr.de (Postfix) with ESMTP id 95AE3329188
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243270AbhCAU1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:27:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
+        id S242281AbhCAU1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:27:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242990AbhCAUVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242985AbhCAUVN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:21:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 704096516D;
-        Mon,  1 Mar 2021 18:04:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9EA165109;
+        Mon,  1 Mar 2021 18:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621888;
-        bh=sVfSVNiD2Pse2REXICMwN+Glf5nlzJhTiIA84C3X8ck=;
+        s=korg; t=1614621890;
+        bh=wZWvK9Kd59qMP7IdiR2xIPNU5yH38zeLELypfFUofHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IYo/VspOJCnF/5Fr+0tnbvLxT1/qkzY4AduShXgZZ8AEzkhCEF/F90uSlFVzK2MvS
-         18dBBzfuX8ayv9cP/68adUu0xu9zGCDKne4TYsfh5mrq/j5zeCo+EUo1xIafIoLDdu
-         YsBFov8rI4Y2RVMrYMSF5U08Lt26bUstnQKm5pzs=
+        b=VmZ723nkt9XV8oaJbYOzv5OSsvApPJCPfm60Wz9IlPE+Jd+6M4dr3Fme6Rj9vn9ql
+         Bi7zrS+AxqARdZWx0bpMSscGkss/YTL4q3krMZEJVNjqwYKY+N1TVESd/p6lOQk2UF
+         C15crL0V1bCbrHhfNg+lIZF+qnpBpdhA/KEELj9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        RCU <rcu@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Daniel Axtens <dja@axtens.net>,
         Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.11 680/775] entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point
-Date:   Mon,  1 Mar 2021 17:14:08 +0100
-Message-Id: <20210301161234.986056716@linuxfoundation.org>
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Michal Hocko <mhocko@suse.com>,
+        "Theodore Y . Tso" <tytso@mit.edu>,
+        Oleksiy Avramchenko <oleksiy.avramchenko@sonymobile.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.11 681/775] kprobes: Fix to delay the kprobes jump optimization
+Date:   Mon,  1 Mar 2021 17:14:09 +0100
+Message-Id: <20210301161235.036173950@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,147 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 4ae7dc97f726ea95c58ac58af71cc034ad22d7de upstream.
+commit c85c9a2c6e368dc94907e63babb18a9788e5c9b6 upstream.
 
-Following the idle loop model, cleanly check for pending rcuog wakeup
-before the last rescheduling point upon resuming to guest mode. This
-way we can avoid to do it from rcu_user_enter() with the last resort
-self-IPI hack that enforces rescheduling.
+Commit 36dadef23fcc ("kprobes: Init kprobes in early_initcall")
+moved the kprobe setup in early_initcall(), which includes kprobe
+jump optimization.
+The kprobes jump optimizer involves synchronize_rcu_tasks() which
+depends on the ksoftirqd and rcu_spawn_tasks_*(). However, since
+those are setup in core_initcall(), kprobes jump optimizer can not
+run at the early_initcall().
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+To avoid this issue, make the kprobe optimization disabled in the
+early_initcall() and enables it in subsys_initcall().
+
+Note that non-optimized kprobes is still available after
+early_initcall(). Only jump optimization is delayed.
+
+Link: https://lkml.kernel.org/r/161365856280.719838.12423085451287256713.stgit@devnote2
+
+Fixes: 36dadef23fcc ("kprobes: Init kprobes in early_initcall")
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: RCU <rcu@vger.kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Daniel Axtens <dja@axtens.net>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: "Theodore Y . Ts'o" <tytso@mit.edu>
+Cc: Oleksiy Avramchenko <oleksiy.avramchenko@sonymobile.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Uladzislau Rezki <urezki@gmail.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c        |    1 +
- include/linux/entry-kvm.h |   14 ++++++++++++++
- kernel/rcu/tree.c         |   44 ++++++++++++++++++++++++++++++++++----------
- kernel/rcu/tree_plugin.h  |    1 +
- 4 files changed, 50 insertions(+), 10 deletions(-)
+ kernel/kprobes.c |   31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1782,6 +1782,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
- 
- bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
- {
-+	xfer_to_guest_mode_prepare();
- 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
- 		xfer_to_guest_mode_work_pending();
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -861,7 +861,6 @@ out:
+ 	cpus_read_unlock();
  }
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -47,6 +47,20 @@ static inline int arch_xfer_to_guest_mod
- int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
  
- /**
-+ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
-+ *				need to be handled while IRQs are disabled
-+ *				upon entering to guest.
-+ *
-+ * Has to be invoked with interrupts disabled before the last call
-+ * to xfer_to_guest_mode_work_pending().
-+ */
-+static inline void xfer_to_guest_mode_prepare(void)
-+{
-+	lockdep_assert_irqs_disabled();
-+	rcu_nocb_flush_deferred_wakeup();
-+}
-+
-+/**
-  * __xfer_to_guest_mode_work_pending - Check if work is pending
-  *
-  * Returns: True if work pending, False otherwise.
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -678,9 +678,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
- 
- #ifdef CONFIG_NO_HZ_FULL
- 
-+#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
- /*
-  * An empty function that will trigger a reschedule on
-- * IRQ tail once IRQs get re-enabled on userspace resume.
-+ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
-  */
- static void late_wakeup_func(struct irq_work *work)
+-#ifdef CONFIG_SYSCTL
+ static void optimize_all_kprobes(void)
  {
-@@ -689,6 +690,37 @@ static void late_wakeup_func(struct irq_
- static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
- 	IRQ_WORK_INIT(late_wakeup_func);
+ 	struct hlist_head *head;
+@@ -887,6 +886,7 @@ out:
+ 	mutex_unlock(&kprobe_mutex);
+ }
  
-+/*
-+ * If either:
-+ *
-+ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
-+ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
-+ *
-+ * In these cases the late RCU wake ups aren't supported in the resched loops and our
-+ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
-+ * get re-enabled again.
-+ */
-+noinstr static void rcu_irq_work_resched(void)
-+{
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
-+	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
-+		return;
-+
-+	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
-+		return;
-+
-+	instrumentation_begin();
-+	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
-+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
-+	}
-+	instrumentation_end();
-+}
-+
-+#else
-+static inline void rcu_irq_work_resched(void) { }
++#ifdef CONFIG_SYSCTL
+ static void unoptimize_all_kprobes(void)
+ {
+ 	struct hlist_head *head;
+@@ -2497,18 +2497,14 @@ static int __init init_kprobes(void)
+ 		}
+ 	}
+ 
+-#if defined(CONFIG_OPTPROBES)
+-#if defined(__ARCH_WANT_KPROBES_INSN_SLOT)
+-	/* Init kprobe_optinsn_slots */
+-	kprobe_optinsn_slots.insn_size = MAX_OPTINSN_SIZE;
+-#endif
+-	/* By default, kprobes can be optimized */
+-	kprobes_allow_optimization = true;
+-#endif
+-
+ 	/* By default, kprobes are armed */
+ 	kprobes_all_disarmed = false;
+ 
++#if defined(CONFIG_OPTPROBES) && defined(__ARCH_WANT_KPROBES_INSN_SLOT)
++	/* Init kprobe_optinsn_slots for allocation */
++	kprobe_optinsn_slots.insn_size = MAX_OPTINSN_SIZE;
 +#endif
 +
- /**
-  * rcu_user_enter - inform RCU that we are resuming userspace.
-  *
-@@ -702,8 +734,6 @@ static DEFINE_PER_CPU(struct irq_work, l
-  */
- noinstr void rcu_user_enter(void)
- {
--	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
--
- 	lockdep_assert_irqs_disabled();
- 
- 	/*
-@@ -711,13 +741,7 @@ noinstr void rcu_user_enter(void)
- 	 * rescheduling opportunity in the entry code. Trigger a self IPI
- 	 * that will fire and reschedule once we resume in user/guest mode.
- 	 */
--	instrumentation_begin();
--	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
--		if (do_nocb_deferred_wakeup(rdp) && need_resched())
--			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
--	}
--	instrumentation_end();
--
-+	rcu_irq_work_resched();
- 	rcu_eqs_enter(true);
+ 	err = arch_init_kprobes();
+ 	if (!err)
+ 		err = register_die_notifier(&kprobe_exceptions_nb);
+@@ -2523,6 +2519,21 @@ static int __init init_kprobes(void)
  }
+ early_initcall(init_kprobes);
  
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void
- {
- 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
- }
-+EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
- 
- void __init rcu_init_nohz(void)
- {
++#if defined(CONFIG_OPTPROBES)
++static int __init init_optprobes(void)
++{
++	/*
++	 * Enable kprobe optimization - this kicks the optimizer which
++	 * depends on synchronize_rcu_tasks() and ksoftirqd, that is
++	 * not spawned in early initcall. So delay the optimization.
++	 */
++	optimize_all_kprobes();
++
++	return 0;
++}
++subsys_initcall(init_optprobes);
++#endif
++
+ #ifdef CONFIG_DEBUG_FS
+ static void report_probe(struct seq_file *pi, struct kprobe *p,
+ 		const char *sym, int offset, char *modname, struct kprobe *pp)
 
 
