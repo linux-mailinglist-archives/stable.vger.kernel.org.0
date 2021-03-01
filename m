@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529E13288B8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CF73288BE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238797AbhCARnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
+        id S238847AbhCARno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238707AbhCARiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:38:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 821D564F38;
-        Mon,  1 Mar 2021 16:55:38 +0000 (UTC)
+        id S233591AbhCARjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:39:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F5BF64FC8;
+        Mon,  1 Mar 2021 16:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617739;
-        bh=v4/UjRAZBEZDC1o3dnjaJ3Yuwj9jEtLBt4a+3JRnJqQ=;
+        s=korg; t=1614617770;
+        bh=N43/saR9DUtgG12qFdTPVb3gwqPYXZ4O2EiGh4urzag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmiVbjn92Io+XCuH/OkWIxeWVMS9t/gYbGjxkI58aeuBJ6s4bfRxm/6b79ZAMY4wZ
-         w/YvCKyoXuVGYtYJc/REbv2YhJ/9ptq6slmI8gM1A6XG/qTItXMzXP/w3Qh0rErSHB
-         nu8yvD2UXabVz07npNeU5f2wkHUwQ5XpQ0BB4P68=
+        b=Dq3yU8ywrGeYD9i//pLl389hQJ0saUISovSIEBJDRsh4oWsYKREq0Js0om7TnS4hK
+         bcZMIVU38S7ctqACCtlOUAUOqQbNEwZyB9y8KiG+8MwAGFalZt96bLeJims5vpKAzT
+         Cu3LI6vfzllHnIfcR7jYLt9Cn2F5LWP6WkdDnT6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/340] IB/umad: Return EIO in case of when device disassociated
-Date:   Mon,  1 Mar 2021 17:11:46 +0100
-Message-Id: <20210301161056.292530134@linuxfoundation.org>
+Subject: [PATCH 5.4 163/340] IB/umad: Return EPOLLERR in case of when device disassociated
+Date:   Mon,  1 Mar 2021 17:11:47 +0100
+Message-Id: <20210301161056.332944278@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -43,50 +43,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 4fc5461823c9cad547a9bdfbf17d13f0da0d6bb5 ]
+[ Upstream commit def4cd43f522253645b72c97181399c241b54536 ]
 
-MAD message received by the user has EINVAL error in all flows
-including when the device is disassociated. That makes it impossible
-for the applications to treat such flow differently.
-
-Change it to return EIO, so the applications will be able to perform
-disassociation recovery.
+Currently, polling a umad device will always works, even if the device was
+disassociated. A disassociated device should immediately return EPOLLERR
+from poll(). Otherwise userspace is endlessly hung on poll() with no idea
+that the device has been removed from the system.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/20210125121339.837518-2-leon@kernel.org
+Link: https://lore.kernel.org/r/20210125121339.837518-3-leon@kernel.org
 Signed-off-by: Shay Drory <shayd@nvidia.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/user_mad.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/user_mad.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index da229eab59032..dec5175803fe2 100644
+index dec5175803fe2..ad3a092b8b5c3 100644
 --- a/drivers/infiniband/core/user_mad.c
 +++ b/drivers/infiniband/core/user_mad.c
-@@ -379,6 +379,11 @@ static ssize_t ib_umad_read(struct file *filp, char __user *buf,
- 
- 	mutex_lock(&file->mutex);
+@@ -397,6 +397,11 @@ static ssize_t ib_umad_read(struct file *filp, char __user *buf,
+ 		mutex_lock(&file->mutex);
+ 	}
  
 +	if (file->agents_dead) {
 +		mutex_unlock(&file->mutex);
 +		return -EIO;
 +	}
 +
- 	while (list_empty(&file->recv_list)) {
+ 	packet = list_entry(file->recv_list.next, struct ib_umad_packet, list);
+ 	list_del(&packet->list);
+ 
+@@ -658,10 +663,14 @@ static __poll_t ib_umad_poll(struct file *filp, struct poll_table_struct *wait)
+ 	/* we will always be able to post a MAD send */
+ 	__poll_t mask = EPOLLOUT | EPOLLWRNORM;
+ 
++	mutex_lock(&file->mutex);
+ 	poll_wait(filp, &file->recv_wait, wait);
+ 
+ 	if (!list_empty(&file->recv_list))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
++	if (file->agents_dead)
++		mask = EPOLLERR;
++	mutex_unlock(&file->mutex);
+ 
+ 	return mask;
+ }
+@@ -1341,6 +1350,7 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
+ 	list_for_each_entry(file, &port->file_list, port_list) {
+ 		mutex_lock(&file->mutex);
+ 		file->agents_dead = 1;
++		wake_up_interruptible(&file->recv_wait);
  		mutex_unlock(&file->mutex);
  
-@@ -524,7 +529,7 @@ static ssize_t ib_umad_write(struct file *filp, const char __user *buf,
- 
- 	agent = __get_agent(file, packet->mad.hdr.id);
- 	if (!agent) {
--		ret = -EINVAL;
-+		ret = -EIO;
- 		goto err_up;
- 	}
- 
+ 		for (id = 0; id < IB_UMAD_MAX_AGENTS; ++id)
 -- 
 2.27.0
 
