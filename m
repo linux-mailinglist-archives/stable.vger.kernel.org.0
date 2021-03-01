@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667EC328BF4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF975328BD9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240529AbhCASnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:43:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
+        id S238551AbhCASkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240299AbhCASij (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:38:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5826E65314;
-        Mon,  1 Mar 2021 17:43:22 +0000 (UTC)
+        id S239994AbhCASfN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:35:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 165A965015;
+        Mon,  1 Mar 2021 17:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620602;
-        bh=RbsRnAjVjKH2hfuolaRNlatMWXPRUnHLsvtlKr+1y5c=;
+        s=korg; t=1614618648;
+        bh=y0uM8dT4BHC+eUDgC+Lr0jtDktjYvd9gt5X7yTLVvfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIcQ9jTP6UAmvxAm5taob34eAyhnqq0nsOhBFhqpzs96wAoZfcE1FDbb5r9ZkkEqr
-         IbsjOoA710YIOXCSntmTmijFD48v/+T3TKho5r1CqIb5OID/3LN+voGdGkJed3kn9S
-         EKwPzVoD3AEwTL0dXHKuic2oCdhXYOwZGvyu/v1g=
+        b=RKoY8Cz2ljw7upDaFwdjSvycU6i03gmQLRRy9PjKnKMxFku4JzSwO3+jabz7HxGTN
+         eQveYWgDU8OE7dkdQcAWHgCGUQM1kIXiyDfRqKNhnB5/WdtbLZfT0X3C71aPvyPyt9
+         SAbhy9DXuONUYqsZn7yRVDq87dXigNTIaL8GQWDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 213/775] media: imx7: csi: Fix pad link validation
-Date:   Mon,  1 Mar 2021 17:06:21 +0100
-Message-Id: <20210301161212.159635054@linuxfoundation.org>
+Subject: [PATCH 5.10 134/663] net: mvneta: Remove per-cpu queue mapping for Armada 3700
+Date:   Mon,  1 Mar 2021 17:06:22 +0100
+Message-Id: <20210301161148.382847468@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rmfrfs@gmail.com>
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-[ Upstream commit f5ffb81f51376eb5a12e8c4cb4871426c65bb2af ]
+[ Upstream commit cf9bf871280d9e0a8869d98c2602d29caf69dfa3 ]
 
-We can not make the assumption that the bound subdev is always a CSI
-mux, in i.MX6UL/i.MX6ULL that is not the case. So, just get the entity
-selected by source directly upstream from the CSI.
+According to Errata #23 "The per-CPU GbE interrupt is limited to Core
+0", we can't use the per-cpu interrupt mechanism on the Armada 3700
+familly.
 
-Fixes: 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as a CSI mux")
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Tested-by: Fabio Estevam <festevam@gmail.com>
-Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This is correctly checked for RSS configuration, but the initial queue
+mapping is still done by having the queues spread across all the CPUs in
+the system, both in the init path and in the cpu_hotplug path.
+
+Fixes: 2636ac3cc2b4 ("net: mvneta: Add network support for Armada 3700 SoC")
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/mvneta.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index 31e36168f9d0f..ac52b1daf9914 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -499,6 +499,7 @@ static int imx7_csi_pad_link_validate(struct v4l2_subdev *sd,
- 				      struct v4l2_subdev_format *sink_fmt)
- {
- 	struct imx7_csi *csi = v4l2_get_subdevdata(sd);
-+	struct media_entity *src;
- 	struct media_pad *pad;
- 	int ret;
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index ceb4f27898002..c6b735b305156 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -3409,7 +3409,9 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
+ 		return -ENOMEM;
  
-@@ -509,11 +510,21 @@ static int imx7_csi_pad_link_validate(struct v4l2_subdev *sd,
- 	if (!csi->src_sd)
- 		return -EPIPE;
+ 	/* Setup XPS mapping */
+-	if (txq_number > 1)
++	if (pp->neta_armada3700)
++		cpu = 0;
++	else if (txq_number > 1)
+ 		cpu = txq->id % num_present_cpus();
+ 	else
+ 		cpu = pp->rxq_def % num_present_cpus();
+@@ -4187,6 +4189,11 @@ static int mvneta_cpu_online(unsigned int cpu, struct hlist_node *node)
+ 						  node_online);
+ 	struct mvneta_pcpu_port *port = per_cpu_ptr(pp->ports, cpu);
  
-+	src = &csi->src_sd->entity;
-+
-+	/*
-+	 * if the source is neither a CSI MUX or CSI-2 get the one directly
-+	 * upstream from this CSI
++	/* Armada 3700's per-cpu interrupt for mvneta is broken, all interrupts
++	 * are routed to CPU 0, so we don't need all the cpu-hotplug support
 +	 */
-+	if (src->function != MEDIA_ENT_F_VID_IF_BRIDGE &&
-+	    src->function != MEDIA_ENT_F_VID_MUX)
-+		src = &csi->sd.entity;
-+
- 	/*
--	 * find the entity that is selected by the CSI mux. This is needed
-+	 * find the entity that is selected by the source. This is needed
- 	 * to distinguish between a parallel or CSI-2 pipeline.
- 	 */
--	pad = imx_media_pipeline_pad(&csi->src_sd->entity, 0, 0, true);
-+	pad = imx_media_pipeline_pad(src, 0, 0, true);
- 	if (!pad)
- 		return -ENODEV;
++	if (pp->neta_armada3700)
++		return 0;
  
+ 	spin_lock(&pp->lock);
+ 	/*
 -- 
 2.27.0
 
