@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EDA328D33
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BD3328D4D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241025AbhCATHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:07:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
+        id S241132AbhCATIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:08:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240857AbhCATBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:01:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCB4365106;
-        Mon,  1 Mar 2021 17:02:29 +0000 (UTC)
+        id S239515AbhCATEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:04:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19AF164FA7;
+        Mon,  1 Mar 2021 17:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618150;
-        bh=Pv9NNrYFiFCPxUMNwvBOzdGcfEdBNLjqcJM0rtlmYlc=;
+        s=korg; t=1614619900;
+        bh=sSlT3c14wnGE1MMEKnrwI48vDPotCsFFTsXPuVfWcvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5Tpf2qbmCk/xfDa3dcSZIDsXf9Kj48OPcTCKMiQoZ4/tIp5xe7P3Sa+AAqUdov4k
-         ZJ93C2Laiuvk5kNkKmpucRgvb5LzPD2V4BIByZdbrIqHrpg0Jq/f73TqV/hCNT2MrO
-         k5qYIK9x54ih3rhCibMANp+5glELRivTYne7fEnk=
+        b=G9zTFPOCk81La9Emqz1f/+mZod45wP2HegRcQvBi1FzcSFQIW4iqB6CnJymu+Zhk7
+         XZkSG5h/R5a8FSBnckEZuPiryIL8XmtV6Zw44EBBTn8vIiZT+h+rghHRkBZ7zHLHVC
+         oAYntAUDMGC7f8LP1PqV804upH4EXRQTdhwI1AVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.4 294/340] watchdog: mei_wdt: request stop on unregister
-Date:   Mon,  1 Mar 2021 17:13:58 +0100
-Message-Id: <20210301161102.768536559@linuxfoundation.org>
+        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.10 591/663] mtd: spi-nor: core: Add erase size check for erase command initialization
+Date:   Mon,  1 Mar 2021 17:13:59 +0100
+Message-Id: <20210301161211.106523425@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
 
-commit 740c0a57b8f1e36301218bf549f3c9cc833a60be upstream.
+commit 58fa22f68fcaff20ce4d08a6adffa64f65ccd37d upstream.
 
-The MEI bus has a special behavior on suspend it destroys
-all the attached devices, this is due to the fact that also
-firmware context is not persistent across power flows.
+Even if erase type is same as previous region, erase size can be different
+if the previous region is overlaid region. Since 'region->size' is assigned
+to 'cmd->size' for overlaid region, comparing 'erase->size' and 'cmd->size'
+can detect previous overlaid region.
 
-If watchdog on MEI bus is ticking before suspending the firmware
-times out and reports that the OS is missing watchdog tick.
-Send the stop command to the firmware on watchdog unregistered
-to eliminate the false event on suspend.
-This does not make the things worse from the user-space perspective
-as a user-space should re-open watchdog device after
-suspending before this patch.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210124114938.373885-1-tomas.winkler@intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 5390a8df769e ("mtd: spi-nor: add support to non-uniform SFDP SPI NOR flash memories")
+Cc: stable@vger.kernel.org
+Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+[ta: Add Fixes tag and Cc to stable]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/13d47e8d8991b8a7fd8cc7b9e2a5319c56df35cc.1601612872.git.Takahiro.Kuwano@infineon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/mei_wdt.c |    1 +
+ drivers/mtd/spi-nor/core.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/watchdog/mei_wdt.c
-+++ b/drivers/watchdog/mei_wdt.c
-@@ -382,6 +382,7 @@ static int mei_wdt_register(struct mei_w
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -1364,6 +1364,7 @@ static int spi_nor_init_erase_cmd_list(s
+ 			goto destroy_erase_cmd_list;
  
- 	watchdog_set_drvdata(&wdt->wdd, wdt);
- 	watchdog_stop_on_reboot(&wdt->wdd);
-+	watchdog_stop_on_unregister(&wdt->wdd);
- 
- 	ret = watchdog_register_device(&wdt->wdd);
- 	if (ret)
+ 		if (prev_erase != erase ||
++		    erase->size != cmd->size ||
+ 		    region->offset & SNOR_OVERLAID_REGION) {
+ 			cmd = spi_nor_init_erase_cmd(region, erase);
+ 			if (IS_ERR(cmd)) {
 
 
