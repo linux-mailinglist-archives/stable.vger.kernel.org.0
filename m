@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 267BF328A2F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4DB328A2C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239505AbhCASNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
+        id S239488AbhCASNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239208AbhCASHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:07:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD03650F7;
-        Mon,  1 Mar 2021 17:01:50 +0000 (UTC)
+        id S239055AbhCASGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:06:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13558650F9;
+        Mon,  1 Mar 2021 17:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618111;
-        bh=1PQ3JsHWo4Nc9LXhJamVs6DwzFWqmCbPJVuiPP5Af5w=;
+        s=korg; t=1614618116;
+        bh=UMW0Ss/J6HQhtuiT3iAwWAg75wQ6nfLQi7ErtMoZp7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARLiXV+enpszhJXK7ikaZvguup2THukY4pqKIfYNG/HUPvPzvjDkyR1DbspWK71Ds
-         NNcXmMGxILzvziFzkCNruccMlXDuvbFubHgWsizuQMW5sKU2L3gps6PobaQDX7oJm4
-         RvET6Wo62mYUrnkU7YN457wRl4LpBR++hZ5VYoEU=
+        b=1OROtE6va2DfhIBeRzrVB93wr6sZm60mz/PnLKFsetf451+NsnnW5kIPNDGjQl/V+
+         4jzTVyIQNFVHTqx+xELRO178G+ARP6P/uWkPboau5U4Cb6m3gbEsMHwjTmy1VFMuQI
+         ujIYAVN0HLUaZ174pSCP4toUKKBRKqOu0PANDmeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 310/340] spmi: spmi-pmic-arb: Fix hw_irq overflow
-Date:   Mon,  1 Mar 2021 17:14:14 +0100
-Message-Id: <20210301161103.541925746@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: [PATCH 5.4 312/340] printk: fix deadlock when kernel panic
+Date:   Mon,  1 Mar 2021 17:14:16 +0100
+Message-Id: <20210301161103.641895250@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,51 +40,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit d19db80a366576d3ffadf2508ed876b4c1faf959 upstream.
+commit 8a8109f303e25a27f92c1d8edd67d7cbbc60a4eb upstream.
 
-Currently, when handling the SPMI summary interrupt, the hw_irq
-number is calculated based on SID, Peripheral ID, IRQ index and
-APID. This is then passed to irq_find_mapping() to see if a
-mapping exists for this hw_irq and if available, invoke the
-interrupt handler. Since the IRQ index uses an "int" type, hw_irq
-which is of unsigned long data type can take a large value when
-SID has its MSB set to 1 and the type conversion happens. Because
-of this, irq_find_mapping() returns 0 as there is no mapping
-for this hw_irq. This ends up invoking cleanup_irq() as if
-the interrupt is spurious whereas it is actually a valid
-interrupt. Fix this by using the proper data type (u32) for id.
+printk_safe_flush_on_panic() caused the following deadlock on our
+server:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Link: https://lore.kernel.org/r/1612812784-26369-1-git-send-email-subbaram@codeaurora.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/20210212031417.3148936-1-sboyd@kernel.org
+CPU0:                                         CPU1:
+panic                                         rcu_dump_cpu_stacks
+  kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
+    register_nmi_handler(crash_nmi_callback)      printk_safe_flush
+                                                    __printk_safe_flush
+                                                      raw_spin_lock_irqsave(&read_lock)
+    // send NMI to other processors
+    apic_send_IPI_allbutself(NMI_VECTOR)
+                                                        // NMI interrupt, dead loop
+                                                        crash_nmi_callback
+  printk_safe_flush_on_panic
+    printk_safe_flush
+      __printk_safe_flush
+        // deadlock
+        raw_spin_lock_irqsave(&read_lock)
+
+DEADLOCK: read_lock is taken on CPU1 and will never get released.
+
+It happens when panic() stops a CPU by NMI while it has been in
+the middle of printk_safe_flush().
+
+Handle the lock the same way as logbuf_lock. The printk_safe buffers
+are flushed only when both locks can be safely taken. It can avoid
+the deadlock _in this particular case_ at expense of losing contents
+of printk_safe buffers.
+
+Note: It would actually be safe to re-init the locks when all CPUs were
+      stopped by NMI. But it would require passing this information
+      from arch-specific code. It is not worth the complexity.
+      Especially because logbuf_lock and printk_safe buffers have been
+      obsoleted by the lockless ring buffer.
+
+Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210210034823.64867-1-songmuchun@bytedance.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spmi/spmi-pmic-arb.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/printk/printk_safe.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/spmi/spmi-pmic-arb.c
-+++ b/drivers/spmi/spmi-pmic-arb.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2012-2015, 2017, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2012-2015, 2017, 2021, The Linux Foundation. All rights reserved.
+--- a/kernel/printk/printk_safe.c
++++ b/kernel/printk/printk_safe.c
+@@ -43,6 +43,8 @@ struct printk_safe_seq_buf {
+ static DEFINE_PER_CPU(struct printk_safe_seq_buf, safe_print_seq);
+ static DEFINE_PER_CPU(int, printk_context);
+ 
++static DEFINE_RAW_SPINLOCK(safe_read_lock);
++
+ #ifdef CONFIG_PRINTK_NMI
+ static DEFINE_PER_CPU(struct printk_safe_seq_buf, nmi_print_seq);
+ #endif
+@@ -178,8 +180,6 @@ static void report_message_lost(struct p
   */
- #include <linux/bitmap.h>
- #include <linux/delay.h>
-@@ -505,8 +505,7 @@ static void cleanup_irq(struct spmi_pmic
- static void periph_interrupt(struct spmi_pmic_arb *pmic_arb, u16 apid)
+ static void __printk_safe_flush(struct irq_work *work)
  {
- 	unsigned int irq;
--	u32 status;
--	int id;
-+	u32 status, id;
- 	u8 sid = (pmic_arb->apid_data[apid].ppid >> 8) & 0xF;
- 	u8 per = pmic_arb->apid_data[apid].ppid & 0xFF;
+-	static raw_spinlock_t read_lock =
+-		__RAW_SPIN_LOCK_INITIALIZER(read_lock);
+ 	struct printk_safe_seq_buf *s =
+ 		container_of(work, struct printk_safe_seq_buf, work);
+ 	unsigned long flags;
+@@ -193,7 +193,7 @@ static void __printk_safe_flush(struct i
+ 	 * different CPUs. This is especially important when printing
+ 	 * a backtrace.
+ 	 */
+-	raw_spin_lock_irqsave(&read_lock, flags);
++	raw_spin_lock_irqsave(&safe_read_lock, flags);
+ 
+ 	i = 0;
+ more:
+@@ -230,7 +230,7 @@ more:
+ 
+ out:
+ 	report_message_lost(s);
+-	raw_spin_unlock_irqrestore(&read_lock, flags);
++	raw_spin_unlock_irqrestore(&safe_read_lock, flags);
+ }
+ 
+ /**
+@@ -276,6 +276,14 @@ void printk_safe_flush_on_panic(void)
+ 		raw_spin_lock_init(&logbuf_lock);
+ 	}
+ 
++	if (raw_spin_is_locked(&safe_read_lock)) {
++		if (num_online_cpus() > 1)
++			return;
++
++		debug_locks_off();
++		raw_spin_lock_init(&safe_read_lock);
++	}
++
+ 	printk_safe_flush();
+ }
  
 
 
