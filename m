@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4040B3283F5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C35653283F4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbhCAQ2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
+        id S232127AbhCAQ2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232351AbhCAQXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:23:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B006F64F2A;
-        Mon,  1 Mar 2021 16:19:56 +0000 (UTC)
+        id S232388AbhCAQXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:23:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A796664F24;
+        Mon,  1 Mar 2021 16:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615597;
-        bh=xOWbgxp3vEq+RDS7HFsY+tPWOzL+E97JnpPwj0+LSvs=;
+        s=korg; t=1614615600;
+        bh=+FxhaaNU7d+1OrETs7FgQAmetnmdCIFE3BfEseO/Zjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMntLj6K0PwykCcybx2TuOI97duNFE4e7HXGz2O84mHhpqMRdlDC/E2/4JUfCsTzS
-         1bY2jHyoyy/8kIs/xRh0XTFKdbx75cH3x7GMWF/6w6DG+ZEiBbPYvfHo3YN+G8vdw6
-         GilqwLP673inHf9wC/fCftmTSFjIc5lLUnBJ6lMs=
+        b=NQClMzvFhq3zzpcXbf+21TXVYetEdGRxCWEfWXXxhjLgzIGuyhufUVSt8ee/6NUne
+         yYr8LHd78BkNcX3w4n92z30uEa+UPyk2y5B7bLXVco4P0LnB7QbAKVkUyd+uAKxW6N
+         oq3pfhbvrqsX4fH8b5EESLnKBuulN9j7w2BjhqZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 4.4 85/93] gfs2: Dont skip dlm unlock if glock has an lvb
-Date:   Mon,  1 Mar 2021 17:13:37 +0100
-Message-Id: <20210301161011.045363333@linuxfoundation.org>
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.4 86/93] dm era: Recover committed writeset after crash
+Date:   Mon,  1 Mar 2021 17:13:38 +0100
+Message-Id: <20210301161011.096594595@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -39,65 +39,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 78178ca844f0eb88f21f31c7fde969384be4c901 upstream.
+commit de89afc1e40fdfa5f8b666e5d07c43d21a1d3be0 upstream.
 
-Patch fb6791d100d1 was designed to allow gfs2 to unmount quicker by
-skipping the step where it tells dlm to unlock glocks in EX with lvbs.
-This was done because when gfs2 unmounts a file system, it destroys the
-dlm lockspace shortly after it destroys the glocks so it doesn't need to
-unlock them all: the unlock is implied when the lockspace is destroyed
-by dlm.
+Following a system crash, dm-era fails to recover the committed writeset
+for the current era, leading to lost writes. That is, we lose the
+information about what blocks were written during the affected era.
 
-However, that patch introduced a use-after-free in dlm: as part of its
-normal dlm_recoverd process, it can call ls_recovery to recover dead
-locks. In so doing, it can call recover_rsbs which calls recover_lvb for
-any mastered rsbs. Func recover_lvb runs through the list of lkbs queued
-to the given rsb (if the glock is cached but unlocked, it will still be
-queued to the lkb, but in NL--Unlocked--mode) and if it has an lvb,
-copies it to the rsb, thus trying to preserve the lkb. However, when
-gfs2 skips the dlm unlock step, it frees the glock and its lvb, which
-means dlm's function recover_lvb references the now freed lvb pointer,
-copying the freed lvb memory to the rsb.
+dm-era assumes that the writeset of the current era is archived when the
+device is suspended. So, when resuming the device, it just moves on to
+the next era, ignoring the committed writeset.
 
-This patch changes the check in gdlm_put_lock so that it calls
-dlm_unlock for all glocks that contain an lvb pointer.
+This assumption holds when the device is properly shut down. But, when
+the system crashes, the code that suspends the target never runs, so the
+writeset for the current era is not archived.
 
-Fixes: fb6791d100d1 ("GFS2: skip dlm_unlock calls in unmount")
-Cc: stable@vger.kernel.org # v3.8+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+There are three issues that cause the committed writeset to get lost:
+
+1. dm-era doesn't load the committed writeset when opening the metadata
+2. The code that resizes the metadata wipes the information about the
+   committed writeset (assuming it was loaded at step 1)
+3. era_preresume() starts a new era, without taking into account that
+   the current era might not have been archived, due to a system crash.
+
+To fix this:
+
+1. Load the committed writeset when opening the metadata
+2. Fix the code that resizes the metadata to make sure it doesn't wipe
+   the loaded writeset
+3. Fix era_preresume() to check for a loaded writeset and archive it,
+   before starting a new era.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/lock_dlm.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/md/dm-era-target.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/fs/gfs2/lock_dlm.c
-+++ b/fs/gfs2/lock_dlm.c
-@@ -284,7 +284,6 @@ static void gdlm_put_lock(struct gfs2_gl
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -70,8 +70,6 @@ static size_t bitset_size(unsigned nr_bi
+  */
+ static int writeset_alloc(struct writeset *ws, dm_block_t nr_blocks)
  {
- 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
- 	struct lm_lockstruct *ls = &sdp->sd_lockstruct;
--	int lvb_needs_unlock = 0;
- 	int error;
+-	ws->md.nr_bits = nr_blocks;
+-	ws->md.root = INVALID_WRITESET_ROOT;
+ 	ws->bits = vzalloc(bitset_size(nr_blocks));
+ 	if (!ws->bits) {
+ 		DMERR("%s: couldn't allocate in memory bitset", __func__);
+@@ -84,12 +82,14 @@ static int writeset_alloc(struct writese
+ /*
+  * Wipes the in-core bitset, and creates a new on disk bitset.
+  */
+-static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws)
++static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws,
++			 dm_block_t nr_blocks)
+ {
+ 	int r;
  
- 	if (gl->gl_lksb.sb_lkid == 0) {
-@@ -297,13 +296,10 @@ static void gdlm_put_lock(struct gfs2_gl
- 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
- 	gfs2_update_request_times(gl);
+-	memset(ws->bits, 0, bitset_size(ws->md.nr_bits));
++	memset(ws->bits, 0, bitset_size(nr_blocks));
  
--	/* don't want to skip dlm_unlock writing the lvb when lock is ex */
--
--	if (gl->gl_lksb.sb_lvbptr && (gl->gl_state == LM_ST_EXCLUSIVE))
--		lvb_needs_unlock = 1;
-+	/* don't want to skip dlm_unlock writing the lvb when lock has one */
++	ws->md.nr_bits = nr_blocks;
+ 	r = setup_on_disk_bitset(info, ws->md.nr_bits, &ws->md.root);
+ 	if (r) {
+ 		DMERR("%s: setup_on_disk_bitset failed", __func__);
+@@ -579,6 +579,7 @@ static int open_metadata(struct era_meta
+ 	md->nr_blocks = le32_to_cpu(disk->nr_blocks);
+ 	md->current_era = le32_to_cpu(disk->current_era);
  
- 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
--	    !lvb_needs_unlock) {
-+	    !gl->gl_lksb.sb_lvbptr) {
- 		gfs2_glock_free(gl);
- 		return;
++	ws_unpack(&disk->current_writeset, &md->current_writeset->md);
+ 	md->writeset_tree_root = le64_to_cpu(disk->writeset_tree_root);
+ 	md->era_array_root = le64_to_cpu(disk->era_array_root);
+ 	md->metadata_snap = le64_to_cpu(disk->metadata_snap);
+@@ -871,7 +872,6 @@ static int metadata_era_archive(struct e
  	}
+ 
+ 	ws_pack(&md->current_writeset->md, &value);
+-	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
+ 
+ 	keys[0] = md->current_era;
+ 	__dm_bless_for_disk(&value);
+@@ -883,6 +883,7 @@ static int metadata_era_archive(struct e
+ 		return r;
+ 	}
+ 
++	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
+ 	md->archived_writesets = true;
+ 
+ 	return 0;
+@@ -899,7 +900,7 @@ static int metadata_new_era(struct era_m
+ 	int r;
+ 	struct writeset *new_writeset = next_writeset(md);
+ 
+-	r = writeset_init(&md->bitset_info, new_writeset);
++	r = writeset_init(&md->bitset_info, new_writeset, md->nr_blocks);
+ 	if (r) {
+ 		DMERR("%s: writeset_init failed", __func__);
+ 		return r;
+@@ -952,7 +953,7 @@ static int metadata_commit(struct era_me
+ 	int r;
+ 	struct dm_block *sblock;
+ 
+-	if (md->current_writeset->md.root != SUPERBLOCK_LOCATION) {
++	if (md->current_writeset->md.root != INVALID_WRITESET_ROOT) {
+ 		r = dm_bitset_flush(&md->bitset_info, md->current_writeset->md.root,
+ 				    &md->current_writeset->md.root);
+ 		if (r) {
+@@ -1582,7 +1583,7 @@ static int era_preresume(struct dm_targe
+ 
+ 	start_worker(era);
+ 
+-	r = in_worker0(era, metadata_new_era);
++	r = in_worker0(era, metadata_era_rollover);
+ 	if (r) {
+ 		DMERR("%s: metadata_era_rollover failed", __func__);
+ 		return r;
 
 
