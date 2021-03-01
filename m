@@ -2,269 +2,333 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F20DE327B83
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:06:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFBF327B86
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231867AbhCAKF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:05:59 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:36335 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231919AbhCAKE7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:04:59 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id B63861940E70;
-        Mon,  1 Mar 2021 05:03:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:03:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Vaw5YQ
-        5Iul4yNkkN5lz44h/4tyo7UDdQz1k666aFTrE=; b=c2LtbZZCvFoXFY0Zk3GkcZ
-        UB0gQnzFU2/hUed8Tx07ZonXjvFNIQq1eEFTQ5ni7aPF7NLBLYfoHCRwmWy22kvU
-        AC792/tl8azYAG+gkSH6LxsR1S8VmWF0h++pP9ddL6jCVaafZzm976gSCZdnTsy5
-        +5ruAHByF2RBwMuS0oVaD0PS1ibkh3tAG+ulyo2G7CajruA5E1NOwIb+6GVBVtOb
-        KPN0my1VZn7po3TqNvYEUeRcNssM/C/Ij3DuP5lXamC9VgDvnhtiw75jhHaTnEw3
-        HyXAGd770hcIGag/Ve19TiWLHi05XZepaZ1gU7TT4v4k4ccA2afzxXdGWsomGi5g
-        ==
-X-ME-Sender: <xms:6bs8YEm58Jfbr2PX3_HaCkFsmtcLGvvpeAaBPXw8egefzojteVq82A>
-    <xme:6bs8YD2WOF2hVdw_FsGH2PHsv1Pal27DXPxpCHAVOm35gqmNMHDywLF3pu5VJlx-W
-    qhLubXAEiIVnw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddtlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:6bs8YCoer-XNc8_gdKcXUHspLVx5gOylojlqp30qQZ8FUqNo-OPRRw>
-    <xmx:6bs8YAkARaBk4S9pFgEy1HL0pZFZ5umG-FkLnXEc8FiOEDJBKnN5-g>
-    <xmx:6bs8YC3e-E2FOToota1xC9DAxywWMJgQ1tTN1Gsm_DdTPUjhw__XkQ>
-    <xmx:6bs8YACkXmvkp3nBh_4cCkv471POMSz0Fmr1FUgMa7y4-fmFzsfj_Q>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 62AF21080066;
-        Mon,  1 Mar 2021 05:03:21 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)" failed to apply to 5.10-stable tree
-To:     qingqing.zhuo@amd.com, alexander.deucher@amd.com, bindu.r@amd.com,
-        daniel.wheeler@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:03:11 +0100
-Message-ID: <1614592991955@kroah.com>
+        id S231830AbhCAKGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:06:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232041AbhCAKF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:05:59 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E04F1C061756
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 02:04:39 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id k13so15882343otn.13
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 02:04:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=xfyfl3Ke2x2nTYTrfvZS1xeI3OYoM5dmE7FJCE0CsFs=;
+        b=f253V+SiEDkkKC0RxpivGMWEDCMyT+E4YCrKQ664CgfacQTKLfUUQfIEIqn4jtxjfg
+         LjmXD0R8EQGXpDW3QdeH/pi//XqrnO82ax7125RA2Y5KcreCkDhe2KOrg8kvInCg6cef
+         qwVSa05LhDM3sAORBlMcYZqxYobVHo53H84nc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=xfyfl3Ke2x2nTYTrfvZS1xeI3OYoM5dmE7FJCE0CsFs=;
+        b=VH4Hk3//pW/tW0RXH9dgCGSP1O6V/ZGB1URs18rhASZVnuu0CZdh1bARrPOXyFS3cU
+         VR8/9BRVqwq1rjKtS1GQmC7Fj2UuVAxBbG1/pAz/SdEsPlJEGo4OFZ8j8uW/CVmNh7rE
+         S3Hz4WwLfYOAKBMHrdHdJAQ+ZUnTUOfsPXsHkkQgfJV0T/DuhY0X1NnvywJbdZyUuj0L
+         aIMbC9yo0TvZaDIQSv+FIJywnvjbVU/9yjKhex7rG25myMVEshhZ6qwwy3HS7NJHeMfL
+         r016CKWMp76YC6Tfkr5ivmxR5ChmDb/3aewoarnDCA9r1wYJCJhIu6z+AA2dRiZDY+lz
+         PjpQ==
+X-Gm-Message-State: AOAM530lLuOzm1MfJbRob1aO8/j/1YblvPTYY7fQW5Y9drxtZisfEKaS
+        d3iS8GVXVSLrd6+3rJprgDJhcUsGz5V/E/Ml7c8+gA==
+X-Google-Smtp-Source: ABdhPJwHsuR3O1FLKdhosCKu9KoommzJniV/J5Ynr1HNXUnXfqR+uj1JBe4D5UYbh6EutACCKH7QRrubcFlL1qW7Nos=
+X-Received: by 2002:a9d:6481:: with SMTP id g1mr2989103otl.303.1614593079219;
+ Mon, 01 Mar 2021 02:04:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20210228161022.53468-1-ledoian@kam.mff.cuni.cz> <e7f0747c-cb10-692a-aa36-194efcab49ef@suse.de>
+In-Reply-To: <e7f0747c-cb10-692a-aa36-194efcab49ef@suse.de>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Mon, 1 Mar 2021 11:04:28 +0100
+Message-ID: <CAKMK7uEMgV=EN7EJh6tzpP6b0x4MX1on9Xoz_zACZVyMK-+QyA@mail.gmail.com>
+Subject: Re: [PATCH] drm/gem: add checks of drm_gem_object->funcs
+To:     Thomas Zimmermann <tzimmermann@suse.de>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Cc:     =?UTF-8?Q?Pavel_Turinsk=C3=BD?= <ledoian@kam.mff.cuni.cz>,
+        Dave Airlie <airlied@linux.ie>,
+        Alexander Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 1, 2021 at 10:56 AM Thomas Zimmermann <tzimmermann@suse.de> wro=
+te:
+>
+> (cc'ing amd devs)
+>
+> Hi
+>
+> Am 28.02.21 um 17:10 schrieb Pavel Turinsk=C3=BD:
+> > The checks were removed in commit d693def4fd1c ("drm: Remove obsolete G=
+EM
+> > and PRIME callbacks from struct drm_driver") and can lead to following
+> > kernel oops:
+>
+> Thanks for reporting. All drivers are supposed to set the funcs pointer
+> in their GEM objects. This looks like a radeon bug. Adding the AMD devs.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Looks like we're setting obj->funcs only in radeon_gem_object_create,
+but should set it in radeon_bo_create instead so it catches internal
+functions too. I think this was missed in
 
-thanks,
+commit ce77038fdae385f947757a37573d90f2e83f0271
+Author: Gerd Hoffmann <kraxel@redhat.com>
+Date:   Mon Aug 5 16:01:06 2019 +0200
 
-greg k-h
+   drm/radeon: use embedded gem object
 
------------------- original commit in Linus's tree ------------------
+Adding Gerd.
+-Daniel
 
-From ea3b4242bc9ca197762119382b37e125815bd67f Mon Sep 17 00:00:00 2001
-From: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Date: Tue, 9 Feb 2021 16:36:41 -0500
-Subject: [PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)
+>
+> Best regards
+> Thomas
+>
+> >
+> > [  139.449098] BUG: kernel NULL pointer dereference, address: 000000000=
+0000008
+> > [  139.449110] #PF: supervisor read access in kernel mode
+> > [  139.449113] #PF: error_code(0x0000) - not-present page
+> > [  139.449116] PGD 0 P4D 0
+> > [  139.449121] Oops: 0000 [#1] PREEMPT SMP PTI
+> > [  139.449126] CPU: 4 PID: 1181 Comm: Xorg Not tainted 5.11.2LEdoian #2
+> > [  139.449130] Hardware name: Gigabyte Technology Co., Ltd. To be fille=
+d by O.E.M./Z77-DS3H, BIOS F4 04/25/2012
+> > [  139.449133] RIP: 0010:drm_gem_handle_create_tail+0xcb/0x190 [drm]
+> > [  139.449185] Code: 00 48 89 ef e8 06 b4 49 f7 45 85 e4 78 77 48 8d 6b=
+ 18 4c 89 ee 48 89 ef e8 c2 f5 00 00 89 c2 85 c0 75 3e 48 8b 83 40 01 00 00=
+ <48> 8b 40 0
+> > 8 48 85 c0 74 0f 4c 89 ee 48 89 df e8 71 5d 87 f7 85 c0
+> > [  139.449190] RSP: 0018:ffffbe21c194bd28 EFLAGS: 00010246
+> > [  139.449194] RAX: 0000000000000000 RBX: ffff9da9b3caf078 RCX: 0000000=
+000000000
+> > [  139.449197] RDX: 0000000000000000 RSI: ffffffffc039b893 RDI: 0000000=
+000000000
+> > [  139.449199] RBP: ffff9da9b3caf090 R08: 0000000000000040 R09: ffff9da=
+983b911c0
+> > [  139.449202] R10: ffff9da984749e00 R11: ffff9da9859bfc38 R12: 0000000=
+000000007
+> > [  139.449204] R13: ffff9da9859bfc00 R14: ffff9da9859bfc50 R15: ffff9da=
+9859bfc38
+> > [  139.449207] FS:  00007f6332a56900(0000) GS:ffff9daea7b00000(0000) kn=
+lGS:0000000000000000
+> > [  139.449211] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [  139.449214] CR2: 0000000000000008 CR3: 00000001319b8005 CR4: 0000000=
+0001706e0
+> > [  139.449217] Call Trace:
+> > [  139.449224]  drm_gem_prime_fd_to_handle+0xff/0x1d0 [drm]
+> > [  139.449274]  ? drm_prime_destroy_file_private+0x20/0x20 [drm]
+> > [  139.449323]  drm_ioctl_kernel+0xac/0xf0 [drm]
+> > [  139.449363]  drm_ioctl+0x20f/0x3b0 [drm]
+> > [  139.449403]  ? drm_prime_destroy_file_private+0x20/0x20 [drm]
+> > [  139.449454]  radeon_drm_ioctl+0x49/0x80 [radeon]
+> > [  139.449500]  __x64_sys_ioctl+0x84/0xc0
+> > [  139.449507]  do_syscall_64+0x33/0x40
+> > [  139.449514]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > [  139.449522] RIP: 0033:0x7f63330fbe6b
+> > [  139.449526] Code: ff ff ff 85 c0 79 8b 49 c7 c4 ff ff ff ff 5b 5d 4c=
+ 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05=
+ <48> 3d 01 f
+> > 0 ff ff 73 01 c3 48 8b 0d d5 af 0c 00 f7 d8 64 89 01 48
+> > [  139.449529] RSP: 002b:00007fff1e9c4438 EFLAGS: 00000246 ORIG_RAX: 00=
+00000000000010
+> > [  139.449534] RAX: ffffffffffffffda RBX: 00007fff1e9c447c RCX: 00007f6=
+3330fbe6b
+> > [  139.449537] RDX: 00007fff1e9c447c RSI: 00000000c00c642e RDI: 0000000=
+000000012
+> > [  139.449539] RBP: 00000000c00c642e R08: 00007fff1e9c4520 R09: 00007f6=
+3331c7a60
+> > [  139.449542] R10: 00007f6329fb9ab0 R11: 0000000000000246 R12: 000055f=
+69810ad40
+> > [  139.449544] R13: 0000000000000012 R14: 0000000000100000 R15: 00007ff=
+f1e9c4c20
+> > [  139.449549] Modules linked in: 8021q garp mrp bridge stp llc nls_iso=
+8859_1 vfat fat fuse btrfs blake2b_generic xor raid6_pq libcrc32c crypto_us=
+er tun i2c_de
+> > v it87 hwmon_vid snd_seq snd_hda_codec_realtek snd_hda_codec_generic le=
+dtrig_audio sg snd_hda_codec_hdmi virtio_balloon snd_hda_intel virtio_conso=
+le snd_intel_
+> > dspcfg soundwire_intel virtio_pci soundwire_generic_allocation soundwir=
+e_cadence virtio_blk snd_hda_codec intel_rapl_msr btusb intel_rapl_common v=
+irtio_net btr
+> > tl net_failover uvcvideo snd_usb_audio snd_hda_core btbcm x86_pkg_temp_=
+thermal failover soundwire_bus btintel intel_powerclamp snd_soc_core corete=
+mp snd_usbmid
+> > i_lib iTCO_wdt videobuf2_vmalloc bluetooth intel_pmc_bxt snd_hwdep kvm_=
+intel videobuf2_memops snd_rawmidi snd_compress videobuf2_v4l2 ac97_bus snd=
+_pcm_dmaengin
+> > e iTCO_vendor_support crct10dif_pclmul at24 crc32_pclmul videobuf2_comm=
+on snd_seq_device mei_hdcp snd_pcm ghash_clmulni_intel kvm videodev aesni_i=
+ntel crypto_s
+> > imd snd_timer snd cryptd mc ecdh_generic
+> > [  139.449642]  glue_helper rfkill soundcore joydev mousedev rapl ecc i=
+ntel_cstate r8169 i2c_i801 intel_uncore atl1c realtek irqbypass mdio_devres=
+ mei_me libph
+> > y i2c_smbus mei mac_hid lpc_ich ext4 crc32c_generic crc16 mbcache jbd2 =
+dm_mod ata_generic pata_acpi uas usb_storage sr_mod crc32c_intel serio_raw =
+cdrom xhci_pc
+> > i pata_jmicron xhci_pci_renesas radeon usbhid i915 intel_gtt nouveau mx=
+m_wmi wmi video i2c_algo_bit drm_ttm_helper ttm drm_kms_helper syscopyarea =
+sysfillrect s
+> > ysimgblt fb_sys_fops cec drm agpgart
+> > [  139.449707] CR2: 0000000000000008
+> > [  139.449710] ---[ end trace f5ce5774498d18e1 ]---
+> >
+> > Signed-off-by: Pavel Turinsk=C3=BD <ledoian@kam.mff.cuni.cz>
+> > Fixes: d693def4fd1c ("drm: Remove obsolete GEM and PRIME callbacks from=
+ struct drm_driver")
+> > Cc: stable@vger.kernel.org
+> > ---
+> >
+> > This is a very symptomatic patch around issue I ran into. I do not know=
+ if the
+> > funcs property should ever be NULL. I basically restored all the checks=
+ that
+> > were removed in the mentioned commit. Unfortunately, I do not understan=
+d drm
+> > nor will I have time to delve into it in forseeable future.
+> >
+> >   drivers/gpu/drm/drm_gem.c   | 20 ++++++++++----------
+> >   drivers/gpu/drm/drm_prime.c |  2 +-
+> >   2 files changed, 11 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> > index 92f89cee213e..451f290c737c 100644
+> > --- a/drivers/gpu/drm/drm_gem.c
+> > +++ b/drivers/gpu/drm/drm_gem.c
+> > @@ -249,7 +249,7 @@ drm_gem_object_release_handle(int id, void *ptr, vo=
+id *data)
+> >       struct drm_file *file_priv =3D data;
+> >       struct drm_gem_object *obj =3D ptr;
+> >
+> > -     if (obj->funcs->close)
+> > +     if (obj->funcs && obj->funcs->close)
+> >               obj->funcs->close(obj, file_priv);
+> >
+> >       drm_gem_remove_prime_handles(obj, file_priv);
+> > @@ -401,7 +401,7 @@ drm_gem_handle_create_tail(struct drm_file *file_pr=
+iv,
+> >       if (ret)
+> >               goto err_remove;
+> >
+> > -     if (obj->funcs->open) {
+> > +     if (obj->funcs && obj->funcs->open) {
+> >               ret =3D obj->funcs->open(obj, file_priv);
+> >               if (ret)
+> >                       goto err_revoke;
+> > @@ -977,7 +977,7 @@ drm_gem_object_free(struct kref *kref)
+> >       struct drm_gem_object *obj =3D
+> >               container_of(kref, struct drm_gem_object, refcount);
+> >
+> > -     if (WARN_ON(!obj->funcs->free))
+> > +     if (!obj->funcs || WARN_ON(!obj->funcs->free))
+> >               return;
+> >
+> >       obj->funcs->free(obj);
+> > @@ -1079,7 +1079,7 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj, =
+unsigned long obj_size,
+> >
+> >       vma->vm_private_data =3D obj;
+> >
+> > -     if (obj->funcs->mmap) {
+> > +     if (obj->funcs && obj->funcs->mmap) {
+> >               ret =3D obj->funcs->mmap(obj, vma);
+> >               if (ret) {
+> >                       drm_gem_object_put(obj);
+> > @@ -1087,7 +1087,7 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj, =
+unsigned long obj_size,
+> >               }
+> >               WARN_ON(!(vma->vm_flags & VM_DONTEXPAND));
+> >       } else {
+> > -             if (obj->funcs->vm_ops)
+> > +             if (obj->funcs && obj->funcs->vm_ops)
+> >                       vma->vm_ops =3D obj->funcs->vm_ops;
+> >               else {
+> >                       drm_gem_object_put(obj);
+> > @@ -1188,13 +1188,13 @@ void drm_gem_print_info(struct drm_printer *p, =
+unsigned int indent,
+> >       drm_printf_indent(p, indent, "imported=3D%s\n",
+> >                         obj->import_attach ? "yes" : "no");
+> >
+> > -     if (obj->funcs->print_info)
+> > +     if (obj->funcs && obj->funcs->print_info)
+> >               obj->funcs->print_info(p, indent, obj);
+> >   }
+> >
+> >   int drm_gem_pin(struct drm_gem_object *obj)
+> >   {
+> > -     if (obj->funcs->pin)
+> > +     if (obj->funcs && obj->funcs->pin)
+> >               return obj->funcs->pin(obj);
+> >       else
+> >               return 0;
+> > @@ -1202,7 +1202,7 @@ int drm_gem_pin(struct drm_gem_object *obj)
+> >
+> >   void drm_gem_unpin(struct drm_gem_object *obj)
+> >   {
+> > -     if (obj->funcs->unpin)
+> > +     if (obj->funcs && obj->funcs->unpin)
+> >               obj->funcs->unpin(obj);
+> >   }
+> >
+> > @@ -1210,7 +1210,7 @@ int drm_gem_vmap(struct drm_gem_object *obj, stru=
+ct dma_buf_map *map)
+> >   {
+> >       int ret;
+> >
+> > -     if (!obj->funcs->vmap)
+> > +     if (!obj->funcs || !obj->funcs->vmap)
+> >               return -EOPNOTSUPP;
+> >
+> >       ret =3D obj->funcs->vmap(obj, map);
+> > @@ -1227,7 +1227,7 @@ void drm_gem_vunmap(struct drm_gem_object *obj, s=
+truct dma_buf_map *map)
+> >       if (dma_buf_map_is_null(map))
+> >               return;
+> >
+> > -     if (obj->funcs->vunmap)
+> > +     if (obj->funcs && obj->funcs->vunmap)
+> >               obj->funcs->vunmap(obj, map);
+> >
+> >       /* Always set the mapping to NULL. Callers may rely on this. */
+> > diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+> > index 7db55fce35d8..1566dcf417e2 100644
+> > --- a/drivers/gpu/drm/drm_prime.c
+> > +++ b/drivers/gpu/drm/drm_prime.c
+> > @@ -620,7 +620,7 @@ struct sg_table *drm_gem_map_dma_buf(struct dma_buf=
+_attachment *attach,
+> >       if (WARN_ON(dir =3D=3D DMA_NONE))
+> >               return ERR_PTR(-EINVAL);
+> >
+> > -     if (WARN_ON(!obj->funcs->get_sg_table))
+> > +     if (!obj->funcs || WARN_ON(!obj->funcs->get_sg_table))
+> >               return ERR_PTR(-ENOSYS);
+> >
+> >       sgt =3D obj->funcs->get_sg_table(obj);
+> >
+>
+> --
+> Thomas Zimmermann
+> Graphics Driver Developer
+> SUSE Software Solutions Germany GmbH
+> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+> (HRB 36809, AG N=C3=BCrnberg)
+> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+>
 
-[Why]
-mutex_lock() was introduced in dm_disable_vblank(), which could
-be called in an IRQ context. Waiting in IRQ would cause issues
-like kernel lockup, etc.
 
-[How]
-Handle code that requires mutex lock on a different thread.
-
-v2: squash in compilation fix without CONFIG_DRM_AMD_DC_DCN (Alex)
-v3: squash in warning fix (Wei)
-
-Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 344404c4ac75..3e1fd1e7d09f 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -937,7 +937,49 @@ static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_
- 
- }
- #endif
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+static void event_mall_stutter(struct work_struct *work)
-+{
-+
-+	struct vblank_workqueue *vblank_work = container_of(work, struct vblank_workqueue, mall_work);
-+	struct amdgpu_display_manager *dm = vblank_work->dm;
-+
-+	mutex_lock(&dm->dc_lock);
-+
-+	if (vblank_work->enable)
-+		dm->active_vblank_irq_count++;
-+	else
-+		dm->active_vblank_irq_count--;
-+
-+
-+	dc_allow_idle_optimizations(
-+		dm->dc, dm->active_vblank_irq_count == 0 ? true : false);
-+
-+	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
-+
-+
-+	mutex_unlock(&dm->dc_lock);
-+}
-+
-+static struct vblank_workqueue *vblank_create_workqueue(struct amdgpu_device *adev, struct dc *dc)
-+{
-+
-+	int max_caps = dc->caps.max_links;
-+	struct vblank_workqueue *vblank_work;
-+	int i = 0;
-+
-+	vblank_work = kcalloc(max_caps, sizeof(*vblank_work), GFP_KERNEL);
-+	if (ZERO_OR_NULL_PTR(vblank_work)) {
-+		kfree(vblank_work);
-+		return NULL;
-+	}
- 
-+	for (i = 0; i < max_caps; i++)
-+		INIT_WORK(&vblank_work[i].mall_work, event_mall_stutter);
-+
-+	return vblank_work;
-+}
-+#endif
- static int amdgpu_dm_init(struct amdgpu_device *adev)
- {
- 	struct dc_init_data init_data;
-@@ -957,6 +999,9 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 
- 	mutex_init(&adev->dm.dc_lock);
- 	mutex_init(&adev->dm.audio_lock);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	spin_lock_init(&adev->dm.vblank_lock);
-+#endif
- 
- 	if(amdgpu_dm_irq_init(adev)) {
- 		DRM_ERROR("amdgpu: failed to initialize DM IRQ support.\n");
-@@ -1071,6 +1116,17 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 
- 	amdgpu_dm_init_color_mod();
- 
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	if (adev->dm.dc->caps.max_links > 0) {
-+		adev->dm.vblank_workqueue = vblank_create_workqueue(adev, adev->dm.dc);
-+
-+		if (!adev->dm.vblank_workqueue)
-+			DRM_ERROR("amdgpu: failed to initialize vblank_workqueue.\n");
-+		else
-+			DRM_DEBUG_DRIVER("amdgpu: vblank_workqueue init done %p.\n", adev->dm.vblank_workqueue);
-+	}
-+#endif
-+
- #ifdef CONFIG_DRM_AMD_DC_HDCP
- 	if (adev->dm.dc->caps.max_links > 0 && adev->asic_type >= CHIP_RAVEN) {
- 		adev->dm.hdcp_workqueue = hdcp_create_workqueue(adev, &init_params.cp_psp, adev->dm.dc);
-@@ -5375,7 +5431,10 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	struct amdgpu_crtc *acrtc = to_amdgpu_crtc(crtc);
- 	struct amdgpu_device *adev = drm_to_adev(crtc->dev);
- 	struct dm_crtc_state *acrtc_state = to_dm_crtc_state(crtc->state);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
- 	struct amdgpu_display_manager *dm = &adev->dm;
-+	unsigned long flags;
-+#endif
- 	int rc = 0;
- 
- 	if (enable) {
-@@ -5398,22 +5457,15 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	if (amdgpu_in_reset(adev))
- 		return 0;
- 
--	mutex_lock(&dm->dc_lock);
--
--	if (enable)
--		dm->active_vblank_irq_count++;
--	else
--		dm->active_vblank_irq_count--;
--
- #if defined(CONFIG_DRM_AMD_DC_DCN)
--	dc_allow_idle_optimizations(
--		adev->dm.dc, dm->active_vblank_irq_count == 0 ? true : false);
--
--	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
-+	spin_lock_irqsave(&dm->vblank_lock, flags);
-+	dm->vblank_workqueue->dm = dm;
-+	dm->vblank_workqueue->otg_inst = acrtc->otg_inst;
-+	dm->vblank_workqueue->enable = enable;
-+	spin_unlock_irqrestore(&dm->vblank_lock, flags);
-+	schedule_work(&dm->vblank_workqueue->mall_work);
- #endif
- 
--	mutex_unlock(&dm->dc_lock);
--
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index f72930c36c22..8bfe901cf237 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -92,6 +92,20 @@ struct dm_compressor_info {
- 	uint64_t gpu_addr;
- };
- 
-+/**
-+ * struct vblank_workqueue - Works to be executed in a separate thread during vblank
-+ * @mall_work: work for mall stutter
-+ * @dm: amdgpu display manager device
-+ * @otg_inst: otg instance of which vblank is being set
-+ * @enable: true if enable vblank
-+ */
-+struct vblank_workqueue {
-+	struct work_struct mall_work;
-+	struct amdgpu_display_manager *dm;
-+	int otg_inst;
-+	bool enable;
-+};
-+
- /**
-  * struct amdgpu_dm_backlight_caps - Information about backlight
-  *
-@@ -243,6 +257,15 @@ struct amdgpu_display_manager {
- 	 */
- 	struct mutex audio_lock;
- 
-+	/**
-+	 * @vblank_work_lock:
-+	 *
-+	 * Guards access to deferred vblank work state.
-+	 */
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	spinlock_t vblank_lock;
-+#endif
-+
- 	/**
- 	 * @audio_component:
- 	 *
-@@ -321,6 +344,10 @@ struct amdgpu_display_manager {
- 	struct hdcp_workqueue *hdcp_workqueue;
- #endif
- 
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	struct vblank_workqueue *vblank_workqueue;
-+#endif
-+
- 	struct drm_atomic_state *cached_state;
- 	struct dc_state *cached_dc_state;
- 
-
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
