@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C6E3291B9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F093291B4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243380AbhCAUbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:31:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48312 "EHLO mail.kernel.org"
+        id S242859AbhCAUbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:31:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238699AbhCAUYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:24:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FBA165403;
-        Mon,  1 Mar 2021 18:05:54 +0000 (UTC)
+        id S237019AbhCAUYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:24:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E2FC6540A;
+        Mon,  1 Mar 2021 18:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621955;
-        bh=37dKgdLpzs8/0e34RHsBPLueAh+R+liTrxox0oIBtc4=;
+        s=korg; t=1614621957;
+        bh=tCIROGuBVPkvU7MlcGmSY5f1UiPr1XjO48Nw0Xj9wJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpUJzpmpxZcBGriUn3eMnrDfqbA4VUIj2p6OfoYmhDNR0U1SowYoh3sb9jd0EeXQj
-         RbXV/sKwaKVM25lBEkG5z/Gw5FotzIcwLXEhPmqwbJ0/DWa9Xh5fV1CsW8a9ti4FgE
-         s+MF5F5AFqcXsV2zO2gTPdrnxRY6BBMlK+2pVO+k=
+        b=tqvaO7w4wcpIe48cFl/Kdc6F6OMWPoFPg/vewyxbI6mEKHgDIGoYdG9EwVX4ifarU
+         +g8hyTRoBls/6btHze3R+hUxJiVLTtvuG6LRPaXlB6IKNXI++Bvs9+Mkh2vynDLBLd
+         tD630r3blLktq8eLm4IupI0R84VgI4AQEk6wk3so=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Oscar Salvador <osalvador@suse.de>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
         David Rientjes <rientjes@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        "Tobin C. Harding" <tobin@kernel.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 705/775] mm/vmscan: restore zone_reclaim_mode ABI
-Date:   Mon,  1 Mar 2021 17:14:33 +0100
-Message-Id: <20210301161236.194203607@linuxfoundation.org>
+Subject: [PATCH 5.11 706/775] mm, compaction: make fast_isolate_freepages() stay within zone
+Date:   Mon,  1 Mar 2021 17:14:34 +0100
+Message-Id: <20210301161236.246190644@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -49,96 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-commit 519983645a9f2ec339cabfa0c6ef7b09be985dd0 upstream.
+commit 6e2b7044c199229a3d20cefbd3184968238c4184 upstream.
 
-I went to go add a new RECLAIM_* mode for the zone_reclaim_mode sysctl.
-Like a good kernel developer, I also went to go update the
-documentation.  I noticed that the bits in the documentation didn't
-match the bits in the #defines.
+Compaction always operates on pages from a single given zone when
+isolating both pages to migrate and freepages.  Pageblock boundaries are
+intersected with zone boundaries to be safe in case zone starts or ends in
+the middle of pageblock.  The use of pageblock_pfn_to_page() protects
+against non-contiguous pageblocks.
 
-The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is,
-however implicitly checked when checking 'node_reclaim_mode==0'.  The
-RECLAIM_ZONE #define was removed in a cleanup.  That, by itself is fine.
+The functions fast_isolate_freepages() and fast_isolate_around() don't
+currently protect the fast freepage isolation thoroughly enough against
+these corner cases, and can result in freepage isolation operate outside
+of zone boundaries:
 
-But, when the bit was removed (bit 0) the _other_ bit locations also got
-changed.  That's not OK because the bit values are documented to mean
-one specific thing.  Users surely do not expect the meaning to change
-from kernel to kernel.
+ - in fast_isolate_freepages() if we get a pfn from the first pageblock
+   of a zone that starts in the middle of that pageblock, 'highest' can
+   be a pfn outside of the zone.
 
-The end result is that if someone had a script that did:
+   If we fail to isolate anything in this function, we may then call
+   fast_isolate_around() on a pfn outside of the zone and there
+   effectively do a set_pageblock_skip(page_to_pfn(highest)) which may
+   currently hit a VM_BUG_ON() in some configurations
 
-	sysctl vm.zone_reclaim_mode=1
+ - fast_isolate_around() checks only the zone end boundary and not
+   beginning, nor that the pageblock is contiguous (with
+   pageblock_pfn_to_page()) so it's possible that we end up calling
+   isolate_freepages_block() on a range of pfn's from two different
+   zones and end up e.g. isolating freepages under the wrong zone's
+   lock.
 
-it would have gone from enabling node reclaim for clean unmapped pages
-to writing out pages during node reclaim after the commit in question.
-That's not great.
+This patch should fix the above issues.
 
-Put the bits back the way they were and add a comment so something like
-this is a bit harder to do again.  Update the documentation to make it
-clear that the first bit is ignored.
-
-Link: https://lkml.kernel.org/r/20210219172555.FF0CDF23@viggo.jf.intel.com
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Fixes: 648b5cf368e0 ("mm/vmscan: remove unused RECLAIM_OFF/RECLAIM_ZONE")
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Link: https://lkml.kernel.org/r/20210217173300.6394-1-vbabka@suse.cz
+Fixes: 5a811889de10 ("mm, compaction: use free lists to quickly locate a migration target")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: "Tobin C. Harding" <tobin@kernel.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Qian Cai <cai@lca.pw>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/sysctl/vm.rst |   10 +++++-----
- mm/vmscan.c                             |    9 +++++++--
- 2 files changed, 12 insertions(+), 7 deletions(-)
+ mm/compaction.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/Documentation/admin-guide/sysctl/vm.rst
-+++ b/Documentation/admin-guide/sysctl/vm.rst
-@@ -983,11 +983,11 @@ that benefit from having their data cach
- left disabled as the caching effect is likely to be more important than
- data locality.
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1288,7 +1288,7 @@ static void
+ fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
+ {
+ 	unsigned long start_pfn, end_pfn;
+-	struct page *page = pfn_to_page(pfn);
++	struct page *page;
  
--zone_reclaim may be enabled if it's known that the workload is partitioned
--such that each partition fits within a NUMA node and that accessing remote
--memory would cause a measurable performance reduction.  The page allocator
--will then reclaim easily reusable pages (those page cache pages that are
--currently not used) before allocating off node pages.
-+Consider enabling one or more zone_reclaim mode bits if it's known that the
-+workload is partitioned such that each partition fits within a NUMA node
-+and that accessing remote memory would cause a measurable performance
-+reduction.  The page allocator will take additional actions before
-+allocating off node pages.
+ 	/* Do not search around if there are enough pages already */
+ 	if (cc->nr_freepages >= cc->nr_migratepages)
+@@ -1299,8 +1299,12 @@ fast_isolate_around(struct compact_contr
+ 		return;
  
- Allowing zone reclaim to write out pages stops processes that are
- writing large amounts of data from dirtying pages on other nodes. Zone
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -4095,8 +4095,13 @@ module_init(kswapd_init)
-  */
- int node_reclaim_mode __read_mostly;
+ 	/* Pageblock boundaries */
+-	start_pfn = pageblock_start_pfn(pfn);
+-	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
++	start_pfn = max(pageblock_start_pfn(pfn), cc->zone->zone_start_pfn);
++	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone));
++
++	page = pageblock_pfn_to_page(start_pfn, end_pfn, cc->zone);
++	if (!page)
++		return;
  
--#define RECLAIM_WRITE (1<<0)	/* Writeout pages during reclaim */
--#define RECLAIM_UNMAP (1<<1)	/* Unmap pages during reclaim */
-+/*
-+ * These bit locations are exposed in the vm.zone_reclaim_mode sysctl
-+ * ABI.  New bits are OK, but existing bits can never change.
-+ */
-+#define RECLAIM_ZONE  (1<<0)   /* Run shrink_inactive_list on the zone */
-+#define RECLAIM_WRITE (1<<1)   /* Writeout pages during reclaim */
-+#define RECLAIM_UNMAP (1<<2)   /* Unmap pages during reclaim */
+ 	/* Scan before */
+ 	if (start_pfn != pfn) {
+@@ -1402,7 +1406,8 @@ fast_isolate_freepages(struct compact_co
+ 			pfn = page_to_pfn(freepage);
  
- /*
-  * Priority for NODE_RECLAIM. This determines the fraction of pages
+ 			if (pfn >= highest)
+-				highest = pageblock_start_pfn(pfn);
++				highest = max(pageblock_start_pfn(pfn),
++					      cc->zone->zone_start_pfn);
+ 
+ 			if (pfn >= low_pfn) {
+ 				cc->fast_search_fail = 0;
+@@ -1472,7 +1477,8 @@ fast_isolate_freepages(struct compact_co
+ 			} else {
+ 				if (cc->direct_compaction && pfn_valid(min_pfn)) {
+ 					page = pageblock_pfn_to_page(min_pfn,
+-						pageblock_end_pfn(min_pfn),
++						min(pageblock_end_pfn(min_pfn),
++						    zone_end_pfn(cc->zone)),
+ 						cc->zone);
+ 					cc->free_pfn = min_pfn;
+ 				}
 
 
