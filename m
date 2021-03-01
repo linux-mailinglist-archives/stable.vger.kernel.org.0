@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E50328793
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:26:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB453287C5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238383AbhCARZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37368 "EHLO mail.kernel.org"
+        id S238502AbhCAR2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237993AbhCARVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:21:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F7165062;
-        Mon,  1 Mar 2021 16:48:03 +0000 (UTC)
+        id S238106AbhCARXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:23:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4505E6506D;
+        Mon,  1 Mar 2021 16:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617284;
-        bh=mqxnt136SEdOf533FCXJNP5DiIBV6M44czdVE7SJp4I=;
+        s=korg; t=1614617314;
+        bh=kLB7sIXxmorn9NWgNpbfAXIA1u4C6d11Fi8O07NpimA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3W4o1WNd5t7uMW7NN1JZdTe/G+aNSJO52nUYsrgj3Mv+YBzW3S4wcbRoFFPIQDFN
-         mvDR3KDvYYfArp9Sp7lHmHDTrb7NFZcq4he2C9qGyjMCM1nn3kBUGjOYW8NNpfyymv
-         EQR0sw79ibZXRaQp3dtLrO/Hm7LfOYWSKxWHheoY=
+        b=YcZho51gjNV4ZnRUN2uMV4AaQwIeGCZMo+MM0atdm5UBqg9sVREtcBEZNCKTwa611
+         xjR29Kt130Cq05rjEjQ+iNknC2WXhdNfS2waXnqBnCT20J1VBYtRjqmz0EMbqTn8at
+         yFO4JZARW3g0pwSpR+DAYwHdawbpJisOgVuHW8pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Lamprecht <t.lamprecht@proxmox.com>
-Subject: [PATCH 5.4 002/340] kvm: x86: replace kvm_spec_ctrl_test_value with runtime test on the host
-Date:   Mon,  1 Mar 2021 17:09:06 +0100
-Message-Id: <20210301161048.424208403@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Michael Walle <michael@walle.cc>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 003/340] debugfs: be more robust at handling improper input in debugfs_lookup()
+Date:   Mon,  1 Mar 2021 17:09:07 +0100
+Message-Id: <20210301161048.468533603@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,126 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 841c2be09fe4f495fe5224952a419bd8c7e5b455 upstream.
+commit bc6de804d36b3709d54fa22bd128cbac91c11526 upstream.
 
-To avoid complex and in some cases incorrect logic in
-kvm_spec_ctrl_test_value, just try the guest's given value on the host
-processor instead, and if it doesn't #GP, allow the guest to set it.
+debugfs_lookup() doesn't like it if it is passed an illegal name
+pointer, or if the filesystem isn't even initialized yet.  If either of
+these happen, it will crash the system, so fix it up by properly testing
+for valid input and that we are up and running before trying to find a
+file in the filesystem.
 
-One such case is when host CPU supports STIBP mitigation
-but doesn't support IBRS (as is the case with some Zen2 AMD cpus),
-and in this case we were giving guest #GP when it tried to use STIBP
-
-The reason why can can do the host test is that IA32_SPEC_CTRL msr is
-passed to the guest, after the guest sets it to a non zero value
-for the first time (due to performance reasons),
-and as as result of this, it is pointless to emulate #GP condition on
-this first access, in a different way than what the host CPU does.
-
-This is based on a patch from Sean Christopherson, who suggested this idea.
-
-Fixes: 6441fa6178f5 ("KVM: x86: avoid incorrect writes to host MSR_IA32_SPEC_CTRL")
-Cc: stable@vger.kernel.org
-Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20200708115731.180097-1-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Michael Walle <michael@walle.cc>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210218100818.3622317-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/svm.c     |    2 +-
- arch/x86/kvm/vmx/vmx.c |    2 +-
- arch/x86/kvm/x86.c     |   40 ++++++++++++++++++++++------------------
- arch/x86/kvm/x86.h     |    2 +-
- 4 files changed, 25 insertions(+), 21 deletions(-)
+ fs/debugfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -4327,7 +4327,7 @@ static int svm_set_msr(struct kvm_vcpu *
- 		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
--		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
-+		if (kvm_spec_ctrl_test_value(data))
- 			return 1;
- 
- 		svm->spec_ctrl = data;
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1974,7 +1974,7 @@ static int vmx_set_msr(struct kvm_vcpu *
- 		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
--		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
-+		if (kvm_spec_ctrl_test_value(data))
- 			return 1;
- 
- 		vmx->spec_ctrl = data;
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10374,28 +10374,32 @@ bool kvm_arch_no_poll(struct kvm_vcpu *v
- }
- EXPORT_SYMBOL_GPL(kvm_arch_no_poll);
- 
--u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu)
-+
-+int kvm_spec_ctrl_test_value(u64 value)
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -293,7 +293,7 @@ struct dentry *debugfs_lookup(const char
  {
--	uint64_t bits = SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD;
-+	/*
-+	 * test that setting IA32_SPEC_CTRL to given value
-+	 * is allowed by the host processor
-+	 */
-+
-+	u64 saved_value;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	local_irq_save(flags);
-+
-+	if (rdmsrl_safe(MSR_IA32_SPEC_CTRL, &saved_value))
-+		ret = 1;
-+	else if (wrmsrl_safe(MSR_IA32_SPEC_CTRL, value))
-+		ret = 1;
-+	else
-+		wrmsrl(MSR_IA32_SPEC_CTRL, saved_value);
+ 	struct dentry *dentry;
  
--	/* The STIBP bit doesn't fault even if it's not advertised */
--	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
--	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS))
--		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
--	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
--	    !boot_cpu_has(X86_FEATURE_AMD_IBRS))
--		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
--
--	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL_SSBD) &&
--	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
--		bits &= ~SPEC_CTRL_SSBD;
--	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) &&
--	    !boot_cpu_has(X86_FEATURE_AMD_SSBD))
--		bits &= ~SPEC_CTRL_SSBD;
-+	local_irq_restore(flags);
+-	if (IS_ERR(parent))
++	if (!debugfs_initialized() || IS_ERR_OR_NULL(name) || IS_ERR(parent))
+ 		return NULL;
  
--	return bits;
-+	return ret;
- }
--EXPORT_SYMBOL_GPL(kvm_spec_ctrl_valid_bits);
-+EXPORT_SYMBOL_GPL(kvm_spec_ctrl_test_value);
- 
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_fast_mmio);
---- a/arch/x86/kvm/x86.h
-+++ b/arch/x86/kvm/x86.h
-@@ -368,6 +368,6 @@ static inline bool kvm_pat_valid(u64 dat
- 
- void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu);
- void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu);
--u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu);
-+int kvm_spec_ctrl_test_value(u64 value);
- 
- #endif
+ 	if (!parent)
 
 
