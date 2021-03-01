@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BD9328B62
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B157328BF2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240138AbhCASdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:33:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
+        id S240520AbhCASnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:43:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239864AbhCAS0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:26:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1DBE650AF;
-        Mon,  1 Mar 2021 17:37:09 +0000 (UTC)
+        id S240197AbhCASh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:37:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 713CE64F30;
+        Mon,  1 Mar 2021 17:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620230;
-        bh=/WUkTsMO3HJouzYpTHEkGeGce2v6s4ecUkrcPoFIDeA=;
+        s=korg; t=1614620236;
+        bh=oqxTi+BraD7Kpr4p4At1meOaCuqrzhllDhk3+X/azAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eaI7vtYFD64+wiRxq1P8X8XeT/mWx5vg+KgecpyU+TcNmteWTkYS3hNn2Fr7qXU9L
-         52gn9oEM6r0R0f518GcHZNdma9bB2uzHm1oVeJnbudT9rvSKKdtt2G2OPLoHwWt0OK
-         1W+glKc1zE8jecjV+L6xZtdhRoLbzMTBH1MlRkZQ=
+        b=YadXpCQqqLlEbUVJZxHns+SbE0ly7aNgtamHy23khrplF5rhAsRFET1GhGy7i6xHq
+         4OZyejYdJo8A6WQJgOfYxEG1zccu+fXpdiWWzITeYOt7h0hXAw4I9Pb7A47s5gp3ps
+         ysXAWtH/yp4anp/Ws3Gp/e1X4ezoZZAj0nG/CJiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 078/775] arm64: dts: msm8916: Fix reserved and rfsa nodes unit address
-Date:   Mon,  1 Mar 2021 17:04:06 +0100
-Message-Id: <20210301161205.535222163@linuxfoundation.org>
+Subject: [PATCH 5.11 080/775] iwlwifi: mvm: set enabled in the PPAG command properly
+Date:   Mon,  1 Mar 2021 17:04:08 +0100
+Message-Id: <20210301161205.633818202@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,44 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Knecht <vincent.knecht@mailoo.org>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit d5ae2528b0b56cf054b27d48b0cb85330900082f ]
+[ Upstream commit efaa85cf2294d5e10a724e24356507eeb3836f72 ]
 
-Fix `reserved` and `rfsa` unit address according to their reg address
+When version 2 of the PER_PLATFORM_ANT_GAIN_CMD was implemented, we
+started copying the values from the command that we have stored into a
+local instance.  But we accidentally forgot to copy the enabled flag,
+so in practice PPAG is never really enabled.  Fix this by copying the
+flag from our stored data a we should.
 
-Fixes: 7258e10e6a0b ("ARM: dts: msm8916: Update reserved-memory")
-
-Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
-Link: https://lore.kernel.org/r/20210123104417.518105-1-vincent.knecht@mailoo.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: f2134f66f40e ("iwlwifi: acpi: support ppag table command v2")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210131201908.24d7bf754ad5.I0e8abc2b8747508b6118242533d68c856ca6dffb@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 402e891a84ab6..d25f6dc751e99 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -56,7 +56,7 @@
- 			no-map;
- 		};
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 313e9f106f465..9e150c01f7b37 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -997,6 +997,8 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+ 		return 0;
+ 	}
  
--		reserved@8668000 {
-+		reserved@86680000 {
- 			reg = <0x0 0x86680000 0x0 0x80000>;
- 			no-map;
- 		};
-@@ -69,7 +69,7 @@
- 			qcom,client-id = <1>;
- 		};
- 
--		rfsa@867e00000 {
-+		rfsa@867e0000 {
- 			reg = <0x0 0x867e0000 0x0 0x20000>;
- 			no-map;
- 		};
++	ppag_table.v1.enabled = mvm->fwrt.ppag_table.v1.enabled;
++
+ 	cmd_ver = iwl_fw_lookup_cmd_ver(mvm->fw, PHY_OPS_GROUP,
+ 					PER_PLATFORM_ANT_GAIN_CMD,
+ 					IWL_FW_CMD_VER_UNKNOWN);
 -- 
 2.27.0
 
