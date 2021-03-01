@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 479C63285DD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E38328790
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:26:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235805AbhCAQ7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:59:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54178 "EHLO mail.kernel.org"
+        id S238373AbhCARZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:25:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236406AbhCAQyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:54:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED9AB64FC3;
-        Mon,  1 Mar 2021 16:34:58 +0000 (UTC)
+        id S236098AbhCARSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:18:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A6864F4E;
+        Mon,  1 Mar 2021 16:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616499;
-        bh=HXFhP68knXYKtmxK8/2nO9O311v0Hxni2WJgzmc/h+U=;
+        s=korg; t=1614617239;
+        bh=2k/Y97RHT7hk5wZrN5m6S4YgDsSzrKa+SR+h13LXQ50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+n2o2hA/aaeJgKX9AwjLIMrWX5AEOZDNpSP13jBINh2QKnIKeBpsu0TOGQ/B4HGQ
-         dsi6M1yoGnIl0ZUB0W84DmMLuW/JyJUTIfCMa51kqoCvyWpolDbOXm9/Jr+MNDpKbQ
-         3VDyBWgoCHu72Nbb/Qj1EghhnYgYu98ioU9Bppjc=
+        b=yFWDeydpbEEIgdyWjvsl9/tdw7cbcasavTADCY6ssibjChoxOMa+/Qq8tviYsr5M2
+         7+0d4hbFdqtj2UbbNGbDkJwGB9oDO74Rw7486m3jf8r2rbXDbkGQ8T+nitQkH1UFB1
+         SA2U8lH/LK97qpjPQKGlNQHZo7MMMrU74Usika4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 173/176] ipv6: icmp6: avoid indirect call for icmpv6_send()
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.19 226/247] gpio: pcf857x: Fix missing first interrupt
 Date:   Mon,  1 Mar 2021 17:14:06 +0100
-Message-Id: <20210301161029.625169649@linuxfoundation.org>
+Message-Id: <20210301161042.754011394@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
+References: <20210301161031.684018251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,109 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-commit cc7a21b6fbd945f8d8f61422ccd27203c1fafeb7 upstream.
+commit a8002a35935aaefcd6a42ad3289f62bab947f2ca upstream.
 
-If IPv6 is builtin, we do not need an expensive indirect call
-to reach icmp6_send().
+If no n_latch value will be provided at driver probe then all pins will
+be used as an input:
 
-v2: put inline keyword before the type to avoid sparse warnings.
+    gpio->out = ~n_latch;
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In that case initial state for all pins is "one":
+
+    gpio->status = gpio->out;
+
+So if pcf857x IRQ happens with change pin value from "zero" to "one"
+then we miss it, because of "one" from IRQ and "one" from initial state
+leaves corresponding pin unchanged:
+change = (gpio->status ^ status) & gpio->irq_enabled;
+
+The right solution will be to read actual state at driver probe.
+
+Cc: stable@vger.kernel.org
+Fixes: 6e20a0a429bd ("gpio: pcf857x: enable gpio_to_irq() support")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/icmpv6.h |   22 +++++++++++++++++++++-
- net/ipv6/icmp.c        |    5 +++--
- net/ipv6/ip6_icmp.c    |   10 +++++-----
- 3 files changed, 29 insertions(+), 8 deletions(-)
+ drivers/gpio/gpio-pcf857x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/icmpv6.h
-+++ b/include/linux/icmpv6.h
-@@ -13,12 +13,32 @@ static inline struct icmp6hdr *icmp6_hdr
- #include <linux/netdevice.h>
+--- a/drivers/gpio/gpio-pcf857x.c
++++ b/drivers/gpio/gpio-pcf857x.c
+@@ -357,7 +357,7 @@ static int pcf857x_probe(struct i2c_clie
+ 	 * reset state.  Otherwise it flags pins to be driven low.
+ 	 */
+ 	gpio->out = ~n_latch;
+-	gpio->status = gpio->out;
++	gpio->status = gpio->read(gpio->client);
  
- #if IS_ENABLED(CONFIG_IPV6)
--extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
- 
- typedef void ip6_icmp_send_t(struct sk_buff *skb, u8 type, u8 code, __u32 info,
- 			     const struct in6_addr *force_saddr);
-+#if IS_BUILTIN(CONFIG_IPV6)
-+void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-+		const struct in6_addr *force_saddr);
-+static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
-+{
-+	icmp6_send(skb, type, code, info, NULL);
-+}
-+static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
-+{
-+	BUILD_BUG_ON(fn != icmp6_send);
-+	return 0;
-+}
-+static inline int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn)
-+{
-+	BUILD_BUG_ON(fn != icmp6_send);
-+	return 0;
-+}
-+#else
-+extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
- extern int inet6_register_icmp_sender(ip6_icmp_send_t *fn);
- extern int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn);
-+#endif
-+
- int ip6_err_gen_icmpv6_unreach(struct sk_buff *skb, int nhs, int type,
- 			       unsigned int data_len);
- 
---- a/net/ipv6/icmp.c
-+++ b/net/ipv6/icmp.c
-@@ -421,8 +421,8 @@ static int icmp6_iif(const struct sk_buf
- /*
-  *	Send an ICMP message in response to a packet in error
-  */
--static void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
--		       const struct in6_addr *force_saddr)
-+void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-+		const struct in6_addr *force_saddr)
- {
- 	struct net *net = dev_net(skb->dev);
- 	struct inet6_dev *idev = NULL;
-@@ -596,6 +596,7 @@ out:
- out_bh_enable:
- 	local_bh_enable();
- }
-+EXPORT_SYMBOL(icmp6_send);
- 
- /* Slightly more convenient version of icmp6_send.
-  */
---- a/net/ipv6/ip6_icmp.c
-+++ b/net/ipv6/ip6_icmp.c
-@@ -9,6 +9,8 @@
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 
-+#if !IS_BUILTIN(CONFIG_IPV6)
-+
- static ip6_icmp_send_t __rcu *ip6_icmp_send;
- 
- int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
-@@ -37,14 +39,12 @@ void icmpv6_send(struct sk_buff *skb, u8
- 
- 	rcu_read_lock();
- 	send = rcu_dereference(ip6_icmp_send);
--
--	if (!send)
--		goto out;
--	send(skb, type, code, info, NULL);
--out:
-+	if (send)
-+		send(skb, type, code, info, NULL);
- 	rcu_read_unlock();
- }
- EXPORT_SYMBOL(icmpv6_send);
-+#endif
- 
- #if IS_ENABLED(CONFIG_NF_NAT)
- #include <net/netfilter/nf_conntrack.h>
+ 	status = devm_gpiochip_add_data(&client->dev, &gpio->chip, gpio);
+ 	if (status < 0)
 
 
