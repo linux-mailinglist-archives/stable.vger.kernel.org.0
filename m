@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A38D328CF5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E72F7328D19
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240892AbhCATCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:02:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58764 "EHLO mail.kernel.org"
+        id S240864AbhCATFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:05:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240723AbhCAS4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:56:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E810164EF4;
-        Mon,  1 Mar 2021 17:13:59 +0000 (UTC)
+        id S235300AbhCAS66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:58:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D11460234;
+        Mon,  1 Mar 2021 17:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618840;
-        bh=XQnAJbcKoe9KTUO3XhMJJoVlbMZBjmlecvReRl3DMBU=;
+        s=korg; t=1614620894;
+        bh=Z0u2ZE80aTAxZJFJUHS/kTl5bAwFKVZycqe2LEnItuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsgvyv/WQ445D/YvW/7zbk6ukadtgvWYI8ftVdKl99QyHwuDl6aeROgAMCx8ROqQa
-         WEbOLFM3bHPDz06LCQolJNjwYpyr2DZsu5VC6v+QbNQ2NeGl1HYy2CkQHLbfrQ7GkN
-         MEelZm9tU2C6/Tfy26+LZVk+N3iQAAX8dNRbF/7Q=
+        b=OMjeAk8HUad6DTyceFpb2b1JtfLZfTcBszNvQl+SHKeIN/diSN+qeW8QK2JgRzRcS
+         G/UWg71HgP2IpUyw4HqPYQ78svB+5R1jWODjYWSLgnpbwZCI8PVvemUjqtmczjezmw
+         DBoXrW+Agh9VOY1Gw3rw7g0a2Hsx6KjkNuQRB/qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Pratyush Yadav <p.yadav@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 237/663] hwrng: timeriomem - Fix cooldown period calculation
-Date:   Mon,  1 Mar 2021 17:08:05 +0100
-Message-Id: <20210301161153.545387792@linuxfoundation.org>
+Subject: [PATCH 5.11 318/775] spi: cadence-quadspi: Abort read if dummy cycles required are too many
+Date:   Mon,  1 Mar 2021 17:08:06 +0100
+Message-Id: <20210301161217.331971769@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
+From: Pratyush Yadav <p.yadav@ti.com>
 
-[ Upstream commit e145f5565dc48ccaf4cb50b7cfc48777bed8c100 ]
+[ Upstream commit ceeda328edeeeeac7579e9dbf0610785a3b83d39 ]
 
-Ensure cooldown period tolerance of 1% is actually accounted for.
+The controller can only support up to 31 dummy cycles. If the command
+requires more it falls back to using 31. This command is likely to fail
+because the correct number of cycles are not waited upon. Rather than
+silently issuing an incorrect command, fail loudly so the caller can get
+a chance to find out the command can't be supported by the controller.
 
-Fixes: ca3bff70ab32 ("hwrng: timeriomem - Improve performance...")
-Signed-off-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 140623410536 ("mtd: spi-nor: Add driver for Cadence Quad SPI Flash Controller")
+Signed-off-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20201222184425.7028-3-p.yadav@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/timeriomem-rng.c | 2 +-
+ drivers/spi/spi-cadence-quadspi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/hw_random/timeriomem-rng.c b/drivers/char/hw_random/timeriomem-rng.c
-index e262445fed5f5..f35f0f31f52ad 100644
---- a/drivers/char/hw_random/timeriomem-rng.c
-+++ b/drivers/char/hw_random/timeriomem-rng.c
-@@ -69,7 +69,7 @@ static int timeriomem_rng_read(struct hwrng *hwrng, void *data,
- 		 */
- 		if (retval > 0)
- 			usleep_range(period_us,
--					period_us + min(1, period_us / 100));
-+					period_us + max(1, period_us / 100));
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index ba7d40c2922f7..826b01f346246 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -461,7 +461,7 @@ static int cqspi_read_setup(struct cqspi_flash_pdata *f_pdata,
+ 	/* Setup dummy clock cycles */
+ 	dummy_clk = op->dummy.nbytes * 8;
+ 	if (dummy_clk > CQSPI_DUMMY_CLKS_MAX)
+-		dummy_clk = CQSPI_DUMMY_CLKS_MAX;
++		return -EOPNOTSUPP;
  
- 		*(u32 *)data = readl(priv->io_base);
- 		retval += sizeof(u32);
+ 	if (dummy_clk)
+ 		reg |= (dummy_clk & CQSPI_REG_RD_INSTR_DUMMY_MASK)
 -- 
 2.27.0
 
