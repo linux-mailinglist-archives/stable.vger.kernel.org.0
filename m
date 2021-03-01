@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 054243284B3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380BD3285C6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232614AbhCAQla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:41:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
+        id S236603AbhCAQ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:58:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234146AbhCAQeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FF964F65;
-        Mon,  1 Mar 2021 16:25:49 +0000 (UTC)
+        id S235843AbhCAQxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:53:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A33764F27;
+        Mon,  1 Mar 2021 16:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615950;
-        bh=lvZBpWBWlaiMbmx7JZOtkfo25nShx4+/xJUUs9mwPO4=;
+        s=korg; t=1614616449;
+        bh=xyxK0sdbX3lht7i98gYeQ3dbCLpcnXc+TWLDD8MdZnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFrzK3K1GYeoMlIHfWJwd+l0YRxB4+cgqjP8kspF+9ZOJ3aDm7duREUFcYHnReZdO
-         RyrlJONicLOQbM1oekHSioOBpVH8jOUAnAPxb9UFa2euEeKU17TtQYWXNRqNC4xYHJ
-         iyjxlPwFcCZgQwoY0kMwi1Vd0oxjKls9QxSByT9o=
+        b=PNaUHjweAEOux71b4N6i/TI3TjtmCILV+jUwP6/Q8wayPyTHjArzGzrKfLAG3GazC
+         kFCKvNz2FChpdYJu7NCqCcEHYSQImduutkLmCF0454cLlrIV71b44VJE52YJtkpi35
+         i8bjqtQ/MmZKSzC4IvtuJHZMGGiedDyCEaeT+7VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 4.9 100/134] usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
+        stable@vger.kernel.org,
+        Ludvig Norgren Guldhag <ludvigng@gmail.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 128/176] Input: i8042 - add ASUS Zenbook Flip to noselftest list
 Date:   Mon,  1 Mar 2021 17:13:21 +0100
-Message-Id: <20210301161018.485157042@linuxfoundation.org>
+Message-Id: <20210301161027.347399251@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,41 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-commit 4b049f55ed95cd889bcdb3034fd75e1f01852b38 upstream.
+commit b5d6e7ab7fe7d186878142e9fc1a05e4c3b65eb9 upstream.
 
-The dep->interval captures the number of frames/microframes per interval
-from bInterval. Fullspeed interrupt endpoint bInterval is the number of
-frames per interval and not 2^(bInterval - 1). So fix it here. This
-change is only for debugging purpose and should not affect the interrupt
-endpoint operation.
+After commit 77b425399f6d ("Input: i8042 - use chassis info to skip
+selftest on Asus laptops"), all modern Asus laptops have the i8042
+selftest disabled. It has done by using chassys type "10" (laptop).
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/1263b563dedc4ab8b0fb854fba06ce4bc56bd495.1612820995.git.Thinh.Nguyen@synopsys.com
+The Asus Zenbook Flip suffers from similar suspend/resume issues, but
+it _sometimes_ work and sometimes it doesn't. Setting noselftest makes
+it work reliably. In this case, we need to add chassis type "31"
+(convertible) in order to avoid selftest in this device.
+
+Reported-by: Ludvig Norgren Guldhag <ludvigng@gmail.com>
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Link: https://lore.kernel.org/r/20210219164638.761-1-mpdesouza@suse.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -538,8 +538,13 @@ static int dwc3_gadget_set_ep_config(str
- 		if (dwc->gadget.speed == USB_SPEED_FULL)
- 			bInterval_m1 = 0;
- 
-+		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
-+		    dwc->gadget.speed == USB_SPEED_FULL)
-+			dep->interval = desc->bInterval;
-+		else
-+			dep->interval = 1 << (desc->bInterval - 1);
-+
- 		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
--		dep->interval = 1 << (desc->bInterval - 1);
- 	}
- 
- 	return dwc3_send_gadget_ep_cmd(dep, DWC3_DEPCMD_SETEPCONFIG, &params);
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -592,6 +592,10 @@ static const struct dmi_system_id i8042_
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+ 		},
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
++		},
+ 	},
+ 	{ }
+ };
 
 
