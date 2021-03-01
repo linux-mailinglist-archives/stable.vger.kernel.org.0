@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74288328777
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E633285E8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238240AbhCARYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:24:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
+        id S236515AbhCARAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:00:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238035AbhCARS3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:18:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC9C64EBE;
-        Mon,  1 Mar 2021 16:46:44 +0000 (UTC)
+        id S235389AbhCAQyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:54:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1727164FC0;
+        Mon,  1 Mar 2021 16:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617205;
-        bh=GoN/ez8d53JBJoTOnaBAX2eFBXESWRbKo7b1nIeshwA=;
+        s=korg; t=1614616488;
+        bh=27E69NLc3uLFzYYYkyCQYU/Byoydz3ugJhxopS9IvZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4WpotnvuNlDy+I2ufMpzAKKc0qcrCejZ2RBHimQvFqFYrWP4TKmYBq6ARRbBNXqM
-         a7jpVsUoPo19sw+KNQM8L1Ye2KJ3FIF+T2H3iKhGA1t0UwBZ3Ttf58eC/SxkwbYYLA
-         YKQjfqxCOSP7wDcEZnWvPWotPiPXQFzNJQQ8PENk=
+        b=BFhqtxkwtr1fb6OItH/FcWyVBAC4dY4L/uv24+OfvEiW5tVJTr4tQE8/mWu+aJJBY
+         LvPWdUd5wd5H/7jZCtydXrHeGyea71gzRZRtiR4GE9aQdIfRBoBVr3VGyFdQYUnwaf
+         zn+0co7f8UUp6L0JLq4pB7IXds1d4iseEqjRqQdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Coly Li <colyli@suse.com>,
-        Richard Palethorpe <rpalethorpe@suse.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 222/247] libnvdimm/dimm: Avoid race between probe and available_slots_show()
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 169/176] dm era: only resize metadata in preresume
 Date:   Mon,  1 Mar 2021 17:14:02 +0100
-Message-Id: <20210301161042.551402638@linuxfoundation.org>
+Message-Id: <20210301161029.423694749@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
-References: <20210301161031.684018251@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream
+commit cca2c6aebe86f68103a8615074b3578e854b5016 upstream.
 
-Richard reports that the following test:
+Metadata resize shouldn't happen in the ctr. The ctr loads a temporary
+(inactive) table that will only become active upon resume. That is why
+resize should always be done in terms of resume. Otherwise a load (ctr)
+whose inactive table never becomes active will incorrectly resize the
+metadata.
 
-(while true; do
-     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
- done) &
+Also, perform the resize directly in preresume, instead of using the
+worker to do it.
 
-while true; do
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
-     done
-     for i in $(seq 0 4); do
-         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
-     done
- done
+The worker might run other metadata operations, e.g., it could start
+digestion, before resizing the metadata. These operations will end up
+using the old size.
 
-...fails with a crash signature like:
+This could lead to errors, like:
 
-    divide error: 0000 [#1] SMP KASAN PTI
-    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
-    [..]
-    Call Trace:
-     available_slots_show+0x4e/0x120 [libnvdimm]
-     dev_attr_show+0x42/0x80
-     ? memset+0x20/0x40
-     sysfs_kf_seq_show+0x218/0x410
+  device-mapper: era: metadata_digest_transcribe_writeset: dm_array_set_value failed
+  device-mapper: era: process_old_eras: digest step failed, stopping digestion
 
-The root cause is that available_slots_show() consults driver-data, but
-fails to synchronize against device-unbind setting up a TOCTOU race to
-access uninitialized memory.
+The reason of the above error is that the worker started the digestion
+of the archived writeset using the old, larger size.
 
-Validate driver-data under the device-lock.
+As a result, metadata_digest_transcribe_writeset tried to write beyond
+the end of the era array.
 
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Coly Li <colyli@suse.com>
-Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
-Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-[sudip: use device_lock()]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/dimm_devs.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/md/dm-era-target.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/nvdimm/dimm_devs.c
-+++ b/drivers/nvdimm/dimm_devs.c
-@@ -359,16 +359,16 @@ static ssize_t state_show(struct device
- }
- static DEVICE_ATTR_RO(state);
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1500,15 +1500,6 @@ static int era_ctr(struct dm_target *ti,
+ 	}
+ 	era->md = md;
  
--static ssize_t available_slots_show(struct device *dev,
--		struct device_attribute *attr, char *buf)
-+static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
- {
--	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
-+	struct device *dev;
- 	ssize_t rc;
- 	u32 nfree;
+-	era->nr_blocks = calc_nr_blocks(era);
+-
+-	r = metadata_resize(era->md, &era->nr_blocks);
+-	if (r) {
+-		ti->error = "couldn't resize metadata";
+-		era_destroy(era);
+-		return -ENOMEM;
+-	}
+-
+ 	era->wq = alloc_ordered_workqueue("dm-" DM_MSG_PREFIX, WQ_MEM_RECLAIM);
+ 	if (!era->wq) {
+ 		ti->error = "could not create workqueue for metadata object";
+@@ -1586,9 +1577,17 @@ static int era_preresume(struct dm_targe
+ 	dm_block_t new_size = calc_nr_blocks(era);
  
- 	if (!ndd)
- 		return -ENXIO;
- 
-+	dev = ndd->dev;
- 	nvdimm_bus_lock(dev);
- 	nfree = nd_label_nfree(ndd);
- 	if (nfree - 1 > nfree) {
-@@ -380,6 +380,18 @@ static ssize_t available_slots_show(stru
- 	nvdimm_bus_unlock(dev);
- 	return rc;
- }
+ 	if (era->nr_blocks != new_size) {
+-		r = in_worker1(era, metadata_resize, &new_size);
+-		if (r)
++		r = metadata_resize(era->md, &new_size);
++		if (r) {
++			DMERR("%s: metadata_resize failed", __func__);
++			return r;
++		}
 +
-+static ssize_t available_slots_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	ssize_t rc;
-+
-+	device_lock(dev);
-+	rc = __available_slots_show(dev_get_drvdata(dev), buf);
-+	device_unlock(dev);
-+
-+	return rc;
-+}
- static DEVICE_ATTR_RO(available_slots);
++		r = metadata_commit(era->md);
++		if (r) {
++			DMERR("%s: metadata_commit failed", __func__);
+ 			return r;
++		}
  
- static struct attribute *nvdimm_attributes[] = {
+ 		era->nr_blocks = new_size;
+ 	}
 
 
